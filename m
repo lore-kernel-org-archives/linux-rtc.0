@@ -1,24 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMHI7XAQKGQE5BTSALA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h23si998650wmi.1.2016.11.30.16.51.59
-        for <rtc-linux@googlegroups.com>;
-        Wed, 30 Nov 2016 16:51:59 -0800 (PST)
-Date: Thu, 1 Dec 2016 01:51:59 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, khilman@baylibre.com,
-	carlo@caione.org, a.zummo@towertech.it,
-	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] Re: [RFC PATCH 2/3] rtc: Add Amlogic Virtual Wake RTC
-Message-ID: <20161201005159.l54yo4kspgrb75ev@piout.net>
-References: <1478183365-23708-1-git-send-email-narmstrong@baylibre.com>
- <1478183365-23708-3-git-send-email-narmstrong@baylibre.com>
- <20161103153647.GD25852@remoulade>
+Return-Path: <rtc-linux+bncBAABBSMW5TBAKGQE4BFAK6I@googlegroups.com>
+Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
+        by gmr-mx.google.com with ESMTPS id 75si7054wme.3.2016.12.21.15.07.53
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 21 Dec 2016 15:07:53 -0800 (PST)
+Date: Thu, 22 Dec 2016 00:06:38 +0100
+From: Martin Kaiser <martin@kaiser.cx>
+To: Lucas Stach <l.stach@pengutronix.de>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Juergen Borleis <jbe@pengutronix.de>,
+	Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2] rtc: imxdi: use the security violation interrupt
+Message-ID: <20161221230638.GA12514@reykholt.kaiser.cx>
+References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+ <1482187289-19272-1-git-send-email-martin@kaiser.cx>
+ <1482225821.2293.43.camel@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161103153647.GD25852@remoulade>
+In-Reply-To: <1482225821.2293.43.camel@pengutronix.de>
+Sender: "Martin Kaiser,,," <martin@reykholt.kaiser.cx>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,41 +31,44 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/11/2016 at 15:36:48 +0000, Mark Rutland wrote :
-> > In order to be able to reuse the RTC wakealarm feature, this
-> > driver implements a fake RTC device which uses the system time
-> > to deduce a suspend delay.
-> 
-> This sounds like an always-on oneshot timer device, not an RTC.
-> 
-> > +static int meson_vrtc_read_time(struct device *dev, struct rtc_time *tm)
-> > +{
-> > +	unsigned long local_time;
-> > +	struct timeval time;
+Hello Lucas,
+
+thanks for taking the time to review my patch.
+
+Thus wrote Lucas Stach (l.stach@pengutronix.de):
+
+> > diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+> > index 67b56b8..ec6077a0 100644
+> > --- a/drivers/rtc/rtc-imxdi.c
+> > +++ b/drivers/rtc/rtc-imxdi.c
+> > @@ -109,6 +109,7 @@
+> >   * @rtc: pointer to rtc struct
+> >   * @ioaddr: IO registers pointer
+> >   * @irq: dryice normal interrupt
+> > + * @sec_irq: dryice security violation interrupt
+
+> This isn't used outside the probe routine, so doesn't need to be saved
+> in the driver data.
+
+The same goes for imxdi->irq, I made this a local variable as well.
+
+> > +	rc = devm_request_irq(&pdev->dev, imxdi->sec_irq, dryice_sec_irq,
+> > +			IRQF_SHARED, pdev->name, imxdi);
+> > +	if (rc) {
+> > +		dev_warn(&pdev->dev, "security violation interrupt not available.\n");
+> > +		/* this is not an error, see above */
+> > +	}
 > > +
-> > +	do_gettimeofday(&time);
-> > +	local_time = time.tv_sec - (sys_tz.tz_minuteswest * 60);
-> > +	rtc_time_to_tm(local_time, tm);
-> > +
-> > +	return 0;
-> > +}
-> 
-> ... if this were a timer, you wouldn't need this hack.
-> 
+> Please just fold this into the "if (rc > 0)" path above.
 
-The main issue I think is that the clockevents are not able to wakeup a
-platform so it doesn't really fit as a timer inside the kernel.
+Are you sure that this would be correct?
 
-I think it may be fine to handle that in the RTC subsystem for now.
+My understanding is that we should mask the interrupts by writing 0 into
+DIER and set the DryIce to a sane state in di_handle_state() before we
+install interrupt handlers.
 
-The same issue can be seen with the flextimer on LS1021A:
-
-http://lists.infradead.org/pipermail/linux-arm-kernel/2015-August/365597.html
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Best regards,
+Martin
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
