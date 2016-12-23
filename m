@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBCW4XG6ATMLBBSWIS7BAKGQEH5UXHIQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBBBMP6TBAKGQE25QNUAQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-lf0-x244.google.com (mail-lf0-x244.google.com. [2a00:1450:4010:c07::244])
-        by gmr-mx.google.com with ESMTPS id p138si80989wme.1.2016.12.05.14.03.54
+Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
+        by gmr-mx.google.com with ESMTPS id e134si2427752wmd.3.2016.12.23.03.16.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 05 Dec 2016 14:03:54 -0800 (PST)
-Received: by mail-lf0-x244.google.com with SMTP id p100so27080094lfg.2
-        for <rtc-linux@googlegroups.com>; Mon, 05 Dec 2016 14:03:54 -0800 (PST)
-Date: Mon, 5 Dec 2016 23:03:52 +0100
-From: Emil Bartczak <emilbart@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/4] rtc: mcp795: fix invalid month setting.
-Message-ID: <20161205220352.GB15449@emba-laptop>
-References: <cover.1480939487.git.emilbart@gmail.com>
- <9d5792a4e183cdea55accd6747b55f54d9e9d6aa.1480939487.git.emilbart@gmail.com>
- <20161205150959.gx5ccrfcvb5an7lx@piout.net>
+        Fri, 23 Dec 2016 03:16:21 -0800 (PST)
+From: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v3 1/2] drivers: rtc: rtc-tps65910: Add RTC
+ calibration support
+Date: Fri, 23 Dec 2016 13:15:58 +0200
+Message-Id: <1482491759-39335-2-git-send-email-vesa.jaaskelainen@vaisala.com>
+In-Reply-To: <1482491759-39335-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+References: <1482491759-39335-1-git-send-email-vesa.jaaskelainen@vaisala.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20161205150959.gx5ccrfcvb5an7lx@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,112 +28,228 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Texas Instrument's TPS65910 has support for compensating RTC crystal
+inaccuracies. When enabled every hour RTC counter value will be compensated
+with two's complement value.
 
-On Mon, Dec 05, 2016 at 04:09:59PM +0100, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 05/12/2016 at 14:11:50 +0100, Emil Bartczak wrote :
-> > The 10 month register was always set to value 0 in the RTC hardware.
-> > Due to the bug month November or December became February.
-> 
-> All your patches are missing your SoB, see Developer's Certificate of
-> Origin 1.1 in Documentation/SubmittingPatches
-Ok, I will fix it in the next patchset. Sorry for that simple mistakes but 
-I'm newbie in sending patches.
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Vesa J=C3=A4=C3=A4skel=C3=A4inen <vesa.jaaskelainen@vaisala.=
+com>
+---
+Changes in v3:
+  - Changed to return 0 from offset when auto compensation is not enabled
 
-> 
-> > ---
-> >  drivers/rtc/rtc-mcp795.c | 12 +++++++-----
-> >  1 file changed, 7 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-> > index 4021fd0..266328b 100644
-> > --- a/drivers/rtc/rtc-mcp795.c
-> > +++ b/drivers/rtc/rtc-mcp795.c
-> > @@ -29,7 +29,7 @@
-> >  #define MCP795_EEWREN	0x06
-> >  #define MCP795_SRREAD	0x05
-> >  #define MCP795_SRWRITE	0x01
-> > -#define MCP795_READ		0x13
-> > +#define MCP795_READ	0x13
-> 
-> Unrelated change
-Ok, I will remove it from patch.
+Changes in v2:
+  - Changed to use offset interface
 
-> 
-> >  #define MCP795_WRITE	0x12
-> >  #define MCP795_UNLOCK	0x14
-> >  #define MCP795_IDWRITE	0x32
-> > @@ -39,6 +39,7 @@
-> >  
-> >  #define MCP795_ST_BIT	0x80
-> >  #define MCP795_24_BIT	0x40
-> > +#define MCP795_LP_BIT	0x20
-> >  
-> >  static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
-> >  {
-> > @@ -108,7 +109,8 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
-> >  	data[1] = (data[1] & 0x80) | ((tim->tm_min / 10) << 4) | (tim->tm_min % 10);
-> >  	data[2] = ((tim->tm_hour / 10) << 4) | (tim->tm_hour % 10);
-> >  	data[4] = ((tim->tm_mday / 10) << 4) | ((tim->tm_mday) % 10);
-> > -	data[5] = (data[5] & 0x10) | (tim->tm_mon / 10) | (tim->tm_mon % 10);
-> > +	data[5] = (data[5] & MCP795_LP_BIT) |
-> 
-> You changed 0x10 in MCP795_LP_BIT which you defined as 0x20, is that
-> right?
-Yes, it should be 0x20 (checked in datasheet).
+ drivers/rtc/rtc-tps65910.c   | 143 +++++++++++++++++++++++++++++++++++++++=
+++++
+ include/linux/mfd/tps65910.h |   1 +
+ 2 files changed, 144 insertions(+)
 
-> 
-> This is also an unrelated change.
-> 
-> > +			((tim->tm_mon / 10) << 4) | (tim->tm_mon % 10);
-What do you mean exactly? 
-That above line of code was moved to the new line? Or that I added
-shift left operation (tim->tm_mon / 10) << 4)?
-Changing 0x10 to 0x20 and adding shift right operation fixes the problem.
+diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
+index 5a3d53c..9dd1db9 100644
+--- a/drivers/rtc/rtc-tps65910.c
++++ b/drivers/rtc/rtc-tps65910.c
+@@ -21,6 +21,7 @@
+ #include <linux/types.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
++#include <linux/math64.h>
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ #include <linux/mfd/tps65910.h>
+@@ -33,6 +34,19 @@ struct tps65910_rtc {
+ /* Total number of RTC registers needed to set time*/
+ #define NUM_TIME_REGS	(TPS65910_YEARS - TPS65910_SECONDS + 1)
+=20
++/* Total number of RTC registers needed to set compensation registers */
++#define NUM_COMP_REGS	(TPS65910_RTC_COMP_MSB - TPS65910_RTC_COMP_LSB + 1)
++
++/* Min and max values supported with 'offset' interface (swapped sign) */
++#define MIN_OFFSET	(-277761)
++#define MAX_OFFSET	(277778)
++
++/* Number of ticks per hour */
++#define TICKS_PER_HOUR	(32768 * 3600)
++
++/* Multiplier for ppb conversions */
++#define PPB_MULT	(1000000000LL)
++
+ static int tps65910_rtc_alarm_irq_enable(struct device *dev, unsigned enab=
+led)
+ {
+ 	struct tps65910 *tps =3D dev_get_drvdata(dev->parent);
+@@ -187,6 +201,133 @@ static int tps65910_rtc_set_alarm(struct device *dev,=
+ struct rtc_wkalrm *alm)
+ 	return ret;
+ }
+=20
++static int tps65910_rtc_set_calibration(struct device *dev, int calibratio=
+n)
++{
++	unsigned char comp_data[NUM_COMP_REGS];
++	struct tps65910 *tps =3D dev_get_drvdata(dev->parent);
++	s16 value;
++	int ret;
++
++	/*
++	 * TPS65910 uses two's complement 16 bit value for compensation for RTC
++	 * crystal inaccuracies. One time every hour when seconds counter
++	 * increments from 0 to 1 compensation value will be added to internal
++	 * RTC counter value.
++	 *
++	 * Compensation value 0x7FFF is prohibited value.
++	 *
++	 * Valid range for compensation value: [-32768 .. 32766]
++	 */
++	if ((calibration < -32768) || (calibration > 32766)) {
++		dev_err(dev, "RTC calibration value out of range: %d\n",
++			calibration);
++		return -EINVAL;
++	}
++
++	value =3D (s16)calibration;
++
++	comp_data[0] =3D (u16)value & 0xFF;
++	comp_data[1] =3D ((u16)value >> 8) & 0xFF;
++
++	/* Update all the compensation registers in one shot */
++	ret =3D regmap_bulk_write(tps->regmap, TPS65910_RTC_COMP_LSB,
++		comp_data, NUM_COMP_REGS);
++	if (ret < 0) {
++		dev_err(dev, "rtc_set_calibration error: %d\n", ret);
++		return ret;
++	}
++
++	/* Enable automatic compensation */
++	ret =3D regmap_update_bits(tps->regmap, TPS65910_RTC_CTRL,
++		TPS65910_RTC_CTRL_AUTO_COMP, TPS65910_RTC_CTRL_AUTO_COMP);
++	if (ret < 0)
++		dev_err(dev, "auto_comp enable failed with error: %d\n", ret);
++
++	return ret;
++}
++
++static int tps65910_rtc_get_calibration(struct device *dev, int *calibrati=
+on)
++{
++	unsigned char comp_data[NUM_COMP_REGS];
++	struct tps65910 *tps =3D dev_get_drvdata(dev->parent);
++	unsigned int ctrl;
++	u16 value;
++	int ret;
++
++	ret =3D regmap_read(tps->regmap, TPS65910_RTC_CTRL, &ctrl);
++	if (ret < 0)
++		return ret;
++
++	/* If automatic compensation is not enabled report back zero */
++	if (!(ctrl & TPS65910_RTC_CTRL_AUTO_COMP)) {
++		*calibration =3D 0;
++		return 0;
++	}
++
++	ret =3D regmap_bulk_read(tps->regmap, TPS65910_RTC_COMP_LSB, comp_data,
++		NUM_COMP_REGS);
++	if (ret < 0) {
++		dev_err(dev, "rtc_get_calibration error: %d\n", ret);
++		return ret;
++	}
++
++	value =3D (u16)comp_data[0] | ((u16)comp_data[1] << 8);
++
++	*calibration =3D (s16)value;
++
++	return 0;
++}
++
++static int tps65910_read_offset(struct device *dev, long *offset)
++{
++	int calibration;
++	s64 tmp;
++	int ret;
++
++	ret =3D tps65910_rtc_get_calibration(dev, &calibration);
++	if (ret < 0)
++		return ret;
++
++	/* Convert from RTC calibration register format to ppb format */
++	tmp =3D calibration * (s64)PPB_MULT;
++	if (tmp < 0)
++		tmp -=3D TICKS_PER_HOUR / 2LL;
++	else
++		tmp +=3D TICKS_PER_HOUR / 2LL;
++	tmp =3D div_s64(tmp, TICKS_PER_HOUR);
++
++	/* Offset value operates in negative way, so swap sign */
++	*offset =3D (long)-tmp;
++
++	return 0;
++}
++
++static int tps65910_set_offset(struct device *dev, long offset)
++{
++	int calibration;
++	s64 tmp;
++	int ret;
++
++	/* Make sure offset value is within supported range */
++	if (offset < MIN_OFFSET || offset > MAX_OFFSET)
++		return -ERANGE;
++
++	/* Convert from ppb format to RTC calibration register format */
++	tmp =3D offset * (s64)TICKS_PER_HOUR;
++	if (tmp < 0)
++		tmp -=3D PPB_MULT / 2LL;
++	else
++		tmp +=3D PPB_MULT / 2LL;
++	tmp =3D div_s64(tmp, PPB_MULT);
++
++	/* Offset value operates in negative way, so swap sign */
++	calibration =3D (int)-tmp;
++
++	ret =3D tps65910_rtc_set_calibration(dev, calibration);
++
++	return ret;
++}
++
+ static irqreturn_t tps65910_rtc_interrupt(int irq, void *rtc)
+ {
+ 	struct device *dev =3D rtc;
+@@ -219,6 +360,8 @@ static const struct rtc_class_ops tps65910_rtc_ops =3D =
+{
+ 	.read_alarm	=3D tps65910_rtc_read_alarm,
+ 	.set_alarm	=3D tps65910_rtc_set_alarm,
+ 	.alarm_irq_enable =3D tps65910_rtc_alarm_irq_enable,
++	.read_offset	=3D tps65910_read_offset,
++	.set_offset	=3D tps65910_set_offset,
+ };
+=20
+ static int tps65910_rtc_probe(struct platform_device *pdev)
+diff --git a/include/linux/mfd/tps65910.h b/include/linux/mfd/tps65910.h
+index 6483a6f..ffb21e7 100644
+--- a/include/linux/mfd/tps65910.h
++++ b/include/linux/mfd/tps65910.h
+@@ -134,6 +134,7 @@
+=20
+ /* RTC_CTRL_REG bitfields */
+ #define TPS65910_RTC_CTRL_STOP_RTC			0x01 /*0=3Dstop, 1=3Drun */
++#define TPS65910_RTC_CTRL_AUTO_COMP			0x04
+ #define TPS65910_RTC_CTRL_GET_TIME			0x40
+=20
+ /* RTC_STATUS_REG bitfields */
+--=20
+2.1.4
 
-> >  
-> >  	if (tim->tm_year > 100)
-> >  		tim->tm_year -= 100;
-> > @@ -137,11 +139,11 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > -	tim->tm_sec		= ((data[0] & 0x70) >> 4) * 10 + (data[0] & 0x0f);
-> > -	tim->tm_min		= ((data[1] & 0x70) >> 4) * 10 + (data[1] & 0x0f);
-> > +	tim->tm_sec	= ((data[0] & 0x70) >> 4) * 10 + (data[0] & 0x0f);
-> > +	tim->tm_min	= ((data[1] & 0x70) >> 4) * 10 + (data[1] & 0x0f);
-> >  	tim->tm_hour	= ((data[2] & 0x30) >> 4) * 10 + (data[2] & 0x0f);
-> >  	tim->tm_mday	= ((data[4] & 0x30) >> 4) * 10 + (data[4] & 0x0f);
-> > -	tim->tm_mon		= ((data[5] & 0x10) >> 4) * 10 + (data[5] & 0x0f);
-> > +	tim->tm_mon	= ((data[5] & 0x10) >> 4) * 10 + (data[5] & 0x0f);
-> 
-> All those whitespace changes are actually confusing. Please do them in a
-> separate patch or in your last patch.
-Ok, I will have a separate patch for them.
-> 
-> >  	tim->tm_year	= ((data[6] & 0xf0) >> 4) * 10 + (data[6] & 0x0f) + 100; /* Assume we are in 20xx */
-> >  
-> >  	dev_dbg(dev, "Read from mcp795: %04d-%02d-%02d %02d:%02d:%02d\n",
-> > -- 
-> > 2.7.4
-> > 
-> 
-> -- 
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
-
-Cheers,
-Emil
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
