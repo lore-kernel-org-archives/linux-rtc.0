@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBCW4XG6ATMLBB5VVULBAKGQEBL4MVZY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJ6H2FGZ4FBBBMP6TBAKGQE25QNUAQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
-        by gmr-mx.google.com with ESMTPS id o77si1201360wme.0.2016.12.07.15.27.50
+Received: from hel-mailgw-01.vaisala.com (hel-mailgw-01.vaisala.com. [193.143.230.17])
+        by gmr-mx.google.com with ESMTPS id e134si2427752wmd.3.2016.12.23.03.16.20
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Dec 2016 15:27:50 -0800 (PST)
-Received: by mail-wm0-x241.google.com with SMTP id m203so31018352wma.3
-        for <rtc-linux@googlegroups.com>; Wed, 07 Dec 2016 15:27:50 -0800 (PST)
-From: Emil Bartczak <emilbart@gmail.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Emil Bartczak <emilbart@gmail.com>
-Subject: [rtc-linux] [PATCH v2 2/6] rtc: mcp795: fix bitmask value for leap
- year (LP).
-Date: Thu,  8 Dec 2016 00:27:38 +0100
-Message-Id: <f21295c3c85abdeff2ffa62146ccc0ad4faee72b.1481151278.git.emilbart@gmail.com>
-In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
-References: <cover.1481151278.git.emilbart@gmail.com>
-In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
-References: <cover.1481151278.git.emilbart@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 23 Dec 2016 03:16:20 -0800 (PST)
+From: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: =?UTF-8?q?Vesa=20J=C3=A4=C3=A4skel=C3=A4inen?= <vesa.jaaskelainen@vaisala.com>,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v3 0/2] drivers: rtc: rtc-tps65910: Add RTC
+ calibration support
+Date: Fri, 23 Dec 2016 13:15:57 +0200
+Message-Id: <1482491759-39335-1-git-send-email-vesa.jaaskelainen@vaisala.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,43 +26,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-According the datasheet the leap year is a fifth bit in month register.
+Texas Instrument's TPS65910 has support for compensating RTC crystal
+inaccuracies. When enabled every hour RTC counter value will be compensated
+with two's complement value.
 
-Signed-off-by: Emil Bartczak <emilbart@gmail.com>
----
- drivers/rtc/rtc-mcp795.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Changes in v3:
+  - changed to return 0 when compensation not enabled
 
-diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-index 0389ee0..5fbdb4c 100644
---- a/drivers/rtc/rtc-mcp795.c
-+++ b/drivers/rtc/rtc-mcp795.c
-@@ -40,6 +40,7 @@
- 
- #define MCP795_ST_BIT	0x80
- #define MCP795_24_BIT	0x40
-+#define MCP795_LP_BIT	BIT(5)
- 
- static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
- {
-@@ -109,7 +110,7 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
- 	data[1] = (data[1] & 0x80) | bin2bcd(tim->tm_min);
- 	data[2] = bin2bcd(tim->tm_hour);
- 	data[4] = bin2bcd(tim->tm_mday);
--	data[5] = (data[5] & 0x10) | bin2bcd(tim->tm_mon);
-+	data[5] = (data[5] & MCP795_LP_BIT) | bin2bcd(tim->tm_mon);
- 
- 	if (tim->tm_year > 100)
- 		tim->tm_year -= 100;
--- 
-2.7.4
+Changes in v2:
+  - changed to use offset interface
 
--- 
+Vesa J=C3=A4=C3=A4skel=C3=A4inen (2):
+  drivers: rtc: rtc-tps65910: Add RTC calibration support
+  drivers: rtc: rtc-tps65910: use 'unsigned int' instead of 'unsigned'
+    in arguments
+
+ drivers/rtc/rtc-tps65910.c   | 146 +++++++++++++++++++++++++++++++++++++++=
++++-
+ include/linux/mfd/tps65910.h |   1 +
+ 2 files changed, 146 insertions(+), 1 deletion(-)
+
+--=20
+2.1.4
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
