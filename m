@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBCW4XG6ATMLBB6VVULBAKGQEUDYC7VA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCW4XG6ATMLBBYXYQDBQKGQE737D4ZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x242.google.com (mail-wm0-x242.google.com. [2a00:1450:400c:c09::242])
-        by gmr-mx.google.com with ESMTPS id f71si1044505wmf.2.2016.12.07.15.27.54
+Received: from mail-lf0-x243.google.com (mail-lf0-x243.google.com. [2a00:1450:4010:c07::243])
+        by gmr-mx.google.com with ESMTPS id l66si3086755wml.0.2016.12.25.13.38.42
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Dec 2016 15:27:54 -0800 (PST)
-Received: by mail-wm0-x242.google.com with SMTP id u144so30972916wmu.0
-        for <rtc-linux@googlegroups.com>; Wed, 07 Dec 2016 15:27:54 -0800 (PST)
+        Sun, 25 Dec 2016 13:38:42 -0800 (PST)
+Received: by mail-lf0-x243.google.com with SMTP id d16so11763631lfb.1
+        for <rtc-linux@googlegroups.com>; Sun, 25 Dec 2016 13:38:42 -0800 (PST)
 From: Emil Bartczak <emilbart@gmail.com>
 To: a.zummo@towertech.it
 Cc: alexandre.belloni@free-electrons.com,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
 	Emil Bartczak <emilbart@gmail.com>
-Subject: [rtc-linux] [PATCH v2 4/6] rtc: mcp795: fix month write resetting
- date to 1.
-Date: Thu,  8 Dec 2016 00:27:40 +0100
-Message-Id: <c9457d2a0b5270ef109a37d7e6dc2ef035b22c79.1481151278.git.emilbart@gmail.com>
-In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
-References: <cover.1481151278.git.emilbart@gmail.com>
-In-Reply-To: <cover.1481151278.git.emilbart@gmail.com>
-References: <cover.1481151278.git.emilbart@gmail.com>
+Subject: [rtc-linux] [PATCH 2/2] rtc: mcp795: add alarm support.
+Date: Sun, 25 Dec 2016 22:38:29 +0100
+Message-Id: <1482701909-8714-2-git-send-email-emilbart@gmail.com>
+In-Reply-To: <1482701909-8714-1-git-send-email-emilbart@gmail.com>
+References: <1482701909-8714-1-git-send-email-emilbart@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,162 +29,226 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-According to Microchip errata some combinations of date and month
-values may result in the date being reset to 1, even if the date
-is also written with the month (for example 31-07 or 31-08).
-As a workaround avoid writing date and month values within the same
-Write command. Instead, terminate the Write command after loading
-the date and begin a new command to write the month. In addition,
-disable the oscillator before loading the new values. This is done
-by ensuring both the ST and EXTOSC bits are cleared and waiting for
-the OSCON bit to clear.
+This patch adds alarm support. This allows to configure the chip
+to generate an interrupt when the alarm matches current time value.
+Alarm can be programmed up to one year in the future
+and is accurate to the second.
 
 Signed-off-by: Emil Bartczak <emilbart@gmail.com>
 ---
- drivers/rtc/rtc-mcp795.c | 86 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 81 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-mcp795.c | 171 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 170 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-index 4618f4f..89b0ffa 100644
+index 8107fc0..77f2133 100644
 --- a/drivers/rtc/rtc-mcp795.c
 +++ b/drivers/rtc/rtc-mcp795.c
-@@ -22,6 +22,7 @@
- #include <linux/rtc.h>
- #include <linux/of.h>
- #include <linux/bcd.h>
-+#include <linux/delay.h>
+@@ -44,12 +44,22 @@
+ #define MCP795_REG_DAY		0x04
+ #define MCP795_REG_MONTH	0x06
+ #define MCP795_REG_CONTROL	0x08
++#define MCP795_REG_ALM0_SECONDS	0x0C
++#define MCP795_REG_ALM0_DAY	0x0F
  
- /* MCP795 Instructions, see datasheet table 3-1 */
- #define MCP795_EEREAD	0x03
-@@ -38,9 +39,17 @@
- #define MCP795_CLRWDT	0x44
- #define MCP795_CLRRAM	0x54
- 
-+/* MCP795 RTCC registers, see datasheet table 4-1 */
-+#define MCP795_REG_SECONDS	0x01
-+#define MCP795_REG_DAY		0x04
-+#define MCP795_REG_MONTH	0x06
-+#define MCP795_REG_CONTROL	0x08
+ #define MCP795_ST_BIT		BIT(7)
+ #define MCP795_24_BIT		BIT(6)
+ #define MCP795_LP_BIT		BIT(5)
+ #define MCP795_EXTOSC_BIT	BIT(3)
+ #define MCP795_OSCON_BIT	BIT(5)
++#define MCP795_ALM0_BIT		BIT(4)
++#define MCP795_ALM1_BIT		BIT(5)
++#define MCP795_ALM0IF_BIT	BIT(3)
++#define MCP795_ALM0C0_BIT	BIT(4)
++#define MCP795_ALM0C1_BIT	BIT(5)
++#define MCP795_ALM0C2_BIT	BIT(6)
 +
- #define MCP795_ST_BIT	0x80
- #define MCP795_24_BIT	0x40
- #define MCP795_LP_BIT	BIT(5)
-+#define MCP795_EXTOSC_BIT	BIT(3)
-+#define MCP795_OSCON_BIT	BIT(5)
++#define SEC_PER_DAY		(24 * 60 * 60)
  
  static int mcp795_rtcc_read(struct device *dev, u8 addr, u8 *buf, u8 count)
  {
-@@ -95,13 +104,65 @@ static int mcp795_rtcc_set_bits(struct device *dev, u8 addr, u8 mask, u8 state)
- 	return ret;
+@@ -150,6 +160,30 @@ static int mcp795_start_oscillator(struct device *dev, bool *extosc)
+ 			dev, MCP795_REG_SECONDS, MCP795_ST_BIT, MCP795_ST_BIT);
  }
  
-+static int mcp795_stop_oscillator(struct device *dev, bool *extosc)
++/* Enable or disable Alarm 0 in RTC */
++static int mcp795_update_alarm(struct device *dev, bool enable)
 +{
-+	int retries = 5;
 +	int ret;
-+	u8 data;
 +
-+	ret = mcp795_rtcc_set_bits(dev, MCP795_REG_SECONDS, MCP795_ST_BIT, 0);
-+	if (ret)
-+		return ret;
-+	ret = mcp795_rtcc_read(dev, MCP795_REG_CONTROL, &data, 1);
-+	if (ret)
-+		return ret;
-+	*extosc = !!(data & MCP795_EXTOSC_BIT);
-+	ret = mcp795_rtcc_set_bits(
-+				dev, MCP795_REG_CONTROL, MCP795_EXTOSC_BIT, 0);
-+	if (ret)
-+		return ret;
-+	/* wait for the OSCON bit to clear */
-+	do {
-+		usleep_range(700, 800);
-+		ret = mcp795_rtcc_read(dev, MCP795_REG_DAY, &data, 1);
-+		if (ret)
-+			break;
-+		if (!(data & MCP795_OSCON_BIT))
-+			break;
++	dev_dbg(dev, "%s alarm\n", enable ? "Enable" : "Disable");
 +
-+	} while (--retries);
-+
-+	return !retries ? -EIO : ret;
-+}
-+
-+static int mcp795_start_oscillator(struct device *dev, bool *extosc)
-+{
-+	if (extosc) {
-+		u8 data = *extosc ? MCP795_EXTOSC_BIT : 0;
-+		int ret;
-+
-+		ret = mcp795_rtcc_set_bits(
-+			dev, MCP795_REG_CONTROL, MCP795_EXTOSC_BIT, data);
++	if (enable) {
++		/* clear ALM0IF (Alarm 0 Interrupt Flag) bit */
++		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_ALM0_DAY,
++					MCP795_ALM0IF_BIT, 0);
 +		if (ret)
 +			return ret;
++		/* enable alarm 0 */
++		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_CONTROL,
++					MCP795_ALM0_BIT, MCP795_ALM0_BIT);
++	} else {
++		/* disable alarm 0 and alarm 1 */
++		ret = mcp795_rtcc_set_bits(dev, MCP795_REG_CONTROL,
++					MCP795_ALM0_BIT | MCP795_ALM1_BIT, 0);
 +	}
-+	return mcp795_rtcc_set_bits(
-+			dev, MCP795_REG_SECONDS, MCP795_ST_BIT, MCP795_ST_BIT);
++	return ret;
 +}
 +
  static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
  {
  	int ret;
- 	u8 data[7];
-+	bool extosc;
+@@ -231,9 +265,127 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
+ 	return rtc_valid_tm(tim);
+ }
+ 
++static int mcp795_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	struct rtc_time now_tm;
++	time64_t now;
++	time64_t later;
++	u8 tmp[6];
++	int ret;
 +
-+	/* Stop RTC and store current value of EXTOSC bit */
-+	ret = mcp795_stop_oscillator(dev, &extosc);
++	/* Read current time from RTC hardware */
++	ret = mcp795_read_time(dev, &now_tm);
 +	if (ret)
 +		return ret;
- 
- 	/* Read first, so we can leave config bits untouched */
--	ret = mcp795_rtcc_read(dev, 0x01, data, sizeof(data));
-+	ret = mcp795_rtcc_read(dev, MCP795_REG_SECONDS, data, sizeof(data));
- 
- 	if (ret)
- 		return ret;
-@@ -117,8 +178,23 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
- 
- 	data[6] = bin2bcd(tim->tm_year);
- 
--	ret = mcp795_rtcc_write(dev, 0x01, data, sizeof(data));
-+	/* Always write the date and month using a separate Write command.
-+	 * This is a workaround for a know silicon issue that some combinations
-+	 * of date and month values may result in the date being reset to 1.
-+	 */
-+	ret = mcp795_rtcc_write(dev, MCP795_REG_SECONDS, data, 5);
++	/* Get the number of seconds since 1970 */
++	now = rtc_tm_to_time64(&now_tm);
++	later = rtc_tm_to_time64(&alm->time);
++	if (later <= now)
++		return -EINVAL;
++	/* make sure alarm fires within the next one year */
++	if ((later - now) >=
++		(SEC_PER_DAY * (365 + is_leap_year(alm->time.tm_year))))
++		return -EDOM;
++	/* disable alarm */
++	ret = mcp795_update_alarm(dev, false);
++	if (ret)
++		return ret;
++	/* Read registers, so we can leave configuration bits untouched */
++	ret = mcp795_rtcc_read(dev, MCP795_REG_ALM0_SECONDS, tmp, sizeof(tmp));
 +	if (ret)
 +		return ret;
 +
-+	ret = mcp795_rtcc_write(dev, MCP795_REG_MONTH, &data[5], 2);
++	alm->time.tm_year	= -1;
++	alm->time.tm_isdst	= -1;
++	alm->time.tm_yday	= -1;
++
++	tmp[0] = (tmp[0] & 0x80) | bin2bcd(alm->time.tm_sec);
++	tmp[1] = (tmp[1] & 0x80) | bin2bcd(alm->time.tm_min);
++	tmp[2] = (tmp[2] & 0xE0) | bin2bcd(alm->time.tm_hour);
++	tmp[3] = (tmp[3] & 0x80) | bin2bcd(alm->time.tm_wday + 1);
++	/* set alarm match: seconds, minutes, hour, day, date and month */
++	tmp[3] |= (MCP795_ALM0C2_BIT | MCP795_ALM0C1_BIT | MCP795_ALM0C0_BIT);
++	tmp[4] = (tmp[4] & 0xC0) | bin2bcd(alm->time.tm_mday);
++	tmp[5] = (tmp[5] & 0xE0) | bin2bcd(alm->time.tm_mon + 1);
++
++	ret = mcp795_rtcc_write(dev, MCP795_REG_ALM0_SECONDS, tmp, sizeof(tmp));
 +	if (ret)
 +		return ret;
- 
-+	/* Start back RTC and restore previous value of EXTOSC bit.
-+	 * There is no need to clear EXTOSC bit when the previous value was 0
-+	 * because it was already cleared when stopping the RTC oscillator.
++
++	/* enable alarm if requested */
++	if (alm->enabled) {
++		ret = mcp795_update_alarm(dev, true);
++		if (ret)
++			return ret;
++		dev_dbg(dev, "Alarm IRQ armed\n");
++	}
++	dev_dbg(dev, "Set alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
++			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
++			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
++	return 0;
++}
++
++static int mcp795_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	u8 data[6];
++	int ret;
++
++	ret = mcp795_rtcc_read(
++			dev, MCP795_REG_ALM0_SECONDS, data, sizeof(data));
++	if (ret)
++		return ret;
++
++	alm->time.tm_sec	= bcd2bin(data[0] & 0x7F);
++	alm->time.tm_min	= bcd2bin(data[1] & 0x7F);
++	alm->time.tm_hour	= bcd2bin(data[2] & 0x1F);
++	alm->time.tm_wday	= bcd2bin(data[3] & 0x07) - 1;
++	alm->time.tm_mday	= bcd2bin(data[4] & 0x3F);
++	alm->time.tm_mon	= bcd2bin(data[5] & 0x1F) - 1;
++	alm->time.tm_year	= -1;
++	alm->time.tm_isdst	= -1;
++	alm->time.tm_yday	= -1;
++
++	dev_dbg(dev, "Read alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
++			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
++			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
++	return 0;
++}
++
++static int mcp795_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	return mcp795_update_alarm(dev, !!enabled);
++}
++
++static irqreturn_t mcp795_irq(int irq, void *data)
++{
++	struct spi_device *spi = data;
++	struct rtc_device *rtc = spi_get_drvdata(spi);
++	struct mutex *lock = &rtc->ops_lock;
++	int ret;
++
++	mutex_lock(lock);
++
++	/* Disable alarm.
++	 * There is no need to clear ALM0IF (Alarm 0 Interrupt Flag) bit,
++	 * because it is done every time when alarm is enabled.
 +	 */
-+	ret = mcp795_start_oscillator(dev, extosc ? &extosc : NULL);
- 	if (ret)
- 		return ret;
++	ret = mcp795_update_alarm(&spi->dev, false);
++	if (ret)
++		dev_err(&spi->dev,
++			"Failed to disable alarm in IRQ (ret=%d)\n", ret);
++	rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
++
++	mutex_unlock(lock);
++
++	return IRQ_HANDLED;
++}
++
+ static const struct rtc_class_ops mcp795_rtc_ops = {
+ 		.read_time = mcp795_read_time,
+-		.set_time = mcp795_set_time
++		.set_time = mcp795_set_time,
++		.read_alarm = mcp795_read_alarm,
++		.set_alarm = mcp795_set_alarm,
++		.alarm_irq_enable = mcp795_alarm_irq_enable
+ };
  
-@@ -134,7 +210,7 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
- 	int ret;
- 	u8 data[7];
+ static int mcp795_probe(struct spi_device *spi)
+@@ -261,6 +413,23 @@ static int mcp795_probe(struct spi_device *spi)
  
--	ret = mcp795_rtcc_read(dev, 0x01, data, sizeof(data));
-+	ret = mcp795_rtcc_read(dev, MCP795_REG_SECONDS, data, sizeof(data));
+ 	spi_set_drvdata(spi, rtc);
  
- 	if (ret)
- 		return ret;
-@@ -171,8 +247,8 @@ static int mcp795_probe(struct spi_device *spi)
- 		return ret;
- 	}
- 
--	/* Start the oscillator */
--	mcp795_rtcc_set_bits(&spi->dev, 0x01, MCP795_ST_BIT, MCP795_ST_BIT);
-+	/* Start the oscillator but don't set the value of EXTOSC bit */
-+	mcp795_start_oscillator(&spi->dev, NULL);
- 	/* Clear the 12 hour mode flag*/
- 	mcp795_rtcc_set_bits(&spi->dev, 0x03, MCP795_24_BIT, 0);
++	if (spi->irq > 0) {
++		dev_dbg(&spi->dev, "Alarm support enabled\n");
++
++		/* Clear any pending alarm (ALM0IF bit) before requesting
++		 * the interrupt.
++		 */
++		mcp795_rtcc_set_bits(&spi->dev, MCP795_REG_ALM0_DAY,
++					MCP795_ALM0IF_BIT, 0);
++		ret = devm_request_threaded_irq(&spi->dev, spi->irq, NULL,
++				mcp795_irq, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++				dev_name(&rtc->dev), spi);
++		if (ret)
++			dev_err(&spi->dev, "Failed to request IRQ: %d: %d\n",
++						spi->irq, ret);
++		else
++			device_init_wakeup(&spi->dev, true);
++	}
+ 	return 0;
+ }
  
 -- 
 2.7.4
