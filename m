@@ -1,34 +1,31 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBVVNUHBAKGQEBUS7VUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDBMPSMMRELRBAX7QPBQKGQEPEGNGSQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f71si947224wmf.2.2016.12.07.10.37.10
-        for <rtc-linux@googlegroups.com>;
-        Wed, 07 Dec 2016 10:37:10 -0800 (PST)
-Date: Wed, 7 Dec 2016 19:37:09 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Amelie DELAUNAY <amelie.delaunay@st.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>,
-	"a.zummo@towertech.it" <a.zummo@towertech.it>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
-	Alexandre TORGUE <alexandre.torgue@st.com>,
-	"linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [rtc-linux] Re: [PATCH 3/8] rtc: add STM32 RTC driver
-Message-ID: <20161207183709.tbkapu34ljlg4skp@piout.net>
-References: <1480687801-19525-2-git-send-email-amelie.delaunay@st.com>
- <1480687801-19525-5-git-send-email-amelie.delaunay@st.com>
- <20161202175646.GA3284@linaro.org>
- <15bea9e9-adcc-edb0-1bd1-33d395c72eec@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <15bea9e9-adcc-edb0-1bd1-33d395c72eec@st.com>
+Received: from mail-pg0-x241.google.com (mail-pg0-x241.google.com. [2607:f8b0:400e:c05::241])
+        by gmr-mx.google.com with ESMTPS id t67si11519045pfd.3.2016.12.26.03.31.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Dec 2016 03:31:14 -0800 (PST)
+Received: by mail-pg0-x241.google.com with SMTP id g1so9056966pgn.0
+        for <rtc-linux@googlegroups.com>; Mon, 26 Dec 2016 03:31:14 -0800 (PST)
+From: Bhumika Goyal <bhumirks@gmail.com>
+To: julia.lawall@lip6.fr,
+	jason@lakedaemon.net,
+	andrew@lunn.ch,
+	gregory.clement@free-electrons.com,
+	sebastian.hesselbarth@gmail.com,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Cc: keescook@chromium.org,
+	Bhumika Goyal <bhumirks@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
+Date: Mon, 26 Dec 2016 17:01:02 +0530
+Message-Id: <1482751862-18699-1-git-send-email-bhumirks@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,23 +34,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/12/2016 at 10:43:14 +0100, Amelie DELAUNAY wrote :
-> >> +
-> >> +    device_init_wakeup(&pdev->dev, true);
-> >
-> > What happens if device_init_wakeup() returns an error?
-> It means that RTC won't be able to wake up the board with RTC alarm. I can
-> add a warning for the user in this case ?
-> >
+The object armada38x_rtc_ops of type rtc_class_ops structure is not
+modified after getting initialized by armada38x_rtc_probe. Apart from
+getting referenced in init it is also passed as an argument to the function
+devm_rtc_device_register but this argument is of type const struct
+rtc_class_ops *. Therefore add __ro_after_init to its declaration.
 
-There is exactly one driver ever checking the return value of
-device_init_wakeup(). It basically always succeeds.
+Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+---
+ drivers/rtc/rtc-armada38x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 9a3f2a6..7883c7f 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -202,7 +202,7 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct rtc_class_ops armada38x_rtc_ops = {
++static struct rtc_class_ops armada38x_rtc_ops __ro_after_init = {
+ 	.read_time = armada38x_rtc_read_time,
+ 	.set_time = armada38x_rtc_set_time,
+ 	.read_alarm = armada38x_rtc_read_alarm,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
