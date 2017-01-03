@@ -1,24 +1,29 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBWWF3HBQKGQETL4L6TQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB27FV7BQKGQEPAQ2RQA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id i196si1147516wmd.3.2017.01.11.08.52.41
+Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
+        by gmr-mx.google.com with ESMTPS id f71si4544565wmf.2.2017.01.03.10.52.27
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 11 Jan 2017 08:52:41 -0800 (PST)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Cc: Olof Johansson <olof@lixom.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Date: Wed, 11 Jan 2017 17:52:21 +0100
-Message-Id: <20170111165221.17337-4-enric.balletbo@collabora.com>
-In-Reply-To: <20170111165221.17337-1-enric.balletbo@collabora.com>
-References: <20170111165221.17337-1-enric.balletbo@collabora.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 03 Jan 2017 10:52:27 -0800 (PST)
+From: Martin Kaiser <martin@kaiser.cx>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Lucas Stach <l.stach@pengutronix.de>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Juergen Borleis <jbe@pengutronix.de>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Martin Kaiser <martin@kaiser.cx>
+Subject: [rtc-linux] [PATCH 2/3] ARM: dts: imx25.dtsi: DryIce security
+ violation interrupt
+Date: Tue,  3 Jan 2017 19:50:57 +0100
+Message-Id: <1483469457-7863-1-git-send-email-martin@kaiser.cx>
+In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,58 +34,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+The DryIce block on i.MX25 chipset uses two interrupts: A normal and a
+security violation interrupt. Add the security violation interrupt to
+the list, it is optional.
 
-If the EC supports RTC host commands, expose an RTC device.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
 ---
- drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ arch/arm/boot/dts/imx25.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
-index 47268ec..ebe029d 100644
---- a/drivers/platform/chrome/cros_ec_dev.c
-+++ b/drivers/platform/chrome/cros_ec_dev.c
-@@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
- 	kfree(msg);
- }
+diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
+index 831d09a..331d1e1 100644
+--- a/arch/arm/boot/dts/imx25.dtsi
++++ b/arch/arm/boot/dts/imx25.dtsi
+@@ -560,7 +560,7 @@
+ 				reg = <0x53ffc000 0x4000>;
+ 				clocks = <&clks 81>;
+ 				clock-names = "ipg";
+-				interrupts = <25>;
++				interrupts = <25 56>;
+ 			};
+ 		};
  
-+static const struct mfd_cell cros_ec_rtc_devs[] = {
-+	{
-+		.name = "cros-ec-rtc",
-+		.id   = -1,
-+	},
-+};
-+
-+static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-+{
-+	int ret;
-+
-+	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-+			      ARRAY_SIZE(cros_ec_rtc_devs),
-+			      NULL, 0, NULL);
-+	if (ret)
-+		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-+}
-+
- static int ec_device_probe(struct platform_device *pdev)
- {
- 	int retval = -ENOMEM;
-@@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
- 	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
- 		cros_ec_sensors_register(ec);
- 
-+	/* check whether this EC instance has RTC host command support */
-+	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-+		cros_ec_rtc_register(ec);
-+
- 	return 0;
- 
- dev_reg_failed:
 -- 
-2.9.3
+1.7.10.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
