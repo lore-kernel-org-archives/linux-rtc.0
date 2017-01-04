@@ -1,29 +1,29 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBB7N3S7CAKGQEXQ4HXNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDZJXP7F6YLRB2N7WPBQKGQEVF4PUFI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr. [192.134.164.104])
+        by gmr-mx.google.com with ESMTPS id 75si2687158wme.3.2017.01.04.03.43.37
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 04 Jan 2017 03:43:37 -0800 (PST)
+Date: Wed, 4 Jan 2017 12:43:32 +0100 (CET)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+cc: Julia Lawall <julia.lawall@lip6.fr>,
+    Russell King - ARM Linux <linux@armlinux.org.uk>,
+    Kees Cook <keescook@chromium.org>, andrew@lunn.ch,
+    Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
+    a.zummo@towertech.it, LKML <linux-kernel@vger.kernel.org>,
+    "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+    gregory.clement@free-electrons.com, Bhumika Goyal <bhumirks@gmail.com>,
+    sebastian.hesselbarth@gmail.com
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
+In-Reply-To: <20170104110750.dtu54t74qkuuvkvq@piout.net>
+Message-ID: <alpine.DEB.2.20.1701041242080.3073@hadrien>
+References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com> <20170102140654.GF14217@n2100.armlinux.org.uk> <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com> <20170103213118.GM14217@n2100.armlinux.org.uk> <20170103215421.GN14217@n2100.armlinux.org.uk>
+ <alpine.DEB.2.20.1701041155380.3073@hadrien> <20170104110750.dtu54t74qkuuvkvq@piout.net>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 66si822703wml.3.2017.01.23.02.42.05
-        for <rtc-linux@googlegroups.com>;
-        Mon, 23 Jan 2017 02:42:05 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	stable@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 2/7] rtc: sun6i: Add some locking
-Date: Mon, 23 Jan 2017 11:41:47 +0100
-Message-Id: <a8798639a0c79c7b2b8e4deb412573f5a68e6d0a.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,99 +32,16 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Some registers have a read-modify-write access pattern that are not atomic.
+> The question was whether the point to the rtc_class_ops could be made
+> __ro_after_init. And Russell is right, it is pointed to by the ops
+> pointer in a struct rtc_device and that struct is dynamically allocated
+> in rtc_device_register().
 
-Add some locking to prevent from concurrent accesses.
+OK, I think it's a terminology issue.  You mean the structure that
+contains the pointer, and not the pointer itself, which is already const.
 
-Cc: stable@vger.kernel.org
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- drivers/rtc/rtc-sun6i.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index a6136cb99851..5527f5eb597b 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -114,13 +114,17 @@ struct sun6i_rtc_dev {
- 	void __iomem *base;
- 	int irq;
- 	unsigned long alarm;
-+
-+	spinlock_t lock;
- };
- 
- static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
- {
- 	struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
-+	irqreturn_t ret = IRQ_NONE;
- 	u32 val;
- 
-+	spin_lock(&chip->lock);
- 	val = readl(chip->base + SUN6I_ALRM_IRQ_STA);
- 
- 	if (val & SUN6I_ALRM_IRQ_STA_CNT_IRQ_PEND) {
-@@ -129,10 +133,11 @@ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
- 
- 		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
- 
--		return IRQ_HANDLED;
-+		ret = IRQ_HANDLED;
- 	}
-+	spin_unlock(&chip->lock);
- 
--	return IRQ_NONE;
-+	return ret;
- }
- 
- static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
-@@ -140,6 +145,7 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
- 	u32 alrm_val = 0;
- 	u32 alrm_irq_val = 0;
- 	u32 alrm_wake_val = 0;
-+	unsigned long flags;
- 
- 	if (to) {
- 		alrm_val = SUN6I_ALRM_EN_CNT_EN;
-@@ -150,9 +156,11 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
- 		       chip->base + SUN6I_ALRM_IRQ_STA);
- 	}
- 
-+	spin_lock_irqsave(&chip->lock, flags);
- 	writel(alrm_val, chip->base + SUN6I_ALRM_EN);
- 	writel(alrm_irq_val, chip->base + SUN6I_ALRM_IRQ_EN);
- 	writel(alrm_wake_val, chip->base + SUN6I_ALARM_CONFIG);
-+	spin_unlock_irqrestore(&chip->lock, flags);
- }
- 
- static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
-@@ -191,11 +199,15 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- {
- 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
-+	unsigned long flags;
- 	u32 alrm_st;
- 	u32 alrm_en;
- 
-+	spin_lock_irqsave(&chip->lock, flags);
- 	alrm_en = readl(chip->base + SUN6I_ALRM_IRQ_EN);
- 	alrm_st = readl(chip->base + SUN6I_ALRM_IRQ_STA);
-+	spin_unlock_irqrestore(&chip->lock, flags);
-+
- 	wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
- 	wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
- 	rtc_time_to_tm(chip->alarm, &wkalrm->time);
-@@ -356,6 +368,7 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
- 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
-+	spin_lock_init(&rtc->lock);
- 
- 	platform_set_drvdata(pdev, chip);
- 	chip->dev = &pdev->dev;
--- 
-git-series 0.8.11
+thanks,
+julia
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
