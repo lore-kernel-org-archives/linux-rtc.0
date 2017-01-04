@@ -1,18 +1,20 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRBA7S6LBQKGQEULLXLZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLPTWXBQKGQEXQQDODQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
-        by gmr-mx.google.com with ESMTPS id h130si58334pfe.1.2017.01.16.04.13.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Jan 2017 04:13:55 -0800 (PST)
-Date: Mon, 16 Jan 2017 15:13:47 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: amelie.delaunay@st.com
-Cc: rtc-linux@googlegroups.com
-Subject: [rtc-linux] [bug report] rtc: add STM32 RTC driver
-Message-ID: <20170116121346.GA28569@mwanda>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id e134si5333313wmd.3.2017.01.04.14.39.41
+        for <rtc-linux@googlegroups.com>;
+        Wed, 04 Jan 2017 14:39:41 -0800 (PST)
+Date: Wed, 4 Jan 2017 23:39:40 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: rx8010: change lock mechanism
+Message-ID: <20170104223940.gscg6g2kclrobmwk@piout.net>
+References: <20161219001734.ghsir573a45ksuxv@piout.net>
+ <1482223364-25427-1-git-send-email-fabien.lahoudere@collabora.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1482223364-25427-1-git-send-email-fabien.lahoudere@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,42 +24,65 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Amelie Delaunay,
+On 20/12/2016 at 09:42:44 +0100, Fabien Lahoudere wrote :
+> Remove spinlock and use the "rtc->ops_lock" from RTC subsystem instead.
+> spin_lock_irqsave() is not needed here because we do not have hard IRQs.
+> 
+> This patch fixes the following issue:
+> 
+> root@GE004097290448 b850v3:~# hwclock --systohc
+> root@GE004097290448 b850v3:~# hwclock --systohc
+> root@GE004097290448 b850v3:~# hwclock --systohc
+> root@GE004097290448 b850v3:~# hwclock --systohc
+> root@GE004097290448 b850v3:~# hwclock --systohc
+> [   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
+> [   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
+> [   82.121329] CPU: 0 PID: 855 Comm: hwclock Not tainted 4.8.0-00042-g09d5410-dirty #20
+> [   82.129078] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+> [   82.135609] Backtrace:
+> [   82.138090] [<8010d378>] (dump_backtrace) from [<8010d5c0>] (show_stack+0x20/0x24)
+> [   82.145664]  r7:ec936000 r6:600a0013 r5:00000000 r4:81031680
+> [   82.151402] [<8010d5a0>] (show_stack) from [<80401518>] (dump_stack+0xb4/0xe8)
+> [   82.158636] [<80401464>] (dump_stack) from [<8017b8b0>] (spin_dump+0x84/0xcc)
+> [   82.165775]  r10:00000000 r9:ec936000 r8:81056090 r7:600a0013 r6:edb4899c r5:edb4899c
+> [   82.173691]  r4:e5033e00 r3:00000000
+> [   82.177308] [<8017b82c>] (spin_dump) from [<8017bcb0>] (do_raw_spin_unlock+0x108/0x130)
+> [   82.185314]  r5:edb4899c r4:edb4899c
+> [   82.188938] [<8017bba8>] (do_raw_spin_unlock) from [<8094b93c>] (_raw_spin_unlock_irqrestore+0x34/0x54)
+> [   82.198333]  r5:edb4899c r4:600a0013
+> [   82.201953] [<8094b908>] (_raw_spin_unlock_irqrestore) from [<8065b090>] (rx8010_set_time+0x14c/0x188)
+> [   82.211261]  r5:00000020 r4:edb48990
+> [   82.214882] [<8065af44>] (rx8010_set_time) from [<80653fe4>] (rtc_set_time+0x70/0x104)
+> [   82.222801]  r7:00000051 r6:edb39da0 r5:edb39c00 r4:ec937e8c
+> [   82.228535] [<80653f74>] (rtc_set_time) from [<80655774>] (rtc_dev_ioctl+0x3c4/0x674)
+> [   82.236368]  r7:00000051 r6:7ecf1b74 r5:00000000 r4:edb39c00
+> [   82.242106] [<806553b0>] (rtc_dev_ioctl) from [<80284034>] (do_vfs_ioctl+0xa4/0xa6c)
+> [   82.249851]  r8:00000003 r7:80284a40 r6:ed1e9c80 r5:edb44e60 r4:7ecf1b74
+> [   82.256642] [<80283f90>] (do_vfs_ioctl) from [<80284a40>] (SyS_ioctl+0x44/0x6c)
+> [   82.263953]  r10:00000000 r9:ec936000 r8:7ecf1b74 r7:4024700a r6:ed1e9c80 r5:00000003
+> [   82.271869]  r4:ed1e9c80
+> [   82.274432] [<802849fc>] (SyS_ioctl) from [<80108520>] (ret_fast_syscall+0x0/0x1c)
+> [   82.282005]  r9:ec936000 r8:801086c4 r7:00000036 r6:00000000 r5:00000003 r4:0008e1bc
+> root@GE004097290448 b850v3:~#
+> Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
+>  kernel:[   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
+> 
+> Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
+>  kernel:[   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
+> hwclock --systohc
+> root@GE004097290448 b850v3:~#
+> 
+> Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+> ---
+>  drivers/rtc/rtc-rx8010.c | 24 +++---------------------
+>  1 file changed, 3 insertions(+), 21 deletions(-)
+> 
+Applied, thanks.
 
-The patch 4e64350f42e2: "rtc: add STM32 RTC driver" from Jan 11,
-2017, leads to the following static checker warning:
-
-	drivers/rtc/rtc-stm32.c:514 stm32_rtc_init()
-	warn: always true condition '(pred_a >= 0) => (0-u32max >= 0)'
-
-drivers/rtc/rtc-stm32.c
-   499  static int stm32_rtc_init(struct platform_device *pdev,
-   500                            struct stm32_rtc *rtc)
-   501  {
-   502          unsigned int prer, pred_a, pred_s, pred_a_max, pred_s_max, cr;
-   503          unsigned int rate;
-   504          int ret = 0;
-   505  
-   506          rate = clk_get_rate(rtc->ck_rtc);
-   507  
-   508          /* Find prediv_a and prediv_s to obtain the 1Hz calendar clock */
-   509          pred_a_max = STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
-   510          pred_s_max = STM32_RTC_PRER_PRED_S >> STM32_RTC_PRER_PRED_S_SHIFT;
-   511  
-   512          for (pred_a = pred_a_max; pred_a >= 0; pred_a--) {
-                                          ^^^^^^^^^^^
-We should probably make pred_a, pred_s, pred_a_max and pred_s_max
-signed.
-
-   513                  pred_s = (rate / (pred_a + 1)) - 1;
-   514  
-   515                  if (((pred_s + 1) * (pred_a + 1)) == rate)
-   516                          break;
-   517          }
-   518  
-
-regards,
-dan carpenter
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
