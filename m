@@ -1,28 +1,32 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBP7GRDCAKGQEOF2SKRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBW6VXHBQKGQESRV5WEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id p138si6307843wme.1.2017.01.05.05.44.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Jan 2017 05:44:11 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCHv3 2/8] dt-bindings: document the STM32 RTC bindings
+Date: Thu, 5 Jan 2017 14:43:23 +0100
+Message-ID: <1483623809-29937-3-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h62si130567wme.2.2017.01.20.07.56.47
-        for <rtc-linux@googlegroups.com>;
-        Fri, 20 Jan 2017 07:56:47 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] [PATCH 6/6] ARM: sun8i: a23/a33: Add the oscillators accuracy
-Date: Fri, 20 Jan 2017 16:56:43 +0100
-Message-Id: <2b146385bad54a7719f91032abac3d624126c032.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,37 +35,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The datasheet provided by Allwinner requires oscillators with an accuracy
-of 50ppm. Add it to our fixed clocks so that we can properly track the
-accuracy chain.
+This patch adds documentation of device tree bindings for the STM32 RTC.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-a23-a33.dtsi | 2 ++
- 1 file changed, 2 insertions(+), 0 deletions(-)
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 ++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
 
-diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-index e9d98d803dc6..f5925a18031c 100644
---- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-@@ -106,6 +106,7 @@
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <24000000>;
-+			clock-accuracy = <50000>;
- 			clock-output-names = "osc24M";
- 		};
- 
-@@ -113,6 +114,7 @@
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32768>;
-+			clock-accuracy = <50000>;
- 			clock-output-names = "ext-osc32k";
- 		};
- 	};
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+new file mode 100644
+index 0000000..e2837b9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+@@ -0,0 +1,27 @@
++STM32 Real Time Clock
++
++Required properties:
++- compatible: "st,stm32-rtc".
++- reg: address range of rtc register set.
++- clocks: reference to the clock entry ck_rtc.
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
++  (RTC registers) write protection.
++
++Optional properties (to override default ck_rtc parent clock):
++- assigned-clocks: reference to the ck_rtc clock entry.
++- assigned-clock-parents: phandle of the new parent clock of ck_rtc.
++
++Example:
++
++	rtc: rtc@40002800 {
++		compatible = "st,stm32-rtc";
++		reg = <0x40002800 0x400>;
++		clocks = <&rcc 1 CLK_RTC>;
++		assigned-clocks = <&rcc 1 CLK_RTC>;
++		assigned-clock-parents = <&rcc 1 CLK_LSE>;
++		interrupt-parent = <&exti>;
++		interrupts = <17 1>;
++		st,syscfg = <&pwrcfg>;
++	};
 -- 
-git-series 0.8.11
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
