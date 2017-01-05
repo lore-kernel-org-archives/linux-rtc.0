@@ -1,27 +1,31 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBEOD4DBQKGQEPF4WCFY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBW6VXHBQKGQESRV5WEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id l66si4552wml.0.2017.01.12.16.38.40
-        for <rtc-linux@googlegroups.com>;
-        Thu, 12 Jan 2017 16:38:41 -0800 (PST)
-Date: Fri, 13 Jan 2017 01:38:40 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Gabriel Fernandez <gabriel.fernandez@st.com>
-Subject: [rtc-linux] Re: [PATCHv5 3/8] rtc: add STM32 RTC driver
-Message-ID: <20170113003840.u6uxt7u4qsit3oqt@piout.net>
-References: <1484142403-11556-1-git-send-email-amelie.delaunay@st.com>
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id o77si6315001wme.0.2017.01.05.05.44.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Jan 2017 05:44:14 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCHv3 6/8] ARM: dts: stm32: enable RTC on stm32f469-disco
+Date: Thu, 5 Jan 2017 14:43:27 +0100
+Message-ID: <1483623809-29937-7-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1484142403-11556-1-git-send-email-amelie.delaunay@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,27 +35,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/01/2017 at 14:46:43 +0100, Amelie Delaunay wrote :
-> This patch adds support for the STM32 RTC.
-> 
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> ---
->  drivers/rtc/Kconfig     |  11 +
->  drivers/rtc/Makefile    |   1 +
->  drivers/rtc/rtc-stm32.c | 727 ++++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 739 insertions(+)
->  create mode 100644 drivers/rtc/rtc-stm32.c
-> 
+This patch enables RTC on stm32f469-disco with default LSE clock source.
 
-This didn't apply cleanly, please check rtc-next. I don't think I made
-any mistake as the issue was only in Kconfig. You probably based your
-patches on 4.9 instead of 4.10-rc1.
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+---
+ arch/arm/boot/dts/stm32f469-disco.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-
+diff --git a/arch/arm/boot/dts/stm32f469-disco.dts b/arch/arm/boot/dts/stm32f469-disco.dts
+index 8a163d7..af57dd5 100644
+--- a/arch/arm/boot/dts/stm32f469-disco.dts
++++ b/arch/arm/boot/dts/stm32f469-disco.dts
+@@ -78,6 +78,10 @@
+ 	clock-frequency = <8000000>;
+ };
+ 
++&rtc {
++	status = "okay";
++};
++
+ &usart3 {
+ 	status = "okay";
+ };
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
