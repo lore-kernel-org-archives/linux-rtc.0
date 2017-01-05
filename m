@@ -1,21 +1,31 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUU4VLCAKGQEDLKUKXI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBW6VXHBQKGQESRV5WEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si81226wmf.0.2017.01.26.16.03.29
-        for <rtc-linux@googlegroups.com>;
-        Thu, 26 Jan 2017 16:03:29 -0800 (PST)
-Date: Fri, 27 Jan 2017 01:03:29 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Meng Yi <meng.yi@nxp.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [RFC PATCH] rtc/nxp: add FTM alarm driver as the
- wakeup source
-Message-ID: <20170127000329.jekcc3a3fxim4mbb@piout.net>
-References: <1477273336-48449-1-git-send-email-meng.yi@nxp.com>
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id f193si4250885wmg.2.2017.01.05.05.44.13
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Jan 2017 05:44:13 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCHv3 5/8] ARM: dts: stm32: enable RTC on stm32f429-disco
+Date: Thu, 5 Jan 2017 14:43:26 +0100
+Message-ID: <1483623809-29937-6-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1477273336-48449-1-git-send-email-meng.yi@nxp.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,73 +35,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+This patch enables RTC on stm32f429-disco with LSI as clock source because
+X2 crystal for LSE is not fitted by default.
 
-On 24/10/2016 at 09:42:16 +0800, Meng Yi wrote:
-> For the platforms including LS1021A, LS1043A that has the
-> flextimer module, implementing alarm functions within RTC
-> subsystem to wakeup the system when system going to sleep.
-> Only Ftm0 can be used to wakeup the system.
-> 
-> Signed-off-by: Meng Yi <meng.yi@nxp.com>
-> ---
->  drivers/rtc/Kconfig       |   9 ++
->  drivers/rtc/Makefile      |   1 +
->  drivers/rtc/rtc-nxp-ftm.c | 255 ++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 265 insertions(+)
->  create mode 100644 drivers/rtc/rtc-nxp-ftm.c
-> 
-> +static const struct of_device_id nxp_ftm_rtc_of_match[] = {
-> +	{
-> +		.compatible	= "fsl,ftm-clock",
-> +	}, {
-> +		/* sentinel */
-> +	}
-> +};
-> +MODULE_DEVICE_TABLE(of, nxp_ftm_rtc_of_match);
-> 
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+---
+ arch/arm/boot/dts/stm32f429-disco.dts | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I think the patch is generally fine but I think you will get an issue
-later if anybody is trying to use an FTM to actually do something else
-(e.g. PWM, counter, quad decoder,...).
-
-I'm asking because there is exactly this issue on atmel SoCs.
-
-I think we may be missing a proper subsystem.
-
-> +static int nxp_ftm_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct resource *r;
-> +	int irq;
-> +	int ret;
-> +
-> +	rtc.alarm_freq = (u32)FIXED_FREQ_CLK / (u32)MAX_FREQ_DIV;
-> +
-> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!r)
-> +		return -ENODEV;
-> +
-> +	rtc.base = devm_ioremap_resource(&pdev->dev, r);
-> +	if (IS_ERR(rtc.base))
-> +		return PTR_ERR(rtc.base);
-> +
-> +	irq = irq_of_parse_and_map(np, 0);
-> +	if (irq <= 0) {
-> +		pr_err("ftm: unable to get IRQ from DT, %d\n", irq);
-> +		return -EINVAL;
-> +	}
-> +
-> +	rtc.endian = of_property_read_bool(np, "big-endian");
-> +
-Doesn't the platform know the endianness, is it really necessary to have
-that in the device tree?
-
-
+diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
+index b6e63d8..49eddf6 100644
+--- a/arch/arm/boot/dts/stm32f429-disco.dts
++++ b/arch/arm/boot/dts/stm32f429-disco.dts
+@@ -94,6 +94,12 @@
+ 	clock-frequency = <8000000>;
+ };
+ 
++&rtc {
++	assigned-clocks = <&rcc 1 CLK_RTC>;
++	assigned-clock-parents = <&rcc 1 CLK_LSI>;
++	status = "okay";
++};
++
+ &usart1 {
+ 	pinctrl-0 = <&usart1_pins_a>;
+ 	pinctrl-names = "default";
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
