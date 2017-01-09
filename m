@@ -1,23 +1,18 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLOST7CAKGQEQ4XXPKQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBVOFZ7BQKGQEITSQKYY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 66si1221513wml.3.2017.01.24.15.54.21
-        for <rtc-linux@googlegroups.com>;
-        Tue, 24 Jan 2017 15:54:21 -0800 (PST)
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Paul Cercueil <paul@crapouillou.net>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: jz4740: make the driver buildable as a
- module again
-Date: Wed, 25 Jan 2017 00:54:17 +0100
-Message-Id: <20170124235417.16194-1-alexandre.belloni@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id p138si896219wme.1.2017.01.09.01.25.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 09 Jan 2017 01:25:35 -0800 (PST)
+Message-ID: <1483953931.11465.13.camel@collabora.co.uk>
+Subject: [rtc-linux] Question about RTC validity mechanism
+From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+To: rtc-linux@googlegroups.com
+Date: Mon, 09 Jan 2017 10:25:31 +0100
 Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,93 +21,22 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-By using kernel_halt() instead of machine_halt(), we can make the driver
-build as a module.
-However, jz4740 platforms not loading this module will not be able to power
-off.
+Hi,
 
-Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+I use a Seiko S35390A RTC that knows if the RTC has restarted when POC
+value is set to 1. (POC is bit 0 of register status1).
+In the current driver, the value is just ignored and lost in
+s35390a_probe by calling s35390a_reset.
 
-Revert "rtc: jz4740: make the driver builtin only"
+I need this feature to check if the RTC time is valid or not at boot.
+Is there a standard mechanism to store this information and check at
+boot that the RTC is valid?
 
-This reverts commit b9168c539c0b2de756aaffd380384dbde8adbe07.
----
- drivers/rtc/Kconfig      |  5 ++++-
- drivers/rtc/rtc-jz4740.c | 12 ++++++++++--
- 2 files changed, 14 insertions(+), 3 deletions(-)
+Thanks
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index ee287cf63b01..ac8c7a3d7166 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1551,12 +1551,15 @@ config RTC_DRV_MPC5121
- 	  will be called rtc-mpc5121.
- 
- config RTC_DRV_JZ4740
--	bool "Ingenic JZ4740 SoC"
-+	tristate "Ingenic JZ4740 SoC"
- 	depends on MACH_INGENIC || COMPILE_TEST
- 	help
- 	  If you say yes here you get support for the Ingenic JZ47xx SoCs RTC
- 	  controllers.
- 
-+	  This driver can also be buillt as a module. If so, the module
-+	  will be called rtc-jz4740.
-+
- config RTC_DRV_LPC24XX
- 	tristate "NXP RTC for LPC178x/18xx/408x/43xx"
- 	depends on ARCH_LPC18XX || COMPILE_TEST
-diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index 72918c1ba092..64989afffa3d 100644
---- a/drivers/rtc/rtc-jz4740.c
-+++ b/drivers/rtc/rtc-jz4740.c
-@@ -17,6 +17,7 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
-+#include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/reboot.h>
-@@ -294,7 +295,7 @@ static void jz4740_rtc_power_off(void)
- 			     JZ_REG_RTC_RESET_COUNTER, reset_counter_ticks);
- 
- 	jz4740_rtc_poweroff(dev_for_power_off);
--	machine_halt();
-+	kernel_halt();
- }
- 
- static const struct of_device_id jz4740_rtc_of_match[] = {
-@@ -302,6 +303,7 @@ static const struct of_device_id jz4740_rtc_of_match[] = {
- 	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
- 
- static int jz4740_rtc_probe(struct platform_device *pdev)
- {
-@@ -429,6 +431,7 @@ static const struct platform_device_id jz4740_rtc_ids[] = {
- 	{ "jz4780-rtc", ID_JZ4780 },
- 	{}
- };
-+MODULE_DEVICE_TABLE(platform, jz4740_rtc_ids);
- 
- static struct platform_driver jz4740_rtc_driver = {
- 	.probe	 = jz4740_rtc_probe,
-@@ -440,4 +443,9 @@ static struct platform_driver jz4740_rtc_driver = {
- 	.id_table = jz4740_rtc_ids,
- };
- 
--builtin_platform_driver(jz4740_rtc_driver);
-+module_platform_driver(jz4740_rtc_driver);
-+
-+MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("RTC driver for the JZ4740 SoC\n");
-+MODULE_ALIAS("platform:jz4740-rtc");
--- 
-2.11.0
+Fabien
+
+datasheet: http://datasheet.sii-ic.com/en/real_time_clock/S35390A_E.pdf
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
