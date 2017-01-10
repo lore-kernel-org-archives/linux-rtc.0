@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBPFQWDBQKGQEJU6DCUA@googlegroups.com>
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id 75si2567556wme.3.2017.01.03.13.31.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 03 Jan 2017 13:31:40 -0800 (PST)
-Date: Tue, 3 Jan 2017 21:31:18 +0000
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Kees Cook <keescook@chromium.org>
-Cc: Bhumika Goyal <bhumirks@gmail.com>, Julia Lawall <julia.lawall@lip6.fr>,
-	Jason Cooper <jason@lakedaemon.net>, andrew@lunn.ch,
-	gregory.clement@free-electrons.com, sebastian.hesselbarth@gmail.com,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	rtc-linux@googlegroups.com, LKML <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
-Message-ID: <20170103213118.GM14217@n2100.armlinux.org.uk>
-References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com>
- <20170102140654.GF14217@n2100.armlinux.org.uk>
- <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBH622DBQKGQE4DECOZY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id a19si778171wme.0.2017.01.09.16.38.54
+        for <rtc-linux@googlegroups.com>;
+        Mon, 09 Jan 2017 16:38:54 -0800 (PST)
+Date: Tue, 10 Jan 2017 01:38:54 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org, Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] Re: [PATCH v3] rtc: armada38x: Follow the new
+ recommendation for errata implementation
+Message-ID: <20170110003854.67n6x2chjkwazfvs@piout.net>
+References: <20161221102816.6939-1-gregory.clement@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com>
-Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+In-Reply-To: <20161221102816.6939-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,38 +28,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Jan 03, 2017 at 01:18:29PM -0800, Kees Cook wrote:
-> On Mon, Jan 2, 2017 at 6:06 AM, Russell King - ARM Linux
-> <linux@armlinux.org.uk> wrote:
-> > On Mon, Dec 26, 2016 at 05:01:02PM +0530, Bhumika Goyal wrote:
-> >> The object armada38x_rtc_ops of type rtc_class_ops structure is not
-> >> modified after getting initialized by armada38x_rtc_probe. Apart from
-> >> getting referenced in init it is also passed as an argument to the function
-> >> devm_rtc_device_register but this argument is of type const struct
-> >> rtc_class_ops *. Therefore add __ro_after_init to its declaration.
-> >
-> > What I'd prefer here is for the structure to be duplicated, with one
-> > copy having the alarm methods and one which does not.  Both can then
-> > be made "const" (so placed into the read-only section at link time)
-> > and the probe function select between the two.
-> >
-> > I think that's a cleaner and better solution, even though it's
-> > slightly larger.
-> >
-> > I'm not a fan of __ro_after_init being used where other solutions are
-> > possible.
+On 21/12/2016 at 11:28:16 +0100, Gregory CLEMENT wrote :
+> According to RES-3124064:
 > 
-> Can the pointer that points to the struct rtc_class_ops be made ro_after_init?
-
-It's passed into the RTC core code, and probably stored in some dynamically
-allocated object, so probably no.  It's the same class of problem as every
-file_operations pointer in the kernel, or the thousand other operations
-structure pointers that a running kernel has.
+> The device supports CPU write and read access to the RTC time register.
+> However, due to this restriction, read and write from/to internal RTC
+> register may fail.
+> 
+> Workaround:
+> General setup:
+> 1. Configure the RTC Mbus Bridge Timing Control register (offset 0x184A0)
+>    to value 0xFD4D4FFF
+>    Write RTC WRCLK Period to its maximum value (0x3FF)
+>    Write RTC WRCLK setup to 0x29
+>    Write RTC WRCLK High Time to 0x53 (default value)
+>    Write RTC Read Output Delay to its maximum value (0x1F)
+>    Mbus - Read All Byte Enable to 0x1 (default value)
+> 2. Configure the RTC Test Configuration Register (offset 0xA381C) bit3
+>    to '1' (Reserved, Marvell internal)
+> 
+> For any RTC register read operation:
+> 1. Read the requested register 100 times.
+> 2. Find the result that appears most frequently and use this result
+>    as the correct value.
+> 
+> For any RTC register write operation:
+> 1. Issue two dummy writes of 0x0 to the RTC Status register (offset
+>    0xA3800).
+> 2. Write the time to the RTC Time register (offset 0xA380C).
+> 
+> This patch is based on the work of Shaker Daibes
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+> ---
+> Hi,
+> 
+> this patch followed the patch series sent here:
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2016-December/473232.html
+> 
+> For now I kept the patch 2 converting to time64_t apart after Russell
+> King feedback.
+> 
+> Changelog:
+> 
+> v2 -> v3:
+> - Removed unrelated change
+> - Remove Unnecessary blank line
+> - Used u32 instead of uint32_t
+> - use the new errata name: RES-3124064 instead of FE-3124064
+> 
+> v1 -> v2:
+> - merged the patch 1 and 3
+> - substantially modified the 1st patch with I think a better
+> implementation:
+>   - First I do not put anymore more a big array onto the stack as
+>     suggested by Andrew Lunn.
+>   - Then I optimize the way to find the correct value.
+> 
+> Gregory
+> 
+>  drivers/rtc/rtc-armada38x.c | 118 +++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 95 insertions(+), 23 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
