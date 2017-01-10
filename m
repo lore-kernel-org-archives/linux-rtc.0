@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBTPG4PBQKGQEKTSFZ7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK7B2DBQKGQE5VY76FA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.134])
-        by gmr-mx.google.com with ESMTPS id e134si155117wmd.3.2017.01.13.07.33.33
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Jan 2017 07:33:33 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Amelie Delaunay <amelie.delaunay@st.com>,
-	rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id e134si21910wmd.3.2017.01.09.16.54.03
+        for <rtc-linux@googlegroups.com>;
+        Mon, 09 Jan 2017 16:54:03 -0800 (PST)
+Date: Tue, 10 Jan 2017 01:54:02 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Emil Bartczak <emilbart@gmail.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 2/3] rtc: stm32: fix building without CONFIG_OF
-Date: Fri, 13 Jan 2017 16:32:52 +0100
-Message-Id: <20170113153311.2611510-2-arnd@arndb.de>
-In-Reply-To: <20170113153311.2611510-1-arnd@arndb.de>
-References: <20170113153311.2611510-1-arnd@arndb.de>
-Reply-To: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 0/2] Provides support for alarm.
+Message-ID: <20170110005402.3hqexgtfbrjb2tz3@piout.net>
+References: <1482703663-9115-1-git-send-email-emilbart@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1482703663-9115-1-git-send-email-emilbart@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,38 +24,32 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The new driver has a stray #ifdef in it that causes a build error:
+Hi,
 
-drivers/rtc/rtc-stm32.c:718:21: error: 'stm32_rtc_of_match' undeclared here (not in a function); did you mean 'stm32_rtc_pm_ops'?
+On 25/12/2016 at 23:07:41 +0100, Emil Bartczak wrote :
+> This patchset provides support for weekday and alarm 
+> in the file driver/rtc/rtc-mcp795.c. 
+> Please review the changes and consider to apply them to the main kernel tree.
+> 
+> Changes from v1:
+> - Cover letter added.
+> 
+> Emil Bartczak (2):
+>   rtc: mcp795: Add support for weekday.
+>   rtc: mcp795: add alarm support.
+> 
+>  drivers/rtc/rtc-mcp795.c | 183 +++++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 177 insertions(+), 6 deletions(-)
+> 
 
-As the #ifdef serves no purpose here, let's just remove it.
+Matching the alarm on weekday, how awful...
 
-Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/rtc/rtc-stm32.c | 2 --
- 1 file changed, 2 deletions(-)
+Applied, thanks.
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 3513e052722f..8c599f52124c 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -490,13 +490,11 @@ static const struct rtc_class_ops stm32_rtc_ops = {
- 	.alarm_irq_enable = stm32_rtc_alarm_irq_enable,
- };
- 
--#ifdef CONFIG_OF
- static const struct of_device_id stm32_rtc_of_match[] = {
- 	{ .compatible = "st,stm32-rtc" },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, stm32_rtc_of_match);
--#endif
- 
- static int stm32_rtc_init(struct platform_device *pdev,
- 			  struct stm32_rtc *rtc)
 -- 
-2.9.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
