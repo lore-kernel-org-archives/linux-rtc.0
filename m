@@ -1,31 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBW6VXHBQKGQESRV5WEQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB3XO2XBQKGQEIAJ6NRQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id f193si4250885wmg.2.2017.01.05.05.44.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 05 Jan 2017 05:44:13 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCHv3 5/8] ARM: dts: stm32: enable RTC on stm32f429-disco
-Date: Thu, 5 Jan 2017 14:43:26 +0100
-Message-ID: <1483623809-29937-6-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id d207si1148930wmd.1.2017.01.10.16.08.14
+        for <rtc-linux@googlegroups.com>;
+        Tue, 10 Jan 2017 16:08:14 -0800 (PST)
+Date: Wed, 11 Jan 2017 01:08:03 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Gabriel Fernandez <gabriel.fernandez@st.com>
+Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
+Message-ID: <20170111000803.mlie6kizcsj2o7lh@piout.net>
 References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+ <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,33 +32,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch enables RTC on stm32f429-disco with LSI as clock source because
-X2 crystal for LSE is not fitted by default.
+Looks good to me, however...
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- arch/arm/boot/dts/stm32f429-disco.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
-index b6e63d8..49eddf6 100644
---- a/arch/arm/boot/dts/stm32f429-disco.dts
-+++ b/arch/arm/boot/dts/stm32f429-disco.dts
-@@ -94,6 +94,12 @@
- 	clock-frequency = <8000000>;
- };
- 
-+&rtc {
-+	assigned-clocks = <&rcc 1 CLK_RTC>;
-+	assigned-clock-parents = <&rcc 1 CLK_LSI>;
-+	status = "okay";
-+};
-+
- &usart1 {
- 	pinctrl-0 = <&usart1_pins_a>;
- 	pinctrl-names = "default";
+On 05/01/2017 at 14:43:24 +0100, Amelie Delaunay wrote :
+> +struct stm32_rtc {
+> +	struct rtc_device *rtc_dev;
+> +	void __iomem *base;
+> +	struct clk *ck_rtc;
+> +	spinlock_t lock; /* Protects registers accesses */
+
+This spinlock seems to be useless, the rtc ops_lock is already
+protecting everywhere it is taken.
+
+> +	int irq_alarm;
+> +};
+> +
+
+[...]
+
+> +static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+> +	struct rtc_time *tm = &alrm->time;
+> +	unsigned long irqflags;
+> +	unsigned int cr, isr, alrmar;
+> +	int ret = 0;
+> +
+> +	if (rtc_valid_tm(tm)) {
+> +		dev_err(dev, "Alarm time not valid.\n");
+> +		return -EINVAL;
+
+This will never happen, tm is already checked multiple times (up to
+three) in the core before this function can be called.
+
+> +	}
+> +
+
+You don't need to resend the whole series, just this patch. I'll take
+2/8 and 3/8, the other ones can go through the stm32 tree.
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
