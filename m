@@ -1,23 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHUL6TBQKGQEWXYNYUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZE33DBQKGQEAUEHWSY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h198si702145wmg.1.2017.01.16.09.40.45
+        by gmr-mx.google.com with ESMTP id f142si25309wmf.2.2017.01.11.02.50.12
         for <rtc-linux@googlegroups.com>;
-        Mon, 16 Jan 2017 09:40:45 -0800 (PST)
-Date: Mon, 16 Jan 2017 18:40:43 +0100
+        Wed, 11 Jan 2017 02:50:12 -0800 (PST)
+Date: Wed, 11 Jan 2017 11:50:12 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	stable@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: sun6i: Switch to the external oscillator
-Message-ID: <20170116174043.hgqbnmdnsfbnxl3m@piout.net>
-References: <20170116152148.27439-1-maxime.ripard@free-electrons.com>
- <20170116153959.7qhahevikxzai664@piout.net>
- <20170116161349.5btadrfmqbxhrb2c@lukather>
+To: Amelie DELAUNAY <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre TORGUE <alexandre.torgue@st.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
+Message-ID: <20170111105012.ut6jxlmlf3qv37li@piout.net>
+References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+ <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
+ <20170111000803.mlie6kizcsj2o7lh@piout.net>
+ <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
+ <20170111101708.ujcgo7kpyywymyzp@piout.net>
+ <ff7a532e-a2a7-920a-29d9-e8a82d6ed915@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170116161349.5btadrfmqbxhrb2c@lukather>
+In-Reply-To: <ff7a532e-a2a7-920a-29d9-e8a82d6ed915@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,67 +38,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/01/2017 at 17:13:49 +0100, Maxime Ripard wrote :
-> On Mon, Jan 16, 2017 at 04:39:59PM +0100, Alexandre Belloni wrote:
-> > On 16/01/2017 at 16:21:48 +0100, Maxime Ripard wrote :
-> > > The RTC is clocked from either an internal, imprecise, oscillator or an
-> > > external one, which is usually much more accurate.
-> > > 
-> > > The difference perceived between the time elapsed and the time reported by
-> > > the RTC is in a 10% scale, which prevents the RTC from being useful at all.
-> > > 
-> > > Fortunately, the external oscillator is reported to be mandatory in the
-> > > Allwinner datasheet, so we can just switch to it.
-> > > 
+On 11/01/2017 at 11:42:50 +0100, Amelie DELAUNAY wrote :
+> 
+> On 01/11/2017 11:17 AM, Alexandre Belloni wrote:
+> > On 11/01/2017 at 11:07:16 +0100, Amelie DELAUNAY wrote :
+> > > > This will never happen, tm is already checked multiple times (up to
+> > > > three) in the core before this function can be called.
+> > > > 
+> > > You're right. I'll remove all rtc_valid_tm calls.
 > > 
-> > Still, I'm wondering whether the external clock should be taken.
+> > You can keep the one in read_time
 > > 
-> > We've had issues with at91 and tegra where this external clock was
-> > suddenly able to be stopped, breaking the RTC because the CCF was not
-> > aware the RTC was using it.
-> 
-> That's a very good point...
-> 
-> > See:
-> > http://patchwork.ozlabs.org/patch/502459/
-> > http://patchwork.ozlabs.org/patch/714517/
-> > 
-> > Your reply can be that you don't care now and this has a low probability
-> > and you'll handle the case when it happens and that will be fine.
-> 
-> This is a bit more complicated for us.
-> 
-> The internal oscillator is running at 667kHz, with a 30% accuracy. The
-> external oscillator is supposed to run at 32768Hz, with a maximum
-> tolerance of 50ppm.
-> 
-> The RTC has an internal mux, between the internal and external
-> oscillators. If the internal is picked, a (variable) divider of 20 is
-> applied by default.
-> 
-> The output of that mux is also one of the parent of many of our clocks
-> in our main clock unit (for example the CPU one), so we need to have
-> that parenthood relationship expressed. I guess we could rework the
-> driver to first register the clock through the early clock probing
-> stuff, and then have the rest of the RTC to probe.
-> 
-> However, we also need to do so while remaining backward compatible
-> from a DT point of view.
-> 
-> I guess we could:
->   - Add the two oscillators to the DTSI, with their proper accuracy
->   - Put them both as parent clocks of the RTC node
->   - Split the clock part and the RTC part in the driver, and have the
->     clock part, if there is a clocks property in the node (which
->     covers the backward case), register the mux, and pick the clock
->     with the best accuracy. We don't change anything at the RTC level.
->   - Change the parent clock of the CCU for the RTC.
-> 
-> That would work for you?
+> Even if rtc_valid_tm is called just after rtc->ops->read_time() in
+> __rtc_read_time ?
 
-That would definitively be better. If the 667kHz oscillator is not an
-input to any other IP, you may as well register it directly from the
-driver instead of representing it as a node.
+Ah yes, I forgot it was added, you can remove all of them.
 
 -- 
 Alexandre Belloni, Free Electrons
