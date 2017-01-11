@@ -1,21 +1,36 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBBHS2XBQKGQERT2JQEQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBCXL3DBQKGQEVQ74XLI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id d207si1150501wmd.1.2017.01.10.16.15.00
-        for <rtc-linux@googlegroups.com>;
-        Tue, 10 Jan 2017 16:15:00 -0800 (PST)
-Date: Wed, 11 Jan 2017 01:14:50 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	adi-buildroot-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: add const to rtc_class_ops structures
-Message-ID: <20170111001450.6kmxtinx2n2iyh5o@piout.net>
-References: <1483636717-30429-1-git-send-email-bhumirks@gmail.com>
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id l66si404050wml.0.2017.01.11.05.39.22
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 11 Jan 2017 05:39:22 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCHv4 3/8] rtc: add STM32 RTC driver
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+References: <1484138905-5903-1-git-send-email-amelie.delaunay@st.com>
+ <20170111130438.GA9327@Red>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre TORGUE <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>,
+        "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>,
+        "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>,
+        Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
+        "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+Message-ID: <b9ed4f2f-5d41-6041-0215-c3ff11843198@st.com>
+Date: Wed, 11 Jan 2017 14:39:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1483636717-30429-1-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <20170111130438.GA9327@Red>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,55 +40,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/01/2017 at 22:48:37 +0530, Bhumika Goyal wrote :
-> Declare rtc_class_ops structures as const as they are only passed
-> as an argument to the function devm_rtc_device_register. This argument
-> is of type const struct rtc_class_ops *, so rtc_class_ops structures
-> having this property can be declared const.
-> Done using Coccinelle:
-> 
-> @r1 disable optional_qualifier @
-> identifier i;
-> position p;
-> @@
-> static struct rtc_class_ops i@p = {...};
-> 
-> @ok1@
-> identifier r1.i;
-> position p;
-> @@
-> devm_rtc_device_register(...,&i@p,...)
-> 
-> @bad@
-> position p!={r1.p,ok1.p};
-> identifier r1.i;
-> @@
-> i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r1.i;
-> @@
-> +const
-> struct rtc_class_ops i;
-> 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
-> Compilation was terminated while compiling the .o files for all the 
-> changed .c files. Therefore file size details of the .o files 
-> could not be obtained.
-> 
->  drivers/rtc/rtc-au1xxx.c | 2 +-
->  drivers/rtc/rtc-bfin.c   | 2 +-
->  drivers/rtc/rtc-ls1x.c   | 2 +-
->  drivers/rtc/rtc-sh.c     | 2 +-
->  4 files changed, 4 insertions(+), 4 deletions(-)
-> 
-Applied and squashed in the previous one.
+Hi Corentin,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thanks for reviewing,
+
+On 01/11/2017 02:04 PM, Corentin Labbe wrote:
+> On Wed, Jan 11, 2017 at 01:48:25PM +0100, Amelie Delaunay wrote:
+>> This patch adds support for the STM32 RTC.
+>>
+>> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+>> ---
+>>  drivers/rtc/Kconfig     |  11 +
+>>  drivers/rtc/Makefile    |   1 +
+>>  drivers/rtc/rtc-stm32.c | 727 ++++++++++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 739 insertions(+)
+>>  create mode 100644 drivers/rtc/rtc-stm32.c
+>
+> [...]
+>> +/* STM32_PWR_CR */
+>> +#define PWR_CR				0x00
+>> +/* STM32_PWR_CR bit field */
+>> +#define PWR_CR_DBP			BIT(8)
+>> +
+>> +static struct regmap *dbp;
+>
+> Hello
+>
+> Why using a global static struct ?
+> You could alloc a private structure in probe for storing it and use platform_set_drvdata()
+>
+This is to stay closer to how this backup domain protection is managed 
+in clk-stm32f4 driver, but I realize that I haven't the same 
+constraints. I'll move this struct in my stm32_rtc private structure.
+
+> Regards
+>
+
+Regards
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
