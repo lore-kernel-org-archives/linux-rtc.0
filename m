@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRBU7V6LBQKGQE7U5UWVI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDEKVJM7XAHRB3UM3HBQKGQEGHP3W2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
-        by gmr-mx.google.com with ESMTPS id 23si3089002pfw.4.2017.01.16.04.21.39
+MIME-Version: 1.0
+Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
+        by gmr-mx.google.com with ESMTPS id i196si1120838wmd.3.2017.01.11.06.51.25
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Jan 2017 04:21:39 -0800 (PST)
-Date: Mon, 16 Jan 2017 15:21:28 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: amelie.delaunay@st.com
-Cc: rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [bug report] rtc: add STM32 RTC driver
-Message-ID: <20170116122128.GC4104@mwanda>
-References: <20170116121346.GA28569@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170116121346.GA28569@mwanda>
+        Wed, 11 Jan 2017 06:51:25 -0800 (PST)
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: armada38x: hide maybe-uninitialized warning
+Date: Wed, 11 Jan 2017 15:50:31 +0100
+Message-Id: <20170111145112.722743-1-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,27 +30,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Oh.  That still won't fix this:
+The function is too complicated for gcc to realize that this variable
+does eventually get initialized, causing a harmless warning:
 
-drivers/rtc/rtc-stm32.c
-   519          /*
-   520           * Can't find a 1Hz, so give priority to RTC power consumption
-   521           * by choosing the higher possible value for prediv_a
-   522           */
-   523          if ((pred_s > pred_s_max) || (pred_a > pred_a_max)) {
-   524                  pred_a = pred_a_max;
-   525                  pred_s = (rate / (pred_a + 1)) - 1;
-   526  
-   527                  dev_warn(&pdev->dev, "ck_rtc is %s\n",
-   528                           (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
+drivers/rtc/rtc-armada38x.c: In function 'read_rtc_register_wa':
+drivers/rtc/rtc-armada38x.c:131:25: warning: 'index_max' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
-This is type promoted to unsigned int < 0.
+This adds an explicit initializion at the start of the function.
+I generally try to avoid that, but it seems appropriate here,
+as we start out with max=0 as well.
 
-   529                           "fast" : "slow");
-   530          }
+Fixes: 61cffa2438e3 ("rtc: armada38x: Follow the new recommendation for errata implementation")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-armada38x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-regards,
-dan carpenter
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 6c9a2cbdc1a9..65e16965af7e 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -90,7 +90,7 @@ static void rtc_update_mbus_timing_params(struct armada38x_rtc *rtc)
+ 
+ static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
+ {
+-	int i, index_max, max = 0;
++	int i, index_max = 0, max = 0;
+ 
+ 	for (i = 0; i < SAMPLE_NR; i++) {
+ 		rtc->val_to_freq[i].value = readl(rtc->regs + rtc_reg);
+-- 
+2.9.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
