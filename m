@@ -1,24 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBF55VHBQKGQEYP6Y6FI@googlegroups.com>
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id e134si4737630wmd.3.2017.01.02.06.07.19
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 02 Jan 2017 06:07:19 -0800 (PST)
-Date: Mon, 2 Jan 2017 14:06:54 +0000
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZPR2XBQKGQEU4ZHH4Q@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id d207si1150445wmd.1.2017.01.10.16.14.29
+        for <rtc-linux@googlegroups.com>;
+        Tue, 10 Jan 2017 16:14:29 -0800 (PST)
+Date: Wed, 11 Jan 2017 01:14:19 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, jason@lakedaemon.net, andrew@lunn.ch,
-	gregory.clement@free-electrons.com, sebastian.hesselbarth@gmail.com,
-	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, keescook@chromium.org
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
-Message-ID: <20170102140654.GF14217@n2100.armlinux.org.uk>
-References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: constify rtc_class_ops structures
+Message-ID: <20170111001419.vefa3knfkynnmflr@piout.net>
+References: <1483635305-20423-1-git-send-email-bhumirks@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1482751862-18699-1-git-send-email-bhumirks@gmail.com>
-Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+In-Reply-To: <1483635305-20423-1-git-send-email-bhumirks@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,28 +24,63 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Dec 26, 2016 at 05:01:02PM +0530, Bhumika Goyal wrote:
-> The object armada38x_rtc_ops of type rtc_class_ops structure is not
-> modified after getting initialized by armada38x_rtc_probe. Apart from
-> getting referenced in init it is also passed as an argument to the function
-> devm_rtc_device_register but this argument is of type const struct
-> rtc_class_ops *. Therefore add __ro_after_init to its declaration.
-
-What I'd prefer here is for the structure to be duplicated, with one
-copy having the alarm methods and one which does not.  Both can then
-be made "const" (so placed into the read-only section at link time)
-and the probe function select between the two.
-
-I think that's a cleaner and better solution, even though it's
-slightly larger.
-
-I'm not a fan of __ro_after_init being used where other solutions are
-possible.
+On 05/01/2017 at 22:25:05 +0530, Bhumika Goyal wrote :
+> Declare rtc_class_ops structures as const as they are only passed
+> as an argument to the function devm_rtc_device_register. This argument
+> is of type const struct rtc_class_ops *, so rtc_class_ops structures
+> having this property can be declared const.
+> Done using Coccinelle:
+> 
+> @r1 disable optional_qualifier @
+> identifier i;
+> position p;
+> @@
+> static struct rtc_class_ops i@p = {...};
+> 
+> @ok1@
+> identifier r1.i;
+> position p;
+> @@
+> devm_rtc_device_register(...,&i@p,...)
+> 
+> @bad@
+> position p!={r1.p,ok1.p};
+> identifier r1.i;
+> @@
+> i@p
+> 
+> @depends on !bad disable optional_qualifier@
+> identifier r1.i;
+> @@
+> +const
+> struct rtc_class_ops i;
+> 
+> File size details:
+> 
+>    text	   data	    bss	    dec	    hex	filename
+>     559	    320	      0	    879	    36f	drivers/rtc/rtc-dm355evm.o
+>     671	    192	      0	    863	    35f	drivers/rtc/rtc-dm355evm.o
+> 
+>    4727	    320	      0	   5047	   13b7	drivers/rtc/rtc-imxdi.o
+>    4855	    192	      0	   5047	   13b7	drivers/rtc/rtc-imxdi.o
+> 
+>    1269     192       0    1461     5b5 drivers/rtc/rtc-mxc.o
+> 
+> File size remains unchanged for : drivers/rtc/rtc-mxc.o
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  drivers/rtc/rtc-dm355evm.c | 2 +-
+>  drivers/rtc/rtc-imxdi.c    | 2 +-
+>  drivers/rtc/rtc-mxc.c      | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
