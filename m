@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBEHY6LBQKGQEQWGPUJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBWGF3HBQKGQEFUGEP6A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id 133si839370wmj.1.2017.01.16.04.26.56
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id d207si1346165wmd.1.2017.01.11.08.52.40
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Jan 2017 04:26:56 -0800 (PST)
-Subject: [rtc-linux] Re: [bug report] rtc: add STM32 RTC driver
-To: Dan Carpenter <dan.carpenter@oracle.com>
-References: <20170116121346.GA28569@mwanda> <20170116122128.GC4104@mwanda>
-CC: <rtc-linux@googlegroups.com>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <4b8b62fc-3562-f7ee-c60b-8c588610b4e1@st.com>
-Date: Mon, 16 Jan 2017 13:26:53 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170116122128.GC4104@mwanda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Wed, 11 Jan 2017 08:52:40 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Olof Johansson <olof@lixom.net>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH 2/4] mfd: cros_ec: Introduce RTC commands and
+ events definitions.
+Date: Wed, 11 Jan 2017 17:52:19 +0100
+Message-Id: <20170111165221.17337-2-enric.balletbo@collabora.com>
+In-Reply-To: <20170111165221.17337-1-enric.balletbo@collabora.com>
+References: <20170111165221.17337-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,43 +30,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-I've changed the comparison:
-@@ -525,7 +525,7 @@  static int stm32_rtc_init(struct platform_device *pdev,
-  		pred_s = (rate / (pred_a + 1)) - 1;
+From: Stephen Barber <smbarber@chromium.org>
 
-  		dev_warn(&pdev->dev, "ck_rtc is %s\n",
--			 (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
-+			 (rate < ((pred_a + 1) * (pred_s + 1))) ?
-  			 "fast" : "slow");
-  	}
-Now, rate (unsigned) is compared to ((pred_a + 1) * (pred_s + 1)) 
-(unsigned), so no further "unsigned expression < 0 is always false".
+The EC can function as a simple RT, this patch adds the RTC related
+definitions needed by the rtc-cros-ec driver.
 
-Regards,
-Amelie
-On 01/16/2017 01:21 PM, Dan Carpenter wrote:
-> Oh.  That still won't fix this:
->
-> drivers/rtc/rtc-stm32.c
->    519          /*
->    520           * Can't find a 1Hz, so give priority to RTC power consumption
->    521           * by choosing the higher possible value for prediv_a
->    522           */
->    523          if ((pred_s > pred_s_max) || (pred_a > pred_a_max)) {
->    524                  pred_a = pred_a_max;
->    525                  pred_s = (rate / (pred_a + 1)) - 1;
->    526
->    527                  dev_warn(&pdev->dev, "ck_rtc is %s\n",
->    528                           (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
->
-> This is type promoted to unsigned int < 0.
->
->    529                           "fast" : "slow");
->    530          }
->
-> regards,
-> dan carpenter
->
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+ include/linux/mfd/cros_ec_commands.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 80d401d..73f7a62 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -286,6 +286,9 @@ enum host_event_code {
+ 	/* Hang detect logic detected a hang and warm rebooted the AP */
+ 	EC_HOST_EVENT_HANG_REBOOT = 21,
+ 
++	/* EC RTC event occurred */
++	EC_HOST_EVENT_RTC = 26,
++
+ 	/*
+ 	 * The high bit of the event mask is not used as a host event code.  If
+ 	 * it reads back as set, then the entire event mask should be
+@@ -790,6 +793,8 @@ enum ec_feature_code {
+ 	EC_FEATURE_USB_MUX = 23,
+ 	/* Motion Sensor code has an internal software FIFO */
+ 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
++	/* EC has RTC feature that can be controlled by host commands */
++	EC_FEATURE_RTC = 27,
+ };
+ 
+ #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
+@@ -1682,6 +1687,9 @@ struct ec_response_rtc {
+ #define EC_CMD_RTC_SET_VALUE 0x46
+ #define EC_CMD_RTC_SET_ALARM 0x47
+ 
++/* Pass as param to SET_ALARM to clear the current alarm */
++#define EC_RTC_ALARM_CLEAR 0
++
+ /*****************************************************************************/
+ /* Port80 log access */
+ 
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
