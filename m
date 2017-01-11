@@ -1,21 +1,32 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCHXYPCAKGQETMJZIZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBJMM3DBQKGQE2PUYOSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 14si1093779wmn.2.2017.01.31.13.03.04
+        by gmr-mx.google.com with ESMTP id h62si466269wme.2.2017.01.11.02.17.08
         for <rtc-linux@googlegroups.com>;
-        Tue, 31 Jan 2017 13:03:04 -0800 (PST)
-Date: Tue, 31 Jan 2017 22:03:04 +0100
+        Wed, 11 Jan 2017 02:17:08 -0800 (PST)
+Date: Wed, 11 Jan 2017 11:17:08 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: bq32000: add support to enable disable
- the trickle charge FET bypass.
-Message-ID: <20170131210304.duztjh4k55yvxrvs@piout.net>
-References: <20170127174346.30131-1-enric.balletbo@collabora.com>
+To: Amelie DELAUNAY <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre TORGUE <alexandre.torgue@st.com>,
+	Russell King <linux@armlinux.org.uk>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
+Message-ID: <20170111101708.ujcgo7kpyywymyzp@piout.net>
+References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
+ <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
+ <20170111000803.mlie6kizcsj2o7lh@piout.net>
+ <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170127174346.30131-1-enric.balletbo@collabora.com>
+In-Reply-To: <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,27 +36,13 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 27/01/2017 at 18:43:46 +0100, Enric Balletbo i Serra wrote:
-> The bq32000 includes a trickle charge circuit to maintain the charge of the
-> backup supply when a super capacitor is used.
-> 
-> You can enable the charging circuit by setting 'trickle-resistor-ohms',
-> additionally you can set TCFE to 1 to bypass the internal diode and boost
-> the charge voltage of the backup supply. You might want to enable/disable
-> the TCFE switch from userspace (e.g when device is only connected to a
-> battery)
-> 
-> This patch introduces a new sysfs entry to enable and disable this FET
-> form userspace.
-> 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
->  .../ABI/testing/sysfs-bus-i2c-devices-bq32k        |  7 ++
->  drivers/rtc/rtc-bq32k.c                            | 76 ++++++++++++++++++++++
->  2 files changed, 83 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-bq32k
-> 
-Applied, thanks.
+On 11/01/2017 at 11:07:16 +0100, Amelie DELAUNAY wrote :
+> > This will never happen, tm is already checked multiple times (up to
+> > three) in the core before this function can be called.
+> > 
+> You're right. I'll remove all rtc_valid_tm calls.
+
+You can keep the one in read_time
 
 -- 
 Alexandre Belloni, Free Electrons
