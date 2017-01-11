@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBXXXYPCAKGQEBFUXINI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB5E43DBQKGQE67VQDXQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si1520878wma.3.2017.01.31.13.04.29
+        by gmr-mx.google.com with ESMTP id h62si470436wme.2.2017.01.11.02.52.36
         for <rtc-linux@googlegroups.com>;
-        Tue, 31 Jan 2017 13:04:29 -0800 (PST)
-Date: Tue, 31 Jan 2017 22:04:29 +0100
+        Wed, 11 Jan 2017 02:52:36 -0800 (PST)
+Date: Wed, 11 Jan 2017 11:52:36 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Guy Shapiro <guy.shapiro@mobi-wize.com>
-Cc: sre@kernel.org, shawnguo@kernel.org, Frank.Li@freescale.com,
-	fabio.estevam@nxp.com, a.zummo@towertech.it,
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH] rtc: snvs: add a missing write sync
-Message-ID: <20170131210429.zoh75tcr4ymvsw6o@piout.net>
-References: <1485683839-8843-1-git-send-email-guy.shapiro@mobi-wize.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: make struct rtc_class_ops const
+Message-ID: <20170111105236.5ucue6ybqvfulese@piout.net>
+References: <E1cRFxi-00083n-FY@rmk-PC.armlinux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1485683839-8843-1-git-send-email-guy.shapiro@mobi-wize.com>
+In-Reply-To: <E1cRFxi-00083n-FY@rmk-PC.armlinux.org.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,15 +27,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 29/01/2017 at 11:57:19 +0200, Guy Shapiro wrote:
-> The clear of the LPTA_EN flag should be synced before writing to the
-> alarm register. Omitting this synchronization creates a race when
-> trying to change existing alarm.
+On 11/01/2017 at 10:16:58 +0000, Russell King wrote :
+> Armada38x wants to modify its rtc_class_ops to remove the interrupt
+> handling when there is no usable interrupt, but this means we leave
+> function pointers in writable memory.
 > 
-> Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
+> Since rtc_class_ops is small, arrange to have two instances, one for
+> when we have interrupts, and one for when we have none, both marked
+> const.  This allows the compiler to place them in read-only memory,
+> which is better than placing them in __ro_after_init.
+> 
+> Thanks to Bhumika Goyal <bhumirks@gmail.com> for pointing out that
+> the structure was writable and submitting a patch to add
+> __ro_after_init.
+> 
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 > ---
->  drivers/rtc/rtc-snvs.c | 1 +
->  1 file changed, 1 insertion(+)
+> As the thread has gone quiet, I'm submitting the patch I sent within that
+> thread.  No one appears to have raised an objection to it (other than what
+> appears to be a misunderstanding.)
+> 
+>  drivers/rtc/rtc-armada38x.c | 24 +++++++++++++++++-------
+>  1 file changed, 17 insertions(+), 7 deletions(-)
 > 
 Applied, thanks.
 
