@@ -1,29 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB3XO2XBQKGQEIAJ6NRQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCZ3LK4RZYHRBZV33XBQKGQEF7U24OQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id d207si1148930wmd.1.2017.01.10.16.08.14
-        for <rtc-linux@googlegroups.com>;
-        Tue, 10 Jan 2017 16:08:14 -0800 (PST)
-Date: Wed, 11 Jan 2017 01:08:03 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Gabriel Fernandez <gabriel.fernandez@st.com>
-Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
-Message-ID: <20170111000803.mlie6kizcsj2o7lh@piout.net>
-References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
- <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id l66si169870wml.0.2017.01.12.02.43.50
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 12 Jan 2017 02:43:50 -0800 (PST)
+From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+To: alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it
+Cc: rtc-linux@googlegroups.com,
+	Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Subject: [rtc-linux] [PATCH 2/2] RTC: s35390a: implement ioctls
+Date: Thu, 12 Jan 2017 11:43:38 +0100
+Message-Id: <1484217818-27845-3-git-send-email-fabien.lahoudere@collabora.co.uk>
+In-Reply-To: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,50 +26,92 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Looks good to me, however...
+Implements RTC_VL_READ and RTC_VL_CLR ioctls.
 
+Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+---
+ drivers/rtc/rtc-s35390a.c | 40 ++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 38 insertions(+), 2 deletions(-)
 
-On 05/01/2017 at 14:43:24 +0100, Amelie Delaunay wrote :
-> +struct stm32_rtc {
-> +	struct rtc_device *rtc_dev;
-> +	void __iomem *base;
-> +	struct clk *ck_rtc;
-> +	spinlock_t lock; /* Protects registers accesses */
-
-This spinlock seems to be useless, the rtc ops_lock is already
-protecting everywhere it is taken.
-
-> +	int irq_alarm;
-> +};
-> +
-
-[...]
-
-> +static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> +{
-> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
-> +	struct rtc_time *tm = &alrm->time;
-> +	unsigned long irqflags;
-> +	unsigned int cr, isr, alrmar;
-> +	int ret = 0;
-> +
-> +	if (rtc_valid_tm(tm)) {
-> +		dev_err(dev, "Alarm time not valid.\n");
-> +		return -EINVAL;
-
-This will never happen, tm is already checked multiple times (up to
-three) in the core before this function can be called.
-
-> +	}
-> +
-
-You don't need to resend the whole series, just this patch. I'll take
-2/8 and 3/8, the other ones can go through the stm32 tree.
-
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index ef4ada9..2bd8301 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -63,6 +63,7 @@ struct s35390a {
+ 	struct rtc_device *rtc;
+ 	int twentyfourhour;
+ 	int isinvalid;
++	int lowvoltage;
+ };
+ 
+ static int s35390a_set_reg(struct s35390a *s35390a, int reg, char *buf, int len)
+@@ -121,7 +122,9 @@ static int s35390a_reset(struct s35390a *s35390a, char *status1)
+ 		 * detection circuit is in operation.
+ 		 */
+ 		msleep(500);
+-	else if (!(*status1 & S35390A_FLAG_BLD))
++	else if (*status1 & S35390A_FLAG_BLD)
++		s35390a->lowvoltage = 1;
++	else
+ 		/*
+ 		 * If both POC and BLD are unset everything is fine.
+ 		 */
+@@ -393,12 +396,44 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	return s35390a_set_datetime(to_i2c_client(dev), tm);
+ }
+ 
++static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
++			     unsigned long arg)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct s35390a *s35390a = i2c_get_clientdata(client);
++	char sts;
++	int err;
++
++	switch (cmd) {
++	case RTC_VL_READ:
++		/* s35390a_reset set lowvoltage flag and init RTC if needed */
++		err = s35390a_reset(s35390a, &sts);
++		if (err < 0)
++			return err;
++		if (copy_to_user((void __user *)arg, &s35390a->lowvoltage,
++				 sizeof(int)))
++			return -EFAULT;
++
++	case RTC_VL_CLR:
++		/* update flag and clear register */
++		err = s35390a_reset(s35390a, &sts);
++		if ((err == 1) || (err == 0))
++			s35390a->lowvoltage = 0;
++		else
++			return err;
++	default:
++		return -ENOIOCTLCMD;
++	}
++
++	return 0;
++}
++
+ static const struct rtc_class_ops s35390a_rtc_ops = {
+ 	.read_time	= s35390a_rtc_read_time,
+ 	.set_time	= s35390a_rtc_set_time,
+ 	.set_alarm	= s35390a_rtc_set_alarm,
+ 	.read_alarm	= s35390a_rtc_read_alarm,
+-
++	.ioctl          = s35390a_rtc_ioctl,
+ };
+ 
+ static struct i2c_driver s35390a_driver;
+@@ -427,6 +462,7 @@ static int s35390a_probe(struct i2c_client *client,
+ 	s35390a->client[0] = client;
+ 	i2c_set_clientdata(client, s35390a);
+ 	s35390a->isinvalid = 0;
++	s35390a->lowvoltage = 0;
+ 
+ 	/* This chip uses multiple addresses, use dummy devices for them */
+ 	for (i = 1; i < 8; ++i) {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.8.3.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
