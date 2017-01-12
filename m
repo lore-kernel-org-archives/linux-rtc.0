@@ -1,28 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAVHT3CAKGQEH3RXDUY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBXOQ3XBQKGQE2XMHGVY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si864411wma.3.2017.01.24.09.48.49
+        by gmr-mx.google.com with ESMTP id 133si160714wmj.1.2017.01.12.03.28.28
         for <rtc-linux@googlegroups.com>;
-        Tue, 24 Jan 2017 09:48:49 -0800 (PST)
-Date: Tue, 24 Jan 2017 18:48:39 +0100
+        Thu, 12 Jan 2017 03:28:28 -0800 (PST)
+Date: Thu, 12 Jan 2017 12:28:18 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Florian Fainelli <f.fainelli@gmail.com>,
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Janos Laube <janos.dev@gmail.com>,
-	Paulius Zaleckas <paulius.zaleckas@gmail.com>,
-	openwrt-devel@openwrt.org, Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 08/22] rtc: Add device tree probing to the
- Gemini driver
-Message-ID: <20170124174839.xn6sdgzhv4neauel@piout.net>
-References: <20170122121950.10449-1-linus.walleij@linaro.org>
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: hide maybe-uninitialized warning
+Message-ID: <20170112112818.q2gxfgw7j3alo2ln@piout.net>
+References: <20170111145112.722743-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170122121950.10449-1-linus.walleij@linaro.org>
+In-Reply-To: <20170111145112.722743-1-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,27 +28,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/01/2017 at 13:19:50 +0100, Linus Walleij wrote :
-> This adds bindings and simple probing for the Cortina Systems Gemini
-> SoC RTC.
+Hi Arnd,
+
+On 11/01/2017 at 15:50:31 +0100, Arnd Bergmann wrote :
+> The function is too complicated for gcc to realize that this variable
+> does eventually get initialized, causing a harmless warning:
 > 
-> Cc: Janos Laube <janos.dev@gmail.com>
-> Cc: Paulius Zaleckas <paulius.zaleckas@gmail.com>
-> Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> RTC maintainers: please just apply this to the RTC tree when you
-> are pleased with it. It is functionally orthogonal to the rest of
-> the series and just in a series for context.
-> ---
->  Documentation/devicetree/bindings/rtc/cortina,gemini.txt | 14 ++++++++++++++
->  drivers/rtc/rtc-gemini.c                                 |  7 +++++++
->  2 files changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+> drivers/rtc/rtc-armada38x.c: In function 'read_rtc_register_wa':
+> drivers/rtc/rtc-armada38x.c:131:25: warning: 'index_max' may be used uninitialized in this function [-Wmaybe-uninitialized]
 > 
-Applied, thanks.
+> This adds an explicit initializion at the start of the function.
+> I generally try to avoid that, but it seems appropriate here,
+> as we start out with max=0 as well.
+> 
+> Fixes: 61cffa2438e3 ("rtc: armada38x: Follow the new recommendation for errata implementation")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Actually, I fixed that one directly in the commit yesterday as it has
+been reported to me multiple times already.
+
 
 -- 
 Alexandre Belloni, Free Electrons
