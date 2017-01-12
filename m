@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBBV4S7CAKGQEYVQ4K4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDTKFPPJUEHRBUWT33BQKGQEIQTHFVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si989296wmf.0.2017.01.23.02.42.14
-        for <rtc-linux@googlegroups.com>;
-        Mon, 23 Jan 2017 02:42:14 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
+Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
+        by gmr-mx.google.com with ESMTPS id l66si245609wml.0.2017.01.12.08.07.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 12 Jan 2017 08:07:46 -0800 (PST)
+Received: by mail-wm0-x244.google.com with SMTP id l2so4734403wml.2
+        for <rtc-linux@googlegroups.com>; Thu, 12 Jan 2017 08:07:46 -0800 (PST)
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>,
+	Martin Michlmayr <tbm@cyrius.com>,
 	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] [PATCH v2 6/7] ARM: sun8i: a23/a33: Enable the real LOSC
- and use it
-Date: Mon, 23 Jan 2017 11:41:51 +0100
-Message-Id: <d97cab8c5e0ad88742992e566b14d6116611e914.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+	linux-tegra@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 1/2] rtc: tegra: Sort includes alphabetically
+Date: Thu, 12 Jan 2017 17:07:42 +0100
+Message-Id: <20170112160743.23367-1-thierry.reding@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,74 +29,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-So far, the LOSC was generated through the RTC internal oscillator, which
-was a pretty poor and inaccurate choice.
+From: Thierry Reding <treding@nvidia.com>
 
-Now that the RTC properly exposes its internal mux between its oscillator
-and the external oscillator, we can use it were relevant.
+The ordering of includes is currently completely arbitrary, making it
+impossible to decide where to put new includes. Remove the dilemma by
+sort the include list alphabetically.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- arch/arm/boot/dts/sun8i-a23-a33.dtsi | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-tegra.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-index 597f2fce6c31..da7f2476bc6c 100644
---- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-@@ -109,11 +109,11 @@
- 			clock-output-names = "osc24M";
- 		};
+diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
+index 3853ba963bb5..38e662ff1a70 100644
+--- a/drivers/rtc/rtc-tegra.c
++++ b/drivers/rtc/rtc-tegra.c
+@@ -17,16 +17,17 @@
+  * with this program; if not, write to the Free Software Foundation, Inc.,
+  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  */
+-#include <linux/kernel.h>
++
++#include <linux/delay.h>
+ #include <linux/init.h>
+-#include <linux/module.h>
+-#include <linux/slab.h>
+-#include <linux/irq.h>
+ #include <linux/io.h>
+-#include <linux/delay.h>
+-#include <linux/rtc.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
++#include <linux/rtc.h>
++#include <linux/slab.h>
  
--		osc32k: osc32k_clk {
-+		ext_osc32k: ext_osc32k_clk {
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32768>;
--			clock-output-names = "osc32k";
-+			clock-output-names = "ext-osc32k";
- 		};
- 	};
- 
-@@ -256,7 +256,7 @@
- 
- 		ccu: clock@01c20000 {
- 			reg = <0x01c20000 0x400>;
--			clocks = <&osc24M>, <&osc32k>;
-+			clocks = <&osc24M>, <&rtc 0>;
- 			clock-names = "hosc", "losc";
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
-@@ -266,7 +266,7 @@
- 			/* compatible gets set in SoC specific dtsi file */
- 			reg = <0x01c20800 0x400>;
- 			/* interrupts get set in SoC specific dtsi file */
--			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
-+			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc 0>;
- 			clock-names = "apb", "hosc", "losc";
- 			gpio-controller;
- 			interrupt-controller;
-@@ -486,6 +486,9 @@
- 			reg = <0x01f00000 0x54>;
- 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
-+			clock-output-names = "osc32k";
-+			clocks = <&ext_osc32k>;
-+			#clock-cells = <1>;
- 		};
- 
- 		nmi_intc: interrupt-controller@01f00c0c {
-@@ -564,7 +567,7 @@
- 			compatible = "allwinner,sun8i-a23-r-pinctrl";
- 			reg = <0x01f02c00 0x400>;
- 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&apb0_gates 0>, <&osc24M>, <&osc32k>;
-+			clocks = <&apb0_gates 0>, <&osc24M>, <&rtc 0>;
- 			clock-names = "apb", "hosc", "losc";
- 			resets = <&apb0_rst 0>;
- 			gpio-controller;
+ /* set to 1 = busy every eight 32kHz clocks during copy of sec+msec to AHB */
+ #define TEGRA_RTC_REG_BUSY			0x004
 -- 
-git-series 0.8.11
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
