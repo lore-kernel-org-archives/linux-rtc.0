@@ -1,26 +1,26 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAXF2XBQKGQENQYK6EA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZMM4TBQKGQERA6S37Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 133si986989wmj.1.2017.01.10.15.47.13
+        by gmr-mx.google.com with ESMTP id e134si171208wmd.3.2017.01.13.08.55.01
         for <rtc-linux@googlegroups.com>;
-        Tue, 10 Jan 2017 15:47:13 -0800 (PST)
-Date: Wed, 11 Jan 2017 00:47:03 +0100
+        Fri, 13 Jan 2017 08:55:01 -0800 (PST)
+Date: Fri, 13 Jan 2017 17:54:51 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Martin Kaiser <martin@kaiser.cx>
-Cc: Lucas Stach <l.stach@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>,
-	Fabio Estevam <fabio.estevam@nxp.com>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>
-Subject: [rtc-linux] Re: [PATCH 3/3] Documentation: dt: rtc-imxdi: security
- violation interrupt
-Message-ID: <20170110234703.hynlrfezwq3xyi2i@piout.net>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
- <1483469485-8336-1-git-send-email-martin@kaiser.cx>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	Amelie Delaunay <amelie.delaunay@st.com>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/3] rtc: stm32: remove __exit annotation on
+ remove callback
+Message-ID: <20170113165451.3wsyynukd3su2tcf@piout.net>
+References: <20170113153311.2611510-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1483469485-8336-1-git-send-email-martin@kaiser.cx>
+In-Reply-To: <20170113153311.2611510-1-arnd@arndb.de>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,13 +30,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/01/2017 at 19:51:25 +0100, Martin Kaiser wrote :
-> Document the DryIce security violation interrupt.
+On 13/01/2017 at 16:32:51 +0100, Arnd Bergmann wrote :
+> The remove function can be called at runtime for a manual 'unbind'
+> operation and must not be left out from a built-in driver, as kbuild
+> complains:
 > 
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+> `stm32_rtc_remove' referenced in section `.data.stm32_rtc_driver' of drivers/rtc/rtc-stm32.o: defined in discarded section `.exit.text' of drivers/rtc/rtc-stm32.o
+> 
+> This removes the extraneous annotation.
+> 
+> Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  Documentation/devicetree/bindings/rtc/imxdi-rtc.txt |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  drivers/rtc/rtc-stm32.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 Applied, thanks.
 
