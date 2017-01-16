@@ -1,25 +1,16 @@
-Return-Path: <rtc-linux+bncBDZJXP7F6YLRBU6SWPBQKGQEOW7DKNI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDIZTUWNWICRBA7S6LBQKGQEULLXLZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr. [192.134.164.104])
-        by gmr-mx.google.com with ESMTPS id o77si6011202wme.0.2017.01.04.04.23.46
+Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
+        by gmr-mx.google.com with ESMTPS id h130si58334pfe.1.2017.01.16.04.13.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Jan 2017 04:23:46 -0800 (PST)
-Date: Wed, 4 Jan 2017 13:23:41 +0100 (CET)
-From: Julia Lawall <julia.lawall@lip6.fr>
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Kees Cook <keescook@chromium.org>, andrew@lunn.ch,
-    Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
-    a.zummo@towertech.it, LKML <linux-kernel@vger.kernel.org>,
-    "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-    gregory.clement@free-electrons.com, Bhumika Goyal <bhumirks@gmail.com>,
-    sebastian.hesselbarth@gmail.com
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
-In-Reply-To: <20170104121425.GP14217@n2100.armlinux.org.uk>
-Message-ID: <alpine.DEB.2.20.1701041320140.3073@hadrien>
-References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com> <20170102140654.GF14217@n2100.armlinux.org.uk> <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com> <20170103213118.GM14217@n2100.armlinux.org.uk> <20170103215421.GN14217@n2100.armlinux.org.uk>
- <alpine.DEB.2.20.1701041155380.3073@hadrien> <20170104110750.dtu54t74qkuuvkvq@piout.net> <alpine.DEB.2.20.1701041242080.3073@hadrien> <20170104121425.GP14217@n2100.armlinux.org.uk>
+        Mon, 16 Jan 2017 04:13:55 -0800 (PST)
+Date: Mon, 16 Jan 2017 15:13:47 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: amelie.delaunay@st.com
+Cc: rtc-linux@googlegroups.com
+Subject: [rtc-linux] [bug report] rtc: add STM32 RTC driver
+Message-ID: <20170116121346.GA28569@mwanda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -31,82 +22,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Hello Amelie Delaunay,
 
+The patch 4e64350f42e2: "rtc: add STM32 RTC driver" from Jan 11,
+2017, leads to the following static checker warning:
 
-On Wed, 4 Jan 2017, Russell King - ARM Linux wrote:
+	drivers/rtc/rtc-stm32.c:514 stm32_rtc_init()
+	warn: always true condition '(pred_a >= 0) => (0-u32max >= 0)'
 
-> On Wed, Jan 04, 2017 at 12:43:32PM +0100, Julia Lawall wrote:
-> > > The question was whether the point to the rtc_class_ops could be made
-> > > __ro_after_init. And Russell is right, it is pointed to by the ops
-> > > pointer in a struct rtc_device and that struct is dynamically allocated
-> > > in rtc_device_register().
-> >
-> > OK, I think it's a terminology issue.  You mean the structure that
-> > contains the pointer, and not the pointer itself, which is already const.
->
-> That statement is really ambiguous, and really doesn't help the cause -
-> we have several structures here which contain pointers and it's far from
-> clear which you're talking about:
->
-> - The armada38x_rtc_ops and armada38x_rtc_ops_noirq structures contain
->   pointers to functions.
-> - The dynamically allocated struct rtc_device contains an ops pointer,
->   which will point at one or other of these two structures.
->
-> Now, as soon as we make armada38x_rtc_ops and armada38x_rtc_ops_noirq
-> const, if the pointer is passed through any function call where the
-> argument is not also marked const, or is assigned to a pointer that is
-> not marked const (without an explicit cast), the compiler will complain.
-> Remember that a const pointer (iow, const void *ptr) is just a hint to
-> the compiler that "ptr" _may_ point at read-only data, and dereferences
-> of the pointer are not allowed to write - it's just syntactic checking.
->
-> Given that this is stuff we should all know, I'm not quite sure what
-> people are getting in a tiz over... I'm finding it worrying that I'm
-> even writing this mail, reviewing this stuff!  _Really_ worried that
-> Kees even brought it up in the first place - I suspect that came from
-> a misunderstanding of my suggestion which is why I later provided the
-> suggestion in patch form.
->
-> What I suggested, and what my patch does is:
->
-> 1. It places both the armada38x_rtc_ops and armada38x_rtc_ops_noirq
->    structures into the .rodata section, which will be protected from
->    writes by hardware when appropriate kernel options are enabled.
->
-> 2. The driver does _not_ store a local pointer to this memory at a
->    static address which could be subsequently modified (*).
->
-> 3. The only pointer to this memory is during driver initialisation
->    (which may well reside in a CPU register only) before being passed
->    to the RTC subsystem.
->
-> 4. The RTC subsystem dynamically allocates a struct rtc_device
->    structure (in rtc_device_register()) where it eventually stores
->    this pointer.  This pointer is already marked const.  This structure
->    contains read/write data, and can't be marked read-only, just in the
->    same way as "struct file" can't be.
->
-> The whole __ro_after_init thing is completely irrelevant and a total
-> distraction at this point - there is nothing that you could add a
-> __ro_after_init annotation to after my patch in regard of these ops
-> structures.
->
-> * - however, a compiler may decide to store the addresses of these
-> structures as a literal constant near the function, but with RONX
-> protection for the .text section, this memory is also read-only, and
-> so can't be modified.
+drivers/rtc/rtc-stm32.c
+   499  static int stm32_rtc_init(struct platform_device *pdev,
+   500                            struct stm32_rtc *rtc)
+   501  {
+   502          unsigned int prer, pred_a, pred_s, pred_a_max, pred_s_max, cr;
+   503          unsigned int rate;
+   504          int ret = 0;
+   505  
+   506          rate = clk_get_rate(rtc->ck_rtc);
+   507  
+   508          /* Find prediv_a and prediv_s to obtain the 1Hz calendar clock */
+   509          pred_a_max = STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
+   510          pred_s_max = STM32_RTC_PRER_PRED_S >> STM32_RTC_PRER_PRED_S_SHIFT;
+   511  
+   512          for (pred_a = pred_a_max; pred_a >= 0; pred_a--) {
+                                          ^^^^^^^^^^^
+We should probably make pred_a, pred_s, pred_a_max and pred_s_max
+signed.
 
-Thanks for the explanation.  I understood the patch, just not Kees's
-question.
+   513                  pred_s = (rate / (pred_a + 1)) - 1;
+   514  
+   515                  if (((pred_s + 1) * (pred_a + 1)) == rate)
+   516                          break;
+   517          }
+   518  
 
-Basically, the strategy of the patch is that one may consider it
-preferable to duplicate the structure for the different alternatives,
-rather than use __ro_after_init.  Perhaps if the structure were larger,
-then __ro_after_init would be a better choice?
-
-thanks,
-julia
+regards,
+dan carpenter
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
