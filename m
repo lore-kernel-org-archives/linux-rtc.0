@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBCRKFI7J2AJRBAWMUHCAKGQE3JKIIAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBYXU6LBQKGQEHWXIPTY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com. [119.145.14.65])
-        by gmr-mx.google.com with ESMTPS id j63si1663570ita.1.2017.01.25.00.46.56
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
+        by gmr-mx.google.com with ESMTPS id d207si912937wmd.1.2017.01.16.04.19.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 25 Jan 2017 00:46:57 -0800 (PST)
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Patrice Chotard
-	<patrice.chotard@st.com>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, <linux-arm-kernel@lists.infradead.org>,
-        <rtc-linux@googlegroups.com>
-CC: Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [rtc-linux] [PATCH 4/4] rtc: sunxi: using devm_rtc_device_register helper
-Date: Wed, 25 Jan 2017 16:41:57 +0800
-Message-ID: <1485333717-47536-4-git-send-email-wangkefeng.wang@huawei.com>
-In-Reply-To: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
-References: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
-MIME-Version: 1.0
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 16 Jan 2017 04:19:46 -0800 (PST)
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+CC: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] RE: [bug report] rtc: add STM32 RTC driver
+Date: Mon, 16 Jan 2017 12:19:44 +0000
+Message-ID: <77f3f241c74d46a2846acd823339d64d@SFHDAG3NODE2.st.com>
+References: <20170116121346.GA28569@mwanda>
+In-Reply-To: <20170116121346.GA28569@mwanda>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,53 +24,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Using devm_rtc_device_register() helper to simplify code.
+Hi Dan,
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- drivers/rtc/rtc-sunxi.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+Thanks for reporting this issue.
+I've already send a fix ("rtc: stm32: fix comparison warnings"): https://patchwork.kernel.org/patch/9518411/.
 
-diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
-index abada60..6fba5ae 100644
---- a/drivers/rtc/rtc-sunxi.c
-+++ b/drivers/rtc/rtc-sunxi.c
-@@ -481,8 +481,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
- 	writel(SUNXI_ALRM_IRQ_STA_CNT_IRQ_PEND, chip->base +
- 			SUNXI_ALRM_IRQ_STA);
- 
--	chip->rtc = rtc_device_register("rtc-sunxi", &pdev->dev,
--			&sunxi_rtc_ops, THIS_MODULE);
-+	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sunxi",
-+					     &sunxi_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(chip->rtc)) {
- 		dev_err(&pdev->dev, "unable to register device\n");
- 		return PTR_ERR(chip->rtc);
-@@ -493,18 +493,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int sunxi_rtc_remove(struct platform_device *pdev)
--{
--	struct sunxi_rtc_dev *chip = platform_get_drvdata(pdev);
--
--	rtc_device_unregister(chip->rtc);
--
--	return 0;
--}
--
- static struct platform_driver sunxi_rtc_driver = {
- 	.probe		= sunxi_rtc_probe,
--	.remove		= sunxi_rtc_remove,
- 	.driver		= {
- 		.name		= "sunxi-rtc",
- 		.of_match_table = sunxi_rtc_dt_ids,
--- 
-1.7.12.4
+Regards,
+Amelie
+
+> -----Original Message-----
+> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
+> Sent: lundi 16 janvier 2017 13:14
+> To: Amelie DELAUNAY <amelie.delaunay@st.com>
+> Cc: rtc-linux@googlegroups.com
+> Subject: [bug report] rtc: add STM32 RTC driver
+> 
+> Hello Amelie Delaunay,
+> 
+> The patch 4e64350f42e2: "rtc: add STM32 RTC driver" from Jan 11, 2017, leads
+> to the following static checker warning:
+> 
+> 	drivers/rtc/rtc-stm32.c:514 stm32_rtc_init()
+> 	warn: always true condition '(pred_a >= 0) => (0-u32max >= 0)'
+> 
+> drivers/rtc/rtc-stm32.c
+>    499  static int stm32_rtc_init(struct platform_device *pdev,
+>    500                            struct stm32_rtc *rtc)
+>    501  {
+>    502          unsigned int prer, pred_a, pred_s, pred_a_max, pred_s_max, cr;
+>    503          unsigned int rate;
+>    504          int ret = 0;
+>    505
+>    506          rate = clk_get_rate(rtc->ck_rtc);
+>    507
+>    508          /* Find prediv_a and prediv_s to obtain the 1Hz calendar clock */
+>    509          pred_a_max = STM32_RTC_PRER_PRED_A >>
+> STM32_RTC_PRER_PRED_A_SHIFT;
+>    510          pred_s_max = STM32_RTC_PRER_PRED_S >>
+> STM32_RTC_PRER_PRED_S_SHIFT;
+>    511
+>    512          for (pred_a = pred_a_max; pred_a >= 0; pred_a--) {
+>                                           ^^^^^^^^^^^ We should probably make pred_a,
+> pred_s, pred_a_max and pred_s_max signed.
+> 
+>    513                  pred_s = (rate / (pred_a + 1)) - 1;
+>    514
+>    515                  if (((pred_s + 1) * (pred_a + 1)) == rate)
+>    516                          break;
+>    517          }
+>    518
+> 
+> regards,
+> dan carpenter
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
