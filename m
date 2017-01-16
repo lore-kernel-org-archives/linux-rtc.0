@@ -1,18 +1,20 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBP5WX3CAKGQEUVS2WGY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB6UO6TBQKGQEZQKQCRA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si1093330wmf.0.2017.01.30.11.59.58
+        by gmr-mx.google.com with ESMTP id e134si863190wmd.3.2017.01.16.09.48.41
         for <rtc-linux@googlegroups.com>;
-        Mon, 30 Jan 2017 11:59:58 -0800 (PST)
-Date: Mon, 30 Jan 2017 20:59:48 +0100
+        Mon, 16 Jan 2017 09:48:41 -0800 (PST)
+Date: Mon, 16 Jan 2017 18:48:41 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [GIT PULL] RTC fixes for 4.10
-Message-ID: <20170130195948.awqujnclhsydbqeb@piout.net>
+To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 2/2] RTC: s35390a: implement ioctls
+Message-ID: <20170116174841.csfttfimapvdemrm@piout.net>
+References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+ <1484217818-27845-3-git-send-email-fabien.lahoudere@collabora.co.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="aca2rbkzm5b6q7l5"
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1484217818-27845-3-git-send-email-fabien.lahoudere@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -22,41 +24,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+On 12/01/2017 at 11:43:38 +0100, Fabien Lahoudere wrote :
+> Implements RTC_VL_READ and RTC_VL_CLR ioctls.
+> 
+> Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+> ---
+>  drivers/rtc/rtc-s35390a.c | 40 ++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 38 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+> index ef4ada9..2bd8301 100644
+> --- a/drivers/rtc/rtc-s35390a.c
+> +++ b/drivers/rtc/rtc-s35390a.c
+> @@ -121,7 +122,9 @@ static int s35390a_reset(struct s35390a *s35390a, char *status1)
+>  		 * detection circuit is in operation.
+>  		 */
+>  		msleep(500);
+> -	else if (!(*status1 & S35390A_FLAG_BLD))
+> +	else if (*status1 & S35390A_FLAG_BLD)
+> +		s35390a->lowvoltage = 1;
+> +	else
+>  		/*
+>  		 * If both POC and BLD are unset everything is fine.
+>  		 */
+> @@ -393,12 +396,44 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	return s35390a_set_datetime(to_i2c_client(dev), tm);
+>  }
+>  
+> +static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
+> +			     unsigned long arg)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct s35390a *s35390a = i2c_get_clientdata(client);
+> +	char sts;
+> +	int err;
+> +
+> +	switch (cmd) {
+> +	case RTC_VL_READ:
 
---aca2rbkzm5b6q7l5
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+It seems wasteful to call s35390a_reset() every time. If
+s35390a->lowvoltage is already set to 1 then you already have the answer
+you need (and you already resetted the RTC)
 
-Hi Linus,
+> +		/* s35390a_reset set lowvoltage flag and init RTC if needed */
+> +		err = s35390a_reset(s35390a, &sts);
+> +		if (err < 0)
+> +			return err;
+> +		if (copy_to_user((void __user *)arg, &s35390a->lowvoltage,
+> +				 sizeof(int)))
+> +			return -EFAULT;
+> +
+> +	case RTC_VL_CLR:
+> +		/* update flag and clear register */
+> +		err = s35390a_reset(s35390a, &sts);
+> +		if ((err == 1) || (err == 0))
 
-A single fix for this cycle. It is worth taking it for 4.10 so
-distributions will not have CONFIG_RTC_DRV_JZ4740 switching from m to y
-in their config.
+Whatever the error, once the first s35390a_get_reg(), the POC and BLD
+flags are lost. I would reset lowvoltage in every cases.
 
-The following changes since commit 7ce7d89f48834cefece7804d38fc5d85382edf77:
-
-  Linux 4.10-rc1 (2016-12-25 16:13:08 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.10-2
-
-for you to fetch changes up to 586655d278ba08af7b198b93217746f9a506ee8a:
-
-  rtc: jz4740: make the driver buildable as a module again (2017-01-26 23:03:21 +0100)
-
-----------------------------------------------------------------
-RTC fixes for 4.10:
-
- - Allow jz4740 to build as a module again by using kernel_halt()
-
-----------------------------------------------------------------
-Alexandre Belloni (1):
-      rtc: jz4740: make the driver buildable as a module again
-
- drivers/rtc/Kconfig      |  5 ++++-
- drivers/rtc/rtc-jz4740.c | 12 ++++++++++--
- 2 files changed, 14 insertions(+), 3 deletions(-)
 
 -- 
 Alexandre Belloni, Free Electrons
@@ -72,25 +97,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---aca2rbkzm5b6q7l5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEl0I5XWmUIrwBfFMm2KKDO9oT4sIFAliPmzIACgkQ2KKDO9oT
-4sIjow//V7xFYMDMMTGMLWlkvtgCfnc2qBXUmZWKD8d7lCVMQ4vzvYZi9dELGvom
-gW7YYw30x01xCAjXlroT3Ynvn0qL8LzUvYRZokncy8vRONV8D2TO04u0LDxvXXg+
-pI92xD9SwZJFW91plCF3papuvEvy11S5p1gUDvvdToH+3i8ZI6NrSQrUQ1G4/FtT
-htT+rkP0eJx9Pjelr0mLcCb6wEKtPSG8K6t3GYYebP4QdtnluFd9DHxwWCQezG2T
-3pb8P1cYgslCYsYz5cKyoAljWtGQlW/TQQRQmwZTRJxyoz4a5QouFsOwVZmdAuSs
-K5okXVlF4JEqw34oiqG/8RwZvgooZkdNuKnknkFv/G+3+cu9sn2Kpsn8IwM5Vi7c
-qquahHB8tEDBtU5bf1w1wICxmbjmOrMQ5CM8AnnhkvhdMznGTn+7tt3yTxXu6yuQ
-WbY5xeWLPLJvyw7MJU9JkjA8X0J8gb/txDKQo+nDoSVoLtr5kzWqfVnm2BlFLFah
-kjhdJHLXbhMgrUf2b8kdEO4MWnS8vxzVNKST5py75jEwIyHuvsB6wCUsugwVq3Ra
-Z5ewcBkHC2vaS1OT0zIZ1rbCBfgvXvhUhyk14Nzg/8sFyqssePakKI72en1jFnWt
-eeyOC2xAebyhaRfhedKkeGu+NZTbrqFyaFf/9tBHBqF68iQgdEw=
-=p+I6
------END PGP SIGNATURE-----
-
---aca2rbkzm5b6q7l5--
