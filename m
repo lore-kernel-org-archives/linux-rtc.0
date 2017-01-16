@@ -1,36 +1,21 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBY4H3DBQKGQEEXXVFNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBUWS6PBQKGQE5MHEPRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id h198si117638wmg.1.2017.01.11.02.07.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 11 Jan 2017 02:07:30 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
- <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
- <20170111000803.mlie6kizcsj2o7lh@piout.net>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>,
-        "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
-Date: Wed, 11 Jan 2017 11:07:16 +0100
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id l66si925414wml.0.2017.01.16.07.40.02
+        for <rtc-linux@googlegroups.com>;
+        Mon, 16 Jan 2017 07:40:02 -0800 (PST)
+Date: Mon, 16 Jan 2017 16:39:59 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	stable@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: sun6i: Switch to the external oscillator
+Message-ID: <20170116153959.7qhahevikxzai664@piout.net>
+References: <20170116152148.27439-1-maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
-In-Reply-To: <20170111000803.mlie6kizcsj2o7lh@piout.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170116152148.27439-1-maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -40,53 +25,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+On 16/01/2017 at 16:21:48 +0100, Maxime Ripard wrote :
+> The RTC is clocked from either an internal, imprecise, oscillator or an
+> external one, which is usually much more accurate.
+> 
+> The difference perceived between the time elapsed and the time reported by
+> the RTC is in a 10% scale, which prevents the RTC from being useful at all.
+> 
+> Fortunately, the external oscillator is reported to be mandatory in the
+> Allwinner datasheet, so we can just switch to it.
+> 
 
-On 01/11/2017 01:08 AM, Alexandre Belloni wrote:
-> Looks good to me, however...
->
->
-> On 05/01/2017 at 14:43:24 +0100, Amelie Delaunay wrote :
->> +struct stm32_rtc {
->> +	struct rtc_device *rtc_dev;
->> +	void __iomem *base;
->> +	struct clk *ck_rtc;
->> +	spinlock_t lock; /* Protects registers accesses */
->
-> This spinlock seems to be useless, the rtc ops_lock is already
-> protecting everywhere it is taken.
->
-After having a deeper look on ops_lock, it seems this one is sufficient, 
-so I'll remove all spinlock uses in this driver.
->> +	int irq_alarm;
->> +};
->> +
->
-> [...]
->
->> +static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->> +{
->> +	struct stm32_rtc *rtc = dev_get_drvdata(dev);
->> +	struct rtc_time *tm = &alrm->time;
->> +	unsigned long irqflags;
->> +	unsigned int cr, isr, alrmar;
->> +	int ret = 0;
->> +
->> +	if (rtc_valid_tm(tm)) {
->> +		dev_err(dev, "Alarm time not valid.\n");
->> +		return -EINVAL;
->
-> This will never happen, tm is already checked multiple times (up to
-> three) in the core before this function can be called.
->
-You're right. I'll remove all rtc_valid_tm calls.
->> +	}
->> +
->
-> You don't need to resend the whole series, just this patch. I'll take
-> 2/8 and 3/8, the other ones can go through the stm32 tree.
->
-Thanks for reviewing. I send a v4 for this patch right now.
+Still, I'm wondering whether the external clock should be taken.
+
+We've had issues with at91 and tegra where this external clock was
+suddenly able to be stopped, breaking the RTC because the CCF was not
+aware the RTC was using it.
+
+See:
+http://patchwork.ozlabs.org/patch/502459/
+http://patchwork.ozlabs.org/patch/714517/
+
+Your reply can be that you don't care now and this has a low probability
+and you'll handle the case when it happens and that will be fine.
+
+> Cc: stable@vger.kernel.org
+> Fixes: 9765d2d94309 ("rtc: sun6i: Add sun6i RTC driver")
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-sun6i.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index c169a2cd4727..dee524cfa13b 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -37,9 +37,11 @@
+>  
+>  /* Control register */
+>  #define SUN6I_LOSC_CTRL				0x0000
+> +#define SUN6I_LOSC_CTRL_KEY			(0x16aa << 16)
+>  #define SUN6I_LOSC_CTRL_ALM_DHMS_ACC		BIT(9)
+>  #define SUN6I_LOSC_CTRL_RTC_HMS_ACC		BIT(8)
+>  #define SUN6I_LOSC_CTRL_RTC_YMD_ACC		BIT(7)
+> +#define SUN6I_LOSC_CTRL_EXT_OSC			BIT(0)
+>  #define SUN6I_LOSC_CTRL_ACC_MASK		GENMASK(9, 7)
+>  
+>  /* RTC */
+> @@ -404,6 +406,10 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+>  	/* disable alarm wakeup */
+>  	writel(0, chip->base + SUN6I_ALARM_CONFIG);
+>  
+> +	/* switch to the external, more precise, oscillator */
+> +	writel(SUN6I_LOSC_CTRL_KEY | SUN6I_LOSC_CTRL_EXT_OSC,
+> +	       chip->base + SUN6I_LOSC_CTRL);
+> +
+>  	chip->rtc = rtc_device_register("rtc-sun6i", &pdev->dev,
+>  					&sun6i_rtc_ops, THIS_MODULE);
+>  	if (IS_ERR(chip->rtc)) {
+> -- 
+> 2.11.0
+> 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
