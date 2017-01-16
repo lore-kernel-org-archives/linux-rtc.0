@@ -1,28 +1,20 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB4UJ4TBQKGQEP3YT26A@googlegroups.com>
-Received: from mail-oi0-x241.google.com (mail-oi0-x241.google.com. [2607:f8b0:4003:c06::241])
-        by gmr-mx.google.com with ESMTPS id 13si186519itg.2.2017.01.13.08.48.50
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBEHY6LBQKGQEQWGPUJY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
+        by gmr-mx.google.com with ESMTPS id 133si839370wmj.1.2017.01.16.04.26.56
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Jan 2017 08:48:50 -0800 (PST)
-Received: by mail-oi0-x241.google.com with SMTP id u143so7412860oif.3
-        for <rtc-linux@googlegroups.com>; Fri, 13 Jan 2017 08:48:50 -0800 (PST)
+        Mon, 16 Jan 2017 04:26:56 -0800 (PST)
+Subject: [rtc-linux] Re: [bug report] rtc: add STM32 RTC driver
+To: Dan Carpenter <dan.carpenter@oracle.com>
+References: <20170116121346.GA28569@mwanda> <20170116122128.GC4104@mwanda>
+CC: <rtc-linux@googlegroups.com>
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+Message-ID: <4b8b62fc-3562-f7ee-c60b-8c588610b4e1@st.com>
+Date: Mon, 16 Jan 2017 13:26:53 +0100
 MIME-Version: 1.0
-Sender: arndbergmann@gmail.com
-In-Reply-To: <26624cbe-7e71-35a4-b8df-f5ac5d15b1ec@st.com>
-References: <20170113153311.2611510-1-arnd@arndb.de> <20170113153311.2611510-3-arnd@arndb.de>
- <26624cbe-7e71-35a4-b8df-f5ac5d15b1ec@st.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 13 Jan 2017 17:48:49 +0100
-Message-ID: <CAK8P3a3vzwB5MDiVse+meK17KKHtaZWzmOkfzJ2d=n=sgjzkRw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: stm32: use 32-bit cast for BIT() macro
-To: Amelie DELAUNAY <amelie.delaunay@st.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre TORGUE <alexandre.torgue@st.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170116122128.GC4104@mwanda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,26 +24,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Jan 13, 2017 at 4:56 PM, Amelie DELAUNAY <amelie.delaunay@st.com> wrote:
-> On 01/13/2017 04:32 PM, Arnd Bergmann wrote:
->>
->> Using the ~ operator on a BIT() constant results in a large 'unsigned
->> long'
->> constant that won't fit into an 'unsigned int' function argument on 64-bit
->> architectures, resulting in a harmless build warning in x86 allmodconfig:
->>
->> drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_probe':
->> drivers/rtc/rtc-stm32.c:651:51: error: large integer implicitly truncated
->> to unsigned type [-Werror=overflow]
->>   regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+I've changed the comparison:
+@@ -525,7 +525,7 @@  static int stm32_rtc_init(struct platform_device *pdev,
+  		pred_s = (rate / (pred_a + 1)) - 1;
+
+  		dev_warn(&pdev->dev, "ck_rtc is %s\n",
+-			 (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
++			 (rate < ((pred_a + 1) * (pred_s + 1))) ?
+  			 "fast" : "slow");
+  	}
+Now, rate (unsigned) is compared to ((pred_a + 1) * (pred_s + 1)) 
+(unsigned), so no further "unsigned expression < 0 is always false".
+
+Regards,
+Amelie
+On 01/16/2017 01:21 PM, Dan Carpenter wrote:
+> Oh.  That still won't fix this:
 >
-> I thought I would fix this warning by replacing all ~PWR_CR_DBP by 0,
-> because the mask PWR_CR_DBP prevents other bits to be cleared.
-> In this way, I avoid the ugly cast...
-
-Good idea, much nicer than mine! Can you send that patch?
-
-    Arnd
+> drivers/rtc/rtc-stm32.c
+>    519          /*
+>    520           * Can't find a 1Hz, so give priority to RTC power consumption
+>    521           * by choosing the higher possible value for prediv_a
+>    522           */
+>    523          if ((pred_s > pred_s_max) || (pred_a > pred_a_max)) {
+>    524                  pred_a = pred_a_max;
+>    525                  pred_s = (rate / (pred_a + 1)) - 1;
+>    526
+>    527                  dev_warn(&pdev->dev, "ck_rtc is %s\n",
+>    528                           (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
+>
+> This is type promoted to unsigned int < 0.
+>
+>    529                           "fast" : "slow");
+>    530          }
+>
+> regards,
+> dan carpenter
+>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
