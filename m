@@ -1,29 +1,30 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBB7N3S7CAKGQEXQ4HXNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBC4W6LBQKGQE2N75N5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
+        by gmr-mx.google.com with ESMTPS id 66si109003wml.3.2017.01.16.00.57.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 16 Jan 2017 00:57:47 -0800 (PST)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Russell King <linux@armlinux.org.uk>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        Amelie Delaunay
+	<amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCH] rtc: stm32: use 0 instead of ~PWR_CR_DBP in regmap_update_bits
+Date: Mon, 16 Jan 2017 09:57:38 +0100
+Message-ID: <1484557058-21601-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si989172wmf.0.2017.01.23.02.42.04
-        for <rtc-linux@googlegroups.com>;
-        Mon, 23 Jan 2017 02:42:04 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	stable@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 1/7] rtc: sun6i: Disable the build as a module
-Date: Mon, 23 Jan 2017 11:41:46 +0100
-Message-Id: <ad6de80f5065d8aa1ac7babca05e5f19b6038820.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,46 +33,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Since we have to provide the clock very early on, the RTC driver cannot be
-built as a module. Make sure that won't happen.
+Using the ~ operator on a BIT() constant results in a large 'unsigned long'
+constant that won't fit into an 'unsigned int' function argument on 64-bit
+architectures, resulting in a harmless build warning in x86 allmodconfig:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_probe':
+drivers/rtc/rtc-stm32.c:651:51: error: large integer implicitly truncated to unsigned type [-Werror=overflow]
+  regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+
+As PWR_CR_DBP mask prevents other bits to be cleared, replace all
+~PWR_CR_DBP by 0.
+
+Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- drivers/rtc/Kconfig     | 2 +-
- drivers/rtc/rtc-sun6i.c | 7 +------
- 2 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-stm32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index c93c5a8fba32..53e35c138ff3 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1434,7 +1434,7 @@ config RTC_DRV_SUN4V
- 	  based RTC on SUN4V systems.
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 8c599f5..03c97c1 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -648,7 +648,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ err:
+ 	clk_disable_unprepare(rtc->ck_rtc);
  
- config RTC_DRV_SUN6I
--	tristate "Allwinner A31 RTC"
-+	bool "Allwinner A31 RTC"
- 	default MACH_SUN6I || MACH_SUN8I || COMPILE_TEST
- 	depends on ARCH_SUNXI
- 	help
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index c169a2cd4727..a6136cb99851 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -439,9 +439,4 @@ static struct platform_driver sun6i_rtc_driver = {
- 		.of_match_table = sun6i_rtc_dt_ids,
- 	},
- };
--
--module_platform_driver(sun6i_rtc_driver);
--
--MODULE_DESCRIPTION("sun6i RTC driver");
--MODULE_AUTHOR("Chen-Yu Tsai <wens@csie.org>");
--MODULE_LICENSE("GPL");
-+builtin_platform_driver(sun6i_rtc_driver);
+-	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
++	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
+ 
+ 	device_init_wakeup(&pdev->dev, false);
+ 
+@@ -670,7 +670,7 @@ static int stm32_rtc_remove(struct platform_device *pdev)
+ 	clk_disable_unprepare(rtc->ck_rtc);
+ 
+ 	/* Enable backup domain write protection */
+-	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
++	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
+ 
+ 	device_init_wakeup(&pdev->dev, false);
+ 
 -- 
-git-series 0.8.11
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
