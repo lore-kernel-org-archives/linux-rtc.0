@@ -1,29 +1,20 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBSFX6LBQKGQEXNEWBEI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDIZTUWNWICRBU7V6LBQKGQE7U5UWVI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id l66si847454wml.0.2017.01.16.02.09.12
+Received: from userp1040.oracle.com (userp1040.oracle.com. [156.151.31.81])
+        by gmr-mx.google.com with ESMTPS id 23si3089002pfw.4.2017.01.16.04.21.39
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Jan 2017 02:09:12 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH] rtc: stm32: fix comparison warnings
-Date: Mon, 16 Jan 2017 11:08:53 +0100
-Message-ID: <1484561333-12087-1-git-send-email-amelie.delaunay@st.com>
+        Mon, 16 Jan 2017 04:21:39 -0800 (PST)
+Date: Mon, 16 Jan 2017 15:21:28 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: amelie.delaunay@st.com
+Cc: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [bug report] rtc: add STM32 RTC driver
+Message-ID: <20170116122128.GC4104@mwanda>
+References: <20170116121346.GA28569@mwanda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170116121346.GA28569@mwanda>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,64 +24,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patches fixes comparison between signed and unsigned values as it
-could produce an incorrect result when the signed value is converted to
-unsigned:
+Oh.  That still won't fix this:
 
-drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_valid_alrm':
-drivers/rtc/rtc-stm32.c:404:21: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-  if ((((tm->tm_year > cur_year) &&
-...
+drivers/rtc/rtc-stm32.c
+   519          /*
+   520           * Can't find a 1Hz, so give priority to RTC power consumption
+   521           * by choosing the higher possible value for prediv_a
+   522           */
+   523          if ((pred_s > pred_s_max) || (pred_a > pred_a_max)) {
+   524                  pred_a = pred_a_max;
+   525                  pred_s = (rate / (pred_a + 1)) - 1;
+   526  
+   527                  dev_warn(&pdev->dev, "ck_rtc is %s\n",
+   528                           (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
 
-It also fixes comparison always true or false due to the fact that unsigned
-value is compared against zero with >= or <:
+This is type promoted to unsigned int < 0.
 
-drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_init':
-drivers/rtc/rtc-stm32.c:514:35: warning: comparison of unsigned expression >= 0 is always true [-Wtype-limits]
-  for (pred_a = pred_a_max; pred_a >= 0; pred_a-- ) {
+   529                           "fast" : "slow");
+   530          }
 
-drivers/rtc/rtc-stm32.c:530:44: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
-     (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
-
-Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- drivers/rtc/rtc-stm32.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 03c97c1..bd57eb1 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -383,7 +383,7 @@ static int stm32_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 
- static int stm32_rtc_valid_alrm(struct stm32_rtc *rtc, struct rtc_time *tm)
- {
--	unsigned int cur_day, cur_mon, cur_year, cur_hour, cur_min, cur_sec;
-+	int cur_day, cur_mon, cur_year, cur_hour, cur_min, cur_sec;
- 	unsigned int dr = readl_relaxed(rtc->base + STM32_RTC_DR);
- 	unsigned int tr = readl_relaxed(rtc->base + STM32_RTC_TR);
- 
-@@ -509,7 +509,7 @@ static int stm32_rtc_init(struct platform_device *pdev,
- 	pred_a_max = STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
- 	pred_s_max = STM32_RTC_PRER_PRED_S >> STM32_RTC_PRER_PRED_S_SHIFT;
- 
--	for (pred_a = pred_a_max; pred_a >= 0; pred_a--) {
-+	for (pred_a = pred_a_max; pred_a + 1 > 0; pred_a--) {
- 		pred_s = (rate / (pred_a + 1)) - 1;
- 
- 		if (((pred_s + 1) * (pred_a + 1)) == rate)
-@@ -525,7 +525,7 @@ static int stm32_rtc_init(struct platform_device *pdev,
- 		pred_s = (rate / (pred_a + 1)) - 1;
- 
- 		dev_warn(&pdev->dev, "ck_rtc is %s\n",
--			 (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
-+			 (rate < ((pred_a + 1) * (pred_s + 1))) ?
- 			 "fast" : "slow");
- 	}
- 
--- 
-1.9.1
+regards,
+dan carpenter
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
