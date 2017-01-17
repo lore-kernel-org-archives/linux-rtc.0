@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRB4XCQLCAKGQE75VKVMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4XK67BQKGQEPWRLC7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si48748wmf.0.2017.01.17.02.44.02
+        for <rtc-linux@googlegroups.com>;
+        Tue, 17 Jan 2017 02:44:02 -0800 (PST)
+Date: Tue, 17 Jan 2017 11:43:52 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Gabriel Fernandez <gabriel.fernandez@st.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: stm32: fix comparison warnings
+Message-ID: <20170117104352.65velakwiaia36xq@piout.net>
+References: <1484561333-12087-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id 133si1684567wmj.1.2017.01.19.04.30.42
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Jan 2017 04:30:42 -0800 (PST)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Cc: Olof Johansson <olof@lixom.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v2 2/4] mfd: cros_ec: Introduce RTC commands and
- events definitions.
-Date: Thu, 19 Jan 2017 13:30:30 +0100
-Message-Id: <20170119123032.24679-2-enric.balletbo@collabora.com>
-In-Reply-To: <20170119123032.24679-1-enric.balletbo@collabora.com>
-References: <20170119123032.24679-1-enric.balletbo@collabora.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1484561333-12087-1-git-send-email-amelie.delaunay@st.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,58 +31,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+On 16/01/2017 at 11:08:53 +0100, Amelie Delaunay wrote :
+> This patches fixes comparison between signed and unsigned values as it
+> could produce an incorrect result when the signed value is converted to
+> unsigned:
+> 
+> drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_valid_alrm':
+> drivers/rtc/rtc-stm32.c:404:21: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+>   if ((((tm->tm_year > cur_year) &&
+> ...
+> 
+> It also fixes comparison always true or false due to the fact that unsigned
+> value is compared against zero with >= or <:
+> 
+> drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_init':
+> drivers/rtc/rtc-stm32.c:514:35: warning: comparison of unsigned expression >= 0 is always true [-Wtype-limits]
+>   for (pred_a = pred_a_max; pred_a >= 0; pred_a-- ) {
+> 
+> drivers/rtc/rtc-stm32.c:530:44: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+>      (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
+> 
+> Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
+> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> ---
+>  drivers/rtc/rtc-stm32.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+Applied, thanks.
 
-The EC can function as a simple RT, this patch adds the RTC related
-definitions needed by the rtc-cros-ec driver.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
-
-Changelog:
-
- * Added the ack by Lee Jones
-
- include/linux/mfd/cros_ec_commands.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 80d401d..73f7a62 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -286,6 +286,9 @@ enum host_event_code {
- 	/* Hang detect logic detected a hang and warm rebooted the AP */
- 	EC_HOST_EVENT_HANG_REBOOT = 21,
- 
-+	/* EC RTC event occurred */
-+	EC_HOST_EVENT_RTC = 26,
-+
- 	/*
- 	 * The high bit of the event mask is not used as a host event code.  If
- 	 * it reads back as set, then the entire event mask should be
-@@ -790,6 +793,8 @@ enum ec_feature_code {
- 	EC_FEATURE_USB_MUX = 23,
- 	/* Motion Sensor code has an internal software FIFO */
- 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
-+	/* EC has RTC feature that can be controlled by host commands */
-+	EC_FEATURE_RTC = 27,
- };
- 
- #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-@@ -1682,6 +1687,9 @@ struct ec_response_rtc {
- #define EC_CMD_RTC_SET_VALUE 0x46
- #define EC_CMD_RTC_SET_ALARM 0x47
- 
-+/* Pass as param to SET_ALARM to clear the current alarm */
-+#define EC_RTC_ALARM_CLEAR 0
-+
- /*****************************************************************************/
- /* Port80 log access */
- 
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
