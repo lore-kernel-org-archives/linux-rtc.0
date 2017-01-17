@@ -1,20 +1,22 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLPTWXBQKGQEXQQDODQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQPS67BQKGQENL764GY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id e134si5333313wmd.3.2017.01.04.14.39.41
+        by gmr-mx.google.com with ESMTP id e134si1047139wmd.3.2017.01.17.03.00.16
         for <rtc-linux@googlegroups.com>;
-        Wed, 04 Jan 2017 14:39:41 -0800 (PST)
-Date: Wed, 4 Jan 2017 23:39:40 +0100
+        Tue, 17 Jan 2017 03:00:17 -0800 (PST)
+Date: Tue, 17 Jan 2017 12:00:16 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
 Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: rx8010: change lock mechanism
-Message-ID: <20170104223940.gscg6g2kclrobmwk@piout.net>
-References: <20161219001734.ghsir573a45ksuxv@piout.net>
- <1482223364-25427-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
+Message-ID: <20170117110016.ids6xheti242lxhe@piout.net>
+References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+ <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
+ <20170116175018.z74inrcapwqqtbcz@piout.net>
+ <1484641457.20968.6.camel@collabora.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1482223364-25427-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+In-Reply-To: <1484641457.20968.6.camel@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,60 +26,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/12/2016 at 09:42:44 +0100, Fabien Lahoudere wrote :
-> Remove spinlock and use the "rtc->ops_lock" from RTC subsystem instead.
-> spin_lock_irqsave() is not needed here because we do not have hard IRQs.
+On 17/01/2017 at 09:24:17 +0100, Fabien Lahoudere wrote :
+> On Mon, 2017-01-16 at 18:50 +0100, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 12/01/2017 at 11:43:37 +0100, Fabien Lahoudere wrote :
+> > > If RTC time have been altered by low voltage, we notify users
+> > > that RTC time is invalid by returning -EINVAL.
+> > > The RTC time needs to be set correctly to clear the invalid flag.
+> > > If the RTC is not set before restarting, the information will be lost.
+> > > 
+> > > Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+> > > ---
+> > >  drivers/rtc/rtc-s35390a.c | 9 +++++++++
+> > >  1 file changed, 9 insertions(+)
+> > > 
+> > > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+> > > index 5dab466..ef4ada9 100644
+> > > --- a/drivers/rtc/rtc-s35390a.c
+> > > +++ b/drivers/rtc/rtc-s35390a.c
+> > > @@ -62,6 +62,7 @@ struct s35390a {
+> > >  	struct i2c_client *client[8];
+> > >  	struct rtc_device *rtc;
+> > >  	int twentyfourhour;
+> > > +	int isinvalid;
+> > >  };
+> > >  
+> > >  static int s35390a_set_reg(struct s35390a *s35390a, int reg, char *buf, int len)
+> > > @@ -135,6 +136,8 @@ static int s35390a_reset(struct s35390a *s35390a, char *status1)
+> > >  	 * The 24H bit is kept over reset, so set it already here.
+> > >  	 */
+> > >  initialize:
+> > > +	/* set the RTC time as invalid */
+> > > +	s35390a->isinvalid = 1;
+> > >  	*status1 = S35390A_FLAG_24H;
+> > >  	buf = S35390A_FLAG_RESET | S35390A_FLAG_24H;
+> > >  	ret = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
+> > > @@ -221,6 +224,8 @@ static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+> > >  		buf[i] = bitrev8(buf[i]);
+> > >  
+> > >  	err = s35390a_set_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
+> > > +	if (err >= 0)
+> > > +		s35390a->isinvalid = 0;
+> > >  
+> > >  	return err;
+> > >  }
+> > > @@ -231,6 +236,9 @@ static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+> > >  	char buf[7];
+> > >  	int i, err;
+> > >  
+> > > +	if (s35390a->isinvalid)
+> > > +		return -EINVAL;
+> > > +
+> > 
+> > That's fine but what happens if it became invalid between probe and
+> > s35390a_get_datetime()? (This is particularly relevant after patch 2/2.
 > 
-> This patch fixes the following issue:
+> This is not possible with our design. When the system is on, its power
+> supply replace the backup battery. (See p38 Figure 49).
 > 
-> root@GE004097290448 b850v3:~# hwclock --systohc
-> root@GE004097290448 b850v3:~# hwclock --systohc
-> root@GE004097290448 b850v3:~# hwclock --systohc
-> root@GE004097290448 b850v3:~# hwclock --systohc
-> root@GE004097290448 b850v3:~# hwclock --systohc
-> [   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
-> [   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
-> [   82.121329] CPU: 0 PID: 855 Comm: hwclock Not tainted 4.8.0-00042-g09d5410-dirty #20
-> [   82.129078] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> [   82.135609] Backtrace:
-> [   82.138090] [<8010d378>] (dump_backtrace) from [<8010d5c0>] (show_stack+0x20/0x24)
-> [   82.145664]  r7:ec936000 r6:600a0013 r5:00000000 r4:81031680
-> [   82.151402] [<8010d5a0>] (show_stack) from [<80401518>] (dump_stack+0xb4/0xe8)
-> [   82.158636] [<80401464>] (dump_stack) from [<8017b8b0>] (spin_dump+0x84/0xcc)
-> [   82.165775]  r10:00000000 r9:ec936000 r8:81056090 r7:600a0013 r6:edb4899c r5:edb4899c
-> [   82.173691]  r4:e5033e00 r3:00000000
-> [   82.177308] [<8017b82c>] (spin_dump) from [<8017bcb0>] (do_raw_spin_unlock+0x108/0x130)
-> [   82.185314]  r5:edb4899c r4:edb4899c
-> [   82.188938] [<8017bba8>] (do_raw_spin_unlock) from [<8094b93c>] (_raw_spin_unlock_irqrestore+0x34/0x54)
-> [   82.198333]  r5:edb4899c r4:600a0013
-> [   82.201953] [<8094b908>] (_raw_spin_unlock_irqrestore) from [<8065b090>] (rx8010_set_time+0x14c/0x188)
-> [   82.211261]  r5:00000020 r4:edb48990
-> [   82.214882] [<8065af44>] (rx8010_set_time) from [<80653fe4>] (rtc_set_time+0x70/0x104)
-> [   82.222801]  r7:00000051 r6:edb39da0 r5:edb39c00 r4:ec937e8c
-> [   82.228535] [<80653f74>] (rtc_set_time) from [<80655774>] (rtc_dev_ioctl+0x3c4/0x674)
-> [   82.236368]  r7:00000051 r6:7ecf1b74 r5:00000000 r4:edb39c00
-> [   82.242106] [<806553b0>] (rtc_dev_ioctl) from [<80284034>] (do_vfs_ioctl+0xa4/0xa6c)
-> [   82.249851]  r8:00000003 r7:80284a40 r6:ed1e9c80 r5:edb44e60 r4:7ecf1b74
-> [   82.256642] [<80283f90>] (do_vfs_ioctl) from [<80284a40>] (SyS_ioctl+0x44/0x6c)
-> [   82.263953]  r10:00000000 r9:ec936000 r8:7ecf1b74 r7:4024700a r6:ed1e9c80 r5:00000003
-> [   82.271869]  r4:ed1e9c80
-> [   82.274432] [<802849fc>] (SyS_ioctl) from [<80108520>] (ret_fast_syscall+0x0/0x1c)
-> [   82.282005]  r9:ec936000 r8:801086c4 r7:00000036 r6:00000000 r5:00000003 r4:0008e1bc
-> root@GE004097290448 b850v3:~#
-> Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
->  kernel:[   82.108175] BUG: spinlock wrong CPU on CPU#0, hwclock/855
+
+Well, it depends on the tolerances of each components (but yeah, I doubt
+your SoC is more tolerant than the RTC).
+
+
+> If you prefer I can call s35390a_reset if s35390a->isinvalid is set to
+> 0?
 > 
-> Message from syslogd@GE004097290448 at Dec  3 11:17:08 ...
->  kernel:[   82.113660]  lock: 0xedb4899c, .magic: dead4ead, .owner: hwclock/855, .owner_cpu: 1
-> hwclock --systohc
-> root@GE004097290448 b850v3:~#
-> 
-> Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-> ---
->  drivers/rtc/rtc-rx8010.c | 24 +++---------------------
->  1 file changed, 3 insertions(+), 21 deletions(-)
-> 
-Applied, thanks.
+
+Actually, after reading the datasheet, I realize it is only POC that is
+reset to 0 after reading so isinvalid is not needed. Just read status1
+and look for BLD instead of caching it.
+
+I think it is probably worth separating s35390a_reset() into two
+functions. One that does the initialization and another one that reads
+status1 and immediately doest the initialization when POC is set. If BLD
+is set, then we can wait for set_time to happen before initializing.
 
 -- 
 Alexandre Belloni, Free Electrons
