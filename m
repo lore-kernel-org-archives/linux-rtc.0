@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBHGV3XBQKGQE7WTHRZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFEZ7PBQKGQESECYB6Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id l66si182009wml.0.2017.01.12.03.38.03
+        by gmr-mx.google.com with ESMTP id v70si27397wmf.0.2017.01.17.18.01.56
         for <rtc-linux@googlegroups.com>;
-        Thu, 12 Jan 2017 03:38:03 -0800 (PST)
-Date: Thu, 12 Jan 2017 12:37:53 +0100
+        Tue, 17 Jan 2017 18:01:56 -0800 (PST)
+Date: Wed, 18 Jan 2017 03:01:56 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Bhumika Goyal <bhumirks@gmail.com>, Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Russell King <rmk+kernel@armlinux.org.uk>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: avoid unused-function warning
-Message-ID: <20170112113753.bwaux5fjptlayu2r@piout.net>
-References: <20170112111321.3219446-1-arnd@arndb.de>
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Message-ID: <20170118020156.ynayqtudiu5j2db3@piout.net>
+References: <20170111165221.17337-1-enric.balletbo@collabora.com>
+ <20170111165221.17337-4-enric.balletbo@collabora.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170112111321.3219446-1-arnd@arndb.de>
+In-Reply-To: <20170111165221.17337-4-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,68 +28,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Lee,
 
-On 12/01/2017 at 12:13:08 +0100, Arnd Bergmann wrote :
-> When CONFIG_PM_SLEEP is not set, rtc_update_mbus_timing_params becomes
-> unused, now that armada38x_rtc_probe() no longer calls
-> rtc_update_mbus_timing_params on startup:
+I don't think that one has your ack, is it ok for me to take it?
+
+
+On 11/01/2017 at 17:52:21 +0100, Enric Balletbo i Serra wrote :
+> From: Stephen Barber <smbarber@chromium.org>
 > 
-> drivers/rtc/rtc-armada38x.c:79:13: error: 'rtc_update_mbus_timing_params' defined but not used [-Werror=unused-function]
+> If the EC supports RTC host commands, expose an RTC device.
 > 
-> This addresses the warning by marking the PM functions as __maybe_unused,
-> so the unused functions get silently dropped. I could not tell from
-> the changelog if dropping the call to armada38x_rtc_probe() was
-> intended here, and if that is the correct thing to do without
-> CONFIG_PM_SLEEP, so we might need a different fix that brings it back.
-> 
-
-Thanks for the report, Russell's patch didn't apply cleanly and it seems
-I messed up when applying. I've just restored the
-rtc_update_mbus_timing_params() call in probe as this should be.
-
-
-Thanks again and sorry about this.
-
-> Fixes: 4c492eb022c2 ("rtc: armada38x: make struct rtc_class_ops const")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 > ---
->  drivers/rtc/rtc-armada38x.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+>  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
 > 
-> diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-> index 4f75c619bbba..2e451acccd9c 100644
-> --- a/drivers/rtc/rtc-armada38x.c
-> +++ b/drivers/rtc/rtc-armada38x.c
-> @@ -338,8 +338,7 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
->  	return 0;
+> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
+> index 47268ec..ebe029d 100644
+> --- a/drivers/platform/chrome/cros_ec_dev.c
+> +++ b/drivers/platform/chrome/cros_ec_dev.c
+> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
+>  	kfree(msg);
 >  }
 >  
-> -#ifdef CONFIG_PM_SLEEP
-> -static int armada38x_rtc_suspend(struct device *dev)
-> +static int __maybe_unused armada38x_rtc_suspend(struct device *dev)
+> +static const struct mfd_cell cros_ec_rtc_devs[] = {
+> +	{
+> +		.name = "cros-ec-rtc",
+> +		.id   = -1,
+> +	},
+> +};
+> +
+> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
+> +{
+> +	int ret;
+> +
+> +	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
+> +			      ARRAY_SIZE(cros_ec_rtc_devs),
+> +			      NULL, 0, NULL);
+> +	if (ret)
+> +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
+> +}
+> +
+>  static int ec_device_probe(struct platform_device *pdev)
 >  {
->  	if (device_may_wakeup(dev)) {
->  		struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-> @@ -350,7 +349,7 @@ static int armada38x_rtc_suspend(struct device *dev)
+>  	int retval = -ENOMEM;
+> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
+>  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+>  		cros_ec_sensors_register(ec);
+>  
+> +	/* check whether this EC instance has RTC host command support */
+> +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
+> +		cros_ec_rtc_register(ec);
+> +
 >  	return 0;
->  }
 >  
-> -static int armada38x_rtc_resume(struct device *dev)
-> +static int __maybe_unused armada38x_rtc_resume(struct device *dev)
->  {
->  	if (device_may_wakeup(dev)) {
->  		struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-> @@ -363,7 +362,6 @@ static int armada38x_rtc_resume(struct device *dev)
->  
->  	return 0;
->  }
-> -#endif
->  
->  static SIMPLE_DEV_PM_OPS(armada38x_rtc_pm_ops,
->  			 armada38x_rtc_suspend, armada38x_rtc_resume);
+>  dev_reg_failed:
 > -- 
-> 2.9.0
+> 2.9.3
 > 
 
 -- 
