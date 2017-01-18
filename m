@@ -1,31 +1,28 @@
-Return-Path: <rtc-linux+bncBD7YLCN32UNBB3W23DBQKGQED52Z6FQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZPB7TBQKGQEFX7LDPQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wj0-x244.google.com (mail-wj0-x244.google.com. [2a00:1450:400c:c01::244])
-        by gmr-mx.google.com with ESMTPS id 133si1123291wmj.1.2017.01.11.05.04.45
+Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
+        by gmr-mx.google.com with ESMTPS id 133si1378408wmj.1.2017.01.18.01.09.57
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 11 Jan 2017 05:04:45 -0800 (PST)
-Received: by mail-wj0-x244.google.com with SMTP id dh1so10427326wjb.3
-        for <rtc-linux@googlegroups.com>; Wed, 11 Jan 2017 05:04:45 -0800 (PST)
-Date: Wed, 11 Jan 2017 14:04:38 +0100
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Russell King <linux@armlinux.org.uk>, devicetree@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	Gabriel Fernandez <gabriel.fernandez@st.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCHv4 3/8] rtc: add STM32 RTC driver
-Message-ID: <20170111130438.GA9327@Red>
-References: <1484138905-5903-1-git-send-email-amelie.delaunay@st.com>
+        Wed, 18 Jan 2017 01:09:57 -0800 (PST)
+Received: by mail-wm0-x232.google.com with SMTP id r144so14473081wme.1
+        for <rtc-linux@googlegroups.com>; Wed, 18 Jan 2017 01:09:57 -0800 (PST)
+Date: Wed, 18 Jan 2017 09:13:50 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Message-ID: <20170118091350.GC3718@dell>
+References: <20170111165221.17337-1-enric.balletbo@collabora.com>
+ <20170111165221.17337-4-enric.balletbo@collabora.com>
+ <20170118020156.ynayqtudiu5j2db3@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1484138905-5903-1-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <20170118020156.ynayqtudiu5j2db3@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,38 +32,85 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jan 11, 2017 at 01:48:25PM +0100, Amelie Delaunay wrote:
-> This patch adds support for the STM32 RTC.
-> 
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> ---
->  drivers/rtc/Kconfig     |  11 +
->  drivers/rtc/Makefile    |   1 +
->  drivers/rtc/rtc-stm32.c | 727 ++++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 739 insertions(+)
->  create mode 100644 drivers/rtc/rtc-stm32.c
+On Wed, 18 Jan 2017, Alexandre Belloni wrote:
+> I don't think that one has your ack, is it ok for me to take it?
 
-[...]
-> +/* STM32_PWR_CR */
-> +#define PWR_CR				0x00
-> +/* STM32_PWR_CR bit field */
-> +#define PWR_CR_DBP			BIT(8)
-> +
-> +static struct regmap *dbp;
+This set looks MFD heavy, so it's probably best that the set goes
+through MFD.  Once the RTC patch has been fixed of course.
 
-Hello
+Unless you want to take the whole set, in which case I'll need a
+signed immutable branch from you.
 
-Why using a global static struct ?
-You could alloc a private structure in probe for storing it and use platform_set_drvdata()
+> On 11/01/2017 at 17:52:21 +0100, Enric Balletbo i Serra wrote :
+> > From: Stephen Barber <smbarber@chromium.org>
+> >=20
+> > If the EC supports RTC host commands, expose an RTC device.
+> >=20
+> > Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > ---
+> >  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+> >  1 file changed, 22 insertions(+)
+> >=20
+> > diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/c=
+hrome/cros_ec_dev.c
+> > index 47268ec..ebe029d 100644
+> > --- a/drivers/platform/chrome/cros_ec_dev.c
+> > +++ b/drivers/platform/chrome/cros_ec_dev.c
+> > @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_e=
+c_dev *ec)
+> >  	kfree(msg);
+> >  }
+> > =20
+> > +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
+> > +	{
+> > +		.name =3D "cros-ec-rtc",
+> > +		.id   =3D -1,
+> > +	},
+> > +};
+> > +
+> > +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
+> > +{
+> > +	int ret;
+> > +
+> > +	ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
+> > +			      ARRAY_SIZE(cros_ec_rtc_devs),
+> > +			      NULL, 0, NULL);
+> > +	if (ret)
+> > +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
+> > +}
+> > +
+> >  static int ec_device_probe(struct platform_device *pdev)
+> >  {
+> >  	int retval =3D -ENOMEM;
+> > @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device =
+*pdev)
+> >  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+> >  		cros_ec_sensors_register(ec);
+> > =20
+> > +	/* check whether this EC instance has RTC host command support */
+> > +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
+> > +		cros_ec_rtc_register(ec);
+> > +
+> >  	return 0;
+> > =20
+> >  dev_reg_failed:
+>=20
 
-Regards
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
