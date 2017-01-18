@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBLPFV7BQKGQEYK4T3IA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCNJ5VGR4ANRB4MA73BQKGQEBI3OFFI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
-        by gmr-mx.google.com with ESMTPS id l66si5337889wml.0.2017.01.03.10.51.25
+Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com. [192.185.143.234])
+        by gmr-mx.google.com with ESMTPS id d20si760492itc.1.2017.01.18.06.49.20
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 03 Jan 2017 10:51:25 -0800 (PST)
-From: Martin Kaiser <martin@kaiser.cx>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Martin Kaiser <martin@kaiser.cx>
-Subject: [rtc-linux] [PATCH 1/3 v4] rtc: imxdi: use the security violation interrupt
-Date: Tue,  3 Jan 2017 19:49:50 +0100
-Message-Id: <1483469390-7500-1-git-send-email-martin@kaiser.cx>
-In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Jan 2017 06:49:20 -0800 (PST)
+Received: from cm4.websitewelcome.com (unknown [108.167.139.16])
+	by gateway31.websitewelcome.com (Postfix) with ESMTP id 8FDE858C64
+	for <rtc-linux@googlegroups.com>; Wed, 18 Jan 2017 08:49:20 -0600 (CST)
+Subject: [rtc-linux] imx6ul: power-up using the RTC
+From: Guy Shapiro <guy.shapiro@mobi-wize.com>
+To: b20788@freescale.com, shawnguo@kernel.org, Frank.Li@freescale.com,
+ kernel@pengutronix.de, fabio.estevam@nxp.com, sre@kernel.org,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+ linux-pm@vger.kernel.org
+Cc: guy.shapiro@mobi-wize.com
+Message-ID: <b516070d-6539-98d1-c832-d79ac89e8d43@mobi-wize.com>
+Date: Wed, 18 Jan 2017 16:49:11 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,120 +29,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The DryIce chipset has a dedicated security violation interrupt that is
-triggered for security violations (if configured to do so).  According
-to the publicly available imx258 reference manual, irq 56 is used for
-this interrupt.
+Hi,
 
-If an irq number is provided for the security violation interrupt,
-install the same handler that we're already using for the "normal"
-interrupt.
+I'm trying to use the low power RTC of the i.MX6UL to start from 
+power-off state.
 
-imxdi->irq is used only in the probe function, make it a local variable.
+I started by hopefully running:
+# echo +30 > /sys/class/rtc/rtc0/wakealarm && shutdown -h now
+The system was powered down, but it didn't come up after 30 seconds as
+expected.
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
-v4:
-  - separate patches for imx25.dtsi and documentation of the new dt binding
+So I dug into the datasheet and the source...
+To activate the power on alarm, the flags SRTC_ENV, LPTA_EN and LPWUI_EN 
+on the SNVS_LP Control register (LPCR) should be asserted. The wakeup 
+time should be written to the SNVS_LP Time alarm register (LPTA). The 
+code that does this is on drivers/rtc/rtc-snvs.c:snvs_rtc_set_alarm().
 
-v3:
-  - add the device tree changes to this patch series
-  - install the same interrupt handler for normal and sec irq, rename
-    the handler function accordingly
-  - make imxdi->irq and imxdi->sec_irq local variables in the probe
-    function
+The first problem I found was with the use of the syscon-poweroff 
+driver. The "Turn off System Power" flag is part of the same register 
+(LPCR). The current code of syscon-poweroff set the register to the 
+"mask" property from the device tree on power off, overriding all the 
+existing flags.
+After setting the "mask" property on the device tree to 0x6b instead of
+0x60 (asserting the mentioned bits), the system do power up on timer, as 
+expected.
 
-v2:
-  - make sec_irq optional to avoid breaking the Device Tree ABI
-  - removed the Device Tree bindings, I'll prepare a separate patch for them
+However, I didn't like the idea of keeping those flags on even when no 
+one set the alarm.
+As a quick test, I modified the syscon-poweroff driver to ignore the 
+bits that are not on the mask:
+
+diff --git a/drivers/power/reset/syscon-poweroff.c 
+b/drivers/power/reset/syscon-poweroff.c
+index b683383..a5da02b 100644
+--- a/drivers/power/reset/syscon-poweroff.c
++++ b/drivers/power/reset/syscon-poweroff.c
+@@ -33,7 +33,7 @@ static u32 mask;
+static void syscon_poweroff(void)
+{
+         /* Issue the poweroff */
+-       regmap_write(map, offset, mask);
++       regmap_update_bits(map, offset, mask, mask);
+         mdelay(1000);
 
 
- drivers/rtc/rtc-imxdi.c |   28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+After applying this fix, the wake up alarm didn't work. Strangely, when 
+I added some debug prints to investigate the case, it worked again 
+(sometimes... depends on the exact places I add the prints).
+I suspect that some other driver clears the flags during the power down, 
+but I couldn't find such driver.
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 67b56b8..73d6908 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -108,7 +108,6 @@
-  * @pdev: pionter to platform dev
-  * @rtc: pointer to rtc struct
-  * @ioaddr: IO registers pointer
-- * @irq: dryice normal interrupt
-  * @clk: input reference clock
-  * @dsr: copy of the DSR register
-  * @irq_lock: interrupt enable register (DIER) lock
-@@ -120,7 +119,6 @@ struct imxdi_dev {
- 	struct platform_device *pdev;
- 	struct rtc_device *rtc;
- 	void __iomem *ioaddr;
--	int irq;
- 	struct clk *clk;
- 	u32 dsr;
- 	spinlock_t irq_lock;
-@@ -677,9 +675,9 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- };
- 
- /*
-- * dryice "normal" interrupt handler
-+ * interrupt handler for dryice "normal" and security violation interrupt
-  */
--static irqreturn_t dryice_norm_irq(int irq, void *dev_id)
-+static irqreturn_t dryice_irq(int irq, void *dev_id)
- {
- 	struct imxdi_dev *imxdi = dev_id;
- 	u32 dsr, dier;
-@@ -765,6 +763,7 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
- 	struct imxdi_dev *imxdi;
-+	int norm_irq, sec_irq;
- 	int rc;
- 
- 	imxdi = devm_kzalloc(&pdev->dev, sizeof(*imxdi), GFP_KERNEL);
-@@ -780,9 +779,15 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&imxdi->irq_lock);
- 
--	imxdi->irq = platform_get_irq(pdev, 0);
--	if (imxdi->irq < 0)
--		return imxdi->irq;
-+	norm_irq = platform_get_irq(pdev, 0);
-+	if (norm_irq < 0)
-+		return norm_irq;
-+
-+	/* the 2nd irq is the security violation irq
-+	   make this optional, don't break the device tree ABI */
-+	sec_irq = platform_get_irq(pdev, 1);
-+	if (sec_irq <= 0)
-+		sec_irq = IRQ_NOTCONNECTED;
- 
- 	init_waitqueue_head(&imxdi->write_wait);
- 
-@@ -808,13 +813,20 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 	if (rc != 0)
- 		goto err;
- 
--	rc = devm_request_irq(&pdev->dev, imxdi->irq, dryice_norm_irq,
-+	rc = devm_request_irq(&pdev->dev, norm_irq, dryice_irq,
- 			IRQF_SHARED, pdev->name, imxdi);
- 	if (rc) {
- 		dev_warn(&pdev->dev, "interrupt not available.\n");
- 		goto err;
- 	}
- 
-+	rc = devm_request_irq(&pdev->dev, sec_irq, dryice_irq,
-+			IRQF_SHARED, pdev->name, imxdi);
-+	if (rc) {
-+		dev_warn(&pdev->dev, "security violation interrupt not available.\n");
-+		/* this is not an error, see above */
-+	}
-+
- 	platform_set_drvdata(pdev, imxdi);
- 	imxdi->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
- 				  &dryice_rtc_ops, THIS_MODULE);
--- 
-1.7.10.4
+Do you have any clue what code may change this register during the 
+shutdown process?
+Any other insights are welcomed as well :)
+
+
+Guy.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
