@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4XK67BQKGQEPWRLC7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNUY7PBQKGQEEOYAAWY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si48748wmf.0.2017.01.17.02.44.02
+        by gmr-mx.google.com with ESMTP id d130si1116716wmf.0.2017.01.17.18.00.22
         for <rtc-linux@googlegroups.com>;
-        Tue, 17 Jan 2017 02:44:02 -0800 (PST)
-Date: Tue, 17 Jan 2017 11:43:52 +0100
+        Tue, 17 Jan 2017 18:00:22 -0800 (PST)
+Date: Wed, 18 Jan 2017 03:00:21 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Russell King <linux@armlinux.org.uk>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Gabriel Fernandez <gabriel.fernandez@st.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: stm32: fix comparison warnings
-Message-ID: <20170117104352.65velakwiaia36xq@piout.net>
-References: <1484561333-12087-1-git-send-email-amelie.delaunay@st.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+Message-ID: <20170118020021.rnfchgbmtnrbljck@piout.net>
+References: <20170111165221.17337-1-enric.balletbo@collabora.com>
+ <20170111165221.17337-3-enric.balletbo@collabora.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1484561333-12087-1-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <20170111165221.17337-3-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,33 +27,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/01/2017 at 11:08:53 +0100, Amelie Delaunay wrote :
-> This patches fixes comparison between signed and unsigned values as it
-> could produce an incorrect result when the signed value is converted to
-> unsigned:
+
+Hi,
+
+This seems mostly good to me.
+
+On 11/01/2017 at 17:52:20 +0100, Enric Balletbo i Serra wrote :
+> From: Stephen Barber <smbarber@chromium.org>
 > 
-> drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_valid_alrm':
-> drivers/rtc/rtc-stm32.c:404:21: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
->   if ((((tm->tm_year > cur_year) &&
-> ...
+> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+> Add a basic driver with this functionality.
 > 
-> It also fixes comparison always true or false due to the fact that unsigned
-> value is compared against zero with >= or <:
-> 
-> drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_init':
-> drivers/rtc/rtc-stm32.c:514:35: warning: comparison of unsigned expression >= 0 is always true [-Wtype-limits]
->   for (pred_a = pred_a_max; pred_a >= 0; pred_a-- ) {
-> 
-> drivers/rtc/rtc-stm32.c:530:44: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
->      (rate - ((pred_a + 1) * (pred_s + 1)) < 0) ?
-> 
-> Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 > ---
->  drivers/rtc/rtc-stm32.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/rtc/Kconfig       |  10 ++
+>  drivers/rtc/Makefile      |   1 +
+>  drivers/rtc/rtc-cros-ec.c | 416 ++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 427 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-cros-ec.c
 > 
-Applied, thanks.
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index c93c5a8..b58ce06 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -207,6 +207,16 @@ config RTC_DRV_AS3722
+>  	  This driver can also be built as a module. If so, the module
+>  	  will be called rtc-as3722.
+>  
+> +config RTC_DRV_CROS_EC
+> +	tristate "Chrome OS EC RTC driver"
+> +	depends on MFD_CROS_EC
+> +	help
+> +	  If you say yes here you will get support for the
+> +	  Chrome OS Embedded Controller's RTC.
+> +
+> +	  This driver can also be built as a module. If so, the module
+> +	  will be called rtc-cros-ec.
+> +
+
+This doesn't look like and i2c RTC, you probably want to put that block
+somewhere after "Platform RTC drivers"
+
+>  config RTC_DRV_DS1307
+>  	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025, ISL12057"
+>  	help
+
+
+> +	ret = rtc_valid_tm(&tm);
+> +	if (ret)
+> +		dev_err(&pdev->dev, "invalid date/time\n");
+> +
+nitpick: I'm not sure this is useful. You'll probably know soon enough
+that it is invalid as I'm pretty sure something will read the date at
+boot time.
+
 
 -- 
 Alexandre Belloni, Free Electrons
