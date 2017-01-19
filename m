@@ -1,22 +1,25 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQPS67BQKGQENL764GY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCJPTJGIXUFBBYO7QLCAKGQEU4PNFGQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id e134si1047139wmd.3.2017.01.17.03.00.16
-        for <rtc-linux@googlegroups.com>;
-        Tue, 17 Jan 2017 03:00:17 -0800 (PST)
-Date: Tue, 17 Jan 2017 12:00:16 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
-Message-ID: <20170117110016.ids6xheti242lxhe@piout.net>
-References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
- <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
- <20170116175018.z74inrcapwqqtbcz@piout.net>
- <1484641457.20968.6.camel@collabora.co.uk>
+Received: from hqemgate16.nvidia.com (hqemgate16.nvidia.com. [216.228.121.65])
+        by gmr-mx.google.com with ESMTPS id r8si912751pfa.5.2017.01.19.04.24.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Jan 2017 04:24:01 -0800 (PST)
+Date: Thu, 19 Jan 2017 14:23:53 +0200
+From: Peter De Schrijver <pdeschrijver@nvidia.com>
+To: Thierry Reding <thierry.reding@gmail.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>, Martin Michlmayr <tbm@cyrius.com>,
+	<rtc-linux@googlegroups.com>, <linux-tegra@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: tegra: Implement clock handling
+Message-ID: <20170119122353.GN6824@tbergstrom-lnx.Nvidia.com>
+References: <20170112160743.23367-1-thierry.reding@gmail.com>
+ <20170112160743.23367-2-thierry.reding@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1484641457.20968.6.camel@collabora.co.uk>
+In-Reply-To: <20170112160743.23367-2-thierry.reding@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,87 +29,131 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 17/01/2017 at 09:24:17 +0100, Fabien Lahoudere wrote :
-> On Mon, 2017-01-16 at 18:50 +0100, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 12/01/2017 at 11:43:37 +0100, Fabien Lahoudere wrote :
-> > > If RTC time have been altered by low voltage, we notify users
-> > > that RTC time is invalid by returning -EINVAL.
-> > > The RTC time needs to be set correctly to clear the invalid flag.
-> > > If the RTC is not set before restarting, the information will be lost.
-> > > 
-> > > Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-> > > ---
-> > >  drivers/rtc/rtc-s35390a.c | 9 +++++++++
-> > >  1 file changed, 9 insertions(+)
-> > > 
-> > > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> > > index 5dab466..ef4ada9 100644
-> > > --- a/drivers/rtc/rtc-s35390a.c
-> > > +++ b/drivers/rtc/rtc-s35390a.c
-> > > @@ -62,6 +62,7 @@ struct s35390a {
-> > >  	struct i2c_client *client[8];
-> > >  	struct rtc_device *rtc;
-> > >  	int twentyfourhour;
-> > > +	int isinvalid;
-> > >  };
-> > >  
-> > >  static int s35390a_set_reg(struct s35390a *s35390a, int reg, char *buf, int len)
-> > > @@ -135,6 +136,8 @@ static int s35390a_reset(struct s35390a *s35390a, char *status1)
-> > >  	 * The 24H bit is kept over reset, so set it already here.
-> > >  	 */
-> > >  initialize:
-> > > +	/* set the RTC time as invalid */
-> > > +	s35390a->isinvalid = 1;
-> > >  	*status1 = S35390A_FLAG_24H;
-> > >  	buf = S35390A_FLAG_RESET | S35390A_FLAG_24H;
-> > >  	ret = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
-> > > @@ -221,6 +224,8 @@ static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-> > >  		buf[i] = bitrev8(buf[i]);
-> > >  
-> > >  	err = s35390a_set_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
-> > > +	if (err >= 0)
-> > > +		s35390a->isinvalid = 0;
-> > >  
-> > >  	return err;
-> > >  }
-> > > @@ -231,6 +236,9 @@ static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-> > >  	char buf[7];
-> > >  	int i, err;
-> > >  
-> > > +	if (s35390a->isinvalid)
-> > > +		return -EINVAL;
-> > > +
-> > 
-> > That's fine but what happens if it became invalid between probe and
-> > s35390a_get_datetime()? (This is particularly relevant after patch 2/2.
+On Thu, Jan 12, 2017 at 05:07:43PM +0100, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
 > 
-> This is not possible with our design. When the system is on, its power
-> supply replace the backup battery. (See p38 Figure 49).
+> Accessing the registers of the RTC block on Tegra requires the module
+> clock to be enabled. This only works because the RTC module clock will
+> be enabled by default during early boot. However, because the clock is
+> unused, the CCF will disable it at late_init time. This causes the RTC
+> to become unusable afterwards. This can easily be reproduced by trying
+> to use the RTC:
 > 
-
-Well, it depends on the tolerances of each components (but yeah, I doubt
-your SoC is more tolerant than the RTC).
-
-
-> If you prefer I can call s35390a_reset if s35390a->isinvalid is set to
-> 0?
+> 	$ hwclock --rtc /dev/rtc1
 > 
+> This will hang the system. I ran into this by following up on a report
+> by Martin Michlmayr that reboot wasn't working on Tegra210 systems. It
+> turns out that the rtc-tegra driver's ->shutdown() implementation will
+> hang the CPU, because of the disabled clock, before the system can be
+> rebooted.
+> 
+> What confused me for a while is that the same driver is used on prior
+> Tegra generations where the hang can not be observed. However, as Peter
+> De Schrijver pointed out, this is because on 32-bit Tegra chips the RTC
+> clock is enabled by the tegra20_timer.c clocksource driver, which uses
+> the RTC to provide a persistent clock. This code is never enabled on
+> 64-bit Tegra because the persistent clock infrastructure does not exist
+> of 64-bit ARM.
 
-Actually, after reading the datasheet, I realize it is only POC that is
-reset to 0 after reading so isinvalid is not needed. Just read status1
-and look for BLD instead of caching it.
+'on 64-bit ARM' I guess?
 
-I think it is probably worth separating s35390a_reset() into two
-functions. One that does the initialization and another one that reads
-status1 and immediately doest the initialization when POC is set. If BLD
-is set, then we can wait for set_time to happen before initializing.
+Other than that Acked-By Peter De Schrijver <pdeschrijver@nvidia.com>
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> 
+> The proper fix for this is to add proper clock handling to the RTC
+> driver in order to ensure that the clock is enabled when the driver
+> requires it. All device trees contain the clock already, therefore
+> no additional changes are required.
+> 
+> Cc: Peter De Schrijver <pdeschrijver@nvidia.com>
+> Reported-by: Martin Michlmayr <tbm@cyrius.com>
+> Signed-off-by: Thierry Reding <treding@nvidia.com>
+> ---
+>  drivers/rtc/rtc-tegra.c | 28 ++++++++++++++++++++++++++--
+>  1 file changed, 26 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
+> index 38e662ff1a70..d30d57b048d3 100644
+> --- a/drivers/rtc/rtc-tegra.c
+> +++ b/drivers/rtc/rtc-tegra.c
+> @@ -18,6 +18,7 @@
+>   * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+>   */
+>  
+> +#include <linux/clk.h>
+>  #include <linux/delay.h>
+>  #include <linux/init.h>
+>  #include <linux/io.h>
+> @@ -60,6 +61,7 @@ struct tegra_rtc_info {
+>  	struct platform_device	*pdev;
+>  	struct rtc_device	*rtc_dev;
+>  	void __iomem		*rtc_base; /* NULL if not initialized. */
+> +	struct clk		*clk;
+>  	int			tegra_rtc_irq; /* alarm and periodic irq */
+>  	spinlock_t		tegra_rtc_lock;
+>  };
+> @@ -327,6 +329,14 @@ static int __init tegra_rtc_probe(struct platform_device *pdev)
+>  	if (info->tegra_rtc_irq <= 0)
+>  		return -EBUSY;
+>  
+> +	info->clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(info->clk))
+> +		return PTR_ERR(info->clk);
+> +
+> +	ret = clk_prepare_enable(info->clk);
+> +	if (ret < 0)
+> +		return ret;
+> +
+>  	/* set context info. */
+>  	info->pdev = pdev;
+>  	spin_lock_init(&info->tegra_rtc_lock);
+> @@ -347,7 +357,7 @@ static int __init tegra_rtc_probe(struct platform_device *pdev)
+>  		ret = PTR_ERR(info->rtc_dev);
+>  		dev_err(&pdev->dev, "Unable to register device (err=%d).\n",
+>  			ret);
+> -		return ret;
+> +		goto disable_clk;
+>  	}
+>  
+>  	ret = devm_request_irq(&pdev->dev, info->tegra_rtc_irq,
+> @@ -357,12 +367,25 @@ static int __init tegra_rtc_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev,
+>  			"Unable to request interrupt for device (err=%d).\n",
+>  			ret);
+> -		return ret;
+> +		goto disable_clk;
+>  	}
+>  
+>  	dev_notice(&pdev->dev, "Tegra internal Real Time Clock\n");
+>  
+>  	return 0;
+> +
+> +disable_clk:
+> +	clk_disable_unprepare(info->clk);
+> +	return ret;
+> +}
+> +
+> +static int tegra_rtc_remove(struct platform_device *pdev)
+> +{
+> +	struct tegra_rtc_info *info = platform_get_drvdata(pdev);
+> +
+> +	clk_disable_unprepare(info->clk);
+> +
+> +	return 0;
+>  }
+>  
+>  #ifdef CONFIG_PM_SLEEP
+> @@ -414,6 +437,7 @@ static void tegra_rtc_shutdown(struct platform_device *pdev)
+>  
+>  MODULE_ALIAS("platform:tegra_rtc");
+>  static struct platform_driver tegra_rtc_driver = {
+> +	.remove		= tegra_rtc_remove,
+>  	.shutdown	= tegra_rtc_shutdown,
+>  	.driver		= {
+>  		.name	= "tegra_rtc",
+> -- 
+> 2.11.0
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
