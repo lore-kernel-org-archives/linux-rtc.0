@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBPXGRDCAKGQEIGJQA3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB4XCQLCAKGQE75VKVMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h62si130567wme.2.2017.01.20.07.56.46
-        for <rtc-linux@googlegroups.com>;
-        Fri, 20 Jan 2017 07:56:46 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id 133si1684567wmj.1.2017.01.19.04.30.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Jan 2017 04:30:42 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Olof Johansson <olof@lixom.net>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] [PATCH 3/6] rtc: sun6i: Disable the build as a module
-Date: Fri, 20 Jan 2017 16:56:40 +0100
-Message-Id: <de1e4b4eda6307b664c40d6c4502058f6bb88c60.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v2 2/4] mfd: cros_ec: Introduce RTC commands and
+ events definitions.
+Date: Thu, 19 Jan 2017 13:30:30 +0100
+Message-Id: <20170119123032.24679-2-enric.balletbo@collabora.com>
+In-Reply-To: <20170119123032.24679-1-enric.balletbo@collabora.com>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,67 +30,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Since we have to provide the clock very early on, the RTC driver cannot be
-built as a module. Make sure that won't happen.
+From: Stephen Barber <smbarber@chromium.org>
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+The EC can function as a simple RT, this patch adds the RTC related
+definitions needed by the rtc-cros-ec driver.
+
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/Kconfig     |  2 +-
- drivers/rtc/rtc-sun6i.c | 17 +----------------
- 2 files changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index c93c5a8fba32..53e35c138ff3 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1434,7 +1434,7 @@ config RTC_DRV_SUN4V
- 	  based RTC on SUN4V systems.
+Changelog:
+
+ * Added the ack by Lee Jones
+
+ include/linux/mfd/cros_ec_commands.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 80d401d..73f7a62 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -286,6 +286,9 @@ enum host_event_code {
+ 	/* Hang detect logic detected a hang and warm rebooted the AP */
+ 	EC_HOST_EVENT_HANG_REBOOT = 21,
  
- config RTC_DRV_SUN6I
--	tristate "Allwinner A31 RTC"
-+	bool "Allwinner A31 RTC"
- 	default MACH_SUN6I || MACH_SUN8I || COMPILE_TEST
- 	depends on ARCH_SUNXI
- 	help
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 872d18609183..edd5627da10f 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -554,15 +554,6 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int sun6i_rtc_remove(struct platform_device *pdev)
--{
--	struct sun6i_rtc_dev *chip = platform_get_drvdata(pdev);
--
--	rtc_device_unregister(chip->rtc);
--
--	return 0;
--}
--
- static const struct of_device_id sun6i_rtc_dt_ids[] = {
- 	{ .compatible = "allwinner,sun6i-a31-rtc" },
- 	{ /* sentinel */ },
-@@ -571,15 +562,9 @@ MODULE_DEVICE_TABLE(of, sun6i_rtc_dt_ids);
- 
- static struct platform_driver sun6i_rtc_driver = {
- 	.probe		= sun6i_rtc_probe,
--	.remove		= sun6i_rtc_remove,
- 	.driver		= {
- 		.name		= "sun6i-rtc",
- 		.of_match_table = sun6i_rtc_dt_ids,
- 	},
++	/* EC RTC event occurred */
++	EC_HOST_EVENT_RTC = 26,
++
+ 	/*
+ 	 * The high bit of the event mask is not used as a host event code.  If
+ 	 * it reads back as set, then the entire event mask should be
+@@ -790,6 +793,8 @@ enum ec_feature_code {
+ 	EC_FEATURE_USB_MUX = 23,
+ 	/* Motion Sensor code has an internal software FIFO */
+ 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
++	/* EC has RTC feature that can be controlled by host commands */
++	EC_FEATURE_RTC = 27,
  };
--
--module_platform_driver(sun6i_rtc_driver);
--
--MODULE_DESCRIPTION("sun6i RTC driver");
--MODULE_AUTHOR("Chen-Yu Tsai <wens@csie.org>");
--MODULE_LICENSE("GPL");
-+builtin_platform_driver(sun6i_rtc_driver);
+ 
+ #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
+@@ -1682,6 +1687,9 @@ struct ec_response_rtc {
+ #define EC_CMD_RTC_SET_VALUE 0x46
+ #define EC_CMD_RTC_SET_ALARM 0x47
+ 
++/* Pass as param to SET_ALARM to clear the current alarm */
++#define EC_RTC_ALARM_CLEAR 0
++
+ /*****************************************************************************/
+ /* Port80 log access */
+ 
 -- 
-git-series 0.8.11
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
