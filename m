@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBP7GRDCAKGQEOF2SKRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB4PCQLCAKGQEJK54BBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h62si130567wme.2.2017.01.20.07.56.47
-        for <rtc-linux@googlegroups.com>;
-        Fri, 20 Jan 2017 07:56:47 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id d130si1414018wmf.0.2017.01.19.04.30.41
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Jan 2017 04:30:41 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Olof Johansson <olof@lixom.net>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] [PATCH 5/6] ARM: sun8i: a23/a33: Enable the real LOSC and
- use it
-Date: Fri, 20 Jan 2017 16:56:42 +0100
-Message-Id: <abafc05ec7c784bc6f5ba4ea84007df0fb486d3c.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Stephen Barber <smbarber@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>
+Subject: [rtc-linux] [PATCH v2 1/4] mfd: cros_ec: Add helper for event notifier.
+Date: Thu, 19 Jan 2017 13:30:29 +0100
+Message-Id: <20170119123032.24679-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,74 +28,75 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-So far, the LOSC was generated through the RTC internal oscillator, which
-was a pretty poor and inaccurate choice.
+From: Gwendal Grignou <gwendal@chromium.org>
 
-Now that the RTC properly exposes its internal mux between its oscillator
-and the external oscillator, we can use it were relevant.
+Add cros_ec_get_event() entry point to retrieve event within functions
+called by the notifier.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/boot/dts/sun8i-a23-a33.dtsi | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-index 597f2fce6c31..e9d98d803dc6 100644
---- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
-@@ -109,11 +109,11 @@
- 			clock-output-names = "osc24M";
- 		};
+Changelog:
+
+ * Added the ack by Lee Jones
+
+ drivers/platform/chrome/cros_ec_proto.c | 20 ++++++++++++++++++++
+ include/linux/mfd/cros_ec.h             | 10 ++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index ed5dee7..7428c2b 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -494,3 +494,23 @@ int cros_ec_get_next_event(struct cros_ec_device *ec_dev)
+ 		return get_keyboard_state_event(ec_dev);
+ }
+ EXPORT_SYMBOL(cros_ec_get_next_event);
++
++u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev)
++{
++	u32 host_event;
++
++	BUG_ON(!ec_dev->mkbp_event_supported);
++
++	if (ec_dev->event_data.event_type != EC_MKBP_EVENT_HOST_EVENT)
++		return 0;
++
++	if (ec_dev->event_size != sizeof(host_event)) {
++		dev_warn(ec_dev->dev, "Invalid host event size\n");
++		return 0;
++	}
++
++	host_event = get_unaligned_le32(&ec_dev->event_data.data.host_event);
++
++	return host_event;
++}
++EXPORT_SYMBOL(cros_ec_get_host_event);
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index b3d04de..be2c4eb 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -299,6 +299,16 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev);
+  */
+ int cros_ec_get_next_event(struct cros_ec_device *ec_dev);
  
--		osc32k: osc32k_clk {
-+		ext_osc32k: ext_osc32k_clk {
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32768>;
--			clock-output-names = "osc32k";
-+			clock-output-names = "ext-osc32k";
- 		};
- 	};
- 
-@@ -256,7 +256,7 @@
- 
- 		ccu: clock@01c20000 {
- 			reg = <0x01c20000 0x400>;
--			clocks = <&osc24M>, <&osc32k>;
-+			clocks = <&osc24M>, <&rtc>;
- 			clock-names = "hosc", "losc";
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
-@@ -266,7 +266,7 @@
- 			/* compatible gets set in SoC specific dtsi file */
- 			reg = <0x01c20800 0x400>;
- 			/* interrupts get set in SoC specific dtsi file */
--			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
-+			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc>;
- 			clock-names = "apb", "hosc", "losc";
- 			gpio-controller;
- 			interrupt-controller;
-@@ -486,6 +486,9 @@
- 			reg = <0x01f00000 0x54>;
- 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
-+			clock-output-names = "osc32k";
-+			clocks = <&ext_osc32k>;
-+			#clock-cells = <0>;
- 		};
- 
- 		nmi_intc: interrupt-controller@01f00c0c {
-@@ -564,7 +567,7 @@
- 			compatible = "allwinner,sun8i-a23-r-pinctrl";
- 			reg = <0x01f02c00 0x400>;
- 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&apb0_gates 0>, <&osc24M>, <&osc32k>;
-+			clocks = <&apb0_gates 0>, <&osc24M>, <&rtc>;
- 			clock-names = "apb", "hosc", "losc";
- 			resets = <&apb0_rst 0>;
- 			gpio-controller;
++/**
++ * cros_ec_get_host_event - Return a mask of event set by the EC.
++ *
++ * When MKBP is supported, when the EC raises an interrupt,
++ * We collect the events raised and call the functions in the ec notifier.
++ *
++ * This function is a helper to know which events are raised.
++ */
++u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev);
++
+ /* sysfs stuff */
+ extern struct attribute_group cros_ec_attr_group;
+ extern struct attribute_group cros_ec_lightbar_attr_group;
 -- 
-git-series 0.8.11
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
