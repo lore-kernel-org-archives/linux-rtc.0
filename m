@@ -1,25 +1,24 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRB3UM3HBQKGQEGHP3W2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB47CQLCAKGQE4Q4GD5Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [217.72.192.73])
-        by gmr-mx.google.com with ESMTPS id i196si1120838wmd.3.2017.01.11.06.51.25
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id e134si374830wmd.3.2017.01.19.04.30.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 11 Jan 2017 06:51:25 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Thu, 19 Jan 2017 04:30:43 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Cc: Olof Johansson <olof@lixom.net>,
+	Lee Jones <lee.jones@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: armada38x: hide maybe-uninitialized warning
-Date: Wed, 11 Jan 2017 15:50:31 +0100
-Message-Id: <20170111145112.722743-1-arnd@arndb.de>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v2 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Date: Thu, 19 Jan 2017 13:30:32 +0100
+Message-Id: <20170119123032.24679-4-enric.balletbo@collabora.com>
+In-Reply-To: <20170119123032.24679-1-enric.balletbo@collabora.com>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,37 +29,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The function is too complicated for gcc to realize that this variable
-does eventually get initialized, causing a harmless warning:
+From: Stephen Barber <smbarber@chromium.org>
 
-drivers/rtc/rtc-armada38x.c: In function 'read_rtc_register_wa':
-drivers/rtc/rtc-armada38x.c:131:25: warning: 'index_max' may be used uninitialized in this function [-Wmaybe-uninitialized]
+If the EC supports RTC host commands, expose an RTC device.
 
-This adds an explicit initializion at the start of the function.
-I generally try to avoid that, but it seems appropriate here,
-as we start out with max=0 as well.
-
-Fixes: 61cffa2438e3 ("rtc: armada38x: Follow the new recommendation for errata implementation")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 ---
- drivers/rtc/rtc-armada38x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 6c9a2cbdc1a9..65e16965af7e 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -90,7 +90,7 @@ static void rtc_update_mbus_timing_params(struct armada38x_rtc *rtc)
+diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
+index 47268ec..ebe029d 100644
+--- a/drivers/platform/chrome/cros_ec_dev.c
++++ b/drivers/platform/chrome/cros_ec_dev.c
+@@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
+ 	kfree(msg);
+ }
  
- static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
++static const struct mfd_cell cros_ec_rtc_devs[] = {
++	{
++		.name = "cros-ec-rtc",
++		.id   = -1,
++	},
++};
++
++static void cros_ec_rtc_register(struct cros_ec_dev *ec)
++{
++	int ret;
++
++	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
++			      ARRAY_SIZE(cros_ec_rtc_devs),
++			      NULL, 0, NULL);
++	if (ret)
++		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
++}
++
+ static int ec_device_probe(struct platform_device *pdev)
  {
--	int i, index_max, max = 0;
-+	int i, index_max = 0, max = 0;
+ 	int retval = -ENOMEM;
+@@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
+ 	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+ 		cros_ec_sensors_register(ec);
  
- 	for (i = 0; i < SAMPLE_NR; i++) {
- 		rtc->val_to_freq[i].value = readl(rtc->regs + rtc_reg);
++	/* check whether this EC instance has RTC host command support */
++	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
++		cros_ec_rtc_register(ec);
++
+ 	return 0;
+ 
+ dev_reg_failed:
 -- 
-2.9.0
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
