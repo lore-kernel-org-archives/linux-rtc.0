@@ -1,33 +1,28 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBJMM3DBQKGQE2PUYOSI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBP7GRDCAKGQEOF2SKRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h62si466269wme.2.2017.01.11.02.17.08
-        for <rtc-linux@googlegroups.com>;
-        Wed, 11 Jan 2017 02:17:08 -0800 (PST)
-Date: Wed, 11 Jan 2017 11:17:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Amelie DELAUNAY <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre TORGUE <alexandre.torgue@st.com>,
-	Russell King <linux@armlinux.org.uk>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [rtc-linux] Re: [PATCHv3 3/8] rtc: add STM32 RTC driver
-Message-ID: <20170111101708.ujcgo7kpyywymyzp@piout.net>
-References: <1483623809-29937-1-git-send-email-amelie.delaunay@st.com>
- <1483623809-29937-4-git-send-email-amelie.delaunay@st.com>
- <20170111000803.mlie6kizcsj2o7lh@piout.net>
- <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1feb3a23-7450-2b5c-9c1c-c7ecacd7fa17@st.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id h62si130567wme.2.2017.01.20.07.56.47
+        for <rtc-linux@googlegroups.com>;
+        Fri, 20 Jan 2017 07:56:47 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] [PATCH 6/6] ARM: sun8i: a23/a33: Add the oscillators accuracy
+Date: Fri, 20 Jan 2017 16:56:43 +0100
+Message-Id: <2b146385bad54a7719f91032abac3d624126c032.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,18 +31,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/01/2017 at 11:07:16 +0100, Amelie DELAUNAY wrote :
-> > This will never happen, tm is already checked multiple times (up to
-> > three) in the core before this function can be called.
-> > 
-> You're right. I'll remove all rtc_valid_tm calls.
+The datasheet provided by Allwinner requires oscillators with an accuracy
+of 50ppm. Add it to our fixed clocks so that we can properly track the
+accuracy chain.
 
-You can keep the one in read_time
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ arch/arm/boot/dts/sun8i-a23-a33.dtsi | 2 ++
+ 1 file changed, 2 insertions(+), 0 deletions(-)
 
+diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+index e9d98d803dc6..f5925a18031c 100644
+--- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+@@ -106,6 +106,7 @@
+ 			#clock-cells = <0>;
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <24000000>;
++			clock-accuracy = <50000>;
+ 			clock-output-names = "osc24M";
+ 		};
+ 
+@@ -113,6 +114,7 @@
+ 			#clock-cells = <0>;
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <32768>;
++			clock-accuracy = <50000>;
+ 			clock-output-names = "ext-osc32k";
+ 		};
+ 	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
