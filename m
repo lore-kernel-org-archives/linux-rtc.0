@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBB3MLUPCAKGQEE6Y4DGI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXMLNOH5ANRBIH5Q7CAKGQETVXEPLA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f142si1514657wmf.2.2017.01.25.07.36.12
-        for <rtc-linux@googlegroups.com>;
-        Wed, 25 Jan 2017 07:36:12 -0800 (PST)
-Date: Wed, 25 Jan 2017 16:36:02 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id h130si1772166pfe.1.2017.01.20.04.12.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 20 Jan 2017 04:12:15 -0800 (PST)
+Date: Fri, 20 Jan 2017 13:12:10 +0100
+From: Sebastian Reichel <sre@kernel.org>
+To: Guy Shapiro <guy.shapiro@mobi-wize.com>
+Cc: b20788@freescale.com, shawnguo@kernel.org, Frank.Li@freescale.com,
+	kernel@pengutronix.de, fabio.estevam@nxp.com, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
 	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 0/7] rtc: sun6i: Fix the RTC accuracy
-Message-ID: <20170125153602.tcdh2rk3bs3cz5j6@lukather>
-References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
- <20170124174935.att4s7mqfbyxkxqk@piout.net>
+	linux-pm@vger.kernel.org
+Subject: [rtc-linux] Re: imx6ul: power-up using the RTC
+Message-ID: <20170120121210.gm3wcg4yyvrigpn3@earth>
+References: <b516070d-6539-98d1-c832-d79ac89e8d43@mobi-wize.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="s6h6thk2i7f7xoh5"
-In-Reply-To: <20170124174935.att4s7mqfbyxkxqk@piout.net>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="4lskj7sct7d33jpz"
+In-Reply-To: <b516070d-6539-98d1-c832-d79ac89e8d43@mobi-wize.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,64 +30,77 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
  <https://groups.google.com/group/rtc-linux/subscribe>
 
 
---s6h6thk2i7f7xoh5
+--4lskj7sct7d33jpz
 Content-Type: text/plain; charset=UTF-8
 Content-Disposition: inline
 
-On Tue, Jan 24, 2017 at 06:49:35PM +0100, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 23/01/2017 at 11:41:45 +0100, Maxime Ripard wrote :
-> > Hi,
-> > 
-> > The RTC used in the A31 and later SoC has an accuracy issue, which is
-> > already significant even after a couple of hours.
-> > 
-> > This is due to the fact that the oscillator used by default is an internal
-> > and very inaccurate one.
-> > 
-> > A first attempt at fixing that by switching to the external oscillator was
-> > done in the patch "rtc: sun6i: Switch to the external oscillator". However,
-> > it turned out to be problematic since it was tracked properly in the clock
-> > framework, which might lead to some clocks being disabled, even though
-> > their devices were not notified.
-> > 
-> > This is a second attempt, this time by making it part of the CCF. It
-> > turned out to be a bit more complicated than one would expect since the mux
-> > found inside the RTC also controls one of the input of the main clock unit.
-> > Therefore, it needs to be probed before the main clock unit driver.
-> > 
-> > Let me know what you think,
-> > Maxime
-> > 
-> > Changes from v1:
-> >   - Force the muxing to the external oscillator even for old DT
-> >   - Make the patches a bit more stable friendly
-> >   - Change the bindings to have a cell of 1, to account for the external
-> >     output of the oscillator
-> >   - Split the driver remove() removal into a separate patch and switched to
-> >     devm
-> >   - Reordered the patches
-> > 
-> > Maxime Ripard (7):
-> >   rtc: sun6i: Disable the build as a module
-> >   rtc: sun6i: Add some locking
-> >   rtc: sun6i: Switch to the external oscillator
-> >   rtc: sun6i: Expose the 32kHz oscillator
-> >   rtc: sun6i: Switch to devm_rtc_device_register
-> >   ARM: sun8i: a23/a33: Enable the real LOSC and use it
-> >   ARM: sun8i: a23/a33: Add the oscillators accuracy
-> > 
-> 
-> I've applied 1/7 to 5/7. Thanks!
+Hi,
 
-And I just applied patches 6 and 7. Thanks!
-Maxime
+On Wed, Jan 18, 2017 at 04:49:11PM +0200, Guy Shapiro wrote:
+> I'm trying to use the low power RTC of the i.MX6UL to start from
+> power-off state.
+> 
+> I started by hopefully running: # echo +30 >
+> /sys/class/rtc/rtc0/wakealarm && shutdown -h now The system was
+> powered down, but it didn't come up after 30 seconds as expected.
+> 
+> So I dug into the datasheet and the source...
+> To activate the power on alarm, the flags SRTC_ENV, LPTA_EN and LPWUI_EN on
+> the SNVS_LP Control register (LPCR) should be asserted. The wakeup time
+> should be written to the SNVS_LP Time alarm register (LPTA). The code that
+> does this is on drivers/rtc/rtc-snvs.c:snvs_rtc_set_alarm().
+> 
+> The first problem I found was with the use of the syscon-poweroff driver.
+> The "Turn off System Power" flag is part of the same register (LPCR). The
+> current code of syscon-poweroff set the register to the "mask" property from
+> the device tree on power off, overriding all the existing flags.
+> After setting the "mask" property on the device tree to 0x6b instead of
+> 0x60 (asserting the mentioned bits), the system do power up on timer, as
+> expected.
+> 
+> However, I didn't like the idea of keeping those flags on even when no one
+> set the alarm.
+> As a quick test, I modified the syscon-poweroff driver to ignore the bits
+> that are not on the mask:
+> 
+> diff --git a/drivers/power/reset/syscon-poweroff.c
+> b/drivers/power/reset/syscon-poweroff.c
+> index b683383..a5da02b 100644
+> --- a/drivers/power/reset/syscon-poweroff.c
+> +++ b/drivers/power/reset/syscon-poweroff.c
+> @@ -33,7 +33,7 @@ static u32 mask;
+> static void syscon_poweroff(void)
+> {
+>         /* Issue the poweroff */
+> -       regmap_write(map, offset, mask);
+> +       regmap_update_bits(map, offset, mask, mask);
+>         mdelay(1000);
+> 
+> 
+> After applying this fix, the wake up alarm didn't work. Strangely, when I
+> added some debug prints to investigate the case, it worked again
+> (sometimes... depends on the exact places I add the prints).
+> I suspect that some other driver clears the flags during the power down, but
+> I couldn't find such driver.
+> 
+> Do you have any clue what code may change this register during the shutdown
+> process? Any other insights are welcomed as well :)
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+To summarize it looks like this?
+
+| regmap_write       | 0x60 | broken                     |
+| regmap_write       | 0x6b | works stable               |
+| regmap_update_bits | 0x60 | works only with dbg prints |
+
+For me it looks like the debug prints may delay the poweroff driver
+long enough, that some other driver (rtc?) writes the 0x0b bits.
+
+FWIW we can't switch from regmap_write to regmap_update_bits in the
+syscon driver, since that may break other users. I guess we need to
+introduce a DT property providing the update mask. Unfortunately the
+register value property is already named mask :/
+
+-- Sebastian
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -97,24 +112,24 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---s6h6thk2i7f7xoh5
+--4lskj7sct7d33jpz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAEBCAAGBQJYiMXeAAoJEBx+YmzsjxAgyiwP/0TlOJhOckdv5uIahbHnS+UI
-+Nfa/XeioBR+7ydOUg8n+F0MFmH9vnsncBkP4qNTWE2xzQVfbdnYr47XJ3r4Z6el
-Vs2eUtCwjsyeuKF1ZDYx4pgmPT71OHyfwaGZIqLIVDiFmgjze8eBj0y4wlkK3Gj4
-DEtYUlL8rBOHB4OGI+Ny8I3Mshh32gNwYpgMTZ15Uanzje2UQ1OGlOR1qdbFR5Bi
-eXcy1P3d8NQ2hFSKDg5FJgFhzWweIMY39TlHbSNM5Em0eQYtbf44+xb1rDLG6lMj
-IQIYnk20nz6LXguD2QKAOPnBHrwkYECCmCS6aOrh9np9nf+VHqXWXHgEP28c2ijp
-gcacSUMpLqJHf1O5By4qhaRYtBA6JuMdpqAw/cyL2upv/cPcUldaoAmi3+audsf1
-6P7sm4l597z6VXXGIcTnBrf3CcYHUf4c83CsiM23m1YgmewCd6/UO9hCnZgKkr7a
-1ksH6UYJDtENV1/dLsU2tMr3w9jnA7TXX1KByrkEQFP/8+G7UOEvDDijNqnZarhj
-KvN/75p+Q5r98Nlp1Xp+byKL01p+x7xxYSacmLe98VFeTM1tK36rZo5IJ82KiFs7
-VP6xTZ/Jqv6mATaBJtgn13NA/6gO6daYjQyQCiUK1z0Vesgd4ncoMwHmg25qxLNb
-cAFKe3B8GOroza8mkDCs
-=NgQM
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAliB/pcACgkQ2O7X88g7
++pr5iQ//WDf8FBjLuSR7/Yka8tJCxxQATGo/zeaH5nYiEMmfDPB2TMjOKeJDDnl4
+FNd+OL+bpBkns9PAUXV9mWlqy2FWdG9HORdI0J00ih//yXDea7UsPTEWRuow4Eoq
+CVBm9Y1QHzFqxFZsFvW3mIyG1FFzPdxG2sQh5nYyOpntQxz1Yf+eamqhkeG8L3Jl
+xNBICrP1yqYMtyGKuTDi+qn9OqVL6unNDeAXVFu+5yWGz/OCVciJz6P3M8w+nI3c
+I42LXJOX5qMI08zes+B2Mofyz7uL4XbI6ab1ba76OHqBukCWAkWROEl/IuYZhgZb
+4KGiE5xU7e9O6T1qClRNyy37X/05XuhiVbWq6BJNK5BGmWO7T5QH1QioVyiUW0OC
+3dG5eWrPKqDTq0m9FnKWfRvGCxg5X95blQ/MbKmOlZYgZdwM+zvltmPu31+uu92U
+eSsiZ5V/3OEuqgxmqYLRmKDyOgoAMlPzmYNw2cU7X2H5qDIp2VGpHsYCes0Mb5A3
+dzwXMyIIiLLkKNz8mf35ZGLA2pZJAWv8rD1mWytWPgEFcja7YRxXUifnERV4+Pnf
+qn1gfNCbjJgnJX2myRwzTHCMYPLQWsXnJVmKaN3W8WoEuzBHkElSTppFI+QuMjBC
+Mkx7VNcL55yUgbgIFp3h+VjsNbM2mLbYhsTDfJ+uoaiemCv7icQ=
+=ecmX
 -----END PGP SIGNATURE-----
 
---s6h6thk2i7f7xoh5--
+--4lskj7sct7d33jpz--
