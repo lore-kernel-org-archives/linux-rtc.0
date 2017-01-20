@@ -1,18 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBIMJRDCAKGQELIM2NCA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBPXGRDCAKGQEIGJQA3I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail02.prevas.se (mail02.prevas.se. [62.95.78.10])
-        by gmr-mx.google.com with ESMTPS id h62si105086wme.2.2017.01.20.04.37.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 20 Jan 2017 04:37:53 -0800 (PST)
-From: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-To: rtc-linux@googlegroups.com
-Cc: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-Subject: [rtc-linux] [PATCH 1/2] rtc: pcf2127: add support for pcf2127
- watchdog functionality
-Date: Fri, 20 Jan 2017 13:36:43 +0100
-Message-Id: <20170120123644.118612-1-sean.nyekjaer@prevas.dk>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id f142si198868wmf.2.2017.01.20.07.56.46
+        for <rtc-linux@googlegroups.com>;
+        Fri, 20 Jan 2017 07:56:46 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] [PATCH 2/6] rtc: sun6i: Add some locking
+Date: Fri, 20 Jan 2017 16:56:39 +0100
+Message-Id: <9b5c8ed82f636fd2061a9b7933c0e6b65d868643.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -23,265 +31,119 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-PCF2129 does not have watchdog functionality built-in so we
-are only allowing to enable watchdog for PCF2127.
+Some registers have a read-modify-write access pattern that are not atomic.
 
-Watchdog functionality is done with great inspiration from
-the rtc-ds1374 driver.
+Add some locking to prevent from concurrent accesses.
 
-Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- drivers/rtc/Kconfig       |   7 ++
- drivers/rtc/rtc-pcf2127.c | 174 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 180 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e859d148aba9..c8985be81d83 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -799,6 +799,13 @@ config RTC_DRV_PCF2127
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf2127.
- 
-+config RTC_DRV_PCF2127_WDT
-+	bool "NXP PCF2127 watchdog timer"
-+	depends on RTC_DRV_PCF2127
-+	help
-+	  If you say Y here you will get support for the
-+	  watchdog timer in the NXP PCF2127 chip real-time clock chips.
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 408dd512a6ac..872d18609183 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -125,6 +125,8 @@ struct sun6i_rtc_dev {
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+ 	struct clk *losc;
 +
- config RTC_DRV_RV3029C2
- 	tristate "Micro Crystal RV3029/3049"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 2bfdf638b673..31627c59c44d 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -21,6 +21,13 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/regmap.h>
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+#include <linux/fs.h>
-+#include <linux/ioctl.h>
-+#include <linux/miscdevice.h>
-+#include <linux/reboot.h>
-+#include <linux/watchdog.h>
-+#endif
- 
- #define PCF2127_REG_CTRL1       (0x00)  /* Control Register 1 */
- #define PCF2127_REG_CTRL2       (0x01)  /* Control Register 2 */
-@@ -28,6 +35,13 @@
- #define PCF2127_REG_CTRL3       (0x02)  /* Control Register 3 */
- #define PCF2127_REG_CTRL3_BLF		BIT(2)
- 
-+#define PCF2127_REG_WDG_TIMCTL		(0x10)
-+#define PCF2127_REG_WDG_TIMCTL_CD	(BIT(7) | BIT(6))
-+#define PCF2127_REG_WDG_T_CD_EN_RST	(BIT(7) | BIT(6))	/* WD en,rst assert */
-+#define PCF2127_REG_WDG_TIMCTL_TF	(BIT(1) | BIT(0))
-+#define PCF2127_REG_WDG_T_TF_1HZ	BIT(1)	/* Timer clock source */
-+#define PCF2127_REG_WDG_TIMVAL		(0x11)
-+
- #define PCF2127_REG_SC          (0x03)  /* datetime */
- #define PCF2127_REG_MN          (0x04)
- #define PCF2127_REG_HR          (0x05)
-@@ -43,6 +57,138 @@ struct pcf2127 {
- 	struct regmap *regmap;
++	spinlock_t lock;
  };
  
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+static struct pcf2127 *save_pcf2127;
-+
-+/* default 32 sec timeout */
-+#define WD_TIMO 32
-+
-+static int wdt_margin = WD_TIMO;
-+
-+static const struct watchdog_info pcf2127_wdt_info = {
-+	.identity = "PCF2127 WDT",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+};
-+
-+static int pcf2127_wdt_enable(void)
-+{
-+	return regmap_write(save_pcf2127->regmap, PCF2127_REG_WDG_TIMCTL,
-+			    PCF2127_REG_WDG_T_CD_EN_RST |
-+			    PCF2127_REG_WDG_T_TF_1HZ);
-+}
-+
-+static int pcf2127_wdt_settimeout(unsigned int timeout)
-+{
-+	int err;
-+
-+	err = pcf2127_wdt_enable();
-+	if (err)
-+		return err;
-+
-+	err = regmap_write(save_pcf2127->regmap, PCF2127_REG_WDG_TIMVAL,
-+			   timeout);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
-+static void pcf2127_wdt_ping(void)
-+{
-+	int ret = 0;
-+
-+	ret = pcf2127_wdt_settimeout(wdt_margin);
-+	if (ret)
-+		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
-+}
-+
-+static int pcf2127_wdt_disable(void)
-+{
-+	return regmap_write_bits(save_pcf2127->regmap, PCF2127_REG_WDG_TIMCTL,
-+				 PCF2127_REG_WDG_TIMCTL_CD, 0x00);
-+}
-+
-+static long pcf2127_wdt_unlocked_ioctl(struct file *file, unsigned int cmd,
-+				       unsigned long arg)
-+{
-+	int new_margin, options;
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		return copy_to_user((struct watchdog_info __user *)arg,
-+				    &pcf2127_wdt_info,
-+				    sizeof(pcf2127_wdt_info)) ? -EFAULT : 0;
-+	case WDIOC_SETOPTIONS:
-+		if (copy_from_user(&options, (int __user *)arg, sizeof(int)))
-+			return -EFAULT;
-+
-+		if (options & WDIOS_DISABLECARD) {
-+			pr_info("disable watchdog\n");
-+			if (pcf2127_wdt_disable())
-+				return -EFAULT;
-+		}
-+
-+		if (options & WDIOS_ENABLECARD) {
-+			pr_info("enable watchdog\n");
-+			pcf2127_wdt_settimeout(wdt_margin);
-+			pcf2127_wdt_ping();
-+		}
-+
-+		return -EINVAL;
-+	case WDIOC_KEEPALIVE:
-+		pcf2127_wdt_ping();
-+		return 0;
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(new_margin, (int __user *)arg))
-+			return -EFAULT;
-+
-+		if (new_margin < 1 || new_margin > 255)
-+			return -EINVAL;
-+
-+		wdt_margin = new_margin;
-+		if (pcf2127_wdt_settimeout(new_margin))
-+			return -EFAULT;
-+		pcf2127_wdt_ping();
-+		/* fallthrough */
-+	case WDIOC_GETTIMEOUT:
-+		return put_user(wdt_margin, (int __user *)arg);
-+	default:
-+		return -ENOTTY;
-+	}
-+}
-+
-+static ssize_t pcf2127_wdt_write(struct file *file, const char *data,
-+				 size_t len, loff_t *ppos)
-+{
-+	if (len) {
-+		pcf2127_wdt_ping();
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static ssize_t pcf2127_wdt_read(struct file *file, char __user *data,
-+				size_t len, loff_t *ppos)
-+{
-+	return 0;
-+}
-+
-+static const struct file_operations pcf2127_wdt_fops = {
-+	.owner = THIS_MODULE,
-+	.read = pcf2127_wdt_read,
-+	.unlocked_ioctl = pcf2127_wdt_unlocked_ioctl,
-+	.write = pcf2127_wdt_write,
-+	.llseek = no_llseek,
-+};
-+
-+static struct miscdevice pcf2127_wdt_miscdev = {
-+	.minor = WATCHDOG_MINOR,
-+	.name = "watchdog",
-+	.fops = &pcf2127_wdt_fops,
-+};
-+
-+#endif
-+
- /*
-  * In the routines that deal directly with the pcf2127 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-@@ -175,6 +321,9 @@ static const struct rtc_class_ops pcf2127_rtc_ops = {
- static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 			const char *name)
+ static struct sun6i_rtc_dev *sun6i_rtc;
+@@ -155,16 +157,19 @@ static u8 sun6i_rtc_osc_get_parent(struct clk_hw *hw)
+ static int sun6i_rtc_osc_set_parent(struct clk_hw *hw, u8 index)
  {
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+	int ret;
-+#endif
- 	struct pcf2127 *pcf2127;
+ 	struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
++	unsigned long flags;
+ 	u32 val;
  
- 	dev_dbg(dev, "%s\n", __func__);
-@@ -183,6 +332,10 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 	if (!pcf2127)
- 		return -ENOMEM;
+ 	if (index > 1)
+ 		return -EINVAL;
  
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+	save_pcf2127 = pcf2127;
-+#endif
-+
- 	pcf2127->regmap = regmap;
++	spin_lock_irqsave(&rtc->lock, flags);
+ 	val = readl(rtc->base + SUN6I_LOSC_CTRL);
+ 	val &= ~SUN6I_LOSC_CTRL_EXT_OSC;
+ 	val |= SUN6I_LOSC_CTRL_KEY;
+ 	val |= index ? SUN6I_LOSC_CTRL_EXT_OSC : 0;
+ 	writel(val, rtc->base + SUN6I_LOSC_CTRL);
++	spin_unlock_irqrestore(&rtc->lock, flags);
  
- 	dev_set_drvdata(dev, pcf2127);
-@@ -190,7 +343,22 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
- 						THIS_MODULE);
+ 	return 0;
+ }
+@@ -187,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
+ 	if (!rtc)
+ 		pr_crit("Can't allocate RTC structure\n");
++	spin_lock_init(&rtc->lock);
  
--	return PTR_ERR_OR_ZERO(pcf2127->rtc);
-+	if (IS_ERR(pcf2127->rtc))
-+		return PTR_ERR_OR_ZERO(pcf2127->rtc);
-+
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+	if (!of_device_is_compatible(dev->of_node, "nxp,pcf2127"))
-+		return 0;
-+
-+	if (of_property_read_bool(dev->of_node, "watchdog")) {
-+		ret = misc_register(&pcf2127_wdt_miscdev);
-+		if (ret)
-+			return ret;
-+	}
-+	pcf2127_wdt_settimeout(32);
-+#endif
-+
-+	return 0;
+ 	rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
+ 	if (!rtc->base) {
+@@ -246,8 +252,10 @@ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+ {
+ 	struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
++	irqreturn_t ret = IRQ_NONE;
+ 	u32 val;
+ 
++	spin_lock(&chip->lock);
+ 	val = readl(chip->base + SUN6I_ALRM_IRQ_STA);
+ 
+ 	if (val & SUN6I_ALRM_IRQ_STA_CNT_IRQ_PEND) {
+@@ -256,10 +264,11 @@ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+ 
+ 		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
+ 
+-		return IRQ_HANDLED;
++		ret = IRQ_HANDLED;
+ 	}
++	spin_unlock(&chip->lock);
+ 
+-	return IRQ_NONE;
++	return ret;
  }
  
- #ifdef CONFIG_OF
-@@ -427,6 +595,10 @@ static void __exit pcf2127_exit(void)
- {
- 	pcf2127_spi_unregister_driver();
- 	pcf2127_i2c_unregister_driver();
-+
-+#ifdef CONFIG_RTC_DRV_PCF2127_WDT
-+	misc_deregister(&pcf2127_wdt_miscdev);
-+#endif
- }
- module_exit(pcf2127_exit)
+ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+@@ -267,6 +276,7 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+ 	u32 alrm_val = 0;
+ 	u32 alrm_irq_val = 0;
+ 	u32 alrm_wake_val = 0;
++	unsigned long flags;
  
+ 	if (to) {
+ 		alrm_val = SUN6I_ALRM_EN_CNT_EN;
+@@ -277,9 +287,11 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+ 		       chip->base + SUN6I_ALRM_IRQ_STA);
+ 	}
+ 
++	spin_lock_irqsave(&chip->lock, flags);
+ 	writel(alrm_val, chip->base + SUN6I_ALRM_EN);
+ 	writel(alrm_irq_val, chip->base + SUN6I_ALRM_IRQ_EN);
+ 	writel(alrm_wake_val, chip->base + SUN6I_ALARM_CONFIG);
++	spin_unlock_irqrestore(&chip->lock, flags);
+ }
+ 
+ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+@@ -318,11 +330,15 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+ static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ {
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
++	unsigned long flags;
+ 	u32 alrm_st;
+ 	u32 alrm_en;
+ 
++	spin_lock_irqsave(&chip->lock, flags);
+ 	alrm_en = readl(chip->base + SUN6I_ALRM_IRQ_EN);
+ 	alrm_st = readl(chip->base + SUN6I_ALRM_IRQ_STA);
++	spin_unlock_irqrestore(&chip->lock, flags);
++
+ 	wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
+ 	wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
+ 	rtc_time_to_tm(chip->alarm, &wkalrm->time);
 -- 
-2.11.0
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
