@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBCRKFI7J2AJRBBWMUHCAKGQETMJTA2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBP7GRDCAKGQEOF2SKRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com. [119.145.14.65])
-        by gmr-mx.google.com with ESMTPS id n132si2339262ith.0.2017.01.25.00.47.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 25 Jan 2017 00:47:02 -0800 (PST)
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Patrice Chotard
-	<patrice.chotard@st.com>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, <linux-arm-kernel@lists.infradead.org>,
-        <rtc-linux@googlegroups.com>
-CC: Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [rtc-linux] [PATCH 3/4] rtc: sun6i: using devm_rtc_device_register helper
-Date: Wed, 25 Jan 2017 16:41:56 +0800
-Message-ID: <1485333717-47536-3-git-send-email-wangkefeng.wang@huawei.com>
-In-Reply-To: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
-References: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id h62si130567wme.2.2017.01.20.07.56.47
+        for <rtc-linux@googlegroups.com>;
+        Fri, 20 Jan 2017 07:56:47 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] [PATCH 5/6] ARM: sun8i: a23/a33: Enable the real LOSC and
+ use it
+Date: Fri, 20 Jan 2017 16:56:42 +0100
+Message-Id: <abafc05ec7c784bc6f5ba4ea84007df0fb486d3c.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,58 +32,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Using devm_rtc_device_register() helper to simplify code.
+So far, the LOSC was generated through the RTC internal oscillator, which
+was a pretty poor and inaccurate choice.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Now that the RTC properly exposes its internal mux between its oscillator
+and the external oscillator, we can use it were relevant.
+
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- drivers/rtc/rtc-sun6i.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/sun8i-a23-a33.dtsi | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index c169a2c..b22d5eb 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -404,8 +404,8 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
- 	/* disable alarm wakeup */
- 	writel(0, chip->base + SUN6I_ALARM_CONFIG);
+diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+index 597f2fce6c31..e9d98d803dc6 100644
+--- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+@@ -109,11 +109,11 @@
+ 			clock-output-names = "osc24M";
+ 		};
  
--	chip->rtc = rtc_device_register("rtc-sun6i", &pdev->dev,
--					&sun6i_rtc_ops, THIS_MODULE);
-+	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sun6i",
-+					     &sun6i_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(chip->rtc)) {
- 		dev_err(&pdev->dev, "unable to register device\n");
- 		return PTR_ERR(chip->rtc);
-@@ -416,15 +416,6 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
- 	return 0;
- }
+-		osc32k: osc32k_clk {
++		ext_osc32k: ext_osc32k_clk {
+ 			#clock-cells = <0>;
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <32768>;
+-			clock-output-names = "osc32k";
++			clock-output-names = "ext-osc32k";
+ 		};
+ 	};
  
--static int sun6i_rtc_remove(struct platform_device *pdev)
--{
--	struct sun6i_rtc_dev *chip = platform_get_drvdata(pdev);
--
--	rtc_device_unregister(chip->rtc);
--
--	return 0;
--}
--
- static const struct of_device_id sun6i_rtc_dt_ids[] = {
- 	{ .compatible = "allwinner,sun6i-a31-rtc" },
- 	{ /* sentinel */ },
-@@ -433,7 +424,6 @@ static int sun6i_rtc_remove(struct platform_device *pdev)
+@@ -256,7 +256,7 @@
  
- static struct platform_driver sun6i_rtc_driver = {
- 	.probe		= sun6i_rtc_probe,
--	.remove		= sun6i_rtc_remove,
- 	.driver		= {
- 		.name		= "sun6i-rtc",
- 		.of_match_table = sun6i_rtc_dt_ids,
+ 		ccu: clock@01c20000 {
+ 			reg = <0x01c20000 0x400>;
+-			clocks = <&osc24M>, <&osc32k>;
++			clocks = <&osc24M>, <&rtc>;
+ 			clock-names = "hosc", "losc";
+ 			#clock-cells = <1>;
+ 			#reset-cells = <1>;
+@@ -266,7 +266,7 @@
+ 			/* compatible gets set in SoC specific dtsi file */
+ 			reg = <0x01c20800 0x400>;
+ 			/* interrupts get set in SoC specific dtsi file */
+-			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
++			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc>;
+ 			clock-names = "apb", "hosc", "losc";
+ 			gpio-controller;
+ 			interrupt-controller;
+@@ -486,6 +486,9 @@
+ 			reg = <0x01f00000 0x54>;
+ 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
++			clock-output-names = "osc32k";
++			clocks = <&ext_osc32k>;
++			#clock-cells = <0>;
+ 		};
+ 
+ 		nmi_intc: interrupt-controller@01f00c0c {
+@@ -564,7 +567,7 @@
+ 			compatible = "allwinner,sun8i-a23-r-pinctrl";
+ 			reg = <0x01f02c00 0x400>;
+ 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&apb0_gates 0>, <&osc24M>, <&osc32k>;
++			clocks = <&apb0_gates 0>, <&osc24M>, <&rtc>;
+ 			clock-names = "apb", "hosc", "losc";
+ 			resets = <&apb0_rst 0>;
+ 			gpio-controller;
 -- 
-1.7.12.4
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
