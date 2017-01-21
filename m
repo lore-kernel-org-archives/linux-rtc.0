@@ -1,19 +1,32 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBWW7WXBQKGQER6P7EKQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBB6MJRPCAKGQESZADX6A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id a19si2484024wme.0.2017.01.04.13.57.45
-        for <rtc-linux@googlegroups.com>;
-        Wed, 04 Jan 2017 13:57:45 -0800 (PST)
-Date: Wed, 4 Jan 2017 22:57:45 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Ryan Jones <ryan@rjones.io>
-Cc: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] [PATCH] rtc: Add support for RX4035
-Message-ID: <20170104215745.soz5cxur35yqvhyk@piout.net>
-References: <1470419676-5616-1-git-send-email-ryan@rjones.io>
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id 23si2424032pfw.4.2017.01.20.18.18.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 20 Jan 2017 18:18:32 -0800 (PST)
+Received: from mail-io0-f172.google.com (mail-io0-f172.google.com [209.85.223.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 1971B226CE
+	for <rtc-linux@googlegroups.com>; Sat, 21 Jan 2017 10:18:31 +0800 (CST)
+Received: by mail-io0-f172.google.com with SMTP id l66so75037066ioi.1
+        for <rtc-linux@googlegroups.com>; Fri, 20 Jan 2017 18:18:31 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <9b5c8ed82f636fd2061a9b7933c0e6b65d868643.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+ <9b5c8ed82f636fd2061a9b7933c0e6b65d868643.1484927680.git-series.maxime.ripard@free-electrons.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Sat, 21 Jan 2017 10:18:09 +0800
+Message-ID: <CAGb2v65pn3MRARL-CU2_7z=pTc4a5Ocdon9FCz8F7CTcbTpcJw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/6] rtc: sun6i: Add some locking
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, devicetree <devicetree@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1470419676-5616-1-git-send-email-ryan@rjones.io>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,131 +36,127 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Fri, Jan 20, 2017 at 11:56 PM, Maxime Ripard
+<maxime.ripard@free-electrons.com> wrote:
+> Some registers have a read-modify-write access pattern that are not atomic.
+>
+> Add some locking to prevent from concurrent accesses.
+>
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 
-Sorry for the late review!
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 
-On 05/08/2016 at 11:54:36 -0600, Ryan Jones wrote :
-> + * Based on:
-> + * drivers/rtc/rtc-rx4581.c
+Though I think it would be better to add locking first, then add
+clock support, if the original code already had issues?
 
-I'd argue that it doesn't really matter ;)
-
-> +#define RX4035_REG_SC		0x00 /* Second in BCD */
-> +#define RX4035_REG_MN		0x01 /* Minute in BCD */
-> +#define RX4035_REG_HR		0x02 /* Hour in BCD */
-> +#define RX4035_REG_DW		0x03 /* Day of Week */
-> +#define RX4035_REG_DM		0x04 /* Day of Month in BCD */
-> +#define RX4035_REG_MO		0x05 /* Month in BCD */
-> +#define RX4035_REG_YR		0x06 /* Year in BCD */
-> +#define RX4035_REG_RAM		0x0D /* RAM */
-> +#define RX4035_REG_CTL1		0x0E /* Control Register 1*/
-> +#define RX4035_REG_CTL2		0x0F /* Control Register 2*/
+> ---
+>  drivers/rtc/rtc-sun6i.c | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index 408dd512a6ac..872d18609183 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -125,6 +125,8 @@ struct sun6i_rtc_dev {
+>         struct clk_hw hw;
+>         struct clk_hw *int_osc;
+>         struct clk *losc;
 > +
-> +/* Flag Register bit definitions */
-> +#define RX4035_FLAG_VDET	0x40 /* Low Voltage Detection */
-> +#define RX4035_FLAG_PON		0x10 /* Indicates a Power On condition */
-
-Please use BIT().
-
+> +       spinlock_t lock;
+>  };
+>
+>  static struct sun6i_rtc_dev *sun6i_rtc;
+> @@ -155,16 +157,19 @@ static u8 sun6i_rtc_osc_get_parent(struct clk_hw *hw)
+>  static int sun6i_rtc_osc_set_parent(struct clk_hw *hw, u8 index)
+>  {
+>         struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
+> +       unsigned long flags;
+>         u32 val;
+>
+>         if (index > 1)
+>                 return -EINVAL;
+>
+> +       spin_lock_irqsave(&rtc->lock, flags);
+>         val = readl(rtc->base + SUN6I_LOSC_CTRL);
+>         val &= ~SUN6I_LOSC_CTRL_EXT_OSC;
+>         val |= SUN6I_LOSC_CTRL_KEY;
+>         val |= index ? SUN6I_LOSC_CTRL_EXT_OSC : 0;
+>         writel(val, rtc->base + SUN6I_LOSC_CTRL);
+> +       spin_unlock_irqrestore(&rtc->lock, flags);
+>
+>         return 0;
+>  }
+> @@ -187,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>         rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
+>         if (!rtc)
+>                 pr_crit("Can't allocate RTC structure\n");
+> +       spin_lock_init(&rtc->lock);
+>
+>         rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
+>         if (!rtc->base) {
+> @@ -246,8 +252,10 @@ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+>  static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+>  {
+>         struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
+> +       irqreturn_t ret = IRQ_NONE;
+>         u32 val;
+>
+> +       spin_lock(&chip->lock);
+>         val = readl(chip->base + SUN6I_ALRM_IRQ_STA);
+>
+>         if (val & SUN6I_ALRM_IRQ_STA_CNT_IRQ_PEND) {
+> @@ -256,10 +264,11 @@ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+>
+>                 rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
+>
+> -               return IRQ_HANDLED;
+> +               ret = IRQ_HANDLED;
+>         }
+> +       spin_unlock(&chip->lock);
+>
+> -       return IRQ_NONE;
+> +       return ret;
+>  }
+>
+>  static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+> @@ -267,6 +276,7 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+>         u32 alrm_val = 0;
+>         u32 alrm_irq_val = 0;
+>         u32 alrm_wake_val = 0;
+> +       unsigned long flags;
+>
+>         if (to) {
+>                 alrm_val = SUN6I_ALRM_EN_CNT_EN;
+> @@ -277,9 +287,11 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+>                        chip->base + SUN6I_ALRM_IRQ_STA);
+>         }
+>
+> +       spin_lock_irqsave(&chip->lock, flags);
+>         writel(alrm_val, chip->base + SUN6I_ALRM_EN);
+>         writel(alrm_irq_val, chip->base + SUN6I_ALRM_IRQ_EN);
+>         writel(alrm_wake_val, chip->base + SUN6I_ALARM_CONFIG);
+> +       spin_unlock_irqrestore(&chip->lock, flags);
+>  }
+>
+>  static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+> @@ -318,11 +330,15 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+>  static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+>  {
+>         struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+> +       unsigned long flags;
+>         u32 alrm_st;
+>         u32 alrm_en;
+>
+> +       spin_lock_irqsave(&chip->lock, flags);
+>         alrm_en = readl(chip->base + SUN6I_ALRM_IRQ_EN);
+>         alrm_st = readl(chip->base + SUN6I_ALRM_IRQ_STA);
+> +       spin_unlock_irqrestore(&chip->lock, flags);
 > +
-> +static int rx4035_set_reg(struct spi_device *spi, unsigned char address,
-> +	unsigned char data)
-> +{
-> +	unsigned char buf[2];
-> +
-> +	/*Set MSB to indicate a write transfer*/
-> +	buf[0] = (address<<4) | 0x08;
-
-checkpatch --strict is complaining about spaces here and also a few
-alignements later. Can you fix those?
-
-> +	buf[1] = data;
-> +
-> +	return spi_write_then_read(spi, buf, 2, NULL, 0);
-> +}
-> +
-> +static int rx4035_get_reg(struct spi_device *spi, unsigned char address,
-> +	unsigned char *data)
-> +{
-> +	/*Set MSB to indicate a write transfer*/
-
-This comment is probably wrong...
-
-> +	*data = (address<<4) | 0x0c;
-> +
-> +	return spi_write_then_read(spi, data, 1, data, 1);
-> +}
-> +
-> +/*
-> + * In the routines that deal directly with the rx4035 hardware, we use
-> + * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-> + */
-
-This comment is not useful
-
-> +static int rx4035_get_datetime(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	unsigned char date[7];
-> +	unsigned char data;
-> +	int err;
-> +
-> +	/*Check that data is reliable*/
-> +	err = rx4035_get_reg(spi, RX4035_REG_CTL1, &data);
-> +	if (err != 0) {
-> +		dev_err(dev, "Unable to read control register\n");
-> +		return -EIO;
-> +	}
-> +	if (data & (RX4035_FLAG_VDET | RX4035_FLAG_PON))
-> +		dev_err(dev, "RTC DATA UNRELIABLE - battery voltage fell below minimum value\n");
-
-It prints an error but the function continues as if nothing happend so
-userspace doesn't actually know something is wrong. You probably need to
-return -EINVAL here.
-
-> +
-> +	/* Read time and date */
-> +	date[0] = 0x04;
-
-This is a magic value. I understand what it does but maybe you could have
-a define for each read and write mode and then remove the (inaccurate)
-comments.
-
-> +	err = spi_write_then_read(spi, date, 1, date, 7);
-> +	if (err < 0) {
-> +		dev_err(dev, "Unable to read date\n");
-> +		return -EIO;
-> +	}
-> +
-> +	dev_dbg(dev,
-> +		"%s: raw data is sec=%02x, min=%02x, hr=%02x, wday=%02x, mday=%02x, mon=%02x, year=%02x\n",
-> +		__func__,
-> +		date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
-> +
-> +	tm->tm_sec = bcd2bin(date[RX4035_REG_SC] & 0x7F);
-> +	tm->tm_min = bcd2bin(date[RX4035_REG_MN] & 0x7F);
-> +	tm->tm_hour = bcd2bin(date[RX4035_REG_HR] & 0x3F); /* rtc hr 0-23 */
-> +	tm->tm_wday = date[RX4035_REG_DW] & 0x7F;
-> +	tm->tm_mday = bcd2bin(date[RX4035_REG_DM] & 0x3F);
-> +	tm->tm_mon = bcd2bin(date[RX4035_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
-> +	tm->tm_year = bcd2bin(date[RX4035_REG_YR]);
-> +	if (tm->tm_year < 70)
-> +		tm->tm_year += 100; /* assume we are in 1970...2069 */
-
-This is bad and usually doesn't work properly.
-The datasheet explicitly state:
-"The auto calendar function updates all dates, months, and years from
-January 1, 2001 to December 31, 2099."
-
-It will not work outside this range. The leap year handling will
-certainly fail at the edges.
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+>         wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
+>         wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
+>         rtc_time_to_tm(chip->alarm, &wkalrm->time);
+> --
+> git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
