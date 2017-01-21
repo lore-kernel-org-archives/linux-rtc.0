@@ -1,26 +1,32 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBF5F4LBQKGQEEUPTOIQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBE4IRPCAKGQEBD3W3FY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id d207si82091wmd.1.2017.01.13.00.40.55
+Received: from smtp.csie.ntu.edu.tw (smtp.csie.ntu.edu.tw. [140.112.30.61])
+        by gmr-mx.google.com with ESMTPS id z73si2379977pfa.2.2017.01.20.18.14.43
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Jan 2017 00:40:55 -0800 (PST)
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-To: Julia Lawall <julia.lawall@lip6.fr>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mathieu Poirier
-	<mathieu.poirier@linaro.org>,
-        "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>,
-        "kbuild-all@01.org" <kbuild-all@01.org>
-Subject: [rtc-linux] RE: [abelloni:rtc-next 12/12] drivers/rtc/rtc-stm32.c:514:27-33:
- WARNING: Unsigned expression compared with zero: pred_a >= 0
-Date: Fri, 13 Jan 2017 08:40:50 +0000
-Message-ID: <3086516659614a709535f4e8f0d090a9@SFHDAG3NODE2.st.com>
-References: <alpine.DEB.2.20.1701130641180.2080@hadrien>
-In-Reply-To: <alpine.DEB.2.20.1701130641180.2080@hadrien>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 20 Jan 2017 18:14:43 -0800 (PST)
+Received: from mail-it0-f49.google.com (mail-it0-f49.google.com [209.85.214.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: b93043)
+	by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 870D9226C8
+	for <rtc-linux@googlegroups.com>; Sat, 21 Jan 2017 10:14:41 +0800 (CST)
+Received: by mail-it0-f49.google.com with SMTP id c7so32005481itd.1
+        for <rtc-linux@googlegroups.com>; Fri, 20 Jan 2017 18:14:41 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <f1b2a5053cf143dccf110ab0d40c082903a958a7.1484927680.git-series.maxime.ripard@free-electrons.com>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+ <f1b2a5053cf143dccf110ab0d40c082903a958a7.1484927680.git-series.maxime.ripard@free-electrons.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Sat, 21 Jan 2017 10:14:18 +0800
+Message-ID: <CAGb2v65N=5_=K+XaKxu-1C+R5O0FCyTbWek6c_TAoEp5W1t+SA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/6] rtc: sun6i: Expose the 32kHz oscillator
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, devicetree <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,86 +36,269 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Julia,
+On Fri, Jan 20, 2017 at 11:56 PM, Maxime Ripard
+<maxime.ripard@free-electrons.com> wrote:
+> The RTC controls the input source of the main 32kHz oscillator in the
+> system, feeding it to the clock unit too.
+>
+> By default, this is using an internal, very inaccurate (+/- 30%)
+> oscillator with a divider to make it roughly around 32kHz. This is however
+> quite impractical for the RTC, since our time will not be tracked properly.
+>
+> Since this oscillator is an input of the main clock unit, and since that
+> clock unit will be probed using CLK_OF_DECLARE, we have to use it as well,
+> leading to a two stage probe: one to enable the clock, the other one to
+> enable the RTC.
+>
+> There is also a slight change in the binding that is required (and should
+> have been from the beginning), since we'll need a phandle to the external
+> oscillator used on that board. We support the old binding by not allowing
+> to switch to the external oscillator and only using the internal one (which
+> was the previous behaviour) in the case where we're missing that phandle.
 
-Thanks for the review, I prepare a fix for this warning.
+I'm not sure about this. The original behavior was wrong to begin with.
+We were claiming 32768 Hz in the device tree already, and any users
+would already be seeing the correct rate if we force the mux to the
+external oscillator.
 
-Amelie
+Furthermore, I don't think it's possible to turn the external oscillator
+off, unlike the 24 MHz main oscillator. I do agree that exposing the
+internal oscillator is the right thing to do. On some later SoCs it
+is actually directly a source for the CPUS mux.
 
-> -----Original Message-----
-> From: Julia Lawall [mailto:julia.lawall@lip6.fr]
-> Sent: vendredi 13 janvier 2017 06:43
-> To: Amelie DELAUNAY <amelie.delaunay@st.com>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>; Mathieu
-> Poirier <mathieu.poirier@linaro.org>; rtc-linux@googlegroups.com; kbuild-
-> all@01.org
-> Subject: [abelloni:rtc-next 12/12] drivers/rtc/rtc-stm32.c:514:27-33: WARNING:
-> Unsigned expression compared with zero: pred_a >= 0
-> 
-> pred_a is unsigned, and thus the test on line 514 that it is >= 0 will always be
-> true.
-> 
-> julia
-> 
-> 
-> 
-> ---------- Forwarded message ----------
-> 
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-> head:   4e64350f42e2ce153bdffd9fe1741333f5a41e57
-> commit: 4e64350f42e2ce153bdffd9fe1741333f5a41e57 [12/12] rtc: add STM32
-> RTC driver
-> :::::: branch date: 77 minutes ago
-> :::::: commit date: 77 minutes ago
-> 
-> >> drivers/rtc/rtc-stm32.c:514:27-33: WARNING: Unsigned expression
-> >> compared with zero: pred_a >= 0
-> 
-> git remote add abelloni
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
-> git remote update abelloni
-> git checkout 4e64350f42e2ce153bdffd9fe1741333f5a41e57
-> vim +514 drivers/rtc/rtc-stm32.c
-> 
-> 4e64350f Amelie Delaunay 2017-01-11  498  MODULE_DEVICE_TABLE(of,
-> stm32_rtc_of_match); 4e64350f Amelie Delaunay 2017-01-11  499  #endif
-> 4e64350f Amelie Delaunay 2017-01-11  500 4e64350f Amelie Delaunay 2017-
-> 01-11  501  static int stm32_rtc_init(struct platform_device *pdev,
-> 4e64350f Amelie Delaunay 2017-01-11  502  			  struct
-> stm32_rtc *rtc)
-> 4e64350f Amelie Delaunay 2017-01-11  503  {
-> 4e64350f Amelie Delaunay 2017-01-11  504  	unsigned int prer, pred_a,
-> pred_s, pred_a_max, pred_s_max, cr;
-> 4e64350f Amelie Delaunay 2017-01-11  505  	unsigned int rate;
-> 4e64350f Amelie Delaunay 2017-01-11  506  	int ret = 0;
-> 4e64350f Amelie Delaunay 2017-01-11  507
-> 4e64350f Amelie Delaunay 2017-01-11  508  	rate = clk_get_rate(rtc-
-> >ck_rtc);
-> 4e64350f Amelie Delaunay 2017-01-11  509
-> 4e64350f Amelie Delaunay 2017-01-11  510  	/* Find prediv_a and prediv_s
-> to obtain the 1Hz calendar clock */
-> 4e64350f Amelie Delaunay 2017-01-11  511  	pred_a_max =
-> STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
-> 4e64350f Amelie Delaunay 2017-01-11  512  	pred_s_max =
-> STM32_RTC_PRER_PRED_S >> STM32_RTC_PRER_PRED_S_SHIFT;
-> 4e64350f Amelie Delaunay 2017-01-11  513
-> 4e64350f Amelie Delaunay 2017-01-11 @514  	for (pred_a = pred_a_max;
-> pred_a >= 0; pred_a--) {
-> 4e64350f Amelie Delaunay 2017-01-11  515  		pred_s = (rate /
-> (pred_a + 1)) - 1;
-> 4e64350f Amelie Delaunay 2017-01-11  516
-> 4e64350f Amelie Delaunay 2017-01-11  517  		if (((pred_s + 1) *
-> (pred_a + 1)) == rate)
-> 4e64350f Amelie Delaunay 2017-01-11  518  			break;
-> 4e64350f Amelie Delaunay 2017-01-11  519  	}
-> 4e64350f Amelie Delaunay 2017-01-11  520
-> 4e64350f Amelie Delaunay 2017-01-11  521  	/*
-> 4e64350f Amelie Delaunay 2017-01-11  522  	 * Can't find a 1Hz, so give
-> priority to RTC power consumption
-> 
+The code changes below look good.
+
+Regards
+ChenYu
+
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 > ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+>  Documentation/devicetree/bindings/rtc/sun6i-rtc.txt |   8 +-
+>  drivers/rtc/rtc-sun6i.c                             | 140 ++++++++++++-
+>  2 files changed, 139 insertions(+), 9 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> index f007e428a1ab..44d788240162 100644
+> --- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> +++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> @@ -8,10 +8,18 @@ Required properties:
+>                   memory mapped region.
+>  - interrupts   : IRQ lines for the RTC alarm 0 and alarm 1, in that order.
+>
+> +Required properties for new device trees
+> +- clocks       : phandle to the 32kHz external oscillator
+> +- clock-output-names : name of the LOSC clock created
+> +- #clock-cells  : must be equals to 0
+> +
+>  Example:
+>
+>  rtc: rtc@01f00000 {
+>         compatible = "allwinner,sun6i-a31-rtc";
+>         reg = <0x01f00000 0x54>;
+>         interrupts = <0 40 4>, <0 41 4>;
+> +       clock-output-names = "osc32k";
+> +       clocks = <&ext_osc32k>;
+> +       #clock-cells = <0>;
+>  };
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index c169a2cd4727..408dd512a6ac 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -20,6 +20,8 @@
+>   * more details.
+>   */
+>
+> +#include <linux/clk.h>
+> +#include <linux/clk-provider.h>
+>  #include <linux/delay.h>
+>  #include <linux/err.h>
+>  #include <linux/fs.h>
+> @@ -33,15 +35,20 @@
+>  #include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/rtc.h>
+> +#include <linux/slab.h>
+>  #include <linux/types.h>
+>
+>  /* Control register */
+>  #define SUN6I_LOSC_CTRL                                0x0000
+> +#define SUN6I_LOSC_CTRL_KEY                    (0x16aa << 16)
+>  #define SUN6I_LOSC_CTRL_ALM_DHMS_ACC           BIT(9)
+>  #define SUN6I_LOSC_CTRL_RTC_HMS_ACC            BIT(8)
+>  #define SUN6I_LOSC_CTRL_RTC_YMD_ACC            BIT(7)
+> +#define SUN6I_LOSC_CTRL_EXT_OSC                        BIT(0)
+>  #define SUN6I_LOSC_CTRL_ACC_MASK               GENMASK(9, 7)
+>
+> +#define SUN6I_LOSC_CLK_PRESCAL                 0x0008
+> +
+>  /* RTC */
+>  #define SUN6I_RTC_YMD                          0x0010
+>  #define SUN6I_RTC_HMS                          0x0014
+> @@ -114,8 +121,128 @@ struct sun6i_rtc_dev {
+>         void __iomem *base;
+>         int irq;
+>         unsigned long alarm;
+> +
+> +       struct clk_hw hw;
+> +       struct clk_hw *int_osc;
+> +       struct clk *losc;
+>  };
+>
+> +static struct sun6i_rtc_dev *sun6i_rtc;
+> +
+> +static unsigned long sun6i_rtc_osc_recalc_rate(struct clk_hw *hw,
+> +                                              unsigned long parent_rate)
+> +{
+> +       struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
+> +       u32 val;
+> +
+> +       val = readl(rtc->base + SUN6I_LOSC_CTRL);
+> +       if (val & SUN6I_LOSC_CTRL_EXT_OSC)
+> +               return parent_rate;
+> +
+> +       val = readl(rtc->base + SUN6I_LOSC_CLK_PRESCAL);
+> +       val &= GENMASK(4, 0);
+> +
+> +       return parent_rate / (val + 1);
+> +}
+> +
+> +static u8 sun6i_rtc_osc_get_parent(struct clk_hw *hw)
+> +{
+> +       struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
+> +
+> +       return readl(rtc->base + SUN6I_LOSC_CTRL) & SUN6I_LOSC_CTRL_EXT_OSC;
+> +}
+> +
+> +static int sun6i_rtc_osc_set_parent(struct clk_hw *hw, u8 index)
+> +{
+> +       struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
+> +       u32 val;
+> +
+> +       if (index > 1)
+> +               return -EINVAL;
+> +
+> +       val = readl(rtc->base + SUN6I_LOSC_CTRL);
+> +       val &= ~SUN6I_LOSC_CTRL_EXT_OSC;
+> +       val |= SUN6I_LOSC_CTRL_KEY;
+> +       val |= index ? SUN6I_LOSC_CTRL_EXT_OSC : 0;
+> +       writel(val, rtc->base + SUN6I_LOSC_CTRL);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct clk_ops sun6i_rtc_osc_ops = {
+> +       .recalc_rate    = sun6i_rtc_osc_recalc_rate,
+> +
+> +       .get_parent     = sun6i_rtc_osc_get_parent,
+> +       .set_parent     = sun6i_rtc_osc_set_parent,
+> +};
+> +
+> +static void __init sun6i_rtc_clk_init(struct device_node *node)
+> +{
+> +       struct sun6i_rtc_dev *rtc;
+> +       struct clk_init_data init = {
+> +               .ops            = &sun6i_rtc_osc_ops,
+> +       };
+> +       const char *parents[2];
+> +
+> +       rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
+> +       if (!rtc)
+> +               pr_crit("Can't allocate RTC structure\n");
+> +
+> +       rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
+> +       if (!rtc->base) {
+> +               pr_crit("Can't map RTC registers");
+> +               return;
+> +       }
+> +
+> +       rtc->int_osc = clk_hw_register_fixed_rate_with_accuracy(NULL,
+> +                                                               "rtc-int-osc",
+> +                                                               NULL, 0,
+> +                                                               667000,
+> +                                                               300000000);
+> +       if (IS_ERR(rtc->int_osc)) {
+> +               pr_crit("Couldn't register the internal oscillator\n");
+> +               return;
+> +       }
+> +
+> +       /*
+> +        * Due to the missing clocks property we had to express the
+> +        * parenthood with the external oscillator that cannot fix (or
+> +        * at least expect to have) in the old DTs, we have to be a
+> +        * bit smart here.
+> +        *
+> +        * We deal with that by simply registering the internal
+> +        * oscillator as our parent in all cases, and try to get the
+> +        * external oscillator from the DT.
+> +        *
+> +        * In the case where we don't have it, of_clk_get_parent_name
+> +        * will return NULL, which is ok, and of_clk_get_parent_count
+> +        * will return 0, which is fine too. We will just register a
+> +        * single parent, everything works.
+> +        */
+> +       parents[0] = clk_hw_get_name(rtc->int_osc);
+> +       parents[1] = of_clk_get_parent_name(node, 0);
+> +
+> +       rtc->hw.init = &init;
+> +
+> +       init.parent_names = parents;
+> +       init.num_parents = of_clk_get_parent_count(node) + 1;
+> +       init.name = "rtc-osc";
+> +       of_property_read_string(node, "clock-output-names", &init.name);
+> +
+> +       rtc->losc = clk_register(NULL, &rtc->hw);
+> +       if (IS_ERR(rtc->losc)) {
+> +               pr_crit("Couldn't register the LOSC clock\n");
+> +               return;
+> +       }
+> +
+> +       of_clk_add_hw_provider(node, of_clk_hw_simple_get, &rtc->hw);
+> +
+> +       /* Yes, I know, this is ugly. */
+> +       sun6i_rtc = rtc;
+> +}
+> +CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+> +                     sun6i_rtc_clk_init);
+> +
+>  static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+>  {
+>         struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
+> @@ -349,22 +476,15 @@ static const struct rtc_class_ops sun6i_rtc_ops = {
+>
+>  static int sun6i_rtc_probe(struct platform_device *pdev)
+>  {
+> -       struct sun6i_rtc_dev *chip;
+> -       struct resource *res;
+> +       struct sun6i_rtc_dev *chip = sun6i_rtc;
+>         int ret;
+>
+> -       chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+>         if (!chip)
+> -               return -ENOMEM;
+> +               return -ENODEV;
+>
+>         platform_set_drvdata(pdev, chip);
+>         chip->dev = &pdev->dev;
+>
+> -       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -       chip->base = devm_ioremap_resource(&pdev->dev, res);
+> -       if (IS_ERR(chip->base))
+> -               return PTR_ERR(chip->base);
+> -
+>         chip->irq = platform_get_irq(pdev, 0);
+>         if (chip->irq < 0) {
+>                 dev_err(&pdev->dev, "No IRQ resource\n");
+> @@ -404,6 +524,8 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+>         /* disable alarm wakeup */
+>         writel(0, chip->base + SUN6I_ALARM_CONFIG);
+>
+> +       clk_prepare_enable(chip->losc);
+> +
+>         chip->rtc = rtc_device_register("rtc-sun6i", &pdev->dev,
+>                                         &sun6i_rtc_ops, THIS_MODULE);
+>         if (IS_ERR(chip->rtc)) {
+> --
+> git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
