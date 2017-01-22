@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBJHFS7CAKGQEXOV4PYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCNJ5VGR4ANRBKFKSLCAKGQEAMF66NY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id c129si588823wme.1.2017.01.23.04.10.12
+Received: from gateway22.websitewelcome.com (gateway22.websitewelcome.com. [192.185.47.129])
+        by gmr-mx.google.com with ESMTPS id c195si643922itb.0.2017.01.22.03.19.04
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Jan 2017 04:10:12 -0800 (PST)
-Received: by mail-wm0-x22e.google.com with SMTP id r144so151457025wme.1
-        for <rtc-linux@googlegroups.com>; Mon, 23 Jan 2017 04:10:12 -0800 (PST)
-Date: Mon, 23 Jan 2017 12:14:12 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] Re: [PATCH v2 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Message-ID: <20170123121412.GL16020@dell>
-References: <20170119123032.24679-1-enric.balletbo@collabora.com>
- <20170119123032.24679-4-enric.balletbo@collabora.com>
+        Sun, 22 Jan 2017 03:19:04 -0800 (PST)
+Received: from cm2.websitewelcome.com (cm2.websitewelcome.com [192.185.178.13])
+	by gateway22.websitewelcome.com (Postfix) with ESMTP id D04FD2502C9
+	for <rtc-linux@googlegroups.com>; Sun, 22 Jan 2017 05:15:30 -0600 (CST)
+Subject: [rtc-linux] Re: imx6ul: power-up using the RTC
+To: Sebastian Reichel <sre@kernel.org>
+References: <b516070d-6539-98d1-c832-d79ac89e8d43@mobi-wize.com>
+ <20170120121210.gm3wcg4yyvrigpn3@earth>
+Cc: b20788@freescale.com, shawnguo@kernel.org, Frank.Li@freescale.com,
+ kernel@pengutronix.de, fabio.estevam@nxp.com, a.zummo@towertech.it,
+ alexandre.belloni@free-electrons.com, linux-arm-kernel@lists.infradead.org,
+ rtc-linux@googlegroups.com, linux-pm@vger.kernel.org
+From: Guy Shapiro <guy.shapiro@mobi-wize.com>
+Message-ID: <1a59477d-548f-4253-ddf5-4ecd478083b9@mobi-wize.com>
+Date: Sun, 22 Jan 2017 13:15:20 +0200
 MIME-Version: 1.0
+In-Reply-To: <20170120121210.gm3wcg4yyvrigpn3@earth>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170119123032.24679-4-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,78 +31,91 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 19 Jan 2017, Enric Balletbo i Serra wrote:
+Sorry for the bad mailer :(    Resending...
 
-> From: Stephen Barber <smbarber@chromium.org>
->=20
-> If the EC supports RTC host commands, expose an RTC device.
->=20
-> Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
->  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
+On 20/01/2017 14:12, Sebastian Reichel wrote:
+> Hi,
+>
+> On Wed, Jan 18, 2017 at 04:49:11PM +0200, Guy Shapiro wrote:
+>> I'm trying to use the low power RTC of the i.MX6UL to start from
+>> power-off state.
+>>
+>> I started by hopefully running: # echo +30 >
+>> /sys/class/rtc/rtc0/wakealarm && shutdown -h now The system was
+>> powered down, but it didn't come up after 30 seconds as expected.
+>>
+>> So I dug into the datasheet and the source...
+>> To activate the power on alarm, the flags SRTC_ENV, LPTA_EN and LPWUI_EN on
+>> the SNVS_LP Control register (LPCR) should be asserted. The wakeup time
+>> should be written to the SNVS_LP Time alarm register (LPTA). The code that
+>> does this is on drivers/rtc/rtc-snvs.c:snvs_rtc_set_alarm().
+>>
+>> The first problem I found was with the use of the syscon-poweroff driver.
+>> The "Turn off System Power" flag is part of the same register (LPCR). The
+>> current code of syscon-poweroff set the register to the "mask" property from
+>> the device tree on power off, overriding all the existing flags.
+>> After setting the "mask" property on the device tree to 0x6b instead of
+>> 0x60 (asserting the mentioned bits), the system do power up on timer, as
+>> expected.
+>>
+>> However, I didn't like the idea of keeping those flags on even when no one
+>> set the alarm.
+>> As a quick test, I modified the syscon-poweroff driver to ignore the bits
+>> that are not on the mask:
+>>
+>> diff --git a/drivers/power/reset/syscon-poweroff.c
+>> b/drivers/power/reset/syscon-poweroff.c
+>> index b683383..a5da02b 100644
+>> --- a/drivers/power/reset/syscon-poweroff.c
+>> +++ b/drivers/power/reset/syscon-poweroff.c
+>> @@ -33,7 +33,7 @@ static u32 mask;
+>> static void syscon_poweroff(void)
+>> {
+>>         /* Issue the poweroff */
+>> -       regmap_write(map, offset, mask);
+>> +       regmap_update_bits(map, offset, mask, mask);
+>>         mdelay(1000);
+>>
+>>
+>> After applying this fix, the wake up alarm didn't work. Strangely, when I
+>> added some debug prints to investigate the case, it worked again
+>> (sometimes... depends on the exact places I add the prints).
+>> I suspect that some other driver clears the flags during the power down, but
+>> I couldn't find such driver.
+>>
+>> Do you have any clue what code may change this register during the shutdown
+>> process? Any other insights are welcomed as well :)
+> To summarize it looks like this?
+>
+> | regmap_write       | 0x60 | broken                     |
+> | regmap_write       | 0x6b | works stable               |
+> | regmap_update_bits | 0x60 | works only with dbg prints |
 
-This still needs an Ack.
+Yes, though I managed to add some useful debug prints while keeping the code
+broken.
 
-> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chr=
-ome/cros_ec_dev.c
-> index 47268ec..ebe029d 100644
-> --- a/drivers/platform/chrome/cros_ec_dev.c
-> +++ b/drivers/platform/chrome/cros_ec_dev.c
-> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_=
-dev *ec)
->  	kfree(msg);
->  }
-> =20
-> +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
-> +	{
-> +		.name =3D "cros-ec-rtc",
-> +		.id   =3D -1,
-> +	},
-> +};
-> +
-> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-> +{
-> +	int ret;
-> +
-> +	ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-> +			      ARRAY_SIZE(cros_ec_rtc_devs),
-> +			      NULL, 0, NULL);
-> +	if (ret)
-> +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-> +}
-> +
->  static int ec_device_probe(struct platform_device *pdev)
->  {
->  	int retval =3D -ENOMEM;
-> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *p=
-dev)
->  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
->  		cros_ec_sensors_register(ec);
-> =20
-> +	/* check whether this EC instance has RTC host command support */
-> +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-> +		cros_ec_rtc_register(ec);
-> +
->  	return 0;
-> =20
->  dev_reg_failed:
+>
+> For me it looks like the debug prints may delay the poweroff driver
+> long enough, that some other driver (rtc?) writes the 0x0b bits.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+The problem happens even if I add a long sleep between the RTC setting
+and the power down command.
 
---=20
+>
+> FWIW we can't switch from regmap_write to regmap_update_bits in the
+> syscon driver, since that may break other users. I guess we need to
+> introduce a DT property providing the update mask. Unfortunately the
+> register value property is already named mask :/
+
+I agree. After fixing the bug, I'll start a discussion about this with
+the DT list.
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
