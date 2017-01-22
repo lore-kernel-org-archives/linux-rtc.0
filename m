@@ -1,20 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZPR2XBQKGQEU4ZHH4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBG4CSXCAKGQE5UFDGXA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id d207si1150445wmd.1.2017.01.10.16.14.29
+        by gmr-mx.google.com with ESMTP id y19si1177571wmd.0.2017.01.22.15.32.43
         for <rtc-linux@googlegroups.com>;
-        Tue, 10 Jan 2017 16:14:29 -0800 (PST)
-Date: Wed, 11 Jan 2017 01:14:19 +0100
+        Sun, 22 Jan 2017 15:32:43 -0800 (PST)
+Date: Mon, 23 Jan 2017 00:32:32 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, a.zummo@towertech.it, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: constify rtc_class_ops structures
-Message-ID: <20170111001419.vefa3knfkynnmflr@piout.net>
-References: <1483635305-20423-1-git-send-email-bhumirks@gmail.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>, Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+Message-ID: <20170122233232.iin6frv7hme2y2jw@piout.net>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
+ <20170119123032.24679-3-enric.balletbo@collabora.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1483635305-20423-1-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <20170119123032.24679-3-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,58 +27,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/01/2017 at 22:25:05 +0530, Bhumika Goyal wrote :
-> Declare rtc_class_ops structures as const as they are only passed
-> as an argument to the function devm_rtc_device_register. This argument
-> is of type const struct rtc_class_ops *, so rtc_class_ops structures
-> having this property can be declared const.
-> Done using Coccinelle:
+On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
+> From: Stephen Barber <smbarber@chromium.org>
 > 
-> @r1 disable optional_qualifier @
-> identifier i;
-> position p;
-> @@
-> static struct rtc_class_ops i@p = {...};
+> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+> Add a basic driver with this functionality.
 > 
-> @ok1@
-> identifier r1.i;
-> position p;
-> @@
-> devm_rtc_device_register(...,&i@p,...)
-> 
-> @bad@
-> position p!={r1.p,ok1.p};
-> identifier r1.i;
-> @@
-> i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r1.i;
-> @@
-> +const
-> struct rtc_class_ops i;
-> 
-> File size details:
-> 
->    text	   data	    bss	    dec	    hex	filename
->     559	    320	      0	    879	    36f	drivers/rtc/rtc-dm355evm.o
->     671	    192	      0	    863	    35f	drivers/rtc/rtc-dm355evm.o
-> 
->    4727	    320	      0	   5047	   13b7	drivers/rtc/rtc-imxdi.o
->    4855	    192	      0	   5047	   13b7	drivers/rtc/rtc-imxdi.o
-> 
->    1269     192       0    1461     5b5 drivers/rtc/rtc-mxc.o
-> 
-> File size remains unchanged for : drivers/rtc/rtc-mxc.o
-> 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
->  drivers/rtc/rtc-dm355evm.c | 2 +-
->  drivers/rtc/rtc-imxdi.c    | 2 +-
->  drivers/rtc/rtc-mxc.c      | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+Lee, this can go through the mfd tree. Hopefully, nobody will add a new
+driver nearby ;)
+
 
 -- 
 Alexandre Belloni, Free Electrons
