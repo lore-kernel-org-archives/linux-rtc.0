@@ -1,35 +1,25 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBNVI4LBQKGQE3NR2EGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSMKSPCAKGQEFJR4NFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id l66si94251wml.0.2017.01.13.00.47.49
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Jan 2017 00:47:50 -0800 (PST)
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>,
-        "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [rtc-linux] RE: [PATCHv5 3/8] rtc: add STM32 RTC driver
-Date: Fri, 13 Jan 2017 08:47:37 +0000
-Message-ID: <be3a19059b2e4e0a9bfb8d0c3292dac4@SFHDAG3NODE2.st.com>
-References: <1484142403-11556-1-git-send-email-amelie.delaunay@st.com>
- <20170113003840.u6uxt7u4qsit3oqt@piout.net>
-In-Reply-To: <20170113003840.u6uxt7u4qsit3oqt@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id d130si549525wmf.0.2017.01.22.06.44.24
+        for <rtc-linux@googlegroups.com>;
+        Sun, 22 Jan 2017 06:44:24 -0800 (PST)
+Date: Sun, 22 Jan 2017 15:44:14 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	rtc-linux@googlegroups.com, Rob Herring <robh+dt@kernel.org>,
+	devicetree <devicetree@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH 4/6] rtc: sun6i: Force the mux to the external oscillator
+Message-ID: <20170122144414.fvir5la7cgocxfqn@piout.net>
+References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+ <409c56f0ed1c4b0026ad60cb1218c99fe1686408.1484927680.git-series.maxime.ripard@free-electrons.com>
+ <CAGb2v650f-4RZ6RrRBGcmPz8mJ4KbJwTTj6=w3HeSWUZtLAKcw@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAGb2v650f-4RZ6RrRBGcmPz8mJ4KbJwTTj6=w3HeSWUZtLAKcw@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,54 +29,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
-
-> This didn't apply cleanly, please check rtc-next. I don't think I made any mistake
-> as the issue was only in Kconfig. You probably based your patches on 4.9
-> instead of 4.10-rc1.
-Sorry for this inconvenience. You're right, my patches were based on 4.9 to be tested on stm32f4 family.
-No mistake found in your conflict resolution in Kconfig.
-
-I'm going to send a new patch to fix warnings introduced by my driver on rtc-next.
-
-Regards,
-Amelie
-
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> Sent: vendredi 13 janvier 2017 01:39
-> To: Amelie DELAUNAY <amelie.delaunay@st.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>; Rob Herring
-> <robh+dt@kernel.org>; Mark Rutland <mark.rutland@arm.com>; Maxime
-> Coquelin <mcoquelin.stm32@gmail.com>; Alexandre TORGUE
-> <alexandre.torgue@st.com>; Russell King <linux@armlinux.org.uk>; rtc-
-> linux@googlegroups.com; devicetree@vger.kernel.org; linux-arm-
-> kernel@lists.infradead.org; linux-kernel@vger.kernel.org; Gabriel FERNANDEZ
-> <gabriel.fernandez@st.com>
-> Subject: Re: [PATCHv5 3/8] rtc: add STM32 RTC driver
+On 21/01/2017 at 11:53:08 +0800, Chen-Yu Tsai wrote :
+> Hi,
 > 
-> On 11/01/2017 at 14:46:43 +0100, Amelie Delaunay wrote :
-> > This patch adds support for the STM32 RTC.
+> On Fri, Jan 20, 2017 at 11:56 PM, Maxime Ripard
+> <maxime.ripard@free-electrons.com> wrote:
+> > The internal oscillator is way too inaccurate to do something useful with
+> > it. Switch to the external oscillator if it is available.
 > >
-> > Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 > > ---
-> >  drivers/rtc/Kconfig     |  11 +
-> >  drivers/rtc/Makefile    |   1 +
-> >  drivers/rtc/rtc-stm32.c | 727
-> > ++++++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 739 insertions(+)
-> >  create mode 100644 drivers/rtc/rtc-stm32.c
+> >  drivers/rtc/rtc-sun6i.c | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+), 0 deletions(-)
 > >
+> > diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> > index edd5627da10f..1695fae24cd5 100644
+> > --- a/drivers/rtc/rtc-sun6i.c
+> > +++ b/drivers/rtc/rtc-sun6i.c
+> > @@ -493,6 +493,7 @@ static const struct rtc_class_ops sun6i_rtc_ops = {
+> >  static int sun6i_rtc_probe(struct platform_device *pdev)
+> >  {
+> >         struct sun6i_rtc_dev *chip = sun6i_rtc;
+> > +       struct clk *parent;
+> >         int ret;
+> >
+> >         if (!chip)
+> > @@ -540,6 +541,17 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+> >         /* disable alarm wakeup */
+> >         writel(0, chip->base + SUN6I_ALARM_CONFIG);
+> >
+> > +       parent = clk_get(&pdev->dev, NULL);
+> > +       if (!IS_ERR(parent)) {
+> > +               ret = clk_set_parent(chip->losc, parent);
+> > +               clk_put(parent);
+> > +
+> > +               if (ret) {
+> > +                       dev_err(&pdev->dev,
+> > +                               "Failed to reparent the RTC to the external oscillator\n");
+> > +                       return ret;
+> > +               }
+> > +       }
 > 
-> This didn't apply cleanly, please check rtc-next. I don't think I made any mistake
-> as the issue was only in Kconfig. You probably based your patches on 4.9
-> instead of 4.10-rc1.
+> Following what I mentioned in patch 1, maybe it is easier to force
+> the mux before the clocks are registered by writing directly to
+> the registers? We could also backport the changes to stable?
 > 
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+
+I'd say that the risk to break existing platforms is low enough to
+backport that patch to stable.
+Maxime as you are certainly the one that will handle the potential
+breakage, I'll let you choose what you want to do.
+
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
