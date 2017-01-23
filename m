@@ -1,29 +1,28 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBQHFS7CAKGQEEPXBLTY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBBV4S7CAKGQEYVQ4K4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id c129si588823wme.1.2017.01.23.04.10.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Jan 2017 04:10:40 -0800 (PST)
-Received: by mail-wm0-x22e.google.com with SMTP id r144so151457025wme.1
-        for <rtc-linux@googlegroups.com>; Mon, 23 Jan 2017 04:10:40 -0800 (PST)
-Date: Mon, 23 Jan 2017 12:14:38 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
-Message-ID: <20170123121438.GM16020@dell>
-References: <20170119123032.24679-1-enric.balletbo@collabora.com>
- <20170119123032.24679-3-enric.balletbo@collabora.com>
- <20170122233232.iin6frv7hme2y2jw@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170122233232.iin6frv7hme2y2jw@piout.net>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id h198si1077985wmg.1.2017.01.23.02.42.14
+        for <rtc-linux@googlegroups.com>;
+        Mon, 23 Jan 2017 02:42:14 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 5/7] rtc: sun6i: Switch to devm_rtc_device_register
+Date: Mon, 23 Jan 2017 11:41:50 +0100
+Message-Id: <fa6f39ee82429e1851597202b0706a8bd9871bc7.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,38 +31,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 23 Jan 2017, Alexandre Belloni wrote:
+Now that we have a devm variant of rtc_device_register, switch to it.
 
-> On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
-> > From: Stephen Barber <smbarber@chromium.org>
-> >=20
-> > On platforms with a Chrome OS EC, the EC can function as a simple RTC.
-> > Add a basic driver with this functionality.
-> >=20
-> > Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
->=20
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->=20
-> Lee, this can go through the mfd tree. Hopefully, nobody will add a new
-> driver nearby ;)
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/rtc/rtc-sun6i.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-Yes, I can take the set, once all of the Acks are obtained.
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 37f65c50ab2d..613f42ade533 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -543,8 +543,8 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 
+ 	clk_prepare_enable(chip->losc);
+ 
+-	chip->rtc = rtc_device_register("rtc-sun6i", &pdev->dev,
+-					&sun6i_rtc_ops, THIS_MODULE);
++	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sun6i",
++					     &sun6i_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(chip->rtc)) {
+ 		dev_err(&pdev->dev, "unable to register device\n");
+ 		return PTR_ERR(chip->rtc);
+@@ -555,15 +555,6 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int sun6i_rtc_remove(struct platform_device *pdev)
+-{
+-	struct sun6i_rtc_dev *chip = platform_get_drvdata(pdev);
+-
+-	rtc_device_unregister(chip->rtc);
+-
+-	return 0;
+-}
+-
+ static const struct of_device_id sun6i_rtc_dt_ids[] = {
+ 	{ .compatible = "allwinner,sun6i-a31-rtc" },
+ 	{ /* sentinel */ },
+@@ -572,7 +563,6 @@ MODULE_DEVICE_TABLE(of, sun6i_rtc_dt_ids);
+ 
+ static struct platform_driver sun6i_rtc_driver = {
+ 	.probe		= sun6i_rtc_probe,
+-	.remove		= sun6i_rtc_remove,
+ 	.driver		= {
+ 		.name		= "sun6i-rtc",
+ 		.of_match_table = sun6i_rtc_dt_ids,
+-- 
+git-series 0.8.11
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
