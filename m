@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBCNJ5VGR4ANRB4MA73BQKGQEBI3OFFI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBB54S7CAKGQELJ6PQKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com. [192.185.143.234])
-        by gmr-mx.google.com with ESMTPS id d20si760492itc.1.2017.01.18.06.49.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 18 Jan 2017 06:49:20 -0800 (PST)
-Received: from cm4.websitewelcome.com (unknown [108.167.139.16])
-	by gateway31.websitewelcome.com (Postfix) with ESMTP id 8FDE858C64
-	for <rtc-linux@googlegroups.com>; Wed, 18 Jan 2017 08:49:20 -0600 (CST)
-Subject: [rtc-linux] imx6ul: power-up using the RTC
-From: Guy Shapiro <guy.shapiro@mobi-wize.com>
-To: b20788@freescale.com, shawnguo@kernel.org, Frank.Li@freescale.com,
- kernel@pengutronix.de, fabio.estevam@nxp.com, sre@kernel.org,
- a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
- linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
- linux-pm@vger.kernel.org
-Cc: guy.shapiro@mobi-wize.com
-Message-ID: <b516070d-6539-98d1-c832-d79ac89e8d43@mobi-wize.com>
-Date: Wed, 18 Jan 2017 16:49:11 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si428595wma.3.2017.01.23.02.42.15
+        for <rtc-linux@googlegroups.com>;
+        Mon, 23 Jan 2017 02:42:15 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] [PATCH v2 7/7] ARM: sun8i: a23/a33: Add the oscillators accuracy
+Date: Mon, 23 Jan 2017 11:41:52 +0100
+Message-Id: <654eaac9f6a698a22327d030e14ee661f71f8043.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,62 +31,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The datasheet provided by Allwinner requires oscillators with an accuracy
+of 50ppm. Add it to our fixed clocks so that we can properly track the
+accuracy chain.
 
-I'm trying to use the low power RTC of the i.MX6UL to start from 
-power-off state.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ arch/arm/boot/dts/sun8i-a23-a33.dtsi | 2 ++
+ 1 file changed, 2 insertions(+), 0 deletions(-)
 
-I started by hopefully running:
-# echo +30 > /sys/class/rtc/rtc0/wakealarm && shutdown -h now
-The system was powered down, but it didn't come up after 30 seconds as
-expected.
-
-So I dug into the datasheet and the source...
-To activate the power on alarm, the flags SRTC_ENV, LPTA_EN and LPWUI_EN 
-on the SNVS_LP Control register (LPCR) should be asserted. The wakeup 
-time should be written to the SNVS_LP Time alarm register (LPTA). The 
-code that does this is on drivers/rtc/rtc-snvs.c:snvs_rtc_set_alarm().
-
-The first problem I found was with the use of the syscon-poweroff 
-driver. The "Turn off System Power" flag is part of the same register 
-(LPCR). The current code of syscon-poweroff set the register to the 
-"mask" property from the device tree on power off, overriding all the 
-existing flags.
-After setting the "mask" property on the device tree to 0x6b instead of
-0x60 (asserting the mentioned bits), the system do power up on timer, as 
-expected.
-
-However, I didn't like the idea of keeping those flags on even when no 
-one set the alarm.
-As a quick test, I modified the syscon-poweroff driver to ignore the 
-bits that are not on the mask:
-
-diff --git a/drivers/power/reset/syscon-poweroff.c 
-b/drivers/power/reset/syscon-poweroff.c
-index b683383..a5da02b 100644
---- a/drivers/power/reset/syscon-poweroff.c
-+++ b/drivers/power/reset/syscon-poweroff.c
-@@ -33,7 +33,7 @@ static u32 mask;
-static void syscon_poweroff(void)
-{
-         /* Issue the poweroff */
--       regmap_write(map, offset, mask);
-+       regmap_update_bits(map, offset, mask, mask);
-         mdelay(1000);
-
-
-After applying this fix, the wake up alarm didn't work. Strangely, when 
-I added some debug prints to investigate the case, it worked again 
-(sometimes... depends on the exact places I add the prints).
-I suspect that some other driver clears the flags during the power down, 
-but I couldn't find such driver.
-
-Do you have any clue what code may change this register during the 
-shutdown process?
-Any other insights are welcomed as well :)
-
-
-Guy.
+diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+index da7f2476bc6c..d92fdf5a7b26 100644
+--- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+@@ -106,6 +106,7 @@
+ 			#clock-cells = <0>;
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <24000000>;
++			clock-accuracy = <50000>;
+ 			clock-output-names = "osc24M";
+ 		};
+ 
+@@ -113,6 +114,7 @@
+ 			#clock-cells = <0>;
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <32768>;
++			clock-accuracy = <50000>;
+ 			clock-output-names = "ext-osc32k";
+ 		};
+ 	};
+-- 
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
