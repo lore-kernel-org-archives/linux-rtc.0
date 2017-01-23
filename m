@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBC4W6LBQKGQE2N75N5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKY3XOCXMIBBL6KTDCAKGQEHTZ5RXQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id 66si109003wml.3.2017.01.16.00.57.47
+Received: from mail-it0-x242.google.com (mail-it0-x242.google.com. [2607:f8b0:4001:c0b::242])
+        by gmr-mx.google.com with ESMTPS id n132si1623550ith.0.2017.01.23.07.45.51
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Jan 2017 00:57:47 -0800 (PST)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Russell King <linux@armlinux.org.uk>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        Amelie Delaunay
-	<amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH] rtc: stm32: use 0 instead of ~PWR_CR_DBP in regmap_update_bits
-Date: Mon, 16 Jan 2017 09:57:38 +0100
-Message-ID: <1484557058-21601-1-git-send-email-amelie.delaunay@st.com>
+        Mon, 23 Jan 2017 07:45:51 -0800 (PST)
+Received: by mail-it0-x242.google.com with SMTP id o185so10576717itb.1
+        for <rtc-linux@googlegroups.com>; Mon, 23 Jan 2017 07:45:51 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20170123121412.GL16020@dell>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
+ <20170119123032.24679-4-enric.balletbo@collabora.com> <20170123121412.GL16020@dell>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Date: Mon, 23 Jan 2017 16:45:51 +0100
+Message-ID: <CAFqH_537y+mP6rNorXS12wvxEeg8h_-Zz8jxex-4eqhy-weNyA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 4/4] mfd: cros_ec: add RTC as mfd subdevice
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Stephen Barber <smbarber@chromium.org>, Benson Leung <bleung@chromium.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,55 +31,87 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Using the ~ operator on a BIT() constant results in a large 'unsigned long'
-constant that won't fit into an 'unsigned int' function argument on 64-bit
-architectures, resulting in a harmless build warning in x86 allmodconfig:
+Guess I forget to add one of the platform/chrome maintainers, as only
+his ack is pending for this series, cc'ing Benson Leung
 
-drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_probe':
-drivers/rtc/rtc-stm32.c:651:51: error: large integer implicitly truncated to unsigned type [-Werror=overflow]
-  regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+Thanks,
+ Enric
 
-As PWR_CR_DBP mask prevents other bits to be cleared, replace all
-~PWR_CR_DBP by 0.
 
-Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- drivers/rtc/rtc-stm32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+2017-01-23 13:14 GMT+01:00 Lee Jones <lee.jones@linaro.org>:
+> On Thu, 19 Jan 2017, Enric Balletbo i Serra wrote:
+>
+>> From: Stephen Barber <smbarber@chromium.org>
+>>
+>> If the EC supports RTC host commands, expose an RTC device.
+>>
+>> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+>> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+>> ---
+>>  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>
+> This still needs an Ack.
+>
+>> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/ch=
+rome/cros_ec_dev.c
+>> index 47268ec..ebe029d 100644
+>> --- a/drivers/platform/chrome/cros_ec_dev.c
+>> +++ b/drivers/platform/chrome/cros_ec_dev.c
+>> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec=
+_dev *ec)
+>>       kfree(msg);
+>>  }
+>>
+>> +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
+>> +     {
+>> +             .name =3D "cros-ec-rtc",
+>> +             .id   =3D -1,
+>> +     },
+>> +};
+>> +
+>> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
+>> +{
+>> +     int ret;
+>> +
+>> +     ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
+>> +                           ARRAY_SIZE(cros_ec_rtc_devs),
+>> +                           NULL, 0, NULL);
+>> +     if (ret)
+>> +             dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n",=
+ ret);
+>> +}
+>> +
+>>  static int ec_device_probe(struct platform_device *pdev)
+>>  {
+>>       int retval =3D -ENOMEM;
+>> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *=
+pdev)
+>>       if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+>>               cros_ec_sensors_register(ec);
+>>
+>> +     /* check whether this EC instance has RTC host command support */
+>> +     if (cros_ec_check_features(ec, EC_FEATURE_RTC))
+>> +             cros_ec_rtc_register(ec);
+>> +
+>>       return 0;
+>>
+>>  dev_reg_failed:
+>
+> --
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 8c599f5..03c97c1 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -648,7 +648,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- err:
- 	clk_disable_unprepare(rtc->ck_rtc);
- 
--	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
-+	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
- 
- 	device_init_wakeup(&pdev->dev, false);
- 
-@@ -670,7 +670,7 @@ static int stm32_rtc_remove(struct platform_device *pdev)
- 	clk_disable_unprepare(rtc->ck_rtc);
- 
- 	/* Enable backup domain write protection */
--	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
-+	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
- 
- 	device_init_wakeup(&pdev->dev, false);
- 
--- 
-1.9.1
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
