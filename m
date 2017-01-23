@@ -1,23 +1,33 @@
-Return-Path: <rtc-linux+bncBCZ3LK4RZYHRBZN33XBQKGQEO3RAATI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBRGETHCAKGQEWWGCPMI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id f142si131845wmf.2.2017.01.12.02.43.49
+Received: from mail-oi0-f67.google.com (mail-oi0-f67.google.com. [209.85.218.67])
+        by gmr-mx.google.com with ESMTPS id d20si1188438itc.1.2017.01.23.12.06.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 12 Jan 2017 02:43:49 -0800 (PST)
-From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-To: alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it
-Cc: rtc-linux@googlegroups.com,
-	Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Subject: [rtc-linux] [PATCH 1/2] RTC: s35390a: handle invalid RTC time
-Date: Thu, 12 Jan 2017 11:43:37 +0100
-Message-Id: <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
-In-Reply-To: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
-References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 23 Jan 2017 12:06:28 -0800 (PST)
+Received: by mail-oi0-f67.google.com with SMTP id x84so11611818oix.2
+        for <rtc-linux@googlegroups.com>; Mon, 23 Jan 2017 12:06:28 -0800 (PST)
+Date: Mon, 23 Jan 2017 14:06:27 -0600
+From: Rob Herring <robh@kernel.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Janos Laube <janos.dev@gmail.com>,
+	Paulius Zaleckas <paulius.zaleckas@gmail.com>,
+	openwrt-devel@openwrt.org, Arnd Bergmann <arnd@arndb.de>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 08/22] rtc: Add device tree probing to the
+ Gemini driver
+Message-ID: <20170123200627.uyfdayiuoqbuoxrp@rob-hp-laptop>
+References: <20170122121950.10449-1-linus.walleij@linaro.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170122121950.10449-1-linus.walleij@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,66 +36,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-If RTC time have been altered by low voltage, we notify users
-that RTC time is invalid by returning -EINVAL.
-The RTC time needs to be set correctly to clear the invalid flag.
-If the RTC is not set before restarting, the information will be lost.
+On Sun, Jan 22, 2017 at 01:19:50PM +0100, Linus Walleij wrote:
+> This adds bindings and simple probing for the Cortina Systems Gemini
+> SoC RTC.
+> 
+> Cc: Janos Laube <janos.dev@gmail.com>
+> Cc: Paulius Zaleckas <paulius.zaleckas@gmail.com>
+> Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+> Cc: Florian Fainelli <f.fainelli@gmail.com>
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> RTC maintainers: please just apply this to the RTC tree when you
+> are pleased with it. It is functionally orthogonal to the rest of
+> the series and just in a series for context.
+> ---
+>  Documentation/devicetree/bindings/rtc/cortina,gemini.txt | 14 ++++++++++++++
+>  drivers/rtc/rtc-gemini.c                                 |  7 +++++++
+>  2 files changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
 
-Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
----
- drivers/rtc/rtc-s35390a.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 5dab466..ef4ada9 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -62,6 +62,7 @@ struct s35390a {
- 	struct i2c_client *client[8];
- 	struct rtc_device *rtc;
- 	int twentyfourhour;
-+	int isinvalid;
- };
- 
- static int s35390a_set_reg(struct s35390a *s35390a, int reg, char *buf, int len)
-@@ -135,6 +136,8 @@ static int s35390a_reset(struct s35390a *s35390a, char *status1)
- 	 * The 24H bit is kept over reset, so set it already here.
- 	 */
- initialize:
-+	/* set the RTC time as invalid */
-+	s35390a->isinvalid = 1;
- 	*status1 = S35390A_FLAG_24H;
- 	buf = S35390A_FLAG_RESET | S35390A_FLAG_24H;
- 	ret = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
-@@ -221,6 +224,8 @@ static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		buf[i] = bitrev8(buf[i]);
- 
- 	err = s35390a_set_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
-+	if (err >= 0)
-+		s35390a->isinvalid = 0;
- 
- 	return err;
- }
-@@ -231,6 +236,9 @@ static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	char buf[7];
- 	int i, err;
- 
-+	if (s35390a->isinvalid)
-+		return -EINVAL;
-+
- 	err = s35390a_get_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
- 	if (err < 0)
- 		return err;
-@@ -418,6 +426,7 @@ static int s35390a_probe(struct i2c_client *client,
- 
- 	s35390a->client[0] = client;
- 	i2c_set_clientdata(client, s35390a);
-+	s35390a->isinvalid = 0;
- 
- 	/* This chip uses multiple addresses, use dummy devices for them */
- 	for (i = 1; i < 8; ++i) {
--- 
-1.8.3.1
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
