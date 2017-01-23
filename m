@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDMFSPCAKGQEAY4XY4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBB7N3S7CAKGQEXQ4HXNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id y19si1108897wmd.0.2017.01.22.06.32.45
-        for <rtc-linux@googlegroups.com>;
-        Sun, 22 Jan 2017 06:32:45 -0800 (PST)
-Date: Sun, 22 Jan 2017 15:32:44 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
-	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 0/6] rtc: sun6i: Fix the RTC accuracy
-Message-ID: <20170122143244.n2d4fpxnt62tkwtt@piout.net>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 66si822703wml.3.2017.01.23.02.42.05
+        for <rtc-linux@googlegroups.com>;
+        Mon, 23 Jan 2017 02:42:05 -0800 (PST)
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Chen-Yu Tsai <wens@csie.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	stable@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 2/7] rtc: sun6i: Add some locking
+Date: Mon, 23 Jan 2017 11:41:47 +0100
+Message-Id: <a8798639a0c79c7b2b8e4deb412573f5a68e6d0a.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,55 +32,99 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/01/2017 at 16:56:37 +0100, Maxime Ripard wrote :
-> Hi,
-> 
-> The RTC used in the A31 and later SoC has an accuracy issue, which is
-> already significant even after a couple of hours.
-> 
-> This is due to the fact that the oscillator used by default is an internal
-> and very inaccurate one.
-> 
-> A first attempt at fixing that by switching to the external oscillator was
-> done in the patch "rtc: sun6i: Switch to the external oscillator". However,
-> it turned out to be problematic since it was tracked properly in the clock
-> framework, which might lead to some clocks being disabled, even though
-> their devices were not notified.
-> 
-> This is a second attempt, this time by making it part of the CCF. It
-> turned out to be a bit more complicated than one would expect since the mux
-> found inside the RTC also controls one of the input of the main clock unit.
-> Therefore, it needs to be probed before the main clock unit driver.
-> 
-> Let me know what you think,
-> Maxime
-> 
-> Maxime Ripard (6):
->   rtc: sun6i: Expose the 32kHz oscillator
->   rtc: sun6i: Add some locking
->   rtc: sun6i: Disable the build as a module
->   rtc: sun6i: Force the mux to the external oscillator
->   ARM: sun8i: a23/a33: Enable the real LOSC and use it
->   ARM: sun8i: a23/a33: Add the oscillators accuracy
-> 
+Some registers have a read-modify-write access pattern that are not atomic.
 
-As Chen-Yu mentioned, maybe you can reorder some patches so they can go
-in stable.
+Add some locking to prevent from concurrent accesses.
 
->  Documentation/devicetree/bindings/rtc/sun6i-rtc.txt |   8 +-
->  arch/arm/boot/dts/sun8i-a23-a33.dtsi                |  15 +-
->  drivers/rtc/Kconfig                                 |   2 +-
->  drivers/rtc/rtc-sun6i.c                             | 189 +++++++++++--
->  4 files changed, 181 insertions(+), 33 deletions(-)
-> 
-> base-commit: 99cef370ac9939df2aeb16c96d07e842b2fa8201
-> -- 
-> git-series 0.8.11
+Cc: stable@vger.kernel.org
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/rtc/rtc-sun6i.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index a6136cb99851..5527f5eb597b 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -114,13 +114,17 @@ struct sun6i_rtc_dev {
+ 	void __iomem *base;
+ 	int irq;
+ 	unsigned long alarm;
++
++	spinlock_t lock;
+ };
+ 
+ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+ {
+ 	struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
++	irqreturn_t ret = IRQ_NONE;
+ 	u32 val;
+ 
++	spin_lock(&chip->lock);
+ 	val = readl(chip->base + SUN6I_ALRM_IRQ_STA);
+ 
+ 	if (val & SUN6I_ALRM_IRQ_STA_CNT_IRQ_PEND) {
+@@ -129,10 +133,11 @@ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+ 
+ 		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
+ 
+-		return IRQ_HANDLED;
++		ret = IRQ_HANDLED;
+ 	}
++	spin_unlock(&chip->lock);
+ 
+-	return IRQ_NONE;
++	return ret;
+ }
+ 
+ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+@@ -140,6 +145,7 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+ 	u32 alrm_val = 0;
+ 	u32 alrm_irq_val = 0;
+ 	u32 alrm_wake_val = 0;
++	unsigned long flags;
+ 
+ 	if (to) {
+ 		alrm_val = SUN6I_ALRM_EN_CNT_EN;
+@@ -150,9 +156,11 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
+ 		       chip->base + SUN6I_ALRM_IRQ_STA);
+ 	}
+ 
++	spin_lock_irqsave(&chip->lock, flags);
+ 	writel(alrm_val, chip->base + SUN6I_ALRM_EN);
+ 	writel(alrm_irq_val, chip->base + SUN6I_ALRM_IRQ_EN);
+ 	writel(alrm_wake_val, chip->base + SUN6I_ALARM_CONFIG);
++	spin_unlock_irqrestore(&chip->lock, flags);
+ }
+ 
+ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+@@ -191,11 +199,15 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+ static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ {
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
++	unsigned long flags;
+ 	u32 alrm_st;
+ 	u32 alrm_en;
+ 
++	spin_lock_irqsave(&chip->lock, flags);
+ 	alrm_en = readl(chip->base + SUN6I_ALRM_IRQ_EN);
+ 	alrm_st = readl(chip->base + SUN6I_ALRM_IRQ_STA);
++	spin_unlock_irqrestore(&chip->lock, flags);
++
+ 	wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
+ 	wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
+ 	rtc_time_to_tm(chip->alarm, &wkalrm->time);
+@@ -356,6 +368,7 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
++	spin_lock_init(&rtc->lock);
+ 
+ 	platform_set_drvdata(pdev, chip);
+ 	chip->dev = &pdev->dev;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
