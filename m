@@ -1,31 +1,29 @@
-Return-Path: <rtc-linux+bncBAABB27FV7BQKGQEPAQ2RQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBQHFS7CAKGQEEPXBLTY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from botnar.kaiser.cx (botnar.kaiser.cx. [176.28.20.183])
-        by gmr-mx.google.com with ESMTPS id f71si4544565wmf.2.2017.01.03.10.52.27
+Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
+        by gmr-mx.google.com with ESMTPS id c129si588823wme.1.2017.01.23.04.10.40
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 03 Jan 2017 10:52:27 -0800 (PST)
-From: Martin Kaiser <martin@kaiser.cx>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Juergen Borleis <jbe@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Martin Kaiser <martin@kaiser.cx>
-Subject: [rtc-linux] [PATCH 2/3] ARM: dts: imx25.dtsi: DryIce security
- violation interrupt
-Date: Tue,  3 Jan 2017 19:50:57 +0100
-Message-Id: <1483469457-7863-1-git-send-email-martin@kaiser.cx>
-In-Reply-To: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-References: <1479560614-19293-1-git-send-email-martin@kaiser.cx>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 23 Jan 2017 04:10:40 -0800 (PST)
+Received: by mail-wm0-x22e.google.com with SMTP id r144so151457025wme.1
+        for <rtc-linux@googlegroups.com>; Mon, 23 Jan 2017 04:10:40 -0800 (PST)
+Date: Mon, 23 Jan 2017 12:14:38 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+Message-ID: <20170123121438.GM16020@dell>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
+ <20170119123032.24679-3-enric.balletbo@collabora.com>
+ <20170122233232.iin6frv7hme2y2jw@piout.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170122233232.iin6frv7hme2y2jw@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,37 +32,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The DryIce block on i.MX25 chipset uses two interrupts: A normal and a
-security violation interrupt. Add the security violation interrupt to
-the list, it is optional.
+On Mon, 23 Jan 2017, Alexandre Belloni wrote:
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
- arch/arm/boot/dts/imx25.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
+> > From: Stephen Barber <smbarber@chromium.org>
+> >=20
+> > On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+> > Add a basic driver with this functionality.
+> >=20
+> > Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+>=20
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>=20
+> Lee, this can go through the mfd tree. Hopefully, nobody will add a new
+> driver nearby ;)
 
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 831d09a..331d1e1 100644
---- a/arch/arm/boot/dts/imx25.dtsi
-+++ b/arch/arm/boot/dts/imx25.dtsi
-@@ -560,7 +560,7 @@
- 				reg = <0x53ffc000 0x4000>;
- 				clocks = <&clks 81>;
- 				clock-names = "ipg";
--				interrupts = <25>;
-+				interrupts = <25 56>;
- 			};
- 		};
- 
--- 
-1.7.10.4
+Yes, I can take the set, once all of the Acks are obtained.
 
--- 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
