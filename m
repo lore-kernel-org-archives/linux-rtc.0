@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBZPB7TBQKGQEFX7LDPQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOVHT3CAKGQEKD3ML3A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
-        by gmr-mx.google.com with ESMTPS id 133si1378408wmj.1.2017.01.18.01.09.57
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 18 Jan 2017 01:09:57 -0800 (PST)
-Received: by mail-wm0-x232.google.com with SMTP id r144so14473081wme.1
-        for <rtc-linux@googlegroups.com>; Wed, 18 Jan 2017 01:09:57 -0800 (PST)
-Date: Wed, 18 Jan 2017 09:13:50 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] Re: [PATCH 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Message-ID: <20170118091350.GC3718@dell>
-References: <20170111165221.17337-1-enric.balletbo@collabora.com>
- <20170111165221.17337-4-enric.balletbo@collabora.com>
- <20170118020156.ynayqtudiu5j2db3@piout.net>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si1368799wmf.0.2017.01.24.09.49.46
+        for <rtc-linux@googlegroups.com>;
+        Tue, 24 Jan 2017 09:49:46 -0800 (PST)
+Date: Tue, 24 Jan 2017 18:49:35 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Chen-Yu Tsai <wens@csie.org>,
+	linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com,
+	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 0/7] rtc: sun6i: Fix the RTC accuracy
+Message-ID: <20170124174935.att4s7mqfbyxkxqk@piout.net>
+References: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170118020156.ynayqtudiu5j2db3@piout.net>
+In-Reply-To: <cover.6bd4d4760c24d09845ad09c212fcd487d78da5ad.1485168100.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,85 +25,63 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, 18 Jan 2017, Alexandre Belloni wrote:
-> I don't think that one has your ack, is it ok for me to take it?
+Hi,
 
-This set looks MFD heavy, so it's probably best that the set goes
-through MFD.  Once the RTC patch has been fixed of course.
+On 23/01/2017 at 11:41:45 +0100, Maxime Ripard wrote :
+> Hi,
+> 
+> The RTC used in the A31 and later SoC has an accuracy issue, which is
+> already significant even after a couple of hours.
+> 
+> This is due to the fact that the oscillator used by default is an internal
+> and very inaccurate one.
+> 
+> A first attempt at fixing that by switching to the external oscillator was
+> done in the patch "rtc: sun6i: Switch to the external oscillator". However,
+> it turned out to be problematic since it was tracked properly in the clock
+> framework, which might lead to some clocks being disabled, even though
+> their devices were not notified.
+> 
+> This is a second attempt, this time by making it part of the CCF. It
+> turned out to be a bit more complicated than one would expect since the mux
+> found inside the RTC also controls one of the input of the main clock unit.
+> Therefore, it needs to be probed before the main clock unit driver.
+> 
+> Let me know what you think,
+> Maxime
+> 
+> Changes from v1:
+>   - Force the muxing to the external oscillator even for old DT
+>   - Make the patches a bit more stable friendly
+>   - Change the bindings to have a cell of 1, to account for the external
+>     output of the oscillator
+>   - Split the driver remove() removal into a separate patch and switched to
+>     devm
+>   - Reordered the patches
+> 
+> Maxime Ripard (7):
+>   rtc: sun6i: Disable the build as a module
+>   rtc: sun6i: Add some locking
+>   rtc: sun6i: Switch to the external oscillator
+>   rtc: sun6i: Expose the 32kHz oscillator
+>   rtc: sun6i: Switch to devm_rtc_device_register
+>   ARM: sun8i: a23/a33: Enable the real LOSC and use it
+>   ARM: sun8i: a23/a33: Add the oscillators accuracy
+> 
 
-Unless you want to take the whole set, in which case I'll need a
-signed immutable branch from you.
+I've applied 1/7 to 5/7. Thanks!
 
-> On 11/01/2017 at 17:52:21 +0100, Enric Balletbo i Serra wrote :
-> > From: Stephen Barber <smbarber@chromium.org>
-> >=20
-> > If the EC supports RTC host commands, expose an RTC device.
-> >=20
-> > Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> > ---
-> >  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
-> >  1 file changed, 22 insertions(+)
-> >=20
-> > diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/c=
-hrome/cros_ec_dev.c
-> > index 47268ec..ebe029d 100644
-> > --- a/drivers/platform/chrome/cros_ec_dev.c
-> > +++ b/drivers/platform/chrome/cros_ec_dev.c
-> > @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_e=
-c_dev *ec)
-> >  	kfree(msg);
-> >  }
-> > =20
-> > +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
-> > +	{
-> > +		.name =3D "cros-ec-rtc",
-> > +		.id   =3D -1,
-> > +	},
-> > +};
-> > +
-> > +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-> > +			      ARRAY_SIZE(cros_ec_rtc_devs),
-> > +			      NULL, 0, NULL);
-> > +	if (ret)
-> > +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-> > +}
-> > +
-> >  static int ec_device_probe(struct platform_device *pdev)
-> >  {
-> >  	int retval =3D -ENOMEM;
-> > @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device =
-*pdev)
-> >  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
-> >  		cros_ec_sensors_register(ec);
-> > =20
-> > +	/* check whether this EC instance has RTC host command support */
-> > +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-> > +		cros_ec_rtc_register(ec);
-> > +
-> >  	return 0;
-> > =20
-> >  dev_reg_failed:
->=20
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
