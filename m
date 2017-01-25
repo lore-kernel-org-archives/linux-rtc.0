@@ -1,28 +1,30 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBPXGRDCAKGQEIGJQA3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCRKFI7J2AJRBBWMUHCAKGQETMJTA2I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com. [119.145.14.65])
+        by gmr-mx.google.com with ESMTPS id n132si2339262ith.0.2017.01.25.00.47.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 25 Jan 2017 00:47:02 -0800 (PST)
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Patrice Chotard
+	<patrice.chotard@st.com>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, <linux-arm-kernel@lists.infradead.org>,
+        <rtc-linux@googlegroups.com>
+CC: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [rtc-linux] [PATCH 3/4] rtc: sun6i: using devm_rtc_device_register helper
+Date: Wed, 25 Jan 2017 16:41:56 +0800
+Message-ID: <1485333717-47536-3-git-send-email-wangkefeng.wang@huawei.com>
+In-Reply-To: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
+References: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f142si198868wmf.2.2017.01.20.07.56.46
-        for <rtc-linux@googlegroups.com>;
-        Fri, 20 Jan 2017 07:56:46 -0800 (PST)
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Chen-Yu Tsai <wens@csie.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com,
-	Rob Herring <robh+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] [PATCH 2/6] rtc: sun6i: Add some locking
-Date: Fri, 20 Jan 2017 16:56:39 +0100
-Message-Id: <9b5c8ed82f636fd2061a9b7933c0e6b65d868643.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-In-Reply-To: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-References: <cover.180d5ae6bc36ead9625d208824f5cbd7114cf92e.1484927680.git-series.maxime.ripard@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,119 +33,58 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Some registers have a read-modify-write access pattern that are not atomic.
+Using devm_rtc_device_register() helper to simplify code.
 
-Add some locking to prevent from concurrent accesses.
-
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- drivers/rtc/rtc-sun6i.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-sun6i.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 408dd512a6ac..872d18609183 100644
+index c169a2c..b22d5eb 100644
 --- a/drivers/rtc/rtc-sun6i.c
 +++ b/drivers/rtc/rtc-sun6i.c
-@@ -125,6 +125,8 @@ struct sun6i_rtc_dev {
- 	struct clk_hw hw;
- 	struct clk_hw *int_osc;
- 	struct clk *losc;
-+
-+	spinlock_t lock;
- };
+@@ -404,8 +404,8 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 	/* disable alarm wakeup */
+ 	writel(0, chip->base + SUN6I_ALARM_CONFIG);
  
- static struct sun6i_rtc_dev *sun6i_rtc;
-@@ -155,16 +157,19 @@ static u8 sun6i_rtc_osc_get_parent(struct clk_hw *hw)
- static int sun6i_rtc_osc_set_parent(struct clk_hw *hw, u8 index)
- {
- 	struct sun6i_rtc_dev *rtc = container_of(hw, struct sun6i_rtc_dev, hw);
-+	unsigned long flags;
- 	u32 val;
- 
- 	if (index > 1)
- 		return -EINVAL;
- 
-+	spin_lock_irqsave(&rtc->lock, flags);
- 	val = readl(rtc->base + SUN6I_LOSC_CTRL);
- 	val &= ~SUN6I_LOSC_CTRL_EXT_OSC;
- 	val |= SUN6I_LOSC_CTRL_KEY;
- 	val |= index ? SUN6I_LOSC_CTRL_EXT_OSC : 0;
- 	writel(val, rtc->base + SUN6I_LOSC_CTRL);
-+	spin_unlock_irqrestore(&rtc->lock, flags);
- 
+-	chip->rtc = rtc_device_register("rtc-sun6i", &pdev->dev,
+-					&sun6i_rtc_ops, THIS_MODULE);
++	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sun6i",
++					     &sun6i_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(chip->rtc)) {
+ 		dev_err(&pdev->dev, "unable to register device\n");
+ 		return PTR_ERR(chip->rtc);
+@@ -416,15 +416,6 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
  	return 0;
  }
-@@ -187,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
- 		pr_crit("Can't allocate RTC structure\n");
-+	spin_lock_init(&rtc->lock);
  
- 	rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
- 	if (!rtc->base) {
-@@ -246,8 +252,10 @@ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
- static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
- {
- 	struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
-+	irqreturn_t ret = IRQ_NONE;
- 	u32 val;
+-static int sun6i_rtc_remove(struct platform_device *pdev)
+-{
+-	struct sun6i_rtc_dev *chip = platform_get_drvdata(pdev);
+-
+-	rtc_device_unregister(chip->rtc);
+-
+-	return 0;
+-}
+-
+ static const struct of_device_id sun6i_rtc_dt_ids[] = {
+ 	{ .compatible = "allwinner,sun6i-a31-rtc" },
+ 	{ /* sentinel */ },
+@@ -433,7 +424,6 @@ static int sun6i_rtc_remove(struct platform_device *pdev)
  
-+	spin_lock(&chip->lock);
- 	val = readl(chip->base + SUN6I_ALRM_IRQ_STA);
- 
- 	if (val & SUN6I_ALRM_IRQ_STA_CNT_IRQ_PEND) {
-@@ -256,10 +264,11 @@ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
- 
- 		rtc_update_irq(chip->rtc, 1, RTC_AF | RTC_IRQF);
- 
--		return IRQ_HANDLED;
-+		ret = IRQ_HANDLED;
- 	}
-+	spin_unlock(&chip->lock);
- 
--	return IRQ_NONE;
-+	return ret;
- }
- 
- static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
-@@ -267,6 +276,7 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
- 	u32 alrm_val = 0;
- 	u32 alrm_irq_val = 0;
- 	u32 alrm_wake_val = 0;
-+	unsigned long flags;
- 
- 	if (to) {
- 		alrm_val = SUN6I_ALRM_EN_CNT_EN;
-@@ -277,9 +287,11 @@ static void sun6i_rtc_setaie(int to, struct sun6i_rtc_dev *chip)
- 		       chip->base + SUN6I_ALRM_IRQ_STA);
- 	}
- 
-+	spin_lock_irqsave(&chip->lock, flags);
- 	writel(alrm_val, chip->base + SUN6I_ALRM_EN);
- 	writel(alrm_irq_val, chip->base + SUN6I_ALRM_IRQ_EN);
- 	writel(alrm_wake_val, chip->base + SUN6I_ALARM_CONFIG);
-+	spin_unlock_irqrestore(&chip->lock, flags);
- }
- 
- static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
-@@ -318,11 +330,15 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- {
- 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
-+	unsigned long flags;
- 	u32 alrm_st;
- 	u32 alrm_en;
- 
-+	spin_lock_irqsave(&chip->lock, flags);
- 	alrm_en = readl(chip->base + SUN6I_ALRM_IRQ_EN);
- 	alrm_st = readl(chip->base + SUN6I_ALRM_IRQ_STA);
-+	spin_unlock_irqrestore(&chip->lock, flags);
-+
- 	wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
- 	wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
- 	rtc_time_to_tm(chip->alarm, &wkalrm->time);
+ static struct platform_driver sun6i_rtc_driver = {
+ 	.probe		= sun6i_rtc_probe,
+-	.remove		= sun6i_rtc_remove,
+ 	.driver		= {
+ 		.name		= "sun6i-rtc",
+ 		.of_match_table = sun6i_rtc_dt_ids,
 -- 
-git-series 0.8.11
+1.7.12.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
