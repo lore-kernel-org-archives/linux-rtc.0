@@ -1,26 +1,27 @@
-Return-Path: <rtc-linux+bncBDZJXP7F6YLRB2N7WPBQKGQEVF4PUFI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCRKFI7J2AJRBAWMUHCAKGQE3JKIIAI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr. [192.134.164.104])
-        by gmr-mx.google.com with ESMTPS id 75si2687158wme.3.2017.01.04.03.43.37
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com. [119.145.14.65])
+        by gmr-mx.google.com with ESMTPS id j63si1663570ita.1.2017.01.25.00.46.56
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Jan 2017 03:43:37 -0800 (PST)
-Date: Wed, 4 Jan 2017 12:43:32 +0100 (CET)
-From: Julia Lawall <julia.lawall@lip6.fr>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-cc: Julia Lawall <julia.lawall@lip6.fr>,
-    Russell King - ARM Linux <linux@armlinux.org.uk>,
-    Kees Cook <keescook@chromium.org>, andrew@lunn.ch,
-    Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
-    a.zummo@towertech.it, LKML <linux-kernel@vger.kernel.org>,
-    "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-    gregory.clement@free-electrons.com, Bhumika Goyal <bhumirks@gmail.com>,
-    sebastian.hesselbarth@gmail.com
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
-In-Reply-To: <20170104110750.dtu54t74qkuuvkvq@piout.net>
-Message-ID: <alpine.DEB.2.20.1701041242080.3073@hadrien>
-References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com> <20170102140654.GF14217@n2100.armlinux.org.uk> <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com> <20170103213118.GM14217@n2100.armlinux.org.uk> <20170103215421.GN14217@n2100.armlinux.org.uk>
- <alpine.DEB.2.20.1701041155380.3073@hadrien> <20170104110750.dtu54t74qkuuvkvq@piout.net>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 25 Jan 2017 00:46:57 -0800 (PST)
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Alessandro Zummo
+	<a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Patrice Chotard
+	<patrice.chotard@st.com>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, <linux-arm-kernel@lists.infradead.org>,
+        <rtc-linux@googlegroups.com>
+CC: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [rtc-linux] [PATCH 4/4] rtc: sunxi: using devm_rtc_device_register helper
+Date: Wed, 25 Jan 2017 16:41:57 +0800
+Message-ID: <1485333717-47536-4-git-send-email-wangkefeng.wang@huawei.com>
+In-Reply-To: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
+References: <1485333717-47536-1-git-send-email-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -32,16 +33,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-> The question was whether the point to the rtc_class_ops could be made
-> __ro_after_init. And Russell is right, it is pointed to by the ops
-> pointer in a struct rtc_device and that struct is dynamically allocated
-> in rtc_device_register().
+Using devm_rtc_device_register() helper to simplify code.
 
-OK, I think it's a terminology issue.  You mean the structure that
-contains the pointer, and not the pointer itself, which is already const.
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/rtc/rtc-sunxi.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-thanks,
-julia
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index abada60..6fba5ae 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -481,8 +481,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	writel(SUNXI_ALRM_IRQ_STA_CNT_IRQ_PEND, chip->base +
+ 			SUNXI_ALRM_IRQ_STA);
+ 
+-	chip->rtc = rtc_device_register("rtc-sunxi", &pdev->dev,
+-			&sunxi_rtc_ops, THIS_MODULE);
++	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sunxi",
++					     &sunxi_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(chip->rtc)) {
+ 		dev_err(&pdev->dev, "unable to register device\n");
+ 		return PTR_ERR(chip->rtc);
+@@ -493,18 +493,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int sunxi_rtc_remove(struct platform_device *pdev)
+-{
+-	struct sunxi_rtc_dev *chip = platform_get_drvdata(pdev);
+-
+-	rtc_device_unregister(chip->rtc);
+-
+-	return 0;
+-}
+-
+ static struct platform_driver sunxi_rtc_driver = {
+ 	.probe		= sunxi_rtc_probe,
+-	.remove		= sunxi_rtc_remove,
+ 	.driver		= {
+ 		.name		= "sunxi-rtc",
+ 		.of_match_table = sunxi_rtc_dt_ids,
+-- 
+1.7.12.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
