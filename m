@@ -1,34 +1,22 @@
-Return-Path: <rtc-linux+bncBCF5XGNWYQBRB665WXBQKGQERRX2Q4Q@googlegroups.com>
-Received: from mail-io0-x22d.google.com (mail-io0-x22d.google.com. [2607:f8b0:4001:c06::22d])
-        by gmr-mx.google.com with ESMTPS id n197si5437412itn.1.2017.01.04.13.54.03
+Return-Path: <rtc-linux+bncBC2IF264UIPRBW4NV3CAKGQEB7UCIOQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id d207si708110wmd.1.2017.01.27.09.43.54
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Jan 2017 13:54:03 -0800 (PST)
-Received: by mail-io0-x22d.google.com with SMTP id d9so464734706ioe.0
-        for <rtc-linux@googlegroups.com>; Wed, 04 Jan 2017 13:54:03 -0800 (PST)
-MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <20170104130628.GQ14217@n2100.armlinux.org.uk>
-References: <1482751862-18699-1-git-send-email-bhumirks@gmail.com>
- <20170102140654.GF14217@n2100.armlinux.org.uk> <CAGXu5jJLA=GcOhV5Z_6AOGa1KhW7fXtqBGrewEeViaJ9TiE-aw@mail.gmail.com>
- <20170103213118.GM14217@n2100.armlinux.org.uk> <20170103215421.GN14217@n2100.armlinux.org.uk>
- <alpine.DEB.2.20.1701041155380.3073@hadrien> <20170104110750.dtu54t74qkuuvkvq@piout.net>
- <alpine.DEB.2.20.1701041242080.3073@hadrien> <20170104121425.GP14217@n2100.armlinux.org.uk>
- <alpine.DEB.2.20.1701041320140.3073@hadrien> <20170104130628.GQ14217@n2100.armlinux.org.uk>
-From: Kees Cook <keescook@chromium.org>
-Date: Wed, 4 Jan 2017 13:53:55 -0800
-Message-ID: <CAGXu5jLe6RNa6xrefB--w3M+ECRkMMDZWoyAOp5gA1h6W-1vMA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: armada38x: add __ro_after_init to armada38x_rtc_ops
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Julia Lawall <julia.lawall@lip6.fr>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, andrew@lunn.ch,
-	Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>, LKML <linux-kernel@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, gregory.clement@free-electrons.com,
-	Bhumika Goyal <bhumirks@gmail.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        Fri, 27 Jan 2017 09:43:54 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: bq32000: add support to enable disable the
+ trickle charge FET bypass.
+Date: Fri, 27 Jan 2017 18:43:46 +0100
+Message-Id: <20170127174346.30131-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,47 +25,153 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Jan 4, 2017 at 5:06 AM, Russell King - ARM Linux
-<linux@armlinux.org.uk> wrote:
-> On Wed, Jan 04, 2017 at 01:23:41PM +0100, Julia Lawall wrote:
->> Basically, the strategy of the patch is that one may consider it
->> preferable to duplicate the structure for the different alternatives,
->> rather than use __ro_after_init.  Perhaps if the structure were larger,
->> then __ro_after_init would be a better choice?
->
-> It depends on not just the size, but how many members need to be
-> modified, and obviously whether there are likely to be more than one
-> user of the structure as well.
->
-> So I'd say __ro_after_init rarely makes sense for an operations
-> structure - the only case I can see is:
->
-> - a large structure
-> - only a small number of elements need to be modified
-> - it is only single-use
->
-> which is probably quite rare - this one falls into two out of those
-> three.
->
-> There's another consideration (imho) too - we may wish, at a later
-> date, to make .text and .rodata both read-only from the start of the
-> kernel to harden the kernel against possibly init-time exploitation.
-> (Think about a buggy built-in driver with emulated hardware - much the
-> same problem that Kees is trying to address in one of his recent patch
-> sets but with hotplugged hardware while a screen-saver is active.)
-> Having function pointers in .rodata rather than the ro-after-init
-> section would provide better protection.
+The bq32000 includes a trickle charge circuit to maintain the charge of the
+backup supply when a super capacitor is used.
 
-Agreed: I'd much prefer things just be const. :) As to my confusing
-question, I hadn't looked at how where the pointers to the structure
-was being stored, so I was just asking if it, too, could be const,
-which it can't, and that's fine here.
+You can enable the charging circuit by setting 'trickle-resistor-ohms',
+additionally you can set TCFE to 1 to bypass the internal diode and boost
+the charge voltage of the backup supply. You might want to enable/disable
+the TCFE switch from userspace (e.g when device is only connected to a
+battery)
 
--Kees
+This patch introduces a new sysfs entry to enable and disable this FET
+form userspace.
 
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+ .../ABI/testing/sysfs-bus-i2c-devices-bq32k        |  7 ++
+ drivers/rtc/rtc-bq32k.c                            | 76 ++++++++++++++++++++++
+ 2 files changed, 83 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-bq32k
+
+diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-bq32k b/Documentation/ABI/testing/sysfs-bus-i2c-devices-bq32k
+new file mode 100644
+index 0000000..398b258
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-bq32k
+@@ -0,0 +1,7 @@
++What:		/sys/bus/i2c/devices/.../trickle_charge_bypass
++Date:		Jan 2017
++KernelVersion:	4.11
++Contact:	Enric Balletbo i Serra <eballetbo@gmail.com>
++Description:    Attribute for enable/disable the trickle charge bypass
++		The trickle_charge_bypass attribute allows the userspace to
++                enable/disable the Trickle charge FET bypass.
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index 3977424..2b22393 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -34,6 +34,7 @@
+ #define BQ32K_CALIBRATION	0x07	/* CAL_CFG1, calibration and control */
+ #define BQ32K_TCH2		0x08	/* Trickle charge enable */
+ #define BQ32K_CFG2		0x09	/* Trickle charger control */
++#define BQ32K_TCFE		BIT(6)	/* Trickle charge FET bypass */
+ 
+ struct bq32k_regs {
+ 	uint8_t		seconds;
+@@ -188,6 +189,65 @@ static int trickle_charger_of_init(struct device *dev, struct device_node *node)
+ 	return 0;
+ }
+ 
++static ssize_t bq32k_sysfs_show_tricklecharge_bypass(struct device *dev,
++					       struct device_attribute *attr,
++					       char *buf)
++{
++	int reg, error;
++
++	error = bq32k_read(dev, &reg, BQ32K_CFG2, 1);
++	if (error)
++		return error;
++
++	return sprintf(buf, "%d\n", (reg & BQ32K_TCFE) ? 1 : 0);
++}
++
++static ssize_t bq32k_sysfs_store_tricklecharge_bypass(struct device *dev,
++						struct device_attribute *attr,
++						const char *buf, size_t count)
++{
++	int reg, enable, error;
++
++	if (kstrtoint(buf, 0, &enable))
++		return -EINVAL;
++
++	error = bq32k_read(dev, &reg, BQ32K_CFG2, 1);
++	if (error)
++		return error;
++
++	if (enable) {
++		reg |= BQ32K_TCFE;
++		error = bq32k_write(dev, &reg, BQ32K_CFG2, 1);
++		if (error)
++			return error;
++
++		dev_info(dev, "Enabled trickle charge FET bypass.\n");
++	} else {
++		reg &= ~BQ32K_TCFE;
++		error = bq32k_write(dev, &reg, BQ32K_CFG2, 1);
++		if (error)
++			return error;
++
++		dev_info(dev, "Disabled trickle charge FET bypass.\n");
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(trickle_charge_bypass, 0644,
++		   bq32k_sysfs_show_tricklecharge_bypass,
++		   bq32k_sysfs_store_tricklecharge_bypass);
++
++static int bq32k_sysfs_register(struct device *dev)
++{
++	return device_create_file(dev, &dev_attr_trickle_charge_bypass);
++}
++
++static void bq32k_sysfs_unregister(struct device *dev)
++{
++	device_remove_file(dev, &dev_attr_trickle_charge_bypass);
++}
++
+ static int bq32k_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+@@ -224,11 +284,26 @@ static int bq32k_probe(struct i2c_client *client,
+ 	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
+ 
++	error = bq32k_sysfs_register(&client->dev);
++	if (error) {
++		dev_err(&client->dev,
++			"Unable to create sysfs entries for rtc bq32000\n");
++		return error;
++	}
++
++
+ 	i2c_set_clientdata(client, rtc);
+ 
+ 	return 0;
+ }
+ 
++static int bq32k_remove(struct i2c_client *client)
++{
++	bq32k_sysfs_unregister(&client->dev);
++
++	return 0;
++}
++
+ static const struct i2c_device_id bq32k_id[] = {
+ 	{ "bq32000", 0 },
+ 	{ }
+@@ -240,6 +315,7 @@ static struct i2c_driver bq32k_driver = {
+ 		.name	= "bq32k",
+ 	},
+ 	.probe		= bq32k_probe,
++	.remove		= bq32k_remove,
+ 	.id_table	= bq32k_id,
+ };
+ 
 -- 
-Kees Cook
-Nexus Security
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
