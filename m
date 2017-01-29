@@ -1,28 +1,22 @@
-Return-Path: <rtc-linux+bncBDEKVJM7XAHRBXHG4PBQKGQE46XTDPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCMILY6JWQBBBWUAW7CAKGQEI75NYPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mout.kundenserver.de (mout.kundenserver.de. [212.227.126.135])
-        by gmr-mx.google.com with ESMTPS id 133si170960wmj.1.2017.01.13.07.33.48
+Received: from wens.csie.org (mirror2.csie.ntu.edu.tw. [140.112.30.76])
+        by gmr-mx.google.com with ESMTPS id z3si2135277pfj.0.2017.01.29.02.13.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 13 Jan 2017 07:33:48 -0800 (PST)
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	Amelie Delaunay <amelie.delaunay@st.com>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 29 Jan 2017 02:13:46 -0800 (PST)
+From: Chen-Yu Tsai <wens@csie.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
 	rtc-linux@googlegroups.com,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 3/3] rtc: stm32: use 32-bit cast for BIT() macro
-Date: Fri, 13 Jan 2017 16:32:53 +0100
-Message-Id: <20170113153311.2611510-3-arnd@arndb.de>
-In-Reply-To: <20170113153311.2611510-1-arnd@arndb.de>
-References: <20170113153311.2611510-1-arnd@arndb.de>
+Subject: [rtc-linux] [PATCH] rtc: sun6i: Fix compatibility with old DT binding
+Date: Sun, 29 Jan 2017 18:13:43 +0800
+Message-Id: <20170129101343.7222-1-wens@csie.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,41 +27,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Using the ~ operator on a BIT() constant results in a large 'unsigned long'
-constant that won't fit into an 'unsigned int' function argument on 64-bit
-architectures, resulting in a harmless build warning in x86 allmodconfig:
+Commit 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator") adds
+a new clock for the rtc block with a 2 step probe mechanism. To share
+the register region between both the clock and rtc instance, a static
+pointer is used to keep the related data structure.
 
-drivers/rtc/rtc-stm32.c: In function 'stm32_rtc_probe':
-drivers/rtc/rtc-stm32.c:651:51: error: large integer implicitly truncated to unsigned type [-Werror=overflow]
-  regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, ~PWR_CR_DBP);
+To preserve compatibility with the old binding, the data structure
+should be saved as soon as the registers are mapped in, regardless
+of the presence of the clock bindings, so that the rtc device can
+retrieve it when it is probed.
 
-This works around the warning by adding an explict cast to 'u32', but
-that is unfortunately a bit ugly and I feel there should be a better
-way to do this, possibly with some changes to either the bitops.h
-header or the regmap API.
+This fixes the rtc device not probing when we use the updated driver
+with an old device tree blob.
 
-Cc: Mark Brown <broonie@kernel.org>
-Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/rtc-stm32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 8c599f52124c..05d3dc89e55f 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -92,7 +92,7 @@
- /* STM32_PWR_CR */
- #define PWR_CR				0x00
- /* STM32_PWR_CR bit field */
--#define PWR_CR_DBP			BIT(8)
-+#define PWR_CR_DBP			(u32)BIT(8)
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 613f42ade533..08510ca58996 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -211,6 +211,9 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	writel(SUN6I_LOSC_CTRL_KEY | SUN6I_LOSC_CTRL_EXT_OSC,
+ 	       rtc->base + SUN6I_LOSC_CTRL);
  
- struct stm32_rtc {
- 	struct rtc_device *rtc_dev;
++	/* Yes, I know, this is ugly. */
++	sun6i_rtc = rtc;
++
+ 	/* Deal with old DTs */
+ 	if (!of_get_property(node, "clocks", NULL))
+ 		return;
+@@ -243,9 +246,6 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	clk_data->num = 1;
+ 	clk_data->hws[0] = &rtc->hw;
+ 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+-
+-	/* Yes, I know, this is ugly. */
+-	sun6i_rtc = rtc;
+ }
+ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+ 		      sun6i_rtc_clk_init);
 -- 
-2.9.0
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
