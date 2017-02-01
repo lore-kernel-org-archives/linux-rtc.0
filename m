@@ -1,28 +1,20 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBG4ER3CQKGQEVPOZPNI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB65QY7CAKGQEQR2GDMQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id h62si362483wme.2.2017.02.14.14.18.03
+MIME-Version: 1.0
+Received: from mail02.prevas.se (mail02.prevas.se. [62.95.78.10])
+        by gmr-mx.google.com with ESMTPS id q4si1666316wma.3.2017.02.01.04.45.46
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Feb 2017 14:18:03 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
-To: Lee Jones <lee.jones@linaro.org>
-References: <20170119123032.24679-1-enric.balletbo@collabora.com>
- <20170119123032.24679-3-enric.balletbo@collabora.com>
- <20170122233232.iin6frv7hme2y2jw@piout.net> <20170123121438.GM16020@dell>
- <c492877b-5bd1-511a-7591-b4ff911ceabc@collabora.com>
- <20170214152604.bvaiujkln6uo656w@dell>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
- Olof Johansson <olof@lixom.net>, Alessandro Zummo <a.zummo@towertech.it>,
- Stephen Barber <smbarber@chromium.org>
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Message-ID: <ca3cdf20-b319-a4a6-db9c-dbab6598df3d@collabora.com>
-Date: Tue, 14 Feb 2017 23:18:00 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170214152604.bvaiujkln6uo656w@dell>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 01 Feb 2017 04:45:46 -0800 (PST)
+From: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+To: rtc-linux@googlegroups.com
+Cc: Sean Nyekjaer <sean.nyekjaer@prevas.dk>,
+	alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH] rtc: pcf2127: bulk read only date and time registers.
+Date: Wed,  1 Feb 2017 13:45:25 +0100
+Message-Id: <20170201124525.36578-1-sean.nyekjaer@prevas.dk>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,46 +23,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Read control registers one by one and bulk read time registers.
+This fixes when the clock is read, the watchdog counter register is zeroed.
 
+The problem is latent without the watchdog patch
 
-On 14/02/17 16:26, Lee Jones wrote:
-> On Tue, 14 Feb 2017, Enric Balletbo i Serra wrote:
-> 
->> Hi Lee,
->>
->> On 23/01/17 13:14, Lee Jones wrote:
->>> On Mon, 23 Jan 2017, Alexandre Belloni wrote:
->>>
->>>> On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
->>>>> From: Stephen Barber <smbarber@chromium.org>
->>>>>
->>>>> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
->>>>> Add a basic driver with this functionality.
->>>>>
->>>>> Signed-off-by: Stephen Barber <smbarber@chromium.org>
->>>>> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
->>>>
->>>> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->>>>
->>>> Lee, this can go through the mfd tree. Hopefully, nobody will add a new
->>>> driver nearby ;)
->>>
->>> Yes, I can take the set, once all of the Acks are obtained.
->>>
->>
->> Now that the patch series have all the acks, this will finally go through the mfd tree?
->>
->> I suppose is too late for the upcoming merge window ... so just want to make sure which tree I should monitor to not forget it :)
-> 
-> You need to submit it, complete with all the Acks you received.
-> 
-> Yes, it's too late for this cycle.
-> 
+Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+---
+Only tested on pcf2127.
+I think the pcf2127 have an issue when the register auto-incr is used,
+when bulk reading the time the watchdog counter is zeroed and stopped.
 
-Ok, thanks Lee, just submitted v3 with all the acks
+ drivers/rtc/rtc-pcf2127.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-Cheers,
-  Enric
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 8abc4eb8f289..f54a42b419b5 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -403,9 +403,21 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+ 	unsigned char buf[10];
+ 	int ret;
++	int i;
++
++	for (i = 0; i < 3; i++) {
++		ret =
++		    regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1 + i,
++				(unsigned int *)(buf + i));
++		if (ret) {
++			dev_err(dev, "%s: read error\n", __func__);
++			return ret;
++		}
++	}
+ 
+-	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, buf,
+-				sizeof(buf));
++	ret =
++	    regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1 + 3, (buf + 3),
++			     7);
+ 	if (ret) {
+ 		dev_err(dev, "%s: read error\n", __func__);
+ 		return ret;
+-- 
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
