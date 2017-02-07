@@ -1,73 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB26MWDCQKGQECQVZOKI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCNJ5VGR4ANRB7G447CAKGQERMCNDEI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f7si1067931wmg.3.2017.02.21.03.37.14
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Feb 2017 03:37:14 -0800 (PST)
-Date: Tue, 21 Feb 2017 12:37:04 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org, linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
- helper function
-Message-ID: <20170221113704.ibwkk2vuc5imkmae@piout.net>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-3-git-send-email-logang@deltatee.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1487653253-11497-3-git-send-email-logang@deltatee.com>
+Received: from gateway32.websitewelcome.com (gateway32.websitewelcome.com. [192.185.145.182])
+        by gmr-mx.google.com with ESMTPS id b188si506071ite.3.2017.02.07.07.57.48
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 Feb 2017 07:57:48 -0800 (PST)
+Received: from cm15.websitewelcome.com (cm15.websitewelcome.com [100.42.49.9])
+	by gateway32.websitewelcome.com (Postfix) with ESMTP id E273E121E4
+	for <rtc-linux@googlegroups.com>; Tue,  7 Feb 2017 09:57:46 -0600 (CST)
+From: Guy Shapiro <guy.shapiro@mobi-wize.com>
+To: Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>,
+	devicetree@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Sascha Hauer <kernel@pengutronix.de>,
+	linux-arm-kernel@lists.infradead.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 2/2] ARM: dts: imx: update snvs-poweroff mask
+Date: Tue,  7 Feb 2017 17:56:06 +0200
+Message-Id: <1486482966-4497-2-git-send-email-guy.shapiro@mobi-wize.com>
+In-Reply-To: <1486482966-4497-1-git-send-email-guy.shapiro@mobi-wize.com>
+References: <1486472054-4367-1-git-send-email-guy.shapiro@mobi-wize.com>
+ <1486482966-4497-1-git-send-email-guy.shapiro@mobi-wize.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -76,52 +37,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Make the syscon-poweroff driver change only the shutdown bits on the
+SNVS_LP control register.
 
-A small comment, you must always have a commit message. Even if it is
-small.
+This change fixes an issue with the RTC wakeup alarm, that was
+previously disabled during power off.
 
-On 20/02/2017 at 22:00:41 -0700, Logan Gunthorpe wrote:
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-> ---
->  drivers/dax/dax.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
-> index ed758b7..0d24822 100644
-> --- a/drivers/dax/dax.c
-> +++ b/drivers/dax/dax.c
-> @@ -701,12 +701,12 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
->  
->  	/* device_initialize() so cdev can reference kobj parent */
->  	device_initialize(dev);
-> +	dev->devt = dev_t;
->  
->  	cdev = &dax_dev->cdev;
->  	cdev_init(cdev, &dax_fops);
->  	cdev->owner = parent->driver->owner;
-> -	cdev->kobj.parent = &dev->kobj;
-> -	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
-> +	rc = device_add_cdev(dev, cdev);
->  	if (rc)
->  		goto err_cdev;
->  
-> @@ -716,7 +716,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
->  	dax_dev->region = dax_region;
->  	kref_get(&dax_region->kref);
->  
-> -	dev->devt = dev_t;
->  	dev->class = dax_class;
->  	dev->parent = parent;
->  	dev->groups = dax_attribute_groups;
-> -- 
-> 2.1.4
-> 
+Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 1 +
+ arch/arm/boot/dts/imx6sl.dtsi  | 1 +
+ arch/arm/boot/dts/imx6sx.dtsi  | 1 +
+ arch/arm/boot/dts/imx6ul.dtsi  | 1 +
+ arch/arm/boot/dts/imx7s.dtsi   | 1 +
+ 5 files changed, 5 insertions(+)
 
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 89b834f..06984b1 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -757,6 +757,7 @@
+ 					compatible = "syscon-poweroff";
+ 					regmap = <&snvs>;
+ 					offset = <0x38>;
++					value = <0x60>;
+ 					mask = <0x60>;
+ 					status = "disabled";
+ 				};
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index 19cbd87..58717d3 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -644,6 +644,7 @@
+ 					compatible = "syscon-poweroff";
+ 					regmap = <&snvs>;
+ 					offset = <0x38>;
++					value = <0x60>;
+ 					mask = <0x60>;
+ 					status = "disabled";
+ 				};
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 10f3330..be142ed5 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -698,6 +698,7 @@
+ 					compatible = "syscon-poweroff";
+ 					regmap = <&snvs>;
+ 					offset = <0x38>;
++					value = <0x60>;
+ 					mask = <0x60>;
+ 					status = "disabled";
+ 				};
+diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
+index 39845a7..505d24e 100644
+--- a/arch/arm/boot/dts/imx6ul.dtsi
++++ b/arch/arm/boot/dts/imx6ul.dtsi
+@@ -606,6 +606,7 @@
+ 					compatible = "syscon-poweroff";
+ 					regmap = <&snvs>;
+ 					offset = <0x38>;
++					value = <0x60>;
+ 					mask = <0x60>;
+ 					status = "disabled";
+ 				};
+diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
+index 8ff2cbdd..aadb1134 100644
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -529,6 +529,7 @@
+ 					compatible = "syscon-poweroff";
+ 					regmap = <&snvs>;
+ 					offset = <0x38>;
++					value = <0x60>;
+ 					mask = <0x60>;
+ 				};
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
