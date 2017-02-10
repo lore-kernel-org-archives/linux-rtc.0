@@ -1,26 +1,22 @@
-Return-Path: <rtc-linux+bncBC6YH6VTZQDRBZMLS7CQKGQE66LVPNY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOZ45RYIGRBDUK7HCAKGQES2C2FOA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si22445wma.3.2017.02.16.07.31.48
-        for <rtc-linux@googlegroups.com>;
-        Thu, 16 Feb 2017 07:31:48 -0800 (PST)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] [PATCH 0/3] Extend rtc-armada38x support for Armada 7K/8K
-Date: Thu, 16 Feb 2017 16:31:33 +0100
-Message-Id: <20170216153136.27009-1-gregory.clement@free-electrons.com>
-Reply-To: rtc-linux@googlegroups.com
+Received: from NAM03-DM3-obe.outbound.protection.outlook.com (mail-dm3nam03on0126.outbound.protection.outlook.com. [104.47.41.126])
+        by gmr-mx.google.com with ESMTPS id e196si453439itc.2.2017.02.10.14.56.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 10 Feb 2017 14:56:14 -0800 (PST)
+From: Hartley Sweeten <HartleyS@visionengravers.com>
+To: Alexander Clouter <alex@digriz.org.uk>
+CC: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] RE: [PATCH 0/3] rtc: m48t86: cleanup driver and add NVRAM support
+Date: Fri, 10 Feb 2017 22:56:12 +0000
+Message-ID: <SN1PR0101MB1565C312398D334B5B81B2E1D0440@SN1PR0101MB1565.prod.exchangelabs.com>
+References: <20170210181157.6283-1-hsweeten@visionengravers.com>
+ <20170210224505.GK24768@quatermain.digriz.org.uk>
+In-Reply-To: <20170210224505.GK24768@quatermain.digriz.org.uk>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,29 +25,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+On Friday, February 10, 2017 3:45 PM, Alexander Clouter wrote:
+> On Fri, Feb 10, 2017 at 11:11:54AM -0700, H Hartley Sweeten wrote:
+>>
+>>Currently the ts78xx platform does some "probing" of the rtc NVRAM to see
+>>if it is actually present before registering the rtc device. This "probing"
+>>just checks if the NVRAM is present by reading/writing the last two bytes
+>>of the NVRAM. I'm not sure if this is really necessary. If it can be removed
+>>all the m48t86_ops stuff could also be removed from this driver, along with
+>>platform_data/rtc-m48t86.h.
+>
+> The RTC is an optional upgrade on the TS-7800[1].  Not sure what would happen 
+> if the RTC driver kicks in with no actual RTC being present?
 
-The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-the SOC integration differs in 2 points:
-     - MBUS bridge timing initialization
-     - IRQ configuration at SoC level
+How about modifying the m48t86 probe so that it does the NVRAM check that
+you are doing in the ts78xx platform code. If the NVRAM check fails the probe
+will return -ENODEV. Reading the NVRAM to check the 0x55 0xaa signature in
+the last locations might be adequate. Not sure if making sure they can be written
+is necessary.
 
-This patch set extends the driver support to these SoCs family.
+Then you can just register the driver and let it figure out if the rtc is actually there.
 
-Gregory
+>> If I was to do this over again, I probably would have the driver check that the 
+>> HMS is actually incrementing after being instantiated, if it looks weird then 
+>> to unbind its-self.
 
-Gregory CLEMENT (3):
-  rtc: armada38x: Prepare driver to manage different versions
-  rtc: armada38x: Add support for Armada 7K/8K
-  arm64: dts: marvell: add RTC description for Armada 7K/8K
+Or the probe could do that check and return -ENODEV if it fails.
 
- .../devicetree/bindings/rtc/armada-380-rtc.txt     |   8 +-
- .../boot/dts/marvell/armada-cp110-master.dtsi      |   7 +
- drivers/rtc/rtc-armada38x.c                        | 217 ++++++++++++++++-----
- 3 files changed, 176 insertions(+), 56 deletions(-)
+> My TS-7800 is still clunking away in the corner though on an aging 2.6.32 
+> kernel.  I keep meaning to update it, might be some time before I can though.
 
--- 
-2.11.0
+I recently got a TS-7300 from them. It has an even older 2.4 kernel. I have it
+booting 4.9.9 right now and I'm trying to cleanup some of the driver code it
+uses.
+
+Regards,
+Hartley
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
