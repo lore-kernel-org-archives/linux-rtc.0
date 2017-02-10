@@ -1,30 +1,19 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMXFVTCQKGQELF5VSEA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDM47J4M6QEBBFEF7DCAKGQECV3VMPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id p185si899050wme.1.2017.02.20.10.17.22
-        for <rtc-linux@googlegroups.com>;
-        Mon, 20 Feb 2017 10:17:22 -0800 (PST)
-Date: Mon, 20 Feb 2017 19:17:12 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
-	Andrew Lunn <andrew@lunn.ch>, Haim Boot <hayim@marvell.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 0/3] Extend rtc-armada38x support for
- Armada 7K/8K
-Message-ID: <20170220181712.yejnobmj3dhm5ev6@piout.net>
-References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
- <87tw7oaj24.fsf@free-electrons.com>
- <20170220173633.d4ke4eohaacgsw3h@piout.net>
- <20170220175054.GP21222@n2100.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170220175054.GP21222@n2100.armlinux.org.uk>
+Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
+        by gmr-mx.google.com with ESMTP id f7si461708pfk.5.2017.02.10.10.12.35
+        for <rtc-linux@googlegroups.com>;
+        Fri, 10 Feb 2017 10:12:36 -0800 (PST)
+From: H Hartley Sweeten <hsweeten@visionengravers.com>
+To: rtc-linux@googlegroups.com
+Cc: alex@digriz.org.uk,
+	H Hartley Sweeten <hsweeten@visionengravers.com>
+Subject: [rtc-linux] [PATCH 0/3] rtc: m48t86: cleanup driver and add NVRAM support
+Date: Fri, 10 Feb 2017 11:11:54 -0700
+Message-Id: <20170210181157.6283-1-hsweeten@visionengravers.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,35 +22,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/02/2017 at 17:50:54 +0000, Russell King - ARM Linux wrote:
-> > The question being what does that do and whether it could be done in the
-> > driver instead.
-> 
-> It's not specific to the Armada 8040, the same problem exists with
-> Armada 38x, so holding this up for that reason does not make sense.
-> 
+This rtc driver is currently only used by the Technologic Systems TS-72xx
+(arm/mach-ep93xx) and TS-78xx (arm/mach-orion5x) SBCs. These platforms use
+static I/O mappings for the registers needed to access the index and data
+registers of the chip.
 
-I agree, I will not delay the patch for that.
+On the TS-78xx there is one I/O mapping of SZ_1M for the entire FPGA address
+space. The rtc index and data registers are located in that space along with
+all the other FPGA devices.
 
-> I suspect that the errata is "RTC is not reset at power up" for the RTC
-> power domain.
-> 
-> I don't know where the value of 0x2000 comes from for the correction
-> value, all I know is that's the value uboot uses with "date reset".
-> We probably do _not_ want the driver writing that each time the
-> kernel boots, since that's a tuning parameter.
-> 
+On the TS-72xx the mapping is a bit uglier. That platform uses a CPLD to
+access the rtc. The CPLD is connected to two chip select lines of the
+processor and each chip select addresses 256 MiB. Address lines 25-22 and 0
+are then decoded for the various devices. Since mapping the entire 256 MiB
+for each address space would be _really_ ugly, a SZ_4K mapping is done for
+each register that is needed.
 
-It is probably a calibration offset. It may be worth exposing to
-userspace but without more information, I doubt we can make something
-useful out of it.
+This series does the following:
+ 1) Cleanup this driver to remove all the checkpatch.pl issues.
+ 2) Modify the probe to, optionally, ioremap the resources provided by the
+    platform and handle the read/write operations internally.
+ 3) Add support for the NVRAM in the rtc.
 
+With these changes the static I/O mappings for the rtc registers can be
+removed from the ts-72xx platform.
 
+Currently the ts78xx platform does some "probing" of the rtc NVRAM to see
+if it is actually present before registering the rtc device. This "probing"
+just checks if the NVRAM is present by reading/writing the last two bytes
+of the NVRAM. I'm not sure if this is really necessary. If it can be removed
+all the m48t86_ops stuff could also be removed from this driver, along with
+platform_data/rtc-m48t86.h.
+
+H Hartley Sweeten (3):
+  rtc: m48t86: shorten register name defines
+  rtc: m48t86: allow driver to manage it's resources
+  rtc: m48t86: add NVRAM support
+
+ drivers/rtc/rtc-m48t86.c | 247 ++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 169 insertions(+), 78 deletions(-)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.10.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
