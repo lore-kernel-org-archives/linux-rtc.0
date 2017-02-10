@@ -1,82 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBT4VV7CQKGQEXSPUAMA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDM47J4M6QEBBFEF7DCAKGQECV3VMPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id d63si733599pfe.2.2017.02.20.21.06.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Feb 2017 21:06:23 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
+Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
+        by gmr-mx.google.com with ESMTP id u12si471517pfd.3.2017.02.10.10.12.36
+        for <rtc-linux@googlegroups.com>;
+        Fri, 10 Feb 2017 10:12:36 -0800 (PST)
+From: H Hartley Sweeten <hsweeten@visionengravers.com>
+To: rtc-linux@googlegroups.com
+Cc: alex@digriz.org.uk,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:47 -0700
-Message-Id: <1487653253-11497-9-git-send-email-logang@deltatee.com>
-In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 08/14] iio:core: utilize new device_add_cdev
- helper function
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 3/3] rtc: m48t86: add NVRAM support
+Date: Fri, 10 Feb 2017 11:11:57 -0700
+Message-Id: <20170210181157.6283-4-hsweeten@visionengravers.com>
+In-Reply-To: <20170210181157.6283-1-hsweeten@visionengravers.com>
+References: <20170210181157.6283-1-hsweeten@visionengravers.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -87,27 +26,92 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/iio/industrialio-core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+This RTC has 114 bytes of NVRAM. Provide access to it via a biniary
+sysfs 'nvram' attribute file.
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index aaca428..b0ef245 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1718,8 +1718,7 @@ int iio_device_register(struct iio_dev *indio_dev)
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alexander Clouter <alex@digriz.org.uk>
+---
+ drivers/rtc/rtc-m48t86.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index 4dcdbd2..4dc4af4 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -38,6 +38,8 @@
+ #define M48T86_C		0x0c
+ #define M48T86_D		0x0d
+ #define M48T86_D_VRT		BIT(7)
++#define M48T86_NVRAM(x)		(0x0e + (x))
++#define M48T86_NVRAM_LEN	114
  
- 	cdev_init(&indio_dev->chrdev, &iio_buffer_fileops);
- 	indio_dev->chrdev.owner = indio_dev->info->driver_module;
--	indio_dev->chrdev.kobj.parent = &indio_dev->dev.kobj;
--	ret = cdev_add(&indio_dev->chrdev, indio_dev->dev.devt, 1);
-+	ret = device_add_cdev(&indio_dev->dev, &indio_dev->chrdev);
- 	if (ret < 0)
- 		goto error_unreg_eventset;
+ struct m48t86_rtc_info {
+ 	void __iomem *index_reg;
+@@ -170,6 +172,35 @@ static const struct rtc_class_ops m48t86_rtc_ops = {
+ 	.proc		= m48t86_rtc_proc,
+ };
  
++static ssize_t m48t86_nvram_read(struct file *filp, struct kobject *kobj,
++				 struct bin_attribute *attr,
++				 char *buf, loff_t off, size_t count)
++{
++	struct device *dev = kobj_to_dev(kobj);
++	unsigned int i;
++
++	for (i = 0; i < count; i++)
++		buf[i] = m48t86_readb(dev, M48T86_NVRAM(off + i));
++
++	return count;
++}
++
++static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
++				  struct bin_attribute *attr,
++				  char *buf, loff_t off, size_t count)
++{
++	struct device *dev = kobj_to_dev(kobj);
++	unsigned int i;
++
++	for (i = 0; i < count; i++)
++		m48t86_writeb(dev, buf[i], M48T86_NVRAM(off + i));
++
++	return count;
++}
++
++static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
++		M48T86_NVRAM_LEN);
++
+ static int m48t86_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct m48t86_rtc_info *info;
+@@ -210,6 +241,15 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+ 	dev_info(&pdev->dev, "battery %s\n",
+ 		 (reg & M48T86_D_VRT) ? "ok" : "exhausted");
+ 
++	if (device_create_bin_file(&pdev->dev, &bin_attr_nvram))
++		dev_err(&pdev->dev, "failed to create nvram sysfs entry\n");
++
++	return 0;
++}
++
++static int m48t86_rtc_remove(struct platform_device *pdev)
++{
++	device_remove_bin_file(&pdev->dev, &bin_attr_nvram);
+ 	return 0;
+ }
+ 
+@@ -218,6 +258,7 @@ static struct platform_driver m48t86_rtc_platform_driver = {
+ 		.name	= "rtc-m48t86",
+ 	},
+ 	.probe		= m48t86_rtc_probe,
++	.remove		= m48t86_rtc_remove,
+ };
+ 
+ module_platform_driver(m48t86_rtc_platform_driver);
 -- 
-2.1.4
+2.10.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
