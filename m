@@ -1,91 +1,71 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBHXW2LCQKGQELBJI7ZY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-ot0-f196.google.com (mail-ot0-f196.google.com. [74.125.82.196])
-        by gmr-mx.google.com with ESMTPS id a17si1583119itd.1.2017.02.27.15.49.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Feb 2017 15:49:50 -0800 (PST)
-Received: by mail-ot0-f196.google.com with SMTP id k4so10034116otc.0
-        for <rtc-linux@googlegroups.com>; Mon, 27 Feb 2017 15:49:50 -0800 (PST)
-Date: Mon, 27 Feb 2017 17:49:49 -0600
-From: Rob Herring <robh@kernel.org>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv3 2/2] rtc: cpcap: new rtc driver
-Message-ID: <20170227234949.ylaf2n3jrwtzoemy@rob-hp-laptop>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170223010353.24351-1-sre@kernel.org>
- <20170223010353.24351-2-sre@kernel.org>
+Date: Sun, 12 Feb 2017 00:21:35 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: pcf2127: bulk read only date and time
+ registers.
+Message-ID: <20170211232135.7bxr4t3pyhdmidh5@piout.net>
+References: <20170201124525.36578-1-sean.nyekjaer@prevas.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170223010353.24351-2-sre@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170201124525.36578-1-sean.nyekjaer@prevas.dk>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Feb 23, 2017 at 02:03:53AM +0100, Sebastian Reichel wrote:
-> This driver supports the Motorola CPCAP PMIC found on
-> some of Motorola's mobile phones, such as the Droid 4.
+Hi,
+
+On 01/02/2017 at 13:45:25 +0100, Sean Nyekjaer wrote:
+> Read control registers one by one and bulk read time registers.
+> This fixes when the clock is read, the watchdog counter register is zeroed.
 > 
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> The problem is latent without the watchdog patch
+> 
+> Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
 > ---
+> Only tested on pcf2127.
+> I think the pcf2127 have an issue when the register auto-incr is used,
+> when bulk reading the time the watchdog counter is zeroed and stopped.
 > 
-> Changes since PATCHv2:
->  - checkpatch fixes
->  - add comment for update irq
->  - introduced vendor prefix patch
-> Changes since PATCHv1:
->  - added device_init_wakeup() at the end of probe
->  - added Tested-by from Tony
+>  drivers/rtc/rtc-pcf2127.c | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
 > 
-> ---
->  .../devicetree/bindings/rtc/cpcap-rtc.txt          |  13 +
->  drivers/rtc/Kconfig                                |   7 +
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-cpcap.c                            | 332 +++++++++++++++++++++
->  4 files changed, 353 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
->  create mode 100644 drivers/rtc/rtc-cpcap.c
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-> new file mode 100644
-> index 000000000000..2709c32baf2c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-> @@ -0,0 +1,13 @@
-> +Motorola CPCAP PMIC RTC
-> +------------------------------------
+> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> index 8abc4eb8f289..f54a42b419b5 100644
+> --- a/drivers/rtc/rtc-pcf2127.c
+> +++ b/drivers/rtc/rtc-pcf2127.c
+> @@ -403,9 +403,21 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+>  	unsigned char buf[10];
+>  	int ret;
+> +	int i;
+> +
+> +	for (i = 0; i < 3; i++) {
+> +		ret =
+> +		    regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1 + i,
+> +				(unsigned int *)(buf + i));
+> +		if (ret) {
+> +			dev_err(dev, "%s: read error\n", __func__);
+> +			return ret;
+> +		}
+> +	}
 
-Need to state what this is a child of.
 
-> +
-> +Requires node properties:
-> +- compatible: should contain "motorola,cpcap-rtc"
-> +- interrupts: An interrupt specifier for alarm and 1 Hz irq
-> +
-> +Example:
-> +
-> +cpcap_rtc: rtc {
-> +	compatible = "motorola,cpcap-rtc";
-> +	interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
-> +};
+CTRL1 and CTRL2 are not used so it is probably enough to only read CTRL3
+
+>  
+> -	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, buf,
+> -				sizeof(buf));
+> +	ret =
+> +	    regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1 + 3, (buf + 3),
+> +			     7);
+
+This is weirdly indented/wrapped. Also, you can probably make buf a
+char[7] and continue using sizeof() or even better, ARRAY_SIZE()
+
+>  	if (ret) {
+>  		dev_err(dev, "%s: read error\n", __func__);
+>  		return ret;
 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
