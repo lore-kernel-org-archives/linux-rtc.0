@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBCQPVKWLVAIRBBOLVTCQKGQE5HKQD6Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBKWB73CAKGQEM3KWV7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from muru.com (muru.com. [72.249.23.125])
-        by gmr-mx.google.com with ESMTP id h130si2382684pfe.1.2017.02.20.09.21.09
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id i80si318706wmf.0.2017.02.11.15.39.22
         for <rtc-linux@googlegroups.com>;
-        Mon, 20 Feb 2017 09:21:09 -0800 (PST)
-Date: Mon, 20 Feb 2017 09:21:04 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Sebastian Reichel <sre@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+        Sat, 11 Feb 2017 15:39:22 -0800 (PST)
+Date: Sun, 12 Feb 2017 00:39:21 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Chen-Yu Tsai <wens@csie.org>, Wei Yongjun <weiyongjun1@huawei.com>,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/1] rtc: cpcap: new rtc driver
-Message-ID: <20170220172103.GI21809@atomide.com>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170220073535.27393-2-sre@kernel.org>
- <20170220163155.GH21809@atomide.com>
- <20170220163858.4ocqnfhei67wbtl3@piout.net>
+Subject: [rtc-linux] Re: [PATCH -next] rtc: sun6i: Fix return value check in sun6i_rtc_clk_init()
+Message-ID: <20170211233921.brhtcoaozzhyw2wn@piout.net>
+References: <20170209001613.21665-1-weiyj.lk@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170220163858.4ocqnfhei67wbtl3@piout.net>
+In-Reply-To: <20170209001613.21665-1-weiyj.lk@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,45 +27,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-* Alexandre Belloni <alexandre.belloni@free-electrons.com> [170220 08:40]:
-> On 20/02/2017 at 08:31:56 -0800, Tony Lindgren wrote:
-> > * Sebastian Reichel <sre@kernel.org> [170219 23:37]:
-> > > This driver supports the Motorola CPCAP PMIC found on
-> > > some of Motorola's mobile phones, such as the Droid 4.
-> > 
-> > Hey that's cool, works for me for reading and setting date :)
-> > Just noticed one thing, see below.
-> > 
-> > > +Requires node properties:
-> > > +- compatible: should contain "motorola,cpcap-rtc"
-> > > +- interrupts: An interrupt specifier for alarm and 1 Hz irq
-> > > +
-> > > +Example:
-> > > +
-> > > +cpcap_rtc: rtc {
-> > > +	compatible = "motorola,cpcap-rtc";
-> > > +	interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
-> > > +};
-> > 
-> > I tried rtcwake -s 3, but got the following:
-> > 
-> > rtcwake: cannot open /sys/class/rtc/rtc0/device/power/wakeup:
-> > No such file or directory
-> > rtcwake: /dev/rtc0 not enabled for wakeup events
-> > 
-> > Then tried adding "wakeup-source" to above but I think the driver
-> > needs something, maybe probably just PM ops?
-> > 
+On 09/02/2017 at 00:16:13 +0000, Wei Yongjun wrote:
+> From: Wei Yongjun <weiyongjun1@huawei.com>
 > 
-> Probably device_init_wakeup(dev, 1) ?
+> In case of error, the function of_io_request_and_map() returns ERR_PTR()
+> and never returns NULL. The NULL test in the return value check should
+> be replaced with IS_ERR().
+> 
+> Fixes: 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> ---
+>  drivers/rtc/rtc-sun6i.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-That gets us a bit closer but now produces:
-
-rtcwake: write error
-
-Regards,
-
-Tony
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
