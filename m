@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBC6YH6VTZQDRBIM4TPCQKGQEQF6GSMY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBEMDR3CQKGQEEP7WXOQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si56587wma.3.2017.02.17.02.19.13
-        for <rtc-linux@googlegroups.com>;
-        Fri, 17 Feb 2017 02:19:13 -0800 (PST)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] [PATCH v2 0/3] Extend rtc-armada38x support for Armada 7K/8K
-Date: Fri, 17 Feb 2017 11:19:04 +0100
-Message-Id: <20170217101907.8963-1-gregory.clement@free-electrons.com>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id q4si141611wma.3.2017.02.14.14.15.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Feb 2017 14:15:44 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Date: Tue, 14 Feb 2017 23:15:29 +0100
+Message-Id: <20170214221529.6434-4-enric.balletbo@collabora.com>
+In-Reply-To: <20170214221529.6434-1-enric.balletbo@collabora.com>
+References: <20170214221529.6434-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,39 +28,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-the SOC integration differs in 2 points:
-     - MBUS bridge timing initialization
-     - IRQ configuration at SoC level
+From: Stephen Barber <smbarber@chromium.org>
 
-This patch set extends the driver support to these SoCs family.
+If the EC supports RTC host commands, expose an RTC device.
 
-In this second version the device tree was updated allowing to use the
-RTC on Armada 80x0 SoCs. Indeed on the Armada 80x0, the RTC clock in
-CP master is not connected (by package) to the oscillator. So this one
-is disabled for the Armada 8020 and the Armada 8040. On these SoCs it
-will be the RTC clock in CP slave connected to the oscillator which
-will be used.
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Benson Leung <bleung@chromium.org>
+---
+Changes since v2:
+ - Acked by Benson Leung
+Changes since v1:
+ - none
 
-Thanks,
+ drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-Gregory
-
-Gregory CLEMENT (3):
-  rtc: armada38x: Prepare driver to manage different versions
-  rtc: armada38x: Add support for Armada 7K/8K
-  arm64: dts: marvell: add RTC description for Armada 7K/8K
-
- .../devicetree/bindings/rtc/armada-380-rtc.txt     |   8 +-
- arch/arm64/boot/dts/marvell/armada-8020.dtsi       |  10 +
- arch/arm64/boot/dts/marvell/armada-8040.dtsi       |   9 +
- .../boot/dts/marvell/armada-cp110-master.dtsi      |   7 +
- .../arm64/boot/dts/marvell/armada-cp110-slave.dtsi |   7 +
- drivers/rtc/rtc-armada38x.c                        | 217 ++++++++++++++++-----
- 6 files changed, 202 insertions(+), 56 deletions(-)
-
+diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
+index 47268ec..ebe029d 100644
+--- a/drivers/platform/chrome/cros_ec_dev.c
++++ b/drivers/platform/chrome/cros_ec_dev.c
+@@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
+ 	kfree(msg);
+ }
+ 
++static const struct mfd_cell cros_ec_rtc_devs[] = {
++	{
++		.name = "cros-ec-rtc",
++		.id   = -1,
++	},
++};
++
++static void cros_ec_rtc_register(struct cros_ec_dev *ec)
++{
++	int ret;
++
++	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
++			      ARRAY_SIZE(cros_ec_rtc_devs),
++			      NULL, 0, NULL);
++	if (ret)
++		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
++}
++
+ static int ec_device_probe(struct platform_device *pdev)
+ {
+ 	int retval = -ENOMEM;
+@@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
+ 	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+ 		cros_ec_sensors_register(ec);
+ 
++	/* check whether this EC instance has RTC host command support */
++	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
++		cros_ec_rtc_register(ec);
++
+ 	return 0;
+ 
+ dev_reg_failed:
 -- 
-2.11.0
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
