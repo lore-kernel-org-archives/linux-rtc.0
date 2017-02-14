@@ -1,20 +1,26 @@
-Return-Path: <rtc-linux+bncBCVK5RWD2QBRBPGJX3CQKGQE4SB3QUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBBUMRPCQKGQE35V56HA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from anchovy.45ru.net.au (anchovy1.45ru.net.au. [203.30.46.145])
-        by gmr-mx.google.com with ESMTPS id u12si1380709pfd.3.2017.02.23.19.12.59
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id h62si175415wme.2.2017.02.14.00.55.33
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Feb 2017 19:13:00 -0800 (PST)
-From: Phil Reid <preid@electromag.com.au>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-  preid@electromag.com.au, rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 1/1] rtc: ds3232: Call device_init_wakeup
- before device_register
-Date: Fri, 24 Feb 2017 11:12:51 +0800
-Message-Id: <1487905971-38303-1-git-send-email-preid@electromag.com.au>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 14 Feb 2017 00:55:33 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+To: Lee Jones <lee.jones@linaro.org>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <20170119123032.24679-1-enric.balletbo@collabora.com>
+ <20170119123032.24679-3-enric.balletbo@collabora.com>
+ <20170122233232.iin6frv7hme2y2jw@piout.net> <20170123121438.GM16020@dell>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+ Olof Johansson <olof@lixom.net>, Alessandro Zummo <a.zummo@towertech.it>,
+ Stephen Barber <smbarber@chromium.org>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Message-ID: <c492877b-5bd1-511a-7591-b4ff911ceabc@collabora.com>
+Date: Tue, 14 Feb 2017 09:55:25 +0100
+MIME-Version: 1.0
+In-Reply-To: <20170123121438.GM16020@dell>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,57 +29,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The wakealarm attribute is currently not exposed in the sysfs interface
-as the device has not been set as doing wakealarm when device_register
-is called. Changing the order of the calls fixes that problem. Interrupts
-are cleared in check_rtc_status prior to requesting the interrupt.
+Hi Lee,
 
-This is only set if an irq is defined. If irq registration fails then
-set wakeup_capable to false. With this change the sysfs wakealarm
-attribute will be left visible but it is non functional. rtcwake
-still returns that the device is not enabled for wakeup.
+On 23/01/17 13:14, Lee Jones wrote:
+> On Mon, 23 Jan 2017, Alexandre Belloni wrote:
+> 
+>> On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
+>>> From: Stephen Barber <smbarber@chromium.org>
+>>>
+>>> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+>>> Add a basic driver with this functionality.
+>>>
+>>> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+>>> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+>>
+>> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>>
+>> Lee, this can go through the mfd tree. Hopefully, nobody will add a new
+>> driver nearby ;)
+> 
+> Yes, I can take the set, once all of the Acks are obtained.
+> 
 
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
+Now that the patch series have all the acks, this will finally go through the mfd tree?
 
-Notes:
-    Changes from v1:
-    - Don't register the irq before device_register call.
-      but set the capability if a irq is defined.
-      Unset wakeup capability if irq registration fails.
+I suppose is too late for the upcoming merge window ... so just want to make sure which tree I should monitor to not forget it :)
 
- drivers/rtc/rtc-ds3232.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Thanks,
+ Enric
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 60de3a0..9bb39a0 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -363,6 +363,9 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ret)
- 		return ret;
- 
-+	if (ds3232->irq > 0)
-+		device_init_wakeup(dev, 1);
-+
- 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
- 						THIS_MODULE);
- 	if (IS_ERR(ds3232->rtc))
-@@ -374,10 +377,10 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 						IRQF_SHARED | IRQF_ONESHOT,
- 						name, dev);
- 		if (ret) {
-+			device_set_wakeup_capable(dev, 0);
- 			ds3232->irq = 0;
- 			dev_err(dev, "unable to request IRQ\n");
--		} else
--			device_init_wakeup(dev, 1);
-+		}
- 	}
- 
- 	return 0;
--- 
-1.8.3.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
