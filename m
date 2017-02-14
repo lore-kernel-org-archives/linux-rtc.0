@@ -1,26 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK6SVTCQKGQEKOGB6XI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBD4DR3CQKGQE3TVV7RQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id y19si776527wmd.0.2017.02.20.09.36.43
-        for <rtc-linux@googlegroups.com>;
-        Mon, 20 Feb 2017 09:36:43 -0800 (PST)
-Date: Mon, 20 Feb 2017 18:36:33 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org, Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] Re: [PATCH v2 0/3] Extend rtc-armada38x support for
- Armada 7K/8K
-Message-ID: <20170220173633.d4ke4eohaacgsw3h@piout.net>
-References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
- <87tw7oaj24.fsf@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <87tw7oaj24.fsf@free-electrons.com>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id f7si229955wmg.3.2017.02.14.14.15.42
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Feb 2017 14:15:42 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
+	Gwendal Grignou <gwendal@chromium.org>
+Subject: [rtc-linux] [PATCH v3 1/4] mfd: cros_ec: Add helper for event notifier.
+Date: Tue, 14 Feb 2017 23:15:26 +0100
+Message-Id: <20170214221529.6434-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,48 +26,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/02/2017 at 18:06:11 +0100, Gregory CLEMENT wrote:
->  On ven., f=C3=A9vr. 17 2017, Gregory CLEMENT <gregory.clement@free-elect=
-rons.com> wrote:
->=20
-> > The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-> > the SOC integration differs in 2 points:
-> >      - MBUS bridge timing initialization
-> >      - IRQ configuration at SoC level
-> >
-> > This patch set extends the driver support to these SoCs family.
-> >
-> > In this second version the device tree was updated allowing to use the
-> > RTC on Armada 80x0 SoCs. Indeed on the Armada 80x0, the RTC clock in
-> > CP master is not connected (by package) to the oscillator. So this one
-> > is disabled for the Armada 8020 and the Armada 8040. On these SoCs it
-> > will be the RTC clock in CP slave connected to the oscillator which
-> > will be used.
->=20
-> I saw on IRC than Russell managed to have a more coherent date with this
-> series on his 8040 based board. For the record, as the U-Boot on this
-> board didn't provide a "date reset" command for the RTC located on CP
-> slave, then Russell needed to do the following:
->=20
-> devmem2 0xf428401c w 0
-> devmem2 0xf4284018 w 0x2000
+From: Gwendal Grignou <gwendal@chromium.org>
 
-The question being what does that do and whether it could be done in the
-driver instead.
+Add cros_ec_get_event() entry point to retrieve event within functions
+called by the notifier.
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+Changes since v2:
+ - none
+Changes since v1:
+ - Acked by Lee Jones
 
---=20
+ drivers/platform/chrome/cros_ec_proto.c | 20 ++++++++++++++++++++
+ include/linux/mfd/cros_ec.h             | 10 ++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index ed5dee7..7428c2b 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -494,3 +494,23 @@ int cros_ec_get_next_event(struct cros_ec_device *ec_dev)
+ 		return get_keyboard_state_event(ec_dev);
+ }
+ EXPORT_SYMBOL(cros_ec_get_next_event);
++
++u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev)
++{
++	u32 host_event;
++
++	BUG_ON(!ec_dev->mkbp_event_supported);
++
++	if (ec_dev->event_data.event_type != EC_MKBP_EVENT_HOST_EVENT)
++		return 0;
++
++	if (ec_dev->event_size != sizeof(host_event)) {
++		dev_warn(ec_dev->dev, "Invalid host event size\n");
++		return 0;
++	}
++
++	host_event = get_unaligned_le32(&ec_dev->event_data.data.host_event);
++
++	return host_event;
++}
++EXPORT_SYMBOL(cros_ec_get_host_event);
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index b3d04de..be2c4eb 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -299,6 +299,16 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev);
+  */
+ int cros_ec_get_next_event(struct cros_ec_device *ec_dev);
+ 
++/**
++ * cros_ec_get_host_event - Return a mask of event set by the EC.
++ *
++ * When MKBP is supported, when the EC raises an interrupt,
++ * We collect the events raised and call the functions in the ec notifier.
++ *
++ * This function is a helper to know which events are raised.
++ */
++u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev);
++
+ /* sysfs stuff */
+ extern struct attribute_group cros_ec_attr_group;
+ extern struct attribute_group cros_ec_lightbar_attr_group;
+-- 
+2.9.3
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
