@@ -1,27 +1,23 @@
-Return-Path: <rtc-linux+bncBC6YH6VTZQDRBIU4TPCQKGQEYZLQJQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBEEDR3CQKGQEKMHXLJQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id d5si56904wmc.1.2017.02.17.02.19.14
-        for <rtc-linux@googlegroups.com>;
-        Fri, 17 Feb 2017 02:19:14 -0800 (PST)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] [PATCH v2 1/3] rtc: armada38x: Prepare driver to manage
- different versions
-Date: Fri, 17 Feb 2017 11:19:05 +0100
-Message-Id: <20170217101907.8963-2-gregory.clement@free-electrons.com>
-In-Reply-To: <20170217101907.8963-1-gregory.clement@free-electrons.com>
-References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id 14si219613wmn.2.2017.02.14.14.15.44
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Feb 2017 14:15:44 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Lee Jones <lee.jones@linaro.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Olof Johansson <olof@lixom.net>,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v3 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+Date: Tue, 14 Feb 2017 23:15:28 +0100
+Message-Id: <20170214221529.6434-3-enric.balletbo@collabora.com>
+In-Reply-To: <20170214221529.6434-1-enric.balletbo@collabora.com>
+References: <20170214221529.6434-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,319 +28,481 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-In order to prepare the introduction of the A7K/A8K version of the RTC,
-this commit introduces a new data structure. This structure allows to
-handle the differences between the integration of the RTC IP in the
-SoCs. It will be:
- - MBUS bridge timing initialization
- - IRQ configuration at SoC level
+From: Stephen Barber <smbarber@chromium.org>
 
-Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+Add a basic driver with this functionality.
+
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-armada38x.c | 152 +++++++++++++++++++++++++++++---------------
- 1 file changed, 99 insertions(+), 53 deletions(-)
+Changes since v2:
+ - Acked by Alexandre Belloni
+Changes since v1:
+ - Moved RTC_DRV_CROS_EC after "Platform RTC drivers" (Alexandre Belloni)
+ - Remove check for invalid date/time as is not useful (Alexandre Belloni)
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 7cb5b27189db..b2a8e2ed71ca 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -16,6 +16,7 @@
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/rtc.h>
+ drivers/rtc/Kconfig       |  10 ++
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-cros-ec.c | 413 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 424 insertions(+)
+ create mode 100644 drivers/rtc/rtc-cros-ec.c
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index c93c5a8..59ab3d6 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1204,6 +1204,16 @@ config RTC_DRV_ZYNQMP
+ 	  If you say yes here you get support for the RTC controller found on
+ 	  Xilinx Zynq Ultrascale+ MPSoC.
  
-@@ -23,23 +24,23 @@
- #define RTC_STATUS_ALARM1	    BIT(0)
- #define RTC_STATUS_ALARM2	    BIT(1)
- #define RTC_IRQ1_CONF	    0x4
--#define RTC_IRQ1_AL_EN		    BIT(0)
--#define RTC_IRQ1_FREQ_EN	    BIT(1)
--#define RTC_IRQ1_FREQ_1HZ	    BIT(2)
-+#define RTC_IRQ_AL_EN		    BIT(0)
-+#define RTC_IRQ_FREQ_EN		    BIT(1)
-+#define RTC_IRQ_FREQ_1HZ	    BIT(2)
++config RTC_DRV_CROS_EC
++	tristate "Chrome OS EC RTC driver"
++	depends on MFD_CROS_EC
++	help
++	  If you say yes here you will get support for the
++	  Chrome OS Embedded Controller's RTC.
 +
- #define RTC_TIME	    0xC
- #define RTC_ALARM1	    0x10
--
--#define SOC_RTC_BRIDGE_TIMING_CTL   0x0
--#define SOC_RTC_PERIOD_OFFS		0
--#define SOC_RTC_PERIOD_MASK		(0x3FF << SOC_RTC_PERIOD_OFFS)
--#define SOC_RTC_READ_DELAY_OFFS		26
--#define SOC_RTC_READ_DELAY_MASK		(0x1F << SOC_RTC_READ_DELAY_OFFS)
--
--#define SOC_RTC_INTERRUPT   0x8
--#define SOC_RTC_ALARM1		BIT(0)
--#define SOC_RTC_ALARM2		BIT(1)
--#define SOC_RTC_ALARM1_MASK	BIT(2)
--#define SOC_RTC_ALARM2_MASK	BIT(3)
-+#define RTC_38X_BRIDGE_TIMING_CTL   0x0
-+#define RTC_38X_PERIOD_OFFS		0
-+#define RTC_38X_PERIOD_MASK		(0x3FF << RTC_38X_PERIOD_OFFS)
-+#define RTC_38X_READ_DELAY_OFFS		26
-+#define RTC_38X_READ_DELAY_MASK		(0x1F << RTC_38X_READ_DELAY_OFFS)
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-cros-ec.
 +
-+#define SOC_RTC_INTERRUPT	    0x8
-+#define SOC_RTC_ALARM1			BIT(0)
-+#define SOC_RTC_ALARM2			BIT(1)
-+#define SOC_RTC_ALARM1_MASK		BIT(2)
-+#define SOC_RTC_ALARM2_MASK		BIT(3)
+ comment "on-CPU RTC drivers"
  
- #define SAMPLE_NR 100
- 
-@@ -55,6 +56,19 @@ struct armada38x_rtc {
- 	spinlock_t	    lock;
- 	int		    irq;
- 	struct value_to_freq *val_to_freq;
-+	struct armada38x_rtc_data *data;
+ config RTC_DRV_ASM9260
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index f13ab1c..dd753e6 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -40,6 +40,7 @@ obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
+ obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
+ obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
+ obj-$(CONFIG_RTC_DRV_COH901331)	+= rtc-coh901331.o
++obj-$(CONFIG_RTC_DRV_CROS_EC)	+= rtc-cros-ec.o
+ obj-$(CONFIG_RTC_DRV_DA9052)	+= rtc-da9052.o
+ obj-$(CONFIG_RTC_DRV_DA9055)	+= rtc-da9055.o
+ obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+new file mode 100644
+index 0000000..f0ea689
+--- /dev/null
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -0,0 +1,413 @@
++/*
++ * RTC driver for Chrome OS Embedded Controller
++ *
++ * Copyright (c) 2017, Google, Inc
++ *
++ * Author: Stephen Barber <smbarber@chromium.org>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++
++#include <linux/kernel.h>
++#include <linux/mfd/cros_ec.h>
++#include <linux/mfd/cros_ec_commands.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++#include <linux/slab.h>
++
++#define DRV_NAME	"cros-ec-rtc"
++
++/**
++ * struct cros_ec_rtc - Driver data for EC RTC
++ *
++ * @cros_ec: Pointer to EC device
++ * @rtc: Pointer to RTC device
++ * @notifier: Notifier info for responding to EC events
++ * @saved_alarm: Alarm to restore when interrupts are reenabled
++ */
++struct cros_ec_rtc {
++	struct cros_ec_device *cros_ec;
++	struct rtc_device *rtc;
++	struct notifier_block notifier;
++	u32 saved_alarm;
 +};
 +
-+#define ALARM1	0
-+#define ALARM_REG(base, alarm)	 ((base) + (alarm) * sizeof(u32))
-+
-+struct armada38x_rtc_data {
-+	/* Initialize the RTC-MBUS bridge timing */
-+	void (*update_mbus_timing)(struct armada38x_rtc *rtc);
-+	u32 (*read_rtc_reg)(struct armada38x_rtc *rtc, u8 rtc_reg);
-+	void (*clear_isr)(struct armada38x_rtc *rtc);
-+	void (*unmask_interrupt)(struct armada38x_rtc *rtc);
-+	u32 alarm;
- };
- 
- /*
-@@ -76,19 +90,19 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
- }
- 
- /* Update RTC-MBUS bridge timing parameters */
--static void rtc_update_mbus_timing_params(struct armada38x_rtc *rtc)
-+static void rtc_update_38x_mbus_timing_params(struct armada38x_rtc *rtc)
- {
- 	u32 reg;
- 
--	reg = readl(rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
--	reg &= ~SOC_RTC_PERIOD_MASK;
--	reg |= 0x3FF << SOC_RTC_PERIOD_OFFS; /* Maximum value */
--	reg &= ~SOC_RTC_READ_DELAY_MASK;
--	reg |= 0x1F << SOC_RTC_READ_DELAY_OFFS; /* Maximum value */
--	writel(reg, rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
-+	reg = readl(rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
-+	reg &= ~RTC_38X_PERIOD_MASK;
-+	reg |= 0x3FF << RTC_38X_PERIOD_OFFS; /* Maximum value */
-+	reg &= ~RTC_38X_READ_DELAY_MASK;
-+	reg |= 0x1F << RTC_38X_READ_DELAY_OFFS; /* Maximum value */
-+	writel(reg, rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
- }
- 
--static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
-+static u32 read_rtc_register_38x_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
- {
- 	int i, index_max = 0, max = 0;
- 
-@@ -130,13 +144,26 @@ static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
- 	return rtc->val_to_freq[index_max].value;
- }
- 
-+static void armada38x_clear_isr(struct armada38x_rtc *rtc)
++static int cros_ec_rtc_get(struct cros_ec_device *cros_ec, u32 command,
++			   u32 *response)
 +{
-+	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++	int ret;
++	struct {
++		struct cros_ec_command msg;
++		struct ec_response_rtc data;
++	} __packed msg;
 +
-+	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
++	memset(&msg, 0, sizeof(msg));
++	msg.msg.command = command;
++	msg.msg.insize = sizeof(msg.data);
++
++	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
++	if (ret < 0) {
++		dev_err(cros_ec->dev,
++			"error getting %s from EC: %d\n",
++			command == EC_CMD_RTC_GET_VALUE ? "time" : "alarm",
++			ret);
++		return ret;
++	}
++
++	*response = msg.data.time;
++
++	return 0;
 +}
 +
-+static void armada38x_unmask_interrupt(struct armada38x_rtc *rtc)
++static int cros_ec_rtc_set(struct cros_ec_device *cros_ec, u32 command,
++			   u32 param)
 +{
-+	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++	int ret = 0;
++	struct {
++		struct cros_ec_command msg;
++		struct ec_response_rtc data;
++	} __packed msg;
 +
-+	writel(val | SOC_RTC_ALARM1_MASK, rtc->regs_soc + SOC_RTC_INTERRUPT);
++	memset(&msg, 0, sizeof(msg));
++	msg.msg.command = command;
++	msg.msg.outsize = sizeof(msg.data);
++	msg.data.time = param;
++
++	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
++	if (ret < 0) {
++		dev_err(cros_ec->dev, "error setting %s on EC: %d\n",
++			command == EC_CMD_RTC_SET_VALUE ? "time" : "alarm",
++			ret);
++		return ret;
++	}
++
++	return 0;
 +}
- static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
- 	unsigned long time, flags;
- 
- 	spin_lock_irqsave(&rtc->lock, flags);
--	time = read_rtc_register_wa(rtc, RTC_TIME);
-+	time = rtc->data->read_rtc_reg(rtc, RTC_TIME);
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
- 	rtc_time_to_tm(time, tm);
-@@ -167,12 +194,14 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
- 	unsigned long time, flags;
-+	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
-+	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 	u32 val;
- 
- 	spin_lock_irqsave(&rtc->lock, flags);
- 
--	time = read_rtc_register_wa(rtc, RTC_ALARM1);
--	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF) & RTC_IRQ1_AL_EN;
-+	time = rtc->data->read_rtc_reg(rtc, reg);
-+	val = rtc->data->read_rtc_reg(rtc, reg_irq) & RTC_IRQ_AL_EN;
- 
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
-@@ -185,9 +214,10 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-+	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
-+	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 	unsigned long time, flags;
- 	int ret = 0;
--	u32 val;
- 
- 	ret = rtc_tm_to_time(&alrm->time, &time);
- 
-@@ -196,13 +226,11 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	spin_lock_irqsave(&rtc->lock, flags);
- 
--	rtc_delayed_write(time, rtc, RTC_ALARM1);
-+	rtc_delayed_write(time, rtc, reg);
- 
- 	if (alrm->enabled) {
--			rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
--			val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
--			writel(val | SOC_RTC_ALARM1_MASK,
--			       rtc->regs_soc + SOC_RTC_INTERRUPT);
-+		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
-+		rtc->data->unmask_interrupt(rtc);
- 	}
- 
- 	spin_unlock_irqrestore(&rtc->lock, flags);
-@@ -215,14 +243,15 @@ static int armada38x_rtc_alarm_irq_enable(struct device *dev,
- 					 unsigned int enabled)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-+	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&rtc->lock, flags);
- 
- 	if (enabled)
--		rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
-+		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
- 	else
--		rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
-+		rtc_delayed_write(0, rtc, reg_irq);
- 
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
-@@ -234,24 +263,23 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
- 	struct armada38x_rtc *rtc = data;
- 	u32 val;
- 	int event = RTC_IRQF | RTC_AF;
-+	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 
- 	dev_dbg(&rtc->rtc_dev->dev, "%s:irq(%d)\n", __func__, irq);
- 
- 	spin_lock(&rtc->lock);
- 
--	val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
--
--	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
--	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF);
--	/* disable all the interrupts for alarm 1 */
--	rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
-+	rtc->data->clear_isr(rtc);
-+	val = rtc->data->read_rtc_reg(rtc, reg_irq);
-+	/* disable all the interrupts for alarm*/
-+	rtc_delayed_write(0, rtc, reg_irq);
- 	/* Ack the event */
--	rtc_delayed_write(RTC_STATUS_ALARM1, rtc, RTC_STATUS);
-+	rtc_delayed_write(1 << rtc->data->alarm, rtc, RTC_STATUS);
- 
- 	spin_unlock(&rtc->lock);
- 
--	if (val & RTC_IRQ1_FREQ_EN) {
--		if (val & RTC_IRQ1_FREQ_1HZ)
-+	if (val & RTC_IRQ_FREQ_EN) {
-+		if (val & RTC_IRQ_FREQ_1HZ)
- 			event |= RTC_UF;
- 		else
- 			event |= RTC_PF;
-@@ -276,13 +304,37 @@ static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
- 	.read_alarm = armada38x_rtc_read_alarm,
- };
- 
-+static const struct armada38x_rtc_data armada38x_data = {
-+	.update_mbus_timing = rtc_update_38x_mbus_timing_params,
-+	.read_rtc_reg = read_rtc_register_38x_wa,
-+	.clear_isr = armada38x_clear_isr,
-+	.unmask_interrupt = armada38x_unmask_interrupt,
-+	.alarm = ALARM1,
++
++/* Read the current time from the EC. */
++static int cros_ec_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
++	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
++	int ret;
++	u32 time;
++
++	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &time);
++	if (ret) {
++		dev_err(dev, "error getting time: %d\n", ret);
++		return ret;
++	}
++
++	rtc_time64_to_tm(time, tm);
++
++	return 0;
++}
++
++/* Set the current EC time. */
++static int cros_ec_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
++	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
++	int ret;
++	time64_t time;
++
++	time = rtc_tm_to_time64(tm);
++	if (time < 0 || time > U32_MAX)
++		return -EINVAL;
++
++	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_VALUE, (u32)time);
++	if (ret < 0) {
++		dev_err(dev, "error setting time: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++/* Read alarm time from RTC. */
++static int cros_ec_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
++	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
++	int ret;
++	u32 current_time, alarm_offset;
++
++	/*
++	 * The EC host command for getting the alarm is relative (i.e. 5
++	 * seconds from now) whereas rtc_wkalrm is absolute. Get the current
++	 * RTC time first so we can calculate the relative time.
++	 */
++	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
++	if (ret < 0) {
++		dev_err(dev, "error getting time: %d\n", ret);
++		return ret;
++	}
++
++	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_ALARM, &alarm_offset);
++	if (ret < 0) {
++		dev_err(dev, "error getting alarm: %d\n", ret);
++		return ret;
++	}
++
++	rtc_time64_to_tm(current_time + alarm_offset, &alrm->time);
++
++	return 0;
++}
++
++/* Set the EC's RTC alarm. */
++static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
++	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
++	int ret;
++	time64_t alarm_time;
++	u32 current_time, alarm_offset;
++
++	/*
++	 * The EC host command for setting the alarm is relative
++	 * (i.e. 5 seconds from now) whereas rtc_wkalrm is absolute.
++	 * Get the current RTC time first so we can calculate the
++	 * relative time.
++	 */
++	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
++	if (ret < 0) {
++		dev_err(dev, "error getting time: %d\n", ret);
++		return ret;
++	}
++
++	alarm_time = rtc_tm_to_time64(&alrm->time);
++
++	if (alarm_time < 0 || alarm_time > U32_MAX)
++		return -EINVAL;
++
++	if (!alrm->enabled) {
++		/*
++		 * If the alarm is being disabled, send an alarm
++		 * clear command.
++		 */
++		alarm_offset = EC_RTC_ALARM_CLEAR;
++		cros_ec_rtc->saved_alarm = (u32)alarm_time;
++	} else {
++		/* Don't set an alarm in the past. */
++		if ((u32)alarm_time < current_time)
++			alarm_offset = EC_RTC_ALARM_CLEAR;
++		else
++			alarm_offset = (u32)alarm_time - current_time;
++	}
++
++	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
++	if (ret < 0) {
++		dev_err(dev, "error setting alarm: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int cros_ec_rtc_alarm_irq_enable(struct device *dev,
++					unsigned int enabled)
++{
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
++	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
++	int ret;
++	u32 current_time, alarm_offset, alarm_value;
++
++	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
++	if (ret < 0) {
++		dev_err(dev, "error getting time: %d\n", ret);
++		return ret;
++	}
++
++	if (enabled) {
++		/* Restore saved alarm if it's still in the future. */
++		if (cros_ec_rtc->saved_alarm < current_time)
++			alarm_offset = EC_RTC_ALARM_CLEAR;
++		else
++			alarm_offset = cros_ec_rtc->saved_alarm - current_time;
++
++		ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM,
++				      alarm_offset);
++		if (ret < 0) {
++			dev_err(dev, "error restoring alarm: %d\n", ret);
++			return ret;
++		}
++	} else {
++		/* Disable alarm, saving the old alarm value. */
++		ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_ALARM,
++				      &alarm_offset);
++		if (ret < 0) {
++			dev_err(dev, "error saving alarm: %d\n", ret);
++			return ret;
++		}
++
++		alarm_value = current_time + alarm_offset;
++
++		/*
++		 * If the current EC alarm is already past, we don't want
++		 * to set an alarm when we go through the alarm irq enable
++		 * path.
++		 */
++		if (alarm_value < current_time)
++			cros_ec_rtc->saved_alarm = EC_RTC_ALARM_CLEAR;
++		else
++			cros_ec_rtc->saved_alarm = alarm_value;
++
++		alarm_offset = EC_RTC_ALARM_CLEAR;
++		ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM,
++				      alarm_offset);
++		if (ret < 0) {
++			dev_err(dev, "error disabling alarm: %d\n", ret);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++static int cros_ec_rtc_event(struct notifier_block *nb,
++			     unsigned long queued_during_suspend,
++			     void *_notify)
++{
++	struct cros_ec_rtc *cros_ec_rtc;
++	struct rtc_device *rtc;
++	struct cros_ec_device *cros_ec;
++	u32 host_event;
++
++	cros_ec_rtc = container_of(nb, struct cros_ec_rtc, notifier);
++	rtc = cros_ec_rtc->rtc;
++	cros_ec = cros_ec_rtc->cros_ec;
++
++	host_event = cros_ec_get_host_event(cros_ec);
++	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_RTC)) {
++		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
++		return NOTIFY_OK;
++	} else {
++		return NOTIFY_DONE;
++	}
++}
++
++static const struct rtc_class_ops cros_ec_rtc_ops = {
++	.read_time = cros_ec_rtc_read_time,
++	.set_time = cros_ec_rtc_set_time,
++	.read_alarm = cros_ec_rtc_read_alarm,
++	.set_alarm = cros_ec_rtc_set_alarm,
++	.alarm_irq_enable = cros_ec_rtc_alarm_irq_enable,
 +};
 +
-+#ifdef CONFIG_OF
-+static const struct of_device_id armada38x_rtc_of_match_table[] = {
-+	{
-+		.compatible = "marvell,armada-380-rtc",
-+		.data = &armada38x_data,
-+	},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
++#ifdef CONFIG_PM_SLEEP
++static int cros_ec_rtc_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
++
++	return 0;
++}
++
++static int cros_ec_rtc_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
++
++	return 0;
++}
 +#endif
 +
- static __init int armada38x_rtc_probe(struct platform_device *pdev)
- {
- 	const struct rtc_class_ops *ops;
- 	struct resource *res;
- 	struct armada38x_rtc *rtc;
-+	const struct of_device_id *match;
- 	int ret;
- 
-+	match = of_match_device(armada38x_rtc_of_match_table, &pdev->dev);
-+	if (!match)
-+		return -ENODEV;
++static SIMPLE_DEV_PM_OPS(cros_ec_rtc_pm_ops, cros_ec_rtc_suspend,
++			 cros_ec_rtc_resume);
 +
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
- 			    GFP_KERNEL);
- 	if (!rtc)
-@@ -327,9 +379,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
- 		 */
- 		ops = &armada38x_rtc_ops_noirq;
- 	}
-+	rtc->data = (struct armada38x_rtc_data *)match->data;
++static int cros_ec_rtc_probe(struct platform_device *pdev)
++{
++	struct cros_ec_dev *ec_dev = dev_get_drvdata(pdev->dev.parent);
++	struct cros_ec_device *cros_ec = ec_dev->ec_dev;
++	struct cros_ec_rtc *cros_ec_rtc;
++	struct rtc_time tm;
++	int ret;
 +
- 
- 	/* Update RTC-MBUS bridge timing parameters */
--	rtc_update_mbus_timing_params(rtc);
-+	rtc->data->update_mbus_timing(rtc);
- 
- 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
- 						ops, THIS_MODULE);
-@@ -359,7 +413,7 @@ static int armada38x_rtc_resume(struct device *dev)
- 		struct armada38x_rtc *rtc = dev_get_drvdata(dev);
- 
- 		/* Update RTC-MBUS bridge timing parameters */
--		rtc_update_mbus_timing_params(rtc);
-+		rtc->data->update_mbus_timing(rtc);
- 
- 		return disable_irq_wake(rtc->irq);
- 	}
-@@ -371,14 +425,6 @@ static int armada38x_rtc_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(armada38x_rtc_pm_ops,
- 			 armada38x_rtc_suspend, armada38x_rtc_resume);
- 
--#ifdef CONFIG_OF
--static const struct of_device_id armada38x_rtc_of_match_table[] = {
--	{ .compatible = "marvell,armada-380-rtc", },
--	{}
--};
--MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
--#endif
--
- static struct platform_driver armada38x_rtc_driver = {
- 	.driver		= {
- 		.name	= "armada38x-rtc",
++	cros_ec_rtc = devm_kzalloc(&pdev->dev, sizeof(*cros_ec_rtc),
++				   GFP_KERNEL);
++	if (!cros_ec_rtc)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, cros_ec_rtc);
++	cros_ec_rtc->cros_ec = cros_ec;
++
++	/* Get initial time */
++	ret = cros_ec_rtc_read_time(&pdev->dev, &tm);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to read RTC time\n");
++		return ret;
++	}
++
++	ret = device_init_wakeup(&pdev->dev, 1);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to initialize wakeup\n");
++		return ret;
++	}
++
++	cros_ec_rtc->rtc = devm_rtc_device_register(&pdev->dev, DRV_NAME,
++						    &cros_ec_rtc_ops,
++						    THIS_MODULE);
++	if (IS_ERR(cros_ec_rtc->rtc)) {
++		ret = PTR_ERR(cros_ec_rtc->rtc);
++		dev_err(&pdev->dev, "failed to register rtc device\n");
++		return ret;
++	}
++
++	/* Get RTC events from the EC. */
++	cros_ec_rtc->notifier.notifier_call = cros_ec_rtc_event;
++	ret = blocking_notifier_chain_register(&cros_ec->event_notifier,
++					       &cros_ec_rtc->notifier);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to register notifier\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int cros_ec_rtc_remove(struct platform_device *pdev)
++{
++	struct cros_ec_rtc *cros_ec_rtc = platform_get_drvdata(pdev);
++	struct device *dev = &pdev->dev;
++	int ret;
++
++	ret = blocking_notifier_chain_unregister(
++				&cros_ec_rtc->cros_ec->event_notifier,
++				&cros_ec_rtc->notifier);
++	if (ret) {
++		dev_err(dev, "failed to unregister notifier\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static struct platform_driver cros_ec_rtc_driver = {
++	.probe = cros_ec_rtc_probe,
++	.remove = cros_ec_rtc_remove,
++	.driver = {
++		.name = DRV_NAME,
++		.pm = &cros_ec_rtc_pm_ops,
++	},
++};
++
++module_platform_driver(cros_ec_rtc_driver);
++
++MODULE_DESCRIPTION("RTC driver for Chrome OS ECs");
++MODULE_AUTHOR("Stephen Barber <smbarber@chromium.org>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" DRV_NAME);
 -- 
-2.11.0
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
