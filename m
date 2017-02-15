@@ -2,20 +2,16 @@ Return-Path: <rtc-linux+bncBDM47J4M6QEBBIUHSLCQKGQEDJHYVTI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id z73si761584pfa.2.2017.02.15.08.36.50
+        by gmr-mx.google.com with ESMTP id h130si317697pfe.1.2017.02.15.08.36.49
         for <rtc-linux@googlegroups.com>;
         Wed, 15 Feb 2017 08:36:50 -0800 (PST)
 From: H Hartley Sweeten <hsweeten@visionengravers.com>
 To: rtc-linux@googlegroups.com
 Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/5] rtc: m48t86: verify that the RTC is actually present
-Date: Wed, 15 Feb 2017 09:35:23 -0700
-Message-Id: <20170215163527.5697-2-hsweeten@visionengravers.com>
-In-Reply-To: <20170215163527.5697-1-hsweeten@visionengravers.com>
-References: <20170215163527.5697-1-hsweeten@visionengravers.com>
+	H Hartley Sweeten <hsweeten@visionengravers.com>
+Subject: [rtc-linux] [PATCH 0/5] rtc: m48t86: remove need for platform_data
+Date: Wed, 15 Feb 2017 09:35:22 -0700
+Message-Id: <20170215163527.5697-1-hsweeten@visionengravers.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,72 +22,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The RTC is an optional feature at purchase time on some Technologic
-Systems boards. Verify that it actually exists by checking if the
-last two bytes of the NVRAM can be changed.
+The rtc-m48t86 driver can now manage it's own resources for the index
+and data registers.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
----
- drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+  1) Add the RTC detection logic from the ts78xx platform to the driver
+     and remove it from the platform code.
+  2) Update the two platforms that use this driver to remove the need
+     for the platform_data.
+  3) Remove the, then unused, platform_data header and it's use in the
+     driver.
 
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index 4dc4af4..41ac5d6 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -201,6 +201,37 @@ static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
- static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
- 		M48T86_NVRAM_LEN);
- 
-+/*
-+ * The RTC is an optional feature at purchase time on some Technologic Systems
-+ * boards. Verify that it actually exists by checking if the last two bytes
-+ * of the NVRAM can be changed.
-+ *
-+ * This is based on the method used in their rtc7800.c example.
-+ */
-+static bool m48t86_verify_chip(struct platform_device *pdev)
-+{
-+	unsigned int offset0 = M48T86_NVRAM_LEN - 2;
-+	unsigned int offset1 = M48T86_NVRAM_LEN - 1;
-+	unsigned char tmp0, tmp1;
-+
-+	tmp0 = m48t86_readb(&pdev->dev, offset0);
-+	tmp1 = m48t86_readb(&pdev->dev, offset1);
-+
-+	m48t86_writeb(&pdev->dev, 0x00, offset0);
-+	m48t86_writeb(&pdev->dev, 0x55, offset1);
-+	if (m48t86_readb(&pdev->dev, offset1) == 0x55) {
-+		m48t86_writeb(&pdev->dev, 0xaa, offset1);
-+		if (m48t86_readb(&pdev->dev, offset1) == 0xaa &&
-+		    m48t86_readb(&pdev->dev, offset0) == 0x00) {
-+			m48t86_writeb(&pdev->dev, tmp0, offset0);
-+			m48t86_writeb(&pdev->dev, tmp1, offset1);
-+
-+			return true;
-+		}
-+	}
-+	return false;
-+}
-+
- static int m48t86_rtc_probe(struct platform_device *pdev)
- {
- 	struct m48t86_rtc_info *info;
-@@ -231,6 +262,11 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
- 
- 	dev_set_drvdata(&pdev->dev, info);
- 
-+	if (!m48t86_verify_chip(pdev)) {
-+		dev_info(&pdev->dev, "RTC not present\n");
-+		return -ENODEV;
-+	}
-+
- 	info->rtc = devm_rtc_device_register(&pdev->dev, "m48t86",
- 					     &m48t86_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(info->rtc))
+H Hartley Sweeten (5):
+  rtc: m48t86: verify that the RTC is actually present
+  ARM: Orion5x: ts78xx: remove RTC detection
+  ARM: Orion5x: ts78xx: allow rtc-m48t86 to manage it's own resources
+  ARM: ep93xx: ts72xx: allow rtc-m48t86 to manage it's own resources
+  rtc: m48t86: remove unused platform_data
+
+ arch/arm/mach-ep93xx/ts72xx.c            | 40 ++++-----------
+ arch/arm/mach-ep93xx/ts72xx.h            | 11 ----
+ arch/arm/mach-orion5x/ts78xx-setup.c     | 80 +++++++----------------------
+ drivers/rtc/rtc-m48t86.c                 | 87 ++++++++++++++++++++------------
+ include/linux/platform_data/rtc-m48t86.h | 16 ------
+ 5 files changed, 84 insertions(+), 150 deletions(-)
+ delete mode 100644 include/linux/platform_data/rtc-m48t86.h
+
 -- 
 2.10.0
 
