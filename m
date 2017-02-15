@@ -1,53 +1,23 @@
-Return-Path: <rtc-linux+bncBDZYPUPHYEJBBTNOZXCQKGQEPMLBXIQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDM47J4M6QEBBIUHSLCQKGQEDJHYVTI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-ot0-x22c.google.com (mail-ot0-x22c.google.com. [2607:f8b0:4003:c0f::22c])
-        by gmr-mx.google.com with ESMTPS id i189si1156956iti.0.2017.02.26.14.31.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Feb 2017 14:31:41 -0800 (PST)
-Received: by mail-ot0-x22c.google.com with SMTP id w44so41815974otw.2
-        for <rtc-linux@googlegroups.com>; Sun, 26 Feb 2017 14:31:41 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1488091097-12328-4-git-send-email-logang@deltatee.com>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com> <1488091097-12328-4-git-send-email-logang@deltatee.com>
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Sun, 26 Feb 2017 14:31:40 -0800
-Message-ID: <CAPcyv4i6yucmRr9HaqLiA+QCH7AbB=RS28_Jcix292wq1OV4YA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 03/16] device-dax: utilize new
- cdev_device_add helper function
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>, Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>, David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>, Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>, Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>, Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
+Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
+        by gmr-mx.google.com with ESMTP id z73si761584pfa.2.2017.02.15.08.36.50
+        for <rtc-linux@googlegroups.com>;
+        Wed, 15 Feb 2017 08:36:50 -0800 (PST)
+From: H Hartley Sweeten <hsweeten@visionengravers.com>
+To: rtc-linux@googlegroups.com
+Cc: alex@digriz.org.uk,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>, Bjorn Helgaas <bhelgaas@google.com>,
-	linux-pci@vger.kernel.org, linux-scsi <linux-scsi@vger.kernel.org>,
-	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
-	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	"linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH 1/5] rtc: m48t86: verify that the RTC is actually present
+Date: Wed, 15 Feb 2017 09:35:23 -0700
+Message-Id: <20170215163527.5697-2-hsweeten@visionengravers.com>
+In-Reply-To: <20170215163527.5697-1-hsweeten@visionengravers.com>
+References: <20170215163527.5697-1-hsweeten@visionengravers.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -56,17 +26,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Feb 25, 2017 at 10:38 PM, Logan Gunthorpe <logang@deltatee.com> wrote:
-> Replace the open coded registration of the cdev and dev with the
-> new device_add_cdev() helper. The helper replaces a common pattern by
-> taking the proper reference against the parent device and adding both
-> the cdev and the device.
->
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+The RTC is an optional feature at purchase time on some Technologic
+Systems boards. Verify that it actually exists by checking if the
+last two bytes of the NVRAM can be changed.
 
-Thanks,
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alexander Clouter <alex@digriz.org.uk>
+---
+ drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index 4dc4af4..41ac5d6 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -201,6 +201,37 @@ static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
+ static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
+ 		M48T86_NVRAM_LEN);
+ 
++/*
++ * The RTC is an optional feature at purchase time on some Technologic Systems
++ * boards. Verify that it actually exists by checking if the last two bytes
++ * of the NVRAM can be changed.
++ *
++ * This is based on the method used in their rtc7800.c example.
++ */
++static bool m48t86_verify_chip(struct platform_device *pdev)
++{
++	unsigned int offset0 = M48T86_NVRAM_LEN - 2;
++	unsigned int offset1 = M48T86_NVRAM_LEN - 1;
++	unsigned char tmp0, tmp1;
++
++	tmp0 = m48t86_readb(&pdev->dev, offset0);
++	tmp1 = m48t86_readb(&pdev->dev, offset1);
++
++	m48t86_writeb(&pdev->dev, 0x00, offset0);
++	m48t86_writeb(&pdev->dev, 0x55, offset1);
++	if (m48t86_readb(&pdev->dev, offset1) == 0x55) {
++		m48t86_writeb(&pdev->dev, 0xaa, offset1);
++		if (m48t86_readb(&pdev->dev, offset1) == 0xaa &&
++		    m48t86_readb(&pdev->dev, offset0) == 0x00) {
++			m48t86_writeb(&pdev->dev, tmp0, offset0);
++			m48t86_writeb(&pdev->dev, tmp1, offset1);
++
++			return true;
++		}
++	}
++	return false;
++}
++
+ static int m48t86_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct m48t86_rtc_info *info;
+@@ -231,6 +262,11 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+ 
+ 	dev_set_drvdata(&pdev->dev, info);
+ 
++	if (!m48t86_verify_chip(pdev)) {
++		dev_info(&pdev->dev, "RTC not present\n");
++		return -ENODEV;
++	}
++
+ 	info->rtc = devm_rtc_device_register(&pdev->dev, "m48t86",
+ 					     &m48t86_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(info->rtc))
+-- 
+2.10.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
