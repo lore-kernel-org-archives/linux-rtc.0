@@ -1,78 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBCXRZHCQKGQE6HHCH2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBZMLS7CQKGQE66LVPNY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id u12si2646899pfd.3.2017.02.25.22.41.13
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 Feb 2017 22:41:14 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si31727wmf.0.2017.02.16.07.31.49
+        for <rtc-linux@googlegroups.com>;
+        Thu, 16 Feb 2017 07:31:49 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Sat, 25 Feb 2017 23:38:06 -0700
-Message-Id: <1488091097-12328-6-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v2 05/16] gpiolib: utilize new cdev_device_add
- helper function
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH 1/3] rtc: armada38x: Prepare driver to manage
+ different versions
+Date: Thu, 16 Feb 2017 16:31:34 +0100
+Message-Id: <20170216153136.27009-2-gregory.clement@free-electrons.com>
+In-Reply-To: <20170216153136.27009-1-gregory.clement@free-electrons.com>
+References: <20170216153136.27009-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -83,68 +32,319 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+In order to prepare the introduction of the A7K/A8K version of the RTC,
+this commit introduces a new data structure. This structure allows to
+handle the differences between the integration of the RTC IP in the
+SoCs. It will be:
+ - MBUS bridge timing initialization
+ - IRQ configuration at SoC level
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- drivers/gpio/gpiolib.c | 23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/rtc/rtc-armada38x.c | 152 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 99 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index a07ae9e..208d032 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1036,18 +1036,14 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 7cb5b27189db..b2a8e2ed71ca 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -16,6 +16,7 @@
+ #include <linux/io.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
  
- 	cdev_init(&gdev->chrdev, &gpio_fileops);
- 	gdev->chrdev.owner = THIS_MODULE;
--	gdev->chrdev.kobj.parent = &gdev->dev.kobj;
- 	gdev->dev.devt = MKDEV(MAJOR(gpio_devt), gdev->id);
--	status = cdev_add(&gdev->chrdev, gdev->dev.devt, 1);
--	if (status < 0)
--		chip_warn(gdev->chip, "failed to add char device %d:%d\n",
--			  MAJOR(gpio_devt), gdev->id);
--	else
--		chip_dbg(gdev->chip, "added GPIO chardev (%d:%d)\n",
--			 MAJOR(gpio_devt), gdev->id);
--	status = device_add(&gdev->dev);
+@@ -23,23 +24,23 @@
+ #define RTC_STATUS_ALARM1	    BIT(0)
+ #define RTC_STATUS_ALARM2	    BIT(1)
+ #define RTC_IRQ1_CONF	    0x4
+-#define RTC_IRQ1_AL_EN		    BIT(0)
+-#define RTC_IRQ1_FREQ_EN	    BIT(1)
+-#define RTC_IRQ1_FREQ_1HZ	    BIT(2)
++#define RTC_IRQ_AL_EN		    BIT(0)
++#define RTC_IRQ_FREQ_EN		    BIT(1)
++#define RTC_IRQ_FREQ_1HZ	    BIT(2)
 +
-+	status = cdev_device_add(&gdev->chrdev, &gdev->dev);
- 	if (status)
--		goto err_remove_chardev;
-+		return status;
+ #define RTC_TIME	    0xC
+ #define RTC_ALARM1	    0x10
+-
+-#define SOC_RTC_BRIDGE_TIMING_CTL   0x0
+-#define SOC_RTC_PERIOD_OFFS		0
+-#define SOC_RTC_PERIOD_MASK		(0x3FF << SOC_RTC_PERIOD_OFFS)
+-#define SOC_RTC_READ_DELAY_OFFS		26
+-#define SOC_RTC_READ_DELAY_MASK		(0x1F << SOC_RTC_READ_DELAY_OFFS)
+-
+-#define SOC_RTC_INTERRUPT   0x8
+-#define SOC_RTC_ALARM1		BIT(0)
+-#define SOC_RTC_ALARM2		BIT(1)
+-#define SOC_RTC_ALARM1_MASK	BIT(2)
+-#define SOC_RTC_ALARM2_MASK	BIT(3)
++#define RTC_38X_BRIDGE_TIMING_CTL   0x0
++#define RTC_38X_PERIOD_OFFS		0
++#define RTC_38X_PERIOD_MASK		(0x3FF << RTC_38X_PERIOD_OFFS)
++#define RTC_38X_READ_DELAY_OFFS		26
++#define RTC_38X_READ_DELAY_MASK		(0x1F << RTC_38X_READ_DELAY_OFFS)
 +
-+	chip_dbg(gdev->chip, "added GPIO chardev (%d:%d)\n",
-+		 MAJOR(gpio_devt), gdev->id);
++#define SOC_RTC_INTERRUPT	    0x8
++#define SOC_RTC_ALARM1			BIT(0)
++#define SOC_RTC_ALARM2			BIT(1)
++#define SOC_RTC_ALARM1_MASK		BIT(2)
++#define SOC_RTC_ALARM2_MASK		BIT(3)
  
- 	status = gpiochip_sysfs_register(gdev);
- 	if (status)
-@@ -1062,9 +1058,7 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
- 	return 0;
+ #define SAMPLE_NR 100
  
- err_remove_device:
--	device_del(&gdev->dev);
--err_remove_chardev:
--	cdev_del(&gdev->chrdev);
-+	cdev_device_del(&gdev->chrdev, &gdev->dev);
- 	return status;
+@@ -55,6 +56,19 @@ struct armada38x_rtc {
+ 	spinlock_t	    lock;
+ 	int		    irq;
+ 	struct value_to_freq *val_to_freq;
++	struct armada38x_rtc_data *data;
++};
++
++#define ALARM1	0
++#define ALARM_REG(base, alarm)	 ((base) + (alarm) * sizeof(u32))
++
++struct armada38x_rtc_data {
++	/* Initialize the RTC-MBUS bridge timing */
++	void (*update_mbus_timing)(struct armada38x_rtc *rtc);
++	u32 (*read_rtc_reg)(struct armada38x_rtc *rtc, u8 rtc_reg);
++	void (*clear_isr)(struct armada38x_rtc *rtc);
++	void (*unmask_interrupt)(struct armada38x_rtc *rtc);
++	u32 alarm;
+ };
+ 
+ /*
+@@ -76,19 +90,19 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
  }
  
-@@ -1348,8 +1342,7 @@ void gpiochip_remove(struct gpio_chip *chip)
- 	 * be removed, else it will be dangling until the last user is
- 	 * gone.
- 	 */
--	cdev_del(&gdev->chrdev);
--	device_del(&gdev->dev);
-+	cdev_device_del(&gdev->chrdev, &gdev->dev);
- 	put_device(&gdev->dev);
+ /* Update RTC-MBUS bridge timing parameters */
+-static void rtc_update_mbus_timing_params(struct armada38x_rtc *rtc)
++static void rtc_update_38x_mbus_timing_params(struct armada38x_rtc *rtc)
+ {
+ 	u32 reg;
+ 
+-	reg = readl(rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
+-	reg &= ~SOC_RTC_PERIOD_MASK;
+-	reg |= 0x3FF << SOC_RTC_PERIOD_OFFS; /* Maximum value */
+-	reg &= ~SOC_RTC_READ_DELAY_MASK;
+-	reg |= 0x1F << SOC_RTC_READ_DELAY_OFFS; /* Maximum value */
+-	writel(reg, rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
++	reg = readl(rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
++	reg &= ~RTC_38X_PERIOD_MASK;
++	reg |= 0x3FF << RTC_38X_PERIOD_OFFS; /* Maximum value */
++	reg &= ~RTC_38X_READ_DELAY_MASK;
++	reg |= 0x1F << RTC_38X_READ_DELAY_OFFS; /* Maximum value */
++	writel(reg, rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
  }
- EXPORT_SYMBOL_GPL(gpiochip_remove);
+ 
+-static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
++static u32 read_rtc_register_38x_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
+ {
+ 	int i, index_max = 0, max = 0;
+ 
+@@ -130,13 +144,26 @@ static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
+ 	return rtc->val_to_freq[index_max].value;
+ }
+ 
++static void armada38x_clear_isr(struct armada38x_rtc *rtc)
++{
++	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++
++	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
++}
++
++static void armada38x_unmask_interrupt(struct armada38x_rtc *rtc)
++{
++	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++
++	writel(val | SOC_RTC_ALARM1_MASK, rtc->regs_soc + SOC_RTC_INTERRUPT);
++}
+ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned long time, flags;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+-	time = read_rtc_register_wa(rtc, RTC_TIME);
++	time = rtc->data->read_rtc_reg(rtc, RTC_TIME);
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ 	rtc_time_to_tm(time, tm);
+@@ -167,12 +194,14 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned long time, flags;
++	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	u32 val;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+-	time = read_rtc_register_wa(rtc, RTC_ALARM1);
+-	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF) & RTC_IRQ1_AL_EN;
++	time = rtc->data->read_rtc_reg(rtc, reg);
++	val = rtc->data->read_rtc_reg(rtc, reg_irq) & RTC_IRQ_AL_EN;
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+@@ -185,9 +214,10 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	unsigned long time, flags;
+ 	int ret = 0;
+-	u32 val;
+ 
+ 	ret = rtc_tm_to_time(&alrm->time, &time);
+ 
+@@ -196,13 +226,11 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+-	rtc_delayed_write(time, rtc, RTC_ALARM1);
++	rtc_delayed_write(time, rtc, reg);
+ 
+ 	if (alrm->enabled) {
+-			rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
+-			val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
+-			writel(val | SOC_RTC_ALARM1_MASK,
+-			       rtc->regs_soc + SOC_RTC_INTERRUPT);
++		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
++		rtc->data->unmask_interrupt(rtc);
+ 	}
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+@@ -215,14 +243,15 @@ static int armada38x_rtc_alarm_irq_enable(struct device *dev,
+ 					 unsigned int enabled)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+ 	if (enabled)
+-		rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
++		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
+ 	else
+-		rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
++		rtc_delayed_write(0, rtc, reg_irq);
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+@@ -234,24 +263,23 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
+ 	struct armada38x_rtc *rtc = data;
+ 	u32 val;
+ 	int event = RTC_IRQF | RTC_AF;
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 
+ 	dev_dbg(&rtc->rtc_dev->dev, "%s:irq(%d)\n", __func__, irq);
+ 
+ 	spin_lock(&rtc->lock);
+ 
+-	val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
+-
+-	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
+-	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF);
+-	/* disable all the interrupts for alarm 1 */
+-	rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
++	rtc->data->clear_isr(rtc);
++	val = rtc->data->read_rtc_reg(rtc, reg_irq);
++	/* disable all the interrupts for alarm*/
++	rtc_delayed_write(0, rtc, reg_irq);
+ 	/* Ack the event */
+-	rtc_delayed_write(RTC_STATUS_ALARM1, rtc, RTC_STATUS);
++	rtc_delayed_write(1 << rtc->data->alarm, rtc, RTC_STATUS);
+ 
+ 	spin_unlock(&rtc->lock);
+ 
+-	if (val & RTC_IRQ1_FREQ_EN) {
+-		if (val & RTC_IRQ1_FREQ_1HZ)
++	if (val & RTC_IRQ_FREQ_EN) {
++		if (val & RTC_IRQ_FREQ_1HZ)
+ 			event |= RTC_UF;
+ 		else
+ 			event |= RTC_PF;
+@@ -276,13 +304,37 @@ static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
+ 	.read_alarm = armada38x_rtc_read_alarm,
+ };
+ 
++static const struct armada38x_rtc_data armada38x_data = {
++	.update_mbus_timing = rtc_update_38x_mbus_timing_params,
++	.read_rtc_reg = read_rtc_register_38x_wa,
++	.clear_isr = armada38x_clear_isr,
++	.unmask_interrupt = armada38x_unmask_interrupt,
++	.alarm = ALARM1,
++};
++
++#ifdef CONFIG_OF
++static const struct of_device_id armada38x_rtc_of_match_table[] = {
++	{
++		.compatible = "marvell,armada-380-rtc",
++		.data = &armada38x_data,
++	},
++	{}
++};
++MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
++#endif
++
+ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ {
+ 	const struct rtc_class_ops *ops;
+ 	struct resource *res;
+ 	struct armada38x_rtc *rtc;
++	const struct of_device_id *match;
+ 	int ret;
+ 
++	match = of_match_device(armada38x_rtc_of_match_table, &pdev->dev);
++	if (!match)
++		return -ENODEV;
++
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
+ 			    GFP_KERNEL);
+ 	if (!rtc)
+@@ -327,9 +379,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		 */
+ 		ops = &armada38x_rtc_ops_noirq;
+ 	}
++	rtc->data = (struct armada38x_rtc_data *)match->data;
++
+ 
+ 	/* Update RTC-MBUS bridge timing parameters */
+-	rtc_update_mbus_timing_params(rtc);
++	rtc->data->update_mbus_timing(rtc);
+ 
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 						ops, THIS_MODULE);
+@@ -359,7 +413,7 @@ static int armada38x_rtc_resume(struct device *dev)
+ 		struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 
+ 		/* Update RTC-MBUS bridge timing parameters */
+-		rtc_update_mbus_timing_params(rtc);
++		rtc->data->update_mbus_timing(rtc);
+ 
+ 		return disable_irq_wake(rtc->irq);
+ 	}
+@@ -371,14 +425,6 @@ static int armada38x_rtc_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(armada38x_rtc_pm_ops,
+ 			 armada38x_rtc_suspend, armada38x_rtc_resume);
+ 
+-#ifdef CONFIG_OF
+-static const struct of_device_id armada38x_rtc_of_match_table[] = {
+-	{ .compatible = "marvell,armada-380-rtc", },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
+-#endif
+-
+ static struct platform_driver armada38x_rtc_driver = {
+ 	.driver		= {
+ 		.name	= "armada38x-rtc",
 -- 
-2.1.4
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
