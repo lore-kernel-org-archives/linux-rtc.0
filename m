@@ -1,19 +1,27 @@
-Return-Path: <rtc-linux+bncBCVK5RWD2QBRBI5LTHCQKGQEU3F6QXI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBZULS7CQKGQE5UBY2PA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from anchovy.45ru.net.au (anchovy1.45ru.net.au. [203.30.46.145])
-        by gmr-mx.google.com with ESMTPS id z3si464324pfj.0.2017.02.16.17.45.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Feb 2017 17:45:07 -0800 (PST)
-From: Phil Reid <preid@electromag.com.au>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-  akinobu.mita@gmail.com, preid@electromag.com.au, rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH 2/3] rtc: ds3232: Add regmap max_register definition.
-Date: Fri, 17 Feb 2017 09:44:57 +0800
-Message-Id: <1487295898-90177-3-git-send-email-preid@electromag.com.au>
-In-Reply-To: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
-References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id f7si27466wmg.3.2017.02.16.07.31.49
+        for <rtc-linux@googlegroups.com>;
+        Thu, 16 Feb 2017 07:31:49 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH 3/3] arm64: dts: marvell: add RTC description for
+ Armada 7K/8K
+Date: Thu, 16 Feb 2017 16:31:36 +0100
+Message-Id: <20170216153136.27009-4-gregory.clement@free-electrons.com>
+In-Reply-To: <20170216153136.27009-1-gregory.clement@free-electrons.com>
+References: <20170216153136.27009-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,36 +32,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add the max_register  to the regmap_config definition. This allows
-dumping of the device's registers via the regmap debugfs interface.
+This RTC IP is found in the CP110 which is part of the Armada 8K SoCs and
+of the subset family the Armada 7K.
 
-Signed-off-by: Phil Reid <preid@electromag.com.au>
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- drivers/rtc/rtc-ds3232.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 67066f1..60de3a0 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -420,6 +420,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
- 	static const struct regmap_config config = {
- 		.reg_bits = 8,
- 		.val_bits = 8,
-+		.max_register = 0x13,
- 	};
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+index 3a99c36433d6..3a3bbc488736 100644
+--- a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+@@ -79,6 +79,13 @@
+ 					"cpm-usb3dev", "cpm-eip150", "cpm-eip197";
+ 			};
  
- 	regmap = devm_regmap_init_i2c(client, &config);
-@@ -479,6 +480,7 @@ static int ds3234_probe(struct spi_device *spi)
- 	static const struct regmap_config config = {
- 		.reg_bits = 8,
- 		.val_bits = 8,
-+		.max_register = 0x13,
- 		.write_flag_mask = 0x80,
- 	};
- 	struct regmap *regmap;
++			rtc: rtc@284000 {
++				compatible = "marvell,armada-8k-rtc";
++				reg = <0x284000 0x20>, <0x284080 0x24>;
++				reg-names = "rtc", "rtc-soc";
++				interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			cpm_sata0: sata@540000 {
+ 				compatible = "marvell,armada-8k-ahci",
+ 					     "generic-ahci";
 -- 
-1.8.3.1
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
