@@ -1,26 +1,24 @@
-Return-Path: <rtc-linux+bncBDXMLNOH5ANRBAPKXDCQKGQEVB537CA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBIM4TPCQKGQEQF6GSMY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id u12si611603pfd.3.2017.02.22.17.04.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Feb 2017 17:04:01 -0800 (PST)
-From: Sebastian Reichel <sre@kernel.org>
-To: Sebastian Reichel <sre@kernel.org>,
-	Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCHv3 1/2] dt-bindings: Add vendor prefix for Motorola
-Date: Thu, 23 Feb 2017 02:03:52 +0100
-Message-Id: <20170223010353.24351-1-sre@kernel.org>
-In-Reply-To: <20170220073535.27393-1-sre@kernel.org>
-References: <20170220073535.27393-1-sre@kernel.org>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si56587wma.3.2017.02.17.02.19.13
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Feb 2017 02:19:13 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH v2 0/3] Extend rtc-armada38x support for Armada 7K/8K
+Date: Fri, 17 Feb 2017 11:19:04 +0100
+Message-Id: <20170217101907.8963-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,33 +29,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Motorola was involved in semiconductor and mobile phone business.
-The "motrola," prefix is already used by a couple of bindings:
+The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
+the SOC integration differs in 2 points:
+     - MBUS bridge timing initialization
+     - IRQ configuration at SoC level
 
-* rtc/rtc-cmos.txt
-* mfd/motorola-cpcap.txt
-* regulator/cpcap-regulator.txt
+This patch set extends the driver support to these SoCs family.
 
-Apart from that it is used in the DT file for the Droid 4 mobile
-phone.
+In this second version the device tree was updated allowing to use the
+RTC on Armada 80x0 SoCs. Indeed on the Armada 80x0, the RTC clock in
+CP master is not connected (by package) to the oscillator. So this one
+is disabled for the Armada 8020 and the Armada 8040. On these SoCs it
+will be the RTC clock in CP slave connected to the oscillator which
+will be used.
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
----
- Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
- 1 file changed, 1 insertion(+)
+Thanks,
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index 1e4e84ee6a3d..1a21b378fa91 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -189,6 +189,7 @@ minix	MINIX Technology Ltd.
- miramems	MiraMEMS Sensing Technology Co., Ltd.
- mitsubishi	Mitsubishi Electric Corporation
- mosaixtech	Mosaix Technologies, Inc.
-+motorola	Motorola, Inc.
- moxa	Moxa
- mpl	MPL AG
- mqmaker	mqmaker Inc.
+Gregory
+
+Gregory CLEMENT (3):
+  rtc: armada38x: Prepare driver to manage different versions
+  rtc: armada38x: Add support for Armada 7K/8K
+  arm64: dts: marvell: add RTC description for Armada 7K/8K
+
+ .../devicetree/bindings/rtc/armada-380-rtc.txt     |   8 +-
+ arch/arm64/boot/dts/marvell/armada-8020.dtsi       |  10 +
+ arch/arm64/boot/dts/marvell/armada-8040.dtsi       |   9 +
+ .../boot/dts/marvell/armada-cp110-master.dtsi      |   7 +
+ .../arm64/boot/dts/marvell/armada-cp110-slave.dtsi |   7 +
+ drivers/rtc/rtc-armada38x.c                        | 217 ++++++++++++++++-----
+ 6 files changed, 202 insertions(+), 56 deletions(-)
+
 -- 
 2.11.0
 
