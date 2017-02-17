@@ -1,81 +1,27 @@
-Return-Path: <rtc-linux+bncBAABB7UTV7CQKGQE5LKMK4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBI44TPCQKGQEIVVVGNQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id h130si2703781pfe.1.2017.02.20.21.02.53
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Feb 2017 21:02:54 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si56592wma.3.2017.02.17.02.19.14
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Feb 2017 02:19:14 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:52 -0700
-Message-Id: <1487653253-11497-14-git-send-email-logang@deltatee.com>
-In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 13/14] scsi: utilize new device_add_cdev helper function
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH v2 3/3] arm64: dts: marvell: add RTC description
+ for Armada 7K/8K
+Date: Fri, 17 Feb 2017 11:19:07 +0100
+Message-Id: <20170217101907.8963-4-gregory.clement@free-electrons.com>
+In-Reply-To: <20170217101907.8963-1-gregory.clement@free-electrons.com>
+References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -86,54 +32,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Note: the chardev instance in osd_uld.c originally did not
-set the kobject parent. Thus, I'm reasonably confident that because
-of this, this code  would have suffered from a minor use after free
-bug if the cdev was open when the backing device was released.
+This RTC IP is found in the CP110 master and slave which are part of the
+Armada 8K SoCs and of the subset family the Armada 7K.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+There is one RTC in each CP but the RTC requires an external
+oscillator. However on the Armada 80x0, the RTC clock in CP master is not
+connected (by package) to the oscillator. So this one is disabled for the
+Armada 8020 and the Armada 8040.
+
+As the RTC clock in CP slave is connected to the oscillator this one is
+let enabled. and will be used on these SoCs (80x0).
+
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- drivers/scsi/osd/osd_uld.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-8020.dtsi         | 10 ++++++++++
+ arch/arm64/boot/dts/marvell/armada-8040.dtsi         |  9 +++++++++
+ arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi |  7 +++++++
+ arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi  |  7 +++++++
+ 4 files changed, 33 insertions(+)
 
-diff --git a/drivers/scsi/osd/osd_uld.c b/drivers/scsi/osd/osd_uld.c
-index 243eab3..519be56 100644
---- a/drivers/scsi/osd/osd_uld.c
-+++ b/drivers/scsi/osd/osd_uld.c
-@@ -473,18 +473,19 @@ static int osd_probe(struct device *dev)
- 		goto err_put_disk;
- 	}
- 
-+	device_initialize(&oud->class_dev);
-+	oud->class_dev.devt = MKDEV(SCSI_OSD_MAJOR, oud->minor);
+diff --git a/arch/arm64/boot/dts/marvell/armada-8020.dtsi b/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+index 048e5cf5160e..7c08f1f28d9e 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8020.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+@@ -54,3 +54,13 @@
+ 	compatible = "marvell,armada8020", "marvell,armada-ap806-dual",
+ 		     "marvell,armada-ap806";
+ };
 +
- 	/* init the char-device for communication with user-mode */
- 	cdev_init(&oud->cdev, &osd_fops);
- 	oud->cdev.owner = THIS_MODULE;
--	error = cdev_add(&oud->cdev,
--			 MKDEV(SCSI_OSD_MAJOR, oud->minor), 1);
-+	error = device_add_cdev(&oud->class_dev, &oud->cdev);
- 	if (error) {
- 		OSD_ERR("cdev_add failed\n");
- 		goto err_put_disk;
- 	}
++/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clock
++ * in CP master is not connected (by package) to the oscillator. So
++ * disable it. However, the RTC clock in CP slave is connected to the
++ * oscillator so this one is let enabled.
++ */
++
++&cpm_rtc {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040.dtsi b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+index 9c1b28c47683..33813a75bc30 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+@@ -54,3 +54,12 @@
+ 	compatible = "marvell,armada8040", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+ };
++
++/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clock
++ * in CP master is not connected (by package) to the oscillator. So
++ * disable it. However, the RTC clock in CP slave is connected to the
++ * oscillator so this one is let enabled.
++ */
++&cpm_rtc {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+index 3a99c36433d6..d12741414009 100644
+--- a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+@@ -79,6 +79,13 @@
+ 					"cpm-usb3dev", "cpm-eip150", "cpm-eip197";
+ 			};
  
- 	/* class device member */
--	oud->class_dev.devt = oud->cdev.dev;
- 	oud->class_dev.class = &osd_uld_class;
- 	oud->class_dev.parent = dev;
- 	oud->class_dev.release = __remove;
-@@ -494,7 +495,7 @@ static int osd_probe(struct device *dev)
- 		goto err_put_cdev;
- 	}
++			cpm_rtc: rtc@284000 {
++				compatible = "marvell,armada-8k-rtc";
++				reg = <0x284000 0x20>, <0x284080 0x24>;
++				reg-names = "rtc", "rtc-soc";
++				interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			cpm_sata0: sata@540000 {
+ 				compatible = "marvell,armada-8k-ahci",
+ 					     "generic-ahci";
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi b/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+index 9e09c4d3b6bd..d01be5a639e9 100644
+--- a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+@@ -59,6 +59,13 @@
+ 			interrupt-parent = <&gic>;
+ 			ranges = <0x0 0x0 0xf4000000 0x2000000>;
  
--	error = device_register(&oud->class_dev);
-+	error = device_add(&oud->class_dev);
- 	if (error) {
- 		OSD_ERR("device_register failed => %d\n", error);
- 		goto err_put_cdev;
++			cps_rtc: rtc@284000 {
++				compatible = "marvell,armada-8k-rtc";
++				reg = <0x284000 0x20>, <0x284080 0x24>;
++				reg-names = "rtc", "rtc-soc";
++				interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			cps_syscon0: system-controller@440000 {
+ 				compatible = "marvell,cp110-system-controller0",
+ 					     "syscon";
 -- 
-2.1.4
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
