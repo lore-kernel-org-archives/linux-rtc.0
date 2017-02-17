@@ -1,24 +1,19 @@
-Return-Path: <rtc-linux+bncBC6YH6VTZQDRBN6TVTCQKGQEZHQNS2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCVK5RWD2QBRBJFLTHCQKGQEDFBYO4I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si975102wma.3.2017.02.20.09.39.03
-        for <rtc-linux@googlegroups.com>;
-        Mon, 20 Feb 2017 09:39:03 -0800 (PST)
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory CLEMENT <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] [PATCH v3 0/3] Extend rtc-armada38x support for Armada 7K/8K
-Date: Mon, 20 Feb 2017 18:38:47 +0100
-Message-Id: <20170220173850.8640-1-gregory.clement@free-electrons.com>
+Received: from anchovy.45ru.net.au (anchovy2.45ru.net.au. [203.30.46.146])
+        by gmr-mx.google.com with ESMTPS id u12si456384pfd.3.2017.02.16.17.45.06
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 Feb 2017 17:45:07 -0800 (PST)
+From: Phil Reid <preid@electromag.com.au>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+  akinobu.mita@gmail.com, preid@electromag.com.au, rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 3/3] rtc: ds3232: Call device_init_wakeup before device_register
+Date: Fri, 17 Feb 2017 09:44:58 +0800
+Message-Id: <1487295898-90177-4-git-send-email-preid@electromag.com.au>
+In-Reply-To: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
+References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,44 +24,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+The wakealarm attribute is currently not exposed in the sysfs interface
+as the device has not been set as doing wakealarm when device_register
+is called. Changing the order of the calls fixes that problem. Interrupts
+are cleared in check_rtc_status prior to requesting the interrupt.
 
-The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-the SOC integration differs in 2 points:
-     - MBUS bridge timing initialization
-     - IRQ configuration at SoC level
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ drivers/rtc/rtc-ds3232.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-This patch set extends the driver support to these SoCs family.
-
-This third version fixed the GIC_SPI value on CP slave by using 71 as
-it was used on the CP mastered.
-
-The second version the device tree was updated allowing to use the
-RTC on Armada 80x0 SoCs. Indeed on the Armada 80x0, the RTC clock in
-CP master is not connected (by package) to the oscillator. So this one
-is disabled for the Armada 8020 and the Armada 8040. On these SoCs it
-will be the RTC clock in CP slave connected to the oscillator which
-will be used.
-
-Thanks,
-
-Gregory
-
-Gregory CLEMENT (3):
-  rtc: armada38x: Prepare driver to manage different versions
-  rtc: armada38x: Add support for Armada 7K/8K
-  arm64: dts: marvell: add RTC description for Armada 7K/8K
-
- .../devicetree/bindings/rtc/armada-380-rtc.txt     |   8 +-
- arch/arm64/boot/dts/marvell/armada-8020.dtsi       |  10 +
- arch/arm64/boot/dts/marvell/armada-8040.dtsi       |   9 +
- .../boot/dts/marvell/armada-cp110-master.dtsi      |   7 +
- .../arm64/boot/dts/marvell/armada-cp110-slave.dtsi |   7 +
- drivers/rtc/rtc-armada38x.c                        | 217 ++++++++++++++++-----
- 6 files changed, 202 insertions(+), 56 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 60de3a0..ce943d0 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -363,11 +363,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	if (ret)
+ 		return ret;
+ 
+-	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+-						THIS_MODULE);
+-	if (IS_ERR(ds3232->rtc))
+-		return PTR_ERR(ds3232->rtc);
+-
+ 	if (ds3232->irq > 0) {
+ 		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
+ 						ds3232_irq,
+@@ -380,6 +375,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 			device_init_wakeup(dev, 1);
+ 	}
+ 
++	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
++		THIS_MODULE);
++	if (IS_ERR(ds3232->rtc))
++		return PTR_ERR(ds3232->rtc);
++
+ 	return 0;
+ }
+ 
 -- 
-2.11.0
+1.8.3.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
