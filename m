@@ -1,25 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBP4SWXCQKGQEH7RX3SY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCVK5RWD2QBRBI5LTHCQKGQEU3F6QXI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id h62si65879wme.2.2017.02.22.00.18.07
-        for <rtc-linux@googlegroups.com>;
-        Wed, 22 Feb 2017 00:18:07 -0800 (PST)
-Date: Wed, 22 Feb 2017 09:18:05 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv2] rtc: cpcap: new rtc driver
-Message-ID: <20170222081805.ap2yvarymlr5vvjo@piout.net>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170221061650.12636-1-sre@kernel.org>
- <20170221235212.hik3whcytw6xyevd@piout.net>
- <20170222015634.ugadzezywlrjduyx@earth>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170222015634.ugadzezywlrjduyx@earth>
+Received: from anchovy.45ru.net.au (anchovy1.45ru.net.au. [203.30.46.145])
+        by gmr-mx.google.com with ESMTPS id z3si464324pfj.0.2017.02.16.17.45.06
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 Feb 2017 17:45:07 -0800 (PST)
+From: Phil Reid <preid@electromag.com.au>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+  akinobu.mita@gmail.com, preid@electromag.com.au, rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 2/3] rtc: ds3232: Add regmap max_register definition.
+Date: Fri, 17 Feb 2017 09:44:57 +0800
+Message-Id: <1487295898-90177-3-git-send-email-preid@electromag.com.au>
+In-Reply-To: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
+References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,84 +24,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/02/2017 at 02:56:34 +0100, Sebastian Reichel wrote:
-> > Does this mean there is a race condition?
-> 
-> The logic (incl. comments) in this section are from the vendor
-> kernel driver and there is no documentation for CPCAP as far as
-> I know. I don't know if the hardware has logic to prevent a race
-> condition for the cpcap_tm.tod1 == 255 case.
-> 
+Add the max_register  to the regmap_config definition. This allows
+dumping of the device's registers via the regmap debugfs interface.
 
-That's fine, I was just curious :)
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ drivers/rtc/rtc-ds3232.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> > > +	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
-> > I think this means it depends on the mfd tree.
-> 
-> Yes, but cpcap_get_vendor should get into mainline with the
-> 4.11 mfd pull request. So if you base your 4.12 for-next tree
-> on 4.11-rc1 everything should be fine.
-> 
-
-OK, I'll take it for 4.12 then
-
-> > > +	if (err)
-> > > +		return err;
-> > > +
-> > > +	rtc->alarm_irq= platform_get_irq(pdev, 0);
-> > > +	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
-> > > +					cpcap_rtc_alarm_irq, IRQ_NONE,
-> > > +					"rtc_alarm", rtc);
-> > > +	if (err) {
-> > > +		dev_err(dev, "Could not request alarm irq: %d\n", err);
-> > > +		return err;
-> > > +	}
-> > > +	disable_irq(rtc->alarm_irq);
-> > > +
-> > > +	rtc->update_irq= platform_get_irq(pdev, 1);
-> > > +	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
-> > > +					cpcap_rtc_update_irq, IRQ_NONE,
-> > > +					"rtc_1hz", rtc);
-> 
-> > I don't think this IRQ is actually useful. It doesn't really harm but
-> > the tests should pass without it.
-> 
-> Yes. RTC works perfectly fine with just the alarm irq. It also
-> works perfectly fine with just the 1 Hz irq (except for wakeup).
-> 
-> I would like to keep the irq in the driver, so that it's explicitly
-> disabled. On Droid 4 mainline kernel is booted via kexec from
-> Android (AKA bootloader) and Motorola's Android kernel uses the
-> 1 Hz IRQ for some proprietary "secure clock daemon".
-> 
-> I will add a comment.
-> 
-
-OK, my plan was to remove all the RTC_UF users. I'll give it more
-thoughts.
-
-> > > +	if (err) {
-> > > +		dev_err(dev, "Could not request update irq: %d\n", err);
-> > > +		return err;
-> > > +	}
-> > > +	disable_irq(rtc->update_irq);
-> > > +
-> > > +	err = device_init_wakeup(dev, 1);
-> > 
-> > If you use device_init_wakeup, I think it needs to be called before
-> > devm_rtc_device_register() to properly work.
-> 
-> I successfully tested wakeup before sending this. But in case your 
-> prefer it to be called before registering the RTC I can move the
-> call accordingly.
-> 
-
-Then it is fine where it is.
-
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 67066f1..60de3a0 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -420,6 +420,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
+ 	static const struct regmap_config config = {
+ 		.reg_bits = 8,
+ 		.val_bits = 8,
++		.max_register = 0x13,
+ 	};
+ 
+ 	regmap = devm_regmap_init_i2c(client, &config);
+@@ -479,6 +480,7 @@ static int ds3234_probe(struct spi_device *spi)
+ 	static const struct regmap_config config = {
+ 		.reg_bits = 8,
+ 		.val_bits = 8,
++		.max_register = 0x13,
+ 		.write_flag_mask = 0x80,
+ 	};
+ 	struct regmap *regmap;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.8.3.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
