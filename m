@@ -1,26 +1,29 @@
-Return-Path: <rtc-linux+bncBDXMLNOH5ANRBW67WPCQKGQEFK27O3Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBOGTVTCQKGQER3GOKZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id d63si1364519pfe.2.2017.02.21.17.56.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Feb 2017 17:56:43 -0800 (PST)
-Date: Wed, 22 Feb 2017 02:56:34 +0100
-From: Sebastian Reichel <sre@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv2] rtc: cpcap: new rtc driver
-Message-ID: <20170222015634.ugadzezywlrjduyx@earth>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170221061650.12636-1-sre@kernel.org>
- <20170221235212.hik3whcytw6xyevd@piout.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="6upy4xnfm43lqc6l"
-In-Reply-To: <20170221235212.hik3whcytw6xyevd@piout.net>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si975110wma.3.2017.02.20.09.39.04
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Feb 2017 09:39:04 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH v3 3/3] arm64: dts: marvell: add RTC description
+ for Armada 7K/8K
+Date: Mon, 20 Feb 2017 18:38:50 +0100
+Message-Id: <20170220173850.8640-4-gregory.clement@free-electrons.com>
+In-Reply-To: <20170220173850.8640-1-gregory.clement@free-electrons.com>
+References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,126 +32,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+This RTC IP is found in the CP110 master and slave which are part of the
+Armada 8K SoCs and of the subset family the Armada 7K.
 
---6upy4xnfm43lqc6l
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+There is one RTC in each CP but the RTC requires an external
+oscillator. However on the Armada 80x0, the RTC clock in CP master is not
+connected (by package) to the oscillator. So this one is disabled for the
+Armada 8020 and the Armada 8040.
 
-Hi Alexandre,
+As the RTC clock in CP slave is connected to the oscillator this one is
+let enabled. and will be used on these SoCs (80x0).
 
-On Wed, Feb 22, 2017 at 12:52:12AM +0100, Alexandre Belloni wrote:
-> The patch has a few checkpatch issues. Some of those should really be
-> fixed. Can you do that?
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+---
+ arch/arm64/boot/dts/marvell/armada-8020.dtsi         | 10 ++++++++++
+ arch/arm64/boot/dts/marvell/armada-8040.dtsi         |  9 +++++++++
+ arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi |  7 +++++++
+ arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi  |  7 +++++++
+ 4 files changed, 33 insertions(+)
 
-of course.
-
-> Else, it is mostly fine, a few comments below.
-> 
-> On 21/02/2017 at 07:16:50 +0100, Sebastian Reichel wrote:
-> > +static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> > +{
-> > +	struct cpcap_rtc *rtc;
-> > +	struct cpcap_time cpcap_tm;
-> > +	int ret = 0;
-> > +
-> > +	rtc = dev_get_drvdata(dev);
-> > +
-> > +	rtc2cpcap_time(&cpcap_tm, tm);
-> > +
-> > +	if (rtc->alarm_enabled)
-> > +		disable_irq(rtc->alarm_irq);
-> > +	if (rtc->update_enabled)
-> > +		disable_irq(rtc->update_irq);
-> > +
-> > +	if (rtc->vendor == CPCAP_VENDOR_ST) {
-> > +		/* The TOD1 and TOD2 registers MUST be written in this order
-> > +		 * for the change to properly set. */
-> 
-> Does this mean there is a race condition?
-
-The logic (incl. comments) in this section are from the vendor
-kernel driver and there is no documentation for CPCAP as far as
-I know. I don't know if the hardware has logic to prevent a race
-condition for the cpcap_tm.tod1 == 255 case.
-
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> > +					  TOD1_MASK, cpcap_tm.tod1);
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-> > +					  TOD2_MASK, cpcap_tm.tod2);
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-> > +					  DAY_MASK, cpcap_tm.day);
-> > +	} else {
-> > +		/* Clearing the upper lower 8 bits of the TOD guarantees that
-> > +		 * the upper half of TOD (TOD2) will not increment for 0xFF RTC
-> > +		 * ticks (255 seconds).  During this time we can safely write
-> > +		 * to DAY, TOD2, then TOD1 (in that order) and expect RTC to be
-> > +		 * synchronized to the exact time requested upon the final write
-> > +		 * to TOD1. */
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> > +					  TOD1_MASK, 0);
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-> > +					  DAY_MASK, cpcap_tm.day);
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-> > +					  TOD2_MASK, cpcap_tm.tod2);
-> > +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> > +					  TOD1_MASK, cpcap_tm.tod1);
-> > +	}
-> > +
-> 
-> > +	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
-> I think this means it depends on the mfd tree.
-
-Yes, but cpcap_get_vendor should get into mainline with the
-4.11 mfd pull request. So if you base your 4.12 for-next tree
-on 4.11-rc1 everything should be fine.
-
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	rtc->alarm_irq= platform_get_irq(pdev, 0);
-> > +	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
-> > +					cpcap_rtc_alarm_irq, IRQ_NONE,
-> > +					"rtc_alarm", rtc);
-> > +	if (err) {
-> > +		dev_err(dev, "Could not request alarm irq: %d\n", err);
-> > +		return err;
-> > +	}
-> > +	disable_irq(rtc->alarm_irq);
-> > +
-> > +	rtc->update_irq= platform_get_irq(pdev, 1);
-> > +	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
-> > +					cpcap_rtc_update_irq, IRQ_NONE,
-> > +					"rtc_1hz", rtc);
-
-> I don't think this IRQ is actually useful. It doesn't really harm but
-> the tests should pass without it.
-
-Yes. RTC works perfectly fine with just the alarm irq. It also
-works perfectly fine with just the 1 Hz irq (except for wakeup).
-
-I would like to keep the irq in the driver, so that it's explicitly
-disabled. On Droid 4 mainline kernel is booted via kexec from
-Android (AKA bootloader) and Motorola's Android kernel uses the
-1 Hz IRQ for some proprietary "secure clock daemon".
-
-I will add a comment.
-
-> > +	if (err) {
-> > +		dev_err(dev, "Could not request update irq: %d\n", err);
-> > +		return err;
-> > +	}
-> > +	disable_irq(rtc->update_irq);
-> > +
-> > +	err = device_init_wakeup(dev, 1);
-> 
-> If you use device_init_wakeup, I think it needs to be called before
-> devm_rtc_device_register() to properly work.
-
-I successfully tested wakeup before sending this. But in case your 
-prefer it to be called before registering the RTC I can move the
-call accordingly.
-
--- Sebastian
+diff --git a/arch/arm64/boot/dts/marvell/armada-8020.dtsi b/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+index 048e5cf5160e..7c08f1f28d9e 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8020.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+@@ -54,3 +54,13 @@
+ 	compatible = "marvell,armada8020", "marvell,armada-ap806-dual",
+ 		     "marvell,armada-ap806";
+ };
++
++/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clock
++ * in CP master is not connected (by package) to the oscillator. So
++ * disable it. However, the RTC clock in CP slave is connected to the
++ * oscillator so this one is let enabled.
++ */
++
++&cpm_rtc {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040.dtsi b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+index 9c1b28c47683..33813a75bc30 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+@@ -54,3 +54,12 @@
+ 	compatible = "marvell,armada8040", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+ };
++
++/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clock
++ * in CP master is not connected (by package) to the oscillator. So
++ * disable it. However, the RTC clock in CP slave is connected to the
++ * oscillator so this one is let enabled.
++ */
++&cpm_rtc {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+index 3a99c36433d6..d12741414009 100644
+--- a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+@@ -79,6 +79,13 @@
+ 					"cpm-usb3dev", "cpm-eip150", "cpm-eip197";
+ 			};
+ 
++			cpm_rtc: rtc@284000 {
++				compatible = "marvell,armada-8k-rtc";
++				reg = <0x284000 0x20>, <0x284080 0x24>;
++				reg-names = "rtc", "rtc-soc";
++				interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			cpm_sata0: sata@540000 {
+ 				compatible = "marvell,armada-8k-ahci",
+ 					     "generic-ahci";
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi b/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+index 9e09c4d3b6bd..d51eb2db6df7 100644
+--- a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+@@ -59,6 +59,13 @@
+ 			interrupt-parent = <&gic>;
+ 			ranges = <0x0 0x0 0xf4000000 0x2000000>;
+ 
++			cps_rtc: rtc@284000 {
++				compatible = "marvell,armada-8k-rtc";
++				reg = <0x284000 0x20>, <0x284080 0x24>;
++				reg-names = "rtc", "rtc-soc";
++				interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			cps_syscon0: system-controller@440000 {
+ 				compatible = "marvell,cp110-system-controller0",
+ 					     "syscon";
+-- 
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -159,25 +134,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---6upy4xnfm43lqc6l
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlis79AACgkQ2O7X88g7
-+poybxAApsMHj5rjw3oZVsQ+N7AjTVDd/SwT8nwC88SgcIHjzjYStjnhAAry4oun
-0Tbg0aiDUCL3ldoLgvadWUSx2BaNVRgG9Ow6MUXe8rKKrlE22OPuebKqqw2fuRBH
-SA5w4mJ7R62G0+F6WpOJU70pOdHJ9q1tLoTswN+xa/UH3XJXL9qpfdYEvnCtxrav
-bR6Ibtwsg7FhXtp9wMTDsInptzruEzcMU50gvxJ5kEnRzz2wlOCT80VtG4D1fK3B
-2WYRffDnV79XQUFDQkf1gF3CCCRbs6fQjj7Q+27aTqe9RQKiZAcPyVYOP90Iwr/Y
-8W/fkjXK6TeEzKJSN1CU8h16PhCyuu6LC5vH+sVuDkGO6S6pltqhYNprwJqrmmBi
-49ie8AcIXlnEIgO23Ea4ZJ0X/PSmh4VeIdDDCOy+vbkVnSk3vpsAK7diwyaAjoPy
-OMayqmGeZl92rvzPX7iDLqHkGjKRyGfNHHLPhAG9A1jJ2MA7ZJhrLJtlbcnPFUBx
-MpwbSTX5eOKf8HMnU8O1izCknqHzseO4ZEjsTakpSZIgUs8X+GZcQZZSLrltglBB
-3xNZbD5kRz/uUHtgPFTI7qIt17SgOBMYwHELdmpfZNV4yHzPXoDl0fuc3n2V9t3+
-HJKFoCKunY0nRcgnysfG6/Df8LXmRvNr1CkEV8CpNiQ3Hp/GMo4=
-=IYr/
------END PGP SIGNATURE-----
-
---6upy4xnfm43lqc6l--
