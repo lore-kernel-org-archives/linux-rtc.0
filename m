@@ -1,71 +1,23 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBGUC27CQKGQES5LLKCA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBLGSVTCQKGQEVT6BBUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pg0-x244.google.com (mail-pg0-x244.google.com. [2607:f8b0:400e:c05::244])
-        by gmr-mx.google.com with ESMTPS id u12si123736pfd.3.2017.02.28.10.27.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Feb 2017 10:27:38 -0800 (PST)
-Received: by mail-pg0-x244.google.com with SMTP id 25so2484369pgy.3
-        for <rtc-linux@googlegroups.com>; Tue, 28 Feb 2017 10:27:38 -0800 (PST)
-Date: Tue, 28 Feb 2017 10:27:34 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 04/16] input: utilize new cdev_device_add
- helper function
-Message-ID: <20170228182734.GC20776@dtor-ws>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
- <1488091097-12328-5-git-send-email-logang@deltatee.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si894498wmf.0.2017.02.20.09.36.43
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Feb 2017 09:36:43 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,  Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,  Andrew Lunn <andrew@lunn.ch>,  Jason Cooper <jason@lakedaemon.net>,  rtc-linux@googlegroups.com,  Haim Boot <hayim@marvell.com>,  Alexandre Belloni <alexandre.belloni@free-electrons.com>,  linux-arm-kernel@lists.infradead.org,  Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 0/3] Extend rtc-armada38x support for
+ Armada 7K/8K
+References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
+	<87tw7oaj24.fsf@free-electrons.com>
+	<20170220172739.GN21222@n2100.armlinux.org.uk>
+Date: Mon, 20 Feb 2017 18:36:33 +0100
+In-Reply-To: <20170220172739.GN21222@n2100.armlinux.org.uk> (Russell King's
+	message of "Mon, 20 Feb 2017 17:27:39 +0000")
+Message-ID: <87mvdgahni.fsf@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1488091097-12328-5-git-send-email-logang@deltatee.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -75,167 +27,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Feb 25, 2017 at 11:38:05PM -0700, Logan Gunthorpe wrote:
-> Replace the open coded registration of the cdev and dev with the
-> new device_add_cdev() helper in evdev, joydev and mousedev. The helper
-> replaces a common pattern by taking the proper reference against the
-> parent device and adding both the cdev and the device.
-> 
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Hi Russell King,
+=20
+ On lun., f=C3=A9vr. 20 2017, Russell King - ARM Linux <linux@armlinux.org.=
+uk> wrote:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> On Mon, Feb 20, 2017 at 06:06:11PM +0100, Gregory CLEMENT wrote:
+>> I saw on IRC than Russell managed to have a more coherent date with this
+>> series on his 8040 based board. For the record, as the U-Boot on this
+>> board didn't provide a "date reset" command for the RTC located on CP
+>> slave, then Russell needed to do the following:
+>>=20
+>> devmem2 0xf428401c w 0
+>> devmem2 0xf4284018 w 0x2000
+>> followed by:
+>> date 021612342017; ntpdate ...; hwclock -uw
+>>=20
+>> But this issue was related to the bootloader not to the kernel. The
+>> other potential issue seen by Russell was about the GIC mapping for the
+>> interrupt, but here again this mapping was done by the 1st stage
+>> bootloader.
+>>=20
+>> Given this information would it be OK to applied this series?
+>
+> No it is not.  As I already pointed out, the interrupt for the 8040 is
+> GIC_SPI 71 _not_ GIC_SPI 77 as you have it in this series.
+>
+> Both CP110's on Armada 8040 have a default mapping of ICU 77 to GIC
+> 71.
 
-> ---
->  drivers/input/evdev.c    | 11 ++---------
->  drivers/input/joydev.c   | 11 ++---------
->  drivers/input/mousedev.c | 11 ++---------
->  3 files changed, 6 insertions(+), 27 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index e9ae3d5..9255714 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -1354,8 +1354,6 @@ static void evdev_cleanup(struct evdev *evdev)
->  	evdev_mark_dead(evdev);
->  	evdev_hangup(evdev);
->  
-> -	cdev_del(&evdev->cdev);
-> -
->  	/* evdev is marked dead so no one else accesses evdev->open */
->  	if (evdev->open) {
->  		input_flush_device(handle, NULL);
-> @@ -1416,12 +1414,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
->  		goto err_free_evdev;
->  
->  	cdev_init(&evdev->cdev, &evdev_fops);
-> -	evdev->cdev.kobj.parent = &evdev->dev.kobj;
-> -	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
-> -	if (error)
-> -		goto err_unregister_handle;
->  
-> -	error = device_add(&evdev->dev);
-> +	error = cdev_device_add(&evdev->cdev, &evdev->dev);
->  	if (error)
->  		goto err_cleanup_evdev;
->  
-> @@ -1429,7 +1423,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
->  
->   err_cleanup_evdev:
->  	evdev_cleanup(evdev);
-> - err_unregister_handle:
->  	input_unregister_handle(&evdev->handle);
->   err_free_evdev:
->  	put_device(&evdev->dev);
-> @@ -1442,7 +1435,7 @@ static void evdev_disconnect(struct input_handle *handle)
->  {
->  	struct evdev *evdev = handle->private;
->  
-> -	device_del(&evdev->dev);
-> +	cdev_device_del(&evdev->cdev, &evdev->dev);
->  	evdev_cleanup(evdev);
->  	input_free_minor(MINOR(evdev->dev.devt));
->  	input_unregister_handle(handle);
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index abd18f3..e38b84f 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -729,8 +729,6 @@ static void joydev_cleanup(struct joydev *joydev)
->  	joydev_mark_dead(joydev);
->  	joydev_hangup(joydev);
->  
-> -	cdev_del(&joydev->cdev);
-> -
->  	/* joydev is marked dead so no one else accesses joydev->open */
->  	if (joydev->open)
->  		input_close_device(handle);
-> @@ -905,12 +903,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
->  		goto err_free_joydev;
->  
->  	cdev_init(&joydev->cdev, &joydev_fops);
-> -	joydev->cdev.kobj.parent = &joydev->dev.kobj;
-> -	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
-> -	if (error)
-> -		goto err_unregister_handle;
->  
-> -	error = device_add(&joydev->dev);
-> +	error = cdev_device_add(&joydev->cdev, &joydev->dev);
->  	if (error)
->  		goto err_cleanup_joydev;
->  
-> @@ -918,7 +912,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
->  
->   err_cleanup_joydev:
->  	joydev_cleanup(joydev);
-> - err_unregister_handle:
->  	input_unregister_handle(&joydev->handle);
->   err_free_joydev:
->  	put_device(&joydev->dev);
-> @@ -931,7 +924,7 @@ static void joydev_disconnect(struct input_handle *handle)
->  {
->  	struct joydev *joydev = handle->private;
->  
-> -	device_del(&joydev->dev);
-> +	cdev_device_del(&joydev->cdev, &joydev->dev);
->  	joydev_cleanup(joydev);
->  	input_free_minor(MINOR(joydev->dev.devt));
->  	input_unregister_handle(handle);
-> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-> index b604564..0e0ff84 100644
-> --- a/drivers/input/mousedev.c
-> +++ b/drivers/input/mousedev.c
-> @@ -812,8 +812,6 @@ static void mousedev_cleanup(struct mousedev *mousedev)
->  	mousedev_mark_dead(mousedev);
->  	mousedev_hangup(mousedev);
->  
-> -	cdev_del(&mousedev->cdev);
-> -
->  	/* mousedev is marked dead so no one else accesses mousedev->open */
->  	if (mousedev->open)
->  		input_close_device(handle);
-> @@ -901,12 +899,8 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
->  	}
->  
->  	cdev_init(&mousedev->cdev, &mousedev_fops);
-> -	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
-> -	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
-> -	if (error)
-> -		goto err_unregister_handle;
->  
-> -	error = device_add(&mousedev->dev);
-> +	error = cdev_device_add(&mousedev->cdev, &mousedev->dev);
->  	if (error)
->  		goto err_cleanup_mousedev;
->  
-> @@ -914,7 +908,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
->  
->   err_cleanup_mousedev:
->  	mousedev_cleanup(mousedev);
-> - err_unregister_handle:
->  	if (!mixdev)
->  		input_unregister_handle(&mousedev->handle);
->   err_free_mousedev:
-> @@ -927,7 +920,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
->  
->  static void mousedev_destroy(struct mousedev *mousedev)
->  {
-> -	device_del(&mousedev->dev);
-> +	cdev_device_del(&mousedev->cdev, &mousedev->dev);
->  	mousedev_cleanup(mousedev);
->  	input_free_minor(MINOR(mousedev->dev.devt));
->  	if (mousedev != mousedev_mix)
-> -- 
-> 2.1.4
-> 
+OK so I am sending a v2 with this fix.
 
--- 
-Dmitry
+Thanks,
 
--- 
+Gregory
+
+>
+> --=20
+> RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+> FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+> according to speedtest.net.
+
+--=20
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
