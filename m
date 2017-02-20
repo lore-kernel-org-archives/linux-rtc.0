@@ -1,83 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBCEUV7CQKGQEH43ZZUQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMXFVTCQKGQELF5VSEA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id 23si2940915pfw.4.2017.02.20.21.03.04
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Feb 2017 21:03:04 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p185si899050wme.1.2017.02.20.10.17.22
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Feb 2017 10:17:22 -0800 (PST)
+Date: Mon, 20 Feb 2017 19:17:12 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:43 -0700
-Message-Id: <1487653253-11497-5-git-send-email-logang@deltatee.com>
-In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 04/14] gpiolib: utilize new device_add_cdev helper function
-Reply-To: rtc-linux@googlegroups.com
+	Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
+	Andrew Lunn <andrew@lunn.ch>, Haim Boot <hayim@marvell.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 0/3] Extend rtc-armada38x support for
+ Armada 7K/8K
+Message-ID: <20170220181712.yejnobmj3dhm5ev6@piout.net>
+References: <20170217101907.8963-1-gregory.clement@free-electrons.com>
+ <87tw7oaj24.fsf@free-electrons.com>
+ <20170220173633.d4ke4eohaacgsw3h@piout.net>
+ <20170220175054.GP21222@n2100.armlinux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170220175054.GP21222@n2100.armlinux.org.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -86,28 +33,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/gpio/gpiolib.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On 20/02/2017 at 17:50:54 +0000, Russell King - ARM Linux wrote:
+> > The question being what does that do and whether it could be done in the
+> > driver instead.
+> 
+> It's not specific to the Armada 8040, the same problem exists with
+> Armada 38x, so holding this up for that reason does not make sense.
+> 
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index a07ae9e..04dbc4a 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1036,9 +1036,8 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
- 
- 	cdev_init(&gdev->chrdev, &gpio_fileops);
- 	gdev->chrdev.owner = THIS_MODULE;
--	gdev->chrdev.kobj.parent = &gdev->dev.kobj;
- 	gdev->dev.devt = MKDEV(MAJOR(gpio_devt), gdev->id);
--	status = cdev_add(&gdev->chrdev, gdev->dev.devt, 1);
-+	status = device_add_cdev(&gdev->dev, &gdev->chrdev);
- 	if (status < 0)
- 		chip_warn(gdev->chip, "failed to add char device %d:%d\n",
- 			  MAJOR(gpio_devt), gdev->id);
+I agree, I will not delay the patch for that.
+
+> I suspect that the errata is "RTC is not reset at power up" for the RTC
+> power domain.
+> 
+> I don't know where the value of 0x2000 comes from for the correction
+> value, all I know is that's the value uboot uses with "date reset".
+> We probably do _not_ want the driver writing that each time the
+> kernel boots, since that's a tuning parameter.
+> 
+
+It is probably a calibration offset. It may be worth exposing to
+userspace but without more information, I doubt we can make something
+useful out of it.
+
+
+
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
