@@ -1,83 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBJEUV7CQKGQEY46ZB4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBBOLVTCQKGQE5HKQD6Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id h130si2382684pfe.1.2017.02.20.09.21.09
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Feb 2017 09:21:09 -0800 (PST)
+Date: Mon, 20 Feb 2017 09:21:04 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Sebastian Reichel <sre@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/1] rtc: cpcap: new rtc driver
+Message-ID: <20170220172103.GI21809@atomide.com>
+References: <20170220073535.27393-1-sre@kernel.org>
+ <20170220073535.27393-2-sre@kernel.org>
+ <20170220163155.GH21809@atomide.com>
+ <20170220163858.4ocqnfhei67wbtl3@piout.net>
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id h130si2704118pfe.1.2017.02.20.21.03.32
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Feb 2017 21:03:32 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:51 -0700
-Message-Id: <1487653253-11497-13-git-send-email-logang@deltatee.com>
-In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 12/14] rtc: utilize new device_add_cdev helper function
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170220163858.4ocqnfhei67wbtl3@piout.net>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -86,31 +28,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/rtc/rtc-dev.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+* Alexandre Belloni <alexandre.belloni@free-electrons.com> [170220 08:40]:
+> On 20/02/2017 at 08:31:56 -0800, Tony Lindgren wrote:
+> > * Sebastian Reichel <sre@kernel.org> [170219 23:37]:
+> > > This driver supports the Motorola CPCAP PMIC found on
+> > > some of Motorola's mobile phones, such as the Droid 4.
+> > 
+> > Hey that's cool, works for me for reading and setting date :)
+> > Just noticed one thing, see below.
+> > 
+> > > +Requires node properties:
+> > > +- compatible: should contain "motorola,cpcap-rtc"
+> > > +- interrupts: An interrupt specifier for alarm and 1 Hz irq
+> > > +
+> > > +Example:
+> > > +
+> > > +cpcap_rtc: rtc {
+> > > +	compatible = "motorola,cpcap-rtc";
+> > > +	interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
+> > > +};
+> > 
+> > I tried rtcwake -s 3, but got the following:
+> > 
+> > rtcwake: cannot open /sys/class/rtc/rtc0/device/power/wakeup:
+> > No such file or directory
+> > rtcwake: /dev/rtc0 not enabled for wakeup events
+> > 
+> > Then tried adding "wakeup-source" to above but I think the driver
+> > needs something, maybe probably just PM ops?
+> > 
+> 
+> Probably device_init_wakeup(dev, 1) ?
 
-diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
-index a6d9434..e4012bb 100644
---- a/drivers/rtc/rtc-dev.c
-+++ b/drivers/rtc/rtc-dev.c
-@@ -477,12 +477,11 @@ void rtc_dev_prepare(struct rtc_device *rtc)
- 
- 	cdev_init(&rtc->char_dev, &rtc_dev_fops);
- 	rtc->char_dev.owner = rtc->owner;
--	rtc->char_dev.kobj.parent = &rtc->dev.kobj;
- }
- 
- void rtc_dev_add_device(struct rtc_device *rtc)
- {
--	if (cdev_add(&rtc->char_dev, rtc->dev.devt, 1))
-+	if (device_add_cdev(&rtc->dev, &rtc->char_dev))
- 		dev_warn(&rtc->dev, "%s: failed to add char device %d:%d\n",
- 			rtc->name, MAJOR(rtc_devt), rtc->id);
- 	else
--- 
-2.1.4
+That gets us a bit closer but now produces:
+
+rtcwake: write error
+
+Regards,
+
+Tony
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
