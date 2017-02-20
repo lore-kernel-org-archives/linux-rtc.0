@@ -1,23 +1,27 @@
-Return-Path: <rtc-linux+bncBDXMLNOH5ANRBUVYVLCQKGQEXHRSNXA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBN6TVTCQKGQEZHQNS2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id h130si2092810pfe.1.2017.02.19.23.35.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 19 Feb 2017 23:35:46 -0800 (PST)
-From: Sebastian Reichel <sre@kernel.org>
-To: Sebastian Reichel <sre@kernel.org>,
-	Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 1/1] rtc: cpcap: new rtc driver
-Date: Mon, 20 Feb 2017 08:35:35 +0100
-Message-Id: <20170220073535.27393-2-sre@kernel.org>
-In-Reply-To: <20170220073535.27393-1-sre@kernel.org>
-References: <20170220073535.27393-1-sre@kernel.org>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si975105wma.3.2017.02.20.09.39.03
+        for <rtc-linux@googlegroups.com>;
+        Mon, 20 Feb 2017 09:39:03 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] [PATCH v3 1/3] rtc: armada38x: Prepare driver to manage
+ different versions
+Date: Mon, 20 Feb 2017 18:38:48 +0100
+Message-Id: <20170220173850.8640-2-gregory.clement@free-electrons.com>
+In-Reply-To: <20170220173850.8640-1-gregory.clement@free-electrons.com>
+References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,392 +32,317 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This driver supports the Motorola CPCAP PMIC found on
-some of Motorola's mobile phones, such as the Droid 4.
+In order to prepare the introduction of the A7K/A8K version of the RTC,
+this commit introduces a new data structure. This structure allows to
+handle the differences between the integration of the RTC IP in the
+SoCs. It will be:
+ - MBUS bridge timing initialization
+ - IRQ configuration at SoC level
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- .../devicetree/bindings/rtc/cpcap-rtc.txt          |  13 +
- drivers/rtc/Kconfig                                |   7 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-cpcap.c                            | 318 +++++++++++++++++++++
- 4 files changed, 339 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
- create mode 100644 drivers/rtc/rtc-cpcap.c
+ drivers/rtc/rtc-armada38x.c | 152 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 99 insertions(+), 53 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-new file mode 100644
-index 000000000000..2709c32baf2c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-@@ -0,0 +1,13 @@
-+Motorola CPCAP PMIC RTC
-+------------------------------------
-+
-+Requires node properties:
-+- compatible: should contain "motorola,cpcap-rtc"
-+- interrupts: An interrupt specifier for alarm and 1 Hz irq
-+
-+Example:
-+
-+cpcap_rtc: rtc {
-+	compatible = "motorola,cpcap-rtc";
-+	interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
-+};
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index ee1b0e9dde79..050bec749fae 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1731,6 +1731,13 @@ config RTC_DRV_STM32
- 	   This driver can also be built as a module, if so, the module
- 	   will be called "rtc-stm32".
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 7cb5b27189db..b2a8e2ed71ca 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -16,6 +16,7 @@
+ #include <linux/io.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
  
-+config RTC_DRV_CPCAP
-+	depends on MFD_CPCAP
-+	tristate "Motorola CPCAP RTC"
-+	help
-+	   Say y here for CPCAP rtc found on some Motorola phones
-+	   and tablets such as Droid 4.
+@@ -23,23 +24,23 @@
+ #define RTC_STATUS_ALARM1	    BIT(0)
+ #define RTC_STATUS_ALARM2	    BIT(1)
+ #define RTC_IRQ1_CONF	    0x4
+-#define RTC_IRQ1_AL_EN		    BIT(0)
+-#define RTC_IRQ1_FREQ_EN	    BIT(1)
+-#define RTC_IRQ1_FREQ_1HZ	    BIT(2)
++#define RTC_IRQ_AL_EN		    BIT(0)
++#define RTC_IRQ_FREQ_EN		    BIT(1)
++#define RTC_IRQ_FREQ_1HZ	    BIT(2)
 +
- comment "HID Sensor RTC drivers"
+ #define RTC_TIME	    0xC
+ #define RTC_ALARM1	    0x10
+-
+-#define SOC_RTC_BRIDGE_TIMING_CTL   0x0
+-#define SOC_RTC_PERIOD_OFFS		0
+-#define SOC_RTC_PERIOD_MASK		(0x3FF << SOC_RTC_PERIOD_OFFS)
+-#define SOC_RTC_READ_DELAY_OFFS		26
+-#define SOC_RTC_READ_DELAY_MASK		(0x1F << SOC_RTC_READ_DELAY_OFFS)
+-
+-#define SOC_RTC_INTERRUPT   0x8
+-#define SOC_RTC_ALARM1		BIT(0)
+-#define SOC_RTC_ALARM2		BIT(1)
+-#define SOC_RTC_ALARM1_MASK	BIT(2)
+-#define SOC_RTC_ALARM2_MASK	BIT(3)
++#define RTC_38X_BRIDGE_TIMING_CTL   0x0
++#define RTC_38X_PERIOD_OFFS		0
++#define RTC_38X_PERIOD_MASK		(0x3FF << RTC_38X_PERIOD_OFFS)
++#define RTC_38X_READ_DELAY_OFFS		26
++#define RTC_38X_READ_DELAY_MASK		(0x1F << RTC_38X_READ_DELAY_OFFS)
++
++#define SOC_RTC_INTERRUPT	    0x8
++#define SOC_RTC_ALARM1			BIT(0)
++#define SOC_RTC_ALARM2			BIT(1)
++#define SOC_RTC_ALARM1_MASK		BIT(2)
++#define SOC_RTC_ALARM2_MASK		BIT(3)
  
- config RTC_DRV_HID_SENSOR_TIME
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index f07297b1460a..13857d2fce09 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -40,6 +40,7 @@ obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
- obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
- obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
- obj-$(CONFIG_RTC_DRV_COH901331)	+= rtc-coh901331.o
-+obj-$(CONFIG_RTC_DRV_CPCAP)	+= rtc-cpcap.o
- obj-$(CONFIG_RTC_DRV_DA9052)	+= rtc-da9052.o
- obj-$(CONFIG_RTC_DRV_DA9055)	+= rtc-da9055.o
- obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
-diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
-new file mode 100644
-index 000000000000..815beca843ce
---- /dev/null
-+++ b/drivers/rtc/rtc-cpcap.c
-@@ -0,0 +1,318 @@
-+/*
-+ * Motorola CPCAP PMIC RTC driver
-+ *
-+ * Based on cpcap-regulator.c from Motorola Linux kernel tree
-+ * Copyright (C) 2009 Motorola, Inc.
-+ *
-+ * Rewritten for mainline kernel
-+ *  - use DT
-+ *  - use regmap
-+ *  - use standard interrupt framework
-+ *  - use managed device resources
-+ *  - remove custom "secure clock daemon" helpers
-+ *
-+ * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc.h>
-+#include <linux/err.h>
-+#include <linux/regmap.h>
-+#include <linux/mfd/motorola-cpcap.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+
-+#define SECS_PER_DAY 86400
-+#define DAY_MASK  0x7FFF
-+#define TOD1_MASK 0x00FF
-+#define TOD2_MASK 0x01FF
-+
-+struct cpcap_time {
-+	int day;
-+	int tod1;
-+	int tod2;
+ #define SAMPLE_NR 100
+ 
+@@ -55,6 +56,19 @@ struct armada38x_rtc {
+ 	spinlock_t	    lock;
+ 	int		    irq;
+ 	struct value_to_freq *val_to_freq;
++	struct armada38x_rtc_data *data;
 +};
 +
-+struct cpcap_rtc {
-+	struct regmap *regmap;
-+	struct rtc_device *rtc_dev;
-+	u16 vendor;
-+	int alarm_irq;
-+	bool alarm_enabled;
-+	int update_irq;
-+	bool update_enabled;
++#define ALARM1	0
++#define ALARM_REG(base, alarm)	 ((base) + (alarm) * sizeof(u32))
++
++struct armada38x_rtc_data {
++	/* Initialize the RTC-MBUS bridge timing */
++	void (*update_mbus_timing)(struct armada38x_rtc *rtc);
++	u32 (*read_rtc_reg)(struct armada38x_rtc *rtc, u8 rtc_reg);
++	void (*clear_isr)(struct armada38x_rtc *rtc);
++	void (*unmask_interrupt)(struct armada38x_rtc *rtc);
++	u32 alarm;
+ };
+ 
+ /*
+@@ -76,19 +90,19 @@ static void rtc_delayed_write(u32 val, struct armada38x_rtc *rtc, int offset)
+ }
+ 
+ /* Update RTC-MBUS bridge timing parameters */
+-static void rtc_update_mbus_timing_params(struct armada38x_rtc *rtc)
++static void rtc_update_38x_mbus_timing_params(struct armada38x_rtc *rtc)
+ {
+ 	u32 reg;
+ 
+-	reg = readl(rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
+-	reg &= ~SOC_RTC_PERIOD_MASK;
+-	reg |= 0x3FF << SOC_RTC_PERIOD_OFFS; /* Maximum value */
+-	reg &= ~SOC_RTC_READ_DELAY_MASK;
+-	reg |= 0x1F << SOC_RTC_READ_DELAY_OFFS; /* Maximum value */
+-	writel(reg, rtc->regs_soc + SOC_RTC_BRIDGE_TIMING_CTL);
++	reg = readl(rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
++	reg &= ~RTC_38X_PERIOD_MASK;
++	reg |= 0x3FF << RTC_38X_PERIOD_OFFS; /* Maximum value */
++	reg &= ~RTC_38X_READ_DELAY_MASK;
++	reg |= 0x1F << RTC_38X_READ_DELAY_OFFS; /* Maximum value */
++	writel(reg, rtc->regs_soc + RTC_38X_BRIDGE_TIMING_CTL);
+ }
+ 
+-static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
++static u32 read_rtc_register_38x_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
+ {
+ 	int i, index_max = 0, max = 0;
+ 
+@@ -130,13 +144,26 @@ static u32 read_rtc_register_wa(struct armada38x_rtc *rtc, u8 rtc_reg)
+ 	return rtc->val_to_freq[index_max].value;
+ }
+ 
++static void armada38x_clear_isr(struct armada38x_rtc *rtc)
++{
++	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++
++	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
++}
++
++static void armada38x_unmask_interrupt(struct armada38x_rtc *rtc)
++{
++	u32 val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
++
++	writel(val | SOC_RTC_ALARM1_MASK, rtc->regs_soc + SOC_RTC_INTERRUPT);
++}
+ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned long time, flags;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+-	time = read_rtc_register_wa(rtc, RTC_TIME);
++	time = rtc->data->read_rtc_reg(rtc, RTC_TIME);
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+ 	rtc_time_to_tm(time, tm);
+@@ -167,12 +194,14 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned long time, flags;
++	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	u32 val;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+-	time = read_rtc_register_wa(rtc, RTC_ALARM1);
+-	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF) & RTC_IRQ1_AL_EN;
++	time = rtc->data->read_rtc_reg(rtc, reg);
++	val = rtc->data->read_rtc_reg(rtc, reg_irq) & RTC_IRQ_AL_EN;
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+@@ -185,9 +214,10 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	unsigned long time, flags;
+ 	int ret = 0;
+-	u32 val;
+ 
+ 	ret = rtc_tm_to_time(&alrm->time, &time);
+ 
+@@ -196,13 +226,11 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+-	rtc_delayed_write(time, rtc, RTC_ALARM1);
++	rtc_delayed_write(time, rtc, reg);
+ 
+ 	if (alrm->enabled) {
+-			rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
+-			val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
+-			writel(val | SOC_RTC_ALARM1_MASK,
+-			       rtc->regs_soc + SOC_RTC_INTERRUPT);
++		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
++		rtc->data->unmask_interrupt(rtc);
+ 	}
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+@@ -215,14 +243,15 @@ static int armada38x_rtc_alarm_irq_enable(struct device *dev,
+ 					 unsigned int enabled)
+ {
+ 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&rtc->lock, flags);
+ 
+ 	if (enabled)
+-		rtc_delayed_write(RTC_IRQ1_AL_EN, rtc, RTC_IRQ1_CONF);
++		rtc_delayed_write(RTC_IRQ_AL_EN, rtc, reg_irq);
+ 	else
+-		rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
++		rtc_delayed_write(0, rtc, reg_irq);
+ 
+ 	spin_unlock_irqrestore(&rtc->lock, flags);
+ 
+@@ -234,24 +263,23 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
+ 	struct armada38x_rtc *rtc = data;
+ 	u32 val;
+ 	int event = RTC_IRQF | RTC_AF;
++	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
+ 
+ 	dev_dbg(&rtc->rtc_dev->dev, "%s:irq(%d)\n", __func__, irq);
+ 
+ 	spin_lock(&rtc->lock);
+ 
+-	val = readl(rtc->regs_soc + SOC_RTC_INTERRUPT);
+-
+-	writel(val & ~SOC_RTC_ALARM1, rtc->regs_soc + SOC_RTC_INTERRUPT);
+-	val = read_rtc_register_wa(rtc, RTC_IRQ1_CONF);
+-	/* disable all the interrupts for alarm 1 */
+-	rtc_delayed_write(0, rtc, RTC_IRQ1_CONF);
++	rtc->data->clear_isr(rtc);
++	val = rtc->data->read_rtc_reg(rtc, reg_irq);
++	/* disable all the interrupts for alarm*/
++	rtc_delayed_write(0, rtc, reg_irq);
+ 	/* Ack the event */
+-	rtc_delayed_write(RTC_STATUS_ALARM1, rtc, RTC_STATUS);
++	rtc_delayed_write(1 << rtc->data->alarm, rtc, RTC_STATUS);
+ 
+ 	spin_unlock(&rtc->lock);
+ 
+-	if (val & RTC_IRQ1_FREQ_EN) {
+-		if (val & RTC_IRQ1_FREQ_1HZ)
++	if (val & RTC_IRQ_FREQ_EN) {
++		if (val & RTC_IRQ_FREQ_1HZ)
+ 			event |= RTC_UF;
+ 		else
+ 			event |= RTC_PF;
+@@ -276,13 +304,37 @@ static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
+ 	.read_alarm = armada38x_rtc_read_alarm,
+ };
+ 
++static const struct armada38x_rtc_data armada38x_data = {
++	.update_mbus_timing = rtc_update_38x_mbus_timing_params,
++	.read_rtc_reg = read_rtc_register_38x_wa,
++	.clear_isr = armada38x_clear_isr,
++	.unmask_interrupt = armada38x_unmask_interrupt,
++	.alarm = ALARM1,
 +};
 +
-+static void cpcap2rtc_time(struct rtc_time *rtc, struct cpcap_time *cpcap)
-+{
-+	unsigned long int tod;
-+	unsigned long int time;
-+
-+	tod = (cpcap->tod1 & TOD1_MASK) | ((cpcap->tod2 & TOD2_MASK) << 8);
-+	time = tod + ((cpcap->day & DAY_MASK) * SECS_PER_DAY);
-+
-+	rtc_time_to_tm(time, rtc);
-+}
-+
-+static void rtc2cpcap_time(struct cpcap_time *cpcap, struct rtc_time *rtc)
-+{
-+	unsigned long time;
-+
-+	rtc_tm_to_time(rtc, &time);
-+
-+	cpcap->day = time / SECS_PER_DAY;
-+	time %= SECS_PER_DAY;
-+	cpcap->tod2 = (time >> 8) & TOD2_MASK;
-+	cpcap->tod1 = time & TOD1_MASK;
-+}
-+
-+static int cpcap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct cpcap_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (rtc->alarm_enabled == enabled)
-+		return 0;
-+
-+	if (enabled)
-+		enable_irq(rtc->alarm_irq);
-+	else
-+		disable_irq(rtc->alarm_irq);
-+
-+	rtc->alarm_enabled = !!enabled;
-+
-+	return 0;
-+}
-+
-+static int cpcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct cpcap_rtc *rtc;
-+	struct cpcap_time cpcap_tm;
-+	int temp_tod2;
-+	int ret;
-+
-+	rtc = dev_get_drvdata(dev);
-+
-+	ret = regmap_read(rtc->regmap, CPCAP_REG_TOD2, &temp_tod2);
-+	ret |= regmap_read(rtc->regmap, CPCAP_REG_DAY, &cpcap_tm.day);
-+	ret |= regmap_read(rtc->regmap, CPCAP_REG_TOD1, &cpcap_tm.tod1);
-+	ret |= regmap_read(rtc->regmap, CPCAP_REG_TOD2, &cpcap_tm.tod2);
-+
-+	if (temp_tod2 > cpcap_tm.tod2)
-+		ret |= regmap_read(rtc->regmap, CPCAP_REG_DAY, &cpcap_tm.day);
-+
-+	if (ret) {
-+		dev_err(dev, "Failed to read time\n");
-+		return -EIO;
-+	}
-+
-+	cpcap2rtc_time(tm, &cpcap_tm);
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct cpcap_rtc *rtc;
-+	struct cpcap_time cpcap_tm;
-+	int ret = 0;
-+
-+	rtc = dev_get_drvdata(dev);
-+
-+	rtc2cpcap_time(&cpcap_tm, tm);
-+
-+	if (rtc->alarm_enabled)
-+		disable_irq(rtc->alarm_irq);
-+	if (rtc->update_enabled)
-+		disable_irq(rtc->update_irq);
-+
-+	if (rtc->vendor == CPCAP_VENDOR_ST) {
-+		/* The TOD1 and TOD2 registers MUST be written in this order
-+		 * for the change to properly set. */
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-+					  TOD1_MASK, cpcap_tm.tod1);
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-+					  TOD2_MASK, cpcap_tm.tod2);
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-+					  DAY_MASK, cpcap_tm.day);
-+	} else {
-+		/* Clearing the upper lower 8 bits of the TOD guarantees that
-+		 * the upper half of TOD (TOD2) will not increment for 0xFF RTC
-+		 * ticks (255 seconds).  During this time we can safely write
-+		 * to DAY, TOD2, then TOD1 (in that order) and expect RTC to be
-+		 * synchronized to the exact time requested upon the final write
-+		 * to TOD1. */
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-+					  TOD1_MASK, 0);
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-+					  DAY_MASK, cpcap_tm.day);
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-+					  TOD2_MASK, cpcap_tm.tod2);
-+		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-+					  TOD1_MASK, cpcap_tm.tod1);
-+	}
-+
-+	if (rtc->update_enabled)
-+		enable_irq(rtc->update_irq);
-+	if (rtc->alarm_enabled)
-+		enable_irq(rtc->alarm_irq);
-+
-+	return ret;
-+}
-+
-+static int cpcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct cpcap_rtc *rtc;
-+	struct cpcap_time cpcap_tm;
-+	int ret;
-+
-+	rtc = dev_get_drvdata(dev);
-+
-+	alrm->enabled = rtc->alarm_enabled;
-+
-+	ret = regmap_read(rtc->regmap, CPCAP_REG_DAYA, &cpcap_tm.day);
-+	ret |= regmap_read(rtc->regmap, CPCAP_REG_TODA2, &cpcap_tm.tod2);
-+	ret |= regmap_read(rtc->regmap, CPCAP_REG_TODA1, &cpcap_tm.tod1);
-+
-+	if (ret) {
-+		dev_err(dev, "Failed to read time\n");
-+		return -EIO;
-+	}
-+
-+	cpcap2rtc_time(&alrm->time, &cpcap_tm);
-+	return rtc_valid_tm(&alrm->time);
-+}
-+
-+static int cpcap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct cpcap_rtc *rtc;
-+	struct cpcap_time cpcap_tm;
-+	int ret;
-+
-+	rtc = dev_get_drvdata(dev);
-+
-+	rtc2cpcap_time(&cpcap_tm, &alrm->time);
-+
-+	if (rtc->alarm_enabled)
-+		disable_irq(rtc->alarm_irq);
-+
-+	ret = regmap_update_bits(rtc->regmap, CPCAP_REG_DAYA, DAY_MASK,
-+				 cpcap_tm.day);
-+	ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TODA2, TOD2_MASK,
-+				  cpcap_tm.tod2);
-+	ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TODA1, TOD1_MASK,
-+				  cpcap_tm.tod1);
-+
-+	if (!ret) {
-+		enable_irq(rtc->alarm_irq);
-+		rtc->alarm_enabled = true;
-+	}
-+
-+	return ret;
-+}
-+
-+static struct rtc_class_ops cpcap_rtc_ops = {
-+	.read_time		= cpcap_rtc_read_time,
-+	.set_time		= cpcap_rtc_set_time,
-+	.read_alarm		= cpcap_rtc_read_alarm,
-+	.set_alarm		= cpcap_rtc_set_alarm,
-+	.alarm_irq_enable 	= cpcap_rtc_alarm_irq_enable,
++#ifdef CONFIG_OF
++static const struct of_device_id armada38x_rtc_of_match_table[] = {
++	{
++		.compatible = "marvell,armada-380-rtc",
++		.data = &armada38x_data,
++	},
++	{}
 +};
++MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
++#endif
 +
-+static irqreturn_t cpcap_rtc_alarm_irq(int irq, void *data)
-+{
-+	struct cpcap_rtc *rtc = data;
-+
-+	rtc_update_irq(rtc->rtc_dev, 1, RTC_AF | RTC_IRQF);
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t cpcap_rtc_update_irq(int irq, void *data)
-+{
-+	struct cpcap_rtc *rtc = data;
-+
-+	rtc_update_irq(rtc->rtc_dev, 1, RTC_UF | RTC_IRQF);
-+	return IRQ_HANDLED;
-+}
-+
-+static int cpcap_rtc_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct cpcap_rtc *rtc;
-+	int err;
-+
-+	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
-+	if (!rtc)
-+		return -ENOMEM;
-+
-+	rtc->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!rtc->regmap)
+ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ {
+ 	const struct rtc_class_ops *ops;
+ 	struct resource *res;
+ 	struct armada38x_rtc *rtc;
++	const struct of_device_id *match;
+ 	int ret;
+ 
++	match = of_match_device(armada38x_rtc_of_match_table, &pdev->dev);
++	if (!match)
 +		return -ENODEV;
 +
-+	platform_set_drvdata(pdev, rtc);
-+	rtc->rtc_dev = devm_rtc_device_register(dev, "cpcap_rtc",
-+						&cpcap_rtc_ops, THIS_MODULE);
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
+ 			    GFP_KERNEL);
+ 	if (!rtc)
+@@ -327,9 +379,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		 */
+ 		ops = &armada38x_rtc_ops_noirq;
+ 	}
++	rtc->data = (struct armada38x_rtc_data *)match->data;
 +
-+	if (IS_ERR(rtc->rtc_dev)) {
-+		kfree(rtc);
-+		return PTR_ERR(rtc->rtc_dev);
-+	}
-+
-+	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
-+	if (err)
-+		return err;
-+
-+	rtc->alarm_irq= platform_get_irq(pdev, 0);
-+	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
-+					cpcap_rtc_alarm_irq, IRQ_NONE,
-+					"rtc_alarm", rtc);
-+	if (err) {
-+		dev_err(dev, "Could not request alarm irq: %d\n", err);
-+		return err;
-+	}
-+	disable_irq(rtc->alarm_irq);
-+
-+	rtc->update_irq= platform_get_irq(pdev, 1);
-+	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
-+					cpcap_rtc_update_irq, IRQ_NONE,
-+					"rtc_1hz", rtc);
-+	if (err) {
-+		dev_err(dev, "Could not request update irq: %d\n", err);
-+		return err;
-+	}
-+	disable_irq(rtc->update_irq);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id cpcap_rtc_of_match[] = {
-+	{ .compatible = "motorola,cpcap-rtc", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, cpcap_rtc_of_match);
-+
-+static struct platform_driver cpcap_rtc_driver = {
-+	.probe		= cpcap_rtc_probe,
-+	.driver		= {
-+		.name	= "cpcap-rtc",
-+		.of_match_table = cpcap_rtc_of_match,
-+	},
-+};
-+
-+module_platform_driver(cpcap_rtc_driver);
-+
-+MODULE_ALIAS("platform:cpcap-rtc");
-+MODULE_DESCRIPTION("CPCAP RTC driver");
-+MODULE_AUTHOR("Sebastian Reichel <sre@kernel.org>");
-+MODULE_LICENSE("GPL");
+ 
+ 	/* Update RTC-MBUS bridge timing parameters */
+-	rtc_update_mbus_timing_params(rtc);
++	rtc->data->update_mbus_timing(rtc);
+ 
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 						ops, THIS_MODULE);
+@@ -359,7 +413,7 @@ static int armada38x_rtc_resume(struct device *dev)
+ 		struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+ 
+ 		/* Update RTC-MBUS bridge timing parameters */
+-		rtc_update_mbus_timing_params(rtc);
++		rtc->data->update_mbus_timing(rtc);
+ 
+ 		return disable_irq_wake(rtc->irq);
+ 	}
+@@ -371,14 +425,6 @@ static int armada38x_rtc_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(armada38x_rtc_pm_ops,
+ 			 armada38x_rtc_suspend, armada38x_rtc_resume);
+ 
+-#ifdef CONFIG_OF
+-static const struct of_device_id armada38x_rtc_of_match_table[] = {
+-	{ .compatible = "marvell,armada-380-rtc", },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
+-#endif
+-
+ static struct platform_driver armada38x_rtc_driver = {
+ 	.driver		= {
+ 		.name	= "armada38x-rtc",
 -- 
 2.11.0
 
