@@ -1,25 +1,25 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBPX3WLCQKGQEGNTXUTA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXMLNOH5ANRBY5WV7CQKGQEAQCHPGA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id q4si1393641wma.3.2017.02.21.14.22.54
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Feb 2017 14:22:54 -0800 (PST)
-Date: Tue, 21 Feb 2017 23:22:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org, Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] Re: [PATCH v3 2/3] rtc: armada38x: Add support for Armada 7K/8K
-Message-ID: <20170221222253.jdcwvcjhey7f4cyv@piout.net>
-References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
- <20170220173850.8640-3-gregory.clement@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170220173850.8640-3-gregory.clement@free-electrons.com>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id s64si2124529pfk.0.2017.02.20.22.17.07
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Feb 2017 22:17:07 -0800 (PST)
+From: Sebastian Reichel <sre@kernel.org>
+To: Sebastian Reichel <sre@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCHv2] rtc: cpcap: new rtc driver
+Date: Tue, 21 Feb 2017 07:16:50 +0100
+Message-Id: <20170221061650.12636-1-sre@kernel.org>
+In-Reply-To: <20170220073535.27393-1-sre@kernel.org>
+References: <20170220073535.27393-1-sre@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,28 +28,405 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/02/2017 at 18:38:49 +0100, Gregory CLEMENT wrote:
-> The Armada 7K/8K use the same RTC IP than the Armada 38x. However the SOC
-> integration differs in 2 points:
->  - MBUS bridge timing initialization
->  - IRQ configuration at SoC level
-> 
-> Moreover the Armada 7K/8K have an issue preventing to get the interrupt
-> from alarm 1. This commit allows to use alarm 2 for these A7K/8K but to
-> still use alarm 1 for the Armada 38x.
-> 
-> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
-> ---
->  .../devicetree/bindings/rtc/armada-380-rtc.txt     |  8 ++-
->  drivers/rtc/rtc-armada38x.c                        | 65 ++++++++++++++++++++++
->  2 files changed, 70 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+This driver supports the Motorola CPCAP PMIC found on
+some of Motorola's mobile phones, such as the Droid 4.
 
+Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
+---
+Changes to PATCHv1:
+ - added device_init_wakeup() at the end of probe
+ - added Tested-by from Tony
+---
+ .../devicetree/bindings/rtc/cpcap-rtc.txt          |  13 +
+ drivers/rtc/Kconfig                                |   7 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-cpcap.c                            | 324 +++++++++++++++++++++
+ 4 files changed, 345 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+ create mode 100644 drivers/rtc/rtc-cpcap.c
+
+diff --git a/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+new file mode 100644
+index 000000000000..2709c32baf2c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+@@ -0,0 +1,13 @@
++Motorola CPCAP PMIC RTC
++------------------------------------
++
++Requires node properties:
++- compatible: should contain "motorola,cpcap-rtc"
++- interrupts: An interrupt specifier for alarm and 1 Hz irq
++
++Example:
++
++cpcap_rtc: rtc {
++	compatible = "motorola,cpcap-rtc";
++	interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
++};
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index ee1b0e9dde79..050bec749fae 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1731,6 +1731,13 @@ config RTC_DRV_STM32
+ 	   This driver can also be built as a module, if so, the module
+ 	   will be called "rtc-stm32".
+ 
++config RTC_DRV_CPCAP
++	depends on MFD_CPCAP
++	tristate "Motorola CPCAP RTC"
++	help
++	   Say y here for CPCAP rtc found on some Motorola phones
++	   and tablets such as Droid 4.
++
+ comment "HID Sensor RTC drivers"
+ 
+ config RTC_DRV_HID_SENSOR_TIME
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index f07297b1460a..13857d2fce09 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -40,6 +40,7 @@ obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
+ obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
+ obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
+ obj-$(CONFIG_RTC_DRV_COH901331)	+= rtc-coh901331.o
++obj-$(CONFIG_RTC_DRV_CPCAP)	+= rtc-cpcap.o
+ obj-$(CONFIG_RTC_DRV_DA9052)	+= rtc-da9052.o
+ obj-$(CONFIG_RTC_DRV_DA9055)	+= rtc-da9055.o
+ obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
+diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
+new file mode 100644
+index 000000000000..d24c205b70e8
+--- /dev/null
++++ b/drivers/rtc/rtc-cpcap.c
+@@ -0,0 +1,324 @@
++/*
++ * Motorola CPCAP PMIC RTC driver
++ *
++ * Based on cpcap-regulator.c from Motorola Linux kernel tree
++ * Copyright (C) 2009 Motorola, Inc.
++ *
++ * Rewritten for mainline kernel
++ *  - use DT
++ *  - use regmap
++ *  - use standard interrupt framework
++ *  - use managed device resources
++ *  - remove custom "secure clock daemon" helpers
++ *
++ * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++#include <linux/err.h>
++#include <linux/regmap.h>
++#include <linux/mfd/motorola-cpcap.h>
++#include <linux/slab.h>
++#include <linux/sched.h>
++
++#define SECS_PER_DAY 86400
++#define DAY_MASK  0x7FFF
++#define TOD1_MASK 0x00FF
++#define TOD2_MASK 0x01FF
++
++struct cpcap_time {
++	int day;
++	int tod1;
++	int tod2;
++};
++
++struct cpcap_rtc {
++	struct regmap *regmap;
++	struct rtc_device *rtc_dev;
++	u16 vendor;
++	int alarm_irq;
++	bool alarm_enabled;
++	int update_irq;
++	bool update_enabled;
++};
++
++static void cpcap2rtc_time(struct rtc_time *rtc, struct cpcap_time *cpcap)
++{
++	unsigned long int tod;
++	unsigned long int time;
++
++	tod = (cpcap->tod1 & TOD1_MASK) | ((cpcap->tod2 & TOD2_MASK) << 8);
++	time = tod + ((cpcap->day & DAY_MASK) * SECS_PER_DAY);
++
++	rtc_time_to_tm(time, rtc);
++}
++
++static void rtc2cpcap_time(struct cpcap_time *cpcap, struct rtc_time *rtc)
++{
++	unsigned long time;
++
++	rtc_tm_to_time(rtc, &time);
++
++	cpcap->day = time / SECS_PER_DAY;
++	time %= SECS_PER_DAY;
++	cpcap->tod2 = (time >> 8) & TOD2_MASK;
++	cpcap->tod1 = time & TOD1_MASK;
++}
++
++static int cpcap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct cpcap_rtc *rtc = dev_get_drvdata(dev);
++
++	if (rtc->alarm_enabled == enabled)
++		return 0;
++
++	if (enabled)
++		enable_irq(rtc->alarm_irq);
++	else
++		disable_irq(rtc->alarm_irq);
++
++	rtc->alarm_enabled = !!enabled;
++
++	return 0;
++}
++
++static int cpcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct cpcap_rtc *rtc;
++	struct cpcap_time cpcap_tm;
++	int temp_tod2;
++	int ret;
++
++	rtc = dev_get_drvdata(dev);
++
++	ret = regmap_read(rtc->regmap, CPCAP_REG_TOD2, &temp_tod2);
++	ret |= regmap_read(rtc->regmap, CPCAP_REG_DAY, &cpcap_tm.day);
++	ret |= regmap_read(rtc->regmap, CPCAP_REG_TOD1, &cpcap_tm.tod1);
++	ret |= regmap_read(rtc->regmap, CPCAP_REG_TOD2, &cpcap_tm.tod2);
++
++	if (temp_tod2 > cpcap_tm.tod2)
++		ret |= regmap_read(rtc->regmap, CPCAP_REG_DAY, &cpcap_tm.day);
++
++	if (ret) {
++		dev_err(dev, "Failed to read time\n");
++		return -EIO;
++	}
++
++	cpcap2rtc_time(tm, &cpcap_tm);
++
++	return rtc_valid_tm(tm);
++}
++
++static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct cpcap_rtc *rtc;
++	struct cpcap_time cpcap_tm;
++	int ret = 0;
++
++	rtc = dev_get_drvdata(dev);
++
++	rtc2cpcap_time(&cpcap_tm, tm);
++
++	if (rtc->alarm_enabled)
++		disable_irq(rtc->alarm_irq);
++	if (rtc->update_enabled)
++		disable_irq(rtc->update_irq);
++
++	if (rtc->vendor == CPCAP_VENDOR_ST) {
++		/* The TOD1 and TOD2 registers MUST be written in this order
++		 * for the change to properly set. */
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
++					  TOD1_MASK, cpcap_tm.tod1);
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
++					  TOD2_MASK, cpcap_tm.tod2);
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
++					  DAY_MASK, cpcap_tm.day);
++	} else {
++		/* Clearing the upper lower 8 bits of the TOD guarantees that
++		 * the upper half of TOD (TOD2) will not increment for 0xFF RTC
++		 * ticks (255 seconds).  During this time we can safely write
++		 * to DAY, TOD2, then TOD1 (in that order) and expect RTC to be
++		 * synchronized to the exact time requested upon the final write
++		 * to TOD1. */
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
++					  TOD1_MASK, 0);
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
++					  DAY_MASK, cpcap_tm.day);
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
++					  TOD2_MASK, cpcap_tm.tod2);
++		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
++					  TOD1_MASK, cpcap_tm.tod1);
++	}
++
++	if (rtc->update_enabled)
++		enable_irq(rtc->update_irq);
++	if (rtc->alarm_enabled)
++		enable_irq(rtc->alarm_irq);
++
++	return ret;
++}
++
++static int cpcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct cpcap_rtc *rtc;
++	struct cpcap_time cpcap_tm;
++	int ret;
++
++	rtc = dev_get_drvdata(dev);
++
++	alrm->enabled = rtc->alarm_enabled;
++
++	ret = regmap_read(rtc->regmap, CPCAP_REG_DAYA, &cpcap_tm.day);
++	ret |= regmap_read(rtc->regmap, CPCAP_REG_TODA2, &cpcap_tm.tod2);
++	ret |= regmap_read(rtc->regmap, CPCAP_REG_TODA1, &cpcap_tm.tod1);
++
++	if (ret) {
++		dev_err(dev, "Failed to read time\n");
++		return -EIO;
++	}
++
++	cpcap2rtc_time(&alrm->time, &cpcap_tm);
++	return rtc_valid_tm(&alrm->time);
++}
++
++static int cpcap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct cpcap_rtc *rtc;
++	struct cpcap_time cpcap_tm;
++	int ret;
++
++	rtc = dev_get_drvdata(dev);
++
++	rtc2cpcap_time(&cpcap_tm, &alrm->time);
++
++	if (rtc->alarm_enabled)
++		disable_irq(rtc->alarm_irq);
++
++	ret = regmap_update_bits(rtc->regmap, CPCAP_REG_DAYA, DAY_MASK,
++				 cpcap_tm.day);
++	ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TODA2, TOD2_MASK,
++				  cpcap_tm.tod2);
++	ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TODA1, TOD1_MASK,
++				  cpcap_tm.tod1);
++
++	if (!ret) {
++		enable_irq(rtc->alarm_irq);
++		rtc->alarm_enabled = true;
++	}
++
++	return ret;
++}
++
++static struct rtc_class_ops cpcap_rtc_ops = {
++	.read_time		= cpcap_rtc_read_time,
++	.set_time		= cpcap_rtc_set_time,
++	.read_alarm		= cpcap_rtc_read_alarm,
++	.set_alarm		= cpcap_rtc_set_alarm,
++	.alarm_irq_enable 	= cpcap_rtc_alarm_irq_enable,
++};
++
++static irqreturn_t cpcap_rtc_alarm_irq(int irq, void *data)
++{
++	struct cpcap_rtc *rtc = data;
++
++	rtc_update_irq(rtc->rtc_dev, 1, RTC_AF | RTC_IRQF);
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t cpcap_rtc_update_irq(int irq, void *data)
++{
++	struct cpcap_rtc *rtc = data;
++
++	rtc_update_irq(rtc->rtc_dev, 1, RTC_UF | RTC_IRQF);
++	return IRQ_HANDLED;
++}
++
++static int cpcap_rtc_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct cpcap_rtc *rtc;
++	int err;
++
++	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	rtc->regmap = dev_get_regmap(dev->parent, NULL);
++	if (!rtc->regmap)
++		return -ENODEV;
++
++	platform_set_drvdata(pdev, rtc);
++	rtc->rtc_dev = devm_rtc_device_register(dev, "cpcap_rtc",
++						&cpcap_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc->rtc_dev)) {
++		kfree(rtc);
++		return PTR_ERR(rtc->rtc_dev);
++	}
++
++	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
++	if (err)
++		return err;
++
++	rtc->alarm_irq= platform_get_irq(pdev, 0);
++	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
++					cpcap_rtc_alarm_irq, IRQ_NONE,
++					"rtc_alarm", rtc);
++	if (err) {
++		dev_err(dev, "Could not request alarm irq: %d\n", err);
++		return err;
++	}
++	disable_irq(rtc->alarm_irq);
++
++	rtc->update_irq= platform_get_irq(pdev, 1);
++	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
++					cpcap_rtc_update_irq, IRQ_NONE,
++					"rtc_1hz", rtc);
++	if (err) {
++		dev_err(dev, "Could not request update irq: %d\n", err);
++		return err;
++	}
++	disable_irq(rtc->update_irq);
++
++	err = device_init_wakeup(dev, 1);
++	if (err) {
++		dev_err(dev, "wakeup initialization failed (%d)\n", err);
++		/* ignore error and continue without wakeup support */
++	}
++
++	return 0;
++}
++
++static const struct of_device_id cpcap_rtc_of_match[] = {
++	{ .compatible = "motorola,cpcap-rtc", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, cpcap_rtc_of_match);
++
++static struct platform_driver cpcap_rtc_driver = {
++	.probe		= cpcap_rtc_probe,
++	.driver		= {
++		.name	= "cpcap-rtc",
++		.of_match_table = cpcap_rtc_of_match,
++	},
++};
++
++module_platform_driver(cpcap_rtc_driver);
++
++MODULE_ALIAS("platform:cpcap-rtc");
++MODULE_DESCRIPTION("CPCAP RTC driver");
++MODULE_AUTHOR("Sebastian Reichel <sre@kernel.org>");
++MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
