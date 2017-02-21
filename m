@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERB3E6SPCQKGQEMAYLCFY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA63GMRREGBBTH2WHCQKGQEVHHFWCQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-ot0-f193.google.com (mail-ot0-f193.google.com. [74.125.82.193])
-        by gmr-mx.google.com with ESMTPS id i189si1450159iti.0.2017.02.15.14.00.12
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com. [66.111.4.28])
+        by gmr-mx.google.com with ESMTPS id u30si2673769ywh.7.2017.02.21.09.47.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Feb 2017 14:00:12 -0800 (PST)
-Received: by mail-ot0-f193.google.com with SMTP id 73so22108186otj.1
-        for <rtc-linux@googlegroups.com>; Wed, 15 Feb 2017 14:00:12 -0800 (PST)
-Date: Wed, 15 Feb 2017 16:00:10 -0600
-From: Rob Herring <robh@kernel.org>
-To: Guy Shapiro <guy.shapiro@mobi-wize.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>,
-	Fabio Estevam <fabio.estevam@nxp.com>, devicetree@vger.kernel.org,
-	linux-pm@vger.kernel.org, rtc-linux@googlegroups.com,
-	Sascha Hauer <kernel@pengutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH 1/2] power: reset: syscon-poweroff: add a mask property
-Message-ID: <20170215220010.psk37r4belykyquy@rob-hp-laptop>
-References: <1486472054-4367-1-git-send-email-guy.shapiro@mobi-wize.com>
- <1486482966-4497-1-git-send-email-guy.shapiro@mobi-wize.com>
+        Tue, 21 Feb 2017 09:47:55 -0800 (PST)
+From: Alexander Clouter <alex@digriz.org.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, H Hartley Sweeten <hsweeten@visionengravers.com>
+CC: <rtc-linux@googlegroups.com>, Alessandro Zummo <a.zummo@towertech.it>
+Date: Tue, 21 Feb 2017 17:47:48 +0000
+Message-ID: <15a61c951a0.27a8.15018831546f68f527b5b4b4e7f8f3cd@digriz.org.uk>
+In-Reply-To: <20170221163720.m6hp27t4z7q4pgwl@piout.net>
+References: <20170215163527.5697-1-hsweeten@visionengravers.com>
+ <20170215163527.5697-2-hsweeten@visionengravers.com>
+ <20170221163720.m6hp27t4z7q4pgwl@piout.net>
+Subject: [rtc-linux] Re: [PATCH 1/5] rtc: m48t86: verify that the RTC is
+ actually present
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1486482966-4497-1-git-send-email-guy.shapiro@mobi-wize.com>
+Content-Type: text/plain; format=flowed; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,21 +27,99 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Feb 07, 2017 at 05:56:05PM +0200, Guy Shapiro wrote:
-> Make the syscon-poweroff driver accept value and mask instead of
-> just value.
-> 
-> Prior to this patch, the property name for the value was 'mask'. If
-> only the mask property is defined on a node, maintain compatibility
-> by using it as the value.
-> 
-> Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
-> ---
->  .../bindings/power/reset/syscon-poweroff.txt          | 11 +++++++++--
->  drivers/power/reset/syscon-poweroff.c                 | 19 ++++++++++++++++---
->  2 files changed, 25 insertions(+), 5 deletions(-)
+Thanks, not tested though, as I am lacking in time at the moment.  I 
+probably am the only ts7800 user in the world using a mainline kernel 
+too...so will only be punishing myself :-)
 
-Acked-by: Rob Herring <robh@kernel.org>
+Acked-By: Alexander Clouter <alex+kernel@digriz.org.uk>
+
+
+On 21 February 2017 4:37:35 p.m. Alexandre Belloni 
+<alexandre.belloni@free-electrons.com> wrote:
+
+> Hi,
+>
+> On 15/02/2017 at 09:35:23 -0700, H Hartley Sweeten wrote:
+>> The RTC is an optional feature at purchase time on some Technologic
+>> Systems boards. Verify that it actually exists by checking if the
+>> last two bytes of the NVRAM can be changed.
+>>
+>> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+>> Cc: Alessandro Zummo <a.zummo@towertech.it>
+>> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>> Cc: Alexander Clouter <alex@digriz.org.uk>
+>> ---
+>>  drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 36 insertions(+)
+>>
+>
+> I've applied that one. Alex, if you are fine with the mach-orion5x
+> changes, I can take them for 4.11. Else, this will wait for 4.12.
+>
+>> diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+>> index 4dc4af4..41ac5d6 100644
+>> --- a/drivers/rtc/rtc-m48t86.c
+>> +++ b/drivers/rtc/rtc-m48t86.c
+>> @@ -201,6 +201,37 @@ static ssize_t m48t86_nvram_write(struct file *filp, 
+>> struct kobject *kobj,
+>>  static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
+>>  		M48T86_NVRAM_LEN);
+>>
+>> +/*
+>> + * The RTC is an optional feature at purchase time on some Technologic Systems
+>> + * boards. Verify that it actually exists by checking if the last two bytes
+>> + * of the NVRAM can be changed.
+>> + *
+>> + * This is based on the method used in their rtc7800.c example.
+>> + */
+>> +static bool m48t86_verify_chip(struct platform_device *pdev)
+>> +{
+>> +	unsigned int offset0 = M48T86_NVRAM_LEN - 2;
+>> +	unsigned int offset1 = M48T86_NVRAM_LEN - 1;
+>> +	unsigned char tmp0, tmp1;
+>> +
+>> +	tmp0 = m48t86_readb(&pdev->dev, offset0);
+>> +	tmp1 = m48t86_readb(&pdev->dev, offset1);
+>> +
+>> +	m48t86_writeb(&pdev->dev, 0x00, offset0);
+>> +	m48t86_writeb(&pdev->dev, 0x55, offset1);
+>> +	if (m48t86_readb(&pdev->dev, offset1) == 0x55) {
+>> +		m48t86_writeb(&pdev->dev, 0xaa, offset1);
+>> +		if (m48t86_readb(&pdev->dev, offset1) == 0xaa &&
+>> +		    m48t86_readb(&pdev->dev, offset0) == 0x00) {
+>> +			m48t86_writeb(&pdev->dev, tmp0, offset0);
+>> +			m48t86_writeb(&pdev->dev, tmp1, offset1);
+>> +
+>> +			return true;
+>> +		}
+>> +	}
+>> +	return false;
+>> +}
+>> +
+>>  static int m48t86_rtc_probe(struct platform_device *pdev)
+>>  {
+>>  	struct m48t86_rtc_info *info;
+>> @@ -231,6 +262,11 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+>>
+>>  	dev_set_drvdata(&pdev->dev, info);
+>>
+>> +	if (!m48t86_verify_chip(pdev)) {
+>> +		dev_info(&pdev->dev, "RTC not present\n");
+>> +		return -ENODEV;
+>> +	}
+>> +
+>>  	info->rtc = devm_rtc_device_register(&pdev->dev, "m48t86",
+>>  					     &m48t86_rtc_ops, THIS_MODULE);
+>>  	if (IS_ERR(info->rtc))
+>> --
+>> 2.10.0
+>>
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
