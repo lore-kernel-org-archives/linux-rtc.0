@@ -1,66 +1,25 @@
-Return-Path: <rtc-linux+bncBCZ4DZNV3IDBB3EUWXCQKGQEB4CBP7Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCHOWHCQKGQEQDE4GSA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from www381.your-server.de (www381.your-server.de. [78.46.137.84])
-        by gmr-mx.google.com with ESMTPS id 13si264916iti.0.2017.02.22.00.23.08
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Feb 2017 00:23:08 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 07/14] infiniband: utilize new device_add_cdev
- helper function
-To: Logan Gunthorpe <logang@deltatee.com>,
- Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-8-git-send-email-logang@deltatee.com>
- <20170221190905.GD13138@obsidianresearch.com>
- <c7d34394-a9e8-fc9f-92f5-42c56a73ad1f@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
- Arnd Bergmann <arnd@arndb.de>, Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
- Marcel Selhorst <tpmdd@selhorst.net>,
- Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
- Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
- Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock
- <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
- Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
- Leon Romanovsky <leon@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
- Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler
- <pmeerw@pmeerw.net>, Hans Verkuil <hans.verkuil@cisco.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Boris Brezillon <boris.brezillon@free-electrons.com>,
- Marek Vasut <marek.vasut@gmail.com>,
- Cyrille Pitchen <cyrille.pitchen@atmel.com>,
- Matt Porter <mporter@kernel.crashing.org>,
- Alexandre Bounine <alexandre.bounine@idt.com>,
- Andrew Morton <akpm@linux-foundation.org>, Joe Perches <joe@perches.com>,
- Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Boaz Harrosh <ooo@electrozaur.com>, Benny Halevy <bhalevy@primarydata.com>,
- "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Stephen Bates <stephen.bates@microsemi.com>,
- Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
- osd-dev@open-osd.org, linux-scsi@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
- linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
- linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-nvdimm@ml01.01.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-From: Lars-Peter Clausen <lars@metafoo.de>
-Message-ID: <91c42195-a6a9-e525-43ea-7c44c0204c2c@metafoo.de>
-Date: Wed, 22 Feb 2017 09:18:04 +0100
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si1169865wmf.0.2017.02.21.09.21.12
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Feb 2017 09:21:12 -0800 (PST)
+Date: Tue, 21 Feb 2017 18:21:01 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Hartley Sweeten <HartleyS@visionengravers.com>
+Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"alex@digriz.org.uk" <alex@digriz.org.uk>,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] Re: [PATCH 1/5] rtc: m48t86: verify that the RTC is
+ actually present
+Message-ID: <20170221172101.2zde3z7hkpblennl@piout.net>
+References: <20170215163527.5697-1-hsweeten@visionengravers.com>
+ <20170215163527.5697-2-hsweeten@visionengravers.com>
+ <20170221163720.m6hp27t4z7q4pgwl@piout.net>
+ <SN1PR0101MB15652C26018F5BE5369DE4C7D0510@SN1PR0101MB1565.prod.exchangelabs.com>
 MIME-Version: 1.0
-In-Reply-To: <c7d34394-a9e8-fc9f-92f5-42c56a73ad1f@deltatee.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <SN1PR0101MB15652C26018F5BE5369DE4C7D0510@SN1PR0101MB1565.prod.exchangelabs.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -70,20 +29,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/22/2017 12:54 AM, Logan Gunthorpe wrote:
-[...]
->>
->> Ah, this needs more help. Once device_initialize is called put_device
->> should be the error-unwind, can you use something more like this?
+On 21/02/2017 at 17:04:07 +0000, Hartley Sweeten wrote:
+> On Tuesday, February 21, 2017 9:37 AM, Alexandre Belloni wrote:
+> > On 15/02/2017 at 09:35:23 -0700, H Hartley Sweeten wrote:
+> >> The RTC is an optional feature at purchase time on some Technologic
+> >> Systems boards. Verify that it actually exists by checking if the
+> >> last two bytes of the NVRAM can be changed.
+> >> 
+> >> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> >> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> >> Cc: Alexander Clouter <alex@digriz.org.uk>
+> >> ---
+> >>  drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
+> >>  1 file changed, 36 insertions(+)
+> >> 
+> >
+> > I've applied that one. Alex, if you are fine with the mach-orion5x
+> > changes, I can take them for 4.11. Else, this will wait for 4.12.
 > 
-> Is that true? Once device_register or device_add is called then you need
-> to use put_device. [...]
+> Hello,
+> 
+> Thanks. The change to mach-ep93xx is ok if you want to take that one.
+> 
 
-device_initialize() documentation:
+Ok, I took it.
 
-	NOTE: Use put_device() to give up your reference instead of freeing
-	@dev directly once you have called this function.
+> In order to address the last two bytes, these two offsets should actually be:
+> 
+> +	unsigned int offset0 = M48T86_NVRAM(M48T86_NVRAM_LEN - 2);
+> +	unsigned int offset1 = M48T86_NVRAM(M48T86_NVRAM_LEN - 1);
+> 
+> As they are right now, they are both off by 14 bytes (0x0e).
+> 
+> I can send a patch to fix it or you can do it if you prefer.
+> 
 
+I fixed it up directly in rtc-next
+
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
