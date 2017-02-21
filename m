@@ -1,26 +1,83 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBM73WLCQKGQECJTAQ2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBJEUV7CQKGQEY46ZB4A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 14si1210435wmn.2.2017.02.21.14.22.43
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Feb 2017 14:22:43 -0800 (PST)
-Date: Tue, 21 Feb 2017 23:22:42 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org, Haim Boot <hayim@marvell.com>
-Subject: [rtc-linux] Re: [PATCH v3 1/3] rtc: armada38x: Prepare driver to
- manage different versions
-Message-ID: <20170221222242.n5pdpmrjk5wie5wq@piout.net>
-References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
- <20170220173850.8640-2-gregory.clement@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170220173850.8640-2-gregory.clement@free-electrons.com>
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id h130si2704118pfe.1.2017.02.20.21.03.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Feb 2017 21:03:32 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon, 20 Feb 2017 22:00:51 -0700
+Message-Id: <1487653253-11497-13-git-send-email-logang@deltatee.com>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH 12/14] rtc: utilize new device_add_cdev helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,25 +86,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/02/2017 at 18:38:48 +0100, Gregory CLEMENT wrote:
-> In order to prepare the introduction of the A7K/A8K version of the RTC,
-> this commit introduces a new data structure. This structure allows to
-> handle the differences between the integration of the RTC IP in the
-> SoCs. It will be:
->  - MBUS bridge timing initialization
->  - IRQ configuration at SoC level
-> 
-> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
-> ---
->  drivers/rtc/rtc-armada38x.c | 152 +++++++++++++++++++++++++++++---------------
->  1 file changed, 99 insertions(+), 53 deletions(-)
-> 
-Applied, thanks.
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/rtc/rtc-dev.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index a6d9434..e4012bb 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -477,12 +477,11 @@ void rtc_dev_prepare(struct rtc_device *rtc)
+ 
+ 	cdev_init(&rtc->char_dev, &rtc_dev_fops);
+ 	rtc->char_dev.owner = rtc->owner;
+-	rtc->char_dev.kobj.parent = &rtc->dev.kobj;
+ }
+ 
+ void rtc_dev_add_device(struct rtc_device *rtc)
+ {
+-	if (cdev_add(&rtc->char_dev, rtc->dev.devt, 1))
++	if (device_add_cdev(&rtc->dev, &rtc->char_dev))
+ 		dev_warn(&rtc->dev, "%s: failed to add char device %d:%d\n",
+ 			rtc->name, MAJOR(rtc_devt), rtc->id);
+ 	else
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
