@@ -1,25 +1,55 @@
-Return-Path: <rtc-linux+bncBDKOZ45RYIGRBCPGWHCQKGQECHCVEAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDZYPUPHYEJBBXMIWLCQKGQE4S26VBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM03-CO1-obe.outbound.protection.outlook.com (mail-co1nam03on0134.outbound.protection.outlook.com. [104.47.40.134])
-        by gmr-mx.google.com with ESMTPS id f7si3111694pfk.5.2017.02.21.09.04.09
+Received: from mail-oi0-x22a.google.com (mail-oi0-x22a.google.com. [2607:f8b0:4003:c06::22a])
+        by gmr-mx.google.com with ESMTPS id g205si2261119ita.2.2017.02.21.10.18.05
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 21 Feb 2017 09:04:09 -0800 (PST)
-From: Hartley Sweeten <HartleyS@visionengravers.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"alex@digriz.org.uk" <alex@digriz.org.uk>, Alessandro Zummo
-	<a.zummo@towertech.it>
-Subject: [rtc-linux] RE: [PATCH 1/5] rtc: m48t86: verify that the RTC is
- actually present
-Date: Tue, 21 Feb 2017 17:04:07 +0000
-Message-ID: <SN1PR0101MB15652C26018F5BE5369DE4C7D0510@SN1PR0101MB1565.prod.exchangelabs.com>
-References: <20170215163527.5697-1-hsweeten@visionengravers.com>
- <20170215163527.5697-2-hsweeten@visionengravers.com>
- <20170221163720.m6hp27t4z7q4pgwl@piout.net>
-In-Reply-To: <20170221163720.m6hp27t4z7q4pgwl@piout.net>
-Content-Type: text/plain; charset=UTF-8
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Feb 2017 10:18:05 -0800 (PST)
+Received: by mail-oi0-x22a.google.com with SMTP id s205so6917136oif.3
+        for <rtc-linux@googlegroups.com>; Tue, 21 Feb 2017 10:18:05 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <17f32963-1d0e-5d17-64c9-742b05415722@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-2-git-send-email-logang@deltatee.com> <20170221053522.GA1466@dtor-ws>
+ <17f32963-1d0e-5d17-64c9-742b05415722@deltatee.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Tue, 21 Feb 2017 10:18:04 -0800
+Message-ID: <CAPcyv4jOWDxjQoBdZ8GQ+yhcAcL2gOBoEEHE-02beopXKFmGQA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 01/14] chardev: add helper function to
+ register char devs with a struct device
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>, Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>, Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>, Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, osd-dev@open-osd.org,
+	linux-scsi <linux-scsi@vger.kernel.org>, rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	"linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,62 +59,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tuesday, February 21, 2017 9:37 AM, Alexandre Belloni wrote:
-> On 15/02/2017 at 09:35:23 -0700, H Hartley Sweeten wrote:
->> The RTC is an optional feature at purchase time on some Technologic
->> Systems boards. Verify that it actually exists by checking if the
->> last two bytes of the NVRAM can be changed.
->> 
->> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
->> Cc: Alessandro Zummo <a.zummo@towertech.it>
->> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> Cc: Alexander Clouter <alex@digriz.org.uk>
->> ---
->>  drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
->>  1 file changed, 36 insertions(+)
->> 
+On Mon, Feb 20, 2017 at 10:35 PM, Logan Gunthorpe <logang@deltatee.com> wrote:
 >
-> I've applied that one. Alex, if you are fine with the mach-orion5x
-> changes, I can take them for 4.11. Else, this will wait for 4.12.
+>
+> On 20/02/17 10:35 PM, Dmitry Torokhov wrote:
+>> My only objection is to this statement. There is absolutely nothing that
+>> prevents from calling device_unregister() first and cdev_del() later.
+>> Refcounting will sort it all out.
+>
+> Yeah, I was really trying to warn people against calling cdev_del within
+> the release function of the device. If you do that, then the cdev
+> reference will block the device from ever getting released.
+>
+> Certainly, you could call device_unregister followed by cdev_del. I
+> could reword this if you feel it necessary.
 
-Hello,
+I agree with Dmitry, just delete the statement in parenthesis and the
+rest is fine. If you're modifying this patch it might be good to take
+the opportunity to add a WARN_ON(!parent->kobj.state_initialized) to
+catch attempts to call device_add_cdev() with an uninitialized device.
 
-Thanks. The change to mach-ep93xx is ok if you want to take that one.
+You can also add:
 
-I did just notice a minor issue with this one. It will still work as-is but
-It's not technically doing what was done in mach-orion52. See below...
-
->> diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
->> index 4dc4af4..41ac5d6 100644
->> --- a/drivers/rtc/rtc-m48t86.c
->> +++ b/drivers/rtc/rtc-m48t86.c
->> @@ -201,6 +201,37 @@ static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
->>  static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
->>  		M48T86_NVRAM_LEN);
->>  
->> +/*
->> + * The RTC is an optional feature at purchase time on some Technologic Systems
->> + * boards. Verify that it actually exists by checking if the last two bytes
->> + * of the NVRAM can be changed.
->> + *
->> + * This is based on the method used in their rtc7800.c example.
->> + */
->> +static bool m48t86_verify_chip(struct platform_device *pdev)
->> +{
->> +	unsigned int offset0 = M48T86_NVRAM_LEN - 2;
->> +	unsigned int offset1 = M48T86_NVRAM_LEN - 1;
-
-In order to address the last two bytes, these two offsets should actually be:
-
-+	unsigned int offset0 = M48T86_NVRAM(M48T86_NVRAM_LEN - 2);
-+	unsigned int offset1 = M48T86_NVRAM(M48T86_NVRAM_LEN - 1);
-
-As they are right now, they are both off by 14 bytes (0x0e).
-
-I can send a patch to fix it or you can do it if you prefer.
-
-Sorry about that.
-Hartley
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
