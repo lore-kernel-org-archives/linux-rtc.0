@@ -1,26 +1,75 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBH53X3CQKGQEMQLYYTA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBHVDV7CQKGQEU327AYQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si37394wmf.0.2017.02.23.18.42.39
-        for <rtc-linux@googlegroups.com>;
-        Thu, 23 Feb 2017 18:42:39 -0800 (PST)
-Date: Fri, 24 Feb 2017 03:42:38 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Phil Reid <preid@electromag.com.au>
-Cc: a.zummo@towertech.it, akinobu.mita@gmail.com,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: ds3232: Call device_init_wakeup
- before device_register
-Message-ID: <20170224024238.qp52wunvvy66ra2z@piout.net>
-References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
- <1487295898-90177-4-git-send-email-preid@electromag.com.au>
- <20170221203305.mkcqv3g4wbbm5js6@piout.net>
- <444215ad-ff7e-b5e2-85d8-58edf3ffddcf@electromag.com.au>
- <20170224014609.a3labrbe6bzwcztg@piout.net>
- <8bde3c28-d99d-07c6-1cdf-ff6a4db683b3@electromag.com.au>
+Received: from mail-pg0-x242.google.com (mail-pg0-x242.google.com. [2607:f8b0:400e:c05::242])
+        by gmr-mx.google.com with ESMTPS id 23si2957908pfw.4.2017.02.20.21.35.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Feb 2017 21:35:26 -0800 (PST)
+Received: by mail-pg0-x242.google.com with SMTP id 1so9117273pgz.2
+        for <rtc-linux@googlegroups.com>; Mon, 20 Feb 2017 21:35:26 -0800 (PST)
+Date: Mon, 20 Feb 2017 21:35:22 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org, linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 01/14] chardev: add helper function to
+ register char devs with a struct device
+Message-ID: <20170221053522.GA1466@dtor-ws>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-2-git-send-email-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <8bde3c28-d99d-07c6-1cdf-ff6a4db683b3@electromag.com.au>
+In-Reply-To: <1487653253-11497-2-git-send-email-logang@deltatee.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,84 +79,134 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 24/02/2017 at 10:32:40 +0800, Phil Reid wrote:
-> On 24/02/2017 09:46, Alexandre Belloni wrote:
-> > On 22/02/2017 at 09:33:14 +0800, Phil Reid wrote:
-> > > On 22/02/2017 04:33, Alexandre Belloni wrote:
-> > > > On 17/02/2017 at 09:44:58 +0800, Phil Reid wrote:
-> > > > > The wakealarm attribute is currently not exposed in the sysfs interface
-> > > > > as the device has not been set as doing wakealarm when device_register
-> > > > > is called. Changing the order of the calls fixes that problem. Interrupts
-> > > > > are cleared in check_rtc_status prior to requesting the interrupt.
-> > > > > 
-> > > > 
-> > > > This basically revert b4b77f3c280e38cec178f81d7a4d7e65f4045913 So I'm
-> > > > not sure this is sufficient to ensure the IRQ will never fire.
-> > > > 
-> > > > (I don't know whether this was a real bug or something reported by a
-> > > > static analysis tool).
-> > > 
-> > > G'day Alexandre,
-> > > Without this change the wakealarm sysfs is never created.
-> > > This is done in rtc_device_register, but a filter to wakealarm attribute effectively on
-> > > dev->power.can_wakeup flag. Which is set via the init wakeup call.
-> > > 
-> > > But looking at that commit and thinking about it some more I can see the problem
-> > > b4b77f3c280e38cec178f81d7a4d7e65f4045913 was try to solve.
-> > > 
-> > > Looking at other drivers some of them have similar order but use their own mutex.
-> > > eg rtc-rc8803 and don't use the ops_lock
-> > > 
-> > > Or others set device_init_wakeup and then fail if the irq fails to register.
-> > > 
-> > > Currently if the ds3232 has an irq set but fails to register the irq it falls back
-> > > to being a non wakeup source. To me it makes more sense to just fall if the config
-> > > has an irq defined.
-> > > 
-> > > Then we could set device_init_wakeup based on there being an irq prior to device_register
-> > > and then request the irq after device register. But fail the probe if the irq request fails.
-> > > 
-> > > Thoughts?
-> > > 
-> > 
-> > I think you can use device_set_wakeup_capable() afterwards which would
-> > fit this use case. Can you try that?
-> > 
-> > Anyway, I have a pending rework of the rtc registration that will solve
-> > this issue (and the sysfs attribute creation race).
-> > 
-> Nope, doesn't help.
-> device_init_wakeup already calls device_set_wakeup_capable.
+On Mon, Feb 20, 2017 at 10:00:40PM -0700, Logan Gunthorpe wrote:
+> Credit for this patch goes entirely to Dan Williams [1]. I've just
+> fleshed out the comments and created the patch, but the premise
+> remains exactly the same.
 > 
-> rtc_attr_groups is fetched via rtc_get_dev_attribute_groups
-> and assigned to the rtc->dev.groups in rtc_device_register
-> The is_visible callback checks device_can_wakeup.
-> And this is not set until after device creation.
+> There's a common pattern in the kernel whereby a struct cdev is placed
+> in a structure along side a struct device which manages the life-cycle
+> of both. In the naive approach, the reference counting is broken and
+> the struct device can free everything before the chardev code
+> is entirely released.
 > 
-> Is there a way to retrigger the sysfs groups creation after device
-> registration? Thou this would result in sysfs attrib. races I guess.
+> Many developers have solved this problem by linking the internal kobjs
+> in this fashion:
 > 
-> Failing to probe when irq requested seems the easiest.
-> Would anyone want the irq registration to fail but device creation succeed if requested?
+> cdev.kobj.parent = &parent_dev.kobj;
 > 
+> The cdev code explicitly gets and puts a reference to it's kobj parent.
+> So this seems like it was intended to be used this way. Dmitrty Torokhov
+> first put this in place in 2012 with this commit:
+> 
+> 2f0157f char_dev: pin parent kobject
+> 
+> and the first instance of the fix was then done in the input subsystem
+> in the following commit:
+> 
+> 4a215aa Input: fix use-after-free introduced with dynamic minor changes
+> 
+> Subsequently over the years, however, this issue seems to have tripped
+> up multiple developers independently. For example, see these commits:
+> 
+> 0d5b7da iio: Prevent race between IIO chardev opening and IIO device
+> (by Lars-Peter Clausen in 2013)
+> 
+> ba0ef85 tpm: Fix initialization of the cdev
+> (by Jason Gunthorpe in 2015)
+> 
+> 5b28dde [media] media: fix use-after-free in cdev_put() when app exits
+> after driver unbind
+> (by Shauh Khan in 2016)
+> 
+> This technique is similarly done in at least 15 places within the kernel
+> and probably should have been done so in another, at least, 5 places.
+> The kobj line also looks very suspect in that one would not expect
+> drivers to have to mess with kobject internals in this way.
+> Even highly experienced kernel developers can be surprised by this
+> code, as seen in [2].
+> 
+> To help alleviate this situation, and hopefully prevent future
+> wasted effort on this problem, this patch introduces a helper function
+> to register a char device with its parent struct device. This creates
+> a more regular API for tying a char device to its parent without the
+> developer having to set members in the underlying kobject.
+> 
+> In [1], Dan notes he took inspiration for the form of the API
+> device_add_disk.
+> 
+> [1] https://lkml.org/lkml/2017/2/13/700
+> [2] https://lkml.org/lkml/2017/2/10/370
+> 
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> ---
+>  fs/char_dev.c        | 24 ++++++++++++++++++++++++
+>  include/linux/cdev.h |  1 +
+>  2 files changed, 25 insertions(+)
+> 
+> diff --git a/fs/char_dev.c b/fs/char_dev.c
+> index 44a240c..1f9246c 100644
+> --- a/fs/char_dev.c
+> +++ b/fs/char_dev.c
+> @@ -471,6 +471,29 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+>  	return 0;
+>  }
+>  
+> +/**
+> + * device_add_cdev() - add a char device to the system with a parent
+> + *	struct device
+> + * @parent: the device structure of the parent
+> + * @cdev: the cdev structure for the device
+> + * @count: the number of consecutive minor numbers corresponding to this
+> + *
+> + * device_add_cdev() adds the char device represented by @p to the system,
+> + * just as cdev_add does. The dev_t for the char device will be taken from
+> + * the struct device which needs to be initialized first. This helper
+> + * function correctly takes a reference to the parent device so the parent
+> + * will not get released until all references to the cdev are released.
+> + * (Thus, cdev_del should be called before device_unregister.) This
 
-Yes because th RTC is still functional and can give the time (and that
-may break userspace).
+My only objection is to this statement. There is absolutely nothing that
+prevents from calling device_unregister() first and cdev_del() later.
+Refcounting will sort it all out.
 
-What you can do is call device_init_wakeup before registering the rtc
-and then device_set_wakeup_capable(&client->dev, false); if the irq
-request fails.
+> + * function should be used whenever the struct cdev and the struct device
+> + * are members of the same structure whose lifetime is managed by the
+> + * struct device.
+> + */
+> +int device_add_cdev(struct device *parent, struct cdev *cdev)
+> +{
+> +	cdev->kobj.parent = &parent->kobj;
+> +	return cdev_add(cdev, parent->devt, 1);
+> +}
+> +
+>  static void cdev_unmap(dev_t dev, unsigned count)
+>  {
+>  	kobj_unmap(cdev_map, dev, count);
+> @@ -570,5 +593,6 @@ EXPORT_SYMBOL(cdev_init);
+>  EXPORT_SYMBOL(cdev_alloc);
+>  EXPORT_SYMBOL(cdev_del);
+>  EXPORT_SYMBOL(cdev_add);
+> +EXPORT_SYMBOL(device_add_cdev);
+>  EXPORT_SYMBOL(__register_chrdev);
+>  EXPORT_SYMBOL(__unregister_chrdev);
+> diff --git a/include/linux/cdev.h b/include/linux/cdev.h
+> index f876361..9edbc37 100644
+> --- a/include/linux/cdev.h
+> +++ b/include/linux/cdev.h
+> @@ -25,6 +25,7 @@ struct cdev *cdev_alloc(void);
+>  void cdev_put(struct cdev *p);
+>  
+>  int cdev_add(struct cdev *, dev_t, unsigned);
+> +int device_add_cdev(struct device *parent, struct cdev *cdev);
+>  
+>  void cdev_del(struct cdev *);
+>  
 
-
-> -- 
-> Regards
-> Phil Reid
-> 
+Thanks.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Dmitry
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
