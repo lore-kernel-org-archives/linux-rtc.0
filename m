@@ -1,69 +1,22 @@
-Return-Path: <rtc-linux+bncBCWOL4E62AORB6FO2HCQKGQERYBEL6Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLNFWPCQKGQEC723NCY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from quartz.orcorp.ca (quartz.orcorp.ca. [184.70.90.242])
-        by gmr-mx.google.com with ESMTPS id b188si1480860ite.3.2017.02.27.08.44.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Feb 2017 08:44:40 -0800 (PST)
-Date: Mon, 27 Feb 2017 09:42:09 -0700
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@ml01.01.org, linux-fsdevel@vger.kernel.org,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 14si1227418wmn.2.2017.02.21.15.52.13
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Feb 2017 15:52:13 -0800 (PST)
+Date: Wed, 22 Feb 2017 00:52:12 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 06/16] tpm-chip: utilize new
- cdev_device_add helper function
-Message-ID: <20170227164209.GD5891@obsidianresearch.com>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
- <1488091097-12328-7-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] Re: [PATCHv2] rtc: cpcap: new rtc driver
+Message-ID: <20170221235212.hik3whcytw6xyevd@piout.net>
+References: <20170220073535.27393-1-sre@kernel.org>
+ <20170221061650.12636-1-sre@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1488091097-12328-7-git-send-email-logang@deltatee.com>
+In-Reply-To: <20170221061650.12636-1-sre@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -73,64 +26,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Feb 25, 2017 at 11:38:07PM -0700, Logan Gunthorpe wrote:
-> Replace the open coded registration of the cdev and dev with the
-> new device_add_cdev() helper. The helper replaces a common pattern by
-> taking the proper reference against the parent device and adding both
-> the cdev and the device.
-> 
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
->  drivers/char/tpm/tpm-chip.c | 19 +++----------------
->  1 file changed, 3 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index a77262d..933f96e 100644
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *dev,
->  
->  	cdev_init(&chip->cdev, &tpm_fops);
->  	chip->cdev.owner = THIS_MODULE;
-> -	chip->cdev.kobj.parent = &chip->dev.kobj;
->  
->  	return chip;
->  
-> @@ -230,27 +229,16 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  {
->  	int rc;
->  
-> -	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
-> +	rc = cdev_device_add(&chip->cdev, &chip->dev);
->  	if (rc) {
->  		dev_err(&chip->dev,
-> -			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
-> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
->  			dev_name(&chip->dev), MAJOR(chip->dev.devt),
->  			MINOR(chip->dev.devt), rc);
->  
->  		return rc;
->  	}
->  
-> -	rc = device_add(&chip->dev);
-> -	if (rc) {
-> -		dev_err(&chip->dev,
-> -			"unable to device_register() %s, major %d, minor %d, err=%d\n",
-> -			dev_name(&chip->dev), MAJOR(chip->dev.devt),
-> -			MINOR(chip->dev.devt), rc);
-> -
-> -		cdev_del(&chip->cdev);
-> -		return rc;
-> -	}
+Hi,
 
-This will collide with the patch I sent:
+The patch has a few checkpatch issues. Some of those should really be
+fixed. Can you do that?
 
-https://patchwork.kernel.org/patch/9589001/
+Else, it is mostly fine, a few comments below.
 
-Jarkko: The resolution will be to continue to call tpm_del_char_device
-from the cdev_device_add error path and drop all calls to cdev_del
+On 21/02/2017 at 07:16:50 +0100, Sebastian Reichel wrote:
+> +static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct cpcap_rtc *rtc;
+> +	struct cpcap_time cpcap_tm;
+> +	int ret = 0;
+> +
+> +	rtc = dev_get_drvdata(dev);
+> +
+> +	rtc2cpcap_time(&cpcap_tm, tm);
+> +
+> +	if (rtc->alarm_enabled)
+> +		disable_irq(rtc->alarm_irq);
+> +	if (rtc->update_enabled)
+> +		disable_irq(rtc->update_irq);
+> +
+> +	if (rtc->vendor == CPCAP_VENDOR_ST) {
+> +		/* The TOD1 and TOD2 registers MUST be written in this order
+> +		 * for the change to properly set. */
 
-Reviewed-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Does this mean there is a race condition?
 
-Jason
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
+> +					  TOD1_MASK, cpcap_tm.tod1);
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
+> +					  TOD2_MASK, cpcap_tm.tod2);
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
+> +					  DAY_MASK, cpcap_tm.day);
+> +	} else {
+> +		/* Clearing the upper lower 8 bits of the TOD guarantees that
+> +		 * the upper half of TOD (TOD2) will not increment for 0xFF RTC
+> +		 * ticks (255 seconds).  During this time we can safely write
+> +		 * to DAY, TOD2, then TOD1 (in that order) and expect RTC to be
+> +		 * synchronized to the exact time requested upon the final write
+> +		 * to TOD1. */
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
+> +					  TOD1_MASK, 0);
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
+> +					  DAY_MASK, cpcap_tm.day);
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
+> +					  TOD2_MASK, cpcap_tm.tod2);
+> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
+> +					  TOD1_MASK, cpcap_tm.tod1);
+> +	}
+> +
+
+> +	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
+I think this means it depends on the mfd tree.
+
+> +	if (err)
+> +		return err;
+> +
+> +	rtc->alarm_irq= platform_get_irq(pdev, 0);
+> +	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
+> +					cpcap_rtc_alarm_irq, IRQ_NONE,
+> +					"rtc_alarm", rtc);
+> +	if (err) {
+> +		dev_err(dev, "Could not request alarm irq: %d\n", err);
+> +		return err;
+> +	}
+> +	disable_irq(rtc->alarm_irq);
+> +
+> +	rtc->update_irq= platform_get_irq(pdev, 1);
+> +	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
+> +					cpcap_rtc_update_irq, IRQ_NONE,
+> +					"rtc_1hz", rtc);
+I don't think this IRQ is actually useful. It doesn't really harm but
+the tests should pass without it.
+
+> +	if (err) {
+> +		dev_err(dev, "Could not request update irq: %d\n", err);
+> +		return err;
+> +	}
+> +	disable_irq(rtc->update_irq);
+> +
+> +	err = device_init_wakeup(dev, 1);
+
+If you use device_init_wakeup, I think it needs to be called before
+devm_rtc_device_register() to properly work.
+
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
