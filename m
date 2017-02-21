@@ -1,30 +1,21 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBD6DRTCQKGQEPZGYYDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB47FWDCQKGQEUGLX23I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by gmr-mx.google.com with ESMTPS id f7si164322wmg.3.2017.02.14.07.26.07
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Feb 2017 07:26:07 -0800 (PST)
-Received: by mail-wm0-x22d.google.com with SMTP id v77so19622353wmv.0
-        for <rtc-linux@googlegroups.com>; Tue, 14 Feb 2017 07:26:07 -0800 (PST)
-Date: Tue, 14 Feb 2017 15:26:04 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] Re: [PATCH v2 3/4] rtc: cros-ec: add cros-ec-rtc driver.
-Message-ID: <20170214152604.bvaiujkln6uo656w@dell>
-References: <20170119123032.24679-1-enric.balletbo@collabora.com>
- <20170119123032.24679-3-enric.balletbo@collabora.com>
- <20170122233232.iin6frv7hme2y2jw@piout.net>
- <20170123121438.GM16020@dell>
- <c492877b-5bd1-511a-7591-b4ff911ceabc@collabora.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q4si1234238wma.3.2017.02.21.04.30.42
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Feb 2017 04:30:42 -0800 (PST)
+Date: Tue, 21 Feb 2017 13:30:37 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sean =?iso-8859-1?Q?Nyekj=E6r?= <sean.nyekjaer@prevas.dk>
+Cc: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] [PATCH] rtc: pcf2127: bulk read only date and time registers.
+Message-ID: <20170221123037.f3skrfctffs35cs5@piout.net>
+References: <20170201124525.36578-1-sean.nyekjaer@prevas.dk>
+ <20170211232135.7bxr4t3pyhdmidh5@piout.net>
+ <8e2684bc-92bb-7f8f-f4e8-248285be4e0b@prevas.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <c492877b-5bd1-511a-7591-b4ff911ceabc@collabora.com>
+In-Reply-To: <8e2684bc-92bb-7f8f-f4e8-248285be4e0b@prevas.dk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,47 +25,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 14 Feb 2017, Enric Balletbo i Serra wrote:
+On 14/02/2017 at 21:23:19 +0100, Sean Nyekj=C3=A6r wrote:
+> > > -	ret =3D regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, buf,
+> > > -				sizeof(buf));
+> > > +	ret =3D
+> > > +	    regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1 + 3, (buf +=
+ 3),
+> > > +			     7);
+> > This is weirdly indented/wrapped. Also, you can probably make buf a
+> > char[7] and continue using sizeof() or even better, ARRAY_SIZE()
+> I'm fixing the indentation for v2 :-)
+> I agree this is not the prettiest but i actually thinks its best to keep =
+the
+> buf[10],
+> then all the existing defines for registeres will continue to work.
+> Thats why i did this uglyness.
+> I could do an timebuf[7], read the time into that and replace the registe=
+r
+> defines,
+> with array numbers but it will create a lot more diff linies :-S
+> What do you think ?
 
-> Hi Lee,
->=20
-> On 23/01/17 13:14, Lee Jones wrote:
-> > On Mon, 23 Jan 2017, Alexandre Belloni wrote:
-> >=20
-> >> On 19/01/2017 at 13:30:31 +0100, Enric Balletbo i Serra wrote :
-> >>> From: Stephen Barber <smbarber@chromium.org>
-> >>>
-> >>> On platforms with a Chrome OS EC, the EC can function as a simple RTC=
-.
-> >>> Add a basic driver with this functionality.
-> >>>
-> >>> Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> >>> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> >>
-> >> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> >>
-> >> Lee, this can go through the mfd tree. Hopefully, nobody will add a ne=
-w
-> >> driver nearby ;)
-> >=20
-> > Yes, I can take the set, once all of the Acks are obtained.
-> >=20
->=20
-> Now that the patch series have all the acks, this will finally go through=
- the mfd tree?
->=20
-> I suppose is too late for the upcoming merge window ... so just want to m=
-ake sure which tree I should monitor to not forget it :)
+Then, what about:
+ regmap_bulk_read(pcf2127->regmap, PCF2127_REG_SC, (buf + PCF2127_REG_SC), =
+sizeof(buf) - PCF2127_REG_SC);
 
-You need to submit it, complete with all the Acks you received.
-
-Yes, it's too late for this cycle.
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 --=20
 You received this message because you are subscribed to "rtc-linux".
