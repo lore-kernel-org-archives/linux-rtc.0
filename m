@@ -1,24 +1,73 @@
-Return-Path: <rtc-linux+bncBDM47J4M6QEBBIUHSLCQKGQEDJHYVTI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB26MWDCQKGQECQVZOKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id u12si744828pfd.3.2017.02.15.08.36.50
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id f7si1067931wmg.3.2017.02.21.03.37.14
         for <rtc-linux@googlegroups.com>;
-        Wed, 15 Feb 2017 08:36:50 -0800 (PST)
-From: H Hartley Sweeten <hsweeten@visionengravers.com>
-To: rtc-linux@googlegroups.com
-Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
+        Tue, 21 Feb 2017 03:37:14 -0800 (PST)
+Date: Tue, 21 Feb 2017 12:37:04 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 3/5] ARM: Orion5x: ts78xx: allow rtc-m48t86 to
- manage it's own resources
-Date: Wed, 15 Feb 2017 09:35:25 -0700
-Message-Id: <20170215163527.5697-4-hsweeten@visionengravers.com>
-In-Reply-To: <20170215163527.5697-1-hsweeten@visionengravers.com>
-References: <20170215163527.5697-1-hsweeten@visionengravers.com>
-Reply-To: rtc-linux@googlegroups.com
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org, linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
+ helper function
+Message-ID: <20170221113704.ibwkk2vuc5imkmae@piout.net>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-3-git-send-email-logang@deltatee.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1487653253-11497-3-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,75 +76,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-m48t86 driver can now handle it's own resources and do the
-read/write operations internally.
+Hi,
 
-Pass the necessary resources to the driver and remove the m48t86_ops
-platform data.
+A small comment, you must always have a commit message. Even if it is
+small.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
----
- arch/arm/mach-orion5x/ts78xx-setup.c | 29 +++++++----------------------
- 1 file changed, 7 insertions(+), 22 deletions(-)
+On 20/02/2017 at 22:00:41 -0700, Logan Gunthorpe wrote:
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> ---
+>  drivers/dax/dax.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+> index ed758b7..0d24822 100644
+> --- a/drivers/dax/dax.c
+> +++ b/drivers/dax/dax.c
+> @@ -701,12 +701,12 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+>  
+>  	/* device_initialize() so cdev can reference kobj parent */
+>  	device_initialize(dev);
+> +	dev->devt = dev_t;
+>  
+>  	cdev = &dax_dev->cdev;
+>  	cdev_init(cdev, &dax_fops);
+>  	cdev->owner = parent->driver->owner;
+> -	cdev->kobj.parent = &dev->kobj;
+> -	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
+> +	rc = device_add_cdev(dev, cdev);
+>  	if (rc)
+>  		goto err_cdev;
+>  
+> @@ -716,7 +716,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+>  	dax_dev->region = dax_region;
+>  	kref_get(&dax_region->kref);
+>  
+> -	dev->devt = dev_t;
+>  	dev->class = dax_class;
+>  	dev->parent = parent;
+>  	dev->groups = dax_attribute_groups;
+> -- 
+> 2.1.4
+> 
 
-diff --git a/arch/arm/mach-orion5x/ts78xx-setup.c b/arch/arm/mach-orion5x/ts78xx-setup.c
-index cb4c374..7ef80a83 100644
---- a/arch/arm/mach-orion5x/ts78xx-setup.c
-+++ b/arch/arm/mach-orion5x/ts78xx-setup.c
-@@ -16,7 +16,6 @@
- #include <linux/platform_device.h>
- #include <linux/mv643xx_eth.h>
- #include <linux/ata_platform.h>
--#include <linux/platform_data/rtc-m48t86.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/partitions.h>
- #include <linux/timeriomem-rng.h>
-@@ -80,33 +79,19 @@ static struct mv_sata_platform_data ts78xx_sata_data = {
- /*****************************************************************************
-  * RTC M48T86 - nicked^Wborrowed from arch/arm/mach-ep93xx/ts72xx.c
-  ****************************************************************************/
--#define TS_RTC_CTRL	(TS78XX_FPGA_REGS_VIRT_BASE + 0x808)
--#define TS_RTC_DATA	(TS78XX_FPGA_REGS_VIRT_BASE + 0x80c)
-+#define TS_RTC_CTRL	(TS78XX_FPGA_REGS_PHYS_BASE + 0x808)
-+#define TS_RTC_DATA	(TS78XX_FPGA_REGS_PHYS_BASE + 0x80c)
- 
--static unsigned char ts78xx_ts_rtc_readbyte(unsigned long addr)
--{
--	writeb(addr, TS_RTC_CTRL);
--	return readb(TS_RTC_DATA);
--}
--
--static void ts78xx_ts_rtc_writebyte(unsigned char value, unsigned long addr)
--{
--	writeb(addr, TS_RTC_CTRL);
--	writeb(value, TS_RTC_DATA);
--}
--
--static struct m48t86_ops ts78xx_ts_rtc_ops = {
--	.readbyte	= ts78xx_ts_rtc_readbyte,
--	.writebyte	= ts78xx_ts_rtc_writebyte,
-+static struct resource ts78xx_ts_rtc_resources[] = {
-+	DEFINE_RES_MEM(TS_RTC_CTRL, 0x01),
-+	DEFINE_RES_MEM(TS_RTC_DATA, 0x01),
- };
- 
- static struct platform_device ts78xx_ts_rtc_device = {
- 	.name		= "rtc-m48t86",
- 	.id		= -1,
--	.dev		= {
--		.platform_data	= &ts78xx_ts_rtc_ops,
--	},
--	.num_resources	= 0,
-+	.resource	= ts78xx_ts_rtc_resources,
-+	.num_resources 	= ARRAY_SIZE(ts78xx_ts_rtc_resources),
- };
- 
- static int ts78xx_ts_rtc_load(void)
 -- 
-2.10.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
