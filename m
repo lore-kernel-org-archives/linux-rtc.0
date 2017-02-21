@@ -1,23 +1,81 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBEMDR3CQKGQEEP7WXOQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB7ETV7CQKGQEPP2S36A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id q4si141611wma.3.2017.02.14.14.15.44
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id u12si2956184pfd.3.2017.02.20.21.02.52
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Feb 2017 14:15:44 -0800 (PST)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
+        Mon, 20 Feb 2017 21:02:52 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Olof Johansson <olof@lixom.net>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Date: Tue, 14 Feb 2017 23:15:29 +0100
-Message-Id: <20170214221529.6434-4-enric.balletbo@collabora.com>
-In-Reply-To: <20170214221529.6434-1-enric.balletbo@collabora.com>
-References: <20170214221529.6434-1-enric.balletbo@collabora.com>
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon, 20 Feb 2017 22:00:49 -0700
+Message-Id: <1487653253-11497-11-git-send-email-logang@deltatee.com>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH 10/14] mtd: utilize new device_add_cdev helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,64 +86,95 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+Note: neither of the cdev instances in the mtd tree originally
+set the kobject parent. Thus, I'm reasonably confident that
+both these instances would have suffered from a minor use after
+free bug if the cdevs were open when the backing device was released.
 
-If the EC supports RTC host commands, expose an RTC device.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Benson Leung <bleung@chromium.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
-Changes since v2:
- - Acked by Benson Leung
-Changes since v1:
- - none
+ drivers/mtd/ubi/build.c |  8 +++++---
+ drivers/mtd/ubi/vmt.c   | 10 +++++-----
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
- drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
-index 47268ec..ebe029d 100644
---- a/drivers/platform/chrome/cros_ec_dev.c
-+++ b/drivers/platform/chrome/cros_ec_dev.c
-@@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
- 	kfree(msg);
- }
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index 85d54f3..a509f15 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -434,11 +434,10 @@ static int ubi_sysfs_init(struct ubi_device *ubi, int *ref)
+ 	int err;
  
-+static const struct mfd_cell cros_ec_rtc_devs[] = {
-+	{
-+		.name = "cros-ec-rtc",
-+		.id   = -1,
-+	},
-+};
-+
-+static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-+{
-+	int ret;
-+
-+	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-+			      ARRAY_SIZE(cros_ec_rtc_devs),
-+			      NULL, 0, NULL);
-+	if (ret)
-+		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-+}
-+
- static int ec_device_probe(struct platform_device *pdev)
- {
- 	int retval = -ENOMEM;
-@@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
- 	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
- 		cros_ec_sensors_register(ec);
+ 	ubi->dev.release = dev_release;
+-	ubi->dev.devt = ubi->cdev.dev;
+ 	ubi->dev.class = &ubi_class;
+ 	ubi->dev.groups = ubi_dev_groups;
+ 	dev_set_name(&ubi->dev, UBI_NAME_STR"%d", ubi->ubi_num);
+-	err = device_register(&ubi->dev);
++	err = device_add(&ubi->dev);
+ 	if (err)
+ 		return err;
  
-+	/* check whether this EC instance has RTC host command support */
-+	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-+		cros_ec_rtc_register(ec);
-+
- 	return 0;
+@@ -508,12 +507,15 @@ static int uif_init(struct ubi_device *ubi, int *ref)
+ 		return err;
+ 	}
  
- dev_reg_failed:
++	device_initialize(&ubi->dev);
++	ubi->dev.devt = dev;
++
+ 	ubi_assert(MINOR(dev) == 0);
+ 	cdev_init(&ubi->cdev, &ubi_cdev_operations);
+ 	dbg_gen("%s major is %u", ubi->ubi_name, MAJOR(dev));
+ 	ubi->cdev.owner = THIS_MODULE;
+ 
+-	err = cdev_add(&ubi->cdev, dev, 1);
++	err = device_add_cdev(&ubi->dev, &ubi->cdev);
+ 	if (err) {
+ 		ubi_err(ubi, "cannot add character device");
+ 		goto out_unreg;
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index 7ac78c1..df84ba7 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -159,7 +159,6 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
+ 	struct ubi_volume *vol;
+ 	struct ubi_vtbl_record vtbl_rec;
+ 	struct ubi_eba_table *eba_tbl = NULL;
+-	dev_t dev;
+ 
+ 	if (ubi->ro_mode)
+ 		return -EROFS;
+@@ -265,11 +264,13 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
+ 			vol->last_eb_bytes = vol->usable_leb_size;
+ 	}
+ 
++	device_initialize(&vol->dev);
++	vol->dev.devt = MKDEV(MAJOR(ubi->cdev.dev), vol_id + 1);
++
+ 	/* Register character device for the volume */
+ 	cdev_init(&vol->cdev, &ubi_vol_cdev_operations);
+ 	vol->cdev.owner = THIS_MODULE;
+-	dev = MKDEV(MAJOR(ubi->cdev.dev), vol_id + 1);
+-	err = cdev_add(&vol->cdev, dev, 1);
++	err = device_add_cdev(&vol->dev, &vol->cdev);
+ 	if (err) {
+ 		ubi_err(ubi, "cannot add character device");
+ 		goto out_mapping;
+@@ -277,12 +278,11 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
+ 
+ 	vol->dev.release = vol_release;
+ 	vol->dev.parent = &ubi->dev;
+-	vol->dev.devt = dev;
+ 	vol->dev.class = &ubi_class;
+ 	vol->dev.groups = volume_dev_groups;
+ 
+ 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
+-	err = device_register(&vol->dev);
++	err = device_add(&vol->dev);
+ 	if (err) {
+ 		ubi_err(ubi, "cannot register device");
+ 		goto out_cdev;
 -- 
-2.9.3
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
