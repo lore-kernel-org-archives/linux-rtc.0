@@ -1,27 +1,84 @@
-Return-Path: <rtc-linux+bncBAABBCWFS7CQKGQEROQ6T5Q@googlegroups.com>
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id q4si53223wma.3.2017.02.16.09.34.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 16 Feb 2017 09:34:01 -0800 (PST)
-Date: Thu, 16 Feb 2017 17:33:48 +0000
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
-	Haim Boot <hayim@marvell.com>, linux-arm-kernel@lists.infradead.org,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/3] Extend rtc-armada38x support for Armada 7K/8K
-Message-ID: <20170216173348.GT27312@n2100.armlinux.org.uk>
-References: <20170216153136.27009-1-gregory.clement@free-electrons.com>
+Return-Path: <rtc-linux+bncBAABBM4UV7CQKGQEHFMAAVI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170216153136.27009-1-gregory.clement@free-electrons.com>
-Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id f7si2784270pfk.5.2017.02.20.21.03.47
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Feb 2017 21:03:47 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon, 20 Feb 2017 22:00:41 -0700
+Message-Id: <1487653253-11497-3-git-send-email-logang@deltatee.com>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH 02/14] device-dax: utilize new device_add_cdev
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,31 +87,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Feb 16, 2017 at 04:31:33PM +0100, Gregory CLEMENT wrote:
-> The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-> the SOC integration differs in 2 points:
->      - MBUS bridge timing initialization
->      - IRQ configuration at SoC level
-> 
-> This patch set extends the driver support to these SoCs family.
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/dax/dax.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-I've just tried merging this into my kernel, and...
-
-root@mcbin:~# date
-Thu Feb 16 17:33:00 GMT 2017
-root@mcbin:~# hwclock -uw
-root@mcbin:~# hwclock
-Sun 07 Feb 2106 01:49:51 GMT  -10.010475 seconds
-root@mcbin:~# hwclock
-Sun 07 Feb 2106 01:49:51 GMT  -10.010458 seconds
-
-I guess it needs the same hack that Armada38x needs - "date reset" twice
-in uboot?
-
+diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+index ed758b7..0d24822 100644
+--- a/drivers/dax/dax.c
++++ b/drivers/dax/dax.c
+@@ -701,12 +701,12 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 
+ 	/* device_initialize() so cdev can reference kobj parent */
+ 	device_initialize(dev);
++	dev->devt = dev_t;
+ 
+ 	cdev = &dax_dev->cdev;
+ 	cdev_init(cdev, &dax_fops);
+ 	cdev->owner = parent->driver->owner;
+-	cdev->kobj.parent = &dev->kobj;
+-	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
++	rc = device_add_cdev(dev, cdev);
+ 	if (rc)
+ 		goto err_cdev;
+ 
+@@ -716,7 +716,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 	dax_dev->region = dax_region;
+ 	kref_get(&dax_region->kref);
+ 
+-	dev->devt = dev_t;
+ 	dev->class = dax_class;
+ 	dev->parent = parent;
+ 	dev->groups = dax_attribute_groups;
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
