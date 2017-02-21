@@ -1,21 +1,82 @@
-Return-Path: <rtc-linux+bncBDM47J4M6QEBBFEF7DCAKGQECV3VMPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCEUV7CQKGQEH43ZZUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id z3si488134pfj.0.2017.02.10.10.12.36
-        for <rtc-linux@googlegroups.com>;
-        Fri, 10 Feb 2017 10:12:36 -0800 (PST)
-From: H Hartley Sweeten <hsweeten@visionengravers.com>
-To: rtc-linux@googlegroups.com
-Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id u12si2956305pfd.3.2017.02.20.21.03.04
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 Feb 2017 21:03:04 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 1/3] rtc: m48t86: shorten register name defines
-Date: Fri, 10 Feb 2017 11:11:55 -0700
-Message-Id: <20170210181157.6283-2-hsweeten@visionengravers.com>
-In-Reply-To: <20170210181157.6283-1-hsweeten@visionengravers.com>
-References: <20170210181157.6283-1-hsweeten@visionengravers.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	osd-dev@open-osd.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon, 20 Feb 2017 22:00:44 -0700
+Message-Id: <1487653253-11497-6-git-send-email-logang@deltatee.com>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH 05/14] tpm-chip: utilize new device_add_cdev
+ helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,216 +87,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-For asthetics. shorten all the register names by removing '_REG' from all of them.
-This helps fix all the checkpatch.pl issues.
-
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- drivers/rtc/rtc-m48t86.c | 127 +++++++++++++++++++++++------------------------
- 1 file changed, 63 insertions(+), 64 deletions(-)
+ drivers/char/tpm/tpm-chip.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index 0eeb571..30648ea 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -19,25 +19,24 @@
- #include <linux/platform_data/rtc-m48t86.h>
- #include <linux/bcd.h>
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index a77262d..dc90b45 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *dev,
  
--#define M48T86_REG_SEC		0x00
--#define M48T86_REG_SECALRM	0x01
--#define M48T86_REG_MIN		0x02
--#define M48T86_REG_MINALRM	0x03
--#define M48T86_REG_HOUR		0x04
--#define M48T86_REG_HOURALRM	0x05
--#define M48T86_REG_DOW		0x06 /* 1 = sunday */
--#define M48T86_REG_DOM		0x07
--#define M48T86_REG_MONTH	0x08 /* 1 - 12 */
--#define M48T86_REG_YEAR		0x09 /* 0 - 99 */
--#define M48T86_REG_A		0x0A
--#define M48T86_REG_B		0x0B
--#define M48T86_REG_C		0x0C
--#define M48T86_REG_D		0x0D
--
--#define M48T86_REG_B_H24	(1 << 1)
--#define M48T86_REG_B_DM		(1 << 2)
--#define M48T86_REG_B_SET	(1 << 7)
--#define M48T86_REG_D_VRT	(1 << 7)
-+#define M48T86_SEC		0x00
-+#define M48T86_SECALRM		0x01
-+#define M48T86_MIN		0x02
-+#define M48T86_MINALRM		0x03
-+#define M48T86_HOUR		0x04
-+#define M48T86_HOURALRM		0x05
-+#define M48T86_DOW		0x06 /* 1 = sunday */
-+#define M48T86_DOM		0x07
-+#define M48T86_MONTH		0x08 /* 1 - 12 */
-+#define M48T86_YEAR		0x09 /* 0 - 99 */
-+#define M48T86_A		0x0a
-+#define M48T86_B		0x0b
-+#define M48T86_B_SET		BIT(7)
-+#define M48T86_B_DM		BIT(2)
-+#define M48T86_B_H24		BIT(1)
-+#define M48T86_C		0x0c
-+#define M48T86_D		0x0d
-+#define M48T86_D_VRT		BIT(7)
+ 	cdev_init(&chip->cdev, &tpm_fops);
+ 	chip->cdev.owner = THIS_MODULE;
+-	chip->cdev.kobj.parent = &chip->dev.kobj;
  
- static int m48t86_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	return chip;
+ 
+@@ -230,7 +229,7 @@ static int tpm_add_char_device(struct tpm_chip *chip)
  {
-@@ -45,33 +44,33 @@ static int m48t86_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
+ 	int rc;
  
--	reg = ops->readbyte(M48T86_REG_B);
-+	reg = ops->readbyte(M48T86_B);
- 
--	if (reg & M48T86_REG_B_DM) {
-+	if (reg & M48T86_B_DM) {
- 		/* data (binary) mode */
--		tm->tm_sec	= ops->readbyte(M48T86_REG_SEC);
--		tm->tm_min	= ops->readbyte(M48T86_REG_MIN);
--		tm->tm_hour	= ops->readbyte(M48T86_REG_HOUR) & 0x3F;
--		tm->tm_mday	= ops->readbyte(M48T86_REG_DOM);
-+		tm->tm_sec	= ops->readbyte(M48T86_SEC);
-+		tm->tm_min	= ops->readbyte(M48T86_MIN);
-+		tm->tm_hour	= ops->readbyte(M48T86_HOUR) & 0x3f;
-+		tm->tm_mday	= ops->readbyte(M48T86_DOM);
- 		/* tm_mon is 0-11 */
--		tm->tm_mon	= ops->readbyte(M48T86_REG_MONTH) - 1;
--		tm->tm_year	= ops->readbyte(M48T86_REG_YEAR) + 100;
--		tm->tm_wday	= ops->readbyte(M48T86_REG_DOW);
-+		tm->tm_mon	= ops->readbyte(M48T86_MONTH) - 1;
-+		tm->tm_year	= ops->readbyte(M48T86_YEAR) + 100;
-+		tm->tm_wday	= ops->readbyte(M48T86_DOW);
- 	} else {
- 		/* bcd mode */
--		tm->tm_sec	= bcd2bin(ops->readbyte(M48T86_REG_SEC));
--		tm->tm_min	= bcd2bin(ops->readbyte(M48T86_REG_MIN));
--		tm->tm_hour	= bcd2bin(ops->readbyte(M48T86_REG_HOUR) & 0x3F);
--		tm->tm_mday	= bcd2bin(ops->readbyte(M48T86_REG_DOM));
-+		tm->tm_sec	= bcd2bin(ops->readbyte(M48T86_SEC));
-+		tm->tm_min	= bcd2bin(ops->readbyte(M48T86_MIN));
-+		tm->tm_hour	= bcd2bin(ops->readbyte(M48T86_HOUR) & 0x3f);
-+		tm->tm_mday	= bcd2bin(ops->readbyte(M48T86_DOM));
- 		/* tm_mon is 0-11 */
--		tm->tm_mon	= bcd2bin(ops->readbyte(M48T86_REG_MONTH)) - 1;
--		tm->tm_year	= bcd2bin(ops->readbyte(M48T86_REG_YEAR)) + 100;
--		tm->tm_wday	= bcd2bin(ops->readbyte(M48T86_REG_DOW));
-+		tm->tm_mon	= bcd2bin(ops->readbyte(M48T86_MONTH)) - 1;
-+		tm->tm_year	= bcd2bin(ops->readbyte(M48T86_YEAR)) + 100;
-+		tm->tm_wday	= bcd2bin(ops->readbyte(M48T86_DOW));
- 	}
- 
- 	/* correct the hour if the clock is in 12h mode */
--	if (!(reg & M48T86_REG_B_H24))
--		if (ops->readbyte(M48T86_REG_HOUR) & 0x80)
-+	if (!(reg & M48T86_B_H24))
-+		if (ops->readbyte(M48T86_HOUR) & 0x80)
- 			tm->tm_hour += 12;
- 
- 	return rtc_valid_tm(tm);
-@@ -83,35 +82,35 @@ static int m48t86_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
- 
--	reg = ops->readbyte(M48T86_REG_B);
-+	reg = ops->readbyte(M48T86_B);
- 
- 	/* update flag and 24h mode */
--	reg |= M48T86_REG_B_SET | M48T86_REG_B_H24;
--	ops->writebyte(reg, M48T86_REG_B);
-+	reg |= M48T86_B_SET | M48T86_B_H24;
-+	ops->writebyte(reg, M48T86_B);
- 
--	if (reg & M48T86_REG_B_DM) {
-+	if (reg & M48T86_B_DM) {
- 		/* data (binary) mode */
--		ops->writebyte(tm->tm_sec, M48T86_REG_SEC);
--		ops->writebyte(tm->tm_min, M48T86_REG_MIN);
--		ops->writebyte(tm->tm_hour, M48T86_REG_HOUR);
--		ops->writebyte(tm->tm_mday, M48T86_REG_DOM);
--		ops->writebyte(tm->tm_mon + 1, M48T86_REG_MONTH);
--		ops->writebyte(tm->tm_year % 100, M48T86_REG_YEAR);
--		ops->writebyte(tm->tm_wday, M48T86_REG_DOW);
-+		ops->writebyte(tm->tm_sec, M48T86_SEC);
-+		ops->writebyte(tm->tm_min, M48T86_MIN);
-+		ops->writebyte(tm->tm_hour, M48T86_HOUR);
-+		ops->writebyte(tm->tm_mday, M48T86_DOM);
-+		ops->writebyte(tm->tm_mon + 1, M48T86_MONTH);
-+		ops->writebyte(tm->tm_year % 100, M48T86_YEAR);
-+		ops->writebyte(tm->tm_wday, M48T86_DOW);
- 	} else {
- 		/* bcd mode */
--		ops->writebyte(bin2bcd(tm->tm_sec), M48T86_REG_SEC);
--		ops->writebyte(bin2bcd(tm->tm_min), M48T86_REG_MIN);
--		ops->writebyte(bin2bcd(tm->tm_hour), M48T86_REG_HOUR);
--		ops->writebyte(bin2bcd(tm->tm_mday), M48T86_REG_DOM);
--		ops->writebyte(bin2bcd(tm->tm_mon + 1), M48T86_REG_MONTH);
--		ops->writebyte(bin2bcd(tm->tm_year % 100), M48T86_REG_YEAR);
--		ops->writebyte(bin2bcd(tm->tm_wday), M48T86_REG_DOW);
-+		ops->writebyte(bin2bcd(tm->tm_sec), M48T86_SEC);
-+		ops->writebyte(bin2bcd(tm->tm_min), M48T86_MIN);
-+		ops->writebyte(bin2bcd(tm->tm_hour), M48T86_HOUR);
-+		ops->writebyte(bin2bcd(tm->tm_mday), M48T86_DOM);
-+		ops->writebyte(bin2bcd(tm->tm_mon + 1), M48T86_MONTH);
-+		ops->writebyte(bin2bcd(tm->tm_year % 100), M48T86_YEAR);
-+		ops->writebyte(bin2bcd(tm->tm_wday), M48T86_DOW);
- 	}
- 
- 	/* update ended */
--	reg &= ~M48T86_REG_B_SET;
--	ops->writebyte(reg, M48T86_REG_B);
-+	reg &= ~M48T86_B_SET;
-+	ops->writebyte(reg, M48T86_B);
- 
- 	return 0;
- }
-@@ -122,15 +121,15 @@ static int m48t86_rtc_proc(struct device *dev, struct seq_file *seq)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
- 
--	reg = ops->readbyte(M48T86_REG_B);
-+	reg = ops->readbyte(M48T86_B);
- 
- 	seq_printf(seq, "mode\t\t: %s\n",
--		 (reg & M48T86_REG_B_DM) ? "binary" : "bcd");
-+		   (reg & M48T86_B_DM) ? "binary" : "bcd");
- 
--	reg = ops->readbyte(M48T86_REG_D);
-+	reg = ops->readbyte(M48T86_D);
- 
- 	seq_printf(seq, "battery\t\t: %s\n",
--		 (reg & M48T86_REG_D_VRT) ? "ok" : "exhausted");
-+		   (reg & M48T86_D_VRT) ? "ok" : "exhausted");
- 
- 	return 0;
- }
-@@ -148,7 +147,7 @@ static int m48t86_rtc_probe(struct platform_device *dev)
- 	struct rtc_device *rtc;
- 
- 	rtc = devm_rtc_device_register(&dev->dev, "m48t86",
--				&m48t86_rtc_ops, THIS_MODULE);
-+				       &m48t86_rtc_ops, THIS_MODULE);
- 
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
-@@ -156,9 +155,9 @@ static int m48t86_rtc_probe(struct platform_device *dev)
- 	platform_set_drvdata(dev, rtc);
- 
- 	/* read battery status */
--	reg = ops->readbyte(M48T86_REG_D);
-+	reg = ops->readbyte(M48T86_D);
- 	dev_info(&dev->dev, "battery %s\n",
--		(reg & M48T86_REG_D_VRT) ? "ok" : "exhausted");
-+		 (reg & M48T86_D_VRT) ? "ok" : "exhausted");
- 
- 	return 0;
- }
+-	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
++	rc = device_add_cdev(&chip->dev, &chip->cdev);
+ 	if (rc) {
+ 		dev_err(&chip->dev,
+ 			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
 -- 
-2.10.0
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
