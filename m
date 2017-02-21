@@ -1,75 +1,25 @@
-Return-Path: <rtc-linux+bncBCUJ7YGL3QFBBIUW2TCQKGQEA7FKOHA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKOZ45RYIGRBCPGWHCQKGQECHCVEAA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
-        by gmr-mx.google.com with ESMTPS id h130si126800pfe.1.2017.02.27.21.31.14
+Received: from NAM03-CO1-obe.outbound.protection.outlook.com (mail-co1nam03on0134.outbound.protection.outlook.com. [104.47.40.134])
+        by gmr-mx.google.com with ESMTPS id f7si3111694pfk.5.2017.02.21.09.04.09
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 Feb 2017 21:31:14 -0800 (PST)
-Date: Tue, 28 Feb 2017 06:31:02 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	linux-scsi <linux-scsi@vger.kernel.org>, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	"linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [rtc-linux] Re: [PATCH v2 01/16] chardev: add helper function to
- register char devs with a struct device
-Message-ID: <20170228053102.GA14688@kroah.com>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
- <1488091097-12328-2-git-send-email-logang@deltatee.com>
- <CAPcyv4i91_esBtBxbnDH3ZDd8Mnz4HoJEW2yeEvQ4QikFBjapA@mail.gmail.com>
- <20170227165618.GE5891@obsidianresearch.com>
- <7df6e57b-531c-1b23-05bf-c368df2d20f3@deltatee.com>
- <CAPcyv4jiPE1jK9ubbsAm_ZNMt=S106NCpXD4KPUWpcK9_GEDJA@mail.gmail.com>
-MIME-Version: 1.0
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 21 Feb 2017 09:04:09 -0800 (PST)
+From: Hartley Sweeten <HartleyS@visionengravers.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"alex@digriz.org.uk" <alex@digriz.org.uk>, Alessandro Zummo
+	<a.zummo@towertech.it>
+Subject: [rtc-linux] RE: [PATCH 1/5] rtc: m48t86: verify that the RTC is
+ actually present
+Date: Tue, 21 Feb 2017 17:04:07 +0000
+Message-ID: <SN1PR0101MB15652C26018F5BE5369DE4C7D0510@SN1PR0101MB1565.prod.exchangelabs.com>
+References: <20170215163527.5697-1-hsweeten@visionengravers.com>
+ <20170215163527.5697-2-hsweeten@visionengravers.com>
+ <20170221163720.m6hp27t4z7q4pgwl@piout.net>
+In-Reply-To: <20170221163720.m6hp27t4z7q4pgwl@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <CAPcyv4jiPE1jK9ubbsAm_ZNMt=S106NCpXD4KPUWpcK9_GEDJA@mail.gmail.com>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -79,36 +29,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Feb 27, 2017 at 07:36:09PM -0800, Dan Williams wrote:
-> On Mon, Feb 27, 2017 at 7:27 PM, Logan Gunthorpe <logang@deltatee.com> wrote:
-> >
-> >
-> > On 27/02/17 09:56 AM, Jason Gunthorpe wrote:
-> >> Yes please, that is way too subtle. Suggest:
-> >>
-> >> NOTE: Callers must assume that userspace was able to open the cdev and
-> >> can call cdev fops callbacks at any time, even if this function fails.
-> >>
-> >> I would also add a note to cdev_device_del:
-> >>
-> >> NOTE: This guarantees that associated sysfs callbacks are not running
-> >> or runnable, however any open cdevs will remain and their fops remain
-> >> callable even after this returns.
-> >>
-> >> Since I have seen a lot of confusion on that point as well..
-> >
-> > Sure, I'll add that verbiage to a v3 sometime after rc1.
-> 
-> It would also be great to patch1 into a stable non-rebasing git tree
-> so it can be used as a baseline for other 4.12 targeted development.
-> The device-dax patches in particular collide with some pending
-> development.
+On Tuesday, February 21, 2017 9:37 AM, Alexandre Belloni wrote:
+> On 15/02/2017 at 09:35:23 -0700, H Hartley Sweeten wrote:
+>> The RTC is an optional feature at purchase time on some Technologic
+>> Systems boards. Verify that it actually exists by checking if the
+>> last two bytes of the NVRAM can be changed.
+>> 
+>> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+>> Cc: Alessandro Zummo <a.zummo@towertech.it>
+>> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>> Cc: Alexander Clouter <alex@digriz.org.uk>
+>> ---
+>>  drivers/rtc/rtc-m48t86.c | 36 ++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 36 insertions(+)
+>> 
+>
+> I've applied that one. Alex, if you are fine with the mach-orion5x
+> changes, I can take them for 4.11. Else, this will wait for 4.12.
 
-I'll do that once -rc1 is out, I can't take any new patches right now :)
+Hello,
 
-thanks,
+Thanks. The change to mach-ep93xx is ok if you want to take that one.
 
-greg k-h
+I did just notice a minor issue with this one. It will still work as-is but
+It's not technically doing what was done in mach-orion52. See below...
+
+>> diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+>> index 4dc4af4..41ac5d6 100644
+>> --- a/drivers/rtc/rtc-m48t86.c
+>> +++ b/drivers/rtc/rtc-m48t86.c
+>> @@ -201,6 +201,37 @@ static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
+>>  static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
+>>  		M48T86_NVRAM_LEN);
+>>  
+>> +/*
+>> + * The RTC is an optional feature at purchase time on some Technologic Systems
+>> + * boards. Verify that it actually exists by checking if the last two bytes
+>> + * of the NVRAM can be changed.
+>> + *
+>> + * This is based on the method used in their rtc7800.c example.
+>> + */
+>> +static bool m48t86_verify_chip(struct platform_device *pdev)
+>> +{
+>> +	unsigned int offset0 = M48T86_NVRAM_LEN - 2;
+>> +	unsigned int offset1 = M48T86_NVRAM_LEN - 1;
+
+In order to address the last two bytes, these two offsets should actually be:
+
++	unsigned int offset0 = M48T86_NVRAM(M48T86_NVRAM_LEN - 2);
++	unsigned int offset1 = M48T86_NVRAM(M48T86_NVRAM_LEN - 1);
+
+As they are right now, they are both off by 14 bytes (0x0e).
+
+I can send a patch to fix it or you can do it if you prefer.
+
+Sorry about that.
+Hartley
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
