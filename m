@@ -1,23 +1,54 @@
-Return-Path: <rtc-linux+bncBDM47J4M6QEBBFEF7DCAKGQECV3VMPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDZYPUPHYEJBB25IWLCQKGQECLBP32Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail-ot0-x234.google.com (mail-ot0-x234.google.com. [2607:f8b0:4003:c0f::234])
+        by gmr-mx.google.com with ESMTPS id a17si1631430itd.1.2017.02.21.11.26.34
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 Feb 2017 11:26:34 -0800 (PST)
+Received: by mail-ot0-x234.google.com with SMTP id j38so4159917otb.3
+        for <rtc-linux@googlegroups.com>; Tue, 21 Feb 2017 11:26:34 -0800 (PST)
 MIME-Version: 1.0
-Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id z73si477103pfa.2.2017.02.10.10.12.36
-        for <rtc-linux@googlegroups.com>;
-        Fri, 10 Feb 2017 10:12:36 -0800 (PST)
-From: H Hartley Sweeten <hsweeten@visionengravers.com>
-To: rtc-linux@googlegroups.com
-Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 2/3] rtc: m48t86: allow driver to manage it's resources
-Date: Fri, 10 Feb 2017 11:11:56 -0700
-Message-Id: <20170210181157.6283-3-hsweeten@visionengravers.com>
-In-Reply-To: <20170210181157.6283-1-hsweeten@visionengravers.com>
-References: <20170210181157.6283-1-hsweeten@visionengravers.com>
-Reply-To: rtc-linux@googlegroups.com
+In-Reply-To: <20170221113704.ibwkk2vuc5imkmae@piout.net>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-3-git-send-email-logang@deltatee.com> <20170221113704.ibwkk2vuc5imkmae@piout.net>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Tue, 21 Feb 2017 11:26:33 -0800
+Message-ID: <CAPcyv4huQGQPSwvX9=iAVtzr1ga8RbN+e_q7DNaUMWGbWt_5mA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
+ helper function
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>, Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>, Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>, Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>, Boaz Harrosh <ooo@electrozaur.com>,
+	Benny Halevy <bhalevy@primarydata.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, osd-dev@open-osd.org,
+	linux-scsi <linux-scsi@vger.kernel.org>, rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	"linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,251 +57,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Allow this driver to, optionally, manage it's own resources and do the
-read/write operations if the platform does not provide them.
+On Tue, Feb 21, 2017 at 3:37 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> Hi,
+>
+> A small comment, you must always have a commit message. Even if it is
+> small.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
----
- drivers/rtc/rtc-m48t86.c | 153 +++++++++++++++++++++++++++++++----------------
- 1 file changed, 102 insertions(+), 51 deletions(-)
+Yes, something like: "Replace the open coded initialization of the
+cdev with the new device_add_cdev() helper. The helper takes the
+proper reference against the parent device while the cdev object is
+alive."
 
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index 30648ea..4dcdbd2 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -18,6 +18,7 @@
- #include <linux/platform_device.h>
- #include <linux/platform_data/rtc-m48t86.h>
- #include <linux/bcd.h>
-+#include <linux/io.h>
- 
- #define M48T86_SEC		0x00
- #define M48T86_SECALRM		0x01
-@@ -38,39 +39,72 @@
- #define M48T86_D		0x0d
- #define M48T86_D_VRT		BIT(7)
- 
-+struct m48t86_rtc_info {
-+	void __iomem *index_reg;
-+	void __iomem *data_reg;
-+	struct rtc_device *rtc;
-+	struct m48t86_ops *ops;
-+};
-+
-+static unsigned char m48t86_readb(struct device *dev, unsigned long addr)
-+{
-+	struct m48t86_rtc_info *info = dev_get_drvdata(dev);
-+	unsigned char value;
-+
-+	if (info->ops) {
-+		value = info->ops->readbyte(addr);
-+	} else {
-+		writeb(addr, info->index_reg);
-+		value = readb(info->data_reg);
-+	}
-+	return value;
-+}
-+
-+static void m48t86_writeb(struct device *dev,
-+			  unsigned char value, unsigned long addr)
-+{
-+	struct m48t86_rtc_info *info = dev_get_drvdata(dev);
-+
-+	if (info->ops) {
-+		info->ops->writebyte(value, addr);
-+	} else {
-+		writeb(addr, info->index_reg);
-+		writeb(value, info->data_reg);
-+	}
-+}
-+
- static int m48t86_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	unsigned char reg;
--	struct platform_device *pdev = to_platform_device(dev);
--	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
- 
--	reg = ops->readbyte(M48T86_B);
-+	reg = m48t86_readb(dev, M48T86_B);
- 
- 	if (reg & M48T86_B_DM) {
- 		/* data (binary) mode */
--		tm->tm_sec	= ops->readbyte(M48T86_SEC);
--		tm->tm_min	= ops->readbyte(M48T86_MIN);
--		tm->tm_hour	= ops->readbyte(M48T86_HOUR) & 0x3f;
--		tm->tm_mday	= ops->readbyte(M48T86_DOM);
-+		tm->tm_sec	= m48t86_readb(dev, M48T86_SEC);
-+		tm->tm_min	= m48t86_readb(dev, M48T86_MIN);
-+		tm->tm_hour	= m48t86_readb(dev, M48T86_HOUR) & 0x3f;
-+		tm->tm_mday	= m48t86_readb(dev, M48T86_DOM);
- 		/* tm_mon is 0-11 */
--		tm->tm_mon	= ops->readbyte(M48T86_MONTH) - 1;
--		tm->tm_year	= ops->readbyte(M48T86_YEAR) + 100;
--		tm->tm_wday	= ops->readbyte(M48T86_DOW);
-+		tm->tm_mon	= m48t86_readb(dev, M48T86_MONTH) - 1;
-+		tm->tm_year	= m48t86_readb(dev, M48T86_YEAR) + 100;
-+		tm->tm_wday	= m48t86_readb(dev, M48T86_DOW);
- 	} else {
- 		/* bcd mode */
--		tm->tm_sec	= bcd2bin(ops->readbyte(M48T86_SEC));
--		tm->tm_min	= bcd2bin(ops->readbyte(M48T86_MIN));
--		tm->tm_hour	= bcd2bin(ops->readbyte(M48T86_HOUR) & 0x3f);
--		tm->tm_mday	= bcd2bin(ops->readbyte(M48T86_DOM));
-+		tm->tm_sec	= bcd2bin(m48t86_readb(dev, M48T86_SEC));
-+		tm->tm_min	= bcd2bin(m48t86_readb(dev, M48T86_MIN));
-+		tm->tm_hour	= bcd2bin(m48t86_readb(dev, M48T86_HOUR) &
-+					  0x3f);
-+		tm->tm_mday	= bcd2bin(m48t86_readb(dev, M48T86_DOM));
- 		/* tm_mon is 0-11 */
--		tm->tm_mon	= bcd2bin(ops->readbyte(M48T86_MONTH)) - 1;
--		tm->tm_year	= bcd2bin(ops->readbyte(M48T86_YEAR)) + 100;
--		tm->tm_wday	= bcd2bin(ops->readbyte(M48T86_DOW));
-+		tm->tm_mon	= bcd2bin(m48t86_readb(dev, M48T86_MONTH)) - 1;
-+		tm->tm_year	= bcd2bin(m48t86_readb(dev, M48T86_YEAR)) + 100;
-+		tm->tm_wday	= bcd2bin(m48t86_readb(dev, M48T86_DOW));
- 	}
- 
- 	/* correct the hour if the clock is in 12h mode */
- 	if (!(reg & M48T86_B_H24))
--		if (ops->readbyte(M48T86_HOUR) & 0x80)
-+		if (m48t86_readb(dev, M48T86_HOUR) & 0x80)
- 			tm->tm_hour += 12;
- 
- 	return rtc_valid_tm(tm);
-@@ -79,38 +113,36 @@ static int m48t86_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int m48t86_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	unsigned char reg;
--	struct platform_device *pdev = to_platform_device(dev);
--	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
- 
--	reg = ops->readbyte(M48T86_B);
-+	reg = m48t86_readb(dev, M48T86_B);
- 
- 	/* update flag and 24h mode */
- 	reg |= M48T86_B_SET | M48T86_B_H24;
--	ops->writebyte(reg, M48T86_B);
-+	m48t86_writeb(dev, reg, M48T86_B);
- 
- 	if (reg & M48T86_B_DM) {
- 		/* data (binary) mode */
--		ops->writebyte(tm->tm_sec, M48T86_SEC);
--		ops->writebyte(tm->tm_min, M48T86_MIN);
--		ops->writebyte(tm->tm_hour, M48T86_HOUR);
--		ops->writebyte(tm->tm_mday, M48T86_DOM);
--		ops->writebyte(tm->tm_mon + 1, M48T86_MONTH);
--		ops->writebyte(tm->tm_year % 100, M48T86_YEAR);
--		ops->writebyte(tm->tm_wday, M48T86_DOW);
-+		m48t86_writeb(dev, tm->tm_sec, M48T86_SEC);
-+		m48t86_writeb(dev, tm->tm_min, M48T86_MIN);
-+		m48t86_writeb(dev, tm->tm_hour, M48T86_HOUR);
-+		m48t86_writeb(dev, tm->tm_mday, M48T86_DOM);
-+		m48t86_writeb(dev, tm->tm_mon + 1, M48T86_MONTH);
-+		m48t86_writeb(dev, tm->tm_year % 100, M48T86_YEAR);
-+		m48t86_writeb(dev, tm->tm_wday, M48T86_DOW);
- 	} else {
- 		/* bcd mode */
--		ops->writebyte(bin2bcd(tm->tm_sec), M48T86_SEC);
--		ops->writebyte(bin2bcd(tm->tm_min), M48T86_MIN);
--		ops->writebyte(bin2bcd(tm->tm_hour), M48T86_HOUR);
--		ops->writebyte(bin2bcd(tm->tm_mday), M48T86_DOM);
--		ops->writebyte(bin2bcd(tm->tm_mon + 1), M48T86_MONTH);
--		ops->writebyte(bin2bcd(tm->tm_year % 100), M48T86_YEAR);
--		ops->writebyte(bin2bcd(tm->tm_wday), M48T86_DOW);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_sec), M48T86_SEC);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_min), M48T86_MIN);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_hour), M48T86_HOUR);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_mday), M48T86_DOM);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_mon + 1), M48T86_MONTH);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_year % 100), M48T86_YEAR);
-+		m48t86_writeb(dev, bin2bcd(tm->tm_wday), M48T86_DOW);
- 	}
- 
- 	/* update ended */
- 	reg &= ~M48T86_B_SET;
--	ops->writebyte(reg, M48T86_B);
-+	m48t86_writeb(dev, reg, M48T86_B);
- 
- 	return 0;
- }
-@@ -118,15 +150,13 @@ static int m48t86_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static int m48t86_rtc_proc(struct device *dev, struct seq_file *seq)
- {
- 	unsigned char reg;
--	struct platform_device *pdev = to_platform_device(dev);
--	struct m48t86_ops *ops = dev_get_platdata(&pdev->dev);
- 
--	reg = ops->readbyte(M48T86_B);
-+	reg = m48t86_readb(dev, M48T86_B);
- 
- 	seq_printf(seq, "mode\t\t: %s\n",
- 		   (reg & M48T86_B_DM) ? "binary" : "bcd");
- 
--	reg = ops->readbyte(M48T86_D);
-+	reg = m48t86_readb(dev, M48T86_D);
- 
- 	seq_printf(seq, "battery\t\t: %s\n",
- 		   (reg & M48T86_D_VRT) ? "ok" : "exhausted");
-@@ -140,23 +170,44 @@ static const struct rtc_class_ops m48t86_rtc_ops = {
- 	.proc		= m48t86_rtc_proc,
- };
- 
--static int m48t86_rtc_probe(struct platform_device *dev)
-+static int m48t86_rtc_probe(struct platform_device *pdev)
- {
-+	struct m48t86_rtc_info *info;
- 	unsigned char reg;
--	struct m48t86_ops *ops = dev_get_platdata(&dev->dev);
--	struct rtc_device *rtc;
- 
--	rtc = devm_rtc_device_register(&dev->dev, "m48t86",
--				       &m48t86_rtc_ops, THIS_MODULE);
-+	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->ops = dev_get_platdata(&pdev->dev);
-+	if (!info->ops) {
-+		struct resource *res;
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (!res)
-+			return -ENODEV;
-+		info->index_reg = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(info->index_reg))
-+			return PTR_ERR(info->index_reg);
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		if (!res)
-+			return -ENODEV;
-+		info->data_reg = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(info->data_reg))
-+			return PTR_ERR(info->data_reg);
-+	}
- 
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	dev_set_drvdata(&pdev->dev, info);
- 
--	platform_set_drvdata(dev, rtc);
-+	info->rtc = devm_rtc_device_register(&pdev->dev, "m48t86",
-+					     &m48t86_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(info->rtc))
-+		return PTR_ERR(info->rtc);
- 
- 	/* read battery status */
--	reg = ops->readbyte(M48T86_D);
--	dev_info(&dev->dev, "battery %s\n",
-+	reg = m48t86_readb(&pdev->dev, M48T86_D);
-+	dev_info(&pdev->dev, "battery %s\n",
- 		 (reg & M48T86_D_VRT) ? "ok" : "exhausted");
- 
- 	return 0;
--- 
-2.10.0
+With that you can also add:
+
+Acked-by: Dan Williams <dan.j.williams@intel.com>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
