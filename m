@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBAABB7ETV7CQKGQEPP2S36A@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCEUV7CQKGQEH43ZZUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id s64si2090539pfk.0.2017.02.20.21.02.52
+        by gmr-mx.google.com with ESMTPS id 23si2940915pfw.4.2017.02.20.21.03.04
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Feb 2017 21:02:52 -0800 (PST)
+        Mon, 20 Feb 2017 21:03:04 -0800 (PST)
 From: Logan Gunthorpe <logang@deltatee.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Dan Williams <dan.j.williams@intel.com>,
@@ -71,9 +71,11 @@ Cc: linux-pci@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:39 -0700
-Message-Id: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 00/14] Cleanup chardev instances with helper function
+Date: Mon, 20 Feb 2017 22:00:43 -0700
+Message-Id: <1487653253-11497-5-git-send-email-logang@deltatee.com>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH 04/14] gpiolib: utilize new device_add_cdev helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -84,93 +86,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/gpio/gpiolib.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Our story for this patch-set begins with a new driver I wrote and am in
-the process of submitting upstream. That driver creates a fairly
-standard char device and the code for it was copied from a similar
-instance in device-dax. However, upon review, Greg Kroah-Hartman
-noticed [1] a suspicious line that assigned to the parent field of
-the underlying kobject for the char device.
-
-I removed that from my code and endeavoured to remove it from the
-code I copied as well. However, Dan Williams pointed out [2] that this
-code is necessary for correct reference counting of the underlying
-structures. This prompted me to do a fair bit more research and
-investigation into whats going on and I found it to be a common pattern.
-(Although misleading and though required to be correct, frequently
-forgotten.) This pattern is used in at least 15 places in the kernel
-and probably should have been used in at least 5 more.
-
-This patch-set aims to correct this and hopefully prevent future
-developers from wasting their time on it. The first patch introduces
-a new helper API as originally proposed by Dan Williams [3]. Please
-see the commit message for that patch for a longer description of the
-problem and history.
-
-The subsequent patches either update correct instances to use the
-new API or fix incorrect usages to ensure the cdev correctly takes
-a reference count using the new API (this is noted in those patches).
-
-This moves all except four of the cdev.kobj.parent usages into the one
-cdev function, the remaining four are in the infiniband subsystem and
-I've left alone because that subsystem seems to make use of kobjects
-directly (instead of struct devices). These are noted in patch 7 of
-this series.
-
-This series is based on v4.10 with the exception of the last patch
-which is for my new driver which, as yet, has not been accepted
-upstream.
-
-@Dan the first patch in this series will need your sign-off.
-
-Thanks,
-
-Logan
-
-[1] https://lkml.org/lkml/2017/2/10/370
-[2] https://lkml.org/lkml/2017/2/10/607
-[3] https://lkml.org/lkml/2017/2/13/700
-
-Logan Gunthorpe (14):
-  chardev: add helper function to register char devs with a struct
-    device
-  device-dax: utilize new device_add_cdev helper function
-  input: utilize new device_add_cdev helper function
-  gpiolib: utilize new device_add_cdev helper function
-  tpm-chip: utilize new device_add_cdev helper function
-  platform/chrome: utilize new device_add_cdev helper function
-  infiniband: utilize new device_add_cdev helper function
-  iio:core: utilize new device_add_cdev helper function
-  media: utilize new device_add_cdev helper function
-  mtd: utilize new device_add_cdev helper function
-  rapidio: utilize new device_add_cdev helper function
-  rtc: utilize new device_add_cdev helper function
-  scsi: utilize new device_add_cdev helper function
-  switchtec: utilize new device_add_cdev helper function
-
- drivers/char/tpm/tpm-chip.c              |  3 +--
- drivers/dax/dax.c                        |  5 ++---
- drivers/gpio/gpiolib.c                   |  3 +--
- drivers/iio/industrialio-core.c          |  3 +--
- drivers/infiniband/core/ucm.c            |  8 +++++---
- drivers/input/evdev.c                    |  3 +--
- drivers/input/joydev.c                   |  3 +--
- drivers/input/mousedev.c                 |  3 +--
- drivers/media/cec/cec-core.c             |  3 +--
- drivers/media/media-devnode.c            |  3 +--
- drivers/mtd/ubi/build.c                  |  8 +++++---
- drivers/mtd/ubi/vmt.c                    | 10 +++++-----
- drivers/pci/switch/switchtec.c           |  3 +--
- drivers/platform/chrome/cros_ec_dev.c    |  6 ++----
- drivers/rapidio/devices/rio_mport_cdev.c |  9 ++++++---
- drivers/rtc/rtc-dev.c                    |  3 +--
- drivers/scsi/osd/osd_uld.c               |  9 +++++----
- fs/char_dev.c                            | 24 ++++++++++++++++++++++++
- include/linux/cdev.h                     |  1 +
- 19 files changed, 65 insertions(+), 45 deletions(-)
-
---
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index a07ae9e..04dbc4a 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1036,9 +1036,8 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
+ 
+ 	cdev_init(&gdev->chrdev, &gpio_fileops);
+ 	gdev->chrdev.owner = THIS_MODULE;
+-	gdev->chrdev.kobj.parent = &gdev->dev.kobj;
+ 	gdev->dev.devt = MKDEV(MAJOR(gpio_devt), gdev->id);
+-	status = cdev_add(&gdev->chrdev, gdev->dev.devt, 1);
++	status = device_add_cdev(&gdev->dev, &gdev->chrdev);
+ 	if (status < 0)
+ 		chip_warn(gdev->chip, "failed to add char device %d:%d\n",
+ 			  MAJOR(gpio_devt), gdev->id);
+-- 
 2.1.4
 
 -- 
