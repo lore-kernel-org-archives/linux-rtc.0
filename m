@@ -2,7 +2,7 @@ Return-Path: <rtc-linux+bncBAABBCEUV7CQKGQEH43ZZUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id 23si2940912pfw.4.2017.02.20.21.03.04
+        by gmr-mx.google.com with ESMTPS id 23si2940905pfw.4.2017.02.20.21.03.03
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
         Mon, 20 Feb 2017 21:03:04 -0800 (PST)
@@ -71,12 +71,12 @@ Cc: linux-pci@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon, 20 Feb 2017 22:00:53 -0700
-Message-Id: <1487653253-11497-15-git-send-email-logang@deltatee.com>
+Date: Mon, 20 Feb 2017 22:00:40 -0700
+Message-Id: <1487653253-11497-2-git-send-email-logang@deltatee.com>
 In-Reply-To: <1487653253-11497-1-git-send-email-logang@deltatee.com>
 References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH 14/14] switchtec: utilize new device_add_cdev
- helper function
+Subject: [rtc-linux] [PATCH 01/14] chardev: add helper function to register
+ char devs with a struct device
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -87,25 +87,122 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Credit for this patch goes entirely to Dan Williams [1]. I've just
+fleshed out the comments and created the patch, but the premise
+remains exactly the same.
+
+There's a common pattern in the kernel whereby a struct cdev is placed
+in a structure along side a struct device which manages the life-cycle
+of both. In the naive approach, the reference counting is broken and
+the struct device can free everything before the chardev code
+is entirely released.
+
+Many developers have solved this problem by linking the internal kobjs
+in this fashion:
+
+cdev.kobj.parent = &parent_dev.kobj;
+
+The cdev code explicitly gets and puts a reference to it's kobj parent.
+So this seems like it was intended to be used this way. Dmitrty Torokhov
+first put this in place in 2012 with this commit:
+
+2f0157f char_dev: pin parent kobject
+
+and the first instance of the fix was then done in the input subsystem
+in the following commit:
+
+4a215aa Input: fix use-after-free introduced with dynamic minor changes
+
+Subsequently over the years, however, this issue seems to have tripped
+up multiple developers independently. For example, see these commits:
+
+0d5b7da iio: Prevent race between IIO chardev opening and IIO device
+(by Lars-Peter Clausen in 2013)
+
+ba0ef85 tpm: Fix initialization of the cdev
+(by Jason Gunthorpe in 2015)
+
+5b28dde [media] media: fix use-after-free in cdev_put() when app exits
+after driver unbind
+(by Shauh Khan in 2016)
+
+This technique is similarly done in at least 15 places within the kernel
+and probably should have been done so in another, at least, 5 places.
+The kobj line also looks very suspect in that one would not expect
+drivers to have to mess with kobject internals in this way.
+Even highly experienced kernel developers can be surprised by this
+code, as seen in [2].
+
+To help alleviate this situation, and hopefully prevent future
+wasted effort on this problem, this patch introduces a helper function
+to register a char device with its parent struct device. This creates
+a more regular API for tying a char device to its parent without the
+developer having to set members in the underlying kobject.
+
+In [1], Dan notes he took inspiration for the form of the API
+device_add_disk.
+
+[1] https://lkml.org/lkml/2017/2/13/700
+[2] https://lkml.org/lkml/2017/2/10/370
+
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- drivers/pci/switch/switchtec.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/char_dev.c        | 24 ++++++++++++++++++++++++
+ include/linux/cdev.h |  1 +
+ 2 files changed, 25 insertions(+)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 82bfd18..95aabd0 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -1233,9 +1233,8 @@ static struct switchtec_dev *stdev_create(struct pci_dev *pdev)
- 	cdev = &stdev->cdev;
- 	cdev_init(cdev, &switchtec_fops);
- 	cdev->owner = THIS_MODULE;
--	cdev->kobj.parent = &dev->kobj;
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 44a240c..1f9246c 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -471,6 +471,29 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+ 	return 0;
+ }
  
--	rc = cdev_add(&stdev->cdev, dev->devt, 1);
-+	rc = device_add_cdev(dev, cdev);
- 	if (rc)
- 		goto err_cdev;
++/**
++ * device_add_cdev() - add a char device to the system with a parent
++ *	struct device
++ * @parent: the device structure of the parent
++ * @cdev: the cdev structure for the device
++ * @count: the number of consecutive minor numbers corresponding to this
++ *
++ * device_add_cdev() adds the char device represented by @p to the system,
++ * just as cdev_add does. The dev_t for the char device will be taken from
++ * the struct device which needs to be initialized first. This helper
++ * function correctly takes a reference to the parent device so the parent
++ * will not get released until all references to the cdev are released.
++ * (Thus, cdev_del should be called before device_unregister.) This
++ * function should be used whenever the struct cdev and the struct device
++ * are members of the same structure whose lifetime is managed by the
++ * struct device.
++ */
++int device_add_cdev(struct device *parent, struct cdev *cdev)
++{
++	cdev->kobj.parent = &parent->kobj;
++	return cdev_add(cdev, parent->devt, 1);
++}
++
+ static void cdev_unmap(dev_t dev, unsigned count)
+ {
+ 	kobj_unmap(cdev_map, dev, count);
+@@ -570,5 +593,6 @@ EXPORT_SYMBOL(cdev_init);
+ EXPORT_SYMBOL(cdev_alloc);
+ EXPORT_SYMBOL(cdev_del);
+ EXPORT_SYMBOL(cdev_add);
++EXPORT_SYMBOL(device_add_cdev);
+ EXPORT_SYMBOL(__register_chrdev);
+ EXPORT_SYMBOL(__unregister_chrdev);
+diff --git a/include/linux/cdev.h b/include/linux/cdev.h
+index f876361..9edbc37 100644
+--- a/include/linux/cdev.h
++++ b/include/linux/cdev.h
+@@ -25,6 +25,7 @@ struct cdev *cdev_alloc(void);
+ void cdev_put(struct cdev *p);
+ 
+ int cdev_add(struct cdev *, dev_t, unsigned);
++int device_add_cdev(struct device *parent, struct cdev *cdev);
+ 
+ void cdev_del(struct cdev *);
  
 -- 
 2.1.4
