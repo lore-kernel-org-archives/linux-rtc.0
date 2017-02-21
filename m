@@ -1,31 +1,26 @@
-Return-Path: <rtc-linux+bncBCNJ5VGR4ANRBG4I47CAKGQERHYBZRQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBM73WLCQKGQECJTAQ2Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 14si1210435wmn.2.2017.02.21.14.22.43
+        for <rtc-linux@googlegroups.com>;
+        Tue, 21 Feb 2017 14:22:43 -0800 (PST)
+Date: Tue, 21 Feb 2017 23:22:42 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org, Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] Re: [PATCH v3 1/3] rtc: armada38x: Prepare driver to
+ manage different versions
+Message-ID: <20170221222242.n5pdpmrjk5wie5wq@piout.net>
+References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
+ <20170220173850.8640-2-gregory.clement@free-electrons.com>
 MIME-Version: 1.0
-Received: from gateway20.websitewelcome.com (gateway20.websitewelcome.com. [192.185.66.3])
-        by gmr-mx.google.com with ESMTPS id a17si98916itd.1.2017.02.07.04.56.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 Feb 2017 04:56:58 -0800 (PST)
-Received: from cm6.websitewelcome.com (cm6.websitewelcome.com [108.167.139.19])
-	by gateway20.websitewelcome.com (Postfix) with ESMTP id 6FC2F400D60AB
-	for <rtc-linux@googlegroups.com>; Tue,  7 Feb 2017 06:56:58 -0600 (CST)
-From: Guy Shapiro <guy.shapiro@mobi-wize.com>
-To: Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>,
-	devicetree@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Sascha Hauer <kernel@pengutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 0/2] imx: Fix power-up on RTC alarm
-Date: Tue,  7 Feb 2017 14:54:12 +0200
-Message-Id: <1486472054-4367-1-git-send-email-guy.shapiro@mobi-wize.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170220173850.8640-2-gregory.clement@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,41 +29,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Currently, the syscon-poweroff driver cleans the alarm enable bit during power
-off. This behaviour makes it impossible to wake up the device using the RTC.
-
-The first patch adds a mask option to the syscon-poweroff driver. It uses the
-method suggested by Sebastian Reichel [0] to maintain compatibility with the
-old binding.
-
-The second patch update the device trees for the snvs component users.
-Although I believe this should work on all the modified devices, I had only
-imx6ul to test with.
-
-Making the wake-up alarm work may require applying another patch [1], already
-accepted to the rtc-snvs driver. 
-
-Thanks,
-Guy.
-
-[0] http://www.spinics.net/lists/devicetree/msg161527.html
-[1] https://patchwork.ozlabs.org/patch/721155/
-
-Guy Shapiro (2):
-  power: reset: syscon-poweroff: add a mask property
-  ARM: dts: imx: update snvs-poweroff mask
-
- .../bindings/power/reset/syscon-poweroff.txt          | 11 +++++++++--
- arch/arm/boot/dts/imx6qdl.dtsi                        |  1 +
- arch/arm/boot/dts/imx6sl.dtsi                         |  1 +
- arch/arm/boot/dts/imx6sx.dtsi                         |  1 +
- arch/arm/boot/dts/imx6ul.dtsi                         |  1 +
- arch/arm/boot/dts/imx7s.dtsi                          |  1 +
- drivers/power/reset/syscon-poweroff.c                 | 19 ++++++++++++++++---
- 7 files changed, 30 insertions(+), 5 deletions(-)
+On 20/02/2017 at 18:38:48 +0100, Gregory CLEMENT wrote:
+> In order to prepare the introduction of the A7K/A8K version of the RTC,
+> this commit introduces a new data structure. This structure allows to
+> handle the differences between the integration of the RTC IP in the
+> SoCs. It will be:
+>  - MBUS bridge timing initialization
+>  - IRQ configuration at SoC level
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+> ---
+>  drivers/rtc/rtc-armada38x.c | 152 +++++++++++++++++++++++++++++---------------
+>  1 file changed, 99 insertions(+), 53 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
