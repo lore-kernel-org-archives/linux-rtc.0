@@ -1,62 +1,76 @@
-Date: Sun, 12 Feb 2017 01:10:18 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: rtc-linux@googlegroups.com, alex@digriz.org.uk
-Subject: Re: [rtc-linux] [PATCH 0/3] rtc: m48t86: cleanup driver and add
- NVRAM support
-Message-ID: <20170212001018.r4x7mhzz5lol2ncu@piout.net>
-References: <20170210181157.6283-1-hsweeten@visionengravers.com>
+Return-Path: <rtc-linux+bncBAABBROWXPCQKGQEM5MKS2Y@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170210181157.6283-1-hsweeten@visionengravers.com>
+Received: from mail02.prevas.se (mail02.prevas.se. [62.95.78.10])
+        by gmr-mx.google.com with ESMTPS id y19si147946wmd.0.2017.02.23.06.01.40
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Feb 2017 06:01:41 -0800 (PST)
+From: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+To: rtc-linux@googlegroups.com
+Cc: Sean Nyekjaer <sean.nyekjaer@prevas.dk>,
+	alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v2] rtc: pcf2127: bulk read only date and time registers.
+Date: Thu, 23 Feb 2017 15:01:24 +0100
+Message-Id: <20170223140124.57639-1-sean.nyekjaer@prevas.dk>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 10/02/2017 at 11:11:54 -0700, H Hartley Sweeten wrote:
-> This rtc driver is currently only used by the Technologic Systems TS-72xx
-> (arm/mach-ep93xx) and TS-78xx (arm/mach-orion5x) SBCs. These platforms use
-> static I/O mappings for the registers needed to access the index and data
-> registers of the chip.
-> 
-> On the TS-78xx there is one I/O mapping of SZ_1M for the entire FPGA address
-> space. The rtc index and data registers are located in that space along with
-> all the other FPGA devices.
-> 
-> On the TS-72xx the mapping is a bit uglier. That platform uses a CPLD to
-> access the rtc. The CPLD is connected to two chip select lines of the
-> processor and each chip select addresses 256 MiB. Address lines 25-22 and 0
-> are then decoded for the various devices. Since mapping the entire 256 MiB
-> for each address space would be _really_ ugly, a SZ_4K mapping is done for
-> each register that is needed.
-> 
-> This series does the following:
->  1) Cleanup this driver to remove all the checkpatch.pl issues.
->  2) Modify the probe to, optionally, ioremap the resources provided by the
->     platform and handle the read/write operations internally.
->  3) Add support for the NVRAM in the rtc.
-> 
-> With these changes the static I/O mappings for the rtc registers can be
-> removed from the ts-72xx platform.
-> 
-> Currently the ts78xx platform does some "probing" of the rtc NVRAM to see
-> if it is actually present before registering the rtc device. This "probing"
-> just checks if the NVRAM is present by reading/writing the last two bytes
-> of the NVRAM. I'm not sure if this is really necessary. If it can be removed
-> all the m48t86_ops stuff could also be removed from this driver, along with
-> platform_data/rtc-m48t86.h.
-> 
-> H Hartley Sweeten (3):
->   rtc: m48t86: shorten register name defines
->   rtc: m48t86: allow driver to manage it's resources
->   rtc: m48t86: add NVRAM support
-> 
->  drivers/rtc/rtc-m48t86.c | 247 ++++++++++++++++++++++++++++++++---------------
->  1 file changed, 169 insertions(+), 78 deletions(-)
-> 
+Read control registers one by one and bulk read time registers.
+This fixes when the clock is read, the watchdog counter register is zeroed.
 
-All applied, thanks.
+Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+---
+Changes since v1:
+- fixed indentation
+- use of more defines
 
+ drivers/rtc/rtc-pcf2127.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 2bfdf638b673..f33447c5db85 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -52,9 +52,20 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+ 	unsigned char buf[10];
+ 	int ret;
++	int i;
+ 
+-	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, buf,
+-				sizeof(buf));
++	for (i = 0; i <= PCF2127_REG_CTRL3; i++) {
++		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1 + i,
++				  (unsigned int *)(buf + i));
++		if (ret) {
++			dev_err(dev, "%s: read error\n", __func__);
++			return ret;
++		}
++	}
++
++	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_SC,
++			       (buf + PCF2127_REG_SC),
++			       ARRAY_SIZE(buf) - PCF2127_REG_SC);
+ 	if (ret) {
+ 		dev_err(dev, "%s: read error\n", __func__);
+ 		return ret;
+-- 
+2.11.0
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
