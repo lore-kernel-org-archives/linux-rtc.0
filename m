@@ -1,20 +1,19 @@
-Return-Path: <rtc-linux+bncBDA63GMRREGBB44E7HCAKGQEWWTSAIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZF4XTCQKGQEHICD33Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from marmot.wormnet.eu (marmot.wormnet.eu. [2a03:9800:10:2d:3203:b3a5:8bdc:5b68])
-        by gmr-mx.google.com with ESMTPS id y19si190785wmd.0.2017.02.10.14.45.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 10 Feb 2017 14:45:06 -0800 (PST)
-Date: Fri, 10 Feb 2017 22:45:05 +0000
-From: Alexander Clouter <alex@digriz.org.uk>
-To: H Hartley Sweeten <hsweeten@visionengravers.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p185si202244wme.1.2017.02.23.09.39.48
+        for <rtc-linux@googlegroups.com>;
+        Thu, 23 Feb 2017 09:39:48 -0800 (PST)
+Date: Thu, 23 Feb 2017 18:39:42 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
 Cc: rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 0/3] rtc: m48t86: cleanup driver and add NVRAM support
-Message-ID: <20170210224505.GK24768@quatermain.digriz.org.uk>
-References: <20170210181157.6283-1-hsweeten@visionengravers.com>
+Subject: [rtc-linux] Re: [PATCH v2] rtc: pcf2127: bulk read only date and time registers.
+Message-ID: <20170223173942.kysd2hq3r2zjs77n@piout.net>
+References: <20170223140124.57639-1-sean.nyekjaer@prevas.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-In-Reply-To: <20170210181157.6283-1-hsweeten@visionengravers.com>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170223140124.57639-1-sean.nyekjaer@prevas.dk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,28 +23,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Feb 10, 2017 at 11:11:54AM -0700, H Hartley Sweeten wrote:
->
->Currently the ts78xx platform does some "probing" of the rtc NVRAM to see
->if it is actually present before registering the rtc device. This "probing"
->just checks if the NVRAM is present by reading/writing the last two bytes
->of the NVRAM. I'm not sure if this is really necessary. If it can be removed
->all the m48t86_ops stuff could also be removed from this driver, along with
->platform_data/rtc-m48t86.h.
+On 23/02/2017 at 15:01:24 +0100, Sean Nyekjaer wrote:
+> Read control registers one by one and bulk read time registers.
+> This fixes when the clock is read, the watchdog counter register is zeroed.
+> 
+> Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+> ---
+> Changes since v1:
+> - fixed indentation
+> - use of more defines
+> 
+>  drivers/rtc/rtc-pcf2127.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-The RTC is an optional upgrade on the TS-7800[1].  Not sure what would happen 
-if the RTC driver kicks in with no actual RTC being present?
-
-If I was to do this over again, I probably would have the driver check that the 
-HMS is actually incrementing after being instantiated, if it looks weird then 
-to unbind its-self.
-
-My TS-7800 is still clunking away in the corner though on an aging 2.6.32 
-kernel.  I keep meaning to update it, might be some time before I can though.
-
-Cheers
-
-[1] https://www.embeddedarm.com/products/TS-7800 - 'Order' tab
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
