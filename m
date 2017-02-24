@@ -1,80 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBVHQZHCQKGQE2D6DO7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBH53X3CQKGQEMQLYYTA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si37394wmf.0.2017.02.23.18.42.39
+        for <rtc-linux@googlegroups.com>;
+        Thu, 23 Feb 2017 18:42:39 -0800 (PST)
+Date: Fri, 24 Feb 2017 03:42:38 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Phil Reid <preid@electromag.com.au>
+Cc: a.zummo@towertech.it, akinobu.mita@gmail.com,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 3/3] rtc: ds3232: Call device_init_wakeup
+ before device_register
+Message-ID: <20170224024238.qp52wunvvy66ra2z@piout.net>
+References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
+ <1487295898-90177-4-git-send-email-preid@electromag.com.au>
+ <20170221203305.mkcqv3g4wbbm5js6@piout.net>
+ <444215ad-ff7e-b5e2-85d8-58edf3ffddcf@electromag.com.au>
+ <20170224014609.a3labrbe6bzwcztg@piout.net>
+ <8bde3c28-d99d-07c6-1cdf-ff6a4db683b3@electromag.com.au>
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id h130si2452147pfe.1.2017.02.25.22.40.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 Feb 2017 22:40:20 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Sat, 25 Feb 2017 23:38:12 -0700
-Message-Id: <1488091097-12328-12-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v2 11/16] media: utilize new cdev_device_add
- helper function
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <8bde3c28-d99d-07c6-1cdf-ff6a4db683b3@electromag.com.au>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -83,112 +30,84 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+On 24/02/2017 at 10:32:40 +0800, Phil Reid wrote:
+> On 24/02/2017 09:46, Alexandre Belloni wrote:
+> > On 22/02/2017 at 09:33:14 +0800, Phil Reid wrote:
+> > > On 22/02/2017 04:33, Alexandre Belloni wrote:
+> > > > On 17/02/2017 at 09:44:58 +0800, Phil Reid wrote:
+> > > > > The wakealarm attribute is currently not exposed in the sysfs interface
+> > > > > as the device has not been set as doing wakealarm when device_register
+> > > > > is called. Changing the order of the calls fixes that problem. Interrupts
+> > > > > are cleared in check_rtc_status prior to requesting the interrupt.
+> > > > > 
+> > > > 
+> > > > This basically revert b4b77f3c280e38cec178f81d7a4d7e65f4045913 So I'm
+> > > > not sure this is sufficient to ensure the IRQ will never fire.
+> > > > 
+> > > > (I don't know whether this was a real bug or something reported by a
+> > > > static analysis tool).
+> > > 
+> > > G'day Alexandre,
+> > > Without this change the wakealarm sysfs is never created.
+> > > This is done in rtc_device_register, but a filter to wakealarm attribute effectively on
+> > > dev->power.can_wakeup flag. Which is set via the init wakeup call.
+> > > 
+> > > But looking at that commit and thinking about it some more I can see the problem
+> > > b4b77f3c280e38cec178f81d7a4d7e65f4045913 was try to solve.
+> > > 
+> > > Looking at other drivers some of them have similar order but use their own mutex.
+> > > eg rtc-rc8803 and don't use the ops_lock
+> > > 
+> > > Or others set device_init_wakeup and then fail if the irq fails to register.
+> > > 
+> > > Currently if the ds3232 has an irq set but fails to register the irq it falls back
+> > > to being a non wakeup source. To me it makes more sense to just fall if the config
+> > > has an irq defined.
+> > > 
+> > > Then we could set device_init_wakeup based on there being an irq prior to device_register
+> > > and then request the irq after device register. But fail the probe if the irq request fails.
+> > > 
+> > > Thoughts?
+> > > 
+> > 
+> > I think you can use device_set_wakeup_capable() afterwards which would
+> > fit this use case. Can you try that?
+> > 
+> > Anyway, I have a pending rework of the rtc registration that will solve
+> > this issue (and the sysfs attribute creation race).
+> > 
+> Nope, doesn't help.
+> device_init_wakeup already calls device_set_wakeup_capable.
+> 
+> rtc_attr_groups is fetched via rtc_get_dev_attribute_groups
+> and assigned to the rtc->dev.groups in rtc_device_register
+> The is_visible callback checks device_can_wakeup.
+> And this is not set until after device creation.
+> 
+> Is there a way to retrigger the sysfs groups creation after device
+> registration? Thou this would result in sysfs attrib. races I guess.
+> 
+> Failing to probe when irq requested seems the easiest.
+> Would anyone want the irq registration to fail but device creation succeed if requested?
+> 
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/media/cec/cec-core.c  | 16 ++++------------
- drivers/media/media-devnode.c | 20 +++++---------------
- 2 files changed, 9 insertions(+), 27 deletions(-)
+Yes because th RTC is still functional and can give the time (and that
+may break userspace).
 
-diff --git a/drivers/media/cec/cec-core.c b/drivers/media/cec/cec-core.c
-index aca3ab8..3e93c1a 100644
---- a/drivers/media/cec/cec-core.c
-+++ b/drivers/media/cec/cec-core.c
-@@ -137,24 +137,17 @@ static int __must_check cec_devnode_register(struct cec_devnode *devnode,
- 
- 	/* Part 2: Initialize and register the character device */
- 	cdev_init(&devnode->cdev, &cec_devnode_fops);
--	devnode->cdev.kobj.parent = &devnode->dev.kobj;
- 	devnode->cdev.owner = owner;
- 
--	ret = cdev_add(&devnode->cdev, devnode->dev.devt, 1);
--	if (ret < 0) {
--		pr_err("%s: cdev_add failed\n", __func__);
-+	ret = cdev_device_add(&devnode->cdev, &devnode->dev);
-+	if (ret) {
-+		pr_err("%s: cdev_device_add failed\n", __func__);
- 		goto clr_bit;
- 	}
- 
--	ret = device_add(&devnode->dev);
--	if (ret)
--		goto cdev_del;
--
- 	devnode->registered = true;
- 	return 0;
- 
--cdev_del:
--	cdev_del(&devnode->cdev);
- clr_bit:
- 	mutex_lock(&cec_devnode_lock);
- 	clear_bit(devnode->minor, cec_devnode_nums);
-@@ -190,8 +183,7 @@ static void cec_devnode_unregister(struct cec_devnode *devnode)
- 	devnode->unregistered = true;
- 	mutex_unlock(&devnode->lock);
- 
--	device_del(&devnode->dev);
--	cdev_del(&devnode->cdev);
-+	cdev_device_del(&devnode->cdev, &devnode->dev);
- 	put_device(&devnode->dev);
- }
- 
-diff --git a/drivers/media/media-devnode.c b/drivers/media/media-devnode.c
-index f2772ba..fafe520 100644
---- a/drivers/media/media-devnode.c
-+++ b/drivers/media/media-devnode.c
-@@ -252,31 +252,22 @@ int __must_check media_devnode_register(struct media_device *mdev,
- 	dev_set_name(&devnode->dev, "media%d", devnode->minor);
- 	device_initialize(&devnode->dev);
- 
--	/* Part 2: Initialize and register the character device */
-+	/* Part 2: Initialize the character device */
- 	cdev_init(&devnode->cdev, &media_devnode_fops);
- 	devnode->cdev.owner = owner;
--	devnode->cdev.kobj.parent = &devnode->dev.kobj;
- 
--	ret = cdev_add(&devnode->cdev, MKDEV(MAJOR(media_dev_t), devnode->minor), 1);
-+	/* Part 3: Add the media and char device */
-+	ret = cdev_device_add(&devnode->cdev, &devnode->dev);
- 	if (ret < 0) {
--		pr_err("%s: cdev_add failed\n", __func__);
-+		pr_err("%s: cdev_device_add failed\n", __func__);
- 		goto cdev_add_error;
- 	}
- 
--	/* Part 3: Add the media device */
--	ret = device_add(&devnode->dev);
--	if (ret < 0) {
--		pr_err("%s: device_add failed\n", __func__);
--		goto device_add_error;
--	}
--
- 	/* Part 4: Activate this minor. The char device can now be used. */
- 	set_bit(MEDIA_FLAG_REGISTERED, &devnode->flags);
- 
- 	return 0;
- 
--device_add_error:
--	cdev_del(&devnode->cdev);
- cdev_add_error:
- 	mutex_lock(&media_devnode_lock);
- 	clear_bit(devnode->minor, media_devnode_nums);
-@@ -302,9 +293,8 @@ void media_devnode_unregister(struct media_devnode *devnode)
- {
- 	mutex_lock(&media_devnode_lock);
- 	/* Delete the cdev on this minor as well */
--	cdev_del(&devnode->cdev);
-+	cdev_device_del(&devnode->cdev, &devnode->dev);
- 	mutex_unlock(&media_devnode_lock);
--	device_del(&devnode->dev);
- 	devnode->media_dev = NULL;
- 	put_device(&devnode->dev);
- }
+What you can do is call device_init_wakeup before registering the rtc
+and then device_set_wakeup_capable(&client->dev, false); if the irq
+request fails.
+
+
+> -- 
+> Regards
+> Phil Reid
+> 
+
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
