@@ -1,53 +1,24 @@
-Return-Path: <rtc-linux+bncBDZYPUPHYEJBB25IWLCQKGQECLBP32Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBYVAX3CQKGQEQR3XZYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-ot0-x234.google.com (mail-ot0-x234.google.com. [2607:f8b0:4003:c0f::234])
-        by gmr-mx.google.com with ESMTPS id a17si1631430itd.1.2017.02.21.11.26.34
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Feb 2017 11:26:34 -0800 (PST)
-Received: by mail-ot0-x234.google.com with SMTP id j38so4159917otb.3
-        for <rtc-linux@googlegroups.com>; Tue, 21 Feb 2017 11:26:34 -0800 (PST)
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v70si26316wmf.0.2017.02.23.17.46.09
+        for <rtc-linux@googlegroups.com>;
+        Thu, 23 Feb 2017 17:46:09 -0800 (PST)
+Date: Fri, 24 Feb 2017 02:46:09 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Phil Reid <preid@electromag.com.au>
+Cc: a.zummo@towertech.it, akinobu.mita@gmail.com,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 3/3] rtc: ds3232: Call device_init_wakeup
+ before device_register
+Message-ID: <20170224014609.a3labrbe6bzwcztg@piout.net>
+References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
+ <1487295898-90177-4-git-send-email-preid@electromag.com.au>
+ <20170221203305.mkcqv3g4wbbm5js6@piout.net>
+ <444215ad-ff7e-b5e2-85d8-58edf3ffddcf@electromag.com.au>
 MIME-Version: 1.0
-In-Reply-To: <20170221113704.ibwkk2vuc5imkmae@piout.net>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-3-git-send-email-logang@deltatee.com> <20170221113704.ibwkk2vuc5imkmae@piout.net>
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Tue, 21 Feb 2017 11:26:33 -0800
-Message-ID: <CAPcyv4huQGQPSwvX9=iAVtzr1ga8RbN+e_q7DNaUMWGbWt_5mA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
- helper function
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Alexander Viro <viro@zeniv.linux.org.uk>, Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>, Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>, Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>, Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>, Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, osd-dev@open-osd.org,
-	linux-scsi <linux-scsi@vger.kernel.org>, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	"linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <444215ad-ff7e-b5e2-85d8-58edf3ffddcf@electromag.com.au>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -57,21 +28,54 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Feb 21, 2017 at 3:37 AM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Hi,
->
-> A small comment, you must always have a commit message. Even if it is
-> small.
+On 22/02/2017 at 09:33:14 +0800, Phil Reid wrote:
+> On 22/02/2017 04:33, Alexandre Belloni wrote:
+> > On 17/02/2017 at 09:44:58 +0800, Phil Reid wrote:
+> > > The wakealarm attribute is currently not exposed in the sysfs interface
+> > > as the device has not been set as doing wakealarm when device_register
+> > > is called. Changing the order of the calls fixes that problem. Interrupts
+> > > are cleared in check_rtc_status prior to requesting the interrupt.
+> > > 
+> > 
+> > This basically revert b4b77f3c280e38cec178f81d7a4d7e65f4045913 So I'm
+> > not sure this is sufficient to ensure the IRQ will never fire.
+> > 
+> > (I don't know whether this was a real bug or something reported by a
+> > static analysis tool).
+> 
+> G'day Alexandre,
+> Without this change the wakealarm sysfs is never created.
+> This is done in rtc_device_register, but a filter to wakealarm attribute effectively on
+> dev->power.can_wakeup flag. Which is set via the init wakeup call.
+> 
+> But looking at that commit and thinking about it some more I can see the problem
+> b4b77f3c280e38cec178f81d7a4d7e65f4045913 was try to solve.
+> 
+> Looking at other drivers some of them have similar order but use their own mutex.
+> eg rtc-rc8803 and don't use the ops_lock
+> 
+> Or others set device_init_wakeup and then fail if the irq fails to register.
+> 
+> Currently if the ds3232 has an irq set but fails to register the irq it falls back
+> to being a non wakeup source. To me it makes more sense to just fall if the config
+> has an irq defined.
+> 
+> Then we could set device_init_wakeup based on there being an irq prior to device_register
+> and then request the irq after device register. But fail the probe if the irq request fails.
+> 
+> Thoughts?
+> 
 
-Yes, something like: "Replace the open coded initialization of the
-cdev with the new device_add_cdev() helper. The helper takes the
-proper reference against the parent device while the cdev object is
-alive."
+I think you can use device_set_wakeup_capable() afterwards which would
+fit this use case. Can you try that?
 
-With that you can also add:
+Anyway, I have a pending rework of the rtc registration that will solve
+this issue (and the sysfs attribute creation race).
 
-Acked-by: Dan Williams <dan.j.williams@intel.com>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
