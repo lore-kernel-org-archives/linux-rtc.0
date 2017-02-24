@@ -1,19 +1,21 @@
-Return-Path: <rtc-linux+bncBDM47J4M6QEBBIUHSLCQKGQEDJHYVTI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNUPYDCQKGQEHECPYZQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id h130si317697pfe.1.2017.02.15.08.36.49
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id f7si101938wmg.3.2017.02.24.02.15.18
         for <rtc-linux@googlegroups.com>;
-        Wed, 15 Feb 2017 08:36:50 -0800 (PST)
-From: H Hartley Sweeten <hsweeten@visionengravers.com>
-To: rtc-linux@googlegroups.com
-Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>
-Subject: [rtc-linux] [PATCH 0/5] rtc: m48t86: remove need for platform_data
-Date: Wed, 15 Feb 2017 09:35:22 -0700
-Message-Id: <20170215163527.5697-1-hsweeten@visionengravers.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 24 Feb 2017 02:15:18 -0800 (PST)
+Date: Fri, 24 Feb 2017 11:15:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Phil Reid <preid@electromag.com.au>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 1/1] rtc: ds3232: Call device_init_wakeup
+ before device_register
+Message-ID: <20170224101517.3az76hehe75h3hb7@piout.net>
+References: <1487905971-38303-1-git-send-email-preid@electromag.com.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1487905971-38303-1-git-send-email-preid@electromag.com.au>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -22,33 +24,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-m48t86 driver can now manage it's own resources for the index
-and data registers.
-
-  1) Add the RTC detection logic from the ts78xx platform to the driver
-     and remove it from the platform code.
-  2) Update the two platforms that use this driver to remove the need
-     for the platform_data.
-  3) Remove the, then unused, platform_data header and it's use in the
-     driver.
-
-H Hartley Sweeten (5):
-  rtc: m48t86: verify that the RTC is actually present
-  ARM: Orion5x: ts78xx: remove RTC detection
-  ARM: Orion5x: ts78xx: allow rtc-m48t86 to manage it's own resources
-  ARM: ep93xx: ts72xx: allow rtc-m48t86 to manage it's own resources
-  rtc: m48t86: remove unused platform_data
-
- arch/arm/mach-ep93xx/ts72xx.c            | 40 ++++-----------
- arch/arm/mach-ep93xx/ts72xx.h            | 11 ----
- arch/arm/mach-orion5x/ts78xx-setup.c     | 80 +++++++----------------------
- drivers/rtc/rtc-m48t86.c                 | 87 ++++++++++++++++++++------------
- include/linux/platform_data/rtc-m48t86.h | 16 ------
- 5 files changed, 84 insertions(+), 150 deletions(-)
- delete mode 100644 include/linux/platform_data/rtc-m48t86.h
+On 24/02/2017 at 11:12:51 +0800, Phil Reid wrote:
+> The wakealarm attribute is currently not exposed in the sysfs interface
+> as the device has not been set as doing wakealarm when device_register
+> is called. Changing the order of the calls fixes that problem. Interrupts
+> are cleared in check_rtc_status prior to requesting the interrupt.
+> 
+> This is only set if an irq is defined. If irq registration fails then
+> set wakeup_capable to false. With this change the sysfs wakealarm
+> attribute will be left visible but it is non functional. rtcwake
+> still returns that the device is not enabled for wakeup.
+> 
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
+> ---
+> 
+> Notes:
+>     Changes from v1:
+>     - Don't register the irq before device_register call.
+>       but set the capability if a irq is defined.
+>       Unset wakeup capability if irq registration fails.
+> 
+>  drivers/rtc/rtc-ds3232.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-2.10.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
