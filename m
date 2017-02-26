@@ -1,24 +1,78 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBD4DR3CQKGQE3TVV7RQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBY7QZHCQKGQEEIP3VIQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id 14si219609wmn.2.2017.02.14.14.15.43
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id f7si2475599pfk.5.2017.02.25.22.40.34
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Feb 2017 14:15:43 -0800 (PST)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Lee Jones <lee.jones@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
+        Sat, 25 Feb 2017 22:40:35 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Olof Johansson <olof@lixom.net>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v3 2/4] mfd: cros_ec: Introduce RTC commands and
- events definitions.
-Date: Tue, 14 Feb 2017 23:15:27 +0100
-Message-Id: <20170214221529.6434-2-enric.balletbo@collabora.com>
-In-Reply-To: <20170214221529.6434-1-enric.balletbo@collabora.com>
-References: <20170214221529.6434-1-enric.balletbo@collabora.com>
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:17 -0700
+Message-Id: <1488091097-12328-17-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 16/16] switchtec: utilize new device_add_cdev
+ helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -29,58 +83,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+Very straightforward conversion to device_add_cdev. Drop cdev_add and
+device_add and use cdev_device_add.
 
-The EC can function as a simple RT, this patch adds the RTC related
-definitions needed by the rtc-cros-ec driver.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
-Changes since v2:
- - none
-Changes since v1:
- - Acked by Lee Jones
+ drivers/pci/switch/switchtec.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
- include/linux/mfd/cros_ec_commands.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 80d401d..73f7a62 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -286,6 +286,9 @@ enum host_event_code {
- 	/* Hang detect logic detected a hang and warm rebooted the AP */
- 	EC_HOST_EVENT_HANG_REBOOT = 21,
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index 94384e7..bd8135b 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -1182,10 +1182,10 @@ static void stdev_unregister(struct switchtec_dev *stdev)
+ 	pci_clear_master(stdev->pdev);
+ 	pci_set_drvdata(stdev->pdev, NULL);
  
-+	/* EC RTC event occurred */
-+	EC_HOST_EVENT_RTC = 26,
-+
- 	/*
- 	 * The high bit of the event mask is not used as a host event code.  If
- 	 * it reads back as set, then the entire event mask should be
-@@ -790,6 +793,8 @@ enum ec_feature_code {
- 	EC_FEATURE_USB_MUX = 23,
- 	/* Motion Sensor code has an internal software FIFO */
- 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
-+	/* EC has RTC feature that can be controlled by host commands */
-+	EC_FEATURE_RTC = 27,
- };
+-	cdev_del(&stdev->cdev);
++	cdev_device_del(&stdev->cdev, &stdev->dev);
+ 	ida_simple_remove(&switchtec_minor_ida,
+ 			  MINOR(stdev->dev.devt));
+-	device_unregister(&stdev->dev);
++	put_device(&stdev->dev);
+ }
  
- #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-@@ -1682,6 +1687,9 @@ struct ec_response_rtc {
- #define EC_CMD_RTC_SET_VALUE 0x46
- #define EC_CMD_RTC_SET_ALARM 0x47
+ static struct switchtec_dev *stdev_create(struct pci_dev *pdev)
+@@ -1231,24 +1231,17 @@ static struct switchtec_dev *stdev_create(struct pci_dev *pdev)
+ 	cdev = &stdev->cdev;
+ 	cdev_init(cdev, &switchtec_fops);
+ 	cdev->owner = THIS_MODULE;
+-	cdev->kobj.parent = &dev->kobj;
  
-+/* Pass as param to SET_ALARM to clear the current alarm */
-+#define EC_RTC_ALARM_CLEAR 0
-+
- /*****************************************************************************/
- /* Port80 log access */
+-	rc = cdev_add(&stdev->cdev, dev->devt, 1);
++	rc = cdev_device_add(&stdev->cdev, dev);
+ 	if (rc)
+ 		goto err_cdev;
  
+-	rc = device_add(dev);
+-	if (rc)
+-		goto err_devadd;
+-
+ 	return stdev;
+ 
+-err_devadd:
++err_cdev:
+ 	mutex_lock(&stdev->mrpc_mutex);
+ 	stdev->alive = false;
+ 	mutex_unlock(&stdev->mrpc_mutex);
+-	cdev_del(&stdev->cdev);
+-err_cdev:
+ 	ida_simple_remove(&switchtec_minor_ida, minor);
+ err_put:
+ 	put_device(&stdev->dev);
 -- 
-2.9.3
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
