@@ -1,21 +1,78 @@
-Return-Path: <rtc-linux+bncBDXMLNOH5ANRBTNYVLCQKGQEMOXHLPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBWPQZHCQKGQEPNY2MRQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id 23si2293721pfw.4.2017.02.19.23.35.41
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id s64si2503805pfk.0.2017.02.25.22.40.24
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 19 Feb 2017 23:35:41 -0800 (PST)
-From: Sebastian Reichel <sre@kernel.org>
-To: Sebastian Reichel <sre@kernel.org>,
-	Tony Lindgren <tony@atomide.com>,
+        Sat, 25 Feb 2017 22:40:25 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 0/1] Motorola CPCAP PMIC RTC
-Date: Mon, 20 Feb 2017 08:35:34 +0100
-Message-Id: <20170220073535.27393-1-sre@kernel.org>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	<stable@vger.kernel.org>,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:03 -0700
+Message-Id: <1488091097-12328-3-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 02/16] device-dax: fix cdev leak
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,63 +83,70 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Dan Williams <dan.j.williams@intel.com>
 
-Here is a driver for the RTC found inside of the
-Motorola Droid 4 based on linux-next 2017021.
-I tried to set & get the time using hwclock and
-used ./tools/testing/selftests/timers/rtctest.c:
+If device_add() fails, cleanup the cdev. Otherwise, we leak a kobj_map()
+with a stale device number.
 
-$ ./rtctest 
+As Jason points out, there is a small possibility that userspace has
+opened and mapped the device in the time between cdev_add() and the
+device_add() failure. We need a new kill_dax_dev() helper to invalidate
+any established mappings.
 
-			RTC Driver Test Example.
+Fixes: ba09c01d2fa8 ("dax: convert to the cdev api")
+Cc: <stable@vger.kernel.org>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Reported-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/dax/dax.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-Counting 5 update (1/sec) interrupts from reading /dev/rtc0: 1 2 3 4 5
-Again, from using select(2) on /dev/rtc: 1 2 3 4 5
-
-Current RTC date/time is 20-2-2017, 07:11:22.
-Alarm time now set to 07:11:27.
-Waiting 5 seconds for alarm... okay. Alarm rang.
-
-Periodic IRQ rate is 1Hz.
-Counting 20 interrupts at:
-2Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-4Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-8Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-16Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-32Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-64Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-
-			 *** Test complete ***
-
-I did not include a patch for omap4-droid4-xt894.dts,
-since the CPCAP DT entry has not yet been added. The
-following DT snippet can be used for testing on droid4:
-
-&cpcap {
-	cpcap_rtc: rtc {
-		compatible = "motorola,cpcap-rtc";
-
-		interrupt-parent = <&cpcap>;
-		interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
-	};
-};
-
--- Sebastian
-
-Sebastian Reichel (1):
-  rtc: cpcap: new rtc driver
-
- .../devicetree/bindings/rtc/cpcap-rtc.txt          |  13 +
- drivers/rtc/Kconfig                                |   7 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-cpcap.c                            | 318 +++++++++++++++++++++
- 4 files changed, 339 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
- create mode 100644 drivers/rtc/rtc-cpcap.c
-
+diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+index ed758b7..b62a52f 100644
+--- a/drivers/dax/dax.c
++++ b/drivers/dax/dax.c
+@@ -630,13 +630,10 @@ static void dax_dev_release(struct device *dev)
+ 	kfree(dax_dev);
+ }
+ 
+-static void unregister_dax_dev(void *dev)
++static void kill_dax_dev(struct dax_dev *dax_dev)
+ {
+-	struct dax_dev *dax_dev = to_dax_dev(dev);
+ 	struct cdev *cdev = &dax_dev->cdev;
+ 
+-	dev_dbg(dev, "%s\n", __func__);
+-
+ 	/*
+ 	 * Note, rcu is not protecting the liveness of dax_dev, rcu is
+ 	 * ensuring that any fault handlers that might have seen
+@@ -648,6 +645,15 @@ static void unregister_dax_dev(void *dev)
+ 	synchronize_rcu();
+ 	unmap_mapping_range(dax_dev->inode->i_mapping, 0, 0, 1);
+ 	cdev_del(cdev);
++}
++
++static void unregister_dax_dev(void *dev)
++{
++	struct dax_dev *dax_dev = to_dax_dev(dev);
++
++	dev_dbg(dev, "%s\n", __func__);
++
++	kill_dax_dev(dax_dev);
+ 	device_unregister(dev);
+ }
+ 
+@@ -724,6 +730,7 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 	dev_set_name(dev, "dax%d.%d", dax_region->id, dax_dev->id);
+ 	rc = device_add(dev);
+ 	if (rc) {
++		kill_dax_dev(dax_dev);
+ 		put_device(dev);
+ 		return ERR_PTR(rc);
+ 	}
 -- 
-2.11.0
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
