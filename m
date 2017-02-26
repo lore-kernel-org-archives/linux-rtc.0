@@ -1,23 +1,80 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAWIWLCQKGQEMMO3DBY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBCHRZHCQKGQE7YPJGIQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si1209211wmf.0.2017.02.21.12.33.05
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Feb 2017 12:33:05 -0800 (PST)
-Date: Tue, 21 Feb 2017 21:33:05 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Phil Reid <preid@electromag.com.au>
-Cc: a.zummo@towertech.it, akinobu.mita@gmail.com,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 3/3] rtc: ds3232: Call device_init_wakeup
- before device_register
-Message-ID: <20170221203305.mkcqv3g4wbbm5js6@piout.net>
-References: <1487295898-90177-1-git-send-email-preid@electromag.com.au>
- <1487295898-90177-4-git-send-email-preid@electromag.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1487295898-90177-4-git-send-email-preid@electromag.com.au>
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id d63si2333199pfe.2.2017.02.25.22.41.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 Feb 2017 22:41:12 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:05 -0700
+Message-Id: <1488091097-12328-5-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 04/16] input: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,60 +83,152 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 17/02/2017 at 09:44:58 +0800, Phil Reid wrote:
-> The wakealarm attribute is currently not exposed in the sysfs interface
-> as the device has not been set as doing wakealarm when device_register
-> is called. Changing the order of the calls fixes that problem. Interrupts
-> are cleared in check_rtc_status prior to requesting the interrupt.
-> 
+Replace the open coded registration of the cdev and dev with the
+new device_add_cdev() helper in evdev, joydev and mousedev. The helper
+replaces a common pattern by taking the proper reference against the
+parent device and adding both the cdev and the device.
 
-This basically revert b4b77f3c280e38cec178f81d7a4d7e65f4045913 So I'm
-not sure this is sufficient to ensure the IRQ will never fire.
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/input/evdev.c    | 11 ++---------
+ drivers/input/joydev.c   | 11 ++---------
+ drivers/input/mousedev.c | 11 ++---------
+ 3 files changed, 6 insertions(+), 27 deletions(-)
 
-(I don't know whether this was a real bug or something reported by a
-static analysis tool).
-
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  drivers/rtc/rtc-ds3232.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index 60de3a0..ce943d0 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -363,11 +363,6 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->  	if (ret)
->  		return ret;
->  
-> -	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-> -						THIS_MODULE);
-> -	if (IS_ERR(ds3232->rtc))
-> -		return PTR_ERR(ds3232->rtc);
-> -
->  	if (ds3232->irq > 0) {
->  		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
->  						ds3232_irq,
-> @@ -380,6 +375,11 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->  			device_init_wakeup(dev, 1);
->  	}
->  
-> +	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
-> +		THIS_MODULE);
-> +	if (IS_ERR(ds3232->rtc))
-> +		return PTR_ERR(ds3232->rtc);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 1.8.3.1
-> 
-
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..9255714 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -1354,8 +1354,6 @@ static void evdev_cleanup(struct evdev *evdev)
+ 	evdev_mark_dead(evdev);
+ 	evdev_hangup(evdev);
+ 
+-	cdev_del(&evdev->cdev);
+-
+ 	/* evdev is marked dead so no one else accesses evdev->open */
+ 	if (evdev->open) {
+ 		input_flush_device(handle, NULL);
+@@ -1416,12 +1414,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		goto err_free_evdev;
+ 
+ 	cdev_init(&evdev->cdev, &evdev_fops);
+-	evdev->cdev.kobj.parent = &evdev->dev.kobj;
+-	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
+-	if (error)
+-		goto err_unregister_handle;
+ 
+-	error = device_add(&evdev->dev);
++	error = cdev_device_add(&evdev->cdev, &evdev->dev);
+ 	if (error)
+ 		goto err_cleanup_evdev;
+ 
+@@ -1429,7 +1423,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+ 
+  err_cleanup_evdev:
+ 	evdev_cleanup(evdev);
+- err_unregister_handle:
+ 	input_unregister_handle(&evdev->handle);
+  err_free_evdev:
+ 	put_device(&evdev->dev);
+@@ -1442,7 +1435,7 @@ static void evdev_disconnect(struct input_handle *handle)
+ {
+ 	struct evdev *evdev = handle->private;
+ 
+-	device_del(&evdev->dev);
++	cdev_device_del(&evdev->cdev, &evdev->dev);
+ 	evdev_cleanup(evdev);
+ 	input_free_minor(MINOR(evdev->dev.devt));
+ 	input_unregister_handle(handle);
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index abd18f3..e38b84f 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -729,8 +729,6 @@ static void joydev_cleanup(struct joydev *joydev)
+ 	joydev_mark_dead(joydev);
+ 	joydev_hangup(joydev);
+ 
+-	cdev_del(&joydev->cdev);
+-
+ 	/* joydev is marked dead so no one else accesses joydev->open */
+ 	if (joydev->open)
+ 		input_close_device(handle);
+@@ -905,12 +903,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		goto err_free_joydev;
+ 
+ 	cdev_init(&joydev->cdev, &joydev_fops);
+-	joydev->cdev.kobj.parent = &joydev->dev.kobj;
+-	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
+-	if (error)
+-		goto err_unregister_handle;
+ 
+-	error = device_add(&joydev->dev);
++	error = cdev_device_add(&joydev->cdev, &joydev->dev);
+ 	if (error)
+ 		goto err_cleanup_joydev;
+ 
+@@ -918,7 +912,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 
+  err_cleanup_joydev:
+ 	joydev_cleanup(joydev);
+- err_unregister_handle:
+ 	input_unregister_handle(&joydev->handle);
+  err_free_joydev:
+ 	put_device(&joydev->dev);
+@@ -931,7 +924,7 @@ static void joydev_disconnect(struct input_handle *handle)
+ {
+ 	struct joydev *joydev = handle->private;
+ 
+-	device_del(&joydev->dev);
++	cdev_device_del(&joydev->cdev, &joydev->dev);
+ 	joydev_cleanup(joydev);
+ 	input_free_minor(MINOR(joydev->dev.devt));
+ 	input_unregister_handle(handle);
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index b604564..0e0ff84 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -812,8 +812,6 @@ static void mousedev_cleanup(struct mousedev *mousedev)
+ 	mousedev_mark_dead(mousedev);
+ 	mousedev_hangup(mousedev);
+ 
+-	cdev_del(&mousedev->cdev);
+-
+ 	/* mousedev is marked dead so no one else accesses mousedev->open */
+ 	if (mousedev->open)
+ 		input_close_device(handle);
+@@ -901,12 +899,8 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 	}
+ 
+ 	cdev_init(&mousedev->cdev, &mousedev_fops);
+-	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
+-	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
+-	if (error)
+-		goto err_unregister_handle;
+ 
+-	error = device_add(&mousedev->dev);
++	error = cdev_device_add(&mousedev->cdev, &mousedev->dev);
+ 	if (error)
+ 		goto err_cleanup_mousedev;
+ 
+@@ -914,7 +908,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 
+  err_cleanup_mousedev:
+ 	mousedev_cleanup(mousedev);
+- err_unregister_handle:
+ 	if (!mixdev)
+ 		input_unregister_handle(&mousedev->handle);
+  err_free_mousedev:
+@@ -927,7 +920,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 
+ static void mousedev_destroy(struct mousedev *mousedev)
+ {
+-	device_del(&mousedev->dev);
++	cdev_device_del(&mousedev->cdev, &mousedev->dev);
+ 	mousedev_cleanup(mousedev);
+ 	input_free_minor(MINOR(mousedev->dev.devt));
+ 	if (mousedev != mousedev_mix)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
