@@ -1,21 +1,78 @@
-Return-Path: <rtc-linux+bncBDM47J4M6QEBBIUHSLCQKGQEDJHYVTI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBHHRZHCQKGQESLYXL4I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from dukecmmtar03.coxmail.com (dukecmmtar03.coxmail.com. [68.99.120.44])
-        by gmr-mx.google.com with ESMTP id h130si317703pfe.1.2017.02.15.08.36.50
-        for <rtc-linux@googlegroups.com>;
-        Wed, 15 Feb 2017 08:36:50 -0800 (PST)
-From: H Hartley Sweeten <hsweeten@visionengravers.com>
-To: rtc-linux@googlegroups.com
-Cc: alex@digriz.org.uk,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id s64si2504078pfk.0.2017.02.25.22.41.32
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 Feb 2017 22:41:32 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH 2/5] ARM: Orion5x: ts78xx: remove RTC detection
-Date: Wed, 15 Feb 2017 09:35:24 -0700
-Message-Id: <20170215163527.5697-3-hsweeten@visionengravers.com>
-In-Reply-To: <20170215163527.5697-1-hsweeten@visionengravers.com>
-References: <20170215163527.5697-1-hsweeten@visionengravers.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:11 -0700
+Message-Id: <1488091097-12328-11-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 10/16] iio:core: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,86 +83,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The rtc-m48t86 driver now handles the RTC detection. Remove the
-redundant code from the platform.
+Replace the open coded registration of the cdev and dev with the
+new device_add_cdev() helper. The helper replaces a common pattern by
+taking the proper reference against the parent device and adding both
+the cdev and the device.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>
+In doing so we have to remove a guard statement from cdev_del,
+but this doesn't appear to be required in any way.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- arch/arm/mach-orion5x/ts78xx-setup.c | 51 +++++++++---------------------------
- 1 file changed, 12 insertions(+), 39 deletions(-)
+ drivers/iio/industrialio-core.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm/mach-orion5x/ts78xx-setup.c b/arch/arm/mach-orion5x/ts78xx-setup.c
-index 8d59726..cb4c374 100644
---- a/arch/arm/mach-orion5x/ts78xx-setup.c
-+++ b/arch/arm/mach-orion5x/ts78xx-setup.c
-@@ -109,50 +109,23 @@ static struct platform_device ts78xx_ts_rtc_device = {
- 	.num_resources	= 0,
- };
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index aaca428..f9ac301 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -1718,18 +1718,13 @@ int iio_device_register(struct iio_dev *indio_dev)
  
--/*
-- * TS uses some of the user storage space on the RTC chip so see if it is
-- * present; as it's an optional feature at purchase time and not all boards
-- * will have it present
-- *
-- * I've used the method TS use in their rtc7800.c example for the detection
-- *
-- * TODO: track down a guinea pig without an RTC to see if we can work out a
-- *		better RTC detection routine
-- */
- static int ts78xx_ts_rtc_load(void)
- {
- 	int rc;
--	unsigned char tmp_rtc0, tmp_rtc1;
--
--	tmp_rtc0 = ts78xx_ts_rtc_readbyte(126);
--	tmp_rtc1 = ts78xx_ts_rtc_readbyte(127);
--
--	ts78xx_ts_rtc_writebyte(0x00, 126);
--	ts78xx_ts_rtc_writebyte(0x55, 127);
--	if (ts78xx_ts_rtc_readbyte(127) == 0x55) {
--		ts78xx_ts_rtc_writebyte(0xaa, 127);
--		if (ts78xx_ts_rtc_readbyte(127) == 0xaa
--				&& ts78xx_ts_rtc_readbyte(126) == 0x00) {
--			ts78xx_ts_rtc_writebyte(tmp_rtc0, 126);
--			ts78xx_ts_rtc_writebyte(tmp_rtc1, 127);
--
--			if (ts78xx_fpga.supports.ts_rtc.init == 0) {
--				rc = platform_device_register(&ts78xx_ts_rtc_device);
--				if (!rc)
--					ts78xx_fpga.supports.ts_rtc.init = 1;
--			} else
--				rc = platform_device_add(&ts78xx_ts_rtc_device);
--
--			if (rc)
--				pr_info("RTC could not be registered: %d\n",
--					rc);
--			return rc;
--		}
+ 	cdev_init(&indio_dev->chrdev, &iio_buffer_fileops);
+ 	indio_dev->chrdev.owner = indio_dev->info->driver_module;
+-	indio_dev->chrdev.kobj.parent = &indio_dev->dev.kobj;
+-	ret = cdev_add(&indio_dev->chrdev, indio_dev->dev.devt, 1);
+-	if (ret < 0)
+-		goto error_unreg_eventset;
+ 
+-	ret = device_add(&indio_dev->dev);
++	ret = cdev_device_add(&indio_dev->chrdev, &indio_dev->dev);
+ 	if (ret < 0)
+-		goto error_cdev_del;
++		goto error_unreg_eventset;
+ 
+ 	return 0;
+-error_cdev_del:
+-	cdev_del(&indio_dev->chrdev);
 +
-+	if (ts78xx_fpga.supports.ts_rtc.init == 0) {
-+		rc = platform_device_register(&ts78xx_ts_rtc_device);
-+		if (!rc)
-+			ts78xx_fpga.supports.ts_rtc.init = 1;
-+	} else {
-+		rc = platform_device_add(&ts78xx_ts_rtc_device);
- 	}
- 
--	pr_info("RTC not found\n");
--	return -ENODEV;
--};
-+	if (rc)
-+		pr_info("RTC could not be registered: %d\n", rc);
-+
-+	return rc;
-+}
- 
- static void ts78xx_ts_rtc_unload(void)
+ error_unreg_eventset:
+ 	iio_device_unregister_eventset(indio_dev);
+ error_free_sysfs:
+@@ -1750,10 +1745,8 @@ void iio_device_unregister(struct iio_dev *indio_dev)
  {
+ 	mutex_lock(&indio_dev->info_exist_lock);
+ 
+-	device_del(&indio_dev->dev);
++	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
+ 
+-	if (indio_dev->chrdev.dev)
+-		cdev_del(&indio_dev->chrdev);
+ 	iio_device_unregister_debugfs(indio_dev);
+ 
+ 	iio_disable_all_buffers(indio_dev);
 -- 
-2.10.0
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
