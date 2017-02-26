@@ -1,23 +1,80 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBLNFWPCQKGQEC723NCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBVHQZHCQKGQE2D6DO7I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 14si1227418wmn.2.2017.02.21.15.52.13
-        for <rtc-linux@googlegroups.com>;
-        Tue, 21 Feb 2017 15:52:13 -0800 (PST)
-Date: Wed, 22 Feb 2017 00:52:12 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv2] rtc: cpcap: new rtc driver
-Message-ID: <20170221235212.hik3whcytw6xyevd@piout.net>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170221061650.12636-1-sre@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170221061650.12636-1-sre@kernel.org>
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id h130si2452153pfe.1.2017.02.25.22.40.20
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 Feb 2017 22:40:20 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:09 -0700
+Message-Id: <1488091097-12328-9-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 08/16] IB/ucm: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,98 +83,115 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
 
-The patch has a few checkpatch issues. Some of those should really be
-fixed. Can you do that?
+The use after free is not triggerable here because the cdev holds
+the module lock and the only device_unregister is only triggered by
+module unload, however make the change for consistency.
 
-Else, it is mostly fine, a few comments below.
+To make this work the cdev_del needs to move out of the struct device
+release function.
 
-On 21/02/2017 at 07:16:50 +0100, Sebastian Reichel wrote:
-> +static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct cpcap_rtc *rtc;
-> +	struct cpcap_time cpcap_tm;
-> +	int ret = 0;
-> +
-> +	rtc = dev_get_drvdata(dev);
-> +
-> +	rtc2cpcap_time(&cpcap_tm, tm);
-> +
-> +	if (rtc->alarm_enabled)
-> +		disable_irq(rtc->alarm_irq);
-> +	if (rtc->update_enabled)
-> +		disable_irq(rtc->update_irq);
-> +
-> +	if (rtc->vendor == CPCAP_VENDOR_ST) {
-> +		/* The TOD1 and TOD2 registers MUST be written in this order
-> +		 * for the change to properly set. */
+This cleans up the error path significantly and thus also fixes a minor
+bug where the devnum would not be released if cdev_add failed.
 
-Does this mean there is a race condition?
+Signed-off-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/infiniband/core/ucm.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> +					  TOD1_MASK, cpcap_tm.tod1);
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-> +					  TOD2_MASK, cpcap_tm.tod2);
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-> +					  DAY_MASK, cpcap_tm.day);
-> +	} else {
-> +		/* Clearing the upper lower 8 bits of the TOD guarantees that
-> +		 * the upper half of TOD (TOD2) will not increment for 0xFF RTC
-> +		 * ticks (255 seconds).  During this time we can safely write
-> +		 * to DAY, TOD2, then TOD1 (in that order) and expect RTC to be
-> +		 * synchronized to the exact time requested upon the final write
-> +		 * to TOD1. */
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> +					  TOD1_MASK, 0);
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_DAY,
-> +					  DAY_MASK, cpcap_tm.day);
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD2,
-> +					  TOD2_MASK, cpcap_tm.tod2);
-> +		ret |= regmap_update_bits(rtc->regmap, CPCAP_REG_TOD1,
-> +					  TOD1_MASK, cpcap_tm.tod1);
-> +	}
-> +
-
-> +	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
-I think this means it depends on the mfd tree.
-
-> +	if (err)
-> +		return err;
-> +
-> +	rtc->alarm_irq= platform_get_irq(pdev, 0);
-> +	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
-> +					cpcap_rtc_alarm_irq, IRQ_NONE,
-> +					"rtc_alarm", rtc);
-> +	if (err) {
-> +		dev_err(dev, "Could not request alarm irq: %d\n", err);
-> +		return err;
-> +	}
-> +	disable_irq(rtc->alarm_irq);
-> +
-> +	rtc->update_irq= platform_get_irq(pdev, 1);
-> +	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
-> +					cpcap_rtc_update_irq, IRQ_NONE,
-> +					"rtc_1hz", rtc);
-I don't think this IRQ is actually useful. It doesn't really harm but
-the tests should pass without it.
-
-> +	if (err) {
-> +		dev_err(dev, "Could not request update irq: %d\n", err);
-> +		return err;
-> +	}
-> +	disable_irq(rtc->update_irq);
-> +
-> +	err = device_init_wakeup(dev, 1);
-
-If you use device_init_wakeup, I think it needs to be called before
-devm_rtc_device_register() to properly work.
-
-
+diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
+index e0a995b..c348701 100644
+--- a/drivers/infiniband/core/ucm.c
++++ b/drivers/infiniband/core/ucm.c
+@@ -1205,12 +1205,15 @@ static void ib_ucm_release_dev(struct device *dev)
+ 	struct ib_ucm_device *ucm_dev;
+ 
+ 	ucm_dev = container_of(dev, struct ib_ucm_device, dev);
+-	cdev_del(&ucm_dev->cdev);
++	kfree(ucm_dev);
++}
++
++static void ib_ucm_free_dev(struct ib_ucm_device *ucm_dev)
++{
+ 	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+ 		clear_bit(ucm_dev->devnum, dev_map);
+ 	else
+ 		clear_bit(ucm_dev->devnum - IB_UCM_MAX_DEVICES, overflow_map);
+-	kfree(ucm_dev);
+ }
+ 
+ static const struct file_operations ucm_fops = {
+@@ -1266,7 +1269,9 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	if (!ucm_dev)
+ 		return;
+ 
++	device_initialize(&ucm_dev->dev);
+ 	ucm_dev->ib_dev = device;
++	ucm_dev->dev.release = ib_ucm_release_dev;
+ 
+ 	devnum = find_first_zero_bit(dev_map, IB_UCM_MAX_DEVICES);
+ 	if (devnum >= IB_UCM_MAX_DEVICES) {
+@@ -1283,19 +1288,18 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 		set_bit(devnum, dev_map);
+ 	}
+ 
++
+ 	cdev_init(&ucm_dev->cdev, &ucm_fops);
+ 	ucm_dev->cdev.owner = THIS_MODULE;
+ 	kobject_set_name(&ucm_dev->cdev.kobj, "ucm%d", ucm_dev->devnum);
+-	if (cdev_add(&ucm_dev->cdev, base, 1))
+-		goto err;
+ 
+ 	ucm_dev->dev.class = &cm_class;
+ 	ucm_dev->dev.parent = device->dma_device;
+-	ucm_dev->dev.devt = ucm_dev->cdev.dev;
+-	ucm_dev->dev.release = ib_ucm_release_dev;
++	ucm_dev->dev.devt = base;
++
+ 	dev_set_name(&ucm_dev->dev, "ucm%d", ucm_dev->devnum);
+-	if (device_register(&ucm_dev->dev))
+-		goto err_cdev;
++	if (cdev_device_add(&ucm_dev->cdev, &ucm_dev->dev))
++		goto err_devnum;
+ 
+ 	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
+ 		goto err_dev;
+@@ -1304,15 +1308,11 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	return;
+ 
+ err_dev:
+-	device_unregister(&ucm_dev->dev);
+-err_cdev:
+-	cdev_del(&ucm_dev->cdev);
+-	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+-		clear_bit(devnum, dev_map);
+-	else
+-		clear_bit(devnum, overflow_map);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++err_devnum:
++	ib_ucm_free_dev(ucm_dev);
+ err:
+-	kfree(ucm_dev);
++	put_device(&ucm_dev->dev);
+ 	return;
+ }
+ 
+@@ -1323,7 +1323,9 @@ static void ib_ucm_remove_one(struct ib_device *device, void *client_data)
+ 	if (!ucm_dev)
+ 		return;
+ 
+-	device_unregister(&ucm_dev->dev);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++	ib_ucm_free_dev(ucm_dev);
++	put_device(&ucm_dev->dev);
+ }
+ 
+ static CLASS_ATTR_STRING(abi_version, S_IRUGO,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
