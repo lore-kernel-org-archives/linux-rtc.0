@@ -1,20 +1,80 @@
-Return-Path: <rtc-linux+bncBDP47C6LHEIOHU7CYQCRUBHQZ5KLK@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB67QZHCQKGQEEUS4IOY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from pokefinder.org ([89.238.76.85])
-        by gmr-mx.google.com with ESMTP id h198si617030wmg.1.2017.02.06.08.52.50
-        for <rtc-linux@googlegroups.com>;
-        Mon, 06 Feb 2017 08:52:50 -0800 (PST)
-Date: Mon, 6 Feb 2017 17:52:48 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
-To: rtc-linux@googlegroups.com
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Akinobu Mita <akinobu.mita@gmail.com>, Heiko Schocher <hs@denx.de>
-Subject: [rtc-linux] [BUG] problem with RTC bindings
-Message-ID: <20170206165246.GA4639@tetsubishi>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id d63si2333133pfe.2.2017.02.25.22.40.58
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 Feb 2017 22:40:58 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:02 -0700
+Message-Id: <1488091097-12328-2-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v2 01/16] chardev: add helper function to register
+ char devs with a struct device
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -23,34 +83,174 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Credit for this patch goes is shared with Dan Williams [1]. I've
+taken things one step further to make the helper function more
+useful and clean up calling code.
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+There's a common pattern in the kernel whereby a struct cdev is placed
+in a structure along side a struct device which manages the life-cycle
+of both. In the naive approach, the reference counting is broken and
+the struct device can free everything before the chardev code
+is entirely released.
 
-Dear RTC hackers,
+Many developers have solved this problem by linking the internal kobjs
+in this fashion:
 
-there are currently two broken bindings descriptions for RTC:
+cdev.kobj.parent = &parent_dev.kobj;
 
-maxim,ds3231.txt
-pcf8563.txt
+The cdev code explicitly gets and puts a reference to it's kobj parent.
+So this seems like it was intended to be used this way. Dmitrty Torokhov
+first put this in place in 2012 with this commit:
 
-They broke because of a improper RST documentation conversion with commit
-8c27ceff3604b2 ("docs: fix locations of several documents that got moved")
-and now reference to a non-existing file:
+2f0157f char_dev: pin parent kobject
 
-Documentation/devicetree/bindings/i2c/trivial-admin-guide/devices.rst
+and the first instance of the fix was then done in the input subsystem
+in the following commit:
 
-However, the original reference to i2c/trivial-devices should have never been
-made in the first place. IMO, the device is either trivial or not. If
-additional properties are needed, then it is not trivial anymore and the device
-needs to be moved out of i2c/trivial-devices into its specific entry, with all
-entries. Because I am not familiar with the hardware in question, may I kindly
-ask the authors of the bindings in question (CCed) to fix this issue?
+4a215aa Input: fix use-after-free introduced with dynamic minor changes
 
-Thank you very much,
+Subsequently over the years, however, this issue seems to have tripped
+up multiple developers independently. For example, see these commits:
 
-   Wolfram Sang
+0d5b7da iio: Prevent race between IIO chardev opening and IIO device
+(by Lars-Peter Clausen in 2013)
+
+ba0ef85 tpm: Fix initialization of the cdev
+(by Jason Gunthorpe in 2015)
+
+5b28dde [media] media: fix use-after-free in cdev_put() when app exits
+after driver unbind
+(by Shauh Khan in 2016)
+
+This technique is similarly done in at least 15 places within the kernel
+and probably should have been done so in another, at least, 5 places.
+The kobj line also looks very suspect in that one would not expect
+drivers to have to mess with kobject internals in this way.
+Even highly experienced kernel developers can be surprised by this
+code, as seen in [2].
+
+To help alleviate this situation, and hopefully prevent future
+wasted effort on this problem, this patch introduces a helper function
+to register a char device along with its parent struct device.
+This creates a more regular API for tying a char device to its parent
+without the developer having to set members in the underlying kobject.
+
+This patch introduce cdev_device_add and cdev_device_del which
+replaces a common pattern including setting the kobj parent, calling
+cdev_add and then calling device_add. It also introduces cdev_set_parent
+for the few cases that set the kobject parent without using device_add.
+
+[1] https://lkml.org/lkml/2017/2/13/700
+[2] https://lkml.org/lkml/2017/2/10/370
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ fs/char_dev.c        | 67 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/cdev.h |  4 ++++
+ 2 files changed, 71 insertions(+)
+
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 44a240c..471d480 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -471,6 +471,70 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+ 	return 0;
+ }
+ 
++/**
++ * cdev_set_parent() - set the parent kobject for a char device
++ * @p: the cdev structure
++ * @kobj: the kobject to take a reference to
++ *
++ * cdev_set_parent() sets a parent kobject which will be referenced
++ * appropriately so the parent is not freed before the cdev. This
++ * should be called before cdev_add.
++ */
++void cdev_set_parent(struct cdev *p, struct kobject *kobj)
++{
++	WARN_ON(!kobj->state_initialized);
++	p->kobj.parent = kobj;
++}
++
++/**
++ * cdev_device_add() - add a char device and it's corresponding
++ *	struct device, linkink
++ * @dev: the device structure
++ * @cdev: the cdev structure
++ *
++ * cdev_device_add() adds the char device represented by @cdev to the system,
++ * just as cdev_add does. It then adds @dev to the system using device_add
++ * The dev_t for the char device will be taken from the struct device which
++ * needs to be initialized first. This helper function correctly takes a
++ * reference to the parent device so the parent will not get released until
++ * all references to the cdev are released.
++ *
++ * This function should be used whenever the struct cdev and the
++ * struct device are members of the same structure whose lifetime is
++ * managed by the struct device.
++ */
++int cdev_device_add(struct cdev *cdev, struct device *dev)
++{
++	int rc = 0;
++
++	cdev_set_parent(cdev, &dev->kobj);
++
++	rc = cdev_add(cdev, dev->devt, 1);
++	if (rc)
++		return rc;
++
++	rc = device_add(dev);
++	if (rc)
++		cdev_del(cdev);
++
++	return rc;
++}
++
++/**
++ * cdev_device_del() - inverse of cdev_device_add
++ * @dev: the device structure
++ * @cdev: the cdev structure
++ *
++ * cdev_device_del() is a helper function to call cdev_del
++ * and device_del. It should be used whenever cdev_device_add
++ * is used.
++ */
++void cdev_device_del(struct cdev *cdev, struct device *dev)
++{
++	device_del(dev);
++	cdev_del(cdev);
++}
++
+ static void cdev_unmap(dev_t dev, unsigned count)
+ {
+ 	kobj_unmap(cdev_map, dev, count);
+@@ -570,5 +634,8 @@ EXPORT_SYMBOL(cdev_init);
+ EXPORT_SYMBOL(cdev_alloc);
+ EXPORT_SYMBOL(cdev_del);
+ EXPORT_SYMBOL(cdev_add);
++EXPORT_SYMBOL(cdev_set_parent);
++EXPORT_SYMBOL(cdev_device_add);
++EXPORT_SYMBOL(cdev_device_del);
+ EXPORT_SYMBOL(__register_chrdev);
+ EXPORT_SYMBOL(__unregister_chrdev);
+diff --git a/include/linux/cdev.h b/include/linux/cdev.h
+index f876361..4c99579 100644
+--- a/include/linux/cdev.h
++++ b/include/linux/cdev.h
+@@ -26,6 +26,10 @@ void cdev_put(struct cdev *p);
+ 
+ int cdev_add(struct cdev *, dev_t, unsigned);
+ 
++void cdev_set_parent(struct cdev *p, struct kobject *kobj);
++int cdev_device_add(struct cdev *cdev, struct device *dev);
++void cdev_device_del(struct cdev *cdev, struct device *dev);
++
+ void cdev_del(struct cdev *);
+ 
+ void cd_forget(struct inode *);
+-- 
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -61,26 +261,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYmKneAAoJEBQN5MwUoCm20/IP/Av/W0uohT/MUI43xhFNo/z/
-oOHkBNeATVCOqLI4agsZtxphH6LT87gbsqUzcUPzam+ez8iW5EtX0zyR6xqk57+P
-2NuG25HEAE46oEq63iWPTVpvUeoIIjOQS31mnTFljdLFBKk8vaLEFqAYM6FpNUJd
-K+WjSqtH5Jl+wLNFahXZZKR1qdASSgzS5Q9SQkeXgnNozGf367i+kpCIfgefqkJh
-TKt+REiAfKm3DVuGDCOtfepWNTt3Kv3mLR+tsKpGRUKvtoB0JqcPH+UnxsNLB8vV
-+Etq9OS0gF+5iW73jTg75aB+UMIvWsXAXDLoV3Vl+dv5GaDTkbZqQ7XuWWg+q7dv
-KD2GIUh5od0RxlQeX4pjDS69+/O1Co4m6zxBLYJpJ6N+wYvfWzRvmgVo/mZ2om13
-HoemfZQbmSR02JxA3Cxou1vpvF5sXKDGahAMhMJYUI0FMjWI+v0OBUOBNpcAAfgm
-+wOR+CxqPMt8GlOhQxFFWKNrQNpK/r/rTgAZRzETLODFWrEJXBQCn6LoU/aBhFrq
-box2h1c6gzTRdbdWv7BDZVjvvLp6dQgOdg4/ZRB//d0JRoB4Ul2wz5rYFUaEsNKs
-2KMCRWeVGmxtPDhROo1ZY375J291+SmzYa3ipFUeFAT6TPnmPZEBGf0bIJsZbmJ6
-7TJqNhDpj+CZqbxRImmP
-=GZVA
------END PGP SIGNATURE-----
-
---VS++wcV0S1rZb1Fb--
