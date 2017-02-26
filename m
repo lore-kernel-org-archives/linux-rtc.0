@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBAABBVHQZHCQKGQE2D6DO7I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBYXQZHCQKGQEYBJVIPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id h130si2452153pfe.1.2017.02.25.22.40.20
+        by gmr-mx.google.com with ESMTPS id f7si2475594pfk.5.2017.02.25.22.40.34
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 Feb 2017 22:40:20 -0800 (PST)
+        Sat, 25 Feb 2017 22:40:34 -0800 (PST)
 From: Logan Gunthorpe <logang@deltatee.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Dan Williams <dan.j.williams@intel.com>,
@@ -67,11 +67,11 @@ Cc: linux-pci@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Logan Gunthorpe <logang@deltatee.com>
-Date: Sat, 25 Feb 2017 23:38:09 -0700
-Message-Id: <1488091097-12328-9-git-send-email-logang@deltatee.com>
+Date: Sat, 25 Feb 2017 23:38:04 -0700
+Message-Id: <1488091097-12328-4-git-send-email-logang@deltatee.com>
 In-Reply-To: <1488091097-12328-1-git-send-email-logang@deltatee.com>
 References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v2 08/16] IB/ucm: utilize new cdev_device_add
+Subject: [rtc-linux] [PATCH v2 03/16] device-dax: utilize new cdev_device_add
  helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
@@ -83,113 +83,86 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Replace the open coded registration of the cdev and dev with the
+new device_add_cdev() helper. The helper replaces a common pattern by
+taking the proper reference against the parent device and adding both
+the cdev and the device.
 
-The use after free is not triggerable here because the cdev holds
-the module lock and the only device_unregister is only triggered by
-module unload, however make the change for consistency.
-
-To make this work the cdev_del needs to move out of the struct device
-release function.
-
-This cleans up the error path significantly and thus also fixes a minor
-bug where the devnum would not be released if cdev_add failed.
-
-Signed-off-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- drivers/infiniband/core/ucm.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/dax/dax.c | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
-index e0a995b..c348701 100644
---- a/drivers/infiniband/core/ucm.c
-+++ b/drivers/infiniband/core/ucm.c
-@@ -1205,12 +1205,15 @@ static void ib_ucm_release_dev(struct device *dev)
- 	struct ib_ucm_device *ucm_dev;
+diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+index b62a52f..e60b519 100644
+--- a/drivers/dax/dax.c
++++ b/drivers/dax/dax.c
+@@ -632,8 +632,6 @@ static void dax_dev_release(struct device *dev)
  
- 	ucm_dev = container_of(dev, struct ib_ucm_device, dev);
--	cdev_del(&ucm_dev->cdev);
-+	kfree(ucm_dev);
-+}
-+
-+static void ib_ucm_free_dev(struct ib_ucm_device *ucm_dev)
-+{
- 	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
- 		clear_bit(ucm_dev->devnum, dev_map);
- 	else
- 		clear_bit(ucm_dev->devnum - IB_UCM_MAX_DEVICES, overflow_map);
--	kfree(ucm_dev);
+ static void kill_dax_dev(struct dax_dev *dax_dev)
+ {
+-	struct cdev *cdev = &dax_dev->cdev;
+-
+ 	/*
+ 	 * Note, rcu is not protecting the liveness of dax_dev, rcu is
+ 	 * ensuring that any fault handlers that might have seen
+@@ -644,7 +642,6 @@ static void kill_dax_dev(struct dax_dev *dax_dev)
+ 	dax_dev->alive = false;
+ 	synchronize_rcu();
+ 	unmap_mapping_range(dax_dev->inode->i_mapping, 0, 0, 1);
+-	cdev_del(cdev);
  }
  
- static const struct file_operations ucm_fops = {
-@@ -1266,7 +1269,9 @@ static void ib_ucm_add_one(struct ib_device *device)
- 	if (!ucm_dev)
- 		return;
+ static void unregister_dax_dev(void *dev)
+@@ -654,7 +651,8 @@ static void unregister_dax_dev(void *dev)
+ 	dev_dbg(dev, "%s\n", __func__);
  
-+	device_initialize(&ucm_dev->dev);
- 	ucm_dev->ib_dev = device;
-+	ucm_dev->dev.release = ib_ucm_release_dev;
+ 	kill_dax_dev(dax_dev);
+-	device_unregister(dev);
++	cdev_device_del(&dax_dev->cdev, dev);
++	put_device(dev);
+ }
  
- 	devnum = find_first_zero_bit(dev_map, IB_UCM_MAX_DEVICES);
- 	if (devnum >= IB_UCM_MAX_DEVICES) {
-@@ -1283,19 +1288,18 @@ static void ib_ucm_add_one(struct ib_device *device)
- 		set_bit(devnum, dev_map);
+ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+@@ -705,18 +703,13 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 		goto err_inode;
  	}
  
-+
- 	cdev_init(&ucm_dev->cdev, &ucm_fops);
- 	ucm_dev->cdev.owner = THIS_MODULE;
- 	kobject_set_name(&ucm_dev->cdev.kobj, "ucm%d", ucm_dev->devnum);
--	if (cdev_add(&ucm_dev->cdev, base, 1))
--		goto err;
+-	/* device_initialize() so cdev can reference kobj parent */
++	/* from here on we're committed to teardown via dax_dev_release() */
+ 	device_initialize(dev);
  
- 	ucm_dev->dev.class = &cm_class;
- 	ucm_dev->dev.parent = device->dma_device;
--	ucm_dev->dev.devt = ucm_dev->cdev.dev;
--	ucm_dev->dev.release = ib_ucm_release_dev;
-+	ucm_dev->dev.devt = base;
-+
- 	dev_set_name(&ucm_dev->dev, "ucm%d", ucm_dev->devnum);
--	if (device_register(&ucm_dev->dev))
+ 	cdev = &dax_dev->cdev;
+ 	cdev_init(cdev, &dax_fops);
+ 	cdev->owner = parent->driver->owner;
+-	cdev->kobj.parent = &dev->kobj;
+-	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
+-	if (rc)
 -		goto err_cdev;
-+	if (cdev_device_add(&ucm_dev->cdev, &ucm_dev->dev))
-+		goto err_devnum;
  
- 	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
- 		goto err_dev;
-@@ -1304,15 +1308,11 @@ static void ib_ucm_add_one(struct ib_device *device)
- 	return;
+-	/* from here on we're committed to teardown via dax_dev_release() */
+ 	dax_dev->num_resources = count;
+ 	dax_dev->alive = true;
+ 	dax_dev->region = dax_region;
+@@ -728,7 +721,8 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 	dev->groups = dax_attribute_groups;
+ 	dev->release = dax_dev_release;
+ 	dev_set_name(dev, "dax%d.%d", dax_region->id, dax_dev->id);
+-	rc = device_add(dev);
++
++	rc = cdev_device_add(cdev, dev);
+ 	if (rc) {
+ 		kill_dax_dev(dax_dev);
+ 		put_device(dev);
+@@ -741,8 +735,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
  
- err_dev:
--	device_unregister(&ucm_dev->dev);
--err_cdev:
--	cdev_del(&ucm_dev->cdev);
--	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
--		clear_bit(devnum, dev_map);
--	else
--		clear_bit(devnum, overflow_map);
-+	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
-+err_devnum:
-+	ib_ucm_free_dev(ucm_dev);
- err:
--	kfree(ucm_dev);
-+	put_device(&ucm_dev->dev);
- 	return;
- }
+ 	return dax_dev;
  
-@@ -1323,7 +1323,9 @@ static void ib_ucm_remove_one(struct ib_device *device, void *client_data)
- 	if (!ucm_dev)
- 		return;
- 
--	device_unregister(&ucm_dev->dev);
-+	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
-+	ib_ucm_free_dev(ucm_dev);
-+	put_device(&ucm_dev->dev);
- }
- 
- static CLASS_ATTR_STRING(abi_version, S_IRUGO,
+- err_cdev:
+-	iput(dax_dev->inode);
+  err_inode:
+ 	ida_simple_remove(&dax_minor_ida, minor);
+  err_minor:
 -- 
 2.1.4
 
