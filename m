@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBAABB5WGS7CQKGQEL4QQH6A@googlegroups.com>
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id q4si54235wma.3.2017.02.16.09.37.57
+Return-Path: <rtc-linux+bncBDJIP47K7MERBXXV2LCQKGQE5AGM3DA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-oi0-f48.google.com (mail-oi0-f48.google.com. [209.85.218.48])
+        by gmr-mx.google.com with ESMTPS id 13si2103999iti.0.2017.02.27.15.48.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 16 Feb 2017 09:37:57 -0800 (PST)
-Date: Thu, 16 Feb 2017 17:37:48 +0000
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 27 Feb 2017 15:48:46 -0800 (PST)
+Received: by mail-oi0-f48.google.com with SMTP id f192so27557668oic.3
+        for <rtc-linux@googlegroups.com>; Mon, 27 Feb 2017 15:48:46 -0800 (PST)
+Date: Mon, 27 Feb 2017 17:48:45 -0600
+From: Rob Herring <robh@kernel.org>
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Jason Cooper <jason@lakedaemon.net>, rtc-linux@googlegroups.com,
-	Andrew Lunn <andrew@lunn.ch>, Haim Boot <hayim@marvell.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/3] Extend rtc-armada38x support for Armada 7K/8K
-Message-ID: <20170216173748.GU27312@n2100.armlinux.org.uk>
-References: <20170216153136.27009-1-gregory.clement@free-electrons.com>
- <20170216173348.GT27312@n2100.armlinux.org.uk>
+	Mark Rutland <mark.rutland@arm.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCHv3 1/2] dt-bindings: Add vendor prefix for Motorola
+Message-ID: <20170227234845.aifccmxp7vu7xwlb@rob-hp-laptop>
+References: <20170220073535.27393-1-sre@kernel.org>
+ <20170223010353.24351-1-sre@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170216173348.GT27312@n2100.armlinux.org.uk>
-Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+In-Reply-To: <20170223010353.24351-1-sre@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,57 +31,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Feb 16, 2017 at 05:33:48PM +0000, Russell King - ARM Linux wrote:
-> On Thu, Feb 16, 2017 at 04:31:33PM +0100, Gregory CLEMENT wrote:
-> > The Armada 7K/8K SoCs use the same RTC IP than the Armada 38x. However
-> > the SOC integration differs in 2 points:
-> >      - MBUS bridge timing initialization
-> >      - IRQ configuration at SoC level
-> > 
-> > This patch set extends the driver support to these SoCs family.
+On Thu, Feb 23, 2017 at 02:03:52AM +0100, Sebastian Reichel wrote:
+> Motorola was involved in semiconductor and mobile phone business.
+> The "motrola," prefix is already used by a couple of bindings:
+
+typo.
+
 > 
-> I've just tried merging this into my kernel, and...
+> * rtc/rtc-cmos.txt
+> * mfd/motorola-cpcap.txt
+> * regulator/cpcap-regulator.txt
 > 
-> root@mcbin:~# date
-> Thu Feb 16 17:33:00 GMT 2017
-> root@mcbin:~# hwclock -uw
-> root@mcbin:~# hwclock
-> Sun 07 Feb 2106 01:49:51 GMT  -10.010475 seconds
-> root@mcbin:~# hwclock
-> Sun 07 Feb 2106 01:49:51 GMT  -10.010458 seconds
+> Apart from that it is used in the DT file for the Droid 4 mobile
+> phone.
 > 
-> I guess it needs the same hack that Armada38x needs - "date reset" twice
-> in uboot?
+> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-Hmm, even with that sorted:
+Otherwise,
 
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:50 GMT  -0.786571 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:51 GMT  -1.347541 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:52 GMT  -1.889295 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:53 GMT  -1.787338 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:54 GMT  -1.444397 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:55 GMT  -1.419772 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:35:58 GMT  -2.555282 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:36:09 GMT  -0.515289 seconds
-root@mcbin:~# hwclock
-Thu 16 Feb 2017 17:36:11 GMT  -1.773030 seconds
-root@mcbin:~#
-
-I think this RTC is a random number generator.  It's certainly not
-a reliable indication of time.
-
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
