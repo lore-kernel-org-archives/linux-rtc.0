@@ -1,35 +1,34 @@
-Return-Path: <rtc-linux+bncBAABBAXRZHCQKGQEUDS6OZY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBGUC27CQKGQES5LLKCA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id s64si2503979pfk.0.2017.02.25.22.41.05
+Received: from mail-pg0-x244.google.com (mail-pg0-x244.google.com. [2607:f8b0:400e:c05::244])
+        by gmr-mx.google.com with ESMTPS id u12si123736pfd.3.2017.02.28.10.27.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 Feb 2017 22:41:06 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tue, 28 Feb 2017 10:27:38 -0800 (PST)
+Received: by mail-pg0-x244.google.com with SMTP id 25so2484369pgy.3
+        for <rtc-linux@googlegroups.com>; Tue, 28 Feb 2017 10:27:38 -0800 (PST)
+Date: Tue, 28 Feb 2017 10:27:34 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Dan Williams <dan.j.williams@intel.com>,
 	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Linus Walleij <linus.walleij@linaro.org>,
 	Alexandre Courbot <gnurou@gmail.com>,
 	Peter Huewe <peterhuewe@gmx.de>,
 	Marcel Selhorst <tpmdd@selhorst.net>,
 	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
+	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
 	Sean Hefty <sean.hefty@intel.com>,
 	Hal Rosenstock <hal.rosenstock@gmail.com>,
 	Dmitry Vyukov <dvyukov@google.com>,
 	Haggai Eran <haggaie@mellanox.com>,
 	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
+	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
 	Hans Verkuil <hans.verkuil@cisco.com>,
@@ -44,8 +43,7 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Matt Porter <mporter@kernel.crashing.org>,
 	Alexandre Bounine <alexandre.bounine@idt.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
 	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -53,25 +51,22 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
 	"Martin K. Petersen" <martin.petersen@oracle.com>,
 	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Sat, 25 Feb 2017 23:38:01 -0700
-Message-Id: <1488091097-12328-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v2 00/16] Cleanup chardev instances with helper function
-Reply-To: rtc-linux@googlegroups.com
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v2 04/16] input: utilize new cdev_device_add
+ helper function
+Message-ID: <20170228182734.GC20776@dtor-ws>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+ <1488091097-12328-5-git-send-email-logang@deltatee.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1488091097-12328-5-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -80,139 +75,160 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Everyone,
+On Sat, Feb 25, 2017 at 11:38:05PM -0700, Logan Gunthorpe wrote:
+> Replace the open coded registration of the cdev and dev with the
+> new device_add_cdev() helper in evdev, joydev and mousedev. The helper
+> replaces a common pattern by taking the proper reference against the
+> parent device and adding both the cdev and the device.
+> 
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 
-Here's v2 of my chardev cleanup patch-set. I've incorporated some
-feedback and decided to extend the concept a little further. The new
-helper function now includes both cdev_add and device_add which
-significantly simplifies every instance that called it.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Jason's also expressed an interest in creating a general solution to
-the problem that occurs if a user tries to utilize a newly created
-cdev right before device_add fails. This series doesn't address that
-specifically but will make it much easier to do so in future work.
+> ---
+>  drivers/input/evdev.c    | 11 ++---------
+>  drivers/input/joydev.c   | 11 ++---------
+>  drivers/input/mousedev.c | 11 ++---------
+>  3 files changed, 6 insertions(+), 27 deletions(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index e9ae3d5..9255714 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -1354,8 +1354,6 @@ static void evdev_cleanup(struct evdev *evdev)
+>  	evdev_mark_dead(evdev);
+>  	evdev_hangup(evdev);
+>  
+> -	cdev_del(&evdev->cdev);
+> -
+>  	/* evdev is marked dead so no one else accesses evdev->open */
+>  	if (evdev->open) {
+>  		input_flush_device(handle, NULL);
+> @@ -1416,12 +1414,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_evdev;
+>  
+>  	cdev_init(&evdev->cdev, &evdev_fops);
+> -	evdev->cdev.kobj.parent = &evdev->dev.kobj;
+> -	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
+>  
+> -	error = device_add(&evdev->dev);
+> +	error = cdev_device_add(&evdev->cdev, &evdev->dev);
+>  	if (error)
+>  		goto err_cleanup_evdev;
+>  
+> @@ -1429,7 +1423,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+>  
+>   err_cleanup_evdev:
+>  	evdev_cleanup(evdev);
+> - err_unregister_handle:
+>  	input_unregister_handle(&evdev->handle);
+>   err_free_evdev:
+>  	put_device(&evdev->dev);
+> @@ -1442,7 +1435,7 @@ static void evdev_disconnect(struct input_handle *handle)
+>  {
+>  	struct evdev *evdev = handle->private;
+>  
+> -	device_del(&evdev->dev);
+> +	cdev_device_del(&evdev->cdev, &evdev->dev);
+>  	evdev_cleanup(evdev);
+>  	input_free_minor(MINOR(evdev->dev.devt));
+>  	input_unregister_handle(handle);
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index abd18f3..e38b84f 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -729,8 +729,6 @@ static void joydev_cleanup(struct joydev *joydev)
+>  	joydev_mark_dead(joydev);
+>  	joydev_hangup(joydev);
+>  
+> -	cdev_del(&joydev->cdev);
+> -
+>  	/* joydev is marked dead so no one else accesses joydev->open */
+>  	if (joydev->open)
+>  		input_close_device(handle);
+> @@ -905,12 +903,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_joydev;
+>  
+>  	cdev_init(&joydev->cdev, &joydev_fops);
+> -	joydev->cdev.kobj.parent = &joydev->dev.kobj;
+> -	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
+>  
+> -	error = device_add(&joydev->dev);
+> +	error = cdev_device_add(&joydev->cdev, &joydev->dev);
+>  	if (error)
+>  		goto err_cleanup_joydev;
+>  
+> @@ -918,7 +912,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  
+>   err_cleanup_joydev:
+>  	joydev_cleanup(joydev);
+> - err_unregister_handle:
+>  	input_unregister_handle(&joydev->handle);
+>   err_free_joydev:
+>  	put_device(&joydev->dev);
+> @@ -931,7 +924,7 @@ static void joydev_disconnect(struct input_handle *handle)
+>  {
+>  	struct joydev *joydev = handle->private;
+>  
+> -	device_del(&joydev->dev);
+> +	cdev_device_del(&joydev->cdev, &joydev->dev);
+>  	joydev_cleanup(joydev);
+>  	input_free_minor(MINOR(joydev->dev.devt));
+>  	input_unregister_handle(handle);
+> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> index b604564..0e0ff84 100644
+> --- a/drivers/input/mousedev.c
+> +++ b/drivers/input/mousedev.c
+> @@ -812,8 +812,6 @@ static void mousedev_cleanup(struct mousedev *mousedev)
+>  	mousedev_mark_dead(mousedev);
+>  	mousedev_hangup(mousedev);
+>  
+> -	cdev_del(&mousedev->cdev);
+> -
+>  	/* mousedev is marked dead so no one else accesses mousedev->open */
+>  	if (mousedev->open)
+>  		input_close_device(handle);
+> @@ -901,12 +899,8 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  	}
+>  
+>  	cdev_init(&mousedev->cdev, &mousedev_fops);
+> -	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
+> -	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
+>  
+> -	error = device_add(&mousedev->dev);
+> +	error = cdev_device_add(&mousedev->cdev, &mousedev->dev);
+>  	if (error)
+>  		goto err_cleanup_mousedev;
+>  
+> @@ -914,7 +908,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  
+>   err_cleanup_mousedev:
+>  	mousedev_cleanup(mousedev);
+> - err_unregister_handle:
+>  	if (!mixdev)
+>  		input_unregister_handle(&mousedev->handle);
+>   err_free_mousedev:
+> @@ -927,7 +920,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  
+>  static void mousedev_destroy(struct mousedev *mousedev)
+>  {
+> -	device_del(&mousedev->dev);
+> +	cdev_device_del(&mousedev->cdev, &mousedev->dev);
+>  	mousedev_cleanup(mousedev);
+>  	input_free_minor(MINOR(mousedev->dev.devt));
+>  	if (mousedev != mousedev_mix)
+> -- 
+> 2.1.4
+> 
 
-I've also added cdev_set_parent for the cases in IB that set
-the kobject parent without using device_add. This is just to ensure
-the parent setting code is private within char_dev.c and removes the
-lines that appear suspect but are in fact correct. Dan's suggested
-WARN_ON is included in this function.
-
-Seeing the new helper function takes in a bit more than before,
-the instance patches are a bit heavier. Thus, I've refrained from
-collecting the acks and reviews I've already received. In a couple
-of cases (mtd and scsi) the cleanup required was a bit more involved
-than I would have liked and thus these patches probably need more
-attention, review and testing. (Unfortunately, I don't have hardware
-to actually test them.) Hopefully that process doesn't throw too big
-a wrench in the overall series moving forward.
-
-I've included Dan's cdev_leak patch in this series to avoid a merge
-conflict between the two of us.
-
-While the diff stats for the series are much heavier than in v1, we now
-have a net loss of more than 100 lines! So this feels much more like a
-successful cleanup.
-
-Thanks,
-
-Logan
-
---
-
-v1 story:
-
-Our story for this patch-set begins with a new driver I wrote and am in
-the process of submitting upstream. That driver creates a fairly
-standard char device and the code for it was copied from a similar
-instance in device-dax. However, upon review, Greg Kroah-Hartman
-noticed [1] a suspicious line that assigned to the parent field of
-the underlying kobject for the char device.
-
-I removed that from my code and endeavoured to remove it from the
-code I copied as well. However, Dan Williams pointed out [2] that this
-code is necessary for correct reference counting of the underlying
-structures. This prompted me to do a fair bit more research and
-investigation into whats going on and I found it to be a common pattern.
-(Although misleading and though required to be correct, frequently
-forgotten.) This pattern is used in at least 15 places in the kernel
-and probably should have been used in at least 5 more.
-
-This patch-set aims to correct this and hopefully prevent future
-developers from wasting their time on it. The first patch introduces
-a new helper API as originally proposed by Dan Williams [3]. Please
-see the commit message for that patch for a longer description of the
-problem and history.
-
-The subsequent patches either update correct instances to use the
-new API or fix incorrect usages to ensure the cdev correctly takes
-a reference count using the new API (this is noted in those patches).
-
-This moves all except four of the cdev.kobj.parent usages into the one
-cdev function, the remaining four are in the infiniband subsystem and
-I've left alone because that subsystem seems to make use of kobjects
-directly (instead of struct devices). These are noted in patch 7 of
-this series.
-
-This series is based on v4.10 with the exception of the last patch
-which is for my new driver which, as yet, has not been accepted
-upstream.
-
-[1] https://lkml.org/lkml/2017/2/10/370
-[2] https://lkml.org/lkml/2017/2/10/607
-[3] https://lkml.org/lkml/2017/2/13/700
-
-Dan Williams (1):
-  device-dax: fix cdev leak
-
-Jason Gunthorpe (1):
-  IB/ucm: utilize new cdev_device_add helper function
-
-Logan Gunthorpe (14):
-  chardev: add helper function to register char devs with a struct
-    device
-  device-dax: utilize new cdev_device_add helper function
-  input: utilize new cdev_device_add helper function
-  gpiolib: utilize new cdev_device_add helper function
-  tpm-chip: utilize new cdev_device_add helper function
-  platform/chrome: cros_ec_dev - utilize new cdev_device_add helper
-    function
-  infiniband: utilize the new cdev_set_parent function
-  iio:core: utilize new cdev_device_add helper function
-  media: utilize new cdev_device_add helper function
-  mtd: utilize new cdev_device_add helper function
-  rapidio: utilize new cdev_device_add helper function
-  rtc: utilize new cdev_device_add helper function
-  scsi: utilize new cdev_device_add helper function
-  switchtec: utilize new device_add_cdev helper function
-
- drivers/char/tpm/tpm-chip.c              | 19 ++-----
- drivers/dax/dax.c                        | 33 ++++++------
- drivers/gpio/gpiolib.c                   | 23 +++-----
- drivers/iio/industrialio-core.c          | 15 ++----
- drivers/infiniband/core/ucm.c            | 36 +++++++------
- drivers/infiniband/core/user_mad.c       |  4 +-
- drivers/infiniband/core/uverbs_main.c    |  2 +-
- drivers/infiniband/hw/hfi1/device.c      |  2 +-
- drivers/input/evdev.c                    | 11 +---
- drivers/input/joydev.c                   | 11 +---
- drivers/input/mousedev.c                 | 11 +---
- drivers/media/cec/cec-core.c             | 16 ++----
- drivers/media/media-devnode.c            | 20 ++-----
- drivers/mtd/ubi/build.c                  | 91 ++++++--------------------------
- drivers/mtd/ubi/vmt.c                    | 49 ++++++-----------
- drivers/pci/switch/switchtec.c           | 15 ++----
- drivers/platform/chrome/cros_ec_dev.c    | 31 +++--------
- drivers/rapidio/devices/rio_mport_cdev.c | 24 +++------
- drivers/rtc/class.c                      | 14 +++--
- drivers/rtc/rtc-dev.c                    | 17 ------
- drivers/scsi/osd/osd_uld.c               | 56 +++++++-------------
- fs/char_dev.c                            | 67 +++++++++++++++++++++++
- include/linux/cdev.h                     |  4 ++
- 23 files changed, 222 insertions(+), 349 deletions(-)
-
---
-2.1.4
+-- 
+Dmitry
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
