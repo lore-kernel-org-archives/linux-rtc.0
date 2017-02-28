@@ -1,75 +1,54 @@
-Return-Path: <rtc-linux+bncBCWOL4E62AORBR6AWPCQKGQETH77R4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDZYPUPHYEJBBKXA2PCQKGQEV3PRTLA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from quartz.orcorp.ca (quartz.orcorp.ca. [184.70.90.242])
-        by gmr-mx.google.com with ESMTPS id n127si2103673ita.3.2017.02.21.16.50.15
+Received: from mail-ot0-x22b.google.com (mail-ot0-x22b.google.com. [2607:f8b0:4003:c0f::22b])
+        by gmr-mx.google.com with ESMTPS id z191si125962itc.0.2017.02.27.19.36.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Feb 2017 16:50:15 -0800 (PST)
-Date: Tue, 21 Feb 2017 17:48:23 -0700
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	Benny Halevy <bhalevy@primarydata.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	osd-dev@open-osd.org, linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org, tpmdd-devel@lists.sourceforge.net,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@ml01.01.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 07/14] infiniband: utilize new device_add_cdev
- helper function
-Message-ID: <20170222004823.GB11487@obsidianresearch.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-8-git-send-email-logang@deltatee.com>
- <20170221190905.GD13138@obsidianresearch.com>
- <c7d34394-a9e8-fc9f-92f5-42c56a73ad1f@deltatee.com>
+        Mon, 27 Feb 2017 19:36:10 -0800 (PST)
+Received: by mail-ot0-x22b.google.com with SMTP id i1so96278ota.3
+        for <rtc-linux@googlegroups.com>; Mon, 27 Feb 2017 19:36:10 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <7df6e57b-531c-1b23-05bf-c368df2d20f3@deltatee.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+ <1488091097-12328-2-git-send-email-logang@deltatee.com> <CAPcyv4i91_esBtBxbnDH3ZDd8Mnz4HoJEW2yeEvQ4QikFBjapA@mail.gmail.com>
+ <20170227165618.GE5891@obsidianresearch.com> <7df6e57b-531c-1b23-05bf-c368df2d20f3@deltatee.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Mon, 27 Feb 2017 19:36:09 -0800
+Message-ID: <CAPcyv4jiPE1jK9ubbsAm_ZNMt=S106NCpXD4KPUWpcK9_GEDJA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 01/16] chardev: add helper function to
+ register char devs with a struct device
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>, Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>, David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>, Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>, Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>, Bjorn Helgaas <bhelgaas@google.com>,
+	linux-pci@vger.kernel.org, linux-scsi <linux-scsi@vger.kernel.org>,
+	rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
+	"Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	"linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <c7d34394-a9e8-fc9f-92f5-42c56a73ad1f@deltatee.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -79,81 +58,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Feb 21, 2017 at 04:54:05PM -0700, Logan Gunthorpe wrote:
+On Mon, Feb 27, 2017 at 7:27 PM, Logan Gunthorpe <logang@deltatee.com> wrote:
+>
+>
+> On 27/02/17 09:56 AM, Jason Gunthorpe wrote:
+>> Yes please, that is way too subtle. Suggest:
+>>
+>> NOTE: Callers must assume that userspace was able to open the cdev and
+>> can call cdev fops callbacks at any time, even if this function fails.
+>>
+>> I would also add a note to cdev_device_del:
+>>
+>> NOTE: This guarantees that associated sysfs callbacks are not running
+>> or runnable, however any open cdevs will remain and their fops remain
+>> callable even after this returns.
+>>
+>> Since I have seen a lot of confusion on that point as well..
+>
+> Sure, I'll add that verbiage to a v3 sometime after rc1.
 
-> Is that true? Once device_register or device_add is called then you need
-> to use put_device.
-
-General rule is once kref_init has been called then you should use
-kref_put and not kfree.
-
-device_initialize ultimately calls kref_init..
-
-Reasoning that you don't 'need' to use put_device until device_add is
-just too hard.
-
-For instance, there is still another bug in ib_ucm_add_one:
-
-	if (device_add(&ucm_dev->dev))
-		goto err_cdev;
-
-	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
-		goto err_dev;
-[....]
-err_dev:
-	device_unregister(&ucm_dev->dev);
-err_cdev:
-	ib_ucm_cdev_del(ucm_dev);
-err:
-	kfree(ucm_dev);
-	return;
-}
-
-If we go down the err_dev path then device_unregister will probably
-kfree ucm_dev - the argument is not guarenteed valid after
-device_unregister returns - this is what makes it different from
-device_del.
-
-The simplest fix is to change the unwind into:
-
-err_dev:
-	device_del(&ucm_dev->dev);
-err_cdev:
-	ib_ucm_cdev_del(ucm_dev);
-err:
-	put_device(&ucm_dev->dev);
-	return;
-}
-
-And the only way to keep our idiomatic goto unwind working is if all
-'goto errs' can call put_device - which requires the device_initialize
-be done before any errors are possible.
-
-> In fact device_add is what does the first get_device so this doesn't
-> add up to me.
-
-Not quite, kref_init creates a kref with a count of 1 - eg the caller
-owns the ref, and that ref must be put to trigger kref release.
-
-Thus good kref usage should always pair a kref_put with the kref_init.
-
-The get_device at the start of device_add pairs with the put_device at
-the end of device_del and the kref_init pairs with the put_device at
-the end of device_unregister. (notice that device_unregister ends up
-calling put_device twice in a row..)
-
-I'll send you a clean patch for your v2.
-
-> I know the DAX code only uses put_device after device_add.
-
-Looks to me like that code fails to call cdev_del if device_add fails?
-
-This approach is problematic because it is trying do the ida removals
-in the release function. That is not necessary and has the side effect
-of making the release function uncallable until too late in the
-process.
-
-Jason
+It would also be great to patch1 into a stable non-rebasing git tree
+so it can be used as a baseline for other 4.12 targeted development.
+The device-dax patches in particular collide with some pending
+development.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
