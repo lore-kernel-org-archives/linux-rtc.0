@@ -1,37 +1,28 @@
-Return-Path: <rtc-linux+bncBDSJBYGBRIMBBKHJQTDAKGQEEONPQQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXMLNOH5ANRBY6N3XCQKGQETQM7YKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Date: Thu, 9 Mar 2017 11:55:35 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Mike Turquette <mturquette@baylibre.com>, Chen-Yu Tsai <wens@csie.org>,
-	dri-devel@lists.freedesktop.org,
-	Daniel Vetter <daniel.vetter@intel.com>,
-	David Airlie <airlied@linux.ie>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-	Carlo Caione <carlo@caione.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Andy Gross <andy.gross@linaro.org>,
-	David Brown <david.brown@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/15] clk: divider: Make divider_round_rate
- take the parent clock
-Message-ID: <20170309105535.wdypl3j2ha4ekzyb@lukather>
-References: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
- <7ebd073b4941e4b7c619f15ff0a375ff7919d403.1488876832.git-series.maxime.ripard@free-electrons.com>
- <20170307141157.GC10239@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="s5ft7t2tnadun7xg"
-In-Reply-To: <20170307141157.GC10239@codeaurora.org>
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id s64si1137727pfk.0.2017.03.01.16.27.15
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 01 Mar 2017 16:27:15 -0800 (PST)
+From: Sebastian Reichel <sre@kernel.org>
+To: Sebastian Reichel <sre@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCHv4 1/2] dt-bindings: Add vendor prefix for Motorola
+Date: Thu,  2 Mar 2017 01:27:08 +0100
+Message-Id: <20170302002709.22276-1-sre@kernel.org>
+In-Reply-To: <20170220073535.27393-1-sre@kernel.org>
+References: <20170220073535.27393-1-sre@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,71 +31,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Motorola was involved in semiconductor and mobile phone business.
+The "motorola," prefix is already used by a couple of bindings:
 
---s5ft7t2tnadun7xg
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+* rtc/rtc-cmos.txt
+* mfd/motorola-cpcap.txt
+* regulator/cpcap-regulator.txt
 
-Hi Stephen,
+Apart from that it is used in the DT file for the Droid 4 mobile
+phone.
 
-On Tue, Mar 07, 2017 at 06:11:57AM -0800, Stephen Boyd wrote:
-> On 03/07, Maxime Ripard wrote:
-> > So far, divider_round_rate only considers the parent clock returned by
-> > clk_hw_get_parent.
-> > 
-> > This works fine on clocks that have a single parents, this doesn't work on
-> > muxes, since we will only consider the first parent, while other parents
-> > may totally be able to provide a better combination.
-> > 
-> > Clocks in that case cannot use divider_round_rate, so would have to come up
-> > with a very similar logic to work around it. Instead of having to do
-> > something like this, and duplicate that logic everywhere, give an
-> > additional parameter for the parent clock to consider.
-> > 
-> > Current users have been converted using the following coccinelle script
-> > 
-> > @@
-> > identifier hw, rate, prate, table, width, flags;
-> > @@
-> > 
-> > -long divider_round_rate(struct clk_hw *hw,
-> > +long divider_round_rate(struct clk_hw *hw, struct clk_hw *parent,
-> >                         unsigned long rate,
-> >                         unsigned long *prate,
-> >                         const struct clk_div_table *table,
-> >                         u8 width,
-> >                         unsigned long flags) { ... }
-> > 
-> > @@
-> > identifier fn, hw;
-> > expression E2, E3, E4, E5, E6;
-> > @@
-> >  fn (struct clk_hw *hw, ...) {
-> >  <...
-> > -divider_round_rate(hw, E2, E3, E4, E5, E6)
-> > +divider_round_rate(hw, clk_hw_get_parent(hw), E2, E3, E4, E5, E6)
-> >  ...>
-> > }
-> 
-> Why not introduce another function like 
-> 
-> 	divider_round_rate_parent()
-> 	divider_round_rate_mux()
-> 
-> that takes the extra parent argument? Technically, a divider is
-> considered to only have one parent, and if it has more than one
-> parent, then it is a mux and a divider.
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
+---
+Changes since PATCHv3:
+ - Fix typo
+ - Add Acked-By from Rob Herring
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Yes, that would work too, without needing the cross tree change. I'll
-do that in the next version.
-
-Thanks!
-Maxime
-
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index bd0ed3cb4994..81b538fbad22 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -190,6 +190,7 @@ minix	MINIX Technology Ltd.
+ miramems	MiraMEMS Sensing Technology Co., Ltd.
+ mitsubishi	Mitsubishi Electric Corporation
+ mosaixtech	Mosaix Technologies, Inc.
++motorola	Motorola, Inc.
+ moxa	Moxa
+ mpl	MPL AG
+ mqmaker	mqmaker Inc.
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -115,25 +75,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---s5ft7t2tnadun7xg
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCAAGBQJYwTSnAAoJEBx+YmzsjxAgasYP/i8/gnfsDA6RKGnKu3dnn1el
-ax9gwSyGaYWQxuhj+/e9qlt3qCLn59+QPA0vBKtK7wcBjesCT02fMNEV2eZZScAs
-68EnlhYmuIJ1BagD3eht0LfqW5HKBXBxY/IO7neYZyCXh3XmBbhD3GTXD/3B94vS
-qtLw2HoruWUpisaqLm2tLWF0mYp44zdjvTXhq1q6ilQMYhBYLZKJlnitXHmElPDs
-ZtEtofvl5j8OP47jOSeMwSad/HMz1ge43PLfF6OMPsibV+kn+hS7yo5wiyoAcNm4
-1tTFnvpZCGQPxniCraP6jUEywVoYYJhZ9VytCZhYDsOQPTTVFtaxkEmy8jFE5qsB
-DCHSoVoKROdCsyRVn5x4e9xJgxwdHN41+6blVNG/zWGtZLsls9Nxi0auAxeKjce6
-is7db48DMcujV4wf6VDt5Bc3+NuxGILL+b5TVgVg3iTyifkBKeXrC4Wcryl2csdK
-ZDadZgCeSS+CceWb5JE/JSjHAesgzrnoTtl0XYfEbjnHzyc8GptaIWA5fiTHGnQa
-zjBFcU+iuHX+oompZg9pmTGY0geFTGr7FRpyDHDI2M2y+Csy27cvD5ZrH7Nwlilh
-y01ef/lvAXr/snKVTdXD8nQ20gc53fgyMnBQvPONoFtl95M3QhBc2DziCYeYmmRA
-z0pw4g0LdOs5Q9zUwQHy
-=ItpR
------END PGP SIGNATURE-----
-
---s5ft7t2tnadun7xg--
