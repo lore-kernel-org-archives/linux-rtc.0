@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBCJ7RPMX4EMBBQEY47CQKGQE6XM5F3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXMLNOH5ANRBNOH3XCQKGQEYYULWFA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x22e.google.com (mail-wr0-x22e.google.com. [2a00:1450:400c:c0c::22e])
-        by gmr-mx.google.com with ESMTPS id h198si336958wmg.1.2017.03.03.12.04.16
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id s64si1131131pfk.0.2017.03.01.16.13.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Mar 2017 12:04:16 -0800 (PST)
-Received: by mail-wr0-x22e.google.com with SMTP id g10so80644581wrg.2
-        for <rtc-linux@googlegroups.com>; Fri, 03 Mar 2017 12:04:16 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net> <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
- <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
-From: John Stultz <john.stultz@linaro.org>
-Date: Fri, 3 Mar 2017 12:04:15 -0800
-Message-ID: <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
-Subject: Re: [rtc-linux] RTC used as a module
-To: monstr@monstr.eu
+        Wed, 01 Mar 2017 16:13:41 -0800 (PST)
+Date: Thu, 2 Mar 2017 01:13:32 +0100
+From: Sebastian Reichel <sre@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Michal Simek <michal.simek@xilinx.com>
-Content-Type: text/plain; charset=UTF-8
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: remove incorrect __exit markups
+Message-ID: <20170302001332.cooiz5s4nac3iury@earth>
+References: <20170301233323.GA8881@dtor-ws>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="y3n3c3iy7r7l35q6"
+In-Reply-To: <20170301233323.GA8881@dtor-ws>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,178 +27,52 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, Mar 3, 2017 at 6:46 AM, Michal Simek <monstr@monstr.eu> wrote:
-> Hi Alexandre,
->
-> On 3.3.2017 10:41, Michal Simek wrote:
->> Hi Alexandre,
->>
->> On 23.2.2017 13:14, Alexandre Belloni wrote:
->>> Hi Michal,
->>>
->>> I've been thinking about this issue (and meaning to actually test).
->>>
->>> On 08/12/2016 at 14:02:36 +0100, Michal Simek wrote:
->>>> Hi guys,
->>>>
->>>> I am trying to find out reason for this behavior. If rtc-zynqmp is used
->>>> as module for the first time it is correctly probed based on aliases
->>>> setting. (rtc5 for log below). But then driver is removed and add again
->>>> rtc5 is still not freed. rtc_device_release() is not called that's why
->>>> rtc->id can't be used again.
->>>>
->>>> sh-4.3# modprobe rtc-zynqmp
->>>> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>> ffa60000.rtc as rtc5
->>>> sh-4.3# rmmod rtc-zynqmp
->>>> sh-4.3# modprobe rtc-zynqmp
->>>> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
->>>> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>> ffa60000.rtc as rtc0
->>>>
->>>>
->>>> I didn't try different rtc drivers but it looks like that someone keeps
->>>> reference that's why release function is not called.
->>>>
->>>> Can someone check this with different RTC module?
->>>
->>> I'll do that soon.
->>
->> Have you tried it?
->>
->>>
->>>> Or is this expected behavior?
->>>>
->>>
->>> I don't think so :)
->>>
->>> Can you clarify a few things:
->>>  - is this the only rtc with a driver on your system ?
->>
->> yes only one.
->>
->>>  - is it selected as the RTC_SYSTOHC_DEVICE or RTC_HCTOSYS_DEVICE. I've
->>>    checked the code and I don't think this is the issue but it is worth
->>> testing.
->>
->> This is the setting.
->>
->> CONFIG_RTC_HCTOSYS=y
->> CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
->> CONFIG_RTC_SYSTOHC=y
->> CONFIG_RTC_SYSTOHC_DEVICE="rtc0"
->>
->> What I see is that rtc_device_release is not called which is that
->> function which contain ida_simple_remove.
->>
->> I have alias for rtc0 (rtc0 = &rtc;)
->> And here is a log with debug. As you see when driver is removed for the
->> first time rtc_device_release is not called. When this is done for the
->> second time rtc_device_release is called properly and the same device
->> allocated via ida is used.
->>
->> root@linaro-alip:~# dmesg | grep rtc
->> [    3.372715] [drm] Cannot find any crtc or sizes - going 1024x768
->> [    3.422099] hctosys: unable to open rtc device (rtc0)
->> [    6.578930] rtc_zynqmp ffa60000.rtc: rtc core: registered
->> ffa60000.rtc as rtc0
->> root@linaro-alip:~#
->> root@linaro-alip:~# lsmod
->> Module                  Size  Used by
->> rtc_zynqmp             16384  0
->> uio_pdrv_genirq        16384  0
->> root@linaro-alip:~# rmmod rtc_zynqmp
->> [   26.805172] rtc_core: devm_rtc_device_unregister
->> [   26.809794] rtc_core: devm_rtc_device_release
->> [   26.814129] rtc_core: rtc_device_unregister
->> root@linaro-alip:~# modprobe rtc_zynqmp
->> [   35.879655] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->> [   35.886002] rtc_zynqmp ffa60000.rtc: rtc core: registered
->> ffa60000.rtc as rtc1
->> root@linaro-alip:~# rmmod rtc_zynqmp
->> [  122.140487] rtc_core: devm_rtc_device_unregister
->> [  122.145110] rtc_core: devm_rtc_device_release
->> [  122.149443] rtc_core: rtc_device_unregister
->> [  122.153770] rtc_core: rtc_device_release
->> root@linaro-alip:~# modprobe rtc_zynqmp
->> [  123.646002] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->> [  123.652249] rtc_zynqmp ffa60000.rtc: rtc core: registered
->> ffa60000.rtc as rtc1
->> root@linaro-alip:~# rmmod rtc_zynqmp
->> [  125.876188] rtc_core: devm_rtc_device_release
->> [  125.880554] rtc_core: rtc_device_unregister
->> [  125.885163] rtc_core: rtc_device_release
->> root@linaro-alip:~#
->>
->> I have also done experiment to setup rtc alias to rtc1 and this ID is
->> used only once. It looks like something is not released properly.
->>
->> This is out of tree driver but I can't see any specific code which could
->> improve behavior.
->> I have tested i2c rtc mcp79410 and there is not a visible problem but it
->> is not MMIO.
->
-> This is the function which is making the difference.
->
-> It was added by John Stultz:
-> "timers: Introduce in-kernel alarm-timer interface"
-> (sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
->
-> Probe function has device_init_wakeup(&pdev->dev, 1);
-> That's why reference is taken (get_device() below)
->
-> static int alarmtimer_rtc_add_device(struct device *dev,
->                                 struct class_interface *class_intf)
-> {
->         unsigned long flags;
->         struct rtc_device *rtc = to_rtc_device(dev);
->
->         if (rtcdev)
->                 return -EBUSY;
->
->         pr_info("%s\n", __func__);
->
->         if (!rtc->ops->set_alarm)
->                 return -1;
->
->         pr_info("%s\n", __func__);
->
->         if (!device_may_wakeup(rtc->dev.parent))
->                 return -1;
->
->         spin_lock_irqsave(&rtcdev_lock, flags);
->         if (!rtcdev) {
->                 rtcdev = rtc;
->                 /* hold a reference so it doesn't go away */
->                 get_device(dev);
->         }
->         spin_unlock_irqrestore(&rtcdev_lock, flags);
->         return 0;
-> }
->
-> And in remove function device_init_wakeup(&pdev->dev, 0);
-> But because there is still a reference rtc_device_release() is not
-> called and ida is not freed.
->
-> Generic question which I think should be asked if in this situation
-> driver should be modular or not.
-> If driver can be modular then somewhere should be put_device().
 
-So off the top of my head (sorry, packing for a trip at the moment), I
-think this was because the alarmtimer subsystem needs to hold onto the
-rtcdev so it doesn't disappear under it, as it will be needed when
-setting any alarmtimers on suspend.
+--y3n3c3iy7r7l35q6
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Part of the issue is the alarmtimer interface will provide an error to
-userspace if there's no rtcdev, so we don't want a situation where
-timers successfully set then silently never fire because the rtc was
-removed.
+Hi,
 
-That said, there may very well be bugs in how it was handled, and I've
-not looked closely at it recently.
+On Wed, Mar 01, 2017 at 03:33:23PM -0800, Dmitry Torokhov wrote:
+> Even if bus is not hot-pluggable, devices can be unbound from the
+> driver via sysfs, so we should not be using __exit annotations on
+> remove() methods. The only exception is drivers registered with
+> platform_driver_probe(), which specifically disables sysfs bind/unbind
+> attributes.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-thanks
--john
+Reviewed-By: Sebastian Reichel <sre@kernel.org>
+
+-- Sebastian
+
+> ---
+>  drivers/rtc/rtc-omap.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 51e52446eacb..fa856d9c5e23 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -844,7 +844,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>  	return ret;
+>  }
+>  
+> -static int __exit omap_rtc_remove(struct platform_device *pdev)
+> +static int omap_rtc_remove(struct platform_device *pdev)
+>  {
+>  	struct omap_rtc *rtc = platform_get_drvdata(pdev);
+>  	u8 reg;
+> @@ -964,7 +964,7 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
+>  
+>  static struct platform_driver omap_rtc_driver = {
+>  	.probe		= omap_rtc_probe,
+> -	.remove		= __exit_p(omap_rtc_remove),
+> +	.remove		= omap_rtc_remove,
+>  	.shutdown	= omap_rtc_shutdown,
+>  	.driver		= {
+>  		.name	= "omap_rtc",
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -211,3 +83,25 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--y3n3c3iy7r7l35q6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAli3Y6sACgkQ2O7X88g7
++poBPxAAme6gBdEtcfo8TkPcR8cDXN9SsF5g9bDvblBE7ZMXO/35069oBEqJ0U5u
+5IaFGjdC6Csvv/3SfhOd5CzmBndM1YGaD4CGQ1mafOeA07Gcu8fG/sezysxUTPhr
+p8a7iYD+MDnDkObYHweccOFxj8GDwv6Lk/cp33DSlBLCn2ucyoeBbNI9RUiBzCHf
+QeQEbzP1jjRWR7JWe1XV5OaDesgpPl/zJZ29gAl5qFQf8lMPdbCCBLn23DMzb5GE
+Kt/SzA15J8ir7ucrdg37QHAoRoskwN06QNpWXoGBP9F1KxxYSoPlVn+gwCkpxplN
+SknBTiiu/IDkvnnnt3+oSNf5OU7uZ4jJYcFCX1stYIt6OcDPYv5BdjO2q8evGLxN
+oS319R3BEYLYD8cBVeIIjy6hYdD1oPJA3Gs3bHlKtZZGM8kDiBp4Gq1DYkNdZZAl
+fvpaJ50jAwqJ8cM9pPHrJXw7Y1r5gaHVv+VE4kEKnEpzv0kw3N/unZAabM36NvAb
+yJfDx8VJbzrxvVxdCkBa+Bk2TBg2sAjvuBrx6PMfpKwUFAM9y2ecsSNGN+9AQMhc
+uW1ovxNn3vUlnjCK2FnnuAHtwj0u96nfDWSp2F6+3KJmLYlZZk+httEoVrl+izYF
+kzYhjlueaYzSSkG/Sr5ekU0LfMTlMmRvQvMP2iSbNCEUsH2OFX4=
+=ClCt
+-----END PGP SIGNATURE-----
+
+--y3n3c3iy7r7l35q6--
