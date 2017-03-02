@@ -1,24 +1,36 @@
-Return-Path: <rtc-linux+bncBCDY7V7TLQIKDWETYYCRUBD443QVS@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBROQ4DCQKGQEKN4XIYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-pg0-x243.google.com (mail-pg0-x243.google.com. [2607:f8b0:400e:c05::243])
-        by gmr-mx.google.com with ESMTPS id g82si2554985pfb.5.2017.03.11.22.35.13
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id s64si1505457pfk.0.2017.03.02.06.12.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 Mar 2017 22:35:13 -0800 (PST)
-Received: by mail-pg0-x243.google.com with SMTP id 25so14781932pgy.3
-        for <rtc-linux@googlegroups.com>; Sat, 11 Mar 2017 22:35:13 -0800 (PST)
-From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: patches@opensource.wolfsonmicro.com,
-	rtc-linux@googlegroups.com,
-	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Subject: [rtc-linux] [PATCH] rtc: rtc-wm8350: Remove unused to_wm8350_from_rtc_dev
-Date: Sat, 11 Mar 2017 15:42:13 +0900
-Message-Id: <20170311064213.30752-1-iwamatsu@nigauri.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 02 Mar 2017 06:12:21 -0800 (PST)
+Received: from mail.kernel.org (localhost [127.0.0.1])
+	by mail.kernel.org (Postfix) with ESMTP id 411A620392
+	for <rtc-linux@googlegroups.com>; Thu,  2 Mar 2017 14:12:20 +0000 (UTC)
+Received: from mail-yw0-f180.google.com (mail-yw0-f180.google.com [209.85.161.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by mail.kernel.org (Postfix) with ESMTPSA id 742C920383
+	for <rtc-linux@googlegroups.com>; Thu,  2 Mar 2017 14:12:18 +0000 (UTC)
+Received: by mail-yw0-f180.google.com with SMTP id v200so56874404ywc.3
+        for <rtc-linux@googlegroups.com>; Thu, 02 Mar 2017 06:12:18 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20170302002709.22276-2-sre@kernel.org>
+References: <20170220073535.27393-1-sre@kernel.org> <20170302002709.22276-1-sre@kernel.org>
+ <20170302002709.22276-2-sre@kernel.org>
+From: Rob Herring <robh+dt@kernel.org>
+Date: Thu, 2 Mar 2017 08:11:57 -0600
+Message-ID: <CAL_JsqLpVr2zorMrSDZFTVLsMOaYgxexuGGq3iCNhm4zSw13zw@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCHv4 2/2] rtc: cpcap: new rtc driver
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,29 +39,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The to_wm8350_from_rtc_dev macro is not used by anything in the
-rtc-wm8350 driver.
+On Wed, Mar 1, 2017 at 6:27 PM, Sebastian Reichel <sre@kernel.org> wrote:
+> This driver supports the Motorola CPCAP PMIC found on
+> some of Motorola's mobile phones, such as the Droid 4.
+>
+> Tested-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> ---
+> Changes since PATCHv3:
+>  - Modified DT binding document to mention parent device
+> ---
+>  .../devicetree/bindings/rtc/cpcap-rtc.txt          |  18 ++
 
-Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
----
- drivers/rtc/rtc-wm8350.c | 2 --
- 1 file changed, 2 deletions(-)
+Acked-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
-index fa247deb9cf4..483c7993516b 100644
---- a/drivers/rtc/rtc-wm8350.c
-+++ b/drivers/rtc/rtc-wm8350.c
-@@ -30,8 +30,6 @@
- #define WM8350_SET_TIME_RETRIES	5
- #define WM8350_GET_TIME_RETRIES	5
- 
--#define to_wm8350_from_rtc_dev(d) container_of(d, struct wm8350, rtc.pdev.dev)
--
- /*
-  * Read current time and date in RTC
-  */
--- 
-2.11.0
+>  drivers/rtc/Kconfig                                |   7 +
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-cpcap.c                            | 332 +++++++++++++++++++++
+>  4 files changed, 358 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+>  create mode 100644 drivers/rtc/rtc-cpcap.c
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
