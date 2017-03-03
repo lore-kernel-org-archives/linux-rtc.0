@@ -1,70 +1,22 @@
-Return-Path: <rtc-linux+bncBCUJ7YGL3QFBBH5DVLDAKGQEO2BDM5A@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBUH34XCQKGQELW7SHSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
-        by gmr-mx.google.com with ESMTPS id y203si891399pfb.0.2017.03.16.06.22.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Mar 2017 06:22:38 -0700 (PDT)
-Date: Thu, 16 Mar 2017 22:22:22 +0900
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 01/16] chardev: add helper function to
- register char devs with a struct device
-Message-ID: <20170316132222.GA9923@kroah.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-2-git-send-email-logang@deltatee.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1488783873-2614-2-git-send-email-logang@deltatee.com>
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id r66si55837pfb.7.2017.03.03.06.29.35
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:35 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 00/13] rtc: Add OF device table to I2C drivers
+ that are missing it
+Date: Fri,  3 Mar 2017 11:29:11 -0300
+Message-Id: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -73,203 +25,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Mar 06, 2017 at 12:04:17AM -0700, Logan Gunthorpe wrote:
-> Credit for this patch goes is shared with Dan Williams [1]. I've
-> taken things one step further to make the helper function more
-> useful and clean up calling code.
-> 
-> There's a common pattern in the kernel whereby a struct cdev is placed
-> in a structure along side a struct device which manages the life-cycle
-> of both. In the naive approach, the reference counting is broken and
-> the struct device can free everything before the chardev code
-> is entirely released.
-> 
-> Many developers have solved this problem by linking the internal kobjs
-> in this fashion:
-> 
-> cdev.kobj.parent = &parent_dev.kobj;
-> 
-> The cdev code explicitly gets and puts a reference to it's kobj parent.
-> So this seems like it was intended to be used this way. Dmitrty Torokhov
-> first put this in place in 2012 with this commit:
-> 
-> 2f0157f char_dev: pin parent kobject
-> 
-> and the first instance of the fix was then done in the input subsystem
-> in the following commit:
-> 
-> 4a215aa Input: fix use-after-free introduced with dynamic minor changes
-> 
-> Subsequently over the years, however, this issue seems to have tripped
-> up multiple developers independently. For example, see these commits:
-> 
-> 0d5b7da iio: Prevent race between IIO chardev opening and IIO device
-> (by Lars-Peter Clausen in 2013)
-> 
-> ba0ef85 tpm: Fix initialization of the cdev
-> (by Jason Gunthorpe in 2015)
-> 
-> 5b28dde [media] media: fix use-after-free in cdev_put() when app exits
-> after driver unbind
-> (by Shauh Khan in 2016)
-> 
-> This technique is similarly done in at least 15 places within the kernel
-> and probably should have been done so in another, at least, 5 places.
-> The kobj line also looks very suspect in that one would not expect
-> drivers to have to mess with kobject internals in this way.
-> Even highly experienced kernel developers can be surprised by this
-> code, as seen in [2].
-> 
-> To help alleviate this situation, and hopefully prevent future
-> wasted effort on this problem, this patch introduces a helper function
-> to register a char device along with its parent struct device.
-> This creates a more regular API for tying a char device to its parent
-> without the developer having to set members in the underlying kobject.
-> 
-> This patch introduce cdev_device_add and cdev_device_del which
-> replaces a common pattern including setting the kobj parent, calling
-> cdev_add and then calling device_add. It also introduces cdev_set_parent
-> for the few cases that set the kobject parent without using device_add.
-> 
-> [1] https://lkml.org/lkml/2017/2/13/700
-> [2] https://lkml.org/lkml/2017/2/10/370
-> 
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> Reviewed-by: Hans Verkuil <hans.verkuil@cisco.com>
-> Reviewed-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  fs/char_dev.c        | 77 ++++++++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/cdev.h |  4 +++
->  2 files changed, 81 insertions(+)
-> 
-> diff --git a/fs/char_dev.c b/fs/char_dev.c
-> index 44a240c..09b93fb 100644
-> --- a/fs/char_dev.c
-> +++ b/fs/char_dev.c
-> @@ -471,6 +471,76 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
->  	return 0;
->  }
->  
-> +/**
-> + * cdev_set_parent() - set the parent kobject for a char device
-> + * @p: the cdev structure
-> + * @kobj: the kobject to take a reference to
-> + *
-> + * cdev_set_parent() sets a parent kobject which will be referenced
-> + * appropriately so the parent is not freed before the cdev. This
-> + * should be called before cdev_add.
-> + */
-> +void cdev_set_parent(struct cdev *p, struct kobject *kobj)
-> +{
-> +	WARN_ON(!kobj->state_initialized);
-> +	p->kobj.parent = kobj;
-> +}
-> +
-> +/**
-> + * cdev_device_add() - add a char device and it's corresponding
-> + *	struct device, linkink
-> + * @dev: the device structure
-> + * @cdev: the cdev structure
-> + *
-> + * cdev_device_add() adds the char device represented by @cdev to the system,
-> + * just as cdev_add does. It then adds @dev to the system using device_add
-> + * The dev_t for the char device will be taken from the struct device which
-> + * needs to be initialized first. This helper function correctly takes a
-> + * reference to the parent device so the parent will not get released until
-> + * all references to the cdev are released.
-> + *
-> + * This function should be used whenever the struct cdev and the
-> + * struct device are members of the same structure whose lifetime is
-> + * managed by the struct device.
-> + *
-> + * NOTE: Callers must assume that userspace was able to open the cdev and
-> + * can call cdev fops callbacks at any time, even if this function fails.
-> + */
-> +int cdev_device_add(struct cdev *cdev, struct device *dev)
-> +{
-> +	int rc = 0;
-> +
-> +	cdev_set_parent(cdev, &dev->kobj);
-> +
-> +	rc = cdev_add(cdev, dev->devt, 1);
-> +	if (rc)
-> +		return rc;
-> +
-> +	rc = device_add(dev);
-> +	if (rc)
-> +		cdev_del(cdev);
-> +
-> +	return rc;
-> +}
-> +
-> +/**
-> + * cdev_device_del() - inverse of cdev_device_add
-> + * @dev: the device structure
-> + * @cdev: the cdev structure
-> + *
-> + * cdev_device_del() is a helper function to call cdev_del and device_del.
-> + * It should be used whenever cdev_device_add is used.
-> + *
-> + * NOTE: This guarantees that associated sysfs callbacks are not running
-> + * or runnable, however any cdevs already open will remain and their fops
-> + * will still be callable even after this function returns.
-> + */
-> +void cdev_device_del(struct cdev *cdev, struct device *dev)
-> +{
-> +	device_del(dev);
-> +	cdev_del(cdev);
-> +}
-> +
->  static void cdev_unmap(dev_t dev, unsigned count)
->  {
->  	kobj_unmap(cdev_map, dev, count);
-> @@ -482,6 +552,10 @@ static void cdev_unmap(dev_t dev, unsigned count)
->   *
->   * cdev_del() removes @p from the system, possibly freeing the structure
->   * itself.
-> + *
-> + * NOTE: This guarantees that cdev device will no longer be able to be
-> + * opened, however any cdevs already open will remain and their fops will
-> + * still be callable even after cdev_del returns.
->   */
->  void cdev_del(struct cdev *p)
->  {
-> @@ -570,5 +644,8 @@ EXPORT_SYMBOL(cdev_init);
->  EXPORT_SYMBOL(cdev_alloc);
->  EXPORT_SYMBOL(cdev_del);
->  EXPORT_SYMBOL(cdev_add);
-> +EXPORT_SYMBOL(cdev_set_parent);
-> +EXPORT_SYMBOL(cdev_device_add);
-> +EXPORT_SYMBOL(cdev_device_del);
->  EXPORT_SYMBOL(__register_chrdev);
->  EXPORT_SYMBOL(__unregister_chrdev);
-> diff --git a/include/linux/cdev.h b/include/linux/cdev.h
-> index f876361..4c99579 100644
-> --- a/include/linux/cdev.h
-> +++ b/include/linux/cdev.h
-> @@ -26,6 +26,10 @@ void cdev_put(struct cdev *p);
->  
->  int cdev_add(struct cdev *, dev_t, unsigned);
->  
-> +void cdev_set_parent(struct cdev *p, struct kobject *kobj);
-> +int cdev_device_add(struct cdev *cdev, struct device *dev);
-> +void cdev_device_del(struct cdev *cdev, struct device *dev);
-> +
->  void cdev_del(struct cdev *);
->  
->  void cd_forget(struct inode *);
+Hello,
 
-I don't know why kbuild didn't catch these before, but it looks like we
-really need to include device.h in cdev.h now to fix up these build
-warnings, right?
+This series add OF device ID tables to RTC I2C drivers whose devices are
+either used in Device Tree source files or are listed in binding docs as
+a compatible string.
 
-I'll try that out and rebase the char-misc-testing tree in the morning
-to see if that fixes the build problems...
+That's done because the plan is to change the I2C core to report proper OF
+modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+a device was registered via DT or using the legacy platform data.
 
-thanks,
+So these patches will make sure that RTC I2C drivers modules will continue
+to be autoloaded once the I2C core is changed to report proper OF modalias.
 
-greg k-h
+Best regards,
+Javier
+
+
+Javier Martinez Canillas (13):
+  rtc: rv8803: Add OF device ID table
+  rtc: rv3029: Add OF device ID table
+  rtc: bq32k: Add OF device ID table
+  rtc: ds1307: Add OF device ID table
+  rtc: rx8010: Add OF device ID table
+  rtc: ds3232: Add OF device ID table
+  rtc: rtc-ds1672: Add OF device ID table
+  rtc: ds1374: Set .of_match_table to OF device ID table
+  rtc: isl1208: Add OF device ID table
+  rtc: s35390a: Add OF device ID table
+  rtc: rx8581: Add OF device ID table
+  rtc: m41t80: Add OF device ID table
+  rtc: rs5c372: Add OF device ID table
+
+ drivers/rtc/rtc-bq32k.c    |  7 +++++
+ drivers/rtc/rtc-ds1307.c   | 68 +++++++++++++++++++++++++++++++++++++++++++++-
+ drivers/rtc/rtc-ds1374.c   |  1 +
+ drivers/rtc/rtc-ds1672.c   |  9 +++++-
+ drivers/rtc/rtc-ds3232.c   |  7 +++++
+ drivers/rtc/rtc-isl1208.c  | 12 ++++++--
+ drivers/rtc/rtc-m41t80.c   | 63 ++++++++++++++++++++++++++++++++++++++++--
+ drivers/rtc/rtc-rs5c372.c  | 37 ++++++++++++++++++++++++-
+ drivers/rtc/rtc-rv3029c2.c |  9 ++++++
+ drivers/rtc/rtc-rv8803.c   | 21 +++++++++++++-
+ drivers/rtc/rtc-rx8010.c   |  7 +++++
+ drivers/rtc/rtc-rx8581.c   |  7 +++++
+ drivers/rtc/rtc-s35390a.c  |  8 ++++++
+ 13 files changed, 248 insertions(+), 8 deletions(-)
+
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
