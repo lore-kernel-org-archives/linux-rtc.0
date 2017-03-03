@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBX734XCQKGQEIPMFZIA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFOG43CQKGQEMT4G3JQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
 Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id c123si63080pfa.4.2017.03.03.06.29.51
+        by gmr-mx.google.com with ESMTP id h79si155483pfh.2.2017.03.03.09.08.36
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:51 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 06/13] rtc: ds3232: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:17 -0300
-Message-Id: <20170303142925.17915-7-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+        Fri, 03 Mar 2017 09:08:36 -0800 (PST)
+Subject: [rtc-linux] Re: [PATCH 00/13] rtc: Add OF device table to I2C drivers
+ that are missing it
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 References: <20170303142925.17915-1-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+ <20170303150134.qacfd7ccemqxwq3p@piout.net>
+ <abb5cd41-b904-1512-7520-e4a89f26d4b3@osg.samsung.com>
+ <20170303160400.2n6vwbypxvt62nl4@piout.net>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+ Alessandro Zummo <a.zummo@towertech.it>
+Message-ID: <84e4a5d9-0db0-6614-f602-14ed6daf5da0@osg.samsung.com>
+Date: Fri, 3 Mar 2017 14:08:24 -0300
+MIME-Version: 1.0
+In-Reply-To: <20170303160400.2n6vwbypxvt62nl4@piout.net>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,43 +28,100 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+Hello Alexandre,
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+Sorry for the long email...
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
+On 03/03/2017 01:04 PM, Alexandre Belloni wrote:
+> On 03/03/2017 at 12:27:23 -0300, Javier Martinez Canillas wrote:
+>> On 03/03/2017 12:01 PM, Alexandre Belloni wrote:
+>>> On 03/03/2017 at 11:29:11 -0300, Javier Martinez Canillas wrote:
+>>>> This series add OF device ID tables to RTC I2C drivers whose devices are
+>>>> either used in Device Tree source files or are listed in binding docs as
+>>>> a compatible string.
+>>>>
+>>>> That's done because the plan is to change the I2C core to report proper OF
+>>>> modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+>>>> a device was registered via DT or using the legacy platform data.
+>>>>
+>>>
+>>> Doesn't that break the DT ABI for all i2c devices? A lot of people are
+>>> getting the vendor wrong in the compatible string and because the i2c
+>>> core doesn't care, the driver is still probed. Dropping that will break
+>>> all those DTBs.
+>>> Or will that only affect module autoload?
+>>>
+>>
+>> The change will only be for module autoload. The I2C core will still attempt
+>> to match the I2C device ID table as a fallback if fails to match the OF one.
+>> So there's no change in the match logic for drivers that do the wrong thing.
+>>
+> 
+> I'm probably not seeing the big picture here but then I don't understand
 
- drivers/rtc/rtc-ds3232.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+The big picture is to make the I2C subsystem to be consistent with other
+subsystems.
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 9bb39a06b994..deff431a37c4 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -442,9 +442,16 @@ static const struct i2c_device_id ds3232_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, ds3232_id);
+Take the platform bus as an example, platform drivers define an OF ID table
+if the platform devices are going to be registered via DT and a platform ID
+table if the driver supports legacy platform device registration.
+
+But that's not the case for I2C, either only a I2C device ID table is defined
+(and the vendor prefix not used which lead to the current situation of wrong
+DT's) or a OF device ID table is used to match but still a I2C device table
+with duplicated entries is needed only to make the driver module to autoload.
+
+> why you are reworking the id->driver_data handling and using
+> of_device_get_match_data instead.
+>
+
+I meant that the proposed change to the I2C core is only for module autoload.
+The driver changes are for both match and autoload (once I2C core is fixed).
+
+So the change to use the of_device_id .data instead of the i2c_device_id
+.driver_data is to use the correct entry in case the I2C core matches using
+the OF table instead of the I2C table. Another option is to do the opposite
+of what's needed currently, that is to have an I2C table to match and only
+use the OF table to populate the OF aliases in the module (i.e: not setting
+the .of_match_table field).
+
+But I think that if the device is registered via OF, then the correct thing
+to do is to match using the OF table and the OF aliases for module autoload.
  
-+static const struct of_device_id ds3232_of_match[] = {
-+	{ .compatible = "dallas,ds3232" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ds3232_of_match);
-+
- static struct i2c_driver ds3232_driver = {
- 	.driver = {
- 		.name = "rtc-ds3232",
-+		.of_match_table = of_match_ptr(ds3232_of_match),
- 		.pm	= &ds3232_pm_ops,
- 	},
- 	.probe = ds3232_i2c_probe,
+> If this is related to b8a1a4cd5a98a2adf8dfd6902cd98e57d910ee12, that is
+> a completely different issue (and that is probably the kind of changes
+> that should be notified to maintainers).
+>
+
+It's related in some way. There were two reasons why a I2C driver required a
+I2C table:
+
+1) Because their probe function received a struct i2c_device_id as argument.
+
+2) Because the reported MODALIAS is always i2c:<foo> regardless of how the
+   device was registered (legacy platform dev or DT).
+
+Lee's commit that you mention solves (1) and I'm trying to solve (2).
+
+>> If someone is using a wrong vendor prefix and the DT can't be changed, then
+>> an entry in the OF device ID table has to be added for "wrong_vendor,device"
+>> so the MODALIAS uevent can be "of:N*T*wrong_vendor,device".
+>>
+> 
+> And then, we end up with a crap load of useless strings that are matched
+> against at boottime...
+> I'm saying that because all the rv3029 compatible strings are wrong.
+> 
+
+Yeah... that's the joy of the DT backward compatibility. The reason why added
+those (wrong) compatibles for rv3029 is because there are mainline users that
+are either not using a vendor or using a wrong one (mc instead of microchip).
+
+Best regards,
 -- 
-2.9.3
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
