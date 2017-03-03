@@ -1,31 +1,23 @@
-Return-Path: <rtc-linux+bncBAABBS5M37DAKGQERG3JIQI@googlegroups.com>
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by gmr-mx.google.com with ESMTPS id e72si786741wma.0.2017.03.26.07.55.06
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 26 Mar 2017 07:55:07 -0700 (PDT)
-Date: Sun, 26 Mar 2017 15:54:09 +0100
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Leo Yan <leo.yan@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Baptiste Reynal <b.reynal@virtualopensystems.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-	kvm@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [rtc-linux] Re: [PATCH 5/5] ALSA: AACI: Convert to use devm_ioremap_resource()
-Message-ID: <20170326145409.GP7909@n2100.armlinux.org.uk>
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
- <1490539314-9681-6-git-send-email-leo.yan@linaro.org>
+Return-Path: <rtc-linux+bncBAABBV734XCQKGQEER4BS5Y@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1490539314-9681-6-git-send-email-leo.yan@linaro.org>
-Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id r66si55896pfb.7.2017.03.03.06.29.43
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:43 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 03/13] rtc: bq32k: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:14 -0300
+Message-Id: <20170303142925.17915-4-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -34,29 +26,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Mar 26, 2017 at 10:41:54PM +0800, Leo Yan wrote:
-> Convert to use devm_ioremap_resource() in probe function, otherwise it's
-> missed to unremap this region if probe failed or rmmod module.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-Again, wrong - just because there's nothing in the cleanup paths does
-not mean it doesn't clean up.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-static void aaci_free_card(struct snd_card *card)
-{
-        struct aaci *aaci = card->private_data;
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-        iounmap(aaci->base);
-}
+ drivers/rtc/rtc-bq32k.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This unmaps the mapping you claim it fails to do so.  So, your patch
-actually _creates_ bugs that were not there before.
-
-NAK.
-
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index 2b223935001f..98ac8d5c7901 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -310,9 +310,16 @@ static const struct i2c_device_id bq32k_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, bq32k_id);
+ 
++static const struct of_device_id bq32k_of_match[] = {
++	{ .compatible = "ti,bq32000" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, bq32k_of_match);
++
+ static struct i2c_driver bq32k_driver = {
+ 	.driver = {
+ 		.name	= "bq32k",
++		.of_match_table = of_match_ptr(bq32k_of_match),
+ 	},
+ 	.probe		= bq32k_probe,
+ 	.remove		= bq32k_remove,
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
