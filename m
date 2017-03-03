@@ -1,30 +1,23 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRB4GFV7DAKGQEEY43AWY@googlegroups.com>
-Received: from mail-it0-x235.google.com (mail-it0-x235.google.com. [2607:f8b0:4001:c0b::235])
-        by gmr-mx.google.com with ESMTPS id z191si200189itc.0.2017.03.17.06.21.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 06:21:52 -0700 (PDT)
-Received: by mail-it0-x235.google.com with SMTP id m27so25240992iti.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 06:21:52 -0700 (PDT)
+Return-Path: <rtc-linux+bncBAABB3734XCQKGQEXDE7T2A@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
- <20170316175112.27913-3-chris.brandt@renesas.com> <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
- <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 17 Mar 2017 14:21:50 +0100
-Message-ID: <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/5] rtc: Add rtc-sh
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id y90si59817pfa.6.2017.03.03.06.30.06
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:30:06 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 12/13] rtc: m41t80: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:23 -0300
+Message-Id: <20170303142925.17915-13-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,62 +26,125 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Chris,
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-On Fri, Mar 17, 2017 at 2:16 PM, Chris Brandt <Chris.Brandt@renesas.com> wr=
-ote:
-> Happy St Patrick's Day!
->
->     (I know you are not Irish....but you are closer to Ireland than I am =
-;)
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-;-)
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-> On Friday, March 17, 2017, Geert Uytterhoeven wrote:
->> On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt <chris.brandt@renesas.com>
->> wrote:
->> > +- clocks: the clock source for the RTC controller.
->>
->> The datasheet mentions 3 possible clock sources?
->
-> There is the clock source that does the counting (RTC_X1, RTC_X3, XTAL), =
-and then a clock source that runs the register interface (run off of the p0=
- clock). So I just need to turn on the p0 clock so I can get at the registe=
-rs. Note that if you do a hard reset with a RESET button, and all the regis=
-ters in the chip go back to their POR state, the counter still counts off o=
-f the 32KHz XTAL even though the "peripheral clock" is stopped (which just =
-means you can't get to the registers).
->
-> In reality, you have to assume the RTC counting source has already been s=
-et up by u-boot, or from a past reboot, so I don't do any of that select co=
-nfiguration at all.
+ drivers/rtc/rtc-m41t80.c | 63 ++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 61 insertions(+), 2 deletions(-)
 
-it would still be good to have phandles to the external clock sources as we=
-ll,
-as that describes the hardware topology.
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 58698d21c2c3..5b070aa711f9 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -20,6 +20,7 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ #include <linux/mutex.h>
+@@ -86,8 +87,61 @@ static const struct i2c_device_id m41t80_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, m41t80_id);
+ 
++static const struct of_device_id m41t80_of_match[] = {
++	{
++		.compatible = "st,m41t62",
++		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_SQ_ALT)
++	},
++	{
++		.compatible = "st,m41t65",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_WD)
++	},
++	{
++		.compatible = "st,m41t80",
++		.data = (void *)(M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t81",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t81s",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t82",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t83",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t84",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t85",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,m41t87",
++		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
++	},
++	{
++		.compatible = "st,rv4162",
++		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT)
++	},
++	{
++		.compatible = "rv4162",
++		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT)
++	},
++	{ }
++};
++MODULE_DEVICE_TABLE(of, m41t80_of_match);
++
+ struct m41t80_data {
+-	u8 features;
++	unsigned long features;
+ 	struct rtc_device *rtc;
+ };
+ 
+@@ -786,7 +840,11 @@ static int m41t80_probe(struct i2c_client *client,
+ 	if (!m41t80_data)
+ 		return -ENOMEM;
+ 
+-	m41t80_data->features = id->driver_data;
++	if (client->dev.of_node)
++		m41t80_data->features = (unsigned long)
++			of_device_get_match_data(&client->dev);
++	else
++		m41t80_data->features = id->driver_data;
+ 	i2c_set_clientdata(client, m41t80_data);
+ 
+ 	if (client->irq > 0) {
+@@ -894,6 +952,7 @@ static int m41t80_remove(struct i2c_client *client)
+ static struct i2c_driver m41t80_driver = {
+ 	.driver = {
+ 		.name = "rtc-m41t80",
++		.of_match_table = of_match_ptr(m41t80_of_match),
+ 		.pm = &m41t80_pm,
+ 	},
+ 	.probe = m41t80_probe,
+-- 
+2.9.3
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
