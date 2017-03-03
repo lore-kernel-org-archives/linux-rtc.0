@@ -1,78 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBB4V6TCQKGQEOXLGMAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZ734XCQKGQENVRKGLQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id y90si1225942pfa.6.2017.03.05.23.06.47
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:47 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id u12si69035pfd.3.2017.03.03.06.29.59
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:59 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:25 -0700
-Message-Id: <1488783873-2614-10-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 09/16] infiniband: utilize the new
- cdev_set_parent function
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 09/13] rtc: isl1208: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:20 -0300
+Message-Id: <20170303142925.17915-10-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -83,68 +26,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This replaces the suspect looking cdev.kobj.parent lines with the
-equivalent cdev_set_parent function. This is a straightforward change
-that's largely cosmetic but it does push the kobj.parent ownership
-into char_dev.c where it belongs.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
+
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- drivers/infiniband/core/user_mad.c    | 4 ++--
- drivers/infiniband/core/uverbs_main.c | 2 +-
- drivers/infiniband/hw/hfi1/device.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index aca7ff7..25071b8 100644
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -1183,7 +1183,7 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ drivers/rtc/rtc-isl1208.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index 2893785f0eba..8dd299c6a1f3 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -687,10 +687,18 @@ static const struct i2c_device_id isl1208_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, isl1208_id);
  
- 	cdev_init(&port->cdev, &umad_fops);
- 	port->cdev.owner = THIS_MODULE;
--	port->cdev.kobj.parent = &umad_dev->kobj;
-+	cdev_set_parent(&port->cdev, &umad_dev->kobj);
- 	kobject_set_name(&port->cdev.kobj, "umad%d", port->dev_num);
- 	if (cdev_add(&port->cdev, base, 1))
- 		goto err_cdev;
-@@ -1202,7 +1202,7 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
- 	base += IB_UMAD_MAX_PORTS;
- 	cdev_init(&port->sm_cdev, &umad_sm_fops);
- 	port->sm_cdev.owner = THIS_MODULE;
--	port->sm_cdev.kobj.parent = &umad_dev->kobj;
-+	cdev_set_parent(&port->sm_cdev, &umad_dev->kobj);
- 	kobject_set_name(&port->sm_cdev.kobj, "issm%d", port->dev_num);
- 	if (cdev_add(&port->sm_cdev, base, 1))
- 		goto err_sm_cdev;
-diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
-index 35c788a..f02d7b9 100644
---- a/drivers/infiniband/core/uverbs_main.c
-+++ b/drivers/infiniband/core/uverbs_main.c
-@@ -1189,7 +1189,7 @@ static void ib_uverbs_add_one(struct ib_device *device)
- 	cdev_init(&uverbs_dev->cdev, NULL);
- 	uverbs_dev->cdev.owner = THIS_MODULE;
- 	uverbs_dev->cdev.ops = device->mmap ? &uverbs_mmap_fops : &uverbs_fops;
--	uverbs_dev->cdev.kobj.parent = &uverbs_dev->kobj;
-+	cdev_set_parent(&uverbs_dev->cdev, &uverbs_dev->kobj);
- 	kobject_set_name(&uverbs_dev->cdev.kobj, "uverbs%d", uverbs_dev->devnum);
- 	if (cdev_add(&uverbs_dev->cdev, base, 1))
- 		goto err_cdev;
-diff --git a/drivers/infiniband/hw/hfi1/device.c b/drivers/infiniband/hw/hfi1/device.c
-index bf64b5a..bbb6069 100644
---- a/drivers/infiniband/hw/hfi1/device.c
-+++ b/drivers/infiniband/hw/hfi1/device.c
-@@ -69,7 +69,7 @@ int hfi1_cdev_init(int minor, const char *name,
- 
- 	cdev_init(cdev, fops);
- 	cdev->owner = THIS_MODULE;
--	cdev->kobj.parent = parent;
-+	cdev_set_parent(cdev, parent);
- 	kobject_set_name(&cdev->kobj, name);
- 
- 	ret = cdev_add(cdev, dev, 1);
++static const struct of_device_id isl1208_of_match[] = {
++	{ .compatible = "isil,isl1208" },
++	{ .compatible = "isil,isl1218" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, isl1208_of_match);
++
+ static struct i2c_driver isl1208_driver = {
+ 	.driver = {
+-		   .name = "rtc-isl1208",
+-		   },
++		.name = "rtc-isl1208",
++		.of_match_table = of_match_ptr(isl1208_of_match),
++	},
+ 	.probe = isl1208_probe,
+ 	.remove = isl1208_remove,
+ 	.id_table = isl1208_id,
 -- 
-2.1.4
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
