@@ -1,22 +1,23 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBR5U3XCQKGQEO2CBJYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB2X34XCQKGQERUIBREI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
-        by gmr-mx.google.com with ESMTPS id 2si371958pfz.1.2017.03.01.15.33.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Mar 2017 15:33:27 -0800 (PST)
-Received: by mail-pf0-x244.google.com with SMTP id b5so2438144pfa.0
-        for <rtc-linux@googlegroups.com>; Wed, 01 Mar 2017 15:33:27 -0800 (PST)
-Date: Wed, 1 Mar 2017 15:33:23 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: omap: remove incorrect __exit markups
-Message-ID: <20170301233323.GA8881@dtor-ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id y90si59769pfa.6.2017.03.03.06.30.01
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:30:01 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 10/13] rtc: s35390a: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:21 -0300
+Message-Id: <20170303142925.17915-11-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,45 +26,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Even if bus is not hot-pluggable, devices can be unbound from the
-driver via sysfs, so we should not be using __exit annotations on
-remove() methods. The only exception is drivers registered with
-platform_driver_probe(), which specifically disables sysfs bind/unbind
-attributes.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
+
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- drivers/rtc/rtc-omap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 51e52446eacb..fa856d9c5e23 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -844,7 +844,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	return ret;
- }
+ drivers/rtc/rtc-s35390a.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 5dab4665ca3b..449820eeefe8 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -58,6 +58,13 @@ static const struct i2c_device_id s35390a_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, s35390a_id);
  
--static int __exit omap_rtc_remove(struct platform_device *pdev)
-+static int omap_rtc_remove(struct platform_device *pdev)
- {
- 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
- 	u8 reg;
-@@ -964,7 +964,7 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
- 
- static struct platform_driver omap_rtc_driver = {
- 	.probe		= omap_rtc_probe,
--	.remove		= __exit_p(omap_rtc_remove),
-+	.remove		= omap_rtc_remove,
- 	.shutdown	= omap_rtc_shutdown,
++static const struct of_device_id s35390a_of_match[] = {
++	{ .compatible = "s35390a" },
++	{ .compatible = "sii,s35390a" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, s35390a_of_match);
++
+ struct s35390a {
+ 	struct i2c_client *client[8];
+ 	struct rtc_device *rtc;
+@@ -502,6 +509,7 @@ static int s35390a_remove(struct i2c_client *client)
+ static struct i2c_driver s35390a_driver = {
  	.driver		= {
- 		.name	= "omap_rtc",
+ 		.name	= "rtc-s35390a",
++		.of_match_table = of_match_ptr(s35390a_of_match),
+ 	},
+ 	.probe		= s35390a_probe,
+ 	.remove		= s35390a_remove,
 -- 
-2.12.0.rc1.440.g5b76565f74-goog
-
-
--- 
-Dmitry
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
