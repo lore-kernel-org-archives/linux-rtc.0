@@ -1,29 +1,21 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRB6NV2XDAKGQEVQ5KVRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBXH34XCQKGQE5RFRJTY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id x188si718728wmx.0.2017.03.24.10.44.25
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Mar 2017 10:44:25 -0700 (PDT)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Olof Johansson <olof@lixom.net>,
-	bleung@chromium.org
-Cc: martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id y90si59659pfa.6.2017.03.03.06.29.48
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:48 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH 5/7] mfd: cros_ec: Introduce RTC commands and
- events definitions.
-Date: Fri, 24 Mar 2017 18:44:05 +0100
-Message-Id: <20170324174407.25401-6-enric.balletbo@collabora.com>
-In-Reply-To: <20170324174407.25401-1-enric.balletbo@collabora.com>
-References: <20170324174407.25401-1-enric.balletbo@collabora.com>
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 05/13] rtc: rx8010: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:16 -0300
+Message-Id: <20170303142925.17915-6-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,51 +26,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-The EC can function as a simple RT, this patch adds the RTC related
-definitions needed by the rtc-cros-ec driver.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- include/linux/mfd/cros_ec_commands.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 84e1abb..852ce34 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -286,6 +286,9 @@ enum host_event_code {
- 	/* Hang detect logic detected a hang and warm rebooted the AP */
- 	EC_HOST_EVENT_HANG_REBOOT = 21,
- 
-+	/* EC RTC event occurred */
-+	EC_HOST_EVENT_RTC = 26,
-+
- 	/*
- 	 * The high bit of the event mask is not used as a host event code.  If
- 	 * it reads back as set, then the entire event mask should be
-@@ -794,6 +797,8 @@ enum ec_feature_code {
- 	EC_FEATURE_USB_MUX = 23,
- 	/* Motion Sensor code has an internal software FIFO */
- 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
-+	/* EC has RTC feature that can be controlled by host commands */
-+	EC_FEATURE_RTC = 27,
+ drivers/rtc/rtc-rx8010.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index d08da371912c..1ed3403ff8ac 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -59,6 +59,12 @@ static const struct i2c_device_id rx8010_id[] = {
  };
+ MODULE_DEVICE_TABLE(i2c, rx8010_id);
  
- #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-@@ -1704,6 +1709,9 @@ struct ec_response_rtc {
- #define EC_CMD_RTC_SET_VALUE 0x46
- #define EC_CMD_RTC_SET_ALARM 0x47
- 
-+/* Pass as param to SET_ALARM to clear the current alarm */
-+#define EC_RTC_ALARM_CLEAR 0
++static const struct of_device_id rx8010_of_match[] = {
++	{ .compatible = "epson,rx8010" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rx8010_of_match);
 +
- /*****************************************************************************/
- /* Port80 log access */
- 
+ struct rx8010_data {
+ 	struct i2c_client *client;
+ 	struct rtc_device *rtc;
+@@ -487,6 +493,7 @@ static int rx8010_probe(struct i2c_client *client,
+ static struct i2c_driver rx8010_driver = {
+ 	.driver = {
+ 		.name = "rtc-rx8010",
++		.of_match_table = of_match_ptr(rx8010_of_match),
+ 	},
+ 	.probe		= rx8010_probe,
+ 	.id_table	= rx8010_id,
 -- 
 2.9.3
 
