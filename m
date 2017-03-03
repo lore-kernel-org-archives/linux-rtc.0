@@ -1,24 +1,24 @@
-Return-Path: <rtc-linux+bncBC5NTO4QW4NBBUOBTHDAKGQEOIXLNFQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBZH34XCQKGQEUWNWNUY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com. [67.231.149.25])
-        by gmr-mx.google.com with ESMTPS id u12si3060562pfd.3.2017.03.13.02.05.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Mar 2017 02:05:21 -0700 (PDT)
-Date: Mon, 13 Mar 2017 09:06:21 +0000
-From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-To: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        <patches@opensource.wolfsonmicro.com>, <rtc-linux@googlegroups.com>
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-wm8350: Remove unused to_wm8350_from_rtc_dev
-Message-ID: <20170313090621.GD6986@localhost.localdomain>
-References: <20170311064213.30752-1-iwamatsu@nigauri.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170311064213.30752-1-iwamatsu@nigauri.org>
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id h79si67666pfh.2.2017.03.03.06.29.56
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:56 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 08/13] rtc: ds1374: Set .of_match_table to OF
+ device ID table
+Date: Fri,  3 Mar 2017 11:29:19 -0300
+Message-Id: <20170303142925.17915-9-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,17 +27,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sat, Mar 11, 2017 at 03:42:13PM +0900, Nobuhiro Iwamatsu wrote:
-> The to_wm8350_from_rtc_dev macro is not used by anything in the
-> rtc-wm8350 driver.
-> 
-> Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-> ---
+The driver has a OF device ID table but the struct i2c_driver
+.of_match_table field is not set.
 
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-Thanks,
-Charles
+ drivers/rtc/rtc-ds1374.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 52429f0a57cc..4cd115e93223 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -704,6 +704,7 @@ static SIMPLE_DEV_PM_OPS(ds1374_pm, ds1374_suspend, ds1374_resume);
+ static struct i2c_driver ds1374_driver = {
+ 	.driver = {
+ 		.name = "rtc-ds1374",
++		.of_match_table = of_match_ptr(ds1374_of_match),
+ 		.pm = &ds1374_pm,
+ 	},
+ 	.probe = ds1374_probe,
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
