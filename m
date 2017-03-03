@@ -1,47 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBRO7WDDAKGQE72MJILI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBVH34XCQKGQE7X73KBI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id g82si1531916pfb.5.2017.03.17.11.49.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:41 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id c123si62987pfa.4.2017.03.03.06.29.40
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:40 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:22 -0600
-Message-Id: <1489776503-3151-16-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 15/16] scsi: utilize new cdev_device_add helper function
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 02/13] rtc: rv3029: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:13 -0300
+Message-Id: <20170303142925.17915-3-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -52,151 +26,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This driver did not set kobj.parent so it likely suffered from
-a potential use after free race if the user unregistered the
-device while it was in use.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-This was not so straightforward a conversion but I think this patch
-cleans up its probe's error path significantly.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-This patch adds device_initialize, which is required for
-cdev_device_add. Then it switches to put_device instead of kfree as
-recommended by device_initialize's documentation. This removes a lot
-from the error path which was already in __remove.
-A couple things needed to be re-ordered to be entirely correct, though.
-ida_remove is also moved out of __remove and into unregister to
-simplify things and follow the pattern other devices are using.
-
-This also drop an extra unnecessary get_device/put_device in the code.
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- drivers/scsi/osd/osd_uld.c | 56 +++++++++++++++++-----------------------------
- 1 file changed, 20 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/scsi/osd/osd_uld.c b/drivers/scsi/osd/osd_uld.c
-index e0ce5d2..4101c31 100644
---- a/drivers/scsi/osd/osd_uld.c
-+++ b/drivers/scsi/osd/osd_uld.c
-@@ -400,9 +400,6 @@ static void __remove(struct device *dev)
+ drivers/rtc/rtc-rv3029c2.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index 1f9f7b4bf3fb..85fa1da03762 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -875,9 +875,18 @@ static struct i2c_device_id rv3029_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rv3029_id);
  
- 	kfree(oud->odi.osdname);
- 
--	if (oud->cdev.owner)
--		cdev_del(&oud->cdev);
--
- 	osd_dev_fini(&oud->od);
- 	scsi_device_put(scsi_device);
- 
-@@ -411,7 +408,6 @@ static void __remove(struct device *dev)
- 
- 	if (oud->disk)
- 		put_disk(oud->disk);
--	ida_remove(&osd_minor_ida, oud->minor);
- 
- 	kfree(oud);
- }
-@@ -446,8 +442,20 @@ static int osd_probe(struct device *dev)
- 	if (NULL == oud)
- 		goto err_retract_minor;
- 
-+	/* class device member */
-+	device_initialize(&oud->class_dev);
- 	dev_set_drvdata(dev, oud);
- 	oud->minor = minor;
-+	oud->class_dev.devt = MKDEV(SCSI_OSD_MAJOR, oud->minor);
-+	oud->class_dev.class = &osd_uld_class;
-+	oud->class_dev.parent = dev;
-+	oud->class_dev.release = __remove;
++static const struct of_device_id rv3029_of_match[] = {
++	{ .compatible = "rv3029" },
++	{ .compatible = "rv3029c2" },
++	{ .compatible = "mc,rv3029c2" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rv3029_of_match);
 +
-+	/* hold one more reference to the scsi_device that will get released
-+	 * in __release, in case a logout is happening while fs is mounted
-+	 */
-+	scsi_device_get(scsi_device);
-+	osd_dev_init(&oud->od, scsi_device);
- 
- 	/* allocate a disk and set it up */
- 	/* FIXME: do we need this since sg has already done that */
-@@ -461,59 +469,34 @@ static int osd_probe(struct device *dev)
- 	sprintf(disk->disk_name, "osd%d", oud->minor);
- 	oud->disk = disk;
- 
--	/* hold one more reference to the scsi_device that will get released
--	 * in __release, in case a logout is happening while fs is mounted
--	 */
--	scsi_device_get(scsi_device);
--	osd_dev_init(&oud->od, scsi_device);
--
- 	/* Detect the OSD Version */
- 	error = __detect_osd(oud);
- 	if (error) {
- 		OSD_ERR("osd detection failed, non-compatible OSD device\n");
--		goto err_put_disk;
-+		goto err_free_osd;
- 	}
- 
- 	/* init the char-device for communication with user-mode */
- 	cdev_init(&oud->cdev, &osd_fops);
- 	oud->cdev.owner = THIS_MODULE;
--	error = cdev_add(&oud->cdev,
--			 MKDEV(SCSI_OSD_MAJOR, oud->minor), 1);
--	if (error) {
--		OSD_ERR("cdev_add failed\n");
--		goto err_put_disk;
--	}
- 
--	/* class device member */
--	oud->class_dev.devt = oud->cdev.dev;
--	oud->class_dev.class = &osd_uld_class;
--	oud->class_dev.parent = dev;
--	oud->class_dev.release = __remove;
- 	error = dev_set_name(&oud->class_dev, "%s", disk->disk_name);
- 	if (error) {
- 		OSD_ERR("dev_set_name failed => %d\n", error);
--		goto err_put_cdev;
-+		goto err_free_osd;
- 	}
- 
--	error = device_register(&oud->class_dev);
-+	error = cdev_device_add(&oud->cdev, &oud->class_dev);
- 	if (error) {
- 		OSD_ERR("device_register failed => %d\n", error);
--		goto err_put_cdev;
-+		goto err_free_osd;
- 	}
- 
--	get_device(&oud->class_dev);
--
- 	OSD_INFO("osd_probe %s\n", disk->disk_name);
- 	return 0;
- 
--err_put_cdev:
--	cdev_del(&oud->cdev);
--err_put_disk:
--	scsi_device_put(scsi_device);
--	put_disk(disk);
- err_free_osd:
--	dev_set_drvdata(dev, NULL);
--	kfree(oud);
-+	put_device(&oud->class_dev);
- err_retract_minor:
- 	ida_remove(&osd_minor_ida, minor);
- 	return error;
-@@ -530,9 +513,10 @@ static int osd_remove(struct device *dev)
- 			scsi_device);
- 	}
- 
--	device_unregister(&oud->class_dev);
--
-+	cdev_device_del(&oud->cdev, &oud->class_dev);
-+	ida_remove(&osd_minor_ida, oud->minor);
- 	put_device(&oud->class_dev);
-+
- 	return 0;
- }
- 
+ static struct i2c_driver rv3029_driver = {
+ 	.driver = {
+ 		.name = "rtc-rv3029c2",
++		.of_match_table = of_match_ptr(rv3029_of_match),
+ 	},
+ 	.probe		= rv3029_i2c_probe,
+ 	.id_table	= rv3029_id,
 -- 
-2.1.4
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
