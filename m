@@ -1,25 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBFOG43CQKGQEMT4G3JQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBD47PQ46SILBBUED43CQKGQEEYCNJ4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id h79si155483pfh.2.2017.03.03.09.08.36
-        for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 09:08:36 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 00/13] rtc: Add OF device table to I2C drivers
- that are missing it
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
- <20170303150134.qacfd7ccemqxwq3p@piout.net>
- <abb5cd41-b904-1512-7520-e4a89f26d4b3@osg.samsung.com>
- <20170303160400.2n6vwbypxvt62nl4@piout.net>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>
-Message-ID: <84e4a5d9-0db0-6614-f602-14ed6daf5da0@osg.samsung.com>
-Date: Fri, 3 Mar 2017 14:08:24 -0300
-MIME-Version: 1.0
-In-Reply-To: <20170303160400.2n6vwbypxvt62nl4@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
+        by gmr-mx.google.com with ESMTPS id h198si245992wmg.1.2017.03.03.06.46.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 03 Mar 2017 06:46:38 -0800 (PST)
+Received: by mail-wm0-x243.google.com with SMTP id n11so3498938wma.0
+        for <rtc-linux@googlegroups.com>; Fri, 03 Mar 2017 06:46:38 -0800 (PST)
 Reply-To: rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] RTC used as a module
+References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
+ <20170223121426.i24ssrlwitrvb32h@piout.net>
+ <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ John Stultz <john.stultz@linaro.org>
+Cc: rtc-linux@googlegroups.com, Michal Simek <michal.simek@xilinx.com>
+From: Michal Simek <monstr@monstr.eu>
+Message-ID: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
+Date: Fri, 3 Mar 2017 15:46:36 +0100
+MIME-Version: 1.0
+In-Reply-To: <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,100 +31,191 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj
+Content-Type: multipart/mixed; boundary="dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0";
+ protected-headers="v1"
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ John Stultz <john.stultz@linaro.org>
+Cc: rtc-linux@googlegroups.com, Michal Simek <michal.simek@xilinx.com>
+Message-ID: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
+Subject: Re: [rtc-linux] RTC used as a module
+References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
+ <20170223121426.i24ssrlwitrvb32h@piout.net>
+ <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
+In-Reply-To: <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
 
-Sorry for the long email...
+--dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0
+Content-Type: text/plain; charset=UTF-8
 
-On 03/03/2017 01:04 PM, Alexandre Belloni wrote:
-> On 03/03/2017 at 12:27:23 -0300, Javier Martinez Canillas wrote:
->> On 03/03/2017 12:01 PM, Alexandre Belloni wrote:
->>> On 03/03/2017 at 11:29:11 -0300, Javier Martinez Canillas wrote:
->>>> This series add OF device ID tables to RTC I2C drivers whose devices are
->>>> either used in Device Tree source files or are listed in binding docs as
->>>> a compatible string.
->>>>
->>>> That's done because the plan is to change the I2C core to report proper OF
->>>> modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
->>>> a device was registered via DT or using the legacy platform data.
->>>>
+Hi Alexandre,
+
+On 3.3.2017 10:41, Michal Simek wrote:
+> Hi Alexandre,
+> 
+> On 23.2.2017 13:14, Alexandre Belloni wrote:
+>> Hi Michal,
+>>
+>> I've been thinking about this issue (and meaning to actually test).
+>>
+>> On 08/12/2016 at 14:02:36 +0100, Michal Simek wrote:
+>>> Hi guys,
 >>>
->>> Doesn't that break the DT ABI for all i2c devices? A lot of people are
->>> getting the vendor wrong in the compatible string and because the i2c
->>> core doesn't care, the driver is still probed. Dropping that will break
->>> all those DTBs.
->>> Or will that only affect module autoload?
+>>> I am trying to find out reason for this behavior. If rtc-zynqmp is used
+>>> as module for the first time it is correctly probed based on aliases
+>>> setting. (rtc5 for log below). But then driver is removed and add again
+>>> rtc5 is still not freed. rtc_device_release() is not called that's why
+>>> rtc->id can't be used again.
+>>>
+>>> sh-4.3# modprobe rtc-zynqmp
+>>> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
+>>> ffa60000.rtc as rtc5
+>>> sh-4.3# rmmod rtc-zynqmp
+>>> sh-4.3# modprobe rtc-zynqmp
+>>> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
+>>> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
+>>> ffa60000.rtc as rtc0
+>>>
+>>>
+>>> I didn't try different rtc drivers but it looks like that someone keeps
+>>> reference that's why release function is not called.
+>>>
+>>> Can someone check this with different RTC module?
+>>
+>> I'll do that soon.
+> 
+> Have you tried it?
+> 
+>>
+>>> Or is this expected behavior?
 >>>
 >>
->> The change will only be for module autoload. The I2C core will still attempt
->> to match the I2C device ID table as a fallback if fails to match the OF one.
->> So there's no change in the match logic for drivers that do the wrong thing.
+>> I don't think so :)
 >>
+>> Can you clarify a few things:
+>>  - is this the only rtc with a driver on your system ?
 > 
-> I'm probably not seeing the big picture here but then I don't understand
-
-The big picture is to make the I2C subsystem to be consistent with other
-subsystems.
-
-Take the platform bus as an example, platform drivers define an OF ID table
-if the platform devices are going to be registered via DT and a platform ID
-table if the driver supports legacy platform device registration.
-
-But that's not the case for I2C, either only a I2C device ID table is defined
-(and the vendor prefix not used which lead to the current situation of wrong
-DT's) or a OF device ID table is used to match but still a I2C device table
-with duplicated entries is needed only to make the driver module to autoload.
-
-> why you are reworking the id->driver_data handling and using
-> of_device_get_match_data instead.
->
-
-I meant that the proposed change to the I2C core is only for module autoload.
-The driver changes are for both match and autoload (once I2C core is fixed).
-
-So the change to use the of_device_id .data instead of the i2c_device_id
-.driver_data is to use the correct entry in case the I2C core matches using
-the OF table instead of the I2C table. Another option is to do the opposite
-of what's needed currently, that is to have an I2C table to match and only
-use the OF table to populate the OF aliases in the module (i.e: not setting
-the .of_match_table field).
-
-But I think that if the device is registered via OF, then the correct thing
-to do is to match using the OF table and the OF aliases for module autoload.
- 
-> If this is related to b8a1a4cd5a98a2adf8dfd6902cd98e57d910ee12, that is
-> a completely different issue (and that is probably the kind of changes
-> that should be notified to maintainers).
->
-
-It's related in some way. There were two reasons why a I2C driver required a
-I2C table:
-
-1) Because their probe function received a struct i2c_device_id as argument.
-
-2) Because the reported MODALIAS is always i2c:<foo> regardless of how the
-   device was registered (legacy platform dev or DT).
-
-Lee's commit that you mention solves (1) and I'm trying to solve (2).
-
->> If someone is using a wrong vendor prefix and the DT can't be changed, then
->> an entry in the OF device ID table has to be added for "wrong_vendor,device"
->> so the MODALIAS uevent can be "of:N*T*wrong_vendor,device".
->>
+> yes only one.
 > 
-> And then, we end up with a crap load of useless strings that are matched
-> against at boottime...
-> I'm saying that because all the rv3029 compatible strings are wrong.
+>>  - is it selected as the RTC_SYSTOHC_DEVICE or RTC_HCTOSYS_DEVICE. I've
+>>    checked the code and I don't think this is the issue but it is worth
+>> testing.
 > 
+> This is the setting.
+> 
+> CONFIG_RTC_HCTOSYS=y
+> CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
+> CONFIG_RTC_SYSTOHC=y
+> CONFIG_RTC_SYSTOHC_DEVICE="rtc0"
+> 
+> What I see is that rtc_device_release is not called which is that
+> function which contain ida_simple_remove.
+> 
+> I have alias for rtc0 (rtc0 = &rtc;)
+> And here is a log with debug. As you see when driver is removed for the
+> first time rtc_device_release is not called. When this is done for the
+> second time rtc_device_release is called properly and the same device
+> allocated via ida is used.
+> 
+> root@linaro-alip:~# dmesg | grep rtc
+> [    3.372715] [drm] Cannot find any crtc or sizes - going 1024x768
+> [    3.422099] hctosys: unable to open rtc device (rtc0)
+> [    6.578930] rtc_zynqmp ffa60000.rtc: rtc core: registered
+> ffa60000.rtc as rtc0
+> root@linaro-alip:~#
+> root@linaro-alip:~# lsmod
+> Module                  Size  Used by
+> rtc_zynqmp             16384  0
+> uio_pdrv_genirq        16384  0
+> root@linaro-alip:~# rmmod rtc_zynqmp
+> [   26.805172] rtc_core: devm_rtc_device_unregister
+> [   26.809794] rtc_core: devm_rtc_device_release
+> [   26.814129] rtc_core: rtc_device_unregister
+> root@linaro-alip:~# modprobe rtc_zynqmp
+> [   35.879655] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
+> [   35.886002] rtc_zynqmp ffa60000.rtc: rtc core: registered
+> ffa60000.rtc as rtc1
+> root@linaro-alip:~# rmmod rtc_zynqmp
+> [  122.140487] rtc_core: devm_rtc_device_unregister
+> [  122.145110] rtc_core: devm_rtc_device_release
+> [  122.149443] rtc_core: rtc_device_unregister
+> [  122.153770] rtc_core: rtc_device_release
+> root@linaro-alip:~# modprobe rtc_zynqmp
+> [  123.646002] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
+> [  123.652249] rtc_zynqmp ffa60000.rtc: rtc core: registered
+> ffa60000.rtc as rtc1
+> root@linaro-alip:~# rmmod rtc_zynqmp
+> [  125.876188] rtc_core: devm_rtc_device_release
+> [  125.880554] rtc_core: rtc_device_unregister
+> [  125.885163] rtc_core: rtc_device_release
+> root@linaro-alip:~#
+> 
+> I have also done experiment to setup rtc alias to rtc1 and this ID is
+> used only once. It looks like something is not released properly.
+> 
+> This is out of tree driver but I can't see any specific code which could
+> improve behavior.
+> I have tested i2c rtc mcp79410 and there is not a visible problem but it
+> is not MMIO.
 
-Yeah... that's the joy of the DT backward compatibility. The reason why added
-those (wrong) compatibles for rv3029 is because there are mainline users that
-are either not using a vendor or using a wrong one (mc instead of microchip).
+This is the function which is making the difference.
 
-Best regards,
+It was added by John Stultz:
+"timers: Introduce in-kernel alarm-timer interface"
+(sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
+
+Probe function has device_init_wakeup(&pdev->dev, 1);
+That's why reference is taken (get_device() below)
+
+static int alarmtimer_rtc_add_device(struct device *dev,
+				struct class_interface *class_intf)
+{
+	unsigned long flags;
+	struct rtc_device *rtc = to_rtc_device(dev);
+
+	if (rtcdev)
+		return -EBUSY;
+
+	pr_info("%s\n", __func__);
+
+	if (!rtc->ops->set_alarm)
+		return -1;
+
+	pr_info("%s\n", __func__);
+
+	if (!device_may_wakeup(rtc->dev.parent))
+		return -1;
+
+	spin_lock_irqsave(&rtcdev_lock, flags);
+	if (!rtcdev) {
+		rtcdev = rtc;
+		/* hold a reference so it doesn't go away */
+		get_device(dev);
+	}
+	spin_unlock_irqrestore(&rtcdev_lock, flags);
+	return 0;
+}
+
+And in remove function device_init_wakeup(&pdev->dev, 0);
+But because there is still a reference rtc_device_release() is not
+called and ida is not freed.
+
+Generic question which I think should be asked if in this situation
+driver should be modular or not.
+If driver can be modular then somewhere should be put_device().
+
+Thanks,
+Michal
+
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -132,3 +226,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0--
+
+--DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iEYEARECAAYFAli5gcwACgkQykllyylKDCGz9wCeOqJuOPtVxe3tDn5IuNS1RZzZ
+Q4MAnAhXAL2hlFtAsiIp3OS2G6khWvNM
+=eaRi
+-----END PGP SIGNATURE-----
+
+--DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj--
