@@ -1,32 +1,23 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBVVD5TDAKGQEHLA7RMI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB3H34XCQKGQE3WHXNIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-it0-x232.google.com (mail-it0-x232.google.com. [2607:f8b0:4001:c0b::232])
-        by gmr-mx.google.com with ESMTPS id a17si822323itd.1.2017.03.28.18.45.58
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Mar 2017 18:45:58 -0700 (PDT)
-Received: by mail-it0-x232.google.com with SMTP id y18so136119566itc.0
-        for <rtc-linux@googlegroups.com>; Tue, 28 Mar 2017 18:45:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1490539314-9681-3-git-send-email-leo.yan@linaro.org>
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org> <1490539314-9681-3-git-send-email-leo.yan@linaro.org>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 29 Mar 2017 03:45:57 +0200
-Message-ID: <CACRpkdYHJinMhgUQLe3vf6P8hj3o_3ASi8pT+dtM5JtrE5ccJg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/5] drivers/rtc/rtc-pl030.c: Convert to use devm_*()
-To: Leo Yan <leo.yan@linaro.org>
-Cc: Russell King <linux@armlinux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id g82si60554pfb.5.2017.03.03.06.30.04
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:30:04 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Baptiste Reynal <b.reynal@virtualopensystems.com>,
-	Alex Williamson <alex.williamson@redhat.com>, Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>, Linux Input <linux-input@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, kvm@vger.kernel.org,
-	"alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
-Content-Type: text/plain; charset=UTF-8
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 11/13] rtc: rx8581: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:22 -0300
+Message-Id: <20170303142925.17915-12-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -35,18 +26,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Mar 26, 2017 at 4:41 PM, Leo Yan <leo.yan@linaro.org> wrote:
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-> Convert driver to use devm_*() APIs so rely on driver model core layer
-> to manage resources. This eliminates error path boilerplate and makes
-> code neat.
->
-> Signed-off-by: Leo Yan <leo.yan@linaro.org>
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-Yours,
-Linus Walleij
+ drivers/rtc/rtc-rx8581.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
+index 0c362a3d1f17..9998d7937688 100644
+--- a/drivers/rtc/rtc-rx8581.c
++++ b/drivers/rtc/rtc-rx8581.c
+@@ -308,9 +308,16 @@ static const struct i2c_device_id rx8581_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rx8581_id);
+ 
++static const struct of_device_id rx8581_of_match[] = {
++	{ .compatible = "epson,rx8581" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rx8581_of_match);
++
+ static struct i2c_driver rx8581_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-rx8581",
++		.of_match_table = of_match_ptr(rx8581_of_match),
+ 	},
+ 	.probe		= rx8581_probe,
+ 	.id_table	= rx8581_id,
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
