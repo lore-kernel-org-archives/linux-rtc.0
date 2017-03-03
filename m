@@ -1,28 +1,23 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBEVXV3DAKGQEMDRNKZA@googlegroups.com>
-Received: from mail-it0-x243.google.com (mail-it0-x243.google.com. [2607:f8b0:4001:c0b::243])
-        by gmr-mx.google.com with ESMTPS id 125si476677ite.0.2017.03.17.01.17.22
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 01:17:22 -0700 (PDT)
-Received: by mail-it0-x243.google.com with SMTP id r141so2684416ita.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 01:17:22 -0700 (PDT)
+Return-Path: <rtc-linux+bncBAABBX734XCQKGQEIPMFZIA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20170316175112.27913-3-chris.brandt@renesas.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com> <20170316175112.27913-3-chris.brandt@renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 17 Mar 2017 09:17:20 +0100
-Message-ID: <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/5] rtc: Add rtc-sh
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
+        by gmr-mx.google.com with ESMTP id c123si63080pfa.4.2017.03.03.06.29.51
+        for <rtc-linux@googlegroups.com>;
+        Fri, 03 Mar 2017 06:29:51 -0800 (PST)
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	Alessandro Zummo <a.zummo@towertech.it>
+Subject: [rtc-linux] [PATCH 06/13] rtc: ds3232: Add OF device ID table
+Date: Fri,  3 Mar 2017 11:29:17 -0300
+Message-Id: <20170303142925.17915-7-javier@osg.samsung.com>
+In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+References: <20170303142925.17915-1-javier@osg.samsung.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,56 +26,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Chris,
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> rtc-sh is a RTC for SuperH and RZ/A SoCs.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-an RTC?
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
-> @@ -0,0 +1,19 @@
-> +* Real Time Clock for Renesas SH and ARM SoCs
-> +
-> +Required properties:
-> +- compatible: Should be "renesas,r7s72100-rtc" or "renesas,sh-rtc" as a
+ drivers/rtc/rtc-ds3232.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-s/or/and/
-
-> +  fallback.
-> +- reg: physical base address and length of memory mapped region.
-> +- interrupts: 3 interrupts for alarm, period, and carry.
-
-If there's a need for multiple interrupts, it's always a good idea to use
-interrupt-names. The datasheet calls them "arm", "prd", and "cup", but
-I wouldn't object against "alarm", "period", and "carry" ;-)
-
-> +- clocks: the clock source for the RTC controller.
-
-The datasheet mentions 3 possible clock sources?
-
-> +Example:
-> +rtc: rtc@fcff1000 {
-> +       compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
-> +       reg = <0xfcff1000 0x2e>;
-> +       interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
-> +                     GIC_SPI 277 IRQ_TYPE_EDGE_RISING
-> +                     GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
-> +       clocks = <&mstp6_clks R7S72100_CLK_RTC>;
-> +       power-domains = <&cpg_clocks>;
-> +};
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 9bb39a06b994..deff431a37c4 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -442,9 +442,16 @@ static const struct i2c_device_id ds3232_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, ds3232_id);
+ 
++static const struct of_device_id ds3232_of_match[] = {
++	{ .compatible = "dallas,ds3232" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ds3232_of_match);
++
+ static struct i2c_driver ds3232_driver = {
+ 	.driver = {
+ 		.name = "rtc-ds3232",
++		.of_match_table = of_match_ptr(ds3232_of_match),
+ 		.pm	= &ds3232_pm_ops,
+ 	},
+ 	.probe = ds3232_i2c_probe,
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
