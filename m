@@ -1,28 +1,70 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBNFBVPDAKGQE5AQXNSA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB3E567CQKGQECYSPRTY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
-        by gmr-mx.google.com with ESMTP id g82si1022444pfb.5.2017.03.16.10.51.47
-        for <rtc-linux@googlegroups.com>;
-        Thu, 16 Mar 2017 10:51:48 -0700 (PDT)
-From: Chris Brandt <chris.brandt@renesas.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mga02.intel.com (mga02.intel.com. [134.134.136.20])
+        by gmr-mx.google.com with ESMTPS id g82si253073pfb.5.2017.03.06.13.04.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Mar 2017 13:04:44 -0800 (PST)
+Date: Mon, 6 Mar 2017 23:04:26 +0200
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	Chris Brandt <chris.brandt@renesas.com>
-Subject: [rtc-linux] [PATCH 1/5] rtc: rtc-sh: add support for rza series
-Date: Thu, 16 Mar 2017 13:51:08 -0400
-Message-Id: <20170316175112.27913-2-chris.brandt@renesas.com>
-In-Reply-To: <20170316175112.27913-1-chris.brandt@renesas.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
-Reply-To: rtc-linux@googlegroups.com
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 06/16] tpm-chip: utilize new
+ cdev_device_add helper function
+Message-ID: <20170306210426.qeftgujergryutie@intel.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-7-git-send-email-logang@deltatee.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1488783873-2614-7-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,100 +73,81 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This same RTC is used in RZ/A series MPUs, therefore with some slight
-changes, this driver can be reused. Additionally, since ARM architectures
-require Device Tree configurations, device tree support has been added.
+On Mon, Mar 06, 2017 at 12:04:22AM -0700, Logan Gunthorpe wrote:
+> Replace the open coded registration of the cdev and dev with the
+> new device_add_cdev() helper. The helper replaces a common pattern by
+> taking the proper reference against the parent device and adding both
+> the cdev and the device.
+> 
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> Reviewed-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+> ---
+>  drivers/char/tpm/tpm-chip.c | 19 +++----------------
+>  1 file changed, 3 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> index c406343..935f0e9 100644
+> --- a/drivers/char/tpm/tpm-chip.c
+> +++ b/drivers/char/tpm/tpm-chip.c
+> @@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+>  
+>  	cdev_init(&chip->cdev, &tpm_fops);
+>  	chip->cdev.owner = THIS_MODULE;
+> -	chip->cdev.kobj.parent = &chip->dev.kobj;
+>  
+>  	return chip;
+>  
+> @@ -230,27 +229,16 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+>  {
+>  	int rc;
+>  
+> -	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
+> +	rc = cdev_device_add(&chip->cdev, &chip->dev);
+>  	if (rc) {
+>  		dev_err(&chip->dev,
+> -			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
+> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
+>  			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+>  			MINOR(chip->dev.devt), rc);
+>  
+>  		return rc;
+>  	}
+>  
+> -	rc = device_add(&chip->dev);
+> -	if (rc) {
+> -		dev_err(&chip->dev,
+> -			"unable to device_register() %s, major %d, minor %d, err=%d\n",
+> -			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+> -			MINOR(chip->dev.devt), rc);
+> -
+> -		cdev_del(&chip->cdev);
+> -		return rc;
+> -	}
+> -
+>  	/* Make the chip available. */
+>  	mutex_lock(&idr_lock);
+>  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
+> @@ -261,8 +249,7 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+>  
+>  static void tpm_del_char_device(struct tpm_chip *chip)
+>  {
+> -	cdev_del(&chip->cdev);
+> -	device_del(&chip->dev);
+> +	cdev_device_del(&chip->cdev, &chip->dev);
+>  
+>  	/* Make the chip unavailable. */
+>  	mutex_lock(&idr_lock);
+> -- 
+> 2.1.4
+> 
 
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
----
- drivers/rtc/Kconfig  |  4 ++--
- drivers/rtc/rtc-sh.c | 20 ++++++++++++++++++++
- 2 files changed, 22 insertions(+), 2 deletions(-)
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index ee1b0e9..77d1495 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1303,10 +1303,10 @@ config RTC_DRV_SA1100
- 
- config RTC_DRV_SH
- 	tristate "SuperH On-Chip RTC"
--	depends on SUPERH && HAVE_CLK
-+	depends on (SUPERH || ARCH_RENESAS) && HAVE_CLK
- 	help
- 	  Say Y here to enable support for the on-chip RTC found in
--	  most SuperH processors.
-+	  most SuperH processors. This RTC is also found in RZ/A SoCs.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rtc-sh.
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index c626e43..2ef4ac7 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -27,7 +27,15 @@
- #include <linux/log2.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
-+#ifdef CONFIG_SUPERH
- #include <asm/rtc.h>
-+#else
-+/* Default values for RZ/A RTC */
-+#define rtc_reg_size		sizeof(u16)
-+#define RTC_BIT_INVERTED        0	/* no chip bugs */
-+#define RTC_CAP_4_DIGIT_YEAR    (1 << 0)
-+#define RTC_DEF_CAPABILITIES    RTC_CAP_4_DIGIT_YEAR
-+#endif
- 
- #define DRV_NAME	"sh-rtc"
- 
-@@ -570,6 +578,8 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
- 	rtc->alarm_irq = platform_get_irq(pdev, 2);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (res == NULL)
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (unlikely(res == NULL)) {
- 		dev_err(&pdev->dev, "No IO resource\n");
- 		return -ENOENT;
-@@ -608,6 +618,8 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
- 	clk_enable(rtc->clk);
- 
- 	rtc->capabilities = RTC_DEF_CAPABILITIES;
-+
-+#ifdef CONFIG_SUPERH
- 	if (dev_get_platdata(&pdev->dev)) {
- 		struct sh_rtc_platform_info *pinfo =
- 			dev_get_platdata(&pdev->dev);
-@@ -618,6 +630,7 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
- 		 */
- 		rtc->capabilities |= pinfo->capabilities;
- 	}
-+#endif
- 
- 	if (rtc->carry_irq <= 0) {
- 		/* register shared periodic/carry/alarm irq */
-@@ -738,10 +751,17 @@ static int sh_rtc_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(sh_rtc_pm_ops, sh_rtc_suspend, sh_rtc_resume);
- 
-+static const struct of_device_id sh_rtc_of_match[] = {
-+	{ .compatible = "renesas,sh-rtc", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, sh_rtc_of_match);
-+
- static struct platform_driver sh_rtc_platform_driver = {
- 	.driver		= {
- 		.name	= DRV_NAME,
- 		.pm	= &sh_rtc_pm_ops,
-+		.of_match_table = sh_rtc_of_match,
- 	},
- 	.remove		= __exit_p(sh_rtc_remove),
- };
--- 
-2.10.1
+I cannot test this at this point as security tree does not include
+the commit that is dependent on this. I'm also wondering if this
+commit is even going through my tree to upstream?
 
+/Jarkko
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
