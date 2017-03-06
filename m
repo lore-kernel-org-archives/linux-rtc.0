@@ -1,30 +1,80 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBW4Z5TDAKGQEQMQZN2Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBLUV6TCQKGQEB66F6LY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f68.google.com (mail-oi0-f68.google.com. [209.85.218.68])
-        by gmr-mx.google.com with ESMTPS id 191si629125itj.0.2017.03.28.18.24.43
+MIME-Version: 1.0
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id 207si1235450pfu.8.2017.03.05.23.07.25
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Mar 2017 18:24:43 -0700 (PDT)
-Received: by mail-oi0-f68.google.com with SMTP id b187so125830oif.3
-        for <rtc-linux@googlegroups.com>; Tue, 28 Mar 2017 18:24:42 -0700 (PDT)
-Date: Tue, 28 Mar 2017 20:24:41 -0500
-From: Rob Herring <robh@kernel.org>
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Sun, 05 Mar 2017 23:07:26 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v2 2/7] rtc: Add rtc-sh
-Message-ID: <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
- <20170322142754.30888-3-chris.brandt@renesas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170322142754.30888-3-chris.brandt@renesas.com>
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon,  6 Mar 2017 00:04:19 -0700
+Message-Id: <1488783873-2614-4-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v3 03/16] device-dax: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,62 +83,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 22, 2017 at 10:27:49AM -0400, Chris Brandt wrote:
-> rtc-sh is an RTC for SuperH and RZ/A SoCs.
+Replace the open coded registration of the cdev and dev with the
+new device_add_cdev() helper. The helper replaces a common pattern by
+taking the proper reference against the parent device and adding both
+the cdev and the device.
 
-Please work on the subject. It's a bit brief. "dt-bindings: rtc: " is 
-the preferred prefix.
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/dax/dax.c | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
-> 
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-> ---
-> v2:
-> * added interrupt-names and clock-names
-> * clocks now include counting sources
-> * changed 'is a RTC' to 'is an RTC' in commit message
-> ---
->  Documentation/devicetree/bindings/rtc/rtc-sh.txt | 29 ++++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-sh.txt b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
-> new file mode 100644
-> index 0000000..adbb8af
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
-> @@ -0,0 +1,29 @@
-> +* Real Time Clock for Renesas SH and ARM SoCs
-> +
-> +Required properties:
-> +- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
-> +  fallback.
-> +- reg: physical base address and length of memory mapped region.
-> +- interrupts: 3 interrupts for alarm, period, and carry.
-> +- interrupt-names: The interrupts should be labeled as "alarm", "period", and
-> +  "carry".
-> +- clocks: The functional clock source for the RTC controller must be listed
-> +  first (if exists). Additionally, potential clock counting sources are to be
-> +  listed.
-> +- clock-names: The functional clock must be labeled as "fck". Other clocks
-> +  may be named in accordance to the SoC hardware manuals.
-> +
-> +
-> +Example:
-> +rtc: rtc@fcff1000 {
-> +	compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
-> +	reg = <0xfcff1000 0x2e>;
-> +	interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
-> +		      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
-> +		      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
-> +	interrupt-names = "alarm", "period", "carry";
-> +	clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
-> +		 <&rtc_x3_clk>, <&extal_clk>;
-> +	clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
-> +	power-domains = <&cpg_clocks>;
-
-Not documented.
-
-Rob
+diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+index a5ed59a..e5f8555 100644
+--- a/drivers/dax/dax.c
++++ b/drivers/dax/dax.c
+@@ -677,8 +677,6 @@ static void dax_dev_release(struct device *dev)
+ 
+ static void kill_dax_dev(struct dax_dev *dax_dev)
+ {
+-	struct cdev *cdev = &dax_dev->cdev;
+-
+ 	/*
+ 	 * Note, rcu is not protecting the liveness of dax_dev, rcu is
+ 	 * ensuring that any fault handlers that might have seen
+@@ -689,7 +687,6 @@ static void kill_dax_dev(struct dax_dev *dax_dev)
+ 	dax_dev->alive = false;
+ 	synchronize_rcu();
+ 	unmap_mapping_range(dax_dev->inode->i_mapping, 0, 0, 1);
+-	cdev_del(cdev);
+ }
+ 
+ static void unregister_dax_dev(void *dev)
+@@ -699,7 +696,8 @@ static void unregister_dax_dev(void *dev)
+ 	dev_dbg(dev, "%s\n", __func__);
+ 
+ 	kill_dax_dev(dax_dev);
+-	device_unregister(dev);
++	cdev_device_del(&dax_dev->cdev, dev);
++	put_device(dev);
+ }
+ 
+ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+@@ -750,18 +748,13 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 		goto err_inode;
+ 	}
+ 
+-	/* device_initialize() so cdev can reference kobj parent */
++	/* from here on we're committed to teardown via dax_dev_release() */
+ 	device_initialize(dev);
+ 
+ 	cdev = &dax_dev->cdev;
+ 	cdev_init(cdev, &dax_fops);
+ 	cdev->owner = parent->driver->owner;
+-	cdev->kobj.parent = &dev->kobj;
+-	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
+-	if (rc)
+-		goto err_cdev;
+ 
+-	/* from here on we're committed to teardown via dax_dev_release() */
+ 	dax_dev->num_resources = count;
+ 	dax_dev->alive = true;
+ 	dax_dev->region = dax_region;
+@@ -773,7 +766,8 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 	dev->groups = dax_attribute_groups;
+ 	dev->release = dax_dev_release;
+ 	dev_set_name(dev, "dax%d.%d", dax_region->id, dax_dev->id);
+-	rc = device_add(dev);
++
++	rc = cdev_device_add(cdev, dev);
+ 	if (rc) {
+ 		kill_dax_dev(dax_dev);
+ 		put_device(dev);
+@@ -786,8 +780,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 
+ 	return dax_dev;
+ 
+- err_cdev:
+-	iput(dax_dev->inode);
+  err_inode:
+ 	ida_simple_remove(&dax_minor_ida, minor);
+  err_minor:
+-- 
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
