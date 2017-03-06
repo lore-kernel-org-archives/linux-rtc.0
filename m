@@ -1,34 +1,80 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRB7P2X7DAKGQELOT7HUA@googlegroups.com>
-Received: from mail-it0-x22c.google.com (mail-it0-x22c.google.com. [2607:f8b0:4001:c0b::22c])
-        by gmr-mx.google.com with ESMTPS id d20si892761itc.1.2017.03.20.09.04.13
+Return-Path: <rtc-linux+bncBAABBE4V6TCQKGQE4777WVI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id s64si1207293pfk.0.2017.03.05.23.06.59
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Mar 2017 09:04:13 -0700 (PDT)
-Received: by mail-it0-x22c.google.com with SMTP id w124so93321754itb.1
-        for <rtc-linux@googlegroups.com>; Mon, 20 Mar 2017 09:04:13 -0700 (PDT)
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <SG2PR06MB1165819F41CF40562F44F08B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
- <20170316175112.27913-3-chris.brandt@renesas.com> <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
- <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
- <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
- <20170317150524.oijto6gtjxycdnwn@piout.net> <SG2PR06MB1165819F41CF40562F44F08B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 20 Mar 2017 17:03:20 +0100
-Message-ID: <CAMuHMdWxs4Xwc0T5AHL73ZtF6r8pN9v6g-GEzozdLvTc4j4aSw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 2/5] rtc: Add rtc-sh
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+        Sun, 05 Mar 2017 23:06:59 -0800 (PST)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Mon,  6 Mar 2017 00:04:17 -0700
+Message-Id: <1488783873-2614-2-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v3 01/16] chardev: add helper function to register
+ char devs with a struct device
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -37,100 +83,193 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Chris,
+Credit for this patch goes is shared with Dan Williams [1]. I've
+taken things one step further to make the helper function more
+useful and clean up calling code.
 
-On Mon, Mar 20, 2017 at 4:05 PM, Chris Brandt <Chris.Brandt@renesas.com> wrote:
-> On Friday, March 17, 2017, Alexandre Belloni wrote:
->> On 17/03/2017 at 14:55:48 +0100, Geert Uytterhoeven wrote:
->> > >> it would still be good to have phandles to the external clock
->> > >> sources as well, as that describes the hardware topology.
->> > > I'm confused, you mean make new clocks node for RTC_X1 (fixed at
->> > > 32.768kHZ) and
->> > > RTC_X3 (fixed at 4MHz), but then not really do anything with then?
->> > > (the driver
->> >
->> > You still do something with them, as they'll be linked from the rtc
->> device node.
->> >
->> > > doesn't need them)
->> >
->> > The driver may use them in the future.
->> > E.g. to select among X1, X3, or EXTAL, depending on availability.
->>
->> I'm on Geert's side here, I wouldn't rely on the bootloader to set
->> everything up correctly.
->
-> Part of my hesitation to putting in the clock source selection was that
-> this RTC block is used in a lot of parts, and it's always the same,
-> except for the last 3 registers which are different from device to
-> device because different SoCs have different clock sources options
-> and ways to set them up. So, making a driver that just 'reads' the
-> time seemed safer/easier.
-> Anyway, I'll add the clock setup in if that's the general consensus.
->
-> But, before I send out an updated version, what were you thinking
-> my DT should look like?
->
-> Should I make a "count-source" property for user to select what clock
-> will be used for the actually counting?
->
->
->         clocks {
->                 ranges;
->                 #address-cells = <1>;
->                 #size-cells = <1>;
->             . . .
->
-> +               rtc_x1_clk: rtc_x1 {
-> +                       #clock-cells = <0>;
-> +                       compatible = "fixed-clock";
-> +                       /* If clk present, value must be set by board to 32678 */
-> +                       clock-frequency = <0>;
-> +               };
-> +
-> +               rtc_x3_clk: rtc_x3 {
-> +                       #clock-cells = <0>;
-> +                       compatible = "fixed-clock";
-> +                       /* If clk present, value must be set by board to 4000000 */
-> +                       clock-frequency = <0>;
-> +               };
-> +
->
->
->
->
-> +       rtc: rtc@fcff1000 {
-> +               compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
-> +               reg = <0xfcff1000 0x2e>;
-> +               interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
-> +                             GIC_SPI 277 IRQ_TYPE_EDGE_RISING
-> +                             GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
-> +               interrupt-names = "alarm", "period", "carry";
-> +               clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
-> +                         <&extal_clk> , <&rtc_x3_clk>;
-> +               clock-names = "fck", "rtc_x1", "extal", "rtc_x3";
-> +               power-domains = <&cpg_clocks>;
-> +               count-source = "rtc_x1";    <<<<<<< this would be in the board dts file
+There's a common pattern in the kernel whereby a struct cdev is placed
+in a structure along side a struct device which manages the life-cycle
+of both. In the naive approach, the reference counting is broken and
+the struct device can free everything before the chardev code
+is entirely released.
 
-IMHO that's software policy, not hardware description, so it doesn't
-belong in DT.
+Many developers have solved this problem by linking the internal kobjs
+in this fashion:
 
-However, by scanning the list of allowed clock names, and looking at clock
-rates, the driver can find a suitable clock itself.
+cdev.kobj.parent = &parent_dev.kobj;
 
-> +               status = "disabled";
-> +       };
+The cdev code explicitly gets and puts a reference to it's kobj parent.
+So this seems like it was intended to be used this way. Dmitrty Torokhov
+first put this in place in 2012 with this commit:
 
-Gr{oetje,eeting}s,
+2f0157f char_dev: pin parent kobject
 
-                        Geert
+and the first instance of the fix was then done in the input subsystem
+in the following commit:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+4a215aa Input: fix use-after-free introduced with dynamic minor changes
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Subsequently over the years, however, this issue seems to have tripped
+up multiple developers independently. For example, see these commits:
+
+0d5b7da iio: Prevent race between IIO chardev opening and IIO device
+(by Lars-Peter Clausen in 2013)
+
+ba0ef85 tpm: Fix initialization of the cdev
+(by Jason Gunthorpe in 2015)
+
+5b28dde [media] media: fix use-after-free in cdev_put() when app exits
+after driver unbind
+(by Shauh Khan in 2016)
+
+This technique is similarly done in at least 15 places within the kernel
+and probably should have been done so in another, at least, 5 places.
+The kobj line also looks very suspect in that one would not expect
+drivers to have to mess with kobject internals in this way.
+Even highly experienced kernel developers can be surprised by this
+code, as seen in [2].
+
+To help alleviate this situation, and hopefully prevent future
+wasted effort on this problem, this patch introduces a helper function
+to register a char device along with its parent struct device.
+This creates a more regular API for tying a char device to its parent
+without the developer having to set members in the underlying kobject.
+
+This patch introduce cdev_device_add and cdev_device_del which
+replaces a common pattern including setting the kobj parent, calling
+cdev_add and then calling device_add. It also introduces cdev_set_parent
+for the few cases that set the kobject parent without using device_add.
+
+[1] https://lkml.org/lkml/2017/2/13/700
+[2] https://lkml.org/lkml/2017/2/10/370
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Hans Verkuil <hans.verkuil@cisco.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ fs/char_dev.c        | 77 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/cdev.h |  4 +++
+ 2 files changed, 81 insertions(+)
+
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 44a240c..09b93fb 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -471,6 +471,76 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+ 	return 0;
+ }
+ 
++/**
++ * cdev_set_parent() - set the parent kobject for a char device
++ * @p: the cdev structure
++ * @kobj: the kobject to take a reference to
++ *
++ * cdev_set_parent() sets a parent kobject which will be referenced
++ * appropriately so the parent is not freed before the cdev. This
++ * should be called before cdev_add.
++ */
++void cdev_set_parent(struct cdev *p, struct kobject *kobj)
++{
++	WARN_ON(!kobj->state_initialized);
++	p->kobj.parent = kobj;
++}
++
++/**
++ * cdev_device_add() - add a char device and it's corresponding
++ *	struct device, linkink
++ * @dev: the device structure
++ * @cdev: the cdev structure
++ *
++ * cdev_device_add() adds the char device represented by @cdev to the system,
++ * just as cdev_add does. It then adds @dev to the system using device_add
++ * The dev_t for the char device will be taken from the struct device which
++ * needs to be initialized first. This helper function correctly takes a
++ * reference to the parent device so the parent will not get released until
++ * all references to the cdev are released.
++ *
++ * This function should be used whenever the struct cdev and the
++ * struct device are members of the same structure whose lifetime is
++ * managed by the struct device.
++ *
++ * NOTE: Callers must assume that userspace was able to open the cdev and
++ * can call cdev fops callbacks at any time, even if this function fails.
++ */
++int cdev_device_add(struct cdev *cdev, struct device *dev)
++{
++	int rc = 0;
++
++	cdev_set_parent(cdev, &dev->kobj);
++
++	rc = cdev_add(cdev, dev->devt, 1);
++	if (rc)
++		return rc;
++
++	rc = device_add(dev);
++	if (rc)
++		cdev_del(cdev);
++
++	return rc;
++}
++
++/**
++ * cdev_device_del() - inverse of cdev_device_add
++ * @dev: the device structure
++ * @cdev: the cdev structure
++ *
++ * cdev_device_del() is a helper function to call cdev_del and device_del.
++ * It should be used whenever cdev_device_add is used.
++ *
++ * NOTE: This guarantees that associated sysfs callbacks are not running
++ * or runnable, however any cdevs already open will remain and their fops
++ * will still be callable even after this function returns.
++ */
++void cdev_device_del(struct cdev *cdev, struct device *dev)
++{
++	device_del(dev);
++	cdev_del(cdev);
++}
++
+ static void cdev_unmap(dev_t dev, unsigned count)
+ {
+ 	kobj_unmap(cdev_map, dev, count);
+@@ -482,6 +552,10 @@ static void cdev_unmap(dev_t dev, unsigned count)
+  *
+  * cdev_del() removes @p from the system, possibly freeing the structure
+  * itself.
++ *
++ * NOTE: This guarantees that cdev device will no longer be able to be
++ * opened, however any cdevs already open will remain and their fops will
++ * still be callable even after cdev_del returns.
+  */
+ void cdev_del(struct cdev *p)
+ {
+@@ -570,5 +644,8 @@ EXPORT_SYMBOL(cdev_init);
+ EXPORT_SYMBOL(cdev_alloc);
+ EXPORT_SYMBOL(cdev_del);
+ EXPORT_SYMBOL(cdev_add);
++EXPORT_SYMBOL(cdev_set_parent);
++EXPORT_SYMBOL(cdev_device_add);
++EXPORT_SYMBOL(cdev_device_del);
+ EXPORT_SYMBOL(__register_chrdev);
+ EXPORT_SYMBOL(__unregister_chrdev);
+diff --git a/include/linux/cdev.h b/include/linux/cdev.h
+index f876361..4c99579 100644
+--- a/include/linux/cdev.h
++++ b/include/linux/cdev.h
+@@ -26,6 +26,10 @@ void cdev_put(struct cdev *p);
+ 
+ int cdev_add(struct cdev *, dev_t, unsigned);
+ 
++void cdev_set_parent(struct cdev *p, struct kobject *kobj);
++int cdev_device_add(struct cdev *cdev, struct device *dev);
++void cdev_device_del(struct cdev *cdev, struct device *dev);
++
+ void cdev_del(struct cdev *);
+ 
+ void cd_forget(struct inode *);
+-- 
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
