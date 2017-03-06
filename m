@@ -1,29 +1,59 @@
-Return-Path: <rtc-linux+bncBAABBRW7WDDAKGQEIM2QAYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB74U6TCQKGQEECZ45ZA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id y90si1564364pfa.6.2017.03.17.11.49.41
+        by gmr-mx.google.com with ESMTPS id a3si400916pfb.2.2017.03.05.23.06.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:41 -0700 (PDT)
+        Sun, 05 Mar 2017 23:06:38 -0800 (PST)
 From: Logan Gunthorpe <logang@deltatee.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
 	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Johannes Thumshirn <jthumshirn@suse.de>,
+	Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
 	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
 	David Woodhouse <dwmw2@infradead.org>,
 	Brian Norris <computersforpeace@gmail.com>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>,
+	Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org,
 	linux-scsi@vger.kernel.org,
 	rtc-linux@googlegroups.com,
@@ -37,9 +67,12 @@ Cc: linux-pci@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:07 -0600
-Message-Id: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 00/16] Cleanup chardev instances with helper function
+Date: Mon,  6 Mar 2017 00:04:24 -0700
+Message-Id: <1488783873-2614-9-git-send-email-logang@deltatee.com>
+In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v3 08/16] IB/ucm: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -50,93 +83,110 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hey,
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
 
-This version of the series fixes the issue found by the kbuild test
-robot with the rtc driver. I managed to reproduce the issue and this
-series fixes the problem.
+The use after free is not triggerable here because the cdev holds
+the module lock and the only device_unregister is only triggered by
+module unload, however make the change for consistency.
 
-Logan
+To make this work the cdev_del needs to move out of the struct device
+release function.
 
+This cleans up the error path significantly and thus also fixes a minor
+bug where the devnum would not be released if cdev_add failed.
 
-Changes since v4:
+Signed-off-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/infiniband/core/ucm.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-* Fix a kbuild robot issue with the rtc driver: the rtc driver sometimes
-  does not want to add the cdev. In order to accommodate this, the new
-  cdev_device helper functions check dev->devt and if it's zero they
-  don't add or delete the cdev.
-
-* Remove prototypes for functions that were removed in the rtc driver
-
-Changes since v3:
-
-* Added a missing "device.h" include which caused warnings with some
-  build configurations
-
-Changes since v2:
-
-* Expanded comments as per Jason's suggestions
-* Collected tags
-* Updated the switchtec patch seeing it's underlying patch set changed
-
-Changes since v1:
-
-* Expanded the idea to take care of adding the cdev and the device
-
-Logan
-
-
-Dan Williams (1):
-  device-dax: fix cdev leak
-
-Jason Gunthorpe (1):
-  IB/ucm: utilize new cdev_device_add helper function
-
-Logan Gunthorpe (14):
-  chardev: add helper function to register char devs with a struct
-    device
-  device-dax: utilize new cdev_device_add helper function
-  input: utilize new cdev_device_add helper function
-  gpiolib: utilize new cdev_device_add helper function
-  tpm-chip: utilize new cdev_device_add helper function
-  platform/chrome: cros_ec_dev - utilize new cdev_device_add helper
-    function
-  infiniband: utilize the new cdev_set_parent function
-  iio:core: utilize new cdev_device_add helper function
-  media: utilize new cdev_device_add helper function
-  mtd: utilize new cdev_device_add helper function
-  rapidio: utilize new cdev_device_add helper function
-  rtc: utilize new cdev_device_add helper function
-  scsi: utilize new cdev_device_add helper function
-  switchtec: utilize new device_add_cdev helper function
-
- drivers/char/tpm/tpm-chip.c              | 19 ++-----
- drivers/dax/dax.c                        | 33 ++++++------
- drivers/gpio/gpiolib.c                   | 23 +++-----
- drivers/iio/industrialio-core.c          | 15 ++----
- drivers/infiniband/core/ucm.c            | 35 ++++++------
- drivers/infiniband/core/user_mad.c       |  4 +-
- drivers/infiniband/core/uverbs_main.c    |  2 +-
- drivers/infiniband/hw/hfi1/device.c      |  2 +-
- drivers/input/evdev.c                    | 11 +---
- drivers/input/joydev.c                   | 11 +---
- drivers/input/mousedev.c                 | 11 +---
- drivers/media/cec/cec-core.c             | 16 ++----
- drivers/media/media-devnode.c            | 20 ++-----
- drivers/mtd/ubi/build.c                  | 91 ++++++--------------------------
- drivers/mtd/ubi/vmt.c                    | 49 ++++++-----------
- drivers/pci/switch/switchtec.c           | 11 +---
- drivers/platform/chrome/cros_ec_dev.c    | 31 +++--------
- drivers/rapidio/devices/rio_mport_cdev.c | 24 +++------
- drivers/rtc/class.c                      | 14 +++--
- drivers/rtc/rtc-core.h                   | 10 ----
- drivers/rtc/rtc-dev.c                    | 17 ------
- drivers/scsi/osd/osd_uld.c               | 56 +++++++-------------
- fs/char_dev.c                            | 86 ++++++++++++++++++++++++++++++
- include/linux/cdev.h                     |  5 ++
- 24 files changed, 239 insertions(+), 357 deletions(-)
-
---
+diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
+index cc0d51f..d15efa4 100644
+--- a/drivers/infiniband/core/ucm.c
++++ b/drivers/infiniband/core/ucm.c
+@@ -1205,12 +1205,15 @@ static void ib_ucm_release_dev(struct device *dev)
+ 	struct ib_ucm_device *ucm_dev;
+ 
+ 	ucm_dev = container_of(dev, struct ib_ucm_device, dev);
+-	cdev_del(&ucm_dev->cdev);
++	kfree(ucm_dev);
++}
++
++static void ib_ucm_free_dev(struct ib_ucm_device *ucm_dev)
++{
+ 	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+ 		clear_bit(ucm_dev->devnum, dev_map);
+ 	else
+ 		clear_bit(ucm_dev->devnum - IB_UCM_MAX_DEVICES, overflow_map);
+-	kfree(ucm_dev);
+ }
+ 
+ static const struct file_operations ucm_fops = {
+@@ -1266,7 +1269,9 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	if (!ucm_dev)
+ 		return;
+ 
++	device_initialize(&ucm_dev->dev);
+ 	ucm_dev->ib_dev = device;
++	ucm_dev->dev.release = ib_ucm_release_dev;
+ 
+ 	devnum = find_first_zero_bit(dev_map, IB_UCM_MAX_DEVICES);
+ 	if (devnum >= IB_UCM_MAX_DEVICES) {
+@@ -1286,16 +1291,14 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	cdev_init(&ucm_dev->cdev, &ucm_fops);
+ 	ucm_dev->cdev.owner = THIS_MODULE;
+ 	kobject_set_name(&ucm_dev->cdev.kobj, "ucm%d", ucm_dev->devnum);
+-	if (cdev_add(&ucm_dev->cdev, base, 1))
+-		goto err;
+ 
+ 	ucm_dev->dev.class = &cm_class;
+ 	ucm_dev->dev.parent = device->dev.parent;
+-	ucm_dev->dev.devt = ucm_dev->cdev.dev;
+-	ucm_dev->dev.release = ib_ucm_release_dev;
++	ucm_dev->dev.devt = base;
++
+ 	dev_set_name(&ucm_dev->dev, "ucm%d", ucm_dev->devnum);
+-	if (device_register(&ucm_dev->dev))
+-		goto err_cdev;
++	if (cdev_device_add(&ucm_dev->cdev, &ucm_dev->dev))
++		goto err_devnum;
+ 
+ 	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
+ 		goto err_dev;
+@@ -1304,15 +1307,11 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	return;
+ 
+ err_dev:
+-	device_unregister(&ucm_dev->dev);
+-err_cdev:
+-	cdev_del(&ucm_dev->cdev);
+-	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+-		clear_bit(devnum, dev_map);
+-	else
+-		clear_bit(devnum, overflow_map);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++err_devnum:
++	ib_ucm_free_dev(ucm_dev);
+ err:
+-	kfree(ucm_dev);
++	put_device(&ucm_dev->dev);
+ 	return;
+ }
+ 
+@@ -1323,7 +1322,9 @@ static void ib_ucm_remove_one(struct ib_device *device, void *client_data)
+ 	if (!ucm_dev)
+ 		return;
+ 
+-	device_unregister(&ucm_dev->dev);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++	ib_ucm_free_dev(ucm_dev);
++	put_device(&ucm_dev->dev);
+ }
+ 
+ static CLASS_ATTR_STRING(abi_version, S_IRUGO,
+-- 
 2.1.4
 
 -- 
