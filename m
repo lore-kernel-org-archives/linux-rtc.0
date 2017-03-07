@@ -1,28 +1,34 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBB66OV7DAKGQEB3GVHKY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDHZXHXDRAMBBMH77LCQKGQEIDORDPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
-        by gmr-mx.google.com with ESMTP id 2si1437380pfx.8.2017.03.17.06.41.14
-        for <rtc-linux@googlegroups.com>;
-        Fri, 17 Mar 2017 06:41:15 -0700 (PDT)
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman
-	<horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas
-	<linux-renesas-soc@vger.kernel.org>
-Subject: [rtc-linux] RE: [PATCH 2/5] rtc: Add rtc-sh
-Date: Fri, 17 Mar 2017 13:41:10 +0000
-Message-ID: <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
- <20170316175112.27913-3-chris.brandt@renesas.com>
- <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
- <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
-In-Reply-To: <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Date: Tue, 7 Mar 2017 06:11:57 -0800
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Mike Turquette <mturquette@baylibre.com>, Chen-Yu Tsai <wens@csie.org>,
+	dri-devel@lists.freedesktop.org,
+	Daniel Vetter <daniel.vetter@intel.com>,
+	David Airlie <airlied@linux.ie>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+	Carlo Caione <carlo@caione.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	Andy Gross <andy.gross@linaro.org>,
+	David Brown <david.brown@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/15] clk: divider: Make divider_round_rate
+ take the parent clock
+Message-ID: <20170307141157.GC10239@codeaurora.org>
+References: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
+ <7ebd073b4941e4b7c619f15ff0a375ff7919d403.1488876832.git-series.maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <7ebd073b4941e4b7c619f15ff0a375ff7919d403.1488876832.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,38 +38,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Geert,
-
-On Friday, March 17, 2017, Geert Uytterhoeven wrote:
-> > On Friday, March 17, 2017, Geert Uytterhoeven wrote:
-> >> On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt
-> >> <chris.brandt@renesas.com>
-> >> wrote:
-> >> > +- clocks: the clock source for the RTC controller.
-> >>
-> >> The datasheet mentions 3 possible clock sources?
-> >
-> > There is the clock source that does the counting (RTC_X1, RTC_X3, XTAL),
-> and then a clock source that runs the register interface (run off of the
-> p0 clock). So I just need to turn on the p0 clock so I can get at the
-> registers. Note that if you do a hard reset with a RESET button, and all
-> the registers in the chip go back to their POR state, the counter still
-> counts off of the 32KHz XTAL even though the "peripheral clock" is stopped
-> (which just means you can't get to the registers).
-> >
-> > In reality, you have to assume the RTC counting source has already been
-> set up by u-boot, or from a past reboot, so I don't do any of that select
-> configuration at all.
+On 03/07, Maxime Ripard wrote:
+> So far, divider_round_rate only considers the parent clock returned by
+> clk_hw_get_parent.
 > 
-> it would still be good to have phandles to the external clock sources as
-> well, as that describes the hardware topology.
+> This works fine on clocks that have a single parents, this doesn't work on
+> muxes, since we will only consider the first parent, while other parents
+> may totally be able to provide a better combination.
+> 
+> Clocks in that case cannot use divider_round_rate, so would have to come up
+> with a very similar logic to work around it. Instead of having to do
+> something like this, and duplicate that logic everywhere, give an
+> additional parameter for the parent clock to consider.
+> 
+> Current users have been converted using the following coccinelle script
+> 
+> @@
+> identifier hw, rate, prate, table, width, flags;
+> @@
+> 
+> -long divider_round_rate(struct clk_hw *hw,
+> +long divider_round_rate(struct clk_hw *hw, struct clk_hw *parent,
+>                         unsigned long rate,
+>                         unsigned long *prate,
+>                         const struct clk_div_table *table,
+>                         u8 width,
+>                         unsigned long flags) { ... }
+> 
+> @@
+> identifier fn, hw;
+> expression E2, E3, E4, E5, E6;
+> @@
+>  fn (struct clk_hw *hw, ...) {
+>  <...
+> -divider_round_rate(hw, E2, E3, E4, E5, E6)
+> +divider_round_rate(hw, clk_hw_get_parent(hw), E2, E3, E4, E5, E6)
+>  ...>
+> }
 
-I'm confused, you mean make new clocks node for RTC_X1 (fixed at 32.768kHZ) and
-RTC_X3 (fixed at 4MHz), but then not really do anything with then? (the driver
-doesn't need them)
+Why not introduce another function like 
 
+	divider_round_rate_parent()
+	divider_round_rate_mux()
 
-Chris
+that takes the extra parent argument? Technically, a divider is
+considered to only have one parent, and if it has more than one
+parent, then it is a mux and a divider.
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
