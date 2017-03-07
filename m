@@ -1,78 +1,41 @@
-Return-Path: <rtc-linux+bncBAABBE4V6TCQKGQE4777WVI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDSJBYGBRIMBBT7L7HCQKGQEXGMPIJI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id s64si1207293pfk.0.2017.03.05.23.06.59
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:59 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Mike Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Chen-Yu Tsai <wens@csie.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: dri-devel@lists.freedesktop.org,
+	Daniel Vetter <daniel.vetter@intel.com>,
+	David Airlie <airlied@linux.ie>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-sunxi@googlegroups.com,
+	Carlo Caione <carlo@caione.org>,
+	Kevin Hilman <khilman@baylibre.com>,
 	Vladimir Zapolskiy <vz@mleia.com>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	Andy Gross <andy.gross@linaro.org>,
+	David Brown <david.brown@linaro.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:17 -0700
-Message-Id: <1488783873-2614-2-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 01/16] chardev: add helper function to register
- char devs with a struct device
+	linux-amlogic@lists.infradead.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-soc@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 1/15] clk: divider: Make divider_round_rate take
+ the parent clock
+Date: Tue,  7 Mar 2017 09:56:20 +0100
+Message-Id: <7ebd073b4941e4b7c619f15ff0a375ff7919d403.1488876832.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
+References: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
+In-Reply-To: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
+References: <cover.bc06ffa88f847ddd9ddd7c259415d5f61b55307b.1488876832.git-series.maxime.ripard@free-electrons.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -83,193 +46,264 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Credit for this patch goes is shared with Dan Williams [1]. I've
-taken things one step further to make the helper function more
-useful and clean up calling code.
+So far, divider_round_rate only considers the parent clock returned by
+clk_hw_get_parent.
 
-There's a common pattern in the kernel whereby a struct cdev is placed
-in a structure along side a struct device which manages the life-cycle
-of both. In the naive approach, the reference counting is broken and
-the struct device can free everything before the chardev code
-is entirely released.
+This works fine on clocks that have a single parents, this doesn't work on
+muxes, since we will only consider the first parent, while other parents
+may totally be able to provide a better combination.
 
-Many developers have solved this problem by linking the internal kobjs
-in this fashion:
+Clocks in that case cannot use divider_round_rate, so would have to come up
+with a very similar logic to work around it. Instead of having to do
+something like this, and duplicate that logic everywhere, give an
+additional parameter for the parent clock to consider.
 
-cdev.kobj.parent = &parent_dev.kobj;
+Current users have been converted using the following coccinelle script
 
-The cdev code explicitly gets and puts a reference to it's kobj parent.
-So this seems like it was intended to be used this way. Dmitrty Torokhov
-first put this in place in 2012 with this commit:
+@@
+identifier hw, rate, prate, table, width, flags;
+@@
 
-2f0157f char_dev: pin parent kobject
+-long divider_round_rate(struct clk_hw *hw,
++long divider_round_rate(struct clk_hw *hw, struct clk_hw *parent,
+                        unsigned long rate,
+                        unsigned long *prate,
+                        const struct clk_div_table *table,
+                        u8 width,
+                        unsigned long flags) { ... }
 
-and the first instance of the fix was then done in the input subsystem
-in the following commit:
+@@
+identifier fn, hw;
+expression E2, E3, E4, E5, E6;
+@@
+ fn (struct clk_hw *hw, ...) {
+ <...
+-divider_round_rate(hw, E2, E3, E4, E5, E6)
++divider_round_rate(hw, clk_hw_get_parent(hw), E2, E3, E4, E5, E6)
+ ...>
+}
 
-4a215aa Input: fix use-after-free introduced with dynamic minor changes
-
-Subsequently over the years, however, this issue seems to have tripped
-up multiple developers independently. For example, see these commits:
-
-0d5b7da iio: Prevent race between IIO chardev opening and IIO device
-(by Lars-Peter Clausen in 2013)
-
-ba0ef85 tpm: Fix initialization of the cdev
-(by Jason Gunthorpe in 2015)
-
-5b28dde [media] media: fix use-after-free in cdev_put() when app exits
-after driver unbind
-(by Shauh Khan in 2016)
-
-This technique is similarly done in at least 15 places within the kernel
-and probably should have been done so in another, at least, 5 places.
-The kobj line also looks very suspect in that one would not expect
-drivers to have to mess with kobject internals in this way.
-Even highly experienced kernel developers can be surprised by this
-code, as seen in [2].
-
-To help alleviate this situation, and hopefully prevent future
-wasted effort on this problem, this patch introduces a helper function
-to register a char device along with its parent struct device.
-This creates a more regular API for tying a char device to its parent
-without the developer having to set members in the underlying kobject.
-
-This patch introduce cdev_device_add and cdev_device_del which
-replaces a common pattern including setting the kobj parent, calling
-cdev_add and then calling device_add. It also introduces cdev_set_parent
-for the few cases that set the kobject parent without using device_add.
-
-[1] https://lkml.org/lkml/2017/2/13/700
-[2] https://lkml.org/lkml/2017/2/10/370
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Hans Verkuil <hans.verkuil@cisco.com>
-Reviewed-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Carlo Caione <carlo@caione.org>
+Cc: Kevin Hilman <khilman@baylibre.com>
+Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Cc: Andy Gross <andy.gross@linaro.org>
+Cc: David Brown <david.brown@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-amlogic@lists.infradead.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: linux-soc@vger.kernel.org
+Cc: rtc-linux@googlegroups.com
 ---
- fs/char_dev.c        | 77 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/cdev.h |  4 +++
- 2 files changed, 81 insertions(+)
+ drivers/clk/clk-divider.c                 | 18 ++++++++++--------
+ drivers/clk/hisilicon/clkdivider-hi6220.c |  5 +++--
+ drivers/clk/meson/clk-cpu.c               |  5 +++--
+ drivers/clk/nxp/clk-lpc32xx.c             |  5 +++--
+ drivers/clk/qcom/clk-alpha-pll.c          |  5 +++--
+ drivers/clk/qcom/clk-regmap-divider.c     |  3 ++-
+ drivers/clk/sunxi-ng/ccu_div.c            |  6 +++---
+ drivers/rtc/rtc-ac100.c                   |  6 ++++--
+ include/linux/clk-provider.h              |  5 +++--
+ 9 files changed, 34 insertions(+), 24 deletions(-)
 
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index 44a240c..09b93fb 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -471,6 +471,76 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
- 	return 0;
+diff --git a/drivers/clk/clk-divider.c b/drivers/clk/clk-divider.c
+index 96386ffc8483..d8d7dc84956a 100644
+--- a/drivers/clk/clk-divider.c
++++ b/drivers/clk/clk-divider.c
+@@ -275,7 +275,8 @@ static int _next_div(const struct clk_div_table *table, int div,
+ 	return div;
  }
  
-+/**
-+ * cdev_set_parent() - set the parent kobject for a char device
-+ * @p: the cdev structure
-+ * @kobj: the kobject to take a reference to
-+ *
-+ * cdev_set_parent() sets a parent kobject which will be referenced
-+ * appropriately so the parent is not freed before the cdev. This
-+ * should be called before cdev_add.
-+ */
-+void cdev_set_parent(struct cdev *p, struct kobject *kobj)
-+{
-+	WARN_ON(!kobj->state_initialized);
-+	p->kobj.parent = kobj;
-+}
-+
-+/**
-+ * cdev_device_add() - add a char device and it's corresponding
-+ *	struct device, linkink
-+ * @dev: the device structure
-+ * @cdev: the cdev structure
-+ *
-+ * cdev_device_add() adds the char device represented by @cdev to the system,
-+ * just as cdev_add does. It then adds @dev to the system using device_add
-+ * The dev_t for the char device will be taken from the struct device which
-+ * needs to be initialized first. This helper function correctly takes a
-+ * reference to the parent device so the parent will not get released until
-+ * all references to the cdev are released.
-+ *
-+ * This function should be used whenever the struct cdev and the
-+ * struct device are members of the same structure whose lifetime is
-+ * managed by the struct device.
-+ *
-+ * NOTE: Callers must assume that userspace was able to open the cdev and
-+ * can call cdev fops callbacks at any time, even if this function fails.
-+ */
-+int cdev_device_add(struct cdev *cdev, struct device *dev)
-+{
-+	int rc = 0;
-+
-+	cdev_set_parent(cdev, &dev->kobj);
-+
-+	rc = cdev_add(cdev, dev->devt, 1);
-+	if (rc)
-+		return rc;
-+
-+	rc = device_add(dev);
-+	if (rc)
-+		cdev_del(cdev);
-+
-+	return rc;
-+}
-+
-+/**
-+ * cdev_device_del() - inverse of cdev_device_add
-+ * @dev: the device structure
-+ * @cdev: the cdev structure
-+ *
-+ * cdev_device_del() is a helper function to call cdev_del and device_del.
-+ * It should be used whenever cdev_device_add is used.
-+ *
-+ * NOTE: This guarantees that associated sysfs callbacks are not running
-+ * or runnable, however any cdevs already open will remain and their fops
-+ * will still be callable even after this function returns.
-+ */
-+void cdev_device_del(struct cdev *cdev, struct device *dev)
-+{
-+	device_del(dev);
-+	cdev_del(cdev);
-+}
-+
- static void cdev_unmap(dev_t dev, unsigned count)
+-static int clk_divider_bestdiv(struct clk_hw *hw, unsigned long rate,
++static int clk_divider_bestdiv(struct clk_hw *hw, struct clk_hw *parent,
++			       unsigned long rate,
+ 			       unsigned long *best_parent_rate,
+ 			       const struct clk_div_table *table, u8 width,
+ 			       unsigned long flags)
+@@ -314,8 +315,7 @@ static int clk_divider_bestdiv(struct clk_hw *hw, unsigned long rate,
+ 			*best_parent_rate = parent_rate_saved;
+ 			return i;
+ 		}
+-		parent_rate = clk_hw_round_rate(clk_hw_get_parent(hw),
+-					       rate * i);
++		parent_rate = clk_hw_round_rate(parent, rate * i);
+ 		now = DIV_ROUND_UP_ULL((u64)parent_rate, i);
+ 		if (_is_best_div(rate, now, best, flags)) {
+ 			bestdiv = i;
+@@ -326,19 +326,20 @@ static int clk_divider_bestdiv(struct clk_hw *hw, unsigned long rate,
+ 
+ 	if (!bestdiv) {
+ 		bestdiv = _get_maxdiv(table, width, flags);
+-		*best_parent_rate = clk_hw_round_rate(clk_hw_get_parent(hw), 1);
++		*best_parent_rate = clk_hw_round_rate(parent, 1);
+ 	}
+ 
+ 	return bestdiv;
+ }
+ 
+-long divider_round_rate(struct clk_hw *hw, unsigned long rate,
++long divider_round_rate(struct clk_hw *hw, struct clk_hw *parent,
++			unsigned long rate,
+ 			unsigned long *prate, const struct clk_div_table *table,
+ 			u8 width, unsigned long flags)
  {
- 	kobj_unmap(cdev_map, dev, count);
-@@ -482,6 +552,10 @@ static void cdev_unmap(dev_t dev, unsigned count)
-  *
-  * cdev_del() removes @p from the system, possibly freeing the structure
-  * itself.
-+ *
-+ * NOTE: This guarantees that cdev device will no longer be able to be
-+ * opened, however any cdevs already open will remain and their fops will
-+ * still be callable even after cdev_del returns.
-  */
- void cdev_del(struct cdev *p)
+ 	int div;
+ 
+-	div = clk_divider_bestdiv(hw, rate, prate, table, width, flags);
++	div = clk_divider_bestdiv(hw, parent, rate, prate, table, width, flags);
+ 
+ 	return DIV_ROUND_UP_ULL((u64)*prate, div);
+ }
+@@ -359,8 +360,9 @@ static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
+ 		return DIV_ROUND_UP_ULL((u64)*prate, bestdiv);
+ 	}
+ 
+-	return divider_round_rate(hw, rate, prate, divider->table,
+-				  divider->width, divider->flags);
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  divider->table, divider->width,
++				  divider->flags);
+ }
+ 
+ int divider_get_val(unsigned long rate, unsigned long parent_rate,
+diff --git a/drivers/clk/hisilicon/clkdivider-hi6220.c b/drivers/clk/hisilicon/clkdivider-hi6220.c
+index a1c1f684ad58..deaa72902555 100644
+--- a/drivers/clk/hisilicon/clkdivider-hi6220.c
++++ b/drivers/clk/hisilicon/clkdivider-hi6220.c
+@@ -64,8 +64,9 @@ static long hi6220_clkdiv_round_rate(struct clk_hw *hw, unsigned long rate,
  {
-@@ -570,5 +644,8 @@ EXPORT_SYMBOL(cdev_init);
- EXPORT_SYMBOL(cdev_alloc);
- EXPORT_SYMBOL(cdev_del);
- EXPORT_SYMBOL(cdev_add);
-+EXPORT_SYMBOL(cdev_set_parent);
-+EXPORT_SYMBOL(cdev_device_add);
-+EXPORT_SYMBOL(cdev_device_del);
- EXPORT_SYMBOL(__register_chrdev);
- EXPORT_SYMBOL(__unregister_chrdev);
-diff --git a/include/linux/cdev.h b/include/linux/cdev.h
-index f876361..4c99579 100644
---- a/include/linux/cdev.h
-+++ b/include/linux/cdev.h
-@@ -26,6 +26,10 @@ void cdev_put(struct cdev *p);
+ 	struct hi6220_clk_divider *dclk = to_hi6220_clk_divider(hw);
  
- int cdev_add(struct cdev *, dev_t, unsigned);
+-	return divider_round_rate(hw, rate, prate, dclk->table,
+-				  dclk->width, CLK_DIVIDER_ROUND_CLOSEST);
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  dclk->table, dclk->width,
++				  CLK_DIVIDER_ROUND_CLOSEST);
+ }
  
-+void cdev_set_parent(struct cdev *p, struct kobject *kobj);
-+int cdev_device_add(struct cdev *cdev, struct device *dev);
-+void cdev_device_del(struct cdev *cdev, struct device *dev);
-+
- void cdev_del(struct cdev *);
+ static int hi6220_clkdiv_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/meson/clk-cpu.c b/drivers/clk/meson/clk-cpu.c
+index f8b2b7efd016..63c44d8c7ea4 100644
+--- a/drivers/clk/meson/clk-cpu.c
++++ b/drivers/clk/meson/clk-cpu.c
+@@ -59,8 +59,9 @@ static long meson_clk_cpu_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	struct meson_clk_cpu *clk_cpu = to_meson_clk_cpu_hw(hw);
  
- void cd_forget(struct inode *);
+-	return divider_round_rate(hw, rate, prate, clk_cpu->div_table,
+-				  MESON_N_WIDTH, CLK_DIVIDER_ROUND_CLOSEST);
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  clk_cpu->div_table, MESON_N_WIDTH,
++				  CLK_DIVIDER_ROUND_CLOSEST);
+ }
+ 
+ static int meson_clk_cpu_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/nxp/clk-lpc32xx.c b/drivers/clk/nxp/clk-lpc32xx.c
+index 5b98ff9076f3..73e83a7da7d6 100644
+--- a/drivers/clk/nxp/clk-lpc32xx.c
++++ b/drivers/clk/nxp/clk-lpc32xx.c
+@@ -975,8 +975,9 @@ static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
+ 		return DIV_ROUND_UP(*prate, bestdiv);
+ 	}
+ 
+-	return divider_round_rate(hw, rate, prate, divider->table,
+-				  divider->width, divider->flags);
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  divider->table, divider->width,
++				  divider->flags);
+ }
+ 
+ static int clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/qcom/clk-alpha-pll.c b/drivers/clk/qcom/clk-alpha-pll.c
+index 47a1da3739ce..7c08afecc811 100644
+--- a/drivers/clk/qcom/clk-alpha-pll.c
++++ b/drivers/clk/qcom/clk-alpha-pll.c
+@@ -478,8 +478,9 @@ clk_alpha_pll_postdiv_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	struct clk_alpha_pll_postdiv *pll = to_clk_alpha_pll_postdiv(hw);
+ 
+-	return divider_round_rate(hw, rate, prate, clk_alpha_div_table,
+-				  pll->width, CLK_DIVIDER_POWER_OF_TWO);
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  clk_alpha_div_table, pll->width,
++				  CLK_DIVIDER_POWER_OF_TWO);
+ }
+ 
+ static int clk_alpha_pll_postdiv_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/qcom/clk-regmap-divider.c b/drivers/clk/qcom/clk-regmap-divider.c
+index 53484912301e..63489f0f2a02 100644
+--- a/drivers/clk/qcom/clk-regmap-divider.c
++++ b/drivers/clk/qcom/clk-regmap-divider.c
+@@ -28,7 +28,8 @@ static long div_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	struct clk_regmap_div *divider = to_clk_regmap_div(hw);
+ 
+-	return divider_round_rate(hw, rate, prate, NULL, divider->width,
++	return divider_round_rate(hw, clk_hw_get_parent(hw), rate, prate,
++				  NULL, divider->width,
+ 				  CLK_DIVIDER_ROUND_CLOSEST);
+ }
+ 
+diff --git a/drivers/clk/sunxi-ng/ccu_div.c b/drivers/clk/sunxi-ng/ccu_div.c
+index 4057e6021aa9..92855c2b30bb 100644
+--- a/drivers/clk/sunxi-ng/ccu_div.c
++++ b/drivers/clk/sunxi-ng/ccu_div.c
+@@ -78,10 +78,10 @@ static int ccu_div_determine_rate(struct clk_hw *hw,
+ 	struct ccu_div *cd = hw_to_ccu_div(hw);
+ 
+ 	if (clk_hw_get_num_parents(hw) == 1) {
+-		req->rate = divider_round_rate(hw, req->rate,
++		req->rate = divider_round_rate(hw, clk_hw_get_parent(hw),
++					       req->rate,
+ 					       &req->best_parent_rate,
+-					       cd->div.table,
+-					       cd->div.width,
++					       cd->div.table, cd->div.width,
+ 					       cd->div.flags);
+ 
+ 		req->best_parent_hw = clk_hw_get_parent(hw);
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 9e336184491c..0cad1bc41aa7 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -153,13 +153,15 @@ static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
+ 	int i;
+ 
+ 	if (prate == AC100_RTC_32K_RATE)
+-		return divider_round_rate(hw, rate, &prate, NULL,
++		return divider_round_rate(hw, clk_hw_get_parent(hw), rate,
++					  &prate, NULL,
+ 					  AC100_CLKOUT_DIV_WIDTH,
+ 					  CLK_DIVIDER_POWER_OF_TWO);
+ 
+ 	for (i = 0; ac100_clkout_prediv[i].div; i++) {
+ 		tmp_prate = DIV_ROUND_UP(prate, ac100_clkout_prediv[i].val);
+-		tmp_rate = divider_round_rate(hw, rate, &tmp_prate, NULL,
++		tmp_rate = divider_round_rate(hw, clk_hw_get_parent(hw), rate,
++					      &tmp_prate, NULL,
+ 					      AC100_CLKOUT_DIV_WIDTH,
+ 					      CLK_DIVIDER_POWER_OF_TWO);
+ 
+diff --git a/include/linux/clk-provider.h b/include/linux/clk-provider.h
+index a428aec36ace..e17d4cc7660c 100644
+--- a/include/linux/clk-provider.h
++++ b/include/linux/clk-provider.h
+@@ -412,8 +412,9 @@ extern const struct clk_ops clk_divider_ro_ops;
+ unsigned long divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate,
+ 		unsigned int val, const struct clk_div_table *table,
+ 		unsigned long flags);
+-long divider_round_rate(struct clk_hw *hw, unsigned long rate,
+-		unsigned long *prate, const struct clk_div_table *table,
++long divider_round_rate(struct clk_hw *hw, struct clk_hw *parent,
++		unsigned long rate, unsigned long *prate,
++		const struct clk_div_table *table,
+ 		u8 width, unsigned long flags);
+ int divider_get_val(unsigned long rate, unsigned long parent_rate,
+ 		const struct clk_div_table *table, u8 width,
 -- 
-2.1.4
+git-series 0.8.11
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
