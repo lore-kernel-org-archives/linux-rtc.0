@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBD3M5JPEVAFRBQPR6XCQKGQEQMT4IAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB24IQDDAKGQESUIVG3A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM03-DM3-obe.outbound.protection.outlook.com (mail-dm3nam03on0046.outbound.protection.outlook.com. [104.47.41.46])
-        by gmr-mx.google.com with ESMTPS id g205si61399ita.2.2017.03.06.06.57.04
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 06 Mar 2017 06:57:04 -0800 (PST)
-Subject: Re: [rtc-linux] RTC used as a module
-To: John Stultz <john.stultz@linaro.org>, <monstr@monstr.eu>
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
- <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
- <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Michal Simek
-	<michal.simek@xilinx.com>
-From: Michal Simek <michal.simek@xilinx.com>
-Message-ID: <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
-Date: Mon, 6 Mar 2017 15:56:47 +0100
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id b186si1719994wme.1.2017.03.08.05.17.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 08 Mar 2017 05:17:31 -0800 (PST)
+Date: Wed, 8 Mar 2017 14:17:30 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Shah, Nehal-bakulchandra" <Nehal-Bakulchandra.shah@amd.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	Jagadish.Hadimani@amd.com, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: Kernel without RTC
+Message-ID: <20170308131730.zrznsnk5oldfuoib@piout.net>
+References: <221f9318-749f-03b8-aac8-85e9f9bec318@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <221f9318-749f-03b8-aac8-85e9f9bec318@amd.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,193 +24,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 3.3.2017 21:04, John Stultz wrote:
-> On Fri, Mar 3, 2017 at 6:46 AM, Michal Simek <monstr@monstr.eu> wrote:
->> Hi Alexandre,
->>
->> On 3.3.2017 10:41, Michal Simek wrote:
->>> Hi Alexandre,
->>>
->>> On 23.2.2017 13:14, Alexandre Belloni wrote:
->>>> Hi Michal,
->>>>
->>>> I've been thinking about this issue (and meaning to actually test).
->>>>
->>>> On 08/12/2016 at 14:02:36 +0100, Michal Simek wrote:
->>>>> Hi guys,
->>>>>
->>>>> I am trying to find out reason for this behavior. If rtc-zynqmp is used
->>>>> as module for the first time it is correctly probed based on aliases
->>>>> setting. (rtc5 for log below). But then driver is removed and add again
->>>>> rtc5 is still not freed. rtc_device_release() is not called that's why
->>>>> rtc->id can't be used again.
->>>>>
->>>>> sh-4.3# modprobe rtc-zynqmp
->>>>> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>> ffa60000.rtc as rtc5
->>>>> sh-4.3# rmmod rtc-zynqmp
->>>>> sh-4.3# modprobe rtc-zynqmp
->>>>> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
->>>>> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>> ffa60000.rtc as rtc0
->>>>>
->>>>>
->>>>> I didn't try different rtc drivers but it looks like that someone keeps
->>>>> reference that's why release function is not called.
->>>>>
->>>>> Can someone check this with different RTC module?
->>>>
->>>> I'll do that soon.
->>>
->>> Have you tried it?
->>>
->>>>
->>>>> Or is this expected behavior?
->>>>>
->>>>
->>>> I don't think so :)
->>>>
->>>> Can you clarify a few things:
->>>>  - is this the only rtc with a driver on your system ?
->>>
->>> yes only one.
->>>
->>>>  - is it selected as the RTC_SYSTOHC_DEVICE or RTC_HCTOSYS_DEVICE. I've
->>>>    checked the code and I don't think this is the issue but it is worth
->>>> testing.
->>>
->>> This is the setting.
->>>
->>> CONFIG_RTC_HCTOSYS=y
->>> CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
->>> CONFIG_RTC_SYSTOHC=y
->>> CONFIG_RTC_SYSTOHC_DEVICE="rtc0"
->>>
->>> What I see is that rtc_device_release is not called which is that
->>> function which contain ida_simple_remove.
->>>
->>> I have alias for rtc0 (rtc0 = &rtc;)
->>> And here is a log with debug. As you see when driver is removed for the
->>> first time rtc_device_release is not called. When this is done for the
->>> second time rtc_device_release is called properly and the same device
->>> allocated via ida is used.
->>>
->>> root@linaro-alip:~# dmesg | grep rtc
->>> [    3.372715] [drm] Cannot find any crtc or sizes - going 1024x768
->>> [    3.422099] hctosys: unable to open rtc device (rtc0)
->>> [    6.578930] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>> ffa60000.rtc as rtc0
->>> root@linaro-alip:~#
->>> root@linaro-alip:~# lsmod
->>> Module                  Size  Used by
->>> rtc_zynqmp             16384  0
->>> uio_pdrv_genirq        16384  0
->>> root@linaro-alip:~# rmmod rtc_zynqmp
->>> [   26.805172] rtc_core: devm_rtc_device_unregister
->>> [   26.809794] rtc_core: devm_rtc_device_release
->>> [   26.814129] rtc_core: rtc_device_unregister
->>> root@linaro-alip:~# modprobe rtc_zynqmp
->>> [   35.879655] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->>> [   35.886002] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>> ffa60000.rtc as rtc1
->>> root@linaro-alip:~# rmmod rtc_zynqmp
->>> [  122.140487] rtc_core: devm_rtc_device_unregister
->>> [  122.145110] rtc_core: devm_rtc_device_release
->>> [  122.149443] rtc_core: rtc_device_unregister
->>> [  122.153770] rtc_core: rtc_device_release
->>> root@linaro-alip:~# modprobe rtc_zynqmp
->>> [  123.646002] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->>> [  123.652249] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>> ffa60000.rtc as rtc1
->>> root@linaro-alip:~# rmmod rtc_zynqmp
->>> [  125.876188] rtc_core: devm_rtc_device_release
->>> [  125.880554] rtc_core: rtc_device_unregister
->>> [  125.885163] rtc_core: rtc_device_release
->>> root@linaro-alip:~#
->>>
->>> I have also done experiment to setup rtc alias to rtc1 and this ID is
->>> used only once. It looks like something is not released properly.
->>>
->>> This is out of tree driver but I can't see any specific code which could
->>> improve behavior.
->>> I have tested i2c rtc mcp79410 and there is not a visible problem but it
->>> is not MMIO.
->>
->> This is the function which is making the difference.
->>
->> It was added by John Stultz:
->> "timers: Introduce in-kernel alarm-timer interface"
->> (sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
->>
->> Probe function has device_init_wakeup(&pdev->dev, 1);
->> That's why reference is taken (get_device() below)
->>
->> static int alarmtimer_rtc_add_device(struct device *dev,
->>                                 struct class_interface *class_intf)
->> {
->>         unsigned long flags;
->>         struct rtc_device *rtc = to_rtc_device(dev);
->>
->>         if (rtcdev)
->>                 return -EBUSY;
->>
->>         pr_info("%s\n", __func__);
->>
->>         if (!rtc->ops->set_alarm)
->>                 return -1;
->>
->>         pr_info("%s\n", __func__);
->>
->>         if (!device_may_wakeup(rtc->dev.parent))
->>                 return -1;
->>
->>         spin_lock_irqsave(&rtcdev_lock, flags);
->>         if (!rtcdev) {
->>                 rtcdev = rtc;
->>                 /* hold a reference so it doesn't go away */
->>                 get_device(dev);
->>         }
->>         spin_unlock_irqrestore(&rtcdev_lock, flags);
->>         return 0;
->> }
->>
->> And in remove function device_init_wakeup(&pdev->dev, 0);
->> But because there is still a reference rtc_device_release() is not
->> called and ida is not freed.
->>
->> Generic question which I think should be asked if in this situation
->> driver should be modular or not.
->> If driver can be modular then somewhere should be put_device().
+Hi,
+
+On 07/03/2017 at 00:48:18 +0530, Shah, Nehal-bakulchandra wrote:
+> Hi,
 > 
-> So off the top of my head (sorry, packing for a trip at the moment), I
-> think this was because the alarmtimer subsystem needs to hold onto the
-> rtcdev so it doesn't disappear under it, as it will be needed when
-> setting any alarmtimers on suspend.
+> Currently we are having hardware which does not have RTC. It is single processor system. However it does have TSC timer.
 > 
-> Part of the issue is the alarmtimer interface will provide an error to
-> userspace if there's no rtcdev, so we don't want a situation where
-> timers successfully set then silently never fire because the rtc was
-> removed.
-
-right I fully understand that.
-
+> Now, how to use scheduler with only TSC as current kernel scheduler leverage the RTC for scheduling? I had seen one old patch
 > 
-> That said, there may very well be bugs in how it was handled, and I've
-> not looked closely at it recently.
+> http://marc.info/?l=linux-kernel&m=112013203625990&w=2 
+> 
+> But i guess this patch was later on not taken, It will be great if you can some pointers to move forward?
+> 
 
-On the other hand you can have multiple alarms in the system and you can
-remove them at run time. It means I would expect that you can remove rtc
-if alarm is not set. When you run application driver is in use and you
-can't do it.
+The kernel doesn't use the RTC for its time source so it can
+already work without an RTC.
 
-Anyway by saying this I expect every driver which setup
-device_init_wakeup(..,1); and device_init_wakeup(..,0) in remove has the
-same issue.
-Solution is definitely not making rtc as a module which is in my case
-rtc-zynqmp an option but not the best one.
 
-Thanks,
-Michal
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
