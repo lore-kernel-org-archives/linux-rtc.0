@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBDXMLNOH5ANRBNOH3XCQKGQEYYULWFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC6YH6VTZQDRBNEX77CQKGQE654IYIA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id s64si1131131pfk.0.2017.03.01.16.13.41
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Mar 2017 16:13:41 -0800 (PST)
-Date: Thu, 2 Mar 2017 01:13:32 +0100
-From: Sebastian Reichel <sre@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: remove incorrect __exit markups
-Message-ID: <20170302001332.cooiz5s4nac3iury@earth>
-References: <20170301233323.GA8881@dtor-ws>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id y19si1870786wmd.0.2017.03.08.01.15.31
+        for <rtc-linux@googlegroups.com>;
+        Wed, 08 Mar 2017 01:15:31 -0800 (PST)
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Jason Cooper <jason@lakedaemon.net>,  Andrew Lunn <andrew@lunn.ch>,  Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,  rtc-linux@googlegroups.com,Alessandro Zummo <a.zummo@towertech.it>  ,  Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,  linux-arm-kernel@lists.infradead.org,  Haim Boot <hayim@marvell.com>
+Subject: [rtc-linux] Re: [PATCH v3 3/3] arm64: dts: marvell: add RTC
+ description for Armada 7K/8K
+References: <20170220173850.8640-1-gregory.clement@free-electrons.com>
+	<20170220173850.8640-4-gregory.clement@free-electrons.com>
+Date: Wed, 08 Mar 2017 10:15:21 +0100
+In-Reply-To: <20170220173850.8640-4-gregory.clement@free-electrons.com>
+	(Gregory CLEMENT's message of "Mon, 20 Feb 2017 18:38:50 +0100")
+Message-ID: <87y3wgm8nq.fsf@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="y3n3c3iy7r7l35q6"
-In-Reply-To: <20170301233323.GA8881@dtor-ws>
+Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,81 +26,132 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
---y3n3c3iy7r7l35q6
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
 Hi,
+=20
+ On lun., f=C3=A9vr. 20 2017, Gregory CLEMENT <gregory.clement@free-electro=
+ns.com> wrote:
 
-On Wed, Mar 01, 2017 at 03:33:23PM -0800, Dmitry Torokhov wrote:
-> Even if bus is not hot-pluggable, devices can be unbound from the
-> driver via sysfs, so we should not be using __exit annotations on
-> remove() methods. The only exception is drivers registered with
-> platform_driver_probe(), which specifically disables sysfs bind/unbind
-> attributes.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> This RTC IP is found in the CP110 master and slave which are part of the
+> Armada 8K SoCs and of the subset family the Armada 7K.
+>
+> There is one RTC in each CP but the RTC requires an external
+> oscillator. However on the Armada 80x0, the RTC clock in CP master is not
+> connected (by package) to the oscillator. So this one is disabled for the
+> Armada 8020 and the Armada 8040.
+>
+> As the RTC clock in CP slave is connected to the oscillator this one is
+> let enabled. and will be used on these SoCs (80x0).
+>
+> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 
-Reviewed-By: Sebastian Reichel <sre@kernel.org>
 
--- Sebastian
+Applied on mvebu/dt64
+
+Gregory
+
 
 > ---
->  drivers/rtc/rtc-omap.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 51e52446eacb..fa856d9c5e23 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -844,7 +844,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	return ret;
->  }
->  
-> -static int __exit omap_rtc_remove(struct platform_device *pdev)
-> +static int omap_rtc_remove(struct platform_device *pdev)
->  {
->  	struct omap_rtc *rtc = platform_get_drvdata(pdev);
->  	u8 reg;
-> @@ -964,7 +964,7 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
->  
->  static struct platform_driver omap_rtc_driver = {
->  	.probe		= omap_rtc_probe,
-> -	.remove		= __exit_p(omap_rtc_remove),
-> +	.remove		= omap_rtc_remove,
->  	.shutdown	= omap_rtc_shutdown,
->  	.driver		= {
->  		.name	= "omap_rtc",
+>  arch/arm64/boot/dts/marvell/armada-8020.dtsi         | 10 ++++++++++
+>  arch/arm64/boot/dts/marvell/armada-8040.dtsi         |  9 +++++++++
+>  arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi |  7 +++++++
+>  arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi  |  7 +++++++
+>  4 files changed, 33 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/marvell/armada-8020.dtsi b/arch/arm64/bo=
+ot/dts/marvell/armada-8020.dtsi
+> index 048e5cf5160e..7c08f1f28d9e 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-8020.dtsi
+> @@ -54,3 +54,13 @@
+>  	compatible =3D "marvell,armada8020", "marvell,armada-ap806-dual",
+>  		     "marvell,armada-ap806";
+>  };
+> +
+> +/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clo=
+ck
+> + * in CP master is not connected (by package) to the oscillator. So
+> + * disable it. However, the RTC clock in CP slave is connected to the
+> + * oscillator so this one is let enabled.
+> + */
+> +
+> +&cpm_rtc {
+> +	status =3D "disabled";
+> +};
+> diff --git a/arch/arm64/boot/dts/marvell/armada-8040.dtsi b/arch/arm64/bo=
+ot/dts/marvell/armada-8040.dtsi
+> index 9c1b28c47683..33813a75bc30 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
+> @@ -54,3 +54,12 @@
+>  	compatible =3D "marvell,armada8040", "marvell,armada-ap806-quad",
+>  		     "marvell,armada-ap806";
+>  };
+> +
+> +/* The RTC requires external oscillator. But on Aramda 80x0, the RTC clo=
+ck
+> + * in CP master is not connected (by package) to the oscillator. So
+> + * disable it. However, the RTC clock in CP slave is connected to the
+> + * oscillator so this one is let enabled.
+> + */
+> +&cpm_rtc {
+> +	status =3D "disabled";
+> +};
+> diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi b/arch/=
+arm64/boot/dts/marvell/armada-cp110-master.dtsi
+> index 3a99c36433d6..d12741414009 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-cp110-master.dtsi
+> @@ -79,6 +79,13 @@
+>  					"cpm-usb3dev", "cpm-eip150", "cpm-eip197";
+>  			};
+> =20
+> +			cpm_rtc: rtc@284000 {
+> +				compatible =3D "marvell,armada-8k-rtc";
+> +				reg =3D <0x284000 0x20>, <0x284080 0x24>;
+> +				reg-names =3D "rtc", "rtc-soc";
+> +				interrupts =3D <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
+> +			};
+> +
+>  			cpm_sata0: sata@540000 {
+>  				compatible =3D "marvell,armada-8k-ahci",
+>  					     "generic-ahci";
+> diff --git a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi b/arch/a=
+rm64/boot/dts/marvell/armada-cp110-slave.dtsi
+> index 9e09c4d3b6bd..d51eb2db6df7 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-cp110-slave.dtsi
+> @@ -59,6 +59,13 @@
+>  			interrupt-parent =3D <&gic>;
+>  			ranges =3D <0x0 0x0 0xf4000000 0x2000000>;
+> =20
+> +			cps_rtc: rtc@284000 {
+> +				compatible =3D "marvell,armada-8k-rtc";
+> +				reg =3D <0x284000 0x20>, <0x284080 0x24>;
+> +				reg-names =3D "rtc", "rtc-soc";
+> +				interrupts =3D <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
+> +			};
+> +
+>  			cps_syscon0: system-controller@440000 {
+>  				compatible =3D "marvell,cp110-system-controller0",
+>  					     "syscon";
+> --=20
+> 2.11.0
+>
 
--- 
+--=20
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---y3n3c3iy7r7l35q6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAli3Y6sACgkQ2O7X88g7
-+poBPxAAme6gBdEtcfo8TkPcR8cDXN9SsF5g9bDvblBE7ZMXO/35069oBEqJ0U5u
-5IaFGjdC6Csvv/3SfhOd5CzmBndM1YGaD4CGQ1mafOeA07Gcu8fG/sezysxUTPhr
-p8a7iYD+MDnDkObYHweccOFxj8GDwv6Lk/cp33DSlBLCn2ucyoeBbNI9RUiBzCHf
-QeQEbzP1jjRWR7JWe1XV5OaDesgpPl/zJZ29gAl5qFQf8lMPdbCCBLn23DMzb5GE
-Kt/SzA15J8ir7ucrdg37QHAoRoskwN06QNpWXoGBP9F1KxxYSoPlVn+gwCkpxplN
-SknBTiiu/IDkvnnnt3+oSNf5OU7uZ4jJYcFCX1stYIt6OcDPYv5BdjO2q8evGLxN
-oS319R3BEYLYD8cBVeIIjy6hYdD1oPJA3Gs3bHlKtZZGM8kDiBp4Gq1DYkNdZZAl
-fvpaJ50jAwqJ8cM9pPHrJXw7Y1r5gaHVv+VE4kEKnEpzv0kw3N/unZAabM36NvAb
-yJfDx8VJbzrxvVxdCkBa+Bk2TBg2sAjvuBrx6PMfpKwUFAM9y2ecsSNGN+9AQMhc
-uW1ovxNn3vUlnjCK2FnnuAHtwj0u96nfDWSp2F6+3KJmLYlZZk+httEoVrl+izYF
-kzYhjlueaYzSSkG/Sr5ekU0LfMTlMmRvQvMP2iSbNCEUsH2OFX4=
-=ClCt
------END PGP SIGNATURE-----
-
---y3n3c3iy7r7l35q6--
