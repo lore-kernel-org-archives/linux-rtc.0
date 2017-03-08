@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBAABBY4W43CQKGQEODLWT2Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAMN6NI5EERB5F3QDDAKGQEUQYNW7Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id g82si91086pfb.5.2017.03.03.07.27.30
-        for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 07:27:30 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH 00/13] rtc: Add OF device table to I2C drivers
- that are missing it
+Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
+        by gmr-mx.google.com with ESMTPS id n128si702495wmf.2.2017.03.08.07.06.28
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Wed, 08 Mar 2017 07:06:28 -0800 (PST)
+Date: Wed, 8 Mar 2017 16:06:23 +0100 (CET)
+From: Thomas Gleixner <tglx@linutronix.de>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
- <20170303150134.qacfd7ccemqxwq3p@piout.net>
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
- Alessandro Zummo <a.zummo@towertech.it>
-Message-ID: <abb5cd41-b904-1512-7520-e4a89f26d4b3@osg.samsung.com>
-Date: Fri, 3 Mar 2017 12:27:23 -0300
+cc: "Hadimani, Jagadish" <Jagadish.Hadimani@amd.com>,
+    "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>,
+    "a.zummo@towertech.it" <a.zummo@towertech.it>,
+    "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+    "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+    Ingo Molnar <mingo@kernel.org>
+Subject: [rtc-linux] Re: Kernel without RTC
+In-Reply-To: <20170308134748.yk52f7aqm7d4kwdg@piout.net>
+Message-ID: <alpine.DEB.2.20.1703081602460.3521@nanos>
+References: <221f9318-749f-03b8-aac8-85e9f9bec318@amd.com> <20170308131730.zrznsnk5oldfuoib@piout.net> <016032B5-A966-48A9-B60D-AD75B8B857EE@amd.com> <20170308134748.yk52f7aqm7d4kwdg@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <20170303150134.qacfd7ccemqxwq3p@piout.net>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,45 +29,41 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello Alexandre,
-
-On 03/03/2017 12:01 PM, Alexandre Belloni wrote:
-> Hi,
+On Wed, 8 Mar 2017, Alexandre Belloni wrote:
+> On 08/03/2017 at 13:33:33 +0000, Hadimani, Jagadish wrote:
+> > Hello Alexandre,
+> > 
+> > I guess the Linux kernel uses HPET timer...
+> > But can we can force Linux kernel to use Tsc or per core timer...
+> > 
 > 
-> On 03/03/2017 at 11:29:11 -0300, Javier Martinez Canillas wrote:
->> This series add OF device ID tables to RTC I2C drivers whose devices are
->> either used in Device Tree source files or are listed in binding docs as
->> a compatible string.
->>
->> That's done because the plan is to change the I2C core to report proper OF
->> modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
->> a device was registered via DT or using the legacy platform data.
->>
+> That is probably the case but your are targeting the wrong subsystem.
+> The timekeeping is done using two different devices: clocksource and
+> clockevent. Usually, the drivers are in drivers/clocksource. I'm
+> definitively not an expert in x86 but the clockevent seems to be
+> registered from arch/x86/kernel/hpet.c and the clocksource from
+> arch/x86/kernel/tsc.c
 > 
-> Doesn't that break the DT ABI for all i2c devices? A lot of people are
-> getting the vendor wrong in the compatible string and because the i2c
-> core doesn't care, the driver is still probed. Dropping that will break
-> all those DTBs.
-> Or will that only affect module autoload?
+> IIRC the clocksource is optional but the clockevent is mandatory so if
+> you don't have an HPET, you will need to register a clockevent device
+> from somewhere else.
 > 
+> Maybe the simplest thing to do is to ask the x86 maintainers and the
+> time maintainers. Luckily for you, they are the same people (Thomas and
+> Ingo, added in cc).
 
-The change will only be for module autoload. The I2C core will still attempt
-to match the I2C device ID table as a fallback if fails to match the OF one.
-So there's no change in the match logic for drivers that do the wrong thing.
+The scheduler uses TSC anyway.
 
-If someone is using a wrong vendor prefix and the DT can't be changed, then
-an entry in the OF device ID table has to be added for "wrong_vendor,device"
-so the MODALIAS uevent can be "of:N*T*wrong_vendor,device".
+The RTC is only used for setting the wall clock time at boot and for
+figuring out the time a system spent in suspend. If you don't have an RTC
+then the boot wall clock time will be simply 1/1/1970 00:00:00.
 
-This is the RFC patch for the I2C core so you get a better idea:
+Jagadish, can you please explain what your problem is. Does the system fail
+to boot or does it behave strange or what?
 
-https://patchwork.kernel.org/patch/6903981/
+Thanks,
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+	tglx
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
