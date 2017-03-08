@@ -1,21 +1,23 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDWEQLDAKGQEO7Z5A4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBMEQQDDAKGQE2YBZSTA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id t131si433746wmf.1.2017.03.08.16.30.06
-        for <rtc-linux@googlegroups.com>;
-        Wed, 08 Mar 2017 16:30:06 -0800 (PST)
-Date: Thu, 9 Mar 2017 01:30:06 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] Re: [PATCH 00/13] rtc: Add OF device table to I2C drivers
- that are missing it
-Message-ID: <20170309003006.j5y7zabuto7er676@piout.net>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
-MIME-Version: 1.0
+Received: from NAM03-BY2-obe.outbound.protection.outlook.com (mail-by2nam03on0086.outbound.protection.outlook.com. [104.47.42.86])
+        by gmr-mx.google.com with ESMTPS id 2si567589pfz.1.2017.03.08.05.33.35
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 08 Mar 2017 05:33:35 -0800 (PST)
+From: "Hadimani, Jagadish" <Jagadish.Hadimani@amd.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>,
+	"a.zummo@towertech.it" <a.zummo@towertech.it>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: [rtc-linux] Re: Kernel without RTC
+Date: Wed, 8 Mar 2017 13:33:33 +0000
+Message-ID: <016032B5-A966-48A9-B60D-AD75B8B857EE@amd.com>
+References: <221f9318-749f-03b8-aac8-85e9f9bec318@amd.com>,<20170308131730.zrznsnk5oldfuoib@piout.net>
+In-Reply-To: <20170308131730.zrznsnk5oldfuoib@piout.net>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,65 +27,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/03/2017 at 11:29:11 -0300, Javier Martinez Canillas wrote:
-> Hello,
-> 
-> This series add OF device ID tables to RTC I2C drivers whose devices are
-> either used in Device Tree source files or are listed in binding docs as
-> a compatible string.
-> 
-> That's done because the plan is to change the I2C core to report proper OF
-> modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
-> a device was registered via DT or using the legacy platform data.
-> 
-> So these patches will make sure that RTC I2C drivers modules will continue
-> to be autoloaded once the I2C core is changed to report proper OF modalias.
-> 
-> Best regards,
-> Javier
-> 
-> 
-> Javier Martinez Canillas (13):
->   rtc: rv8803: Add OF device ID table
->   rtc: rv3029: Add OF device ID table
->   rtc: bq32k: Add OF device ID table
->   rtc: ds1307: Add OF device ID table
->   rtc: rx8010: Add OF device ID table
->   rtc: ds3232: Add OF device ID table
->   rtc: rtc-ds1672: Add OF device ID table
->   rtc: ds1374: Set .of_match_table to OF device ID table
->   rtc: isl1208: Add OF device ID table
->   rtc: s35390a: Add OF device ID table
->   rtc: rx8581: Add OF device ID table
->   rtc: m41t80: Add OF device ID table
->   rtc: rs5c372: Add OF device ID table
-> 
+Hello Alexandre,
 
-All applied, thanks!
+I guess the Linux kernel uses HPET timer...
+But can we can force Linux kernel to use Tsc or per core timer...
 
->  drivers/rtc/rtc-bq32k.c    |  7 +++++
->  drivers/rtc/rtc-ds1307.c   | 68 +++++++++++++++++++++++++++++++++++++++++++++-
->  drivers/rtc/rtc-ds1374.c   |  1 +
->  drivers/rtc/rtc-ds1672.c   |  9 +++++-
->  drivers/rtc/rtc-ds3232.c   |  7 +++++
->  drivers/rtc/rtc-isl1208.c  | 12 ++++++--
->  drivers/rtc/rtc-m41t80.c   | 63 ++++++++++++++++++++++++++++++++++++++++--
->  drivers/rtc/rtc-rs5c372.c  | 37 ++++++++++++++++++++++++-
->  drivers/rtc/rtc-rv3029c2.c |  9 ++++++
->  drivers/rtc/rtc-rv8803.c   | 21 +++++++++++++-
->  drivers/rtc/rtc-rx8010.c   |  7 +++++
->  drivers/rtc/rtc-rx8581.c   |  7 +++++
->  drivers/rtc/rtc-s35390a.c  |  8 ++++++
->  13 files changed, 248 insertions(+), 8 deletions(-)
+Sent from my iPhone
+
+> On 8 Mar 2017, at 6:47 PM, Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+> 
+> Hi,
+> 
+>> On 07/03/2017 at 00:48:18 +0530, Shah, Nehal-bakulchandra wrote:
+>> Hi,
+>> 
+>> Currently we are having hardware which does not have RTC. It is single processor system. However it does have TSC timer.
+>> 
+>> Now, how to use scheduler with only TSC as current kernel scheduler leverage the RTC for scheduling? I had seen one old patch
+>> 
+>> http://marc.info/?l=linux-kernel&m=112013203625990&w=2 
+>> 
+>> But i guess this patch was later on not taken, It will be great if you can some pointers to move forward?
+>> 
+> 
+> The kernel doesn't use the RTC for its time source so it can
+> already work without an RTC.
+> 
 > 
 > -- 
-> 2.9.3
-> 
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> Alexandre Belloni, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
