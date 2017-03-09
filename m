@@ -1,26 +1,20 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBB36DV7DAKGQENA3BEXA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQOFQLDAKGQEGYVVTJI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
-        by gmr-mx.google.com with ESMTP id u12si1402571pfd.3.2017.03.17.06.17.34
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id n128si880278wmf.2.2017.03.08.16.33.04
         for <rtc-linux@googlegroups.com>;
-        Fri, 17 Mar 2017 06:17:35 -0700 (PDT)
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman
-	<horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas
-	<linux-renesas-soc@vger.kernel.org>
-Subject: [rtc-linux] RE: [PATCH 1/5] rtc: rtc-sh: add support for rza series
-Date: Fri, 17 Mar 2017 13:17:31 +0000
-Message-ID: <SG2PR06MB116511BA2DB66097980C97548A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
- <20170316175112.27913-2-chris.brandt@renesas.com>
- <CAMuHMdXXRiUTJJRsrpyFNEwjvjPO2s5Rthn2r+UipaQgVHHMcQ@mail.gmail.com>
-In-Reply-To: <CAMuHMdXXRiUTJJRsrpyFNEwjvjPO2s5Rthn2r+UipaQgVHHMcQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 08 Mar 2017 16:33:04 -0800 (PST)
+Date: Thu, 9 Mar 2017 01:33:04 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: omap: remove incorrect __exit markups
+Message-ID: <20170309003304.mnrzarf6wzu3smzg@piout.net>
+References: <20170301233323.GA8881@dtor-ws>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170301233323.GA8881@dtor-ws>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,31 +24,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Geert,
-
-On Friday, March 17, 2017, Geert Uytterhoeven wrote:
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -1303,10 +1303,10 @@ config RTC_DRV_SA1100
-> >
-> >  config RTC_DRV_SH
-> >         tristate "SuperH On-Chip RTC"
-> > -       depends on SUPERH && HAVE_CLK
-> > +       depends on (SUPERH || ARCH_RENESAS) && HAVE_CLK
+On 01/03/2017 at 15:33:23 -0800, Dmitry Torokhov wrote:
+> Even if bus is not hot-pluggable, devices can be unbound from the
+> driver via sysfs, so we should not be using __exit annotations on
+> remove() methods. The only exception is drivers registered with
+> platform_driver_probe(), which specifically disables sysfs bind/unbind
+> attributes.
 > 
-> I believe the dependency on HAVE_CLK is not needed.
-> SuperH selects CLKDEV_LOOKUP, which selects HAVE_CLK.
-> ARM (and ARM64) selects COMMON_CLK, which selects HAVE_CLK.
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/rtc/rtc-omap.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> interestingly, SuperH already did so at the time the dependency was
-> added...
+Applied, thanks.
 
-OK, I'll take it out.
-I just didn't want to break any SH stuff.
-
-
-
-Chris
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
