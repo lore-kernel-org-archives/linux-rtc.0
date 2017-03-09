@@ -1,50 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBXG7WDDAKGQEYIY5WDY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4WFQLDAKGQEJAN4GDY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id n128si880389wmf.2.2017.03.08.16.33.54
+        for <rtc-linux@googlegroups.com>;
+        Wed, 08 Mar 2017 16:33:54 -0800 (PST)
+Date: Thu, 9 Mar 2017 01:33:54 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCHv4 1/2] dt-bindings: Add vendor prefix for Motorola
+Message-ID: <20170309003354.ueodnxio446ps6vp@piout.net>
+References: <20170220073535.27393-1-sre@kernel.org>
+ <20170302002709.22276-1-sre@kernel.org>
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id g82si1532043pfb.5.2017.03.17.11.50.03
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:50:03 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:14 -0600
-Message-Id: <1489776503-3151-8-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 07/16] platform/chrome: cros_ec_dev - utilize
- new cdev_device_add helper function
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170302002709.22276-1-sre@kernel.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -53,92 +28,33 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+On 02/03/2017 at 01:27:08 +0100, Sebastian Reichel wrote:
+> Motorola was involved in semiconductor and mobile phone business.
+> The "motorola," prefix is already used by a couple of bindings:
+> 
+> * rtc/rtc-cmos.txt
+> * mfd/motorola-cpcap.txt
+> * regulator/cpcap-regulator.txt
+> 
+> Apart from that it is used in the DT file for the Droid 4 mobile
+> phone.
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> ---
+> Changes since PATCHv3:
+>  - Fix typo
+>  - Add Acked-By from Rob Herring
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+Applied, thanks.
 
-At the same time we cleanup the error path through device_probe
-function: we use put_device instead of kfree directly as recommended
-by the device_initialize documentation.
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/platform/chrome/cros_ec_dev.c | 31 +++++++------------------------
- 1 file changed, 7 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
-index 6f09da4..6aa120c 100644
---- a/drivers/platform/chrome/cros_ec_dev.c
-+++ b/drivers/platform/chrome/cros_ec_dev.c
-@@ -391,7 +391,6 @@ static int ec_device_probe(struct platform_device *pdev)
- 	int retval = -ENOMEM;
- 	struct device *dev = &pdev->dev;
- 	struct cros_ec_platform *ec_platform = dev_get_platdata(dev);
--	dev_t devno = MKDEV(ec_major, pdev->id);
- 	struct cros_ec_dev *ec = kzalloc(sizeof(*ec), GFP_KERNEL);
- 
- 	if (!ec)
-@@ -407,23 +406,11 @@ static int ec_device_probe(struct platform_device *pdev)
- 	cdev_init(&ec->cdev, &fops);
- 
- 	/*
--	 * Add the character device
--	 * Link cdev to the class device to be sure device is not used
--	 * before unbinding it.
--	 */
--	ec->cdev.kobj.parent = &ec->class_dev.kobj;
--	retval = cdev_add(&ec->cdev, devno, 1);
--	if (retval) {
--		dev_err(dev, ": failed to add character device\n");
--		goto cdev_add_failed;
--	}
--
--	/*
- 	 * Add the class device
- 	 * Link to the character device for creating the /dev entry
- 	 * in devtmpfs.
- 	 */
--	ec->class_dev.devt = ec->cdev.dev;
-+	ec->class_dev.devt = MKDEV(ec_major, pdev->id);
- 	ec->class_dev.class = &cros_class;
- 	ec->class_dev.parent = dev;
- 	ec->class_dev.release = __remove;
-@@ -431,13 +418,13 @@ static int ec_device_probe(struct platform_device *pdev)
- 	retval = dev_set_name(&ec->class_dev, "%s", ec_platform->ec_name);
- 	if (retval) {
- 		dev_err(dev, "dev_set_name failed => %d\n", retval);
--		goto set_named_failed;
-+		goto failed;
- 	}
- 
--	retval = device_add(&ec->class_dev);
-+	retval = cdev_device_add(&ec->cdev, &ec->class_dev);
- 	if (retval) {
--		dev_err(dev, "device_register failed => %d\n", retval);
--		goto dev_reg_failed;
-+		dev_err(dev, "cdev_device_add failed => %d\n", retval);
-+		goto failed;
- 	}
- 
- 	/* check whether this EC is a sensor hub. */
-@@ -446,12 +433,8 @@ static int ec_device_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--dev_reg_failed:
--set_named_failed:
--	dev_set_drvdata(dev, NULL);
--	cdev_del(&ec->cdev);
--cdev_add_failed:
--	kfree(ec);
-+failed:
-+	put_device(&ec->class_dev);
- 	return retval;
- }
- 
 -- 
-2.1.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
