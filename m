@@ -1,37 +1,25 @@
-Return-Path: <rtc-linux+bncBC4IFTUFXEFBBV5G37DAKGQEPDJIM5Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBN4DUDDAKGQE6OVFS7Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
-        by gmr-mx.google.com with ESMTPS id e72si783859wma.0.2017.03.26.07.42.30
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id f7si979017wmg.3.2017.03.14.07.44.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Mar 2017 07:42:30 -0700 (PDT)
-Received: by mail-wr0-x232.google.com with SMTP id u1so22272177wra.2
-        for <rtc-linux@googlegroups.com>; Sun, 26 Mar 2017 07:42:30 -0700 (PDT)
-From: Leo Yan <leo.yan@linaro.org>
-To: Russell King <linux@armlinux.org.uk>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Baptiste Reynal <b.reynal@virtualopensystems.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	kvm@vger.kernel.org,
-	alsa-devel@alsa-project.org
-Cc: Leo Yan <leo.yan@linaro.org>
-Subject: [rtc-linux] [PATCH 1/5] Input: ambakmi - Convert to use devm_*()
-Date: Sun, 26 Mar 2017 22:41:50 +0800
-Message-Id: <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
-In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 14 Mar 2017 07:44:07 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
+To: Lee Jones <lee.jones@linaro.org>
+References: <20170214221529.6434-1-enric.balletbo@collabora.com>
+ <20170214221529.6434-4-enric.balletbo@collabora.com>
+ <20170314135932.ngn7uh67duzroy47@dell>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+ Olof Johansson <olof@lixom.net>, Stephen Barber <smbarber@chromium.org>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Message-ID: <f934a89e-8f0b-5a74-1c6f-8b9f1d85ba72@collabora.com>
+Date: Tue, 14 Mar 2017 15:44:03 +0100
+MIME-Version: 1.0
+In-Reply-To: <20170314135932.ngn7uh67duzroy47@dell>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,97 +28,98 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Convert driver to use devm_*() APIs so rely on driver model core layer
-to manage resources. This eliminates error path boilerplate and makes
-code neat.
+Hi Lee,
 
-This patch also fixes the memory leakage for 'kmi->io' when remove
-module.
+On 14/03/17 14:59, Lee Jones wrote:
+> On Tue, 14 Feb 2017, Enric Balletbo i Serra wrote:
+> 
+>> From: Stephen Barber <smbarber@chromium.org>
+>>
+>> If the EC supports RTC host commands, expose an RTC device.
+>>
+>> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+>> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+>> Acked-by: Benson Leung <bleung@chromium.org>
+>> ---
+>> Changes since v2:
+>>  - Acked by Benson Leung
+>> Changes since v1:
+>>  - none
+>>
+>>  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>>
+>> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chrome/cros_ec_dev.c
+>> index 47268ec..ebe029d 100644
+>> --- a/drivers/platform/chrome/cros_ec_dev.c
+>> +++ b/drivers/platform/chrome/cros_ec_dev.c
+>> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
+>>  	kfree(msg);
+>>  }
+>>  
+>> +static const struct mfd_cell cros_ec_rtc_devs[] = {
+>> +	{
+>> +		.name = "cros-ec-rtc",
+>> +		.id   = -1,
+>> +	},
+>> +};
+>> +
+>> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
+>> +			      ARRAY_SIZE(cros_ec_rtc_devs),
+>> +			      NULL, 0, NULL);
+>> +	if (ret)
+>> +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
+>> +}
+> 
+> Holey poop!  Why are you using the MFD API outside of MFD?
+> 
+> Why can't you register this from the MFD driver?
+> 
 
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
----
- drivers/input/serio/ambakmi.c | 44 ++++++++++---------------------------------
- 1 file changed, 10 insertions(+), 34 deletions(-)
+Actually the MFD doesn't know how to check if this feature is available or not,
+instead is the platform driver cros_ec_dev who knows how to check this and if it
+exists adds the rtc device.
 
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index c6606ca..d4814be 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -112,19 +112,11 @@ static int amba_kmi_probe(struct amba_device *dev,
- {
- 	struct amba_kmi_port *kmi;
- 	struct serio *io;
--	int ret;
--
--	ret = amba_request_regions(dev, NULL);
--	if (ret)
--		return ret;
--
--	kmi = kzalloc(sizeof(struct amba_kmi_port), GFP_KERNEL);
--	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
--	if (!kmi || !io) {
--		ret = -ENOMEM;
--		goto out;
--	}
- 
-+	kmi = devm_kzalloc(&dev->dev, sizeof(*kmi), GFP_KERNEL);
-+	io  = devm_kzalloc(&dev->dev, sizeof(*io), GFP_KERNEL);
-+	if (!kmi || !io)
-+		return -ENOMEM;
- 
- 	io->id.type	= SERIO_8042;
- 	io->write	= amba_kmi_write;
-@@ -136,31 +128,19 @@ static int amba_kmi_probe(struct amba_device *dev,
- 	io->dev.parent	= &dev->dev;
- 
- 	kmi->io		= io;
--	kmi->base	= ioremap(dev->res.start, resource_size(&dev->res));
--	if (!kmi->base) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	kmi->base	= devm_ioremap_resource(&dev->dev, &dev->res);
-+	if (IS_ERR(kmi->base))
-+		return PTR_ERR(kmi->base);
- 
--	kmi->clk = clk_get(&dev->dev, "KMIREFCLK");
--	if (IS_ERR(kmi->clk)) {
--		ret = PTR_ERR(kmi->clk);
--		goto unmap;
--	}
-+	kmi->clk = devm_clk_get(&dev->dev, "KMIREFCLK");
-+	if (IS_ERR(kmi->clk))
-+		return PTR_ERR(kmi->clk);
- 
- 	kmi->irq = dev->irq[0];
- 	amba_set_drvdata(dev, kmi);
- 
- 	serio_register_port(kmi->io);
- 	return 0;
--
-- unmap:
--	iounmap(kmi->base);
-- out:
--	kfree(kmi);
--	kfree(io);
--	amba_release_regions(dev);
--	return ret;
- }
- 
- static int amba_kmi_remove(struct amba_device *dev)
-@@ -168,10 +148,6 @@ static int amba_kmi_remove(struct amba_device *dev)
- 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
- 
- 	serio_unregister_port(kmi->io);
--	clk_put(kmi->clk);
--	iounmap(kmi->base);
--	kfree(kmi);
--	amba_release_regions(dev);
- 	return 0;
- }
- 
--- 
-2.7.4
+if (cros_ec_check_features(ec, EC_FEATURE_RTC))
+	cros_ec_rtc_register(ec); /* add the mfd device */
+
+Same approach was used in the same file for the Sensors Hub (already upstream). See:
+
+  drivers/platform/chrome/cros_ec_dev.c:462
+  drivers/platform/chrome/cros_ec_dev.c:372
+
+I didn't know that the MFD API was restricted outside MFD. In such case what I
+need to do is let know the MFD driver about the cros_ec_check_features
+(implemented in platform driver cros_ec_dev), this doesn't seems good to me but
+I might be wrong. So please, let me know which option do you prefer and if it's
+the case we will need to change I'll try to do it.
+
+Note that I think that a similar use case is used in
+drivers/iio/common/ssp_sensors/ssp_dev.c:535, where the iio driver registers the
+sensors to the mfd.
+
+Thanks,
+  Enric
+
+>>  static int ec_device_probe(struct platform_device *pdev)
+>>  {
+>>  	int retval = -ENOMEM;
+>> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *pdev)
+>>  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
+>>  		cros_ec_sensors_register(ec);
+>>  
+>> +	/* check whether this EC instance has RTC host command support */
+>> +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
+>> +		cros_ec_rtc_register(ec);
+>> +
+>>  	return 0;
+>>  
+>>  dev_reg_failed:
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
