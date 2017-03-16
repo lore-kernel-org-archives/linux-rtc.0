@@ -1,24 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4WFQLDAKGQEJAN4GDY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBYMWVTDAKGQEEBEKIKA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id n128si880389wmf.2.2017.03.08.16.33.54
+        by gmr-mx.google.com with ESMTP id n128si18876wmf.2.2017.03.16.15.02.08
         for <rtc-linux@googlegroups.com>;
-        Wed, 08 Mar 2017 16:33:54 -0800 (PST)
-Date: Thu, 9 Mar 2017 01:33:54 +0100
+        Thu, 16 Mar 2017 15:02:08 -0700 (PDT)
+Date: Thu, 16 Mar 2017 23:01:58 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv4 1/2] dt-bindings: Add vendor prefix for Motorola
-Message-ID: <20170309003354.ueodnxio446ps6vp@piout.net>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170302002709.22276-1-sre@kernel.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Sebastian Reichel <sre@kernel.org>, rtc-linux@googlegroups.com,
+	kernel-janitors@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: cpcap: kfreeing devm allocated memory
+Message-ID: <20170316220158.c3e2l6gv3jrplsbx@piout.net>
+References: <20170314075319.GB6111@mwanda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170302002709.22276-1-sre@kernel.org>
+In-Reply-To: <20170314075319.GB6111@mwanda>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -28,26 +25,12 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/03/2017 at 01:27:08 +0100, Sebastian Reichel wrote:
-> Motorola was involved in semiconductor and mobile phone business.
-> The "motorola," prefix is already used by a couple of bindings:
+On 14/03/2017 at 10:56:30 +0300, Dan Carpenter wrote:
+> We shouldn't kfree(rtc) because is devm_ managed memory.  It leads to a
+> double free.
 > 
-> * rtc/rtc-cmos.txt
-> * mfd/motorola-cpcap.txt
-> * regulator/cpcap-regulator.txt
-> 
-> Apart from that it is used in the DT file for the Droid 4 mobile
-> phone.
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
-> Changes since PATCHv3:
->  - Fix typo
->  - Add Acked-By from Rob Herring
-> ---
->  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
->  1 file changed, 1 insertion(+)
+> Fixes: dd3bf50b35e3 ("rtc: cpcap: new rtc driver")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 > 
 Applied, thanks.
 
