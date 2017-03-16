@@ -1,28 +1,74 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBYEL6PDAKGQERV742LY@googlegroups.com>
-Received: from mail-it0-x241.google.com (mail-it0-x241.google.com. [2607:f8b0:4001:c0b::241])
-        by gmr-mx.google.com with ESMTPS id e196si197149itc.2.2017.03.30.01.46.23
+Return-Path: <rtc-linux+bncBCUJ7YGL3QFBB246VHDAKGQESZ6HDTQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
+        by gmr-mx.google.com with ESMTPS id c123si772329pfa.4.2017.03.16.01.40.10
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Mar 2017 01:46:23 -0700 (PDT)
-Received: by mail-it0-x241.google.com with SMTP id y18so12385229itc.2
-        for <rtc-linux@googlegroups.com>; Thu, 30 Mar 2017 01:46:23 -0700 (PDT)
+        Thu, 16 Mar 2017 01:40:10 -0700 (PDT)
+Date: Thu, 16 Mar 2017 17:39:55 +0900
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Marcel Selhorst <tpmdd@selhorst.net>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Haggai Eran <haggaie@mellanox.com>,
+	Parav Pandit <pandit.parav@gmail.com>,
+	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Artem Bityutskiy <dedekind1@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Alexandre Bounine <alexandre.bounine@idt.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Boaz Harrosh <ooo@electrozaur.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Stephen Bates <stephen.bates@microsemi.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	linux-pci <linux-pci@vger.kernel.org>, linux-scsi@vger.kernel.org,
+	"linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+	"linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+	linux-rdma@vger.kernel.org,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	Linux Input <linux-input@vger.kernel.org>,
+	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Logan Gunthorpe <logang@deltatee.com>
+Subject: Re: [rtc-linux] [PATCH v3 05/16] gpiolib: utilize new cdev_device_add
+ helper function
+Message-ID: <20170316083955.GA18265@kroah.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-6-git-send-email-logang@deltatee.com>
+ <CACRpkdaNW+kexYNOZiVTRywHpwndKLbXmP1NXDjOifKY3JUURQ@mail.gmail.com>
 MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20170329173035.67477-5-chris.brandt@renesas.com>
-References: <20170329173035.67477-1-chris.brandt@renesas.com> <20170329173035.67477-5-chris.brandt@renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 30 Mar 2017 10:46:22 +0200
-Message-ID: <CAMuHMdXvU7LQAH6h8StLqQdc4cD1kqr97Ajry18SNO61GCxn4Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 4/7] ARM: dts: r7s72100: add RTC_X clock
- inputs to device tree
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CACRpkdaNW+kexYNOZiVTRywHpwndKLbXmP1NXDjOifKY3JUURQ@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,24 +78,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 29, 2017 at 7:30 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> Add the RTC clocks to device tree. The frequencies must be fixed values
-> according to the hardware manual.
->
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+On Tue, Mar 14, 2017 at 04:28:28PM +0100, Linus Walleij wrote:
+> On Mon, Mar 6, 2017 at 8:04 AM, Logan Gunthorpe <logang@deltatee.com> wrote:
+> 
+> > Replace the open coded registration of the cdev and dev with the
+> > new device_add_cdev() helper. The helper replaces a common pattern by
+> > taking the proper reference against the parent device and adding both
+> > the cdev and the device.
+> >
+> > Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> 
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> 
+> Please inform me if you plan to merge this into the device core
+> tree or similar, or whether I should apply it for like v4.13 after merging
+> the core patch or so.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+I'll take this through my tree, no need to bother you with it.
 
-Gr{oetje,eeting}s,
+thanks,
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+greg k-h
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
