@@ -1,31 +1,24 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBJO7X7DAKGQEHYBZDCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCUJ7YGL3QFBBKH4VXDAKGQEWBAS22Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
-        by gmr-mx.google.com with ESMTP id 2si2856551pfx.8.2017.03.20.08.05.08
-        for <rtc-linux@googlegroups.com>;
-        Mon, 20 Mar 2017 08:05:09 -0700 (PDT)
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, "Geert
- Uytterhoeven" <geert@linux-m68k.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman
-	<horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas
-	<linux-renesas-soc@vger.kernel.org>
-Subject: [rtc-linux] RE: [PATCH 2/5] rtc: Add rtc-sh
-Date: Mon, 20 Mar 2017 15:05:03 +0000
-Message-ID: <SG2PR06MB1165819F41CF40562F44F08B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
- <20170316175112.27913-3-chris.brandt@renesas.com>
- <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
- <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
- <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
- <20170317150524.oijto6gtjxycdnwn@piout.net>
-In-Reply-To: <20170317150524.oijto6gtjxycdnwn@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
+        by gmr-mx.google.com with ESMTPS id 2si1297254pfx.8.2017.03.16.23.11.52
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 Mar 2017 23:11:52 -0700 (PDT)
+Date: Fri, 17 Mar 2017 15:11:37 +0900
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: kernel test robot <fengguang.wu@intel.com>, LKP <lkp@01.org>,
+	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	wfg@linux.intel.com
+Subject: [rtc-linux] Re: [rtc] 4cd8adb100: WARNING: CPU: 0 PID: 1 at
+ lib/kobject.c:690 kobject_put
+Message-ID: <20170317061137.GA21612@kroah.com>
+References: <58cb6cce.GwD02K343UlZPrBA%fengguang.wu@intel.com>
+ <72ddb00d-3eda-1a16-9c3b-10055dd4e730@deltatee.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <72ddb00d-3eda-1a16-9c3b-10055dd4e730@deltatee.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,89 +28,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre and Geert,
-
-
-On Friday, March 17, 2017, Alexandre Belloni wrote:
-> On 17/03/2017 at 14:55:48 +0100, Geert Uytterhoeven wrote:
-> > >> it would still be good to have phandles to the external clock
-> > >> sources as well, as that describes the hardware topology.
-> > >
-> > > I'm confused, you mean make new clocks node for RTC_X1 (fixed at
-> > > 32.768kHZ) and
-> > > RTC_X3 (fixed at 4MHz), but then not really do anything with then?
-> > > (the driver
-> >
-> > You still do something with them, as they'll be linked from the rtc
-> device node.
-> >
-> > > doesn't need them)
-> >
-> > The driver may use them in the future.
-> > E.g. to select among X1, X3, or EXTAL, depending on availability.
-> >
+On Thu, Mar 16, 2017 at 11:23:26PM -0600, Logan Gunthorpe wrote:
+> Hey,
 > 
-> I'm on Geert's side here, I wouldn't rely on the bootloader to set
-> everything up correctly.
+> I think I see the issue here: in a couple of error conditions, the RTC
+> code will not initialize and ask for the cdev. However, my change will
+> always call cdev_add and cdev_del even though the rtc code did not call
+> cdev_init. I'll have to add a guard around dev->devt in the new
+> cdev_device functions. I'll prepare another patch tomorrow.
+> 
+> I also noticed that I neglected to remove the prototypes for the two RTC
+> function I removed. I'll fix that too.
 
-Part of my hesitation to putting in the clock source selection was that
-this RTC block is used in a lot of parts, and it's always the same,
-except for the last 3 registers which are different from device to
-device because different SoCs have different clock sources options
-and ways to set them up. So, making a driver that just 'reads' the
-time seemed safer/easier.
-Anyway, I'll add the clock setup in if that's the general consensus.
+Ok, I'm just going to drop this series from my tree so that other
+patches in it can get pushed out to linux-next.  Please resend the full
+series after you have fixed it up, and I'll be glad to queue it up
+again.
 
+thanks,
 
-But, before I send out an updated version, what were you thinking
-my DT should look like?
-
-Should I make a "count-source" property for user to select what clock
-will be used for the actually counting?
-
-
-	clocks {
-		ranges;
-		#address-cells = <1>;
-		#size-cells = <1>;
-            . . .
-
-+		rtc_x1_clk: rtc_x1 {
-+			#clock-cells = <0>;
-+			compatible = "fixed-clock";
-+			/* If clk present, value must be set by board to 32678 */
-+			clock-frequency = <0>;
-+		};
-+
-+		rtc_x3_clk: rtc_x3 {
-+			#clock-cells = <0>;
-+			compatible = "fixed-clock";
-+			/* If clk present, value must be set by board to 4000000 */
-+			clock-frequency = <0>;
-+		};
-+
-
-
-
-
-+	rtc: rtc@fcff1000 {
-+		compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
-+		reg = <0xfcff1000 0x2e>;
-+		interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
-+			      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
-+			      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
-+		interrupt-names = "alarm", "period", "carry";
-+		clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
-+			  <&extal_clk> , <&rtc_x3_clk>;
-+		clock-names = "fck", "rtc_x1", "extal", "rtc_x3";
-+		power-domains = <&cpg_clocks>;
-+		count-source = "rtc_x1";    <<<<<<< this would be in the board dts file
-+		status = "disabled";
-+	};
-
-
-Thank you,
-Chris
+greg k-h
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
