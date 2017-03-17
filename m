@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBAABBUX34XCQKGQENJDMTXI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBOH3V7DAKGQEZTUVAWI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id h79si67510pfh.2.2017.03.03.06.29.38
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id b186si428655wme.1.2017.03.17.08.16.08
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:38 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 01/13] rtc: rv8803: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:12 -0300
-Message-Id: <20170303142925.17915-2-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 17 Mar 2017 08:16:08 -0700 (PDT)
+Date: Fri, 17 Mar 2017 16:16:08 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 3/5] ARM: dts: r7s72100: add rtc clock to
+ device tree
+Message-ID: <20170317151608.onw67v4qv746albh@piout.net>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-4-chris.brandt@renesas.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170316175112.27913-4-chris.brandt@renesas.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,71 +31,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+On 16/03/2017 at 13:51:10 -0400, Chris Brandt wrote:
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+You should always include a commit message.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> ---
+>  arch/arm/boot/dts/r7s72100.dtsi            | 9 +++++++++
+>  include/dt-bindings/clock/r7s72100-clock.h | 3 +++
+>  2 files changed, 12 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
+> index ed62e19..2a42a79 100644
+> --- a/arch/arm/boot/dts/r7s72100.dtsi
+> +++ b/arch/arm/boot/dts/r7s72100.dtsi
+> @@ -117,6 +117,15 @@
+>  			clock-output-names = "ostm0", "ostm1";
+>  		};
+>  
+> +		mstp6_clks: mstp6_clks@fcfe042c {
+> +			#clock-cells = <1>;
+> +			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
+> +			reg = <0xfcfe042c 4>;
+> +			clocks = <&p0_clk>;
+> +			clock-indices = <R7S72100_CLK_RTC>;
+> +			clock-output-names = "rtc0";
+> +		};
+> +
+>  		mstp7_clks: mstp7_clks@fcfe0430 {
+>  			#clock-cells = <1>;
+>  			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
+> diff --git a/include/dt-bindings/clock/r7s72100-clock.h b/include/dt-bindings/clock/r7s72100-clock.h
+> index cd2ed51..bc256d3 100644
+> --- a/include/dt-bindings/clock/r7s72100-clock.h
+> +++ b/include/dt-bindings/clock/r7s72100-clock.h
+> @@ -29,6 +29,9 @@
+>  #define R7S72100_CLK_OSTM0	1
+>  #define R7S72100_CLK_OSTM1	0
+>  
+> +/* MSTP6 */
+> +#define R7S72100_CLK_RTC	0
+> +
+>  /* MSTP7 */
+>  #define R7S72100_CLK_ETHER	4
+>  
+> -- 
+> 2.10.1
+> 
+> 
 
- drivers/rtc/rtc-rv8803.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index f9277e536f7e..9ad97ab29866 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -18,6 +18,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/rtc.h>
- 
- #define RV8803_I2C_TRY_COUNT		4
-@@ -556,7 +557,11 @@ static int rv8803_probe(struct i2c_client *client,
- 
- 	mutex_init(&rv8803->flags_lock);
- 	rv8803->client = client;
--	rv8803->type = id->driver_data;
-+	if (client->dev.of_node)
-+		rv8803->type = (enum rv8803_type)
-+			of_device_get_match_data(&client->dev);
-+	else
-+		rv8803->type = id->driver_data;
- 	i2c_set_clientdata(client, rv8803);
- 
- 	flags = rv8803_read_reg(client, RV8803_FLAG);
-@@ -627,9 +632,23 @@ static const struct i2c_device_id rv8803_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rv8803_id);
- 
-+static const struct of_device_id rv8803_of_match[] = {
-+	{
-+		.compatible = "microcrystal,rv8803",
-+		.data = (void *)rx_8900
-+	},
-+	{
-+		.compatible = "epson,rx8900",
-+		.data = (void *)rx_8900
-+	},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, rv8803_of_match);
-+
- static struct i2c_driver rv8803_driver = {
- 	.driver = {
- 		.name = "rtc-rv8803",
-+		.of_match_table = of_match_ptr(rv8803_of_match),
- 	},
- 	.probe		= rv8803_probe,
- 	.remove		= rv8803_remove,
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
