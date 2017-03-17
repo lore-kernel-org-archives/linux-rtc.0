@@ -1,35 +1,32 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBROQ4DCQKGQEKN4XIYA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBNXWV7DAKGQEWMEFYUQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id s64si1505457pfk.0.2017.03.02.06.12.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Mar 2017 06:12:21 -0800 (PST)
-Received: from mail.kernel.org (localhost [127.0.0.1])
-	by mail.kernel.org (Postfix) with ESMTP id 411A620392
-	for <rtc-linux@googlegroups.com>; Thu,  2 Mar 2017 14:12:20 +0000 (UTC)
-Received: from mail-yw0-f180.google.com (mail-yw0-f180.google.com [209.85.161.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPSA id 742C920383
-	for <rtc-linux@googlegroups.com>; Thu,  2 Mar 2017 14:12:18 +0000 (UTC)
-Received: by mail-yw0-f180.google.com with SMTP id v200so56874404ywc.3
-        for <rtc-linux@googlegroups.com>; Thu, 02 Mar 2017 06:12:18 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20170302002709.22276-2-sre@kernel.org>
-References: <20170220073535.27393-1-sre@kernel.org> <20170302002709.22276-1-sre@kernel.org>
- <20170302002709.22276-2-sre@kernel.org>
-From: Rob Herring <robh+dt@kernel.org>
-Date: Thu, 2 Mar 2017 08:11:57 -0600
-Message-ID: <CAL_JsqLpVr2zorMrSDZFTVLsMOaYgxexuGGq3iCNhm4zSw13zw@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCHv4 2/2] rtc: cpcap: new rtc driver
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id n128si159284wmf.2.2017.03.17.08.05.25
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Mar 2017 08:05:25 -0700 (PDT)
+Date: Fri, 17 Mar 2017 16:05:24 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Chris Brandt <Chris.Brandt@renesas.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Subject: [rtc-linux] Re: [PATCH 2/5] rtc: Add rtc-sh
+Message-ID: <20170317150524.oijto6gtjxycdnwn@piout.net>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-3-chris.brandt@renesas.com>
+ <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
+ <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
+ <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,26 +36,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 1, 2017 at 6:27 PM, Sebastian Reichel <sre@kernel.org> wrote:
-> This driver supports the Motorola CPCAP PMIC found on
-> some of Motorola's mobile phones, such as the Droid 4.
->
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
-> Changes since PATCHv3:
->  - Modified DT binding document to mention parent device
-> ---
->  .../devicetree/bindings/rtc/cpcap-rtc.txt          |  18 ++
+Hi,
 
-Acked-by: Rob Herring <robh@kernel.org>
+On 17/03/2017 at 14:55:48 +0100, Geert Uytterhoeven wrote:
+> >> it would still be good to have phandles to the external clock sources as
+> >> well, as that describes the hardware topology.
+> >
+> > I'm confused, you mean make new clocks node for RTC_X1 (fixed at 32.768kHZ) and
+> > RTC_X3 (fixed at 4MHz), but then not really do anything with then? (the driver
+> 
+> You still do something with them, as they'll be linked from the rtc device node.
+> 
+> > doesn't need them)
+> 
+> The driver may use them in the future.
+> E.g. to select among X1, X3, or EXTAL, depending on availability.
+> 
 
->  drivers/rtc/Kconfig                                |   7 +
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-cpcap.c                            | 332 +++++++++++++++++++++
->  4 files changed, 358 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
->  create mode 100644 drivers/rtc/rtc-cpcap.c
+I'm on Geert's side here, I wouldn't rely on the bootloader to set
+everything up correctly.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
