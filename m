@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBH4M6PDAKGQE26AAD7Q@googlegroups.com>
-Received: from mail-it0-x243.google.com (mail-it0-x243.google.com. [2607:f8b0:4001:c0b::243])
-        by gmr-mx.google.com with ESMTPS id q9si289719itc.1.2017.03.30.01.47.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Mar 2017 01:47:27 -0700 (PDT)
-Received: by mail-it0-x243.google.com with SMTP id e75so12424422itd.1
-        for <rtc-linux@googlegroups.com>; Thu, 30 Mar 2017 01:47:27 -0700 (PDT)
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20170329173035.67477-7-chris.brandt@renesas.com>
-References: <20170329173035.67477-1-chris.brandt@renesas.com> <20170329173035.67477-7-chris.brandt@renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 30 Mar 2017 10:47:26 +0200
-Message-ID: <CAMuHMdVvEAH82vC8WPx6ZmimVxD-_t4JpDa8OLXs_f_UEtHtPg@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 6/7] ARM: dts: rskrza1: set rtc_x1 clock value
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBDOFV7DAKGQEDCEFICA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from relmlie4.idc.renesas.com (relmlor1.renesas.com. [210.160.252.171])
+        by gmr-mx.google.com with ESMTP id c123si1370764pfa.4.2017.03.17.06.20.12
+        for <rtc-linux@googlegroups.com>;
+        Fri, 17 Mar 2017 06:20:13 -0700 (PDT)
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman
+	<horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas
+	<linux-renesas-soc@vger.kernel.org>
+Subject: [rtc-linux] RE: [PATCH 3/5] ARM: dts: r7s72100: add rtc clock to
+ device tree
+Date: Fri, 17 Mar 2017 13:20:09 +0000
+Message-ID: <SG2PR06MB1165ECF439A79E31978ACF228A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-4-chris.brandt@renesas.com>
+ <CAMuHMdXAvMoLu5azcBfX5pH_KYApcYSipBktpbfLybvnCG+bwg@mail.gmail.com>
+In-Reply-To: <CAMuHMdXAvMoLu5azcBfX5pH_KYApcYSipBktpbfLybvnCG+bwg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,24 +31,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 29, 2017 at 7:30 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> Enable the 32.768 kHz RTC_X1 clock by setting the frequency value to
-> non-zero.
->
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Hi Geert,
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+On Friday, March 17, 2017, Geert Uytterhoeven wrote:
+> > --- a/arch/arm/boot/dts/r7s72100.dtsi
+> > +++ b/arch/arm/boot/dts/r7s72100.dtsi
+> > @@ -117,6 +117,15 @@
+> >                         clock-output-names = "ostm0", "ostm1";
+> >                 };
+> >
+> > +               mstp6_clks: mstp6_clks@fcfe042c {
+> > +                       #clock-cells = <1>;
+> > +                       compatible = "renesas,r7s72100-mstp-clocks",
+> "renesas,cpg-mstp-clocks";
+> > +                       reg = <0xfcfe042c 4>;
+> > +                       clocks = <&p0_clk>;
+> > +                       clock-indices = <R7S72100_CLK_RTC>;
+> > +                       clock-output-names = "rtc0";
+> 
+> "rtc"? There's only one.
 
-Gr{oetje,eeting}s,
+The rtc-sh.c code wants to have a number at the end. So if I just put "rtc" as the clock name, it does not find it. Again, I didn't want to break any SH builds, so I just changed the DT to match the driver.
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+[ from the rtc-sh.c code ]
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+	clk_id = pdev->id;
+	/* With a single device, the clock id is still "rtc0" */
+	if (clk_id < 0)
+		clk_id = 0;
+
+	snprintf(clk_name, sizeof(clk_name), "rtc%d", clk_id);
+
+	rtc->clk = devm_clk_get(&pdev->dev, clk_name);
+	if (IS_ERR(rtc->clk)) {
+		/*
+		 * No error handling for rtc->clk intentionally, not all
+		 * platforms will have a unique clock for the RTC, and
+		 * the clk API can handle the struct clk pointer being
+		 * NULL.
+		 */
+		rtc->clk = NULL;
+	}
+
+	clk_enable(rtc->clk);
+
+
+Cheers
+
+Chris
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
