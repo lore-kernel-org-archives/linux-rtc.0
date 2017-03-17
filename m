@@ -1,50 +1,31 @@
-Return-Path: <rtc-linux+bncBAABBRW7WDDAKGQEIM2QAYI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id y90si1564369pfa.6.2017.03.17.11.49.42
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBEWLV7DAKGQE4BE3W3Q@googlegroups.com>
+Received: from mail-it0-x242.google.com (mail-it0-x242.google.com. [2607:f8b0:4001:c0b::242])
+        by gmr-mx.google.com with ESMTPS id f73si207537ita.1.2017.03.17.06.33.06
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:42 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:17 -0600
-Message-Id: <1489776503-3151-11-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 10/16] iio:core: utilize new cdev_device_add
- helper function
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 17 Mar 2017 06:33:06 -0700 (PDT)
+Received: by mail-it0-x242.google.com with SMTP id u69so3966114ita.3
+        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 06:33:06 -0700 (PDT)
+MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <SG2PR06MB1165ECF439A79E31978ACF228A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-4-chris.brandt@renesas.com> <CAMuHMdXAvMoLu5azcBfX5pH_KYApcYSipBktpbfLybvnCG+bwg@mail.gmail.com>
+ <SG2PR06MB1165ECF439A79E31978ACF228A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 17 Mar 2017 14:33:05 +0100
+Message-ID: <CAMuHMdWm=4My_H-i-fNpXY9knSLpN+-zNarC5Xdq08kgvauM_w@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 3/5] ARM: dts: r7s72100: add rtc clock to
+ device tree
+To: Chris Brandt <Chris.Brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -53,59 +34,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+Hi Chris,
 
-In doing so we have to remove a guard statement from cdev_del,
-but this doesn't appear to be required in any way.
+On Fri, Mar 17, 2017 at 2:20 PM, Chris Brandt <Chris.Brandt@renesas.com> wrote:
+> On Friday, March 17, 2017, Geert Uytterhoeven wrote:
+>> > --- a/arch/arm/boot/dts/r7s72100.dtsi
+>> > +++ b/arch/arm/boot/dts/r7s72100.dtsi
+>> > @@ -117,6 +117,15 @@
+>> >                         clock-output-names = "ostm0", "ostm1";
+>> >                 };
+>> >
+>> > +               mstp6_clks: mstp6_clks@fcfe042c {
+>> > +                       #clock-cells = <1>;
+>> > +                       compatible = "renesas,r7s72100-mstp-clocks",
+>> "renesas,cpg-mstp-clocks";
+>> > +                       reg = <0xfcfe042c 4>;
+>> > +                       clocks = <&p0_clk>;
+>> > +                       clock-indices = <R7S72100_CLK_RTC>;
+>> > +                       clock-output-names = "rtc0";
+>>
+>> "rtc"? There's only one.
+>
+> The rtc-sh.c code wants to have a number at the end. So if I just put "rtc" as the clock name, it does not find it. Again, I didn't want to break any SH builds, so I just changed the DT to match the driver.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/iio/industrialio-core.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+Hmm...
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index d18ded4..26a03c6 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1720,18 +1720,13 @@ int iio_device_register(struct iio_dev *indio_dev)
- 
- 	cdev_init(&indio_dev->chrdev, &iio_buffer_fileops);
- 	indio_dev->chrdev.owner = indio_dev->info->driver_module;
--	indio_dev->chrdev.kobj.parent = &indio_dev->dev.kobj;
--	ret = cdev_add(&indio_dev->chrdev, indio_dev->dev.devt, 1);
--	if (ret < 0)
--		goto error_unreg_eventset;
- 
--	ret = device_add(&indio_dev->dev);
-+	ret = cdev_device_add(&indio_dev->chrdev, &indio_dev->dev);
- 	if (ret < 0)
--		goto error_cdev_del;
-+		goto error_unreg_eventset;
- 
- 	return 0;
--error_cdev_del:
--	cdev_del(&indio_dev->chrdev);
-+
- error_unreg_eventset:
- 	iio_device_unregister_eventset(indio_dev);
- error_free_sysfs:
-@@ -1752,10 +1747,8 @@ void iio_device_unregister(struct iio_dev *indio_dev)
- {
- 	mutex_lock(&indio_dev->info_exist_lock);
- 
--	device_del(&indio_dev->dev);
-+	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
- 
--	if (indio_dev->chrdev.dev)
--		cdev_del(&indio_dev->chrdev);
- 	iio_device_unregister_debugfs(indio_dev);
- 
- 	iio_disable_all_buffers(indio_dev);
--- 
-2.1.4
+> [ from the rtc-sh.c code ]
+>
+>         clk_id = pdev->id;
+>         /* With a single device, the clock id is still "rtc0" */
+>         if (clk_id < 0)
+>                 clk_id = 0;
+>
+>         snprintf(clk_name, sizeof(clk_name), "rtc%d", clk_id);
+>
+>         rtc->clk = devm_clk_get(&pdev->dev, clk_name);
+
+So in the absence of an "rtc0" clock in the device node (you don't have
+"clock-names" properties in the rtc devvice node yet), it will fall back to
+clk_get_sys(), and will find the global "rtc0" clock. Unless you call it
+"rtc"...
+
+Most drivers using a single clock just pass NULL instead of a name, so it
+will match the first clock found.
+
+I think the simplest solution is to check if your device is instantiated
+from DT (pdev->dev.of_node != NULL), and pass NULL (or "fck", when you add
+multiple clocks to the DT bindings) to devm_clk_get() if that's the case.
+
+>         if (IS_ERR(rtc->clk)) {
+>                 /*
+>                  * No error handling for rtc->clk intentionally, not all
+>                  * platforms will have a unique clock for the RTC, and
+>                  * the clk API can handle the struct clk pointer being
+>                  * NULL.
+>                  */
+>                 rtc->clk = NULL;
+>         }
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
