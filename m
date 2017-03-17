@@ -1,30 +1,50 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBB5NMUTDAKGQEUWTX2MQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRO7WDDAKGQE72MJILI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x235.google.com (mail-wm0-x235.google.com. [2a00:1450:400c:c09::235])
-        by gmr-mx.google.com with ESMTPS id y19si600387wmd.0.2017.03.15.03.24.53
+MIME-Version: 1.0
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id c123si1527659pfa.4.2017.03.17.11.49.40
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 Mar 2017 03:24:53 -0700 (PDT)
-Received: by mail-wm0-x235.google.com with SMTP id n11so18950207wma.0
-        for <rtc-linux@googlegroups.com>; Wed, 15 Mar 2017 03:24:53 -0700 (PDT)
-Date: Wed, 15 Mar 2017 10:24:49 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Stephen Barber <smbarber@chromium.org>,
-	Jonathan Cameron <jic23@cam.ac.uk>
-Subject: [rtc-linux] Re: [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Message-ID: <20170315102449.bqr3hezlrdovjyrq@dell>
-References: <20170214221529.6434-1-enric.balletbo@collabora.com>
- <20170214221529.6434-4-enric.balletbo@collabora.com>
- <20170314135932.ngn7uh67duzroy47@dell>
- <f934a89e-8f0b-5a74-1c6f-8b9f1d85ba72@collabora.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <f934a89e-8f0b-5a74-1c6f-8b9f1d85ba72@collabora.com>
+        Fri, 17 Mar 2017 11:49:40 -0700 (PDT)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Fri, 17 Mar 2017 12:48:23 -0600
+Message-Id: <1489776503-3151-17-git-send-email-logang@deltatee.com>
+In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v5 16/16] switchtec: utilize new device_add_cdev
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,134 +53,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 14 Mar 2017, Enric Balletbo i Serra wrote:
-> On 14/03/17 14:59, Lee Jones wrote:
-> > On Tue, 14 Feb 2017, Enric Balletbo i Serra wrote:
-> >=20
-> >> From: Stephen Barber <smbarber@chromium.org>
-> >>
-> >> If the EC supports RTC host commands, expose an RTC device.
-> >>
-> >> Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> >> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> >> Acked-by: Benson Leung <bleung@chromium.org>
-> >> ---
-> >> Changes since v2:
-> >>  - Acked by Benson Leung
-> >> Changes since v1:
-> >>  - none
-> >>
-> >>  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
-> >>  1 file changed, 22 insertions(+)
-> >>
-> >> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/=
-chrome/cros_ec_dev.c
-> >> index 47268ec..ebe029d 100644
-> >> --- a/drivers/platform/chrome/cros_ec_dev.c
-> >> +++ b/drivers/platform/chrome/cros_ec_dev.c
-> >> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_=
-ec_dev *ec)
-> >>  	kfree(msg);
-> >>  }
-> >> =20
-> >> +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
-> >> +	{
-> >> +		.name =3D "cros-ec-rtc",
-> >> +		.id   =3D -1,
-> >> +	},
-> >> +};
-> >> +
-> >> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-> >> +{
-> >> +	int ret;
-> >> +
-> >> +	ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-> >> +			      ARRAY_SIZE(cros_ec_rtc_devs),
-> >> +			      NULL, 0, NULL);
-> >> +	if (ret)
-> >> +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-> >> +}
-> >=20
-> > Holey poop!  Why are you using the MFD API outside of MFD?
-> >=20
-> > Why can't you register this from the MFD driver?
-> >=20
->=20
-> Actually the MFD doesn't know how to check if this feature is available o=
-r not,
-> instead is the platform driver cros_ec_dev who knows how to check this an=
-d if it
-> exists adds the rtc device.
->=20
-> if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-> 	cros_ec_rtc_register(ec); /* add the mfd device */
->=20
-> Same approach was used in the same file for the Sensors Hub (already upst=
-ream). See:
->=20
->   drivers/platform/chrome/cros_ec_dev.c:462
->   drivers/platform/chrome/cros_ec_dev.c:372
->=20
-> I didn't know that the MFD API was restricted outside MFD. In such case w=
-hat I
-> need to do is let know the MFD driver about the cros_ec_check_features
-> (implemented in platform driver cros_ec_dev), this doesn't seems good to =
-me but
-> I might be wrong. So please, let me know which option do you prefer and i=
-f it's
-> the case we will need to change I'll try to do it.
->=20
-> Note that I think that a similar use case is used in
-> drivers/iio/common/ssp_sensors/ssp_dev.c:535, where the iio driver regist=
-ers the
-> sensors to the mfd.
+Very straightforward conversion to device_add_cdev. Drop cdev_add and
+device_add and use cdev_device_add.
 
-It would be advantageous to avoid a web of inter-subsystem calls to
-register devices.  I think I could bear calls to mfd_add_* from
-drivers/platform, as the two subsystems are fairly interchangeable,
-and it does have the added benefit of saving duplication of the device
-registering code.  Calling mfd_add_* from IIO seems plain wrong though.
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/pci/switch/switchtec.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-A better solution however and one that we've utilised in the past is
-to have the MFD drivers call into the platform (i.e. drivers/platform)
-drivers to see if certain devices are available.  Is this possible in
-your use-case?
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index 1f045c9..e27fd29 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -1291,7 +1291,6 @@ static struct switchtec_dev *stdev_create(struct pci_dev *pdev)
+ 	cdev = &stdev->cdev;
+ 	cdev_init(cdev, &switchtec_fops);
+ 	cdev->owner = THIS_MODULE;
+-	cdev->kobj.parent = &dev->kobj;
+ 
+ 	return stdev;
+ 
+@@ -1479,11 +1478,7 @@ static int switchtec_pci_probe(struct pci_dev *pdev,
+ 		  SWITCHTEC_EVENT_EN_IRQ,
+ 		  &stdev->mmio_part_cfg->mrpc_comp_hdr);
+ 
+-	rc = cdev_add(&stdev->cdev, stdev->dev.devt, 1);
+-	if (rc)
+-		goto err_put;
+-
+-	rc = device_add(&stdev->dev);
++	rc = cdev_device_add(&stdev->cdev, &stdev->dev);
+ 	if (rc)
+ 		goto err_devadd;
+ 
+@@ -1492,7 +1487,6 @@ static int switchtec_pci_probe(struct pci_dev *pdev,
+ 	return 0;
+ 
+ err_devadd:
+-	cdev_del(&stdev->cdev);
+ 	stdev_kill(stdev);
+ err_put:
+ 	ida_simple_remove(&switchtec_minor_ida, MINOR(stdev->dev.devt));
+@@ -1506,8 +1500,7 @@ static void switchtec_pci_remove(struct pci_dev *pdev)
+ 
+ 	pci_set_drvdata(pdev, NULL);
+ 
+-	device_del(&stdev->dev);
+-	cdev_del(&stdev->cdev);
++	cdev_device_del(&stdev->cdev, &stdev->dev);
+ 	ida_simple_remove(&switchtec_minor_ida, MINOR(stdev->dev.devt));
+ 	dev_info(&stdev->dev, "unregistered.\n");
+ 
+-- 
+2.1.4
 
-NB: I've just had a look at the SSP IIO driver and I have a number of
-problems with it.  You should not be using that as a good example of
-why mfd_add_* should be used outside of MFD.
-
-> >>  static int ec_device_probe(struct platform_device *pdev)
-> >>  {
-> >>  	int retval =3D -ENOMEM;
-> >> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device=
- *pdev)
-> >>  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
-> >>  		cros_ec_sensors_register(ec);
-> >> =20
-> >> +	/* check whether this EC instance has RTC host command support */
-> >> +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-> >> +		cros_ec_rtc_register(ec);
-> >> +
-> >>  	return 0;
-> >> =20
-> >>  dev_reg_failed:
-> >=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
