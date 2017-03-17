@@ -1,80 +1,29 @@
-Return-Path: <rtc-linux+bncBAABB74U6TCQKGQEECZ45ZA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id a3si400916pfb.2.2017.03.05.23.06.38
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBDF4V3DAKGQEERWOUBI@googlegroups.com>
+Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
+        by gmr-mx.google.com with ESMTPS id g205si142668ita.2.2017.03.17.01.27.56
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:38 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:24 -0700
-Message-Id: <1488783873-2614-9-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 08/16] IB/ucm: utilize new cdev_device_add
- helper function
-Reply-To: rtc-linux@googlegroups.com
+        Fri, 17 Mar 2017 01:27:56 -0700 (PDT)
+Received: by mail-it0-x244.google.com with SMTP id y18so2719278itc.2
+        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 01:27:56 -0700 (PDT)
+MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20170316175112.27913-4-chris.brandt@renesas.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com> <20170316175112.27913-4-chris.brandt@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 17 Mar 2017 09:27:54 +0100
+Message-ID: <CAMuHMdXAvMoLu5azcBfX5pH_KYApcYSipBktpbfLybvnCG+bwg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 3/5] ARM: dts: r7s72100: add rtc clock to
+ device tree
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -83,111 +32,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-The use after free is not triggerable here because the cdev holds
-the module lock and the only device_unregister is only triggered by
-module unload, however make the change for consistency.
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-To make this work the cdev_del needs to move out of the struct device
-release function.
+> --- a/arch/arm/boot/dts/r7s72100.dtsi
+> +++ b/arch/arm/boot/dts/r7s72100.dtsi
+> @@ -117,6 +117,15 @@
+>                         clock-output-names = "ostm0", "ostm1";
+>                 };
+>
+> +               mstp6_clks: mstp6_clks@fcfe042c {
+> +                       #clock-cells = <1>;
+> +                       compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
+> +                       reg = <0xfcfe042c 4>;
+> +                       clocks = <&p0_clk>;
+> +                       clock-indices = <R7S72100_CLK_RTC>;
+> +                       clock-output-names = "rtc0";
 
-This cleans up the error path significantly and thus also fixes a minor
-bug where the devnum would not be released if cdev_add failed.
+"rtc"? There's only one.
 
-Signed-off-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
----
- drivers/infiniband/core/ucm.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+Gr{oetje,eeting}s,
 
-diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
-index cc0d51f..d15efa4 100644
---- a/drivers/infiniband/core/ucm.c
-+++ b/drivers/infiniband/core/ucm.c
-@@ -1205,12 +1205,15 @@ static void ib_ucm_release_dev(struct device *dev)
- 	struct ib_ucm_device *ucm_dev;
- 
- 	ucm_dev = container_of(dev, struct ib_ucm_device, dev);
--	cdev_del(&ucm_dev->cdev);
-+	kfree(ucm_dev);
-+}
-+
-+static void ib_ucm_free_dev(struct ib_ucm_device *ucm_dev)
-+{
- 	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
- 		clear_bit(ucm_dev->devnum, dev_map);
- 	else
- 		clear_bit(ucm_dev->devnum - IB_UCM_MAX_DEVICES, overflow_map);
--	kfree(ucm_dev);
- }
- 
- static const struct file_operations ucm_fops = {
-@@ -1266,7 +1269,9 @@ static void ib_ucm_add_one(struct ib_device *device)
- 	if (!ucm_dev)
- 		return;
- 
-+	device_initialize(&ucm_dev->dev);
- 	ucm_dev->ib_dev = device;
-+	ucm_dev->dev.release = ib_ucm_release_dev;
- 
- 	devnum = find_first_zero_bit(dev_map, IB_UCM_MAX_DEVICES);
- 	if (devnum >= IB_UCM_MAX_DEVICES) {
-@@ -1286,16 +1291,14 @@ static void ib_ucm_add_one(struct ib_device *device)
- 	cdev_init(&ucm_dev->cdev, &ucm_fops);
- 	ucm_dev->cdev.owner = THIS_MODULE;
- 	kobject_set_name(&ucm_dev->cdev.kobj, "ucm%d", ucm_dev->devnum);
--	if (cdev_add(&ucm_dev->cdev, base, 1))
--		goto err;
- 
- 	ucm_dev->dev.class = &cm_class;
- 	ucm_dev->dev.parent = device->dev.parent;
--	ucm_dev->dev.devt = ucm_dev->cdev.dev;
--	ucm_dev->dev.release = ib_ucm_release_dev;
-+	ucm_dev->dev.devt = base;
-+
- 	dev_set_name(&ucm_dev->dev, "ucm%d", ucm_dev->devnum);
--	if (device_register(&ucm_dev->dev))
--		goto err_cdev;
-+	if (cdev_device_add(&ucm_dev->cdev, &ucm_dev->dev))
-+		goto err_devnum;
- 
- 	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
- 		goto err_dev;
-@@ -1304,15 +1307,11 @@ static void ib_ucm_add_one(struct ib_device *device)
- 	return;
- 
- err_dev:
--	device_unregister(&ucm_dev->dev);
--err_cdev:
--	cdev_del(&ucm_dev->cdev);
--	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
--		clear_bit(devnum, dev_map);
--	else
--		clear_bit(devnum, overflow_map);
-+	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
-+err_devnum:
-+	ib_ucm_free_dev(ucm_dev);
- err:
--	kfree(ucm_dev);
-+	put_device(&ucm_dev->dev);
- 	return;
- }
- 
-@@ -1323,7 +1322,9 @@ static void ib_ucm_remove_one(struct ib_device *device, void *client_data)
- 	if (!ucm_dev)
- 		return;
- 
--	device_unregister(&ucm_dev->dev);
-+	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
-+	ib_ucm_free_dev(ucm_dev);
-+	put_device(&ucm_dev->dev);
- }
- 
- static CLASS_ATTR_STRING(abi_version, S_IRUGO,
--- 
-2.1.4
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
