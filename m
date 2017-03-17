@@ -1,21 +1,48 @@
-Return-Path: <rtc-linux+bncBAABBXH34XCQKGQE5RFRJTY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRO7WDDAKGQE72MJILI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id y90si59659pfa.6.2017.03.03.06.29.48
-        for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:48 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id r66si1551969pfb.7.2017.03.17.11.49.41
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Mar 2017 11:49:41 -0700 (PDT)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
 	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 05/13] rtc: rx8010: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:16 -0300
-Message-Id: <20170303142925.17915-6-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Fri, 17 Mar 2017 12:48:10 -0600
+Message-Id: <1489776503-3151-4-git-send-email-logang@deltatee.com>
+In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v5 03/16] device-dax: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,47 +53,90 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+Replace the open coded registration of the cdev and dev with the
+new device_add_cdev() helper. The helper replaces a common pattern by
+taking the proper reference against the parent device and adding both
+the cdev and the device.
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
-
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
 ---
+ drivers/dax/dax.c | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
- drivers/rtc/rtc-rx8010.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-index d08da371912c..1ed3403ff8ac 100644
---- a/drivers/rtc/rtc-rx8010.c
-+++ b/drivers/rtc/rtc-rx8010.c
-@@ -59,6 +59,12 @@ static const struct i2c_device_id rx8010_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rx8010_id);
+diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+index a5ed59a..e5f8555 100644
+--- a/drivers/dax/dax.c
++++ b/drivers/dax/dax.c
+@@ -677,8 +677,6 @@ static void dax_dev_release(struct device *dev)
  
-+static const struct of_device_id rx8010_of_match[] = {
-+	{ .compatible = "epson,rx8010" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, rx8010_of_match);
+ static void kill_dax_dev(struct dax_dev *dax_dev)
+ {
+-	struct cdev *cdev = &dax_dev->cdev;
+-
+ 	/*
+ 	 * Note, rcu is not protecting the liveness of dax_dev, rcu is
+ 	 * ensuring that any fault handlers that might have seen
+@@ -689,7 +687,6 @@ static void kill_dax_dev(struct dax_dev *dax_dev)
+ 	dax_dev->alive = false;
+ 	synchronize_rcu();
+ 	unmap_mapping_range(dax_dev->inode->i_mapping, 0, 0, 1);
+-	cdev_del(cdev);
+ }
+ 
+ static void unregister_dax_dev(void *dev)
+@@ -699,7 +696,8 @@ static void unregister_dax_dev(void *dev)
+ 	dev_dbg(dev, "%s\n", __func__);
+ 
+ 	kill_dax_dev(dax_dev);
+-	device_unregister(dev);
++	cdev_device_del(&dax_dev->cdev, dev);
++	put_device(dev);
+ }
+ 
+ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+@@ -750,18 +748,13 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 		goto err_inode;
+ 	}
+ 
+-	/* device_initialize() so cdev can reference kobj parent */
++	/* from here on we're committed to teardown via dax_dev_release() */
+ 	device_initialize(dev);
+ 
+ 	cdev = &dax_dev->cdev;
+ 	cdev_init(cdev, &dax_fops);
+ 	cdev->owner = parent->driver->owner;
+-	cdev->kobj.parent = &dev->kobj;
+-	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
+-	if (rc)
+-		goto err_cdev;
+ 
+-	/* from here on we're committed to teardown via dax_dev_release() */
+ 	dax_dev->num_resources = count;
+ 	dax_dev->alive = true;
+ 	dax_dev->region = dax_region;
+@@ -773,7 +766,8 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 	dev->groups = dax_attribute_groups;
+ 	dev->release = dax_dev_release;
+ 	dev_set_name(dev, "dax%d.%d", dax_region->id, dax_dev->id);
+-	rc = device_add(dev);
 +
- struct rx8010_data {
- 	struct i2c_client *client;
- 	struct rtc_device *rtc;
-@@ -487,6 +493,7 @@ static int rx8010_probe(struct i2c_client *client,
- static struct i2c_driver rx8010_driver = {
- 	.driver = {
- 		.name = "rtc-rx8010",
-+		.of_match_table = of_match_ptr(rx8010_of_match),
- 	},
- 	.probe		= rx8010_probe,
- 	.id_table	= rx8010_id,
++	rc = cdev_device_add(cdev, dev);
+ 	if (rc) {
+ 		kill_dax_dev(dax_dev);
+ 		put_device(dev);
+@@ -786,8 +780,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+ 
+ 	return dax_dev;
+ 
+- err_cdev:
+-	iput(dax_dev->inode);
+  err_inode:
+ 	ida_simple_remove(&dax_minor_ida, minor);
+  err_minor:
 -- 
-2.9.3
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
