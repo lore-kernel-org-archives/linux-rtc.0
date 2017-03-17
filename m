@@ -1,59 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBDEV6TCQKGQEITODUVA@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBRG7WDDAKGQELFQY6KA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id r66si1211249pfb.7.2017.03.05.23.06.52
+        by gmr-mx.google.com with ESMTPS id 2si1587476pfx.8.2017.03.17.11.49.39
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:52 -0800 (PST)
+        Fri, 17 Mar 2017 11:49:39 -0700 (PDT)
 From: Logan Gunthorpe <logang@deltatee.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Dan Williams <dan.j.williams@intel.com>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
 	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
 	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
 	David Woodhouse <dwmw2@infradead.org>,
 	Brian Norris <computersforpeace@gmail.com>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>
 Cc: linux-pci@vger.kernel.org,
 	linux-scsi@vger.kernel.org,
 	rtc-linux@googlegroups.com,
@@ -67,11 +37,11 @@ Cc: linux-pci@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:31 -0700
-Message-Id: <1488783873-2614-16-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 15/16] scsi: utilize new cdev_device_add helper function
+Date: Fri, 17 Mar 2017 12:48:21 -0600
+Message-Id: <1489776503-3151-15-git-send-email-logang@deltatee.com>
+In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v5 14/16] rtc: utilize new cdev_device_add helper function
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -82,149 +52,129 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This driver did not set kobj.parent so it likely suffered from
-a potential use after free race if the user unregistered the
-device while it was in use.
+Mostly straightforward, but we had to remove the rtc_dev_add/del_device
+functions as they split up the cdev_add and the device_add.
 
-This was not so straightforward a conversion but I think this patch
-cleans up its probe's error path significantly.
+Doing this also revealed that there was likely another subtle bug:
+seeing cdev_add was done after device_register, the cdev probably
+was not ready before device_add when the uevent occurs. This would
+race with userspace, if it tried to use the device directly after
+the uevent. This is fixed just by using the new helper function.
 
-This patch adds device_initialize, which is required for
-cdev_device_add. Then it switches to put_device instead of kfree as
-recommended by device_initialize's documentation. This removes a lot
-from the error path which was already in __remove.
-A couple things needed to be re-ordered to be entirely correct, though.
-ida_remove is also moved out of __remove and into unregister to
-simplify things and follow the pattern other devices are using.
-
-This also drop an extra unnecessary get_device/put_device in the code.
+Another weird thing is this driver would, in some error cases, call
+cdev_add() without calling cdev_init. This patchset corrects this
+by avoiding calling cdev_add if the devt is not set.
 
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/scsi/osd/osd_uld.c | 56 +++++++++++++++++-----------------------------
- 1 file changed, 20 insertions(+), 36 deletions(-)
+ drivers/rtc/class.c    | 14 ++++++++++----
+ drivers/rtc/rtc-core.h | 10 ----------
+ drivers/rtc/rtc-dev.c  | 17 -----------------
+ 3 files changed, 10 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/scsi/osd/osd_uld.c b/drivers/scsi/osd/osd_uld.c
-index e0ce5d2..4101c31 100644
---- a/drivers/scsi/osd/osd_uld.c
-+++ b/drivers/scsi/osd/osd_uld.c
-@@ -400,9 +400,6 @@ static void __remove(struct device *dev)
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 74fd974..5fb4398 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -195,6 +195,8 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+ 		goto exit_ida;
+ 	}
  
- 	kfree(oud->odi.osdname);
- 
--	if (oud->cdev.owner)
--		cdev_del(&oud->cdev);
--
- 	osd_dev_fini(&oud->od);
- 	scsi_device_put(scsi_device);
- 
-@@ -411,7 +408,6 @@ static void __remove(struct device *dev)
- 
- 	if (oud->disk)
- 		put_disk(oud->disk);
--	ida_remove(&osd_minor_ida, oud->minor);
- 
- 	kfree(oud);
- }
-@@ -446,8 +442,20 @@ static int osd_probe(struct device *dev)
- 	if (NULL == oud)
- 		goto err_retract_minor;
- 
-+	/* class device member */
-+	device_initialize(&oud->class_dev);
- 	dev_set_drvdata(dev, oud);
- 	oud->minor = minor;
-+	oud->class_dev.devt = MKDEV(SCSI_OSD_MAJOR, oud->minor);
-+	oud->class_dev.class = &osd_uld_class;
-+	oud->class_dev.parent = dev;
-+	oud->class_dev.release = __remove;
++	device_initialize(&rtc->dev);
 +
-+	/* hold one more reference to the scsi_device that will get released
-+	 * in __release, in case a logout is happening while fs is mounted
-+	 */
-+	scsi_device_get(scsi_device);
-+	osd_dev_init(&oud->od, scsi_device);
+ 	rtc->id = id;
+ 	rtc->ops = ops;
+ 	rtc->owner = owner;
+@@ -233,14 +235,19 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
  
- 	/* allocate a disk and set it up */
- 	/* FIXME: do we need this since sg has already done that */
-@@ -461,59 +469,34 @@ static int osd_probe(struct device *dev)
- 	sprintf(disk->disk_name, "osd%d", oud->minor);
- 	oud->disk = disk;
+ 	rtc_dev_prepare(rtc);
  
--	/* hold one more reference to the scsi_device that will get released
--	 * in __release, in case a logout is happening while fs is mounted
--	 */
--	scsi_device_get(scsi_device);
--	osd_dev_init(&oud->od, scsi_device);
--
- 	/* Detect the OSD Version */
- 	error = __detect_osd(oud);
- 	if (error) {
- 		OSD_ERR("osd detection failed, non-compatible OSD device\n");
--		goto err_put_disk;
-+		goto err_free_osd;
- 	}
- 
- 	/* init the char-device for communication with user-mode */
- 	cdev_init(&oud->cdev, &osd_fops);
- 	oud->cdev.owner = THIS_MODULE;
--	error = cdev_add(&oud->cdev,
--			 MKDEV(SCSI_OSD_MAJOR, oud->minor), 1);
--	if (error) {
--		OSD_ERR("cdev_add failed\n");
--		goto err_put_disk;
--	}
- 
--	/* class device member */
--	oud->class_dev.devt = oud->cdev.dev;
--	oud->class_dev.class = &osd_uld_class;
--	oud->class_dev.parent = dev;
--	oud->class_dev.release = __remove;
- 	error = dev_set_name(&oud->class_dev, "%s", disk->disk_name);
- 	if (error) {
- 		OSD_ERR("dev_set_name failed => %d\n", error);
--		goto err_put_cdev;
-+		goto err_free_osd;
- 	}
- 
--	error = device_register(&oud->class_dev);
-+	error = cdev_device_add(&oud->cdev, &oud->class_dev);
- 	if (error) {
- 		OSD_ERR("device_register failed => %d\n", error);
--		goto err_put_cdev;
-+		goto err_free_osd;
- 	}
- 
--	get_device(&oud->class_dev);
--
- 	OSD_INFO("osd_probe %s\n", disk->disk_name);
- 	return 0;
- 
--err_put_cdev:
--	cdev_del(&oud->cdev);
--err_put_disk:
--	scsi_device_put(scsi_device);
--	put_disk(disk);
- err_free_osd:
--	dev_set_drvdata(dev, NULL);
--	kfree(oud);
-+	put_device(&oud->class_dev);
- err_retract_minor:
- 	ida_remove(&osd_minor_ida, minor);
- 	return error;
-@@ -530,9 +513,10 @@ static int osd_remove(struct device *dev)
- 			scsi_device);
- 	}
- 
--	device_unregister(&oud->class_dev);
--
-+	cdev_device_del(&oud->cdev, &oud->class_dev);
-+	ida_remove(&osd_minor_ida, oud->minor);
- 	put_device(&oud->class_dev);
+-	err = device_register(&rtc->dev);
++	err = cdev_device_add(&rtc->char_dev, &rtc->dev);
+ 	if (err) {
++		dev_warn(&rtc->dev, "%s: failed to add char device %d:%d\n",
++			 rtc->name, MAJOR(rtc->dev.devt), rtc->id);
 +
- 	return 0;
+ 		/* This will free both memory and the ID */
+ 		put_device(&rtc->dev);
+ 		goto exit;
++	} else {
++		dev_dbg(&rtc->dev, "%s: dev (%d:%d)\n", rtc->name,
++			MAJOR(rtc->dev.devt), rtc->id);
+ 	}
+ 
+-	rtc_dev_add_device(rtc);
+ 	rtc_proc_add_device(rtc);
+ 
+ 	dev_info(dev, "rtc core: registered %s as %s\n",
+@@ -271,9 +278,8 @@ void rtc_device_unregister(struct rtc_device *rtc)
+ 	 * Remove innards of this RTC, then disable it, before
+ 	 * letting any rtc_class_open() users access it again
+ 	 */
+-	rtc_dev_del_device(rtc);
+ 	rtc_proc_del_device(rtc);
+-	device_del(&rtc->dev);
++	cdev_device_del(&rtc->char_dev, &rtc->dev);
+ 	rtc->ops = NULL;
+ 	mutex_unlock(&rtc->ops_lock);
+ 	put_device(&rtc->dev);
+diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
+index a098aea..7a4ed2f 100644
+--- a/drivers/rtc/rtc-core.h
++++ b/drivers/rtc/rtc-core.h
+@@ -3,8 +3,6 @@
+ extern void __init rtc_dev_init(void);
+ extern void __exit rtc_dev_exit(void);
+ extern void rtc_dev_prepare(struct rtc_device *rtc);
+-extern void rtc_dev_add_device(struct rtc_device *rtc);
+-extern void rtc_dev_del_device(struct rtc_device *rtc);
+ 
+ #else
+ 
+@@ -20,14 +18,6 @@ static inline void rtc_dev_prepare(struct rtc_device *rtc)
+ {
  }
  
+-static inline void rtc_dev_add_device(struct rtc_device *rtc)
+-{
+-}
+-
+-static inline void rtc_dev_del_device(struct rtc_device *rtc)
+-{
+-}
+-
+ #endif
+ 
+ #ifdef CONFIG_RTC_INTF_PROC
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index 6dc8f29..e81a871 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -477,23 +477,6 @@ void rtc_dev_prepare(struct rtc_device *rtc)
+ 
+ 	cdev_init(&rtc->char_dev, &rtc_dev_fops);
+ 	rtc->char_dev.owner = rtc->owner;
+-	rtc->char_dev.kobj.parent = &rtc->dev.kobj;
+-}
+-
+-void rtc_dev_add_device(struct rtc_device *rtc)
+-{
+-	if (cdev_add(&rtc->char_dev, rtc->dev.devt, 1))
+-		dev_warn(&rtc->dev, "%s: failed to add char device %d:%d\n",
+-			rtc->name, MAJOR(rtc_devt), rtc->id);
+-	else
+-		dev_dbg(&rtc->dev, "%s: dev (%d:%d)\n", rtc->name,
+-			MAJOR(rtc_devt), rtc->id);
+-}
+-
+-void rtc_dev_del_device(struct rtc_device *rtc)
+-{
+-	if (rtc->dev.devt)
+-		cdev_del(&rtc->char_dev);
+ }
+ 
+ void __init rtc_dev_init(void)
 -- 
 2.1.4
 
