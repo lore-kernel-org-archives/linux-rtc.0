@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBEOGQLDAKGQEY77PQYQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id b186si1921876wme.1.2017.03.08.16.34.24
-        for <rtc-linux@googlegroups.com>;
-        Wed, 08 Mar 2017 16:34:24 -0800 (PST)
-Date: Thu, 9 Mar 2017 01:34:24 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCHv4 2/2] rtc: cpcap: new rtc driver
-Message-ID: <20170309003424.uj5t4b7wfsbqf2e2@piout.net>
-References: <20170220073535.27393-1-sre@kernel.org>
- <20170302002709.22276-1-sre@kernel.org>
- <20170302002709.22276-2-sre@kernel.org>
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBEVXV3DAKGQEMDRNKZA@googlegroups.com>
+Received: from mail-it0-x243.google.com (mail-it0-x243.google.com. [2607:f8b0:4001:c0b::243])
+        by gmr-mx.google.com with ESMTPS id 125si476677ite.0.2017.03.17.01.17.22
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Mar 2017 01:17:22 -0700 (PDT)
+Received: by mail-it0-x243.google.com with SMTP id r141so2684416ita.1
+        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 01:17:22 -0700 (PDT)
 MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20170316175112.27913-3-chris.brandt@renesas.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com> <20170316175112.27913-3-chris.brandt@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 17 Mar 2017 09:17:20 +0100
+Message-ID: <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 2/5] rtc: Add rtc-sh
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170302002709.22276-2-sre@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,30 +31,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 02/03/2017 at 01:27:09 +0100, Sebastian Reichel wrote:
-> This driver supports the Motorola CPCAP PMIC found on
-> some of Motorola's mobile phones, such as the Droid 4.
-> 
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
-> Changes since PATCHv3:
->  - Modified DT binding document to mention parent device
-> ---
->  .../devicetree/bindings/rtc/cpcap-rtc.txt          |  18 ++
->  drivers/rtc/Kconfig                                |   7 +
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-cpcap.c                            | 332 +++++++++++++++++++++
->  4 files changed, 358 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
->  create mode 100644 drivers/rtc/rtc-cpcap.c
-> 
-Applied, thanks.
+Hi Chris,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
+> rtc-sh is a RTC for SuperH and RZ/A SoCs.
+
+an RTC?
+
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
+> @@ -0,0 +1,19 @@
+> +* Real Time Clock for Renesas SH and ARM SoCs
+> +
+> +Required properties:
+> +- compatible: Should be "renesas,r7s72100-rtc" or "renesas,sh-rtc" as a
+
+s/or/and/
+
+> +  fallback.
+> +- reg: physical base address and length of memory mapped region.
+> +- interrupts: 3 interrupts for alarm, period, and carry.
+
+If there's a need for multiple interrupts, it's always a good idea to use
+interrupt-names. The datasheet calls them "arm", "prd", and "cup", but
+I wouldn't object against "alarm", "period", and "carry" ;-)
+
+> +- clocks: the clock source for the RTC controller.
+
+The datasheet mentions 3 possible clock sources?
+
+> +Example:
+> +rtc: rtc@fcff1000 {
+> +       compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
+> +       reg = <0xfcff1000 0x2e>;
+> +       interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
+> +                     GIC_SPI 277 IRQ_TYPE_EDGE_RISING
+> +                     GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
+> +       clocks = <&mstp6_clks R7S72100_CLK_RTC>;
+> +       power-domains = <&cpg_clocks>;
+> +};
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
