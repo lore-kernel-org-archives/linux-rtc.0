@@ -1,21 +1,50 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQOFQLDAKGQEGYVVTJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQ67WDDAKGQEU5WHP3I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id n128si880278wmf.2.2017.03.08.16.33.04
-        for <rtc-linux@googlegroups.com>;
-        Wed, 08 Mar 2017 16:33:04 -0800 (PST)
-Date: Thu, 9 Mar 2017 01:33:04 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: omap: remove incorrect __exit markups
-Message-ID: <20170309003304.mnrzarf6wzu3smzg@piout.net>
-References: <20170301233323.GA8881@dtor-ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170301233323.GA8881@dtor-ws>
+Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
+        by gmr-mx.google.com with ESMTPS id y90si1564340pfa.6.2017.03.17.11.49.39
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 17 Mar 2017 11:49:39 -0700 (PDT)
+From: Logan Gunthorpe <logang@deltatee.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Hans Verkuil <hans.verkuil@cisco.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Johannes Thumshirn <jthumshirn@suse.de>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Cc: linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-mtd@lists.infradead.org,
+	linux-media@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-nvdimm@lists.01.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Logan Gunthorpe <logang@deltatee.com>
+Date: Fri, 17 Mar 2017 12:48:20 -0600
+Message-Id: <1489776503-3151-14-git-send-email-logang@deltatee.com>
+In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+Subject: [rtc-linux] [PATCH v5 13/16] rapidio: utilize new cdev_device_add
+ helper function
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,24 +53,90 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 01/03/2017 at 15:33:23 -0800, Dmitry Torokhov wrote:
-> Even if bus is not hot-pluggable, devices can be unbound from the
-> driver via sysfs, so we should not be using __exit annotations on
-> remove() methods. The only exception is drivers registered with
-> platform_driver_probe(), which specifically disables sysfs bind/unbind
-> attributes.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/rtc/rtc-omap.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+This driver did not originally set kobj.parent so it likely had
+potential a use after free bug which this patch fixes.
 
+We convert from device_register to device_initialize/cdev_device_add.
+While we are at it we use put_device instead of kfree (as recommended
+by the device_initialize documentation). We also remove an unnecessary
+extra get_device from the code.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ drivers/rapidio/devices/rio_mport_cdev.c | 24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 50b617a..5beb0c3 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -2444,31 +2444,25 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
+ 	mutex_init(&md->buf_mutex);
+ 	mutex_init(&md->file_mutex);
+ 	INIT_LIST_HEAD(&md->file_list);
+-	cdev_init(&md->cdev, &mport_fops);
+-	md->cdev.owner = THIS_MODULE;
+-	ret = cdev_add(&md->cdev, MKDEV(MAJOR(dev_number), mport->id), 1);
+-	if (ret < 0) {
+-		kfree(md);
+-		rmcd_error("Unable to register a device, err=%d", ret);
+-		return NULL;
+-	}
+ 
+-	md->dev.devt = md->cdev.dev;
++	device_initialize(&md->dev);
++	md->dev.devt = MKDEV(MAJOR(dev_number), mport->id);
+ 	md->dev.class = dev_class;
+ 	md->dev.parent = &mport->dev;
+ 	md->dev.release = mport_device_release;
+ 	dev_set_name(&md->dev, DEV_NAME "%d", mport->id);
+ 	atomic_set(&md->active, 1);
+ 
+-	ret = device_register(&md->dev);
++	cdev_init(&md->cdev, &mport_fops);
++	md->cdev.owner = THIS_MODULE;
++
++	ret = cdev_device_add(&md->cdev, &md->dev);
+ 	if (ret) {
+ 		rmcd_error("Failed to register mport %d (err=%d)",
+ 		       mport->id, ret);
+ 		goto err_cdev;
+ 	}
+ 
+-	get_device(&md->dev);
+-
+ 	INIT_LIST_HEAD(&md->doorbells);
+ 	spin_lock_init(&md->db_lock);
+ 	INIT_LIST_HEAD(&md->portwrites);
+@@ -2513,8 +2507,7 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
+ 	return md;
+ 
+ err_cdev:
+-	cdev_del(&md->cdev);
+-	kfree(md);
++	put_device(&md->dev);
+ 	return NULL;
+ }
+ 
+@@ -2578,7 +2571,7 @@ static void mport_cdev_remove(struct mport_dev *md)
+ 	atomic_set(&md->active, 0);
+ 	mport_cdev_terminate_dma(md);
+ 	rio_del_mport_pw_handler(md->mport, md, rio_mport_pw_handler);
+-	cdev_del(&(md->cdev));
++	cdev_device_del(&md->cdev, &md->dev);
+ 	mport_cdev_kill_fasync(md);
+ 
+ 	flush_workqueue(dma_wq);
+@@ -2603,7 +2596,6 @@ static void mport_cdev_remove(struct mport_dev *md)
+ 
+ 	rio_release_inb_dbell(md->mport, 0, 0x0fff);
+ 
+-	device_unregister(&md->dev);
+ 	put_device(&md->dev);
+ }
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.1.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
