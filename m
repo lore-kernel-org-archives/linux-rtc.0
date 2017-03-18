@@ -1,48 +1,21 @@
-Return-Path: <rtc-linux+bncBAABBRO7WDDAKGQE72MJILI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDRZXY4CYYORBEPUWTDAKGQEBKTSO7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id 2si1587484pfx.8.2017.03.17.11.49.40
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id u134si505741ywg.2.2017.03.18.06.45.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:41 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:11 -0600
-Message-Id: <1489776503-3151-5-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 04/16] input: utilize new cdev_device_add
- helper function
+        Sat, 18 Mar 2017 06:45:53 -0700 (PDT)
+From: Hans de Goede <hdegoede@redhat.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	the.dr.hax@gmail.com,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH] rtc: cmos: Do not assume irq 8 for rtc when there
+ are no legacy irqs
+Date: Sat, 18 Mar 2017 14:45:49 +0100
+Message-Id: <20170318134549.28052-1-hdegoede@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -53,153 +26,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper in evdev, joydev and mousedev. The helper
-replaces a common pattern by taking the proper reference against the
-parent device and adding both the cdev and the device.
+On some systems (e.g. Intel Bay Trail systems) the legacy PIC is not
+used, in this case virq 8 will be a random irq, rather then hw_irq 8
+from the PIC.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Requesting virq 8 in this case will not help us to get alarm irqs and
+may cause problems for other drivers which actually do need virq 8,
+for example on an Asus Transformer T100TA this leads to:
+
+[ 28.745155] genirq: Flags mismatch irq 8. 00000088 (mmc0) vs. 00000080 (rtc0)
+<snip oops>
+[ 28.753700] mmc0: Failed to request IRQ 8: -16
+[ 28.975934] sdhci-acpi: probe of 80860F14:01 failed with error -16
+
+This commit fixes this by making the rtc-cmos driver continue
+without using an irq rather then claiming irq 8 when no irq is
+specified in the pnp-info and there are no legacy-irqs.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/evdev.c    | 11 ++---------
- drivers/input/joydev.c   | 11 ++---------
- drivers/input/mousedev.c | 11 ++---------
- 3 files changed, 6 insertions(+), 27 deletions(-)
+ drivers/rtc/rtc-cmos.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e9ae3d5..9255714 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -1354,8 +1354,6 @@ static void evdev_cleanup(struct evdev *evdev)
- 	evdev_mark_dead(evdev);
- 	evdev_hangup(evdev);
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index f4a96db..b3de973 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -41,6 +41,9 @@
+ #include <linux/pm.h>
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
++#ifdef CONFIG_X86
++#include <asm/i8259.h>
++#endif
  
--	cdev_del(&evdev->cdev);
--
- 	/* evdev is marked dead so no one else accesses evdev->open */
- 	if (evdev->open) {
- 		input_flush_device(handle, NULL);
-@@ -1416,12 +1414,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 		goto err_free_evdev;
- 
- 	cdev_init(&evdev->cdev, &evdev_fops);
--	evdev->cdev.kobj.parent = &evdev->dev.kobj;
--	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
--	if (error)
--		goto err_unregister_handle;
- 
--	error = device_add(&evdev->dev);
-+	error = cdev_device_add(&evdev->cdev, &evdev->dev);
- 	if (error)
- 		goto err_cleanup_evdev;
- 
-@@ -1429,7 +1423,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 
-  err_cleanup_evdev:
- 	evdev_cleanup(evdev);
-- err_unregister_handle:
- 	input_unregister_handle(&evdev->handle);
-  err_free_evdev:
- 	put_device(&evdev->dev);
-@@ -1442,7 +1435,7 @@ static void evdev_disconnect(struct input_handle *handle)
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <linux/mc146818rtc.h>
+@@ -1193,17 +1196,23 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
  {
- 	struct evdev *evdev = handle->private;
+ 	cmos_wake_setup(&pnp->dev);
  
--	device_del(&evdev->dev);
-+	cdev_device_del(&evdev->cdev, &evdev->dev);
- 	evdev_cleanup(evdev);
- 	input_free_minor(MINOR(evdev->dev.devt));
- 	input_unregister_handle(handle);
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 065e67b..29d677c 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -742,8 +742,6 @@ static void joydev_cleanup(struct joydev *joydev)
- 	joydev_mark_dead(joydev);
- 	joydev_hangup(joydev);
+-	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0))
++	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
++		unsigned int irq = 0;
++#ifdef CONFIG_X86
+ 		/* Some machines contain a PNP entry for the RTC, but
+ 		 * don't define the IRQ. It should always be safe to
+-		 * hardcode it in these cases
++		 * hardcode it on systems with a legacy PIC.
+ 		 */
++		if (nr_legacy_irqs())
++			irq = 8;
++#endif
+ 		return cmos_do_probe(&pnp->dev,
+-				pnp_get_resource(pnp, IORESOURCE_IO, 0), 8);
+-	else
++				pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
++	} else {
+ 		return cmos_do_probe(&pnp->dev,
+ 				pnp_get_resource(pnp, IORESOURCE_IO, 0),
+ 				pnp_irq(pnp, 0));
++	}
+ }
  
--	cdev_del(&joydev->cdev);
--
- 	/* joydev is marked dead so no one else accesses joydev->open */
- 	if (joydev->open)
- 		input_close_device(handle);
-@@ -913,12 +911,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
- 		goto err_free_joydev;
- 
- 	cdev_init(&joydev->cdev, &joydev_fops);
--	joydev->cdev.kobj.parent = &joydev->dev.kobj;
--	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
--	if (error)
--		goto err_unregister_handle;
- 
--	error = device_add(&joydev->dev);
-+	error = cdev_device_add(&joydev->cdev, &joydev->dev);
- 	if (error)
- 		goto err_cleanup_joydev;
- 
-@@ -926,7 +920,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
- 
-  err_cleanup_joydev:
- 	joydev_cleanup(joydev);
-- err_unregister_handle:
- 	input_unregister_handle(&joydev->handle);
-  err_free_joydev:
- 	put_device(&joydev->dev);
-@@ -939,7 +932,7 @@ static void joydev_disconnect(struct input_handle *handle)
- {
- 	struct joydev *joydev = handle->private;
- 
--	device_del(&joydev->dev);
-+	cdev_device_del(&joydev->cdev, &joydev->dev);
- 	joydev_cleanup(joydev);
- 	input_free_minor(MINOR(joydev->dev.devt));
- 	input_unregister_handle(handle);
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index b604564..0e0ff84 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -812,8 +812,6 @@ static void mousedev_cleanup(struct mousedev *mousedev)
- 	mousedev_mark_dead(mousedev);
- 	mousedev_hangup(mousedev);
- 
--	cdev_del(&mousedev->cdev);
--
- 	/* mousedev is marked dead so no one else accesses mousedev->open */
- 	if (mousedev->open)
- 		input_close_device(handle);
-@@ -901,12 +899,8 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
- 	}
- 
- 	cdev_init(&mousedev->cdev, &mousedev_fops);
--	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
--	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
--	if (error)
--		goto err_unregister_handle;
- 
--	error = device_add(&mousedev->dev);
-+	error = cdev_device_add(&mousedev->cdev, &mousedev->dev);
- 	if (error)
- 		goto err_cleanup_mousedev;
- 
-@@ -914,7 +908,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
- 
-  err_cleanup_mousedev:
- 	mousedev_cleanup(mousedev);
-- err_unregister_handle:
- 	if (!mixdev)
- 		input_unregister_handle(&mousedev->handle);
-  err_free_mousedev:
-@@ -927,7 +920,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
- 
- static void mousedev_destroy(struct mousedev *mousedev)
- {
--	device_del(&mousedev->dev);
-+	cdev_device_del(&mousedev->cdev, &mousedev->dev);
- 	mousedev_cleanup(mousedev);
- 	input_free_minor(MINOR(mousedev->dev.devt));
- 	if (mousedev != mousedev_mix)
+ static void cmos_pnp_remove(struct pnp_dev *pnp)
 -- 
-2.1.4
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
