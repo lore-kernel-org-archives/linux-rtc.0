@@ -1,22 +1,32 @@
-Return-Path: <rtc-linux+bncBAABBUH34XCQKGQELW7SHSI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBJO7X7DAKGQEHYBZDCY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id r66si55837pfb.7.2017.03.03.06.29.35
+Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
+        by gmr-mx.google.com with ESMTP id 2si2856551pfx.8.2017.03.20.08.05.08
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:35 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 00/13] rtc: Add OF device table to I2C drivers
- that are missing it
-Date: Fri,  3 Mar 2017 11:29:11 -0300
-Message-Id: <20170303142925.17915-1-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 20 Mar 2017 08:05:09 -0700 (PDT)
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, "Geert
+ Uytterhoeven" <geert@linux-m68k.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman
+	<horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas
+	<linux-renesas-soc@vger.kernel.org>
+Subject: [rtc-linux] RE: [PATCH 2/5] rtc: Add rtc-sh
+Date: Mon, 20 Mar 2017 15:05:03 +0000
+Message-ID: <SG2PR06MB1165819F41CF40562F44F08B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-3-chris.brandt@renesas.com>
+ <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
+ <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
+ <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
+ <20170317150524.oijto6gtjxycdnwn@piout.net>
+In-Reply-To: <20170317150524.oijto6gtjxycdnwn@piout.net>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,55 +35,89 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hello,
-
-This series add OF device ID tables to RTC I2C drivers whose devices are
-either used in Device Tree source files or are listed in binding docs as
-a compatible string.
-
-That's done because the plan is to change the I2C core to report proper OF
-modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
-a device was registered via DT or using the legacy platform data.
-
-So these patches will make sure that RTC I2C drivers modules will continue
-to be autoloaded once the I2C core is changed to report proper OF modalias.
-
-Best regards,
-Javier
+Hi Alexandre and Geert,
 
 
-Javier Martinez Canillas (13):
-  rtc: rv8803: Add OF device ID table
-  rtc: rv3029: Add OF device ID table
-  rtc: bq32k: Add OF device ID table
-  rtc: ds1307: Add OF device ID table
-  rtc: rx8010: Add OF device ID table
-  rtc: ds3232: Add OF device ID table
-  rtc: rtc-ds1672: Add OF device ID table
-  rtc: ds1374: Set .of_match_table to OF device ID table
-  rtc: isl1208: Add OF device ID table
-  rtc: s35390a: Add OF device ID table
-  rtc: rx8581: Add OF device ID table
-  rtc: m41t80: Add OF device ID table
-  rtc: rs5c372: Add OF device ID table
+On Friday, March 17, 2017, Alexandre Belloni wrote:
+> On 17/03/2017 at 14:55:48 +0100, Geert Uytterhoeven wrote:
+> > >> it would still be good to have phandles to the external clock
+> > >> sources as well, as that describes the hardware topology.
+> > >
+> > > I'm confused, you mean make new clocks node for RTC_X1 (fixed at
+> > > 32.768kHZ) and
+> > > RTC_X3 (fixed at 4MHz), but then not really do anything with then?
+> > > (the driver
+> >
+> > You still do something with them, as they'll be linked from the rtc
+> device node.
+> >
+> > > doesn't need them)
+> >
+> > The driver may use them in the future.
+> > E.g. to select among X1, X3, or EXTAL, depending on availability.
+> >
+> 
+> I'm on Geert's side here, I wouldn't rely on the bootloader to set
+> everything up correctly.
 
- drivers/rtc/rtc-bq32k.c    |  7 +++++
- drivers/rtc/rtc-ds1307.c   | 68 +++++++++++++++++++++++++++++++++++++++++++++-
- drivers/rtc/rtc-ds1374.c   |  1 +
- drivers/rtc/rtc-ds1672.c   |  9 +++++-
- drivers/rtc/rtc-ds3232.c   |  7 +++++
- drivers/rtc/rtc-isl1208.c  | 12 ++++++--
- drivers/rtc/rtc-m41t80.c   | 63 ++++++++++++++++++++++++++++++++++++++++--
- drivers/rtc/rtc-rs5c372.c  | 37 ++++++++++++++++++++++++-
- drivers/rtc/rtc-rv3029c2.c |  9 ++++++
- drivers/rtc/rtc-rv8803.c   | 21 +++++++++++++-
- drivers/rtc/rtc-rx8010.c   |  7 +++++
- drivers/rtc/rtc-rx8581.c   |  7 +++++
- drivers/rtc/rtc-s35390a.c  |  8 ++++++
- 13 files changed, 248 insertions(+), 8 deletions(-)
+Part of my hesitation to putting in the clock source selection was that
+this RTC block is used in a lot of parts, and it's always the same,
+except for the last 3 registers which are different from device to
+device because different SoCs have different clock sources options
+and ways to set them up. So, making a driver that just 'reads' the
+time seemed safer/easier.
+Anyway, I'll add the clock setup in if that's the general consensus.
 
--- 
-2.9.3
+
+But, before I send out an updated version, what were you thinking
+my DT should look like?
+
+Should I make a "count-source" property for user to select what clock
+will be used for the actually counting?
+
+
+	clocks {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+            . . .
+
++		rtc_x1_clk: rtc_x1 {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			/* If clk present, value must be set by board to 32678 */
++			clock-frequency = <0>;
++		};
++
++		rtc_x3_clk: rtc_x3 {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			/* If clk present, value must be set by board to 4000000 */
++			clock-frequency = <0>;
++		};
++
+
+
+
+
++	rtc: rtc@fcff1000 {
++		compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
++		reg = <0xfcff1000 0x2e>;
++		interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
++			      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
++			      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
++		interrupt-names = "alarm", "period", "carry";
++		clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
++			  <&extal_clk> , <&rtc_x3_clk>;
++		clock-names = "fck", "rtc_x1", "extal", "rtc_x3";
++		power-domains = <&cpg_clocks>;
++		count-source = "rtc_x1";    <<<<<<< this would be in the board dts file
++		status = "disabled";
++	};
+
+
+Thank you,
+Chris
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
