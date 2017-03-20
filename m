@@ -1,28 +1,34 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBIMUZLDAKGQEXDFNZYQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBTEFYDDAKGQEF7XTH4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
 Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
-        by gmr-mx.google.com with ESMTP id a3si394236pfb.2.2017.03.22.07.28.49
+        by gmr-mx.google.com with ESMTP id s67si667913pfs.4.2017.03.20.09.26.51
         for <rtc-linux@googlegroups.com>;
-        Wed, 22 Mar 2017 07:28:49 -0700 (PDT)
-From: Chris Brandt <chris.brandt@renesas.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	Chris Brandt <chris.brandt@renesas.com>
-Subject: [rtc-linux] [PATCH v2 2/7] rtc: Add rtc-sh
-Date: Wed, 22 Mar 2017 10:27:49 -0400
-Message-Id: <20170322142754.30888-3-chris.brandt@renesas.com>
-In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 20 Mar 2017 09:26:51 -0700 (PDT)
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>, RTCLINUX
+	<rtc-linux@googlegroups.com>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, Linux-Renesas
+	<linux-renesas-soc@vger.kernel.org>
+Subject: [rtc-linux] RE: [PATCH 2/5] rtc: Add rtc-sh
+Date: Mon, 20 Mar 2017 16:26:46 +0000
+Message-ID: <SG2PR06MB11650F098CFD2BCCB74C823B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170316175112.27913-1-chris.brandt@renesas.com>
+ <20170316175112.27913-3-chris.brandt@renesas.com>
+ <CAMuHMdVu0dQjptyW0F5YS+V6sixXTM3P6VWq2=8BQ5njUOXf-Q@mail.gmail.com>
+ <SG2PR06MB1165A9931C930DF9BCD5C0A98A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdW0nHiZkE_RxVLX3G0MuwQLPHVFyNq5C1tx0yAqDQefaA@mail.gmail.com>
+ <SG2PR06MB11653BB788CADBEE78FE4CF58A390@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdWs3NtKLiBnKCmxGYNBW3zzWYydj=JGKr+mH7ao97L2_Q@mail.gmail.com>
+ <20170317150524.oijto6gtjxycdnwn@piout.net>
+ <SG2PR06MB1165819F41CF40562F44F08B8A3A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdWxs4Xwc0T5AHL73ZtF6r8pN9v6g-GEzozdLvTc4j4aSw@mail.gmail.com>
+In-Reply-To: <CAMuHMdWxs4Xwc0T5AHL73ZtF6r8pN9v6g-GEzozdLvTc4j4aSw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,57 +37,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc-sh is an RTC for SuperH and RZ/A SoCs.
+Hi Geert,
 
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
----
-v2:
-* added interrupt-names and clock-names
-* clocks now include counting sources
-* changed 'is a RTC' to 'is an RTC' in commit message
----
- Documentation/devicetree/bindings/rtc/rtc-sh.txt | 29 ++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
+On Monday, March 20, 2017, Geert Uytterhoeven wrote:
+> > +       rtc: rtc@fcff1000 {
+> > +               compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
+> > +               reg = <0xfcff1000 0x2e>;
+> > +               interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
+> > +                             GIC_SPI 277 IRQ_TYPE_EDGE_RISING
+> > +                             GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
+> > +               interrupt-names = "alarm", "period", "carry";
+> > +               clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
+> > +                         <&extal_clk> , <&rtc_x3_clk>;
+> > +               clock-names = "fck", "rtc_x1", "extal", "rtc_x3";
+> > +               power-domains = <&cpg_clocks>;
+> > +               count-source = "rtc_x1";    <<<<<<< this would be in the
+> board dts file
+> 
+> IMHO that's software policy, not hardware description, so it doesn't
+> belong in DT.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-sh.txt b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
-new file mode 100644
-index 0000000..adbb8af
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
-@@ -0,0 +1,29 @@
-+* Real Time Clock for Renesas SH and ARM SoCs
-+
-+Required properties:
-+- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
-+  fallback.
-+- reg: physical base address and length of memory mapped region.
-+- interrupts: 3 interrupts for alarm, period, and carry.
-+- interrupt-names: The interrupts should be labeled as "alarm", "period", and
-+  "carry".
-+- clocks: The functional clock source for the RTC controller must be listed
-+  first (if exists). Additionally, potential clock counting sources are to be
-+  listed.
-+- clock-names: The functional clock must be labeled as "fck". Other clocks
-+  may be named in accordance to the SoC hardware manuals.
-+
-+
-+Example:
-+rtc: rtc@fcff1000 {
-+	compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
-+	reg = <0xfcff1000 0x2e>;
-+	interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
-+		      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
-+		      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
-+	interrupt-names = "alarm", "period", "carry";
-+	clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
-+		 <&rtc_x3_clk>, <&extal_clk>;
-+	clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
-+	power-domains = <&cpg_clocks>;
-+};
--- 
-2.10.1
+Really? I'm so confused about what is and isn't the responsibility of DT.
 
+
+> However, by scanning the list of allowed clock names, and looking at clock
+> rates, the driver can find a suitable clock itself.
+
+Yes, I could make the selection automatic by looking that the clock names (and
+I will do that for this driver), but what about the case where a user needs
+to select something from a list of possible HW options? In other words, where
+does 'software option' selection stuff go if not in the DT?
+
+
+Thanks,
+Chris
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
