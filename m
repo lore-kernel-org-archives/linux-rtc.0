@@ -1,10 +1,10 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBNNBVPDAKGQE4SLLJWA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBI4UZLDAKGQEIITABNA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
-        by gmr-mx.google.com with ESMTP id c123si1013513pfa.4.2017.03.16.10.51.48
+        by gmr-mx.google.com with ESMTP id 2si361411pfz.1.2017.03.22.07.28.50
         for <rtc-linux@googlegroups.com>;
-        Thu, 16 Mar 2017 10:51:49 -0700 (PDT)
+        Wed, 22 Mar 2017 07:28:50 -0700 (PDT)
 From: Chris Brandt <chris.brandt@renesas.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -16,11 +16,12 @@ Cc: rtc-linux@googlegroups.com,
 	devicetree@vger.kernel.org,
 	linux-renesas-soc@vger.kernel.org,
 	Chris Brandt <chris.brandt@renesas.com>
-Subject: [rtc-linux] [PATCH 3/5] ARM: dts: r7s72100: add rtc clock to device tree
-Date: Thu, 16 Mar 2017 13:51:10 -0400
-Message-Id: <20170316175112.27913-4-chris.brandt@renesas.com>
-In-Reply-To: <20170316175112.27913-1-chris.brandt@renesas.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v2 3/7] ARM: dts: r7s72100: add rtc clock to
+ device tree
+Date: Wed, 22 Mar 2017 10:27:50 -0400
+Message-Id: <20170322142754.30888-4-chris.brandt@renesas.com>
+In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,14 +32,21 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Add the realtime clock functional clock source.
+
 Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+v2:
+* changed "rtc0" to "rtc"
+* added Reviewed-by
 ---
  arch/arm/boot/dts/r7s72100.dtsi            | 9 +++++++++
  include/dt-bindings/clock/r7s72100-clock.h | 3 +++
  2 files changed, 12 insertions(+)
 
 diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
-index ed62e19..2a42a79 100644
+index 34994af..6a1448b 100644
 --- a/arch/arm/boot/dts/r7s72100.dtsi
 +++ b/arch/arm/boot/dts/r7s72100.dtsi
 @@ -117,6 +117,15 @@
@@ -51,7 +59,7 @@ index ed62e19..2a42a79 100644
 +			reg = <0xfcfe042c 4>;
 +			clocks = <&p0_clk>;
 +			clock-indices = <R7S72100_CLK_RTC>;
-+			clock-output-names = "rtc0";
++			clock-output-names = "rtc";
 +		};
 +
  		mstp7_clks: mstp7_clks@fcfe0430 {
