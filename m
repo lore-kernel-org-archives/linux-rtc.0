@@ -1,78 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBA4V6TCQKGQEWHUYWVA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBJ4UZLDAKGQEEWY64HI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id g82si1201012pfb.5.2017.03.05.23.06.43
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:43 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
+        by gmr-mx.google.com with ESMTP id a3si394236pfb.2.2017.03.22.07.28.55
+        for <rtc-linux@googlegroups.com>;
+        Wed, 22 Mar 2017 07:28:55 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:26 -0700
-Message-Id: <1488783873-2614-11-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 10/16] iio:core: utilize new cdev_device_add
- helper function
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v2 7/7] ARM: dts: rskrza1: add rtc DT support
+Date: Wed, 22 Mar 2017 10:27:54 -0400
+Message-Id: <20170322142754.30888-8-chris.brandt@renesas.com>
+In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -83,59 +31,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+Enable the realtime clock.
 
-In doing so we have to remove a guard statement from cdev_del,
-but this doesn't appear to be required in any way.
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 ---
- drivers/iio/industrialio-core.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/r7s72100-rskrza1.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index d18ded4..26a03c6 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1720,18 +1720,13 @@ int iio_device_register(struct iio_dev *indio_dev)
+diff --git a/arch/arm/boot/dts/r7s72100-rskrza1.dts b/arch/arm/boot/dts/r7s72100-rskrza1.dts
+index cab5857..72df20a 100644
+--- a/arch/arm/boot/dts/r7s72100-rskrza1.dts
++++ b/arch/arm/boot/dts/r7s72100-rskrza1.dts
+@@ -73,6 +73,10 @@
+ 	status = "okay";
+ };
  
- 	cdev_init(&indio_dev->chrdev, &iio_buffer_fileops);
- 	indio_dev->chrdev.owner = indio_dev->info->driver_module;
--	indio_dev->chrdev.kobj.parent = &indio_dev->dev.kobj;
--	ret = cdev_add(&indio_dev->chrdev, indio_dev->dev.devt, 1);
--	if (ret < 0)
--		goto error_unreg_eventset;
- 
--	ret = device_add(&indio_dev->dev);
-+	ret = cdev_device_add(&indio_dev->chrdev, &indio_dev->dev);
- 	if (ret < 0)
--		goto error_cdev_del;
-+		goto error_unreg_eventset;
- 
- 	return 0;
--error_cdev_del:
--	cdev_del(&indio_dev->chrdev);
++&rtc {
++	status = "okay";
++};
 +
- error_unreg_eventset:
- 	iio_device_unregister_eventset(indio_dev);
- error_free_sysfs:
-@@ -1752,10 +1747,8 @@ void iio_device_unregister(struct iio_dev *indio_dev)
- {
- 	mutex_lock(&indio_dev->info_exist_lock);
- 
--	device_del(&indio_dev->dev);
-+	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
- 
--	if (indio_dev->chrdev.dev)
--		cdev_del(&indio_dev->chrdev);
- 	iio_device_unregister_debugfs(indio_dev);
- 
- 	iio_disable_all_buffers(indio_dev);
+ &scif2 {
+ 	status = "okay";
+ };
 -- 
-2.1.4
+2.10.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
