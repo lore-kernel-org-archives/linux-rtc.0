@@ -1,21 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBZ734XCQKGQENVRKGLQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBIMUZLDAKGQEXDFNZYQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id u12si69035pfd.3.2017.03.03.06.29.59
+Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
+        by gmr-mx.google.com with ESMTP id a3si394236pfb.2.2017.03.22.07.28.49
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:59 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+        Wed, 22 Mar 2017 07:28:49 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 09/13] rtc: isl1208: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:20 -0300
-Message-Id: <20170303142925.17915-10-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v2 2/7] rtc: Add rtc-sh
+Date: Wed, 22 Mar 2017 10:27:49 -0400
+Message-Id: <20170322142754.30888-3-chris.brandt@renesas.com>
+In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,47 +31,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+rtc-sh is an RTC for SuperH and RZ/A SoCs.
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
-
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 ---
+v2:
+* added interrupt-names and clock-names
+* clocks now include counting sources
+* changed 'is a RTC' to 'is an RTC' in commit message
+---
+ Documentation/devicetree/bindings/rtc/rtc-sh.txt | 29 ++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
 
- drivers/rtc/rtc-isl1208.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 2893785f0eba..8dd299c6a1f3 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -687,10 +687,18 @@ static const struct i2c_device_id isl1208_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, isl1208_id);
- 
-+static const struct of_device_id isl1208_of_match[] = {
-+	{ .compatible = "isil,isl1208" },
-+	{ .compatible = "isil,isl1218" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, isl1208_of_match);
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-sh.txt b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
+new file mode 100644
+index 0000000..adbb8af
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
+@@ -0,0 +1,29 @@
++* Real Time Clock for Renesas SH and ARM SoCs
 +
- static struct i2c_driver isl1208_driver = {
- 	.driver = {
--		   .name = "rtc-isl1208",
--		   },
-+		.name = "rtc-isl1208",
-+		.of_match_table = of_match_ptr(isl1208_of_match),
-+	},
- 	.probe = isl1208_probe,
- 	.remove = isl1208_remove,
- 	.id_table = isl1208_id,
++Required properties:
++- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
++  fallback.
++- reg: physical base address and length of memory mapped region.
++- interrupts: 3 interrupts for alarm, period, and carry.
++- interrupt-names: The interrupts should be labeled as "alarm", "period", and
++  "carry".
++- clocks: The functional clock source for the RTC controller must be listed
++  first (if exists). Additionally, potential clock counting sources are to be
++  listed.
++- clock-names: The functional clock must be labeled as "fck". Other clocks
++  may be named in accordance to the SoC hardware manuals.
++
++
++Example:
++rtc: rtc@fcff1000 {
++	compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
++	reg = <0xfcff1000 0x2e>;
++	interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
++		      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
++		      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
++	interrupt-names = "alarm", "period", "carry";
++	clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
++		 <&rtc_x3_clk>, <&extal_clk>;
++	clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
++	power-domains = <&cpg_clocks>;
++};
 -- 
-2.9.3
+2.10.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
