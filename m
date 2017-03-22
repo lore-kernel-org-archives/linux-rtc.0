@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBV734XCQKGQEER4BS5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBI4UZLDAKGQEIITABNA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id r66si55896pfb.7.2017.03.03.06.29.43
+Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
+        by gmr-mx.google.com with ESMTP id a3si394236pfb.2.2017.03.22.07.28.50
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:29:43 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+        Wed, 22 Mar 2017 07:28:51 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 03/13] rtc: bq32k: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:14 -0300
-Message-Id: <20170303142925.17915-4-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v2 4/7] ARM: dts: r7s72100: add RTC_X clock inputs
+ to device tree
+Date: Wed, 22 Mar 2017 10:27:51 -0400
+Message-Id: <20170322142754.30888-5-chris.brandt@renesas.com>
+In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,43 +32,42 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+Add the RTC clocks to device tree. The frequencies must be fixed values
+according to the hardware manual.
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
-
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 ---
+ arch/arm/boot/dts/r7s72100.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
- drivers/rtc/rtc-bq32k.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-index 2b223935001f..98ac8d5c7901 100644
---- a/drivers/rtc/rtc-bq32k.c
-+++ b/drivers/rtc/rtc-bq32k.c
-@@ -310,9 +310,16 @@ static const struct i2c_device_id bq32k_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, bq32k_id);
+diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
+index 6a1448b..632a6a4 100644
+--- a/arch/arm/boot/dts/r7s72100.dtsi
++++ b/arch/arm/boot/dts/r7s72100.dtsi
+@@ -51,6 +51,20 @@
+ 			clock-frequency = <0>;
+ 		};
  
-+static const struct of_device_id bq32k_of_match[] = {
-+	{ .compatible = "ti,bq32000" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, bq32k_of_match);
++		rtc_x1_clk: rtc_x1 {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			/* If clk present, value must be set by board to 32678 */
++			clock-frequency = <0>;
++		};
 +
- static struct i2c_driver bq32k_driver = {
- 	.driver = {
- 		.name	= "bq32k",
-+		.of_match_table = of_match_ptr(bq32k_of_match),
- 	},
- 	.probe		= bq32k_probe,
- 	.remove		= bq32k_remove,
++		rtc_x3_clk: rtc_x3 {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			/* If clk present, value must be set by board to 4000000 */
++			clock-frequency = <0>;
++		};
++
+ 		/* Fixed factor clocks */
+ 		b_clk: b {
+ 			#clock-cells = <0>;
 -- 
-2.9.3
+2.10.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
