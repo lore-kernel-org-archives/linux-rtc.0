@@ -1,48 +1,26 @@
-Return-Path: <rtc-linux+bncBAABBQ67WDDAKGQEU5WHP3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBJUUZLDAKGQEZX2WB3A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id y90si1564340pfa.6.2017.03.17.11.49.39
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:39 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
+Received: from relmlie4.idc.renesas.com (relmlor1.renesas.com. [210.160.252.171])
+        by gmr-mx.google.com with ESMTP id a3si394301pfb.2.2017.03.22.07.28.53
+        for <rtc-linux@googlegroups.com>;
+        Wed, 22 Mar 2017 07:28:53 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:20 -0600
-Message-Id: <1489776503-3151-14-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 13/16] rapidio: utilize new cdev_device_add
- helper function
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v2 5/7] ARM: dts: r7s72100: add rtc to device tree
+Date: Wed, 22 Mar 2017 10:27:52 -0400
+Message-Id: <20170322142754.30888-6-chris.brandt@renesas.com>
+In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -53,90 +31,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This driver did not originally set kobj.parent so it likely had
-potential a use after free bug which this patch fixes.
+Add the realtime clock device node.
 
-We convert from device_register to device_initialize/cdev_device_add.
-While we are at it we use put_device instead of kfree (as recommended
-by the device_initialize documentation). We also remove an unnecessary
-extra get_device from the code.
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+v2:
+* added interrupt-names
+* added clock counting sources
+* added clock-names "fck", "rtc_x1", "rtc_x3", "extal"
+---
+ arch/arm/boot/dts/r7s72100.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 50b617a..5beb0c3 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -2444,31 +2444,25 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
- 	mutex_init(&md->buf_mutex);
- 	mutex_init(&md->file_mutex);
- 	INIT_LIST_HEAD(&md->file_list);
--	cdev_init(&md->cdev, &mport_fops);
--	md->cdev.owner = THIS_MODULE;
--	ret = cdev_add(&md->cdev, MKDEV(MAJOR(dev_number), mport->id), 1);
--	if (ret < 0) {
--		kfree(md);
--		rmcd_error("Unable to register a device, err=%d", ret);
--		return NULL;
--	}
- 
--	md->dev.devt = md->cdev.dev;
-+	device_initialize(&md->dev);
-+	md->dev.devt = MKDEV(MAJOR(dev_number), mport->id);
- 	md->dev.class = dev_class;
- 	md->dev.parent = &mport->dev;
- 	md->dev.release = mport_device_release;
- 	dev_set_name(&md->dev, DEV_NAME "%d", mport->id);
- 	atomic_set(&md->active, 1);
- 
--	ret = device_register(&md->dev);
-+	cdev_init(&md->cdev, &mport_fops);
-+	md->cdev.owner = THIS_MODULE;
+diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
+index 632a6a4..f74a8ec 100644
+--- a/arch/arm/boot/dts/r7s72100.dtsi
++++ b/arch/arm/boot/dts/r7s72100.dtsi
+@@ -652,4 +652,18 @@
+ 		power-domains = <&cpg_clocks>;
+ 		status = "disabled";
+ 	};
 +
-+	ret = cdev_device_add(&md->cdev, &md->dev);
- 	if (ret) {
- 		rmcd_error("Failed to register mport %d (err=%d)",
- 		       mport->id, ret);
- 		goto err_cdev;
- 	}
- 
--	get_device(&md->dev);
--
- 	INIT_LIST_HEAD(&md->doorbells);
- 	spin_lock_init(&md->db_lock);
- 	INIT_LIST_HEAD(&md->portwrites);
-@@ -2513,8 +2507,7 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
- 	return md;
- 
- err_cdev:
--	cdev_del(&md->cdev);
--	kfree(md);
-+	put_device(&md->dev);
- 	return NULL;
- }
- 
-@@ -2578,7 +2571,7 @@ static void mport_cdev_remove(struct mport_dev *md)
- 	atomic_set(&md->active, 0);
- 	mport_cdev_terminate_dma(md);
- 	rio_del_mport_pw_handler(md->mport, md, rio_mport_pw_handler);
--	cdev_del(&(md->cdev));
-+	cdev_device_del(&md->cdev, &md->dev);
- 	mport_cdev_kill_fasync(md);
- 
- 	flush_workqueue(dma_wq);
-@@ -2603,7 +2596,6 @@ static void mport_cdev_remove(struct mport_dev *md)
- 
- 	rio_release_inb_dbell(md->mport, 0, 0x0fff);
- 
--	device_unregister(&md->dev);
- 	put_device(&md->dev);
- }
- 
++	rtc: rtc@fcff1000 {
++		compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
++		reg = <0xfcff1000 0x2e>;
++		interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
++			      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
++			      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
++		interrupt-names = "alarm", "period", "carry";
++		clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
++			 <&rtc_x3_clk>, <&extal_clk>;
++		clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
++		power-domains = <&cpg_clocks>;
++		status = "disabled";
++	};
+ };
 -- 
-2.1.4
+2.10.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
