@@ -1,64 +1,22 @@
-Return-Path: <rtc-linux+bncBDVNRMMDUUIBB3V26TCQKGQEQUJHA4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBCEJHTXX7MFBB5F72HDAKGQEDR6TBUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx2.suse.de (mx2.suse.de. [195.135.220.15])
-        by gmr-mx.google.com with ESMTPS id 82si155035wmg.3.2017.03.06.00.27.26
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 06 Mar 2017 00:27:26 -0800 (PST)
-Subject: [rtc-linux] Re: [PATCH v3 02/16] device-dax: fix cdev leak
-To: Logan Gunthorpe <logang@deltatee.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
- Arnd Bergmann <arnd@arndb.de>, Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
- Marcel Selhorst <tpmdd@selhorst.net>,
- Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
- Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
- Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
- Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock
- <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
- Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
- Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
- Lars-Peter Clausen <lars@metafoo.de>,
- Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
- Hans Verkuil <hans.verkuil@cisco.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Boris Brezillon <boris.brezillon@free-electrons.com>,
- Marek Vasut <marek.vasut@gmail.com>,
- Cyrille Pitchen <cyrille.pitchen@atmel.com>,
- Matt Porter <mporter@kernel.crashing.org>,
- Alexandre Bounine <alexandre.bounine@idt.com>,
- Andrew Morton <akpm@linux-foundation.org>, Joe Perches <joe@perches.com>,
- Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Boaz Harrosh <ooo@electrozaur.com>,
- "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Stephen Bates <stephen.bates@microsemi.com>,
- Bjorn Helgaas <bhelgaas@google.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-3-git-send-email-logang@deltatee.com>
-Cc: linux-pci@vger.kernel.org, linux-scsi@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-mtd@lists.infradead.org,
- linux-media@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-nvdimm@lists.01.org,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Message-ID: <8c14aaaa-2881-c260-87f1-50fb1e6213d8@suse.de>
-Date: Mon, 6 Mar 2017 09:27:18 +0100
 MIME-Version: 1.0
-In-Reply-To: <1488783873-2614-3-git-send-email-logang@deltatee.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.kmu-office.ch (mail.kmu-office.ch. [178.209.48.109])
+        by gmr-mx.google.com with ESMTPS id 82si9344wmg.3.2017.03.23.16.53.24
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Mar 2017 16:53:24 -0700 (PDT)
+From: Stefan Agner <stefan@agner.ch>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Stefan Agner <stefan@agner.ch>
+Subject: [rtc-linux] [PATCH] rtc: ds1307: support m41t0 variant
+Date: Thu, 23 Mar 2017 16:54:57 -0700
+Message-Id: <20170323235457.13223-1-stefan@agner.ch>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -67,44 +25,111 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/06/2017 08:04 AM, Logan Gunthorpe wrote:
-> From: Dan Williams <dan.j.williams@intel.com>
->=20
-> If device_add() fails, cleanup the cdev. Otherwise, we leak a kobj_map()
-> with a stale device number.
->=20
-> As Jason points out, there is a small possibility that userspace has
-> opened and mapped the device in the time between cdev_add() and the
-> device_add() failure. We need a new kill_dax_dev() helper to invalidate
-> any established mappings.
->=20
-> Fixes: ba09c01d2fa8 ("dax: convert to the cdev api")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-> ---
+The m41t0 variant is very similar to the already supported m41t00
+variant, with the notable exception of the oscillator fail bit.
+The data sheet notes:
 
-Looks good,
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+  If the oscillator fail (OF) bit is internally set to a '1,' this
+  indicates that the oscillator has either stopped, or was stopped
+  for some period of time and can be used to judge the validity of
+  the clock and date data.
 
+The bit will get cleared with a regular write of the system time,
+so no changes are needed to clear it.
 
---=20
-Johannes Thumshirn                                          Storage
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=C3=BCrnberg
-GF: Felix Imend=C3=B6rffer, Jane Smithard, Graham Norton
-HRB 21284 (AG N=C3=BCrnberg)
-Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+---
+ Documentation/devicetree/bindings/i2c/trivial-devices.txt |  1 +
+ drivers/rtc/rtc-ds1307.c                                  | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
 
---=20
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index ad10fbe61562..3e0a34c88e07 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -160,6 +160,7 @@ sii,s35390a		2-wire CMOS real-time clock
+ silabs,si7020		Relative Humidity and Temperature Sensors
+ skyworks,sky81452	Skyworks SKY81452: Six-Channel White LED Driver with Touch Panel Bias Supply
+ st,24c256		i2c serial eeprom  (24cxx)
++st,m41t0		Serial real-time clock (RTC)
+ st,m41t00		Serial real-time clock (RTC)
+ st,m41t62		Serial real-time clock (RTC) with alarm
+ st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4ad97be48043..93b1e558fd54 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -38,6 +38,7 @@ enum ds_type {
+ 	ds_1340,
+ 	ds_1388,
+ 	ds_3231,
++	m41t0,
+ 	m41t00,
+ 	mcp794xx,
+ 	rx_8025,
+@@ -52,6 +53,7 @@ enum ds_type {
+ #	define DS1340_BIT_nEOSC		0x80
+ #	define MCP794XX_BIT_ST		0x80
+ #define DS1307_REG_MIN		0x01	/* 00-59 */
++#	define M41T0_BIT_OF		0x80
+ #define DS1307_REG_HOUR		0x02	/* 00-23, or 1-12{am,pm} */
+ #	define DS1307_BIT_12HR		0x40	/* in REG_HOUR */
+ #	define DS1307_BIT_PM		0x20	/* in REG_HOUR */
+@@ -182,6 +184,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "ds1388", ds_1388 },
+ 	{ "ds1340", ds_1340 },
+ 	{ "ds3231", ds_3231 },
++	{ "m41t0", m41t0 },
+ 	{ "m41t00", m41t00 },
+ 	{ "mcp7940x", mcp794xx },
+ 	{ "mcp7941x", mcp794xx },
+@@ -201,6 +204,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
+ 	{ .id = "DS1388", .driver_data = ds_1388 },
+ 	{ .id = "DS1340", .driver_data = ds_1340 },
+ 	{ .id = "DS3231", .driver_data = ds_3231 },
++	{ .id = "M41T0", .driver_data = m41t0 },
+ 	{ .id = "M41T00", .driver_data = m41t00 },
+ 	{ .id = "MCP7940X", .driver_data = mcp794xx },
+ 	{ .id = "MCP7941X", .driver_data = mcp794xx },
+@@ -396,6 +400,13 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 
+ 	dev_dbg(dev, "%s: %7ph\n", "read", ds1307->regs);
+ 
++	/* if oscillator fail bit is set, no data can be trusted */
++	if (ds1307->type == m41t0 &&
++	    ds1307->regs[DS1307_REG_MIN] & M41T0_BIT_OF) {
++		dev_warn_once(dev, "oscillator failed, set time!\n");
++		return -EINVAL;
++	}
++
+ 	t->tm_sec = bcd2bin(ds1307->regs[DS1307_REG_SECS] & 0x7f);
+ 	t->tm_min = bcd2bin(ds1307->regs[DS1307_REG_MIN] & 0x7f);
+ 	tmp = ds1307->regs[DS1307_REG_HOUR] & 0x3f;
+@@ -1513,6 +1524,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	tmp = ds1307->regs[DS1307_REG_SECS];
+ 	switch (ds1307->type) {
+ 	case ds_1307:
++	case m41t0:
+ 	case m41t00:
+ 		/* clock halted?  turn it on, so clock can tick. */
+ 		if (tmp & DS1307_BIT_CH) {
+@@ -1577,6 +1589,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	tmp = ds1307->regs[DS1307_REG_HOUR];
+ 	switch (ds1307->type) {
+ 	case ds_1340:
++	case m41t0:
+ 	case m41t00:
+ 		/*
+ 		 * NOTE: ignores century bits; fix before deploying
+-- 
+2.12.0
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
