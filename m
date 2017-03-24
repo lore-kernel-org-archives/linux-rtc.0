@@ -1,22 +1,30 @@
-Return-Path: <rtc-linux+bncBDQ4HRP464MRBTUL7TCQKGQE5B2UAVY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB55V2XDAKGQEMQL4IOI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x242.google.com (mail-wm0-x242.google.com. [2a00:1450:400c:c09::242])
-        by gmr-mx.google.com with ESMTPS id t131si100399wmf.1.2017.03.07.11.11.09
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id e72si342552wma.0.2017.03.24.10.44.23
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 Mar 2017 11:11:09 -0800 (PST)
-Received: by mail-wm0-x242.google.com with SMTP id u132so2575648wmg.1
-        for <rtc-linux@googlegroups.com>; Tue, 07 Mar 2017 11:11:09 -0800 (PST)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: rtc-linux@googlegroups.com
-To: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [PATCH] rtc: hctosys: move hctosys functionality to rtc_device_register
-Message-ID: <14cc1b9c-66af-2e09-1ca5-07aa55025beb@gmail.com>
-Date: Tue, 7 Mar 2017 20:10:48 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Fri, 24 Mar 2017 10:44:23 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 3/7] iio: cros_ec_sensors: Use devm to setup the
+ triggered buffer.
+Date: Fri, 24 Mar 2017 18:44:03 +0100
+Message-Id: <20170324174407.25401-4-enric.balletbo@collabora.com>
+In-Reply-To: <20170324174407.25401-1-enric.balletbo@collabora.com>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,169 +33,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-It's a little annoying that rtc driver plus all drivers it depends on
-(e.g. I2C) have to be compiled into the kernel to be used with hctosys.
+Use resourced managed function devm_iio_triggered_buffer_setup
+to make error path simpler and be able to get rid of the remove
+function.
 
-I think it would be more logical to set the system clock once the
-rtc driver has been registered. Therefore move the hctosys
-functionality to the end of rtc_device_register.
-
-Works perfectly fine here.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 ---
- drivers/rtc/Makefile  |  1 -
- drivers/rtc/class.c   | 38 ++++++++++++++++++++++++++++
- drivers/rtc/hctosys.c | 70 ---------------------------------------------------
- 3 files changed, 38 insertions(+), 71 deletions(-)
- delete mode 100644 drivers/rtc/hctosys.c
 
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index f07297b1..f1d57b06 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -5,7 +5,6 @@
- ccflags-$(CONFIG_RTC_DEBUG)	:= -DDEBUG
+  This is an improvement that can wait to 4.12 merge window, again can be
+picked independently of the other patches and can go through IIO Jonathan's
+Cameron tree.
+
+ .../iio/common/cros_ec_sensors/cros_ec_sensors.c   | 26 +++-------------------
+ 1 file changed, 3 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
+index c17596f..38e8783 100644
+--- a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
++++ b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
+@@ -267,31 +267,12 @@ static int cros_ec_sensors_probe(struct platform_device *pdev)
+ 	else
+ 		state->core.read_ec_sensors_data = cros_ec_sensors_read_cmd;
  
- obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
--obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
- obj-$(CONFIG_RTC_SYSTOHC)	+= systohc.o
- obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
- obj-$(CONFIG_RTC_MC146818_LIB)	+= rtc-mc146818-lib.o
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 74fd9746..dcfd2e64 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -168,6 +168,13 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 	struct rtc_wkalrm alrm;
- 	int of_id = -1, id = -1, err;
+-	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+-					 cros_ec_sensors_capture, NULL);
++	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
++			cros_ec_sensors_capture, NULL);
+ 	if (ret)
+ 		return ret;
  
-+#if IS_ENABLED(CONFIG_RTC_HCTOSYS)
-+	struct rtc_time tm;
-+	struct timespec64 tv64 = {
-+		.tv_nsec = NSEC_PER_SEC >> 1,
-+	};
-+#endif
-+
- 	if (dev->of_node)
- 		of_id = of_alias_get_id(dev->of_node, "rtc");
- 	else if (dev->parent && dev->parent->of_node)
-@@ -246,6 +253,37 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 	dev_info(dev, "rtc core: registered %s as %s\n",
- 			rtc->name, dev_name(&rtc->dev));
- 
-+#if IS_ENABLED(CONFIG_RTC_HCTOSYS)
-+/* IMPORTANT: the RTC only stores whole seconds. It is arbitrary
-+ * whether it stores the most close value or the value with partial
-+ * seconds truncated. However, it is important that we use it to store
-+ * the truncated value. This is because otherwise it is necessary,
-+ * in an rtc sync function, to read both xtime.tv_sec and
-+ * xtime.tv_nsec. On some processors (i.e. ARM), an atomic read
-+ * of >32bits is not possible. So storing the most close value would
-+ * slow down the sync API. So here we have the truncated value and
-+ * the best guess is to add 0.5s.
-+ */
-+	if (!strcmp(CONFIG_RTC_HCTOSYS_DEVICE, dev_name(&rtc->dev))) {
-+		err = rtc_read_time(rtc, &tm);
-+		if (err) {
-+			dev_err(dev, "hctosys: unable to read the hardware clock\n");
-+			goto hctosys_out;
-+		}
-+
-+		tv64.tv_sec = rtc_tm_to_time64(&tm);
-+
-+		err = do_settimeofday64(&tv64);
-+
-+		dev_info(dev, "setting system clock to %d-%02d-%02d %02d:%02d:%02d UTC (%lld)\n",
-+			 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-+			 tm.tm_hour, tm.tm_min, tm.tm_sec,
-+			 (long long) tv64.tv_sec);
-+hctosys_out:
-+		rtc_hctosys_ret = err;
-+	}
-+#endif
-+
- 	return rtc;
- 
- exit_ida:
-diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
-deleted file mode 100644
-index e1cfa068..00000000
---- a/drivers/rtc/hctosys.c
-+++ /dev/null
-@@ -1,70 +0,0 @@
--/*
-- * RTC subsystem, initialize system time on startup
-- *
-- * Copyright (C) 2005 Tower Technologies
-- * Author: Alessandro Zummo <a.zummo@towertech.it>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
--*/
+-	ret = iio_device_register(indio_dev);
+-	if (ret)
+-		goto error_uninit_buffer;
 -
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-	return 0;
 -
--#include <linux/rtc.h>
+-error_uninit_buffer:
+-	iio_triggered_buffer_cleanup(indio_dev);
 -
--/* IMPORTANT: the RTC only stores whole seconds. It is arbitrary
-- * whether it stores the most close value or the value with partial
-- * seconds truncated. However, it is important that we use it to store
-- * the truncated value. This is because otherwise it is necessary,
-- * in an rtc sync function, to read both xtime.tv_sec and
-- * xtime.tv_nsec. On some processors (i.e. ARM), an atomic read
-- * of >32bits is not possible. So storing the most close value would
-- * slow down the sync API. So here we have the truncated value and
-- * the best guess is to add 0.5s.
-- */
--
--static int __init rtc_hctosys(void)
--{
--	int err = -ENODEV;
--	struct rtc_time tm;
--	struct timespec64 tv64 = {
--		.tv_nsec = NSEC_PER_SEC >> 1,
--	};
--	struct rtc_device *rtc = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
--
--	if (rtc == NULL) {
--		pr_info("unable to open rtc device (%s)\n",
--			CONFIG_RTC_HCTOSYS_DEVICE);
--		goto err_open;
--	}
--
--	err = rtc_read_time(rtc, &tm);
--	if (err) {
--		dev_err(rtc->dev.parent,
--			"hctosys: unable to read the hardware clock\n");
--		goto err_read;
--
--	}
--
--	tv64.tv_sec = rtc_tm_to_time64(&tm);
--
--	err = do_settimeofday64(&tv64);
--
--	dev_info(rtc->dev.parent,
--		"setting system clock to "
--		"%d-%02d-%02d %02d:%02d:%02d UTC (%lld)\n",
--		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
--		tm.tm_hour, tm.tm_min, tm.tm_sec,
--		(long long) tv64.tv_sec);
--
--err_read:
--	rtc_class_close(rtc);
--
--err_open:
--	rtc_hctosys_ret = err;
--
--	return err;
+-	return ret;
 -}
 -
--late_initcall(rtc_hctosys);
+-static int cros_ec_sensors_remove(struct platform_device *pdev)
+-{
+-	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+-
+-	iio_device_unregister(indio_dev);
+-	iio_triggered_buffer_cleanup(indio_dev);
+-
+-	return 0;
++	return devm_iio_device_register(dev, indio_dev);
+ }
+ 
+ static const struct platform_device_id cros_ec_sensors_ids[] = {
+@@ -313,7 +294,6 @@ static struct platform_driver cros_ec_sensors_platform_driver = {
+ 		.name	= "cros-ec-sensors",
+ 	},
+ 	.probe		= cros_ec_sensors_probe,
+-	.remove		= cros_ec_sensors_remove,
+ 	.id_table	= cros_ec_sensors_ids,
+ };
+ module_platform_driver(cros_ec_sensors_platform_driver);
 -- 
-2.12.0
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
