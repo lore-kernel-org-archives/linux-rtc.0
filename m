@@ -1,28 +1,30 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBFVS5XDAKGQEKEDIIYA@googlegroups.com>
-Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
-        by gmr-mx.google.com with ESMTPS id f73si690375ita.1.2017.03.28.23.49.58
+Return-Path: <rtc-linux+bncBC2IF264UIPRB5VV2XDAKGQE6DBLEWA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id l138si358153wmg.0.2017.03.24.10.44.22
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Mar 2017 23:49:58 -0700 (PDT)
-Received: by mail-it0-x244.google.com with SMTP id w11so628937itb.0
-        for <rtc-linux@googlegroups.com>; Tue, 28 Mar 2017 23:49:58 -0700 (PDT)
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
- <20170322142754.30888-3-chris.brandt@renesas.com> <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 29 Mar 2017 08:49:57 +0200
-Message-ID: <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 2/7] rtc: Add rtc-sh
-To: Rob Herring <robh@kernel.org>
-Cc: Chris Brandt <chris.brandt@renesas.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+        Fri, 24 Mar 2017 10:44:22 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 2/7] iio: cros_ec_sensors: Fix return value to get
+ raw and calibbias data.
+Date: Fri, 24 Mar 2017 18:44:02 +0100
+Message-Id: <20170324174407.25401-3-enric.balletbo@collabora.com>
+In-Reply-To: <20170324174407.25401-1-enric.balletbo@collabora.com>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,69 +33,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Rob,
+The cros_ec_sensors_read function must return the type of value on all
+cases. This was always true except for RAW and CALIBBIAS data which
+returned an error or 0. This patch just fixes the mistake I introduced
+when submitting the series.
 
-On Wed, Mar 29, 2017 at 3:24 AM, Rob Herring <robh@kernel.org> wrote:
-> On Wed, Mar 22, 2017 at 10:27:49AM -0400, Chris Brandt wrote:
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
->> @@ -0,0 +1,29 @@
->> +* Real Time Clock for Renesas SH and ARM SoCs
->> +
->> +Required properties:
->> +- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
->> +  fallback.
->> +- reg: physical base address and length of memory mapped region.
->> +- interrupts: 3 interrupts for alarm, period, and carry.
->> +- interrupt-names: The interrupts should be labeled as "alarm", "period", and
->> +  "carry".
->> +- clocks: The functional clock source for the RTC controller must be listed
->> +  first (if exists). Additionally, potential clock counting sources are to be
->> +  listed.
->> +- clock-names: The functional clock must be labeled as "fck". Other clocks
->> +  may be named in accordance to the SoC hardware manuals.
->> +
->> +
->> +Example:
->> +rtc: rtc@fcff1000 {
->> +     compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
->> +     reg = <0xfcff1000 0x2e>;
->> +     interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
->> +                   GIC_SPI 277 IRQ_TYPE_EDGE_RISING
->> +                   GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
->> +     interrupt-names = "alarm", "period", "carry";
->> +     clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
->> +              <&rtc_x3_clk>, <&extal_clk>;
->> +     clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
->> +     power-domains = <&cpg_clocks>;
->
-> Not documented.
+Fixes: commit c14dca07a31d (iio: cros_ec_sensors: add ChromeOS EC
+Contiguous Sensors driver)
 
-"power-domains" is a platform property.
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
 
-All hardware components need power.
-All synchronous hardware components need a clock.
-Most hardware components have a reset signal.
+  This is another FIX, so would be interesting see it merged in this release
+cycle too. Like the above patch can be picked independently of the other
+patches and should go through IIO Jonathan's Cameron tree.
 
-Whether these are exposed and can be controlled depends on the platform/SoC.
-So documenting them in each and every device binding looks overkill to me.
-I think this is something to be addressed by devicetree-specification (which
-doesn't handle clocks, power-domains, resets yet).
+ drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-If you prefer, the property can be removed from the example, though.
-
-Thanks!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
+index d6c372b..c17596f 100644
+--- a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
++++ b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
+@@ -61,7 +61,7 @@ static int cros_ec_sensors_read(struct iio_dev *indio_dev,
+ 		ret = st->core.read_ec_sensors_data(indio_dev, 1 << idx, &data);
+ 		if (ret < 0)
+ 			break;
+-
++		ret = IIO_VAL_INT;
+ 		*val = data;
+ 		break;
+ 	case IIO_CHAN_INFO_CALIBBIAS:
+@@ -76,7 +76,7 @@ static int cros_ec_sensors_read(struct iio_dev *indio_dev,
+ 		for (i = CROS_EC_SENSOR_X; i < CROS_EC_SENSOR_MAX_AXIS; i++)
+ 			st->core.calib[i] =
+ 				st->core.resp->sensor_offset.offset[i];
+-
++		ret = IIO_VAL_INT;
+ 		*val = st->core.calib[idx];
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
