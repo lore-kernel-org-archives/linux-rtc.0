@@ -1,65 +1,30 @@
-Return-Path: <rtc-linux+bncBAABBME3VPDAKGQECWOALFA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB7FV2XDAKGQEFQG5NOY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id y90si1028157pfa.6.2017.03.16.10.38.55
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id t131si301195wmf.1.2017.03.24.10.44.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Mar 2017 10:38:55 -0700 (PDT)
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-2-git-send-email-logang@deltatee.com>
- <20170316132222.GA9923@kroah.com>
-Cc: Dan Williams <dan.j.williams@intel.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
- Arnd Bergmann <arnd@arndb.de>, Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Courbot <gnurou@gmail.com>, Peter Huewe <peterhuewe@gmx.de>,
- Marcel Selhorst <tpmdd@selhorst.net>,
- Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
- Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
- Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
- Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock
- <hal.rosenstock@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
- Haggai Eran <haggaie@mellanox.com>, Parav Pandit <pandit.parav@gmail.com>,
- Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
- Lars-Peter Clausen <lars@metafoo.de>,
- Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
- Hans Verkuil <hans.verkuil@cisco.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod.at>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Boris Brezillon <boris.brezillon@free-electrons.com>,
- Marek Vasut <marek.vasut@gmail.com>,
- Cyrille Pitchen <cyrille.pitchen@atmel.com>,
- Matt Porter <mporter@kernel.crashing.org>,
- Alexandre Bounine <alexandre.bounine@idt.com>,
- Andrew Morton <akpm@linux-foundation.org>, Joe Perches <joe@perches.com>,
- Lorenzo Stoakes <lstoakes@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Boaz Harrosh <ooo@electrozaur.com>,
- "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Stephen Bates <stephen.bates@microsemi.com>,
- Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
- linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-From: Logan Gunthorpe <logang@deltatee.com>
-Message-ID: <98d81155-5290-b251-4728-43781d45c23b@deltatee.com>
-Date: Thu, 16 Mar 2017 11:38:40 -0600
-MIME-Version: 1.0
-In-Reply-To: <20170316132222.GA9923@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: [rtc-linux] Re: [PATCH v3 01/16] chardev: add helper function to
- register char devs with a struct device
+        Fri, 24 Mar 2017 10:44:28 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH 7/7] mfd: cros_ec: add RTC as mfd subdevice
+Date: Fri, 24 Mar 2017 18:44:07 +0100
+Message-Id: <20170324174407.25401-8-enric.balletbo@collabora.com>
+In-Reply-To: <20170324174407.25401-1-enric.balletbo@collabora.com>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -68,22 +33,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-> I don't know why kbuild didn't catch these before, but it looks like we
-> really need to include device.h in cdev.h now to fix up these build
-> warnings, right?
+From: Stephen Barber <smbarber@chromium.org>
 
-> I'll try that out and rebase the char-misc-testing tree in the morning
-> to see if that fixes the build problems...
+If the EC supports RTC host commands, expose an RTC device.
 
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+ drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Yeah, I think the kbuild robot missed the series because the vger
-mailing lists were dropping this series :(
-
-I also don't know why my kernel config didn't catch this warning but
-I reproduced and fixed it with the kbuild's config. I'll send an updated
-patch which adds a include device.h line to cdev.h momentarily.
-
-Logan
+diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+index bbc17ab..1ff88b1 100644
+--- a/drivers/mfd/cros_ec.c
++++ b/drivers/mfd/cros_ec.c
+@@ -51,6 +51,11 @@ static const struct mfd_cell ec_pd_cell = {
+ 	.pdata_size = sizeof(pd_p),
+ };
+ 
++static const struct mfd_cell ec_rtc_cell = {
++	.name = "cros-ec-rtc",
++	.id   = -1,
++};
++
+ static irqreturn_t ec_irq_thread(int irq, void *data)
+ {
+ 	struct cros_ec_device *ec_dev = data;
+@@ -238,6 +243,15 @@ static void cros_ec_sensors_register(struct cros_ec_device *ec_dev)
+ 	kfree(msg);
+ }
+ 
++static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
++{
++	int ret;
++
++	ret = mfd_add_devices(ec_dev->dev, 0, &ec_rtc_cell, 1, NULL, 0, NULL);
++	if (ret)
++		dev_err(ec_dev->dev, "failed to add EC RTC\n");
++}
++
+ int cros_ec_register(struct cros_ec_device *ec_dev)
+ {
+ 	struct device *dev = ec_dev->dev;
+@@ -287,6 +301,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
+ 		cros_ec_sensors_register(ec_dev);
+ 
++	/* Check whether this EC has RTC support */
++	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
++		cros_ec_rtc_register(ec_dev);
++
+ 	if (ec_dev->max_passthru) {
+ 		/*
+ 		 * Register a PD device as well on top of this device.
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
