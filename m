@@ -1,24 +1,30 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSEO43CQKGQESYA4YYY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB5NV2XDAKGQECIBYRVY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v70si256530wmf.0.2017.03.03.07.10.00
-        for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 07:10:00 -0800 (PST)
-Date: Fri, 3 Mar 2017 16:09:49 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michal Simek <monstr@monstr.eu>
-Cc: John Stultz <john.stultz@linaro.org>, rtc-linux@googlegroups.com,
-	Michal Simek <michal.simek@xilinx.com>
-Subject: Re: [rtc-linux] RTC used as a module
-Message-ID: <20170303150949.qovbx5iifyuquloe@piout.net>
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
- <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id 82si332136wmg.3.2017.03.24.10.44.21
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 24 Mar 2017 10:44:21 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Vic Yang <victoryang@google.com>
+Subject: [rtc-linux] [PATCH 1/7] mfd: cros-ec: Fix host command buffer size
+Date: Fri, 24 Mar 2017 18:44:01 +0100
+Message-Id: <20170324174407.25401-2-enric.balletbo@collabora.com>
+In-Reply-To: <20170324174407.25401-1-enric.balletbo@collabora.com>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,63 +33,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 03/03/2017 at 15:46:36 +0100, Michal Simek wrote:
-> This is the function which is making the difference.
-> 
-> It was added by John Stultz:
-> "timers: Introduce in-kernel alarm-timer interface"
-> (sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
-> 
-> Probe function has device_init_wakeup(&pdev->dev, 1);
-> That's why reference is taken (get_device() below)
-> 
-> static int alarmtimer_rtc_add_device(struct device *dev,
-> 				struct class_interface *class_intf)
-> {
-> 	unsigned long flags;
-> 	struct rtc_device *rtc = to_rtc_device(dev);
-> 
-> 	if (rtcdev)
-> 		return -EBUSY;
-> 
-> 	pr_info("%s\n", __func__);
-> 
-> 	if (!rtc->ops->set_alarm)
-> 		return -1;
-> 
-> 	pr_info("%s\n", __func__);
-> 
-> 	if (!device_may_wakeup(rtc->dev.parent))
-> 		return -1;
-> 
-> 	spin_lock_irqsave(&rtcdev_lock, flags);
-> 	if (!rtcdev) {
-> 		rtcdev = rtc;
-> 		/* hold a reference so it doesn't go away */
-> 		get_device(dev);
-> 	}
-> 	spin_unlock_irqrestore(&rtcdev_lock, flags);
-> 	return 0;
-> }
-> 
-> And in remove function device_init_wakeup(&pdev->dev, 0);
-> But because there is still a reference rtc_device_release() is not
-> called and ida is not freed.
-> 
-> Generic question which I think should be asked if in this situation
-> driver should be modular or not.
-> If driver can be modular then somewhere should be put_device().
-> 
+From: Vic Yang <victoryang@google.com>
 
->From a quick look, I'd say the issue is coming from
-8bc0dafb5cf38a19484dfb16e2c6d29e85820046 which removed the call to
-rtc_class_open so you can actually unload the module.
+For SPI, we can get up to 32 additional bytes for response preamble.
+The current overhead (2 bytes) may cause problems when we try to receive
+a big response. Update it to 32 bytes.
 
+Without this fix we could see a kernel BUG when we receive a big response
+from the Chrome EC when is connected via SPI.
 
+Signed-off-by: Vic Yang <victoryang@google.com>
+Tested-by: Enric Balletbo i Serra <enric.balletbo.collabora.com>
+---
+
+  This patch is a FIX, and I think that would be interesting see it merged
+in this release cycle. This should go through the MFD tree and can be picked
+independently of the other patches. Lee Jones I think this is for you.
+
+ include/linux/mfd/cros_ec.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index b3e812f..3b16c90 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -35,10 +35,11 @@
+  * Max bus-specific overhead incurred by request/responses.
+  * I2C requires 1 additional byte for requests.
+  * I2C requires 2 additional bytes for responses.
++ * SPI requires up to 32 additional bytes for responses.
+  * */
+ #define EC_PROTO_VERSION_UNKNOWN	0
+ #define EC_MAX_REQUEST_OVERHEAD		1
+-#define EC_MAX_RESPONSE_OVERHEAD	2
++#define EC_MAX_RESPONSE_OVERHEAD	32
+ 
+ /*
+  * Command interface between EC and AP, for LPC, I2C and SPI interfaces.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
