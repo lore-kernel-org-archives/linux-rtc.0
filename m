@@ -1,26 +1,30 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBR7OT7DAKGQEWVRAWVY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x22c.google.com (mail-wr0-x22c.google.com. [2a00:1450:400c:c0c::22c])
-        by gmr-mx.google.com with ESMTPS id b186si196269wme.1.2017.03.14.06.59.35
+Return-Path: <rtc-linux+bncBAABBT5K37DAKGQEB6ILMEI@googlegroups.com>
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id q207si711558wme.3.2017.03.26.07.50.55
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Mar 2017 06:59:35 -0700 (PDT)
-Received: by mail-wr0-x22c.google.com with SMTP id u48so124713963wrc.0
-        for <rtc-linux@googlegroups.com>; Tue, 14 Mar 2017 06:59:35 -0700 (PDT)
-Date: Tue, 14 Mar 2017 13:59:32 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	Olof Johansson <olof@lixom.net>,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] Re: [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Message-ID: <20170314135932.ngn7uh67duzroy47@dell>
-References: <20170214221529.6434-1-enric.balletbo@collabora.com>
- <20170214221529.6434-4-enric.balletbo@collabora.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Sun, 26 Mar 2017 07:50:55 -0700 (PDT)
+Date: Sun, 26 Mar 2017 15:50:24 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Leo Yan <leo.yan@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Baptiste Reynal <b.reynal@virtualopensystems.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	kvm@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 1/5] Input: ambakmi - Convert to use devm_*()
+Message-ID: <20170326145023.GO7909@n2100.armlinux.org.uk>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+ <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170214221529.6434-4-enric.balletbo@collabora.com>
+In-Reply-To: <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,86 +34,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 14 Feb 2017, Enric Balletbo i Serra wrote:
+On Sun, Mar 26, 2017 at 10:41:50PM +0800, Leo Yan wrote:
+> Convert driver to use devm_*() APIs so rely on driver model core layer
+> to manage resources. This eliminates error path boilerplate and makes
+> code neat.
+> 
+> This patch also fixes the memory leakage for 'kmi->io' when remove
+> module.
 
-> From: Stephen Barber <smbarber@chromium.org>
->=20
-> If the EC supports RTC host commands, expose an RTC device.
->=20
-> Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Acked-by: Benson Leung <bleung@chromium.org>
-> ---
-> Changes since v2:
->  - Acked by Benson Leung
-> Changes since v1:
->  - none
->=20
->  drivers/platform/chrome/cros_ec_dev.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->=20
-> diff --git a/drivers/platform/chrome/cros_ec_dev.c b/drivers/platform/chr=
-ome/cros_ec_dev.c
-> index 47268ec..ebe029d 100644
-> --- a/drivers/platform/chrome/cros_ec_dev.c
-> +++ b/drivers/platform/chrome/cros_ec_dev.c
-> @@ -383,6 +383,24 @@ static void cros_ec_sensors_register(struct cros_ec_=
-dev *ec)
->  	kfree(msg);
->  }
-> =20
-> +static const struct mfd_cell cros_ec_rtc_devs[] =3D {
-> +	{
-> +		.name =3D "cros-ec-rtc",
-> +		.id   =3D -1,
-> +	},
-> +};
-> +
-> +static void cros_ec_rtc_register(struct cros_ec_dev *ec)
-> +{
-> +	int ret;
-> +
-> +	ret =3D mfd_add_devices(ec->dev, 0, cros_ec_rtc_devs,
-> +			      ARRAY_SIZE(cros_ec_rtc_devs),
-> +			      NULL, 0, NULL);
-> +	if (ret)
-> +		dev_err(ec->dev, "failed to add cros-ec-rtc device: %d\n", ret);
-> +}
+No, it is not leaked, in fact, your patch introduces a use-after-free
+bug.
 
-Holey poop!  Why are you using the MFD API outside of MFD?
+kmi->io is of type "struct serio", and this structure has an embedded
+"struct device".  The lifetime of any structure containing a "struct
+device" is controlled by the lifetime of the struct device.
 
-Why can't you register this from the MFD driver?
+Once serio_register_port() has been called on it, it is up to the
+serio layer to free this structure.
 
->  static int ec_device_probe(struct platform_device *pdev)
->  {
->  	int retval =3D -ENOMEM;
-> @@ -441,6 +459,10 @@ static int ec_device_probe(struct platform_device *p=
-dev)
->  	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
->  		cros_ec_sensors_register(ec);
-> =20
-> +	/* check whether this EC instance has RTC host command support */
-> +	if (cros_ec_check_features(ec, EC_FEATURE_RTC))
-> +		cros_ec_rtc_register(ec);
-> +
->  	return 0;
-> =20
->  dev_reg_failed:
+Therefore, your patch creates a bug, and so it gets a NAK.  There is no
+resource leakage here.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
