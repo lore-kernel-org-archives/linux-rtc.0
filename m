@@ -1,78 +1,35 @@
-Return-Path: <rtc-linux+bncBAABB7UU6TCQKGQE6ARHYEA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4IFTUFXEFBBXFG37DAKGQEEA5WEYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id 207si1235120pfu.8.2017.03.05.23.06.37
+Received: from mail-wr0-x22c.google.com (mail-wr0-x22c.google.com. [2a00:1450:400c:c0c::22c])
+        by gmr-mx.google.com with ESMTPS id e72si784629wma.0.2017.03.26.07.42.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Mar 2017 23:06:38 -0800 (PST)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+        Sun, 26 Mar 2017 07:42:36 -0700 (PDT)
+Received: by mail-wr0-x22c.google.com with SMTP id w43so11057061wrb.0
+        for <rtc-linux@googlegroups.com>; Sun, 26 Mar 2017 07:42:36 -0700 (PDT)
+From: Leo Yan <leo.yan@linaro.org>
+To: Russell King <linux@armlinux.org.uk>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>,
-	Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Baptiste Reynal <b.reynal@virtualopensystems.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
 	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  6 Mar 2017 00:04:32 -0700
-Message-Id: <1488783873-2614-17-git-send-email-logang@deltatee.com>
-In-Reply-To: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v3 16/16] switchtec: utilize new device_add_cdev
- helper function
+	rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	kvm@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Cc: Leo Yan <leo.yan@linaro.org>
+Subject: [rtc-linux] [PATCH 2/5] drivers/rtc/rtc-pl030.c: Convert to use devm_*()
+Date: Sun, 26 Mar 2017 22:41:51 +0800
+Message-Id: <1490539314-9681-3-git-send-email-leo.yan@linaro.org>
+In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -83,59 +40,96 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Very straightforward conversion to device_add_cdev. Drop cdev_add and
-device_add and use cdev_device_add.
+Convert driver to use devm_*() APIs so rely on driver model core layer
+to manage resources. This eliminates error path boilerplate and makes
+code neat.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
 ---
- drivers/pci/switch/switchtec.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-pl030.c | 49 ++++++++++++-------------------------------------
+ 1 file changed, 12 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 1f045c9..e27fd29 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -1291,7 +1291,6 @@ static struct switchtec_dev *stdev_create(struct pci_dev *pdev)
- 	cdev = &stdev->cdev;
- 	cdev_init(cdev, &switchtec_fops);
- 	cdev->owner = THIS_MODULE;
--	cdev->kobj.parent = &dev->kobj;
+diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
+index f85a1a9..372b1fd 100644
+--- a/drivers/rtc/rtc-pl030.c
++++ b/drivers/rtc/rtc-pl030.c
+@@ -102,49 +102,30 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 	struct pl030_rtc *rtc;
+ 	int ret;
  
- 	return stdev;
- 
-@@ -1479,11 +1478,7 @@ static int switchtec_pci_probe(struct pci_dev *pdev,
- 		  SWITCHTEC_EVENT_EN_IRQ,
- 		  &stdev->mmio_part_cfg->mrpc_comp_hdr);
- 
--	rc = cdev_add(&stdev->cdev, stdev->dev.devt, 1);
--	if (rc)
--		goto err_put;
+-	ret = amba_request_regions(dev, NULL);
+-	if (ret)
+-		goto err_req;
 -
--	rc = device_add(&stdev->dev);
-+	rc = cdev_device_add(&stdev->cdev, &stdev->dev);
- 	if (rc)
- 		goto err_devadd;
+ 	rtc = devm_kzalloc(&dev->dev, sizeof(*rtc), GFP_KERNEL);
+-	if (!rtc) {
+-		ret = -ENOMEM;
+-		goto err_rtc;
+-	}
++	if (!rtc)
++		return -ENOMEM;
  
-@@ -1492,7 +1487,6 @@ static int switchtec_pci_probe(struct pci_dev *pdev,
+-	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!rtc->base) {
+-		ret = -ENOMEM;
+-		goto err_rtc;
+-	}
++	rtc->base = devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(rtc->base))
++		return PTR_ERR(rtc->base);
+ 
+ 	__raw_writel(0, rtc->base + RTC_CR);
+ 	__raw_writel(0, rtc->base + RTC_EOI);
+ 
+ 	amba_set_drvdata(dev, rtc);
+ 
+-	ret = request_irq(dev->irq[0], pl030_interrupt, 0,
+-			  "rtc-pl030", rtc);
++	ret = devm_request_irq(&dev->dev, dev->irq[0], pl030_interrupt, 0,
++			       "rtc-pl030", rtc);
+ 	if (ret)
+-		goto err_irq;
++		return ret;
+ 
+-	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
+-				       THIS_MODULE);
+-	if (IS_ERR(rtc->rtc)) {
+-		ret = PTR_ERR(rtc->rtc);
+-		goto err_reg;
+-	}
++	rtc->rtc = devm_rtc_device_register(&dev->dev, "pl030", &pl030_ops,
++					    THIS_MODULE);
++	if (IS_ERR(rtc->rtc))
++		return PTR_ERR(rtc->rtc);
+ 
  	return 0;
+-
+- err_reg:
+-	free_irq(dev->irq[0], rtc);
+- err_irq:
+-	iounmap(rtc->base);
+- err_rtc:
+-	amba_release_regions(dev);
+- err_req:
+-	return ret;
+ }
  
- err_devadd:
--	cdev_del(&stdev->cdev);
- 	stdev_kill(stdev);
- err_put:
- 	ida_simple_remove(&switchtec_minor_ida, MINOR(stdev->dev.devt));
-@@ -1506,8 +1500,7 @@ static void switchtec_pci_remove(struct pci_dev *pdev)
+ static int pl030_remove(struct amba_device *dev)
+@@ -152,12 +133,6 @@ static int pl030_remove(struct amba_device *dev)
+ 	struct pl030_rtc *rtc = amba_get_drvdata(dev);
  
- 	pci_set_drvdata(pdev, NULL);
- 
--	device_del(&stdev->dev);
--	cdev_del(&stdev->cdev);
-+	cdev_device_del(&stdev->cdev, &stdev->dev);
- 	ida_simple_remove(&switchtec_minor_ida, MINOR(stdev->dev.devt));
- 	dev_info(&stdev->dev, "unregistered.\n");
+ 	writel(0, rtc->base + RTC_CR);
+-
+-	free_irq(dev->irq[0], rtc);
+-	rtc_device_unregister(rtc->rtc);
+-	iounmap(rtc->base);
+-	amba_release_regions(dev);
+-
+ 	return 0;
+ }
  
 -- 
-2.1.4
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
