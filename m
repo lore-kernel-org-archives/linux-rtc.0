@@ -1,48 +1,35 @@
-Return-Path: <rtc-linux+bncBAABBQ67WDDAKGQEU5WHP3I@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4IFTUFXEFBB3FG37DAKGQEOQWQKEI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from ale.deltatee.com (ale.deltatee.com. [207.54.116.67])
-        by gmr-mx.google.com with ESMTPS id 2si1587475pfx.8.2017.03.17.11.49.39
+Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
+        by gmr-mx.google.com with ESMTPS id e72si783859wma.0.2017.03.26.07.42.52
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 11:49:39 -0700 (PDT)
-From: Logan Gunthorpe <logang@deltatee.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
+        Sun, 26 Mar 2017 07:42:52 -0700 (PDT)
+Received: by mail-wr0-x232.google.com with SMTP id u1so22272177wra.2
+        for <rtc-linux@googlegroups.com>; Sun, 26 Mar 2017 07:42:52 -0700 (PDT)
+From: Leo Yan <leo.yan@linaro.org>
+To: Russell King <linux@armlinux.org.uk>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Linus Walleij <linus.walleij@linaro.org>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org,
-	linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
+	Baptiste Reynal <b.reynal@virtualopensystems.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
 	linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org,
-	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Logan Gunthorpe <logang@deltatee.com>
-Date: Fri, 17 Mar 2017 12:48:12 -0600
-Message-Id: <1489776503-3151-6-git-send-email-logang@deltatee.com>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
-Subject: [rtc-linux] [PATCH v5 05/16] gpiolib: utilize new cdev_device_add
- helper function
+	rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	kvm@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Cc: Leo Yan <leo.yan@linaro.org>
+Subject: [rtc-linux] [PATCH 5/5] ALSA: AACI: Convert to use devm_ioremap_resource()
+Date: Sun, 26 Mar 2017 22:41:54 +0800
+Message-Id: <1490539314-9681-6-git-send-email-leo.yan@linaro.org>
+In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -53,69 +40,64 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Replace the open coded registration of the cdev and dev with the
-new device_add_cdev() helper. The helper replaces a common pattern by
-taking the proper reference against the parent device and adding both
-the cdev and the device.
+Convert to use devm_ioremap_resource() in probe function, otherwise it's
+missed to unremap this region if probe failed or rmmod module.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
 ---
- drivers/gpio/gpiolib.c | 23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ sound/arm/aaci.c | 21 ++++++---------------
+ 1 file changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 8b4d721..3ce2a27 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1035,18 +1035,14 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
+diff --git a/sound/arm/aaci.c b/sound/arm/aaci.c
+index 4140b1b..2078568 100644
+--- a/sound/arm/aaci.c
++++ b/sound/arm/aaci.c
+@@ -990,19 +990,13 @@ static int aaci_probe(struct amba_device *dev,
+ 	struct aaci *aaci;
+ 	int ret, i;
  
- 	cdev_init(&gdev->chrdev, &gpio_fileops);
- 	gdev->chrdev.owner = THIS_MODULE;
--	gdev->chrdev.kobj.parent = &gdev->dev.kobj;
- 	gdev->dev.devt = MKDEV(MAJOR(gpio_devt), gdev->id);
--	status = cdev_add(&gdev->chrdev, gdev->dev.devt, 1);
--	if (status < 0)
--		chip_warn(gdev->chip, "failed to add char device %d:%d\n",
--			  MAJOR(gpio_devt), gdev->id);
--	else
--		chip_dbg(gdev->chip, "added GPIO chardev (%d:%d)\n",
--			 MAJOR(gpio_devt), gdev->id);
--	status = device_add(&gdev->dev);
-+
-+	status = cdev_device_add(&gdev->chrdev, &gdev->dev);
- 	if (status)
--		goto err_remove_chardev;
-+		return status;
-+
-+	chip_dbg(gdev->chip, "added GPIO chardev (%d:%d)\n",
-+		 MAJOR(gpio_devt), gdev->id);
+-	ret = amba_request_regions(dev, NULL);
+-	if (ret)
+-		return ret;
+-
+ 	aaci = aaci_init_card(dev);
+-	if (!aaci) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	if (!aaci)
++		return -ENOMEM;
  
- 	status = gpiochip_sysfs_register(gdev);
- 	if (status)
-@@ -1061,9 +1057,7 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
+-	aaci->base = ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!aaci->base) {
+-		ret = -ENOMEM;
++	aaci->base = devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(aaci->base)) {
++		ret = PTR_ERR(aaci->base);
+ 		goto out;
+ 	}
+ 
+@@ -1064,9 +1058,7 @@ static int aaci_probe(struct amba_device *dev,
+ 	}
+ 
+  out:
+-	if (aaci)
+-		snd_card_free(aaci->card);
+-	amba_release_regions(dev);
++	snd_card_free(aaci->card);
+ 	return ret;
+ }
+ 
+@@ -1079,7 +1071,6 @@ static int aaci_remove(struct amba_device *dev)
+ 		writel(0, aaci->base + AACI_MAINCR);
+ 
+ 		snd_card_free(card);
+-		amba_release_regions(dev);
+ 	}
+ 
  	return 0;
- 
- err_remove_device:
--	device_del(&gdev->dev);
--err_remove_chardev:
--	cdev_del(&gdev->chrdev);
-+	cdev_device_del(&gdev->chrdev, &gdev->dev);
- 	return status;
- }
- 
-@@ -1347,8 +1341,7 @@ void gpiochip_remove(struct gpio_chip *chip)
- 	 * be removed, else it will be dangling until the last user is
- 	 * gone.
- 	 */
--	cdev_del(&gdev->chrdev);
--	device_del(&gdev->dev);
-+	cdev_device_del(&gdev->chrdev, &gdev->dev);
- 	put_device(&gdev->dev);
- }
- EXPORT_SYMBOL_GPL(gpiochip_remove);
 -- 
-2.1.4
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
