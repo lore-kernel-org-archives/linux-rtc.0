@@ -1,70 +1,37 @@
-Return-Path: <rtc-linux+bncBCUJ7YGL3QFBBBVAVHDAKGQE4WOIGIY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4IFTUFXEFBBV5G37DAKGQEPDJIM5Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.linuxfoundation.org (mail.linuxfoundation.org. [140.211.169.12])
-        by gmr-mx.google.com with ESMTPS id a3si794339pfb.2.2017.03.16.01.42.45
+MIME-Version: 1.0
+Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
+        by gmr-mx.google.com with ESMTPS id e72si783859wma.0.2017.03.26.07.42.30
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Mar 2017 01:42:45 -0700 (PDT)
-Date: Thu, 16 Mar 2017 17:42:31 +0900
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Dan Williams <dan.j.williams@intel.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Johannes Thumshirn <jthumshirn@suse.de>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Sajjan Vikas C <vikas.cha.sajjan@hpe.com>,
+        Sun, 26 Mar 2017 07:42:30 -0700 (PDT)
+Received: by mail-wr0-x232.google.com with SMTP id u1so22272177wra.2
+        for <rtc-linux@googlegroups.com>; Sun, 26 Mar 2017 07:42:30 -0700 (PDT)
+From: Leo Yan <leo.yan@linaro.org>
+To: Russell King <linux@armlinux.org.uk>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Marcel Selhorst <tpmdd@selhorst.net>,
-	Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Olof Johansson <olof@lixom.net>, Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Haggai Eran <haggaie@mellanox.com>,
-	Parav Pandit <pandit.parav@gmail.com>,
-	Leon Romanovsky <leon@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Hans Verkuil <hans.verkuil@cisco.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Artem Bityutskiy <dedekind1@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Marek Vasut <marek.vasut@gmail.com>,
-	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Alexandre Bounine <alexandre.bounine@idt.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Joe Perches <joe@perches.com>, Lorenzo Stoakes <lstoakes@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Boaz Harrosh <ooo@electrozaur.com>,
-	"James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Stephen Bates <stephen.bates@microsemi.com>,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-mtd@lists.infradead.org, linux-media@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-nvdimm@lists.01.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 16/16] switchtec: utilize new
- device_add_cdev helper function
-Message-ID: <20170316084231.GA5476@kroah.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-17-git-send-email-logang@deltatee.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1488783873-2614-17-git-send-email-logang@deltatee.com>
+	Linus Walleij <linus.walleij@linaro.org>,
+	Baptiste Reynal <b.reynal@virtualopensystems.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	kvm@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Cc: Leo Yan <leo.yan@linaro.org>
+Subject: [rtc-linux] [PATCH 1/5] Input: ambakmi - Convert to use devm_*()
+Date: Sun, 26 Mar 2017 22:41:50 +0800
+Message-Id: <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
+In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -73,21 +40,97 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Mar 06, 2017 at 12:04:32AM -0700, Logan Gunthorpe wrote:
-> Very straightforward conversion to device_add_cdev. Drop cdev_add and
-> device_add and use cdev_device_add.
-> 
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-> ---
->  drivers/pci/switch/switchtec.c | 11 ++---------
->  1 file changed, 2 insertions(+), 9 deletions(-)
+Convert driver to use devm_*() APIs so rely on driver model core layer
+to manage resources. This eliminates error path boilerplate and makes
+code neat.
 
-As this file isn't in 4.11-rc1, I can't take this patch, but I took all
-of the others.  You should resend this to Bjorn after 4.12-rc1 is out.
+This patch also fixes the memory leakage for 'kmi->io' when remove
+module.
 
-thanks,
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+---
+ drivers/input/serio/ambakmi.c | 44 ++++++++++---------------------------------
+ 1 file changed, 10 insertions(+), 34 deletions(-)
 
-greg k-h
+diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+index c6606ca..d4814be 100644
+--- a/drivers/input/serio/ambakmi.c
++++ b/drivers/input/serio/ambakmi.c
+@@ -112,19 +112,11 @@ static int amba_kmi_probe(struct amba_device *dev,
+ {
+ 	struct amba_kmi_port *kmi;
+ 	struct serio *io;
+-	int ret;
+-
+-	ret = amba_request_regions(dev, NULL);
+-	if (ret)
+-		return ret;
+-
+-	kmi = kzalloc(sizeof(struct amba_kmi_port), GFP_KERNEL);
+-	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
+-	if (!kmi || !io) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+ 
++	kmi = devm_kzalloc(&dev->dev, sizeof(*kmi), GFP_KERNEL);
++	io  = devm_kzalloc(&dev->dev, sizeof(*io), GFP_KERNEL);
++	if (!kmi || !io)
++		return -ENOMEM;
+ 
+ 	io->id.type	= SERIO_8042;
+ 	io->write	= amba_kmi_write;
+@@ -136,31 +128,19 @@ static int amba_kmi_probe(struct amba_device *dev,
+ 	io->dev.parent	= &dev->dev;
+ 
+ 	kmi->io		= io;
+-	kmi->base	= ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!kmi->base) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	kmi->base	= devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(kmi->base))
++		return PTR_ERR(kmi->base);
+ 
+-	kmi->clk = clk_get(&dev->dev, "KMIREFCLK");
+-	if (IS_ERR(kmi->clk)) {
+-		ret = PTR_ERR(kmi->clk);
+-		goto unmap;
+-	}
++	kmi->clk = devm_clk_get(&dev->dev, "KMIREFCLK");
++	if (IS_ERR(kmi->clk))
++		return PTR_ERR(kmi->clk);
+ 
+ 	kmi->irq = dev->irq[0];
+ 	amba_set_drvdata(dev, kmi);
+ 
+ 	serio_register_port(kmi->io);
+ 	return 0;
+-
+- unmap:
+-	iounmap(kmi->base);
+- out:
+-	kfree(kmi);
+-	kfree(io);
+-	amba_release_regions(dev);
+-	return ret;
+ }
+ 
+ static int amba_kmi_remove(struct amba_device *dev)
+@@ -168,10 +148,6 @@ static int amba_kmi_remove(struct amba_device *dev)
+ 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
+ 
+ 	serio_unregister_port(kmi->io);
+-	clk_put(kmi->clk);
+-	iounmap(kmi->base);
+-	kfree(kmi);
+-	amba_release_regions(dev);
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
