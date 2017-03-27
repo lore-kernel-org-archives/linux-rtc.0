@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBEFV3XCQKGQEQV4PJ4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBSEQ4LDAKGQEVYTG7PY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pg0-x241.google.com (mail-pg0-x241.google.com. [2607:f8b0:400e:c05::241])
-        by gmr-mx.google.com with ESMTPS id 2si372418pfz.1.2017.03.01.15.34.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Mar 2017 15:34:40 -0800 (PST)
-Received: by mail-pg0-x241.google.com with SMTP id 1so7252242pgz.2
-        for <rtc-linux@googlegroups.com>; Wed, 01 Mar 2017 15:34:40 -0800 (PST)
-Date: Wed, 1 Mar 2017 15:34:38 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: omap: mark PM methods as __maybe_unused
-Message-ID: <20170301233438.GA9018@dtor-ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id s67si1470217pfs.4.2017.03.26.20.34.32
+        for <rtc-linux@googlegroups.com>;
+        Sun, 26 Mar 2017 20:34:32 -0700 (PDT)
+From: Tony Lindgren <tony@atomide.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Sebastian Reichel <sre@kernel.org>
+Subject: [rtc-linux] [PATCH] rtc: cpcap: fix improper use of IRQ_NONE for request_threaded_irq
+Date: Sun, 26 Mar 2017 20:34:23 -0700
+Message-Id: <20170327033423.4536-1-tony@atomide.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,75 +24,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Instead of using #ifdef guards around PM methods, let's annotate
-them as __maybe_unused, as it provides better compile coverage.
+There's a funny typo where IRQ_NONE is used instead of IRQF_TRIGGER_NONE
+for request_threaded_irq(). Let's fix it before it gets copied elsewhere.
 
-Also drop empty stub for omap_rtc_runtime_resume().
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: dd3bf50b35e3 ("rtc: cpcap: new rtc driver")
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 ---
- drivers/rtc/rtc-omap.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-cpcap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index fa856d9c5e23..a2733caa3b8f 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -882,8 +882,7 @@ static int omap_rtc_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
+--- a/drivers/rtc/rtc-cpcap.c
++++ b/drivers/rtc/rtc-cpcap.c
+@@ -275,7 +275,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
  
--#ifdef CONFIG_PM_SLEEP
--static int omap_rtc_suspend(struct device *dev)
-+static int __maybe_unused omap_rtc_suspend(struct device *dev)
- {
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 
-@@ -906,7 +905,7 @@ static int omap_rtc_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int omap_rtc_resume(struct device *dev)
-+static int __maybe_unused omap_rtc_resume(struct device *dev)
- {
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 
-@@ -921,10 +920,8 @@ static int omap_rtc_resume(struct device *dev)
- 
- 	return 0;
- }
--#endif
- 
--#ifdef CONFIG_PM
--static int omap_rtc_runtime_suspend(struct device *dev)
-+static int __maybe_unused omap_rtc_runtime_suspend(struct device *dev)
- {
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 
-@@ -934,16 +931,9 @@ static int omap_rtc_runtime_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int omap_rtc_runtime_resume(struct device *dev)
--{
--	return 0;
--}
--#endif
--
- static const struct dev_pm_ops omap_rtc_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(omap_rtc_suspend, omap_rtc_resume)
--	SET_RUNTIME_PM_OPS(omap_rtc_runtime_suspend,
--			   omap_rtc_runtime_resume, NULL)
-+	SET_RUNTIME_PM_OPS(omap_rtc_runtime_suspend, NULL, NULL)
- };
- 
- static void omap_rtc_shutdown(struct platform_device *pdev)
+ 	rtc->alarm_irq = platform_get_irq(pdev, 0);
+ 	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
+-					cpcap_rtc_alarm_irq, IRQ_NONE,
++					cpcap_rtc_alarm_irq, IRQF_TRIGGER_NONE,
+ 					"rtc_alarm", rtc);
+ 	if (err) {
+ 		dev_err(dev, "Could not request alarm irq: %d\n", err);
+@@ -291,7 +291,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
+ 	 */
+ 	rtc->update_irq = platform_get_irq(pdev, 1);
+ 	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
+-					cpcap_rtc_update_irq, IRQ_NONE,
++					cpcap_rtc_update_irq, IRQF_TRIGGER_NONE,
+ 					"rtc_1hz", rtc);
+ 	if (err) {
+ 		dev_err(dev, "Could not request update irq: %d\n", err);
 -- 
-2.12.0.rc1.440.g5b76565f74-goog
-
-
--- 
-Dmitry
+2.12.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
