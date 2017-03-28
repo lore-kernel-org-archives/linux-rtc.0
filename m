@@ -1,28 +1,19 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBJ4UZLDAKGQEEWY64HI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBQFX5LDAKGQEO4AASRI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from relmlie2.idc.renesas.com (relmlor3.renesas.com. [210.160.252.173])
-        by gmr-mx.google.com with ESMTP id a3si394236pfb.2.2017.03.22.07.28.55
+Received: from know-smtprelay-omc-11.server.virginmedia.net (know-smtprelay-omc-11.server.virginmedia.net. [80.0.253.75])
+        by gmr-mx.google.com with ESMTP id i76si307323wmh.1.2017.03.28.10.22.08
         for <rtc-linux@googlegroups.com>;
-        Wed, 22 Mar 2017 07:28:55 -0700 (PDT)
-From: Chris Brandt <chris.brandt@renesas.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	Chris Brandt <chris.brandt@renesas.com>
-Subject: [rtc-linux] [PATCH v2 7/7] ARM: dts: rskrza1: add rtc DT support
-Date: Wed, 22 Mar 2017 10:27:54 -0400
-Message-Id: <20170322142754.30888-8-chris.brandt@renesas.com>
-In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 28 Mar 2017 10:22:08 -0700 (PDT)
+Date: Tue, 28 Mar 2017 18:22:04 +0100
+From: David Lowe <dave-lowe@ntlworld.com>
+To: rtc-linux <rtc-linux@googlegroups.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [Patch] rtc: rtc-ds1307: enable support for mcp794xx as a
+ wakeup source without IRQ
+Message-ID: <20170328182204.4fda934e@pixelzero>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,31 +22,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Enable the realtime clock.
+This patch extends the fixes for ds1337, ds1339, ds3231 in 8bc2a40730ec
+to mcp794xx devices, so that those parts can similarly be used as a wakeup
+source without an IRQ to the processor.
 
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Tested on Raspberry Pi ZeroW with MCP79400.
+
+Signed-off-by: David Lowe <dave-lowe@ntlworld.com>
 ---
- arch/arm/boot/dts/r7s72100-rskrza1.dts | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/arm/boot/dts/r7s72100-rskrza1.dts b/arch/arm/boot/dts/r7s72100-rskrza1.dts
-index cab5857..72df20a 100644
---- a/arch/arm/boot/dts/r7s72100-rskrza1.dts
-+++ b/arch/arm/boot/dts/r7s72100-rskrza1.dts
-@@ -73,6 +73,10 @@
- 	status = "okay";
- };
- 
-+&rtc {
-+	status = "okay";
-+};
+--- a/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:38.158076224 +0100
++++ b/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:52.248431799 +0100
+@@ -1487,7 +1487,8 @@ static int ds1307_probe(struct i2c_clien
+ 		break;
+ 	case mcp794xx:
+ 		rtc_ops = &mcp794xx_rtc_ops;
+-		if (ds1307->client->irq > 0 && chip->alarm) {
++		if (chip->alarm && (ds1307->client->irq > 0 ||
 +
- &scif2 {
- 	status = "okay";
- };
--- 
-2.10.1
-
+ds1307_can_wakeup_device)) { irq_handler = mcp794xx_irq;
+ 			want_irq = true;
+ 		}
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
