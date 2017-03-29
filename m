@@ -1,10 +1,10 @@
-Return-Path: <rtc-linux+bncBDXOFUXT2UGBBI4UZLDAKGQEIITABNA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBZG657DAKGQEMEWIM2A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
-        by gmr-mx.google.com with ESMTP id 2si361411pfz.1.2017.03.22.07.28.50
+        by gmr-mx.google.com with ESMTP id y203si1360152pfb.0.2017.03.29.10.31.15
         for <rtc-linux@googlegroups.com>;
-        Wed, 22 Mar 2017 07:28:50 -0700 (PDT)
+        Wed, 29 Mar 2017 10:31:16 -0700 (PDT)
 From: Chris Brandt <chris.brandt@renesas.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -16,12 +16,11 @@ Cc: rtc-linux@googlegroups.com,
 	devicetree@vger.kernel.org,
 	linux-renesas-soc@vger.kernel.org,
 	Chris Brandt <chris.brandt@renesas.com>
-Subject: [rtc-linux] [PATCH v2 3/7] ARM: dts: r7s72100: add rtc clock to
- device tree
-Date: Wed, 22 Mar 2017 10:27:50 -0400
-Message-Id: <20170322142754.30888-4-chris.brandt@renesas.com>
-In-Reply-To: <20170322142754.30888-1-chris.brandt@renesas.com>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v3 6/7] ARM: dts: rskrza1: set rtc_x1 clock value
+Date: Wed, 29 Mar 2017 10:30:34 -0700
+Message-Id: <20170329173035.67477-7-chris.brandt@renesas.com>
+In-Reply-To: <20170329173035.67477-1-chris.brandt@renesas.com>
+References: <20170329173035.67477-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,55 +31,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Add the realtime clock functional clock source.
+Enable the 32.768 kHz RTC_X1 clock by setting the frequency value to
+non-zero.
 
 Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
-v2:
-* changed "rtc0" to "rtc"
-* added Reviewed-by
----
- arch/arm/boot/dts/r7s72100.dtsi            | 9 +++++++++
- include/dt-bindings/clock/r7s72100-clock.h | 3 +++
- 2 files changed, 12 insertions(+)
+ arch/arm/boot/dts/r7s72100-rskrza1.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
-index 34994af..6a1448b 100644
---- a/arch/arm/boot/dts/r7s72100.dtsi
-+++ b/arch/arm/boot/dts/r7s72100.dtsi
-@@ -117,6 +117,15 @@
- 			clock-output-names = "ostm0", "ostm1";
- 		};
+diff --git a/arch/arm/boot/dts/r7s72100-rskrza1.dts b/arch/arm/boot/dts/r7s72100-rskrza1.dts
+index 02b59c5b3c53..cab5857bfb41 100644
+--- a/arch/arm/boot/dts/r7s72100-rskrza1.dts
++++ b/arch/arm/boot/dts/r7s72100-rskrza1.dts
+@@ -43,6 +43,10 @@
+ 	clock-frequency = <48000000>;
+ };
  
-+		mstp6_clks: mstp6_clks@fcfe042c {
-+			#clock-cells = <1>;
-+			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
-+			reg = <0xfcfe042c 4>;
-+			clocks = <&p0_clk>;
-+			clock-indices = <R7S72100_CLK_RTC>;
-+			clock-output-names = "rtc";
-+		};
++&rtc_x1_clk {
++	clock-frequency = <32768>;
++};
 +
- 		mstp7_clks: mstp7_clks@fcfe0430 {
- 			#clock-cells = <1>;
- 			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
-diff --git a/include/dt-bindings/clock/r7s72100-clock.h b/include/dt-bindings/clock/r7s72100-clock.h
-index cd2ed51..bc256d3 100644
---- a/include/dt-bindings/clock/r7s72100-clock.h
-+++ b/include/dt-bindings/clock/r7s72100-clock.h
-@@ -29,6 +29,9 @@
- #define R7S72100_CLK_OSTM0	1
- #define R7S72100_CLK_OSTM1	0
- 
-+/* MSTP6 */
-+#define R7S72100_CLK_RTC	0
-+
- /* MSTP7 */
- #define R7S72100_CLK_ETHER	4
- 
+ &mtu2 {
+ 	status = "okay";
+ };
 -- 
-2.10.1
+2.11.0
 
 
 -- 
