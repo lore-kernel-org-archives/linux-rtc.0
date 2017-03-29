@@ -1,19 +1,26 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRBQ6ET3DAKGQEO7H5J7A@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from aserp1040.oracle.com (aserp1040.oracle.com. [141.146.126.69])
-        by gmr-mx.google.com with ESMTPS id 2si3430987pfz.1.2017.03.14.00.56.51
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBFVS5XDAKGQEKEDIIYA@googlegroups.com>
+Received: from mail-it0-x244.google.com (mail-it0-x244.google.com. [2607:f8b0:4001:c0b::244])
+        by gmr-mx.google.com with ESMTPS id f73si690375ita.1.2017.03.28.23.49.58
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Mar 2017 00:56:51 -0700 (PDT)
-Date: Tue, 14 Mar 2017 10:56:30 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Sebastian Reichel <sre@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        rtc-linux@googlegroups.com, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: cpcap: kfreeing devm allocated memory
-Message-ID: <20170314075319.GB6111@mwanda>
+        Tue, 28 Mar 2017 23:49:58 -0700 (PDT)
+Received: by mail-it0-x244.google.com with SMTP id w11so628937itb.0
+        for <rtc-linux@googlegroups.com>; Tue, 28 Mar 2017 23:49:58 -0700 (PDT)
 MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
+ <20170322142754.30888-3-chris.brandt@renesas.com> <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 29 Mar 2017 08:49:57 +0200
+Message-ID: <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v2 2/7] rtc: Add rtc-sh
+To: Rob Herring <robh@kernel.org>
+Cc: Chris Brandt <chris.brandt@renesas.com>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,28 +31,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-We shouldn't kfree(rtc) because is devm_ managed memory.  It leads to a
-double free.
+Hi Rob,
 
-Fixes: dd3bf50b35e3 ("rtc: cpcap: new rtc driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+On Wed, Mar 29, 2017 at 3:24 AM, Rob Herring <robh@kernel.org> wrote:
+> On Wed, Mar 22, 2017 at 10:27:49AM -0400, Chris Brandt wrote:
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
+>> @@ -0,0 +1,29 @@
+>> +* Real Time Clock for Renesas SH and ARM SoCs
+>> +
+>> +Required properties:
+>> +- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
+>> +  fallback.
+>> +- reg: physical base address and length of memory mapped region.
+>> +- interrupts: 3 interrupts for alarm, period, and carry.
+>> +- interrupt-names: The interrupts should be labeled as "alarm", "period", and
+>> +  "carry".
+>> +- clocks: The functional clock source for the RTC controller must be listed
+>> +  first (if exists). Additionally, potential clock counting sources are to be
+>> +  listed.
+>> +- clock-names: The functional clock must be labeled as "fck". Other clocks
+>> +  may be named in accordance to the SoC hardware manuals.
+>> +
+>> +
+>> +Example:
+>> +rtc: rtc@fcff1000 {
+>> +     compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
+>> +     reg = <0xfcff1000 0x2e>;
+>> +     interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
+>> +                   GIC_SPI 277 IRQ_TYPE_EDGE_RISING
+>> +                   GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
+>> +     interrupt-names = "alarm", "period", "carry";
+>> +     clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
+>> +              <&rtc_x3_clk>, <&extal_clk>;
+>> +     clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
+>> +     power-domains = <&cpg_clocks>;
+>
+> Not documented.
 
-diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
-index 7c6a3c3167bd..5d163be98e9f 100644
---- a/drivers/rtc/rtc-cpcap.c
-+++ b/drivers/rtc/rtc-cpcap.c
-@@ -266,10 +266,8 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
- 	rtc->rtc_dev = devm_rtc_device_register(dev, "cpcap_rtc",
- 						&cpcap_rtc_ops, THIS_MODULE);
- 
--	if (IS_ERR(rtc->rtc_dev)) {
--		kfree(rtc);
-+	if (IS_ERR(rtc->rtc_dev))
- 		return PTR_ERR(rtc->rtc_dev);
--	}
- 
- 	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
- 	if (err)
+"power-domains" is a platform property.
+
+All hardware components need power.
+All synchronous hardware components need a clock.
+Most hardware components have a reset signal.
+
+Whether these are exposed and can be controlled depends on the platform/SoC.
+So documenting them in each and every device binding looks overkill to me.
+I think this is something to be addressed by devicetree-specification (which
+doesn't handle clocks, power-domains, resets yet).
+
+If you prefer, the property can be removed from the example, though.
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
