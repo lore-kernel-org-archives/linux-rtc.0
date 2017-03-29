@@ -1,25 +1,29 @@
-Return-Path: <rtc-linux+bncBDVNLUMXTUCRBMGWYXDAKGQE57GMSYQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBZW657DAKGQEJP6DYNQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-lf0-x234.google.com (mail-lf0-x234.google.com. [2a00:1450:4010:c07::234])
-        by gmr-mx.google.com with ESMTPS id p144si1256349wme.2.2017.03.21.11.04.32
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Mar 2017 11:04:32 -0700 (PDT)
-Received: by mail-lf0-x234.google.com with SMTP id y193so70058467lfd.3
-        for <rtc-linux@googlegroups.com>; Tue, 21 Mar 2017 11:04:32 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170314135932.ngn7uh67duzroy47@dell>
-References: <20170214221529.6434-1-enric.balletbo@collabora.com>
- <20170214221529.6434-4-enric.balletbo@collabora.com> <20170314135932.ngn7uh67duzroy47@dell>
-From: Tracy Smith <tlsmith3777@gmail.com>
-Date: Tue, 21 Mar 2017 13:04:31 -0500
-Message-ID: <CAChUvXOmOypRZJSWHVN29W0AipeFfhrD40NzuVNU4kOkohjM9Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	lkml <linux-kernel@vger.kernel.org>, rtc-linux@googlegroups.com
-Content-Type: multipart/alternative; boundary=001a1140178cca04ff054b417925
+Received: from relmlie4.idc.renesas.com (relmlor1.renesas.com. [210.160.252.171])
+        by gmr-mx.google.com with ESMTP id r66si1261486pfb.7.2017.03.29.10.31.17
+        for <rtc-linux@googlegroups.com>;
+        Wed, 29 Mar 2017 10:31:18 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v3 3/7] ARM: dts: r7s72100: add rtc clock to
+ device tree
+Date: Wed, 29 Mar 2017 10:30:31 -0700
+Message-Id: <20170329173035.67477-4-chris.brandt@renesas.com>
+In-Reply-To: <20170329173035.67477-1-chris.brandt@renesas.com>
+References: <20170329173035.67477-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,30 +32,56 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---001a1140178cca04ff054b417925
-Content-Type: text/plain; charset=UTF-8
+Add the realtime clock functional clock source.
 
-Hi, not sure if this is the correct venue to post a question, so please
-forgive and direct me to the correct board or list if not.
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+v2:
+* changed "rtc0" to "rtc"
+* added Reviewed-by
+---
+ arch/arm/boot/dts/r7s72100.dtsi            | 9 +++++++++
+ include/dt-bindings/clock/r7s72100-clock.h | 3 +++
+ 2 files changed, 12 insertions(+)
 
-A custom board implementation using a ARM-8 Cortex A53 NXP LS1043ardb is
-considering moving the RTC from the control board to an FPGA.  Reason is
-for accuracy of time/date and efficiency for their FPGA/DSP application.
+diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
+index 34994afa9d15..6a1448be4e10 100644
+--- a/arch/arm/boot/dts/r7s72100.dtsi
++++ b/arch/arm/boot/dts/r7s72100.dtsi
+@@ -117,6 +117,15 @@
+ 			clock-output-names = "ostm0", "ostm1";
+ 		};
+ 
++		mstp6_clks: mstp6_clks@fcfe042c {
++			#clock-cells = <1>;
++			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
++			reg = <0xfcfe042c 4>;
++			clocks = <&p0_clk>;
++			clock-indices = <R7S72100_CLK_RTC>;
++			clock-output-names = "rtc";
++		};
++
+ 		mstp7_clks: mstp7_clks@fcfe0430 {
+ 			#clock-cells = <1>;
+ 			compatible = "renesas,r7s72100-mstp-clocks", "renesas,cpg-mstp-clocks";
+diff --git a/include/dt-bindings/clock/r7s72100-clock.h b/include/dt-bindings/clock/r7s72100-clock.h
+index cd2ed5194255..bc256d31099a 100644
+--- a/include/dt-bindings/clock/r7s72100-clock.h
++++ b/include/dt-bindings/clock/r7s72100-clock.h
+@@ -29,6 +29,9 @@
+ #define R7S72100_CLK_OSTM0	1
+ #define R7S72100_CLK_OSTM1	0
+ 
++/* MSTP6 */
++#define R7S72100_CLK_RTC	0
++
+ /* MSTP7 */
+ #define R7S72100_CLK_ETHER	4
+ 
+-- 
+2.11.0
 
-1) What kernel changes would be required to support such an implementation
-and these would need to be pushed to the community under the GPL?
-
-2) Is it a trivial task to make such changes in the kernel to support an
-RTC not located on the control board/SoC itself?
-
-3) What is the expected behavior of the kernel with no changes added to
-accommodate such an architecture?
-
-4) Is there a configurable kernel option to allow for such a change, or
-have these or similar changes already been added to the kernel?
-
-thx,
-Tracy
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -62,46 +92,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---001a1140178cca04ff054b417925
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Hi, not sure if this is the correct venue to post a q=
-uestion, so please forgive and direct me to the correct board or list if no=
-t.</div><div><br></div><div>A custom board implementation using a ARM-8 Cor=
-tex A53 NXP LS1043ardb=C2=A0is considering moving the RTC from the control =
-board to an FPGA.=C2=A0 Reason is for accuracy of time/date and efficiency =
-for their FPGA/DSP application.</div><div><br></div><div>1) What kernel cha=
-nges would be required to support such an implementation and these would ne=
-ed to be pushed to the community under the GPL? </div><div><br></div><div>2=
-) Is it a trivial task to make such changes in the kernel to support an RTC=
- not located on the control board/SoC itself?</div><div><br></div><div>3) W=
-hat is the expected behavior of the kernel with no changes added to accommo=
-date such an architecture?</div><div><br></div><div>4) Is there a configura=
-ble kernel option to allow for such a change, or have these or similar chan=
-ges already been added to the kernel?</div><div><br></div><div>thx,</div><d=
-iv>Tracy</div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote"><br=
-></div>
-</div></div>
-
-<p></p>
-
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
---001a1140178cca04ff054b417925--
