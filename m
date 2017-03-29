@@ -1,21 +1,24 @@
-Return-Path: <rtc-linux+bncBAABB3734XCQKGQEXDE7T2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBYO657DAKGQEAYYK2NI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id y90si59817pfa.6.2017.03.03.06.30.06
+Received: from relmlie4.idc.renesas.com (relmlor1.renesas.com. [210.160.252.171])
+        by gmr-mx.google.com with ESMTP id i189si864231pfg.3.2017.03.29.10.31.12
         for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:30:06 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+        Wed, 29 Mar 2017 10:31:13 -0700 (PDT)
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 12/13] rtc: m41t80: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:23 -0300
-Message-Id: <20170303142925.17915-13-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [rtc-linux] [PATCH v3 0/7] rtc: Reuse rtc-sh driver to support RZ/A1
+Date: Wed, 29 Mar 2017 10:30:28 -0700
+Message-Id: <20170329173035.67477-1-chris.brandt@renesas.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -26,118 +29,57 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+Basically, the same RTC that was used in SuperH devices is now used in
+RZ/A1 devices. Therefore with some slight changes, that driver can be
+reused.
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+Additionally, since ARM architectures require Device Tree configurations,
+device tree support has been added.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
+This was tested on RZ/A1H RSK board. Once the correct time was programmed
+into the RTC running off a 32.768kHz crystal, you can retain an accurate
+system clock between reboots (hard and soft) until power is finally removed
+from the board (there is no batter backup on the RSK board).
 
- drivers/rtc/rtc-m41t80.c | 63 ++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 61 insertions(+), 2 deletions(-)
+v3:
+* remove 'power-domains' from example in documentation
+* update commit message subject and body of dt-bindings
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 58698d21c2c3..5b070aa711f9 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -20,6 +20,7 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
- #include <linux/mutex.h>
-@@ -86,8 +87,61 @@ static const struct i2c_device_id m41t80_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, m41t80_id);
- 
-+static const struct of_device_id m41t80_of_match[] = {
-+	{
-+		.compatible = "st,m41t62",
-+		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_SQ_ALT)
-+	},
-+	{
-+		.compatible = "st,m41t65",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_WD)
-+	},
-+	{
-+		.compatible = "st,m41t80",
-+		.data = (void *)(M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t81",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t81s",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t82",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t83",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t84",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t85",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,m41t87",
-+		.data = (void *)(M41T80_FEATURE_HT | M41T80_FEATURE_BL | M41T80_FEATURE_SQ)
-+	},
-+	{
-+		.compatible = "st,rv4162",
-+		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT)
-+	},
-+	{
-+		.compatible = "rv4162",
-+		.data = (void *)(M41T80_FEATURE_SQ | M41T80_FEATURE_WD | M41T80_FEATURE_SQ_ALT)
-+	},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, m41t80_of_match);
-+
- struct m41t80_data {
--	u8 features;
-+	unsigned long features;
- 	struct rtc_device *rtc;
- };
- 
-@@ -786,7 +840,11 @@ static int m41t80_probe(struct i2c_client *client,
- 	if (!m41t80_data)
- 		return -ENOMEM;
- 
--	m41t80_data->features = id->driver_data;
-+	if (client->dev.of_node)
-+		m41t80_data->features = (unsigned long)
-+			of_device_get_match_data(&client->dev);
-+	else
-+		m41t80_data->features = id->driver_data;
- 	i2c_set_clientdata(client, m41t80_data);
- 
- 	if (client->irq > 0) {
-@@ -894,6 +952,7 @@ static int m41t80_remove(struct i2c_client *client)
- static struct i2c_driver m41t80_driver = {
- 	.driver = {
- 		.name = "rtc-m41t80",
-+		.of_match_table = of_match_ptr(m41t80_of_match),
- 		.pm = &m41t80_pm,
- 	},
- 	.probe = m41t80_probe,
+v2:
+* removed HAVE_CLK from Kconfig
+* when using DT, look for "fck" instead of "rtc0"
+* changed (res == NULL) to (!res)
+* added Reviewed-by for rtc-sh.c
+* added interrupt-names and clock-names
+* clocks now include counting sources
+* added clock-names "fck", "rtc_x1", "rtc_x3", "extal"
+* changed 'is a RTC' to 'is an RTC' in commit message
+* changed "rtc0" to "rtc"
+* Added clock nodes for RTC_X1 and RTC_X3 pin inputs
+* each commit now has a log message
+
+
+Chris Brandt (7):
+  rtc: rtc-sh: add support for rza series
+  dt-bindings: rtc: document the rtc-sh bindings
+  ARM: dts: r7s72100: add rtc clock to device tree
+  ARM: dts: r7s72100: add RTC_X clock inputs to device tree
+  ARM: dts: r7s72100: add rtc to device tree
+  ARM: dts: rskrza1: set rtc_x1 clock value
+  ARM: dts: rskrza1: add rtc DT support
+
+ Documentation/devicetree/bindings/rtc/rtc-sh.txt | 28 ++++++++++++++++++
+ arch/arm/boot/dts/r7s72100-rskrza1.dts           |  8 +++++
+ arch/arm/boot/dts/r7s72100.dtsi                  | 37 ++++++++++++++++++++++++
+ drivers/rtc/Kconfig                              |  4 +--
+ drivers/rtc/rtc-sh.c                             | 33 +++++++++++++++++----
+ include/dt-bindings/clock/r7s72100-clock.h       |  3 ++
+ 6 files changed, 106 insertions(+), 7 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
+
 -- 
-2.9.3
+2.11.0
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
