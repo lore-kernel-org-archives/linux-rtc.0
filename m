@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBCQJP74GSUDRBX5ZV3DAKGQEZGLH3VA@googlegroups.com>
-Received: from mail-it0-x241.google.com (mail-it0-x241.google.com. [2607:f8b0:4001:c0b::241])
-        by gmr-mx.google.com with ESMTPS id b188si127702ite.3.2017.03.17.01.22.54
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 Mar 2017 01:22:54 -0700 (PDT)
-Received: by mail-it0-x241.google.com with SMTP id r141so2701325ita.1
-        for <rtc-linux@googlegroups.com>; Fri, 17 Mar 2017 01:22:54 -0700 (PDT)
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20170316175112.27913-2-chris.brandt@renesas.com>
-References: <20170316175112.27913-1-chris.brandt@renesas.com> <20170316175112.27913-2-chris.brandt@renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 17 Mar 2017 09:22:53 +0100
-Message-ID: <CAMuHMdXXRiUTJJRsrpyFNEwjvjPO2s5Rthn2r+UipaQgVHHMcQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 1/5] rtc: rtc-sh: add support for rza series
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Return-Path: <rtc-linux+bncBDXOFUXT2UGBBQMC57DAKGQEJXFWZVY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from relmlie3.idc.renesas.com (relmlor4.renesas.com. [210.160.252.174])
+        by gmr-mx.google.com with ESMTP id 2si1141150pfz.1.2017.03.29.07.14.24
+        for <rtc-linux@googlegroups.com>;
+        Wed, 29 Mar 2017 07:14:25 -0700 (PDT)
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Rob Herring <robh@kernel.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms+renesas@verge.net.au>, RTCLINUX
+	<rtc-linux@googlegroups.com>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, Linux-Renesas
+	<linux-renesas-soc@vger.kernel.org>
+Subject: [rtc-linux] RE: [PATCH v2 2/7] rtc: Add rtc-sh
+Date: Wed, 29 Mar 2017 14:14:20 +0000
+Message-ID: <SG2PR06MB11657A015A46C48CDD3858978A350@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170322142754.30888-1-chris.brandt@renesas.com>
+ <20170322142754.30888-3-chris.brandt@renesas.com>
+ <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
+ <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
+In-Reply-To: <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,44 +31,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Chris,
+On Wednesday, March 29, 2017, Geert Uytterhoeven wrote:
+> >> +Example:
+> >> +rtc: rtc@fcff1000 {
+> >> +     compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
+> >> +     reg = <0xfcff1000 0x2e>;
+> >> +     interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
+> >> +                   GIC_SPI 277 IRQ_TYPE_EDGE_RISING
+> >> +                   GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
+> >> +     interrupt-names = "alarm", "period", "carry";
+> >> +     clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
+> >> +              <&rtc_x3_clk>, <&extal_clk>;
+> >> +     clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
+> >> +     power-domains = <&cpg_clocks>;
+> >
+> > Not documented.
+> 
+> "power-domains" is a platform property.
+> 
+> All hardware components need power.
+> All synchronous hardware components need a clock.
+> Most hardware components have a reset signal.
+> 
+> Whether these are exposed and can be controlled depends on the
+> platform/SoC.
+> So documenting them in each and every device binding looks overkill to me.
+> I think this is something to be addressed by devicetree-specification
+> (which doesn't handle clocks, power-domains, resets yet).
+> 
+> If you prefer, the property can be removed from the example, though.
 
-On Thu, Mar 16, 2017 at 6:51 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> This same RTC is used in RZ/A series MPUs, therefore with some slight
-> changes, this driver can be reused. Additionally, since ARM architectures
-> require Device Tree configurations, device tree support has been added.
+I'll go ahead and pull it out (since I have to update the commit title
+anyway as per Rob's request)
 
-Thanks for your patch!
+Besides...it's probably the most least important part of the example ;)
 
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1303,10 +1303,10 @@ config RTC_DRV_SA1100
->
->  config RTC_DRV_SH
->         tristate "SuperH On-Chip RTC"
-> -       depends on SUPERH && HAVE_CLK
-> +       depends on (SUPERH || ARCH_RENESAS) && HAVE_CLK
-
-I believe the dependency on HAVE_CLK is not needed.
-SuperH selects CLKDEV_LOOKUP, which selects HAVE_CLK.
-ARM (and ARM64) selects COMMON_CLK, which selects HAVE_CLK.
-
-interestingly, SuperH already did so at the time the dependency was added...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Thanks,
+Chris
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
