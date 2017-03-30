@@ -1,23 +1,28 @@
-Return-Path: <rtc-linux+bncBAABB3H34XCQKGQE3WHXNIA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBL4M6PDAKGQEPLR2TPY@googlegroups.com>
+Received: from mail-io0-x243.google.com (mail-io0-x243.google.com. [2607:f8b0:4001:c06::243])
+        by gmr-mx.google.com with ESMTPS id n127si173593ita.3.2017.03.30.01.47.43
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 30 Mar 2017 01:47:43 -0700 (PDT)
+Received: by mail-io0-x243.google.com with SMTP id f84so2258565ioj.0
+        for <rtc-linux@googlegroups.com>; Thu, 30 Mar 2017 01:47:43 -0700 (PDT)
 MIME-Version: 1.0
-Received: from osg.samsung.com (ec2-52-27-115-49.us-west-2.compute.amazonaws.com. [52.27.115.49])
-        by gmr-mx.google.com with ESMTP id g82si60554pfb.5.2017.03.03.06.30.04
-        for <rtc-linux@googlegroups.com>;
-        Fri, 03 Mar 2017 06:30:04 -0800 (PST)
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: [rtc-linux] [PATCH 11/13] rtc: rx8581: Add OF device ID table
-Date: Fri,  3 Mar 2017 11:29:22 -0300
-Message-Id: <20170303142925.17915-12-javier@osg.samsung.com>
-In-Reply-To: <20170303142925.17915-1-javier@osg.samsung.com>
-References: <20170303142925.17915-1-javier@osg.samsung.com>
-Reply-To: rtc-linux@googlegroups.com
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20170329173035.67477-8-chris.brandt@renesas.com>
+References: <20170329173035.67477-1-chris.brandt@renesas.com> <20170329173035.67477-8-chris.brandt@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 30 Mar 2017 10:47:42 +0200
+Message-ID: <CAMuHMdUs5MgL0tJWbB5mbhbFdp8nwEop2Xwt=HR-7vrNrZUkNA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 7/7] ARM: dts: rskrza1: add rtc DT support
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,43 +31,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+On Wed, Mar 29, 2017 at 7:30 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
+> Enable the realtime clock.
+>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
+Gr{oetje,eeting}s,
 
- drivers/rtc/rtc-rx8581.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+                        Geert
 
-diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
-index 0c362a3d1f17..9998d7937688 100644
---- a/drivers/rtc/rtc-rx8581.c
-+++ b/drivers/rtc/rtc-rx8581.c
-@@ -308,9 +308,16 @@ static const struct i2c_device_id rx8581_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rx8581_id);
- 
-+static const struct of_device_id rx8581_of_match[] = {
-+	{ .compatible = "epson,rx8581" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, rx8581_of_match);
-+
- static struct i2c_driver rx8581_driver = {
- 	.driver		= {
- 		.name	= "rtc-rx8581",
-+		.of_match_table = of_match_ptr(rx8581_of_match),
- 	},
- 	.probe		= rx8581_probe,
- 	.id_table	= rx8581_id,
--- 
-2.9.3
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
