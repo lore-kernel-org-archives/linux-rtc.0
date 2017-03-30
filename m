@@ -1,37 +1,28 @@
-Return-Path: <rtc-linux+bncBC4IFTUFXEFBB3FG37DAKGQEOQWQKEI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
-        by gmr-mx.google.com with ESMTPS id e72si783859wma.0.2017.03.26.07.42.52
+Return-Path: <rtc-linux+bncBCQJP74GSUDRBH4M6PDAKGQE26AAD7Q@googlegroups.com>
+Received: from mail-it0-x243.google.com (mail-it0-x243.google.com. [2607:f8b0:4001:c0b::243])
+        by gmr-mx.google.com with ESMTPS id q9si289719itc.1.2017.03.30.01.47.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 26 Mar 2017 07:42:52 -0700 (PDT)
-Received: by mail-wr0-x232.google.com with SMTP id u1so22272177wra.2
-        for <rtc-linux@googlegroups.com>; Sun, 26 Mar 2017 07:42:52 -0700 (PDT)
-From: Leo Yan <leo.yan@linaro.org>
-To: Russell King <linux@armlinux.org.uk>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Baptiste Reynal <b.reynal@virtualopensystems.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org,
-	kvm@vger.kernel.org,
-	alsa-devel@alsa-project.org
-Cc: Leo Yan <leo.yan@linaro.org>
-Subject: [rtc-linux] [PATCH 5/5] ALSA: AACI: Convert to use devm_ioremap_resource()
-Date: Sun, 26 Mar 2017 22:41:54 +0800
-Message-Id: <1490539314-9681-6-git-send-email-leo.yan@linaro.org>
-In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 30 Mar 2017 01:47:27 -0700 (PDT)
+Received: by mail-it0-x243.google.com with SMTP id e75so12424422itd.1
+        for <rtc-linux@googlegroups.com>; Thu, 30 Mar 2017 01:47:27 -0700 (PDT)
+MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20170329173035.67477-7-chris.brandt@renesas.com>
+References: <20170329173035.67477-1-chris.brandt@renesas.com> <20170329173035.67477-7-chris.brandt@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 30 Mar 2017 10:47:26 +0200
+Message-ID: <CAMuHMdVvEAH82vC8WPx6ZmimVxD-_t4JpDa8OLXs_f_UEtHtPg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 6/7] ARM: dts: rskrza1: set rtc_x1 clock value
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,64 +31,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Convert to use devm_ioremap_resource() in probe function, otherwise it's
-missed to unremap this region if probe failed or rmmod module.
+On Wed, Mar 29, 2017 at 7:30 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
+> Enable the 32.768 kHz RTC_X1 clock by setting the frequency value to
+> non-zero.
+>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
----
- sound/arm/aaci.c | 21 ++++++---------------
- 1 file changed, 6 insertions(+), 15 deletions(-)
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-diff --git a/sound/arm/aaci.c b/sound/arm/aaci.c
-index 4140b1b..2078568 100644
---- a/sound/arm/aaci.c
-+++ b/sound/arm/aaci.c
-@@ -990,19 +990,13 @@ static int aaci_probe(struct amba_device *dev,
- 	struct aaci *aaci;
- 	int ret, i;
- 
--	ret = amba_request_regions(dev, NULL);
--	if (ret)
--		return ret;
--
- 	aaci = aaci_init_card(dev);
--	if (!aaci) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!aaci)
-+		return -ENOMEM;
- 
--	aaci->base = ioremap(dev->res.start, resource_size(&dev->res));
--	if (!aaci->base) {
--		ret = -ENOMEM;
-+	aaci->base = devm_ioremap_resource(&dev->dev, &dev->res);
-+	if (IS_ERR(aaci->base)) {
-+		ret = PTR_ERR(aaci->base);
- 		goto out;
- 	}
- 
-@@ -1064,9 +1058,7 @@ static int aaci_probe(struct amba_device *dev,
- 	}
- 
-  out:
--	if (aaci)
--		snd_card_free(aaci->card);
--	amba_release_regions(dev);
-+	snd_card_free(aaci->card);
- 	return ret;
- }
- 
-@@ -1079,7 +1071,6 @@ static int aaci_remove(struct amba_device *dev)
- 		writel(0, aaci->base + AACI_MAINCR);
- 
- 		snd_card_free(card);
--		amba_release_regions(dev);
- 	}
- 
- 	return 0;
--- 
-2.7.4
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
