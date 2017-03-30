@@ -1,28 +1,21 @@
-Return-Path: <rtc-linux+bncBD47PQ46SILBBUED43CQKGQEEYCNJ4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKLR6HU7IIBB3PN6XDAKGQEDBEJX6I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
-        by gmr-mx.google.com with ESMTPS id h198si245992wmg.1.2017.03.03.06.46.38
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Mar 2017 06:46:38 -0800 (PST)
-Received: by mail-wm0-x243.google.com with SMTP id n11so3498938wma.0
-        for <rtc-linux@googlegroups.com>; Fri, 03 Mar 2017 06:46:38 -0800 (PST)
-Reply-To: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] RTC used as a module
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- John Stultz <john.stultz@linaro.org>
-Cc: rtc-linux@googlegroups.com, Michal Simek <michal.simek@xilinx.com>
-From: Michal Simek <monstr@monstr.eu>
-Message-ID: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
-Date: Fri, 3 Mar 2017 15:46:36 +0100
+Received: from mailapp01.imgtec.com (mailapp01.imgtec.com. [195.59.15.196])
+        by gmr-mx.google.com with ESMTP id a126si16736wmd.2.2017.03.30.14.21.49
+        for <rtc-linux@googlegroups.com>;
+        Thu, 30 Mar 2017 14:21:49 -0700 (PDT)
+From: Paul Burton <paul.burton@imgtec.com>
+To: <rtc-linux@googlegroups.com>
+CC: Paul Burton <paul.burton@imgtec.com>, Alessandro Zummo
+	<a.zummo@towertech.it>, Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>, =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
+	<mylene.josserand@free-electrons.com>, "# v4 . 7+" <stable@vger.kernel.org>
+Subject: [rtc-linux] [PATCH] rtc: m41t80: Clear oscillator failure bit on probe
+Date: Thu, 30 Mar 2017 14:21:30 -0700
+Message-ID: <20170330212130.30548-1-paul.burton@imgtec.com>
 MIME-Version: 1.0
-In-Reply-To: <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj"
+Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,215 +24,69 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj
-Content-Type: multipart/mixed; boundary="dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0";
- protected-headers="v1"
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- John Stultz <john.stultz@linaro.org>
-Cc: rtc-linux@googlegroups.com, Michal Simek <michal.simek@xilinx.com>
-Message-ID: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
-Subject: Re: [rtc-linux] RTC used as a module
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
-In-Reply-To: <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
+The oscillator failure bit of the flags register defaults to 1 when the
+m41t80 RTC device is powered up. If we don't clear it as the manual says
+we should then the bit remains set permanently and since commit
+05a7f27a889f ("rtc: m41t80: handle oscillator failure bit") we spam the
+kernel console with an error message on every attempt to read the RTC,
+for example:
 
---dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0
-Content-Type: text/plain; charset=UTF-8
+  Welcome to Buildroot
+  mips64r6-n32-le-hf-soak login: [   15.534459] rtc-m41t80 0-0068:
+  Oscillator failure, data is invalid.
+  [   16.526308] rtc-m41t80 0-0068: Oscillator failure, data is invalid.
+  [   19.534342] rtc-m41t80 0-0068: Oscillator failure, data is invalid.
+  [   20.526327] rtc-m41t80 0-0068: Oscillator failure, data is invalid.
 
-Hi Alexandre,
+Fix this by clearing the OF flag during probe, as the m41t80 manual
+says we ought to.
 
-On 3.3.2017 10:41, Michal Simek wrote:
-> Hi Alexandre,
-> 
-> On 23.2.2017 13:14, Alexandre Belloni wrote:
->> Hi Michal,
->>
->> I've been thinking about this issue (and meaning to actually test).
->>
->> On 08/12/2016 at 14:02:36 +0100, Michal Simek wrote:
->>> Hi guys,
->>>
->>> I am trying to find out reason for this behavior. If rtc-zynqmp is used
->>> as module for the first time it is correctly probed based on aliases
->>> setting. (rtc5 for log below). But then driver is removed and add again
->>> rtc5 is still not freed. rtc_device_release() is not called that's why
->>> rtc->id can't be used again.
->>>
->>> sh-4.3# modprobe rtc-zynqmp
->>> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>> ffa60000.rtc as rtc5
->>> sh-4.3# rmmod rtc-zynqmp
->>> sh-4.3# modprobe rtc-zynqmp
->>> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
->>> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>> ffa60000.rtc as rtc0
->>>
->>>
->>> I didn't try different rtc drivers but it looks like that someone keeps
->>> reference that's why release function is not called.
->>>
->>> Can someone check this with different RTC module?
->>
->> I'll do that soon.
-> 
-> Have you tried it?
-> 
->>
->>> Or is this expected behavior?
->>>
->>
->> I don't think so :)
->>
->> Can you clarify a few things:
->>  - is this the only rtc with a driver on your system ?
-> 
-> yes only one.
-> 
->>  - is it selected as the RTC_SYSTOHC_DEVICE or RTC_HCTOSYS_DEVICE. I've
->>    checked the code and I don't think this is the issue but it is worth
->> testing.
-> 
-> This is the setting.
-> 
-> CONFIG_RTC_HCTOSYS=y
-> CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
-> CONFIG_RTC_SYSTOHC=y
-> CONFIG_RTC_SYSTOHC_DEVICE="rtc0"
-> 
-> What I see is that rtc_device_release is not called which is that
-> function which contain ida_simple_remove.
-> 
-> I have alias for rtc0 (rtc0 = &rtc;)
-> And here is a log with debug. As you see when driver is removed for the
-> first time rtc_device_release is not called. When this is done for the
-> second time rtc_device_release is called properly and the same device
-> allocated via ida is used.
-> 
-> root@linaro-alip:~# dmesg | grep rtc
-> [    3.372715] [drm] Cannot find any crtc or sizes - going 1024x768
-> [    3.422099] hctosys: unable to open rtc device (rtc0)
-> [    6.578930] rtc_zynqmp ffa60000.rtc: rtc core: registered
-> ffa60000.rtc as rtc0
-> root@linaro-alip:~#
-> root@linaro-alip:~# lsmod
-> Module                  Size  Used by
-> rtc_zynqmp             16384  0
-> uio_pdrv_genirq        16384  0
-> root@linaro-alip:~# rmmod rtc_zynqmp
-> [   26.805172] rtc_core: devm_rtc_device_unregister
-> [   26.809794] rtc_core: devm_rtc_device_release
-> [   26.814129] rtc_core: rtc_device_unregister
-> root@linaro-alip:~# modprobe rtc_zynqmp
-> [   35.879655] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
-> [   35.886002] rtc_zynqmp ffa60000.rtc: rtc core: registered
-> ffa60000.rtc as rtc1
-> root@linaro-alip:~# rmmod rtc_zynqmp
-> [  122.140487] rtc_core: devm_rtc_device_unregister
-> [  122.145110] rtc_core: devm_rtc_device_release
-> [  122.149443] rtc_core: rtc_device_unregister
-> [  122.153770] rtc_core: rtc_device_release
-> root@linaro-alip:~# modprobe rtc_zynqmp
-> [  123.646002] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
-> [  123.652249] rtc_zynqmp ffa60000.rtc: rtc core: registered
-> ffa60000.rtc as rtc1
-> root@linaro-alip:~# rmmod rtc_zynqmp
-> [  125.876188] rtc_core: devm_rtc_device_release
-> [  125.880554] rtc_core: rtc_device_unregister
-> [  125.885163] rtc_core: rtc_device_release
-> root@linaro-alip:~#
-> 
-> I have also done experiment to setup rtc alias to rtc1 and this ID is
-> used only once. It looks like something is not released properly.
-> 
-> This is out of tree driver but I can't see any specific code which could
-> improve behavior.
-> I have tested i2c rtc mcp79410 and there is not a visible problem but it
-> is not MMIO.
+Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+Fixes: 05a7f27a889f ("rtc: m41t80: handle oscillator failure bit")
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Myl=C3=A8ne Josserand <mylene.josserand@free-electrons.com>
+Cc: rtc-linux@googlegroups.com
+Cc: <stable@vger.kernel.org> # v4.7+
 
-This is the function which is making the difference.
+---
 
-It was added by John Stultz:
-"timers: Introduce in-kernel alarm-timer interface"
-(sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
+ drivers/rtc/rtc-m41t80.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Probe function has device_init_wakeup(&pdev->dev, 1);
-That's why reference is taken (get_device() below)
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 58698d21c2c3..33be6e4694f6 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -813,6 +813,17 @@ static int m41t80_probe(struct i2c_client *client,
+=20
+ 	m41t80_data->rtc =3D rtc;
+=20
++	/* Clear the OF (Oscillator failure) bit, which is 1 on power up */
++	rc =3D i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
++	if (rc < 0) {
++		dev_warn(&client->dev, "unable to read flags");
++	} else if (rc & M41T80_FLAGS_OF) {
++		rc &=3D ~M41T80_FLAGS_OF;
++		rc =3D i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS, rc);
++		if (rc)
++			dev_warn(&client->dev, "unable to clear OF flag");
++	}
++
+ 	/* Make sure HT (Halt Update) bit is cleared */
+ 	rc =3D i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_HOUR);
+=20
+--=20
+2.12.1
 
-static int alarmtimer_rtc_add_device(struct device *dev,
-				struct class_interface *class_intf)
-{
-	unsigned long flags;
-	struct rtc_device *rtc = to_rtc_device(dev);
-
-	if (rtcdev)
-		return -EBUSY;
-
-	pr_info("%s\n", __func__);
-
-	if (!rtc->ops->set_alarm)
-		return -1;
-
-	pr_info("%s\n", __func__);
-
-	if (!device_may_wakeup(rtc->dev.parent))
-		return -1;
-
-	spin_lock_irqsave(&rtcdev_lock, flags);
-	if (!rtcdev) {
-		rtcdev = rtc;
-		/* hold a reference so it doesn't go away */
-		get_device(dev);
-	}
-	spin_unlock_irqrestore(&rtcdev_lock, flags);
-	return 0;
-}
-
-And in remove function device_init_wakeup(&pdev->dev, 0);
-But because there is still a reference rtc_device_release() is not
-called and ida is not freed.
-
-Generic question which I think should be asked if in this situation
-driver should be modular or not.
-If driver can be modular then somewhere should be put_device().
-
-Thanks,
-Michal
-
--- 
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Xilinx Microblaze
-Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
-U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
-
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---dbXr6OMq0bh88JHmxR3iUkjOojmBO1Wl0--
-
---DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAli5gcwACgkQykllyylKDCGz9wCeOqJuOPtVxe3tDn5IuNS1RZzZ
-Q4MAnAhXAL2hlFtAsiIp3OS2G6khWvNM
-=eaRi
------END PGP SIGNATURE-----
-
---DMWPKruNWaftxbMJ289dIwuIqnwLEXSlj--
