@@ -1,35 +1,29 @@
-Return-Path: <rtc-linux+bncBAABB4OU73DQKGQEUCPBJ3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDVMPI6S7EDRBEU5QTDQKGQEEG7BNUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id m13si2247325itb.2.2017.04.25.12.58.40
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id h35si1519598ywk.0.2017.04.02.07.45.38
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Apr 2017 12:58:41 -0700 (PDT)
-Received: from mail.kernel.org (localhost [127.0.0.1])
-	by mail.kernel.org (Postfix) with ESMTP id AEA7820204
-	for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 19:58:39 +0000 (UTC)
-Received: from mail-it0-f53.google.com (mail-it0-f53.google.com [209.85.214.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPSA id D0D5B201B4
-	for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 19:58:37 +0000 (UTC)
-Received: by mail-it0-f53.google.com with SMTP id x188so83041979itb.0
-        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 12:58:37 -0700 (PDT)
+        Sun, 02 Apr 2017 07:45:38 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 4/5] vfio: platform: Convert to use devm_*()
+To: Leo Yan <leo.yan@linaro.org>, Russell King <linux@armlinux.org.uk>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Baptiste Reynal <b.reynal@virtualopensystems.com>,
+ Alex Williamson <alex.williamson@redhat.com>,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+ kvm@vger.kernel.org, alsa-devel@alsa-project.org
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+ <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
+From: Auger Eric <eric.auger@redhat.com>
+Message-ID: <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
+Date: Sun, 2 Apr 2017 16:45:28 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170425165824.GA10024@roeck-us.net>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
- <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net> <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
- <20170425161743.GA8443@roeck-us.net> <20170425163204.rj6on6phtbfuvcd7@piout.net>
- <20170425165824.GA10024@roeck-us.net>
-From: Moritz Fischer <mdf@kernel.org>
-Date: Tue, 25 Apr 2017 12:58:36 -0700
-Message-ID: <CAJYdmePpHcYgjiCf=eWCkBBNBTTw4jW59_VNR6w44Yj_QDQqng@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Moritz Fischer <moritz.fischer@ettus.com>,
-	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
-	rtc-linux@googlegroups.com, alex.williams@ni.com
+In-Reply-To: <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -40,43 +34,99 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, Apr 25, 2017 at 09:58:24AM -0700, Guenter Roeck wrote:
+Hi Leo,
 
-> Ah, I missed the "n" in various #ifndef statements.
->
-> I can't really comment on how to solve that; I simply don't know.
-> Also, even with a dt property, it still would be necessary to have
-> a non-DT means to configure one or the other. Making whatever solution
-> backward compatible also seems tricky; I don't have a solution for that
-> problem either.
+On 26/03/2017 16:41, Leo Yan wrote:
+> Convert driver to use devm_*() APIs so rely on driver model core layer
+> to manage resources. This eliminates error path boilerplate and makes
+> code neat.
+> 
+> This patch also renames amba_id structure, the old code used some code
+> which directly copied from other driver.
+> 
+> Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Looks good to me
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
 
-How does one do these things in a non-dt context? Platform data? I'd let
-the MFD select the 'mode'. Maybe being backwards compatible isn't
-possible in any case. Is there a rule somewhere that we guarantee you'll
-never have to change your CONFIG_FOO options?
+May be interesting to go further converting as well the vfio-platform
+driver but this can be done later on.
 
->
-> > > > The idea was to fix what's broken currently (this patchset) and then refactor.
-> > > > But if you prefer I can do all in one go instead.
-> > > >
-> > >
-> > > It just seemed a waste to me to change/fix a function which is going to
-> > > be removed in a subsequent patch (I seem to recall that there was a fix
-> > > to the ioctl function).
-> > >
-> >
-> > I'd say that it depends on whether you want to backport the fixes to the
-> > stable kernels. Backporting the full rework is probably riskier.
+Thanks
 
-I suck at communicating these days. But yeah. That was basically my
-concern when I split it up into 'Fixes' and 'Rework'.
+Eric
 
-Mostly since the rework might take a couple of rounds of review, while the
-fix can unbrick stuff (might still need review of course)
 
-Cheers,
-
-Moritz
+> ---
+>  drivers/vfio/platform/vfio_amba.c | 25 ++++++++-----------------
+>  1 file changed, 8 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+> index 31372fb..433db1f 100644
+> --- a/drivers/vfio/platform/vfio_amba.c
+> +++ b/drivers/vfio/platform/vfio_amba.c
+> @@ -53,15 +53,14 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+>  	struct vfio_platform_device *vdev;
+>  	int ret;
+>  
+> -	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
+> +	vdev = devm_kzalloc(&adev->dev, sizeof(*vdev), GFP_KERNEL);
+>  	if (!vdev)
+>  		return -ENOMEM;
+>  
+> -	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
+> -	if (!vdev->name) {
+> -		kfree(vdev);
+> +	vdev->name = devm_kasprintf(&adev->dev, GFP_KERNEL,
+> +				    "vfio-amba-%08x", adev->periphid);
+> +	if (!vdev->name)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	vdev->opaque = (void *) adev;
+>  	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
+> @@ -71,11 +70,6 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+>  	vdev->reset_required = false;
+>  
+>  	ret = vfio_platform_probe_common(vdev, &adev->dev);
+> -	if (ret) {
+> -		kfree(vdev->name);
+> -		kfree(vdev);
+> -	}
+> -
+>  	return ret;
+>  }
+>  
+> @@ -84,25 +78,22 @@ static int vfio_amba_remove(struct amba_device *adev)
+>  	struct vfio_platform_device *vdev;
+>  
+>  	vdev = vfio_platform_remove_common(&adev->dev);
+> -	if (vdev) {
+> -		kfree(vdev->name);
+> -		kfree(vdev);
+> +	if (vdev)
+>  		return 0;
+> -	}
+>  
+>  	return -EINVAL;
+>  }
+>  
+> -static struct amba_id pl330_ids[] = {
+> +static struct amba_id vfio_ids[] = {
+>  	{ 0, 0 },
+>  };
+>  
+> -MODULE_DEVICE_TABLE(amba, pl330_ids);
+> +MODULE_DEVICE_TABLE(amba, vfio_ids);
+>  
+>  static struct amba_driver vfio_amba_driver = {
+>  	.probe = vfio_amba_probe,
+>  	.remove = vfio_amba_remove,
+> -	.id_table = pl330_ids,
+> +	.id_table = vfio_ids,
+>  	.drv = {
+>  		.name = "vfio-amba",
+>  		.owner = THIS_MODULE,
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
