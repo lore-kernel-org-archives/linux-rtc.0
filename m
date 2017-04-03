@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBAABBLPN7HDQKGQEMNSRE5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBS5WRHDQKGQEL3R2KZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id m13si1540992itb.2.2017.04.24.15.05.33
+Received: from mail-wr0-x22b.google.com (mail-wr0-x22b.google.com. [2a00:1450:400c:c0c::22b])
+        by gmr-mx.google.com with ESMTPS id i76si1103112wmh.1.2017.04.03.07.25.15
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Apr 2017 15:05:33 -0700 (PDT)
-From: Moritz Fischer <mdf@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: moritz.fischer@ettus.com,
-	linux-watchdog@vger.kernel.org,
-	linux@roeck-us.net,
-	wim@iguana.be,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	alex.williams@ni.com,
-	Moritz Fischer <mdf@kernel.org>
-Subject: [rtc-linux] [PATCH 1/2] rtc: ds1374: wdt: Fix issue with timeout
- scaling from secs to wdt ticks
-Date: Mon, 24 Apr 2017 15:05:11 -0700
-Message-Id: <1493071512-5718-2-git-send-email-mdf@kernel.org>
-In-Reply-To: <1493071512-5718-1-git-send-email-mdf@kernel.org>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 03 Apr 2017 07:25:15 -0700 (PDT)
+Received: by mail-wr0-x22b.google.com with SMTP id k6so166621526wre.2
+        for <rtc-linux@googlegroups.com>; Mon, 03 Apr 2017 07:25:15 -0700 (PDT)
+Date: Mon, 3 Apr 2017 15:25:12 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org, martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com, Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH 7/7] mfd: cros_ec: add RTC as mfd subdevice
+Message-ID: <20170403142512.dlipwaocizisyipg@dell>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
+ <20170324174407.25401-8-enric.balletbo@collabora.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170324174407.25401-8-enric.balletbo@collabora.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,52 +32,84 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Fix commit 920f91e50c5b ("drivers/rtc/rtc-ds1374.c: add watchdog support")
+On Fri, 24 Mar 2017, Enric Balletbo i Serra wrote:
 
-The issue is that the internal counter that triggers the watchdog reset
-is actually running at 4096 Hz instead of 1Hz, therefore the value
-given by userland (in sec) needs to be multiplied by 4096 to get the
-correct behavior.
+> From: Stephen Barber <smbarber@chromium.org>
+>=20
+> If the EC supports RTC host commands, expose an RTC device.
+>=20
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index bbc17ab..1ff88b1 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -51,6 +51,11 @@ static const struct mfd_cell ec_pd_cell =3D {
+>  	.pdata_size =3D sizeof(pd_p),
+>  };
+> =20
+> +static const struct mfd_cell ec_rtc_cell =3D {
+> +	.name =3D "cros-ec-rtc",
+> +	.id   =3D -1,
 
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
----
- drivers/rtc/rtc-ds1374.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Why -1?
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 4cd115e..2a8b5b3 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -525,6 +525,10 @@ static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
- 		if (get_user(new_margin, (int __user *)arg))
- 			return -EFAULT;
- 
-+		/* the hardware's tick rate is 4096 Hz, so
-+		 * the counter value needs to be scaled accordingly
-+		 */
-+		new_margin <<= 12;
- 		if (new_margin < 1 || new_margin > 16777216)
- 			return -EINVAL;
- 
-@@ -533,7 +537,8 @@ static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
- 		ds1374_wdt_ping();
- 		/* fallthrough */
- 	case WDIOC_GETTIMEOUT:
--		return put_user(wdt_margin, (int __user *)arg);
-+		/* when returning ... inverse is true */
-+		return put_user((wdt_margin >> 12), (int __user *)arg);
- 	case WDIOC_SETOPTIONS:
- 		if (copy_from_user(&options, (int __user *)arg, sizeof(int)))
- 			return -EFAULT;
--- 
-2.7.4
+> +};
+> +
+>  static irqreturn_t ec_irq_thread(int irq, void *data)
+>  {
+>  	struct cros_ec_device *ec_dev =3D data;
+> @@ -238,6 +243,15 @@ static void cros_ec_sensors_register(struct cros_ec_=
+device *ec_dev)
+>  	kfree(msg);
+>  }
+> =20
+> +static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
+> +{
+> +	int ret;
+> +
+> +	ret =3D mfd_add_devices(ec_dev->dev, 0, &ec_rtc_cell, 1, NULL, 0, NULL)=
+;
 
--- 
+Why 0?
+
+> +	if (ret)
+> +		dev_err(ec_dev->dev, "failed to add EC RTC\n");
+> +}
+> +
+>  int cros_ec_register(struct cros_ec_device *ec_dev)
+>  {
+>  	struct device *dev =3D ec_dev->dev;
+> @@ -287,6 +301,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+>  	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
+>  		cros_ec_sensors_register(ec_dev);
+> =20
+> +	/* Check whether this EC has RTC support */
+> +	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
+> +		cros_ec_rtc_register(ec_dev);
+> +
+>  	if (ec_dev->max_passthru) {
+>  		/*
+>  		 * Register a PD device as well on top of this device.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
