@@ -1,27 +1,30 @@
-Return-Path: <rtc-linux+bncBCF6L7545UEBBKVHR7DQKGQEETYMPRA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBYXTRHDQKGQELJALSGA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from kirsty.vergenet.net (kirsty.vergenet.net. [202.4.237.240])
-        by gmr-mx.google.com with ESMTP id g82si2600035pfb.5.2017.04.04.10.11.05
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Apr 2017 10:11:06 -0700 (PDT)
-Date: Tue, 4 Apr 2017 13:11:00 -0400
-From: Simon Horman <horms@verge.net.au>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Chris Brandt <chris.brandt@renesas.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 0/7] rtc: Reuse rtc-sh driver to support RZ/A1
-Message-ID: <20170404171100.GA14047@verge.net.au>
-References: <20170329173035.67477-1-chris.brandt@renesas.com>
- <20170403160337.g3fzjbfhllnaoafz@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170403160337.g3fzjbfhllnaoafz@piout.net>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id 82si1169235wmg.3.2017.04.03.09.35.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 03 Apr 2017 09:35:46 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Vic Yang <victoryang@google.com>
+Subject: [rtc-linux] [PATCH v2 1/5] mfd: cros-ec: Fix host command buffer size
+Date: Mon,  3 Apr 2017 18:35:32 +0200
+Message-Id: <20170403163536.25634-2-enric.balletbo@collabora.com>
+In-Reply-To: <20170403163536.25634-1-enric.balletbo@collabora.com>
+References: <20170403163536.25634-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,55 +33,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Apr 03, 2017 at 06:03:37PM +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 29/03/2017 at 10:30:28 -0700, Chris Brandt wrote:
-> > Basically, the same RTC that was used in SuperH devices is now used in
-> > RZ/A1 devices. Therefore with some slight changes, that driver can be
-> > reused.
-> > 
-> > Additionally, since ARM architectures require Device Tree configurations,
-> > device tree support has been added.
-> > 
-> > This was tested on RZ/A1H RSK board. Once the correct time was programmed
-> > into the RTC running off a 32.768kHz crystal, you can retain an accurate
-> > system clock between reboots (hard and soft) until power is finally removed
-> > from the board (there is no batter backup on the RSK board).
-> > 
-> > v3:
-> > * remove 'power-domains' from example in documentation
-> > * update commit message subject and body of dt-bindings
-> > 
-> > v2:
-> > * removed HAVE_CLK from Kconfig
-> > * when using DT, look for "fck" instead of "rtc0"
-> > * changed (res == NULL) to (!res)
-> > * added Reviewed-by for rtc-sh.c
-> > * added interrupt-names and clock-names
-> > * clocks now include counting sources
-> > * added clock-names "fck", "rtc_x1", "rtc_x3", "extal"
-> > * changed 'is a RTC' to 'is an RTC' in commit message
-> > * changed "rtc0" to "rtc"
-> > * Added clock nodes for RTC_X1 and RTC_X3 pin inputs
-> > * each commit now has a log message
-> > 
-> > 
-> > Chris Brandt (7):
-> >   rtc: rtc-sh: add support for rza series
-> >   dt-bindings: rtc: document the rtc-sh bindings
-> 
-> I applied those two, I'll let Simon take the device tree patches.
-> 
-> Thanks!
-> 
-> >   ARM: dts: r7s72100: add rtc clock to device tree
-> >   ARM: dts: r7s72100: add RTC_X clock inputs to device tree
-> >   ARM: dts: r7s72100: add rtc to device tree
-> >   ARM: dts: rskrza1: set rtc_x1 clock value
-> >   ARM: dts: rskrza1: add rtc DT support
+From: Vic Yang <victoryang@google.com>
 
-Thanks, I have queued up the dts patches.
+For SPI, we can get up to 32 additional bytes for response preamble.
+The current overhead (2 bytes) may cause problems when we try to receive
+a big response. Update it to 32 bytes.
+
+Without this fix we could see a kernel BUG when we receive a big response
+from the Chrome EC when is connected via SPI.
+
+Signed-off-by: Vic Yang <victoryang@google.com>
+Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+
+  This patch is a FIX, and I think that would be interesting see it merged
+in this release cycle. This should go through the MFD tree and can be picked
+independently of the other patches. Lee Jones I think this is for you.
+
+Changes since v1:
+ - None
+
+ include/linux/mfd/cros_ec.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index b3e812f..3b16c90 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -35,10 +35,11 @@
+  * Max bus-specific overhead incurred by request/responses.
+  * I2C requires 1 additional byte for requests.
+  * I2C requires 2 additional bytes for responses.
++ * SPI requires up to 32 additional bytes for responses.
+  * */
+ #define EC_PROTO_VERSION_UNKNOWN	0
+ #define EC_MAX_REQUEST_OVERHEAD		1
+-#define EC_MAX_RESPONSE_OVERHEAD	2
++#define EC_MAX_RESPONSE_OVERHEAD	32
+ 
+ /*
+  * Command interface between EC and AP, for LPC, I2C and SPI interfaces.
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
