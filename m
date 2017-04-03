@@ -1,35 +1,31 @@
-Return-Path: <rtc-linux+bncBC4IFTUFXEFBBC44THDQKGQEETMFSBY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBZHTRHDQKGQEWSAYPSI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pg0-x235.google.com (mail-pg0-x235.google.com. [2607:f8b0:400e:c05::235])
-        by gmr-mx.google.com with ESMTPS id i189si269898pfg.3.2017.04.06.07.17.46
+MIME-Version: 1.0
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id i76si1139019wmh.1.2017.04.03.09.35.48
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 06 Apr 2017 07:17:46 -0700 (PDT)
-Received: by mail-pg0-x235.google.com with SMTP id 21so37352284pgg.1
-        for <rtc-linux@googlegroups.com>; Thu, 06 Apr 2017 07:17:46 -0700 (PDT)
-Date: Thu, 6 Apr 2017 22:17:31 +0800
-From: Leo Yan <leo.yan@linaro.org>
-To: Auger Eric <eric.auger@redhat.com>
-Cc: Russell King <linux@armlinux.org.uk>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Baptiste Reynal <b.reynal@virtualopensystems.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-	kvm@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [rtc-linux] Re: [PATCH 4/5] vfio: platform: Convert to use devm_*()
-Message-ID: <20170406141731.GA27245@leoy-linaro>
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
- <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
- <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
+        Mon, 03 Apr 2017 09:35:48 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v2 3/5] mfd: cros_ec: Introduce RTC commands and
+ events definitions.
+Date: Mon,  3 Apr 2017 18:35:34 +0200
+Message-Id: <20170403163536.25634-4-enric.balletbo@collabora.com>
+In-Reply-To: <20170403163536.25634-1-enric.balletbo@collabora.com>
+References: <20170403163536.25634-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,34 +34,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Sun, Apr 02, 2017 at 04:45:28PM +0200, Auger Eric wrote:
-> Hi Leo,
-> 
-> On 26/03/2017 16:41, Leo Yan wrote:
-> > Convert driver to use devm_*() APIs so rely on driver model core layer
-> > to manage resources. This eliminates error path boilerplate and makes
-> > code neat.
-> > 
-> > This patch also renames amba_id structure, the old code used some code
-> > which directly copied from other driver.
-> > 
-> > Signed-off-by: Leo Yan <leo.yan@linaro.org>
-> Looks good to me
-> Reviewed-by: Eric Auger <eric.auger@redhat.com>
+From: Stephen Barber <smbarber@chromium.org>
 
-Thanks for reviewing, Eric.
+The EC can function as a simple RT, this patch adds the RTC related
+definitions needed by the rtc-cros-ec driver.
 
-> May be interesting to go further converting as well the vfio-platform
-> driver but this can be done later on.
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+ include/linux/mfd/cros_ec_commands.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Looked a bit for vfio-platform driver and I'm not sure if need some
-converting within function vfio_platform_probe_common(). So I'd like
-to leave this to who really understand the subsystem :)
-
-[...]
-
-Thanks,
-Leo Yan
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 84e1abb..852ce34 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -286,6 +286,9 @@ enum host_event_code {
+ 	/* Hang detect logic detected a hang and warm rebooted the AP */
+ 	EC_HOST_EVENT_HANG_REBOOT = 21,
+ 
++	/* EC RTC event occurred */
++	EC_HOST_EVENT_RTC = 26,
++
+ 	/*
+ 	 * The high bit of the event mask is not used as a host event code.  If
+ 	 * it reads back as set, then the entire event mask should be
+@@ -794,6 +797,8 @@ enum ec_feature_code {
+ 	EC_FEATURE_USB_MUX = 23,
+ 	/* Motion Sensor code has an internal software FIFO */
+ 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
++	/* EC has RTC feature that can be controlled by host commands */
++	EC_FEATURE_RTC = 27,
+ };
+ 
+ #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
+@@ -1704,6 +1709,9 @@ struct ec_response_rtc {
+ #define EC_CMD_RTC_SET_VALUE 0x46
+ #define EC_CMD_RTC_SET_ALARM 0x47
+ 
++/* Pass as param to SET_ALARM to clear the current alarm */
++#define EC_RTC_ALARM_CLEAR 0
++
+ /*****************************************************************************/
+ /* Port80 log access */
+ 
+-- 
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
