@@ -1,29 +1,30 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBOGORHDQKGQE6IG747Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB4NWRXDQKGQEDER2O4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f68.google.com (mail-oi0-f68.google.com. [209.85.218.68])
-        by gmr-mx.google.com with ESMTPS id f73si1187555ita.1.2017.04.03.08.16.08
+Received: from mail-wr0-x235.google.com (mail-wr0-x235.google.com. [2a00:1450:400c:c0c::235])
+        by gmr-mx.google.com with ESMTPS id i76si1327053wmh.1.2017.04.04.01.38.09
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Apr 2017 08:16:08 -0700 (PDT)
-Received: by mail-oi0-f68.google.com with SMTP id d2so12803791oig.2
-        for <rtc-linux@googlegroups.com>; Mon, 03 Apr 2017 08:16:08 -0700 (PDT)
-Date: Mon, 3 Apr 2017 10:16:06 -0500
-From: Rob Herring <robh@kernel.org>
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 2/7] dt-bindings: rtc: document the rtc-sh bindings
-Message-ID: <20170403151606.lnayy6p5lp4rmvrj@rob-hp-laptop>
-References: <20170329173035.67477-1-chris.brandt@renesas.com>
- <20170329173035.67477-3-chris.brandt@renesas.com>
+        Tue, 04 Apr 2017 01:38:09 -0700 (PDT)
+Received: by mail-wr0-x235.google.com with SMTP id w43so203067259wrb.0
+        for <rtc-linux@googlegroups.com>; Tue, 04 Apr 2017 01:38:09 -0700 (PDT)
+Date: Tue, 4 Apr 2017 09:38:06 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Olof Johansson <olof@lixom.net>,
+	bleung@chromium.org, martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com, Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH 7/7] mfd: cros_ec: add RTC as mfd subdevice
+Message-ID: <20170404083806.hkjvkacznxefqsqz@dell>
+References: <20170324174407.25401-1-enric.balletbo@collabora.com>
+ <20170324174407.25401-8-enric.balletbo@collabora.com>
+ <20170403142512.dlipwaocizisyipg@dell>
+ <1e60b276-5327-5bbd-15c5-fd5c920e5ba6@collabora.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170329173035.67477-3-chris.brandt@renesas.com>
+In-Reply-To: <1e60b276-5327-5bbd-15c5-fd5c920e5ba6@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -33,32 +34,97 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 29, 2017 at 10:30:30AM -0700, Chris Brandt wrote:
-> Add the binding documentation for rtc-sh which is an RTC for
-> SuperH and RZ/A SoCs.
-> 
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-> ---
-> v3:
-> * remove 'power-domains' from example
-> * update commit message subject and body
-> v2:
-> * added interrupt-names and clock-names
-> * clocks now include counting sources
-> * changed 'is a RTC' to 'is an RTC' in commit message
-> ---
->  Documentation/devicetree/bindings/rtc/rtc-sh.txt | 28 ++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
+On Mon, 03 Apr 2017, Enric Balletbo i Serra wrote:
 
-Acked-by: Rob Herring <robh@kernel.org> 
+>=20
+>=20
+> On 03/04/17 16:25, Lee Jones wrote:
+> > On Fri, 24 Mar 2017, Enric Balletbo i Serra wrote:
+> >=20
+> >> From: Stephen Barber <smbarber@chromium.org>
+> >>
+> >> If the EC supports RTC host commands, expose an RTC device.
+> >>
+> >> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> >> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> >> ---
+> >>  drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
+> >>  1 file changed, 18 insertions(+)
+> >>
+> >> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> >> index bbc17ab..1ff88b1 100644
+> >> --- a/drivers/mfd/cros_ec.c
+> >> +++ b/drivers/mfd/cros_ec.c
+> >> @@ -51,6 +51,11 @@ static const struct mfd_cell ec_pd_cell =3D {
+> >>  	.pdata_size =3D sizeof(pd_p),
+> >>  };
+> >> =20
+> >> +static const struct mfd_cell ec_rtc_cell =3D {
+> >> +	.name =3D "cros-ec-rtc",
+> >> +	.id   =3D -1,
+> >=20
+> > Why -1?
+> >=20
+> >> +};
+> >> +
+> >>  static irqreturn_t ec_irq_thread(int irq, void *data)
+> >>  {
+> >>  	struct cros_ec_device *ec_dev =3D data;
+> >> @@ -238,6 +243,15 @@ static void cros_ec_sensors_register(struct cros_=
+ec_device *ec_dev)
+> >>  	kfree(msg);
+> >>  }
+> >> =20
+> >> +static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
+> >> +{
+> >> +	int ret;
+> >> +
+> >> +	ret =3D mfd_add_devices(ec_dev->dev, 0, &ec_rtc_cell, 1, NULL, 0, NU=
+LL);
+> >=20
+> > Why 0?
+> >=20
+>=20
+> Right, just maintained the one in the original. I think I can use
+> PLATFORM_DEVID_AUTO here?
 
--- 
+Yes, and don't set the .id to -1 in the cell.
+
+> >> +	if (ret)
+> >> +		dev_err(ec_dev->dev, "failed to add EC RTC\n");
+> >> +}
+> >> +
+> >>  int cros_ec_register(struct cros_ec_device *ec_dev)
+> >>  {
+> >>  	struct device *dev =3D ec_dev->dev;
+> >> @@ -287,6 +301,10 @@ int cros_ec_register(struct cros_ec_device *ec_de=
+v)
+> >>  	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
+> >>  		cros_ec_sensors_register(ec_dev);
+> >> =20
+> >> +	/* Check whether this EC has RTC support */
+> >> +	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
+> >> +		cros_ec_rtc_register(ec_dev);
+> >> +
+> >>  	if (ec_dev->max_passthru) {
+> >>  		/*
+> >>  		 * Register a PD device as well on top of this device.
+> >=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
