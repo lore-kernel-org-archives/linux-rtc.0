@@ -1,31 +1,26 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBTVWRXDQKGQE37OSREI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCF6L7545UEBBKVHR7DQKGQEETYMPRA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x233.google.com (mail-wr0-x233.google.com. [2a00:1450:400c:c0c::233])
-        by gmr-mx.google.com with ESMTPS id d184si520628wmc.0.2017.04.04.01.37.34
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Apr 2017 01:37:34 -0700 (PDT)
-Received: by mail-wr0-x233.google.com with SMTP id w11so202665147wrc.3
-        for <rtc-linux@googlegroups.com>; Tue, 04 Apr 2017 01:37:34 -0700 (PDT)
-Date: Tue, 4 Apr 2017 09:37:29 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Olof Johansson <olof@lixom.net>,
-	bleung@chromium.org, martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com, Vic Yang <victoryang@google.com>
-Subject: [rtc-linux] Re: [PATCH 1/7] mfd: cros-ec: Fix host command buffer size
-Message-ID: <20170404083729.7uvjbul64vnqg67e@dell>
-References: <20170324174407.25401-1-enric.balletbo@collabora.com>
- <20170324174407.25401-2-enric.balletbo@collabora.com>
- <20170403142357.2usczfylqbg6cgcx@dell>
- <20170403143020.mti5vdig6vvlcb2d@dell>
- <78c54848-3166-4531-2178-0fe73b94727a@collabora.com>
+Received: from kirsty.vergenet.net (kirsty.vergenet.net. [202.4.237.240])
+        by gmr-mx.google.com with ESMTP id g82si2600035pfb.5.2017.04.04.10.11.05
+        for <rtc-linux@googlegroups.com>;
+        Tue, 04 Apr 2017 10:11:06 -0700 (PDT)
+Date: Tue, 4 Apr 2017 13:11:00 -0400
+From: Simon Horman <horms@verge.net.au>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chris Brandt <chris.brandt@renesas.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH v3 0/7] rtc: Reuse rtc-sh driver to support RZ/A1
+Message-ID: <20170404171100.GA14047@verge.net.au>
+References: <20170329173035.67477-1-chris.brandt@renesas.com>
+ <20170403160337.g3fzjbfhllnaoafz@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <78c54848-3166-4531-2178-0fe73b94727a@collabora.com>
+In-Reply-To: <20170403160337.g3fzjbfhllnaoafz@piout.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -35,94 +30,62 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 03 Apr 2017, Enric Balletbo i Serra wrote:
+On Mon, Apr 03, 2017 at 06:03:37PM +0200, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 29/03/2017 at 10:30:28 -0700, Chris Brandt wrote:
+> > Basically, the same RTC that was used in SuperH devices is now used in
+> > RZ/A1 devices. Therefore with some slight changes, that driver can be
+> > reused.
+> > 
+> > Additionally, since ARM architectures require Device Tree configurations,
+> > device tree support has been added.
+> > 
+> > This was tested on RZ/A1H RSK board. Once the correct time was programmed
+> > into the RTC running off a 32.768kHz crystal, you can retain an accurate
+> > system clock between reboots (hard and soft) until power is finally removed
+> > from the board (there is no batter backup on the RSK board).
+> > 
+> > v3:
+> > * remove 'power-domains' from example in documentation
+> > * update commit message subject and body of dt-bindings
+> > 
+> > v2:
+> > * removed HAVE_CLK from Kconfig
+> > * when using DT, look for "fck" instead of "rtc0"
+> > * changed (res == NULL) to (!res)
+> > * added Reviewed-by for rtc-sh.c
+> > * added interrupt-names and clock-names
+> > * clocks now include counting sources
+> > * added clock-names "fck", "rtc_x1", "rtc_x3", "extal"
+> > * changed 'is a RTC' to 'is an RTC' in commit message
+> > * changed "rtc0" to "rtc"
+> > * Added clock nodes for RTC_X1 and RTC_X3 pin inputs
+> > * each commit now has a log message
+> > 
+> > 
+> > Chris Brandt (7):
+> >   rtc: rtc-sh: add support for rza series
+> >   dt-bindings: rtc: document the rtc-sh bindings
+> 
+> I applied those two, I'll let Simon take the device tree patches.
+> 
+> Thanks!
+> 
+> >   ARM: dts: r7s72100: add rtc clock to device tree
+> >   ARM: dts: r7s72100: add RTC_X clock inputs to device tree
+> >   ARM: dts: r7s72100: add rtc to device tree
+> >   ARM: dts: rskrza1: set rtc_x1 clock value
+> >   ARM: dts: rskrza1: add rtc DT support
 
->=20
->=20
-> On 03/04/17 16:30, Lee Jones wrote:
-> > On Mon, 03 Apr 2017, Lee Jones wrote:
-> >=20
-> >> On Fri, 24 Mar 2017, Enric Balletbo i Serra wrote:
-> >>
-> >>> From: Vic Yang <victoryang@google.com>
-> >>>
-> >>> For SPI, we can get up to 32 additional bytes for response preamble.
-> >>> The current overhead (2 bytes) may cause problems when we try to rece=
-ive
-> >>> a big response. Update it to 32 bytes.
-> >>>
-> >>> Without this fix we could see a kernel BUG when we receive a big resp=
-onse
-> >>> from the Chrome EC when is connected via SPI.
-> >>>
-> >>> Signed-off-by: Vic Yang <victoryang@google.com>
-> >>> Tested-by: Enric Balletbo i Serra <enric.balletbo.collabora.com>
-> >>> ---
-> >>>
-> >>>   This patch is a FIX, and I think that would be interesting see it m=
-erged
-> >>> in this release cycle. This should go through the MFD tree and can be=
- picked
-> >>> independently of the other patches. Lee Jones I think this is for you=
-.
-> >>>
-> >>>  include/linux/mfd/cros_ec.h | 3 ++-
-> >>>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >>
-> >> Applied, thanks.
-> >=20
-> > Scrap that, I'll keep it with the set.
-> >=20
->=20
-> Ok, I'll send a v2 asap with this patch and the few modifications request=
-ed on
-> patch 7/7. I'm wondering though if this specific patch could go with curr=
-ent
-> release cycle as (explained above) is a fix and current kernel is affecte=
-d.
+Thanks, I have queued up the dts patches.
 
-Yes, but please send it property next time.
-
-I.e. On its own and with either a "Fixes:" tag or Cc stable.
-
-If you don't know what I'm talking about look it up in Documentation.
-
-> >>> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.=
-h
-> >>> index b3e812f..3b16c90 100644
-> >>> --- a/include/linux/mfd/cros_ec.h
-> >>> +++ b/include/linux/mfd/cros_ec.h
-> >>> @@ -35,10 +35,11 @@
-> >>>   * Max bus-specific overhead incurred by request/responses.
-> >>>   * I2C requires 1 additional byte for requests.
-> >>>   * I2C requires 2 additional bytes for responses.
-> >>> + * SPI requires up to 32 additional bytes for responses.
-> >>>   * */
-> >>>  #define EC_PROTO_VERSION_UNKNOWN	0
-> >>>  #define EC_MAX_REQUEST_OVERHEAD		1
-> >>> -#define EC_MAX_RESPONSE_OVERHEAD	2
-> >>> +#define EC_MAX_RESPONSE_OVERHEAD	32
-> >>> =20
-> >>>  /*
-> >>>   * Command interface between EC and AP, for LPC, I2C and SPI interfa=
-ces.
-> >>
-> >=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
