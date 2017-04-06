@@ -1,20 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIG2X7DQKGQEWOTCLZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBC4IFTUFXEFBBC44THDQKGQEETMFSBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id p10si1221229wmg.1.2017.04.13.14.26.55
-        for <rtc-linux@googlegroups.com>;
-        Thu, 13 Apr 2017 14:26:55 -0700 (PDT)
-Date: Thu, 13 Apr 2017 23:26:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	"H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2] x86: i8259: export legacy_pic symbol
-Message-ID: <20170413212645.ctkfqo6mkbmbosgo@piout.net>
-References: <20170408210327.2713-1-hdegoede@redhat.com>
+Received: from mail-pg0-x235.google.com (mail-pg0-x235.google.com. [2607:f8b0:400e:c05::235])
+        by gmr-mx.google.com with ESMTPS id i189si269898pfg.3.2017.04.06.07.17.46
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 06 Apr 2017 07:17:46 -0700 (PDT)
+Received: by mail-pg0-x235.google.com with SMTP id 21so37352284pgg.1
+        for <rtc-linux@googlegroups.com>; Thu, 06 Apr 2017 07:17:46 -0700 (PDT)
+Date: Thu, 6 Apr 2017 22:17:31 +0800
+From: Leo Yan <leo.yan@linaro.org>
+To: Auger Eric <eric.auger@redhat.com>
+Cc: Russell King <linux@armlinux.org.uk>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Baptiste Reynal <b.reynal@virtualopensystems.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+	kvm@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 4/5] vfio: platform: Convert to use devm_*()
+Message-ID: <20170406141731.GA27245@leoy-linaro>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+ <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
+ <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170408210327.2713-1-hdegoede@redhat.com>
+In-Reply-To: <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,59 +38,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+On Sun, Apr 02, 2017 at 04:45:28PM +0200, Auger Eric wrote:
+> Hi Leo,
+> 
+> On 26/03/2017 16:41, Leo Yan wrote:
+> > Convert driver to use devm_*() APIs so rely on driver model core layer
+> > to manage resources. This eliminates error path boilerplate and makes
+> > code neat.
+> > 
+> > This patch also renames amba_id structure, the old code used some code
+> > which directly copied from other driver.
+> > 
+> > Signed-off-by: Leo Yan <leo.yan@linaro.org>
+> Looks good to me
+> Reviewed-by: Eric Auger <eric.auger@redhat.com>
 
-On 08/04/2017 at 23:03:27 +0200, Hans de Goede wrote:
-> The classic PC rtc-coms driver has a workaround for broken ACPI device
-> nodes for it which lack an irq resource. This workaround used to
-> unconditionally hardcode the irq to 8 in these cases.
-> 
-> This was causing irq conflict problems on systems without a legacy-pic
-> so a recent patch added an if (nr_legacy_irqs()) guard to the
-> workaround to avoid this irq conflict.
-> 
-> nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
-> an undefined symbol error if the rtc-cmos code is build as a module.
-> 
+Thanks for reviewing, Eric.
 
-This is kind of a pressing issue as this makes linux-next fail to build
-for certain configurations.
+> May be interesting to go further converting as well the vfio-platform
+> driver but this can be done later on.
 
-I can carry it in my tree with your ack or let you apply it for 4.12.
-What would you prefer?
+Looked a bit for vfio-platform driver and I'm not sure if need some
+converting within function vfio_platform_probe_common(). So I'd like
+to leave this to who really understand the subsystem :)
 
-> This commit exports the legacy_pic symbol to fix this.
-> 
-> Cc: rtc-linux@googlegroups.com
-> Cc: alexandre.belloni@free-electrons.com
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL
-> ---
->  arch/x86/kernel/i8259.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
-> index be22f5a..0bcf43d 100644
-> --- a/arch/x86/kernel/i8259.c
-> +++ b/arch/x86/kernel/i8259.c
-> @@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
->  };
->  
->  struct legacy_pic *legacy_pic = &default_legacy_pic;
-> +EXPORT_SYMBOL_GPL(legacy_pic);
->  
->  static int __init i8259A_init_ops(void)
->  {
-> -- 
-> 2.9.3
-> 
+[...]
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thanks,
+Leo Yan
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
