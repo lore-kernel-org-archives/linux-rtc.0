@@ -1,19 +1,22 @@
-Return-Path: <rtc-linux+bncBAABB6MF6HDQKGQEXYTX4RI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDRZXY4CYYORBI5AUXDQKGQEEWARTZQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from m50-132.163.com (m50-132.163.com. [123.125.50.132])
-        by gmr-mx.google.com with ESMTP id c195si1471064pfc.0.2017.04.22.23.00.24
-        for <rtc-linux@googlegroups.com>;
-        Sat, 22 Apr 2017 23:00:25 -0700 (PDT)
-From: Pan Bian <bianpan2016@163.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	Pan Bian <bianpan2016@163.com>
-Subject: [rtc-linux] [PATCH 1/1] rtc: snvs: fix an incorrect check of return value
-Date: Sun, 23 Apr 2017 13:43:24 +0800
-Message-Id: <1492926204-9535-1-git-send-email-bianpan2016@163.com>
+Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
+        by gmr-mx.google.com with ESMTPS id t84si1240331ywa.1.2017.04.08.14.03.31
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 08 Apr 2017 14:03:31 -0700 (PDT)
+From: Hans de Goede <hdegoede@redhat.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	"H . Peter Anvin" <hpa@zytor.com>
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	x86@kernel.org,
+	rtc-linux@googlegroups.com,
+	alexandre.belloni@free-electrons.com
+Subject: [rtc-linux] [PATCH v2] x86: i8259: export legacy_pic symbol
+Date: Sat,  8 Apr 2017 23:03:27 +0200
+Message-Id: <20170408210327.2713-1-hdegoede@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -24,31 +27,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Function devm_regmap_init_mmio() returns an ERR_PTR on error. However,
-in function snvs_rtc_probe() its return value is checked against NULL.
-This patch fixes it by checking the return value with IS_ERR().
+The classic PC rtc-coms driver has a workaround for broken ACPI device
+nodes for it which lack an irq resource. This workaround used to
+unconditionally hardcode the irq to 8 in these cases.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
+This was causing irq conflict problems on systems without a legacy-pic
+so a recent patch added an if (nr_legacy_irqs()) guard to the
+workaround to avoid this irq conflict.
+
+nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
+an undefined symbol error if the rtc-cmos code is build as a module.
+
+This commit exports the legacy_pic symbol to fix this.
+
+Cc: rtc-linux@googlegroups.com
+Cc: alexandre.belloni@free-electrons.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/rtc/rtc-snvs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes in v2:
+-Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL
+---
+ arch/x86/kernel/i8259.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index d51b07d..d8ef9e0 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -258,7 +258,7 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 		of_property_read_u32(pdev->dev.of_node, "offset", &data->offset);
- 	}
+diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
+index be22f5a..0bcf43d 100644
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
+ };
  
--	if (!data->regmap) {
-+	if (IS_ERR(data->regmap)) {
- 		dev_err(&pdev->dev, "Can't find snvs syscon\n");
- 		return -ENODEV;
- 	}
+ struct legacy_pic *legacy_pic = &default_legacy_pic;
++EXPORT_SYMBOL_GPL(legacy_pic);
+ 
+ static int __init i8259A_init_ops(void)
+ {
 -- 
-1.9.1
-
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
