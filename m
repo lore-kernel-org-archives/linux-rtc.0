@@ -1,19 +1,20 @@
-Return-Path: <rtc-linux+bncBAABBI5F53DQKGQE7K7PYHQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBM7MUPDQKGQE5QC3SKI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from know-smtprelay-omc-8.server.virginmedia.net (know-smtprelay-omc-8.server.virginmedia.net. [80.0.253.72])
-        by gmr-mx.google.com with ESMTPS id f194si266825wmg.0.2017.04.22.10.28.02
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sat, 22 Apr 2017 10:28:02 -0700 (PDT)
-Date: Sat, 22 Apr 2017 18:28:00 +0100
-From: David Lowe <dave-lowe@ntlworld.com>
-To: rtc-linux <rtc-linux@googlegroups.com>, Alexandre Belloni
- <alexandre.belloni@free-electrons.com>
-Subject: [rtc-linux] [Patch] rtc: rtc-ds1307: enable support for mcp794xx as a
- wakeup source without IRQ
-Message-ID: <20170422182800.460265ba@pixelzero>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id x188si458055wmx.0.2017.04.08.07.39.47
+        for <rtc-linux@googlegroups.com>;
+        Sat, 08 Apr 2017 07:39:47 -0700 (PDT)
+Date: Sat, 8 Apr 2017 16:39:47 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
+Subject: [rtc-linux] Re: [PATCH] rtc: cpcap: fix improper use of IRQ_NONE for request_threaded_irq
+Message-ID: <20170408143947.rlns2ggpq4m6cfao@piout.net>
+References: <20170327033423.4536-1-tony@atomide.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170327033423.4536-1-tony@atomide.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,26 +24,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch extends the fixes for ds1337, ds1339, ds3231 in 8bc2a40730ec
-to mcp794xx devices, so that those parts can similarly be used as a wakeup
-source without an IRQ to the processor.
+On 26/03/2017 at 20:34:23 -0700, Tony Lindgren wrote:
+> There's a funny typo where IRQ_NONE is used instead of IRQF_TRIGGER_NONE
+> for request_threaded_irq(). Let's fix it before it gets copied elsewhere.
+> 
+> Fixes: dd3bf50b35e3 ("rtc: cpcap: new rtc driver")
+> Cc: Sebastian Reichel <sre@kernel.org>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> ---
+>  drivers/rtc/rtc-cpcap.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
+Applied, thanks.
 
-Tested on Raspberry Pi ZeroW with MCP79400.
-
-Signed-off-by: David Lowe <dave-lowe@ntlworld.com>
----
---- a/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:38.158076224 +0100
-+++ b/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:52.248431799 +0100
-@@ -1487,7 +1487,8 @@ static int ds1307_probe(struct i2c_clien
- 		break;
- 	case mcp794xx:
- 		rtc_ops = &mcp794xx_rtc_ops;
--		if (ds1307->client->irq > 0 && chip->alarm) {
-+		if (chip->alarm && (ds1307->client->irq > 0 ||
-+						ds1307_can_wakeup_device)) {
- 			irq_handler = mcp794xx_irq;
- 			want_irq = true;
- 		}
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
