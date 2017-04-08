@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB7P45XDQKGQEZRIBOXQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIH7UPDQKGQEXKUFTDA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f136si18213wme.1.2017.04.22.09.02.05
+        by gmr-mx.google.com with ESMTP id p14si218532wmi.2.2017.04.08.08.20.00
         for <rtc-linux@googlegroups.com>;
-        Sat, 22 Apr 2017 09:02:05 -0700 (PDT)
-Date: Sat, 22 Apr 2017 18:02:05 +0200
+        Sat, 08 Apr 2017 08:20:00 -0700 (PDT)
+Date: Sat, 8 Apr 2017 17:19:59 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Chris Brandt <chris.brandt@renesas.com>, rtc-linux@googlegroups.com,
+To: Stefan Agner <stefan@agner.ch>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: sh: mark PM functions as unused
-Message-ID: <20170422160205.cwswr7sfjbr4ecl7@piout.net>
-References: <20170419175346.37122-1-arnd@arndb.de>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: support m41t0 variant
+Message-ID: <20170408151959.27oh2xhrnvoabb5d@piout.net>
+References: <20170323235457.13223-1-stefan@agner.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170419175346.37122-1-arnd@arndb.de>
+In-Reply-To: <20170323235457.13223-1-stefan@agner.ch>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,22 +24,24 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/04/2017 at 19:52:43 +0200, Arnd Bergmann wrote:
-> The sh_rtc_set_irq_wake() function is only called from the suspend/resume handlers
-> that may be hidden, causing a harmless warning:
+On 23/03/2017 at 16:54:57 -0700, Stefan Agner wrote:
+> The m41t0 variant is very similar to the already supported m41t00
+> variant, with the notable exception of the oscillator fail bit.
+> The data sheet notes:
 > 
-> drivers/rtc/rtc-sh.c:724:13: error: 'sh_rtc_set_irq_wake' defined but not used [-Werror=unused-function]
->  static void sh_rtc_set_irq_wake(struct device *dev, int enabled)
+>   If the oscillator fail (OF) bit is internally set to a '1,' this
+>   indicates that the oscillator has either stopped, or was stopped
+>   for some period of time and can be used to judge the validity of
+>   the clock and date data.
 > 
-> The most reliable way to avoid the warning is to remove the existing #ifdef
-> and mark the two functions as __maybe_unused so the compiler can silently
-> drop all three when there is no reference.
+> The bit will get cleared with a regular write of the system time,
+> so no changes are needed to clear it.
 > 
-> Fixes: dab5aec64bf5 ("rtc: sh: add support for rza series")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
 > ---
->  drivers/rtc/rtc-sh.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+>  Documentation/devicetree/bindings/i2c/trivial-devices.txt |  1 +
+>  drivers/rtc/rtc-ds1307.c                                  | 13 +++++++++++++
+>  2 files changed, 14 insertions(+)
 > 
 Applied, thanks.
 
