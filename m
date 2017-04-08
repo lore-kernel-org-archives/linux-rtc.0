@@ -1,35 +1,21 @@
-Return-Path: <rtc-linux+bncBDS45Q5OSEIRBTHF73DQKGQEQVJDWRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB4XKUPDQKGQEE5BPNEQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-f177.google.com (mail-pf0-f177.google.com. [209.85.192.177])
-        by gmr-mx.google.com with ESMTPS id m13si2268668itb.2.2017.04.25.13.34.20
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Apr 2017 13:34:20 -0700 (PDT)
-Received: by mail-pf0-f177.google.com with SMTP id v14so28119742pfd.2
-        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 13:34:20 -0700 (PDT)
-Date: Tue, 25 Apr 2017 13:34:18 -0700
-From: Moritz Fischer <mdf@kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Moritz Fischer <mdf@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Moritz Fischer <moritz.fischer@ettus.com>,
-	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
-	rtc-linux@googlegroups.com, alex.williams@ni.com
-Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
-Message-ID: <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
- <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
- <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
- <20170425161743.GA8443@roeck-us.net>
- <20170425163204.rj6on6phtbfuvcd7@piout.net>
- <20170425165824.GA10024@roeck-us.net>
- <CAJYdmePpHcYgjiCf=eWCkBBNBTTw4jW59_VNR6w44Yj_QDQqng@mail.gmail.com>
- <20170425202210.GA20929@roeck-us.net>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p144si245283wme.2.2017.04.08.07.36.34
+        for <rtc-linux@googlegroups.com>;
+        Sat, 08 Apr 2017 07:36:34 -0700 (PDT)
+Date: Sat, 8 Apr 2017 16:36:33 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, the.dr.hax@gmail.com,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH] rtc: cmos: Do not assume irq 8 for rtc when
+ there are no legacy irqs
+Message-ID: <20170408143633.jowhj5o6fahbbhwb@piout.net>
+References: <20170318134549.28052-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-In-Reply-To: <20170425202210.GA20929@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170318134549.28052-1-hdegoede@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -39,51 +25,35 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
-On Tue, Apr 25, 2017 at 01:22:10PM -0700, Guenter Roeck wrote:
-> On Tue, Apr 25, 2017 at 12:58:36PM -0700, Moritz Fischer wrote:
-> > On Tue, Apr 25, 2017 at 09:58:24AM -0700, Guenter Roeck wrote:
-> > 
-> > > Ah, I missed the "n" in various #ifndef statements.
-> > >
-> > > I can't really comment on how to solve that; I simply don't know.
-> > > Also, even with a dt property, it still would be necessary to have
-> > > a non-DT means to configure one or the other. Making whatever solution
-> > > backward compatible also seems tricky; I don't have a solution for that
-> > > problem either.
-> > 
-> > How does one do these things in a non-dt context? Platform data? I'd let
+On 18/03/2017 at 14:45:49 +0100, Hans de Goede wrote:
+> On some systems (e.g. Intel Bay Trail systems) the legacy PIC is not
+> used, in this case virq 8 will be a random irq, rather then hw_irq 8
+> from the PIC.
 > 
-> Platform data is out of favor. You'd probably want to use device properties
-> (see drivers/base/property.c). Question though is if this is considered
-> configuration, hardware description, or both. Presumably the watchdog
-> only makes sense if the reset signal is wired, and the alarm only makes
-> sense if the interrupt is wired, but what if both are wired ?
-
-To make things worse you can even remap the reset output to the INT pin
-(which my platform does).
-
-I'll look at device properties. Thanks for the pointer.
-
+> Requesting virq 8 in this case will not help us to get alarm irqs and
+> may cause problems for other drivers which actually do need virq 8,
+> for example on an Asus Transformer T100TA this leads to:
 > 
-> > the MFD select the 'mode'. Maybe being backwards compatible isn't
-> > possible in any case. Is there a rule somewhere that we guarantee you'll
-> > never have to change your CONFIG_FOO options?
-> > 
+> [ 28.745155] genirq: Flags mismatch irq 8. 00000088 (mmc0) vs. 00000080 (rtc0)
+> <snip oops>
+> [ 28.753700] mmc0: Failed to request IRQ 8: -16
+> [ 28.975934] sdhci-acpi: probe of 80860F14:01 failed with error -16
 > 
-> That would be nice, but no, there is no such rule. You can probably argue
-> that no published kernel configuration enables the watchdog flag,
-> so there is nothing to be concerned about.
+> This commit fixes this by making the rtc-cmos driver continue
+> without using an irq rather then claiming irq 8 when no irq is
+> specified in the pnp-info and there are no legacy-irqs.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/rtc/rtc-cmos.c | 17 +++++++++++++----
+>  1 file changed, 13 insertions(+), 4 deletions(-)
+> 
+Applied, thanks.
 
-Alright, cool. Thanks
-
-Moritz
-
-PS: Haven't forgotten about the cros-ec-hwmon patch that I sent out ...
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -94,19 +64,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJY/7LIAAoJEL5CEHepFqovVpoH/1FwUNaM2zIcIphrC0jGHymw
-oM/daop21kfI7h0MDjgzGE4PJVyA0Xe4gFr+rVeO858Xvk9k3ZFR2cWYia3NhkWm
-xM0uo5mgFV1qNsd2fqg7j91319b6YKy0RBHSn/sFC91LEgu8/ssG/RucphUcL4pz
-Kmcfe8bbhmQ/xagp0VzwWyUu2ZRxo479zvy5uSyo7DI39PoCz/xuPgEAJROU8sqU
-0oCDZkwT/zjKL0G7ZZFQ/hQg5QEs+3N1Rx68azGqS50sNteX6NxvZRJdowMu0tFX
-HWdaAuI8tBqMAiPwRBgO5ZXL8Rs4IbrqtvipsAqXbYdyVyhm6SGsc1hECTg0h6U=
-=dZxG
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
