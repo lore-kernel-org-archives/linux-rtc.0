@@ -1,20 +1,19 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDWU7TDQKGQEUNI7KFQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDIZTUWNWICRBR6MW7DQKGQENUDNOJI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 198si287154wmi.3.2017.04.25.03.50.54
-        for <rtc-linux@googlegroups.com>;
-        Tue, 25 Apr 2017 03:50:54 -0700 (PDT)
-Date: Tue, 25 Apr 2017 12:50:53 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: hid-sensor-time: remove some dead code
-Message-ID: <20170425105053.3f23toe4sjocu4ni@piout.net>
-References: <20170412083253.GB3250@mwanda>
+Received: from aserp1040.oracle.com (aserp1040.oracle.com. [141.146.126.69])
+        by gmr-mx.google.com with ESMTPS id y2si594908itc.0.2017.04.12.01.33.11
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 12 Apr 2017 01:33:11 -0700 (PDT)
+Date: Wed, 12 Apr 2017 11:32:53 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        rtc-linux@googlegroups.com, kernel-janitors@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: hid-sensor-time: remove some dead code
+Message-ID: <20170412083253.GB3250@mwanda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170412083253.GB3250@mwanda>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,18 +23,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 12/04/2017 at 11:32:53 +0300, Dan Carpenter wrote:
-> devm_rtc_device_register() doesn't ever return NULL so there is no need
-> to check.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-Applied, thanks.
+devm_rtc_device_register() doesn't ever return NULL so there is no need
+to check.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
+index c398f74234c6..2751dba850c6 100644
+--- a/drivers/rtc/rtc-hid-sensor-time.c
++++ b/drivers/rtc/rtc-hid-sensor-time.c
+@@ -291,9 +291,9 @@ static int hid_time_probe(struct platform_device *pdev)
+ 					"hid-sensor-time", &hid_time_rtc_ops,
+ 					THIS_MODULE);
+ 
+-	if (IS_ERR_OR_NULL(time_state->rtc)) {
++	if (IS_ERR(time_state->rtc)) {
+ 		hid_device_io_stop(hsdev->hdev);
+-		ret = time_state->rtc ? PTR_ERR(time_state->rtc) : -ENODEV;
++		ret = PTR_ERR(time_state->rtc);
+ 		time_state->rtc = NULL;
+ 		dev_err(&pdev->dev, "rtc device register failed!\n");
+ 		goto err_rtc;
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
