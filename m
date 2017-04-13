@@ -1,21 +1,20 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBWGE23DQKGQENXQB55Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIG2X7DQKGQEWOTCLZQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from lelnx193.ext.ti.com (lelnx193.ext.ti.com. [198.47.27.77])
-        by gmr-mx.google.com with ESMTPS id n22si834024itg.2.2017.04.17.22.21.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Mon, 17 Apr 2017 22:21:27 -0700 (PDT)
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>
-CC: <j-keerthy@ti.com>, <rtc-linux@googlegroups.com>,
-        <linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>,
-        Russ Dill
-	<Russ.Dill@ti.com>
-Subject: [rtc-linux] [PATCH] RTC: Add functionality to read/write rtc scratch registers
-Date: Tue, 18 Apr 2017 10:50:07 +0530
-Message-ID: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id p10si1221229wmg.1.2017.04.13.14.26.55
+        for <rtc-linux@googlegroups.com>;
+        Thu, 13 Apr 2017 14:26:55 -0700 (PDT)
+Date: Thu, 13 Apr 2017 23:26:45 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2] x86: i8259: export legacy_pic symbol
+Message-ID: <20170413212645.ctkfqo6mkbmbosgo@piout.net>
+References: <20170408210327.2713-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170408210327.2713-1-hdegoede@redhat.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,164 +24,59 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Russ Dill <Russ.Dill@ti.com>
+Hi,
 
-Many RTCs provide scratch registers that are maintained so long as the RTC
-has power. Provide a generic method to access these registers.
+On 08/04/2017 at 23:03:27 +0200, Hans de Goede wrote:
+> The classic PC rtc-coms driver has a workaround for broken ACPI device
+> nodes for it which lack an irq resource. This workaround used to
+> unconditionally hardcode the irq to 8 in these cases.
+> 
+> This was causing irq conflict problems on systems without a legacy-pic
+> so a recent patch added an if (nr_legacy_irqs()) guard to the
+> workaround to avoid this irq conflict.
+> 
+> nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
+> an undefined symbol error if the rtc-cmos code is build as a module.
+> 
 
-Signed-off-by: Russ Dill <Russ.Dill@ti.com>
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- drivers/rtc/interface.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/rtc/rtc-omap.c  | 35 ++++++++++++++++++++++++++++++++++
- include/linux/rtc.h     |  7 +++++++
- 3 files changed, 92 insertions(+)
+This is kind of a pressing issue as this makes linux-next fail to build
+for certain configurations.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index fc0fa75..facde06 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -1016,3 +1016,53 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
- 	mutex_unlock(&rtc->ops_lock);
- 	return ret;
- }
-+
-+/* rtc_read_scratch - Read from RTC scratch register
-+ * @ rtc: rtc device to be used
-+ * @ index: index of scratch register
-+ * @ value: returned value read
-+ *
-+ * Kernel interface read from an RTC scratch register
-+ */
-+int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value)
-+{
-+	int err;
-+
-+	mutex_lock(&rtc->ops_lock);
-+	if (!rtc->ops)
-+		err = -ENODEV;
-+	else if (index >= rtc->ops->scratch_size || !rtc->ops->read_scratch)
-+		err = -EINVAL;
-+	else
-+		err = rtc->ops->read_scratch(rtc->dev.parent, index, value);
-+	mutex_unlock(&rtc->ops_lock);
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(rtc_read_scratch);
-+
-+/* rtc_write_scratch - Write to RTC scratch register
-+ * @ rtc: rtc device to be used
-+ * @ index: index of scratch register
-+ * @ value: value to write
-+ *
-+ * Kernel interface write to an RTC scratch register
-+ */
-+int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value)
-+{
-+	int err;
-+
-+	mutex_lock(&rtc->ops_lock);
-+
-+	if (!rtc->ops)
-+		err = -ENODEV;
-+	else if (index >= rtc->ops->scratch_size ||
-+		 !rtc->ops->write_scratch)
-+		err = -EINVAL;
-+	else
-+		err = rtc->ops->write_scratch(rtc->dev.parent, index, value);
-+
-+	mutex_unlock(&rtc->ops_lock);
-+
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(rtc_write_scratch);
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 13f7cd1..c90d93e 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -70,6 +70,10 @@
- #define OMAP_RTC_COMP_MSB_REG		0x50
- #define OMAP_RTC_OSC_REG		0x54
- 
-+#define OMAP_RTC_SCRATCH0_REG		0x60
-+#define OMAP_RTC_SCRATCH1_REG		0x64
-+#define OMAP_RTC_SCRATCH2_REG		0x68
-+
- #define OMAP_RTC_KICK0_REG		0x6c
- #define OMAP_RTC_KICK1_REG		0x70
- 
-@@ -414,6 +418,34 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 
- static struct omap_rtc *omap_rtc_power_off_rtc;
- 
-+static const u32 omap_rtc_scratch_regs[] = {
-+	OMAP_RTC_SCRATCH0_REG,
-+	OMAP_RTC_SCRATCH1_REG,
-+	OMAP_RTC_SCRATCH2_REG,
-+};
-+
-+static int omap_rtc_read_scratch(struct device *dev, unsigned int index,
-+				 u32 *value)
-+{
-+	*value = readl(omap_rtc_power_off_rtc->base +
-+		       omap_rtc_scratch_regs[index]);
-+
-+	return 0;
-+}
-+
-+static int omap_rtc_write_scratch(struct device *dev, unsigned int index,
-+				  u32 value)
-+{
-+	struct omap_rtc *rtc = dev_get_drvdata(dev);
-+
-+	rtc->type->unlock(rtc);
-+	writel(value, omap_rtc_power_off_rtc->base +
-+	       omap_rtc_scratch_regs[index]);
-+	rtc->type->lock(rtc);
-+
-+	return 0;
-+}
-+
- /*
-  * omap_rtc_poweroff: RTC-controlled power off
-  *
-@@ -484,6 +516,9 @@ static void omap_rtc_power_off(void)
- 	.read_alarm	= omap_rtc_read_alarm,
- 	.set_alarm	= omap_rtc_set_alarm,
- 	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
-+	.read_scratch	= omap_rtc_read_scratch,
-+	.write_scratch	= omap_rtc_write_scratch,
-+	.scratch_size	= ARRAY_SIZE(omap_rtc_scratch_regs),
- };
- 
- static const struct omap_rtc_device_type omap_rtc_default_type = {
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index b693ada..da5e003 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -91,6 +91,10 @@ struct rtc_class_ops {
- 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
- 	int (*read_offset)(struct device *, long *offset);
- 	int (*set_offset)(struct device *, long offset);
-+	int (*read_scratch)(struct device *, unsigned int, u32*);
-+	int (*write_scratch)(struct device *, unsigned int, u32);
-+
-+	unsigned int scratch_size;
- };
- 
- #define RTC_DEVICE_NAME_SIZE 20
-@@ -214,6 +218,9 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- int rtc_set_offset(struct rtc_device *rtc, long offset);
- void rtc_timer_do_work(struct work_struct *work);
- 
-+int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value);
-+int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value);
-+
- static inline bool is_leap_year(unsigned int year)
- {
- 	return (!(year % 4) && (year % 100)) || !(year % 400);
+I can carry it in my tree with your ack or let you apply it for 4.12.
+What would you prefer?
+
+> This commit exports the legacy_pic symbol to fix this.
+> 
+> Cc: rtc-linux@googlegroups.com
+> Cc: alexandre.belloni@free-electrons.com
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v2:
+> -Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL
+> ---
+>  arch/x86/kernel/i8259.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
+> index be22f5a..0bcf43d 100644
+> --- a/arch/x86/kernel/i8259.c
+> +++ b/arch/x86/kernel/i8259.c
+> @@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
+>  };
+>  
+>  struct legacy_pic *legacy_pic = &default_legacy_pic;
+> +EXPORT_SYMBOL_GPL(legacy_pic);
+>  
+>  static int __init i8259A_init_ops(void)
+>  {
+> -- 
+> 2.9.3
+> 
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
