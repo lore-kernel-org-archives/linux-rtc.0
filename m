@@ -1,27 +1,22 @@
-Return-Path: <rtc-linux+bncBD3M5JPEVAFRBSHXTTDQKGQE3L3YRJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDAMN6NI5EERBG4JYLDQKGQEM6DVB7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM02-CY1-obe.outbound.protection.outlook.com (mail-cys01nam02on0047.outbound.protection.outlook.com. [104.47.37.47])
-        by gmr-mx.google.com with ESMTPS id f73si361811ita.1.2017.04.07.00.12.08
+Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
+        by gmr-mx.google.com with ESMTPS id w130si1313539wmf.0.2017.04.14.01.13.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 07 Apr 2017 00:12:08 -0700 (PDT)
-Subject: Re: [rtc-linux] RTC used as a module
-To: Michal Simek <michal.simek@xilinx.com>, John Stultz
-	<john.stultz@linaro.org>, <monstr@monstr.eu>
-References: <d55404da-fe29-675d-1f3b-008145a6c87b@monstr.eu>
- <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
- <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
- <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
- <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
- <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-From: Michal Simek <michal.simek@xilinx.com>
-Message-ID: <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
-Date: Fri, 7 Apr 2017 09:12:00 +0200
+        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
+        Fri, 14 Apr 2017 01:13:14 -0700 (PDT)
+Date: Fri, 14 Apr 2017 10:13:00 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Ingo Molnar <mingo@kernel.org>
+cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>,
+    x86@kernel.org, Hans de Goede <hdegoede@redhat.com>,
+    rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2] x86: i8259: export legacy_pic symbol
+In-Reply-To: <20170414080818.GB10105@gmail.com>
+Message-ID: <alpine.DEB.2.20.1704141012310.2327@nanos>
+References: <20170408210327.2713-1-hdegoede@redhat.com> <20170413212645.ctkfqo6mkbmbosgo@piout.net> <20170414080818.GB10105@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,202 +27,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 16.3.2017 16:35, Michal Simek wrote:
-> Hi John and Alexandre,
+On Fri, 14 Apr 2017, Ingo Molnar wrote:
+
 > 
-> On 6.3.2017 15:56, Michal Simek wrote:
->> On 3.3.2017 21:04, John Stultz wrote:
->>> On Fri, Mar 3, 2017 at 6:46 AM, Michal Simek <monstr@monstr.eu> wrote:
->>>> Hi Alexandre,
->>>>
->>>> On 3.3.2017 10:41, Michal Simek wrote:
->>>>> Hi Alexandre,
->>>>>
->>>>> On 23.2.2017 13:14, Alexandre Belloni wrote:
->>>>>> Hi Michal,
->>>>>>
->>>>>> I've been thinking about this issue (and meaning to actually test).
->>>>>>
->>>>>> On 08/12/2016 at 14:02:36 +0100, Michal Simek wrote:
->>>>>>> Hi guys,
->>>>>>>
->>>>>>> I am trying to find out reason for this behavior. If rtc-zynqmp is used
->>>>>>> as module for the first time it is correctly probed based on aliases
->>>>>>> setting. (rtc5 for log below). But then driver is removed and add again
->>>>>>> rtc5 is still not freed. rtc_device_release() is not called that's why
->>>>>>> rtc->id can't be used again.
->>>>>>>
->>>>>>> sh-4.3# modprobe rtc-zynqmp
->>>>>>> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>>>> ffa60000.rtc as rtc5
->>>>>>> sh-4.3# rmmod rtc-zynqmp
->>>>>>> sh-4.3# modprobe rtc-zynqmp
->>>>>>> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
->>>>>>> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>>>> ffa60000.rtc as rtc0
->>>>>>>
->>>>>>>
->>>>>>> I didn't try different rtc drivers but it looks like that someone keeps
->>>>>>> reference that's why release function is not called.
->>>>>>>
->>>>>>> Can someone check this with different RTC module?
->>>>>>
->>>>>> I'll do that soon.
->>>>>
->>>>> Have you tried it?
->>>>>
->>>>>>
->>>>>>> Or is this expected behavior?
->>>>>>>
->>>>>>
->>>>>> I don't think so :)
->>>>>>
->>>>>> Can you clarify a few things:
->>>>>>  - is this the only rtc with a driver on your system ?
->>>>>
->>>>> yes only one.
->>>>>
->>>>>>  - is it selected as the RTC_SYSTOHC_DEVICE or RTC_HCTOSYS_DEVICE. I've
->>>>>>    checked the code and I don't think this is the issue but it is worth
->>>>>> testing.
->>>>>
->>>>> This is the setting.
->>>>>
->>>>> CONFIG_RTC_HCTOSYS=y
->>>>> CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
->>>>> CONFIG_RTC_SYSTOHC=y
->>>>> CONFIG_RTC_SYSTOHC_DEVICE="rtc0"
->>>>>
->>>>> What I see is that rtc_device_release is not called which is that
->>>>> function which contain ida_simple_remove.
->>>>>
->>>>> I have alias for rtc0 (rtc0 = &rtc;)
->>>>> And here is a log with debug. As you see when driver is removed for the
->>>>> first time rtc_device_release is not called. When this is done for the
->>>>> second time rtc_device_release is called properly and the same device
->>>>> allocated via ida is used.
->>>>>
->>>>> root@linaro-alip:~# dmesg | grep rtc
->>>>> [    3.372715] [drm] Cannot find any crtc or sizes - going 1024x768
->>>>> [    3.422099] hctosys: unable to open rtc device (rtc0)
->>>>> [    6.578930] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>> ffa60000.rtc as rtc0
->>>>> root@linaro-alip:~#
->>>>> root@linaro-alip:~# lsmod
->>>>> Module                  Size  Used by
->>>>> rtc_zynqmp             16384  0
->>>>> uio_pdrv_genirq        16384  0
->>>>> root@linaro-alip:~# rmmod rtc_zynqmp
->>>>> [   26.805172] rtc_core: devm_rtc_device_unregister
->>>>> [   26.809794] rtc_core: devm_rtc_device_release
->>>>> [   26.814129] rtc_core: rtc_device_unregister
->>>>> root@linaro-alip:~# modprobe rtc_zynqmp
->>>>> [   35.879655] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->>>>> [   35.886002] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>> ffa60000.rtc as rtc1
->>>>> root@linaro-alip:~# rmmod rtc_zynqmp
->>>>> [  122.140487] rtc_core: devm_rtc_device_unregister
->>>>> [  122.145110] rtc_core: devm_rtc_device_release
->>>>> [  122.149443] rtc_core: rtc_device_unregister
->>>>> [  122.153770] rtc_core: rtc_device_release
->>>>> root@linaro-alip:~# modprobe rtc_zynqmp
->>>>> [  123.646002] rtc_zynqmp ffa60000.rtc: /aliases ID 0 not available
->>>>> [  123.652249] rtc_zynqmp ffa60000.rtc: rtc core: registered
->>>>> ffa60000.rtc as rtc1
->>>>> root@linaro-alip:~# rmmod rtc_zynqmp
->>>>> [  125.876188] rtc_core: devm_rtc_device_release
->>>>> [  125.880554] rtc_core: rtc_device_unregister
->>>>> [  125.885163] rtc_core: rtc_device_release
->>>>> root@linaro-alip:~#
->>>>>
->>>>> I have also done experiment to setup rtc alias to rtc1 and this ID is
->>>>> used only once. It looks like something is not released properly.
->>>>>
->>>>> This is out of tree driver but I can't see any specific code which could
->>>>> improve behavior.
->>>>> I have tested i2c rtc mcp79410 and there is not a visible problem but it
->>>>> is not MMIO.
->>>>
->>>> This is the function which is making the difference.
->>>>
->>>> It was added by John Stultz:
->>>> "timers: Introduce in-kernel alarm-timer interface"
->>>> (sha1:  ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
->>>>
->>>> Probe function has device_init_wakeup(&pdev->dev, 1);
->>>> That's why reference is taken (get_device() below)
->>>>
->>>> static int alarmtimer_rtc_add_device(struct device *dev,
->>>>                                 struct class_interface *class_intf)
->>>> {
->>>>         unsigned long flags;
->>>>         struct rtc_device *rtc = to_rtc_device(dev);
->>>>
->>>>         if (rtcdev)
->>>>                 return -EBUSY;
->>>>
->>>>         pr_info("%s\n", __func__);
->>>>
->>>>         if (!rtc->ops->set_alarm)
->>>>                 return -1;
->>>>
->>>>         pr_info("%s\n", __func__);
->>>>
->>>>         if (!device_may_wakeup(rtc->dev.parent))
->>>>                 return -1;
->>>>
->>>>         spin_lock_irqsave(&rtcdev_lock, flags);
->>>>         if (!rtcdev) {
->>>>                 rtcdev = rtc;
->>>>                 /* hold a reference so it doesn't go away */
->>>>                 get_device(dev);
->>>>         }
->>>>         spin_unlock_irqrestore(&rtcdev_lock, flags);
->>>>         return 0;
->>>> }
->>>>
->>>> And in remove function device_init_wakeup(&pdev->dev, 0);
->>>> But because there is still a reference rtc_device_release() is not
->>>> called and ida is not freed.
->>>>
->>>> Generic question which I think should be asked if in this situation
->>>> driver should be modular or not.
->>>> If driver can be modular then somewhere should be put_device().
->>>
->>> So off the top of my head (sorry, packing for a trip at the moment), I
->>> think this was because the alarmtimer subsystem needs to hold onto the
->>> rtcdev so it doesn't disappear under it, as it will be needed when
->>> setting any alarmtimers on suspend.
->>>
->>> Part of the issue is the alarmtimer interface will provide an error to
->>> userspace if there's no rtcdev, so we don't want a situation where
->>> timers successfully set then silently never fire because the rtc was
->>> removed.
->>
->> right I fully understand that.
->>
->>>
->>> That said, there may very well be bugs in how it was handled, and I've
->>> not looked closely at it recently.
->>
->> On the other hand you can have multiple alarms in the system and you can
->> remove them at run time. It means I would expect that you can remove rtc
->> if alarm is not set. When you run application driver is in use and you
->> can't do it.
->>
->> Anyway by saying this I expect every driver which setup
->> device_init_wakeup(..,1); and device_init_wakeup(..,0) in remove has the
->> same issue.
->> Solution is definitely not making rtc as a module which is in my case
->> rtc-zynqmp an option but not the best one.
+> * Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 > 
-> I think it is good time to continue on this.
+> > Hi,
+> > 
+> > On 08/04/2017 at 23:03:27 +0200, Hans de Goede wrote:
+> > > The classic PC rtc-coms driver has a workaround for broken ACPI device
+> > > nodes for it which lack an irq resource. This workaround used to
+> > > unconditionally hardcode the irq to 8 in these cases.
+> > > 
+> > > This was causing irq conflict problems on systems without a legacy-pic
+> > > so a recent patch added an if (nr_legacy_irqs()) guard to the
+> > > workaround to avoid this irq conflict.
+> > > 
+> > > nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
+> > > an undefined symbol error if the rtc-cmos code is build as a module.
+> > > 
+> > 
+> > This is kind of a pressing issue as this makes linux-next fail to build
+> > for certain configurations.
+> > 
+> > I can carry it in my tree with your ack or let you apply it for 4.12.
+> > What would you prefer?
+> 
+> Unless Thomas objects it looks good to me and feel free to carry it in your tree:
+> 
+> Acked-by: Ingo Molnar <mingo@kernel.org>
 
-Any update on this one?
-
-M
-
-
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
