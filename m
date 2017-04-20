@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBAABBD6F6LDQKGQEG4FEVKI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBFO64PDQKGQEAT62VHA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id a3si1329224pfb.2.2017.04.20.10.25.41
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Apr 2017 10:25:41 -0700 (PDT)
+Date: Thu, 20 Apr 2017 10:25:39 -0700
+From: Moritz Fischer <mdf@kernel.org>
+To: Rob Herring <robh@kernel.org>
+Cc: Moritz Fischer <mdf@kernel.org>, rtc-linux@googlegroups.com,
+	devicetree@vger.kernel.org, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, mark.rutland@arm.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1374: Add trickle charger device tree binding
+Message-ID: <20170420172538.GA13892@tyrael.amer.corp.natinst.com>
+References: <1492468810-17224-1-git-send-email-mdf@kernel.org>
+ <20170420155634.gs7qkufw7j4mfqpx@rob-hp-laptop>
 MIME-Version: 1.0
-Received: from m50-132.163.com (m50-132.163.com. [123.125.50.132])
-        by gmr-mx.google.com with ESMTP id w197si2616301pfd.3.2017.04.23.05.48.14
-        for <rtc-linux@googlegroups.com>;
-        Sun, 23 Apr 2017 05:48:15 -0700 (PDT)
-From: Pan Bian <bianpan201602@163.com>
-To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Pan Bian <bianpan2016@163.com>
-Subject: [rtc-linux] [PATCH 1/1] rtc: gemini: add return value validation
-Date: Sun, 23 Apr 2017 20:48:07 +0800
-Message-Id: <1492951687-16777-1-git-send-email-bianpan201602@163.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+In-Reply-To: <20170420155634.gs7qkufw7j4mfqpx@rob-hp-laptop>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,35 +28,66 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Pan Bian <bianpan2016@163.com>
 
-Function devm_ioremap() will return a NULL pointer if it fails to remap
-IO address, and its return value should be validated before it is used.
-However, in function gemini_rtc_probe(), its return value is not
-checked. This may result in bad memory access bugs on future access,
-e.g. calling the function gemini_rtc_read_time().
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
----
- drivers/rtc/rtc-gemini.c | 2 ++
- 1 file changed, 2 insertions(+)
+On Thu, Apr 20, 2017 at 10:56:34AM -0500, Rob Herring wrote:
+> On Mon, Apr 17, 2017 at 03:40:10PM -0700, Moritz Fischer wrote:
+> > Introduce a device tree binding for specifying the trickle charger
+> > configuration for ds1374. This is based on the code for ds13390.
+> > 
+> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> > ---
+> >  .../devicetree/bindings/rtc/dallas,ds1374.txt      | 18 ++++++++
+> >  drivers/rtc/rtc-ds1374.c                           | 54 ++++++++++++++++++++++
+> >  2 files changed, 72 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> > new file mode 100644
+> > index 0000000..4cf5bd7
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> > @@ -0,0 +1,18 @@
+> > +* Dallas DS1374		I2C Real-Time Clock / WDT
+> 
+> Please remove from trivial-devices.txt, too. (which is moving in 4.12 
+> BTW)
 
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-index ccf0dba..5279390 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-gemini.c
-@@ -139,6 +139,8 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->rtc_base = devm_ioremap(dev, res->start,
- 				     resource_size(res));
-+	if (!rtc->rtc_base)
-+		return -ENOMEM;
- 
- 	ret = devm_request_irq(dev, rtc->rtc_irq, gemini_rtc_interrupt,
- 			       IRQF_SHARED, pdev->name, dev);
--- 
-1.9.1
+Ok, I'll redo this on top of b7e252fcddfa573bb1ee275b53bba6cef85671d4
+(Documentation: devicetree: move trivial-devices out of I2C realm) then.
 
+> 
+> > +
+> > +Required properties:
+> > +- compatible: Should contain "dallas,ds1374".
+> > +- reg: I2C address for chip
+> > +
+> > +Optional properties:
+> > +- trickle-resistor-ohms : Selected resistor for trickle charger
+> > +	Values usable for ds1374 are 250, 2000, 4000
+> > +	Should be given if trickle charger should be enabled
+> > +- trickle-diode-disable : Do not use internal trickle charger diode
+> > +	Should be given if internal trickle charger diode should be disabled
+> 
+> These should have vendor prefix unless you think they are common.
+
+Well works at least for maxim, dallas & different models like
+ds1390, ds1374, so I figured I'd keep the bindings the same.
+
+> 
+> > +Example:
+> > +	ds1374: rtc@0 {
+> > +		compatible = "dallas,ds1374";
+> > +		trickle-resistor-ohms = <250>;
+> > +		reg = <0>;
+> > +	};
+
+Thanks,
+
+Moritz
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -65,3 +98,19 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJY+O8QAAoJEL5CEHepFqovni8H/1HsZv5pWBlbnW1xEio7f4ac
+0jb7u+fXvhn/dPVz46LD3JhJjEdSBaQRh9SKFJFiLUUxlPquXnn+OfpGjGIp4lX7
+P0iPAcN8Nkj078pEyokjs31Au9lGoMFJdhxqPr1mU8BgUyqV1yopT9FpL1e6amX3
+rJatOIFfXTCmc3O5dG4AZt/WE5C2yGPmD9eEQh3zof1iCDnw7Ol0TtRzylAQ2Flr
+fQtsDT/GIHWtGrqePxCSx61CuY698wGEUW4aKtQNfY7g/Ap4CUHItA8Zpxbj4Ji3
+o12o3tBLQ0iY6+4ZaRbl5+6NqypiwDCHNgfJQx/mejQy4ATCfkLmQZsvUcodV24=
+=lUWj
+-----END PGP SIGNATURE-----
+
+--h31gzZEtNLTqOjlF--
