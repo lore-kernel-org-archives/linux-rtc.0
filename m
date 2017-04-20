@@ -1,30 +1,24 @@
-Return-Path: <rtc-linux+bncBDVMPI6S7EDRBEU5QTDQKGQEEG7BNUI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBNFU4PDQKGQESKH3WRQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id h35si1519598ywk.0.2017.04.02.07.45.38
+Received: from mail-oi0-f67.google.com (mail-oi0-f67.google.com. [209.85.218.67])
+        by gmr-mx.google.com with ESMTPS id q9si2117716itc.1.2017.04.20.08.56.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 02 Apr 2017 07:45:38 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 4/5] vfio: platform: Convert to use devm_*()
-To: Leo Yan <leo.yan@linaro.org>, Russell King <linux@armlinux.org.uk>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Baptiste Reynal <b.reynal@virtualopensystems.com>,
- Alex Williamson <alex.williamson@redhat.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
- kvm@vger.kernel.org, alsa-devel@alsa-project.org
-References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
- <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
-From: Auger Eric <eric.auger@redhat.com>
-Message-ID: <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
-Date: Sun, 2 Apr 2017 16:45:28 +0200
+        Thu, 20 Apr 2017 08:56:36 -0700 (PDT)
+Received: by mail-oi0-f67.google.com with SMTP id y11so8807546oie.1
+        for <rtc-linux@googlegroups.com>; Thu, 20 Apr 2017 08:56:36 -0700 (PDT)
+Date: Thu, 20 Apr 2017 10:56:34 -0500
+From: Rob Herring <robh@kernel.org>
+To: Moritz Fischer <mdf@kernel.org>
+Cc: rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+	mark.rutland@arm.com
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1374: Add trickle charger device tree binding
+Message-ID: <20170420155634.gs7qkufw7j4mfqpx@rob-hp-laptop>
+References: <1492468810-17224-1-git-send-email-mdf@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1492468810-17224-1-git-send-email-mdf@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -34,99 +28,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Leo,
-
-On 26/03/2017 16:41, Leo Yan wrote:
-> Convert driver to use devm_*() APIs so rely on driver model core layer
-> to manage resources. This eliminates error path boilerplate and makes
-> code neat.
+On Mon, Apr 17, 2017 at 03:40:10PM -0700, Moritz Fischer wrote:
+> Introduce a device tree binding for specifying the trickle charger
+> configuration for ds1374. This is based on the code for ds13390.
 > 
-> This patch also renames amba_id structure, the old code used some code
-> which directly copied from other driver.
-> 
-> Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Looks good to me
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-
-May be interesting to go further converting as well the vfio-platform
-driver but this can be done later on.
-
-Thanks
-
-Eric
-
-
+> Signed-off-by: Moritz Fischer <mdf@kernel.org>
 > ---
->  drivers/vfio/platform/vfio_amba.c | 25 ++++++++-----------------
->  1 file changed, 8 insertions(+), 17 deletions(-)
+>  .../devicetree/bindings/rtc/dallas,ds1374.txt      | 18 ++++++++
+>  drivers/rtc/rtc-ds1374.c                           | 54 ++++++++++++++++++++++
+>  2 files changed, 72 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
 > 
-> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
-> index 31372fb..433db1f 100644
-> --- a/drivers/vfio/platform/vfio_amba.c
-> +++ b/drivers/vfio/platform/vfio_amba.c
-> @@ -53,15 +53,14 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
->  	struct vfio_platform_device *vdev;
->  	int ret;
->  
-> -	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
-> +	vdev = devm_kzalloc(&adev->dev, sizeof(*vdev), GFP_KERNEL);
->  	if (!vdev)
->  		return -ENOMEM;
->  
-> -	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
-> -	if (!vdev->name) {
-> -		kfree(vdev);
-> +	vdev->name = devm_kasprintf(&adev->dev, GFP_KERNEL,
-> +				    "vfio-amba-%08x", adev->periphid);
-> +	if (!vdev->name)
->  		return -ENOMEM;
-> -	}
->  
->  	vdev->opaque = (void *) adev;
->  	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
-> @@ -71,11 +70,6 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
->  	vdev->reset_required = false;
->  
->  	ret = vfio_platform_probe_common(vdev, &adev->dev);
-> -	if (ret) {
-> -		kfree(vdev->name);
-> -		kfree(vdev);
-> -	}
-> -
->  	return ret;
->  }
->  
-> @@ -84,25 +78,22 @@ static int vfio_amba_remove(struct amba_device *adev)
->  	struct vfio_platform_device *vdev;
->  
->  	vdev = vfio_platform_remove_common(&adev->dev);
-> -	if (vdev) {
-> -		kfree(vdev->name);
-> -		kfree(vdev);
-> +	if (vdev)
->  		return 0;
-> -	}
->  
->  	return -EINVAL;
->  }
->  
-> -static struct amba_id pl330_ids[] = {
-> +static struct amba_id vfio_ids[] = {
->  	{ 0, 0 },
->  };
->  
-> -MODULE_DEVICE_TABLE(amba, pl330_ids);
-> +MODULE_DEVICE_TABLE(amba, vfio_ids);
->  
->  static struct amba_driver vfio_amba_driver = {
->  	.probe = vfio_amba_probe,
->  	.remove = vfio_amba_remove,
-> -	.id_table = pl330_ids,
-> +	.id_table = vfio_ids,
->  	.drv = {
->  		.name = "vfio-amba",
->  		.owner = THIS_MODULE,
-> 
+> diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> new file mode 100644
+> index 0000000..4cf5bd7
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> @@ -0,0 +1,18 @@
+> +* Dallas DS1374		I2C Real-Time Clock / WDT
+
+Please remove from trivial-devices.txt, too. (which is moving in 4.12 
+BTW)
+
+> +
+> +Required properties:
+> +- compatible: Should contain "dallas,ds1374".
+> +- reg: I2C address for chip
+> +
+> +Optional properties:
+> +- trickle-resistor-ohms : Selected resistor for trickle charger
+> +	Values usable for ds1374 are 250, 2000, 4000
+> +	Should be given if trickle charger should be enabled
+> +- trickle-diode-disable : Do not use internal trickle charger diode
+> +	Should be given if internal trickle charger diode should be disabled
+
+These should have vendor prefix unless you think they are common.
+
+> +Example:
+> +	ds1374: rtc@0 {
+> +		compatible = "dallas,ds1374";
+> +		trickle-resistor-ohms = <250>;
+> +		reg = <0>;
+> +	};
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
