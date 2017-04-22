@@ -1,17 +1,17 @@
-Return-Path: <rtc-linux+bncBDIZTUWNWICRBR6MW7DQKGQENUDNOJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBI5F53DQKGQE7K7PYHQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from aserp1040.oracle.com (aserp1040.oracle.com. [141.146.126.69])
-        by gmr-mx.google.com with ESMTPS id y2si594908itc.0.2017.04.12.01.33.11
+Received: from know-smtprelay-omc-8.server.virginmedia.net (know-smtprelay-omc-8.server.virginmedia.net. [80.0.253.72])
+        by gmr-mx.google.com with ESMTPS id f194si266825wmg.0.2017.04.22.10.28.02
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Apr 2017 01:33:11 -0700 (PDT)
-Date: Wed, 12 Apr 2017 11:32:53 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        rtc-linux@googlegroups.com, kernel-janitors@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: hid-sensor-time: remove some dead code
-Message-ID: <20170412083253.GB3250@mwanda>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Sat, 22 Apr 2017 10:28:02 -0700 (PDT)
+Date: Sat, 22 Apr 2017 18:28:00 +0100
+From: David Lowe <dave-lowe@ntlworld.com>
+To: rtc-linux <rtc-linux@googlegroups.com>, Alexandre Belloni
+ <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [Patch] rtc: rtc-ds1307: enable support for mcp794xx as a
+ wakeup source without IRQ
+Message-ID: <20170422182800.460265ba@pixelzero>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Reply-To: rtc-linux@googlegroups.com
@@ -23,27 +23,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-devm_rtc_device_register() doesn't ever return NULL so there is no need
-to check.
+This patch extends the fixes for ds1337, ds1339, ds3231 in 8bc2a40730ec
+to mcp794xx devices, so that those parts can similarly be used as a wakeup
+source without an IRQ to the processor.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested on Raspberry Pi ZeroW with MCP79400.
 
-diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
-index c398f74234c6..2751dba850c6 100644
---- a/drivers/rtc/rtc-hid-sensor-time.c
-+++ b/drivers/rtc/rtc-hid-sensor-time.c
-@@ -291,9 +291,9 @@ static int hid_time_probe(struct platform_device *pdev)
- 					"hid-sensor-time", &hid_time_rtc_ops,
- 					THIS_MODULE);
- 
--	if (IS_ERR_OR_NULL(time_state->rtc)) {
-+	if (IS_ERR(time_state->rtc)) {
- 		hid_device_io_stop(hsdev->hdev);
--		ret = time_state->rtc ? PTR_ERR(time_state->rtc) : -ENODEV;
-+		ret = PTR_ERR(time_state->rtc);
- 		time_state->rtc = NULL;
- 		dev_err(&pdev->dev, "rtc device register failed!\n");
- 		goto err_rtc;
+Signed-off-by: David Lowe <dave-lowe@ntlworld.com>
+---
+--- a/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:38.158076224 +0100
++++ b/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:52.248431799 +0100
+@@ -1487,7 +1487,8 @@ static int ds1307_probe(struct i2c_clien
+ 		break;
+ 	case mcp794xx:
+ 		rtc_ops = &mcp794xx_rtc_ops;
+-		if (ds1307->client->irq > 0 && chip->alarm) {
++		if (chip->alarm && (ds1307->client->irq > 0 ||
++						ds1307_can_wakeup_device)) {
+ 			irq_handler = mcp794xx_irq;
+ 			want_irq = true;
+ 		}
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
