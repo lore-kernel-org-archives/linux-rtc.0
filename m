@@ -1,27 +1,34 @@
-Return-Path: <rtc-linux+bncBCL5RYHM6ECRBB6C7XDQKGQENRW7NOY@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBVFR53DQKGQEHD5LXYA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x233.google.com (mail-wr0-x233.google.com. [2a00:1450:400c:c0c::233])
-        by gmr-mx.google.com with ESMTPS id b84si1201422wmh.2.2017.04.25.07.45.27
+Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
+        by gmr-mx.google.com with ESMTPS id 65si2309004pff.4.2017.04.22.10.54.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Apr 2017 07:45:27 -0700 (PDT)
-Received: by mail-wr0-x233.google.com with SMTP id l50so36385243wrc.3
-        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 07:45:27 -0700 (PDT)
-From: Gary Bisson <gary.bisson@boundarydevices.com>
-To: rtc-linux@googlegroups.com
-Cc: linux-kernel@vger.kernel.org,
-	alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	Gary Bisson <gary.bisson@boundarydevices.com>
-Subject: [rtc-linux] [PATCH 2/4] rtc: m41t80: fix SQW dividers override when
- setting a date
-Date: Tue, 25 Apr 2017 16:45:15 +0200
-Message-Id: <20170425144517.15962-3-gary.bisson@boundarydevices.com>
-In-Reply-To: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
-References: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
-Reply-To: rtc-linux@googlegroups.com
+        Sat, 22 Apr 2017 10:54:27 -0700 (PDT)
+Received: from mail.kernel.org (localhost [127.0.0.1])
+	by mail.kernel.org (Postfix) with ESMTP id 960B320120
+	for <rtc-linux@googlegroups.com>; Sat, 22 Apr 2017 17:54:25 +0000 (UTC)
+Received: from mail-qt0-f170.google.com (mail-qt0-f170.google.com [209.85.216.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by mail.kernel.org (Postfix) with ESMTPSA id 8A054200E9
+	for <rtc-linux@googlegroups.com>; Sat, 22 Apr 2017 17:54:24 +0000 (UTC)
+Received: by mail-qt0-f170.google.com with SMTP id y33so89551507qta.2
+        for <rtc-linux@googlegroups.com>; Sat, 22 Apr 2017 10:54:24 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170420172538.GA13892@tyrael.amer.corp.natinst.com>
+References: <1492468810-17224-1-git-send-email-mdf@kernel.org>
+ <20170420155634.gs7qkufw7j4mfqpx@rob-hp-laptop> <20170420172538.GA13892@tyrael.amer.corp.natinst.com>
+From: Moritz Fischer <mdf@kernel.org>
+Date: Sat, 22 Apr 2017 10:54:23 -0700
+Message-ID: <CAAtXAHfNuRXninLWySAOdtV99ih4PBt=JPszn3UkNa08OvXLFQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1374: Add trickle charger device tree binding
+To: Rob Herring <robh@kernel.org>
+Cc: Moritz Fischer <mdf@kernel.org>, rtc-linux <rtc-linux@googlegroups.com>,
+	Devicetree List <devicetree@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,50 +37,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch is only relevant for RTC with the SQ_ALT feature which
-means the clock output frequency divider is stored in the weekday
-register.
+On Thu, Apr 20, 2017 at 10:25 AM, Moritz Fischer <mdf@kernel.org> wrote:
+> On Thu, Apr 20, 2017 at 10:56:34AM -0500, Rob Herring wrote:
+>> On Mon, Apr 17, 2017 at 03:40:10PM -0700, Moritz Fischer wrote:
+>> > Introduce a device tree binding for specifying the trickle charger
+>> > configuration for ds1374. This is based on the code for ds13390.
+>> >
+>> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+>> > ---
+>> >  .../devicetree/bindings/rtc/dallas,ds1374.txt      | 18 ++++++++
+>> >  drivers/rtc/rtc-ds1374.c                           | 54 ++++++++++++++++++++++
+>> >  2 files changed, 72 insertions(+)
+>> >  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+>> >
+>> > diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+>> > new file mode 100644
+>> > index 0000000..4cf5bd7
+>> > --- /dev/null
+>> > +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+>> > @@ -0,0 +1,18 @@
+>> > +* Dallas DS1374            I2C Real-Time Clock / WDT
+>>
+>> Please remove from trivial-devices.txt, too. (which is moving in 4.12
+>> BTW)
+>
+> Ok, I'll redo this on top of b7e252fcddfa573bb1ee275b53bba6cef85671d4
+> (Documentation: devicetree: move trivial-devices out of I2C realm) then.
 
-Current implementation discards the previous dividers value and clear
-them as soon as the time is set.
+Follow up question, right now one selects between WDT and ALARM mode with
+a CONFIG_RTC_DRV_DS1374_WDT=y statically at compile time.
 
-Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
----
- drivers/rtc/rtc-m41t80.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+I'd like to add a 'dallas,mode = <DS1374_WDT>;' or
+dallas,enable-watchdog property
+to the binding, same goes for the ability to remap the WDT reset output to the
+interrupt pin (which is currently not supported, but my hardware needs this).
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 93684ab293f2..0c142653c309 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -168,6 +168,7 @@ static int m41t80_get_datetime(struct i2c_client *client,
- /* Sets the given date and time to the real time clock. */
- static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
-+	struct m41t80_data *clientdata = i2c_get_clientdata(client);
- 	unsigned char buf[8];
- 	int err, flags;
- 
-@@ -183,6 +184,17 @@ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	buf[M41T80_REG_YEAR] = bin2bcd(tm->tm_year - 100);
- 	buf[M41T80_REG_WDAY] = tm->tm_wday;
- 
-+	/* If the square wave output is controlled in the weekday register */
-+	if (clientdata->features & M41T80_FEATURE_SQ_ALT) {
-+		int val;
-+
-+		val = i2c_smbus_read_byte_data(client, M41T80_REG_WDAY);
-+		if (val < 0)
-+			return val;
-+
-+		buf[M41T80_REG_WDAY] |= (val & 0xf0);
-+	}
-+
- 	err = i2c_smbus_write_i2c_block_data(client, M41T80_REG_SSEC,
- 					     sizeof(buf), buf);
- 	if (err < 0) {
--- 
-2.11.0
+Would be the right way to add the remapping something like
+'dallas,remap-reset-to-int' ?
+
+Ideas? This change would obviously break people's setups where they
+select one or
+the other behavior via the build time option. Is that acceptable seen
+that relying on
+build time CONFIG_FOO seems like a bad assumption to begin with?
+
+A bit of background: I currently started cleaning up a bunch of issues
+in this driver,
+like refactoring it to use the watchdog framework instead of open
+coding everything,
+make setting the timeout actually work (right now it the timeout to
+tick conversion is
+hosed).
+
+Thanks,
+
+Moritz
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
