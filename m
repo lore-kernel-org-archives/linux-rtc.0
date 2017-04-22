@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBZHERHDQKGQERATR66I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBRXZ5XDQKGQEPXSPIKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id k74si1340957wmd.1.2017.04.03.09.03.48
+        by gmr-mx.google.com with ESMTP id f136si16323wme.1.2017.04.22.08.54.46
         for <rtc-linux@googlegroups.com>;
-        Mon, 03 Apr 2017 09:03:48 -0700 (PDT)
-Date: Mon, 3 Apr 2017 18:03:37 +0200
+        Sat, 22 Apr 2017 08:54:46 -0700 (PDT)
+Date: Sat, 22 Apr 2017 17:54:45 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH v3 0/7] rtc: Reuse rtc-sh driver to support RZ/A1
-Message-ID: <20170403160337.g3fzjbfhllnaoafz@piout.net>
-References: <20170329173035.67477-1-chris.brandt@renesas.com>
+To: David Lowe <dave-lowe@ntlworld.com>
+Cc: rtc-linux <rtc-linux@googlegroups.com>
+Subject: [rtc-linux] Re: [Patch] rtc: rtc-ds1307: enable support for mcp794xx
+ as a wakeup source without IRQ
+Message-ID: <20170422155445.jvuulnh6hhv4ii6s@piout.net>
+References: <20170328182204.4fda934e@pixelzero>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170329173035.67477-1-chris.brandt@renesas.com>
+In-Reply-To: <20170328182204.4fda934e@pixelzero>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -31,50 +26,30 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 Hi,
 
-On 29/03/2017 at 10:30:28 -0700, Chris Brandt wrote:
-> Basically, the same RTC that was used in SuperH devices is now used in
-> RZ/A1 devices. Therefore with some slight changes, that driver can be
-> reused.
+On 28/03/2017 at 18:22:04 +0100, David Lowe wrote:
+> This patch extends the fixes for ds1337, ds1339, ds3231 in 8bc2a40730ec
+> to mcp794xx devices, so that those parts can similarly be used as a wakeup
+> source without an IRQ to the processor.
 > 
-> Additionally, since ARM architectures require Device Tree configurations,
-> device tree support has been added.
+> Tested on Raspberry Pi ZeroW with MCP79400.
 > 
-> This was tested on RZ/A1H RSK board. Once the correct time was programmed
-> into the RTC running off a 32.768kHz crystal, you can retain an accurate
-> system clock between reboots (hard and soft) until power is finally removed
-> from the board (there is no batter backup on the RSK board).
-> 
-> v3:
-> * remove 'power-domains' from example in documentation
-> * update commit message subject and body of dt-bindings
-> 
-> v2:
-> * removed HAVE_CLK from Kconfig
-> * when using DT, look for "fck" instead of "rtc0"
-> * changed (res == NULL) to (!res)
-> * added Reviewed-by for rtc-sh.c
-> * added interrupt-names and clock-names
-> * clocks now include counting sources
-> * added clock-names "fck", "rtc_x1", "rtc_x3", "extal"
-> * changed 'is a RTC' to 'is an RTC' in commit message
-> * changed "rtc0" to "rtc"
-> * Added clock nodes for RTC_X1 and RTC_X3 pin inputs
-> * each commit now has a log message
-> 
-> 
-> Chris Brandt (7):
->   rtc: rtc-sh: add support for rza series
->   dt-bindings: rtc: document the rtc-sh bindings
+> Signed-off-by: David Lowe <dave-lowe@ntlworld.com>
+> ---
+> --- a/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:38.158076224 +0100
+> +++ b/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:52.248431799 +0100
+> @@ -1487,7 +1487,8 @@ static int ds1307_probe(struct i2c_clien
+>  		break;
+>  	case mcp794xx:
+>  		rtc_ops = &mcp794xx_rtc_ops;
+> -		if (ds1307->client->irq > 0 && chip->alarm) {
+> +		if (chip->alarm && (ds1307->client->irq > 0 ||
+> +
+> ds1307_can_wakeup_device)) { irq_handler = mcp794xx_irq;
 
-I applied those two, I'll let Simon take the device tree patches.
+This seems right but your mailer as mangled the patch. Can you resend?
 
-Thanks!
-
->   ARM: dts: r7s72100: add rtc clock to device tree
->   ARM: dts: r7s72100: add RTC_X clock inputs to device tree
->   ARM: dts: r7s72100: add rtc to device tree
->   ARM: dts: rskrza1: set rtc_x1 clock value
->   ARM: dts: rskrza1: add rtc DT support
+>  			want_irq = true;
+>  		}
 
 -- 
 Alexandre Belloni, Free Electrons
