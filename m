@@ -1,26 +1,21 @@
-Return-Path: <rtc-linux+bncBD7LZ45K3ECBB5MGYLDQKGQE6FPGFCY@googlegroups.com>
-Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
-        by gmr-mx.google.com with ESMTPS id v135si110613wmv.1.2017.04.14.01.08.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 14 Apr 2017 01:08:21 -0700 (PDT)
-Received: by mail-wm0-x241.google.com with SMTP id q125so16669479wmd.3
-        for <rtc-linux@googlegroups.com>; Fri, 14 Apr 2017 01:08:21 -0700 (PDT)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date: Fri, 14 Apr 2017 10:08:18 +0200
-From: Ingo Molnar <mingo@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	"H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-	Hans de Goede <hdegoede@redhat.com>, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2] x86: i8259: export legacy_pic symbol
-Message-ID: <20170414080818.GB10105@gmail.com>
-References: <20170408210327.2713-1-hdegoede@redhat.com>
- <20170413212645.ctkfqo6mkbmbosgo@piout.net>
+Return-Path: <rtc-linux+bncBAABB6MF6HDQKGQEXYTX4RI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170413212645.ctkfqo6mkbmbosgo@piout.net>
+Received: from m50-132.163.com (m50-132.163.com. [123.125.50.132])
+        by gmr-mx.google.com with ESMTP id c195si1471064pfc.0.2017.04.22.23.00.24
+        for <rtc-linux@googlegroups.com>;
+        Sat, 22 Apr 2017 23:00:25 -0700 (PDT)
+From: Pan Bian <bianpan2016@163.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	Pan Bian <bianpan2016@163.com>
+Subject: [rtc-linux] [PATCH 1/1] rtc: snvs: fix an incorrect check of return value
+Date: Sun, 23 Apr 2017 13:43:24 +0800
+Message-Id: <1492926204-9535-1-git-send-email-bianpan2016@163.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,37 +24,31 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Function devm_regmap_init_mmio() returns an ERR_PTR on error. However,
+in function snvs_rtc_probe() its return value is checked against NULL.
+This patch fixes it by checking the return value with IS_ERR().
 
-* Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+---
+ drivers/rtc/rtc-snvs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Hi,
-> 
-> On 08/04/2017 at 23:03:27 +0200, Hans de Goede wrote:
-> > The classic PC rtc-coms driver has a workaround for broken ACPI device
-> > nodes for it which lack an irq resource. This workaround used to
-> > unconditionally hardcode the irq to 8 in these cases.
-> > 
-> > This was causing irq conflict problems on systems without a legacy-pic
-> > so a recent patch added an if (nr_legacy_irqs()) guard to the
-> > workaround to avoid this irq conflict.
-> > 
-> > nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
-> > an undefined symbol error if the rtc-cmos code is build as a module.
-> > 
-> 
-> This is kind of a pressing issue as this makes linux-next fail to build
-> for certain configurations.
-> 
-> I can carry it in my tree with your ack or let you apply it for 4.12.
-> What would you prefer?
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index d51b07d..d8ef9e0 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -258,7 +258,7 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 		of_property_read_u32(pdev->dev.of_node, "offset", &data->offset);
+ 	}
+ 
+-	if (!data->regmap) {
++	if (IS_ERR(data->regmap)) {
+ 		dev_err(&pdev->dev, "Can't find snvs syscon\n");
+ 		return -ENODEV;
+ 	}
+-- 
+1.9.1
 
-Unless Thomas objects it looks good to me and feel free to carry it in your tree:
-
-Acked-by: Ingo Molnar <mingo@kernel.org>
-
-Thanks,
-
-	Ingo
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
