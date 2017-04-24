@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBZXTRHDQKGQEXH4NTLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAXG7DDQKGQEPYN45ZA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id b84si857408wmh.2.2017.04.24.10.16.49
+        for <rtc-linux@googlegroups.com>;
+        Mon, 24 Apr 2017 10:16:49 -0700 (PDT)
+Date: Mon, 24 Apr 2017 19:16:39 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Moritz Fischer <mdf@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, rtc-linux <rtc-linux@googlegroups.com>,
+	Devicetree List <devicetree@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Mark Rutland <mark.rutland@arm.com>
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1374: Add trickle charger device tree binding
+Message-ID: <20170424171639.6vv5hxrejylloh3b@piout.net>
+References: <1492468810-17224-1-git-send-email-mdf@kernel.org>
+ <20170420155634.gs7qkufw7j4mfqpx@rob-hp-laptop>
+ <20170420172538.GA13892@tyrael.amer.corp.natinst.com>
+ <CAAtXAHfNuRXninLWySAOdtV99ih4PBt=JPszn3UkNa08OvXLFQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id i76si1139022wmh.1.2017.04.03.09.35.50
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Apr 2017 09:35:50 -0700 (PDT)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Olof Johansson <olof@lixom.net>,
-	bleung@chromium.org
-Cc: martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v2 5/5] mfd: cros_ec: add RTC as mfd subdevice
-Date: Mon,  3 Apr 2017 18:35:36 +0200
-Message-Id: <20170403163536.25634-6-enric.balletbo@collabora.com>
-In-Reply-To: <20170403163536.25634-1-enric.balletbo@collabora.com>
-References: <20170403163536.25634-1-enric.balletbo@collabora.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAAtXAHfNuRXninLWySAOdtV99ih4PBt=JPszn3UkNa08OvXLFQ@mail.gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,65 +29,73 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+On 22/04/2017 at 10:54:23 -0700, Moritz Fischer wrote:
+> On Thu, Apr 20, 2017 at 10:25 AM, Moritz Fischer <mdf@kernel.org> wrote:
+> > On Thu, Apr 20, 2017 at 10:56:34AM -0500, Rob Herring wrote:
+> >> On Mon, Apr 17, 2017 at 03:40:10PM -0700, Moritz Fischer wrote:
+> >> > Introduce a device tree binding for specifying the trickle charger
+> >> > configuration for ds1374. This is based on the code for ds13390.
+> >> >
+> >> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> >> > ---
+> >> >  .../devicetree/bindings/rtc/dallas,ds1374.txt      | 18 ++++++++
+> >> >  drivers/rtc/rtc-ds1374.c                           | 54 ++++++++++++++++++++++
+> >> >  2 files changed, 72 insertions(+)
+> >> >  create mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> >> >
+> >> > diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> >> > new file mode 100644
+> >> > index 0000000..4cf5bd7
+> >> > --- /dev/null
+> >> > +++ b/Documentation/devicetree/bindings/rtc/dallas,ds1374.txt
+> >> > @@ -0,0 +1,18 @@
+> >> > +* Dallas DS1374            I2C Real-Time Clock / WDT
+> >>
+> >> Please remove from trivial-devices.txt, too. (which is moving in 4.12
+> >> BTW)
+> >
+> > Ok, I'll redo this on top of b7e252fcddfa573bb1ee275b53bba6cef85671d4
+> > (Documentation: devicetree: move trivial-devices out of I2C realm) then.
+> 
+> Follow up question, right now one selects between WDT and ALARM mode with
+> a CONFIG_RTC_DRV_DS1374_WDT=y statically at compile time.
+> 
+> I'd like to add a 'dallas,mode = <DS1374_WDT>;' or
+> dallas,enable-watchdog property
+> to the binding, same goes for the ability to remap the WDT reset output to the
+> interrupt pin (which is currently not supported, but my hardware needs this).
+> 
+> Would be the right way to add the remapping something like
+> 'dallas,remap-reset-to-int' ?
+> 
+> Ideas? This change would obviously break people's setups where they
+> select one or
+> the other behavior via the build time option. Is that acceptable seen
+> that relying on
+> build time CONFIG_FOO seems like a bad assumption to begin with?
+> 
+> A bit of background: I currently started cleaning up a bunch of issues
+> in this driver,
+> like refactoring it to use the watchdog framework instead of open
+> coding everything,
+> make setting the timeout actually work (right now it the timeout to
+> tick conversion is
+> hosed).
+> 
 
-If the EC supports RTC host commands, expose an RTC device.
+I think I would do something with MFD as you were suggesting on IRC. You
+can have a look at the flexcom driver (atmel-flexcom.c) which is simply
+selecting a mode and then using whatever IP driver already existed
+(UART, I2C or SPI).
 
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
----
+I didn't have a close look but maybe that fits. Then, as you are
+concerned wtih backward compatibility, you could enforce the mode from
+the MFD driver, depending on the CONFIG_RTC_DRV_DS1374_WDT value.
 
-Changes since v1:
- - Use PLATFORM_DEVID_AUTO to add the subdevice.
-
- drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index bbc17ab..76874be 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -51,6 +51,10 @@ static const struct mfd_cell ec_pd_cell = {
- 	.pdata_size = sizeof(pd_p),
- };
- 
-+static const struct mfd_cell ec_rtc_cell = {
-+	.name = "cros-ec-rtc",
-+};
-+
- static irqreturn_t ec_irq_thread(int irq, void *data)
- {
- 	struct cros_ec_device *ec_dev = data;
-@@ -238,6 +242,16 @@ static void cros_ec_sensors_register(struct cros_ec_device *ec_dev)
- 	kfree(msg);
- }
- 
-+static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
-+{
-+	int ret;
-+
-+	ret = mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_rtc_cell,
-+			      1, NULL, 0, NULL);
-+	if (ret)
-+		dev_err(ec_dev->dev, "failed to add EC RTC\n");
-+}
-+
- int cros_ec_register(struct cros_ec_device *ec_dev)
- {
- 	struct device *dev = ec_dev->dev;
-@@ -287,6 +301,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
- 		cros_ec_sensors_register(ec_dev);
- 
-+	/* Check whether this EC has RTC support */
-+	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
-+		cros_ec_rtc_register(ec_dev);
-+
- 	if (ec_dev->max_passthru) {
- 		/*
- 		 * Register a PD device as well on top of this device.
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
