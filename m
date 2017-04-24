@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBAABBLXN7HDQKGQEQDPQIYI@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBLPN7HDQKGQEMNSRE5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id y2si136397itc.0.2017.04.24.15.05.34
+        by gmr-mx.google.com with ESMTPS id 75si54421iti.0.2017.04.24.15.05.32
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Apr 2017 15:05:34 -0700 (PDT)
+        Mon, 24 Apr 2017 15:05:32 -0700 (PDT)
 From: Moritz Fischer <mdf@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: moritz.fischer@ettus.com,
@@ -17,12 +17,9 @@ Cc: moritz.fischer@ettus.com,
 	rtc-linux@googlegroups.com,
 	alex.williams@ni.com,
 	Moritz Fischer <mdf@kernel.org>
-Subject: [rtc-linux] [PATCH 2/2] rtc: ds1374: wdt: Fix stop/start ioctl always
- returning -EINVAL
-Date: Mon, 24 Apr 2017 15:05:12 -0700
-Message-Id: <1493071512-5718-3-git-send-email-mdf@kernel.org>
-In-Reply-To: <1493071512-5718-1-git-send-email-mdf@kernel.org>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+Subject: [rtc-linux] [PATCH 0/2] DS1374 Watchdog fixes
+Date: Mon, 24 Apr 2017 15:05:10 -0700
+Message-Id: <1493071512-5718-1-git-send-email-mdf@kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
@@ -33,38 +30,36 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Fix commit 920f91e50c5b ("drivers/rtc/rtc-ds1374.c: add watchdog support")
+Hi all,
 
-The WDIOC_SETOPTIONS case in the watchdog ioctl would alwayss falls
-through to the -EINVAL case. This is wrong since thew watchdog does
-actually get stopped or started correctly.
+this series fixes two issues that I ran into when trying to use the
+watchdog part of the DS1374 on of our products.
 
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
----
- drivers/rtc/rtc-ds1374.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This series is basically a precursor to some further cleanup work,
+that turns the DS1374 into a MFD device with an RTC and WDT in
+separate drivers [1] each integrated in either the watchdog and
+the rtc frameworks.
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 2a8b5b3..38a2e9e 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -546,14 +546,15 @@ static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
- 		if (options & WDIOS_DISABLECARD) {
- 			pr_info("disable watchdog\n");
- 			ds1374_wdt_disable();
-+			return 0;
- 		}
- 
- 		if (options & WDIOS_ENABLECARD) {
- 			pr_info("enable watchdog\n");
- 			ds1374_wdt_settimeout(wdt_margin);
- 			ds1374_wdt_ping();
-+			return 0;
- 		}
--
- 		return -EINVAL;
- 	}
- 	return -ENOTTY;
+I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
+the watchdog behavior and currently I'm investigating how to make
+that work via DT.
+
+Watchdog maintainers, do you have an idea on how to do that in a
+non breaking fashion?
+
+Thanks,
+Moritz
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/mdf/linux.git/log/?h=wip/mfd-ds1374-rfc
+
+Moritz Fischer (2):
+  rtc: ds1374: wdt: Fix issue with timeout scaling from secs to wdt
+    ticks
+  rtc: ds1374: wdt: Fix stop/start ioctl always returning -EINVAL
+
+ drivers/rtc/rtc-ds1374.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
 -- 
 2.7.4
 
