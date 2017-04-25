@@ -1,28 +1,35 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBDNWRXDQKGQEQJJY2YI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDS45Q5OSEIRBTHF73DQKGQEQVJDWRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-lf0-x22b.google.com (mail-lf0-x22b.google.com. [2a00:1450:4010:c07::22b])
-        by gmr-mx.google.com with ESMTPS id k74si1554560wmd.1.2017.04.04.01.36.28
+Received: from mail-pf0-f177.google.com (mail-pf0-f177.google.com. [209.85.192.177])
+        by gmr-mx.google.com with ESMTPS id m13si2268668itb.2.2017.04.25.13.34.20
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Apr 2017 01:36:28 -0700 (PDT)
-Received: by mail-lf0-x22b.google.com with SMTP id h125so87905752lfe.0
-        for <rtc-linux@googlegroups.com>; Tue, 04 Apr 2017 01:36:28 -0700 (PDT)
-Date: Tue, 4 Apr 2017 09:36:25 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Olof Johansson <olof@lixom.net>,
-	bleung@chromium.org, martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com, Vic Yang <victoryang@google.com>
-Subject: [rtc-linux] Re: [PATCH 1/7] mfd: cros-ec: Fix host command buffer size
-Message-ID: <20170404083625.4e5ezlmrtebsgsnk@dell>
-References: <20170324174407.25401-1-enric.balletbo@collabora.com>
- <20170324174407.25401-2-enric.balletbo@collabora.com>
+        Tue, 25 Apr 2017 13:34:20 -0700 (PDT)
+Received: by mail-pf0-f177.google.com with SMTP id v14so28119742pfd.2
+        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 13:34:20 -0700 (PDT)
+Date: Tue, 25 Apr 2017 13:34:18 -0700
+From: Moritz Fischer <mdf@kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Moritz Fischer <mdf@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Moritz Fischer <moritz.fischer@ettus.com>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, alex.williams@ni.com
+Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
+Message-ID: <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+ <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+ <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+ <20170425161743.GA8443@roeck-us.net>
+ <20170425163204.rj6on6phtbfuvcd7@piout.net>
+ <20170425165824.GA10024@roeck-us.net>
+ <CAJYdmePpHcYgjiCf=eWCkBBNBTTw4jW59_VNR6w44Yj_QDQqng@mail.gmail.com>
+ <20170425202210.GA20929@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <20170324174407.25401-2-enric.balletbo@collabora.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+In-Reply-To: <20170425202210.GA20929@roeck-us.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,64 +39,74 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 24 Mar 2017, Enric Balletbo i Serra wrote:
 
-> From: Vic Yang <victoryang@google.com>
->=20
-> For SPI, we can get up to 32 additional bytes for response preamble.
-> The current overhead (2 bytes) may cause problems when we try to receive
-> a big response. Update it to 32 bytes.
->=20
-> Without this fix we could see a kernel BUG when we receive a big response
-> from the Chrome EC when is connected via SPI.
->=20
-> Signed-off-by: Vic Yang <victoryang@google.com>
-> Tested-by: Enric Balletbo i Serra <enric.balletbo.collabora.com>
-> ---
->=20
->   This patch is a FIX, and I think that would be interesting see it merge=
-d
-> in this release cycle. This should go through the MFD tree and can be pic=
-ked
-> independently of the other patches. Lee Jones I think this is for you.
->=20
->  include/linux/mfd/cros_ec.h | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Applied to -fixes.
+On Tue, Apr 25, 2017 at 01:22:10PM -0700, Guenter Roeck wrote:
+> On Tue, Apr 25, 2017 at 12:58:36PM -0700, Moritz Fischer wrote:
+> > On Tue, Apr 25, 2017 at 09:58:24AM -0700, Guenter Roeck wrote:
+> > 
+> > > Ah, I missed the "n" in various #ifndef statements.
+> > >
+> > > I can't really comment on how to solve that; I simply don't know.
+> > > Also, even with a dt property, it still would be necessary to have
+> > > a non-DT means to configure one or the other. Making whatever solution
+> > > backward compatible also seems tricky; I don't have a solution for that
+> > > problem either.
+> > 
+> > How does one do these things in a non-dt context? Platform data? I'd let
+> 
+> Platform data is out of favor. You'd probably want to use device properties
+> (see drivers/base/property.c). Question though is if this is considered
+> configuration, hardware description, or both. Presumably the watchdog
+> only makes sense if the reset signal is wired, and the alarm only makes
+> sense if the interrupt is wired, but what if both are wired ?
 
-> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
-> index b3e812f..3b16c90 100644
-> --- a/include/linux/mfd/cros_ec.h
-> +++ b/include/linux/mfd/cros_ec.h
-> @@ -35,10 +35,11 @@
->   * Max bus-specific overhead incurred by request/responses.
->   * I2C requires 1 additional byte for requests.
->   * I2C requires 2 additional bytes for responses.
-> + * SPI requires up to 32 additional bytes for responses.
->   * */
->  #define EC_PROTO_VERSION_UNKNOWN	0
->  #define EC_MAX_REQUEST_OVERHEAD		1
-> -#define EC_MAX_RESPONSE_OVERHEAD	2
-> +#define EC_MAX_RESPONSE_OVERHEAD	32
-> =20
->  /*
->   * Command interface between EC and AP, for LPC, I2C and SPI interfaces.
+To make things worse you can even remap the reset output to the INT pin
+(which my platform does).
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+I'll look at device properties. Thanks for the pointer.
 
---=20
+> 
+> > the MFD select the 'mode'. Maybe being backwards compatible isn't
+> > possible in any case. Is there a rule somewhere that we guarantee you'll
+> > never have to change your CONFIG_FOO options?
+> > 
+> 
+> That would be nice, but no, there is no such rule. You can probably argue
+> that no published kernel configuration enables the watchdog flag,
+> so there is nothing to be concerned about.
+
+Alright, cool. Thanks
+
+Moritz
+
+PS: Haven't forgotten about the cros-ec-hwmon patch that I sent out ...
+
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJY/7LIAAoJEL5CEHepFqovVpoH/1FwUNaM2zIcIphrC0jGHymw
+oM/daop21kfI7h0MDjgzGE4PJVyA0Xe4gFr+rVeO858Xvk9k3ZFR2cWYia3NhkWm
+xM0uo5mgFV1qNsd2fqg7j91319b6YKy0RBHSn/sFC91LEgu8/ssG/RucphUcL4pz
+Kmcfe8bbhmQ/xagp0VzwWyUu2ZRxo479zvy5uSyo7DI39PoCz/xuPgEAJROU8sqU
+0oCDZkwT/zjKL0G7ZZFQ/hQg5QEs+3N1Rx68azGqS50sNteX6NxvZRJdowMu0tFX
+HWdaAuI8tBqMAiPwRBgO5ZXL8Rs4IbrqtvipsAqXbYdyVyhm6SGsc1hECTg0h6U=
+=dZxG
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
