@@ -1,37 +1,27 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBX63R3DQKGQEH7CGYKA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL5RYHM6ECRBB6C7XDQKGQENRW7NOY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.kernel.org (mail.kernel.org. [198.145.29.136])
-        by gmr-mx.google.com with ESMTPS id s67si2615694pfs.4.2017.04.04.07.29.51
+MIME-Version: 1.0
+Received: from mail-wr0-x233.google.com (mail-wr0-x233.google.com. [2a00:1450:400c:c0c::233])
+        by gmr-mx.google.com with ESMTPS id b84si1201422wmh.2.2017.04.25.07.45.27
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Apr 2017 07:29:51 -0700 (PDT)
-Received: from mail.kernel.org (localhost [127.0.0.1])
-	by mail.kernel.org (Postfix) with ESMTP id 28C052017E
-	for <rtc-linux@googlegroups.com>; Tue,  4 Apr 2017 14:29:50 +0000 (UTC)
-Received: from mail-yw0-f173.google.com (mail-yw0-f173.google.com [209.85.161.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPSA id E018320122
-	for <rtc-linux@googlegroups.com>; Tue,  4 Apr 2017 14:29:48 +0000 (UTC)
-Received: by mail-yw0-f173.google.com with SMTP id p77so62135787ywg.1
-        for <rtc-linux@googlegroups.com>; Tue, 04 Apr 2017 07:29:48 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
-References: <20170322142754.30888-1-chris.brandt@renesas.com>
- <20170322142754.30888-3-chris.brandt@renesas.com> <20170329012441.bxnkyqui24mymuvr@rob-hp-laptop>
- <CAMuHMdVmwJYMzspVeDqToBrkfK+zGLMNhxGvEbqCA-vuCUXqoQ@mail.gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 4 Apr 2017 09:29:27 -0500
-Message-ID: <CAL_JsqLLZsLzS4ONOexJADQXXXr9iquFUcVj8kX6AEVwM+x56A@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH v2 2/7] rtc: Add rtc-sh
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Chris Brandt <chris.brandt@renesas.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms+renesas@verge.net.au>, RTCLINUX <rtc-linux@googlegroups.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+        Tue, 25 Apr 2017 07:45:27 -0700 (PDT)
+Received: by mail-wr0-x233.google.com with SMTP id l50so36385243wrc.3
+        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 07:45:27 -0700 (PDT)
+From: Gary Bisson <gary.bisson@boundarydevices.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	Gary Bisson <gary.bisson@boundarydevices.com>
+Subject: [rtc-linux] [PATCH 2/4] rtc: m41t80: fix SQW dividers override when
+ setting a date
+Date: Tue, 25 Apr 2017 16:45:15 +0200
+Message-Id: <20170425144517.15962-3-gary.bisson@boundarydevices.com>
+In-Reply-To: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
+References: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,69 +30,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Wed, Mar 29, 2017 at 1:49 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> Hi Rob,
->
-> On Wed, Mar 29, 2017 at 3:24 AM, Rob Herring <robh@kernel.org> wrote:
->> On Wed, Mar 22, 2017 at 10:27:49AM -0400, Chris Brandt wrote:
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
->>> @@ -0,0 +1,29 @@
->>> +* Real Time Clock for Renesas SH and ARM SoCs
->>> +
->>> +Required properties:
->>> +- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
->>> +  fallback.
->>> +- reg: physical base address and length of memory mapped region.
->>> +- interrupts: 3 interrupts for alarm, period, and carry.
->>> +- interrupt-names: The interrupts should be labeled as "alarm", "period", and
->>> +  "carry".
->>> +- clocks: The functional clock source for the RTC controller must be listed
->>> +  first (if exists). Additionally, potential clock counting sources are to be
->>> +  listed.
->>> +- clock-names: The functional clock must be labeled as "fck". Other clocks
->>> +  may be named in accordance to the SoC hardware manuals.
->>> +
->>> +
->>> +Example:
->>> +rtc: rtc@fcff1000 {
->>> +     compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
->>> +     reg = <0xfcff1000 0x2e>;
->>> +     interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
->>> +                   GIC_SPI 277 IRQ_TYPE_EDGE_RISING
->>> +                   GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
->>> +     interrupt-names = "alarm", "period", "carry";
->>> +     clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
->>> +              <&rtc_x3_clk>, <&extal_clk>;
->>> +     clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
->>> +     power-domains = <&cpg_clocks>;
->>
->> Not documented.
->
-> "power-domains" is a platform property.
->
-> All hardware components need power.
-> All synchronous hardware components need a clock.
-> Most hardware components have a reset signal.
+This patch is only relevant for RTC with the SQ_ALT feature which
+means the clock output frequency divider is stored in the weekday
+register.
 
-And we document clocks and reset for every binding.
+Current implementation discards the previous dividers value and clear
+them as soon as the time is set.
 
-> Whether these are exposed and can be controlled depends on the platform/SoC.
-> So documenting them in each and every device binding looks overkill to me.
-> I think this is something to be addressed by devicetree-specification (which
-> doesn't handle clocks, power-domains, resets yet).
+Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
+---
+ drivers/rtc/rtc-m41t80.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-It's a question of validation. How do I validate power-domains is a
-valid property for a given compatible? What if it is required, but not
-present? Any node can have it? So it is valid for memory and chosen
-nodes, an i2c device, an LCD panel, etc?
-
-> If you prefer, the property can be removed from the example, though.
-
-If it is valid, then I don't want it removed.
-
-Rob
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 93684ab293f2..0c142653c309 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -168,6 +168,7 @@ static int m41t80_get_datetime(struct i2c_client *client,
+ /* Sets the given date and time to the real time clock. */
+ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
++	struct m41t80_data *clientdata = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int err, flags;
+ 
+@@ -183,6 +184,17 @@ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	buf[M41T80_REG_YEAR] = bin2bcd(tm->tm_year - 100);
+ 	buf[M41T80_REG_WDAY] = tm->tm_wday;
+ 
++	/* If the square wave output is controlled in the weekday register */
++	if (clientdata->features & M41T80_FEATURE_SQ_ALT) {
++		int val;
++
++		val = i2c_smbus_read_byte_data(client, M41T80_REG_WDAY);
++		if (val < 0)
++			return val;
++
++		buf[M41T80_REG_WDAY] |= (val & 0xf0);
++	}
++
+ 	err = i2c_smbus_write_i2c_block_data(client, M41T80_REG_SSEC,
+ 					     sizeof(buf), buf);
+ 	if (err < 0) {
+-- 
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
