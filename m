@@ -1,22 +1,27 @@
-Return-Path: <rtc-linux+bncBCF6L7545UEBBLNKR7DQKGQEWW2L5TA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCL5RYHM6ECRBBWC7XDQKGQEG34ZSWY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from kirsty.vergenet.net (kirsty.vergenet.net. [202.4.237.240])
-        by gmr-mx.google.com with ESMTP id r66si2712212pfb.7.2017.04.04.10.17.33
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Apr 2017 10:17:33 -0700 (PDT)
-Date: Tue, 4 Apr 2017 13:17:28 -0400
-From: Simon Horman <horms@verge.net.au>
-To: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Cc: chris.brandt@renesas.com, geert@linux-m68k.org, robh+dt@kernel.org,
-	mark.rutland@arm.com, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] arm: dts: genmai: Enable rtc and rtc_x1 clock
-Message-ID: <20170404171728.GB14047@verge.net.au>
-References: <1491235398-26549-1-git-send-email-jacopo+renesas@jmondi.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1491235398-26549-1-git-send-email-jacopo+renesas@jmondi.org>
+Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
+        by gmr-mx.google.com with ESMTPS id t10si316836wmb.0.2017.04.25.07.45.26
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 25 Apr 2017 07:45:26 -0700 (PDT)
+Received: by mail-wm0-x22d.google.com with SMTP id u65so24782191wmu.1
+        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 07:45:26 -0700 (PDT)
+From: Gary Bisson <gary.bisson@boundarydevices.com>
+To: rtc-linux@googlegroups.com
+Cc: linux-kernel@vger.kernel.org,
+	alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	Gary Bisson <gary.bisson@boundarydevices.com>
+Subject: [rtc-linux] [PATCH 1/4] rtc: m41t80: fix SQWE override when setting
+ an alarm
+Date: Tue, 25 Apr 2017 16:45:14 +0200
+Message-Id: <20170425144517.15962-2-gary.bisson@boundarydevices.com>
+In-Reply-To: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
+References: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,18 +30,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Apr 03, 2017 at 06:03:18PM +0200, Jacopo Mondi wrote:
-> Enable the 32.768 kHz RTC_X1 clock by setting the frequency value to
-> non-zero and enable the realtime clock.
-> 
-> Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-> ---
-> 
-> This patch depends on Chris Brandt's series
-> "rtc: Reuse rtc-sh driver to support RZ/A1"
-> Please queue this on top of that.
+Currently setting an alarm clears the SQWE bit which means that the
+clock output is disabled no matter its previous state.
 
-Thanks, done.
+Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
+---
+ drivers/rtc/rtc-m41t80.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 58698d21c2c3..93684ab293f2 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -273,6 +273,9 @@ static int m41t80_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		return err;
+ 	}
+ 
++	/* Keep SQWE bit value */
++	alarmvals[0] |= (ret & M41T80_ALMON_SQWE);
++
+ 	ret = i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
+ 	if (ret < 0)
+ 		return ret;
+-- 
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
