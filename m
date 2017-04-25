@@ -1,24 +1,26 @@
-Return-Path: <rtc-linux+bncBDRZXY4CYYORBUGHUTDQKGQEEU7D6AQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDNO5I4UXMKRBYOG7XDQKGQEF4S4TAI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id i141si225428ywc.2.2017.04.08.10.54.24
+Received: from mail-it0-x233.google.com (mail-it0-x233.google.com. [2607:f8b0:4001:c0b::233])
+        by gmr-mx.google.com with ESMTPS id q9si538977itc.1.2017.04.25.07.55.29
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 08 Apr 2017 10:54:24 -0700 (PDT)
-From: Hans de Goede <hdegoede@redhat.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H . Peter Anvin" <hpa@zytor.com>
-Cc: Hans de Goede <hdegoede@redhat.com>,
-	x86@kernel.org,
-	rtc-linux@googlegroups.com,
-	alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [PATCH] x86: i8259: export legacy_pic symbol
-Date: Sat,  8 Apr 2017 19:54:20 +0200
-Message-Id: <20170408175420.26736-1-hdegoede@redhat.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 25 Apr 2017 07:55:29 -0700 (PDT)
+Received: by mail-it0-x233.google.com with SMTP id 70so19804544ita.0
+        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 07:55:29 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org> <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+From: Moritz Fischer <moritz.fischer.private@gmail.com>
+Date: Tue, 25 Apr 2017 07:55:28 -0700
+Message-ID: <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Moritz Fischer <moritz.fischer@ettus.com>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com,
+	alex.williams@ni.com
 Content-Type: text/plain; charset=UTF-8
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,40 +29,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The classic PC rtc-coms driver has a workaround for broken ACPI device
-nodes for it which lack an irq resource. This workaround used to
-unconditionally hardcode the irq to 8 in these cases.
+Hi Guenter,
 
-This was causing irq conflict problems on systems without a legacy-pic
-so a recent patch added an if (nr_legacy_irqs()) guard to the
-workaround to avoid this irq conflict.
+On Mon, Apr 24, 2017 at 10:03 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 04/24/2017 03:05 PM, Moritz Fischer wrote:
 
-nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
-an undefined symbol error if the rtc-cmos code is build as a module.
+>> I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
+>> the watchdog behavior and currently I'm investigating how to make
+>> that work via DT.
+>>
+>> Watchdog maintainers, do you have an idea on how to do that in a
+>> non breaking fashion?
+>>
+>
+> Depends on what you mean with "non breaking". Just using the normal mfd
+> mechanisms, ie define an mfd cell for each client driver, should work.
+> Do you see any problems with that ? Either case, that doesn't seem
+> to be a watchdog driver problem, or am I missing something ?
 
-This commit exports the legacy_pic symbol to fix this.
+Well so currently watchdog behavior is selected (out of the two options alarm,
+or watchdog) by enabling the configuration option mentioned above.
+If I change this over to use a dt-based approach like dallas,ds1374-mode = <2>;
+to select the behavior in the mfd for example, won't that break people that
+relied on the old behavior? If everyone involved is ok with that, I'm happy
+to just add it to the binding.
 
-Cc: rtc-linux@googlegroups.com
-Cc: alexandre.belloni@free-electrons.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- arch/x86/kernel/i8259.c | 1 +
- 1 file changed, 1 insertion(+)
+> I don't really see the point of doing that if you plan to move the watchdog
+> part of the driver into the watchdog directory. We for sure won't accept a
+> watchdog driver that does not use the watchdog infrastructure.
 
-diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
-index be22f5a..4e3b8a5 100644
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
- };
- 
- struct legacy_pic *legacy_pic = &default_legacy_pic;
-+EXPORT_SYMBOL(legacy_pic);
- 
- static int __init i8259A_init_ops(void)
- {
--- 
-2.9.3
+The idea was to fix what's broken currently (this patchset) and then refactor.
+But if you prefer I can do all in one go instead.
+
+>
+> Regarding
+> +       /* WHY? */
+> +       ds1374->wdd.timeout = t;
+>
+> Assuming you mean why the driver has to set the timeout value - not every
+> watchdog hardware supports timeouts in multiples of 1 second. The driver
+> is expected to set the value to the real timeout, not to the timeout asked
+> for by the infrastructure.
+
+Yeah that branch is work in progress and needs cleanup. Leftover from testing,
+before I had understood why. Branch needs cleanup. It also doesn't really use
+regmap_update_bits etc.
+
+Thanks for the explanation,
+
+Moritz
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
