@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBYXTRHDQKGQELJALSGA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC7M5BFO7YCRBK7N7XDQKGQE2V7DKJA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id x188si1192055wmx.0.2017.04.03.09.35.45
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id q9si613728itc.1.2017.04.25.09.17.47
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Apr 2017 09:35:45 -0700 (PDT)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Olof Johansson <olof@lixom.net>,
-	bleung@chromium.org
-Cc: martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] [PATCH v2 0/5]  mfd: cros-ec: Some fixes and improvements.
-Date: Mon,  3 Apr 2017 18:35:31 +0200
-Message-Id: <20170403163536.25634-1-enric.balletbo@collabora.com>
-Reply-To: rtc-linux@googlegroups.com
+        Tue, 25 Apr 2017 09:17:47 -0700 (PDT)
+Date: Tue, 25 Apr 2017 09:17:43 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Moritz Fischer <moritz.fischer.private@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Moritz Fischer <moritz.fischer@ettus.com>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com,
+	alex.williams@ni.com
+Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
+Message-ID: <20170425161743.GA8443@roeck-us.net>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+ <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+ <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,80 +30,90 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Dear all,
+On Tue, Apr 25, 2017 at 07:55:28AM -0700, Moritz Fischer wrote:
+> Hi Guenter,
+> 
+> On Mon, Apr 24, 2017 at 10:03 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > On 04/24/2017 03:05 PM, Moritz Fischer wrote:
+> 
+> >> I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
+> >> the watchdog behavior and currently I'm investigating how to make
+> >> that work via DT.
+> >>
+> >> Watchdog maintainers, do you have an idea on how to do that in a
+> >> non breaking fashion?
+> >>
+> >
+> > Depends on what you mean with "non breaking". Just using the normal mfd
+> > mechanisms, ie define an mfd cell for each client driver, should work.
+> > Do you see any problems with that ? Either case, that doesn't seem
+> > to be a watchdog driver problem, or am I missing something ?
+> 
+> Well so currently watchdog behavior is selected (out of the two options alarm,
+> or watchdog) by enabling the configuration option mentioned above.
+> If I change this over to use a dt-based approach like dallas,ds1374-mode = <2>;
+> to select the behavior in the mfd for example, won't that break people that
+> relied on the old behavior? If everyone involved is ok with that, I'm happy
+> to just add it to the binding.
+> 
 
-This is another patch series to fix and improve some cros-ec mfd related
-things.
+Sorry, I must be missing something. Looking into the driver code, my
+understanding is that CONFIG_RTC_DRV_DS1374_WDT enables the watchdog in
+addition to rtc functionality, not one or the other. Sure you would need
+a different configuration option if you were to move the watchdog code into
+drivers/watchdog, but other than that I don't really understand the problem.
+What is the issue with, for example,
 
- * 1/5 mfd: cros-ec: Fix host command buffer size
+config DS1374_WDT
+        bool "Dallas/Maxim DS1374 watchdog timer"
+	depends on MFD_DS1374
+	help
+	  If you say Y here you will get support for the
+	  watchdog timer in the Dallas Semiconductor DS1374
+	  real-time clock chips.
 
-  This patch is a FIX, and I think that would be interesting see it merged
-in this release cycle. This should go through the MFD tree and can be picked
-independently of the other patches. Lee Jones I think this is for you.
+in drivers/watchdog/Kconfig, and the mfd driver instantiating it like
+any other mfd client driver ?
 
- * 2/5 mfd: cros_ec: Get rid of cros_ec_check_features from cros_ec_dev.
+Either case, limiting support to DT based systems seems to be the wrong
+approach. There might be Intel platforms using this chip.
 
-  As pointed by Lee Jones in this thread [1] we should not use the MFD API
-outside of MFD. For this reason the cros-ec-rtc did not get accepted yet.
-The reality is that we are calling mfd_add_devices from cros-ec-dev driver
-already, so this patch get rid off the MFD calls inside the chardev driver
-and moves to cros-ec MFD. Also I think the chardev device should simply
-implement the ioctl calls to access to it from userspace.
+> > I don't really see the point of doing that if you plan to move the watchdog
+> > part of the driver into the watchdog directory. We for sure won't accept a
+> > watchdog driver that does not use the watchdog infrastructure.
+> 
+> The idea was to fix what's broken currently (this patchset) and then refactor.
+> But if you prefer I can do all in one go instead.
+> 
 
- The above patch involves MFD, IIO and platform chrome subsystems.
+It just seemed a waste to me to change/fix a function which is going to
+be removed in a subsequent patch (I seem to recall that there was a fix
+to the ioctl function).
 
- * 3/5 mfd: cros_ec: Introduce RTC commands and events definitions
- * 4/5 rtc: cros-ec: add cros-ec-rtc driver
- * 5/5 mfd: cros_ec: add RTC as mfd subdevice
+If/when you move the driver to drivers/watchdog, please make sure that
+it doesn't use any instantiation related static variables (ie other than
+module parameters).
 
- These patches are the cros-ec RTC driver, 3 and 4 patches are already
-acked by the subsystem maintainers involved and are equal to the last
-version I send. Patch 5 registers the rtc cell inside the cros-ec MFD
-intead of cros-ec-dev chardev driver.
+> >
+> > Regarding
+> > +       /* WHY? */
+> > +       ds1374->wdd.timeout = t;
+> >
+> > Assuming you mean why the driver has to set the timeout value - not every
+> > watchdog hardware supports timeouts in multiples of 1 second. The driver
+> > is expected to set the value to the real timeout, not to the timeout asked
+> > for by the infrastructure.
+> 
+> Yeah that branch is work in progress and needs cleanup. Leftover from testing,
+> before I had understood why. Branch needs cleanup. It also doesn't really use
+> regmap_update_bits etc.
+> 
 
- Note that these 3 patches depends on [2] to build. I recommend apply
-these series on top of [3]
+Well, you did enhance the code to use regmap, which by itself is a significant
+improvement ...
 
-Changes since v1:
- - Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
-   calibbias data' from series as was already picked.
- - Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
-   calibbias data' from series as was already picked.
- - Patch 2/5: Acked-by: Jonathan Cameron <jic23@kernel.org>
-
-[1] https://www.spinics.net/lists/kernel/msg2465099.html
-[2] https://lkml.org/lkml/2017/3/17/319
-[3] https://lkml.org/lkml/2017/3/17/321
-
-Best regards,
-
-Enric Balletbo i Serra (1):
-  mfd: cros_ec: Get rid of cros_ec_check_features from cros_ec_dev.
-
-Stephen Barber (3):
-  mfd: cros_ec: Introduce RTC commands and events definitions.
-  rtc: cros-ec: add cros-ec-rtc driver.
-  mfd: cros_ec: add RTC as mfd subdevice
-
-Vic Yang (1):
-  mfd: cros-ec: Fix host command buffer size
-
- .../iio/common/cros_ec_sensors/cros_ec_sensors.c   |   8 -
- .../common/cros_ec_sensors/cros_ec_sensors_core.c  |   8 +-
- drivers/iio/light/cros_ec_light_prox.c             |   8 -
- drivers/iio/pressure/cros_ec_baro.c                |   8 -
- drivers/mfd/cros_ec.c                              | 178 +++++++++
- drivers/platform/chrome/cros_ec_dev.c              | 161 --------
- drivers/rtc/Kconfig                                |  10 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-cros-ec.c                          | 412 +++++++++++++++++++++
- include/linux/mfd/cros_ec.h                        |   9 +-
- include/linux/mfd/cros_ec_commands.h               |   8 +
- 11 files changed, 621 insertions(+), 190 deletions(-)
- create mode 100644 drivers/rtc/rtc-cros-ec.c
-
--- 
-2.9.3
+Thanks,
+Guenter
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
