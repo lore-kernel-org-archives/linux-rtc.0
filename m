@@ -1,24 +1,21 @@
-Return-Path: <rtc-linux+bncBDRZXY4CYYORBI5AUXDQKGQEEWARTZQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDWU7TDQKGQEUNI7KFQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 198si287154wmi.3.2017.04.25.03.50.54
+        for <rtc-linux@googlegroups.com>;
+        Tue, 25 Apr 2017 03:50:54 -0700 (PDT)
+Date: Tue, 25 Apr 2017 12:50:53 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	kernel-janitors@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH] rtc: hid-sensor-time: remove some dead code
+Message-ID: <20170425105053.3f23toe4sjocu4ni@piout.net>
+References: <20170412083253.GB3250@mwanda>
 MIME-Version: 1.0
-Received: from mx1.redhat.com (mx1.redhat.com. [209.132.183.28])
-        by gmr-mx.google.com with ESMTPS id t84si1240331ywa.1.2017.04.08.14.03.31
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 08 Apr 2017 14:03:31 -0700 (PDT)
-From: Hans de Goede <hdegoede@redhat.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H . Peter Anvin" <hpa@zytor.com>
-Cc: Hans de Goede <hdegoede@redhat.com>,
-	x86@kernel.org,
-	rtc-linux@googlegroups.com,
-	alexandre.belloni@free-electrons.com
-Subject: [rtc-linux] [PATCH v2] x86: i8259: export legacy_pic symbol
-Date: Sat,  8 Apr 2017 23:03:27 +0200
-Message-Id: <20170408210327.2713-1-hdegoede@redhat.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170412083253.GB3250@mwanda>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,43 +24,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The classic PC rtc-coms driver has a workaround for broken ACPI device
-nodes for it which lack an irq resource. This workaround used to
-unconditionally hardcode the irq to 8 in these cases.
+On 12/04/2017 at 11:32:53 +0300, Dan Carpenter wrote:
+> devm_rtc_device_register() doesn't ever return NULL so there is no need
+> to check.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+Applied, thanks.
 
-This was causing irq conflict problems on systems without a legacy-pic
-so a recent patch added an if (nr_legacy_irqs()) guard to the
-workaround to avoid this irq conflict.
-
-nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
-an undefined symbol error if the rtc-cmos code is build as a module.
-
-This commit exports the legacy_pic symbol to fix this.
-
-Cc: rtc-linux@googlegroups.com
-Cc: alexandre.belloni@free-electrons.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL
----
- arch/x86/kernel/i8259.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
-index be22f5a..0bcf43d 100644
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
- };
- 
- struct legacy_pic *legacy_pic = &default_legacy_pic;
-+EXPORT_SYMBOL_GPL(legacy_pic);
- 
- static int __init i8259A_init_ops(void)
- {
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
