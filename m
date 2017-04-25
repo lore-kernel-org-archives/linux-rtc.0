@@ -1,25 +1,32 @@
-Return-Path: <rtc-linux+bncBDNO5I4UXMKRBYOG7XDQKGQEF4S4TAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC7M5BFO7YCRBGXU73DQKGQE7NAPXBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-it0-x233.google.com (mail-it0-x233.google.com. [2607:f8b0:4001:c0b::233])
-        by gmr-mx.google.com with ESMTPS id q9si538977itc.1.2017.04.25.07.55.29
+Received: from bh-25.webhostbox.net (bh-25.webhostbox.net. [208.91.199.152])
+        by gmr-mx.google.com with ESMTPS id j5si792232itb.1.2017.04.25.14.05.29
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Apr 2017 07:55:29 -0700 (PDT)
-Received: by mail-it0-x233.google.com with SMTP id 70so19804544ita.0
-        for <rtc-linux@googlegroups.com>; Tue, 25 Apr 2017 07:55:29 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org> <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
-From: Moritz Fischer <moritz.fischer.private@gmail.com>
-Date: Tue, 25 Apr 2017 07:55:28 -0700
-Message-ID: <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Moritz Fischer <moritz.fischer@ettus.com>,
+        Tue, 25 Apr 2017 14:05:29 -0700 (PDT)
+Date: Tue, 25 Apr 2017 14:05:27 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Moritz Fischer <mdf@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Moritz Fischer <moritz.fischer@ettus.com>,
 	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com,
-	alex.williams@ni.com
+	rtc-linux@googlegroups.com, alex.williams@ni.com
+Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
+Message-ID: <20170425210526.GA1629@roeck-us.net>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+ <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+ <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+ <20170425161743.GA8443@roeck-us.net>
+ <20170425163204.rj6on6phtbfuvcd7@piout.net>
+ <20170425165824.GA10024@roeck-us.net>
+ <CAJYdmePpHcYgjiCf=eWCkBBNBTTw4jW59_VNR6w44Yj_QDQqng@mail.gmail.com>
+ <20170425202210.GA20929@roeck-us.net>
+ <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -29,55 +36,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Guenter,
+On Tue, Apr 25, 2017 at 01:34:18PM -0700, Moritz Fischer wrote:
+> On Tue, Apr 25, 2017 at 01:22:10PM -0700, Guenter Roeck wrote:
+> > On Tue, Apr 25, 2017 at 12:58:36PM -0700, Moritz Fischer wrote:
+> > > On Tue, Apr 25, 2017 at 09:58:24AM -0700, Guenter Roeck wrote:
+> > > 
+> > > > Ah, I missed the "n" in various #ifndef statements.
+> > > >
+> > > > I can't really comment on how to solve that; I simply don't know.
+> > > > Also, even with a dt property, it still would be necessary to have
+> > > > a non-DT means to configure one or the other. Making whatever solution
+> > > > backward compatible also seems tricky; I don't have a solution for that
+> > > > problem either.
+> > > 
+> > > How does one do these things in a non-dt context? Platform data? I'd let
+> > 
+> > Platform data is out of favor. You'd probably want to use device properties
+> > (see drivers/base/property.c). Question though is if this is considered
+> > configuration, hardware description, or both. Presumably the watchdog
+> > only makes sense if the reset signal is wired, and the alarm only makes
+> > sense if the interrupt is wired, but what if both are wired ?
+> 
+> To make things worse you can even remap the reset output to the INT pin
+> (which my platform does).
+> 
 
-On Mon, Apr 24, 2017 at 10:03 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 04/24/2017 03:05 PM, Moritz Fischer wrote:
+So that is what the weird 250ms "interrupt signal" is for. I had wondered
+what that is supposed to be used for.
 
->> I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
->> the watchdog behavior and currently I'm investigating how to make
->> that work via DT.
->>
->> Watchdog maintainers, do you have an idea on how to do that in a
->> non breaking fashion?
->>
->
-> Depends on what you mean with "non breaking". Just using the normal mfd
-> mechanisms, ie define an mfd cell for each client driver, should work.
-> Do you see any problems with that ? Either case, that doesn't seem
-> to be a watchdog driver problem, or am I missing something ?
+> I'll look at device properties. Thanks for the pointer.
+> 
+> > 
+> > > the MFD select the 'mode'. Maybe being backwards compatible isn't
+> > > possible in any case. Is there a rule somewhere that we guarantee you'll
+> > > never have to change your CONFIG_FOO options?
+> > > 
+> > 
+> > That would be nice, but no, there is no such rule. You can probably argue
+> > that no published kernel configuration enables the watchdog flag,
+> > so there is nothing to be concerned about.
+> 
+> Alright, cool. Thanks
+> 
+> Moritz
+> 
+> PS: Haven't forgotten about the cros-ec-hwmon patch that I sent out ...
 
-Well so currently watchdog behavior is selected (out of the two options alarm,
-or watchdog) by enabling the configuration option mentioned above.
-If I change this over to use a dt-based approach like dallas,ds1374-mode = <2>;
-to select the behavior in the mfd for example, won't that break people that
-relied on the old behavior? If everyone involved is ok with that, I'm happy
-to just add it to the binding.
+No, still trying to get internal feedback. I'll have to ask again.
 
-> I don't really see the point of doing that if you plan to move the watchdog
-> part of the driver into the watchdog directory. We for sure won't accept a
-> watchdog driver that does not use the watchdog infrastructure.
-
-The idea was to fix what's broken currently (this patchset) and then refactor.
-But if you prefer I can do all in one go instead.
-
->
-> Regarding
-> +       /* WHY? */
-> +       ds1374->wdd.timeout = t;
->
-> Assuming you mean why the driver has to set the timeout value - not every
-> watchdog hardware supports timeouts in multiples of 1 second. The driver
-> is expected to set the value to the real timeout, not to the timeout asked
-> for by the infrastructure.
-
-Yeah that branch is work in progress and needs cleanup. Leftover from testing,
-before I had understood why. Branch needs cleanup. It also doesn't really use
-regmap_update_bits etc.
-
-Thanks for the explanation,
-
-Moritz
+Guenter
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
