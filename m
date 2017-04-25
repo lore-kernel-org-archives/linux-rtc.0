@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBDAMN6NI5EERBG4JYLDQKGQEM6DVB7A@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFXU7XDQKGQE4G7WLJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from Galois.linutronix.de (Galois.linutronix.de. [2a01:7a0:2:106d:700::1])
-        by gmr-mx.google.com with ESMTPS id w130si1313539wmf.0.2017.04.14.01.13.14
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 14 Apr 2017 01:13:14 -0700 (PDT)
-Date: Fri, 14 Apr 2017 10:13:00 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Ingo Molnar <mingo@kernel.org>
-cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>,
-    x86@kernel.org, Hans de Goede <hdegoede@redhat.com>,
-    rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2] x86: i8259: export legacy_pic symbol
-In-Reply-To: <20170414080818.GB10105@gmail.com>
-Message-ID: <alpine.DEB.2.20.1704141012310.2327@nanos>
-References: <20170408210327.2713-1-hdegoede@redhat.com> <20170413212645.ctkfqo6mkbmbosgo@piout.net> <20170414080818.GB10105@gmail.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 198si477120wmi.3.2017.04.25.09.32.22
+        for <rtc-linux@googlegroups.com>;
+        Tue, 25 Apr 2017 09:32:22 -0700 (PDT)
+Date: Tue, 25 Apr 2017 18:32:04 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Moritz Fischer <moritz.fischer.private@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Moritz Fischer <moritz.fischer@ettus.com>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, alex.williams@ni.com
+Subject: [rtc-linux] Re: [PATCH 0/2] DS1374 Watchdog fixes
+Message-ID: <20170425163204.rj6on6phtbfuvcd7@piout.net>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+ <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
+ <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
+ <20170425161743.GA8443@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170425161743.GA8443@roeck-us.net>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,37 +30,60 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Fri, 14 Apr 2017, Ingo Molnar wrote:
+On 25/04/2017 at 09:17:43 -0700, Guenter Roeck wrote:
+> On Tue, Apr 25, 2017 at 07:55:28AM -0700, Moritz Fischer wrote:
+> > Hi Guenter,
+> > 
+> > On Mon, Apr 24, 2017 at 10:03 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > > On 04/24/2017 03:05 PM, Moritz Fischer wrote:
+> > 
+> > >> I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
+> > >> the watchdog behavior and currently I'm investigating how to make
+> > >> that work via DT.
+> > >>
+> > >> Watchdog maintainers, do you have an idea on how to do that in a
+> > >> non breaking fashion?
+> > >>
+> > >
+> > > Depends on what you mean with "non breaking". Just using the normal mfd
+> > > mechanisms, ie define an mfd cell for each client driver, should work.
+> > > Do you see any problems with that ? Either case, that doesn't seem
+> > > to be a watchdog driver problem, or am I missing something ?
+> > 
+> > Well so currently watchdog behavior is selected (out of the two options alarm,
+> > or watchdog) by enabling the configuration option mentioned above.
+> > If I change this over to use a dt-based approach like dallas,ds1374-mode = <2>;
+> > to select the behavior in the mfd for example, won't that break people that
+> > relied on the old behavior? If everyone involved is ok with that, I'm happy
+> > to just add it to the binding.
+> > 
+> 
+> Sorry, I must be missing something. Looking into the driver code, my
+> understanding is that CONFIG_RTC_DRV_DS1374_WDT enables the watchdog in
+> addition to rtc functionality, not one or the other. Sure you would need
+> a different configuration option if you were to move the watchdog code into
+> drivers/watchdog, but other than that I don't really understand the problem.
+> What is the issue with, for example,
+> 
 
-> 
-> * Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
-> 
-> > Hi,
-> > 
-> > On 08/04/2017 at 23:03:27 +0200, Hans de Goede wrote:
-> > > The classic PC rtc-coms driver has a workaround for broken ACPI device
-> > > nodes for it which lack an irq resource. This workaround used to
-> > > unconditionally hardcode the irq to 8 in these cases.
-> > > 
-> > > This was causing irq conflict problems on systems without a legacy-pic
-> > > so a recent patch added an if (nr_legacy_irqs()) guard to the
-> > > workaround to avoid this irq conflict.
-> > > 
-> > > nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
-> > > an undefined symbol error if the rtc-cmos code is build as a module.
-> > > 
-> > 
-> > This is kind of a pressing issue as this makes linux-next fail to build
-> > for certain configurations.
-> > 
-> > I can carry it in my tree with your ack or let you apply it for 4.12.
-> > What would you prefer?
-> 
-> Unless Thomas objects it looks good to me and feel free to carry it in your tree:
-> 
-> Acked-by: Ingo Molnar <mingo@kernel.org>
+The watchdog functionality and the rtc alarm are mutually exclusive.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> > The idea was to fix what's broken currently (this patchset) and then refactor.
+> > But if you prefer I can do all in one go instead.
+> > 
+> 
+> It just seemed a waste to me to change/fix a function which is going to
+> be removed in a subsequent patch (I seem to recall that there was a fix
+> to the ioctl function).
+> 
+
+I'd say that it depends on whether you want to backport the fixes to the
+stable kernels. Backporting the full rework is probably riskier.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
