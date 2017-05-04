@@ -1,32 +1,23 @@
-Return-Path: <rtc-linux+bncBDO5Z5F56QMBBF6TWPEAKGQE7NL36MQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBB362V3EAKGQEDP6EIMQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x234.google.com (mail-wr0-x234.google.com. [2a00:1450:400c:c0c::234])
-        by gmr-mx.google.com with ESMTPS id n134si125405wmd.2.2017.05.05.14.07.35
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 May 2017 14:07:35 -0700 (PDT)
-Received: by mail-wr0-x234.google.com with SMTP id l50so9998026wrc.3
-        for <rtc-linux@googlegroups.com>; Fri, 05 May 2017 14:07:35 -0700 (PDT)
-Date: Fri, 5 May 2017 22:07:34 +0100
-From: Matt Fleming <matt@codeblueprint.co.uk>
-To: Ocean HY1 He <hehy1@lenovo.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-	"alexandre.belloni@free-electrons.com" <alexandre.belloni@free-electrons.com>,
-	"msalter@redhat.com" <msalter@redhat.com>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@kernel.org>,
-	Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-	linux-efi@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH] rtc: rtc-efi: Add an enable parameter and
- make it false for X86 by default
-Message-ID: <20170505210734.GD5225@codeblueprint.co.uk>
-References: <1493715444-79142-1-git-send-email-hehy1@lenovo.com>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id n197si18790wmg.3.2017.05.04.15.38.38
+        for <rtc-linux@googlegroups.com>;
+        Thu, 04 May 2017 15:38:38 -0700 (PDT)
+Date: Fri, 5 May 2017 00:38:27 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
+	Russ Dill <Russ.Dill@ti.com>
+Subject: [rtc-linux] Re: [PATCH] RTC: Add functionality to read/write rtc
+ scratch registers
+Message-ID: <20170504223827.l56sbaozuarq5xwi@piout.net>
+References: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
+ <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1493715444-79142-1-git-send-email-hehy1@lenovo.com>
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,83 +27,182 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, 02 May, at 08:51:47AM, Ocean HY1 He wrote:
-> The commit 7efe665903d0 ("rtc: Disable EFI rtc for x86") turns off rtc-efi
-> option completely for x86 in rtc/Kconfig, to avoid possible crash caused by
-> buggy implementations of the time-related EFI runtime services.
-> 
-> In fact, there are more and more UEFI firmware has time-related EFI runtime
-> services well done. To meet EFI rtc request for X86, here adds an enable
-> parameter which could be explicitly set as true when load rtc-efi module.
-> To keep consistency, make this enable parameter false for X86 by default.
-> 
-> The test passes on Lenovo ThinkServer RD350 while the UEFI/BIOS version is
-> VB3TS424 and processor is Intel(R) Xeon(R) CPU E5-2660 v3.
-> #modprobe rtc_efi enable=1
-> #cat /sys/class/rtc/rtc1/name
-> rtc-efi
-> #hwclock --rtc=/dev/rtc1 -w
-> #hwclock --rtc=/dev/rtc1 -r
-> 
-> Signed-off-by: Ocean He <hehy1@lenovo.com>
-> ---
->  drivers/rtc/Kconfig   |  2 +-
->  drivers/rtc/rtc-efi.c | 11 +++++++++++
->  2 files changed, 12 insertions(+), 1 deletion(-)
- 
-The key piece of info missing from this changelog is: why?
+Hi,
 
-Why does it make sense to allow this driver to be enabled for x86? All
-the RTC functions should be available via other, better features on
-x86.
- 
-There's no justification for enabling it just because it works on some
-platforms, you need to show it is *essential* somehow.
+On 03/05/2017 at 11:39:34 +0530, Keerthy wrote:
+> On Tuesday 18 April 2017 10:50 AM, Keerthy wrote:
+> > From: Russ Dill <Russ.Dill@ti.com>
+> > 
+> > Many RTCs provide scratch registers that are maintained so long as the RTC
+> > has power. Provide a generic method to access these registers.
+> > 
+> 
+> A gentle ping on this
+> 
 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index ee1b0e9..482200a 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1037,7 +1037,7 @@ config RTC_DRV_DA9063
->  
->  config RTC_DRV_EFI
->  	tristate "EFI RTC"
-> -	depends on EFI && !X86
-> +	depends on EFI
->  	help
->  	  If you say yes here you will get support for the EFI
->  	  Real Time Clock.
-> diff --git a/drivers/rtc/rtc-efi.c b/drivers/rtc/rtc-efi.c
-> index 0130afd..5a8427f 100644
-> --- a/drivers/rtc/rtc-efi.c
-> +++ b/drivers/rtc/rtc-efi.c
-> @@ -23,6 +23,14 @@
->  #include <linux/rtc.h>
->  #include <linux/efi.h>
->  
-> +/*
-> + * Disable the use of rtc-efi as a RTC for X86 by default. This setting can be
-> + * overridden using this module's enable parameter.
-> + */
-> +static bool efi_rtc_enable = !IS_ENABLED(CONFIG_X86);
-> +
-> +module_param_named(enable, efi_rtc_enable, bool, 0644);
-> +
->  #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
->  
->  /*
-> @@ -262,6 +270,9 @@ static int __init efi_rtc_probe(struct platform_device *dev)
->  	efi_time_t eft;
->  	efi_time_cap_t cap;
->  
-> +	if (!efi_rtc_enable)
-> +		return -ENODEV;
-> +
->  	/* First check if the RTC is usable */
->  	if (efi.get_time(&eft, &cap) != EFI_SUCCESS)
->  		return -ENODEV;
-> -- 
-> 1.8.3.1
+Yeah, I apologize for the delay (I know you already sent this 6-8 months
+ago).
+I'm not satisfied with the interface (and its name). I gave a lot of
+thought into it and I'm currently reworking part of the subsystem to
+create a similar feature. I'm planning to have it in 4.13.
+
+> > Signed-off-by: Russ Dill <Russ.Dill@ti.com>
+> > Signed-off-by: Keerthy <j-keerthy@ti.com>
+> > ---
+> >  drivers/rtc/interface.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++++
+> >  drivers/rtc/rtc-omap.c  | 35 ++++++++++++++++++++++++++++++++++
+> >  include/linux/rtc.h     |  7 +++++++
+> >  3 files changed, 92 insertions(+)
+> > 
+> > diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> > index fc0fa75..facde06 100644
+> > --- a/drivers/rtc/interface.c
+> > +++ b/drivers/rtc/interface.c
+> > @@ -1016,3 +1016,53 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+> >  	mutex_unlock(&rtc->ops_lock);
+> >  	return ret;
+> >  }
+> > +
+> > +/* rtc_read_scratch - Read from RTC scratch register
+> > + * @ rtc: rtc device to be used
+> > + * @ index: index of scratch register
+> > + * @ value: returned value read
+> > + *
+> > + * Kernel interface read from an RTC scratch register
+> > + */
+> > +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value)
+> > +{
+> > +	int err;
+> > +
+> > +	mutex_lock(&rtc->ops_lock);
+> > +	if (!rtc->ops)
+> > +		err = -ENODEV;
+> > +	else if (index >= rtc->ops->scratch_size || !rtc->ops->read_scratch)
+> > +		err = -EINVAL;
+> > +	else
+> > +		err = rtc->ops->read_scratch(rtc->dev.parent, index, value);
+> > +	mutex_unlock(&rtc->ops_lock);
+> > +	return err;
+> > +}
+> > +EXPORT_SYMBOL_GPL(rtc_read_scratch);
+> > +
+> > +/* rtc_write_scratch - Write to RTC scratch register
+> > + * @ rtc: rtc device to be used
+> > + * @ index: index of scratch register
+> > + * @ value: value to write
+> > + *
+> > + * Kernel interface write to an RTC scratch register
+> > + */
+> > +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value)
+> > +{
+> > +	int err;
+> > +
+> > +	mutex_lock(&rtc->ops_lock);
+> > +
+> > +	if (!rtc->ops)
+> > +		err = -ENODEV;
+> > +	else if (index >= rtc->ops->scratch_size ||
+> > +		 !rtc->ops->write_scratch)
+> > +		err = -EINVAL;
+> > +	else
+> > +		err = rtc->ops->write_scratch(rtc->dev.parent, index, value);
+> > +
+> > +	mutex_unlock(&rtc->ops_lock);
+> > +
+> > +	return err;
+> > +}
+> > +EXPORT_SYMBOL_GPL(rtc_write_scratch);
+> > diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> > index 13f7cd1..c90d93e 100644
+> > --- a/drivers/rtc/rtc-omap.c
+> > +++ b/drivers/rtc/rtc-omap.c
+> > @@ -70,6 +70,10 @@
+> >  #define OMAP_RTC_COMP_MSB_REG		0x50
+> >  #define OMAP_RTC_OSC_REG		0x54
+> >  
+> > +#define OMAP_RTC_SCRATCH0_REG		0x60
+> > +#define OMAP_RTC_SCRATCH1_REG		0x64
+> > +#define OMAP_RTC_SCRATCH2_REG		0x68
+> > +
+> >  #define OMAP_RTC_KICK0_REG		0x6c
+> >  #define OMAP_RTC_KICK1_REG		0x70
+> >  
+> > @@ -414,6 +418,34 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+> >  
+> >  static struct omap_rtc *omap_rtc_power_off_rtc;
+> >  
+> > +static const u32 omap_rtc_scratch_regs[] = {
+> > +	OMAP_RTC_SCRATCH0_REG,
+> > +	OMAP_RTC_SCRATCH1_REG,
+> > +	OMAP_RTC_SCRATCH2_REG,
+> > +};
+> > +
+> > +static int omap_rtc_read_scratch(struct device *dev, unsigned int index,
+> > +				 u32 *value)
+> > +{
+> > +	*value = readl(omap_rtc_power_off_rtc->base +
+> > +		       omap_rtc_scratch_regs[index]);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int omap_rtc_write_scratch(struct device *dev, unsigned int index,
+> > +				  u32 value)
+> > +{
+> > +	struct omap_rtc *rtc = dev_get_drvdata(dev);
+> > +
+> > +	rtc->type->unlock(rtc);
+> > +	writel(value, omap_rtc_power_off_rtc->base +
+> > +	       omap_rtc_scratch_regs[index]);
+> > +	rtc->type->lock(rtc);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >  /*
+> >   * omap_rtc_poweroff: RTC-controlled power off
+> >   *
+> > @@ -484,6 +516,9 @@ static void omap_rtc_power_off(void)
+> >  	.read_alarm	= omap_rtc_read_alarm,
+> >  	.set_alarm	= omap_rtc_set_alarm,
+> >  	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
+> > +	.read_scratch	= omap_rtc_read_scratch,
+> > +	.write_scratch	= omap_rtc_write_scratch,
+> > +	.scratch_size	= ARRAY_SIZE(omap_rtc_scratch_regs),
+> >  };
+> >  
+> >  static const struct omap_rtc_device_type omap_rtc_default_type = {
+> > diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> > index b693ada..da5e003 100644
+> > --- a/include/linux/rtc.h
+> > +++ b/include/linux/rtc.h
+> > @@ -91,6 +91,10 @@ struct rtc_class_ops {
+> >  	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
+> >  	int (*read_offset)(struct device *, long *offset);
+> >  	int (*set_offset)(struct device *, long offset);
+> > +	int (*read_scratch)(struct device *, unsigned int, u32*);
+> > +	int (*write_scratch)(struct device *, unsigned int, u32);
+> > +
+> > +	unsigned int scratch_size;
+> >  };
+> >  
+> >  #define RTC_DEVICE_NAME_SIZE 20
+> > @@ -214,6 +218,9 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+> >  int rtc_set_offset(struct rtc_device *rtc, long offset);
+> >  void rtc_timer_do_work(struct work_struct *work);
+> >  
+> > +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value);
+> > +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value);
+> > +
+> >  static inline bool is_leap_year(unsigned int year)
+> >  {
+> >  	return (!(year % 4) && (year % 100)) || !(year % 400);
+> > 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
