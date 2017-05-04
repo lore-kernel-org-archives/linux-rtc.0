@@ -1,22 +1,21 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIHEV3EAKGQEGVTWGOA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFPEV3EAKGQE3COAP5A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id b84si19547wmh.2.2017.05.04.15.58.40
+        by gmr-mx.google.com with ESMTP id v4si21351wmv.1.2017.05.04.15.58.28
         for <rtc-linux@googlegroups.com>;
-        Thu, 04 May 2017 15:58:40 -0700 (PDT)
-Date: Fri, 5 May 2017 00:58:29 +0200
+        Thu, 04 May 2017 15:58:28 -0700 (PDT)
+Date: Fri, 5 May 2017 00:58:18 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Pan Bian <bianpan201602@163.com>
-Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Pan Bian <bianpan2016@163.com>
-Subject: [rtc-linux] Re: [PATCH 1/1] rtc: gemini: add return value validation
-Message-ID: <20170504225829.2cjck4vab7d4swu5@piout.net>
-References: <1492951687-16777-1-git-send-email-bianpan201602@163.com>
+To: Pan Bian <bianpan2016@163.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/1] rtc: snvs: fix an incorrect check of
+ return value
+Message-ID: <20170504225818.fjd47dlpdsi2fax6@piout.net>
+References: <1492926204-9535-1-git-send-email-bianpan2016@163.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1492951687-16777-1-git-send-email-bianpan201602@163.com>
+In-Reply-To: <1492926204-9535-1-git-send-email-bianpan2016@163.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -26,19 +25,15 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 23/04/2017 at 20:48:07 +0800, Pan Bian wrote:
-> From: Pan Bian <bianpan2016@163.com>
-> 
-> Function devm_ioremap() will return a NULL pointer if it fails to remap
-> IO address, and its return value should be validated before it is used.
-> However, in function gemini_rtc_probe(), its return value is not
-> checked. This may result in bad memory access bugs on future access,
-> e.g. calling the function gemini_rtc_read_time().
+On 23/04/2017 at 13:43:24 +0800, Pan Bian wrote:
+> Function devm_regmap_init_mmio() returns an ERR_PTR on error. However,
+> in function snvs_rtc_probe() its return value is checked against NULL.
+> This patch fixes it by checking the return value with IS_ERR().
 > 
 > Signed-off-by: Pan Bian <bianpan2016@163.com>
 > ---
->  drivers/rtc/rtc-gemini.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/rtc/rtc-snvs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 Applied, thanks.
 
