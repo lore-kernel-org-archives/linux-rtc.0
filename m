@@ -1,42 +1,26 @@
-Return-Path: <rtc-linux+bncBDMLN5HOIYIOPT5PZECRUBAITP5LK@googlegroups.com>
+Return-Path: <rtc-linux+bncBD66BCOYSQBBBA7EV7EAKGQELAEGH5Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mailout1.samsung.com (mailout1.samsung.com. [203.254.224.24])
-        by gmr-mx.google.com with ESMTPS id m6si670137pfa.12.2017.05.29.02.20.39
+Received: from fllnx210.ext.ti.com (fllnx210.ext.ti.com. [198.47.19.17])
+        by gmr-mx.google.com with ESMTPS id 202si38801itv.0.2017.05.04.20.31.14
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 May 2017 02:20:39 -0700 (PDT)
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Russell
-	King <linux@armlinux.org.uk>, Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Kishon Vijay
-	Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Thierry
-	Reding <thierry.reding@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark
-	Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, Felipe Balbi
-	<balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel
-	Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Peter
-	Ujfalusi <peter.ujfalusi@ti.com>, Jaroslav Kysela <perex@perex.cz>, Takashi
-	Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Mon, 29 May 2017 11:20:33 +0200
-Message-id: <7306372.PblijfWnMI@amdc3058>
-In-reply-to: <20170521220212.1404-4-wsa@the-dreams.de>
-MIME-version: 1.0
-Content-type: text/plain; charset="UTF-8"
-References: <20170521220212.1404-1-wsa@the-dreams.de>
-	<CGME20170521220224epcas2p4fbcfe69660d457b8af95ddc196c04a9b@epcas2p4.samsung.com>
-	<20170521220212.1404-4-wsa@the-dreams.de>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Thu, 04 May 2017 20:31:14 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] RTC: Add functionality to read/write rtc
+ scratch registers
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
+ <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
+ <20170504223827.l56sbaozuarq5xwi@piout.net>
+CC: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
+        <linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>,
+        Russ Dill
+	<Russ.Dill@ti.com>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <48ad1d72-e007-b453-78c2-5a1fec8ec8e5@ti.com>
+Date: Fri, 5 May 2017 09:01:08 +0530
+MIME-Version: 1.0
+In-Reply-To: <20170504223827.l56sbaozuarq5xwi@piout.net>
+Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -46,48 +30,184 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Monday, May 22, 2017 12:02:10 AM Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
+
+
+On Friday 05 May 2017 04:08 AM, Alexandre Belloni wrote:
+> Hi,
 > 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> On 03/05/2017 at 11:39:34 +0530, Keerthy wrote:
+>> On Tuesday 18 April 2017 10:50 AM, Keerthy wrote:
+>>> From: Russ Dill <Russ.Dill@ti.com>
+>>>
+>>> Many RTCs provide scratch registers that are maintained so long as the RTC
+>>> has power. Provide a generic method to access these registers.
+>>>
+>>
+>> A gentle ping on this
+>>
+> 
+> Yeah, I apologize for the delay (I know you already sent this 6-8 months
+> ago).
+> I'm not satisfied with the interface (and its name). I gave a lot of
+> thought into it and I'm currently reworking part of the subsystem to
+> create a similar feature. I'm planning to have it in 4.13.
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Okay then i will wait for that. Thanks for the response.
 
-> ---
->  arch/arm/mach-omap2/common.h            | 2 +-
->  arch/arm/mach-omap2/omap_twl.c          | 2 +-
->  drivers/gpio/gpio-twl4030.c             | 2 +-
->  drivers/iio/adc/twl4030-madc.c          | 2 +-
->  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
->  drivers/input/keyboard/twl4030_keypad.c | 2 +-
->  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
->  drivers/input/misc/twl4030-vibra.c      | 2 +-
->  drivers/mfd/twl-core.c                  | 6 +++---
->  drivers/mfd/twl4030-audio.c             | 2 +-
->  drivers/mfd/twl4030-irq.c               | 2 +-
->  drivers/mfd/twl4030-power.c             | 2 +-
->  drivers/mfd/twl6030-irq.c               | 2 +-
->  drivers/phy/phy-twl4030-usb.c           | 2 +-
->  drivers/power/supply/twl4030_charger.c  | 2 +-
->  drivers/pwm/pwm-twl-led.c               | 2 +-
->  drivers/pwm/pwm-twl.c                   | 2 +-
->  drivers/regulator/twl-regulator.c       | 2 +-
->  drivers/regulator/twl6030-regulator.c   | 2 +-
->  drivers/rtc/rtc-twl.c                   | 2 +-
->  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
->  drivers/video/backlight/pandora_bl.c    | 2 +-
->  drivers/watchdog/twl4030_wdt.c          | 2 +-
->  include/linux/{i2c => mfd}/twl.h        | 0
->  sound/soc/codecs/twl4030.c              | 2 +-
->  25 files changed, 26 insertions(+), 26 deletions(-)
->  rename include/linux/{i2c => mfd}/twl.h (100%)
-
-Best regards,
---
-Bartlomiej Zolnierkiewicz
-Samsung R&D Institute Poland
-Samsung Electronics
+> 
+>>> Signed-off-by: Russ Dill <Russ.Dill@ti.com>
+>>> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>>> ---
+>>>  drivers/rtc/interface.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++++
+>>>  drivers/rtc/rtc-omap.c  | 35 ++++++++++++++++++++++++++++++++++
+>>>  include/linux/rtc.h     |  7 +++++++
+>>>  3 files changed, 92 insertions(+)
+>>>
+>>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+>>> index fc0fa75..facde06 100644
+>>> --- a/drivers/rtc/interface.c
+>>> +++ b/drivers/rtc/interface.c
+>>> @@ -1016,3 +1016,53 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+>>>  	mutex_unlock(&rtc->ops_lock);
+>>>  	return ret;
+>>>  }
+>>> +
+>>> +/* rtc_read_scratch - Read from RTC scratch register
+>>> + * @ rtc: rtc device to be used
+>>> + * @ index: index of scratch register
+>>> + * @ value: returned value read
+>>> + *
+>>> + * Kernel interface read from an RTC scratch register
+>>> + */
+>>> +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value)
+>>> +{
+>>> +	int err;
+>>> +
+>>> +	mutex_lock(&rtc->ops_lock);
+>>> +	if (!rtc->ops)
+>>> +		err = -ENODEV;
+>>> +	else if (index >= rtc->ops->scratch_size || !rtc->ops->read_scratch)
+>>> +		err = -EINVAL;
+>>> +	else
+>>> +		err = rtc->ops->read_scratch(rtc->dev.parent, index, value);
+>>> +	mutex_unlock(&rtc->ops_lock);
+>>> +	return err;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(rtc_read_scratch);
+>>> +
+>>> +/* rtc_write_scratch - Write to RTC scratch register
+>>> + * @ rtc: rtc device to be used
+>>> + * @ index: index of scratch register
+>>> + * @ value: value to write
+>>> + *
+>>> + * Kernel interface write to an RTC scratch register
+>>> + */
+>>> +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value)
+>>> +{
+>>> +	int err;
+>>> +
+>>> +	mutex_lock(&rtc->ops_lock);
+>>> +
+>>> +	if (!rtc->ops)
+>>> +		err = -ENODEV;
+>>> +	else if (index >= rtc->ops->scratch_size ||
+>>> +		 !rtc->ops->write_scratch)
+>>> +		err = -EINVAL;
+>>> +	else
+>>> +		err = rtc->ops->write_scratch(rtc->dev.parent, index, value);
+>>> +
+>>> +	mutex_unlock(&rtc->ops_lock);
+>>> +
+>>> +	return err;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(rtc_write_scratch);
+>>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>>> index 13f7cd1..c90d93e 100644
+>>> --- a/drivers/rtc/rtc-omap.c
+>>> +++ b/drivers/rtc/rtc-omap.c
+>>> @@ -70,6 +70,10 @@
+>>>  #define OMAP_RTC_COMP_MSB_REG		0x50
+>>>  #define OMAP_RTC_OSC_REG		0x54
+>>>  
+>>> +#define OMAP_RTC_SCRATCH0_REG		0x60
+>>> +#define OMAP_RTC_SCRATCH1_REG		0x64
+>>> +#define OMAP_RTC_SCRATCH2_REG		0x68
+>>> +
+>>>  #define OMAP_RTC_KICK0_REG		0x6c
+>>>  #define OMAP_RTC_KICK1_REG		0x70
+>>>  
+>>> @@ -414,6 +418,34 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>>>  
+>>>  static struct omap_rtc *omap_rtc_power_off_rtc;
+>>>  
+>>> +static const u32 omap_rtc_scratch_regs[] = {
+>>> +	OMAP_RTC_SCRATCH0_REG,
+>>> +	OMAP_RTC_SCRATCH1_REG,
+>>> +	OMAP_RTC_SCRATCH2_REG,
+>>> +};
+>>> +
+>>> +static int omap_rtc_read_scratch(struct device *dev, unsigned int index,
+>>> +				 u32 *value)
+>>> +{
+>>> +	*value = readl(omap_rtc_power_off_rtc->base +
+>>> +		       omap_rtc_scratch_regs[index]);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int omap_rtc_write_scratch(struct device *dev, unsigned int index,
+>>> +				  u32 value)
+>>> +{
+>>> +	struct omap_rtc *rtc = dev_get_drvdata(dev);
+>>> +
+>>> +	rtc->type->unlock(rtc);
+>>> +	writel(value, omap_rtc_power_off_rtc->base +
+>>> +	       omap_rtc_scratch_regs[index]);
+>>> +	rtc->type->lock(rtc);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>>  /*
+>>>   * omap_rtc_poweroff: RTC-controlled power off
+>>>   *
+>>> @@ -484,6 +516,9 @@ static void omap_rtc_power_off(void)
+>>>  	.read_alarm	= omap_rtc_read_alarm,
+>>>  	.set_alarm	= omap_rtc_set_alarm,
+>>>  	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
+>>> +	.read_scratch	= omap_rtc_read_scratch,
+>>> +	.write_scratch	= omap_rtc_write_scratch,
+>>> +	.scratch_size	= ARRAY_SIZE(omap_rtc_scratch_regs),
+>>>  };
+>>>  
+>>>  static const struct omap_rtc_device_type omap_rtc_default_type = {
+>>> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+>>> index b693ada..da5e003 100644
+>>> --- a/include/linux/rtc.h
+>>> +++ b/include/linux/rtc.h
+>>> @@ -91,6 +91,10 @@ struct rtc_class_ops {
+>>>  	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
+>>>  	int (*read_offset)(struct device *, long *offset);
+>>>  	int (*set_offset)(struct device *, long offset);
+>>> +	int (*read_scratch)(struct device *, unsigned int, u32*);
+>>> +	int (*write_scratch)(struct device *, unsigned int, u32);
+>>> +
+>>> +	unsigned int scratch_size;
+>>>  };
+>>>  
+>>>  #define RTC_DEVICE_NAME_SIZE 20
+>>> @@ -214,6 +218,9 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+>>>  int rtc_set_offset(struct rtc_device *rtc, long offset);
+>>>  void rtc_timer_do_work(struct work_struct *work);
+>>>  
+>>> +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value);
+>>> +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value);
+>>> +
+>>>  static inline bool is_leap_year(unsigned int year)
+>>>  {
+>>>  	return (!(year % 4) && (year % 100)) || !(year % 400);
+>>>
+> 
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
