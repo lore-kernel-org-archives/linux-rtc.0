@@ -1,468 +1,137 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBWODR7EQKGQEGIEGCHA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id b67si532428wme.1.2017.05.23.00.16.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 May 2017 00:16:40 -0700 (PDT)
-Received: by mail-wm0-x22e.google.com with SMTP id b84so13848289wmh.0
-        for <rtc-linux@googlegroups.com>; Tue, 23 May 2017 00:16:40 -0700 (PDT)
-Date: Tue, 23 May 2017 08:16:36 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Kishon Vijay Abraham I <kishon@ti.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Felipe Balbi <balbi@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Daniel Thompson <daniel.thompson@linaro.org>,
-	Jingoo Han <jingoohan1@gmail.com>,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Peter Ujfalusi <peter.ujfalusi@ti.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	alsa-devel@alsa-project.org
-Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Message-ID: <20170523071636.hiws54msfxpg6qkb@dell>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <mdf@kernel.org>
+From: Moritz Fischer <mdf@kernel.org>
+To: linux-watchdog@vger.kernel.org
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	lee.jones@linaro.org,
+	devicetree@vger.kernel.org,
+	linux@roeck-us.net,
+	wim@iguana.be,
+	alexandre.belloni@free-electrons.com,
+	a.zummo@towertech.it,
+	mark.rutland@arm.com,
+	robh+dt@kernel.org,
+	moritz.fischer@ettus.com,
+	Moritz Fischer <mdf@kernel.org>
+Subject: [RFC/PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD device binding
+Date: Tue,  9 May 2017 11:20:20 -0700
+Message-Id: <1494354021-370-1-git-send-email-mdf@kernel.org>
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 22 May 2017, Wolfram Sang wrote:
+This adds a binding for the Maxim/Dallas DS1374 MFD.
 
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  arch/arm/mach-omap2/common.h            | 2 +-
->  arch/arm/mach-omap2/omap_twl.c          | 2 +-
->  drivers/gpio/gpio-twl4030.c             | 2 +-
->  drivers/iio/adc/twl4030-madc.c          | 2 +-
->  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
->  drivers/input/keyboard/twl4030_keypad.c | 2 +-
->  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
->  drivers/input/misc/twl4030-vibra.c      | 2 +-
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+---
 
->  drivers/mfd/twl-core.c                  | 6 +++---
->  drivers/mfd/twl4030-audio.c             | 2 +-
->  drivers/mfd/twl4030-irq.c               | 2 +-
->  drivers/mfd/twl4030-power.c             | 2 +-
->  drivers/mfd/twl6030-irq.c               | 2 +-
+Hi all,
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+I'm not entirely sure aobut the binding, does anyone
+have a better suggestion for the remap-wdt-reset property?
 
-I guess this will be going through the MFD tree?
+Thanks,
 
->  drivers/phy/phy-twl4030-usb.c           | 2 +-
->  drivers/power/supply/twl4030_charger.c  | 2 +-
->  drivers/pwm/pwm-twl-led.c               | 2 +-
->  drivers/pwm/pwm-twl.c                   | 2 +-
->  drivers/regulator/twl-regulator.c       | 2 +-
->  drivers/regulator/twl6030-regulator.c   | 2 +-
->  drivers/rtc/rtc-twl.c                   | 2 +-
->  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
->  drivers/video/backlight/pandora_bl.c    | 2 +-
->  drivers/watchdog/twl4030_wdt.c          | 2 +-
->  include/linux/{i2c =3D> mfd}/twl.h        | 0
->  sound/soc/codecs/twl4030.c              | 2 +-
->  25 files changed, 26 insertions(+), 26 deletions(-)
->  rename include/linux/{i2c =3D> mfd}/twl.h (100%)
->=20
-> diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-> index 8cc6338fcb1288..b5ad7fcb80ed24 100644
-> --- a/arch/arm/mach-omap2/common.h
-> +++ b/arch/arm/mach-omap2/common.h
-> @@ -29,7 +29,7 @@
->  #include <linux/irq.h>
->  #include <linux/delay.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/i2c-omap.h>
->  #include <linux/reboot.h>
->  #include <linux/irqchip/irq-omap-intc.h>
-> diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_tw=
-l.c
-> index 1346b3ab34a5e3..295124b248ae3f 100644
-> --- a/arch/arm/mach-omap2/omap_twl.c
-> +++ b/arch/arm/mach-omap2/omap_twl.c
-> @@ -16,7 +16,7 @@
->  #include <linux/err.h>
->  #include <linux/io.h>
->  #include <linux/kernel.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  #include "soc.h"
->  #include "voltage.h"
-> diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
-> index 24f388ed46d4c4..9b511df5450eb6 100644
-> --- a/drivers/gpio/gpio-twl4030.c
-> +++ b/drivers/gpio/gpio-twl4030.c
-> @@ -35,7 +35,7 @@
->  #include <linux/of.h>
->  #include <linux/irqdomain.h>
-> =20
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  /*
->   * The GPIO "subchip" supports 18 GPIOs which can be configured as
-> diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-mad=
-c.c
-> index 0c74869a540ad3..5a64eda1652061 100644
-> --- a/drivers/iio/adc/twl4030-madc.c
-> +++ b/drivers/iio/adc/twl4030-madc.c
-> @@ -35,7 +35,7 @@
->  #include <linux/delay.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/i2c/twl4030-madc.h>
->  #include <linux/module.h>
->  #include <linux/stddef.h>
-> diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gp=
-adc.c
-> index becbb0aef232b9..bc0e60b9da452e 100644
-> --- a/drivers/iio/adc/twl6030-gpadc.c
-> +++ b/drivers/iio/adc/twl6030-gpadc.c
-> @@ -33,7 +33,7 @@
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/of_platform.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/iio/iio.h>
->  #include <linux/iio/sysfs.h>
-> =20
-> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyb=
-oard/twl4030_keypad.c
-> index 39e72b3219d8a4..f9f98ef1d98e3f 100644
-> --- a/drivers/input/keyboard/twl4030_keypad.c
-> +++ b/drivers/input/keyboard/twl4030_keypad.c
-> @@ -30,7 +30,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/input.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
->  #include <linux/of.h>
-> =20
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/=
-twl4030-pwrbutton.c
-> index 1c13005b228fa7..b307cca1702226 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -27,7 +27,7 @@
->  #include <linux/input.h>
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  #define PWR_PWRON_IRQ (1 << 0)
-> =20
-> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4=
-030-vibra.c
-> index caa5a62c42fbe0..6c51d404874bbd 100644
-> --- a/drivers/input/misc/twl4030-vibra.c
-> +++ b/drivers/input/misc/twl4030-vibra.c
-> @@ -28,7 +28,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/workqueue.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/mfd/twl4030-audio.h>
->  #include <linux/input.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-> index c64615dca2bd33..2a09dde4ca6efc 100644
-> --- a/drivers/mfd/twl-core.c
-> +++ b/drivers/mfd/twl-core.c
-> @@ -44,7 +44,7 @@
->  #include <linux/regulator/machine.h>
-> =20
->  #include <linux/i2c.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  /* Register descriptions for audio */
->  #include <linux/mfd/twl4030-audio.h>
-> @@ -173,7 +173,7 @@ static struct twl_private *twl_priv;
->  static struct twl_mapping twl4030_map[] =3D {
->  	/*
->  	 * NOTE:  don't change this table without updating the
-> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
->  	 * so they continue to match the order in this table.
->  	 */
-> =20
-> @@ -344,7 +344,7 @@ static const struct regmap_config twl4030_regmap_conf=
-ig[4] =3D {
->  static struct twl_mapping twl6030_map[] =3D {
->  	/*
->  	 * NOTE:  don't change this table without updating the
-> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
->  	 * so they continue to match the order in this table.
->  	 */
-> =20
-> diff --git a/drivers/mfd/twl4030-audio.c b/drivers/mfd/twl4030-audio.c
-> index 0a1606480023f9..da16bf45fab43e 100644
-> --- a/drivers/mfd/twl4030-audio.c
-> +++ b/drivers/mfd/twl4030-audio.c
-> @@ -30,7 +30,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_platform.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/mfd/core.h>
->  #include <linux/mfd/twl4030-audio.h>
-> =20
-> diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
-> index b46c0cfc27d958..86f8fd8e81e4b5 100644
-> --- a/drivers/mfd/twl4030-irq.c
-> +++ b/drivers/mfd/twl4030-irq.c
-> @@ -33,7 +33,7 @@
->  #include <linux/slab.h>
->  #include <linux/of.h>
->  #include <linux/irqdomain.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  #include "twl-core.h"
-> =20
-> diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
-> index f4b2c29d77e330..6b36932263ba78 100644
-> --- a/drivers/mfd/twl4030-power.c
-> +++ b/drivers/mfd/twl4030-power.c
-> @@ -25,7 +25,7 @@
-> =20
->  #include <linux/module.h>
->  #include <linux/pm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> diff --git a/drivers/mfd/twl6030-irq.c b/drivers/mfd/twl6030-irq.c
-> index 53574508a613f2..e3ec8dfa9f1ec0 100644
-> --- a/drivers/mfd/twl6030-irq.c
-> +++ b/drivers/mfd/twl6030-irq.c
-> @@ -35,7 +35,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/irq.h>
->  #include <linux/kthread.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/platform_device.h>
->  #include <linux/suspend.h>
->  #include <linux/of.h>
-> diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.=
-c
-> index 2990b3965460e8..28f49902760d82 100644
-> --- a/drivers/phy/phy-twl4030-usb.c
-> +++ b/drivers/phy/phy-twl4030-usb.c
-> @@ -36,7 +36,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/usb/musb.h>
->  #include <linux/usb/ulpi.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/regulator/consumer.h>
->  #include <linux/err.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/suppl=
-y/twl4030_charger.c
-> index 2f82d0e9ec1bf7..390bfde86ae39b 100644
-> --- a/drivers/power/supply/twl4030_charger.c
-> +++ b/drivers/power/supply/twl4030_charger.c
-> @@ -18,7 +18,7 @@
->  #include <linux/err.h>
->  #include <linux/platform_device.h>
->  #include <linux/interrupt.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/power_supply.h>
->  #include <linux/notifier.h>
->  #include <linux/usb/otg.h>
-> diff --git a/drivers/pwm/pwm-twl-led.c b/drivers/pwm/pwm-twl-led.c
-> index 21eff991d0e355..01153622778bad 100644
-> --- a/drivers/pwm/pwm-twl-led.c
-> +++ b/drivers/pwm/pwm-twl-led.c
-> @@ -24,7 +24,7 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pwm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
-> =20
->  /*
-> diff --git a/drivers/pwm/pwm-twl.c b/drivers/pwm/pwm-twl.c
-> index 9de617b766801b..b7a45be998153b 100644
-> --- a/drivers/pwm/pwm-twl.c
-> +++ b/drivers/pwm/pwm-twl.c
-> @@ -21,7 +21,7 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pwm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
-> =20
->  /*
-> diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-re=
-gulator.c
-> index 6c9ec84121bde4..a4456db5849d06 100644
-> --- a/drivers/regulator/twl-regulator.c
-> +++ b/drivers/regulator/twl-regulator.c
-> @@ -20,7 +20,7 @@
->  #include <linux/regulator/driver.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/regulator/of_regulator.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/delay.h>
-> =20
->  /*
-> diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/tw=
-l6030-regulator.c
-> index 56aada38788776..219cbd910dbf52 100644
-> --- a/drivers/regulator/twl6030-regulator.c
-> +++ b/drivers/regulator/twl6030-regulator.c
-> @@ -21,7 +21,7 @@
->  #include <linux/regulator/driver.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/regulator/of_regulator.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/delay.h>
-> =20
->  struct twlreg_info {
-> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-> index c18c39212ce680..3472e79f2b1782 100644
-> --- a/drivers/rtc/rtc-twl.c
-> +++ b/drivers/rtc/rtc-twl.c
-> @@ -31,7 +31,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/of.h>
-> =20
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  enum twl_class {
->  	TWL_4030 =3D 0,
-> diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6=
-030-usb.c
-> index 628b600b02b174..b5dc077ed7d3c6 100644
-> --- a/drivers/usb/phy/phy-twl6030-usb.c
-> +++ b/drivers/usb/phy/phy-twl6030-usb.c
-> @@ -28,7 +28,7 @@
->  #include <linux/usb/musb.h>
->  #include <linux/usb/phy_companion.h>
->  #include <linux/phy/omap_usb.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/regulator/consumer.h>
->  #include <linux/err.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/video/backlight/pandora_bl.c b/drivers/video/backlig=
-ht/pandora_bl.c
-> index 5d8bb8b201835d..a186bc677c7d80 100644
-> --- a/drivers/video/backlight/pandora_bl.c
-> +++ b/drivers/video/backlight/pandora_bl.c
-> @@ -16,7 +16,7 @@
->  #include <linux/delay.h>
->  #include <linux/fb.h>
->  #include <linux/backlight.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/err.h>
-> =20
->  #define TWL_PWM0_ON		0x00
-> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wd=
-t.c
-> index 9bf3cc0f396106..569fe85e52da75 100644
-> --- a/drivers/watchdog/twl4030_wdt.c
-> +++ b/drivers/watchdog/twl4030_wdt.c
-> @@ -24,7 +24,7 @@
->  #include <linux/kernel.h>
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
-> =20
->  #define TWL4030_WATCHDOG_CFG_REG_OFFS	0x3
-> =20
-> diff --git a/include/linux/i2c/twl.h b/include/linux/mfd/twl.h
-> similarity index 100%
-> rename from include/linux/i2c/twl.h
-> rename to include/linux/mfd/twl.h
-> diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
-> index a2104d68169d9e..bd86a2d78c5ff2 100644
-> --- a/sound/soc/codecs/twl4030.c
-> +++ b/sound/soc/codecs/twl4030.c
-> @@ -28,7 +28,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_gpio.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
->  #include <linux/gpio.h>
->  #include <sound/core.h>
+Moritz
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+---
+ Documentation/devicetree/bindings/mfd/ds1374.txt   | 63 ++++++++++++++++++++++
+ .../devicetree/bindings/trivial-devices.txt        |  1 -
+ drivers/rtc/Kconfig                                |  2 +
+ 3 files changed, 65 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
 
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+diff --git a/Documentation/devicetree/bindings/mfd/ds1374.txt b/Documentation/devicetree/bindings/mfd/ds1374.txt
+new file mode 100644
+index 0000000..b22396f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/ds1374.txt
+@@ -0,0 +1,63 @@
++* Device tree bindings for Maxim/Dallas DS1374 Multi Function Device (MFD)
++
++The Maxim/Dallas DS1374 is a multi function device that combines rtc,
++watchdog or alarm, as well as trickle charger.
++
++The DS1374 is connected via I2C.
++
++Required properties:
++- compatible: "dallas,ds1374"
++- reg: I2C slave address
++- dallas,ds1374-mode: Should be one of the following values:
++			<0> for RTC
++			<1> for RTC + Alarm (Interrupt)
++			<2> for RTC + Watchdog
++
++Required child:
++A single available child device of type matching the "dallas,ds1374-mode"
++property.
++
++Optional properties (watchdog):
++- dallas,ds1374-remap-wdt-reset: Boolean describing whether the INT pin
++				 on the device is used as interrupt for
++				 the alarm
++
++See ../watchdog/* for generic watchdog bindings.
++
++Optional properties (real time clock):
++- interrupt: phandle to interrupt cell for the rtc's alarm feature
++
++See ../rtc/* for generic rtc bindings.
++
++Optional properties (trickle-charger):
++- dallas,trickle-resistor-ohms : Selected resistor for trickle charger
++	Values usable for ds1374 are 250, 2000, 4000
++	Should be given if trickle charger should be enabled
++- dallas,trickle-diode-disable : Do not use internal trickle charger diode
++	Should be given if internal trickle charger diode should be disabled
++
++Example for rtc with alarm mode and interrupt:
++
++i2c@12ca0000 {
++	rtc@68 {
++		compatible = "ds1374";
++		reg = <0x68>;
++		interrupts = <&gpio0 62>;
++		dallas,ds1374-mode = <2>
++
++		dallas,trickle-resistor-ohms = <250>;
++		dallas,trickle-diode-disable;
++	};
++};
++
++Example for rtc with watchdog and reset on timeout, with reset remapped
++to the INT pin:
++
++i2c@12ca0000 {
++	rtc@68 {
++		compatible = "ds1374";
++		reg = <0x68>;
++		dallas,ds1374-mode = <2>
++		dallas,ds1374-remap-wdt-reset;
++	};
++};
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index 3e0a34c..f7a50e5 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -29,7 +29,6 @@ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
+ dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
+ dallas,ds1338		I2C RTC with 56-Byte NV RAM
+ dallas,ds1340		I2C RTC with Trickle Charger
+-dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
+ dallas,ds1631		High-Precision Digital Thermometer
+ dallas,ds1682		Total-Elapsed-Time Recorder with Alarm
+ dallas,ds1775		Tiny Digital Thermometer and Thermostat
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8d3b957..e6763fe 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -250,6 +250,8 @@ config RTC_DRV_DS1307_CENTURY
+ 
+ config RTC_DRV_DS1374
+ 	tristate "Dallas/Maxim DS1374"
++	depends on MFD_DS1374
++	depends on REGMAP_I2C
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS1374 real-time clock chips. If an interrupt is associated
+-- 
+2.7.4
