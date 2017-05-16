@@ -1,46 +1,67 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-Date: Wed, 31 May 2017 03:29:04 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: David Lowe <dave-lowe@ntlworld.com>
-Cc: rtc-linux <rtc-linux@googlegroups.com>, linux-rtc@vger.kernel.org
-Subject: Re: [Patch] rtc: rtc-ds1307: enable support for mcp794xx as a wakeup
- source without IRQ
-Message-ID: <20170531012904.ijxsrgf6kb27rzpk@piout.net>
-References: <20170422182800.460265ba@pixelzero>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBYNI5TEAKGQEOF6JBGI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170422182800.460265ba@pixelzero>
-Sender: linux-rtc-owner@vger.kernel.org
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id q200si879291wme.2.2017.05.16.08.01.52
+        for <rtc-linux@googlegroups.com>;
+        Tue, 16 May 2017 08:01:52 -0700 (PDT)
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [rtc-linux] [PATCH] MAINTAINERS: update RTC mailing list
+Date: Tue, 16 May 2017 17:01:37 +0200
+Message-Id: <20170516150137.9220-1-alexandre.belloni@free-electrons.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/04/2017 at 18:28:00 +0100, David Lowe wrote:
-> This patch extends the fixes for ds1337, ds1339, ds3231 in 8bc2a40730ec
-> to mcp794xx devices, so that those parts can similarly be used as a wakeup
-> source without an IRQ to the processor.
-> 
-> Tested on Raspberry Pi ZeroW with MCP79400.
-> 
-> Signed-off-by: David Lowe <dave-lowe@ntlworld.com>
-> ---
-> --- a/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:38.158076224 +0100
-> +++ b/drivers/rtc/rtc-ds1307.c	2017-03-28 16:16:52.248431799 +0100
-> @@ -1487,7 +1487,8 @@ static int ds1307_probe(struct i2c_clien
->  		break;
->  	case mcp794xx:
->  		rtc_ops = &mcp794xx_rtc_ops;
-> -		if (ds1307->client->irq > 0 && chip->alarm) {
-> +		if (chip->alarm && (ds1307->client->irq > 0 ||
-> +						ds1307_can_wakeup_device)) {
->  			irq_handler = mcp794xx_irq;
->  			want_irq = true;
->  		}
+The RTC subsystem mailing list is moving to vger.
 
-I applied it now but it didn't applied cleanly. Can you check tomorrow's
-linux-next?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ MAINTAINERS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks!
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f7d568b8f133..b3863ec142d7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10447,7 +10447,7 @@ S:	Orphan
+ 
+ PXA RTC DRIVER
+ M:	Robert Jarzmik <robert.jarzmik@free.fr>
+-L:	rtc-linux@googlegroups.com
++L:	linux-rtc@vger.kernel.org
+ S:	Maintained
+ 
+ QAT DRIVER
+@@ -10754,7 +10754,7 @@ X:	kernel/torture.c
+ REAL TIME CLOCK (RTC) SUBSYSTEM
+ M:	Alessandro Zummo <a.zummo@towertech.it>
+ M:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+-L:	rtc-linux@googlegroups.com
++L:	linux-rtc@vger.kernel.org
+ Q:	http://patchwork.ozlabs.org/project/rtc-linux/list/
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+ S:	Maintained
+-- 
+2.11.0
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
