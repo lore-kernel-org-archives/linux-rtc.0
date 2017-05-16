@@ -1,25 +1,22 @@
-Return-Path: <rtc-linux+bncBD66BCOYSQBBBA7EV7EAKGQELAEGH5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCOML4NU3EDRBO7Q5PEAKGQEOVGIJ4Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from fllnx210.ext.ti.com (fllnx210.ext.ti.com. [198.47.19.17])
-        by gmr-mx.google.com with ESMTPS id 202si38801itv.0.2017.05.04.20.31.14
+Received: from mout.web.de (mout.web.de. [212.227.17.12])
+        by gmr-mx.google.com with ESMTPS id n5si165312wmg.0.2017.05.16.06.01.46
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 04 May 2017 20:31:14 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH] RTC: Add functionality to read/write rtc
- scratch registers
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
- <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
- <20170504223827.l56sbaozuarq5xwi@piout.net>
-CC: <a.zummo@towertech.it>, <rtc-linux@googlegroups.com>,
-        <linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>,
-        Russ Dill
-	<Russ.Dill@ti.com>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <48ad1d72-e007-b453-78c2-5a1fec8ec8e5@ti.com>
-Date: Fri, 5 May 2017 09:01:08 +0530
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 May 2017 06:01:46 -0700 (PDT)
+To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Chao Xie <chao.xie@marvell.com>,
+ Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
+ Wolfram Sang <wsa@the-dreams.de>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [rtc-linux] [PATCH] rtc-88pm80x: Delete an error message for a failed
+ memory allocation in pm80x_rtc_probe()
+Message-ID: <79e5d766-2e58-4cea-7812-ea45995873ac@users.sourceforge.net>
+Date: Tue, 16 May 2017 15:01:40 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170504223827.l56sbaozuarq5xwi@piout.net>
 Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,184 +27,37 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Tue, 16 May 2017 14:54:13 +0200
 
+Omit an extra message for a memory allocation failure in this function.
 
-On Friday 05 May 2017 04:08 AM, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 03/05/2017 at 11:39:34 +0530, Keerthy wrote:
->> On Tuesday 18 April 2017 10:50 AM, Keerthy wrote:
->>> From: Russ Dill <Russ.Dill@ti.com>
->>>
->>> Many RTCs provide scratch registers that are maintained so long as the RTC
->>> has power. Provide a generic method to access these registers.
->>>
->>
->> A gentle ping on this
->>
-> 
-> Yeah, I apologize for the delay (I know you already sent this 6-8 months
-> ago).
-> I'm not satisfied with the interface (and its name). I gave a lot of
-> thought into it and I'm currently reworking part of the subsystem to
-> create a similar feature. I'm planning to have it in 4.13.
+This issue was detected by using the Coccinelle software.
 
-Okay then i will wait for that. Thanks for the response.
+Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/rtc/rtc-88pm80x.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-> 
->>> Signed-off-by: Russ Dill <Russ.Dill@ti.com>
->>> Signed-off-by: Keerthy <j-keerthy@ti.com>
->>> ---
->>>  drivers/rtc/interface.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++++
->>>  drivers/rtc/rtc-omap.c  | 35 ++++++++++++++++++++++++++++++++++
->>>  include/linux/rtc.h     |  7 +++++++
->>>  3 files changed, 92 insertions(+)
->>>
->>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
->>> index fc0fa75..facde06 100644
->>> --- a/drivers/rtc/interface.c
->>> +++ b/drivers/rtc/interface.c
->>> @@ -1016,3 +1016,53 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
->>>  	mutex_unlock(&rtc->ops_lock);
->>>  	return ret;
->>>  }
->>> +
->>> +/* rtc_read_scratch - Read from RTC scratch register
->>> + * @ rtc: rtc device to be used
->>> + * @ index: index of scratch register
->>> + * @ value: returned value read
->>> + *
->>> + * Kernel interface read from an RTC scratch register
->>> + */
->>> +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value)
->>> +{
->>> +	int err;
->>> +
->>> +	mutex_lock(&rtc->ops_lock);
->>> +	if (!rtc->ops)
->>> +		err = -ENODEV;
->>> +	else if (index >= rtc->ops->scratch_size || !rtc->ops->read_scratch)
->>> +		err = -EINVAL;
->>> +	else
->>> +		err = rtc->ops->read_scratch(rtc->dev.parent, index, value);
->>> +	mutex_unlock(&rtc->ops_lock);
->>> +	return err;
->>> +}
->>> +EXPORT_SYMBOL_GPL(rtc_read_scratch);
->>> +
->>> +/* rtc_write_scratch - Write to RTC scratch register
->>> + * @ rtc: rtc device to be used
->>> + * @ index: index of scratch register
->>> + * @ value: value to write
->>> + *
->>> + * Kernel interface write to an RTC scratch register
->>> + */
->>> +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value)
->>> +{
->>> +	int err;
->>> +
->>> +	mutex_lock(&rtc->ops_lock);
->>> +
->>> +	if (!rtc->ops)
->>> +		err = -ENODEV;
->>> +	else if (index >= rtc->ops->scratch_size ||
->>> +		 !rtc->ops->write_scratch)
->>> +		err = -EINVAL;
->>> +	else
->>> +		err = rtc->ops->write_scratch(rtc->dev.parent, index, value);
->>> +
->>> +	mutex_unlock(&rtc->ops_lock);
->>> +
->>> +	return err;
->>> +}
->>> +EXPORT_SYMBOL_GPL(rtc_write_scratch);
->>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->>> index 13f7cd1..c90d93e 100644
->>> --- a/drivers/rtc/rtc-omap.c
->>> +++ b/drivers/rtc/rtc-omap.c
->>> @@ -70,6 +70,10 @@
->>>  #define OMAP_RTC_COMP_MSB_REG		0x50
->>>  #define OMAP_RTC_OSC_REG		0x54
->>>  
->>> +#define OMAP_RTC_SCRATCH0_REG		0x60
->>> +#define OMAP_RTC_SCRATCH1_REG		0x64
->>> +#define OMAP_RTC_SCRATCH2_REG		0x68
->>> +
->>>  #define OMAP_RTC_KICK0_REG		0x6c
->>>  #define OMAP_RTC_KICK1_REG		0x70
->>>  
->>> @@ -414,6 +418,34 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
->>>  
->>>  static struct omap_rtc *omap_rtc_power_off_rtc;
->>>  
->>> +static const u32 omap_rtc_scratch_regs[] = {
->>> +	OMAP_RTC_SCRATCH0_REG,
->>> +	OMAP_RTC_SCRATCH1_REG,
->>> +	OMAP_RTC_SCRATCH2_REG,
->>> +};
->>> +
->>> +static int omap_rtc_read_scratch(struct device *dev, unsigned int index,
->>> +				 u32 *value)
->>> +{
->>> +	*value = readl(omap_rtc_power_off_rtc->base +
->>> +		       omap_rtc_scratch_regs[index]);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int omap_rtc_write_scratch(struct device *dev, unsigned int index,
->>> +				  u32 value)
->>> +{
->>> +	struct omap_rtc *rtc = dev_get_drvdata(dev);
->>> +
->>> +	rtc->type->unlock(rtc);
->>> +	writel(value, omap_rtc_power_off_rtc->base +
->>> +	       omap_rtc_scratch_regs[index]);
->>> +	rtc->type->lock(rtc);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>>  /*
->>>   * omap_rtc_poweroff: RTC-controlled power off
->>>   *
->>> @@ -484,6 +516,9 @@ static void omap_rtc_power_off(void)
->>>  	.read_alarm	= omap_rtc_read_alarm,
->>>  	.set_alarm	= omap_rtc_set_alarm,
->>>  	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
->>> +	.read_scratch	= omap_rtc_read_scratch,
->>> +	.write_scratch	= omap_rtc_write_scratch,
->>> +	.scratch_size	= ARRAY_SIZE(omap_rtc_scratch_regs),
->>>  };
->>>  
->>>  static const struct omap_rtc_device_type omap_rtc_default_type = {
->>> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
->>> index b693ada..da5e003 100644
->>> --- a/include/linux/rtc.h
->>> +++ b/include/linux/rtc.h
->>> @@ -91,6 +91,10 @@ struct rtc_class_ops {
->>>  	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
->>>  	int (*read_offset)(struct device *, long *offset);
->>>  	int (*set_offset)(struct device *, long offset);
->>> +	int (*read_scratch)(struct device *, unsigned int, u32*);
->>> +	int (*write_scratch)(struct device *, unsigned int, u32);
->>> +
->>> +	unsigned int scratch_size;
->>>  };
->>>  
->>>  #define RTC_DEVICE_NAME_SIZE 20
->>> @@ -214,6 +218,9 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
->>>  int rtc_set_offset(struct rtc_device *rtc, long offset);
->>>  void rtc_timer_do_work(struct work_struct *work);
->>>  
->>> +int rtc_read_scratch(struct rtc_device *rtc, unsigned int index, u32 *value);
->>> +int rtc_write_scratch(struct rtc_device *rtc, unsigned int index, u32 value);
->>> +
->>>  static inline bool is_leap_year(unsigned int year)
->>>  {
->>>  	return (!(year % 4) && (year % 100)) || !(year % 400);
->>>
-> 
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index 466bf7f9a285..ae0e2561ecfa 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -266,10 +266,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
+ 
+ 	if (!pdata) {
+ 		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+-		if (!pdata) {
+-			dev_err(&pdev->dev, "failed to allocate memory\n");
++		if (!pdata)
+ 			return -ENOMEM;
+-		}
+ 	}
+ 
+ 	info =
+-- 
+2.13.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
