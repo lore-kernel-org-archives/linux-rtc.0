@@ -1,198 +1,82 @@
-Return-Path: <moritz.fischer@ettus.com>
-Date: Mon, 15 May 2017 19:34:17 -0700
-From: Moritz Fischer <mdf@kernel.org>
-To: Rob Herring <robh@kernel.org>
-Cc: Moritz Fischer <mdf@kernel.org>, linux-watchdog@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	lee.jones@linaro.org, devicetree@vger.kernel.org,
-	linux@roeck-us.net, wim@iguana.be,
-	alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
-	mark.rutland@arm.com
-Subject: Re: [RFC/PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD
- device binding
-Message-ID: <20170516023417.GA28179@tyrael.amer.corp.natinst.com>
-References: <1494354021-370-1-git-send-email-mdf@kernel.org>
- <20170513000029.tgzt5p67tcl7uhbx@rob-hp-laptop>
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58354 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755761AbdERWaT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 May 2017 18:30:19 -0400
+Date: Thu, 18 May 2017 23:30:00 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Paulius Zaleckas <paulius.zaleckas@gmail.com>,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Janos Laube <janos.dev@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/3] rtc: gemini: Add optional clock handling
+Message-ID: <20170518223000.GP22219@n2100.armlinux.org.uk>
+References: <20170518215635.13505-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-In-Reply-To: <20170513000029.tgzt5p67tcl7uhbx@rob-hp-laptop>
-List-ID: <rtc-linux.googlegroups.com>
-
-
---CE+1k2dSO48ffgeK
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20170518215635.13505-1-linus.walleij@linaro.org>
+Sender: linux-rtc-owner@vger.kernel.org
+List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, May 12, 2017 at 07:00:29PM -0500, Rob Herring wrote:
-> On Tue, May 09, 2017 at 11:20:20AM -0700, Moritz Fischer wrote:
-> > This adds a binding for the Maxim/Dallas DS1374 MFD.
-> >=20
-> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > ---
-> >=20
-> > Hi all,
-> >=20
-> > I'm not entirely sure aobut the binding, does anyone
-> > have a better suggestion for the remap-wdt-reset property?
-> >=20
-> > Thanks,
-> >=20
-> > Moritz
-> >=20
-> > ---
-> >  Documentation/devicetree/bindings/mfd/ds1374.txt   | 63 ++++++++++++++=
-++++++++
-> >  .../devicetree/bindings/trivial-devices.txt        |  1 -
-> >  drivers/rtc/Kconfig                                |  2 +
-> >  3 files changed, 65 insertions(+), 1 deletion(-)
-> >  create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/mfd/ds1374.txt b/Documen=
-tation/devicetree/bindings/mfd/ds1374.txt
-> > new file mode 100644
-> > index 0000000..b22396f
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/mfd/ds1374.txt
-> > @@ -0,0 +1,63 @@
-> > +* Device tree bindings for Maxim/Dallas DS1374 Multi Function Device (=
-MFD)
-> > +
-> > +The Maxim/Dallas DS1374 is a multi function device that combines rtc,
-> > +watchdog or alarm, as well as trickle charger.
-> > +
-> > +The DS1374 is connected via I2C.
-> > +
-> > +Required properties:
-> > +- compatible: "dallas,ds1374"
-> > +- reg: I2C slave address
-> > +- dallas,ds1374-mode: Should be one of the following values:
->=20
-> Just "dallas,mode" is sufficient.
+On Thu, May 18, 2017 at 11:56:33PM +0200, Linus Walleij wrote:
+> +	rtc->pclk = clk_get(dev, "PCLK");
+> +	if (IS_ERR(rtc->pclk)) {
+> +		dev_err(dev, "could not get PCLK\n");
+> +	} else {
+> +		ret = clk_prepare_enable(rtc->pclk);
+> +		if (ret) {
+> +			dev_err(dev, "failed to enable PCLK\n");
+> +			return ret;
 
-Will fix.
->=20
-> > +			<0> for RTC
-> > +			<1> for RTC + Alarm (Interrupt)
-> > +			<2> for RTC + Watchdog
-> > +
-> > +Required child:
-> > +A single available child device of type matching the "dallas,ds1374-mo=
-de"
-> > +property.
-> > +
-> > +Optional properties (watchdog):
-> > +- dallas,ds1374-remap-wdt-reset: Boolean describing whether the INT pin
-> > +				 on the device is used as interrupt for
-> > +				 the alarm
->=20
-> Isn't presence of the interrupt property or not enough? It would be=20
-> kind of useless to have no interrupt and also not do anything on=20
-> timeout.
+Proper cleanup?  Maybe consider using devm_clk_get() right from the get-go?
 
-So you're saying:
+> +		}
+> +	}
+> +	rtc->extclk = clk_get(dev, "EXTCLK");
+> +	if (IS_ERR(rtc->extclk)) {
+> +		dev_err(dev, "could not get EXTCLK\n");
+> +	} else {
+> +		ret = clk_prepare_enable(rtc->extclk);
+> +		if (ret) {
+> +			dev_err(dev, "failed to enable EXTCLK\n");
+> +			return ret;
 
-If interrupt not present AND mode =3D <0> ignore interrupt
+Ditto.
 
-If interrupt present AND mode =3D <1> (maybe define here would be nicer),
-make it an interrupt.
+> +		}
+> +	}
+> +
+>  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+>  	if (!res)
+>  		return -ENODEV;
+> @@ -156,6 +180,10 @@ static int gemini_rtc_remove(struct platform_device *pdev)
+>  {
+>  	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
+>  
+> +	if (!IS_ERR(rtc->extclk))
+> +		clk_disable_unprepare(rtc->extclk);
+> +	if (!IS_ERR(rtc->pclk))
+> +		clk_disable_unprepare(rtc->pclk);
 
-If interrupt not present AND mode =3D <2> then this implies that reset
-output is mapped to RST pin.
+No clk_put(), but if you used devm_clk_get(), you don't need it.
 
-If Interrupt present AND mode =3D <2> then this implies that the reset
-output is (re)mapped to INT pin?
+>  	rtc_device_unregister(rtc->rtc_dev);
+>  
+>  	return 0;
+> -- 
+> 2.9.3
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
->=20
-> > +
-> > +See ../watchdog/* for generic watchdog bindings.
-> > +
-> > +Optional properties (real time clock):
-> > +- interrupt: phandle to interrupt cell for the rtc's alarm feature
-> > +
-> > +See ../rtc/* for generic rtc bindings.
-> > +
-> > +Optional properties (trickle-charger):
-> > +- dallas,trickle-resistor-ohms : Selected resistor for trickle charger
-> > +	Values usable for ds1374 are 250, 2000, 4000
-> > +	Should be given if trickle charger should be enabled
-> > +- dallas,trickle-diode-disable : Do not use internal trickle charger d=
-iode
-> > +	Should be given if internal trickle charger diode should be disabled
-> > +
-> > +Example for rtc with alarm mode and interrupt:
-> > +
-> > +i2c@12ca0000 {
-> > +	rtc@68 {
-> > +		compatible =3D "ds1374";
-> > +		reg =3D <0x68>;
-> > +		interrupts =3D <&gpio0 62>;
-> > +		dallas,ds1374-mode =3D <2>
-> > +
-> > +		dallas,trickle-resistor-ohms =3D <250>;
-> > +		dallas,trickle-diode-disable;
-> > +	};
-> > +};
-> > +
-> > +Example for rtc with watchdog and reset on timeout, with reset remapped
-> > +to the INT pin:
-> > +
-> > +i2c@12ca0000 {
-> > +	rtc@68 {
-> > +		compatible =3D "ds1374";
-> > +		reg =3D <0x68>;
-> > +		dallas,ds1374-mode =3D <2>
-> > +		dallas,ds1374-remap-wdt-reset;
-> > +	};
-> > +};
-> > diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Do=
-cumentation/devicetree/bindings/trivial-devices.txt
-> > index 3e0a34c..f7a50e5 100644
-> > --- a/Documentation/devicetree/bindings/trivial-devices.txt
-> > +++ b/Documentation/devicetree/bindings/trivial-devices.txt
-> > @@ -29,7 +29,6 @@ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
-> >  dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
-> >  dallas,ds1338		I2C RTC with 56-Byte NV RAM
-> >  dallas,ds1340		I2C RTC with Trickle Charger
-> > -dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Ch=
-arger and Reset Input/Output
-> >  dallas,ds1631		High-Precision Digital Thermometer
-> >  dallas,ds1682		Total-Elapsed-Time Recorder with Alarm
-> >  dallas,ds1775		Tiny Digital Thermometer and Thermostat
-> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > index 8d3b957..e6763fe 100644
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -250,6 +250,8 @@ config RTC_DRV_DS1307_CENTURY
-> > =20
-> >  config RTC_DRV_DS1374
-> >  	tristate "Dallas/Maxim DS1374"
-> > +	depends on MFD_DS1374
-> > +	depends on REGMAP_I2C
-> >  	help
-> >  	  If you say yes here you get support for Dallas Semiconductor
-> >  	  DS1374 real-time clock chips. If an interrupt is associated
-> > --=20
-> > 2.7.4
-> >=20
-
-Thanks for the review,
-
-Moritz
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJZGmUnAAoJEL5CEHepFqovYBYH/36oI5nxdl7JdZ3oQbNXWcm4
-QokKjYVqkGlJRL00ml2XcAcxY2ApGcY6SQvo8pqpP9Jz10y9p5NZYB7u3AiGAa9S
-YUHHKrJ4XGYol3fYqv6k6eFBeevejUR+PzH4U/s6mD9FghvmaB2EAOt2a15B/r2+
-EM9tHnQtotEMGhJOLDa21fxL3SlCNitzijZ6vK//T0QhzaZcD8ufKgsX9zJWKtB8
-BWUWDp89X/ibhZbWoJsV6El7dvEcGxmAWTqX0W9hDUQI9QcvGWh1wIWmFpy2cI7r
-ckYNIYynLp9CH6TNkFtlguL0V/jQQagjIaG19NnG5VY8bo7+IK/q4OayEpu48QM=
-=CkSy
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
