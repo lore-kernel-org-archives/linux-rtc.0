@@ -1,65 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gw.hale.at ([89.26.116.210]:46440 "EHLO gw.hale.at"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756581AbdEROxm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 18 May 2017 10:53:42 -0400
-From: Michael Thalmeier <michael.thalmeier@hale.at>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:38230 "EHLO
+        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754297AbdERV4w (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 May 2017 17:56:52 -0400
+Received: by mail-wm0-f53.google.com with SMTP id v15so67497008wmv.1
+        for <linux-rtc@vger.kernel.org>; Thu, 18 May 2017 14:56:52 -0700 (PDT)
+From: Linus Walleij <linus.walleij@linaro.org>
 To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        michael@thalmeier.at
-Subject: [PATCH] rtc: rtc-stmp3xxx: detect power failure on backup power domain
-Date: Thu, 18 May 2017 16:45:21 +0200
-Message-Id: <20170518144521.9294-1-michael.thalmeier@hale.at>
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Cc: Janos Laube <janos.dev@gmail.com>,
+        Paulius Zaleckas <paulius.zaleckas@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org, Po-Yu Chuang <ratbert@faraday-tech.com>
+Subject: [PATCH 2/3] rtc: gemini: Augment DT bindings for Faraday
+Date: Thu, 18 May 2017 23:56:34 +0200
+Message-Id: <20170518215635.13505-2-linus.walleij@linaro.org>
+In-Reply-To: <20170518215635.13505-1-linus.walleij@linaro.org>
+References: <20170518215635.13505-1-linus.walleij@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170518215634.NuNhL7vk7b5nVDRMJLpVBbBVl3dTar1xqIryy_qg4IM@z>
 
-To detect when the backup power domain has lost power a software defined bit
-is set in one of the general purpose persistent registers when writing a new
-time into the rtc.
-When reading the time this bit is checked to determine if a power fail has
-happened since the last time the rtc time was set.
+The Gemini RTC is actually a standard IP block from Faraday
+Technology called FTRTC010. Rename the bindings, add the
+generic compatible string and add definitions for the two
+available clocks.
 
-When we detect a power fail we return -ENODATA.
-
-Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
+Cc: devicetree@vger.kernel.org
+Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/rtc/rtc-stmp3xxx.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ .../devicetree/bindings/rtc/cortina,gemini.txt     | 14 -----------
+ .../devicetree/bindings/rtc/faraday,ftrtc010.txt   | 28 ++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 14 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
 
-diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-index d578e40..51330ec 100644
---- a/drivers/rtc/rtc-stmp3xxx.c
-+++ b/drivers/rtc/rtc-stmp3xxx.c
-@@ -62,6 +62,9 @@
- /* missing bitmask in headers */
- #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
- 
-+#define STMP3XXX_RTC_PERSISTENT2		0x80
-+#define STMP3XXX_RTC_PERSISTENT2_VALID_TIME	0x01
+diff --git a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt b/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+deleted file mode 100644
+index 4ce4e794ddbb..000000000000
+--- a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-* Cortina Systems Gemini RTC
+-
+-Gemini SoC real-time clock.
+-
+-Required properties:
+-- compatible : Should be "cortina,gemini-rtc"
+-
+-Examples:
+-
+-rtc@45000000 {
+-	compatible = "cortina,gemini-rtc";
+-	reg = <0x45000000 0x100>;
+-	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+new file mode 100644
+index 000000000000..e3938f5e0b6c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+@@ -0,0 +1,28 @@
++* Faraday Technology FTRTC010 Real Time Clock
 +
- struct stmp3xxx_rtc_data {
- 	struct rtc_device *rtc;
- 	void __iomem *io;
-@@ -160,6 +163,10 @@ static int stmp3xxx_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 	if (ret)
- 		return ret;
- 
-+	if (!(readl(rtc_data->io + STMP3XXX_RTC_PERSISTENT2) &
-+				STMP3XXX_RTC_PERSISTENT2_VALID_TIME))
-+		return -ENODATA;
++This RTC appears in for example the Storlink Gemini family of
++SoCs.
 +
- 	rtc_time_to_tm(readl(rtc_data->io + STMP3XXX_RTC_SECONDS), rtc_tm);
- 	return 0;
- }
-@@ -169,6 +176,8 @@ static int stmp3xxx_rtc_set_mmss(struct device *dev, unsigned long t)
- 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
- 
- 	writel(t, rtc_data->io + STMP3XXX_RTC_SECONDS);
-+	writel(STMP3XXX_RTC_PERSISTENT2_VALID_TIME,
-+		rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
- 	return stmp3xxx_wait_time(rtc_data);
- }
- 
++Required properties:
++- compatible : Should be one of:
++  "faraday,ftrtc010"
++  "cortina,gemini-rtc", "faraday,ftrtc010"
++
++Optional properties:
++- clocks: when present should contain clock references to the
++  PCLK and EXTCLK clocks. Faraday calls the later CLK1HZ and
++  says the clock should be 1 Hz, but implementers actually seem
++  to choose different clocks here, like Cortina who chose
++  32768 Hz (a typical low-power clock).
++- clock-names: should name the clocks "PCLK" and "EXTCLK"
++  respectively.
++
++Examples:
++
++rtc@45000000 {
++	compatible = "cortina,gemini-rtc";
++	reg = <0x45000000 0x100>;
++	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&foo 0>, <&foo 1>;
++	clock-names = "PCLK", "EXTCLK";
++};
 -- 
-2.9.2
+2.9.3
