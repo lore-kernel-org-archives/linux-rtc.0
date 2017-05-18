@@ -1,75 +1,119 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-From: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARB66Y7DEAKGQEFNZWSSA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v194si1672517wmv.3.2017.05.18.16.21.31
+        for <rtc-linux@googlegroups.com>;
+        Thu, 18 May 2017 16:21:31 -0700 (PDT)
+Received: from localhost (unknown [88.191.26.124])
+	by mail.free-electrons.com (Postfix) with ESMTPSA id B987320DF1
+	for <rtc-linux@googlegroups.com>; Fri, 19 May 2017 01:21:28 +0200 (CEST)
+Resent-Message-ID: <20170518232129.z45lopsfg52m46n3@piout.net>
+From: Linus Walleij <linus.walleij@linaro.org>
 To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>,
-        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH] drivers/rtc/interface.c: Validate alarm-time before handling rollover
-Date: Fri, 19 May 2017 22:18:55 +0530
-Message-Id: <20170519164855.11747-1-vaibhav@linux.vnet.ibm.com>
-Sender: linux-rtc-owner@vger.kernel.org
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-rtc@vger.kernel.org
+Cc: Janos Laube <janos.dev@gmail.com>,
+	Paulius Zaleckas <paulius.zaleckas@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	devicetree@vger.kernel.org,
+	Po-Yu Chuang <ratbert@faraday-tech.com>
+Subject: [rtc-linux] [PATCH 2/3] rtc: gemini: Augment DT bindings for Faraday
+Date: Thu, 18 May 2017 23:56:34 +0200
+Message-Id: <20170518215635.13505-2-linus.walleij@linaro.org>
+In-Reply-To: <20170518215635.13505-1-linus.walleij@linaro.org>
+References: <20170518215635.13505-1-linus.walleij@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-In function __rtc_read_alarm() its possible for an alarm time-stamp to
-be invalid even after replacing missing components with current
-time-stamp. The condition 'alarm->time.tm_year < 70' will trigger this
-case and will cause the call to 'rtc_tm_to_time64(&alarm->time)'
-return a negative value for variable t_alm.
+The Gemini RTC is actually a standard IP block from Faraday
+Technology called FTRTC010. Rename the bindings, add the
+generic compatible string and add definitions for the two
+available clocks.
 
-While handling alarm rollover this negative t_alm (assumed to seconds
-offset from '1970-01-01 00:00:00') is converted back to rtc_time via
-rtc_time64_to_tm() which results in this error log with seemingly
-garbage values:
-
-"rtc rtc0: invalid alarm value: -2-1--1041528741
-2005511117:71582844:32"
-
-This error was generated when the rtc driver (rtc-opal in this case)
-returned an alarm time-stamp of '00-00-00 00:00:00' to indicate that
-the alarm is disabled. Though I have submitted a separate fix for the
-rtc-opal driver, this issue may potentially impact other
-existing/future rtc drivers.
-
-To fix this issue the patch validates the alarm time-stamp just after
-filling up the missing datetime components and if rtc_valid_tm() still
-reports it to be invalid then bails out of the function without
-handling the rollover.
-
-Reported-by: Steve Best <sbest@redhat.com>
-Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Cc: devicetree@vger.kernel.org
+Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/rtc/interface.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/rtc/cortina,gemini.txt     | 14 -----------
+ .../devicetree/bindings/rtc/faraday,ftrtc010.txt   | 28 ++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 14 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index fc0fa75..8cec9a0 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -227,6 +227,13 @@ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- 			missing = year;
- 	}
- 
-+	/* Can't proceed if alarm is still invalid after replacing
-+	 * missing fields.
-+	 */
-+	err = rtc_valid_tm(&alarm->time);
-+	if (err)
-+		goto done;
+diff --git a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt b/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+deleted file mode 100644
+index 4ce4e794ddbb..000000000000
+--- a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-* Cortina Systems Gemini RTC
+-
+-Gemini SoC real-time clock.
+-
+-Required properties:
+-- compatible : Should be "cortina,gemini-rtc"
+-
+-Examples:
+-
+-rtc@45000000 {
+-	compatible = "cortina,gemini-rtc";
+-	reg = <0x45000000 0x100>;
+-	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+new file mode 100644
+index 000000000000..e3938f5e0b6c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+@@ -0,0 +1,28 @@
++* Faraday Technology FTRTC010 Real Time Clock
 +
- 	/* with luck, no rollover is needed */
- 	t_now = rtc_tm_to_time64(&now);
- 	t_alm = rtc_tm_to_time64(&alarm->time);
-@@ -278,9 +285,9 @@ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- 		dev_warn(&rtc->dev, "alarm rollover not handled\n");
- 	}
- 
--done:
- 	err = rtc_valid_tm(&alarm->time);
- 
-+done:
- 	if (err) {
- 		dev_warn(&rtc->dev, "invalid alarm value: %d-%d-%d %d:%d:%d\n",
- 			alarm->time.tm_year + 1900, alarm->time.tm_mon + 1,
++This RTC appears in for example the Storlink Gemini family of
++SoCs.
++
++Required properties:
++- compatible : Should be one of:
++  "faraday,ftrtc010"
++  "cortina,gemini-rtc", "faraday,ftrtc010"
++
++Optional properties:
++- clocks: when present should contain clock references to the
++  PCLK and EXTCLK clocks. Faraday calls the later CLK1HZ and
++  says the clock should be 1 Hz, but implementers actually seem
++  to choose different clocks here, like Cortina who chose
++  32768 Hz (a typical low-power clock).
++- clock-names: should name the clocks "PCLK" and "EXTCLK"
++  respectively.
++
++Examples:
++
++rtc@45000000 {
++	compatible = "cortina,gemini-rtc";
++	reg = <0x45000000 0x100>;
++	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&foo 0>, <&foo 1>;
++	clock-names = "PCLK", "EXTCLK";
++};
 -- 
 2.9.3
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
