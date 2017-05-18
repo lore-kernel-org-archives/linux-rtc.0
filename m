@@ -1,29 +1,32 @@
-Return-Path: <rtc-linux+bncBDA7X7F2WUEBBCWER7EQKGQEPIHFBOQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBAGZ7DEAKGQEIPQYAHQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x234.google.com (mail-wr0-x234.google.com. [2a00:1450:400c:c0c::234])
-        by gmr-mx.google.com with ESMTPS id g11si70426wme.2.2017.05.23.00.17.29
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 May 2017 00:17:29 -0700 (PDT)
-Received: by mail-wr0-x234.google.com with SMTP id w50so50900632wrc.0
-        for <rtc-linux@googlegroups.com>; Tue, 23 May 2017 00:17:29 -0700 (PDT)
-Date: Tue, 23 May 2017 08:17:27 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/3] mfd: dm355evm_msp: move header file out
- of I2C realm
-Message-ID: <20170523071727.tw6vblpnevihqgqk@dell>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-2-wsa@the-dreams.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170521220212.1404-2-wsa@the-dreams.de>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v194si1672527wmv.3.2017.05.18.16.21.36
+        for <rtc-linux@googlegroups.com>;
+        Thu, 18 May 2017 16:21:36 -0700 (PDT)
+Received: from localhost (unknown [88.191.26.124])
+	by mail.free-electrons.com (Postfix) with ESMTPSA id 10A0B20DF3
+	for <rtc-linux@googlegroups.com>; Fri, 19 May 2017 01:21:29 +0200 (CEST)
+Resent-Message-ID: <20170518232129.pytyvpzdhijsmwzj@piout.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-rtc@vger.kernel.org
+Cc: Janos Laube <janos.dev@gmail.com>,
+	Paulius Zaleckas <paulius.zaleckas@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Po-Yu Chuang <ratbert@faraday-tech.com>
+Subject: [rtc-linux] [PATCH 3/3] rtc: gemini/ftrtc010: rename driver and symbols
+Date: Thu, 18 May 2017 23:56:35 +0200
+Message-Id: <20170518215635.13505-3-linus.walleij@linaro.org>
+In-Reply-To: <20170518215635.13505-1-linus.walleij@linaro.org>
+References: <20170518215635.13505-1-linus.walleij@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,85 +35,280 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, 22 May 2017, Wolfram Sang wrote:
+The Gemini RTC is actually a generic IP block from Faraday
+Technology names FTRTC010. Rename the driver file and all
+symbols to match this IP name.
 
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  drivers/input/misc/dm355evm_keys.c        | 2 +-
+The relationship can be clearly seen in the U-Boot driver
+posted by Po-Yu Chuang for the Faraday A320 board:
+https://lists.denx.de/pipermail/u-boot/2009-September/061326.html
 
->  drivers/mfd/dm355evm_msp.c                | 2 +-
+Remove the dependency on ARCH_GEMINI but select the driver
+for ARCH_GEMINI so we get a smooth transition. The IP block
+is synthsized on different silicon and architectures.
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
- =20
->  drivers/rtc/rtc-dm355evm.c                | 2 +-
->  include/linux/{i2c =3D> mfd}/dm355evm_msp.h | 0
->  4 files changed, 3 insertions(+), 3 deletions(-)
->  rename include/linux/{i2c =3D> mfd}/dm355evm_msp.h (100%)
->=20
-> diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm35=
-5evm_keys.c
-> index bab256ef32b9b3..c803db64a3760d 100644
-> --- a/drivers/input/misc/dm355evm_keys.c
-> +++ b/drivers/input/misc/dm355evm_keys.c
-> @@ -15,7 +15,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/interrupt.h>
-> =20
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
->  #include <linux/module.h>
-> =20
-> =20
-> diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
-> index 86eca614507bd8..2a2756709f22f0 100644
-> --- a/drivers/mfd/dm355evm_msp.c
-> +++ b/drivers/mfd/dm355evm_msp.c
-> @@ -18,7 +18,7 @@
->  #include <linux/gpio.h>
->  #include <linux/leds.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
-> =20
-> =20
->  /*
-> diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
-> index f225cd873ff6c2..97d8259b94940f 100644
-> --- a/drivers/rtc/rtc-dm355evm.c
-> +++ b/drivers/rtc/rtc-dm355evm.c
-> @@ -13,7 +13,7 @@
->  #include <linux/rtc.h>
->  #include <linux/platform_device.h>
-> =20
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
->  #include <linux/module.h>
-> =20
-> =20
-> diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355ev=
-m_msp.h
-> similarity index 100%
-> rename from include/linux/i2c/dm355evm_msp.h
-> rename to include/linux/mfd/dm355evm_msp.h
+Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ MAINTAINERS                                  |  2 +-
+ drivers/rtc/Kconfig                          | 10 +--
+ drivers/rtc/Makefile                         |  2 +-
+ drivers/rtc/{rtc-gemini.c => rtc-ftrtc010.c} | 91 ++++++++++++++--------------
+ 4 files changed, 53 insertions(+), 52 deletions(-)
+ rename drivers/rtc/{rtc-gemini.c => rtc-ftrtc010.c} (62%)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f7d568b8f133..c6f0f412b32e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1226,7 +1226,7 @@ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ T:	git git://github.com/ulli-kroll/linux.git
+ S:	Maintained
+ F:	arch/arm/mach-gemini/
+-F:	drivers/rtc/rtc-gemini.c
++F:	drivers/rtc/rtc-ftrtc010.c
+ 
+ ARM/CSR SIRFPRIMA2 MACHINE SUPPORT
+ M:	Barry Song <baohua@kernel.org>
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8d3b95728326..e60ed55d0b82 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1484,16 +1484,16 @@ config RTC_DRV_ARMADA38X
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called armada38x-rtc.
+ 
+-config RTC_DRV_GEMINI
+-	tristate "Gemini SoC RTC"
+-	depends on ARCH_GEMINI || COMPILE_TEST
++config RTC_DRV_FTRTC010
++	tristate "Faraday Technology FTRTC010 RTC"
+ 	depends on HAS_IOMEM
++	default ARCH_GEMINI
+ 	help
+ 	  If you say Y here you will get support for the
+-	  RTC found on Gemini SoC's.
++	  Faraday Technolog FTRTC010 found on e.g. Gemini SoC's.
+ 
+ 	  This driver can also be built as a module. If so, the module
+-	  will be called rtc-gemini.
++	  will be called rtc-ftrtc010.
+ 
+ config RTC_DRV_PS3
+ 	tristate "PS3 RTC"
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 13857d2fce09..5d3944a42d48 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -67,7 +67,7 @@ obj-$(CONFIG_RTC_DRV_EFI)	+= rtc-efi.o
+ obj-$(CONFIG_RTC_DRV_EM3027)	+= rtc-em3027.o
+ obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
+ obj-$(CONFIG_RTC_DRV_FM3130)	+= rtc-fm3130.o
+-obj-$(CONFIG_RTC_DRV_GEMINI)	+= rtc-gemini.o
++obj-$(CONFIG_RTC_DRV_FTRTC010)	+= rtc-ftrtc010.o
+ obj-$(CONFIG_RTC_DRV_GENERIC)	+= rtc-generic.o
+ obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
+ obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
+diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-ftrtc010.c
+similarity index 62%
+rename from drivers/rtc/rtc-gemini.c
+rename to drivers/rtc/rtc-ftrtc010.c
+index d69a35aa80e7..31281beb8ebd 100644
+--- a/drivers/rtc/rtc-gemini.c
++++ b/drivers/rtc/rtc-ftrtc010.c
+@@ -1,5 +1,5 @@
+ /*
+- *  Gemini OnChip RTC
++ *  Faraday Technology FTRTC010 driver
+  *
+  *  Copyright (C) 2009 Janos Laube <janos.dev@gmail.com>
+  *
+@@ -28,14 +28,14 @@
+ #include <linux/module.h>
+ #include <linux/clk.h>
+ 
+-#define DRV_NAME        "rtc-gemini"
++#define DRV_NAME        "rtc-ftrtc010"
+ 
+ MODULE_AUTHOR("Hans Ulli Kroll <ulli.kroll@googlemail.com>");
+ MODULE_DESCRIPTION("RTC driver for Gemini SoC");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:" DRV_NAME);
+ 
+-struct gemini_rtc {
++struct ftrtc010_rtc {
+ 	struct rtc_device	*rtc_dev;
+ 	void __iomem		*rtc_base;
+ 	int			rtc_irq;
+@@ -43,19 +43,19 @@ struct gemini_rtc {
+ 	struct clk		*extclk;
+ };
+ 
+-enum gemini_rtc_offsets {
+-	GEMINI_RTC_SECOND	= 0x00,
+-	GEMINI_RTC_MINUTE	= 0x04,
+-	GEMINI_RTC_HOUR		= 0x08,
+-	GEMINI_RTC_DAYS		= 0x0C,
+-	GEMINI_RTC_ALARM_SECOND	= 0x10,
+-	GEMINI_RTC_ALARM_MINUTE	= 0x14,
+-	GEMINI_RTC_ALARM_HOUR	= 0x18,
+-	GEMINI_RTC_RECORD	= 0x1C,
+-	GEMINI_RTC_CR		= 0x20
++enum ftrtc010_rtc_offsets {
++	FTRTC010_RTC_SECOND		= 0x00,
++	FTRTC010_RTC_MINUTE		= 0x04,
++	FTRTC010_RTC_HOUR		= 0x08,
++	FTRTC010_RTC_DAYS		= 0x0C,
++	FTRTC010_RTC_ALARM_SECOND	= 0x10,
++	FTRTC010_RTC_ALARM_MINUTE	= 0x14,
++	FTRTC010_RTC_ALARM_HOUR		= 0x18,
++	FTRTC010_RTC_RECORD		= 0x1C,
++	FTRTC010_RTC_CR			= 0x20,
+ };
+ 
+-static irqreturn_t gemini_rtc_interrupt(int irq, void *dev)
++static irqreturn_t ftrtc010_rtc_interrupt(int irq, void *dev)
+ {
+ 	return IRQ_HANDLED;
+ }
+@@ -69,18 +69,18 @@ static irqreturn_t gemini_rtc_interrupt(int irq, void *dev)
+  * the same thing, without the rtc-lib.c calls.
+  */
+ 
+-static int gemini_rtc_read_time(struct device *dev, struct rtc_time *tm)
++static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct gemini_rtc *rtc = dev_get_drvdata(dev);
++	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
+ 
+ 	unsigned int  days, hour, min, sec;
+ 	unsigned long offset, time;
+ 
+-	sec  = readl(rtc->rtc_base + GEMINI_RTC_SECOND);
+-	min  = readl(rtc->rtc_base + GEMINI_RTC_MINUTE);
+-	hour = readl(rtc->rtc_base + GEMINI_RTC_HOUR);
+-	days = readl(rtc->rtc_base + GEMINI_RTC_DAYS);
+-	offset = readl(rtc->rtc_base + GEMINI_RTC_RECORD);
++	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
++	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
++	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
++	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
++	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
+ 
+ 	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
+ 
+@@ -89,9 +89,9 @@ static int gemini_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
+-static int gemini_rtc_set_time(struct device *dev, struct rtc_time *tm)
++static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct gemini_rtc *rtc = dev_get_drvdata(dev);
++	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
+ 	unsigned int sec, min, hour, day;
+ 	unsigned long offset, time;
+ 
+@@ -100,27 +100,27 @@ static int gemini_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_tm_to_time(tm, &time);
+ 
+-	sec = readl(rtc->rtc_base + GEMINI_RTC_SECOND);
+-	min = readl(rtc->rtc_base + GEMINI_RTC_MINUTE);
+-	hour = readl(rtc->rtc_base + GEMINI_RTC_HOUR);
+-	day = readl(rtc->rtc_base + GEMINI_RTC_DAYS);
++	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
++	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
++	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
++	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+ 
+ 	offset = time - (day * 86400 + hour * 3600 + min * 60 + sec);
+ 
+-	writel(offset, rtc->rtc_base + GEMINI_RTC_RECORD);
+-	writel(0x01, rtc->rtc_base + GEMINI_RTC_CR);
++	writel(offset, rtc->rtc_base + FTRTC010_RTC_RECORD);
++	writel(0x01, rtc->rtc_base + FTRTC010_RTC_CR);
+ 
+ 	return 0;
+ }
+ 
+-static const struct rtc_class_ops gemini_rtc_ops = {
+-	.read_time     = gemini_rtc_read_time,
+-	.set_time      = gemini_rtc_set_time,
++static const struct rtc_class_ops ftrtc010_rtc_ops = {
++	.read_time     = ftrtc010_rtc_read_time,
++	.set_time      = ftrtc010_rtc_set_time,
+ };
+ 
+-static int gemini_rtc_probe(struct platform_device *pdev)
++static int ftrtc010_rtc_probe(struct platform_device *pdev)
+ {
+-	struct gemini_rtc *rtc;
++	struct ftrtc010_rtc *rtc;
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	int ret;
+@@ -166,19 +166,19 @@ static int gemini_rtc_probe(struct platform_device *pdev)
+ 	if (!rtc->rtc_base)
+ 		return -ENOMEM;
+ 
+-	ret = devm_request_irq(dev, rtc->rtc_irq, gemini_rtc_interrupt,
++	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+ 			       IRQF_SHARED, pdev->name, dev);
+ 	if (unlikely(ret))
+ 		return ret;
+ 
+ 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+-					   &gemini_rtc_ops, THIS_MODULE);
++					   &ftrtc010_rtc_ops, THIS_MODULE);
+ 	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+ }
+ 
+-static int gemini_rtc_remove(struct platform_device *pdev)
++static int ftrtc010_rtc_remove(struct platform_device *pdev)
+ {
+-	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
++	struct ftrtc010_rtc *rtc = platform_get_drvdata(pdev);
+ 
+ 	if (!IS_ERR(rtc->extclk))
+ 		clk_disable_unprepare(rtc->extclk);
+@@ -189,19 +189,20 @@ static int gemini_rtc_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static const struct of_device_id gemini_rtc_dt_match[] = {
++static const struct of_device_id ftrtc010_rtc_dt_match[] = {
+ 	{ .compatible = "cortina,gemini-rtc" },
++	{ .compatible = "faraday,ftrtc010" },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(of, gemini_rtc_dt_match);
++MODULE_DEVICE_TABLE(of, ftrtc010_rtc_dt_match);
+ 
+-static struct platform_driver gemini_rtc_driver = {
++static struct platform_driver ftrtc010_rtc_driver = {
+ 	.driver		= {
+ 		.name	= DRV_NAME,
+-		.of_match_table = gemini_rtc_dt_match,
++		.of_match_table = ftrtc010_rtc_dt_match,
+ 	},
+-	.probe		= gemini_rtc_probe,
+-	.remove		= gemini_rtc_remove,
++	.probe		= ftrtc010_rtc_probe,
++	.remove		= ftrtc010_rtc_remove,
+ };
+ 
+-module_platform_driver_probe(gemini_rtc_driver, gemini_rtc_probe);
++module_platform_driver_probe(ftrtc010_rtc_driver, ftrtc010_rtc_probe);
+-- 
+2.9.3
 
---=20
+-- 
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
