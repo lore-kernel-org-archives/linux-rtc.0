@@ -1,170 +1,123 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBH4Z3HEAKGQEBEBBVYY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-oi0-f66.google.com (mail-oi0-f66.google.com. [209.85.218.66])
-        by gmr-mx.google.com with ESMTPS id v77si591745ita.0.2017.05.12.17.00.30
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 12 May 2017 17:00:30 -0700 (PDT)
-Received: by mail-oi0-f66.google.com with SMTP id w138so11033917oiw.3
-        for <rtc-linux@googlegroups.com>; Fri, 12 May 2017 17:00:30 -0700 (PDT)
-Date: Fri, 12 May 2017 19:00:29 -0500
-From: Rob Herring <robh@kernel.org>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, lee.jones@linaro.org,
-	devicetree@vger.kernel.org, linux@roeck-us.net, wim@iguana.be,
-	alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
-	mark.rutland@arm.com, moritz.fischer@ettus.com
-Subject: [rtc-linux] Re: [RFC/PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas
- DS1374 MFD device binding
-Message-ID: <20170513000029.tgzt5p67tcl7uhbx@rob-hp-laptop>
-References: <1494354021-370-1-git-send-email-mdf@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1494354021-370-1-git-send-email-mdf@kernel.org>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Mauro Carvalho Chehab <mchehab@infradead.org>,
+        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Boris Brezillon <boris.brezillon@free-electrons.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+        linux-mtd@lists.infradead.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        dri-devel@lists.freedesktop.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        linux-pwm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        kpreempt-tech@lists.sourceforge.net,
+        Darren Hart <dvhart@infradead.org>, rtc-linux@googlegroups.com,
+        linux-gpio@vger.kernel.org, Martin Mares <mj@ucw.cz>,
+        Robert Love <rml@tech9.net>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-wireless@vger.kernel.org, Ohad Ben-Cohen <ohad@wizery.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-video@atrey.karlin.mff.cuni.cz,
+        Sumit Semwal <sumit.semwal@linaro.org>
+Subject: [PATCH 00/29] Standardize doc formats - part 3
+Date: Thu, 18 May 2017 22:25:44 -0300
+Message-Id: <cover.1495157082.git.mchehab@s-opensource.com>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, May 09, 2017 at 11:20:20AM -0700, Moritz Fischer wrote:
-> This adds a binding for the Maxim/Dallas DS1374 MFD.
-> 
-> Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> ---
-> 
-> Hi all,
-> 
-> I'm not entirely sure aobut the binding, does anyone
-> have a better suggestion for the remap-wdt-reset property?
-> 
-> Thanks,
-> 
-> Moritz
-> 
-> ---
->  Documentation/devicetree/bindings/mfd/ds1374.txt   | 63 ++++++++++++++++++++++
->  .../devicetree/bindings/trivial-devices.txt        |  1 -
->  drivers/rtc/Kconfig                                |  2 +
->  3 files changed, 65 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/ds1374.txt b/Documentation/devicetree/bindings/mfd/ds1374.txt
-> new file mode 100644
-> index 0000000..b22396f
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/ds1374.txt
-> @@ -0,0 +1,63 @@
-> +* Device tree bindings for Maxim/Dallas DS1374 Multi Function Device (MFD)
-> +
-> +The Maxim/Dallas DS1374 is a multi function device that combines rtc,
-> +watchdog or alarm, as well as trickle charger.
-> +
-> +The DS1374 is connected via I2C.
-> +
-> +Required properties:
-> +- compatible: "dallas,ds1374"
-> +- reg: I2C slave address
-> +- dallas,ds1374-mode: Should be one of the following values:
+Each document under Documentation/*.txt has its own format.
+Some follow markup notations, some don't even have a title!
 
-Just "dallas,mode" is sufficient.
+In order to try to get some order on it, change the document
+style to the standard we're adopting after the adoption of
+ReStructured Text.
 
-> +			<0> for RTC
-> +			<1> for RTC + Alarm (Interrupt)
-> +			<2> for RTC + Watchdog
-> +
-> +Required child:
-> +A single available child device of type matching the "dallas,ds1374-mode"
-> +property.
-> +
-> +Optional properties (watchdog):
-> +- dallas,ds1374-remap-wdt-reset: Boolean describing whether the INT pin
-> +				 on the device is used as interrupt for
-> +				 the alarm
+The documents touched on this series now build fine with
+Sphinx, if renamed to *.rst extension.
 
-Isn't presence of the interrupt property or not enough? It would be 
-kind of useless to have no interrupt and also not do anything on 
-timeout.
+The main goal with this is to teach people by example about
+what format is expected on newer documents. It also helps
+to add those files to Kernel books.
 
-> +
-> +See ../watchdog/* for generic watchdog bindings.
-> +
-> +Optional properties (real time clock):
-> +- interrupt: phandle to interrupt cell for the rtc's alarm feature
-> +
-> +See ../rtc/* for generic rtc bindings.
-> +
-> +Optional properties (trickle-charger):
-> +- dallas,trickle-resistor-ohms : Selected resistor for trickle charger
-> +	Values usable for ds1374 are 250, 2000, 4000
-> +	Should be given if trickle charger should be enabled
-> +- dallas,trickle-diode-disable : Do not use internal trickle charger diode
-> +	Should be given if internal trickle charger diode should be disabled
-> +
-> +Example for rtc with alarm mode and interrupt:
-> +
-> +i2c@12ca0000 {
-> +	rtc@68 {
-> +		compatible = "ds1374";
-> +		reg = <0x68>;
-> +		interrupts = <&gpio0 62>;
-> +		dallas,ds1374-mode = <2>
-> +
-> +		dallas,trickle-resistor-ohms = <250>;
-> +		dallas,trickle-diode-disable;
-> +	};
-> +};
-> +
-> +Example for rtc with watchdog and reset on timeout, with reset remapped
-> +to the INT pin:
-> +
-> +i2c@12ca0000 {
-> +	rtc@68 {
-> +		compatible = "ds1374";
-> +		reg = <0x68>;
-> +		dallas,ds1374-mode = <2>
-> +		dallas,ds1374-remap-wdt-reset;
-> +	};
-> +};
-> diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
-> index 3e0a34c..f7a50e5 100644
-> --- a/Documentation/devicetree/bindings/trivial-devices.txt
-> +++ b/Documentation/devicetree/bindings/trivial-devices.txt
-> @@ -29,7 +29,6 @@ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
->  dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
->  dallas,ds1338		I2C RTC with 56-Byte NV RAM
->  dallas,ds1340		I2C RTC with Trickle Charger
-> -dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
->  dallas,ds1631		High-Precision Digital Thermometer
->  dallas,ds1682		Total-Elapsed-Time Recorder with Alarm
->  dallas,ds1775		Tiny Digital Thermometer and Thermostat
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 8d3b957..e6763fe 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -250,6 +250,8 @@ config RTC_DRV_DS1307_CENTURY
->  
->  config RTC_DRV_DS1374
->  	tristate "Dallas/Maxim DS1374"
-> +	depends on MFD_DS1374
-> +	depends on REGMAP_I2C
->  	help
->  	  If you say yes here you get support for Dallas Semiconductor
->  	  DS1374 real-time clock chips. If an interrupt is associated
-> -- 
-> 2.7.4
-> 
+In order to make things more palatable, I'm spliting the
+conversion into three parts.
+
+This is	part 3.
+
+Mauro Carvalho Chehab (29):
+  pinctrl.txt: standardize document format
+  pnp.txt: standardize document format
+  preempt-locking.txt: standardize document format
+  printk-formats.txt: standardize document format
+  pwm.txt: standardize document format
+  rbtree.txt: standardize document format
+  remoteproc.txt: standardize document format
+  rfkill.txt: standardize document format
+  robust-futex-ABI.txt: standardize document format
+  robust-futexes.txt: standardize document format
+  rpmsg.txt: standardize document format
+  rtc.txt: standardize document format
+  SAK.txt: standardize document format
+  sgi-ioc4.txt: standardize document format
+  siphash.txt: standardize document format
+  SM501.txt: standardize document format
+  smsc_ece1099.txt: standardize document format
+  static-keys.txt: standardize document format
+  svga.txt: standardize document format
+  sync_file.txt: standardize document format
+  this_cpu_ops.txt: standardize document format
+  unaligned-memory-access.txt: standardize document format
+  vfio-mediated-device.txt: standardize document format
+  vfio.txt: standardize document format
+  video-output.txt: standardize document format
+  xillybus.txt: standardize document format
+  xz.txt: standardize document format
+  zorro.txt: standardize document format
+  dell_rbu.txt: standardize document format
+
+ Documentation/SAK.txt                     |   65 +-
+ Documentation/SM501.txt                   |    9 +-
+ Documentation/dell_rbu.txt                |   81 ++-
+ Documentation/pinctrl.txt                 | 1104 +++++++++++++++--------------
+ Documentation/pnp.txt                     |  343 +++++----
+ Documentation/preempt-locking.txt         |   40 +-
+ Documentation/printk-formats.txt          |  416 ++++++-----
+ Documentation/pwm.txt                     |   46 +-
+ Documentation/rbtree.txt                  |   88 +--
+ Documentation/remoteproc.txt              |  320 +++++----
+ Documentation/rfkill.txt                  |   47 +-
+ Documentation/robust-futex-ABI.txt        |   14 +-
+ Documentation/robust-futexes.txt          |   12 +-
+ Documentation/rpmsg.txt                   |  340 +++++----
+ Documentation/rtc.txt                     |   44 +-
+ Documentation/sgi-ioc4.txt                |    4 +
+ Documentation/siphash.txt                 |  186 ++---
+ Documentation/smsc_ece1099.txt            |    4 +
+ Documentation/static-keys.txt             |  199 +++---
+ Documentation/svga.txt                    |  146 ++--
+ Documentation/sync_file.txt               |   23 +-
+ Documentation/this_cpu_ops.txt            |   49 +-
+ Documentation/unaligned-memory-access.txt |   57 +-
+ Documentation/vfio-mediated-device.txt    |  252 +++----
+ Documentation/vfio.txt                    |  261 +++----
+ Documentation/video-output.txt            |   54 +-
+ Documentation/xillybus.txt                |   29 +-
+ Documentation/xz.txt                      |  182 ++---
+ Documentation/zorro.txt                   |   59 +-
+ 29 files changed, 2437 insertions(+), 2037 deletions(-)
 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+2.9.4
