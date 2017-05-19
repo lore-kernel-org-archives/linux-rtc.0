@@ -1,182 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:36331 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751050AbdEaVdk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 31 May 2017 17:33:40 -0400
-Received: by mail-wm0-f67.google.com with SMTP id k15so6651051wmh.3
-        for <linux-rtc@vger.kernel.org>; Wed, 31 May 2017 14:33:39 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 4/4] rtc: ds1307: change nvram handling to use the nvmem
- subsystem
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <85789383-af9c-fdbb-ff58-121d9fd432f5@gmail.com>
-Message-ID: <b3c31254-a77f-9327-aca2-ff31d994e535@gmail.com>
-Date: Wed, 31 May 2017 23:33:23 +0200
-MIME-Version: 1.0
-In-Reply-To: <85789383-af9c-fdbb-ff58-121d9fd432f5@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail.free-electrons.com ([62.4.15.54]:60816 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755001AbdESTDh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 May 2017 15:03:37 -0400
+Received: from localhost (unknown [88.191.26.124])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id 9FDAD20780
+        for <linux-rtc@vger.kernel.org>; Fri, 19 May 2017 21:02:24 +0200 (CEST)
+From: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org, rtc-linux@googlegroups.com
+Subject: [PATCH] rtc/tpo: Handle disabled TPO in opal_get_tpo_time()
+Date: Fri, 19 May 2017 15:35:09 +0530
+Message-Id: <20170519100509.7807-1-vaibhav@linux.vnet.ibm.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170519100509.2TRK_Cdr9MQLaTbQmmAcXFWdocAHSuhMhwdJnnxG7us@z>
 
-The open coded handling of attribute nvram is from 2007 when the
-nvmem subsystem obviously didn't exist yet.
+On PowerNV platform when Timed-Power-On(TPO) is disabled, read of
+stored TPO yields value with all date components set to '0' inside
+opal_get_tpo_time(). The function opal_to_tm() then converts it to an
+offset from year 1900 yielding alarm-time == "1900-00-01
+00:00:00". This causes problems with __rtc_read_alarm() that
+expecting an offset from "1970-00-01 00:00:00" and returned alarm-time
+results in a -ve value for time64_t. Which ultimately results in this
+error reported in kernel logs with a seemingly garbage value:
 
-Now we can use nvmem to simplify the driver. A side effect is that
-attribute nvram is replaced with an attribute nvmem.
-This might break user space applications. However attribute nvram
-is nowhere officially documented.
+"rtc rtc0: invalid alarm value: -2-1--1041528741
+2005511117:71582844:32"
 
-This patch is compile-tested only as I lack hardware with nvram.
+We fix this by explicitly handling the case of all alarm date-time
+components being '0' inside opal_get_tpo_time() and returning -ENOENT
+in such a case. This signals generic rtc that no alarm is set and it
+bails out from the alarm initialization flow without reporting the
+above error.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Reported-by: Steve Best <sbest@redhat.com>
 ---
- drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++--------------------------------
- 1 file changed, 31 insertions(+), 63 deletions(-)
+ drivers/rtc/rtc-opal.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 79160027..352694c4 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -25,6 +25,7 @@
- #include <linux/hwmon-sysfs.h>
- #include <linux/clk-provider.h>
- #include <linux/regmap.h>
-+#include <linux/nvmem-provider.h>
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index ea20f62..2d84e2a 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -142,6 +142,16 @@ static int opal_get_tpo_time(struct device *dev, struct rtc_wkalrm *alarm)
  
- /*
-  * We can't determine type by probing, but if we expect pre-Linux code
-@@ -116,11 +117,10 @@ struct ds1307 {
- 	u8			offset; /* register's offset */
- 	u8			regs[11];
- 	u16			nvram_offset;
--	struct bin_attribute	*nvram;
-+	struct nvmem_device	*nvram;
- 	enum ds_type		type;
- 	unsigned long		flags;
--#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
--#define HAS_ALARM	1		/* bit 1 == irq claimed */
-+#define HAS_ALARM	0		/* bit 0 == irq claimed */
- 	struct device		*dev;
- 	struct regmap		*regmap;
- 	const char		*name;
-@@ -676,43 +676,24 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 
- /*----------------------------------------------------------------------*/
- 
--static ssize_t
--ds1307_nvram_read(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
-+static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
- {
--	struct ds1307		*ds1307;
--	int			result;
--
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+	struct ds1307 *ds1307 = priv;
- 
--	result = regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + off,
--				  buf, count);
--	if (result)
--		dev_err(ds1307->dev, "%s error %d\n", "nvram read", result);
--	return result;
-+	return regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + offset,
-+				val, bytes);
- }
- 
--static ssize_t
--ds1307_nvram_write(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
-+static int ds1307_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
- {
--	struct ds1307		*ds1307;
--	int			result;
--
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+	struct ds1307 *ds1307 = priv;
- 
--	result = regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + off,
--				   buf, count);
--	if (result) {
--		dev_err(ds1307->dev, "%s error %d\n", "nvram write", result);
--		return result;
--	}
--	return count;
-+	return regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + offset,
-+				 val, bytes);
- }
- 
--
- /*----------------------------------------------------------------------*/
- 
- static u8 do_trickle_setup_ds1339(struct ds1307 *ds1307,
-@@ -1476,36 +1457,23 @@ static int ds1307_probe(struct i2c_client *client,
- 	}
- 
- 	if (chip->nvram_size) {
--
--		ds1307->nvram = devm_kzalloc(ds1307->dev,
--					sizeof(struct bin_attribute),
--					GFP_KERNEL);
--		if (!ds1307->nvram) {
--			dev_err(ds1307->dev,
--				"cannot allocate memory for nvram sysfs\n");
-+		struct nvmem_config nvram_cfg = {
-+			.dev = ds1307->dev,
-+			.reg_read = ds1307_nvram_read,
-+			.reg_write = ds1307_nvram_write,
-+			.size = chip->nvram_size,
-+			.word_size = 1,
-+			.stride = 1,
-+			.priv = ds1307,
-+		};
+ 	y_m_d = be32_to_cpu(__y_m_d);
+ 	h_m_s_ms = ((u64)be32_to_cpu(__h_m) << 32);
 +
-+		ds1307->nvram = nvmem_register(&nvram_cfg);
-+		if (IS_ERR(ds1307->nvram)) {
-+			dev_err(ds1307->dev, "unable to register nvmem\n");
-+			ds1307->nvram = NULL;
- 		} else {
--
--			ds1307->nvram->attr.name = "nvram";
--			ds1307->nvram->attr.mode = S_IRUGO | S_IWUSR;
--
--			sysfs_bin_attr_init(ds1307->nvram);
--
--			ds1307->nvram->read = ds1307_nvram_read;
--			ds1307->nvram->write = ds1307_nvram_write;
--			ds1307->nvram->size = chip->nvram_size;
--			ds1307->nvram_offset = chip->nvram_offset;
--
--			err = sysfs_create_bin_file(&ds1307->dev->kobj,
--						    ds1307->nvram);
--			if (err) {
--				dev_err(ds1307->dev,
--					"unable to create sysfs file: %s\n",
--					ds1307->nvram->attr.name);
--			} else {
--				set_bit(HAS_NVRAM, &ds1307->flags);
--				dev_info(ds1307->dev, "%zu bytes nvram\n",
--					 ds1307->nvram->size);
--			}
-+			dev_info(ds1307->dev, "%d bytes nvram\n",
-+				 chip->nvram_size);
- 		}
- 	}
++	/* check if no alarm is set */
++	if (y_m_d == 0 && h_m_s_ms == 0) {
++		pr_debug("No alarm is set\n");
++		rc = -ENOENT;
++		goto exit;
++	} else {
++		pr_debug("Alarm set to %x %llx\n", y_m_d, h_m_s_ms);
++	}
++
+ 	opal_to_tm(y_m_d, h_m_s_ms, &alarm->time);
  
-@@ -1522,8 +1490,8 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
--	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
--		sysfs_remove_bin_file(&ds1307->dev->kobj, ds1307->nvram);
-+	if (ds1307->nvram)
-+		nvmem_unregister(ds1307->nvram);
- 
- 	return 0;
- }
+ exit:
 -- 
-2.13.0
+2.9.3
