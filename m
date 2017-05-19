@@ -1,43 +1,107 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:36461 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S937441AbdEWO1m (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 May 2017 10:27:42 -0400
-Date: Tue, 23 May 2017 09:27:39 -0500
-From: Rob Herring <robh@kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:60803 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754837AbdESTDh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 May 2017 15:03:37 -0400
+Received: from localhost (unknown [88.191.26.124])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id B4FE42076D
+        for <linux-rtc@vger.kernel.org>; Fri, 19 May 2017 21:02:23 +0200 (CEST)
+Date: Fri, 19 May 2017 20:11:31 +0200 (CEST)
+From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org, Janos Laube <janos.dev@gmail.com>,
         Paulius Zaleckas <paulius.zaleckas@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
         Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        devicetree@vger.kernel.org, Po-Yu Chuang <ratbert@faraday-tech.com>
-Subject: Re: [PATCH 2/3] rtc: gemini: Augment DT bindings for Faraday
-Message-ID: <20170523142739.34wyhtotl4jldsez@rob-hp-laptop>
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 1/3] rtc: gemini: Add optional clock handling
+In-Reply-To: <20170518215635.13505-1-linus.walleij@linaro.org>
+Message-ID: <alpine.LNX.2.00.1705192011140.15369@T420s>
 References: <20170518215635.13505-1-linus.walleij@linaro.org>
- <20170518215635.13505-2-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170518215635.13505-2-linus.walleij@linaro.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, May 18, 2017 at 11:56:34PM +0200, Linus Walleij wrote:
-> The Gemini RTC is actually a standard IP block from Faraday
-> Technology called FTRTC010. Rename the bindings, add the
-> generic compatible string and add definitions for the two
-> available clocks.
+Hi Linus,
+
+On Thu, 18 May 2017, Linus Walleij wrote:
+
+> This makes the Gemini optionally take two clock references to
+> the PCLK and EXTCLK. As we are adding a clock framework to the
+> Gemini platform we need to make sure that we get the right
+> references.
 > 
-> Cc: devicetree@vger.kernel.org
-> Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  .../devicetree/bindings/rtc/cortina,gemini.txt     | 14 -----------
->  .../devicetree/bindings/rtc/faraday,ftrtc010.txt   | 28 ++++++++++++++++++++++
->  2 files changed, 28 insertions(+), 14 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
->  create mode 100644 Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+>  drivers/rtc/rtc-gemini.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+> index 5279390bb42d..d69a35aa80e7 100644
+> --- a/drivers/rtc/rtc-gemini.c
+> +++ b/drivers/rtc/rtc-gemini.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+> +#include <linux/clk.h>
+>  
+>  #define DRV_NAME        "rtc-gemini"
+>  
+> @@ -38,6 +39,8 @@ struct gemini_rtc {
+>  	struct rtc_device	*rtc_dev;
+>  	void __iomem		*rtc_base;
+>  	int			rtc_irq;
+> +	struct clk		*pclk;
+> +	struct clk		*extclk;
+>  };
+>  
+>  enum gemini_rtc_offsets {
+> @@ -127,6 +130,27 @@ static int gemini_rtc_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	platform_set_drvdata(pdev, rtc);
+>  
+> +	rtc->pclk = clk_get(dev, "PCLK");
+> +	if (IS_ERR(rtc->pclk)) {
+> +		dev_err(dev, "could not get PCLK\n");
+> +	} else {
+> +		ret = clk_prepare_enable(rtc->pclk);
+> +		if (ret) {
+> +			dev_err(dev, "failed to enable PCLK\n");
+> +			return ret;
+> +		}
+> +	}
+> +	rtc->extclk = clk_get(dev, "EXTCLK");
+> +	if (IS_ERR(rtc->extclk)) {
+> +		dev_err(dev, "could not get EXTCLK\n");
+> +	} else {
+> +		ret = clk_prepare_enable(rtc->extclk);
+> +		if (ret) {
+> +			dev_err(dev, "failed to enable EXTCLK\n");
+> +			return ret;
+> +		}
+> +	}
+> +
+>  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+>  	if (!res)
+>  		return -ENODEV;
+> @@ -156,6 +180,10 @@ static int gemini_rtc_remove(struct platform_device *pdev)
+>  {
+>  	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
+>  
+> +	if (!IS_ERR(rtc->extclk))
+> +		clk_disable_unprepare(rtc->extclk);
+> +	if (!IS_ERR(rtc->pclk))
+> +		clk_disable_unprepare(rtc->pclk);
+>  	rtc_device_unregister(rtc->rtc_dev);
+>  
+>  	return 0;
+> -- 
+> 2.9.3
+> 
+> 
 
-Acked-by: Rob Herring <robh@kernel.org> 
+Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
