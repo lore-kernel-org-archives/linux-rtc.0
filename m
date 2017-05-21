@@ -1,54 +1,28 @@
-Return-Path: <rtc-linux+bncBDQ2L75W5QGBBBPLRLEQKGQETT35RPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP47C6LHEIOZHEIZECRUBFUFGPZ2@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mezzanine.sirena.org.uk (mezzanine.sirena.org.uk. [2400:8900::f03c:91ff:fedb:4f4])
-        by gmr-mx.google.com with ESMTPS id c20si2277440pfh.1.2017.05.22.02.55.17
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 May 2017 02:55:17 -0700 (PDT)
-Date: Mon, 22 May 2017 10:52:43 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+MIME-Version: 1.0
+Received: from pokefinder.org (sauhun.de. [88.99.104.3])
+        by gmr-mx.google.com with ESMTP id e187si512941wma.0.2017.05.21.15.02.19
+        for <rtc-linux@googlegroups.com>;
+        Sun, 21 May 2017 15:02:19 -0700 (PDT)
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Lee Jones <lee.jones@linaro.org>,
-	Kishon Vijay Abraham I <kishon@ti.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Felipe Balbi <balbi@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Daniel Thompson <daniel.thompson@linaro.org>,
-	Jingoo Han <jingoohan1@gmail.com>,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Peter Ujfalusi <peter.ujfalusi@ti.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	alsa-devel@alsa-project.org
-Message-ID: <20170522095243.ff5uygzzrvo57jkd@sirena.org.uk>
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH 1/3] mfd: dm355evm_msp: move header file out of
+ I2C realm
+Date: Mon, 22 May 2017 00:02:08 +0200
+Message-Id: <20170521220212.1404-2-wsa@the-dreams.de>
+In-Reply-To: <20170521220212.1404-1-wsa@the-dreams.de>
 References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="tvcs7s5pzwvwzc4b"
-In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
-Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -57,18 +31,63 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+include/linux/i2c is not for client devices. Move the header file to a
+more appropriate location.
 
---tvcs7s5pzwvwzc4b
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/input/misc/dm355evm_keys.c        | 2 +-
+ drivers/mfd/dm355evm_msp.c                | 2 +-
+ drivers/rtc/rtc-dm355evm.c                | 2 +-
+ include/linux/{i2c => mfd}/dm355evm_msp.h | 0
+ 4 files changed, 3 insertions(+), 3 deletions(-)
+ rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
 
-On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-
-I'm missing the rest of the series and/or the cover letter...
+diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
+index bab256ef32b9b3..c803db64a3760d 100644
+--- a/drivers/input/misc/dm355evm_keys.c
++++ b/drivers/input/misc/dm355evm_keys.c
+@@ -15,7 +15,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ 
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ #include <linux/module.h>
+ 
+ 
+diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
+index 86eca614507bd8..2a2756709f22f0 100644
+--- a/drivers/mfd/dm355evm_msp.c
++++ b/drivers/mfd/dm355evm_msp.c
+@@ -18,7 +18,7 @@
+ #include <linux/gpio.h>
+ #include <linux/leds.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ 
+ 
+ /*
+diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
+index f225cd873ff6c2..97d8259b94940f 100644
+--- a/drivers/rtc/rtc-dm355evm.c
++++ b/drivers/rtc/rtc-dm355evm.c
+@@ -13,7 +13,7 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+ 
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ #include <linux/module.h>
+ 
+ 
+diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
+similarity index 100%
+rename from include/linux/i2c/dm355evm_msp.h
+rename to include/linux/mfd/dm355evm_msp.h
+-- 
+2.11.0
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -79,20 +98,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---tvcs7s5pzwvwzc4b
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlkitOoACgkQJNaLcl1U
-h9DNBQf/W6MueE4T2MQLhzjv1GsoGBNNokoFrcJbPchpAPhw/DczZsF29IdybRFZ
-VacP62GRSx1hZcxR8/ydv0S6rRUXv9jTVnL04MI6lRCMEI+PisoVGYTW+M3TmvUF
-hfX/HTza1pis1bd5u5qpRJcV2MSK+cJ/tAHKgTIaZvt5u3LeF7JodmA1zYq03M8n
-xdpgRf00NHikCcSgfyuf1chUpvBz4/HBA3QCNC3UpTieY16B67ZQAr17TZLuUD1G
-eT9Jgt2hQHnRwzUQ6IlnO58hyFI4Q3DHJGgPCWqEp4FKTZjx1HSdXKjbDIZJeBR5
-SJ58jl2BjAjeGhP2am4Xcd+Vfqr1IQ==
-=pkjm
------END PGP SIGNATURE-----
-
---tvcs7s5pzwvwzc4b--
