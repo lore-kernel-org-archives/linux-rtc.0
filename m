@@ -1,137 +1,107 @@
-Return-Path: <mdf@kernel.org>
-From: Moritz Fischer <mdf@kernel.org>
-To: linux-watchdog@vger.kernel.org
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	lee.jones@linaro.org,
-	devicetree@vger.kernel.org,
-	linux@roeck-us.net,
-	wim@iguana.be,
-	alexandre.belloni@free-electrons.com,
-	a.zummo@towertech.it,
-	mark.rutland@arm.com,
-	robh+dt@kernel.org,
-	moritz.fischer@ettus.com,
-	Moritz Fischer <mdf@kernel.org>
-Subject: [RFC/PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD device binding
-Date: Tue,  9 May 2017 11:20:20 -0700
-Message-Id: <1494354021-370-1-git-send-email-mdf@kernel.org>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCGYRLEQKGQELPJUNBI@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id b79si745725wmf.1.2017.05.22.02.14.48
+        for <rtc-linux@googlegroups.com>;
+        Mon, 22 May 2017 02:14:48 -0700 (PDT)
+Date: Mon, 22 May 2017 11:14:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/3] mfd: dm355evm_msp: move header file out
+ of I2C realm
+Message-ID: <20170522091438.mnomqfixxbzly75u@piout.net>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-2-wsa@the-dreams.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170521220212.1404-2-wsa@the-dreams.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-This adds a binding for the Maxim/Dallas DS1374 MFD.
+On 22/05/2017 at 00:02:08 +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
----
+> ---
+>  drivers/input/misc/dm355evm_keys.c        | 2 +-
+>  drivers/mfd/dm355evm_msp.c                | 2 +-
+>  drivers/rtc/rtc-dm355evm.c                | 2 +-
+>  include/linux/{i2c => mfd}/dm355evm_msp.h | 0
+>  4 files changed, 3 insertions(+), 3 deletions(-)
+>  rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+> 
+> diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
+> index bab256ef32b9b3..c803db64a3760d 100644
+> --- a/drivers/input/misc/dm355evm_keys.c
+> +++ b/drivers/input/misc/dm355evm_keys.c
+> @@ -15,7 +15,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/interrupt.h>
+>  
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  #include <linux/module.h>
+>  
+>  
+> diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
+> index 86eca614507bd8..2a2756709f22f0 100644
+> --- a/drivers/mfd/dm355evm_msp.c
+> +++ b/drivers/mfd/dm355evm_msp.c
+> @@ -18,7 +18,7 @@
+>  #include <linux/gpio.h>
+>  #include <linux/leds.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  
+>  
+>  /*
+> diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
+> index f225cd873ff6c2..97d8259b94940f 100644
+> --- a/drivers/rtc/rtc-dm355evm.c
+> +++ b/drivers/rtc/rtc-dm355evm.c
+> @@ -13,7 +13,7 @@
+>  #include <linux/rtc.h>
+>  #include <linux/platform_device.h>
+>  
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  #include <linux/module.h>
+>  
+>  
+> diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
+> similarity index 100%
+> rename from include/linux/i2c/dm355evm_msp.h
+> rename to include/linux/mfd/dm355evm_msp.h
+> -- 
+> 2.11.0
+> 
 
-Hi all,
-
-I'm not entirely sure aobut the binding, does anyone
-have a better suggestion for the remap-wdt-reset property?
-
-Thanks,
-
-Moritz
-
----
- Documentation/devicetree/bindings/mfd/ds1374.txt   | 63 ++++++++++++++++++++++
- .../devicetree/bindings/trivial-devices.txt        |  1 -
- drivers/rtc/Kconfig                                |  2 +
- 3 files changed, 65 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
-
-diff --git a/Documentation/devicetree/bindings/mfd/ds1374.txt b/Documentation/devicetree/bindings/mfd/ds1374.txt
-new file mode 100644
-index 0000000..b22396f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/ds1374.txt
-@@ -0,0 +1,63 @@
-+* Device tree bindings for Maxim/Dallas DS1374 Multi Function Device (MFD)
-+
-+The Maxim/Dallas DS1374 is a multi function device that combines rtc,
-+watchdog or alarm, as well as trickle charger.
-+
-+The DS1374 is connected via I2C.
-+
-+Required properties:
-+- compatible: "dallas,ds1374"
-+- reg: I2C slave address
-+- dallas,ds1374-mode: Should be one of the following values:
-+			<0> for RTC
-+			<1> for RTC + Alarm (Interrupt)
-+			<2> for RTC + Watchdog
-+
-+Required child:
-+A single available child device of type matching the "dallas,ds1374-mode"
-+property.
-+
-+Optional properties (watchdog):
-+- dallas,ds1374-remap-wdt-reset: Boolean describing whether the INT pin
-+				 on the device is used as interrupt for
-+				 the alarm
-+
-+See ../watchdog/* for generic watchdog bindings.
-+
-+Optional properties (real time clock):
-+- interrupt: phandle to interrupt cell for the rtc's alarm feature
-+
-+See ../rtc/* for generic rtc bindings.
-+
-+Optional properties (trickle-charger):
-+- dallas,trickle-resistor-ohms : Selected resistor for trickle charger
-+	Values usable for ds1374 are 250, 2000, 4000
-+	Should be given if trickle charger should be enabled
-+- dallas,trickle-diode-disable : Do not use internal trickle charger diode
-+	Should be given if internal trickle charger diode should be disabled
-+
-+Example for rtc with alarm mode and interrupt:
-+
-+i2c@12ca0000 {
-+	rtc@68 {
-+		compatible = "ds1374";
-+		reg = <0x68>;
-+		interrupts = <&gpio0 62>;
-+		dallas,ds1374-mode = <2>
-+
-+		dallas,trickle-resistor-ohms = <250>;
-+		dallas,trickle-diode-disable;
-+	};
-+};
-+
-+Example for rtc with watchdog and reset on timeout, with reset remapped
-+to the INT pin:
-+
-+i2c@12ca0000 {
-+	rtc@68 {
-+		compatible = "ds1374";
-+		reg = <0x68>;
-+		dallas,ds1374-mode = <2>
-+		dallas,ds1374-remap-wdt-reset;
-+	};
-+};
-diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
-index 3e0a34c..f7a50e5 100644
---- a/Documentation/devicetree/bindings/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/trivial-devices.txt
-@@ -29,7 +29,6 @@ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
- dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
- dallas,ds1338		I2C RTC with 56-Byte NV RAM
- dallas,ds1340		I2C RTC with Trickle Charger
--dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
- dallas,ds1631		High-Precision Digital Thermometer
- dallas,ds1682		Total-Elapsed-Time Recorder with Alarm
- dallas,ds1775		Tiny Digital Thermometer and Thermostat
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b957..e6763fe 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -250,6 +250,8 @@ config RTC_DRV_DS1307_CENTURY
- 
- config RTC_DRV_DS1374
- 	tristate "Dallas/Maxim DS1374"
-+	depends on MFD_DS1374
-+	depends on REGMAP_I2C
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS1374 real-time clock chips. If an interrupt is associated
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
