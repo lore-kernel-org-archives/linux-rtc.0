@@ -1,123 +1,447 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Mauro Carvalho Chehab <mchehab@infradead.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Boris Brezillon <boris.brezillon@free-electrons.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
-        Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-        linux-mtd@lists.infradead.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        dri-devel@lists.freedesktop.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        linux-pwm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        kpreempt-tech@lists.sourceforge.net,
-        Darren Hart <dvhart@infradead.org>, rtc-linux@googlegroups.com,
-        linux-gpio@vger.kernel.org, Martin Mares <mj@ucw.cz>,
-        Robert Love <rml@tech9.net>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-wireless@vger.kernel.org, Ohad Ben-Cohen <ohad@wizery.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-video@atrey.karlin.mff.cuni.cz,
-        Sumit Semwal <sumit.semwal@linaro.org>
-Subject: [PATCH 00/29] Standardize doc formats - part 3
-Date: Thu, 18 May 2017 22:25:44 -0300
-Message-Id: <cover.1495157082.git.mchehab@s-opensource.com>
-Sender: linux-rtc-owner@vger.kernel.org
+Return-Path: <rtc-linux+bncBDP6N55ZUYDRBWXMRXEQKGQE25EBU6Q@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id c16si161654pfl.2.2017.05.22.16.38.01
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 May 2017 16:38:01 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id f27so23165877pfe.0
+        for <rtc-linux@googlegroups.com>; Mon, 22 May 2017 16:38:01 -0700 (PDT)
+Date: Mon, 22 May 2017 16:37:58 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Lee Jones <lee.jones@linaro.org>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170522233758.GC12016@dtor-ws>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Each document under Documentation/*.txt has its own format.
-Some follow markup notations, some don't even have a title!
+On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  arch/arm/mach-omap2/common.h            | 2 +-
+>  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+>  drivers/gpio/gpio-twl4030.c             | 2 +-
+>  drivers/iio/adc/twl4030-madc.c          | 2 +-
+>  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+>  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+>  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+>  drivers/input/misc/twl4030-vibra.c      | 2 +-
 
-In order to try to get some order on it, change the document
-style to the standard we're adopting after the adoption of
-ReStructured Text.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The documents touched on this series now build fine with
-Sphinx, if renamed to *.rst extension.
-
-The main goal with this is to teach people by example about
-what format is expected on newer documents. It also helps
-to add those files to Kernel books.
-
-In order to make things more palatable, I'm spliting the
-conversion into three parts.
-
-This is	part 3.
-
-Mauro Carvalho Chehab (29):
-  pinctrl.txt: standardize document format
-  pnp.txt: standardize document format
-  preempt-locking.txt: standardize document format
-  printk-formats.txt: standardize document format
-  pwm.txt: standardize document format
-  rbtree.txt: standardize document format
-  remoteproc.txt: standardize document format
-  rfkill.txt: standardize document format
-  robust-futex-ABI.txt: standardize document format
-  robust-futexes.txt: standardize document format
-  rpmsg.txt: standardize document format
-  rtc.txt: standardize document format
-  SAK.txt: standardize document format
-  sgi-ioc4.txt: standardize document format
-  siphash.txt: standardize document format
-  SM501.txt: standardize document format
-  smsc_ece1099.txt: standardize document format
-  static-keys.txt: standardize document format
-  svga.txt: standardize document format
-  sync_file.txt: standardize document format
-  this_cpu_ops.txt: standardize document format
-  unaligned-memory-access.txt: standardize document format
-  vfio-mediated-device.txt: standardize document format
-  vfio.txt: standardize document format
-  video-output.txt: standardize document format
-  xillybus.txt: standardize document format
-  xz.txt: standardize document format
-  zorro.txt: standardize document format
-  dell_rbu.txt: standardize document format
-
- Documentation/SAK.txt                     |   65 +-
- Documentation/SM501.txt                   |    9 +-
- Documentation/dell_rbu.txt                |   81 ++-
- Documentation/pinctrl.txt                 | 1104 +++++++++++++++--------------
- Documentation/pnp.txt                     |  343 +++++----
- Documentation/preempt-locking.txt         |   40 +-
- Documentation/printk-formats.txt          |  416 ++++++-----
- Documentation/pwm.txt                     |   46 +-
- Documentation/rbtree.txt                  |   88 +--
- Documentation/remoteproc.txt              |  320 +++++----
- Documentation/rfkill.txt                  |   47 +-
- Documentation/robust-futex-ABI.txt        |   14 +-
- Documentation/robust-futexes.txt          |   12 +-
- Documentation/rpmsg.txt                   |  340 +++++----
- Documentation/rtc.txt                     |   44 +-
- Documentation/sgi-ioc4.txt                |    4 +
- Documentation/siphash.txt                 |  186 ++---
- Documentation/smsc_ece1099.txt            |    4 +
- Documentation/static-keys.txt             |  199 +++---
- Documentation/svga.txt                    |  146 ++--
- Documentation/sync_file.txt               |   23 +-
- Documentation/this_cpu_ops.txt            |   49 +-
- Documentation/unaligned-memory-access.txt |   57 +-
- Documentation/vfio-mediated-device.txt    |  252 +++----
- Documentation/vfio.txt                    |  261 +++----
- Documentation/video-output.txt            |   54 +-
- Documentation/xillybus.txt                |   29 +-
- Documentation/xz.txt                      |  182 ++---
- Documentation/zorro.txt                   |   59 +-
- 29 files changed, 2437 insertions(+), 2037 deletions(-)
+>  drivers/mfd/twl-core.c                  | 6 +++---
+>  drivers/mfd/twl4030-audio.c             | 2 +-
+>  drivers/mfd/twl4030-irq.c               | 2 +-
+>  drivers/mfd/twl4030-power.c             | 2 +-
+>  drivers/mfd/twl6030-irq.c               | 2 +-
+>  drivers/phy/phy-twl4030-usb.c           | 2 +-
+>  drivers/power/supply/twl4030_charger.c  | 2 +-
+>  drivers/pwm/pwm-twl-led.c               | 2 +-
+>  drivers/pwm/pwm-twl.c                   | 2 +-
+>  drivers/regulator/twl-regulator.c       | 2 +-
+>  drivers/regulator/twl6030-regulator.c   | 2 +-
+>  drivers/rtc/rtc-twl.c                   | 2 +-
+>  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+>  drivers/video/backlight/pandora_bl.c    | 2 +-
+>  drivers/watchdog/twl4030_wdt.c          | 2 +-
+>  include/linux/{i2c => mfd}/twl.h        | 0
+>  sound/soc/codecs/twl4030.c              | 2 +-
+>  25 files changed, 26 insertions(+), 26 deletions(-)
+>  rename include/linux/{i2c => mfd}/twl.h (100%)
+> 
+> diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
+> index 8cc6338fcb1288..b5ad7fcb80ed24 100644
+> --- a/arch/arm/mach-omap2/common.h
+> +++ b/arch/arm/mach-omap2/common.h
+> @@ -29,7 +29,7 @@
+>  #include <linux/irq.h>
+>  #include <linux/delay.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/i2c-omap.h>
+>  #include <linux/reboot.h>
+>  #include <linux/irqchip/irq-omap-intc.h>
+> diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_twl.c
+> index 1346b3ab34a5e3..295124b248ae3f 100644
+> --- a/arch/arm/mach-omap2/omap_twl.c
+> +++ b/arch/arm/mach-omap2/omap_twl.c
+> @@ -16,7 +16,7 @@
+>  #include <linux/err.h>
+>  #include <linux/io.h>
+>  #include <linux/kernel.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #include "soc.h"
+>  #include "voltage.h"
+> diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
+> index 24f388ed46d4c4..9b511df5450eb6 100644
+> --- a/drivers/gpio/gpio-twl4030.c
+> +++ b/drivers/gpio/gpio-twl4030.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/of.h>
+>  #include <linux/irqdomain.h>
+>  
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  /*
+>   * The GPIO "subchip" supports 18 GPIOs which can be configured as
+> diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-madc.c
+> index 0c74869a540ad3..5a64eda1652061 100644
+> --- a/drivers/iio/adc/twl4030-madc.c
+> +++ b/drivers/iio/adc/twl4030-madc.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/i2c/twl4030-madc.h>
+>  #include <linux/module.h>
+>  #include <linux/stddef.h>
+> diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+> index becbb0aef232b9..bc0e60b9da452e 100644
+> --- a/drivers/iio/adc/twl6030-gpadc.c
+> +++ b/drivers/iio/adc/twl6030-gpadc.c
+> @@ -33,7 +33,7 @@
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/sysfs.h>
+>  
+> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> index 39e72b3219d8a4..f9f98ef1d98e3f 100644
+> --- a/drivers/input/keyboard/twl4030_keypad.c
+> +++ b/drivers/input/keyboard/twl4030_keypad.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/input.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  #include <linux/of.h>
+>  
+> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> index 1c13005b228fa7..b307cca1702226 100644
+> --- a/drivers/input/misc/twl4030-pwrbutton.c
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -27,7 +27,7 @@
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #define PWR_PWRON_IRQ (1 << 0)
+>  
+> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+> index caa5a62c42fbe0..6c51d404874bbd 100644
+> --- a/drivers/input/misc/twl4030-vibra.c
+> +++ b/drivers/input/misc/twl4030-vibra.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/workqueue.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/mfd/twl4030-audio.h>
+>  #include <linux/input.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
+> index c64615dca2bd33..2a09dde4ca6efc 100644
+> --- a/drivers/mfd/twl-core.c
+> +++ b/drivers/mfd/twl-core.c
+> @@ -44,7 +44,7 @@
+>  #include <linux/regulator/machine.h>
+>  
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  /* Register descriptions for audio */
+>  #include <linux/mfd/twl4030-audio.h>
+> @@ -173,7 +173,7 @@ static struct twl_private *twl_priv;
+>  static struct twl_mapping twl4030_map[] = {
+>  	/*
+>  	 * NOTE:  don't change this table without updating the
+> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
+> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
+>  	 * so they continue to match the order in this table.
+>  	 */
+>  
+> @@ -344,7 +344,7 @@ static const struct regmap_config twl4030_regmap_config[4] = {
+>  static struct twl_mapping twl6030_map[] = {
+>  	/*
+>  	 * NOTE:  don't change this table without updating the
+> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
+> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
+>  	 * so they continue to match the order in this table.
+>  	 */
+>  
+> diff --git a/drivers/mfd/twl4030-audio.c b/drivers/mfd/twl4030-audio.c
+> index 0a1606480023f9..da16bf45fab43e 100644
+> --- a/drivers/mfd/twl4030-audio.c
+> +++ b/drivers/mfd/twl4030-audio.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/mfd/core.h>
+>  #include <linux/mfd/twl4030-audio.h>
+>  
+> diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
+> index b46c0cfc27d958..86f8fd8e81e4b5 100644
+> --- a/drivers/mfd/twl4030-irq.c
+> +++ b/drivers/mfd/twl4030-irq.c
+> @@ -33,7 +33,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/of.h>
+>  #include <linux/irqdomain.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #include "twl-core.h"
+>  
+> diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
+> index f4b2c29d77e330..6b36932263ba78 100644
+> --- a/drivers/mfd/twl4030-power.c
+> +++ b/drivers/mfd/twl4030-power.c
+> @@ -25,7 +25,7 @@
+>  
+>  #include <linux/module.h>
+>  #include <linux/pm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> diff --git a/drivers/mfd/twl6030-irq.c b/drivers/mfd/twl6030-irq.c
+> index 53574508a613f2..e3ec8dfa9f1ec0 100644
+> --- a/drivers/mfd/twl6030-irq.c
+> +++ b/drivers/mfd/twl6030-irq.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/irq.h>
+>  #include <linux/kthread.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/suspend.h>
+>  #include <linux/of.h>
+> diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
+> index 2990b3965460e8..28f49902760d82 100644
+> --- a/drivers/phy/phy-twl4030-usb.c
+> +++ b/drivers/phy/phy-twl4030-usb.c
+> @@ -36,7 +36,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/usb/musb.h>
+>  #include <linux/usb/ulpi.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/err.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
+> index 2f82d0e9ec1bf7..390bfde86ae39b 100644
+> --- a/drivers/power/supply/twl4030_charger.c
+> +++ b/drivers/power/supply/twl4030_charger.c
+> @@ -18,7 +18,7 @@
+>  #include <linux/err.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/power_supply.h>
+>  #include <linux/notifier.h>
+>  #include <linux/usb/otg.h>
+> diff --git a/drivers/pwm/pwm-twl-led.c b/drivers/pwm/pwm-twl-led.c
+> index 21eff991d0e355..01153622778bad 100644
+> --- a/drivers/pwm/pwm-twl-led.c
+> +++ b/drivers/pwm/pwm-twl-led.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pwm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  
+>  /*
+> diff --git a/drivers/pwm/pwm-twl.c b/drivers/pwm/pwm-twl.c
+> index 9de617b766801b..b7a45be998153b 100644
+> --- a/drivers/pwm/pwm-twl.c
+> +++ b/drivers/pwm/pwm-twl.c
+> @@ -21,7 +21,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pwm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  
+>  /*
+> diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
+> index 6c9ec84121bde4..a4456db5849d06 100644
+> --- a/drivers/regulator/twl-regulator.c
+> +++ b/drivers/regulator/twl-regulator.c
+> @@ -20,7 +20,7 @@
+>  #include <linux/regulator/driver.h>
+>  #include <linux/regulator/machine.h>
+>  #include <linux/regulator/of_regulator.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/delay.h>
+>  
+>  /*
+> diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
+> index 56aada38788776..219cbd910dbf52 100644
+> --- a/drivers/regulator/twl6030-regulator.c
+> +++ b/drivers/regulator/twl6030-regulator.c
+> @@ -21,7 +21,7 @@
+>  #include <linux/regulator/driver.h>
+>  #include <linux/regulator/machine.h>
+>  #include <linux/regulator/of_regulator.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/delay.h>
+>  
+>  struct twlreg_info {
+> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
+> index c18c39212ce680..3472e79f2b1782 100644
+> --- a/drivers/rtc/rtc-twl.c
+> +++ b/drivers/rtc/rtc-twl.c
+> @@ -31,7 +31,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/of.h>
+>  
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  enum twl_class {
+>  	TWL_4030 = 0,
+> diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+> index 628b600b02b174..b5dc077ed7d3c6 100644
+> --- a/drivers/usb/phy/phy-twl6030-usb.c
+> +++ b/drivers/usb/phy/phy-twl6030-usb.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/usb/musb.h>
+>  #include <linux/usb/phy_companion.h>
+>  #include <linux/phy/omap_usb.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/err.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/video/backlight/pandora_bl.c b/drivers/video/backlight/pandora_bl.c
+> index 5d8bb8b201835d..a186bc677c7d80 100644
+> --- a/drivers/video/backlight/pandora_bl.c
+> +++ b/drivers/video/backlight/pandora_bl.c
+> @@ -16,7 +16,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/fb.h>
+>  #include <linux/backlight.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/err.h>
+>  
+>  #define TWL_PWM0_ON		0x00
+> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+> index 9bf3cc0f396106..569fe85e52da75 100644
+> --- a/drivers/watchdog/twl4030_wdt.c
+> +++ b/drivers/watchdog/twl4030_wdt.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/watchdog.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #define TWL4030_WATCHDOG_CFG_REG_OFFS	0x3
+>  
+> diff --git a/include/linux/i2c/twl.h b/include/linux/mfd/twl.h
+> similarity index 100%
+> rename from include/linux/i2c/twl.h
+> rename to include/linux/mfd/twl.h
+> diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
+> index a2104d68169d9e..bd86a2d78c5ff2 100644
+> --- a/sound/soc/codecs/twl4030.c
+> +++ b/sound/soc/codecs/twl4030.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_gpio.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  #include <linux/gpio.h>
+>  #include <sound/core.h>
+> -- 
+> 2.11.0
+> 
 
 -- 
-2.9.4
+Dmitry
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
