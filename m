@@ -1,26 +1,52 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBGOKWTEQKGQEWPEDVGQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFOYRLEQKGQEV6MTHDI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-lf0-x235.google.com (mail-lf0-x235.google.com. [2a00:1450:4010:c07::235])
-        by gmr-mx.google.com with ESMTPS id f23si1002422wme.0.2017.05.30.00.54.00
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 May 2017 00:54:00 -0700 (PDT)
-Received: by mail-lf0-x235.google.com with SMTP id h4so44444632lfj.3
-        for <rtc-linux@googlegroups.com>; Tue, 30 May 2017 00:54:00 -0700 (PDT)
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: rtc-linux@googlegroups.com,
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id f23si149771wme.0.2017.05.22.02.15.01
+        for <rtc-linux@googlegroups.com>;
+        Mon, 22 May 2017 02:15:01 -0700 (PDT)
+Date: Mon, 22 May 2017 11:14:50 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+	Russell King <linux@armlinux.org.uk>,
 	Linus Walleij <linus.walleij@linaro.org>,
-	Po-Yu Chuang <ratbert@faraday-tech.com>
-Subject: [rtc-linux] [PATCH 3/3 v2] rtc: gemini/ftrtc010: rename driver and symbols
-Date: Tue, 30 May 2017 09:53:32 +0200
-Message-Id: <20170530075332.3740-3-linus.walleij@linaro.org>
-In-Reply-To: <20170530075332.3740-1-linus.walleij@linaro.org>
-References: <20170530075332.3740-1-linus.walleij@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170522091450.auxaosd7aipjbjaa@piout.net>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -29,277 +55,384 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-The Gemini RTC is actually a generic IP block from Faraday
-Technology names FTRTC010. Rename the driver file and all
-symbols to match this IP name.
+On 22/05/2017 at 00:02:10 +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-The relationship can be clearly seen in the U-Boot driver
-posted by Po-Yu Chuang for the Faraday A320 board:
-https://lists.denx.de/pipermail/u-boot/2009-September/061326.html
+> ---
+>  arch/arm/mach-omap2/common.h            | 2 +-
+>  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+>  drivers/gpio/gpio-twl4030.c             | 2 +-
+>  drivers/iio/adc/twl4030-madc.c          | 2 +-
+>  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+>  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+>  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+>  drivers/input/misc/twl4030-vibra.c      | 2 +-
+>  drivers/mfd/twl-core.c                  | 6 +++---
+>  drivers/mfd/twl4030-audio.c             | 2 +-
+>  drivers/mfd/twl4030-irq.c               | 2 +-
+>  drivers/mfd/twl4030-power.c             | 2 +-
+>  drivers/mfd/twl6030-irq.c               | 2 +-
+>  drivers/phy/phy-twl4030-usb.c           | 2 +-
+>  drivers/power/supply/twl4030_charger.c  | 2 +-
+>  drivers/pwm/pwm-twl-led.c               | 2 +-
+>  drivers/pwm/pwm-twl.c                   | 2 +-
+>  drivers/regulator/twl-regulator.c       | 2 +-
+>  drivers/regulator/twl6030-regulator.c   | 2 +-
+>  drivers/rtc/rtc-twl.c                   | 2 +-
+>  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+>  drivers/video/backlight/pandora_bl.c    | 2 +-
+>  drivers/watchdog/twl4030_wdt.c          | 2 +-
+>  include/linux/{i2c => mfd}/twl.h        | 0
+>  sound/soc/codecs/twl4030.c              | 2 +-
+>  25 files changed, 26 insertions(+), 26 deletions(-)
+>  rename include/linux/{i2c => mfd}/twl.h (100%)
+> 
+> diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
+> index 8cc6338fcb1288..b5ad7fcb80ed24 100644
+> --- a/arch/arm/mach-omap2/common.h
+> +++ b/arch/arm/mach-omap2/common.h
+> @@ -29,7 +29,7 @@
+>  #include <linux/irq.h>
+>  #include <linux/delay.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/i2c-omap.h>
+>  #include <linux/reboot.h>
+>  #include <linux/irqchip/irq-omap-intc.h>
+> diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_twl.c
+> index 1346b3ab34a5e3..295124b248ae3f 100644
+> --- a/arch/arm/mach-omap2/omap_twl.c
+> +++ b/arch/arm/mach-omap2/omap_twl.c
+> @@ -16,7 +16,7 @@
+>  #include <linux/err.h>
+>  #include <linux/io.h>
+>  #include <linux/kernel.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #include "soc.h"
+>  #include "voltage.h"
+> diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
+> index 24f388ed46d4c4..9b511df5450eb6 100644
+> --- a/drivers/gpio/gpio-twl4030.c
+> +++ b/drivers/gpio/gpio-twl4030.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/of.h>
+>  #include <linux/irqdomain.h>
+>  
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  /*
+>   * The GPIO "subchip" supports 18 GPIOs which can be configured as
+> diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-madc.c
+> index 0c74869a540ad3..5a64eda1652061 100644
+> --- a/drivers/iio/adc/twl4030-madc.c
+> +++ b/drivers/iio/adc/twl4030-madc.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/i2c/twl4030-madc.h>
+>  #include <linux/module.h>
+>  #include <linux/stddef.h>
+> diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+> index becbb0aef232b9..bc0e60b9da452e 100644
+> --- a/drivers/iio/adc/twl6030-gpadc.c
+> +++ b/drivers/iio/adc/twl6030-gpadc.c
+> @@ -33,7 +33,7 @@
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/sysfs.h>
+>  
+> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> index 39e72b3219d8a4..f9f98ef1d98e3f 100644
+> --- a/drivers/input/keyboard/twl4030_keypad.c
+> +++ b/drivers/input/keyboard/twl4030_keypad.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/input.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  #include <linux/of.h>
+>  
+> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> index 1c13005b228fa7..b307cca1702226 100644
+> --- a/drivers/input/misc/twl4030-pwrbutton.c
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -27,7 +27,7 @@
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #define PWR_PWRON_IRQ (1 << 0)
+>  
+> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+> index caa5a62c42fbe0..6c51d404874bbd 100644
+> --- a/drivers/input/misc/twl4030-vibra.c
+> +++ b/drivers/input/misc/twl4030-vibra.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/workqueue.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/mfd/twl4030-audio.h>
+>  #include <linux/input.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
+> index c64615dca2bd33..2a09dde4ca6efc 100644
+> --- a/drivers/mfd/twl-core.c
+> +++ b/drivers/mfd/twl-core.c
+> @@ -44,7 +44,7 @@
+>  #include <linux/regulator/machine.h>
+>  
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  /* Register descriptions for audio */
+>  #include <linux/mfd/twl4030-audio.h>
+> @@ -173,7 +173,7 @@ static struct twl_private *twl_priv;
+>  static struct twl_mapping twl4030_map[] = {
+>  	/*
+>  	 * NOTE:  don't change this table without updating the
+> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
+> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
+>  	 * so they continue to match the order in this table.
+>  	 */
+>  
+> @@ -344,7 +344,7 @@ static const struct regmap_config twl4030_regmap_config[4] = {
+>  static struct twl_mapping twl6030_map[] = {
+>  	/*
+>  	 * NOTE:  don't change this table without updating the
+> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
+> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
+>  	 * so they continue to match the order in this table.
+>  	 */
+>  
+> diff --git a/drivers/mfd/twl4030-audio.c b/drivers/mfd/twl4030-audio.c
+> index 0a1606480023f9..da16bf45fab43e 100644
+> --- a/drivers/mfd/twl4030-audio.c
+> +++ b/drivers/mfd/twl4030-audio.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/mfd/core.h>
+>  #include <linux/mfd/twl4030-audio.h>
+>  
+> diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
+> index b46c0cfc27d958..86f8fd8e81e4b5 100644
+> --- a/drivers/mfd/twl4030-irq.c
+> +++ b/drivers/mfd/twl4030-irq.c
+> @@ -33,7 +33,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/of.h>
+>  #include <linux/irqdomain.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #include "twl-core.h"
+>  
+> diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
+> index f4b2c29d77e330..6b36932263ba78 100644
+> --- a/drivers/mfd/twl4030-power.c
+> +++ b/drivers/mfd/twl4030-power.c
+> @@ -25,7 +25,7 @@
+>  
+>  #include <linux/module.h>
+>  #include <linux/pm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> diff --git a/drivers/mfd/twl6030-irq.c b/drivers/mfd/twl6030-irq.c
+> index 53574508a613f2..e3ec8dfa9f1ec0 100644
+> --- a/drivers/mfd/twl6030-irq.c
+> +++ b/drivers/mfd/twl6030-irq.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/irq.h>
+>  #include <linux/kthread.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/suspend.h>
+>  #include <linux/of.h>
+> diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
+> index 2990b3965460e8..28f49902760d82 100644
+> --- a/drivers/phy/phy-twl4030-usb.c
+> +++ b/drivers/phy/phy-twl4030-usb.c
+> @@ -36,7 +36,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/usb/musb.h>
+>  #include <linux/usb/ulpi.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/err.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
+> index 2f82d0e9ec1bf7..390bfde86ae39b 100644
+> --- a/drivers/power/supply/twl4030_charger.c
+> +++ b/drivers/power/supply/twl4030_charger.c
+> @@ -18,7 +18,7 @@
+>  #include <linux/err.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/power_supply.h>
+>  #include <linux/notifier.h>
+>  #include <linux/usb/otg.h>
+> diff --git a/drivers/pwm/pwm-twl-led.c b/drivers/pwm/pwm-twl-led.c
+> index 21eff991d0e355..01153622778bad 100644
+> --- a/drivers/pwm/pwm-twl-led.c
+> +++ b/drivers/pwm/pwm-twl-led.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pwm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  
+>  /*
+> diff --git a/drivers/pwm/pwm-twl.c b/drivers/pwm/pwm-twl.c
+> index 9de617b766801b..b7a45be998153b 100644
+> --- a/drivers/pwm/pwm-twl.c
+> +++ b/drivers/pwm/pwm-twl.c
+> @@ -21,7 +21,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pwm.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  
+>  /*
+> diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
+> index 6c9ec84121bde4..a4456db5849d06 100644
+> --- a/drivers/regulator/twl-regulator.c
+> +++ b/drivers/regulator/twl-regulator.c
+> @@ -20,7 +20,7 @@
+>  #include <linux/regulator/driver.h>
+>  #include <linux/regulator/machine.h>
+>  #include <linux/regulator/of_regulator.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/delay.h>
+>  
+>  /*
+> diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
+> index 56aada38788776..219cbd910dbf52 100644
+> --- a/drivers/regulator/twl6030-regulator.c
+> +++ b/drivers/regulator/twl6030-regulator.c
+> @@ -21,7 +21,7 @@
+>  #include <linux/regulator/driver.h>
+>  #include <linux/regulator/machine.h>
+>  #include <linux/regulator/of_regulator.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/delay.h>
+>  
+>  struct twlreg_info {
+> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
+> index c18c39212ce680..3472e79f2b1782 100644
+> --- a/drivers/rtc/rtc-twl.c
+> +++ b/drivers/rtc/rtc-twl.c
+> @@ -31,7 +31,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/of.h>
+>  
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  enum twl_class {
+>  	TWL_4030 = 0,
+> diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+> index 628b600b02b174..b5dc077ed7d3c6 100644
+> --- a/drivers/usb/phy/phy-twl6030-usb.c
+> +++ b/drivers/usb/phy/phy-twl6030-usb.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/usb/musb.h>
+>  #include <linux/usb/phy_companion.h>
+>  #include <linux/phy/omap_usb.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/err.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/video/backlight/pandora_bl.c b/drivers/video/backlight/pandora_bl.c
+> index 5d8bb8b201835d..a186bc677c7d80 100644
+> --- a/drivers/video/backlight/pandora_bl.c
+> +++ b/drivers/video/backlight/pandora_bl.c
+> @@ -16,7 +16,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/fb.h>
+>  #include <linux/backlight.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/err.h>
+>  
+>  #define TWL_PWM0_ON		0x00
+> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+> index 9bf3cc0f396106..569fe85e52da75 100644
+> --- a/drivers/watchdog/twl4030_wdt.c
+> +++ b/drivers/watchdog/twl4030_wdt.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/watchdog.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  
+>  #define TWL4030_WATCHDOG_CFG_REG_OFFS	0x3
+>  
+> diff --git a/include/linux/i2c/twl.h b/include/linux/mfd/twl.h
+> similarity index 100%
+> rename from include/linux/i2c/twl.h
+> rename to include/linux/mfd/twl.h
+> diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
+> index a2104d68169d9e..bd86a2d78c5ff2 100644
+> --- a/sound/soc/codecs/twl4030.c
+> +++ b/sound/soc/codecs/twl4030.c
+> @@ -28,7 +28,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/of.h>
+>  #include <linux/of_gpio.h>
+> -#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl.h>
+>  #include <linux/slab.h>
+>  #include <linux/gpio.h>
+>  #include <sound/core.h>
+> -- 
+> 2.11.0
+> 
 
-Remove the dependency on ARCH_GEMINI but select the driver
-for ARCH_GEMINI so we get a smooth transition. The IP block
-is synthsized on different silicon and architectures.
-
-Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Add Hans' ACK.
----
- MAINTAINERS                                  |  2 +-
- drivers/rtc/Kconfig                          | 10 +--
- drivers/rtc/Makefile                         |  2 +-
- drivers/rtc/{rtc-gemini.c => rtc-ftrtc010.c} | 91 ++++++++++++++--------------
- 4 files changed, 53 insertions(+), 52 deletions(-)
- rename drivers/rtc/{rtc-gemini.c => rtc-ftrtc010.c} (62%)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f7d568b8f133..c6f0f412b32e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1226,7 +1226,7 @@ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- T:	git git://github.com/ulli-kroll/linux.git
- S:	Maintained
- F:	arch/arm/mach-gemini/
--F:	drivers/rtc/rtc-gemini.c
-+F:	drivers/rtc/rtc-ftrtc010.c
- 
- ARM/CSR SIRFPRIMA2 MACHINE SUPPORT
- M:	Barry Song <baohua@kernel.org>
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b95728326..e60ed55d0b82 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1484,16 +1484,16 @@ config RTC_DRV_ARMADA38X
- 	  This driver can also be built as a module. If so, the module
- 	  will be called armada38x-rtc.
- 
--config RTC_DRV_GEMINI
--	tristate "Gemini SoC RTC"
--	depends on ARCH_GEMINI || COMPILE_TEST
-+config RTC_DRV_FTRTC010
-+	tristate "Faraday Technology FTRTC010 RTC"
- 	depends on HAS_IOMEM
-+	default ARCH_GEMINI
- 	help
- 	  If you say Y here you will get support for the
--	  RTC found on Gemini SoC's.
-+	  Faraday Technolog FTRTC010 found on e.g. Gemini SoC's.
- 
- 	  This driver can also be built as a module. If so, the module
--	  will be called rtc-gemini.
-+	  will be called rtc-ftrtc010.
- 
- config RTC_DRV_PS3
- 	tristate "PS3 RTC"
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 13857d2fce09..5d3944a42d48 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -67,7 +67,7 @@ obj-$(CONFIG_RTC_DRV_EFI)	+= rtc-efi.o
- obj-$(CONFIG_RTC_DRV_EM3027)	+= rtc-em3027.o
- obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
- obj-$(CONFIG_RTC_DRV_FM3130)	+= rtc-fm3130.o
--obj-$(CONFIG_RTC_DRV_GEMINI)	+= rtc-gemini.o
-+obj-$(CONFIG_RTC_DRV_FTRTC010)	+= rtc-ftrtc010.o
- obj-$(CONFIG_RTC_DRV_GENERIC)	+= rtc-generic.o
- obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
- obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-ftrtc010.c
-similarity index 62%
-rename from drivers/rtc/rtc-gemini.c
-rename to drivers/rtc/rtc-ftrtc010.c
-index cf766e01832a..af8d6beae20c 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-ftrtc010.c
-@@ -1,5 +1,5 @@
- /*
-- *  Gemini OnChip RTC
-+ *  Faraday Technology FTRTC010 driver
-  *
-  *  Copyright (C) 2009 Janos Laube <janos.dev@gmail.com>
-  *
-@@ -28,14 +28,14 @@
- #include <linux/module.h>
- #include <linux/clk.h>
- 
--#define DRV_NAME        "rtc-gemini"
-+#define DRV_NAME        "rtc-ftrtc010"
- 
- MODULE_AUTHOR("Hans Ulli Kroll <ulli.kroll@googlemail.com>");
- MODULE_DESCRIPTION("RTC driver for Gemini SoC");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:" DRV_NAME);
- 
--struct gemini_rtc {
-+struct ftrtc010_rtc {
- 	struct rtc_device	*rtc_dev;
- 	void __iomem		*rtc_base;
- 	int			rtc_irq;
-@@ -43,19 +43,19 @@ struct gemini_rtc {
- 	struct clk		*extclk;
- };
- 
--enum gemini_rtc_offsets {
--	GEMINI_RTC_SECOND	= 0x00,
--	GEMINI_RTC_MINUTE	= 0x04,
--	GEMINI_RTC_HOUR		= 0x08,
--	GEMINI_RTC_DAYS		= 0x0C,
--	GEMINI_RTC_ALARM_SECOND	= 0x10,
--	GEMINI_RTC_ALARM_MINUTE	= 0x14,
--	GEMINI_RTC_ALARM_HOUR	= 0x18,
--	GEMINI_RTC_RECORD	= 0x1C,
--	GEMINI_RTC_CR		= 0x20
-+enum ftrtc010_rtc_offsets {
-+	FTRTC010_RTC_SECOND		= 0x00,
-+	FTRTC010_RTC_MINUTE		= 0x04,
-+	FTRTC010_RTC_HOUR		= 0x08,
-+	FTRTC010_RTC_DAYS		= 0x0C,
-+	FTRTC010_RTC_ALARM_SECOND	= 0x10,
-+	FTRTC010_RTC_ALARM_MINUTE	= 0x14,
-+	FTRTC010_RTC_ALARM_HOUR		= 0x18,
-+	FTRTC010_RTC_RECORD		= 0x1C,
-+	FTRTC010_RTC_CR			= 0x20,
- };
- 
--static irqreturn_t gemini_rtc_interrupt(int irq, void *dev)
-+static irqreturn_t ftrtc010_rtc_interrupt(int irq, void *dev)
- {
- 	return IRQ_HANDLED;
- }
-@@ -69,18 +69,18 @@ static irqreturn_t gemini_rtc_interrupt(int irq, void *dev)
-  * the same thing, without the rtc-lib.c calls.
-  */
- 
--static int gemini_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
--	struct gemini_rtc *rtc = dev_get_drvdata(dev);
-+	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
- 
- 	unsigned int  days, hour, min, sec;
- 	unsigned long offset, time;
- 
--	sec  = readl(rtc->rtc_base + GEMINI_RTC_SECOND);
--	min  = readl(rtc->rtc_base + GEMINI_RTC_MINUTE);
--	hour = readl(rtc->rtc_base + GEMINI_RTC_HOUR);
--	days = readl(rtc->rtc_base + GEMINI_RTC_DAYS);
--	offset = readl(rtc->rtc_base + GEMINI_RTC_RECORD);
-+	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
-+	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-+	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
-+	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
-+	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
- 
- 	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
- 
-@@ -89,9 +89,9 @@ static int gemini_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int gemini_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
--	struct gemini_rtc *rtc = dev_get_drvdata(dev);
-+	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
- 	unsigned int sec, min, hour, day;
- 	unsigned long offset, time;
- 
-@@ -100,27 +100,27 @@ static int gemini_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc_tm_to_time(tm, &time);
- 
--	sec = readl(rtc->rtc_base + GEMINI_RTC_SECOND);
--	min = readl(rtc->rtc_base + GEMINI_RTC_MINUTE);
--	hour = readl(rtc->rtc_base + GEMINI_RTC_HOUR);
--	day = readl(rtc->rtc_base + GEMINI_RTC_DAYS);
-+	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
-+	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-+	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
-+	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
- 
- 	offset = time - (day * 86400 + hour * 3600 + min * 60 + sec);
- 
--	writel(offset, rtc->rtc_base + GEMINI_RTC_RECORD);
--	writel(0x01, rtc->rtc_base + GEMINI_RTC_CR);
-+	writel(offset, rtc->rtc_base + FTRTC010_RTC_RECORD);
-+	writel(0x01, rtc->rtc_base + FTRTC010_RTC_CR);
- 
- 	return 0;
- }
- 
--static const struct rtc_class_ops gemini_rtc_ops = {
--	.read_time     = gemini_rtc_read_time,
--	.set_time      = gemini_rtc_set_time,
-+static const struct rtc_class_ops ftrtc010_rtc_ops = {
-+	.read_time     = ftrtc010_rtc_read_time,
-+	.set_time      = ftrtc010_rtc_set_time,
- };
- 
--static int gemini_rtc_probe(struct platform_device *pdev)
-+static int ftrtc010_rtc_probe(struct platform_device *pdev)
- {
--	struct gemini_rtc *rtc;
-+	struct ftrtc010_rtc *rtc;
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
- 	int ret;
-@@ -166,19 +166,19 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 	if (!rtc->rtc_base)
- 		return -ENOMEM;
- 
--	ret = devm_request_irq(dev, rtc->rtc_irq, gemini_rtc_interrupt,
-+	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
- 			       IRQF_SHARED, pdev->name, dev);
- 	if (unlikely(ret))
- 		return ret;
- 
- 	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
--					   &gemini_rtc_ops, THIS_MODULE);
-+					   &ftrtc010_rtc_ops, THIS_MODULE);
- 	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
- }
- 
--static int gemini_rtc_remove(struct platform_device *pdev)
-+static int ftrtc010_rtc_remove(struct platform_device *pdev)
- {
--	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
-+	struct ftrtc010_rtc *rtc = platform_get_drvdata(pdev);
- 
- 	if (!IS_ERR(rtc->extclk))
- 		clk_disable_unprepare(rtc->extclk);
-@@ -189,19 +189,20 @@ static int gemini_rtc_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static const struct of_device_id gemini_rtc_dt_match[] = {
-+static const struct of_device_id ftrtc010_rtc_dt_match[] = {
- 	{ .compatible = "cortina,gemini-rtc" },
-+	{ .compatible = "faraday,ftrtc010" },
- 	{ }
- };
--MODULE_DEVICE_TABLE(of, gemini_rtc_dt_match);
-+MODULE_DEVICE_TABLE(of, ftrtc010_rtc_dt_match);
- 
--static struct platform_driver gemini_rtc_driver = {
-+static struct platform_driver ftrtc010_rtc_driver = {
- 	.driver		= {
- 		.name	= DRV_NAME,
--		.of_match_table = gemini_rtc_dt_match,
-+		.of_match_table = ftrtc010_rtc_dt_match,
- 	},
--	.probe		= gemini_rtc_probe,
--	.remove		= gemini_rtc_remove,
-+	.probe		= ftrtc010_rtc_probe,
-+	.remove		= ftrtc010_rtc_remove,
- };
- 
--module_platform_driver_probe(gemini_rtc_driver, gemini_rtc_probe);
-+module_platform_driver_probe(ftrtc010_rtc_driver, ftrtc010_rtc_probe);
 -- 
-2.9.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
