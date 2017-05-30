@@ -1,70 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:60816 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:43185 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755001AbdESTDh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 May 2017 15:03:37 -0400
+        with ESMTP id S1750839AbdE3IWC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 May 2017 04:22:02 -0400
 Received: from localhost (unknown [88.191.26.124])
-        by mail.free-electrons.com (Postfix) with ESMTPSA id 9FDAD20780
-        for <linux-rtc@vger.kernel.org>; Fri, 19 May 2017 21:02:24 +0200 (CEST)
-From: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        by mail.free-electrons.com (Postfix) with ESMTPSA id C7F7120EC6
+        for <linux-rtc@vger.kernel.org>; Tue, 30 May 2017 10:21:28 +0200 (CEST)
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, rtc-linux@googlegroups.com
-Subject: [PATCH] rtc/tpo: Handle disabled TPO in opal_get_tpo_time()
-Date: Fri, 19 May 2017 15:35:09 +0530
-Message-Id: <20170519100509.7807-1-vaibhav@linux.vnet.ibm.com>
+Cc: rtc-linux@googlegroups.com,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/3 v2] rtc: gemini: Add optional clock handling
+Date: Tue, 30 May 2017 09:53:30 +0200
+Message-Id: <20170530075332.3740-1-linus.walleij@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Message-ID: <20170519100509.2TRK_Cdr9MQLaTbQmmAcXFWdocAHSuhMhwdJnnxG7us@z>
+Message-ID: <20170530075330.kaM62XNx8nCH8dKfxLkLr3WV8kBUU_I2Tmz1_bATRv4@z>
 
-On PowerNV platform when Timed-Power-On(TPO) is disabled, read of
-stored TPO yields value with all date components set to '0' inside
-opal_get_tpo_time(). The function opal_to_tm() then converts it to an
-offset from year 1900 yielding alarm-time == "1900-00-01
-00:00:00". This causes problems with __rtc_read_alarm() that
-expecting an offset from "1970-00-01 00:00:00" and returned alarm-time
-results in a -ve value for time64_t. Which ultimately results in this
-error reported in kernel logs with a seemingly garbage value:
+This makes the Gemini optionally take two clock references to
+the PCLK and EXTCLK. As we are adding a clock framework to the
+Gemini platform we need to make sure that we get the right
+references.
 
-"rtc rtc0: invalid alarm value: -2-1--1041528741
-2005511117:71582844:32"
-
-We fix this by explicitly handling the case of all alarm date-time
-components being '0' inside opal_get_tpo_time() and returning -ENOENT
-in such a case. This signals generic rtc that no alarm is set and it
-bails out from the alarm initialization flow without reporting the
-above error.
-
-Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
-Reported-by: Steve Best <sbest@redhat.com>
+Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/rtc/rtc-opal.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ChangeLog v1->v2:
+- Use devm_clk_get() so we do not leave dangling clocks
+  behind.
+- Add Hans' ACK.
+---
+ drivers/rtc/rtc-gemini.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-index ea20f62..2d84e2a 100644
---- a/drivers/rtc/rtc-opal.c
-+++ b/drivers/rtc/rtc-opal.c
-@@ -142,6 +142,16 @@ static int opal_get_tpo_time(struct device *dev, struct rtc_wkalrm *alarm)
+diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
+index 5279390bb42d..cf766e01832a 100644
+--- a/drivers/rtc/rtc-gemini.c
++++ b/drivers/rtc/rtc-gemini.c
+@@ -26,6 +26,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/clk.h>
  
- 	y_m_d = be32_to_cpu(__y_m_d);
- 	h_m_s_ms = ((u64)be32_to_cpu(__h_m) << 32);
-+
-+	/* check if no alarm is set */
-+	if (y_m_d == 0 && h_m_s_ms == 0) {
-+		pr_debug("No alarm is set\n");
-+		rc = -ENOENT;
-+		goto exit;
+ #define DRV_NAME        "rtc-gemini"
+ 
+@@ -38,6 +39,8 @@ struct gemini_rtc {
+ 	struct rtc_device	*rtc_dev;
+ 	void __iomem		*rtc_base;
+ 	int			rtc_irq;
++	struct clk		*pclk;
++	struct clk		*extclk;
+ };
+ 
+ enum gemini_rtc_offsets {
+@@ -127,6 +130,27 @@ static int gemini_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	platform_set_drvdata(pdev, rtc);
+ 
++	rtc->pclk = devm_clk_get(dev, "PCLK");
++	if (IS_ERR(rtc->pclk)) {
++		dev_err(dev, "could not get PCLK\n");
 +	} else {
-+		pr_debug("Alarm set to %x %llx\n", y_m_d, h_m_s_ms);
++		ret = clk_prepare_enable(rtc->pclk);
++		if (ret) {
++			dev_err(dev, "failed to enable PCLK\n");
++			return ret;
++		}
++	}
++	rtc->extclk = devm_clk_get(dev, "EXTCLK");
++	if (IS_ERR(rtc->extclk)) {
++		dev_err(dev, "could not get EXTCLK\n");
++	} else {
++		ret = clk_prepare_enable(rtc->extclk);
++		if (ret) {
++			dev_err(dev, "failed to enable EXTCLK\n");
++			return ret;
++		}
 +	}
 +
- 	opal_to_tm(y_m_d, h_m_s_ms, &alarm->time);
+ 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (!res)
+ 		return -ENODEV;
+@@ -156,6 +180,10 @@ static int gemini_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
  
- exit:
++	if (!IS_ERR(rtc->extclk))
++		clk_disable_unprepare(rtc->extclk);
++	if (!IS_ERR(rtc->pclk))
++		clk_disable_unprepare(rtc->pclk);
+ 	rtc_device_unregister(rtc->rtc_dev);
+ 
+ 	return 0;
 -- 
-2.9.3
+2.9.4
