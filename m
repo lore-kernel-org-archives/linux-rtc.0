@@ -1,116 +1,90 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBC6KWTEQKGQE73Z4JIQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-lf0-x229.google.com (mail-lf0-x229.google.com. [2a00:1450:4010:c07::229])
-        by gmr-mx.google.com with ESMTPS id g11si523717wme.2.2017.05.30.00.53.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 May 2017 00:53:46 -0700 (PDT)
-Received: by mail-lf0-x229.google.com with SMTP id a5so44433342lfh.2
-        for <rtc-linux@googlegroups.com>; Tue, 30 May 2017 00:53:46 -0700 (PDT)
+Return-Path: <linux-rtc-owner@vger.kernel.org>
 From: Linus Walleij <linus.walleij@linaro.org>
 To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: rtc-linux@googlegroups.com,
-	Linus Walleij <linus.walleij@linaro.org>
-Subject: [rtc-linux] [PATCH 1/3 v2] rtc: gemini: Add optional clock handling
-Date: Tue, 30 May 2017 09:53:30 +0200
-Message-Id: <20170530075332.3740-1-linus.walleij@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+        Linus Walleij <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org, Po-Yu Chuang <ratbert@faraday-tech.com>
+Subject: [PATCH 2/3 v2] rtc: gemini: Augment DT bindings for Faraday
+Date: Tue, 30 May 2017 09:53:31 +0200
+Message-Id: <20170530075332.3740-2-linus.walleij@linaro.org>
+In-Reply-To: <20170530075332.3740-1-linus.walleij@linaro.org>
+References: <20170530075332.3740-1-linus.walleij@linaro.org>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-This makes the Gemini optionally take two clock references to
-the PCLK and EXTCLK. As we are adding a clock framework to the
-Gemini platform we need to make sure that we get the right
-references.
+The Gemini RTC is actually a standard IP block from Faraday
+Technology called FTRTC010. Rename the bindings, add the
+generic compatible string and add definitions for the two
+available clocks.
 
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+Cc: devicetree@vger.kernel.org
+Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
 ChangeLog v1->v2:
-- Use devm_clk_get() so we do not leave dangling clocks
-  behind.
-- Add Hans' ACK.
+- Add Rob's ACK.
 ---
- drivers/rtc/rtc-gemini.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ .../devicetree/bindings/rtc/cortina,gemini.txt     | 14 -----------
+ .../devicetree/bindings/rtc/faraday,ftrtc010.txt   | 28 ++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 14 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
 
-diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-index 5279390bb42d..cf766e01832a 100644
---- a/drivers/rtc/rtc-gemini.c
-+++ b/drivers/rtc/rtc-gemini.c
-@@ -26,6 +26,7 @@
- #include <linux/platform_device.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/clk.h>
- 
- #define DRV_NAME        "rtc-gemini"
- 
-@@ -38,6 +39,8 @@ struct gemini_rtc {
- 	struct rtc_device	*rtc_dev;
- 	void __iomem		*rtc_base;
- 	int			rtc_irq;
-+	struct clk		*pclk;
-+	struct clk		*extclk;
- };
- 
- enum gemini_rtc_offsets {
-@@ -127,6 +130,27 @@ static int gemini_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	platform_set_drvdata(pdev, rtc);
- 
-+	rtc->pclk = devm_clk_get(dev, "PCLK");
-+	if (IS_ERR(rtc->pclk)) {
-+		dev_err(dev, "could not get PCLK\n");
-+	} else {
-+		ret = clk_prepare_enable(rtc->pclk);
-+		if (ret) {
-+			dev_err(dev, "failed to enable PCLK\n");
-+			return ret;
-+		}
-+	}
-+	rtc->extclk = devm_clk_get(dev, "EXTCLK");
-+	if (IS_ERR(rtc->extclk)) {
-+		dev_err(dev, "could not get EXTCLK\n");
-+	} else {
-+		ret = clk_prepare_enable(rtc->extclk);
-+		if (ret) {
-+			dev_err(dev, "failed to enable EXTCLK\n");
-+			return ret;
-+		}
-+	}
+diff --git a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt b/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
+deleted file mode 100644
+index 4ce4e794ddbb..000000000000
+--- a/Documentation/devicetree/bindings/rtc/cortina,gemini.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-* Cortina Systems Gemini RTC
+-
+-Gemini SoC real-time clock.
+-
+-Required properties:
+-- compatible : Should be "cortina,gemini-rtc"
+-
+-Examples:
+-
+-rtc@45000000 {
+-	compatible = "cortina,gemini-rtc";
+-	reg = <0x45000000 0x100>;
+-	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+new file mode 100644
+index 000000000000..e3938f5e0b6c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
+@@ -0,0 +1,28 @@
++* Faraday Technology FTRTC010 Real Time Clock
 +
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!res)
- 		return -ENODEV;
-@@ -156,6 +180,10 @@ static int gemini_rtc_remove(struct platform_device *pdev)
- {
- 	struct gemini_rtc *rtc = platform_get_drvdata(pdev);
- 
-+	if (!IS_ERR(rtc->extclk))
-+		clk_disable_unprepare(rtc->extclk);
-+	if (!IS_ERR(rtc->pclk))
-+		clk_disable_unprepare(rtc->pclk);
- 	rtc_device_unregister(rtc->rtc_dev);
- 
- 	return 0;
++This RTC appears in for example the Storlink Gemini family of
++SoCs.
++
++Required properties:
++- compatible : Should be one of:
++  "faraday,ftrtc010"
++  "cortina,gemini-rtc", "faraday,ftrtc010"
++
++Optional properties:
++- clocks: when present should contain clock references to the
++  PCLK and EXTCLK clocks. Faraday calls the later CLK1HZ and
++  says the clock should be 1 Hz, but implementers actually seem
++  to choose different clocks here, like Cortina who chose
++  32768 Hz (a typical low-power clock).
++- clock-names: should name the clocks "PCLK" and "EXTCLK"
++  respectively.
++
++Examples:
++
++rtc@45000000 {
++	compatible = "cortina,gemini-rtc";
++	reg = <0x45000000 0x100>;
++	interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&foo 0>, <&foo 1>;
++	clock-names = "PCLK", "EXTCLK";
++};
 -- 
 2.9.4
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
