@@ -1,23 +1,20 @@
-Return-Path: <rtc-linux+bncBCOML4NU3EDRBO7Q5PEAKGQEOVGIJ4Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCF6XDEQKGQEPEH64GY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mout.web.de (mout.web.de. [212.227.17.12])
-        by gmr-mx.google.com with ESMTPS id n5si165312wmg.0.2017.05.16.06.01.46
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 May 2017 06:01:46 -0700 (PDT)
-To: rtc-linux@googlegroups.com, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Chao Xie <chao.xie@marvell.com>,
- Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
- Wolfram Sang <wsa@the-dreams.de>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [rtc-linux] [PATCH] rtc-88pm80x: Delete an error message for a failed
- memory allocation in pm80x_rtc_probe()
-Message-ID: <79e5d766-2e58-4cea-7812-ea45995873ac@users.sourceforge.net>
-Date: Tue, 16 May 2017 15:01:40 +0200
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 196si463578wma.3.2017.05.30.18.40.23
+        for <rtc-linux@googlegroups.com>;
+        Tue, 30 May 2017 18:40:23 -0700 (PDT)
+Date: Wed, 31 May 2017 03:40:13 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Gary Bisson <gary.bisson@boundarydevices.com>
+Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+	a.zummo@towertech.it, linux-rtc@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 0/4] rtc: m41t80: improve SQW support
+Message-ID: <20170531014013.r5kdqdl3rykpue2z@piout.net>
+References: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170425144517.15962-1-gary.bisson@boundarydevices.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,37 +24,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 16 May 2017 14:54:13 +0200
+On 25/04/2017 at 16:45:13 +0200, Gary Bisson wrote:
+> Hi,
+> 
+> This series aims at improving the square-wave support for some of the
+> devices supported by the m41t80 driver.
+> 
+> The first two patches are fixes that prevent the driver from overriding
+> the SQW configuration (divider & enable bit).
+> 
+> Then the last two remove the old sysfs entry and replace it with a clock
+> provider approach.
+> 
+> It has been tested on a Boundary Devices Nitrogen6_MAX which features a
+> MicroCrystal RV4162 RTC. The SQW (named clkout in RV4162 datasheet) can be
+> probed on TP70 on the platform.
+> 
+> Let me know if you have any question/suggestion.
+> 
+> Regards,
+> Gary
+> 
+> Gary Bisson (4):
+>   rtc: m41t80: fix SQWE override when setting an alarm
+>   rtc: m41t80: fix SQW dividers override when setting a date
+>   rtc: m41t80: remove sqw sysfs entry
+>   rtc: m41t80: add clock provider support
+> 
+>  drivers/rtc/rtc-m41t80.c | 251 +++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 175 insertions(+), 76 deletions(-)
+> 
 
-Omit an extra message for a memory allocation failure in this function.
+All applied now, I had to rebase the last patch on top of v4.12-rc1
 
-This issue was detected by using the Coccinelle software.
+Thanks!
 
-Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/rtc/rtc-88pm80x.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 466bf7f9a285..ae0e2561ecfa 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -266,10 +266,8 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
- 
- 	if (!pdata) {
- 		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
--		if (!pdata) {
--			dev_err(&pdev->dev, "failed to allocate memory\n");
-+		if (!pdata)
- 			return -ENOMEM;
--		}
- 	}
- 
- 	info =
 -- 
-2.13.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
