@@ -1,447 +1,265 @@
-Return-Path: <rtc-linux+bncBDP6N55ZUYDRBWXMRXEQKGQE25EBU6Q@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id c16si161654pfl.2.2017.05.22.16.38.01
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 May 2017 16:38:01 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id f27so23165877pfe.0
-        for <rtc-linux@googlegroups.com>; Mon, 22 May 2017 16:38:01 -0700 (PDT)
-Date: Mon, 22 May 2017 16:37:58 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Kishon Vijay Abraham I <kishon@ti.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Felipe Balbi <balbi@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Daniel Thompson <daniel.thompson@linaro.org>,
-	Jingoo Han <jingoohan1@gmail.com>,
-	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Peter Ujfalusi <peter.ujfalusi@ti.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
-	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	alsa-devel@alsa-project.org
-Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Message-ID: <20170522233758.GC12016@dtor-ws>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Date: Wed, 31 May 2017 03:45:15 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Marek Vasut <marex@denx.de>
+Cc: rtc-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
+        Felipe Balbi <balbi@ti.com>, Nishanth Menon <nm@ti.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] rtc: ds1307: Add support for Epson RX8130CE
+Message-ID: <20170531014515.4a7yebud7qssyjok@piout.net>
+References: <20170504103346.10842-1-marex@denx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170504103346.10842-1-marex@denx.de>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
+Hi Marek,
+
+On 04/05/2017 at 12:33:46 +0200, Marek Vasut wrote:
+> Add support for yet another RTC chip, Epson RX8130CE. This time around,
+> the chip has slightly permutated registers and also the register starts
+> at 0x10 instead of 0x0 .
 > 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+Do you mind rebasing on top of rtc-next or linux-next because this
+driver now uses regmap for the register accesses.
+
+Thanks!
+
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Felipe Balbi <balbi@ti.com>
+> Cc: Nishanth Menon <nm@ti.com>
+> Cc: Tony Lindgren <tony@atomide.com>
 > ---
->  arch/arm/mach-omap2/common.h            | 2 +-
->  arch/arm/mach-omap2/omap_twl.c          | 2 +-
->  drivers/gpio/gpio-twl4030.c             | 2 +-
->  drivers/iio/adc/twl4030-madc.c          | 2 +-
->  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
->  drivers/input/keyboard/twl4030_keypad.c | 2 +-
->  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
->  drivers/input/misc/twl4030-vibra.c      | 2 +-
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
->  drivers/mfd/twl-core.c                  | 6 +++---
->  drivers/mfd/twl4030-audio.c             | 2 +-
->  drivers/mfd/twl4030-irq.c               | 2 +-
->  drivers/mfd/twl4030-power.c             | 2 +-
->  drivers/mfd/twl6030-irq.c               | 2 +-
->  drivers/phy/phy-twl4030-usb.c           | 2 +-
->  drivers/power/supply/twl4030_charger.c  | 2 +-
->  drivers/pwm/pwm-twl-led.c               | 2 +-
->  drivers/pwm/pwm-twl.c                   | 2 +-
->  drivers/regulator/twl-regulator.c       | 2 +-
->  drivers/regulator/twl6030-regulator.c   | 2 +-
->  drivers/rtc/rtc-twl.c                   | 2 +-
->  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
->  drivers/video/backlight/pandora_bl.c    | 2 +-
->  drivers/watchdog/twl4030_wdt.c          | 2 +-
->  include/linux/{i2c => mfd}/twl.h        | 0
->  sound/soc/codecs/twl4030.c              | 2 +-
->  25 files changed, 26 insertions(+), 26 deletions(-)
->  rename include/linux/{i2c => mfd}/twl.h (100%)
+>  drivers/rtc/rtc-ds1307.c | 179 +++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 179 insertions(+)
 > 
-> diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-> index 8cc6338fcb1288..b5ad7fcb80ed24 100644
-> --- a/arch/arm/mach-omap2/common.h
-> +++ b/arch/arm/mach-omap2/common.h
-> @@ -29,7 +29,7 @@
->  #include <linux/irq.h>
->  #include <linux/delay.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/i2c-omap.h>
->  #include <linux/reboot.h>
->  #include <linux/irqchip/irq-omap-intc.h>
-> diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_twl.c
-> index 1346b3ab34a5e3..295124b248ae3f 100644
-> --- a/arch/arm/mach-omap2/omap_twl.c
-> +++ b/arch/arm/mach-omap2/omap_twl.c
-> @@ -16,7 +16,7 @@
->  #include <linux/err.h>
->  #include <linux/io.h>
->  #include <linux/kernel.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  #include "soc.h"
->  #include "voltage.h"
-> diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
-> index 24f388ed46d4c4..9b511df5450eb6 100644
-> --- a/drivers/gpio/gpio-twl4030.c
-> +++ b/drivers/gpio/gpio-twl4030.c
-> @@ -35,7 +35,7 @@
->  #include <linux/of.h>
->  #include <linux/irqdomain.h>
->  
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  /*
->   * The GPIO "subchip" supports 18 GPIOs which can be configured as
-> diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-madc.c
-> index 0c74869a540ad3..5a64eda1652061 100644
-> --- a/drivers/iio/adc/twl4030-madc.c
-> +++ b/drivers/iio/adc/twl4030-madc.c
-> @@ -35,7 +35,7 @@
->  #include <linux/delay.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/i2c/twl4030-madc.h>
->  #include <linux/module.h>
->  #include <linux/stddef.h>
-> diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-> index becbb0aef232b9..bc0e60b9da452e 100644
-> --- a/drivers/iio/adc/twl6030-gpadc.c
-> +++ b/drivers/iio/adc/twl6030-gpadc.c
-> @@ -33,7 +33,7 @@
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/of_platform.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/iio/iio.h>
->  #include <linux/iio/sysfs.h>
->  
-> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-> index 39e72b3219d8a4..f9f98ef1d98e3f 100644
-> --- a/drivers/input/keyboard/twl4030_keypad.c
-> +++ b/drivers/input/keyboard/twl4030_keypad.c
-> @@ -30,7 +30,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/input.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
->  #include <linux/of.h>
->  
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> index 1c13005b228fa7..b307cca1702226 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -27,7 +27,7 @@
->  #include <linux/input.h>
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  #define PWR_PWRON_IRQ (1 << 0)
->  
-> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-> index caa5a62c42fbe0..6c51d404874bbd 100644
-> --- a/drivers/input/misc/twl4030-vibra.c
-> +++ b/drivers/input/misc/twl4030-vibra.c
-> @@ -28,7 +28,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/workqueue.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/mfd/twl4030-audio.h>
->  #include <linux/input.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-> index c64615dca2bd33..2a09dde4ca6efc 100644
-> --- a/drivers/mfd/twl-core.c
-> +++ b/drivers/mfd/twl-core.c
-> @@ -44,7 +44,7 @@
->  #include <linux/regulator/machine.h>
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  /* Register descriptions for audio */
->  #include <linux/mfd/twl4030-audio.h>
-> @@ -173,7 +173,7 @@ static struct twl_private *twl_priv;
->  static struct twl_mapping twl4030_map[] = {
->  	/*
->  	 * NOTE:  don't change this table without updating the
-> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
->  	 * so they continue to match the order in this table.
->  	 */
->  
-> @@ -344,7 +344,7 @@ static const struct regmap_config twl4030_regmap_config[4] = {
->  static struct twl_mapping twl6030_map[] = {
->  	/*
->  	 * NOTE:  don't change this table without updating the
-> -	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-> +	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
->  	 * so they continue to match the order in this table.
->  	 */
->  
-> diff --git a/drivers/mfd/twl4030-audio.c b/drivers/mfd/twl4030-audio.c
-> index 0a1606480023f9..da16bf45fab43e 100644
-> --- a/drivers/mfd/twl4030-audio.c
-> +++ b/drivers/mfd/twl4030-audio.c
-> @@ -30,7 +30,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_platform.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/mfd/core.h>
->  #include <linux/mfd/twl4030-audio.h>
->  
-> diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
-> index b46c0cfc27d958..86f8fd8e81e4b5 100644
-> --- a/drivers/mfd/twl4030-irq.c
-> +++ b/drivers/mfd/twl4030-irq.c
-> @@ -33,7 +33,7 @@
->  #include <linux/slab.h>
->  #include <linux/of.h>
->  #include <linux/irqdomain.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  #include "twl-core.h"
->  
-> diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
-> index f4b2c29d77e330..6b36932263ba78 100644
-> --- a/drivers/mfd/twl4030-power.c
-> +++ b/drivers/mfd/twl4030-power.c
-> @@ -25,7 +25,7 @@
->  
->  #include <linux/module.h>
->  #include <linux/pm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> diff --git a/drivers/mfd/twl6030-irq.c b/drivers/mfd/twl6030-irq.c
-> index 53574508a613f2..e3ec8dfa9f1ec0 100644
-> --- a/drivers/mfd/twl6030-irq.c
-> +++ b/drivers/mfd/twl6030-irq.c
-> @@ -35,7 +35,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/irq.h>
->  #include <linux/kthread.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/platform_device.h>
->  #include <linux/suspend.h>
->  #include <linux/of.h>
-> diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
-> index 2990b3965460e8..28f49902760d82 100644
-> --- a/drivers/phy/phy-twl4030-usb.c
-> +++ b/drivers/phy/phy-twl4030-usb.c
-> @@ -36,7 +36,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/usb/musb.h>
->  #include <linux/usb/ulpi.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/regulator/consumer.h>
->  #include <linux/err.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
-> index 2f82d0e9ec1bf7..390bfde86ae39b 100644
-> --- a/drivers/power/supply/twl4030_charger.c
-> +++ b/drivers/power/supply/twl4030_charger.c
-> @@ -18,7 +18,7 @@
->  #include <linux/err.h>
->  #include <linux/platform_device.h>
->  #include <linux/interrupt.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/power_supply.h>
->  #include <linux/notifier.h>
->  #include <linux/usb/otg.h>
-> diff --git a/drivers/pwm/pwm-twl-led.c b/drivers/pwm/pwm-twl-led.c
-> index 21eff991d0e355..01153622778bad 100644
-> --- a/drivers/pwm/pwm-twl-led.c
-> +++ b/drivers/pwm/pwm-twl-led.c
-> @@ -24,7 +24,7 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pwm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 77339b3d50a1..4a3c41c9e040 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -43,6 +43,7 @@ enum ds_type {
+>  	m41t00,
+>  	mcp794xx,
+>  	rx_8025,
+> +	rx_8130,
+>  	last_ds_type /* always last */
+>  	/* rs5c372 too?  different address... */
+>  };
+> @@ -169,6 +170,12 @@ static struct chip_desc chips[last_ds_type] = {
+>  	[ds_3231] = {
+>  		.alarm		= 1,
+>  	},
+> +	[rx_8130] = {
+> +		.alarm		= 1,
+> +		/* this is battery backed SRAM */
+> +		.nvram_offset	= 0x20,
+> +		.nvram_size	= 4,	/* 32bit (4 word x 8 bit) */
+> +	},
+>  	[mcp794xx] = {
+>  		.alarm		= 1,
+>  		/* this is battery backed SRAM */
+> @@ -192,6 +199,7 @@ static const struct i2c_device_id ds1307_id[] = {
+>  	{ "pt7c4338", ds_1307 },
+>  	{ "rx8025", rx_8025 },
+>  	{ "isl12057", ds_1337 },
+> +	{ "rx8130", rx_8130 },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, ds1307_id);
+> @@ -729,6 +737,169 @@ static const struct rtc_class_ops ds13xx_rtc_ops = {
+>  /*----------------------------------------------------------------------*/
 >  
 >  /*
-> diff --git a/drivers/pwm/pwm-twl.c b/drivers/pwm/pwm-twl.c
-> index 9de617b766801b..b7a45be998153b 100644
-> --- a/drivers/pwm/pwm-twl.c
-> +++ b/drivers/pwm/pwm-twl.c
-> @@ -21,7 +21,7 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pwm.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
+> + * Alarm support for rx8130 devices.
+> + */
+> +
+> +#define RX8130_REG_ALARM_MIN		0x07
+> +#define RX8130_REG_ALARM_HOUR		0x08
+> +#define RX8130_REG_ALARM_WEEK_OR_DAY	0x09
+> +#define RX8130_REG_EXTENSION		0x0c
+> +#define RX8130_REG_EXTENSION_WADA	(1 << 3)
+> +#define RX8130_REG_FLAG			0x0d
+> +#define RX8130_REG_FLAG_AF		(1 << 3)
+> +#define RX8130_REG_CONTROL0		0x0e
+> +#define RX8130_REG_CONTROL0_AIE		(1 << 3)
+> +
+> +static irqreturn_t rx8130_irq(int irq, void *dev_id)
+> +{
+> +	struct i2c_client       *client = dev_id;
+> +	struct ds1307           *ds1307 = i2c_get_clientdata(client);
+> +	struct mutex            *lock = &ds1307->rtc->ops_lock;
+> +	u8 ctl[3];
+> +	int ret;
+> +
+> +	mutex_lock(lock);
+> +
+> +	/* Read control registers. */
+> +	ret = ds1307->read_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +	if (ret < 0)
+> +		goto out;
+> +	if (!(ctl[1] & RX8130_REG_FLAG_AF))
+> +		goto out;
+> +	ctl[1] &= ~RX8130_REG_FLAG_AF;
+> +	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
+> +
+> +	ret = ds1307->write_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +	if (ret < 0)
+> +		goto out;
+> +
+> +	rtc_update_irq(ds1307->rtc, 1, RTC_AF | RTC_IRQF);
+> +
+> +out:
+> +	mutex_unlock(lock);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+> +	u8 ald[3], ctl[3];
+> +	int ret;
+> +
+> +	if (!test_bit(HAS_ALARM, &ds1307->flags))
+> +		return -EINVAL;
+> +
+> +	/* Read alarm registers. */
+> +	ret = ds1307->read_block_data(client, RX8130_REG_ALARM_MIN, 3, ald);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	/* Read control registers. */
+> +	ret = ds1307->read_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	t->enabled = !!(ctl[2] & RX8130_REG_CONTROL0_AIE);
+> +	t->pending = !!(ctl[1] & RX8130_REG_FLAG_AF);
+> +
+> +	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
+> +	t->time.tm_sec = -1;
+> +	t->time.tm_min = bcd2bin(ald[0] & 0x7f);
+> +	t->time.tm_hour = bcd2bin(ald[1] & 0x7f);
+> +	t->time.tm_wday = -1;
+> +	t->time.tm_mday = bcd2bin(ald[2] & 0x7f);
+> +	t->time.tm_mon = -1;
+> +	t->time.tm_year = -1;
+> +	t->time.tm_yday = -1;
+> +	t->time.tm_isdst = -1;
+> +
+> +	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d enabled=%d\n",
+> +		__func__, t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
+> +		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon, t->enabled);
+> +
+> +	return 0;
+> +}
+> +
+> +static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+> +	u8 ald[3], ctl[3];
+> +	int ret;
+> +
+> +	if (!test_bit(HAS_ALARM, &ds1307->flags))
+> +		return -EINVAL;
+> +
+> +	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d "
+> +		"enabled=%d pending=%d\n", __func__,
+> +		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
+> +		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon,
+> +		t->enabled, t->pending);
+> +
+> +	/* Read control registers. */
+> +	ret = ds1307->read_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ctl[0] &= ~RX8130_REG_EXTENSION_WADA;
+> +	ctl[1] |= RX8130_REG_FLAG_AF;
+> +	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
+> +
+> +	ret = ds1307->write_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	/* Hardware alarm precision is 1 minute! */
+> +	ald[0] = bin2bcd(t->time.tm_min);
+> +	ald[1] = bin2bcd(t->time.tm_hour);
+> +	ald[2] = bin2bcd(t->time.tm_mday);
+> +
+> +	ret = ds1307->write_block_data(client, RX8130_REG_ALARM_MIN, 3, ald);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (!t->enabled)
+> +		return 0;
+> +
+> +	ctl[2] |= RX8130_REG_CONTROL0_AIE;
+> +
+> +	return ds1307->write_block_data(client, RX8130_REG_EXTENSION, 3, ctl);
+> +}
+> +
+> +static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct ds1307 *ds1307 = i2c_get_clientdata(client);
+> +	int reg;
+> +
+> +	if (!test_bit(HAS_ALARM, &ds1307->flags))
+> +		return -EINVAL;
+> +
+> +	reg = i2c_smbus_read_byte_data(client, RX8130_REG_CONTROL0);
+> +	if (reg < 0)
+> +		return reg;
+> +
+> +	if (enabled)
+> +		reg |= RX8130_REG_CONTROL0_AIE;
+> +	else
+> +		reg &= ~RX8130_REG_CONTROL0_AIE;
+> +
+> +	return i2c_smbus_write_byte_data(client, RX8130_REG_CONTROL0, reg);
+> +}
+> +
+> +static const struct rtc_class_ops rx8130_rtc_ops = {
+> +	.read_time	= ds1307_get_time,
+> +	.set_time	= ds1307_set_time,
+> +	.read_alarm	= rx8130_read_alarm,
+> +	.set_alarm	= rx8130_set_alarm,
+> +	.alarm_irq_enable = rx8130_alarm_irq_enable,
+> +};
+> +
+> +/*----------------------------------------------------------------------*/
+> +
+> +/*
+>   * Alarm support for mcp794xx devices.
+>   */
 >  
->  /*
-> diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
-> index 6c9ec84121bde4..a4456db5849d06 100644
-> --- a/drivers/regulator/twl-regulator.c
-> +++ b/drivers/regulator/twl-regulator.c
-> @@ -20,7 +20,7 @@
->  #include <linux/regulator/driver.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/regulator/of_regulator.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/delay.h>
->  
->  /*
-> diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
-> index 56aada38788776..219cbd910dbf52 100644
-> --- a/drivers/regulator/twl6030-regulator.c
-> +++ b/drivers/regulator/twl6030-regulator.c
-> @@ -21,7 +21,7 @@
->  #include <linux/regulator/driver.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/regulator/of_regulator.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/delay.h>
->  
->  struct twlreg_info {
-> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-> index c18c39212ce680..3472e79f2b1782 100644
-> --- a/drivers/rtc/rtc-twl.c
-> +++ b/drivers/rtc/rtc-twl.c
-> @@ -31,7 +31,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/of.h>
->  
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  enum twl_class {
->  	TWL_4030 = 0,
-> diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-> index 628b600b02b174..b5dc077ed7d3c6 100644
-> --- a/drivers/usb/phy/phy-twl6030-usb.c
-> +++ b/drivers/usb/phy/phy-twl6030-usb.c
-> @@ -28,7 +28,7 @@
->  #include <linux/usb/musb.h>
->  #include <linux/usb/phy_companion.h>
->  #include <linux/phy/omap_usb.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/regulator/consumer.h>
->  #include <linux/err.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/video/backlight/pandora_bl.c b/drivers/video/backlight/pandora_bl.c
-> index 5d8bb8b201835d..a186bc677c7d80 100644
-> --- a/drivers/video/backlight/pandora_bl.c
-> +++ b/drivers/video/backlight/pandora_bl.c
-> @@ -16,7 +16,7 @@
->  #include <linux/delay.h>
->  #include <linux/fb.h>
->  #include <linux/backlight.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/err.h>
->  
->  #define TWL_PWM0_ON		0x00
-> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-> index 9bf3cc0f396106..569fe85e52da75 100644
-> --- a/drivers/watchdog/twl4030_wdt.c
-> +++ b/drivers/watchdog/twl4030_wdt.c
-> @@ -24,7 +24,7 @@
->  #include <linux/kernel.h>
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  
->  #define TWL4030_WATCHDOG_CFG_REG_OFFS	0x3
->  
-> diff --git a/include/linux/i2c/twl.h b/include/linux/mfd/twl.h
-> similarity index 100%
-> rename from include/linux/i2c/twl.h
-> rename to include/linux/mfd/twl.h
-> diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
-> index a2104d68169d9e..bd86a2d78c5ff2 100644
-> --- a/sound/soc/codecs/twl4030.c
-> +++ b/sound/soc/codecs/twl4030.c
-> @@ -28,7 +28,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
->  #include <linux/of_gpio.h>
-> -#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl.h>
->  #include <linux/slab.h>
->  #include <linux/gpio.h>
->  #include <sound/core.h>
+> @@ -1562,6 +1733,14 @@ static int ds1307_probe(struct i2c_client *client,
+>  						  hour);
+>  		}
+>  		break;
+> +	case rx_8130:
+> +		ds1307->offset = 0x10; /* Seconds starts at 0x10 */
+> +		rtc_ops = &rx8130_rtc_ops;
+> +		if (ds1307->client->irq > 0 && chip->alarm) {
+> +			irq_handler = rx8130_irq;
+> +			want_irq = true;
+> +		}
+> +		break;
+>  	case ds_1388:
+>  		ds1307->offset = 1; /* Seconds starts at 1 */
+>  		break;
 > -- 
 > 2.11.0
 > 
 
 -- 
-Dmitry
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
