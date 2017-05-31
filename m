@@ -1,107 +1,55 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBCGYRLEQKGQELPJUNBI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id b79si745725wmf.1.2017.05.22.02.14.48
-        for <rtc-linux@googlegroups.com>;
-        Mon, 22 May 2017 02:14:48 -0700 (PDT)
-Date: Mon, 22 May 2017 11:14:38 +0200
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Date: Wed, 31 May 2017 13:05:58 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/3] mfd: dm355evm_msp: move header file out
- of I2C realm
-Message-ID: <20170522091438.mnomqfixxbzly75u@piout.net>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-2-wsa@the-dreams.de>
+To: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] drivers/rtc/interface.c: Validate alarm-time before
+ handling rollover
+Message-ID: <20170531110558.tcvl42wvaeazmbgp@piout.net>
+References: <20170519164855.11747-1-vaibhav@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170521220212.1404-2-wsa@the-dreams.de>
-Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170519164855.11747-1-vaibhav@linux.vnet.ibm.com>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 22/05/2017 at 00:02:08 +0200, Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
+On 19/05/2017 at 22:18:55 +0530, Vaibhav Jain wrote:
+> In function __rtc_read_alarm() its possible for an alarm time-stamp to
+> be invalid even after replacing missing components with current
+> time-stamp. The condition 'alarm->time.tm_year < 70' will trigger this
+> case and will cause the call to 'rtc_tm_to_time64(&alarm->time)'
+> return a negative value for variable t_alm.
 > 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
+> While handling alarm rollover this negative t_alm (assumed to seconds
+> offset from '1970-01-01 00:00:00') is converted back to rtc_time via
+> rtc_time64_to_tm() which results in this error log with seemingly
+> garbage values:
+> 
+> "rtc rtc0: invalid alarm value: -2-1--1041528741
+> 2005511117:71582844:32"
+> 
+> This error was generated when the rtc driver (rtc-opal in this case)
+> returned an alarm time-stamp of '00-00-00 00:00:00' to indicate that
+> the alarm is disabled. Though I have submitted a separate fix for the
+> rtc-opal driver, this issue may potentially impact other
+> existing/future rtc drivers.
+> 
+> To fix this issue the patch validates the alarm time-stamp just after
+> filling up the missing datetime components and if rtc_valid_tm() still
+> reports it to be invalid then bails out of the function without
+> handling the rollover.
+> 
+> Reported-by: Steve Best <sbest@redhat.com>
+> Signed-off-by: Vaibhav Jain <vaibhav@linux.vnet.ibm.com>
 > ---
->  drivers/input/misc/dm355evm_keys.c        | 2 +-
->  drivers/mfd/dm355evm_msp.c                | 2 +-
->  drivers/rtc/rtc-dm355evm.c                | 2 +-
->  include/linux/{i2c => mfd}/dm355evm_msp.h | 0
->  4 files changed, 3 insertions(+), 3 deletions(-)
->  rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+>  drivers/rtc/interface.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
-> index bab256ef32b9b3..c803db64a3760d 100644
-> --- a/drivers/input/misc/dm355evm_keys.c
-> +++ b/drivers/input/misc/dm355evm_keys.c
-> @@ -15,7 +15,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/interrupt.h>
->  
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
->  #include <linux/module.h>
->  
->  
-> diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
-> index 86eca614507bd8..2a2756709f22f0 100644
-> --- a/drivers/mfd/dm355evm_msp.c
-> +++ b/drivers/mfd/dm355evm_msp.c
-> @@ -18,7 +18,7 @@
->  #include <linux/gpio.h>
->  #include <linux/leds.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
->  
->  
->  /*
-> diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
-> index f225cd873ff6c2..97d8259b94940f 100644
-> --- a/drivers/rtc/rtc-dm355evm.c
-> +++ b/drivers/rtc/rtc-dm355evm.c
-> @@ -13,7 +13,7 @@
->  #include <linux/rtc.h>
->  #include <linux/platform_device.h>
->  
-> -#include <linux/i2c/dm355evm_msp.h>
-> +#include <linux/mfd/dm355evm_msp.h>
->  #include <linux/module.h>
->  
->  
-> diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
-> similarity index 100%
-> rename from include/linux/i2c/dm355evm_msp.h
-> rename to include/linux/mfd/dm355evm_msp.h
-> -- 
-> 2.11.0
-> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
