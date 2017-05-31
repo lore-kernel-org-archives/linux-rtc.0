@@ -1,54 +1,69 @@
-Return-Path: <ulli.kroll@googlemail.com>
-Date: Thu, 27 Apr 2017 06:22:54 +0200 (CEST)
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-To: Pan Bian <bianpan201602@163.com>
-cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    rtc-linux@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-    linux-kernel@vger.kernel.org, Pan Bian <bianpan2016@163.com>
-Subject: Re: [PATCH 1/1] rtc: gemini: add return value validation
-In-Reply-To: <1492951687-16777-1-git-send-email-bianpan201602@163.com>
-Message-ID: <alpine.LNX.2.00.1704270620490.16259@T520>
-References: <1492951687-16777-1-git-send-email-bianpan201602@163.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBTOMXLEQKGQEKKFKQSY@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id b206si1488941wmc.3.2017.05.31.04.17.33
+        for <rtc-linux@googlegroups.com>;
+        Wed, 31 May 2017 04:17:33 -0700 (PDT)
+Date: Wed, 31 May 2017 13:17:22 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+	Mauro Carvalho Chehab <mchehab@infradead.org>,
+	linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Marek Vasut <marek.vasut@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	Cyrille Pitchen <cyrille.pitchen@atmel.com>,
+	linux-mtd@lists.infradead.org,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	linux-rtc@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 12/29] rtc.txt: standardize document format
+Message-ID: <20170531111722.oq3ce5cpzkbmcm3i@piout.net>
+References: <cover.1495157082.git.mchehab@s-opensource.com>
+ <de62f8091ae4e7d2af980e6cd79071348622cdc8.1495157082.git.mchehab@s-opensource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <de62f8091ae4e7d2af980e6cd79071348622cdc8.1495157082.git.mchehab@s-opensource.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-HI Pan,
-
-On Sun, 23 Apr 2017, Pan Bian wrote:
-
-> From: Pan Bian <bianpan2016@163.com>
+On 18/05/2017 at 22:25:56 -0300, Mauro Carvalho Chehab wrote:
+> Each text file under Documentation follows a different
+> format. Some doesn't even have titles!
 > 
-> Function devm_ioremap() will return a NULL pointer if it fails to remap
-> IO address, and its return value should be validated before it is used.
-> However, in function gemini_rtc_probe(), its return value is not
-> checked. This may result in bad memory access bugs on future access,
-> e.g. calling the function gemini_rtc_read_time().
+> Change its representation to follow the adopted standard,
+> using ReST markups for it to be parseable by Sphinx:
 > 
-> Signed-off-by: Pan Bian <bianpan2016@163.com>
+> - adjust identation of the titles;
+> - mark a table as such;
+> - don't capitalize chapter names.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 > ---
->  drivers/rtc/rtc-gemini.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  Documentation/rtc.txt | 44 +++++++++++++++++++++++---------------------
+>  1 file changed, 23 insertions(+), 21 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-gemini.c b/drivers/rtc/rtc-gemini.c
-> index ccf0dba..5279390 100644
-> --- a/drivers/rtc/rtc-gemini.c
-> +++ b/drivers/rtc/rtc-gemini.c
-> @@ -139,6 +139,8 @@ static int gemini_rtc_probe(struct platform_device *pdev)
->  
->  	rtc->rtc_base = devm_ioremap(dev, res->start,
->  				     resource_size(res));
-> +	if (!rtc->rtc_base)
-> +		return -ENOMEM;
->  
->  	ret = devm_request_irq(dev, rtc->rtc_irq, gemini_rtc_interrupt,
->  			       IRQF_SHARED, pdev->name, dev);
-> -- 
-> 1.9.1
-> 
-> 
-> 
+Applied, thanks.
 
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
