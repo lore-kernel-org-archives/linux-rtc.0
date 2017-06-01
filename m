@@ -1,19 +1,18 @@
 Return-Path: <rtc-linux+bncBDQ4HRP464MRBSMBY7EQKGQED43TZNQ@googlegroups.com>
-Resent-Message-ID: <20170602194649.qva34oyasagk2g6k@piout.net>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34503 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751130AbdFATJm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 15:09:42 -0400
-Received: by mail-wm0-f65.google.com with SMTP id d127so13608013wmf.1
-        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 12:09:42 -0700 (PDT)
+Resent-Message-ID: <20170602194648.jsykltleb4y7zxvr@piout.net>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35989 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751083AbdFATJk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 15:09:40 -0400
+Received: by mail-wm0-f67.google.com with SMTP id k15so13658570wmh.3
+        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 12:09:39 -0700 (PDT)
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [rtc-linux] [PATCH v2 4/4] rtc: ds1307: change nvram handling to use
- the nvmem subsystem
+Subject: [rtc-linux] [PATCH v2 2/4] rtc: ds1307: use regmap_update_bits where applicable
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: linux-rtc@vger.kernel.org
 References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
-Message-ID: <1785cfc0-edfd-6e2d-8e5e-169c212faca2@gmail.com>
-Date: Thu, 1 Jun 2017 21:09:24 +0200
+Message-ID: <2eb07379-2b2a-5649-fc39-aeac298d6d7b@gmail.com>
+Date: Thu, 1 Jun 2017 21:09:19 +0200
 MIME-Version: 1.0
 In-Reply-To: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
@@ -21,175 +20,179 @@ Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 Reply-To: rtc-linux@googlegroups.com
 
-The open coded handling of attribute nvram is from 2007 when the
-nvmem subsystem obviously didn't exist yet.
-
-Now we can use nvmem to simplify the driver. A side effect is that
-attribute nvram is replaced. New location is:
-/sys/bus/nvmem/devices/rtc_nvram0/nvmem
-
-This might break user space applications. However attribute nvram
-is nowhere officially documented and I'm not sure whether anybody
-is actually using the few nvram bytes on a rtc chip.
-
-This patch is compile-tested only as I lack hardware with nvram.
+After the switch to regmap we can now make use of regmap_update_bits
+to simplify read/modify/write ops.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
-- embed nvmem_config structure part in struct ds1307
-- set name and owner members of struct nvmem_config
+- no changes
 ---
- drivers/rtc/rtc-ds1307.c | 95 ++++++++++++++++--------------------------------
- 1 file changed, 32 insertions(+), 63 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 82 ++++++++++++------------------------------------
+ 1 file changed, 20 insertions(+), 62 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 79160027..cc81a5ea 100644
+index b960ec3f..bf906e9f 100644
 --- a/drivers/rtc/rtc-ds1307.c
 +++ b/drivers/rtc/rtc-ds1307.c
-@@ -25,6 +25,7 @@
- #include <linux/hwmon-sysfs.h>
- #include <linux/clk-provider.h>
- #include <linux/regmap.h>
-+#include <linux/nvmem-provider.h>
- 
- /*
-  * We can't determine type by probing, but if we expect pre-Linux code
-@@ -116,11 +117,11 @@ struct ds1307 {
- 	u8			offset; /* register's offset */
- 	u8			regs[11];
- 	u16			nvram_offset;
--	struct bin_attribute	*nvram;
-+	struct nvmem_config	nvram_cfg;
-+	struct nvmem_device	*nvram;
- 	enum ds_type		type;
- 	unsigned long		flags;
--#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
--#define HAS_ALARM	1		/* bit 1 == irq claimed */
-+#define HAS_ALARM	0		/* bit 0 == irq claimed */
- 	struct device		*dev;
- 	struct regmap		*regmap;
- 	const char		*name;
-@@ -676,43 +677,24 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 
- /*----------------------------------------------------------------------*/
- 
--static ssize_t
--ds1307_nvram_read(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
-+static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
+@@ -247,7 +247,7 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
  {
--	struct ds1307		*ds1307;
--	int			result;
--
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+	struct ds1307 *ds1307 = priv;
+ 	struct ds1307		*ds1307 = dev_id;
+ 	struct mutex		*lock = &ds1307->rtc->ops_lock;
+-	int			stat, control, ret;
++	int			stat, ret;
  
--	result = regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + off,
--				  buf, count);
--	if (result)
--		dev_err(ds1307->dev, "%s error %d\n", "nvram read", result);
--	return result;
-+	return regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + offset,
-+				val, bytes);
+ 	mutex_lock(lock);
+ 	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &stat);
+@@ -258,13 +258,11 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
+ 		stat &= ~DS1337_BIT_A1I;
+ 		regmap_write(ds1307->regmap, DS1337_REG_STATUS, stat);
+ 
+-		ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
++		ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++					 DS1337_BIT_A1IE, 0);
+ 		if (ret)
+ 			goto out;
+ 
+-		control &= ~DS1337_BIT_A1IE;
+-		regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
+-
+ 		rtc_update_irq(ds1307->rtc, 1, RTC_AF | RTC_IRQF);
+ 	}
+ 
+@@ -517,21 +515,13 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds1307		*ds1307 = dev_get_drvdata(dev);
+-	int			control, ret;
+ 
+ 	if (!test_bit(HAS_ALARM, &ds1307->flags))
+ 		return -ENOTTY;
+ 
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
+-	if (ret)
+-		return ret;
+-
+-	if (enabled)
+-		control |= DS1337_BIT_A1IE;
+-	else
+-		control &= ~DS1337_BIT_A1IE;
+-
+-	return regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
++	return regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++				  DS1337_BIT_A1IE,
++				  enabled ? DS1337_BIT_A1IE : 0);
  }
  
--static ssize_t
--ds1307_nvram_write(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
-+static int ds1307_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
- {
--	struct ds1307		*ds1307;
--	int			result;
--
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+	struct ds1307 *ds1307 = priv;
+ static const struct rtc_class_ops ds13xx_rtc_ops = {
+@@ -586,11 +576,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id)
+ 		goto out;
  
--	result = regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + off,
--				   buf, count);
--	if (result) {
--		dev_err(ds1307->dev, "%s error %d\n", "nvram write", result);
--		return result;
+ 	/* Disable alarm 0. */
+-	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
+-	if (ret)
+-		goto out;
+-	reg &= ~MCP794XX_BIT_ALM0_EN;
+-	ret = regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
++	ret = regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
++				 MCP794XX_BIT_ALM0_EN, 0);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -688,21 +675,13 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+-	int reg, ret;
+ 
+ 	if (!test_bit(HAS_ALARM, &ds1307->flags))
+ 		return -EINVAL;
+ 
+-	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
+-	if (ret)
+-		return ret;
+-
+-	if (enabled)
+-		reg |= MCP794XX_BIT_ALM0_EN;
+-	else
+-		reg &= ~MCP794XX_BIT_ALM0_EN;
+-
+-	return regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
++	return regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
++				  MCP794XX_BIT_ALM0_EN,
++				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
+ 
+ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+@@ -905,20 +884,11 @@ static int ds3231_clk_sqw_rates[] = {
+ static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
+ {
+ 	struct mutex *lock = &ds1307->rtc->ops_lock;
+-	int control;
+ 	int ret;
+ 
+ 	mutex_lock(lock);
+-
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
+-	if (ret)
+-		goto out;
+-
+-	control &= ~mask;
+-	control |= value;
+-
+-	ret = regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
+-out:
++	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++				 mask, value);
+ 	mutex_unlock(lock);
+ 
+ 	return ret;
+@@ -1024,22 +994,12 @@ static unsigned long ds3231_clk_32khz_recalc_rate(struct clk_hw *hw,
+ static int ds3231_clk_32khz_control(struct ds1307 *ds1307, bool enable)
+ {
+ 	struct mutex *lock = &ds1307->rtc->ops_lock;
+-	int status;
+ 	int ret;
+ 
+ 	mutex_lock(lock);
+-
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &status);
+-	if (ret)
+-		goto out;
+-
+-	if (enable)
+-		status |= DS3231_BIT_EN32KHZ;
+-	else
+-		status &= ~DS3231_BIT_EN32KHZ;
+-
+-	ret = regmap_write(ds1307->regmap, DS1337_REG_STATUS, status);
+-out:
++	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_STATUS,
++				 DS3231_BIT_EN32KHZ,
++				 enable ? DS3231_BIT_EN32KHZ : 0);
+ 	mutex_unlock(lock);
+ 
+ 	return ret;
+@@ -1495,12 +1455,10 @@ static int ds1307_probe(struct i2c_client *client,
+ 	 * If different then set the wday which we computed using
+ 	 * timestamp
+ 	 */
+-	if (wday != tm.tm_wday) {
+-		regmap_read(ds1307->regmap, MCP794XX_REG_WEEKDAY, &wday);
+-		wday = wday & ~MCP794XX_REG_WEEKDAY_WDAY_MASK;
+-		wday = wday | (tm.tm_wday + 1);
+-		regmap_write(ds1307->regmap, MCP794XX_REG_WEEKDAY, wday);
 -	}
--	return count;
-+	return regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + offset,
-+				 val, bytes);
- }
++	if (wday != tm.tm_wday)
++		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
++				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
++				   tm.tm_wday + 1);
  
--
- /*----------------------------------------------------------------------*/
- 
- static u8 do_trickle_setup_ds1339(struct ds1307 *ds1307,
-@@ -1476,36 +1458,23 @@ static int ds1307_probe(struct i2c_client *client,
- 	}
- 
- 	if (chip->nvram_size) {
--
--		ds1307->nvram = devm_kzalloc(ds1307->dev,
--					sizeof(struct bin_attribute),
--					GFP_KERNEL);
--		if (!ds1307->nvram) {
--			dev_err(ds1307->dev,
--				"cannot allocate memory for nvram sysfs\n");
-+		ds1307->nvram_cfg.name = "ds1307_nvram";
-+		ds1307->nvram_cfg.dev = ds1307->dev;
-+		ds1307->nvram_cfg.reg_read = ds1307_nvram_read;
-+		ds1307->nvram_cfg.reg_write = ds1307_nvram_write;
-+		ds1307->nvram_cfg.size = chip->nvram_size;
-+		ds1307->nvram_cfg.word_size = 1;
-+		ds1307->nvram_cfg.stride = 1;
-+		ds1307->nvram_cfg.priv = ds1307;
-+		ds1307->nvram_cfg.owner = THIS_MODULE;
-+
-+		ds1307->nvram = nvmem_register(&ds1307->nvram_cfg);
-+		if (IS_ERR(ds1307->nvram)) {
-+			dev_err(ds1307->dev, "unable to register nvmem\n");
-+			ds1307->nvram = NULL;
- 		} else {
--
--			ds1307->nvram->attr.name = "nvram";
--			ds1307->nvram->attr.mode = S_IRUGO | S_IWUSR;
--
--			sysfs_bin_attr_init(ds1307->nvram);
--
--			ds1307->nvram->read = ds1307_nvram_read;
--			ds1307->nvram->write = ds1307_nvram_write;
--			ds1307->nvram->size = chip->nvram_size;
--			ds1307->nvram_offset = chip->nvram_offset;
--
--			err = sysfs_create_bin_file(&ds1307->dev->kobj,
--						    ds1307->nvram);
--			if (err) {
--				dev_err(ds1307->dev,
--					"unable to create sysfs file: %s\n",
--					ds1307->nvram->attr.name);
--			} else {
--				set_bit(HAS_NVRAM, &ds1307->flags);
--				dev_info(ds1307->dev, "%zu bytes nvram\n",
--					 ds1307->nvram->size);
--			}
-+			dev_info(ds1307->dev, "%d bytes nvram\n",
-+				 chip->nvram_size);
- 		}
- 	}
- 
-@@ -1522,8 +1491,8 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
--	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
--		sysfs_remove_bin_file(&ds1307->dev->kobj, ds1307->nvram);
-+	if (ds1307->nvram)
-+		nvmem_unregister(ds1307->nvram);
- 
- 	return 0;
- }
+ 	if (want_irq) {
+ 		device_set_wakeup_capable(ds1307->dev, true);
 -- 
 2.13.0
+
 
 
 -- 
