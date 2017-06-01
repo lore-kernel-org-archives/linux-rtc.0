@@ -1,110 +1,34 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gw.hale.at ([89.26.116.210]:45968 "EHLO gw.hale.at"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751203AbdFGNF6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Jun 2017 09:05:58 -0400
-Date: Wed, 7 Jun 2017 15:05:03 +0200
-From: Michael Thalmeier <michael.thalmeier@hale.at>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36579 "EHLO
+        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751083AbdFAS6b (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 14:58:31 -0400
+Received: by mail-wm0-f47.google.com with SMTP id 7so168967806wmo.1
+        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 11:58:25 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v2 0/4] rtc: ds1307: series with refactorings
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: rtc-stmp3xxx: detect power failure on backup power
- domain
-Message-ID: <20170607130503.GA32452@entw49.hale>
-References: <20170518144521.9294-1-michael.thalmeier@hale.at>
- <20170518155631.kcbkr6ldxailkg7i@piout.net>
+Cc: linux-rtc@vger.kernel.org
+Message-ID: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
+Date: Thu, 1 Jun 2017 20:57:58 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170518155631.kcbkr6ldxailkg7i@piout.net>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, May 18, 2017 at 05:56:31PM +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 18/05/2017 at 16:45:21 +0200, Michael Thalmeier wrote:
-> > To detect when the backup power domain has lost power a software defined bit
-> > is set in one of the general purpose persistent registers when writing a new
-> > time into the rtc.
-> > When reading the time this bit is checked to determine if a power fail has
-> > happened since the last time the rtc time was set.
-> > 
-> 
-> I'm kind of concerned that other people may want to use those register
-> for something else but I don't currently have anything better to
-> suggest.
-> 
-> The other concern is that when updating the kernel, this will make amm
-> the rtc report that the time is invalid until the next update. So this
-> should be disabled by default.
+Series with certain refactorings for the ds1307 rtc driver.
 
-How would you think this is best to disable by default? With a config
-option or with a module parameter?
-Either way would also allow to make the bit mask in the PERSISTENT2
-register configurable, so one can use whichever bit is still unused by
-some other applications.
+v2:
+- improved nvmem patch
 
-> 
-> > When we detect a power fail we return -ENODATA.
-> > 
-> 
-> All the other drivers return -EINVAL in that case.
-> 
-> > Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
-> > ---
-> >  drivers/rtc/rtc-stmp3xxx.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> > 
-> > diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-> > index d578e40..51330ec 100644
-> > --- a/drivers/rtc/rtc-stmp3xxx.c
-> > +++ b/drivers/rtc/rtc-stmp3xxx.c
-> > @@ -62,6 +62,9 @@
-> >  /* missing bitmask in headers */
-> >  #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
-> >  
-> > +#define STMP3XXX_RTC_PERSISTENT2		0x80
-> > +#define STMP3XXX_RTC_PERSISTENT2_VALID_TIME	0x01
-> > +
-> >  struct stmp3xxx_rtc_data {
-> >  	struct rtc_device *rtc;
-> >  	void __iomem *io;
-> > @@ -160,6 +163,10 @@ static int stmp3xxx_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > +	if (!(readl(rtc_data->io + STMP3XXX_RTC_PERSISTENT2) &
-> > +				STMP3XXX_RTC_PERSISTENT2_VALID_TIME))
-> > +		return -ENODATA;
-> > +
-> >  	rtc_time_to_tm(readl(rtc_data->io + STMP3XXX_RTC_SECONDS), rtc_tm);
-> >  	return 0;
-> >  }
-> > @@ -169,6 +176,8 @@ static int stmp3xxx_rtc_set_mmss(struct device *dev, unsigned long t)
-> >  	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> >  
-> >  	writel(t, rtc_data->io + STMP3XXX_RTC_SECONDS);
-> > +	writel(STMP3XXX_RTC_PERSISTENT2_VALID_TIME,
-> > +		rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_SET);
-> >  	return stmp3xxx_wait_time(rtc_data);
-> >  }
-> >  
-> > -- 
-> > 2.9.2
-> > 
-> 
-> -- 
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+Heiner Kallweit (4):
+  rtc: ds1307: make definition of ds1307_of_match more compact
+  rtc: ds1307: use regmap_update_bits where applicable
+  rtc: ds1307: factor out century bit handling
+  rtc: ds1307: change nvram handling to use the nvmem subsystem
+
+ drivers/rtc/rtc-ds1307.c | 316 ++++++++++++++---------------------------------
+ 1 file changed, 91 insertions(+), 225 deletions(-)
 
 -- 
-
-Michael Thalmeier
-(Entwicklung)
-HALE electronic GmbH
-Eugen-Müller-Straße 18, 5020 Salzburg, Austria
-Tel: +43 (662) 439011 0
-Fax: +43 (662) 439011 9
-michael.thalmeier@hale.at
-Firmenbuchnummer: FN 66801m HG Salzburg
+2.13.0
