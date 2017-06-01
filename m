@@ -1,58 +1,116 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:35059 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750725AbdFHRQq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 13:16:46 -0400
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35118 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751083AbdFATJi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 15:09:38 -0400
+Received: by mail-wm0-f67.google.com with SMTP id g15so13625100wmc.2
+        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 12:09:38 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v2 1/4] rtc: ds1307: make definition of ds1307_of_match more
+ compact
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
+Message-ID: <bbccfbd0-3890-4eff-be88-094a8006dc9d@gmail.com>
+Date: Thu, 1 Jun 2017 21:09:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170608134811.60786-26-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com> <20170608134811.60786-26-andriy.shevchenko@linux.intel.com>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Thu, 8 Jun 2017 19:16:45 +0200
-Message-ID: <CAJZ5v0gXvB1LcSpe8Ze=et9Hd3aBraw+hYy8NrZYhHFBE_5yfg@mail.gmail.com>
-Subject: Re: [PATCH v1 25/25] PM: Switch to use %pt
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Linux PM <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jun 8, 2017 at 3:48 PM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> Use %pt instead of open coded variant to print content of
-> struct rtc_time in human readable format.
->
-> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> Cc: linux-pm@vger.kernel.org
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Make the definition of ds1307_of_match more compact. This makes the
+code better readable and more in line with the definition of
+ds1307_id and ds1307_acpi_ids.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+v2:
+- no changes
+---
+ drivers/rtc/rtc-ds1307.c | 70 ++++++++++--------------------------------------
+ 1 file changed, 14 insertions(+), 56 deletions(-)
 
-> ---
->  drivers/base/power/trace.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
-> index 1cda505d6a85..5e32a4f28a49 100644
-> --- a/drivers/base/power/trace.c
-> +++ b/drivers/base/power/trace.c
-> @@ -118,9 +118,7 @@ static unsigned int read_magic_time(void)
->         unsigned int val;
->
->         mc146818_get_time(&time);
-> -       pr_info("RTC time: %2d:%02d:%02d, date: %02d/%02d/%02d\n",
-> -               time.tm_hour, time.tm_min, time.tm_sec,
-> -               time.tm_mon + 1, time.tm_mday, time.tm_year % 100);
-> +       pr_info("RTC time: %ptt, date: %ptd\n", &time, &time);
->         val = time.tm_year;                             /* 100 years */
->         if (val > 100)
->                 val -= 100;
-> --
-> 2.11.0
->
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a2649385..b960ec3f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -198,62 +198,20 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id ds1307_of_match[] = {
+-	{
+-		.compatible = "dallas,ds1307",
+-		.data = (void *)ds_1307
+-	},
+-	{
+-		.compatible = "dallas,ds1337",
+-		.data = (void *)ds_1337
+-	},
+-	{
+-		.compatible = "dallas,ds1338",
+-		.data = (void *)ds_1338
+-	},
+-	{
+-		.compatible = "dallas,ds1339",
+-		.data = (void *)ds_1339
+-	},
+-	{
+-		.compatible = "dallas,ds1388",
+-		.data = (void *)ds_1388
+-	},
+-	{
+-		.compatible = "dallas,ds1340",
+-		.data = (void *)ds_1340
+-	},
+-	{
+-		.compatible = "maxim,ds3231",
+-		.data = (void *)ds_3231
+-	},
+-	{
+-		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
+-	},
+-	{
+-		.compatible = "st,m41t00",
+-		.data = (void *)m41t00
+-	},
+-	{
+-		.compatible = "microchip,mcp7940x",
+-		.data = (void *)mcp794xx
+-	},
+-	{
+-		.compatible = "microchip,mcp7941x",
+-		.data = (void *)mcp794xx
+-	},
+-	{
+-		.compatible = "pericom,pt7c4338",
+-		.data = (void *)ds_1307
+-	},
+-	{
+-		.compatible = "epson,rx8025",
+-		.data = (void *)rx_8025
+-	},
+-	{
+-		.compatible = "isil,isl12057",
+-		.data = (void *)ds_1337
+-	},
++	{ .compatible = "dallas,ds1307",	.data = (void *)ds_1307 },
++	{ .compatible = "dallas,ds1337",	.data = (void *)ds_1337 },
++	{ .compatible = "dallas,ds1338",	.data = (void *)ds_1338 },
++	{ .compatible = "dallas,ds1339",	.data = (void *)ds_1339 },
++	{ .compatible = "dallas,ds1388",	.data = (void *)ds_1388 },
++	{ .compatible = "dallas,ds1340",	.data = (void *)ds_1340 },
++	{ .compatible = "maxim,ds3231",		.data = (void *)ds_3231 },
++	{ .compatible = "st,m41t0",		.data = (void *)m41t00 },
++	{ .compatible = "st,m41t00",		.data = (void *)m41t00 },
++	{ .compatible = "microchip,mcp7940x",	.data = (void *)mcp794xx },
++	{ .compatible = "microchip,mcp7941x",	.data = (void *)mcp794xx },
++	{ .compatible = "pericom,pt7c4338",	.data = (void *)ds_1307 },
++	{ .compatible = "epson,rx8025",		.data = (void *)rx_8025 },
++	{ .compatible = "isil,isl12057",	.data = (void *)ds_1337 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, ds1307_of_match);
+-- 
+2.13.0
