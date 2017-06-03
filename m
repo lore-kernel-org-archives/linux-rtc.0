@@ -1,58 +1,19 @@
-Return-Path: <rtc-linux+bncBDZKLXNI4ACBBMPMVLFAKGQEGQ5644I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBQEYZTEQKGQEIUMKGLY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from atrey.karlin.mff.cuni.cz (atrey.karlin.mff.cuni.cz. [195.113.26.193])
-        by gmr-mx.google.com with ESMTPS id y3si1862452wmc.1.2017.06.21.11.08.48
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 21 Jun 2017 11:08:49 -0700 (PDT)
-Date: Wed, 21 Jun 2017 20:08:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Russell King - ARM Linux <linux@armlinux.org.uk>,
-	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	Baruch Siach <baruch@tkos.co.il>,
-	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	"x86@kernel.org" <x86@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Chen-Yu Tsai <wens@csie.org>, Ingo Molnar <mingo@redhat.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Len Brown <len.brown@intel.com>,
-	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Michael Chan <michael.chan@broadcom.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Barry Song <baohua@kernel.org>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Steve Twiss <stwiss.opensource@diasemi.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-Message-ID: <20170621180847.GA24175@amd>
-References: <20170620213507.urobmtg34vzubrdq@piout.net>
- <alpine.DEB.2.20.1706202343120.2157@nanos>
- <20170621075152.GA15996@amd>
- <20170621083907.y3gadsmsoufa5niv@piout.net>
- <20170621063443.GA4862@localhost>
- <20170621123535.b5fvwlydfhnhuqll@piout.net>
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id 196si362391wma.3.2017.06.03.12.21.36
+        for <rtc-linux@googlegroups.com>;
+        Sat, 03 Jun 2017 12:21:36 -0700 (PDT)
+Date: Sat, 3 Jun 2017 21:21:35 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: rtc-linux@googlegroups.com, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [GIT PULL] RTC for 4.12 #2
+Message-ID: <20170603192135.np4kzzn4afu546ha@piout.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-In-Reply-To: <20170621123535.b5fvwlydfhnhuqll@piout.net>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="qnmg54vabxe65leb"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -63,54 +24,43 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
  <https://groups.google.com/group/rtc-linux/subscribe>
 
 
---W/nzBZO5zC0uMSeA
+--qnmg54vabxe65leb
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 
-Hi!
+Hi Linus,
 
-> > > Or not, having an RTC set in the past is actually quite common. I'd find
-> > > it weird to have a new device boot and be set to a date in the future.
-> > 
-> > ...but still better than board stuck in the past, no?
-> > 
-> > > Also note that the threshold or offset thing may seem like a good idea
-> > > but fails with many RTCs because of how they handle leap years.
-> > 
-> > Well, you can still convert time from rtc to unix time, then do adjustment
-> > there.
-> > 
-> 
-> You can only if your machine is running when that happens. If that is
-> not the case, then you lost and your time is not correct anymore.
+A single patch, not really a fix but I don't think there is any reason
+to delay it.
 
-I don't see why that should be a case... as long as you know what RTC
-does in event of overflow, and it is not something completely crazy.
+The following changes since commit 2ea659a9ef488125eb46da6eb571de5eae5c43f6:
 
-> > Anyway, I guess it would be cool for rtc drivers to annotate what limits
-> > underlying storage has to the common code, so that we can do fixups once
-> > per class, not once per driver.
-> 
-> Yes, I'm in the middle of the whole rework that allows that.
-> 
-> I don't understand the sudden urgency of fixing that and the amount of
-> bikeshedding, seeing that the closest cutoff date is actually 31st of
-> december 2069 in the rtc subsystem and that anyway the current 32bit
-> userspace will explode in february 2038.
-> 
-> My plan from the beginning was to have something for the next stable. I
-> know nobody can read my mind but again, I don't think there is currently
-> any urgency to change anything.
+  Linux 4.12-rc1 (2017-05-13 13:19:49 -0700)
 
-Yes, mind reading is a problem. I can only read minds of ferungulates,
-and only if they are physicaly near me :-).
+are available in the git repository at:
 
-Best regards,
-									Pavel
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.12-2
+
+for you to fetch changes up to 6ceec6953efe7f371218082ddee1fe022a13e8ab:
+
+  MAINTAINERS: update RTC mailing list (2017-05-16 16:54:53 +0200)
+
+----------------------------------------------------------------
+RTC for 4.12 #2
+
+Change the mailing list address
+
+----------------------------------------------------------------
+Alexandre Belloni (1):
+      MAINTAINERS: update RTC mailing list
+
+ MAINTAINERS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -122,16 +72,24 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---W/nzBZO5zC0uMSeA
+--qnmg54vabxe65leb
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iEYEARECAAYFAllKti8ACgkQMOfwapXb+vIiwQCfQ7QxR1SKvoHK+zdLpdef2SvB
-0tQAnjy9uAFNWGhOZqLuDSMvdZ5dh9DC
-=n6oF
+iQIzBAABCgAdFiEEXx9Viay1+e7J/aM4AyWl4gNJNJIFAlkzDD8ACgkQAyWl4gNJ
+NJLgBQ//Xd6KWD1TYwpaQereYxDxF1jC9SG2wrb+5NcU9qe+yxVTZgy9wM+eiOSM
+6q72VWTiH8edK8L2cpjq/GAZCAcTx1mCj/7xXYRjDMtRKR+eCUJvFk3Rj0//MBuI
+vt3Y1bPJyctUsRY6mjcPsaHcMjSwBzDyMxniqNc3+imZ8shU8YGEpozW7HfgEQgn
+NgNDj9ESWnrK3auQhGKEJFQue2db59lUL8rAR73p0zOrwSPFUwbZOGqnkjRGazeY
+ldQWKQzx8WjD6vYdNYatQOCLRYv6QE6k3cZbuxtZseS3yDs7B2oHW38N+eHPJU+6
+JkMlL8BkBCwGRBNORfLb45GV8+/diQDrGRHMl9FkXT+jyAOM168n9xhALCpEmJYn
+Wdx5FIlCCpAgGyuZ1xyhzvG12CgXiMHbLvEIYwP+N1SMTEQzmPVB1SQwSJ74JEgj
+H6NmjWpgDzSA20LjziU0knIC6EGcfchXeu0iU4ac0YamFqy2UZ5UECxHjhr6FUk0
+F1MQEAt+xtHtYShP0SaQlpJNuJETCQrNwtxvHw8hAkKqk2+PRyVY+Ih5Lef2H+dc
+f8k9+cII82A3N7o6iv78BzVf8f/fFe1VZOdRRFOYsp9A2mIubvBwC7vvh52fuqRT
+zQdM532s8RZbBpqjJyBwbQfJ2Uf22ArgxKIZT8e5uePAjmTAvGY=
+=Tgfm
 -----END PGP SIGNATURE-----
 
---W/nzBZO5zC0uMSeA--
+--qnmg54vabxe65leb--
