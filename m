@@ -1,54 +1,34 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:50385 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751448AbdFHNsv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:51 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from mail-it0-f53.google.com ([209.85.214.53]:34656 "EHLO
+        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751301AbdFEMkE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 08:40:04 -0400
+Received: by mail-it0-f53.google.com with SMTP id m47so15581980iti.1
+        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 05:40:04 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <bbccfbd0-3890-4eff-be88-094a8006dc9d@gmail.com>
+References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com> <bbccfbd0-3890-4eff-be88-094a8006dc9d@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon, 5 Jun 2017 14:40:02 +0200
+Message-ID: <CACRpkdZPj0GBk-jroSz4x65QArvMSOJbRzLCFftuk=wSfsqu6A@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] rtc: ds1307: make definition of ds1307_of_match
+ more compact
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH v1 24/25] kdb: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:10 +0300
-Message-Id: <20170608134811.60786-25-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On Thu, Jun 1, 2017 at 9:09 PM, Heiner Kallweit <hkallweit1@gmail.com> wrote:
 
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- kernel/debug/kdb/kdb_main.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+> Make the definition of ds1307_of_match more compact. This makes the
+> code better readable and more in line with the definition of
+> ds1307_id and ds1307_acpi_ids.
+>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
-diff --git a/kernel/debug/kdb/kdb_main.c b/kernel/debug/kdb/kdb_main.c
-index c8146d53ca67..2a6f12be79d8 100644
---- a/kernel/debug/kdb/kdb_main.c
-+++ b/kernel/debug/kdb/kdb_main.c
-@@ -2556,12 +2556,7 @@ static int kdb_summary(int argc, const char **argv)
- 
- 	now = __current_kernel_time();
- 	kdb_gmtime(&now, &tm);
--	kdb_printf("date       %04d-%02d-%02d %02d:%02d:%02d "
--		   "tz_minuteswest %d\n",
--		1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
--		tm.tm_hour, tm.tm_min, tm.tm_sec,
--		sys_tz.tz_minuteswest);
--
-+	kdb_printf("date       %pt tz_minuteswest %d\n", &tm, sys_tz.tz_minuteswest);
- 	kdb_sysinfo(&val);
- 	kdb_printf("uptime     ");
- 	if (val.uptime > (24*60*60)) {
--- 
-2.11.0
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
