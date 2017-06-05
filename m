@@ -1,42 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:35640 "EHLO
-        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751611AbdFHQqE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 12:46:04 -0400
-Date: Thu, 8 Jun 2017 18:46:00 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [PATCH v1 20/25] rtc: s5m: Switch to use %pt
-Message-ID: <20170608164600.t27sdcnxudt5ii3t@kozik-lap>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
- <20170608134811.60786-21-andriy.shevchenko@linux.intel.com>
+Received: from mail-it0-f52.google.com ([209.85.214.52]:38812 "EHLO
+        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751285AbdFEMoB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 08:44:01 -0400
+Received: by mail-it0-f52.google.com with SMTP id r63so74316790itc.1
+        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 05:44:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20170608134811.60786-21-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <32e77bf2-ded8-5686-082a-d92db1a58a56@gmail.com>
+References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com> <32e77bf2-ded8-5686-082a-d92db1a58a56@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon, 5 Jun 2017 14:43:59 +0200
+Message-ID: <CACRpkdbnn-s14uG0Vj_p9qjSPZ8S_V1x1jCJw61aUdd5Mw57Tw@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] rtc: ds1307: factor out century bit handling
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jun 08, 2017 at 04:48:06PM +0300, Andy Shevchenko wrote:
-> Use %pt instead of open coded variant to print content of
-> struct rtc_time in human readable format.
-> 
-> Cc: Krzysztof Kozlowski <krzk@kernel.org>
-> Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Thu, Jun 1, 2017 at 9:09 PM, Heiner Kallweit <hkallweit1@gmail.com> wrote:
+
+> The driver has lots of places with chip-specific code what doesn't
+> necessarily facilitate maintenance.
+>
+> Let's describe chip-specific differences in century bit handling
+> in struct chip_desc to improve this.
+>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
->  drivers/rtc/rtc-s5m.c | 27 ++++++---------------------
->  1 file changed, 6 insertions(+), 21 deletions(-)
-> 
+> v2:
+> - no changes
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Best regards,
-Krzysztof
+Yours,
+Linus Walleij
