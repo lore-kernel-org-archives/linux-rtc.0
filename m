@@ -1,99 +1,191 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:10151 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751536AbdFHNsW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:22 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
-Date: Thu,  8 Jun 2017 16:47:46 +0300
-Message-Id: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:32979 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751077AbdFEP5y (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 11:57:54 -0400
+Received: by mail-wm0-f68.google.com with SMTP id x3so3331844wme.0
+        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 08:57:53 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v3 3/4] rtc: ds1307: factor out century bit handling
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+Message-ID: <cec62c55-1a12-9804-e589-0014eb482ca1@gmail.com>
+Date: Mon, 5 Jun 2017 17:57:33 +0200
+MIME-Version: 1.0
+In-Reply-To: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Recently I have noticed too many users of struct rtc_time that printing
-its content field by field.
+The driver has lots of places with chip-specific code what doesn't
+necessarily facilitate maintenance.
 
-In this series I introduce %pt[dt][rv] specifier to make life a bit
-easier.
+Let's describe chip-specific differences in century bit handling
+in struct chip_desc to improve this.
 
-There are still users of detailed output of the struct rtc_time, but we
-can introduce an additional extension for them in the future if needed,
-otherwise they might be converted to the proposed output format.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+---
+v2:
+- no changes
+v3:
+- add Reviewed-by
+---
+ drivers/rtc/rtc-ds1307.c | 70 ++++++++++++++++++------------------------------
+ 1 file changed, 26 insertions(+), 44 deletions(-)
 
-Some of the changes slightly modify the output. In those cases we are on
-the safe side since they are pure debug. Nevertheless I tried to leave
-numbers to be the same or quite close: in some cases year is printed +
-1900, though month is left in the range [0,11] instead of [1,12].
-
-I didn't compile everything there, though I did a basic smoke test on
-some x86 hardware. So, I rely on kbuild test robot as well :-)
-
-Most of the users currently are RTC drivers, thus the patch series is
-assumed to go via RTC tree.
-
-Andy Shevchenko (25):
-  lib/vsprintf: Remove useless NULL checks
-  lib/vsprintf: Make decspec global
-  lib/vsprintf: Make strspec global
-  lib/vsprintf: Print time and date in human readable format via %pt
-  ds1302: Switch to use %pt
-  rtc: Switch to use %pt
-  rtc: at91rm9200: Switch to use %pt
-  rtc: at91sam9: Switch to use %pt
-  rtc: m41t80: Switch to use %pt
-  rtc: m48t59: Switch to use %pt
-  rtc: mcp795: Switch to use %pt
-  rtc: pcf50633: Switch to use %pt
-  rtc: pic32: Switch to use %pt
-  rtc: pm8xxx: Switch to use %pt
-  rtc: puv3: Switch to use %pt
-  rtc: rk808: Switch to use %pt
-  rtc: rx6110: Switch to use %pt
-  rtc: rx8025: Switch to use %pt
-  rtc: s3c: Switch to use %pt
-  rtc: s5m: Switch to use %pt
-  rtc: tegra: Switch to use %pt
-  mk68/mac: Switch to use %pt
-  Input: hp_sdc_rtc - Switch to use %pt
-  kdb: Switch to use %pt
-  PM: Switch to use %pt
-
- Documentation/printk-formats.txt |  17 ++++
- arch/m68k/mac/misc.c             |   8 +-
- drivers/base/power/trace.c       |   4 +-
- drivers/char/ds1302.c            |  38 +++------
- drivers/char/rtc.c               |   7 +-
- drivers/input/misc/hp_sdc_rtc.c  |   8 +-
- drivers/rtc/hctosys.c            |   8 +-
- drivers/rtc/interface.c          |   8 +-
- drivers/rtc/rtc-at91rm9200.c     |  16 +---
- drivers/rtc/rtc-at91sam9.c       |  16 +---
- drivers/rtc/rtc-m41t80.c         |   6 +-
- drivers/rtc/rtc-m48t59.c         |   8 +-
- drivers/rtc/rtc-mcp795.c         |  18 ++---
- drivers/rtc/rtc-pcf50633.c       |   8 +-
- drivers/rtc/rtc-pic32.c          |  18 +----
- drivers/rtc/rtc-pm8xxx.c         |  16 ++--
- drivers/rtc/rtc-proc.c           |  36 ++-------
- drivers/rtc/rtc-puv3.c           |  18 +----
- drivers/rtc/rtc-rk808.c          |  20 ++---
- drivers/rtc/rtc-rx6110.c         |  12 +--
- drivers/rtc/rtc-rx8025.c         |  19 +----
- drivers/rtc/rtc-s3c.c            |  21 ++---
- drivers/rtc/rtc-s5m.c            |  27 ++-----
- drivers/rtc/rtc-sysfs.c          |  12 +--
- drivers/rtc/rtc-tegra.c          |  30 +------
- kernel/debug/kdb/kdb_main.c      |   7 +-
- lib/vsprintf.c                   | 167 ++++++++++++++++++++++++++++++++-------
- 27 files changed, 248 insertions(+), 325 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index bf906e9f..79160027 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -135,6 +135,9 @@ struct chip_desc {
+ 	unsigned		alarm:1;
+ 	u16			nvram_offset;
+ 	u16			nvram_size;
++	u8			century_reg;
++	u8			century_enable_bit;
++	u8			century_bit;
+ 	u16			trickle_charger_reg;
+ 	u8			trickle_charger_setup;
+ 	u8			(*do_trickle_setup)(struct ds1307 *, uint32_t,
+@@ -150,6 +153,8 @@ static struct chip_desc chips[last_ds_type] = {
+ 	},
+ 	[ds_1337] = {
+ 		.alarm		= 1,
++		.century_reg	= DS1307_REG_MONTH,
++		.century_bit	= DS1337_BIT_CENTURY,
+ 	},
+ 	[ds_1338] = {
+ 		.nvram_offset	= 8,
+@@ -157,10 +162,15 @@ static struct chip_desc chips[last_ds_type] = {
+ 	},
+ 	[ds_1339] = {
+ 		.alarm		= 1,
++		.century_reg	= DS1307_REG_MONTH,
++		.century_bit	= DS1337_BIT_CENTURY,
+ 		.trickle_charger_reg = 0x10,
+ 		.do_trickle_setup = &do_trickle_setup_ds1339,
+ 	},
+ 	[ds_1340] = {
++		.century_reg	= DS1307_REG_HOUR,
++		.century_enable_bit = DS1340_BIT_CENTURY_EN,
++		.century_bit	= DS1340_BIT_CENTURY,
+ 		.trickle_charger_reg = 0x08,
+ 	},
+ 	[ds_1388] = {
+@@ -168,6 +178,8 @@ static struct chip_desc chips[last_ds_type] = {
+ 	},
+ 	[ds_3231] = {
+ 		.alarm		= 1,
++		.century_reg	= DS1307_REG_MONTH,
++		.century_bit	= DS1337_BIT_CENTURY,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -277,6 +289,7 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ {
+ 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
++	const struct chip_desc *chip = &chips[ds1307->type];
+ 	int		tmp, ret;
+ 
+ 	/* read the RTC date and time registers all at once */
+@@ -306,20 +319,8 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_year = bcd2bin(ds1307->regs[DS1307_REG_YEAR]) + 100;
+ 
+ #ifdef CONFIG_RTC_DRV_DS1307_CENTURY
+-	switch (ds1307->type) {
+-	case ds_1337:
+-	case ds_1339:
+-	case ds_3231:
+-		if (ds1307->regs[DS1307_REG_MONTH] & DS1337_BIT_CENTURY)
+-			t->tm_year += 100;
+-		break;
+-	case ds_1340:
+-		if (ds1307->regs[DS1307_REG_HOUR] & DS1340_BIT_CENTURY)
+-			t->tm_year += 100;
+-		break;
+-	default:
+-		break;
+-	}
++	if (ds1307->regs[chip->century_reg] & chip->century_bit)
++		t->tm_year += 100;
+ #endif
+ 
+ 	dev_dbg(dev, "%s secs=%d, mins=%d, "
+@@ -335,6 +336,7 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ {
+ 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
++	const struct chip_desc *chip = &chips[ds1307->type];
+ 	int		result;
+ 	int		tmp;
+ 	u8		*buf = ds1307->regs;
+@@ -345,24 +347,14 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		t->tm_hour, t->tm_mday,
+ 		t->tm_mon, t->tm_year, t->tm_wday);
+ 
+-#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
+ 	if (t->tm_year < 100)
+ 		return -EINVAL;
+ 
+-	switch (ds1307->type) {
+-	case ds_1337:
+-	case ds_1339:
+-	case ds_3231:
+-	case ds_1340:
+-		if (t->tm_year > 299)
+-			return -EINVAL;
+-	default:
+-		if (t->tm_year > 199)
+-			return -EINVAL;
+-		break;
+-	}
++#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
++	if (t->tm_year > (chip->century_bit ? 299 : 199))
++		return -EINVAL;
+ #else
+-	if (t->tm_year < 100 || t->tm_year > 199)
++	if (t->tm_year > 199)
+ 		return -EINVAL;
+ #endif
+ 
+@@ -377,19 +369,12 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	tmp = t->tm_year - 100;
+ 	buf[DS1307_REG_YEAR] = bin2bcd(tmp);
+ 
+-	switch (ds1307->type) {
+-	case ds_1337:
+-	case ds_1339:
+-	case ds_3231:
+-		if (t->tm_year > 199)
+-			buf[DS1307_REG_MONTH] |= DS1337_BIT_CENTURY;
+-		break;
+-	case ds_1340:
+-		buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY_EN;
+-		if (t->tm_year > 199)
+-			buf[DS1307_REG_HOUR] |= DS1340_BIT_CENTURY;
+-		break;
+-	case mcp794xx:
++	if (chip->century_enable_bit)
++		buf[chip->century_reg] |= chip->century_enable_bit;
++	if (t->tm_year > 199 && chip->century_bit)
++		buf[chip->century_reg] |= chip->century_bit;
++
++	if (ds1307->type == mcp794xx) {
+ 		/*
+ 		 * these bits were cleared when preparing the date/time
+ 		 * values and need to be set again before writing the
+@@ -397,9 +382,6 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		 */
+ 		buf[DS1307_REG_SECS] |= MCP794XX_BIT_ST;
+ 		buf[DS1307_REG_WDAY] |= MCP794XX_BIT_VBATEN;
+-		break;
+-	default:
+-		break;
+ 	}
+ 
+ 	dev_dbg(dev, "%s: %7ph\n", "write", buf);
 -- 
-2.11.0
+2.13.0
