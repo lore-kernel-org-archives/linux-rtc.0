@@ -1,93 +1,195 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47635 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752945AbdF0NBL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Jun 2017 09:01:11 -0400
-Date: Tue, 27 Jun 2017 15:00:57 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Kirill Esipov <yesipov@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
-Message-ID: <20170627130057.yhhalp2epmmdicz7@piout.net>
-References: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
- <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
- <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:32978 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751171AbdFEP56 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 11:57:58 -0400
+Received: by mail-wr0-f196.google.com with SMTP id v104so7873356wrb.0
+        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 08:57:57 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v3 2/4] rtc: ds1307: use regmap_update_bits where applicable
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+Message-ID: <df917f73-1dfb-14db-be69-15aa52043938@gmail.com>
+Date: Mon, 5 Jun 2017 17:57:29 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com>
+In-Reply-To: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 27/06/2017 at 15:24:57 +0300, Kirill Esipov wrote:
-> 2017-06-25 19:39 GMT+03:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
-> > On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
-> >> DS3232/DS3234 has the temperature registers with a resolution of 0.25
-> >> degree celsius. This enables to get the value through hwmon.
-> >>
-> >>         # cat /sys/class/hwmon/hwmon0/temp1_input
-> >>         37250
-> >
-> >> +config RTC_DRV_DS3232_HWMON
-> >> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
-> >
-> >> +       depends on RTC_DRV_DS3232 && HWMON
-> >> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
-> >
-> > Perhaps it might be squeezed into one line (something like that logic
-> > has been required by I2C related PMIC IIRC)
-> >
-> >> +       default y
-> >
-> > Is it really sane default?
-> >
-> 
-> At first sight i thought that yes it is sane default (and others RTC with
-> hwmon set it "default y" (ds1307, rv3029c2)).
-> But if it's not sane, then we should turn it off by default in others drivers?
-> 
+After the switch to regmap we can now make use of regmap_update_bits
+to simplify read/modify/write ops.
 
-It is definitively sane.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+---
+v2:
+- no changes
+v3:
+- add Reviewed-by
+---
+ drivers/rtc/rtc-ds1307.c | 82 ++++++++++++------------------------------------
+ 1 file changed, 20 insertions(+), 62 deletions(-)
 
-> 
-> >> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
-> >
-> > IS_BUILTIN() ?
-> >
-
-I'd use IS_ENABLED in that case.
-
-> >> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
-> >> +{
-> >> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
-> >> +       u8 temp_buf[2];
-> >> +       s16 temp;
-> >> +       int ret;
-> >> +
-> >> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
-> >> +                               sizeof(temp_buf));
-> >
-> >> +
-> >
-> > Remove.
-
-I'd recommend running checkpatch.pl --strict to remove the remaining
-whitespace issues too (a few alignments are off).
-
-> >
-> > I dunno which style is preferred, though you may use
-> > if (IS_BUILTIN(...))
-> >  return;
-> >
-> > at the beginning of the function and allow gcc optimizer to take care
-> > of everything else.
-> >
-
-I don't have a strong opinion there.
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index b960ec3f..bf906e9f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -247,7 +247,7 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
+ {
+ 	struct ds1307		*ds1307 = dev_id;
+ 	struct mutex		*lock = &ds1307->rtc->ops_lock;
+-	int			stat, control, ret;
++	int			stat, ret;
+ 
+ 	mutex_lock(lock);
+ 	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &stat);
+@@ -258,13 +258,11 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
+ 		stat &= ~DS1337_BIT_A1I;
+ 		regmap_write(ds1307->regmap, DS1337_REG_STATUS, stat);
+ 
+-		ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
++		ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++					 DS1337_BIT_A1IE, 0);
+ 		if (ret)
+ 			goto out;
+ 
+-		control &= ~DS1337_BIT_A1IE;
+-		regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
+-
+ 		rtc_update_irq(ds1307->rtc, 1, RTC_AF | RTC_IRQF);
+ 	}
+ 
+@@ -517,21 +515,13 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds1307		*ds1307 = dev_get_drvdata(dev);
+-	int			control, ret;
+ 
+ 	if (!test_bit(HAS_ALARM, &ds1307->flags))
+ 		return -ENOTTY;
+ 
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
+-	if (ret)
+-		return ret;
+-
+-	if (enabled)
+-		control |= DS1337_BIT_A1IE;
+-	else
+-		control &= ~DS1337_BIT_A1IE;
+-
+-	return regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
++	return regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++				  DS1337_BIT_A1IE,
++				  enabled ? DS1337_BIT_A1IE : 0);
+ }
+ 
+ static const struct rtc_class_ops ds13xx_rtc_ops = {
+@@ -586,11 +576,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id)
+ 		goto out;
+ 
+ 	/* Disable alarm 0. */
+-	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
+-	if (ret)
+-		goto out;
+-	reg &= ~MCP794XX_BIT_ALM0_EN;
+-	ret = regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
++	ret = regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
++				 MCP794XX_BIT_ALM0_EN, 0);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -688,21 +675,13 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+-	int reg, ret;
+ 
+ 	if (!test_bit(HAS_ALARM, &ds1307->flags))
+ 		return -EINVAL;
+ 
+-	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
+-	if (ret)
+-		return ret;
+-
+-	if (enabled)
+-		reg |= MCP794XX_BIT_ALM0_EN;
+-	else
+-		reg &= ~MCP794XX_BIT_ALM0_EN;
+-
+-	return regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
++	return regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
++				  MCP794XX_BIT_ALM0_EN,
++				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
+ 
+ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+@@ -905,20 +884,11 @@ static int ds3231_clk_sqw_rates[] = {
+ static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
+ {
+ 	struct mutex *lock = &ds1307->rtc->ops_lock;
+-	int control;
+ 	int ret;
+ 
+ 	mutex_lock(lock);
+-
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
+-	if (ret)
+-		goto out;
+-
+-	control &= ~mask;
+-	control |= value;
+-
+-	ret = regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
+-out:
++	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
++				 mask, value);
+ 	mutex_unlock(lock);
+ 
+ 	return ret;
+@@ -1024,22 +994,12 @@ static unsigned long ds3231_clk_32khz_recalc_rate(struct clk_hw *hw,
+ static int ds3231_clk_32khz_control(struct ds1307 *ds1307, bool enable)
+ {
+ 	struct mutex *lock = &ds1307->rtc->ops_lock;
+-	int status;
+ 	int ret;
+ 
+ 	mutex_lock(lock);
+-
+-	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &status);
+-	if (ret)
+-		goto out;
+-
+-	if (enable)
+-		status |= DS3231_BIT_EN32KHZ;
+-	else
+-		status &= ~DS3231_BIT_EN32KHZ;
+-
+-	ret = regmap_write(ds1307->regmap, DS1337_REG_STATUS, status);
+-out:
++	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_STATUS,
++				 DS3231_BIT_EN32KHZ,
++				 enable ? DS3231_BIT_EN32KHZ : 0);
+ 	mutex_unlock(lock);
+ 
+ 	return ret;
+@@ -1495,12 +1455,10 @@ static int ds1307_probe(struct i2c_client *client,
+ 	 * If different then set the wday which we computed using
+ 	 * timestamp
+ 	 */
+-	if (wday != tm.tm_wday) {
+-		regmap_read(ds1307->regmap, MCP794XX_REG_WEEKDAY, &wday);
+-		wday = wday & ~MCP794XX_REG_WEEKDAY_WDAY_MASK;
+-		wday = wday | (tm.tm_wday + 1);
+-		regmap_write(ds1307->regmap, MCP794XX_REG_WEEKDAY, wday);
+-	}
++	if (wday != tm.tm_wday)
++		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
++				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
++				   tm.tm_wday + 1);
+ 
+ 	if (want_irq) {
+ 		device_set_wakeup_capable(ds1307->dev, true);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.13.0
