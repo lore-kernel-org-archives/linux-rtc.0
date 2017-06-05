@@ -1,83 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41288 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751959AbdFPPfI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Jun 2017 11:35:08 -0400
-Received: from localhost (unknown [88.191.26.124])
-        by mail.free-electrons.com (Postfix) with ESMTPSA id 41DD921DF8
-        for <linux-rtc@vger.kernel.org>; Fri, 16 Jun 2017 17:35:05 +0200 (CEST)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
-        shuah@kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Cc: linaro-kernel@lists.linaro.org,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: [PATCH 3/3] rtc: st-lpc: make it robust against y2038/2106 bug
-Date: Fri, 16 Jun 2017 16:03:53 +0200
-Message-Id: <1497621833-9942-4-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:38411 "EHLO
+        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751077AbdFEPsW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 11:48:22 -0400
+Received: by mail-wm0-f50.google.com with SMTP id n195so79357394wmg.1
+        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 08:48:21 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v3 0/4] rtc: ds1307: series with refactorings
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Message-ID: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+Date: Mon, 5 Jun 2017 17:48:16 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Message-ID: <20170616140353.Jx5SLP8Fum8ze0n6lPCbDUZtSQTbq154c7OD3_-ABvg@z>
 
-Make driver use u64 variables and functions to be sure that
-it will support dates after year 2038.
+Series with certain refactorings for the ds1307 rtc driver.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
----
- drivers/rtc/rtc-st-lpc.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+v2:
+- improved nvmem patch
 
-diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-index 74c0a33..82b0af1 100644
---- a/drivers/rtc/rtc-st-lpc.c
-+++ b/drivers/rtc/rtc-st-lpc.c
-@@ -99,7 +99,7 @@ static int st_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	lpt = ((unsigned long long)lpt_msb << 32) | lpt_lsb;
- 	do_div(lpt, rtc->clkrate);
--	rtc_time_to_tm(lpt, tm);
-+	rtc_time64_to_tm(lpt, tm);
- 
- 	return 0;
- }
-@@ -107,13 +107,10 @@ static int st_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int st_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct st_rtc *rtc = dev_get_drvdata(dev);
--	unsigned long long lpt;
--	unsigned long secs, flags;
--	int ret;
-+	unsigned long long lpt, secs;
-+	unsigned long flags;
- 
--	ret = rtc_tm_to_time(tm, &secs);
--	if (ret)
--		return ret;
-+	secs = rtc_tm_to_time64(tm);
- 
- 	lpt = (unsigned long long)secs * rtc->clkrate;
- 
-@@ -161,13 +158,13 @@ static int st_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct st_rtc *rtc = dev_get_drvdata(dev);
- 	struct rtc_time now;
--	unsigned long now_secs;
--	unsigned long alarm_secs;
-+	unsigned long long now_secs;
-+	unsigned long long alarm_secs;
- 	unsigned long long lpa;
- 
- 	st_rtc_read_time(dev, &now);
--	rtc_tm_to_time(&now, &now_secs);
--	rtc_tm_to_time(&t->time, &alarm_secs);
-+	now_secs = rtc_tm_to_time64(&now);
-+	alarm_secs = rtc_tm_to_time64(&t->time);
- 
- 	/* Invalid alarm time */
- 	if (now_secs > alarm_secs)
+v3:
+- use IS_REACHABLE in nvmem patch to make sure that nvmem API
+  isn't used if ds1307 is built-in and nvmem is a module
+- add Reviewed-by to first three patches
+
+Heiner Kallweit (4):
+  rtc: ds1307: make definition of ds1307_of_match more compact
+  rtc: ds1307: use regmap_update_bits where applicable
+  rtc: ds1307: factor out century bit handling
+  rtc: ds1307: change nvram handling to use the nvmem subsystem
+
+ drivers/rtc/rtc-ds1307.c | 316 ++++++++++++++---------------------------------
+ 1 file changed, 91 insertions(+), 225 deletions(-)
+
 -- 
-1.9.1
+2.13.0
