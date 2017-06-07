@@ -1,48 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750903AbdFPT2N (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 16 Jun 2017 15:28:13 -0400
-From: Krzysztof Kozlowski <krzk@kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:48074 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751049AbdFGP0S (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Jun 2017 11:26:18 -0400
+From: Colin King <colin.king@canonical.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 1/6] rtc: s3c: Jump to central exit point on getting src clock error
-Date: Fri, 16 Jun 2017 21:28:02 +0200
-Message-Id: <20170616192807.10347-1-krzk@kernel.org>
+        linux-rtc@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: rtc-max8925: remove redundant check on ret
+Date: Wed,  7 Jun 2017 16:26:15 +0100
+Message-Id: <20170607152615.2072-1-colin.king@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-In other error paths in probe, centralized exit point was used so make
-this consistent.
+From: Colin Ian King <colin.king@canonical.com>
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+The check on ret < 0 is redundant as the goto destination is the
+next statment.  Remove this redudant check and goto.
+
+Detected by CoverityScan, CID#1268785 ("Identical code for different
+branches")
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/rtc/rtc-s3c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-max8925.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d44fb34df8fe..c5aa7a35d07f 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -510,8 +510,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 			else
- 				dev_dbg(&pdev->dev,
- 					"probe deferred due to missing rtc src clk\n");
--			clk_disable_unprepare(info->rtc_clk);
--			return ret;
-+			goto err_src_clk;
- 		}
- 		clk_prepare_enable(info->rtc_src_clk);
- 	}
-@@ -575,6 +574,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 
- 	if (info->data->needs_src_clk)
- 		clk_disable_unprepare(info->rtc_src_clk);
-+err_src_clk:
- 	clk_disable_unprepare(info->rtc_clk);
- 
+diff --git a/drivers/rtc/rtc-max8925.c b/drivers/rtc/rtc-max8925.c
+index 16d129a0bb3b..67d6fc2d23e6 100644
+--- a/drivers/rtc/rtc-max8925.c
++++ b/drivers/rtc/rtc-max8925.c
+@@ -234,8 +234,6 @@ static int max8925_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		ret = max8925_reg_write(info->rtc, MAX8925_ALARM0_CNTL, 0x77);
+ 	else
+ 		ret = max8925_reg_write(info->rtc, MAX8925_ALARM0_CNTL, 0x0);
+-	if (ret < 0)
+-		goto out;
+ out:
  	return ret;
+ }
 -- 
-2.9.3
+2.11.0
