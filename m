@@ -1,199 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:32839 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751498AbdF1L3b (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Jun 2017 07:29:31 -0400
-From: Kirill Esipov <yesipov@gmail.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kirill Esipov <yesipov@gmail.com>
-Subject: [PATCH v3] rtc: ds3232: add temperature support
-Date: Wed, 28 Jun 2017 14:29:09 +0300
-Message-Id: <1498649349-4793-1-git-send-email-yesipov@gmail.com>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:36714 "EHLO
+        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751810AbdFHU73 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 16:59:29 -0400
+Received: by mail-wm0-f48.google.com with SMTP id 7so145275545wmo.1
+        for <linux-rtc@vger.kernel.org>; Thu, 08 Jun 2017 13:59:28 -0700 (PDT)
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v1 01/25] lib/vsprintf: Remove useless NULL checks
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+        <20170608134811.60786-2-andriy.shevchenko@linux.intel.com>
+Date: Thu, 08 Jun 2017 22:59:26 +0200
+In-Reply-To: <20170608134811.60786-2-andriy.shevchenko@linux.intel.com> (Andy
+        Shevchenko's message of "Thu, 8 Jun 2017 16:47:47 +0300")
+Message-ID: <87shjakxg1.fsf@rasmusvillemoes.dk>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-DS3232/DS3234 has the temperature registers with a resolution of 0.25
-degree celsius. This enables to get the value through hwmon.
+On Thu, Jun 08 2017, Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
 
-	# cat /sys/class/hwmon/hwmon0/temp1_input
-	37250
+> The pointer can't be NULL since it's first what has been done in the
+> pointer().
+>
+> Remove useless checks.
+>
+> Note when we print clock name or rate it is safe in case !CONFIG_HAVE_CLK.
+>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  lib/vsprintf.c | 11 -----------
+>  1 file changed, 11 deletions(-)
+>
+> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+> index 9f16406288c0..031c2cc5c1c0 100644
+> --- a/lib/vsprintf.c
+> +++ b/lib/vsprintf.c
+> @@ -811,10 +811,6 @@ char *hex_string(char *buf, char *end, u8 *addr, struct printf_spec spec,
+>  		/* nothing to print */
+>  		return buf;
+>  
+> -	if (ZERO_OR_NULL_PTR(addr))
+> -		/* NULL pointer */
+> -		return string(buf, end, NULL, spec);
+> -
+>  	switch (fmt[1]) {
+>  	case 'C':
+>  		separator = ':';
+> @@ -1253,10 +1249,6 @@ char *escaped_string(char *buf, char *end, u8 *addr, struct printf_spec spec,
+>  	if (spec.field_width == 0)
+>  		return buf;				/* nothing to print */
+>  
+> -	if (ZERO_OR_NULL_PTR(addr))
+> -		return string(buf, end, NULL, spec);	/* NULL pointer */
+> -
+> -
 
-Signed-off-by: Kirill Esipov <yesipov@gmail.com>
----
- drivers/rtc/Kconfig      |   8 ++++
- drivers/rtc/rtc-ds3232.c | 119 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 127 insertions(+)
+Well, ZERO_OR_NULL_PTR checks for a little more than !addr, but I
+suppose that if anyone passes the result from kmalloc(0) to %ph, they'd
+better also pass 0 as the size, so the .field_width tests should be
+sufficient.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b95728326..ba87c419a2d4 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -791,6 +791,14 @@ config RTC_DRV_DS3232
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called rtc-ds3232.
- 
-+config RTC_DRV_DS3232_HWMON
-+	bool "HWMON support for Dallas/Maxim DS3232/DS3234"
-+	depends on RTC_DRV_DS3232 && HWMON && !(RTC_DRV_DS3232=y && HWMON=m)
-+	default y
-+	help
-+	  Say Y here if you want to expose temperature sensor data on
-+	  rtc-ds3232
-+
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index deff431a37c4..0550f7ba464f 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -22,6 +22,7 @@
- #include <linux/bcd.h>
- #include <linux/slab.h>
- #include <linux/regmap.h>
-+#include <linux/hwmon.h>
- 
- #define DS3232_REG_SECONDS      0x00
- #define DS3232_REG_MINUTES      0x01
-@@ -46,6 +47,8 @@
- #       define DS3232_REG_SR_A2F     0x02
- #       define DS3232_REG_SR_A1F     0x01
- 
-+#define DS3232_REG_TEMPERATURE	0x11
-+
- struct ds3232 {
- 	struct device *dev;
- 	struct regmap *regmap;
-@@ -275,6 +278,120 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	return ret;
- }
- 
-+/*
-+ * Temperature sensor support for ds3232/ds3234 devices.
-+ * A user-initiated temperature conversion is not started by this function,
-+ * so the temperature is updated once every 64 seconds.
-+ */
-+static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	u8 temp_buf[2];
-+	s16 temp;
-+	int ret;
-+
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
-+			       sizeof(temp_buf));
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Temperature is represented as a 10-bit code with a resolution of
-+	 * 0.25 degree celsius and encoded in two's complement format.
-+	 */
-+	temp = (temp_buf[0] << 8) | temp_buf[1];
-+	temp >>= 6;
-+	*mC = temp * 250;
-+
-+	return 0;
-+}
-+
-+static umode_t ds3232_hwmon_is_visible(const void *data,
-+				       enum hwmon_sensor_types type,
-+				       u32 attr, int channel)
-+{
-+	if (type != hwmon_temp)
-+		return 0;
-+
-+	switch (attr) {
-+	case hwmon_temp_input:
-+		return 0444;
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static int ds3232_hwmon_read(struct device *dev,
-+			     enum hwmon_sensor_types type,
-+			     u32 attr, int channel, long *temp)
-+{
-+	int err;
-+
-+	switch (attr) {
-+	case hwmon_temp_input:
-+		err = ds3232_hwmon_read_temp(dev, temp);
-+		break;
-+	default:
-+		err = -EOPNOTSUPP;
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static u32 ds3232_hwmon_chip_config[] = {
-+	HWMON_C_REGISTER_TZ,
-+	0
-+};
-+
-+static const struct hwmon_channel_info ds3232_hwmon_chip = {
-+	.type = hwmon_chip,
-+	.config = ds3232_hwmon_chip_config,
-+};
-+
-+static u32 ds3232_hwmon_temp_config[] = {
-+	HWMON_T_INPUT,
-+	0
-+};
-+
-+static const struct hwmon_channel_info ds3232_hwmon_temp = {
-+	.type = hwmon_temp,
-+	.config = ds3232_hwmon_temp_config,
-+};
-+
-+static const struct hwmon_channel_info *ds3232_hwmon_info[] = {
-+	&ds3232_hwmon_chip,
-+	&ds3232_hwmon_temp,
-+	NULL
-+};
-+
-+static const struct hwmon_ops ds3232_hwmon_hwmon_ops = {
-+	.is_visible = ds3232_hwmon_is_visible,
-+	.read = ds3232_hwmon_read,
-+};
-+
-+static const struct hwmon_chip_info ds3232_hwmon_chip_info = {
-+	.ops = &ds3232_hwmon_hwmon_ops,
-+	.info = ds3232_hwmon_info,
-+};
-+
-+static void ds3232_hwmon_register(struct device *dev, const char *name)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	struct device *hwmon_dev;
-+
-+	if (!IS_ENABLED(CONFIG_RTC_DRV_DS3232_HWMON))
-+		return;
-+
-+	hwmon_dev = devm_hwmon_device_register_with_info(dev, name, ds3232,
-+							&ds3232_hwmon_chip_info,
-+							NULL);
-+	if (IS_ERR(hwmon_dev)) {
-+		dev_err(dev, "unable to register hwmon device %ld\n",
-+			PTR_ERR(hwmon_dev));
-+	}
-+}
-+
- static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-@@ -366,6 +483,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ds3232->irq > 0)
- 		device_init_wakeup(dev, 1);
- 
-+	ds3232_hwmon_register(dev, name);
-+
- 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
- 						THIS_MODULE);
- 	if (IS_ERR(ds3232->rtc))
--- 
-2.7.4
+>  	do {
+>  		switch (fmt[count++]) {
+>  		case 'a':
+> @@ -1391,9 +1383,6 @@ static noinline_for_stack
+>  char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+>  	    const char *fmt)
+>  {
+> -	if (!IS_ENABLED(CONFIG_HAVE_CLK) || !clk)
+> -		return string(buf, end, NULL, spec);
+> -
+
+Well, it may be safe, but removing the IS_ENABLED(CONFIG_HAVE_CLK) check
+means that clock() becomes a much bigger function when
+!IS_ENABLED(CONFIG_HAVE_CLK). You're right that the !clk check is
+pointless.
