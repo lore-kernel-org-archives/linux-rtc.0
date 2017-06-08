@@ -1,116 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:56587 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752311AbdF0SBp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Jun 2017 14:01:45 -0400
-Date: Tue, 27 Jun 2017 20:01:43 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Kirill Esipov <yesipov@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+Received: from mga02.intel.com ([134.134.136.20]:26723 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752146AbdFHNtE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Jun 2017 09:49:04 -0400
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
-Message-ID: <20170627180143.cafxe6bvyblywuba@piout.net>
-References: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
- <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
- <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com>
- <20170627130057.yhhalp2epmmdicz7@piout.net>
- <CAJcpCzEHW8GSkykidpq=GBo-aFbFstmOmQZhAYu-NWBWxTc=uA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAJcpCzEHW8GSkykidpq=GBo-aFbFstmOmQZhAYu-NWBWxTc=uA@mail.gmail.com>
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v1 05/25] ds1302: Switch to use %pt
+Date: Thu,  8 Jun 2017 16:47:51 +0300
+Message-Id: <20170608134811.60786-6-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 27/06/2017 at 18:27:42 +0300, Kirill Esipov wrote:
-> 2017-06-27 16:00 GMT+03:00 Alexandre Belloni
-> <alexandre.belloni@free-electrons.com>:
-> > On 27/06/2017 at 15:24:57 +0300, Kirill Esipov wrote:
-> >> 2017-06-25 19:39 GMT+03:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
-> >> > On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
-> >> >> DS3232/DS3234 has the temperature registers with a resolution of 0.25
-> >> >> degree celsius. This enables to get the value through hwmon.
-> >> >>
-> >> >>         # cat /sys/class/hwmon/hwmon0/temp1_input
-> >> >>         37250
-> >> >
-> >> >> +config RTC_DRV_DS3232_HWMON
-> >> >> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
-> >> >
-> >> >> +       depends on RTC_DRV_DS3232 && HWMON
-> >> >> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
-> >> >
-> >> > Perhaps it might be squeezed into one line (something like that logic
-> >> > has been required by I2C related PMIC IIRC)
-> >> >
-> >> >> +       default y
-> >> >
-> >> > Is it really sane default?
-> >> >
-> >>
-> >> At first sight i thought that yes it is sane default (and others RTC with
-> >> hwmon set it "default y" (ds1307, rv3029c2)).
-> >> But if it's not sane, then we should turn it off by default in others drivers?
-> >>
-> >
-> > It is definitively sane.
-> >
-> >>
-> >> >> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
-> >> >
-> >> > IS_BUILTIN() ?
-> >> >
-> >
-> > I'd use IS_ENABLED in that case.
-> >
-> 
-> Why? "RTC_DRV_DS3232_HWMON" is bool, not tristate. So it can't be
-> defined as "m".
-> 
+Use %pt instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-It's clearer and doesn't hurt but really, #ifdef
-CONFIG_RTC_DRV_DS3232_HWMON is just fine.
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/char/ds1302.c | 38 ++++++++++----------------------------
+ 1 file changed, 10 insertions(+), 28 deletions(-)
 
-> >> >> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
-> >> >> +{
-> >> >> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
-> >> >> +       u8 temp_buf[2];
-> >> >> +       s16 temp;
-> >> >> +       int ret;
-> >> >> +
-> >> >> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
-> >> >> +                               sizeof(temp_buf));
-> >> >
-> >> >> +
-> >> >
-> >> > Remove.
-> >
-> > I'd recommend running checkpatch.pl --strict to remove the remaining
-> > whitespace issues too (a few alignments are off).
-> >
-> >> >
-> >> > I dunno which style is preferred, though you may use
-> >> > if (IS_BUILTIN(...))
-> >> >  return;
-> >> >
-> >> > at the beginning of the function and allow gcc optimizer to take care
-> >> > of everything else.
-> >> >
-> >
-> > I don't have a strong opinion there.
-> >
-> > --
-> > Alexandre Belloni, Free Electrons
-> > Embedded Linux and Kernel engineering
-> > http://free-electrons.com
-> 
-> 
-> 
-> -- 
-> Kirill Esipov
-
+diff --git a/drivers/char/ds1302.c b/drivers/char/ds1302.c
+index c614a56e68cc..7db23a336636 100644
+--- a/drivers/char/ds1302.c
++++ b/drivers/char/ds1302.c
+@@ -4,7 +4,7 @@
+ *!
+ *! DESCRIPTION: Implements an interface for the DS1302 RTC
+ *!
+-*! Functions exported: ds1302_readreg, ds1302_writereg, ds1302_init, get_rtc_status
++*! Functions exported: ds1302_readreg, ds1302_writereg, ds1302_init
+ *!
+ *! ---------------------------------------------------------------------------
+ *!
+@@ -257,31 +257,6 @@ static long rtc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	}
+ }
+ 
+-int
+-get_rtc_status(char *buf)
+-{
+-	char *p;
+-	struct rtc_time tm;
+-
+-	p = buf;
+-
+-	get_rtc_time(&tm);
+-
+-	/*
+-	 * There is no way to tell if the luser has the RTC set for local
+-	 * time or for Universal Standard Time (GMT). Probably local though.
+-	 */
+-
+-	p += sprintf(p,
+-		"rtc_time\t: %02d:%02d:%02d\n"
+-		"rtc_date\t: %04d-%02d-%02d\n",
+-		tm.tm_hour, tm.tm_min, tm.tm_sec,
+-		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+-
+-	return  p - buf;
+-}
+-
+-
+ /* The various file operations we support. */
+ 
+ static const struct file_operations rtc_fops = {
+@@ -298,6 +273,7 @@ static int __init
+ ds1302_probe(void)
+ {
+ 	int retval, res, baur;
++	struct rtc_time tm;
+ 
+ 	baur=(boot_cpu_data.bus_clock/(2*1000*1000));
+ 
+@@ -319,8 +295,14 @@ ds1302_probe(void)
+ 		char buf[100];
+ 		ds1302_wdisable();
+ 		printk("%s: RTC found.\n", ds1302_name);
+-		get_rtc_status(buf);
+-		printk(buf);
++		/*
++		 * There is no way to tell if the luser has the RTC set
++		 * for local time or for Universal Standard Time (GMT).
++		 * Probably local though.
++		 */
++		get_rtc_time(&tm);
++		printk("rtc_time\t: %ptt\n", &tm);
++		printk("rtc_date\t: %ptd\n", &tm);
+ 		retval = 1;
+ 	} else {
+ 		printk("%s: RTC not found.\n", ds1302_name);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
