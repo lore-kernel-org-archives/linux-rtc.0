@@ -1,79 +1,250 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:34836 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751469AbdFHPCV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 11:02:21 -0400
-MIME-Version: 1.0
-In-Reply-To: <1496933554.1929.15.camel@perches.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com> <1496933554.1929.15.camel@perches.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Thu, 8 Jun 2017 18:02:19 +0300
-Message-ID: <CAHp75VcCEO6yfd51n=g8tpWGBfwZrMuJO9aDGBY6ZXb5sQPd5g@mail.gmail.com>
-Subject: Re: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
-To: Joe Perches <joe@perches.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+Received: from mga05.intel.com ([192.55.52.43]:24357 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751656AbdFHNsx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Jun 2017 09:48:53 -0400
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v1 04/25] lib/vsprintf: Print time and date in human readable format via %pt
+Date: Thu,  8 Jun 2017 16:47:50 +0300
+Message-Id: <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jun 8, 2017 at 5:52 PM, Joe Perches <joe@perches.com> wrote:
-> On Thu, 2017-06-08 at 16:47 +0300, Andy Shevchenko wrote:
->> Recently I have noticed too many users of struct rtc_time that printing
->> its content field by field.
->>
->> In this series I introduce %pt[dt][rv] specifier to make life a bit
->> easier.
->>
->> There are still users of detailed output of the struct rtc_time, but we
->> can introduce an additional extension for them in the future if needed,
->> otherwise they might be converted to the proposed output format.
->>
->> Some of the changes slightly modify the output. In those cases we are on
->> the safe side since they are pure debug. Nevertheless I tried to leave
->> numbers to be the same or quite close: in some cases year is printed +
->> 1900, though month is left in the range [0,11] instead of [1,12].
->>
->> I didn't compile everything there, though I did a basic smoke test on
->> some x86 hardware. So, I rely on kbuild test robot as well :-)
->>
->> Most of the users currently are RTC drivers, thus the patch series is
->> assumed to go via RTC tree.
->
-> What I wonder about this series is how much
-> larger it makes a typical kernel and how
-> often multiple rtc clocks are built for a
-> single kernel?
+There are users which print time and date represented by content of
+struct rtc_time in human readable format.
 
-We may hide it under CONFIG_RTC_??? if we want to reduce kernel for
-non RTC cases.
+Instead of open coding that each time introduce %pt[dt][rv] specifier.
 
-> What is the size impact on an embedded kernel
-> that uses a single rtc driver?
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ Documentation/printk-formats.txt |  17 ++++++
+ lib/vsprintf.c                   | 124 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 141 insertions(+)
 
-I would
-
-> trivia:
-
-Actually not. See my answer to Arnd. I have patches for 4 users of
-struct tm, but it should be converted first to struct rtc_time first
-(otherwise it might uglify the code due to endianess of tm_year
-memeber)
-
->
-> Aren't there also uses of struct tm that are
-> nearly identical?
->
-> e.g.: drivers/usb/host/xhci-tegra.c
-
-
-
+diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
+index d8c40c30118a..fa5b718a5dcc 100644
+--- a/Documentation/printk-formats.txt
++++ b/Documentation/printk-formats.txt
+@@ -282,6 +282,23 @@ struct va_format:
+ 
+ 	Passed by reference.
+ 
++struct rtc_time:
++
++	%pt		YYYY-mm-dd HH:MM:SS
++	%ptd		YYYY-mm-dd
++	%ptt		HH:MM:SS
++	%pt[dt][rv]
++
++	For printing date and time as represented by struct rtc_time
++	structure in human readable format.
++
++	By default year will be incremented by 1900 and month by 1. Use
++	'r' (raw) to suppress this behaviour. On the other hand when
++	'v' is applied validation mechanism will be in use, i.e. numbers
++	out of range will be replaced by '**' or '****'.
++
++	Passed by reference.
++
+ struct clk:
+ 
+ 	%pC	pll1
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 001303612b55..653d08b50850 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -30,6 +30,7 @@
+ #include <linux/ioport.h>
+ #include <linux/dcache.h>
+ #include <linux/cred.h>
++#include <linux/rtc.h>
+ #include <linux/uuid.h>
+ #include <net/addrconf.h>
+ #ifdef CONFIG_BLOCK
+@@ -701,6 +702,20 @@ static const struct printf_spec default_dec_spec = {
+ 	.precision = -1,
+ };
+ 
++static const struct printf_spec default_dec02_spec = {
++	.base = 10,
++	.field_width = 2,
++	.precision = -1,
++	.flags = ZEROPAD,
++};
++
++static const struct printf_spec default_dec04_spec = {
++	.base = 10,
++	.field_width = 4,
++	.precision = -1,
++	.flags = ZEROPAD,
++};
++
+ static noinline_for_stack
+ char *resource_string(char *buf, char *end, struct resource *res,
+ 		      struct printf_spec spec, const char *fmt)
+@@ -1382,6 +1397,112 @@ char *address_val(char *buf, char *end, const void *addr, const char *fmt)
+ }
+ 
+ static noinline_for_stack
++char *date_string(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
++{
++	int year = tm->tm_year + (r ? 0 : 1900);
++	int mon = tm->tm_mon + (r ? 0 : 1);
++
++	if (unlikely(v && (unsigned int)tm->tm_year > 200))
++		buf = string(buf, end, "****", default_str_spec);
++	else
++		buf = number(buf, end, year, default_dec04_spec);
++
++	if (buf < end)
++		*buf = '-';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_mon > 11))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, mon, default_dec02_spec);
++
++	if (buf < end)
++		*buf = '-';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_mday > 31))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_mday, default_dec02_spec);
++
++	return buf;
++}
++
++static noinline_for_stack
++char *time_string(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
++{
++	if (unlikely(v && (unsigned int)tm->tm_hour > 24))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_hour, default_dec02_spec);
++
++	if (buf < end)
++		*buf = ':';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_min > 59))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_min, default_dec02_spec);
++
++	if (buf < end)
++		*buf = ':';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_sec > 59))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_sec, default_dec02_spec);
++
++	return buf;
++}
++
++static noinline_for_stack
++char *timeanddate(char *buf, char *end, const struct rtc_time *tm, const char *fmt)
++{
++	bool have_t = true, have_d = true;
++	bool validate = false;
++	bool raw = false;
++	int count = 0;
++	bool found;
++
++	switch (fmt[++count]) {
++	case 'd':
++		have_t = false;
++		break;
++	case 't':
++		have_d = false;
++		break;
++	}
++
++	/* No %pt[dt] supplied */
++	if (have_t && have_d)
++		--count;
++
++	found = true;
++	do {
++		switch (fmt[++count]) {
++		case 'r':
++			raw = true;
++			break;
++		case 'v':
++			validate = true;
++			break;
++		default:
++			found = false;
++			break;
++		}
++	} while (found);
++
++	if (have_d)
++		buf = date_string(buf, end, tm, validate, raw);
++	if (have_t)
++		buf = time_string(buf, end, tm, validate, raw);
++
++	return buf;
++}
++
++static noinline_for_stack
+ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+ 	    const char *fmt)
+ {
+@@ -1550,6 +1671,7 @@ int kptr_restrict __read_mostly;
+  * - 'd[234]' For a dentry name (optionally 2-4 last components)
+  * - 'D[234]' Same as 'd' but for a struct file
+  * - 'g' For block_device name (gendisk + partition number)
++ * - 't[dt][rv]' For time and date as represented in struct rtc_time
+  * - 'C' For a clock, it prints the name (Common Clock Framework) or address
+  *       (legacy clock framework) of the clock
+  * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
+@@ -1702,6 +1824,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+ 		return address_val(buf, end, ptr, fmt);
+ 	case 'd':
+ 		return dentry_name(buf, end, ptr, spec, fmt);
++	case 't':
++		return timeanddate(buf, end, (const struct rtc_time *)ptr, fmt);
+ 	case 'C':
+ 		return clock(buf, end, ptr, spec, fmt);
+ 	case 'D':
 -- 
-With Best Regards,
-Andy Shevchenko
+2.11.0
