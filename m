@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBDE6RCFOWIARBT4A67EQKGQEI667GDA@googlegroups.com>
+Return-Path: <rtc-linux+bncBD76TE7NVICBB7PS4TEQKGQEX4SS2GY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-it0-x235.google.com (mail-it0-x235.google.com. [2607:f8b0:4001:c0b::235])
-        by gmr-mx.google.com with ESMTPS id q80si38119itb.4.2017.06.11.15.12.31
+MIME-Version: 1.0
+Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
+        by gmr-mx.google.com with ESMTPS id f74si584735pff.11.2017.06.08.04.48.12
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 11 Jun 2017 15:12:31 -0700 (PDT)
-Received: by mail-it0-x235.google.com with SMTP id m62so16985361itc.0
-        for <rtc-linux@googlegroups.com>; Sun, 11 Jun 2017 15:12:31 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20170530075332.3740-1-linus.walleij@linaro.org>
-References: <20170530075332.3740-1-linus.walleij@linaro.org>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Mon, 12 Jun 2017 00:12:30 +0200
-Message-ID: <CACRpkdZdm=DtiHCRaLxGL0BE8LfsV+qxyZNVyS4e+kf3HsXn7Q@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 1/3 v2] rtc: gemini: Add optional clock handling
-To: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Linus Walleij <linus.walleij@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+        Thu, 08 Jun 2017 04:48:12 -0700 (PDT)
+Received: by mail-pf0-x241.google.com with SMTP id u1so4846893pfg.1
+        for <rtc-linux@googlegroups.com>; Thu, 08 Jun 2017 04:48:12 -0700 (PDT)
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH] rtc: omap: Handle return value of clk_prepare_enable.
+Date: Thu,  8 Jun 2017 17:17:49 +0530
+Message-Id: <7bfcac1de9426c3e512a61922bca4239f8b520b5.1496922334.git.arvind.yadav.cs@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -27,28 +26,63 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Tue, May 30, 2017 at 9:53 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
+- clk_prepare_enable() can fail here and we must check its return value.
+- Add missing clk_disable_unprepare(), if omap_rtc_probe is not successful.
 
-> This makes the Gemini optionally take two clock references to
-> the PCLK and EXTCLK. As we are adding a clock framework to the
-> Gemini platform we need to make sure that we get the right
-> references.
->
-> Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Use devm_clk_get() so we do not leave dangling clocks
->   behind.
-> - Add Hans' ACK.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/rtc/rtc-omap.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-Alessandro, Alexandre:
-Is this v2 series fine, or do I need to fix something?
-
-Just restless, sorry ...
-
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 13f7cd1..83b876d 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -705,13 +705,19 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	else
+ 		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
+ 
+-	if (!IS_ERR(rtc->clk))
+-		clk_prepare_enable(rtc->clk);
++	if (IS_ERR(rtc->clk))
++		return PTR_ERR(rtc->clk);
++
++	ret = clk_prepare_enable(rtc->clk);
++	if (ret)
++		return ret;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(rtc->base))
+-		return PTR_ERR(rtc->base);
++	if (IS_ERR(rtc->base)) {
++		ret = PTR_ERR(rtc->base);
++		goto err_clk;
++	}
+ 
+ 	platform_set_drvdata(pdev, rtc);
+ 
+@@ -830,7 +836,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	rtc->pctldev = pinctrl_register(&rtc_pinctrl_desc, &pdev->dev, rtc);
+ 	if (IS_ERR(rtc->pctldev)) {
+ 		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
+-		return PTR_ERR(rtc->pctldev);
++		ret = PTR_ERR(rtc->pctldev);
++		goto err;
+ 	}
+ 
+ 	return 0;
+@@ -841,6 +848,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
++err_clk:
++	clk_disable_unprepare(rtc->clk);
+ 	return ret;
+ }
+ 
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
