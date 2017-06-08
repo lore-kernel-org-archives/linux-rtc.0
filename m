@@ -1,56 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37242 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751079AbdFPT2f (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 16 Jun 2017 15:28:35 -0400
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 3/6] rtc: s3c: Drop unneeded cast to void pointer
-Date: Fri, 16 Jun 2017 21:28:04 +0200
-Message-Id: <20170616192807.10347-3-krzk@kernel.org>
-In-Reply-To: <20170616192807.10347-1-krzk@kernel.org>
-References: <20170616192807.10347-1-krzk@kernel.org>
+Received: from mail-qt0-f178.google.com ([209.85.216.178]:34887 "EHLO
+        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750822AbdFHR5H (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 13:57:07 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170608150540.rek7a4akuxm3k36l@piout.net>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+ <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+ <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
+ <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com> <20170608150540.rek7a4akuxm3k36l@piout.net>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 8 Jun 2017 20:57:05 +0300
+Message-ID: <CAHp75Vfem=tj3esGx+7_8_Ygx+v09uk77rF-RJ34Tt2kLTHvVQ@mail.gmail.com>
+Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
+ readable format via %pt
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There is no need for casting to void pointer for of_device_id data.
+On Thu, Jun 8, 2017 at 6:05 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 08/06/2017 at 17:55:12 +0300, Andy Shevchenko wrote:
+>> On Thu, Jun 8, 2017 at 5:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> > On Thu, Jun 8, 2017 at 3:47 PM, Andy Shevchenko
+>> > <andriy.shevchenko@linux.intel.com> wrote:
+>> >> There are users which print time and date represented by content of
+>> >> struct rtc_time in human readable format.
+>> >>
+>> >> Instead of open coding that each time introduce %pt[dt][rv] specifier.
+>> >
+>> > I really like the idea, and the implementation seems fine for this use case, but
+>> > before we reserve %pt for rtc_time, could we discuss whether we want
+>> > that for printing struct tm, struct timespec64, time64_t or ktime_t instead?
+>>
+>> How many users? For struct tm it's somelike 4 (which want to print its content).
+>>
+>> > I can see good reasons for pretty-printing any of them, but the namespace for
+>> > format strings is rather limited.
+>> >
+>> > struct rtc_time is almost the same as struct tm (the former has one extra
+>> > member), so maybe we can actually define them to be the same and
+>> > use one format string for both?
+>>
+>> The reason I decide to drop struct tm for now due to they are not
+>> compatible and I have got an interesting bugs.
+>> Verify tm_year member carefully.
+>>
+>
+> I understand this may not fit your debugging needs but what about pretty
+> printing time64_t and using rtc_tm_to_time64?
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
----
- drivers/rtc/rtc-s3c.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+There are two downsides as I can see:
+1) conversion to and from just for that;
+2) if you look closer to the patches rtc-* you may find cases where
+wday is also printed so, struct rtc_time still will be in use.
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 2b503dab7957..bfc8660ff1e7 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -801,19 +801,19 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
- static const struct of_device_id s3c_rtc_dt_match[] = {
- 	{
- 		.compatible = "samsung,s3c2410-rtc",
--		.data = (void *)&s3c2410_rtc_data,
-+		.data = &s3c2410_rtc_data,
- 	}, {
- 		.compatible = "samsung,s3c2416-rtc",
--		.data = (void *)&s3c2416_rtc_data,
-+		.data = &s3c2416_rtc_data,
- 	}, {
- 		.compatible = "samsung,s3c2443-rtc",
--		.data = (void *)&s3c2443_rtc_data,
-+		.data = &s3c2443_rtc_data,
- 	}, {
- 		.compatible = "samsung,s3c6410-rtc",
--		.data = (void *)&s3c6410_rtc_data,
-+		.data = &s3c6410_rtc_data,
- 	}, {
- 		.compatible = "samsung,exynos3250-rtc",
--		.data = (void *)&s3c6410_rtc_data,
-+		.data = &s3c6410_rtc_data,
- 	},
- 	{ /* sentinel */ },
- };
+So, I would go not to  convert if there is no strong reason to do.
+
 -- 
-2.9.3
+With Best Regards,
+Andy Shevchenko
