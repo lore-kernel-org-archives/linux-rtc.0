@@ -1,92 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:25356 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751624AbdFHNs2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:28 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+Received: from mail.free-electrons.com ([62.4.15.54]:34030 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751509AbdFHPFw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 11:05:52 -0400
+Date: Thu, 8 Jun 2017 17:05:40 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>
-Subject: [PATCH v1 21/25] rtc: tegra: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:07 +0300
-Message-Id: <20170608134811.60786-22-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+        linux-rtc@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
+ readable format via %pt
+Message-ID: <20170608150540.rek7a4akuxm3k36l@piout.net>
 References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+ <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+ <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
+ <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On 08/06/2017 at 17:55:12 +0300, Andy Shevchenko wrote:
+> On Thu, Jun 8, 2017 at 5:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Thu, Jun 8, 2017 at 3:47 PM, Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com> wrote:
+> >> There are users which print time and date represented by content of
+> >> struct rtc_time in human readable format.
+> >>
+> >> Instead of open coding that each time introduce %pt[dt][rv] specifier.
+> >
+> > I really like the idea, and the implementation seems fine for this use case, but
+> > before we reserve %pt for rtc_time, could we discuss whether we want
+> > that for printing struct tm, struct timespec64, time64_t or ktime_t instead?
+> 
+> How many users? For struct tm it's somelike 4 (which want to print its content).
+> 
+> > I can see good reasons for pretty-printing any of them, but the namespace for
+> > format strings is rather limited.
+> >
+> > struct rtc_time is almost the same as struct tm (the former has one extra
+> > member), so maybe we can actually define them to be the same and
+> > use one format string for both?
+> 
+> The reason I decide to drop struct tm for now due to they are not
+> compatible and I have got an interesting bugs.
+> Verify tm_year member carefully.
+> 
 
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-tegra.c | 30 +++---------------------------
- 1 file changed, 3 insertions(+), 27 deletions(-)
+I understand this may not fit your debugging needs but what about pretty
+printing time64_t and using rtc_tm_to_time64?
 
-diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
-index d30d57b048d3..cd0c60f1e1fb 100644
---- a/drivers/rtc/rtc-tegra.c
-+++ b/drivers/rtc/rtc-tegra.c
-@@ -124,15 +124,7 @@ static int tegra_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc_time_to_tm(sec, tm);
- 
--	dev_vdbg(dev, "time read as %lu. %d/%d/%d %d:%02u:%02u\n",
--		sec,
--		tm->tm_mon + 1,
--		tm->tm_mday,
--		tm->tm_year + 1900,
--		tm->tm_hour,
--		tm->tm_min,
--		tm->tm_sec
--	);
-+	dev_vdbg(dev, "time read as %lu. %pt\n", sec, tm);
- 
- 	return 0;
- }
-@@ -150,15 +142,7 @@ static int tegra_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc_tm_to_time(tm, &sec);
- 
--	dev_vdbg(dev, "time set to %lu. %d/%d/%d %d:%02u:%02u\n",
--		sec,
--		tm->tm_mon+1,
--		tm->tm_mday,
--		tm->tm_year+1900,
--		tm->tm_hour,
--		tm->tm_min,
--		tm->tm_sec
--	);
-+	dev_vdbg(dev, "time set to %lu. %pt\n", sec, tm);
- 
- 	/* seconds only written if wait succeeded. */
- 	ret = tegra_rtc_wait_while_busy(dev);
-@@ -234,16 +218,8 @@ static int tegra_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 
- 	/* if successfully written and alarm is enabled ... */
- 	if (sec) {
-+		dev_vdbg(dev, "alarm set as %lu. %pt\n", sec, &alarm->time);
- 		tegra_rtc_alarm_irq_enable(dev, 1);
--
--		dev_vdbg(dev, "alarm set as %lu. %d/%d/%d %d:%02u:%02u\n",
--			sec,
--			alarm->time.tm_mon+1,
--			alarm->time.tm_mday,
--			alarm->time.tm_year+1900,
--			alarm->time.tm_hour,
--			alarm->time.tm_min,
--			alarm->time.tm_sec);
- 	} else {
- 		/* disable alarm if 0 or write error. */
- 		dev_vdbg(dev, "alarm disabled\n");
+
 -- 
-2.11.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
