@@ -1,222 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:45218 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751586AbdFXUze (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Jun 2017 16:55:34 -0400
-Date: Sat, 24 Jun 2017 22:55:32 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/6] rtc: s3c: Handle clock enable failures
-Message-ID: <20170624205532.eqykr37ynpvprklf@piout.net>
-References: <20170616192807.10347-1-krzk@kernel.org>
- <20170616192807.10347-6-krzk@kernel.org>
+Received: from mail-qt0-f174.google.com ([209.85.216.174]:34659 "EHLO
+        mail-qt0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750822AbdFHSCR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 14:02:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170616192807.10347-6-krzk@kernel.org>
+In-Reply-To: <CAK8P3a3P4rDqQaNmBR9C9nF3VCqcQOH06Nq8RyDHsNfc0Ms13g@mail.gmail.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+ <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+ <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
+ <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com> <CAK8P3a3P4rDqQaNmBR9C9nF3VCqcQOH06Nq8RyDHsNfc0Ms13g@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 8 Jun 2017 21:02:15 +0300
+Message-ID: <CAHp75VfeyGH9wHmvcmJN9M8GNfG0iXTNO_wacsr+9SZ2CUJxYA@mail.gmail.com>
+Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
+ readable format via %pt
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Thu, Jun 8, 2017 at 6:33 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Thu, Jun 8, 2017 at 4:55 PM, Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+>> On Thu, Jun 8, 2017 at 5:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+>>> On Thu, Jun 8, 2017 at 3:47 PM, Andy Shevchenko
+>>> <andriy.shevchenko@linux.intel.com> wrote:
 
-On 16/06/2017 at 21:28:07 +0200, Krzysztof Kozlowski wrote:
-> clk_enable() can fail so handle such case.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> ---
->  drivers/rtc/rtc-s3c.c | 72 ++++++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 57 insertions(+), 15 deletions(-)
-> 
+>>> I really like the idea, and the implementation seems fine for this use case, but
+>>> before we reserve %pt for rtc_time, could we discuss whether we want
+>>> that for printing struct tm, struct timespec64, time64_t or ktime_t instead?
+>>
+>> How many users?
+>
+> It's hard to predict, I would assume we get more users once there is an
+> easy way to print the time.
 
-I've applied the whole series. However, quite often, on a platform,
-clk_prepare/enable are ensured to never fail and I find that the added
-complexity to handle failures is not worth it.
+So, at least for now we can guess using existing users, right?
 
-> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> index 0cb2f27a30b4..a8992c227f61 100644
-> --- a/drivers/rtc/rtc-s3c.c
-> +++ b/drivers/rtc/rtc-s3c.c
-> @@ -68,18 +68,32 @@ struct s3c_rtc_data {
->  	void (*disable) (struct s3c_rtc *info);
->  };
->  
-> -static void s3c_rtc_enable_clk(struct s3c_rtc *info)
-> +static int s3c_rtc_enable_clk(struct s3c_rtc *info)
->  {
->  	unsigned long irq_flags;
-> +	int ret = 0;
->  
->  	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
-> +
->  	if (info->clk_disabled) {
-> -		clk_enable(info->rtc_clk);
-> -		if (info->data->needs_src_clk)
-> -			clk_enable(info->rtc_src_clk);
-> +		ret = clk_enable(info->rtc_clk);
-> +		if (ret)
-> +			goto out;
-> +
-> +		if (info->data->needs_src_clk) {
-> +			ret = clk_enable(info->rtc_src_clk);
-> +			if (ret) {
-> +				clk_disable(info->rtc_clk);
-> +				goto out;
-> +			}
-> +		}
->  		info->clk_disabled = false;
->  	}
-> +
-> +out:
->  	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
-> +
-> +	return ret;
->  }
->  
->  static void s3c_rtc_disable_clk(struct s3c_rtc *info)
-> @@ -122,10 +136,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
->  {
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
->  	unsigned int tmp;
-> +	int ret;
->  
->  	dev_dbg(info->dev, "%s: aie=%d\n", __func__, enabled);
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	tmp = readb(info->base + S3C2410_RTCALM) & ~S3C2410_RTCALM_ALMEN;
->  
-> @@ -136,10 +153,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
->  
->  	s3c_rtc_disable_clk(info);
->  
-> -	if (enabled)
-> -		s3c_rtc_enable_clk(info);
-> -	else
-> +	if (enabled) {
-> +		ret = s3c_rtc_enable_clk(info);
-> +		if (ret)
-> +			return ret;
-> +	} else {
->  		s3c_rtc_disable_clk(info);
-> +	}
->  
->  	return 0;
->  }
-> @@ -147,10 +167,14 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
->  /* Set RTC frequency */
->  static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
->  {
-> +	int ret;
-> +
->  	if (!is_power_of_2(freq))
->  		return -EINVAL;
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  	spin_lock_irq(&info->pie_lock);
->  
->  	if (info->data->set_freq)
-> @@ -167,8 +191,11 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
->  {
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
->  	unsigned int have_retried = 0;
-> +	int ret;
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  retry_get_time:
->  	rtc_tm->tm_min  = readb(info->base + S3C2410_RTCMIN);
-> @@ -212,6 +239,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
->  {
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
->  	int year = tm->tm_year - 100;
-> +	int ret;
->  
->  	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
->  		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-> @@ -224,7 +252,9 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
->  		return -EINVAL;
->  	}
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	writeb(bin2bcd(tm->tm_sec),  info->base + S3C2410_RTCSEC);
->  	writeb(bin2bcd(tm->tm_min),  info->base + S3C2410_RTCMIN);
-> @@ -243,8 +273,11 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
->  	struct rtc_time *alm_tm = &alrm->time;
->  	unsigned int alm_en;
-> +	int ret;
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	alm_tm->tm_sec  = readb(info->base + S3C2410_ALMSEC);
->  	alm_tm->tm_min  = readb(info->base + S3C2410_ALMMIN);
-> @@ -293,6 +326,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
->  	struct rtc_time *tm = &alrm->time;
->  	unsigned int alrm_en;
-> +	int ret;
->  	int year = tm->tm_year - 100;
->  
->  	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
-> @@ -300,7 +334,9 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
->  		tm->tm_hour, tm->tm_min, tm->tm_sec);
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	alrm_en = readb(info->base + S3C2410_RTCALM) & S3C2410_RTCALM_ALMEN;
->  	writeb(0x00, info->base + S3C2410_RTCALM);
-> @@ -349,8 +385,11 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  static int s3c_rtc_proc(struct device *dev, struct seq_file *seq)
->  {
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
-> +	int ret;
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	if (info->data->enable_tick)
->  		info->data->enable_tick(info, seq);
-> @@ -589,8 +628,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
->  static int s3c_rtc_suspend(struct device *dev)
->  {
->  	struct s3c_rtc *info = dev_get_drvdata(dev);
-> +	int ret;
->  
-> -	s3c_rtc_enable_clk(info);
-> +	ret = s3c_rtc_enable_clk(info);
-> +	if (ret)
-> +		return ret;
->  
->  	/* save TICNT for anyone using periodic interrupts */
->  	if (info->data->save_tick_cnt)
-> -- 
-> 2.9.3
-> 
+I don't check yet how to calculate those cases of time64_t,
+timespec64, ktime_t and alike if they are about pretty ptintong time
+and date.
+I'm speculating that there are (almost) none.
+
+>> For struct tm it's somelike 4 (which want to print its content).
+>
+> Good point. I notice that they all convert from time64_t or time_t into
+> struct tm immediately before printing it, so we can scratch that one
+> as long as there is a way to pretty-print a time64_t. We also don't
+> need to print a time_t as we want to kill that one off anyway.
+>
+> If we only care about printing time64_t and rtc_time, we can easily
+> use %pT for one and %pt for the other, but there may still be good
+> reasons to print a timespec64 or ktime_t.
+
+No need, we may still use 3rd/4th letter in the format for that.
+
+%pt(t/d) time/date + whatever modifications, like raw, validate, timespec, etc.
+
+'s' for timespec64, for example.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+With Best Regards,
+Andy Shevchenko
