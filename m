@@ -1,83 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:23856 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751973AbdFHNs1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:27 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-qt0-f181.google.com ([209.85.216.181]:33673 "EHLO
+        mail-qt0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751435AbdFHBhx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Jun 2017 21:37:53 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170607152615.2072-1-colin.king@canonical.com>
+References: <20170607152615.2072-1-colin.king@canonical.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 8 Jun 2017 04:37:52 +0300
+Message-ID: <CAHp75VfBLQjtZPgY9pDxu4Lp__u+E+bfS=A6-id9cpPCX_ZQoQ@mail.gmail.com>
+Subject: Re: [PATCH] rtc: rtc-max8925: remove redundant check on ret
+To: Colin King <colin.king@canonical.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 15/25] rtc: puv3: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:01 +0300
-Message-Id: <20170608134811.60786-16-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On Wed, Jun 7, 2017 at 6:26 PM, Colin King <colin.king@canonical.com> wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>
+> The check on ret < 0 is redundant as the goto destination is the
+> next statment.  Remove this redudant check and goto.
+>
+> Detected by CoverityScan, CID#1268785 ("Identical code for different
+> branches")
 
-Guan Xuetao <gxt@mprc.pku.edu.cn>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-puv3.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+>                 ret = max8925_reg_write(info->rtc, MAX8925_ALARM0_CNTL, 0x77);
+>         else
+>                 ret = max8925_reg_write(info->rtc, MAX8925_ALARM0_CNTL, 0x0);
+> -       if (ret < 0)
+> -               goto out;
+>  out:
+>         return ret;
 
-diff --git a/drivers/rtc/rtc-puv3.c b/drivers/rtc/rtc-puv3.c
-index c0a6e638c672..2b7bac8892f8 100644
---- a/drivers/rtc/rtc-puv3.c
-+++ b/drivers/rtc/rtc-puv3.c
-@@ -90,9 +90,7 @@ static int puv3_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- {
- 	rtc_time_to_tm(readl(RTC_RCNR), rtc_tm);
- 
--	dev_dbg(dev, "read time %02x.%02x.%02x %02x/%02x/%02x\n",
--		 rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
--		 rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
-+	dev_dbg(dev, "read time %ptr\n", rtc_tm);
- 
- 	return 0;
- }
-@@ -101,9 +99,7 @@ static int puv3_rtc_settime(struct device *dev, struct rtc_time *tm)
- {
- 	unsigned long rtc_count = 0;
- 
--	dev_dbg(dev, "set time %02d.%02d.%02d %02d/%02d/%02d\n",
--		 tm->tm_year, tm->tm_mon, tm->tm_mday,
--		 tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set time %ptr\n", tm);
- 
- 	rtc_tm_to_time(tm, &rtc_count);
- 	writel(rtc_count, RTC_RCNR);
-@@ -119,10 +115,7 @@ static int puv3_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = readl(RTC_RTSR) & RTC_RTSR_ALE;
- 
--	dev_dbg(dev, "read alarm %02x %02x.%02x.%02x %02x/%02x/%02x\n",
--		 alrm->enabled,
--		 alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
--		 alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+	dev_dbg(dev, "read alarm: %d, %ptr\n", alrm->enabled, alm_tm);
- 
- 	return 0;
- }
-@@ -132,10 +125,7 @@ static int puv3_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rtc_time *tm = &alrm->time;
- 	unsigned long rtcalarm_count = 0;
- 
--	dev_dbg(dev, "puv3_rtc_setalarm: %d, %02x/%02x/%02x %02x.%02x.%02x\n",
--		 alrm->enabled,
--		 tm->tm_mday & 0xff, tm->tm_mon & 0xff, tm->tm_year & 0xff,
--		 tm->tm_hour & 0xff, tm->tm_min & 0xff, tm->tm_sec);
-+	dev_dbg(dev, "set alarm: %d, %ptr\n", alrm->enabled, tm);
- 
- 	rtc_tm_to_time(tm, &rtcalarm_count);
- 	writel(rtcalarm_count, RTC_RTAR);
+...and label (w/ replacing it by inplace return ret;) ?
+
 -- 
-2.11.0
+With Best Regards,
+Andy Shevchenko
