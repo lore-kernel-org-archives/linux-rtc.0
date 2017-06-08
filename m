@@ -1,43 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34902 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751541AbdF1XPE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Jun 2017 19:15:04 -0400
-Subject: Re: [PATCH] rtc: brcmstb-waketimer: fix settime function
+Received: from smtprelay0077.hostedemail.com ([216.40.44.77]:51509 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751827AbdFHPsM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 11:48:12 -0400
+Message-ID: <1496936886.1929.20.camel@perches.com>
+Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Joe Perches <joe@perches.com>
 To: Arnd Bergmann <arnd@arndb.de>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Gregory Fong <gregory.0xf0@gmail.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Markus Mayer <mmayer@broadcom.com>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20170628200839.3114345-1-arnd@arndb.de>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <e8c1c77c-dd16-afa8-509a-417e0ab7535c@gmail.com>
-Date: Wed, 28 Jun 2017 16:14:56 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170628200839.3114345-1-arnd@arndb.de>
-Content-Type: text/plain; charset=utf-8
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Date: Thu, 08 Jun 2017 08:48:06 -0700
+In-Reply-To: <CAK8P3a3P4rDqQaNmBR9C9nF3VCqcQOH06Nq8RyDHsNfc0Ms13g@mail.gmail.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+         <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+         <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
+         <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
+         <CAK8P3a3P4rDqQaNmBR9C9nF3VCqcQOH06Nq8RyDHsNfc0Ms13g@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 06/28/2017 01:07 PM, Arnd Bergmann wrote:
-> gcc warns about an unused variable in the new driver:
+On Thu, 2017-06-08 at 17:33 +0200, Arnd Bergmann wrote:
+> On Thu, Jun 8, 2017 at 4:55 PM, Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+> > On Thu, Jun 8, 2017 at 5:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > > On Thu, Jun 8, 2017 at 3:47 PM, Andy Shevchenko
+> > > <andriy.shevchenko@linux.intel.com> wrote:
+> > > > There are users which print time and date represented by content of
+> > > > struct rtc_time in human readable format.
+> > > > 
+> > > > Instead of open coding that each time introduce %pt[dt][rv] specifier.
+> > > 
+> > > I really like the idea, and the implementation seems fine for this use case, but
+> > > before we reserve %pt for rtc_time, could we discuss whether we want
+> > > that for printing struct tm, struct timespec64, time64_t or ktime_t instead?
+> > 
+> > How many users?
 > 
-> drivers/rtc/rtc-brcmstb-waketimer.c: In function 'brcmstb_waketmr_settime':
-> drivers/rtc/rtc-brcmstb-waketimer.c:142:6: error: unused variable 'ret' [-Werror=unused-variable]
+> It's hard to predict, I would assume we get more users once there is an
+> easy way to print the time.
 > 
-> The same function also doesn't handle overflow correctly, this makes
-> it return -EINVAL when passed a time that doesn't fit within the
-> range of the register.
-
-Yes, thanks for doing that.
-
+> > For struct tm it's somelike 4 (which want to print its content).
 > 
-> Fixes: 9f4ad359c801 ("rtc: brcmstb-waketimer: Add Broadcom STB wake-timer")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Good point. I notice that they all convert from time64_t or time_t into
+> struct tm immediately before printing it, so we can scratch that one
+> as long as there is a way to pretty-print a time64_t. We also don't
+> need to print a time_t as we want to kill that one off anyway.
+> 
+> If we only care about printing time64_t and rtc_time, we can easily
+> use %pT for one and %pt for the other, but there may still be good
+> reasons to print a timespec64 or ktime_t.
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+> > > I can see good reasons for pretty-printing any of them, but the namespace for
+> > > format strings is rather limited.
+
+
+The kernel already uses different types for the same leading
+letter.  For
+instance: %pI4 vs %pI6, %pap vs %pad
+
+A single 't' letter could do reasonably well.
