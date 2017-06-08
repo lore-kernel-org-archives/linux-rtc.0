@@ -1,34 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:36579 "EHLO
-        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751083AbdFAS6b (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 14:58:31 -0400
-Received: by mail-wm0-f47.google.com with SMTP id 7so168967806wmo.1
-        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 11:58:25 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 0/4] rtc: ds1307: series with refactorings
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Message-ID: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
-Date: Thu, 1 Jun 2017 20:57:58 +0200
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:36305 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751412AbdFHSi0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 14:38:26 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170608140000.GA21298@kroah.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+ <20170608134811.60786-7-andriy.shevchenko@linux.intel.com> <20170608140000.GA21298@kroah.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 8 Jun 2017 21:38:24 +0300
+Message-ID: <CAHp75Ve1abFYh7TM7a41LohOeAvwYvc+pGF3=3T-fe3hJB=Tsw@mail.gmail.com>
+Subject: Re: [PATCH v1 06/25] rtc: Switch to use %pt
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Series with certain refactorings for the ds1307 rtc driver.
+On Thu, Jun 8, 2017 at 5:00 PM, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> On Thu, Jun 08, 2017 at 04:47:52PM +0300, Andy Shevchenko wrote:
+>> Use %pt instead of open coded variant to print content of
+>> struct rtc_time in human readable format.
+>>
+>> Arnd Bergmann <arnd@arndb.de>
+>
+>  Cc: ?
 
-v2:
-- improved nvmem patch
+Yep!
+Fixed locally, will be in next version of the series.
 
-Heiner Kallweit (4):
-  rtc: ds1307: make definition of ds1307_of_match more compact
-  rtc: ds1307: use regmap_update_bits where applicable
-  rtc: ds1307: factor out century bit handling
-  rtc: ds1307: change nvram handling to use the nvmem subsystem
+>
+>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
- drivers/rtc/rtc-ds1307.c | 316 ++++++++++++++---------------------------------
- 1 file changed, 91 insertions(+), 225 deletions(-)
+Thanks!
 
 -- 
-2.13.0
+With Best Regards,
+Andy Shevchenko
