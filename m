@@ -1,8 +1,8 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:21625 "EHLO mga09.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:10151 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752033AbdFHNsd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:33 -0400
+        id S1751536AbdFHNsW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Jun 2017 09:48:22 -0400
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -12,76 +12,88 @@ To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 19/25] rtc: s3c: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:05 +0300
-Message-Id: <20170608134811.60786-20-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
+Date: Thu,  8 Jun 2017 16:47:46 +0300
+Message-Id: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+Recently I have noticed too many users of struct rtc_time that printing
+its content field by field.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-s3c.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+In this series I introduce %pt[dt][rv] specifier to make life a bit
+easier.
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d44fb34df8fe..4fa734f7e184 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -197,13 +197,10 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 	s3c_rtc_disable_clk(info);
- 
- 	rtc_tm->tm_year += 100;
--
--	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
--		 1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
--		 rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
--
- 	rtc_tm->tm_mon -= 1;
- 
-+	dev_dbg(dev, "read time %pt\n", rtc_tm);
-+
- 	return rtc_valid_tm(rtc_tm);
- }
- 
-@@ -212,9 +209,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	int year = tm->tm_year - 100;
- 
--	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
--		 1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
--		 tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set time %pt\n", tm);
- 
- 	/* we get around y2k by simply not supporting it */
- 
-@@ -258,10 +253,7 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = (alm_en & S3C2410_RTCALM_ALMEN) ? 1 : 0;
- 
--	dev_dbg(dev, "read alarm %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		 alm_en,
--		 1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
--		 alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+	dev_dbg(dev, "read alarm %d, %pt\n", alm_en, alm_tm);
- 
- 	/* decode the alarm enable field */
- 	if (alm_en & S3C2410_RTCALM_SECEN)
-@@ -294,10 +286,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	unsigned int alrm_en;
- 	int year = tm->tm_year - 100;
- 
--	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		 alrm->enabled,
--		 1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		 tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "s3c_rtc_setalarm: %d, %pt\n", alrm->enabled, tm);
- 
- 	s3c_rtc_enable_clk(info);
- 
+There are still users of detailed output of the struct rtc_time, but we
+can introduce an additional extension for them in the future if needed,
+otherwise they might be converted to the proposed output format.
+
+Some of the changes slightly modify the output. In those cases we are on
+the safe side since they are pure debug. Nevertheless I tried to leave
+numbers to be the same or quite close: in some cases year is printed +
+1900, though month is left in the range [0,11] instead of [1,12].
+
+I didn't compile everything there, though I did a basic smoke test on
+some x86 hardware. So, I rely on kbuild test robot as well :-)
+
+Most of the users currently are RTC drivers, thus the patch series is
+assumed to go via RTC tree.
+
+Andy Shevchenko (25):
+  lib/vsprintf: Remove useless NULL checks
+  lib/vsprintf: Make decspec global
+  lib/vsprintf: Make strspec global
+  lib/vsprintf: Print time and date in human readable format via %pt
+  ds1302: Switch to use %pt
+  rtc: Switch to use %pt
+  rtc: at91rm9200: Switch to use %pt
+  rtc: at91sam9: Switch to use %pt
+  rtc: m41t80: Switch to use %pt
+  rtc: m48t59: Switch to use %pt
+  rtc: mcp795: Switch to use %pt
+  rtc: pcf50633: Switch to use %pt
+  rtc: pic32: Switch to use %pt
+  rtc: pm8xxx: Switch to use %pt
+  rtc: puv3: Switch to use %pt
+  rtc: rk808: Switch to use %pt
+  rtc: rx6110: Switch to use %pt
+  rtc: rx8025: Switch to use %pt
+  rtc: s3c: Switch to use %pt
+  rtc: s5m: Switch to use %pt
+  rtc: tegra: Switch to use %pt
+  mk68/mac: Switch to use %pt
+  Input: hp_sdc_rtc - Switch to use %pt
+  kdb: Switch to use %pt
+  PM: Switch to use %pt
+
+ Documentation/printk-formats.txt |  17 ++++
+ arch/m68k/mac/misc.c             |   8 +-
+ drivers/base/power/trace.c       |   4 +-
+ drivers/char/ds1302.c            |  38 +++------
+ drivers/char/rtc.c               |   7 +-
+ drivers/input/misc/hp_sdc_rtc.c  |   8 +-
+ drivers/rtc/hctosys.c            |   8 +-
+ drivers/rtc/interface.c          |   8 +-
+ drivers/rtc/rtc-at91rm9200.c     |  16 +---
+ drivers/rtc/rtc-at91sam9.c       |  16 +---
+ drivers/rtc/rtc-m41t80.c         |   6 +-
+ drivers/rtc/rtc-m48t59.c         |   8 +-
+ drivers/rtc/rtc-mcp795.c         |  18 ++---
+ drivers/rtc/rtc-pcf50633.c       |   8 +-
+ drivers/rtc/rtc-pic32.c          |  18 +----
+ drivers/rtc/rtc-pm8xxx.c         |  16 ++--
+ drivers/rtc/rtc-proc.c           |  36 ++-------
+ drivers/rtc/rtc-puv3.c           |  18 +----
+ drivers/rtc/rtc-rk808.c          |  20 ++---
+ drivers/rtc/rtc-rx6110.c         |  12 +--
+ drivers/rtc/rtc-rx8025.c         |  19 +----
+ drivers/rtc/rtc-s3c.c            |  21 ++---
+ drivers/rtc/rtc-s5m.c            |  27 ++-----
+ drivers/rtc/rtc-sysfs.c          |  12 +--
+ drivers/rtc/rtc-tegra.c          |  30 +------
+ kernel/debug/kdb/kdb_main.c      |   7 +-
+ lib/vsprintf.c                   | 167 ++++++++++++++++++++++++++++++++-------
+ 27 files changed, 248 insertions(+), 325 deletions(-)
+
 -- 
 2.11.0
