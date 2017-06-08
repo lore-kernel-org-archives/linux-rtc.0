@@ -1,119 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:32974 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751077AbdFEP5v (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 11:57:51 -0400
-Received: by mail-wr0-f194.google.com with SMTP id v104so7873297wrb.0
-        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 08:57:51 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 1/4] rtc: ds1307: make definition of ds1307_of_match more
- compact
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
-Message-ID: <5b8af62b-24a4-0a05-26c7-6be893297f9c@gmail.com>
-Date: Mon, 5 Jun 2017 17:57:22 +0200
-MIME-Version: 1.0
-In-Reply-To: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mga11.intel.com ([192.55.52.93]:10151 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751590AbdFHNsj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Jun 2017 09:48:39 -0400
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 07/25] rtc: at91rm9200: Switch to use %pt
+Date: Thu,  8 Jun 2017 16:47:53 +0300
+Message-Id: <20170608134811.60786-8-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Make the definition of ds1307_of_match more compact. This makes the
-code better readable and more in line with the definition of
-ds1307_id and ds1307_acpi_ids.
+Use %pt instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v2:
-- no changes
-v3:
-- add reviewed-by
----
- drivers/rtc/rtc-ds1307.c | 70 ++++++++++--------------------------------------
- 1 file changed, 14 insertions(+), 56 deletions(-)
+ drivers/rtc/rtc-at91rm9200.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a2649385..b960ec3f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -198,62 +198,20 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+index b60fd477778f..6e29c25b34ce 100644
+--- a/drivers/rtc/rtc-at91rm9200.c
++++ b/drivers/rtc/rtc-at91rm9200.c
+@@ -151,9 +151,7 @@ static int at91_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 	tm->tm_yday = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
+ 	tm->tm_year = tm->tm_year - 1900;
  
- #ifdef CONFIG_OF
- static const struct of_device_id ds1307_of_match[] = {
--	{
--		.compatible = "dallas,ds1307",
--		.data = (void *)ds_1307
--	},
--	{
--		.compatible = "dallas,ds1337",
--		.data = (void *)ds_1337
--	},
--	{
--		.compatible = "dallas,ds1338",
--		.data = (void *)ds_1338
--	},
--	{
--		.compatible = "dallas,ds1339",
--		.data = (void *)ds_1339
--	},
--	{
--		.compatible = "dallas,ds1388",
--		.data = (void *)ds_1388
--	},
--	{
--		.compatible = "dallas,ds1340",
--		.data = (void *)ds_1340
--	},
--	{
--		.compatible = "maxim,ds3231",
--		.data = (void *)ds_3231
--	},
--	{
--		.compatible = "st,m41t0",
--		.data = (void *)m41t00
--	},
--	{
--		.compatible = "st,m41t00",
--		.data = (void *)m41t00
--	},
--	{
--		.compatible = "microchip,mcp7940x",
--		.data = (void *)mcp794xx
--	},
--	{
--		.compatible = "microchip,mcp7941x",
--		.data = (void *)mcp794xx
--	},
--	{
--		.compatible = "pericom,pt7c4338",
--		.data = (void *)ds_1307
--	},
--	{
--		.compatible = "epson,rx8025",
--		.data = (void *)rx_8025
--	},
--	{
--		.compatible = "isil,isl12057",
--		.data = (void *)ds_1337
--	},
-+	{ .compatible = "dallas,ds1307",	.data = (void *)ds_1307 },
-+	{ .compatible = "dallas,ds1337",	.data = (void *)ds_1337 },
-+	{ .compatible = "dallas,ds1338",	.data = (void *)ds_1338 },
-+	{ .compatible = "dallas,ds1339",	.data = (void *)ds_1339 },
-+	{ .compatible = "dallas,ds1388",	.data = (void *)ds_1388 },
-+	{ .compatible = "dallas,ds1340",	.data = (void *)ds_1340 },
-+	{ .compatible = "maxim,ds3231",		.data = (void *)ds_3231 },
-+	{ .compatible = "st,m41t0",		.data = (void *)m41t00 },
-+	{ .compatible = "st,m41t00",		.data = (void *)m41t00 },
-+	{ .compatible = "microchip,mcp7940x",	.data = (void *)mcp794xx },
-+	{ .compatible = "microchip,mcp7941x",	.data = (void *)mcp794xx },
-+	{ .compatible = "pericom,pt7c4338",	.data = (void *)ds_1307 },
-+	{ .compatible = "epson,rx8025",		.data = (void *)rx_8025 },
-+	{ .compatible = "isil,isl12057",	.data = (void *)ds_1337 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, ds1307_of_match);
+-	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s(): %pt\n", __func__, tm);
+ 
+ 	return 0;
+ }
+@@ -165,9 +163,7 @@ static int at91_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	unsigned long cr;
+ 
+-	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s(): %pt\n", __func__, tm);
+ 
+ 	wait_for_completion(&at91_rtc_upd_rdy);
+ 
+@@ -214,9 +210,7 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
+ 			? 1 : 0;
+ 
+-	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s(): %pt\n", __func__, tm);
+ 
+ 	return 0;
+ }
+@@ -254,9 +248,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		at91_rtc_write_ier(AT91_RTC_ALARM);
+ 	}
+ 
+-	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
+-		tm.tm_min, tm.tm_sec);
++	dev_dbg(dev, "%s(): %pt\n", __func__, &tm);
+ 
+ 	return 0;
+ }
 -- 
-2.13.0
+2.11.0
