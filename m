@@ -1,58 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:10151 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751689AbdFHNsX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:23 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+Received: from smtprelay0035.hostedemail.com ([216.40.44.35]:39155 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1750934AbdFIFIH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Jun 2017 01:08:07 -0400
+Message-ID: <1496984883.1929.29.camel@perches.com>
+Subject: Re: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
+From: Joe Perches <joe@perches.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 10/25] rtc: m48t59: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:47:56 +0300
-Message-Id: <20170608134811.60786-11-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Date: Thu, 08 Jun 2017 22:08:03 -0700
+In-Reply-To: <CAHp75VcCEO6yfd51n=g8tpWGBfwZrMuJO9aDGBY6ZXb5sQPd5g@mail.gmail.com>
 References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+         <1496933554.1929.15.camel@perches.com>
+         <CAHp75VcCEO6yfd51n=g8tpWGBfwZrMuJO9aDGBY6ZXb5sQPd5g@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On Thu, 2017-06-08 at 18:02 +0300, Andy Shevchenko wrote:
+> On Thu, Jun 8, 2017 at 5:52 PM, Joe Perches <joe@perches.com> wrote:
+> > On Thu, 2017-06-08 at 16:47 +0300, Andy Shevchenko wrote:
+> > > Recently I have noticed too many users of struct rtc_time that printing
+> > > its content field by field.
+> > > 
+> > > In this series I introduce %pt[dt][rv] specifier to make life a bit
+> > > easier.
+[]
+> > > Most of the users currently are RTC drivers, thus the patch series is
+> > > assumed to go via RTC tree.
+> > 
+> > What I wonder about this series is how much
+> > larger it makes a typical kernel and how
+> > often multiple rtc clocks are built for a
+> > single kernel?
+> 
+> We may hide it under CONFIG_RTC_??? if we want to reduce kernel for
+> non RTC cases.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-m48t59.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Depends whether it is for rtc_time only
 
-diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
-index d99a705bec07..1583584becb8 100644
---- a/drivers/rtc/rtc-m48t59.c
-+++ b/drivers/rtc/rtc-m48t59.c
-@@ -102,9 +102,7 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
- 
--	dev_dbg(dev, "RTC read time %04d-%02d-%02d %02d/%02d/%02d\n",
--		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC read time %pt\n", tm);
- 	return rtc_valid_tm(tm);
- }
- 
-@@ -193,9 +191,7 @@ static int m48t59_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
- 
--	dev_dbg(dev, "RTC read alarm time %04d-%02d-%02d %02d/%02d/%02d\n",
--		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC read alarm time %pt\n", tm);
- 	return rtc_valid_tm(tm);
- }
- 
--- 
-2.11.0
+> > What is the size impact on an embedded kernel
+> > that uses a single rtc driver?
+> 
+> I would
+
+You would what?
