@@ -1,36 +1,22 @@
-Return-Path: <rtc-linux+bncBCH67JWTV4DBBJP6YXFAKGQE3YRHNBA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARBT4A67EQKGQEI667GDA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x241.google.com (mail-wr0-x241.google.com. [2a00:1450:400c:c0c::241])
-        by gmr-mx.google.com with ESMTPS id 143si291277wmr.0.2017.06.26.14.39.48
+Received: from mail-it0-x235.google.com (mail-it0-x235.google.com. [2607:f8b0:4001:c0b::235])
+        by gmr-mx.google.com with ESMTPS id q80si38119itb.4.2017.06.11.15.12.31
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Jun 2017 14:39:48 -0700 (PDT)
-Received: by mail-wr0-x241.google.com with SMTP id z45so30485543wrb.2
-        for <rtc-linux@googlegroups.com>; Mon, 26 Jun 2017 14:39:48 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>,
- Markus Mayer <mmayer@broadcom.com>, Alessandro Zummo <a.zummo@towertech.it>,
- Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Gregory Fong <gregory.0xf0@gmail.com>,
- "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE"
- <bcm-kernel-feedback-list@broadcom.com>,
- "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
- "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
- <devicetree@vger.kernel.org>,
- "moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE"
- <linux-arm-kernel@lists.infradead.org>
-References: <20170615195904.12653-1-f.fainelli@gmail.com>
- <20170615195904.12653-3-f.fainelli@gmail.com>
- <20170624185942.vq656pjxbqnqdhll@piout.net>
- <35c43786-ee58-130c-2ecd-5577197bd5aa@gmail.com>
- <20170626213534.jur6rggwbzhk6r4t@piout.net>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <9d8f0475-5a52-c7dc-2f39-1b5cbad608e9@gmail.com>
-Date: Mon, 26 Jun 2017 14:39:42 -0700
+        Sun, 11 Jun 2017 15:12:31 -0700 (PDT)
+Received: by mail-it0-x235.google.com with SMTP id m62so16985361itc.0
+        for <rtc-linux@googlegroups.com>; Sun, 11 Jun 2017 15:12:31 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170626213534.jur6rggwbzhk6r4t@piout.net>
+In-Reply-To: <20170530075332.3740-1-linus.walleij@linaro.org>
+References: <20170530075332.3740-1-linus.walleij@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon, 12 Jun 2017 00:12:30 +0200
+Message-ID: <CACRpkdZdm=DtiHCRaLxGL0BE8LfsV+qxyZNVyS4e+kf3HsXn7Q@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 1/3 v2] rtc: gemini: Add optional clock handling
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, Linus Walleij <linus.walleij@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
@@ -41,23 +27,28 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/26/2017 02:35 PM, Alexandre Belloni wrote:
-> On 26/06/2017 at 10:15:46 -0700, Florian Fainelli wrote:
->>> This is not needed since d68778b80dd7
->>
->> Great, I will take that out.
->>
->> Do you care whether some dev_dbg() prints are left in the driver or
->> should I remove those in v2?
->>
-> 
-> It could have stayed but it seems you removed it from v2.
-> 
-> I'll applay that but it is ok if you change your mind.
+On Tue, May 30, 2017 at 9:53 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
 
-No, I think they don't really belong in the driver anymore, thanks!
--- 
-Florian
+> This makes the Gemini optionally take two clock references to
+> the PCLK and EXTCLK. As we are adding a clock framework to the
+> Gemini platform we need to make sure that we get the right
+> references.
+>
+> Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Use devm_clk_get() so we do not leave dangling clocks
+>   behind.
+> - Add Hans' ACK.
+
+Alessandro, Alexandre:
+Is this v2 series fine, or do I need to fix something?
+
+Just restless, sorry ...
+
+Yours,
+Linus Walleij
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
