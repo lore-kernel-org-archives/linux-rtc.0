@@ -1,63 +1,50 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBTXF2LFAKGQEJ5ME5QQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id t16si2539023wmt.3.2017.06.29.00.57.02
-        for <rtc-linux@googlegroups.com>;
-        Thu, 29 Jun 2017 00:57:02 -0700 (PDT)
-Date: Thu, 29 Jun 2017 09:56:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
-Message-ID: <20170629075651.jqa3jvxfer56dvh5@piout.net>
-References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
- <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
- <20170116175018.z74inrcapwqqtbcz@piout.net>
- <1484641457.20968.6.camel@collabora.co.uk>
- <20170117110016.ids6xheti242lxhe@piout.net>
- <1498470673.9477.3.camel@collabora.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1498470673.9477.3.camel@collabora.co.uk>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Gregory Fong <gregory.0xf0@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com (maintainer:BROADCOM BCM7XXX ARM
+        ARCHITECTURE),
+        rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
+        DEVICE TREE BINDINGS),
+        linux-arm-kernel@lists.infradead.org (moderated list:BROADCOM BCM7XXX
+        ARM ARCHITECTURE)
+Subject: [PATCH 0/2] Broadcom STB wake-timer support
+Date: Thu, 15 Jun 2017 12:59:02 -0700
+Message-Id: <20170615195904.12653-1-f.fainelli@gmail.com>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 26/06/2017 at 11:51:13 +0200, Fabien Lahoudere wrote:
-> > Actually, after reading the datasheet, I realize it is only POC that is
-> > reset to 0 after reading so isinvalid is not needed. Just read status1
-> > and look for BLD instead of caching it.
-> > 
-> 
-> isinvalid is also used in s35390a_set_datetime. So if I remove it how can I detect that time setting
-> failed?
-> 
+Hi Alexandre,
 
-If it fails, simply don't reset BLD so it is still set when reading the
-time.
+This patch series adds support for the Broadcom STB wake-timer. This is a 27Mhz
+timer which allows the system to exit S2/S3/S5 sleep states when configured.
 
-> > I think it is probably worth separating s35390a_reset() into two
-> > functions. One that does the initialization and another one that reads
-> > status1 and immediately doest the initialization when POC is set. If BLD
-> > is set, then we can wait for set_time to happen before initializing.
-> > 
+The wake-timer has has a long history within our internal/downstream tree, and
+Brian authored it in the first place, then Markus added the rtc bits, and then I
+cleaned it up for upstream.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thanks!
+
+Brian Norris (1):
+  rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
+
+Florian Fainelli (1):
+  dt-bindings: Document the Broadcom STB wake-up timer node
+
+ .../bindings/rtc/brcm,brcmstb-waketimer.txt        |  22 ++
+ drivers/rtc/Kconfig                                |  11 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-brcmstb-waketimer.c                | 345 +++++++++++++++++++++
+ 4 files changed, 379 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
+ create mode 100644 drivers/rtc/rtc-brcmstb-waketimer.c
 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+2.9.3
