@@ -1,221 +1,201 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:35524 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751194AbdFEP5z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Jun 2017 11:57:55 -0400
-Received: by mail-wr0-f193.google.com with SMTP id g76so7839500wrd.2
-        for <linux-rtc@vger.kernel.org>; Mon, 05 Jun 2017 08:57:54 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 4/4] rtc: ds1307: change nvram handling to use the nvmem
- subsystem
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
-Message-ID: <12ad1679-7152-6ad1-c241-9d4200b7ba12@gmail.com>
-Date: Mon, 5 Jun 2017 17:57:46 +0200
-MIME-Version: 1.0
-In-Reply-To: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail.free-electrons.com ([62.4.15.54]:41244 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751869AbdFPPfC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Jun 2017 11:35:02 -0400
+Received: from localhost (unknown [88.191.26.124])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id 2335D21DF6
+        for <linux-rtc@vger.kernel.org>; Fri, 16 Jun 2017 17:34:57 +0200 (CEST)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Cc: linaro-kernel@lists.linaro.org,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Subject: [PATCH 2/3] tools: timer: add test to check y2038/2106 bug
+Date: Fri, 16 Jun 2017 16:03:52 +0200
+Message-Id: <1497621833-9942-3-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170616140352.HP3_w2BGCNsE1mlmgJsJOGtTQK63z1L2M1YijX5LI1A@z>
 
-The open coded handling of attribute nvram is from 2007 when the
-nvmem subsystem obviously didn't exist yet.
+The goal of this test is to check if a RTC device correctly support
+dates after years 2038 or 2106.
+It set a date (1-1-2200) on RTC and read it back to be sure that the
+driver is working well.
+The same thing is done on alarm.
 
-Now we can use nvmem to simplify the driver. A side effect is that
-attribute nvram is replaced. New location is:
-/sys/bus/nvmem/devices/ds1307_nvram0/nvmem
-
-This might break user space applications. However attribute nvram
-is nowhere officially documented and I'm not sure whether anybody
-is actually using the few nvram bytes on a rtc chip.
-
-This patch is compile-tested only as I lack hardware with nvram.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 ---
-v2:
-- embed nvmem_config structure part in struct ds1307
-- set name and owner members of struct nvmem_config
-v3:
-- extend Kconfig help text
-- use IS_REACHABLE to not access the NVMEM API if ds1307 is
-  built-in and NVMEM is a module. I don't use Kconfig dependencies
-  because only few supported chips have NVRAM.
----
- drivers/rtc/Kconfig      |   5 ++-
- drivers/rtc/rtc-ds1307.c | 101 ++++++++++++++++++-----------------------------
- 2 files changed, 42 insertions(+), 64 deletions(-)
+ tools/testing/selftests/timers/Makefile       |   4 +-
+ tools/testing/selftests/timers/rtctest-2038.c | 135 ++++++++++++++++++++++++++
+ 2 files changed, 138 insertions(+), 1 deletion(-)
+ create mode 100644 tools/testing/selftests/timers/rtctest-2038.c
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b9572..22ac31fd 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -219,8 +219,9 @@ config RTC_DRV_DS1307
+diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+index 54481f1..7791f79 100644
+--- a/tools/testing/selftests/timers/Makefile
++++ b/tools/testing/selftests/timers/Makefile
+@@ -9,7 +9,8 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
  
- 	  The first seven registers on these chips hold an RTC, and other
- 	  registers may add features such as NVRAM, a trickle charger for
--	  the RTC/NVRAM backup power, and alarms. NVRAM is visible in
--	  sysfs, but other chip features may not be available.
-+	  the RTC/NVRAM backup power, and alarms.
-+	  If your chip has NVRAM and CONFIG_NVMEM is set then the NVRAM
-+	  is accessible via sysfs.
+ TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+ 		      skew_consistency clocksource-switch leap-a-day \
+-		      leapcrash set-tai set-2038 set-tz rtctest_setdate
++		      leapcrash set-tai set-2038 set-tz rtctest_setdate \
++		      rtctest-2038
  
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ds1307.
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 79160027..a2a90cd2 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -25,6 +25,7 @@
- #include <linux/hwmon-sysfs.h>
- #include <linux/clk-provider.h>
- #include <linux/regmap.h>
-+#include <linux/nvmem-provider.h>
  
- /*
-  * We can't determine type by probing, but if we expect pre-Linux code
-@@ -116,11 +117,11 @@ struct ds1307 {
- 	u8			offset; /* register's offset */
- 	u8			regs[11];
- 	u16			nvram_offset;
--	struct bin_attribute	*nvram;
-+	struct nvmem_config	nvram_cfg;
-+	struct nvmem_device	*nvram;
- 	enum ds_type		type;
- 	unsigned long		flags;
--#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
--#define HAS_ALARM	1		/* bit 1 == irq claimed */
-+#define HAS_ALARM	0		/* bit 0 == irq claimed */
- 	struct device		*dev;
- 	struct regmap		*regmap;
- 	const char		*name;
-@@ -676,42 +677,27 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ include ../lib.mk
+@@ -29,4 +30,5 @@ run_destructive_tests: run_tests
+ 	./set-tz
+ 	./set-tai
+ 	./set-2038
++	./rtctest-2038
  
- /*----------------------------------------------------------------------*/
- 
--static ssize_t
--ds1307_nvram_read(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
--{
--	struct ds1307		*ds1307;
--	int			result;
-+#if IS_REACHABLE(CONFIG_NVMEM)
- 
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
-+{
-+	struct ds1307 *ds1307 = priv;
- 
--	result = regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + off,
--				  buf, count);
--	if (result)
--		dev_err(ds1307->dev, "%s error %d\n", "nvram read", result);
--	return result;
-+	return regmap_bulk_read(ds1307->regmap, ds1307->nvram_offset + offset,
-+				val, bytes);
- }
- 
--static ssize_t
--ds1307_nvram_write(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
-+static int ds1307_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
- {
--	struct ds1307		*ds1307;
--	int			result;
--
--	ds1307 = dev_get_drvdata(kobj_to_dev(kobj));
-+	struct ds1307 *ds1307 = priv;
- 
--	result = regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + off,
--				   buf, count);
--	if (result) {
--		dev_err(ds1307->dev, "%s error %d\n", "nvram write", result);
--		return result;
--	}
--	return count;
-+	return regmap_bulk_write(ds1307->regmap, ds1307->nvram_offset + offset,
-+				 val, bytes);
- }
- 
-+#endif
- 
- /*----------------------------------------------------------------------*/
- 
-@@ -1475,39 +1461,28 @@ static int ds1307_probe(struct i2c_client *client,
- 			dev_dbg(ds1307->dev, "got IRQ %d\n", client->irq);
- 	}
- 
-+#if IS_REACHABLE(CONFIG_NVMEM)
- 	if (chip->nvram_size) {
--
--		ds1307->nvram = devm_kzalloc(ds1307->dev,
--					sizeof(struct bin_attribute),
--					GFP_KERNEL);
--		if (!ds1307->nvram) {
--			dev_err(ds1307->dev,
--				"cannot allocate memory for nvram sysfs\n");
-+		ds1307->nvram_cfg.name = "ds1307_nvram";
-+		ds1307->nvram_cfg.dev = ds1307->dev;
-+		ds1307->nvram_cfg.reg_read = ds1307_nvram_read;
-+		ds1307->nvram_cfg.reg_write = ds1307_nvram_write;
-+		ds1307->nvram_cfg.size = chip->nvram_size;
-+		ds1307->nvram_cfg.word_size = 1;
-+		ds1307->nvram_cfg.stride = 1;
-+		ds1307->nvram_cfg.priv = ds1307;
-+		ds1307->nvram_cfg.owner = THIS_MODULE;
+diff --git a/tools/testing/selftests/timers/rtctest-2038.c b/tools/testing/selftests/timers/rtctest-2038.c
+new file mode 100644
+index 0000000..213b7ee
+--- /dev/null
++++ b/tools/testing/selftests/timers/rtctest-2038.c
+@@ -0,0 +1,135 @@
++/* Real Time Clock Driver Test
++ *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
++ *
++ * To build
++ *	gcc rtctest-2038.c -o rtctest-2038
++ *
++ *   This program is free software: you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation, either version 2 of the License, or
++ *   (at your option) any later version.
++ *
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ */
 +
-+		ds1307->nvram = nvmem_register(&ds1307->nvram_cfg);
-+		if (IS_ERR(ds1307->nvram)) {
-+			dev_err(ds1307->dev, "unable to register nvmem\n");
-+			ds1307->nvram = NULL;
- 		} else {
--
--			ds1307->nvram->attr.name = "nvram";
--			ds1307->nvram->attr.mode = S_IRUGO | S_IWUSR;
--
--			sysfs_bin_attr_init(ds1307->nvram);
--
--			ds1307->nvram->read = ds1307_nvram_read;
--			ds1307->nvram->write = ds1307_nvram_write;
--			ds1307->nvram->size = chip->nvram_size;
--			ds1307->nvram_offset = chip->nvram_offset;
--
--			err = sysfs_create_bin_file(&ds1307->dev->kobj,
--						    ds1307->nvram);
--			if (err) {
--				dev_err(ds1307->dev,
--					"unable to create sysfs file: %s\n",
--					ds1307->nvram->attr.name);
--			} else {
--				set_bit(HAS_NVRAM, &ds1307->flags);
--				dev_info(ds1307->dev, "%zu bytes nvram\n",
--					 ds1307->nvram->size);
--			}
-+			dev_info(ds1307->dev, "%d bytes nvram\n",
-+				 chip->nvram_size);
- 		}
- 	}
-+#endif
- 
- 	ds1307_hwmon_register(ds1307);
- 	ds1307_clks_register(ds1307);
-@@ -1522,8 +1497,10 @@ static int ds1307_remove(struct i2c_client *client)
- {
- 	struct ds1307 *ds1307 = i2c_get_clientdata(client);
- 
--	if (test_and_clear_bit(HAS_NVRAM, &ds1307->flags))
--		sysfs_remove_bin_file(&ds1307->dev->kobj, ds1307->nvram);
-+#if IS_REACHABLE(CONFIG_NVMEM)
-+	if (ds1307->nvram)
-+		nvmem_unregister(ds1307->nvram);
-+#endif
- 
- 	return 0;
- }
++#include <stdio.h>
++#include <linux/rtc.h>
++#include <sys/ioctl.h>
++#include <sys/time.h>
++#include <sys/types.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <errno.h>
++
++static const char default_rtc[] = "/dev/rtc0";
++
++int main(int argc, char **argv)
++{
++	int fd, retval;
++	struct rtc_time new, current;
++	const char *rtc = default_rtc;
++
++	switch (argc) {
++	case 2:
++		rtc = argv[1];
++		/* FALLTHROUGH */
++	case 1:
++		break;
++	default:
++		fprintf(stderr, "usage: rtctest-2038 [rtcdev]\n");
++		return 1;
++	}
++
++	fprintf(stderr, "\nTest if RTC is robust for date after y2038/2106\n\n");
++
++	fd = open(rtc, O_RDONLY);
++	if (fd == -1) {
++		perror(rtc);
++		exit(errno);
++	}
++
++	new.tm_year = 300; /* 2200 - 1900 */
++	new.tm_mon = 0;
++	new.tm_mday = 1;
++	new.tm_hour = 0;
++	new.tm_min = 0;
++	new.tm_sec = 0;
++
++	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
++		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
++		new.tm_hour, new.tm_min, new.tm_sec);
++
++	/* Write the new date in RTC */
++	retval = ioctl(fd, RTC_SET_TIME, &new);
++	if (retval == -1) {
++		perror("RTC_SET_TIME ioctl");
++		close(fd);
++		exit(errno);
++	}
++
++	/* Read back */
++	retval = ioctl(fd, RTC_RD_TIME, &current);
++	if (retval == -1) {
++		perror("RTC_RD_TIME ioctl");
++		exit(errno);
++	}
++
++	fprintf(stderr, "RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
++		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
++		current.tm_hour, current.tm_min, current.tm_sec);
++
++	if (new.tm_year != current.tm_year ||
++	    new.tm_mon != current.tm_mon ||
++	    new.tm_mday != current.tm_mday ||
++	    new.tm_hour != current.tm_hour ||
++	    new.tm_min != current.tm_min ||
++	    new.tm_sec != current.tm_sec) {
++		fprintf(stderr, "\n\nSet Time test failed\n");
++		close(fd);
++		return 1;
++	}
++
++	new.tm_sec += 5;
++
++	fprintf(stderr, "\nTest will set RTC alarm to %d-%d-%d, %02d:%02d:%02d.\n",
++		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
++		new.tm_hour, new.tm_min, new.tm_sec);
++
++	/* Write the new alarm in RTC */
++	retval = ioctl(fd, RTC_ALM_SET, &new);
++	if (retval == -1) {
++		perror("RTC_ALM_SET ioctl");
++		close(fd);
++		exit(errno);
++	}
++
++	/* Read back */
++	retval = ioctl(fd, RTC_ALM_READ, &current);
++	if (retval == -1) {
++		perror("RTC_ALM_READ ioctl");
++		exit(errno);
++	}
++
++	fprintf(stderr, "RTC alarm is %d-%d-%d, %02d:%02d:%02d.\n",
++		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
++		current.tm_hour, current.tm_min, current.tm_sec);
++
++	if (new.tm_year != current.tm_year ||
++	    new.tm_mon != current.tm_mon ||
++	    new.tm_mday != current.tm_mday ||
++	    new.tm_hour != current.tm_hour ||
++	    new.tm_min != current.tm_min ||
++	    new.tm_sec != current.tm_sec) {
++		fprintf(stderr, "\n\nSet alarm test failed\n");
++		close(fd);
++		return 1;
++	}
++
++	fprintf(stderr, "\nTest complete\n");
++	close(fd);
++	return 0;
++}
 -- 
-2.13.0
+1.9.1
