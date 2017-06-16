@@ -1,26 +1,25 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRB5OZUPFAKGQEOJBYBLQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABB3PNR7FAKGQEF5FH7LQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
-        by gmr-mx.google.com with ESMTPS id w193si3483598wmf.3.2017.06.20.02.37.55
+Received: from resqmta-po-12v.sys.comcast.net (resqmta-po-12v.sys.comcast.net. [2001:558:fe16:19:96:114:154:171])
+        by gmr-mx.google.com with ESMTPS id z4si192697ita.5.2017.06.16.08.19.09
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:55 -0700 (PDT)
-Received: by mail-wm0-x22f.google.com with SMTP id d73so14472917wma.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:55 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 24/51] rtc: ds2404: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:32 +0200
-Message-Id: <1497951359-13334-25-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+        Fri, 16 Jun 2017 08:19:09 -0700 (PDT)
 Reply-To: rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 0/3] rtc: make st-lpc robust against
+ y2038/2106 bug
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>, john.stultz@linaro.org,
+ tglx@linutronix.de, sboyd@codeaurora.org, linux-kernel@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+ a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+ linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Cc: linaro-kernel@lists.linaro.org, Shuah Khan <shuah@kernel.org>
+References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+From: Shuah Khan <shuah@kernel.org>
+Message-ID: <fe91e845-7218-af8a-16ec-f4c0692e609f@kernel.org>
+Date: Fri, 16 Jun 2017 09:19:06 -0600
+MIME-Version: 1.0
+In-Reply-To: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,56 +29,40 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 06/16/2017 08:03 AM, Benjamin Gaignard wrote:
+> On 32bits platforms "struct timeval" or "time_t" are using u32 to code the
+> date, this cause tools like "date" or "hwclock" failed even before setting
+> the RTC device if the date is superior to year 2038 (or 2106).
+> 
+> To avoid this problem I add two RTC tests files which directly use RTC ioctl
+> to set and read RTC time and alarm values.
+> rtctest_setdate allow to set any date/time given in the command line.
+> rtctest-2038 perform a basic test by writing 1-1-2200 in RTC time and alarm
+> and checking that the read back values are correct.
+> 
+> Finally that had allowed me to test and fix rtc-st-lpc driver.
+> 
+> Benjamin Gaignard (3):
+>   tools: timer: add rtctest_setdate
+>   tools: timer: add test to check y2038/2106 bug
+>   rtc: st-lpc: make it robust against y2038/2106 bug
+> 
+>  drivers/rtc/rtc-st-lpc.c                         |  19 ++--
+>  tools/testing/selftests/timers/Makefile          |   4 +-
+>  tools/testing/selftests/timers/rtctest-2038.c    | 135 +++++++++++++++++++++++
+>  tools/testing/selftests/timers/rtctest_setdate.c |  86 +++++++++++++++
+>  4 files changed, 232 insertions(+), 12 deletions(-)
+>  create mode 100644 tools/testing/selftests/timers/rtctest-2038.c
+>  create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
+> 
 
-For the same reasons use set_mmss64 callback instead of set_mmss
+Hi John/Thomas,
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-ds2404.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Please review them and let me know. Looks to me these will make good
+additions to 4.13-rc1 kselftest content.
 
-diff --git a/drivers/rtc/rtc-ds2404.c b/drivers/rtc/rtc-ds2404.c
-index 9a1582e..b7d04a7 100644
---- a/drivers/rtc/rtc-ds2404.c
-+++ b/drivers/rtc/rtc-ds2404.c
-@@ -201,16 +201,16 @@ static void ds2404_enable_osc(struct device *dev)
- 
- static int ds2404_read_time(struct device *dev, struct rtc_time *dt)
- {
--	unsigned long time = 0;
-+	unsigned long long time = 0;
- 
- 	ds2404_read_memory(dev, 0x203, 4, (u8 *)&time);
- 	time = le32_to_cpu(time);
- 
--	rtc_time_to_tm(time, dt);
-+	rtc_time64_to_tm(time, dt);
- 	return rtc_valid_tm(dt);
- }
- 
--static int ds2404_set_mmss(struct device *dev, unsigned long secs)
-+static int ds2404_set_mmss64(struct device *dev, time64_t secs)
- {
- 	u32 time = cpu_to_le32(secs);
- 	ds2404_write_memory(dev, 0x203, 4, (u8 *)&time);
-@@ -219,7 +219,7 @@ static int ds2404_set_mmss(struct device *dev, unsigned long secs)
- 
- static const struct rtc_class_ops ds2404_rtc_ops = {
- 	.read_time	= ds2404_read_time,
--	.set_mmss	= ds2404_set_mmss,
-+	.set_mmss64	= ds2404_set_mmss64,
- };
- 
- static int rtc_probe(struct platform_device *pdev)
--- 
-1.9.1
+thanks,
+-- Shuah
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
