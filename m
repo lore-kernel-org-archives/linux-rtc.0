@@ -1,148 +1,220 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBIG2UPFAKGQEUCNOVCQ@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Date: Fri, 16 Jun 2017 17:52:11 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+        a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org,
+        rtc-linux@googlegroups.com, linaro-kernel@lists.linaro.org
+Subject: Re: [PATCH 2/3] tools: timer: add test to check y2038/2106 bug
+Message-ID: <20170616155211.q6lajjv5lm6j6v6z@piout.net>
+References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+ <1497621833-9942-3-git-send-email-benjamin.gaignard@linaro.org>
 MIME-Version: 1.0
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.38.40
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:40 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:40 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	patches@opensource.wolfsonmicro.com
-Subject: [rtc-linux] [PATCH 49/51] rtc: wm831x: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:57 +0200
-Message-Id: <1497951359-13334-50-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1497621833-9942-3-git-send-email-benjamin.gaignard@linaro.org>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 16/06/2017 at 16:03:52 +0200, Benjamin Gaignard wrote:
+> The goal of this test is to check if a RTC device correctly support
+> dates after years 2038 or 2106.
+> It set a date (1-1-2200) on RTC and read it back to be sure that the
+> driver is working well.
+> The same thing is done on alarm.
+> 
+> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+> ---
+>  tools/testing/selftests/timers/Makefile       |   4 +-
+>  tools/testing/selftests/timers/rtctest-2038.c | 135 ++++++++++++++++++++++++++
+>  2 files changed, 138 insertions(+), 1 deletion(-)
+>  create mode 100644 tools/testing/selftests/timers/rtctest-2038.c
+> 
+> diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+> index 54481f1..7791f79 100644
+> --- a/tools/testing/selftests/timers/Makefile
+> +++ b/tools/testing/selftests/timers/Makefile
+> @@ -9,7 +9,8 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
+>  
+>  TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+>  		      skew_consistency clocksource-switch leap-a-day \
+> -		      leapcrash set-tai set-2038 set-tz rtctest_setdate
+> +		      leapcrash set-tai set-2038 set-tz rtctest_setdate \
+> +		      rtctest-2038
+>  
+>  
+>  include ../lib.mk
+> @@ -29,4 +30,5 @@ run_destructive_tests: run_tests
+>  	./set-tz
+>  	./set-tai
+>  	./set-2038
+> +	./rtctest-2038
+>  
+> diff --git a/tools/testing/selftests/timers/rtctest-2038.c b/tools/testing/selftests/timers/rtctest-2038.c
+> new file mode 100644
+> index 0000000..213b7ee
+> --- /dev/null
+> +++ b/tools/testing/selftests/timers/rtctest-2038.c
+> @@ -0,0 +1,135 @@
+> +/* Real Time Clock Driver Test
+> + *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
+> + *
+> + * To build
+> + *	gcc rtctest-2038.c -o rtctest-2038
+> + *
+> + *   This program is free software: you can redistribute it and/or modify
+> + *   it under the terms of the GNU General Public License as published by
+> + *   the Free Software Foundation, either version 2 of the License, or
+> + *   (at your option) any later version.
+> + *
+> + *   This program is distributed in the hope that it will be useful,
+> + *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *   GNU General Public License for more details.
+> + */
+> +
+> +#include <stdio.h>
+> +#include <linux/rtc.h>
+> +#include <sys/ioctl.h>
+> +#include <sys/time.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <unistd.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +
+> +static const char default_rtc[] = "/dev/rtc0";
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	int fd, retval;
+> +	struct rtc_time new, current;
+> +	const char *rtc = default_rtc;
+> +
+> +	switch (argc) {
+> +	case 2:
+> +		rtc = argv[1];
+> +		/* FALLTHROUGH */
+> +	case 1:
+> +		break;
+> +	default:
+> +		fprintf(stderr, "usage: rtctest-2038 [rtcdev]\n");
+> +		return 1;
+> +	}
+> +
+> +	fprintf(stderr, "\nTest if RTC is robust for date after y2038/2106\n\n");
+> +
+> +	fd = open(rtc, O_RDONLY);
+> +	if (fd == -1) {
+> +		perror(rtc);
+> +		exit(errno);
+> +	}
+> +
+> +	new.tm_year = 300; /* 2200 - 1900 */
 
-For the same reasons use set_mmss64 callback instead of set_mmss
+It would be nice to have tests for 1900, 1901, 1969, 1970, 2037,
+2038, 2099, 2100, 2105, 2106, 2261 and 2262.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
-CC: patches@opensource.wolfsonmicro.com
----
- drivers/rtc/rtc-wm831x.c | 28 ++++++++++------------------
- 1 file changed, 10 insertions(+), 18 deletions(-)
+Those are the various cutoff dates that exist and RTC supporting up to
+2099 are certainly more common that RTC handling dates after 2200 else,
+most RTC will fail the test.
 
-diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
-index 75aea4c..e42b07c 100644
---- a/drivers/rtc/rtc-wm831x.c
-+++ b/drivers/rtc/rtc-wm831x.c
-@@ -153,9 +153,9 @@ static int wm831x_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 			continue;
- 
- 		if (memcmp(time1, time2, sizeof(time1)) == 0) {
--			u32 time = (time1[0] << 16) | time1[1];
-+			u64 time = (time1[0] << 16) | time1[1];
- 
--			rtc_time_to_tm(time, tm);
-+			rtc_time64_to_tm(time, tm);
- 			return rtc_valid_tm(tm);
- 		}
- 
-@@ -169,12 +169,12 @@ static int wm831x_rtc_readtime(struct device *dev, struct rtc_time *tm)
- /*
-  * Set current time and date in RTC
-  */
--static int wm831x_rtc_set_mmss(struct device *dev, unsigned long time)
-+static int wm831x_rtc_set_mmss64(struct device *dev, time64_t time)
- {
- 	struct wm831x_rtc *wm831x_rtc = dev_get_drvdata(dev);
- 	struct wm831x *wm831x = wm831x_rtc->wm831x;
- 	struct rtc_time new_tm;
--	unsigned long new_time;
-+	unsigned long long new_time;
- 	int ret;
- 	int count = 0;
- 
-@@ -215,11 +215,7 @@ static int wm831x_rtc_set_mmss(struct device *dev, unsigned long time)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = rtc_tm_to_time(&new_tm, &new_time);
--	if (ret < 0) {
--		dev_err(dev, "Failed to convert time: %d\n", ret);
--		return ret;
--	}
-+	new_time = rtc_tm_to_time64(&new_tm);
- 
- 	/* Allow a second of change in case of tick */
- 	if (new_time - time > 1) {
-@@ -238,7 +234,7 @@ static int wm831x_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct wm831x_rtc *wm831x_rtc = dev_get_drvdata(dev);
- 	int ret;
- 	u16 data[2];
--	u32 time;
-+	u64 time;
- 
- 	ret = wm831x_bulk_read(wm831x_rtc->wm831x, WM831X_RTC_ALARM_1,
- 			       2, data);
-@@ -249,7 +245,7 @@ static int wm831x_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	time = (data[0] << 16) | data[1];
- 
--	rtc_time_to_tm(time, &alrm->time);
-+	rtc_time64_to_tm(time, &alrm->time);
- 
- 	ret = wm831x_reg_read(wm831x_rtc->wm831x, WM831X_RTC_CONTROL);
- 	if (ret < 0) {
-@@ -286,13 +282,9 @@ static int wm831x_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct wm831x_rtc *wm831x_rtc = dev_get_drvdata(dev);
- 	struct wm831x *wm831x = wm831x_rtc->wm831x;
- 	int ret;
--	unsigned long time;
-+	unsigned long long time;
- 
--	ret = rtc_tm_to_time(&alrm->time, &time);
--	if (ret < 0) {
--		dev_err(dev, "Failed to convert time: %d\n", ret);
--		return ret;
--	}
-+	time = rtc_tm_to_time64(&alrm->time);
- 
- 	ret = wm831x_rtc_stop_alarm(wm831x_rtc);
- 	if (ret < 0) {
-@@ -346,7 +338,7 @@ static irqreturn_t wm831x_alm_irq(int irq, void *data)
- 
- static const struct rtc_class_ops wm831x_rtc_ops = {
- 	.read_time = wm831x_rtc_readtime,
--	.set_mmss = wm831x_rtc_set_mmss,
-+	.set_mmss64 = wm831x_rtc_set_mmss64,
- 	.read_alarm = wm831x_rtc_readalarm,
- 	.set_alarm = wm831x_rtc_setalarm,
- 	.alarm_irq_enable = wm831x_rtc_alarm_irq_enable,
+> +	new.tm_mon = 0;
+> +	new.tm_mday = 1;
+> +	new.tm_hour = 0;
+> +	new.tm_min = 0;
+> +	new.tm_sec = 0;
+> +
+> +	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
+> +		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
+> +		new.tm_hour, new.tm_min, new.tm_sec);
+> +
+> +	/* Write the new date in RTC */
+> +	retval = ioctl(fd, RTC_SET_TIME, &new);
+> +	if (retval == -1) {
+> +		perror("RTC_SET_TIME ioctl");
+> +		close(fd);
+> +		exit(errno);
+> +	}
+> +
+> +	/* Read back */
+> +	retval = ioctl(fd, RTC_RD_TIME, &current);
+> +	if (retval == -1) {
+> +		perror("RTC_RD_TIME ioctl");
+> +		exit(errno);
+> +	}
+> +
+> +	fprintf(stderr, "RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
+> +		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
+> +		current.tm_hour, current.tm_min, current.tm_sec);
+> +
+> +	if (new.tm_year != current.tm_year ||
+> +	    new.tm_mon != current.tm_mon ||
+> +	    new.tm_mday != current.tm_mday ||
+> +	    new.tm_hour != current.tm_hour ||
+> +	    new.tm_min != current.tm_min ||
+> +	    new.tm_sec != current.tm_sec) {
+This may fail because nothing guarantees that the RTC will reset its
+sub seconds counter to 0 when setting the time so new.tm_sec could be
+current.tm_sec + 1.
+
+Maybe you could factorize the comparison in a function.
+
+Finally, I won't insist on that but it could be interesting to integrate
+it in rtctest.c, hidden behind a option warning that it is "destructive"
+(i.e. the current time and date will be lost).
+
+> +		fprintf(stderr, "\n\nSet Time test failed\n");
+> +		close(fd);
+> +		return 1;
+> +	}
+> +
+> +	new.tm_sec += 5;
+> +
+> +	fprintf(stderr, "\nTest will set RTC alarm to %d-%d-%d, %02d:%02d:%02d.\n",
+> +		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
+> +		new.tm_hour, new.tm_min, new.tm_sec);
+> +
+> +	/* Write the new alarm in RTC */
+> +	retval = ioctl(fd, RTC_ALM_SET, &new);
+> +	if (retval == -1) {
+> +		perror("RTC_ALM_SET ioctl");
+> +		close(fd);
+> +		exit(errno);
+> +	}
+> +
+> +	/* Read back */
+> +	retval = ioctl(fd, RTC_ALM_READ, &current);
+> +	if (retval == -1) {
+> +		perror("RTC_ALM_READ ioctl");
+> +		exit(errno);
+> +	}
+> +
+> +	fprintf(stderr, "RTC alarm is %d-%d-%d, %02d:%02d:%02d.\n",
+> +		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
+> +		current.tm_hour, current.tm_min, current.tm_sec);
+> +
+> +	if (new.tm_year != current.tm_year ||
+> +	    new.tm_mon != current.tm_mon ||
+> +	    new.tm_mday != current.tm_mday ||
+> +	    new.tm_hour != current.tm_hour ||
+> +	    new.tm_min != current.tm_min ||
+> +	    new.tm_sec != current.tm_sec) {
+> +		fprintf(stderr, "\n\nSet alarm test failed\n");
+> +		close(fd);
+> +		return 1;
+> +	}
+> +
+> +	fprintf(stderr, "\nTest complete\n");
+> +	close(fd);
+> +	return 0;
+> +}
+> -- 
+> 1.9.1
+> 
+
 -- 
-1.9.1
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
