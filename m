@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBD76TE7NVICBB7PS4TEQKGQEX4SS2GY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBD7VR7FAKGQEWP3YKCY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id s76si719879wma.1.2017.06.16.08.34.38
+        for <rtc-linux@googlegroups.com>;
+        Fri, 16 Jun 2017 08:34:38 -0700 (PDT)
+Date: Fri, 16 Jun 2017 17:34:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+	shuah@kernel.org, linux-kernel@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+	a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org,
+	rtc-linux@googlegroups.com, linaro-kernel@lists.linaro.org
+Subject: [rtc-linux] Re: [PATCH 1/3] tools: timer: add rtctest_setdate
+Message-ID: <20170616153438.tduxc4vedzjelkzz@piout.net>
+References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+ <1497621833-9942-2-git-send-email-benjamin.gaignard@linaro.org>
 MIME-Version: 1.0
-Received: from mail-pf0-x241.google.com (mail-pf0-x241.google.com. [2607:f8b0:400e:c00::241])
-        by gmr-mx.google.com with ESMTPS id f74si584735pff.11.2017.06.08.04.48.12
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Jun 2017 04:48:12 -0700 (PDT)
-Received: by mail-pf0-x241.google.com with SMTP id u1so4846893pfg.1
-        for <rtc-linux@googlegroups.com>; Thu, 08 Jun 2017 04:48:12 -0700 (PDT)
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
-Cc: rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH] rtc: omap: Handle return value of clk_prepare_enable.
-Date: Thu,  8 Jun 2017 17:17:49 +0530
-Message-Id: <7bfcac1de9426c3e512a61922bca4239f8b520b5.1496922334.git.arvind.yadav.cs@gmail.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1497621833-9942-2-git-send-email-benjamin.gaignard@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -26,63 +28,136 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-- clk_prepare_enable() can fail here and we must check its return value.
-- Add missing clk_disable_unprepare(), if omap_rtc_probe is not successful.
+Hi,
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/rtc/rtc-omap.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+On 16/06/2017 at 16:03:51 +0200, Benjamin Gaignard wrote:
+> This tool allow to set directly the time and date to a RTC device.
+> 
+> Unlike other tools isn't doens't use "strut timeval" or "time_t"
+A small typo here-----^
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 13f7cd1..83b876d 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -705,13 +705,19 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	else
- 		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
- 
--	if (!IS_ERR(rtc->clk))
--		clk_prepare_enable(rtc->clk);
-+	if (IS_ERR(rtc->clk))
-+		return PTR_ERR(rtc->clk);
-+
-+	ret = clk_prepare_enable(rtc->clk);
-+	if (ret)
-+		return ret;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(rtc->base))
--		return PTR_ERR(rtc->base);
-+	if (IS_ERR(rtc->base)) {
-+		ret = PTR_ERR(rtc->base);
-+		goto err_clk;
-+	}
- 
- 	platform_set_drvdata(pdev, rtc);
- 
-@@ -830,7 +836,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	rtc->pctldev = pinctrl_register(&rtc_pinctrl_desc, &pdev->dev, rtc);
- 	if (IS_ERR(rtc->pctldev)) {
- 		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
--		return PTR_ERR(rtc->pctldev);
-+		ret = PTR_ERR(rtc->pctldev);
-+		goto err;
- 	}
- 
- 	return 0;
-@@ -841,6 +848,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-+err_clk:
-+	clk_disable_unprepare(rtc->clk);
- 	return ret;
- }
- 
+> so it is safe for 32bits platforms when testing for y2038/2106 bug.
+> 
+> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+> ---
+>  tools/testing/selftests/timers/Makefile          |  2 +-
+>  tools/testing/selftests/timers/rtctest_setdate.c | 86 ++++++++++++++++++++++++
+>  2 files changed, 87 insertions(+), 1 deletion(-)
+>  create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
+> 
+> diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+> index 5fa1d7e9..54481f1 100644
+> --- a/tools/testing/selftests/timers/Makefile
+> +++ b/tools/testing/selftests/timers/Makefile
+> @@ -9,7 +9,7 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
+>  
+>  TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+>  		      skew_consistency clocksource-switch leap-a-day \
+> -		      leapcrash set-tai set-2038 set-tz
+> +		      leapcrash set-tai set-2038 set-tz rtctest_setdate
+>  
+>  
+>  include ../lib.mk
+> diff --git a/tools/testing/selftests/timers/rtctest_setdate.c b/tools/testing/selftests/timers/rtctest_setdate.c
+> new file mode 100644
+> index 0000000..2cb7848
+> --- /dev/null
+> +++ b/tools/testing/selftests/timers/rtctest_setdate.c
+> @@ -0,0 +1,86 @@
+> +/* Real Time Clock Driver Test
+> + *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
+> + *
+> + * To build
+> + *	gcc rtctest_setdate.c -o rtctest_setdate
+> + *
+> + *   This program is free software: you can redistribute it and/or modify
+> + *   it under the terms of the GNU General Public License as published by
+> + *   the Free Software Foundation, either version 2 of the License, or
+> + *   (at your option) any later version.
+> + *
+> + *   This program is distributed in the hope that it will be useful,
+> + *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *   GNU General Public License for more details.
+> + */
+> +
+> +#include <stdio.h>
+> +#include <linux/rtc.h>
+> +#include <sys/ioctl.h>
+> +#include <sys/time.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <unistd.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +
+> +static const char default_time[] = "00:00:00";
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	int fd, retval;
+> +	struct rtc_time new, current;
+> +	const char *rtc, *date;
+> +	const char *time = default_time;
+> +
+> +	switch (argc) {
+> +	case 4:
+> +		time = argv[3];
+> +		/* FALLTHROUGH */
+> +	case 3:
+> +		date = argv[2];
+> +		rtc = argv[1];
+> +		break;
+> +	default:
+> +		fprintf(stderr, "usage: rtctest_setdate <rtcdev> <DD-MM-YYYY> [HH:MM:SS]\n");
+> +		return 1;
+> +	}
+> +
+> +	fd = open(rtc, O_RDONLY);
+> +	if (fd == -1) {
+> +		perror(rtc);
+> +		exit(errno);
+> +	}
+> +
+> +	sscanf(date, "%d-%d-%d", &new.tm_mday, &new.tm_mon, &new.tm_year);
+> +	new.tm_mon -= 1;
+> +	new.tm_year -= 1900;
+> +	sscanf(time, "%d:%d:%d", &new.tm_hour, &new.tm_min, &new.tm_sec);
+> +
+> +	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
+> +		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
+> +		new.tm_hour, new.tm_min, new.tm_sec);
+> +
+> +	/* Write the new date in RTC */
+> +	retval = ioctl(fd, RTC_SET_TIME, &new);
+> +	if (retval == -1) {
+> +		perror("RTC_SET_TIME ioctl");
+> +		close(fd);
+> +		exit(errno);
+> +	}
+> +
+> +	/* Read back */
+> +	retval = ioctl(fd, RTC_RD_TIME, &current);
+> +	if (retval == -1) {
+> +		perror("RTC_RD_TIME ioctl");
+> +		exit(errno);
+> +	}
+> +
+> +	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
+> +		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
+> +		current.tm_hour, current.tm_min, current.tm_sec);
+> +
+> +	close(fd);
+> +	return 0;
+> +}
+> -- 
+> 1.9.1
+> 
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
