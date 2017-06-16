@@ -1,58 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:64630 "EHLO mga05.intel.com"
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752056AbdFHNuC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:50:02 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1750903AbdFPT2N (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 16 Jun 2017 15:28:13 -0400
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 12/25] rtc: pcf50633: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:47:58 +0300
-Message-Id: <20170608134811.60786-13-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 1/6] rtc: s3c: Jump to central exit point on getting src clock error
+Date: Fri, 16 Jun 2017 21:28:02 +0200
+Message-Id: <20170616192807.10347-1-krzk@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+In other error paths in probe, centralized exit point was used so make
+this consistent.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/rtc/rtc-pcf50633.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-s3c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf50633.c b/drivers/rtc/rtc-pcf50633.c
-index 00c31c91b245..5833068d602a 100644
---- a/drivers/rtc/rtc-pcf50633.c
-+++ b/drivers/rtc/rtc-pcf50633.c
-@@ -131,9 +131,7 @@ static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index d44fb34df8fe..c5aa7a35d07f 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -510,8 +510,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 			else
+ 				dev_dbg(&pdev->dev,
+ 					"probe deferred due to missing rtc src clk\n");
+-			clk_disable_unprepare(info->rtc_clk);
+-			return ret;
++			goto err_src_clk;
+ 		}
+ 		clk_prepare_enable(info->rtc_src_clk);
+ 	}
+@@ -575,6 +574,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
  
- 	pcf2rtc_time(tm, &pcf_tm);
+ 	if (info->data->needs_src_clk)
+ 		clk_disable_unprepare(info->rtc_src_clk);
++err_src_clk:
+ 	clk_disable_unprepare(info->rtc_clk);
  
--	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
--		tm->tm_mday, tm->tm_mon, tm->tm_year,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC_TIME: %ptr\n", tm);
- 
- 	return rtc_valid_tm(tm);
- }
-@@ -146,9 +144,7 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc = dev_get_drvdata(dev);
- 
--	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
--		tm->tm_mday, tm->tm_mon, tm->tm_year,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC_TIME: %ptr\n", tm);
- 
- 	rtc2pcf_time(&pcf_tm, tm);
- 
+ 	return ret;
 -- 
-2.11.0
+2.9.3
