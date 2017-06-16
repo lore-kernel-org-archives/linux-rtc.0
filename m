@@ -1,72 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:13919 "EHLO mga02.intel.com"
+Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751624AbdFHNsW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:48:22 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1752452AbdFPT2Y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 16 Jun 2017 15:28:24 -0400
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 01/25] lib/vsprintf: Remove useless NULL checks
-Date: Thu,  8 Jun 2017 16:47:47 +0300
-Message-Id: <20170608134811.60786-2-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5/6] rtc: s3c: Handle clock prepare failures in probe
+Date: Fri, 16 Jun 2017 21:28:06 +0200
+Message-Id: <20170616192807.10347-5-krzk@kernel.org>
+In-Reply-To: <20170616192807.10347-1-krzk@kernel.org>
+References: <20170616192807.10347-1-krzk@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The pointer can't be NULL since it's first what has been done in the
-pointer().
+clk_prepare_enable() can fail so handle such case.
 
-Remove useless checks.
-
-Note when we print clock name or rate it is safe in case !CONFIG_HAVE_CLK.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- lib/vsprintf.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/rtc/rtc-s3c.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 9f16406288c0..031c2cc5c1c0 100644
---- a/lib/vsprintf.c
-+++ b/lib/vsprintf.c
-@@ -811,10 +811,6 @@ char *hex_string(char *buf, char *end, u8 *addr, struct printf_spec spec,
- 		/* nothing to print */
- 		return buf;
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index c666b95fb8d7..0cb2f27a30b4 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -498,7 +498,9 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 			dev_dbg(&pdev->dev, "probe deferred due to missing rtc clk\n");
+ 		return ret;
+ 	}
+-	clk_prepare_enable(info->rtc_clk);
++	ret = clk_prepare_enable(info->rtc_clk);
++	if (ret)
++		return ret;
  
--	if (ZERO_OR_NULL_PTR(addr))
--		/* NULL pointer */
--		return string(buf, end, NULL, spec);
--
- 	switch (fmt[1]) {
- 	case 'C':
- 		separator = ':';
-@@ -1253,10 +1249,6 @@ char *escaped_string(char *buf, char *end, u8 *addr, struct printf_spec spec,
- 	if (spec.field_width == 0)
- 		return buf;				/* nothing to print */
+ 	if (info->data->needs_src_clk) {
+ 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+@@ -512,7 +514,9 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 					"probe deferred due to missing rtc src clk\n");
+ 			goto err_src_clk;
+ 		}
+-		clk_prepare_enable(info->rtc_src_clk);
++		ret = clk_prepare_enable(info->rtc_src_clk);
++		if (ret)
++			goto err_src_clk;
+ 	}
  
--	if (ZERO_OR_NULL_PTR(addr))
--		return string(buf, end, NULL, spec);	/* NULL pointer */
--
--
- 	do {
- 		switch (fmt[count++]) {
- 		case 'a':
-@@ -1391,9 +1383,6 @@ static noinline_for_stack
- char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
- 	    const char *fmt)
- {
--	if (!IS_ENABLED(CONFIG_HAVE_CLK) || !clk)
--		return string(buf, end, NULL, spec);
--
- 	switch (fmt[1]) {
- 	case 'r':
- 		return number(buf, end, clk_get_rate(clk), spec);
+ 	/* check to see if everything is setup correctly */
 -- 
-2.11.0
+2.9.3
