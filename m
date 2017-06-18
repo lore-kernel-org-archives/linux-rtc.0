@@ -1,27 +1,24 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBE62UPFAKGQEWPRBM5Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDIOBYPK6QDRBUOQTPFAKGQE7LDATWA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.38.26
+Received: from mail-out.m-online.net (mail-out.m-online.net. [212.18.0.10])
+        by gmr-mx.google.com with ESMTPS id w193si2226155wmf.3.2017.06.18.13.53.36
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:26 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:26 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 41/51] rtc: stk17ta8: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:49 +0200
-Message-Id: <1497951359-13334-42-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Sun, 18 Jun 2017 13:53:36 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: Add support for Epson RX8130CE
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <20170504103346.10842-1-marex@denx.de>
+ <20170531014515.4a7yebud7qssyjok@piout.net>
+Cc: rtc-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
+ Felipe Balbi <balbi@ti.com>, Nishanth Menon <nm@ti.com>,
+ Tony Lindgren <tony@atomide.com>
+From: Marek Vasut <marex@denx.de>
+Message-ID: <b3fb49a6-a9f6-5887-cc2f-01e313b2fdac@denx.de>
+Date: Sun, 18 Jun 2017 22:52:46 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170531014515.4a7yebud7qssyjok@piout.net>
 Content-Type: text/plain; charset="UTF-8"
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,34 +27,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 05/31/2017 03:45 AM, Alexandre Belloni wrote:
+> Hi Marek,
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-stk17ta8.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi,
 
-diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
-index a456cb6..5a0dca9 100644
---- a/drivers/rtc/rtc-stk17ta8.c
-+++ b/drivers/rtc/rtc-stk17ta8.c
-@@ -131,7 +131,7 @@ static int stk17ta8_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	if (rtc_valid_tm(tm) < 0) {
- 		dev_err(dev, "retrieved date/time is not valid.\n");
--		rtc_time_to_tm(0, tm);
-+		rtc_time64_to_tm(0, tm);
- 	}
- 	return 0;
- }
+> On 04/05/2017 at 12:33:46 +0200, Marek Vasut wrote:
+>> Add support for yet another RTC chip, Epson RX8130CE. This time around,
+>> the chip has slightly permutated registers and also the register starts
+>> at 0x10 instead of 0x0 .
+>>
+> 
+> Do you mind rebasing on top of rtc-next or linux-next because this
+> driver now uses regmap for the register accesses.
+
+Sure ... I don't have the hardware anymore, so it'll be compile-tested
+only, but the conversion seems trivial enough.
+
 -- 
-1.9.1
+Best regards,
+Marek Vasut
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
