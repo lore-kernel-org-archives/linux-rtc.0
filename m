@@ -1,176 +1,248 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBROZUPFAKGQE6DDHM3Q@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x230.google.com (mail-wr0-x230.google.com. [2a00:1450:400c:c0c::230])
-        by gmr-mx.google.com with ESMTPS id 140si3846457wmr.2.2017.06.20.02.37.08
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:08 -0700 (PDT)
-Received: by mail-wr0-x230.google.com with SMTP id 77so88340372wrb.1
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:08 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 06/51] rtc: ab-b5ze-s3: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:14 +0200
-Message-Id: <1497951359-13334-7-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+From: Marek Vasut <marex@denx.de>
+To: rtc-linux@googlegroups.com
+Cc: Marek Vasut <marex@denx.de>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Arnd Bergmann <arnd@arndb.de>, Felipe Balbi <balbi@ti.com>,
+        Nishanth Menon <nm@ti.com>, Tony Lindgren <tony@atomide.com>
+Subject: [PATCH V2] rtc: ds1307: Add support for Epson RX8130CE
+Date: Sun, 18 Jun 2017 22:55:28 +0200
+Message-Id: <20170618205528.10088-1-marex@denx.de>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+Add support for yet another RTC chip, Epson RX8130CE. This time around,
+the chip has slightly permutated registers and also the register starts
+at 0x10 instead of 0x0 .
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
+So far, we only support the RTC and NVRAM parts of the chip, Alarm and
+Timer is not supported.
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Felipe Balbi <balbi@ti.com>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>
 ---
- drivers/rtc/rtc-ab-b5ze-s3.c | 45 +++++++++++++-------------------------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+V2: Convert to regmap
+---
+ drivers/rtc/rtc-ds1307.c | 175 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 175 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index a319bf1..ce37997 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -328,7 +328,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
- 	u8 regs[ABB5ZES3_TIMA_SEC_LEN + 1];
--	unsigned long rtc_secs;
-+	unsigned long long rtc_secs;
- 	unsigned int reg;
- 	u8 timer_secs;
- 	int ret;
-@@ -352,9 +352,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
- 		goto err;
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 16ace2fb0c0a..3cbb7636b405 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -44,6 +44,7 @@ enum ds_type {
+ 	m41t00,
+ 	mcp794xx,
+ 	rx_8025,
++	rx_8130,
+ 	last_ds_type /* always last */
+ 	/* rs5c372 too?  different address... */
+ };
+@@ -169,6 +170,12 @@ static struct chip_desc chips[last_ds_type] = {
+ 	[ds_3231] = {
+ 		.alarm		= 1,
+ 	},
++	[rx_8130] = {
++		.alarm		= 1,
++		/* this is battery backed SRAM */
++		.nvram_offset	= 0x20,
++		.nvram_size	= 4,	/* 32bit (4 word x 8 bit) */
++	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+@@ -192,6 +199,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "pt7c4338", ds_1307 },
+ 	{ "rx8025", rx_8025 },
+ 	{ "isl12057", ds_1337 },
++	{ "rx8130", rx_8130 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+@@ -587,6 +595,165 @@ static const struct rtc_class_ops ds13xx_rtc_ops = {
+ /*----------------------------------------------------------------------*/
  
- 	/* ... convert to seconds ... */
--	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (ret)
--		goto err;
-+	rtc_secs = rtc_tm_to_time64(&rtc_tm);
+ /*
++ * Alarm support for rx8130 devices.
++ */
++
++#define RX8130_REG_ALARM_MIN		0x07
++#define RX8130_REG_ALARM_HOUR		0x08
++#define RX8130_REG_ALARM_WEEK_OR_DAY	0x09
++#define RX8130_REG_EXTENSION		0x0c
++#define RX8130_REG_EXTENSION_WADA	(1 << 3)
++#define RX8130_REG_FLAG			0x0d
++#define RX8130_REG_FLAG_AF		(1 << 3)
++#define RX8130_REG_CONTROL0		0x0e
++#define RX8130_REG_CONTROL0_AIE		(1 << 3)
++
++static irqreturn_t rx8130_irq(int irq, void *dev_id)
++{
++	struct ds1307           *ds1307 = dev_id;
++	struct mutex            *lock = &ds1307->rtc->ops_lock;
++	u8 ctl[3];
++	int ret;
++
++	mutex_lock(lock);
++
++	/* Read control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++	if (ret < 0)
++		goto out;
++	if (!(ctl[1] & RX8130_REG_FLAG_AF))
++		goto out;
++	ctl[1] &= ~RX8130_REG_FLAG_AF;
++	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++	if (ret < 0)
++		goto out;
++
++	rtc_update_irq(ds1307->rtc, 1, RTC_AF | RTC_IRQF);
++
++out:
++	mutex_unlock(lock);
++
++	return IRQ_HANDLED;
++}
++
++static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	u8 ald[3], ctl[3];
++	int ret;
++
++	if (!test_bit(HAS_ALARM, &ds1307->flags))
++		return -EINVAL;
++
++	/* Read alarm registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_ALARM_MIN, ald, 3);
++	if (ret < 0)
++		return ret;
++
++	/* Read control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++	if (ret < 0)
++		return ret;
++
++	t->enabled = !!(ctl[2] & RX8130_REG_CONTROL0_AIE);
++	t->pending = !!(ctl[1] & RX8130_REG_FLAG_AF);
++
++	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
++	t->time.tm_sec = -1;
++	t->time.tm_min = bcd2bin(ald[0] & 0x7f);
++	t->time.tm_hour = bcd2bin(ald[1] & 0x7f);
++	t->time.tm_wday = -1;
++	t->time.tm_mday = bcd2bin(ald[2] & 0x7f);
++	t->time.tm_mon = -1;
++	t->time.tm_year = -1;
++	t->time.tm_yday = -1;
++	t->time.tm_isdst = -1;
++
++	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d enabled=%d\n",
++		__func__, t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
++		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon, t->enabled);
++
++	return 0;
++}
++
++static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	u8 ald[3], ctl[3];
++	int ret;
++
++	if (!test_bit(HAS_ALARM, &ds1307->flags))
++		return -EINVAL;
++
++	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d "
++		"enabled=%d pending=%d\n", __func__,
++		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
++		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon,
++		t->enabled, t->pending);
++
++	/* Read control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++	if (ret < 0)
++		return ret;
++
++	ctl[0] &= ~RX8130_REG_EXTENSION_WADA;
++	ctl[1] |= RX8130_REG_FLAG_AF;
++	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++	if (ret < 0)
++		return ret;
++
++	/* Hardware alarm precision is 1 minute! */
++	ald[0] = bin2bcd(t->time.tm_min);
++	ald[1] = bin2bcd(t->time.tm_hour);
++	ald[2] = bin2bcd(t->time.tm_mday);
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_ALARM_MIN, ald, 3);
++	if (ret < 0)
++		return ret;
++
++	if (!t->enabled)
++		return 0;
++
++	ctl[2] |= RX8130_REG_CONTROL0_AIE;
++
++	return regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
++}
++
++static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	int ret, reg;
++
++	if (!test_bit(HAS_ALARM, &ds1307->flags))
++		return -EINVAL;
++
++	ret = regmap_read(ds1307->regmap, RX8130_REG_CONTROL0, &reg);
++	if (ret < 0)
++		return ret;
++
++	if (enabled)
++		reg |= RX8130_REG_CONTROL0_AIE;
++	else
++		reg &= ~RX8130_REG_CONTROL0_AIE;
++
++	return regmap_write(ds1307->regmap, RX8130_REG_CONTROL0, reg);
++}
++
++static const struct rtc_class_ops rx8130_rtc_ops = {
++	.read_time	= ds1307_get_time,
++	.set_time	= ds1307_set_time,
++	.read_alarm	= rx8130_read_alarm,
++	.set_alarm	= rx8130_set_alarm,
++	.alarm_irq_enable = rx8130_alarm_irq_enable,
++};
++
++/*----------------------------------------------------------------------*/
++
++/*
+  * Alarm support for mcp794xx devices.
+  */
  
- 	/* ... add remaining timer A time ... */
- 	ret = sec_from_timer_a(&timer_secs, regs[1], regs[2]);
-@@ -362,7 +360,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
- 		goto err;
- 
- 	/* ... and convert back. */
--	rtc_time_to_tm(rtc_secs + timer_secs, alarm_tm);
-+	rtc_time64_to_tm(rtc_secs + timer_secs, alarm_tm);
- 
- 	ret = regmap_read(data->regmap, ABB5ZES3_REG_CTRL2, &reg);
- 	if (ret) {
-@@ -383,7 +381,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
- {
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
--	unsigned long rtc_secs, alarm_secs;
-+	unsigned long long rtc_secs, alarm_secs;
- 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
- 	unsigned int reg;
- 	int ret;
-@@ -414,13 +412,8 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
- 	alarm_tm->tm_year = rtc_tm.tm_year;
- 	alarm_tm->tm_mon = rtc_tm.tm_mon;
- 
--	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (ret)
--		goto err;
--
--	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
--	if (ret)
--		goto err;
-+	rtc_secs = rtc_tm_to_time64(&rtc_tm);
-+	alarm_secs = rtc_tm_to_time64(alarm_tm);
- 
- 	if (alarm_secs < rtc_secs) {
- 		if (alarm_tm->tm_mon == 11) {
-@@ -477,7 +470,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alarm_tm = &alarm->time;
--	unsigned long rtc_secs, alarm_secs;
-+	unsigned long long rtc_secs, alarm_secs;
- 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
- 	struct rtc_time rtc_tm;
- 	int ret, enable = 1;
-@@ -486,13 +479,8 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	if (ret)
- 		goto err;
- 
--	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (ret)
--		goto err;
--
--	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
--	if (ret)
--		goto err;
-+	rtc_secs = rtc_tm_to_time64(&rtc_tm);
-+	alarm_secs = rtc_tm_to_time64(alarm_tm);
- 
- 	/* If alarm time is before current time, disable the alarm */
- 	if (!alarm->enabled || alarm_secs <= rtc_secs) {
-@@ -511,9 +499,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 			rtc_tm.tm_mon += 1;
+@@ -1402,6 +1569,14 @@ static int ds1307_probe(struct i2c_client *client,
+ 				     DS1307_REG_HOUR << 4 | 0x08, hour);
  		}
- 
--		ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--		if (ret)
--			goto err;
-+		rtc_secs = rtc_tm_to_time64(&rtc_tm);
- 
- 		if (alarm_secs > rtc_secs) {
- 			dev_err(dev, "%s: alarm maximum is one month in the "
-@@ -597,7 +583,7 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alarm_tm = &alarm->time;
--	unsigned long rtc_secs, alarm_secs;
-+	unsigned long long rtc_secs, alarm_secs;
- 	struct rtc_time rtc_tm;
- 	int ret;
- 
-@@ -606,13 +592,8 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	if (ret)
- 		goto err;
- 
--	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
--	if (ret)
--		goto err;
--
--	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
--	if (ret)
--		goto err;
-+	rtc_secs = rtc_tm_to_time64(&rtc_tm);
-+	alarm_secs = rtc_tm_to_time64(alarm_tm);
- 
- 	/* Let's first disable both the alarm and the timer interrupts */
- 	ret = _abb5zes3_rtc_update_alarm(dev, false);
+ 		break;
++	case rx_8130:
++		ds1307->offset = 0x10; /* Seconds starts at 0x10 */
++		rtc_ops = &rx8130_rtc_ops;
++		if (chip->alarm && ds1307->irq > 0) {
++			irq_handler = rx8130_irq;
++			want_irq = true;
++		}
++		break;
+ 	case ds_1388:
+ 		ds1307->offset = 1; /* Seconds starts at 1 */
+ 		break;
 -- 
-1.9.1
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+2.11.0
