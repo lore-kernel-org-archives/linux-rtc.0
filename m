@@ -1,197 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47121 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751094AbdFVNoM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2017 09:44:12 -0400
-Subject: Re: rtc: ds3232: add temperature support
-To: Kirill Esipov <yesipov@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1498056583-16551-1-git-send-email-yesipov@gmail.com>
- <20170621222421.GA23791@roeck-us.net>
- <CAJcpCzGWiRRY2gZzNZVJOG2oLTsGjh9+DCn=vuY1A0szZf2Vjw@mail.gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8491fe94-16f2-e7a4-0cd9-385b5e0b600a@roeck-us.net>
-Date: Thu, 22 Jun 2017 06:44:09 -0700
-MIME-Version: 1.0
-In-Reply-To: <CAJcpCzGWiRRY2gZzNZVJOG2oLTsGjh9+DCn=vuY1A0szZf2Vjw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from mail.free-electrons.com ([62.4.15.54]:45837 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750733AbdFSOdO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Jun 2017 10:33:14 -0400
+Received: from localhost (80-110-36-81.static.upcbusiness.at [80.110.36.81])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id 8A60F212A3
+        for <linux-rtc@vger.kernel.org>; Mon, 19 Jun 2017 16:33:10 +0200 (CEST)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Cc: linaro-kernel@lists.linaro.org,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Subject: [PATCH v2 0/3] rtc: make st-lpc robust against y2038/2106 bug
+Date: Mon, 19 Jun 2017 11:36:19 +0200
+Message-Id: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170619093619.9Kuny7Gu3RCZQPyMj4hh_3rZC0ebO1b4RhQbfq9WsKM@z>
 
-On 06/22/2017 05:07 AM, Kirill Esipov wrote:
-> 
-> 
-> 2017-06-22 1:24 GMT+03:00 Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>>:
-> 
->     On Wed, Jun 21, 2017 at 05:49:43PM +0300, Kirill Esipov wrote:
->      > DS3232/DS3234 has the temperature registers with a resolution of
->      > 0.25 degree celsius. This enables to get the value through hwmon.
->      >
->      >       # cat /sys/class/hwmon/hwmon0/temp1_input
->      >       37250
->      >
->      > Signed-off-by: Kirill Esipov <yesipov@gmail.com <mailto:yesipov@gmail.com>>
->      > ---
->      >  drivers/rtc/Kconfig      |  9 ++++++
->      >  drivers/rtc/rtc-ds3232.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++
->      >  2 files changed, 93 insertions(+)
->      >
->      > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->      > index 8d3b95728326..b4a6a916d4df 100644
->      > --- a/drivers/rtc/Kconfig
->      > +++ b/drivers/rtc/Kconfig
->      > @@ -791,6 +791,15 @@ config RTC_DRV_DS3232
->      >         This driver can also be built as a module.  If so, the module
->      >         will be called rtc-ds3232.
->      >
->      > +config RTC_DRV_DS3232_HWMON
->      > +     bool "HWMON support for Dallas/Maxim DS3232/DS3234"
->      > +     depends on RTC_DRV_DS3232 && HWMON
->      > +     depends on !(RTC_DRV_DS3232=y && HWMON=m)
->      > +     default y
->      > +     help
->      > +       Say Y here if you want to expose temperature sensor data on
->      > +       rtc-ds3232
->      > +
->      >  config RTC_DRV_PCF2127
->      >       tristate "NXP PCF2127"
->      >       depends on RTC_I2C_AND_SPI
->      > diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
->      > index deff431a37c4..f94ff0685942 100644
->      > --- a/drivers/rtc/rtc-ds3232.c
->      > +++ b/drivers/rtc/rtc-ds3232.c
->      > @@ -22,6 +22,8 @@
->      >  #include <linux/bcd.h>
->      >  #include <linux/slab.h>
->      >  #include <linux/regmap.h>
->      > +#include <linux/hwmon.h>
->      > +#include <linux/hwmon-sysfs.h>
->      >
->      >  #define DS3232_REG_SECONDS      0x00
->      >  #define DS3232_REG_MINUTES      0x01
->      > @@ -275,6 +277,86 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
->      >       return ret;
->      >  }
->      >
->      > +/*----------------------------------------------------------------------*/
->      > +
->      > +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
->      > +
->      > +/*
->      > + * Temperature sensor support for ds3232/ds3234 devices.
->      > + */
->      > +
->      > +#define DS3232_REG_TEMPERATURE       0x11
->      > +
->      > +/*
->      > + * A user-initiated temperature conversion is not started by this function,
->      > + * so the temperature is updated once every 64 seconds.
->      > + */
->      > +static int ds3232_hwmon_read_temp(struct device *dev, s32 *mC)
->      > +{
->      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
->      > +     u8 temp_buf[2];
->      > +     s16 temp;
->      > +     int ret;
->      > +
->      > +     ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
->      > +                             sizeof(temp_buf));
->      > +
->      > +     if (ret < 0)
->      > +             return ret;
->      > +
->      > +     /*
->      > +      * Temperature is represented as a 10-bit code with a resolution of
->      > +      * 0.25 degree celsius and encoded in two's complement format.
->      > +      */
->      > +     temp = (temp_buf[0] << 8) | temp_buf[1];
->      > +     temp >>= 6;
->      > +     *mC = temp * 250;
->      > +
->      > +     return 0;
->      > +}
->      > +
->      > +static ssize_t ds3232_hwmon_show_temp(struct device *dev,
->      > +                             struct device_attribute *attr, char *buf)
->      > +{
->      > +     int ret;
->      > +     s32 temp;
->      > +
->      > +     ret = ds3232_hwmon_read_temp(dev, &temp);
->      > +     if (ret < 0)
->      > +             return ret;
->      > +
->      > +     return sprintf(buf, "%d\n", temp);
->      > +}
->      > +static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3232_hwmon_show_temp,
->      > +                     NULL, 0);
->      > +
->      > +static struct attribute *ds3232_hwmon_attrs[] = {
->      > +     &sensor_dev_attr_temp1_input.dev_attr.attr,
->      > +     NULL,
->      > +};
->      > +ATTRIBUTE_GROUPS(ds3232_hwmon);
->      > +
->      > +static void ds3232_hwmon_register(struct device *dev, const char *name)
->      > +{
->      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
->      > +     struct device *hwmon_dev;
->      > +
->      > +     hwmon_dev = devm_hwmon_device_register_with_groups(dev, name, ds3232,
->      > +                                                        ds3232_hwmon_groups);
-> 
->     Any reason for not using devm_hwmon_device_register_with_info() ?
-> 
-> 
-> 
-> Just to keep uniformity,  because other rtc drivers with hwmon (rtc-ds1307, rtc-rv3029c2) use
-> devm_hwmon_device_register_with_groups().
-> 
+On 32bits platforms "struct timeval" or "time_t" are using u32 to code the
+date, this cause tools like "date" or "hwclock" failed even before setting
+the RTC device if the date is superior to year 2038 (or 2106).
 
-Hmm. Odd reason. With this line of argument, a new API should never be used because
-"everyone else uses the old API". How about converting the other drivers to use
-new API instead ?
+To avoid this problem I add one RTC test file which directly use RTC ioctl
+to set and read RTC time and alarm values.
+rtctest_setdate allow to set any date/time given in the command line.
 
-The idea behind the new API was to simplify drivers and make them independent
-of the sysfs ABI. That doesn't mean that drivers _have_ to use that API, though,
-so feel free to stick with the above.
+On this version 2 I add check of problematics years in rtctest like suggest
+by Alexandre.
 
-Guenter
+Finally that had allowed me to test and fix rtc-st-lpc driver.
 
-> 
->     Guenter
-> 
->      > +     if (IS_ERR(hwmon_dev)) {
->      > +             dev_warn(dev, "unable to register hwmon device %ld\n",
->      > +                      PTR_ERR(hwmon_dev));
->      > +     }
->      > +}
->      > +
->      > +#else
->      > +
->      > +static void ds3232_hwmon_register(struct ds3232 *ds3232)
->      > +{
->      > +}
->      > +
->      > +#endif
->      > +
->      >  static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
->      >  {
->      >       struct ds3232 *ds3232 = dev_get_drvdata(dev);
->      > @@ -366,6 +448,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->      >       if (ds3232->irq > 0)
->      >               device_init_wakeup(dev, 1);
->      >
->      > +     ds3232_hwmon_register(dev, name);
->      > +
->      >       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
->      >                                               THIS_MODULE);
->      >       if (IS_ERR(ds3232->rtc))
-> 
-> 
-> 
-> 
-> -- 
-> Kirill Esipov
+Benjamin Gaignard (3):
+  tools: timer: add rtctest_setdate
+  tool: timer: rtctest add check for problematic dates
+  rtc: st-lpc: make it robust against y2038/2106 bug
+
+ drivers/rtc/rtc-st-lpc.c                         |  19 ++--
+ tools/testing/selftests/timers/Makefile          |   2 +-
+ tools/testing/selftests/timers/rtctest.c         | 121 ++++++++++++++++++++++-
+ tools/testing/selftests/timers/rtctest_setdate.c |  86 ++++++++++++++++
+ 4 files changed, 212 insertions(+), 16 deletions(-)
+ create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
+
+-- 
+1.9.1
