@@ -1,104 +1,144 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:26723 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752146AbdFHNtE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:49:04 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v1 05/25] ds1302: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:47:51 +0300
-Message-Id: <20170608134811.60786-6-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:45848 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750916AbdFSOdU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Jun 2017 10:33:20 -0400
+Received: from localhost (80-110-36-81.static.upcbusiness.at [80.110.36.81])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id A8F5F212A7
+        for <linux-rtc@vger.kernel.org>; Mon, 19 Jun 2017 16:33:16 +0200 (CEST)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Cc: linaro-kernel@lists.linaro.org,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Subject: [PATCH v2 1/3] tools: timer: add rtctest_setdate
+Date: Mon, 19 Jun 2017 11:36:20 +0200
+Message-Id: <1497864982-29284-2-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170619093620.8jvqjNBHffFkK9-euz4OH8DXBvBkKOqxM3G9XPET_3g@z>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+This tool allow to set directly the time and date to a RTC device.
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Unlike other tools isn't doens't use "struct timeval" or "time_t"
+so it is safe for 32bits platforms when testing for y2038/2106 bug.
+
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 ---
- drivers/char/ds1302.c | 38 ++++++++++----------------------------
- 1 file changed, 10 insertions(+), 28 deletions(-)
+ tools/testing/selftests/timers/Makefile          |  2 +-
+ tools/testing/selftests/timers/rtctest_setdate.c | 86 ++++++++++++++++++++++++
+ 2 files changed, 87 insertions(+), 1 deletion(-)
+ create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
 
-diff --git a/drivers/char/ds1302.c b/drivers/char/ds1302.c
-index c614a56e68cc..7db23a336636 100644
---- a/drivers/char/ds1302.c
-+++ b/drivers/char/ds1302.c
-@@ -4,7 +4,7 @@
- *!
- *! DESCRIPTION: Implements an interface for the DS1302 RTC
- *!
--*! Functions exported: ds1302_readreg, ds1302_writereg, ds1302_init, get_rtc_status
-+*! Functions exported: ds1302_readreg, ds1302_writereg, ds1302_init
- *!
- *! ---------------------------------------------------------------------------
- *!
-@@ -257,31 +257,6 @@ static long rtc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	}
- }
+diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+index 5fa1d7e9..54481f1 100644
+--- a/tools/testing/selftests/timers/Makefile
++++ b/tools/testing/selftests/timers/Makefile
+@@ -9,7 +9,7 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
  
--int
--get_rtc_status(char *buf)
--{
--	char *p;
--	struct rtc_time tm;
--
--	p = buf;
--
--	get_rtc_time(&tm);
--
--	/*
--	 * There is no way to tell if the luser has the RTC set for local
--	 * time or for Universal Standard Time (GMT). Probably local though.
--	 */
--
--	p += sprintf(p,
--		"rtc_time\t: %02d:%02d:%02d\n"
--		"rtc_date\t: %04d-%02d-%02d\n",
--		tm.tm_hour, tm.tm_min, tm.tm_sec,
--		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
--
--	return  p - buf;
--}
--
--
- /* The various file operations we support. */
+ TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+ 		      skew_consistency clocksource-switch leap-a-day \
+-		      leapcrash set-tai set-2038 set-tz
++		      leapcrash set-tai set-2038 set-tz rtctest_setdate
  
- static const struct file_operations rtc_fops = {
-@@ -298,6 +273,7 @@ static int __init
- ds1302_probe(void)
- {
- 	int retval, res, baur;
-+	struct rtc_time tm;
  
- 	baur=(boot_cpu_data.bus_clock/(2*1000*1000));
- 
-@@ -319,8 +295,14 @@ ds1302_probe(void)
- 		char buf[100];
- 		ds1302_wdisable();
- 		printk("%s: RTC found.\n", ds1302_name);
--		get_rtc_status(buf);
--		printk(buf);
-+		/*
-+		 * There is no way to tell if the luser has the RTC set
-+		 * for local time or for Universal Standard Time (GMT).
-+		 * Probably local though.
-+		 */
-+		get_rtc_time(&tm);
-+		printk("rtc_time\t: %ptt\n", &tm);
-+		printk("rtc_date\t: %ptd\n", &tm);
- 		retval = 1;
- 	} else {
- 		printk("%s: RTC not found.\n", ds1302_name);
+ include ../lib.mk
+diff --git a/tools/testing/selftests/timers/rtctest_setdate.c b/tools/testing/selftests/timers/rtctest_setdate.c
+new file mode 100644
+index 0000000..2cb7848
+--- /dev/null
++++ b/tools/testing/selftests/timers/rtctest_setdate.c
+@@ -0,0 +1,86 @@
++/* Real Time Clock Driver Test
++ *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
++ *
++ * To build
++ *	gcc rtctest_setdate.c -o rtctest_setdate
++ *
++ *   This program is free software: you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation, either version 2 of the License, or
++ *   (at your option) any later version.
++ *
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ */
++
++#include <stdio.h>
++#include <linux/rtc.h>
++#include <sys/ioctl.h>
++#include <sys/time.h>
++#include <sys/types.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <errno.h>
++
++static const char default_time[] = "00:00:00";
++
++int main(int argc, char **argv)
++{
++	int fd, retval;
++	struct rtc_time new, current;
++	const char *rtc, *date;
++	const char *time = default_time;
++
++	switch (argc) {
++	case 4:
++		time = argv[3];
++		/* FALLTHROUGH */
++	case 3:
++		date = argv[2];
++		rtc = argv[1];
++		break;
++	default:
++		fprintf(stderr, "usage: rtctest_setdate <rtcdev> <DD-MM-YYYY> [HH:MM:SS]\n");
++		return 1;
++	}
++
++	fd = open(rtc, O_RDONLY);
++	if (fd == -1) {
++		perror(rtc);
++		exit(errno);
++	}
++
++	sscanf(date, "%d-%d-%d", &new.tm_mday, &new.tm_mon, &new.tm_year);
++	new.tm_mon -= 1;
++	new.tm_year -= 1900;
++	sscanf(time, "%d:%d:%d", &new.tm_hour, &new.tm_min, &new.tm_sec);
++
++	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
++		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
++		new.tm_hour, new.tm_min, new.tm_sec);
++
++	/* Write the new date in RTC */
++	retval = ioctl(fd, RTC_SET_TIME, &new);
++	if (retval == -1) {
++		perror("RTC_SET_TIME ioctl");
++		close(fd);
++		exit(errno);
++	}
++
++	/* Read back */
++	retval = ioctl(fd, RTC_RD_TIME, &current);
++	if (retval == -1) {
++		perror("RTC_RD_TIME ioctl");
++		exit(errno);
++	}
++
++	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
++		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
++		current.tm_hour, current.tm_min, current.tm_sec);
++
++	close(fd);
++	return 0;
++}
 -- 
-2.11.0
+1.9.1
