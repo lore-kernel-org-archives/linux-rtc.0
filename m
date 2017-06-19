@@ -1,57 +1,204 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBPGQXDFAKGQE4ERMRQI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 68si1124821wmg.2.2017.06.24.01.52.11
-        for <rtc-linux@googlegroups.com>;
-        Sat, 24 Jun 2017 01:52:11 -0700 (PDT)
-Date: Sat, 24 Jun 2017 10:52:09 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jose Diaz de Grenu de Pedro <Jose.DiazdeGrenu@digi.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com, trivial@kernel.org
-Subject: [rtc-linux] Re: [PATCH] drivers: rtc-mxc: remove unused variable
-Message-ID: <20170624085209.74caxhzavwktvczr@piout.net>
-References: <1494517119-23622-1-git-send-email-Jose.DiazdeGrenu@digi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1494517119-23622-1-git-send-email-Jose.DiazdeGrenu@digi.com>
-Reply-To: rtc-linux@googlegroups.com
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
+Cc: linaro-kernel@lists.linaro.org,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Subject: [PATCH v2 2/3] tool: timer: rtctest add check for problematic dates
+Date: Mon, 19 Jun 2017 11:36:21 +0200
+Message-Id: <1497864982-29284-3-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 11/05/2017 at 17:38:39 +0200, Jose Diaz de Grenu de Pedro wrote:
-> From: "Diaz de Grenu, Jose" <Jose.DiazdeGrenu@digi.com>
->=20
-> This variable was never used. With GCC 6.2, we get the following warning:
->=20
-> drivers/rtc/rtc-mxc.c:44:18: warning: =E2=80=98PIE_BIT_DEF=E2=80=99 defin=
-ed but not used [-Wunused-const-variable=3D]
->  static const u32 PIE_BIT_DEF[MAX_PIE_NUM][2] =3D {
->=20
-> Signed-off-by: Diaz de Grenu, Jose <Jose.DiazdeGrenu@digi.com>
-> ---
->  drivers/rtc/rtc-mxc.c | 11 -----------
->  1 file changed, 11 deletions(-)
->=20
-Applied, thanks.
+Some dates could be problematic because they reach the limits of
+RTC hardware capabilities.
+This patch add various of them but since it will change RTC date
+it will be activated only when 'd' args is set.
 
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+---
+ tools/testing/selftests/timers/rtctest.c | 121 ++++++++++++++++++++++++++++++-
+ 1 file changed, 117 insertions(+), 4 deletions(-)
 
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index 4230d30..715a016 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -21,6 +21,9 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ 
++#ifndef ARRAY_SIZE
++# define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++#endif
+ 
+ /*
+  * This expects the new RTC class driver framework, working with
+@@ -29,23 +32,77 @@
+  */
+ static const char default_rtc[] = "/dev/rtc0";
+ 
++static struct rtc_time cutoff_dates[] = {
++	{
++		.tm_year = 70, /* 1970 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 137, /* 2037 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 138, /* 2038 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 199, /* 2099 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 200, /* 2100 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 205, /* 2105 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 206, /* 2106 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 361, /* 2261 -1900 */
++		.tm_mday = 1,
++	},
++	{
++		.tm_year = 362, /* 2262 -1900 */
++		.tm_mday = 1,
++	},
++};
++
++static int compare_dates(struct rtc_time *a, struct rtc_time *b)
++{
++	if (a->tm_year != b->tm_year ||
++	    a->tm_mon != b->tm_mon ||
++	    a->tm_mday != b->tm_mday ||
++	    a->tm_hour != b->tm_hour ||
++	    a->tm_min != b->tm_min ||
++	    ((b->tm_sec - a->tm_sec) > 1))
++		return 1;
++
++	return 0;
++}
+ 
+ int main(int argc, char **argv)
+ {
+-	int i, fd, retval, irqcount = 0;
++	int i, fd, retval, irqcount = 0, dangerous = 0;
+ 	unsigned long tmp, data;
+ 	struct rtc_time rtc_tm;
+ 	const char *rtc = default_rtc;
+ 	struct timeval start, end, diff;
+ 
+ 	switch (argc) {
++	case 3:
++		if (*argv[2] == 'd')
++			dangerous = 1;
+ 	case 2:
+ 		rtc = argv[1];
+ 		/* FALLTHROUGH */
+ 	case 1:
+ 		break;
+ 	default:
+-		fprintf(stderr, "usage:  rtctest [rtcdev]\n");
++		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
+ 		return 1;
+ 	}
+ 
+@@ -202,7 +259,7 @@ int main(int argc, char **argv)
+ 		/* not all RTCs support periodic IRQs */
+ 		if (errno == EINVAL) {
+ 			fprintf(stderr, "\nNo periodic IRQ support\n");
+-			goto done;
++			goto test_DATE;
+ 		}
+ 		perror("RTC_IRQP_READ ioctl");
+ 		exit(errno);
+@@ -221,7 +278,7 @@ int main(int argc, char **argv)
+ 			if (errno == EINVAL) {
+ 				fprintf(stderr,
+ 					"\n...Periodic IRQ rate is fixed\n");
+-				goto done;
++				goto test_DATE;
+ 			}
+ 			perror("RTC_IRQP_SET ioctl");
+ 			exit(errno);
+@@ -269,6 +326,62 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
++test_DATE:
++	if (!dangerous)
++		goto done;
++
++	fprintf(stderr, "\nTesting problematic dates\n");
++
++	for (i = 0; i < ARRAY_SIZE(cutoff_dates); i++) {
++		struct rtc_time current;
++
++		/* Write the new date in RTC */
++		retval = ioctl(fd, RTC_SET_TIME, &cutoff_dates[i]);
++		if (retval == -1) {
++			perror("RTC_SET_TIME ioctl");
++			close(fd);
++			exit(errno);
++		}
++
++		/* Read back */
++		retval = ioctl(fd, RTC_RD_TIME, &current);
++		if (retval == -1) {
++			perror("RTC_RD_TIME ioctl");
++			exit(errno);
++		}
++
++		if(compare_dates(&cutoff_dates[i], &current)) {
++			fprintf(stderr,"Setting date %d failed\n",
++			        cutoff_dates[i].tm_year + 1900);
++			goto done;
++		}
++
++		cutoff_dates[i].tm_sec += 5;
++
++		/* Write the new alarm in RTC */
++		retval = ioctl(fd, RTC_ALM_SET, &cutoff_dates[i]);
++		if (retval == -1) {
++			perror("RTC_ALM_SET ioctl");
++			close(fd);
++			exit(errno);
++		}
++
++		/* Read back */
++		retval = ioctl(fd, RTC_ALM_READ, &current);
++		if (retval == -1) {
++			perror("RTC_ALM_READ ioctl");
++			exit(errno);
++		}
++
++		if(compare_dates(&cutoff_dates[i], &current)) {
++			fprintf(stderr,"Setting alarm %d failed\n",
++			        cutoff_dates[i].tm_year + 1900);
++			goto done;
++		}
++
++		fprintf(stderr, "Setting year %d is OK \n",
++			cutoff_dates[i].tm_year + 1900);
++	}
+ done:
+ 	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+ 
+-- 
+1.9.1
