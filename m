@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBEG2UPFAKGQEIL4GY7Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBU6ZUPFAKGQEU5AFH3I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
-        by gmr-mx.google.com with ESMTPS id 197si3798305wmo.0.2017.06.20.02.38.24
+Received: from mail-wr0-x231.google.com (mail-wr0-x231.google.com. [2a00:1450:400c:c0c::231])
+        by gmr-mx.google.com with ESMTPS id j75si2789094wmj.1.2017.06.20.02.37.23
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:24 -0700 (PDT)
-Received: by mail-wm0-x22f.google.com with SMTP id d73so14530576wma.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:24 -0700 (PDT)
+        Tue, 20 Jun 2017 02:37:23 -0700 (PDT)
+Received: by mail-wr0-x231.google.com with SMTP id r103so88485270wrb.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:23 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
+	Support Opensource <support.opensource@diasemi.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 40/51] rtc: snvs: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:48 +0200
-Message-Id: <1497951359-13334-41-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH 14/51] rtc: da9063: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:22 +0200
+Message-Id: <1497951359-13334-15-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -35,63 +36,40 @@ rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Support Opensource <support.opensource@diasemi.com>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-snvs.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-da9052.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index d8ef9e0..774048e 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -121,9 +121,9 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-da9052.c b/drivers/rtc/rtc-da9052.c
+index 4273377..99a0489 100644
+--- a/drivers/rtc/rtc-da9052.c
++++ b/drivers/rtc/rtc-da9052.c
+@@ -104,17 +104,15 @@ static int da9052_read_alarm(struct da9052_rtc *rtc, struct rtc_time *rtc_tm)
+ static int da9052_set_alarm(struct da9052_rtc *rtc, struct rtc_time *rtc_tm)
  {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time = rtc_read_lp_counter(data);
-+	unsigned long long time = rtc_read_lp_counter(data);
+ 	struct da9052 *da9052 = rtc->da9052;
+-	unsigned long alm_time;
++	unsigned long long alm_time;
+ 	int ret;
+ 	uint8_t v[3];
  
--	rtc_time_to_tm(time, tm);
-+	rtc_time64_to_tm(time, tm);
+-	ret = rtc_tm_to_time(rtc_tm, &alm_time);
+-	if (ret != 0)
+-		return ret;
++	alm_time = rtc_tm_to_time64(rtc_tm);
  
- 	return 0;
- }
-@@ -131,9 +131,9 @@ static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time;
-+	unsigned long long time;
+ 	if (rtc_tm->tm_sec > 0) {
+ 		alm_time += 60 - rtc_tm->tm_sec;
+-		rtc_time_to_tm(alm_time, rtc_tm);
++		rtc_time64_to_tm(alm_time, rtc_tm);
+ 	}
+ 	BUG_ON(rtc_tm->tm_sec); /* it will cause repeated irqs if not zero */
  
--	rtc_tm_to_time(tm, &time);
-+	time = rtc_tm_to_time64(tm);
- 
- 	/* Disable RTC first */
- 	snvs_rtc_enable(data, false);
-@@ -154,7 +154,7 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 lptar, lpsr;
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
--	rtc_time_to_tm(lptar, &alrm->time);
-+	rtc_time64_to_tm((u64)lptar, &alrm->time);
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
- 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
-@@ -179,9 +179,9 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &alrm->time;
--	unsigned long time;
-+	unsigned long long time;
- 
--	rtc_tm_to_time(alrm_tm, &time);
-+	time = rtc_tm_to_time64(alrm_tm);
- 
- 	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
- 	rtc_write_sync_lp(data);
 -- 
 1.9.1
 
