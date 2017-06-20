@@ -1,21 +1,27 @@
-Return-Path: <rtc-linux+bncBAABBU6R4TEQKGQE5RUSNQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBV6ZUPFAKGQE7GKUWDQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail01.prevas.se (mail01.prevas.se. [62.95.78.3])
-        by gmr-mx.google.com with ESMTPS id v127si457974wmd.4.2017.06.08.03.37.07
+MIME-Version: 1.0
+Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
+        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.37.26
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Jun 2017 03:37:07 -0700 (PDT)
-From: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-To: <rtc-linux@googlegroups.com>
-CC: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-Subject: [rtc-linux] [PATCH 2/2] rtc: ds1307: disable square wave output from ds1308
-Date: Thu, 8 Jun 2017 12:36:55 +0200
-Message-ID: <20170608103655.20043-2-sean.nyekjaer@prevas.dk>
-In-Reply-To: <20170608103655.20043-1-sean.nyekjaer@prevas.dk>
-References: <20170608103655.20043-1-sean.nyekjaer@prevas.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+        Tue, 20 Jun 2017 02:37:26 -0700 (PDT)
+Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:26 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 16/51] rtc: davinci: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:24 +0200
+Message-Id: <1497951359-13334-17-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -24,40 +30,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Disable sqw output from ds1308 in order to reduce
-the power consumption by ~50%.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-ds1307.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/rtc/rtc-davinci.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a4ef03ad9395..8d9f25a3c757 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -78,6 +78,7 @@ enum ds_type {
- #	define DS1307_BIT_OUT		0x80
- #	define DS1338_BIT_OSF		0x20
- #	define DS1307_BIT_SQWE		0x10
-+#	define DS1308_BIT_BBCLK		0x04
- #	define DS1307_BIT_RS1		0x02
- #	define DS1307_BIT_RS0		0x01
- #define DS1337_REG_CONTROL	0x0e
-@@ -1454,6 +1455,11 @@ static int ds1307_probe(struct i2c_client *client,
- 		}
- 		break;
- 	case ds_1308:
-+		/* disable sqw when driven from battery backup */
-+		if (ds1307->regs[DS1307_REG_CONTROL] & DS1308_BIT_BBCLK)
-+			i2c_smbus_write_byte_data(client, DS1307_REG_CONTROL,
-+					ds1307->regs[DS1307_REG_CONTROL]
-+					& ~DS1338_BIT_BBCLK);
- 	case ds_1338:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH)
+diff --git a/drivers/rtc/rtc-davinci.c b/drivers/rtc/rtc-davinci.c
+index caf3556..03beba3 100644
+--- a/drivers/rtc/rtc-davinci.c
++++ b/drivers/rtc/rtc-davinci.c
+@@ -429,18 +429,18 @@ static int davinci_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	if (alm->time.tm_mday <= 0 && alm->time.tm_mon < 0
+ 	    && alm->time.tm_year < 0) {
+ 		struct rtc_time tm;
+-		unsigned long now, then;
++		unsigned long long now, then;
+ 
+ 		davinci_rtc_read_time(dev, &tm);
+-		rtc_tm_to_time(&tm, &now);
++		now = rtc_tm_to_time64(&tm);
+ 
+ 		alm->time.tm_mday = tm.tm_mday;
+ 		alm->time.tm_mon = tm.tm_mon;
+ 		alm->time.tm_year = tm.tm_year;
+-		rtc_tm_to_time(&alm->time, &then);
++		then = rtc_tm_to_time64(&alm->time);
+ 
+ 		if (then < now) {
+-			rtc_time_to_tm(now + 24 * 60 * 60, &tm);
++			rtc_time64_to_tm(now + 24 * 60 * 60, &tm);
+ 			alm->time.tm_mday = tm.tm_mday;
+ 			alm->time.tm_mon = tm.tm_mon;
+ 			alm->time.tm_year = tm.tm_year;
 -- 
-2.13.0
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
