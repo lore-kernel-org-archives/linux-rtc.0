@@ -1,55 +1,27 @@
-Return-Path: <rtc-linux+bncBDZKLXNI4ACBBGOLVDFAKGQERASD3ZI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBROZUPFAKGQE6DDHM3Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from atrey.karlin.mff.cuni.cz (atrey.karlin.mff.cuni.cz. [195.113.26.193])
-        by gmr-mx.google.com with ESMTPS id s76si4554502wma.1.2017.06.21.00.51.53
+MIME-Version: 1.0
+Received: from mail-wr0-x230.google.com (mail-wr0-x230.google.com. [2a00:1450:400c:c0c::230])
+        by gmr-mx.google.com with ESMTPS id 140si3846457wmr.2.2017.06.20.02.37.08
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 21 Jun 2017 00:51:53 -0700 (PDT)
-Date: Wed, 21 Jun 2017 09:51:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Russell King - ARM Linux <linux@armlinux.org.uk>,
-	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	Baruch Siach <baruch@tkos.co.il>,
-	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	"x86@kernel.org" <x86@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Chen-Yu Tsai <wens@csie.org>, Ingo Molnar <mingo@redhat.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Len Brown <len.brown@intel.com>,
-	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	John Stultz <john.stultz@linaro.org>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Michael Chan <michael.chan@broadcom.com>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+        Tue, 20 Jun 2017 02:37:08 -0700 (PDT)
+Received: by mail-wr0-x230.google.com with SMTP id 77so88340372wrb.1
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:08 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Barry Song <baohua@kernel.org>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Steve Twiss <stwiss.opensource@diasemi.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-Message-ID: <20170621075152.GA15996@amd>
-References: <20170620213507.urobmtg34vzubrdq@piout.net>
- <alpine.DEB.2.20.1706202343120.2157@nanos>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-In-Reply-To: <alpine.DEB.2.20.1706202343120.2157@nanos>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 06/51] rtc: ab-b5ze-s3: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:14 +0200
+Message-Id: <1497951359-13334-7-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -58,47 +30,140 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-ab-b5ze-s3.c | 45 +++++++++++++-------------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
-Hi!
-
-> > I agree with that but not the android guys. They seem to mandate an RTC
-> > that can store time from 01/01/1970. I don't know much more than that
-> > because they never cared to explain why that was actually necessary
-> > (apart from a laconic "this will result in a bad user experience")
-> > 
-> > I think tglx had a plan for offsetting the time at some point so 32-bit
-> > platform can pass 2038 properly.
-> 
-> Yes, but there are still quite some issues to solve there:
-> 
->      1) How do you tell the system that it should apply the offset in the
->      	first place, i.e at boot time before NTP or any other mechanism can
->      	correct it?
-
-I'd not do offset. Instead, I'd select a threshold (perhaps year of
-release of given kernel?) and
-
-	if (rtc_time < year_of_release_of_kernel)
-	   rtc_time += 0x100000000;
-
-Ok, we'll have to move away from "rtc_time == 0 indicates zero", as
-seen in some drivers.
-
->      2) Deal with creative vendors who have their own idea about the 'start
->      	of the epoch'
-
-If someone uses different threshold, well, there will be
-confusion. But only for users that have their rtc set to the past,
-which is quite unusual.
-
-									Pavel
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index a319bf1..ce37997 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -328,7 +328,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+ 	u8 regs[ABB5ZES3_TIMA_SEC_LEN + 1];
+-	unsigned long rtc_secs;
++	unsigned long long rtc_secs;
+ 	unsigned int reg;
+ 	u8 timer_secs;
+ 	int ret;
+@@ -352,9 +352,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 		goto err;
+ 
+ 	/* ... convert to seconds ... */
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
+ 
+ 	/* ... add remaining timer A time ... */
+ 	ret = sec_from_timer_a(&timer_secs, regs[1], regs[2]);
+@@ -362,7 +360,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 		goto err;
+ 
+ 	/* ... and convert back. */
+-	rtc_time_to_tm(rtc_secs + timer_secs, alarm_tm);
++	rtc_time64_to_tm(rtc_secs + timer_secs, alarm_tm);
+ 
+ 	ret = regmap_read(data->regmap, ABB5ZES3_REG_CTRL2, &reg);
+ 	if (ret) {
+@@ -383,7 +381,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	unsigned int reg;
+ 	int ret;
+@@ -414,13 +412,8 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 	alarm_tm->tm_year = rtc_tm.tm_year;
+ 	alarm_tm->tm_mon = rtc_tm.tm_mon;
+ 
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
+-
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	if (alarm_secs < rtc_secs) {
+ 		if (alarm_tm->tm_mon == 11) {
+@@ -477,7 +470,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	struct rtc_time rtc_tm;
+ 	int ret, enable = 1;
+@@ -486,13 +479,8 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
+-
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	/* If alarm time is before current time, disable the alarm */
+ 	if (!alarm->enabled || alarm_secs <= rtc_secs) {
+@@ -511,9 +499,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 			rtc_tm.tm_mon += 1;
+ 		}
+ 
+-		ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-		if (ret)
+-			goto err;
++		rtc_secs = rtc_tm_to_time64(&rtc_tm);
+ 
+ 		if (alarm_secs > rtc_secs) {
+ 			dev_err(dev, "%s: alarm maximum is one month in the "
+@@ -597,7 +583,7 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	struct rtc_time rtc_tm;
+ 	int ret;
+ 
+@@ -606,13 +592,8 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
+-
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	/* Let's first disable both the alarm and the timer interrupts */
+ 	ret = _abb5zes3_rtc_update_alarm(dev, false);
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -109,17 +174,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAllKJZgACgkQMOfwapXb+vKcSACeKjx9YgZ8vE/6kkH+mZDPeoMx
-BPIAnRnqcPYJuL+92glv1bkWRQ7bPmio
-=FHDU
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--
