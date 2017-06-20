@@ -1,30 +1,29 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBRW7Z7FAKGQEDABBHHQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBWOZUPFAKGQERUNJICA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-io0-f196.google.com (mail-io0-f196.google.com. [209.85.223.196])
-        by gmr-mx.google.com with ESMTPS id 199si161438itz.4.2017.06.28.11.04.54
+MIME-Version: 1.0
+Received: from mail-wr0-x22e.google.com (mail-wr0-x22e.google.com. [2a00:1450:400c:c0c::22e])
+        by gmr-mx.google.com with ESMTPS id f136si2017996wmf.6.2017.06.20.02.37.28
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Jun 2017 11:04:54 -0700 (PDT)
-Received: by mail-io0-f196.google.com with SMTP id j200so5919154ioe.0
-        for <rtc-linux@googlegroups.com>; Wed, 28 Jun 2017 11:04:54 -0700 (PDT)
-Date: Wed, 28 Jun 2017 13:04:52 -0500
-From: Rob Herring <robh@kernel.org>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Tue, 20 Jun 2017 02:37:28 -0700 (PDT)
+Received: by mail-wr0-x22e.google.com with SMTP id c11so32926708wrc.3
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:28 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Baruch Siach <baruch@tkos.co.il>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>,
-	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 1/2] dt-bindings: rtc: stm32: add support for STM32H7
-Message-ID: <20170628180452.rdvnul7cifxglu7f@rob-hp-laptop>
-References: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
- <1498470689-26829-2-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1498470689-26829-2-git-send-email-amelie.delaunay@st.com>
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH 17/51] rtc: digicolor: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:25 +0200
+Message-Id: <1497951359-13334-18-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,18 +32,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Mon, Jun 26, 2017 at 11:51:28AM +0200, Amelie Delaunay wrote:
-> This patch documents support for STM32H7 Real Time Clock.
-> It introduces a new compatible and rework clock definitions.
-> On STM32H7 we have a 'pclk' clock for register access, in addition to
-> the 'rtc_ck' clock.
-> 
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> ---
->  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 ++++++++++++++++++----
->  1 file changed, 27 insertions(+), 5 deletions(-)
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Baruch Siach <baruch@tkos.co.il>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+CC: linux-arm-kernel@lists.infradead.org
+---
+ drivers/rtc/rtc-digicolor.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+index b253bf1..01b0fe8 100644
+--- a/drivers/rtc/rtc-digicolor.c
++++ b/drivers/rtc/rtc-digicolor.c
+@@ -106,7 +106,7 @@ static int dc_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
+-static int dc_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int dc_rtc_set_mmss64(struct device *dev, time64_t secs)
+ {
+ 	struct dc_rtc *rtc = dev_get_drvdata(dev);
+ 
+@@ -161,7 +161,7 @@ static int dc_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 
+ static const struct rtc_class_ops dc_rtc_ops = {
+ 	.read_time		= dc_rtc_read_time,
+-	.set_mmss		= dc_rtc_set_mmss,
++	.set_mmss64		= dc_rtc_set_mmss64,
+ 	.read_alarm		= dc_rtc_read_alarm,
+ 	.set_alarm		= dc_rtc_set_alarm,
+ 	.alarm_irq_enable	= dc_rtc_alarm_irq_enable,
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
