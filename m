@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBTGZUPFAKGQELCR4KAI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB4OZUPFAKGQE3EV66FA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
-        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.37.16
+Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
+        by gmr-mx.google.com with ESMTPS id w136si3550808wmf.3.2017.06.20.02.37.53
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:16 -0700 (PDT)
-Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:16 -0700 (PDT)
+        Tue, 20 Jun 2017 02:37:53 -0700 (PDT)
+Received: by mail-wm0-x22b.google.com with SMTP id d64so23691467wmf.1
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:53 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
@@ -15,9 +15,9 @@ Cc: linaro-kernel@lists.linaro.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 10/51] rtc: at91sam9: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:18 +0200
-Message-Id: <1497951359-13334-11-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH 23/51] rtc: ds1672: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:31 +0200
+Message-Id: <1497951359-13334-24-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -34,74 +34,57 @@ rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
 rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
+For the same reasons use set_mmss64 callback instead of set_mmss
+
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-at91sam9.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-ds1672.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 7418a76..be1f37e 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -122,7 +122,7 @@ static int at91_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 	if (secs != secs2)
- 		secs = rtt_readl(rtc, VR);
- 
--	rtc_time_to_tm(offset + secs, tm);
-+	rtc_time64_to_tm((u64)(offset + secs), tm);
- 
- 	dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "readtime",
- 		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-@@ -137,17 +137,14 @@ static int at91_rtc_readtime(struct device *dev, struct rtc_time *tm)
- static int at91_rtc_settime(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 7bf46bf..ff2468c 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -30,7 +30,7 @@
+  */
+ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
  {
- 	struct sam9_rtc *rtc = dev_get_drvdata(dev);
--	int err;
- 	u32 offset, alarm, mr;
--	unsigned long secs;
-+	unsigned long long secs;
+-	unsigned long time;
++	unsigned long long time;
+ 	unsigned char addr = DS1672_REG_CNT_BASE;
+ 	unsigned char buf[4];
  
- 	dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "settime",
- 		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
- 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+@@ -60,7 +60,7 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
  
--	err = rtc_tm_to_time(tm, &secs);
--	if (err != 0)
--		return err;
-+	secs = rtc_tm_to_time64(tm);
+ 	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
  
- 	mr = rtt_readl(rtc, MR);
+-	rtc_time_to_tm(time, tm);
++	rtc_time64_to_tm(time, tm);
  
-@@ -197,7 +194,7 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
+ 		"mday=%d, mon=%d, year=%d, wday=%d\n",
+@@ -96,7 +96,7 @@ static int ds1672_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	return ds1672_get_datetime(to_i2c_client(dev), tm);
+ }
  
- 	memset(alrm, 0, sizeof(*alrm));
- 	if (alarm != ALARM_DISABLED && offset != 0) {
--		rtc_time_to_tm(offset + alarm, tm);
-+		rtc_time64_to_tm((u64)(offset + alarm), tm);
- 
- 		dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "readalarm",
- 			1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-@@ -214,14 +211,11 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+-static int ds1672_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int ds1672_rtc_set_mmss64(struct device *dev, time64_t secs)
  {
- 	struct sam9_rtc *rtc = dev_get_drvdata(dev);
- 	struct rtc_time *tm = &alrm->time;
--	unsigned long secs;
-+	unsigned long long secs;
- 	u32 offset;
- 	u32 mr;
--	int err;
+ 	return ds1672_set_mmss(to_i2c_client(dev), secs);
+ }
+@@ -148,7 +148,7 @@ static ssize_t show_control(struct device *dev, struct device_attribute *attr,
  
--	err = rtc_tm_to_time(tm, &secs);
--	if (err != 0)
--		return err;
-+	secs = rtc_tm_to_time64(tm);
+ static const struct rtc_class_ops ds1672_rtc_ops = {
+ 	.read_time = ds1672_rtc_read_time,
+-	.set_mmss = ds1672_rtc_set_mmss,
++	.set_mmss64 = ds1672_rtc_set_mmss64,
+ };
  
- 	offset = gpbr_readl(rtc);
- 	if (offset == 0) {
+ static int ds1672_probe(struct i2c_client *client,
 -- 
 1.9.1
 
