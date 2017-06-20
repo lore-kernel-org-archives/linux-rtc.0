@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBD7VR7FAKGQEWP3YKCY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBSWZUPFAKGQE2ND4YXQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id s76si719879wma.1.2017.06.16.08.34.38
-        for <rtc-linux@googlegroups.com>;
-        Fri, 16 Jun 2017 08:34:38 -0700 (PDT)
-Date: Fri, 16 Jun 2017 17:34:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
-	shuah@kernel.org, linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
-	a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com, linaro-kernel@lists.linaro.org
-Subject: [rtc-linux] Re: [PATCH 1/3] tools: timer: add rtctest_setdate
-Message-ID: <20170616153438.tduxc4vedzjelkzz@piout.net>
-References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
- <1497621833-9942-2-git-send-email-benjamin.gaignard@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1497621833-9942-2-git-send-email-benjamin.gaignard@linaro.org>
+Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
+        by gmr-mx.google.com with ESMTPS id o27si2852219wmi.4.2017.06.20.02.37.14
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 20 Jun 2017 02:37:14 -0700 (PDT)
+Received: by mail-wm0-x22b.google.com with SMTP id u185so5599321wmd.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:14 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 09/51] rtc: at32ap700x: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:17 +0200
+Message-Id: <1497951359-13334-10-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,136 +30,103 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-On 16/06/2017 at 16:03:51 +0200, Benjamin Gaignard wrote:
-> This tool allow to set directly the time and date to a RTC device.
-> 
-> Unlike other tools isn't doens't use "strut timeval" or "time_t"
-A small typo here-----^
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-at32ap700x.c | 29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
 
-> so it is safe for 32bits platforms when testing for y2038/2106 bug.
-> 
-> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-> ---
->  tools/testing/selftests/timers/Makefile          |  2 +-
->  tools/testing/selftests/timers/rtctest_setdate.c | 86 ++++++++++++++++++++++++
->  2 files changed, 87 insertions(+), 1 deletion(-)
->  create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
-> 
-> diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
-> index 5fa1d7e9..54481f1 100644
-> --- a/tools/testing/selftests/timers/Makefile
-> +++ b/tools/testing/selftests/timers/Makefile
-> @@ -9,7 +9,7 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
->  
->  TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
->  		      skew_consistency clocksource-switch leap-a-day \
-> -		      leapcrash set-tai set-2038 set-tz
-> +		      leapcrash set-tai set-2038 set-tz rtctest_setdate
->  
->  
->  include ../lib.mk
-> diff --git a/tools/testing/selftests/timers/rtctest_setdate.c b/tools/testing/selftests/timers/rtctest_setdate.c
-> new file mode 100644
-> index 0000000..2cb7848
-> --- /dev/null
-> +++ b/tools/testing/selftests/timers/rtctest_setdate.c
-> @@ -0,0 +1,86 @@
-> +/* Real Time Clock Driver Test
-> + *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
-> + *
-> + * To build
-> + *	gcc rtctest_setdate.c -o rtctest_setdate
-> + *
-> + *   This program is free software: you can redistribute it and/or modify
-> + *   it under the terms of the GNU General Public License as published by
-> + *   the Free Software Foundation, either version 2 of the License, or
-> + *   (at your option) any later version.
-> + *
-> + *   This program is distributed in the hope that it will be useful,
-> + *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + *   GNU General Public License for more details.
-> + */
-> +
-> +#include <stdio.h>
-> +#include <linux/rtc.h>
-> +#include <sys/ioctl.h>
-> +#include <sys/time.h>
-> +#include <sys/types.h>
-> +#include <fcntl.h>
-> +#include <unistd.h>
-> +#include <stdlib.h>
-> +#include <errno.h>
-> +
-> +static const char default_time[] = "00:00:00";
-> +
-> +int main(int argc, char **argv)
-> +{
-> +	int fd, retval;
-> +	struct rtc_time new, current;
-> +	const char *rtc, *date;
-> +	const char *time = default_time;
-> +
-> +	switch (argc) {
-> +	case 4:
-> +		time = argv[3];
-> +		/* FALLTHROUGH */
-> +	case 3:
-> +		date = argv[2];
-> +		rtc = argv[1];
-> +		break;
-> +	default:
-> +		fprintf(stderr, "usage: rtctest_setdate <rtcdev> <DD-MM-YYYY> [HH:MM:SS]\n");
-> +		return 1;
-> +	}
-> +
-> +	fd = open(rtc, O_RDONLY);
-> +	if (fd == -1) {
-> +		perror(rtc);
-> +		exit(errno);
-> +	}
-> +
-> +	sscanf(date, "%d-%d-%d", &new.tm_mday, &new.tm_mon, &new.tm_year);
-> +	new.tm_mon -= 1;
-> +	new.tm_year -= 1900;
-> +	sscanf(time, "%d:%d:%d", &new.tm_hour, &new.tm_min, &new.tm_sec);
-> +
-> +	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
-> +		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
-> +		new.tm_hour, new.tm_min, new.tm_sec);
-> +
-> +	/* Write the new date in RTC */
-> +	retval = ioctl(fd, RTC_SET_TIME, &new);
-> +	if (retval == -1) {
-> +		perror("RTC_SET_TIME ioctl");
-> +		close(fd);
-> +		exit(errno);
-> +	}
-> +
-> +	/* Read back */
-> +	retval = ioctl(fd, RTC_RD_TIME, &current);
-> +	if (retval == -1) {
-> +		perror("RTC_RD_TIME ioctl");
-> +		exit(errno);
-> +	}
-> +
-> +	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
-> +		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
-> +		current.tm_hour, current.tm_min, current.tm_sec);
-> +
-> +	close(fd);
-> +	return 0;
-> +}
-> -- 
-> 1.9.1
-> 
-
+diff --git a/drivers/rtc/rtc-at32ap700x.c b/drivers/rtc/rtc-at32ap700x.c
+index de8bf56..db58cf5 100644
+--- a/drivers/rtc/rtc-at32ap700x.c
++++ b/drivers/rtc/rtc-at32ap700x.c
+@@ -61,7 +61,7 @@
+ struct rtc_at32ap700x {
+ 	struct rtc_device	*rtc;
+ 	void __iomem		*regs;
+-	unsigned long		alarm_time;
++	unsigned long long	alarm_time;
+ 	unsigned long		irq;
+ 	/* Protect against concurrent register access. */
+ 	spinlock_t		lock;
+@@ -70,10 +70,10 @@ struct rtc_at32ap700x {
+ static int at32_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long now;
++	unsigned long long now;
+ 
+ 	now = rtc_readl(rtc, VAL);
+-	rtc_time_to_tm(now, tm);
++	rtc_time64_to_tm(now, tm);
+ 
+ 	return 0;
+ }
+@@ -81,14 +81,12 @@ static int at32_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ static int at32_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long now;
+-	int ret;
++	unsigned long long now;
+ 
+-	ret = rtc_tm_to_time(tm, &now);
+-	if (ret == 0)
+-		rtc_writel(rtc, VAL, now);
++	now = rtc_tm_to_time64(tm);
++	rtc_writel(rtc, VAL, now);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int at32_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -96,7 +94,7 @@ static int at32_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+ 
+ 	spin_lock_irq(&rtc->lock);
+-	rtc_time_to_tm(rtc->alarm_time, &alrm->time);
++	rtc_time64_to_tm(rtc->alarm_time, &alrm->time);
+ 	alrm->enabled = rtc_readl(rtc, IMR) & RTC_BIT(IMR_TOPI) ? 1 : 0;
+ 	alrm->pending = rtc_readl(rtc, ISR) & RTC_BIT(ISR_TOPI) ? 1 : 0;
+ 	spin_unlock_irq(&rtc->lock);
+@@ -107,15 +105,12 @@ static int at32_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int at32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long rtc_unix_time;
+-	unsigned long alarm_unix_time;
+-	int ret;
++	unsigned long long rtc_unix_time;
++	unsigned long long alarm_unix_time;
+ 
+ 	rtc_unix_time = rtc_readl(rtc, VAL);
+ 
+-	ret = rtc_tm_to_time(&alrm->time, &alarm_unix_time);
+-	if (ret)
+-		return ret;
++	alarm_unix_time = rtc_tm_to_time64(&alrm->time);
+ 
+ 	if (alarm_unix_time < rtc_unix_time)
+ 		return -EINVAL;
+@@ -131,7 +126,7 @@ static int at32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 				& ~RTC_BIT(CTRL_TOPEN));
+ 	spin_unlock_irq(&rtc->lock);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int at32_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
