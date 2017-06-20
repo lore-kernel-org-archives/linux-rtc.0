@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBDO2UPFAKGQEHSO3TJY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBCW2UPFAKGQEP6TUTCI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wr0-x22a.google.com (mail-wr0-x22a.google.com. [2a00:1450:400c:c0c::22a])
-        by gmr-mx.google.com with ESMTPS id w193si3485135wmf.3.2017.06.20.02.38.21
+Received: from mail-wr0-x230.google.com (mail-wr0-x230.google.com. [2a00:1450:400c:c0c::230])
+        by gmr-mx.google.com with ESMTPS id 140si3846457wmr.2.2017.06.20.02.38.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:21 -0700 (PDT)
-Received: by mail-wr0-x22a.google.com with SMTP id r103so88501981wrb.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:21 -0700 (PDT)
+        Tue, 20 Jun 2017 02:38:18 -0700 (PDT)
+Received: by mail-wr0-x230.google.com with SMTP id 77so88340372wrb.1
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:18 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
@@ -15,9 +15,9 @@ Cc: linaro-kernel@lists.linaro.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 38/51] rtc: sh: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:46 +0200
-Message-Id: <1497951359-13334-39-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH 36/51] rtc: rs5c348: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:44 +0200
+Message-Id: <1497951359-13334-37-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -40,22 +40,31 @@ CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-sh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rs5c348.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 6c2d398..f65da1e 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -694,7 +694,7 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
+index 9a30698..f82c0bc 100644
+--- a/drivers/rtc/rtc-rs5c348.c
++++ b/drivers/rtc/rtc-rs5c348.c
+@@ -137,7 +137,7 @@ struct rs5c348_plat_data {
  
- 	/* reset rtc to epoch 0 if time is invalid */
- 	if (rtc_read_time(rtc->rtc_dev, &r) < 0) {
--		rtc_time_to_tm(0, &r);
-+		rtc_time64_to_tm(0, &r);
- 		rtc_set_time(rtc->rtc_dev, &r);
+ 	if (rtc_valid_tm(tm) < 0) {
+ 		dev_err(&spi->dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, tm);
++		rtc_time64_to_tm(0, tm);
  	}
  
+ 	return 0;
+@@ -183,7 +183,7 @@ static int rs5c348_probe(struct spi_device *spi)
+ 			dev_warn(&spi->dev, "voltage-low detected.\n");
+ 		if (ret & RS5C348_BIT_XSTP)
+ 			dev_warn(&spi->dev, "oscillator-stop detected.\n");
+-		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
++		rtc_time64_to_tm(0, &tm);	/* 1970/1/1 */
+ 		ret = rs5c348_rtc_set_time(&spi->dev, &tm);
+ 		if (ret < 0)
+ 			goto kfree_exit;
 -- 
 1.9.1
 
