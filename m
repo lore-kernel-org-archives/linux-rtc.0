@@ -1,33 +1,27 @@
-Return-Path: <rtc-linux+bncBDJIP47K7MERBFOBWXFAKGQENIT4R4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBAO2UPFAKGQEXZ2EA4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-yw0-f194.google.com (mail-yw0-f194.google.com. [209.85.161.194])
-        by gmr-mx.google.com with ESMTPS id o206si301576ywb.12.2017.06.23.11.40.21
+MIME-Version: 1.0
+Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
+        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.38.09
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 23 Jun 2017 11:40:21 -0700 (PDT)
-Received: by mail-yw0-f194.google.com with SMTP id e142so3197097ywa.2
-        for <rtc-linux@googlegroups.com>; Fri, 23 Jun 2017 11:40:21 -0700 (PDT)
-Date: Fri, 23 Jun 2017 13:40:19 -0500
-From: Rob Herring <robh@kernel.org>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Tue, 20 Jun 2017 02:38:09 -0700 (PDT)
+Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:09 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Gregory Fong <gregory.0xf0@gmail.com>,
-	"maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" <bcm-kernel-feedback-list@broadcom.com>,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-	"moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
-Subject: [rtc-linux] Re: [PATCH 1/2] dt-bindings: Document the Broadcom STB
- wake-up timer node
-Message-ID: <20170623184019.ftptqodyv3bnkyz2@rob-hp-laptop>
-References: <20170615195904.12653-1-f.fainelli@gmail.com>
- <20170615195904.12653-2-f.fainelli@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170615195904.12653-2-f.fainelli@gmail.com>
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 31/51] rtc: omap: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:39 +0200
+Message-Id: <1497951359-13334-32-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -36,17 +30,47 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Jun 15, 2017 at 12:59:03PM -0700, Florian Fainelli wrote:
-> Document the binding for the Broadcom STB SoCs wake-up timer node
-> allowing the system to generate alarms and exit low power states.
-> 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  .../bindings/rtc/brcm,brcmstb-waketimer.txt        | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Acked-by: Rob Herring <robh@kernel.org>
+For the same reasons use set_mmss64 callback instead of set_mmss
+
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-omap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 13f7cd1..8aa3957 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -432,7 +432,7 @@ static void omap_rtc_power_off(void)
+ {
+ 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+ 	struct rtc_time tm;
+-	unsigned long now;
++	unsigned long long now;
+ 	u32 val;
+ 
+ 	rtc->type->unlock(rtc);
+@@ -443,8 +443,8 @@ static void omap_rtc_power_off(void)
+ 	/* set alarm two seconds from now */
+ 	omap_rtc_read_time_raw(rtc, &tm);
+ 	bcd2tm(&tm);
+-	rtc_tm_to_time(&tm, &now);
+-	rtc_time_to_tm(now + 2, &tm);
++	now = rtc_tm_to_time64(&tm);
++	rtc_time64_to_tm(now + 2, &tm);
+ 
+ 	if (tm2bcd(&tm) < 0) {
+ 		dev_err(&rtc->rtc->dev, "power off failed\n");
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
