@@ -1,48 +1,27 @@
-Return-Path: <rtc-linux+bncBDZKLXNI4ACBBJNBUTFAKGQEFHJNQ6Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB3OZUPFAKGQEN6SGNZI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from atrey.karlin.mff.cuni.cz (atrey.karlin.mff.cuni.cz. [195.113.26.193])
-        by gmr-mx.google.com with ESMTPS id v127si3808765wmd.4.2017.06.20.05.10.12
+MIME-Version: 1.0
+Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
+        by gmr-mx.google.com with ESMTPS id o27si2852830wmi.4.2017.06.20.02.37.48
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 05:10:12 -0700 (PDT)
-Date: Tue, 20 Jun 2017 14:10:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	linaro-kernel@lists.linaro.org,
-	adi-buildroot-devel@lists.sourceforge.net,
+        Tue, 20 Jun 2017 02:37:48 -0700 (PDT)
+Received: by mail-wm0-x232.google.com with SMTP id x70so16027961wme.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:48 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Ingo Molnar <mingo@redhat.com>, Jason Cooper <jason@lakedaemon.net>,
-	John Stultz <john.stultz@linaro.org>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Michael Chan <michael.chan@broadcom.com>, netdev@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-	Baruch Siach <baruch@tkos.co.il>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>, linux-tegra@vger.kernel.org,
-	patches@opensource.wolfsonmicro.com,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-Message-ID: <20170620121011.GA13221@amd>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 20/51] rtc: ds1374: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:28 +0200
+Message-Id: <1497951359-13334-21-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
- <20170620100348.zh4ygvjjgnhxvmvl@piout.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-In-Reply-To: <20170620100348.zh4ygvjjgnhxvmvl@piout.net>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -51,27 +30,46 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-ds1374.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-On Tue 2017-06-20 12:03:48, Alexandre Belloni wrote:
-> On 20/06/2017 at 11:35:08 +0200, Benjamin Gaignard wrote:
-> > rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-> > rely on 32bits variables and that will make rtc break in y2038/2016.
-> 
-> Please don't, because this hide the fact that the hardware will not
-> handle dates in y2038 anyway and as pointed by Russell a few month ago,
-> rtc_time_to_tm will be able to catch it but the 64 bit version will
-> silently ignore it.
-
-Reference? Because rtc on PCs stores date in binary coded decimal, so
-it is likely to break in 2100, not 2038...
-									Pavel
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 38a2e9e..624b915 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -164,7 +164,7 @@ static int ds1374_read_time(struct device *dev, struct rtc_time *time)
+ 
+ 	ret = ds1374_read_rtc(client, &itime, DS1374_REG_TOD0, 4);
+ 	if (!ret)
+-		rtc_time_to_tm(itime, time);
++		rtc_time64_to_tm((u64)itime, time);
+ 
+ 	return ret;
+ }
+@@ -172,9 +172,9 @@ static int ds1374_read_time(struct device *dev, struct rtc_time *time)
+ static int ds1374_set_time(struct device *dev, struct rtc_time *time)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	unsigned long itime;
++	unsigned long long itime;
+ 
+-	rtc_tm_to_time(time, &itime);
++	itime = rtc_tm_to_time64(time);
+ 	return ds1374_write_rtc(client, itime, DS1374_REG_TOD0, 4);
+ }
+ 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -82,17 +80,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAllJEKMACgkQMOfwapXb+vLe9wCgu9cyUI440c/59xBQrQRexyjC
-q9UAnRKqRfLSYD/VIlYozWlk+CWfUWFP
-=o49/
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
