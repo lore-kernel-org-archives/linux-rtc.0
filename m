@@ -1,27 +1,27 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBV6ZUPFAKGQE7GKUWDQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDE6RCFOWIARB34PUXFAKGQECFRO35A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.37.26
+Received: from mail-io0-x22a.google.com (mail-io0-x22a.google.com. [2607:f8b0:4001:c06::22a])
+        by gmr-mx.google.com with ESMTPS id j12si929369itj.3.2017.06.20.09.06.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:26 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:26 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
+        Tue, 20 Jun 2017 09:06:07 -0700 (PDT)
+Received: by mail-io0-x22a.google.com with SMTP id y77so87650750ioe.3
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 09:06:07 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1497951359-13334-8-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org> <1497951359-13334-8-git-send-email-benjamin.gaignard@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Tue, 20 Jun 2017 18:06:06 +0200
+Message-ID: <CACRpkdbBu2y4F2hOYmM9Wn1Y4k0R9yh1AC+4_6kqrYb6dgnnqg@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH 07/51] rtc: ab8500: stop using rtc deprecated functions
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: linaro-kernel <linaro-kernel@lists.linaro.org>, Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 16/51] rtc: davinci: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:24 +0200
-Message-Id: <1497951359-13334-17-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset="UTF-8"
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,48 +30,26 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On Tue, Jun 20, 2017 at 11:35 AM, Benjamin Gaignard
+<benjamin.gaignard@linaro.org> wrote:
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-davinci.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+> rely on 32bits variables and that will make rtc break in y2038/2016.
+> Stop using those two functions to safer 64bits ones.
+>
+> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+> CC: Linus Walleij <linus.walleij@linaro.org>
+> CC: Alessandro Zummo <a.zummo@towertech.it>
+> CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> CC: rtc-linux@googlegroups.com
+> CC: linux-kernel@vger.kernel.org
+> CC: linux-arm-kernel@lists.infradead.org
 
-diff --git a/drivers/rtc/rtc-davinci.c b/drivers/rtc/rtc-davinci.c
-index caf3556..03beba3 100644
---- a/drivers/rtc/rtc-davinci.c
-+++ b/drivers/rtc/rtc-davinci.c
-@@ -429,18 +429,18 @@ static int davinci_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	if (alm->time.tm_mday <= 0 && alm->time.tm_mon < 0
- 	    && alm->time.tm_year < 0) {
- 		struct rtc_time tm;
--		unsigned long now, then;
-+		unsigned long long now, then;
- 
- 		davinci_rtc_read_time(dev, &tm);
--		rtc_tm_to_time(&tm, &now);
-+		now = rtc_tm_to_time64(&tm);
- 
- 		alm->time.tm_mday = tm.tm_mday;
- 		alm->time.tm_mon = tm.tm_mon;
- 		alm->time.tm_year = tm.tm_year;
--		rtc_tm_to_time(&alm->time, &then);
-+		then = rtc_tm_to_time64(&alm->time);
- 
- 		if (then < now) {
--			rtc_time_to_tm(now + 24 * 60 * 60, &tm);
-+			rtc_time64_to_tm(now + 24 * 60 * 60, &tm);
- 			alm->time.tm_mday = tm.tm_mday;
- 			alm->time.tm_mon = tm.tm_mon;
- 			alm->time.tm_year = tm.tm_year;
--- 
-1.9.1
+Looks fine.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
