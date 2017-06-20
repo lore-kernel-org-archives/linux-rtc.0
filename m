@@ -1,29 +1,25 @@
-Return-Path: <rtc-linux+bncBCH67JWTV4DBBXXSYXFAKGQEWMWMVJQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBIO2UPFAKGQE6QMBB5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x243.google.com (mail-wm0-x243.google.com. [2a00:1450:400c:c09::243])
-        by gmr-mx.google.com with ESMTPS id 143si268764wmr.0.2017.06.26.14.15.10
+Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
+        by gmr-mx.google.com with ESMTPS id p191si210061wmg.3.2017.06.20.02.38.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Jun 2017 14:15:10 -0700 (PDT)
-Received: by mail-wm0-x243.google.com with SMTP id j85so2493151wmj.0
-        for <rtc-linux@googlegroups.com>; Mon, 26 Jun 2017 14:15:10 -0700 (PDT)
-From: Florian Fainelli <f.fainelli@gmail.com>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>,
+        Tue, 20 Jun 2017 02:38:41 -0700 (PDT)
+Received: by mail-wm0-x232.google.com with SMTP id m125so16117479wmm.1
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:41 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Gregory Fong <gregory.0xf0@gmail.com>,
-	bcm-kernel-feedback-list@broadcom.com (maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE),
-	rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [rtc-linux] [PATCH v2 0/2] Broadcom STB wake-timer support
-Date: Mon, 26 Jun 2017 14:15:01 -0700
-Message-Id: <20170626211503.7471-1-f.fainelli@gmail.com>
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 50/51] rtc: xgene stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:58 +0200
+Message-Id: <1497951359-13334-51-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -34,40 +30,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Alexandre,
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-This patch series adds support for the Broadcom STB wake-timer. This is a 27Mhz
-timer which allows the system to exit S2/S3/S5 sleep states when configured.
+For the same reasons use set_mmss64 callback instead of set_mmss
 
-The wake-timer has has a long history within our internal/downstream tree, and
-Brian authored it in the first place, then Markus added the rtc bits, and then I
-cleaned it up for upstream.
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-xgene.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Changes in v2:
-
-- added Rob's Acked-by tag to the device tree binding patch
-- removed dev_dbg() prints
-- removed unnecessary initialization in .read_alarm callback
-- rebase against latest rtc-next
-
-Thanks!
-
-Brian Norris (1):
-  rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
-
-Florian Fainelli (1):
-  dt-bindings: Document the Broadcom STB wake-up timer node
-
- .../bindings/rtc/brcm,brcmstb-waketimer.txt        |  22 ++
- drivers/rtc/Kconfig                                |  11 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-brcmstb-waketimer.c                | 345 +++++++++++++++++++++
- 4 files changed, 379 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
- create mode 100644 drivers/rtc/rtc-brcmstb-waketimer.c
-
+diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
+index 65b432a..c62b5b6 100644
+--- a/drivers/rtc/rtc-xgene.c
++++ b/drivers/rtc/rtc-xgene.c
+@@ -58,11 +58,11 @@ static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 
+-	rtc_time_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
++	rtc_time64_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
+ 	return rtc_valid_tm(tm);
+ }
+ 
+-static int xgene_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int xgene_rtc_set_mmss64(struct device *dev, time64_t secs)
+ {
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 
+@@ -80,7 +80,7 @@ static int xgene_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 
+-	rtc_time_to_tm(pdata->alarm_time, &alrm->time);
++	rtc_time64_to_tm(pdata->alarm_time, &alrm->time);
+ 	alrm->enabled = readl(pdata->csr_base + RTC_CCR) & RTC_CCR_IE;
+ 
+ 	return 0;
+@@ -108,10 +108,10 @@ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 	unsigned long rtc_time;
+-	unsigned long alarm_time;
++	unsigned long long alarm_time;
+ 
+ 	rtc_time = readl(pdata->csr_base + RTC_CCVR);
+-	rtc_tm_to_time(&alrm->time, &alarm_time);
++	alarm_time = rtc_tm_to_time64(&alrm->time);
+ 
+ 	pdata->alarm_time = alarm_time;
+ 	writel((u32) pdata->alarm_time, pdata->csr_base + RTC_CMR);
+@@ -123,7 +123,7 @@ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ static const struct rtc_class_ops xgene_rtc_ops = {
+ 	.read_time	= xgene_rtc_read_time,
+-	.set_mmss	= xgene_rtc_set_mmss,
++	.set_mmss64	= xgene_rtc_set_mmss64,
+ 	.read_alarm	= xgene_rtc_read_alarm,
+ 	.set_alarm	= xgene_rtc_set_alarm,
+ 	.alarm_irq_enable = xgene_rtc_alarm_irq_enable,
 -- 
-2.9.3
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
