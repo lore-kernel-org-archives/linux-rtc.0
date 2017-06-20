@@ -1,48 +1,27 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBQ7UUTFAKGQEHT67STY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB76ZUPFAKGQEZ7GLVSA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qt0-x233.google.com (mail-qt0-x233.google.com. [2607:f8b0:400d:c0d::233])
-        by gmr-mx.google.com with ESMTPS id p68si876575ywg.9.2017.06.20.08.07.46
+MIME-Version: 1.0
+Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
+        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.38.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 08:07:46 -0700 (PDT)
-Received: by mail-qt0-x233.google.com with SMTP id w1so134925326qtg.2
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 08:07:46 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20170620134827.ubvzhh25klaotupv@piout.net>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
- <20170620100348.zh4ygvjjgnhxvmvl@piout.net> <20170620121011.GA13221@amd>
- <20170620122400.sm7qqvwyj6cuzarw@piout.net> <20170620132620.GA16881@amd>
- <6ED8E3B22081A4459DAC7699F3695FB7018CD96FCD@SW-EX-MBX02.diasemi.com>
- <20170620134458.GA10104@amd> <20170620134827.ubvzhh25klaotupv@piout.net>
+        Tue, 20 Jun 2017 02:38:07 -0700 (PDT)
+Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:07 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Date: Tue, 20 Jun 2017 17:07:46 +0200
-Message-ID: <CA+M3ks68+z6nDtYM8CDpso7SxjB6Nt5E=rOc1yxx=kDz6PUeVQ@mail.gmail.com>
-Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Steve Twiss <stwiss.opensource@diasemi.com>,
-	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
-	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>, Gregory Clement <gregory.clement@free-electrons.com>,
-	Ingo Molnar <mingo@redhat.com>, Jason Cooper <jason@lakedaemon.net>,
-	John Stultz <john.stultz@linaro.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
-	Michael Chan <michael.chan@broadcom.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Support Opensource <Support.Opensource@diasemi.com>, Thomas Gleixner <tglx@linutronix.de>,
-	"x86@kernel.org" <x86@kernel.org>, Baruch Siach <baruch@tkos.co.il>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>, Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>, Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>,
-	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 30/51] rtc: mv: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:38 +0200
+Message-Id: <1497951359-13334-31-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -51,69 +30,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-2017-06-20 15:48 GMT+02:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> On 20/06/2017 at 15:44:58 +0200, Pavel Machek wrote:
->> On Tue 2017-06-20 13:37:22, Steve Twiss wrote:
->> > Hi Pavel,
->> >
->> > On 20 June 2017 14:26, Pavel Machek wrote:
->> >
->> > > Subject: Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
->> > >
->> > > On Tue 2017-06-20 14:24:00, Alexandre Belloni wrote:
->> > > > On 20/06/2017 at 14:10:11 +0200, Pavel Machek wrote:
->> > > > > On Tue 2017-06-20 12:03:48, Alexandre Belloni wrote:
->> > > > > > On 20/06/2017 at 11:35:08 +0200, Benjamin Gaignard wrote:
->> > > > > > > rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
->> > > > > > > rely on 32bits variables and that will make rtc break in y2038/2016.
->> > > > > >
->> > > > > > Please don't, because this hide the fact that the hardware will not
->> > > > > > handle dates in y2038 anyway and as pointed by Russell a few month ago,
->> > > > > > rtc_time_to_tm will be able to catch it but the 64 bit version will
->> > > > > > silently ignore it.
->> > > > >
->> > > > > Reference? Because rtc on PCs stores date in binary coded decimal, so
->> > > > > it is likely to break in 2100, not 2038...
->> > > >
->> > > > I'm not saying it should be done but clearly, that is not the correct
->> > > > thing to do for RTCs that are using a single 32 bits register to store
->> > > > the time.
->> > > > You give one example, I can give you three: armada38x, at91sam9,
->> > > > at32ap700x and that just in the beginning of the series.
->> > >
->> > > I wanted reference to Russell's mail.
->> >
->> > This is it.
->> > https://patchwork.kernel.org/patch/6219401/
->>
->> Thanks.
->>
->> Yes, that's argument against changing rtc _drivers_ for hardware that
->> can not do better than 32bit. For generic code (such as 44/51 sysfs,
->> 51/51 suspend test), the change still makes sense.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-What I had in mind when writing those patches was to remove the limitations
-coming from those functions usage, even more since they been marked has
-deprecated.
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-mv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I agree that will change nothing of hardware limitation but at least
-the limit will
-not come from the framework.
-
->>
->
-> Yes, we agree on that but I won't cherry pick working patches from a 51
-> patches series.
-
-maybe only the acked ones ?
-
->
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
+index 79bb286..fce4658 100644
+--- a/drivers/rtc/rtc-mv.c
++++ b/drivers/rtc/rtc-mv.c
+@@ -127,7 +127,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ 	if (rtc_valid_tm(&alm->time) < 0) {
+ 		dev_err(dev, "retrieved alarm date/time is not valid.\n");
+-		rtc_time_to_tm(0, &alm->time);
++		rtc_time64_to_tm(0, &alm->time);
+ 	}
+ 
+ 	alm->enabled = !!readl(ioaddr + RTC_ALARM_INTERRUPT_MASK_REG_OFFS);
+-- 
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
