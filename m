@@ -1,55 +1,48 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSWPUTFAKGQE6VECC2I@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBK5KU3FAKGQEYGPOYKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f207si3774344wme.5.2017.06.20.06.48.28
+        by gmr-mx.google.com with ESMTP id m189si3196184wma.6.2017.06.20.14.35.39
         for <rtc-linux@googlegroups.com>;
-        Tue, 20 Jun 2017 06:48:28 -0700 (PDT)
-Date: Tue, 20 Jun 2017 15:48:27 +0200
+        Tue, 20 Jun 2017 14:35:39 -0700 (PDT)
+Date: Tue, 20 Jun 2017 23:35:07 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
-	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
-	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Ingo Molnar <mingo@redhat.com>, Jason Cooper <jason@lakedaemon.net>,
-	John Stultz <john.stultz@linaro.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Michael Chan <michael.chan@broadcom.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	"x86@kernel.org" <x86@kernel.org>, Baruch Siach <baruch@tkos.co.il>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+	Baruch Siach <baruch@tkos.co.il>,
 	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Pavel Machek <pavel@ucw.cz>, Thomas Gleixner <tglx@linutronix.de>,
+	"x86@kernel.org" <x86@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Chen-Yu Tsai <wens@csie.org>, Ingo Molnar <mingo@redhat.com>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
 	Len Brown <len.brown@intel.com>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Michael Chan <michael.chan@broadcom.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Barry Song <baohua@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Steve Twiss <stwiss.opensource@diasemi.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
 Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-Message-ID: <20170620134827.ubvzhh25klaotupv@piout.net>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
- <20170620100348.zh4ygvjjgnhxvmvl@piout.net>
- <20170620121011.GA13221@amd>
- <20170620122400.sm7qqvwyj6cuzarw@piout.net>
- <20170620132620.GA16881@amd>
- <6ED8E3B22081A4459DAC7699F3695FB7018CD96FCD@SW-EX-MBX02.diasemi.com>
- <20170620134458.GA10104@amd>
+Message-ID: <20170620213507.urobmtg34vzubrdq@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170620134458.GA10104@amd>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -59,50 +52,45 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 20/06/2017 at 15:44:58 +0200, Pavel Machek wrote:
-> On Tue 2017-06-20 13:37:22, Steve Twiss wrote:
-> > Hi Pavel,
+On 20/06/2017 at 22:15:36 +0100, Russell King - ARM Linux wrote:
+> On Tue, Jun 20, 2017 at 05:07:46PM +0200, Benjamin Gaignard wrote:
+> > 2017-06-20 15:48 GMT+02:00 Alexandre Belloni
+> > <alexandre.belloni@free-electrons.com>:
+> > >> Yes, that's argument against changing rtc _drivers_ for hardware that
+> > >> can not do better than 32bit. For generic code (such as 44/51 sysfs,
+> > >> 51/51 suspend test), the change still makes sense.
 > > 
-> > On 20 June 2017 14:26, Pavel Machek wrote:
-> > 
-> > > Subject: Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-> > > 
-> > > On Tue 2017-06-20 14:24:00, Alexandre Belloni wrote:
-> > > > On 20/06/2017 at 14:10:11 +0200, Pavel Machek wrote:
-> > > > > On Tue 2017-06-20 12:03:48, Alexandre Belloni wrote:
-> > > > > > On 20/06/2017 at 11:35:08 +0200, Benjamin Gaignard wrote:
-> > > > > > > rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-> > > > > > > rely on 32bits variables and that will make rtc break in y2038/2016.
-> > > > > >
-> > > > > > Please don't, because this hide the fact that the hardware will not
-> > > > > > handle dates in y2038 anyway and as pointed by Russell a few month ago,
-> > > > > > rtc_time_to_tm will be able to catch it but the 64 bit version will
-> > > > > > silently ignore it.
-> > > > >
-> > > > > Reference? Because rtc on PCs stores date in binary coded decimal, so
-> > > > > it is likely to break in 2100, not 2038...
-> > > >
-> > > > I'm not saying it should be done but clearly, that is not the correct
-> > > > thing to do for RTCs that are using a single 32 bits register to store
-> > > > the time.
-> > > > You give one example, I can give you three: armada38x, at91sam9,
-> > > > at32ap700x and that just in the beginning of the series.
-> > > 
-> > > I wanted reference to Russell's mail.
-> > 
-> > This is it.
-> > https://patchwork.kernel.org/patch/6219401/
+> > What I had in mind when writing those patches was to remove the limitations
+> > coming from those functions usage, even more since they been marked has
+> > deprecated.
 > 
-> Thanks.
+> I'd say that they should not be marked as deprecated.  They're entirely
+> appropriate for use with hardware that only supports a 32-bit
+> representation of time.
 > 
-> Yes, that's argument against changing rtc _drivers_ for hardware that
-> can not do better than 32bit. For generic code (such as 44/51 sysfs,
-> 51/51 suspend test), the change still makes sense.
+> It's entirely reasonable to fix the ones that use other representations
+> that exceed that, but for those which do not, we need to keep using the
+> 32-bit versions.  Doing so actually gives us _more_ flexibility in the
+> future.
+> 
+> Consider that at the moment, we define the 32-bit RTC representation to
+> start at a well known epoch.  We _could_ decide that when it wraps to
+> 0x80000000 seconds, we'll define the lower 0x40000000 seconds to mean
+> dates in the future - and keep rolling that forward each time we cross
+> another 0x40000000 seconds.  Unless someone invents a real time machine,
+> we shouldn't need to set a modern RTC back to 1970.
 > 
 
-Yes, we agree on that but I won't cherry pick working patches from a 51
-patches series.
+I agree with that but not the android guys. They seem to mandate an RTC
+that can store time from 01/01/1970. I don't know much more than that
+because they never cared to explain why that was actually necessary
+(apart from a laconic "this will result in a bad user experience")
 
+I think tglx had a plan for offsetting the time at some point so 32-bit
+platform can pass 2038 properly.
+My opinion is that as long as userspace is not ready to handle those
+dates, it doesn't really matter because it is quite unlikely that
+anything will be able to continue running anyway.
 
 -- 
 Alexandre Belloni, Free Electrons
