@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBMNSYPFAKGQEGEHIKQA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBG62UPFAKGQELGY3O6A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
-        by gmr-mx.google.com with ESMTPS id y17si1940352wmh.3.2017.06.26.02.51.45
+MIME-Version: 1.0
+Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
+        by gmr-mx.google.com with ESMTPS id w193si3483598wmf.3.2017.06.20.02.38.35
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Jun 2017 02:51:45 -0700 (PDT)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCH 1/2] dt-bindings: rtc: stm32: add support for STM32H7
-Date: Mon, 26 Jun 2017 11:51:28 +0200
-Message-ID: <1498470689-26829-2-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
-References: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+        Tue, 20 Jun 2017 02:38:35 -0700 (PDT)
+Received: by mail-wm0-x22f.google.com with SMTP id d73so14472917wma.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:35 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 46/51] rtc: test: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:54 +0200
+Message-Id: <1497951359-13334-47-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,69 +30,71 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch documents support for STM32H7 Real Time Clock.
-It introduces a new compatible and rework clock definitions.
-On STM32H7 we have a 'pclk' clock for register access, in addition to
-the 'rtc_ck' clock.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+For the same reasons use set_mmss64 callback instead of set_mmss
+Since only set_mmss64 be will used remove module parameter.
+
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
 ---
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 ++++++++++++++++++----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-test.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-index e2837b9..0a4c371 100644
---- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-@@ -1,17 +1,25 @@
- STM32 Real Time Clock
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 3a2da4c..6a460e3 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -13,10 +13,6 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
  
- Required properties:
--- compatible: "st,stm32-rtc".
-+- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
-+  the device is compatible with stm32(f4/f7) or stm32h7.
- - reg: address range of rtc register set.
--- clocks: reference to the clock entry ck_rtc.
-+- clocks: can use up to two clocks, depending on part used:
-+  - "rtc_ck": RTC clock source.
-+    It is required on stm32(f4/f7) and stm32h7.
-+  - "pclk": RTC APB interface clock.
-+    It is not present on stm32(f4/f7).
-+    It is required on stm32h7.
-+- clock-names: must be "rtc_ck" and "pclk".
-+    It is required only on stm32h7.
- - interrupt-parent: phandle for the interrupt controller.
- - interrupts: rtc alarm interrupt.
- - st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
-   (RTC registers) write protection.
+-static int test_mmss64;
+-module_param(test_mmss64, int, 0644);
+-MODULE_PARM_DESC(test_mmss64, "Test struct rtc_class_ops.set_mmss64().");
+-
+ static struct platform_device *test0 = NULL, *test1 = NULL;
  
--Optional properties (to override default ck_rtc parent clock):
--- assigned-clocks: reference to the ck_rtc clock entry.
--- assigned-clock-parents: phandle of the new parent clock of ck_rtc.
-+Optional properties (to override default rtc_ck parent clock):
-+- assigned-clocks: reference to the rtc_ck clock entry.
-+- assigned-clock-parents: phandle of the new parent clock of rtc_ck.
+ static int test_rtc_read_alarm(struct device *dev,
+@@ -44,12 +40,6 @@ static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
+ 	return 0;
+ }
  
- Example:
+-static int test_rtc_set_mmss(struct device *dev, unsigned long secs)
+-{
+-	dev_info(dev, "%s, secs = %lu\n", __func__, secs);
+-	return 0;
+-}
+-
+ static int test_rtc_proc(struct device *dev, struct seq_file *seq)
+ {
+ 	struct platform_device *plat_dev = to_platform_device(dev);
+@@ -70,7 +60,7 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 	.read_time = test_rtc_read_time,
+ 	.read_alarm = test_rtc_read_alarm,
+ 	.set_alarm = test_rtc_set_alarm,
+-	.set_mmss = test_rtc_set_mmss,
++	.set_mmss64 = test_rtc_set_mmss64,
+ 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
+ };
  
-@@ -25,3 +33,17 @@ Example:
- 		interrupts = <17 1>;
- 		st,syscfg = <&pwrcfg>;
- 	};
-+
-+	rtc: rtc@58004000 {
-+		compatible = "st,stm32h7-rtc";
-+		reg = <0x58004000 0x400>;
-+		clocks = <&rcc RTCAPB_CK>, <&rcc RTC_CK>;
-+		clock-names = "pclk", "rtc_ck";
-+		assigned-clocks = <&rcc RTC_CK>;
-+		assigned-clock-parents = <&rcc LSE_CK>;
-+		interrupt-parent = <&exti>;
-+		interrupts = <17 1>;
-+		interrupt-names = "alarm";
-+		st,syscfg = <&pwrcfg>;
-+		status = "disabled";
-+	};
+@@ -111,11 +101,6 @@ static int test_probe(struct platform_device *plat_dev)
+ 	int err;
+ 	struct rtc_device *rtc;
+ 
+-	if (test_mmss64) {
+-		test_rtc_ops.set_mmss64 = test_rtc_set_mmss64;
+-		test_rtc_ops.set_mmss = NULL;
+-	}
+-
+ 	rtc = devm_rtc_device_register(&plat_dev->dev, "test",
+ 				&test_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc)) {
 -- 
 1.9.1
 
