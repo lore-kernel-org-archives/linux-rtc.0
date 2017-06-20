@@ -1,35 +1,27 @@
-Return-Path: <rtc-linux+bncBCH67JWTV4DBBR4CYXFAKGQEYX32U3A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB6OZUPFAKGQEXSNOBTI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
-        by gmr-mx.google.com with ESMTPS id 5si116277wmj.1.2017.06.26.10.15.51
+MIME-Version: 1.0
+Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
+        by gmr-mx.google.com with ESMTPS id j201si2837522wmg.5.2017.06.20.02.38.01
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Jun 2017 10:15:51 -0700 (PDT)
-Received: by mail-wm0-x244.google.com with SMTP id j85so1413666wmj.0
-        for <rtc-linux@googlegroups.com>; Mon, 26 Jun 2017 10:15:51 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>,
- Markus Mayer <mmayer@broadcom.com>, Alessandro Zummo <a.zummo@towertech.it>,
- Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Gregory Fong <gregory.0xf0@gmail.com>,
- "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE"
- <bcm-kernel-feedback-list@broadcom.com>,
- "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
- "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
- <devicetree@vger.kernel.org>,
- "moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE"
- <linux-arm-kernel@lists.infradead.org>
-References: <20170615195904.12653-1-f.fainelli@gmail.com>
- <20170615195904.12653-3-f.fainelli@gmail.com>
- <20170624185942.vq656pjxbqnqdhll@piout.net>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <35c43786-ee58-130c-2ecd-5577197bd5aa@gmail.com>
-Date: Mon, 26 Jun 2017 10:15:46 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170624185942.vq656pjxbqnqdhll@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+        Tue, 20 Jun 2017 02:38:01 -0700 (PDT)
+Received: by mail-wm0-x232.google.com with SMTP id m125so15803546wmm.1
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:01 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 27/51] rtc: imxdi: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:35 +0200
+Message-Id: <1497951359-13334-28-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,106 +30,82 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 06/24/2017 11:59 AM, Alexandre Belloni wrote:
-> Hi,
-> 
-> This seems mostly good.
-> 
-> On 15/06/2017 at 12:59:04 -0700, Florian Fainelli wrote:
->> +static void wktmr_read(struct brcmstb_waketmr *timer,
->> +		       struct wktmr_time *t)
->> +{
->> +	u32 tmp;
->> +
-> 
-> To be sure, is this IP always 32bit, even on 64bit platforms?
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Correct, it's only 32-bit capable (saw the recent discussions about the
-2038yr "problem"...).
+For the same reasons use set_mmss64 callback instead of set_mmss
 
-> 
->> +	do {
->> +		t->sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_COUNTER);
->> +		tmp = readl_relaxed(timer->base + BRCMSTB_WKTMR_PRESCALER_VAL);
->> +	} while (tmp >= timer->rate);
->> +
->> +	t->pre = timer->rate - tmp;
->> +}
->> +
-> 
-> [...]
-> 
->> +static int brcmstb_waketmr_settime(struct device *dev,
->> +				   struct rtc_time *tm)
->> +{
->> +	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
->> +	unsigned long sec;
->> +	int ret;
->> +
->> +	ret = rtc_valid_tm(tm);
->> +	if (ret)
->> +		return ret;
->> +
-> 
-> There is no way this function can be called without a valid tm. The only
-> caller checks before calling.
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-imxdi.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-OK.
-
-> 
->> +	rtc_tm_to_time(tm, &sec);
->> +
->> +	dev_dbg(dev, "%s: sec=%ld\n", __func__, sec);
->> +	writel_relaxed(sec, timer->base + BRCMSTB_WKTMR_COUNTER);
->> +
->> +	return 0;
->> +}
->> +
->> +static int brcmstb_waketmr_getalarm(struct device *dev,
->> +				    struct rtc_wkalrm *alarm)
->> +{
->> +	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
->> +	unsigned long sec;
->> +	u32 reg;
->> +
->> +	sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_ALARM);
->> +	if (sec == 0) {
->> +		/* Alarm is disabled */
->> +		alarm->enabled = 0;
->> +		alarm->time.tm_mon = -1;
->> +		alarm->time.tm_mday = -1;
->> +		alarm->time.tm_year = -1;
->> +		alarm->time.tm_hour = -1;
->> +		alarm->time.tm_min = -1;
->> +		alarm->time.tm_sec = -1;
-> 
-> This is not needed since d68778b80dd7
-
-Great, I will take that out.
-
-Do you care whether some dev_dbg() prints are left in the driver or
-should I remove those in v2?
-
-> 
->> +		dev_dbg(dev, "%s: alarm is disabled\n", __func__);
->> +	} else {
->> +		/* Alarm is enabled */
->> +		alarm->enabled = 1;
->> +		rtc_time_to_tm(sec, &alarm->time);
->> +		dev_dbg(dev, "%s: alarm is enabled\n", __func__);
->> +	}
->> +
->> +	reg = readl_relaxed(timer->base + BRCMSTB_WKTMR_EVENT);
->> +	alarm->pending = !!(reg & 1);
->> +	dev_dbg(dev, "%s: alarm pending=%d\n", __func__, alarm->pending);
->> +
->> +	return 0;
->> +}
-> 
-
-
+diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
+index 6b54f6c..9af601d 100644
+--- a/drivers/rtc/rtc-imxdi.c
++++ b/drivers/rtc/rtc-imxdi.c
+@@ -549,10 +549,10 @@ static int di_write_wait(struct imxdi_dev *imxdi, u32 val, int reg)
+ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
+-	unsigned long now;
++	unsigned long long now;
+ 
+ 	now = readl(imxdi->ioaddr + DTCMR);
+-	rtc_time_to_tm(now, tm);
++	rtc_time64_to_tm(now, tm);
+ 
+ 	return 0;
+ }
+@@ -561,7 +561,7 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
+  * set the seconds portion of dryice time counter and clear the
+  * fractional part.
+  */
+-static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int dryice_rtc_set_mmss64(struct device *dev, time64_t secs)
+ {
+ 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
+ 	u32 dcr, dsr;
+@@ -618,7 +618,7 @@ static int dryice_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	u32 dcamr;
+ 
+ 	dcamr = readl(imxdi->ioaddr + DCAMR);
+-	rtc_time_to_tm(dcamr, &alarm->time);
++	rtc_time64_to_tm((u64)dcamr, &alarm->time);
+ 
+ 	/* alarm is enabled if the interrupt is enabled */
+ 	alarm->enabled = (readl(imxdi->ioaddr + DIER) & DIER_CAIE) != 0;
+@@ -641,12 +641,10 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
+ 	unsigned long now;
+-	unsigned long alarm_time;
++	unsigned long long alarm_time;
+ 	int rc;
+ 
+-	rc = rtc_tm_to_time(&alarm->time, &alarm_time);
+-	if (rc)
+-		return rc;
++	alarm_time = rtc_tm_to_time64(&alarm->time);
+ 
+ 	/* don't allow setting alarm in the past */
+ 	now = readl(imxdi->ioaddr + DTCMR);
+@@ -668,7 +666,7 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ static const struct rtc_class_ops dryice_rtc_ops = {
+ 	.read_time		= dryice_rtc_read_time,
+-	.set_mmss		= dryice_rtc_set_mmss,
++	.set_mmss64		= dryice_rtc_set_mmss64,
+ 	.alarm_irq_enable	= dryice_rtc_alarm_irq_enable,
+ 	.read_alarm		= dryice_rtc_read_alarm,
+ 	.set_alarm		= dryice_rtc_set_alarm,
 -- 
-Florian
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
