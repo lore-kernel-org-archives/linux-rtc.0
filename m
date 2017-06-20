@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBIO2UPFAKGQE6QMBB5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB5GZUPFAKGQEO6MNFBQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
-        by gmr-mx.google.com with ESMTPS id p191si210061wmg.3.2017.06.20.02.38.41
+Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
+        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.37.56
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:41 -0700 (PDT)
-Received: by mail-wm0-x232.google.com with SMTP id m125so16117479wmm.1
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:41 -0700 (PDT)
+        Tue, 20 Jun 2017 02:37:56 -0700 (PDT)
+Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:56 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
@@ -15,9 +15,9 @@ Cc: linaro-kernel@lists.linaro.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 50/51] rtc: xgene stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:58 +0200
-Message-Id: <1497951359-13334-51-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH 25/51] rtc: ep93xx: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:33 +0200
+Message-Id: <1497951359-13334-26-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -42,58 +42,42 @@ CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-xgene.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-ep93xx.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-index 65b432a..c62b5b6 100644
---- a/drivers/rtc/rtc-xgene.c
-+++ b/drivers/rtc/rtc-xgene.c
-@@ -58,11 +58,11 @@ static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
+index 6940382..dcb71b2 100644
+--- a/drivers/rtc/rtc-ep93xx.c
++++ b/drivers/rtc/rtc-ep93xx.c
+@@ -59,15 +59,15 @@ static int ep93xx_rtc_get_swcomp(struct device *dev, unsigned short *preload,
+ static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
+-	unsigned long time;
++	unsigned long long time;
  
--	rtc_time_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
-+	rtc_time64_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
- 	return rtc_valid_tm(tm);
+-	 time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
++	time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
+ 
+-	rtc_time_to_tm(time, tm);
++	rtc_time64_to_tm(time, tm);
+ 	return 0;
  }
  
--static int xgene_rtc_set_mmss(struct device *dev, unsigned long secs)
-+static int xgene_rtc_set_mmss64(struct device *dev, time64_t secs)
+-static int ep93xx_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int ep93xx_rtc_set_mmss64(struct device *dev, time64_t secs)
  {
- 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
  
-@@ -80,7 +80,7 @@ static int xgene_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+@@ -89,7 +89,7 @@ static int ep93xx_rtc_proc(struct device *dev, struct seq_file *seq)
  
--	rtc_time_to_tm(pdata->alarm_time, &alrm->time);
-+	rtc_time64_to_tm(pdata->alarm_time, &alrm->time);
- 	alrm->enabled = readl(pdata->csr_base + RTC_CCR) & RTC_CCR_IE;
+ static const struct rtc_class_ops ep93xx_rtc_ops = {
+ 	.read_time	= ep93xx_rtc_read_time,
+-	.set_mmss	= ep93xx_rtc_set_mmss,
++	.set_mmss64	= ep93xx_rtc_set_mmss64,
+ 	.proc		= ep93xx_rtc_proc,
+ };
  
- 	return 0;
-@@ -108,10 +108,10 @@ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
- 	unsigned long rtc_time;
--	unsigned long alarm_time;
-+	unsigned long long alarm_time;
- 
- 	rtc_time = readl(pdata->csr_base + RTC_CCVR);
--	rtc_tm_to_time(&alrm->time, &alarm_time);
-+	alarm_time = rtc_tm_to_time64(&alrm->time);
- 
- 	pdata->alarm_time = alarm_time;
- 	writel((u32) pdata->alarm_time, pdata->csr_base + RTC_CMR);
-@@ -123,7 +123,7 @@ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- static const struct rtc_class_ops xgene_rtc_ops = {
- 	.read_time	= xgene_rtc_read_time,
--	.set_mmss	= xgene_rtc_set_mmss,
-+	.set_mmss64	= xgene_rtc_set_mmss64,
- 	.read_alarm	= xgene_rtc_read_alarm,
- 	.set_alarm	= xgene_rtc_set_alarm,
- 	.alarm_irq_enable = xgene_rtc_alarm_irq_enable,
 -- 
 1.9.1
 
