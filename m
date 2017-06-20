@@ -1,24 +1,23 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBTWZUPFAKGQEVLSKOBQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB66ZUPFAKGQEQO5ZI3Y@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
-        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.37.18
+Received: from mail-wr0-x22a.google.com (mail-wr0-x22a.google.com. [2a00:1450:400c:c0c::22a])
+        by gmr-mx.google.com with ESMTPS id w193si3485135wmf.3.2017.06.20.02.38.03
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:18 -0700 (PDT)
-Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:18 -0700 (PDT)
+        Tue, 20 Jun 2017 02:38:03 -0700 (PDT)
+Received: by mail-wr0-x22a.google.com with SMTP id r103so88501981wrb.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:03 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	adi-buildroot-devel@lists.sourceforge.net
-Subject: [rtc-linux] [PATCH 11/51] rtc: bfin: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:19 +0200
-Message-Id: <1497951359-13334-12-git-send-email-benjamin.gaignard@linaro.org>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH 28/51] rtc: jz4740: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:36 +0200
+Message-Id: <1497951359-13334-29-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -35,72 +34,66 @@ rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
 rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
+For the same reasons use set_mmss64 callback instead of set_mmss
+
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
-CC: adi-buildroot-devel@lists.sourceforge.net
 ---
- drivers/rtc/rtc-bfin.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-jz4740.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-index 15344b7..4c79bd0 100644
---- a/drivers/rtc/rtc-bfin.c
-+++ b/drivers/rtc/rtc-bfin.c
-@@ -103,7 +103,7 @@ static inline unsigned long rtc_bfin_to_time(u32 rtc_bfin)
- }
- static inline void rtc_bfin_to_tm(u32 rtc_bfin, struct rtc_time *tm)
- {
--	rtc_time_to_tm(rtc_bfin_to_time(rtc_bfin), tm);
-+	rtc_time64_to_tm(rtc_bfin_to_time(rtc_bfin), tm);
- }
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index 64989af..7ce1f43 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -171,12 +171,12 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
+ 	if (timeout == 0)
+ 		return -EIO;
  
- /**
-@@ -271,20 +271,17 @@ static int bfin_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int bfin_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct bfin_rtc *rtc = dev_get_drvdata(dev);
--	int ret;
--	unsigned long now;
-+	unsigned long long now;
+-	rtc_time_to_tm(secs, time);
++	rtc_time64_to_tm((u64)secs, time);
  
- 	dev_dbg_stamp(dev);
- 
--	ret = rtc_tm_to_time(tm, &now);
--	if (ret == 0) {
--		if (rtc->rtc_wrote_regs & 0x1)
--			bfin_rtc_sync_pending(dev);
--		bfin_write_RTC_STAT(rtc_time_to_bfin(now));
--		rtc->rtc_wrote_regs = 0x1;
--	}
-+	now = rtc_tm_to_time64(tm);
-+	if (rtc->rtc_wrote_regs & 0x1)
-+		bfin_rtc_sync_pending(dev);
-+	bfin_write_RTC_STAT(rtc_time_to_bfin(now));
-+	rtc->rtc_wrote_regs = 0x1;
- 
--	return ret;
-+	return 0;
+ 	return rtc_valid_tm(time);
  }
  
- static int bfin_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -300,12 +297,11 @@ static int bfin_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int bfin_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+-static int jz4740_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int jz4740_rtc_set_mmss64(struct device *dev, time64_t secs)
  {
- 	struct bfin_rtc *rtc = dev_get_drvdata(dev);
--	unsigned long rtc_alarm;
-+	unsigned long long rtc_alarm;
+ 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
  
- 	dev_dbg_stamp(dev);
+@@ -196,7 +196,7 @@ static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->enabled = !!(ctrl & JZ_RTC_CTRL_AE);
+ 	alrm->pending = !!(ctrl & JZ_RTC_CTRL_AF);
  
--	if (rtc_tm_to_time(&alrm->time, &rtc_alarm))
--		return -EINVAL;
-+	rtc_alarm = rtc_tm_to_time64(&alrm->time);
+-	rtc_time_to_tm(secs, &alrm->time);
++	rtc_time64_to_tm((u64)secs, &alrm->time);
  
- 	rtc->rtc_alarm = alrm->time;
+ 	return rtc_valid_tm(&alrm->time);
+ }
+@@ -205,9 +205,9 @@ static int jz4740_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	int ret;
+ 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned long secs;
++	unsigned long long secs;
  
+-	rtc_tm_to_time(&alrm->time, &secs);
++	secs = rtc_tm_to_time64(&alrm->time);
+ 
+ 	ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC_ALARM, secs);
+ 	if (!ret)
+@@ -225,7 +225,7 @@ static int jz4740_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 
+ static const struct rtc_class_ops jz4740_rtc_ops = {
+ 	.read_time	= jz4740_rtc_read_time,
+-	.set_mmss	= jz4740_rtc_set_mmss,
++	.set_mmss64	= jz4740_rtc_set_mmss64,
+ 	.read_alarm	= jz4740_rtc_read_alarm,
+ 	.set_alarm	= jz4740_rtc_set_alarm,
+ 	.alarm_irq_enable = jz4740_rtc_alarm_irq_enable,
 -- 
 1.9.1
 
