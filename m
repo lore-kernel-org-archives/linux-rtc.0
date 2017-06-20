@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBF62UPFAKGQEGW7MO5Y@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRB5OZUPFAKGQEOJBYBLQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x22e.google.com (mail-wm0-x22e.google.com. [2a00:1450:400c:c09::22e])
-        by gmr-mx.google.com with ESMTPS id i63si3534094wmf.0.2017.06.20.02.38.31
+Received: from mail-wm0-x22f.google.com (mail-wm0-x22f.google.com. [2a00:1450:400c:c09::22f])
+        by gmr-mx.google.com with ESMTPS id w193si3483598wmf.3.2017.06.20.02.37.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:31 -0700 (PDT)
-Received: by mail-wm0-x22e.google.com with SMTP id u195so14535247wmd.1
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:31 -0700 (PDT)
+        Tue, 20 Jun 2017 02:37:55 -0700 (PDT)
+Received: by mail-wm0-x22f.google.com with SMTP id d73so14472917wma.0
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:55 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
@@ -15,9 +15,9 @@ Cc: linaro-kernel@lists.linaro.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 44/51] rtc: sysfs: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:52 +0200
-Message-Id: <1497951359-13334-45-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH 24/51] rtc: ds2404: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:32 +0200
+Message-Id: <1497951359-13334-25-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -34,100 +34,50 @@ rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
 rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
+For the same reasons use set_mmss64 callback instead of set_mmss
+
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-sysfs.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-ds2404.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index e364550..8b97def 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -72,9 +72,10 @@
+diff --git a/drivers/rtc/rtc-ds2404.c b/drivers/rtc/rtc-ds2404.c
+index 9a1582e..b7d04a7 100644
+--- a/drivers/rtc/rtc-ds2404.c
++++ b/drivers/rtc/rtc-ds2404.c
+@@ -201,16 +201,16 @@ static void ds2404_enable_osc(struct device *dev)
  
- 	retval = rtc_read_time(to_rtc_device(dev), &tm);
- 	if (retval == 0) {
--		unsigned long time;
--		rtc_tm_to_time(&tm, &time);
--		retval = sprintf(buf, "%lu\n", time);
-+		unsigned long long time;
-+
-+		time = rtc_tm_to_time64(&tm);
-+		retval = sprintf(buf, "%llu\n", time);
- 	}
- 
- 	return retval;
-@@ -132,7 +133,7 @@
- wakealarm_show(struct device *dev, struct device_attribute *attr, char *buf)
+ static int ds2404_read_time(struct device *dev, struct rtc_time *dt)
  {
- 	ssize_t retval;
--	unsigned long alarm;
-+	unsigned long long alarm;
- 	struct rtc_wkalrm alm;
+-	unsigned long time = 0;
++	unsigned long long time = 0;
  
- 	/* Don't show disabled alarms.  For uniformity, RTC alarms are
-@@ -145,8 +146,8 @@
- 	 */
- 	retval = rtc_read_alarm(to_rtc_device(dev), &alm);
- 	if (retval == 0 && alm.enabled) {
--		rtc_tm_to_time(&alm.time, &alarm);
--		retval = sprintf(buf, "%lu\n", alarm);
-+		alarm = rtc_tm_to_time64(&alm.time);
-+		retval = sprintf(buf, "%llu\n", alarm);
- 	}
+ 	ds2404_read_memory(dev, 0x203, 4, (u8 *)&time);
+ 	time = le32_to_cpu(time);
  
- 	return retval;
-@@ -157,8 +158,8 @@
- 		const char *buf, size_t n)
+-	rtc_time_to_tm(time, dt);
++	rtc_time64_to_tm(time, dt);
+ 	return rtc_valid_tm(dt);
+ }
+ 
+-static int ds2404_set_mmss(struct device *dev, unsigned long secs)
++static int ds2404_set_mmss64(struct device *dev, time64_t secs)
  {
- 	ssize_t retval;
--	unsigned long now, alarm;
--	unsigned long push = 0;
-+	unsigned long long now, alarm;
-+	unsigned long long push = 0;
- 	struct rtc_wkalrm alm;
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	const char *buf_ptr;
-@@ -170,7 +171,7 @@
- 	retval = rtc_read_time(rtc, &alm.time);
- 	if (retval < 0)
- 		return retval;
--	rtc_tm_to_time(&alm.time, &now);
-+	now = rtc_tm_to_time64(&alm.time);
+ 	u32 time = cpu_to_le32(secs);
+ 	ds2404_write_memory(dev, 0x203, 4, (u8 *)&time);
+@@ -219,7 +219,7 @@ static int ds2404_set_mmss(struct device *dev, unsigned long secs)
  
- 	buf_ptr = buf;
- 	if (*buf_ptr == '+') {
-@@ -181,7 +182,7 @@
- 		} else
- 			adjust = 1;
- 	}
--	retval = kstrtoul(buf_ptr, 0, &alarm);
-+	retval = kstrtoull(buf_ptr, 0, &alarm);
- 	if (retval)
- 		return retval;
- 	if (adjust) {
-@@ -197,7 +198,7 @@
- 			return retval;
- 		if (alm.enabled) {
- 			if (push) {
--				rtc_tm_to_time(&alm.time, &push);
-+				push = rtc_tm_to_time64(&alm.time);
- 				alarm += push;
- 			} else
- 				return -EBUSY;
-@@ -212,7 +213,7 @@
- 		 */
- 		alarm = now + 300;
- 	}
--	rtc_time_to_tm(alarm, &alm.time);
-+	rtc_time64_to_tm(alarm, &alm.time);
+ static const struct rtc_class_ops ds2404_rtc_ops = {
+ 	.read_time	= ds2404_read_time,
+-	.set_mmss	= ds2404_set_mmss,
++	.set_mmss64	= ds2404_set_mmss64,
+ };
  
- 	retval = rtc_set_alarm(rtc, &alm);
- 	return (retval < 0) ? retval : n;
+ static int rtc_probe(struct platform_device *pdev)
 -- 
 1.9.1
 
