@@ -1,23 +1,24 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBAO2UPFAKGQEXZ2EA4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBTWZUPFAKGQEVLSKOBQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wm0-x233.google.com (mail-wm0-x233.google.com. [2a00:1450:400c:c09::233])
-        by gmr-mx.google.com with ESMTPS id o27si2850455wmi.4.2017.06.20.02.38.09
+Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
+        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.37.18
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:09 -0700 (PDT)
-Received: by mail-wm0-x233.google.com with SMTP id x70so15789124wme.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:09 -0700 (PDT)
+        Tue, 20 Jun 2017 02:37:18 -0700 (PDT)
+Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
+        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:18 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 31/51] rtc: omap: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:39 +0200
-Message-Id: <1497951359-13334-32-git-send-email-benjamin.gaignard@linaro.org>
+	linux-kernel@vger.kernel.org,
+	adi-buildroot-devel@lists.sourceforge.net
+Subject: [rtc-linux] [PATCH 11/51] rtc: bfin: stop using rtc deprecated functions
+Date: Tue, 20 Jun 2017 11:35:19 +0200
+Message-Id: <1497951359-13334-12-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -34,41 +35,72 @@ rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
 rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
-For the same reasons use set_mmss64 callback instead of set_mmss
-
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
+CC: adi-buildroot-devel@lists.sourceforge.net
 ---
- drivers/rtc/rtc-omap.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-bfin.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 13f7cd1..8aa3957 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -432,7 +432,7 @@ static void omap_rtc_power_off(void)
+diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
+index 15344b7..4c79bd0 100644
+--- a/drivers/rtc/rtc-bfin.c
++++ b/drivers/rtc/rtc-bfin.c
+@@ -103,7 +103,7 @@ static inline unsigned long rtc_bfin_to_time(u32 rtc_bfin)
+ }
+ static inline void rtc_bfin_to_tm(u32 rtc_bfin, struct rtc_time *tm)
  {
- 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
- 	struct rtc_time tm;
+-	rtc_time_to_tm(rtc_bfin_to_time(rtc_bfin), tm);
++	rtc_time64_to_tm(rtc_bfin_to_time(rtc_bfin), tm);
+ }
+ 
+ /**
+@@ -271,20 +271,17 @@ static int bfin_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int bfin_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct bfin_rtc *rtc = dev_get_drvdata(dev);
+-	int ret;
 -	unsigned long now;
 +	unsigned long long now;
- 	u32 val;
  
- 	rtc->type->unlock(rtc);
-@@ -443,8 +443,8 @@ static void omap_rtc_power_off(void)
- 	/* set alarm two seconds from now */
- 	omap_rtc_read_time_raw(rtc, &tm);
- 	bcd2tm(&tm);
--	rtc_tm_to_time(&tm, &now);
--	rtc_time_to_tm(now + 2, &tm);
-+	now = rtc_tm_to_time64(&tm);
-+	rtc_time64_to_tm(now + 2, &tm);
+ 	dev_dbg_stamp(dev);
  
- 	if (tm2bcd(&tm) < 0) {
- 		dev_err(&rtc->rtc->dev, "power off failed\n");
+-	ret = rtc_tm_to_time(tm, &now);
+-	if (ret == 0) {
+-		if (rtc->rtc_wrote_regs & 0x1)
+-			bfin_rtc_sync_pending(dev);
+-		bfin_write_RTC_STAT(rtc_time_to_bfin(now));
+-		rtc->rtc_wrote_regs = 0x1;
+-	}
++	now = rtc_tm_to_time64(tm);
++	if (rtc->rtc_wrote_regs & 0x1)
++		bfin_rtc_sync_pending(dev);
++	bfin_write_RTC_STAT(rtc_time_to_bfin(now));
++	rtc->rtc_wrote_regs = 0x1;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int bfin_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -300,12 +297,11 @@ static int bfin_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int bfin_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct bfin_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned long rtc_alarm;
++	unsigned long long rtc_alarm;
+ 
+ 	dev_dbg_stamp(dev);
+ 
+-	if (rtc_tm_to_time(&alrm->time, &rtc_alarm))
+-		return -EINVAL;
++	rtc_alarm = rtc_tm_to_time64(&alrm->time);
+ 
+ 	rtc->rtc_alarm = alrm->time;
+ 
 -- 
 1.9.1
 
