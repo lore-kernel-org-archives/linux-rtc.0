@@ -1,35 +1,55 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBB6LR7FAKGQEE2OR5YA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wm0-x232.google.com (mail-wm0-x232.google.com. [2a00:1450:400c:c09::232])
-        by gmr-mx.google.com with ESMTPS id 197si701762wmo.0.2017.06.16.07.04.55
+Return-Path: <rtc-linux+bncBAABB2HUVDFAKGQEE4CSGJA@googlegroups.com>
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id 143si3781273wmr.0.2017.06.21.02.20.39
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Jun 2017 07:04:55 -0700 (PDT)
-Received: by mail-wm0-x232.google.com with SMTP id m125so26940429wmm.1
-        for <rtc-linux@googlegroups.com>; Fri, 16 Jun 2017 07:04:55 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: john.stultz@linaro.org,
-	tglx@linutronix.de,
-	sboyd@codeaurora.org,
-	shuah@kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	patrice.chotard@st.com,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com
-Cc: linaro-kernel@lists.linaro.org,
-	Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: [rtc-linux] [PATCH 3/3] rtc: st-lpc: make it robust against
- y2038/2106 bug
-Date: Fri, 16 Jun 2017 16:03:53 +0200
-Message-Id: <1497621833-9942-4-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 21 Jun 2017 02:20:39 -0700 (PDT)
+Date: Wed, 21 Jun 2017 10:19:49 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Thomas Gleixner <tglx@linutronix.de>,
+	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+	Baruch Siach <baruch@tkos.co.il>,
+	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	"x86@kernel.org" <x86@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Chen-Yu Tsai <wens@csie.org>, Ingo Molnar <mingo@redhat.com>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Len Brown <len.brown@intel.com>,
+	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Michael Chan <michael.chan@broadcom.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Barry Song <baohua@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Steve Twiss <stwiss.opensource@diasemi.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
+Message-ID: <20170621091948.GP4902@n2100.armlinux.org.uk>
+References: <20170620213507.urobmtg34vzubrdq@piout.net>
+ <alpine.DEB.2.20.1706202343120.2157@nanos>
+ <20170621075152.GA15996@amd>
+ <20170621083907.y3gadsmsoufa5niv@piout.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170621083907.y3gadsmsoufa5niv@piout.net>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -38,64 +58,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Make driver use u64 variables and functions to be sure that
-it will support dates after year 2038.
+On Wed, Jun 21, 2017 at 10:39:07AM +0200, Alexandre Belloni wrote:
+> On 21/06/2017 at 09:51:52 +0200, Pavel Machek wrote:
+> > If someone uses different threshold, well, there will be
+> > confusion. But only for users that have their rtc set to the past,
+> > which is quite unusual.
+> > 
+> 
+> Or not, having an RTC set in the past is actually quite common. I'd find
+> it weird to have a new device boot and be set to a date in the future.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
----
- drivers/rtc/rtc-st-lpc.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+... and that basically means you can't use hardware that stores RTC
+time as a 32-bit number of seconds past 2106.
 
-diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-index 74c0a33..82b0af1 100644
---- a/drivers/rtc/rtc-st-lpc.c
-+++ b/drivers/rtc/rtc-st-lpc.c
-@@ -99,7 +99,7 @@ static int st_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	lpt = ((unsigned long long)lpt_msb << 32) | lpt_lsb;
- 	do_div(lpt, rtc->clkrate);
--	rtc_time_to_tm(lpt, tm);
-+	rtc_time64_to_tm(lpt, tm);
- 
- 	return 0;
- }
-@@ -107,13 +107,10 @@ static int st_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int st_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct st_rtc *rtc = dev_get_drvdata(dev);
--	unsigned long long lpt;
--	unsigned long secs, flags;
--	int ret;
-+	unsigned long long lpt, secs;
-+	unsigned long flags;
- 
--	ret = rtc_tm_to_time(tm, &secs);
--	if (ret)
--		return ret;
-+	secs = rtc_tm_to_time64(tm);
- 
- 	lpt = (unsigned long long)secs * rtc->clkrate;
- 
-@@ -161,13 +158,13 @@ static int st_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct st_rtc *rtc = dev_get_drvdata(dev);
- 	struct rtc_time now;
--	unsigned long now_secs;
--	unsigned long alarm_secs;
-+	unsigned long long now_secs;
-+	unsigned long long alarm_secs;
- 	unsigned long long lpa;
- 
- 	st_rtc_read_time(dev, &now);
--	rtc_tm_to_time(&now, &now_secs);
--	rtc_tm_to_time(&t->time, &alarm_secs);
-+	now_secs = rtc_tm_to_time64(&now);
-+	alarm_secs = rtc_tm_to_time64(&t->time);
- 
- 	/* Invalid alarm time */
- 	if (now_secs > alarm_secs)
+> Also note that the threshold or offset thing may seem like a good idea
+> but fails with many RTCs because of how they handle leap years.
+
+Not for the case being discussed.  A 32-bit counter of seconds knows
+nothing about leap years - all that is handled by the conversion
+functions.
+
 -- 
-1.9.1
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
