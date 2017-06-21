@@ -1,100 +1,158 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:34303 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751813AbdFHVZO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 17:25:14 -0400
-MIME-Version: 1.0
-In-Reply-To: <87wp8mky7z.fsf@rasmusvillemoes.dk>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
- <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
- <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
- <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
- <20170608150540.rek7a4akuxm3k36l@piout.net> <CAHp75Vfem=tj3esGx+7_8_Ygx+v09uk77rF-RJ34Tt2kLTHvVQ@mail.gmail.com>
- <20170608184154.y7tqsv7ghpbcbf77@piout.net> <CAHp75VcJZS+x8KdBs0nQj_sq9yx23gx3NBP_AqGi0xU+AqEDwQ@mail.gmail.com>
- <87wp8mky7z.fsf@rasmusvillemoes.dk>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 9 Jun 2017 00:25:13 +0300
-Message-ID: <CAHp75VdVV6i8SD6=z5Bt=UCsDB7mYTnxpZqP5=pWiob1CVPSaA@mail.gmail.com>
-Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
- readable format via %pt
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33410 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752403AbdFUO6U (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Jun 2017 10:58:20 -0400
+From: Kirill Esipov <yesipov@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kirill Esipov <yesipov@gmail.com>
+Subject: [PATCH] rtc: ds3232: add temperature support
+Date: Wed, 21 Jun 2017 17:49:43 +0300
+Message-Id: <1498056583-16551-1-git-send-email-yesipov@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jun 8, 2017 at 11:42 PM, Rasmus Villemoes
-<linux@rasmusvillemoes.dk> wrote:
-> On Thu, Jun 08 2017, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
->> On Thu, Jun 8, 2017 at 9:41 PM, Alexandre Belloni
->> <alexandre.belloni@free-electrons.com> wrote:
->>> On 08/06/2017 at 20:57:05 +0300, Andy Shevchenko wrote:
->>>> On Thu, Jun 8, 2017 at 6:05 PM, Alexandre Belloni
->>>> <alexandre.belloni@free-electrons.com> wrote:
+DS3232/DS3234 has the temperature registers with a resolution of
+0.25 degree celsius. This enables to get the value through hwmon.
 
->> Yeah, but the problem is to pass the reference. All dances around will
->> uglify the code.
->> (Obviously we can't pass timespec64/time64_t or anything longer than
->> 32 bits as is in %p extension)
+	# cat /sys/class/hwmon/hwmon0/temp1_input
+	37250
 
-> I like that this gets rid of some mm/dd/yy and other more or less random
-> format and ends up standardizing yyyy-mm-dd HH:MM:SS. However, I do
-> think %pt should take either ktime_t or timespec64 (obviously by
-> reference),
+Signed-off-by: Kirill Esipov <yesipov@gmail.com>
+---
+ drivers/rtc/Kconfig      |  9 ++++++
+ drivers/rtc/rtc-ds3232.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 93 insertions(+)
 
-I will try to look in this direction.
-
-> with fx these options
->
-> [ir] ISO (yyyy-mm-dd HH:MM:SS) or raw (seconds since epoch)
-> [n] append nanoseconds (.%09ld).
-
-We still need to be able to print time *and/or* year groups
-separately. There are users which provide that via procfs or sysfs
-(ABI).
-
-> Please don't give people the option of eliding either the time or the
-> date; I've spent too much time dealing with syslog files that don't
-> include the year in the timestamps.
-
-I understand that, but see above.
-
-> Getting a timespec64* or ktime_t* from <something else> is not that
-> bad. There's the compound literal option
-
-Will look at it later, thanks for it.
-
->
-> #define rtc_tm2timespec64p(tm) \
->  (&(struct timespec64){ .tv_sec = rtc_tm_to_time64(tm), .tv_nsec = 0 })
->
-> printk("%pt", rtc_tm2timespec64p(tm))
->
-> or the two-extra-lines per call-site
->
-> struct timespec64 ts;
-> rtc_tm2time64(tm, &ts)
-> printk("%pt", &ts)
-
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8d3b95728326..b4a6a916d4df 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -791,6 +791,15 @@ config RTC_DRV_DS3232
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called rtc-ds3232.
+ 
++config RTC_DRV_DS3232_HWMON
++	bool "HWMON support for Dallas/Maxim DS3232/DS3234"
++	depends on RTC_DRV_DS3232 && HWMON
++	depends on !(RTC_DRV_DS3232=y && HWMON=m)
++	default y
++	help
++	  Say Y here if you want to expose temperature sensor data on
++	  rtc-ds3232
++
+ config RTC_DRV_PCF2127
+ 	tristate "NXP PCF2127"
+ 	depends on RTC_I2C_AND_SPI
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index deff431a37c4..f94ff0685942 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -22,6 +22,8 @@
+ #include <linux/bcd.h>
+ #include <linux/slab.h>
+ #include <linux/regmap.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
+ 
+ #define DS3232_REG_SECONDS      0x00
+ #define DS3232_REG_MINUTES      0x01
+@@ -275,6 +277,86 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ 	return ret;
+ }
+ 
++/*----------------------------------------------------------------------*/
++
++#ifdef CONFIG_RTC_DRV_DS3232_HWMON
++
++/*
++ * Temperature sensor support for ds3232/ds3234 devices.
++ */
++
++#define DS3232_REG_TEMPERATURE	0x11
++
++/*
++ * A user-initiated temperature conversion is not started by this function,
++ * so the temperature is updated once every 64 seconds.
++ */
++static int ds3232_hwmon_read_temp(struct device *dev, s32 *mC)
++{
++	struct ds3232 *ds3232 = dev_get_drvdata(dev);
++	u8 temp_buf[2];
++	s16 temp;
++	int ret;
++
++	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
++				sizeof(temp_buf));
++
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * Temperature is represented as a 10-bit code with a resolution of
++	 * 0.25 degree celsius and encoded in two's complement format.
++	 */
++	temp = (temp_buf[0] << 8) | temp_buf[1];
++	temp >>= 6;
++	*mC = temp * 250;
++
++	return 0;
++}
++
++static ssize_t ds3232_hwmon_show_temp(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	int ret;
++	s32 temp;
++
++	ret = ds3232_hwmon_read_temp(dev, &temp);
++	if (ret < 0)
++		return ret;
++
++	return sprintf(buf, "%d\n", temp);
++}
++static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3232_hwmon_show_temp,
++			NULL, 0);
++
++static struct attribute *ds3232_hwmon_attrs[] = {
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(ds3232_hwmon);
++
++static void ds3232_hwmon_register(struct device *dev, const char *name)
++{
++	struct ds3232 *ds3232 = dev_get_drvdata(dev);
++	struct device *hwmon_dev;
++
++	hwmon_dev = devm_hwmon_device_register_with_groups(dev, name, ds3232,
++							   ds3232_hwmon_groups);
++	if (IS_ERR(hwmon_dev)) {
++		dev_warn(dev, "unable to register hwmon device %ld\n",
++			 PTR_ERR(hwmon_dev));
++	}
++}
++
++#else
++
++static void ds3232_hwmon_register(struct ds3232 *ds3232)
++{
++}
++
++#endif
++
+ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+@@ -366,6 +448,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	if (ds3232->irq > 0)
+ 		device_init_wakeup(dev, 1);
+ 
++	ds3232_hwmon_register(dev, name);
++
+ 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+ 						THIS_MODULE);
+ 	if (IS_ERR(ds3232->rtc))
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
