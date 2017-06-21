@@ -1,27 +1,62 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRB76ZUPFAKGQEZ7GLVSA@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x22f.google.com (mail-wr0-x22f.google.com. [2a00:1450:400c:c0c::22f])
-        by gmr-mx.google.com with ESMTPS id m189si2689823wma.6.2017.06.20.02.38.07
+Return-Path: <rtc-linux+bncBAABBHX4VDFAKGQE4UU4GPY@googlegroups.com>
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk. [2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by gmr-mx.google.com with ESMTPS id 143si3793303wmr.0.2017.06.21.02.36.30
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:07 -0700 (PDT)
-Received: by mail-wr0-x22f.google.com with SMTP id y25so49021371wrd.2
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:07 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 21 Jun 2017 02:36:30 -0700 (PDT)
+Date: Wed, 21 Jun 2017 10:35:49 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: David Laight <David.Laight@ACULAB.COM>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 30/51] rtc: mv: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:38 +0200
-Message-Id: <1497951359-13334-31-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+	Baruch Siach <baruch@tkos.co.il>,
+	"patches@opensource.wolfsonmicro.com" <patches@opensource.wolfsonmicro.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Pavel Machek <pavel@ucw.cz>, Thomas Gleixner <tglx@linutronix.de>,
+	"x86@kernel.org" <x86@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Chen-Yu Tsai <wens@csie.org>, Ingo Molnar <mingo@redhat.com>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Len Brown <len.brown@intel.com>,
+	"linaro-kernel@lists.linaro.org" <linaro-kernel@lists.linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	"adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	John Stultz <john.stultz@linaro.org>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Michael Chan <michael.chan@broadcom.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Barry Song <baohua@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Steve Twiss <stwiss.opensource@diasemi.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
+Message-ID: <20170621093549.GQ4902@n2100.armlinux.org.uk>
+References: <20170620100348.zh4ygvjjgnhxvmvl@piout.net>
+ <20170620121011.GA13221@amd>
+ <20170620122400.sm7qqvwyj6cuzarw@piout.net>
+ <20170620132620.GA16881@amd>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD96FCD@SW-EX-MBX02.diasemi.com>
+ <20170620134458.GA10104@amd>
+ <20170620134827.ubvzhh25klaotupv@piout.net>
+ <CA+M3ks68+z6nDtYM8CDpso7SxjB6Nt5E=rOc1yxx=kDz6PUeVQ@mail.gmail.com>
+ <20170620211536.GM4902@n2100.armlinux.org.uk>
+ <063D6719AE5E284EB5DD2968C1650D6DD00278C0@AcuExch.aculab.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6DD00278C0@AcuExch.aculab.com>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,34 +65,50 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On Wed, Jun 21, 2017 at 09:26:51AM +0000, David Laight wrote:
+> From: Russell King - ARM Linux
+> > Sent: 20 June 2017 22:16
+> ..
+> > Consider that at the moment, we define the 32-bit RTC representation to
+> > start at a well known epoch.  We _could_ decide that when it wraps to
+> > 0x80000000 seconds, we'll define the lower 0x40000000 seconds to mean
+> > dates in the future - and keep rolling that forward each time we cross
+> > another 0x40000000 seconds.  Unless someone invents a real time machine,
+> > we shouldn't need to set a modern RTC back to 1970.
+> 
+> True, just treating the value as unsigned gives another 67 years.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-mv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We _already_ do treat it as an unsigned number, so already the panicing
+about 2038 is complete and utter nonsense - that's why I've been
+consistently stating the 2106 date.
 
-diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-index 79bb286..fce4658 100644
---- a/drivers/rtc/rtc-mv.c
-+++ b/drivers/rtc/rtc-mv.c
-@@ -127,7 +127,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 
- 	if (rtc_valid_tm(&alm->time) < 0) {
- 		dev_err(dev, "retrieved alarm date/time is not valid.\n");
--		rtc_time_to_tm(0, &alm->time);
-+		rtc_time64_to_tm(0, &alm->time);
- 	}
- 
- 	alm->enabled = !!readl(ioaddr + RTC_ALARM_INTERRUPT_MASK_REG_OFFS);
+> If a 32bit RTC is programmed with the low 32bits of the 64bit 'seconds
+> since 1970' the kernel should have no real difficulty sorting out the
+> high bits from other available information.
+
+Right, but converting all the 32-bit conversion functions to 64-bit
+means that rather than "sorting out" that from the core RTC driver,
+we have to implement solutions in each and every driver.
+
+While that may appear to be a good idea, many RTCs that are 32-bit
+counters do not themselves have additional non-volatile storage, so
+it means that we're ending up with a lot of RTC specific hacks to
+go and get the additional information from some other driver elsewhere
+in the system.
+
+> Problems with things like the x86 bios setting the rtc to stupid values
+> are another matter.
+
+Forget x86, the RTC there does not store time as a 32-bit integer, it's
+stored as its component values, and there's non-volatile memory attached
+to the RTC.  Hence, it's out of scope of "what to do about RTCs that
+store time in 32-bit format" and also out of scope of "what to do about
+RTC drivers that use the 32-bit time conversion function."
+
 -- 
-1.9.1
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
