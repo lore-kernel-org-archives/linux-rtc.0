@@ -1,206 +1,238 @@
-Return-Path: <rtc-linux+bncBDQ4HRP464MRBSMBY7EQKGQED43TZNQ@googlegroups.com>
-Resent-Message-ID: <20170602194648.jsykltleb4y7zxvr@piout.net>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35989 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751083AbdFATJk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 15:09:40 -0400
-Received: by mail-wm0-f67.google.com with SMTP id k15so13658570wmh.3
-        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 12:09:39 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [rtc-linux] [PATCH v2 2/4] rtc: ds1307: use regmap_update_bits where applicable
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
-Message-ID: <2eb07379-2b2a-5649-fc39-aeac298d6d7b@gmail.com>
-Date: Thu, 1 Jun 2017 21:09:19 +0200
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Received: from mail-ua0-f193.google.com ([209.85.217.193]:34986 "EHLO
+        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751167AbdFVQRX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2017 12:17:23 -0400
 MIME-Version: 1.0
-In-Reply-To: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
+In-Reply-To: <8491fe94-16f2-e7a4-0cd9-385b5e0b600a@roeck-us.net>
+References: <1498056583-16551-1-git-send-email-yesipov@gmail.com>
+ <20170621222421.GA23791@roeck-us.net> <CAJcpCzGWiRRY2gZzNZVJOG2oLTsGjh9+DCn=vuY1A0szZf2Vjw@mail.gmail.com>
+ <8491fe94-16f2-e7a4-0cd9-385b5e0b600a@roeck-us.net>
+From: Kirill Esipov <yesipov@gmail.com>
+Date: Thu, 22 Jun 2017 19:17:16 +0300
+Message-ID: <CAJcpCzFhZZq+V7W3CzoJoK4=9scEoAGjvOPC1GVhRQWP_P4cRg@mail.gmail.com>
+Subject: Re: rtc: ds3232: add temperature support
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Reply-To: rtc-linux@googlegroups.com
 
-After the switch to regmap we can now make use of regmap_update_bits
-to simplify read/modify/write ops.
+2017-06-22 16:44 GMT+03:00 Guenter Roeck <linux@roeck-us.net>:
+> On 06/22/2017 05:07 AM, Kirill Esipov wrote:
+>>
+>>
+>>
+>> 2017-06-22 1:24 GMT+03:00 Guenter Roeck <linux@roeck-us.net
+>> <mailto:linux@roeck-us.net>>:
+>>
+>>     On Wed, Jun 21, 2017 at 05:49:43PM +0300, Kirill Esipov wrote:
+>>      > DS3232/DS3234 has the temperature registers with a resolution of
+>>      > 0.25 degree celsius. This enables to get the value through hwmon.
+>>      >
+>>      >       # cat /sys/class/hwmon/hwmon0/temp1_input
+>>      >       37250
+>>      >
+>>      > Signed-off-by: Kirill Esipov <yesipov@gmail.com
+>> <mailto:yesipov@gmail.com>>
+>>
+>>      > ---
+>>      >  drivers/rtc/Kconfig      |  9 ++++++
+>>      >  drivers/rtc/rtc-ds3232.c | 84
+>> ++++++++++++++++++++++++++++++++++++++++++++++++
+>>      >  2 files changed, 93 insertions(+)
+>>      >
+>>      > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+>>      > index 8d3b95728326..b4a6a916d4df 100644
+>>      > --- a/drivers/rtc/Kconfig
+>>      > +++ b/drivers/rtc/Kconfig
+>>      > @@ -791,6 +791,15 @@ config RTC_DRV_DS3232
+>>      >         This driver can also be built as a module.  If so, the
+>> module
+>>      >         will be called rtc-ds3232.
+>>      >
+>>      > +config RTC_DRV_DS3232_HWMON
+>>      > +     bool "HWMON support for Dallas/Maxim DS3232/DS3234"
+>>      > +     depends on RTC_DRV_DS3232 && HWMON
+>>      > +     depends on !(RTC_DRV_DS3232=y && HWMON=m)
+>>      > +     default y
+>>      > +     help
+>>      > +       Say Y here if you want to expose temperature sensor data on
+>>      > +       rtc-ds3232
+>>      > +
+>>      >  config RTC_DRV_PCF2127
+>>      >       tristate "NXP PCF2127"
+>>      >       depends on RTC_I2C_AND_SPI
+>>      > diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+>>      > index deff431a37c4..f94ff0685942 100644
+>>      > --- a/drivers/rtc/rtc-ds3232.c
+>>      > +++ b/drivers/rtc/rtc-ds3232.c
+>>      > @@ -22,6 +22,8 @@
+>>      >  #include <linux/bcd.h>
+>>      >  #include <linux/slab.h>
+>>      >  #include <linux/regmap.h>
+>>      > +#include <linux/hwmon.h>
+>>      > +#include <linux/hwmon-sysfs.h>
+>>      >
+>>      >  #define DS3232_REG_SECONDS      0x00
+>>      >  #define DS3232_REG_MINUTES      0x01
+>>      > @@ -275,6 +277,86 @@ static int ds3232_update_alarm(struct device
+>> *dev, unsigned int enabled)
+>>      >       return ret;
+>>      >  }
+>>      >
+>>      >
+>> +/*----------------------------------------------------------------------*/
+>>      > +
+>>      > +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+>>      > +
+>>      > +/*
+>>      > + * Temperature sensor support for ds3232/ds3234 devices.
+>>      > + */
+>>      > +
+>>      > +#define DS3232_REG_TEMPERATURE       0x11
+>>      > +
+>>      > +/*
+>>      > + * A user-initiated temperature conversion is not started by this
+>> function,
+>>      > + * so the temperature is updated once every 64 seconds.
+>>      > + */
+>>      > +static int ds3232_hwmon_read_temp(struct device *dev, s32 *mC)
+>>      > +{
+>>      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>>      > +     u8 temp_buf[2];
+>>      > +     s16 temp;
+>>      > +     int ret;
+>>      > +
+>>      > +     ret = regmap_bulk_read(ds3232->regmap,
+>> DS3232_REG_TEMPERATURE, temp_buf,
+>>      > +                             sizeof(temp_buf));
+>>      > +
+>>      > +     if (ret < 0)
+>>      > +             return ret;
+>>      > +
+>>      > +     /*
+>>      > +      * Temperature is represented as a 10-bit code with a
+>> resolution of
+>>      > +      * 0.25 degree celsius and encoded in two's complement
+>> format.
+>>      > +      */
+>>      > +     temp = (temp_buf[0] << 8) | temp_buf[1];
+>>      > +     temp >>= 6;
+>>      > +     *mC = temp * 250;
+>>      > +
+>>      > +     return 0;
+>>      > +}
+>>      > +
+>>      > +static ssize_t ds3232_hwmon_show_temp(struct device *dev,
+>>      > +                             struct device_attribute *attr, char
+>> *buf)
+>>      > +{
+>>      > +     int ret;
+>>      > +     s32 temp;
+>>      > +
+>>      > +     ret = ds3232_hwmon_read_temp(dev, &temp);
+>>      > +     if (ret < 0)
+>>      > +             return ret;
+>>      > +
+>>      > +     return sprintf(buf, "%d\n", temp);
+>>      > +}
+>>      > +static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO,
+>> ds3232_hwmon_show_temp,
+>>      > +                     NULL, 0);
+>>      > +
+>>      > +static struct attribute *ds3232_hwmon_attrs[] = {
+>>      > +     &sensor_dev_attr_temp1_input.dev_attr.attr,
+>>      > +     NULL,
+>>      > +};
+>>      > +ATTRIBUTE_GROUPS(ds3232_hwmon);
+>>      > +
+>>      > +static void ds3232_hwmon_register(struct device *dev, const char
+>> *name)
+>>      > +{
+>>      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>>      > +     struct device *hwmon_dev;
+>>      > +
+>>      > +     hwmon_dev = devm_hwmon_device_register_with_groups(dev, name,
+>> ds3232,
+>>      > +
+>> ds3232_hwmon_groups);
+>>
+>>     Any reason for not using devm_hwmon_device_register_with_info() ?
+>>
+>>
+>>
+>> Just to keep uniformity,  because other rtc drivers with hwmon
+>> (rtc-ds1307, rtc-rv3029c2) use
+>> devm_hwmon_device_register_with_groups().
+>>
+>
+> Hmm. Odd reason. With this line of argument, a new API should never be used
+> because "everyone else uses the old API".
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- no changes
----
- drivers/rtc/rtc-ds1307.c | 82 ++++++++++++------------------------------------
- 1 file changed, 20 insertions(+), 62 deletions(-)
+Well, I had task to add temperature feature to my device, and the
+cheapest (easiest)
+way was to make it as in same device drivers. I did it and decided to share.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index b960ec3f..bf906e9f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -247,7 +247,7 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
- {
- 	struct ds1307		*ds1307 = dev_id;
- 	struct mutex		*lock = &ds1307->rtc->ops_lock;
--	int			stat, control, ret;
-+	int			stat, ret;
- 
- 	mutex_lock(lock);
- 	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &stat);
-@@ -258,13 +258,11 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
- 		stat &= ~DS1337_BIT_A1I;
- 		regmap_write(ds1307->regmap, DS1337_REG_STATUS, stat);
- 
--		ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
-+		ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
-+					 DS1337_BIT_A1IE, 0);
- 		if (ret)
- 			goto out;
- 
--		control &= ~DS1337_BIT_A1IE;
--		regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
--
- 		rtc_update_irq(ds1307->rtc, 1, RTC_AF | RTC_IRQF);
- 	}
- 
-@@ -517,21 +515,13 @@ static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct ds1307		*ds1307 = dev_get_drvdata(dev);
--	int			control, ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
- 		return -ENOTTY;
- 
--	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
--	if (ret)
--		return ret;
--
--	if (enabled)
--		control |= DS1337_BIT_A1IE;
--	else
--		control &= ~DS1337_BIT_A1IE;
--
--	return regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
-+	return regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
-+				  DS1337_BIT_A1IE,
-+				  enabled ? DS1337_BIT_A1IE : 0);
- }
- 
- static const struct rtc_class_ops ds13xx_rtc_ops = {
-@@ -586,11 +576,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id)
- 		goto out;
- 
- 	/* Disable alarm 0. */
--	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
--	if (ret)
--		goto out;
--	reg &= ~MCP794XX_BIT_ALM0_EN;
--	ret = regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
-+	ret = regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
-+				 MCP794XX_BIT_ALM0_EN, 0);
- 	if (ret)
- 		goto out;
- 
-@@ -688,21 +675,13 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct ds1307 *ds1307 = dev_get_drvdata(dev);
--	int reg, ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
- 		return -EINVAL;
- 
--	ret = regmap_read(ds1307->regmap, MCP794XX_REG_CONTROL, &reg);
--	if (ret)
--		return ret;
--
--	if (enabled)
--		reg |= MCP794XX_BIT_ALM0_EN;
--	else
--		reg &= ~MCP794XX_BIT_ALM0_EN;
--
--	return regmap_write(ds1307->regmap, MCP794XX_REG_CONTROL, reg);
-+	return regmap_update_bits(ds1307->regmap, MCP794XX_REG_CONTROL,
-+				  MCP794XX_BIT_ALM0_EN,
-+				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
- 
- static const struct rtc_class_ops mcp794xx_rtc_ops = {
-@@ -905,20 +884,11 @@ static int ds3231_clk_sqw_rates[] = {
- static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
- {
- 	struct mutex *lock = &ds1307->rtc->ops_lock;
--	int control;
- 	int ret;
- 
- 	mutex_lock(lock);
--
--	ret = regmap_read(ds1307->regmap, DS1337_REG_CONTROL, &control);
--	if (ret)
--		goto out;
--
--	control &= ~mask;
--	control |= value;
--
--	ret = regmap_write(ds1307->regmap, DS1337_REG_CONTROL, control);
--out:
-+	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_CONTROL,
-+				 mask, value);
- 	mutex_unlock(lock);
- 
- 	return ret;
-@@ -1024,22 +994,12 @@ static unsigned long ds3231_clk_32khz_recalc_rate(struct clk_hw *hw,
- static int ds3231_clk_32khz_control(struct ds1307 *ds1307, bool enable)
- {
- 	struct mutex *lock = &ds1307->rtc->ops_lock;
--	int status;
- 	int ret;
- 
- 	mutex_lock(lock);
--
--	ret = regmap_read(ds1307->regmap, DS1337_REG_STATUS, &status);
--	if (ret)
--		goto out;
--
--	if (enable)
--		status |= DS3231_BIT_EN32KHZ;
--	else
--		status &= ~DS3231_BIT_EN32KHZ;
--
--	ret = regmap_write(ds1307->regmap, DS1337_REG_STATUS, status);
--out:
-+	ret = regmap_update_bits(ds1307->regmap, DS1337_REG_STATUS,
-+				 DS3231_BIT_EN32KHZ,
-+				 enable ? DS3231_BIT_EN32KHZ : 0);
- 	mutex_unlock(lock);
- 
- 	return ret;
-@@ -1495,12 +1455,10 @@ static int ds1307_probe(struct i2c_client *client,
- 	 * If different then set the wday which we computed using
- 	 * timestamp
- 	 */
--	if (wday != tm.tm_wday) {
--		regmap_read(ds1307->regmap, MCP794XX_REG_WEEKDAY, &wday);
--		wday = wday & ~MCP794XX_REG_WEEKDAY_WDAY_MASK;
--		wday = wday | (tm.tm_wday + 1);
--		regmap_write(ds1307->regmap, MCP794XX_REG_WEEKDAY, wday);
--	}
-+	if (wday != tm.tm_wday)
-+		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
-+				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
-+				   tm.tm_wday + 1);
- 
- 	if (want_irq) {
- 		device_set_wakeup_capable(ds1307->dev, true);
+> How about converting the other drivers to  use new API instead ?
+
+Ok, at first I'll try to use new hwmon API for current driver (rtc-ds3232) .
+
+
+> The idea behind the new API was to simplify drivers and make them
+> independent
+> of the sysfs ABI. That doesn't mean that drivers _have_ to use that API,
+> though,
+> so feel free to stick with the above.
+>
+> Guenter
+>
+>
+>>
+>>     Guenter
+>>
+>>      > +     if (IS_ERR(hwmon_dev)) {
+>>      > +             dev_warn(dev, "unable to register hwmon device
+>> %ld\n",
+>>      > +                      PTR_ERR(hwmon_dev));
+>>      > +     }
+>>      > +}
+>>      > +
+>>      > +#else
+>>      > +
+>>      > +static void ds3232_hwmon_register(struct ds3232 *ds3232)
+>>      > +{
+>>      > +}
+>>      > +
+>>      > +#endif
+>>      > +
+>>      >  static int ds3232_alarm_irq_enable(struct device *dev, unsigned
+>> int enabled)
+>>      >  {
+>>      >       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>>      > @@ -366,6 +448,8 @@ static int ds3232_probe(struct device *dev,
+>> struct regmap *regmap, int irq,
+>>      >       if (ds3232->irq > 0)
+>>      >               device_init_wakeup(dev, 1);
+>>      >
+>>      > +     ds3232_hwmon_register(dev, name);
+>>      > +
+>>      >       ds3232->rtc = devm_rtc_device_register(dev, name,
+>> &ds3232_rtc_ops,
+>>      >                                               THIS_MODULE);
+>>      >       if (IS_ERR(ds3232->rtc))
+>>
+>>
+>>
+>>
+>> --
+>> Kirill Esipov
+>
+>
+
+
+
 -- 
-2.13.0
-
-
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+Kirill Esipov
