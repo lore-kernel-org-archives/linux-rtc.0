@@ -1,82 +1,197 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:35693 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751701AbdFHPdt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2017 11:33:49 -0400
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47121 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751094AbdFVNoM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2017 09:44:12 -0400
+Subject: Re: rtc: ds3232: add temperature support
+To: Kirill Esipov <yesipov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1498056583-16551-1-git-send-email-yesipov@gmail.com>
+ <20170621222421.GA23791@roeck-us.net>
+ <CAJcpCzGWiRRY2gZzNZVJOG2oLTsGjh9+DCn=vuY1A0szZf2Vjw@mail.gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <8491fe94-16f2-e7a4-0cd9-385b5e0b600a@roeck-us.net>
+Date: Thu, 22 Jun 2017 06:44:09 -0700
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
- <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
- <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com> <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 8 Jun 2017 17:33:42 +0200
-Message-ID: <CAK8P3a3P4rDqQaNmBR9C9nF3VCqcQOH06Nq8RyDHsNfc0Ms13g@mail.gmail.com>
-Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
- readable format via %pt
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAJcpCzGWiRRY2gZzNZVJOG2oLTsGjh9+DCn=vuY1A0szZf2Vjw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jun 8, 2017 at 4:55 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> On Thu, Jun 8, 2017 at 5:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
->> On Thu, Jun 8, 2017 at 3:47 PM, Andy Shevchenko
->> <andriy.shevchenko@linux.intel.com> wrote:
->>> There are users which print time and date represented by content of
->>> struct rtc_time in human readable format.
->>>
->>> Instead of open coding that each time introduce %pt[dt][rv] specifier.
->>
->> I really like the idea, and the implementation seems fine for this use case, but
->> before we reserve %pt for rtc_time, could we discuss whether we want
->> that for printing struct tm, struct timespec64, time64_t or ktime_t instead?
->
-> How many users?
+On 06/22/2017 05:07 AM, Kirill Esipov wrote:
+> 
+> 
+> 2017-06-22 1:24 GMT+03:00 Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>>:
+> 
+>     On Wed, Jun 21, 2017 at 05:49:43PM +0300, Kirill Esipov wrote:
+>      > DS3232/DS3234 has the temperature registers with a resolution of
+>      > 0.25 degree celsius. This enables to get the value through hwmon.
+>      >
+>      >       # cat /sys/class/hwmon/hwmon0/temp1_input
+>      >       37250
+>      >
+>      > Signed-off-by: Kirill Esipov <yesipov@gmail.com <mailto:yesipov@gmail.com>>
+>      > ---
+>      >  drivers/rtc/Kconfig      |  9 ++++++
+>      >  drivers/rtc/rtc-ds3232.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++
+>      >  2 files changed, 93 insertions(+)
+>      >
+>      > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+>      > index 8d3b95728326..b4a6a916d4df 100644
+>      > --- a/drivers/rtc/Kconfig
+>      > +++ b/drivers/rtc/Kconfig
+>      > @@ -791,6 +791,15 @@ config RTC_DRV_DS3232
+>      >         This driver can also be built as a module.  If so, the module
+>      >         will be called rtc-ds3232.
+>      >
+>      > +config RTC_DRV_DS3232_HWMON
+>      > +     bool "HWMON support for Dallas/Maxim DS3232/DS3234"
+>      > +     depends on RTC_DRV_DS3232 && HWMON
+>      > +     depends on !(RTC_DRV_DS3232=y && HWMON=m)
+>      > +     default y
+>      > +     help
+>      > +       Say Y here if you want to expose temperature sensor data on
+>      > +       rtc-ds3232
+>      > +
+>      >  config RTC_DRV_PCF2127
+>      >       tristate "NXP PCF2127"
+>      >       depends on RTC_I2C_AND_SPI
+>      > diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+>      > index deff431a37c4..f94ff0685942 100644
+>      > --- a/drivers/rtc/rtc-ds3232.c
+>      > +++ b/drivers/rtc/rtc-ds3232.c
+>      > @@ -22,6 +22,8 @@
+>      >  #include <linux/bcd.h>
+>      >  #include <linux/slab.h>
+>      >  #include <linux/regmap.h>
+>      > +#include <linux/hwmon.h>
+>      > +#include <linux/hwmon-sysfs.h>
+>      >
+>      >  #define DS3232_REG_SECONDS      0x00
+>      >  #define DS3232_REG_MINUTES      0x01
+>      > @@ -275,6 +277,86 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+>      >       return ret;
+>      >  }
+>      >
+>      > +/*----------------------------------------------------------------------*/
+>      > +
+>      > +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+>      > +
+>      > +/*
+>      > + * Temperature sensor support for ds3232/ds3234 devices.
+>      > + */
+>      > +
+>      > +#define DS3232_REG_TEMPERATURE       0x11
+>      > +
+>      > +/*
+>      > + * A user-initiated temperature conversion is not started by this function,
+>      > + * so the temperature is updated once every 64 seconds.
+>      > + */
+>      > +static int ds3232_hwmon_read_temp(struct device *dev, s32 *mC)
+>      > +{
+>      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>      > +     u8 temp_buf[2];
+>      > +     s16 temp;
+>      > +     int ret;
+>      > +
+>      > +     ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
+>      > +                             sizeof(temp_buf));
+>      > +
+>      > +     if (ret < 0)
+>      > +             return ret;
+>      > +
+>      > +     /*
+>      > +      * Temperature is represented as a 10-bit code with a resolution of
+>      > +      * 0.25 degree celsius and encoded in two's complement format.
+>      > +      */
+>      > +     temp = (temp_buf[0] << 8) | temp_buf[1];
+>      > +     temp >>= 6;
+>      > +     *mC = temp * 250;
+>      > +
+>      > +     return 0;
+>      > +}
+>      > +
+>      > +static ssize_t ds3232_hwmon_show_temp(struct device *dev,
+>      > +                             struct device_attribute *attr, char *buf)
+>      > +{
+>      > +     int ret;
+>      > +     s32 temp;
+>      > +
+>      > +     ret = ds3232_hwmon_read_temp(dev, &temp);
+>      > +     if (ret < 0)
+>      > +             return ret;
+>      > +
+>      > +     return sprintf(buf, "%d\n", temp);
+>      > +}
+>      > +static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3232_hwmon_show_temp,
+>      > +                     NULL, 0);
+>      > +
+>      > +static struct attribute *ds3232_hwmon_attrs[] = {
+>      > +     &sensor_dev_attr_temp1_input.dev_attr.attr,
+>      > +     NULL,
+>      > +};
+>      > +ATTRIBUTE_GROUPS(ds3232_hwmon);
+>      > +
+>      > +static void ds3232_hwmon_register(struct device *dev, const char *name)
+>      > +{
+>      > +     struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>      > +     struct device *hwmon_dev;
+>      > +
+>      > +     hwmon_dev = devm_hwmon_device_register_with_groups(dev, name, ds3232,
+>      > +                                                        ds3232_hwmon_groups);
+> 
+>     Any reason for not using devm_hwmon_device_register_with_info() ?
+> 
+> 
+> 
+> Just to keep uniformity,  because other rtc drivers with hwmon (rtc-ds1307, rtc-rv3029c2) use
+> devm_hwmon_device_register_with_groups().
+> 
 
-It's hard to predict, I would assume we get more users once there is an
-easy way to print the time.
+Hmm. Odd reason. With this line of argument, a new API should never be used because
+"everyone else uses the old API". How about converting the other drivers to use
+new API instead ?
 
-> For struct tm it's somelike 4 (which want to print its content).
+The idea behind the new API was to simplify drivers and make them independent
+of the sysfs ABI. That doesn't mean that drivers _have_ to use that API, though,
+so feel free to stick with the above.
 
-Good point. I notice that they all convert from time64_t or time_t into
-struct tm immediately before printing it, so we can scratch that one
-as long as there is a way to pretty-print a time64_t. We also don't
-need to print a time_t as we want to kill that one off anyway.
+Guenter
 
-If we only care about printing time64_t and rtc_time, we can easily
-use %pT for one and %pt for the other, but there may still be good
-reasons to print a timespec64 or ktime_t.
-
->> I can see good reasons for pretty-printing any of them, but the namespace for
->> format strings is rather limited.
->>
->> struct rtc_time is almost the same as struct tm (the former has one extra
->> member), so maybe we can actually define them to be the same and
->> use one format string for both?
->
-> The reason I decide to drop struct tm for now due to they are not
-> compatible and I have got an interesting bugs.
-
-Ok.
-
-        Arnd
+> 
+>     Guenter
+> 
+>      > +     if (IS_ERR(hwmon_dev)) {
+>      > +             dev_warn(dev, "unable to register hwmon device %ld\n",
+>      > +                      PTR_ERR(hwmon_dev));
+>      > +     }
+>      > +}
+>      > +
+>      > +#else
+>      > +
+>      > +static void ds3232_hwmon_register(struct ds3232 *ds3232)
+>      > +{
+>      > +}
+>      > +
+>      > +#endif
+>      > +
+>      >  static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
+>      >  {
+>      >       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>      > @@ -366,6 +448,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>      >       if (ds3232->irq > 0)
+>      >               device_init_wakeup(dev, 1);
+>      >
+>      > +     ds3232_hwmon_register(dev, name);
+>      > +
+>      >       ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+>      >                                               THIS_MODULE);
+>      >       if (IS_ERR(ds3232->rtc))
+> 
+> 
+> 
+> 
+> -- 
+> Kirill Esipov
