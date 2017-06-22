@@ -1,83 +1,208 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:38640 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752144AbdFHNtD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:49:03 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 18/25] rtc: rx8025: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:04 +0300
-Message-Id: <20170608134811.60786-19-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33018 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751283AbdFVQ73 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2017 12:59:29 -0400
+From: Kirill Esipov <yesipov@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kirill Esipov <yesipov@gmail.com>
+Subject: [PATCH v2] rtc: ds3232: add temperature support
+Date: Thu, 22 Jun 2017 19:58:24 +0300
+Message-Id: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+DS3232/DS3234 has the temperature registers with a resolution of 0.25
+degree celsius. This enables to get the value through hwmon.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+	# cat /sys/class/hwmon/hwmon0/temp1_input
+	37250
+
+Signed-off-by: Kirill Esipov <yesipov@gmail.com>
 ---
- drivers/rtc/rtc-rx8025.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/rtc/Kconfig      |   9 ++++
+ drivers/rtc/rtc-ds3232.c | 134 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 143 insertions(+)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 91857d8d2df8..6385b1418c94 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -193,10 +193,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- 	if (err)
- 		return err;
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8d3b95728326..b4a6a916d4df 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -791,6 +791,15 @@ config RTC_DRV_DS3232
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called rtc-ds3232.
  
--	dev_dbg(dev, "%s: read 0x%02x 0x%02x "
--		"0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
--		date[0], date[1], date[2], date[3], date[4],
--		date[5], date[6]);
-+	dev_dbg(dev, "%s: read %7ph\n", __func__, date);
++config RTC_DRV_DS3232_HWMON
++	bool "HWMON support for Dallas/Maxim DS3232/DS3234"
++	depends on RTC_DRV_DS3232 && HWMON
++	depends on !(RTC_DRV_DS3232=y && HWMON=m)
++	default y
++	help
++	  Say Y here if you want to expose temperature sensor data on
++	  rtc-ds3232
++
+ config RTC_DRV_PCF2127
+ 	tristate "NXP PCF2127"
+ 	depends on RTC_I2C_AND_SPI
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index deff431a37c4..4e7913c2ed79 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -22,6 +22,7 @@
+ #include <linux/bcd.h>
+ #include <linux/slab.h>
+ #include <linux/regmap.h>
++#include <linux/hwmon.h>
  
- 	dt->tm_sec = bcd2bin(date[RX8025_REG_SEC] & 0x7f);
- 	dt->tm_min = bcd2bin(date[RX8025_REG_MIN] & 0x7f);
-@@ -210,9 +207,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- 	dt->tm_mon = bcd2bin(date[RX8025_REG_MONTH] & 0x1f) - 1;
- 	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]) + 100;
- 
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		dt->tm_sec, dt->tm_min, dt->tm_hour,
--		dt->tm_mday, dt->tm_mon, dt->tm_year);
-+	dev_dbg(dev, "%s: date %ptr\n", __func__, dt);
- 
- 	return rtc_valid_tm(dt);
+ #define DS3232_REG_SECONDS      0x00
+ #define DS3232_REG_MINUTES      0x01
+@@ -275,6 +276,137 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
+ 	return ret;
  }
-@@ -243,10 +238,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
- 	date[RX8025_REG_MONTH] = bin2bcd(dt->tm_mon + 1);
- 	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year - 100);
  
--	dev_dbg(dev,
--		"%s: write 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
--		__func__,
--		date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
-+	dev_dbg(dev, "%s: write %7ph\n", __func__, date);
++/*----------------------------------------------------------------------*/
++
++#ifdef CONFIG_RTC_DRV_DS3232_HWMON
++
++/*
++ * Temperature sensor support for ds3232/ds3234 devices.
++ */
++
++#define DS3232_REG_TEMPERATURE	0x11
++
++/*
++ * A user-initiated temperature conversion is not started by this function,
++ * so the temperature is updated once every 64 seconds.
++ */
++static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
++{
++	struct ds3232 *ds3232 = dev_get_drvdata(dev);
++	u8 temp_buf[2];
++	s16 temp;
++	int ret;
++
++	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
++				sizeof(temp_buf));
++
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * Temperature is represented as a 10-bit code with a resolution of
++	 * 0.25 degree celsius and encoded in two's complement format.
++	 */
++	temp = (temp_buf[0] << 8) | temp_buf[1];
++	temp >>= 6;
++	*mC = temp * 250;
++
++	return 0;
++}
++
++static umode_t ds3232_hwmon_is_visible(const void *data,
++					 enum hwmon_sensor_types type,
++					 u32 attr, int channel)
++{
++	if (type != hwmon_temp)
++		return 0;
++
++	switch (attr) {
++	case hwmon_temp_input:
++		return 0444;
++	default:
++		return 0;
++	}
++}
++
++static int ds3232_hwmon_read(struct device *dev,
++			       enum hwmon_sensor_types type,
++			       u32 attr, int channel, long *temp)
++{
++	int err;
++
++	switch (attr) {
++	case hwmon_temp_input:
++		ds3232_hwmon_read_temp(dev, temp);
++		err = 0;
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return err;
++}
++
++
++static u32 ds3232_hwmon_chip_config[] = {
++	HWMON_C_REGISTER_TZ,
++	0
++};
++
++static const struct hwmon_channel_info ds3232_hwmon_chip = {
++	.type = hwmon_chip,
++	.config = ds3232_hwmon_chip_config,
++};
++
++static u32 ds3232_hwmon_temp_config[] = {
++	HWMON_T_INPUT,
++	0
++};
++
++static const struct hwmon_channel_info ds3232_hwmon_temp = {
++	.type = hwmon_temp,
++	.config = ds3232_hwmon_temp_config,
++};
++
++static const struct hwmon_channel_info *ds3232_hwmon_info[] = {
++	&ds3232_hwmon_chip,
++	&ds3232_hwmon_temp,
++	NULL
++};
++
++static const struct hwmon_ops ds3232_hwmon_hwmon_ops = {
++	.is_visible = ds3232_hwmon_is_visible,
++	.read = ds3232_hwmon_read,
++};
++
++static const struct hwmon_chip_info ds3232_hwmon_chip_info = {
++	.ops = &ds3232_hwmon_hwmon_ops,
++	.info = ds3232_hwmon_info,
++};
++
++static void ds3232_hwmon_register(struct device *dev, const char *name)
++{
++	struct ds3232 *ds3232 = dev_get_drvdata(dev);
++	struct device *hwmon_dev;
++
++	hwmon_dev = devm_hwmon_device_register_with_info(dev, name, ds3232,
++							&ds3232_hwmon_chip_info,
++							NULL);
++
++	if (IS_ERR(hwmon_dev)) {
++		dev_warn(dev, "unable to register hwmon device %ld\n",
++			 PTR_ERR(hwmon_dev));
++	}
++}
++
++#else
++
++static void ds3232_hwmon_register(struct device *dev, const char *name)
++{
++}
++
++#endif
++
+ static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
+@@ -366,6 +498,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	if (ds3232->irq > 0)
+ 		device_init_wakeup(dev, 1);
  
- 	ret = rx8025_write_regs(rx8025->client, RX8025_REG_SEC, 7, date);
- 	if (ret < 0)
-@@ -319,10 +311,7 @@ static int rx8025_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		t->time.tm_hour = bcd2bin(ald[1] & 0x1f) % 12
- 			+ (ald[1] & 0x20 ? 12 : 0);
- 
--	dev_dbg(dev, "%s: date: %ds %dm %dh %dmd %dm %dy\n",
--		__func__,
--		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
--		t->time.tm_mday, t->time.tm_mon, t->time.tm_year);
-+	dev_dbg(dev, "%s: date: %ptr\n", __func__, t);
- 	t->enabled = !!(rx8025->ctrl1 & RX8025_BIT_CTRL1_DALE);
- 	t->pending = (ctrl2 & RX8025_BIT_CTRL2_DAFG) && t->enabled;
- 
++	ds3232_hwmon_register(dev, name);
++
+ 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+ 						THIS_MODULE);
+ 	if (IS_ERR(ds3232->rtc))
 -- 
-2.11.0
+2.7.4
