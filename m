@@ -1,27 +1,33 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRB4GZUPFAKGQECK7SA3Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBFOBWXFAKGQENIT4R4Q@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x22e.google.com (mail-wr0-x22e.google.com. [2a00:1450:400c:c0c::22e])
-        by gmr-mx.google.com with ESMTPS id f136si2017996wmf.6.2017.06.20.02.37.51
+Received: from mail-yw0-f194.google.com (mail-yw0-f194.google.com. [209.85.161.194])
+        by gmr-mx.google.com with ESMTPS id o206si301576ywb.12.2017.06.23.11.40.21
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:37:51 -0700 (PDT)
-Received: by mail-wr0-x22e.google.com with SMTP id c11so32926708wrc.3
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:37:51 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
+        Fri, 23 Jun 2017 11:40:21 -0700 (PDT)
+Received: by mail-yw0-f194.google.com with SMTP id e142so3197097ywa.2
+        for <rtc-linux@googlegroups.com>; Fri, 23 Jun 2017 11:40:21 -0700 (PDT)
+Date: Fri, 23 Jun 2017 13:40:19 -0500
+From: Rob Herring <robh@kernel.org>
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 22/51] rtc: ds1553: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:30 +0200
-Message-Id: <1497951359-13334-23-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+	Mark Rutland <mark.rutland@arm.com>,
+	Brian Norris <computersforpeace@gmail.com>,
+	Gregory Fong <gregory.0xf0@gmail.com>,
+	"maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" <bcm-kernel-feedback-list@broadcom.com>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
+	"moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+Subject: [rtc-linux] Re: [PATCH 1/2] dt-bindings: Document the Broadcom STB
+ wake-up timer node
+Message-ID: <20170623184019.ftptqodyv3bnkyz2@rob-hp-laptop>
+References: <20170615195904.12653-1-f.fainelli@gmail.com>
+ <20170615195904.12653-2-f.fainelli@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170615195904.12653-2-f.fainelli@gmail.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,34 +36,17 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On Thu, Jun 15, 2017 at 12:59:03PM -0700, Florian Fainelli wrote:
+> Document the binding for the Broadcom STB SoCs wake-up timer node
+> allowing the system to generate alarms and exit low power states.
+> 
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> ---
+>  .../bindings/rtc/brcm,brcmstb-waketimer.txt        | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-ds1553.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
-index 9961ec6..dc08366 100644
---- a/drivers/rtc/rtc-ds1553.c
-+++ b/drivers/rtc/rtc-ds1553.c
-@@ -129,7 +129,7 @@ static int ds1553_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	if (rtc_valid_tm(tm) < 0) {
- 		dev_err(dev, "retrieved date/time is not valid.\n");
--		rtc_time_to_tm(0, tm);
-+		rtc_time64_to_tm(0, tm);
- 	}
- 	return 0;
- }
--- 
-1.9.1
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
