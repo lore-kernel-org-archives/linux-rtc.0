@@ -1,208 +1,222 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33018 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751283AbdFVQ73 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2017 12:59:29 -0400
-From: Kirill Esipov <yesipov@gmail.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kirill Esipov <yesipov@gmail.com>
-Subject: [PATCH v2] rtc: ds3232: add temperature support
-Date: Thu, 22 Jun 2017 19:58:24 +0300
-Message-Id: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:45218 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751586AbdFXUze (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Jun 2017 16:55:34 -0400
+Date: Sat, 24 Jun 2017 22:55:32 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/6] rtc: s3c: Handle clock enable failures
+Message-ID: <20170624205532.eqykr37ynpvprklf@piout.net>
+References: <20170616192807.10347-1-krzk@kernel.org>
+ <20170616192807.10347-6-krzk@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170616192807.10347-6-krzk@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-DS3232/DS3234 has the temperature registers with a resolution of 0.25
-degree celsius. This enables to get the value through hwmon.
+Hi,
 
-	# cat /sys/class/hwmon/hwmon0/temp1_input
-	37250
+On 16/06/2017 at 21:28:07 +0200, Krzysztof Kozlowski wrote:
+> clk_enable() can fail so handle such case.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  drivers/rtc/rtc-s3c.c | 72 ++++++++++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 57 insertions(+), 15 deletions(-)
+> 
 
-Signed-off-by: Kirill Esipov <yesipov@gmail.com>
----
- drivers/rtc/Kconfig      |   9 ++++
- drivers/rtc/rtc-ds3232.c | 134 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 143 insertions(+)
+I've applied the whole series. However, quite often, on a platform,
+clk_prepare/enable are ensured to never fail and I find that the added
+complexity to handle failures is not worth it.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b95728326..b4a6a916d4df 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -791,6 +791,15 @@ config RTC_DRV_DS3232
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called rtc-ds3232.
- 
-+config RTC_DRV_DS3232_HWMON
-+	bool "HWMON support for Dallas/Maxim DS3232/DS3234"
-+	depends on RTC_DRV_DS3232 && HWMON
-+	depends on !(RTC_DRV_DS3232=y && HWMON=m)
-+	default y
-+	help
-+	  Say Y here if you want to expose temperature sensor data on
-+	  rtc-ds3232
-+
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index deff431a37c4..4e7913c2ed79 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -22,6 +22,7 @@
- #include <linux/bcd.h>
- #include <linux/slab.h>
- #include <linux/regmap.h>
-+#include <linux/hwmon.h>
- 
- #define DS3232_REG_SECONDS      0x00
- #define DS3232_REG_MINUTES      0x01
-@@ -275,6 +276,137 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	return ret;
- }
- 
-+/*----------------------------------------------------------------------*/
-+
-+#ifdef CONFIG_RTC_DRV_DS3232_HWMON
-+
-+/*
-+ * Temperature sensor support for ds3232/ds3234 devices.
-+ */
-+
-+#define DS3232_REG_TEMPERATURE	0x11
-+
-+/*
-+ * A user-initiated temperature conversion is not started by this function,
-+ * so the temperature is updated once every 64 seconds.
-+ */
-+static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	u8 temp_buf[2];
-+	s16 temp;
-+	int ret;
-+
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
-+				sizeof(temp_buf));
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Temperature is represented as a 10-bit code with a resolution of
-+	 * 0.25 degree celsius and encoded in two's complement format.
-+	 */
-+	temp = (temp_buf[0] << 8) | temp_buf[1];
-+	temp >>= 6;
-+	*mC = temp * 250;
-+
-+	return 0;
-+}
-+
-+static umode_t ds3232_hwmon_is_visible(const void *data,
-+					 enum hwmon_sensor_types type,
-+					 u32 attr, int channel)
-+{
-+	if (type != hwmon_temp)
-+		return 0;
-+
-+	switch (attr) {
-+	case hwmon_temp_input:
-+		return 0444;
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static int ds3232_hwmon_read(struct device *dev,
-+			       enum hwmon_sensor_types type,
-+			       u32 attr, int channel, long *temp)
-+{
-+	int err;
-+
-+	switch (attr) {
-+	case hwmon_temp_input:
-+		ds3232_hwmon_read_temp(dev, temp);
-+		err = 0;
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return err;
-+}
-+
-+
-+static u32 ds3232_hwmon_chip_config[] = {
-+	HWMON_C_REGISTER_TZ,
-+	0
-+};
-+
-+static const struct hwmon_channel_info ds3232_hwmon_chip = {
-+	.type = hwmon_chip,
-+	.config = ds3232_hwmon_chip_config,
-+};
-+
-+static u32 ds3232_hwmon_temp_config[] = {
-+	HWMON_T_INPUT,
-+	0
-+};
-+
-+static const struct hwmon_channel_info ds3232_hwmon_temp = {
-+	.type = hwmon_temp,
-+	.config = ds3232_hwmon_temp_config,
-+};
-+
-+static const struct hwmon_channel_info *ds3232_hwmon_info[] = {
-+	&ds3232_hwmon_chip,
-+	&ds3232_hwmon_temp,
-+	NULL
-+};
-+
-+static const struct hwmon_ops ds3232_hwmon_hwmon_ops = {
-+	.is_visible = ds3232_hwmon_is_visible,
-+	.read = ds3232_hwmon_read,
-+};
-+
-+static const struct hwmon_chip_info ds3232_hwmon_chip_info = {
-+	.ops = &ds3232_hwmon_hwmon_ops,
-+	.info = ds3232_hwmon_info,
-+};
-+
-+static void ds3232_hwmon_register(struct device *dev, const char *name)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	struct device *hwmon_dev;
-+
-+	hwmon_dev = devm_hwmon_device_register_with_info(dev, name, ds3232,
-+							&ds3232_hwmon_chip_info,
-+							NULL);
-+
-+	if (IS_ERR(hwmon_dev)) {
-+		dev_warn(dev, "unable to register hwmon device %ld\n",
-+			 PTR_ERR(hwmon_dev));
-+	}
-+}
-+
-+#else
-+
-+static void ds3232_hwmon_register(struct device *dev, const char *name)
-+{
-+}
-+
-+#endif
-+
- static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-@@ -366,6 +498,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ds3232->irq > 0)
- 		device_init_wakeup(dev, 1);
- 
-+	ds3232_hwmon_register(dev, name);
-+
- 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
- 						THIS_MODULE);
- 	if (IS_ERR(ds3232->rtc))
+> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> index 0cb2f27a30b4..a8992c227f61 100644
+> --- a/drivers/rtc/rtc-s3c.c
+> +++ b/drivers/rtc/rtc-s3c.c
+> @@ -68,18 +68,32 @@ struct s3c_rtc_data {
+>  	void (*disable) (struct s3c_rtc *info);
+>  };
+>  
+> -static void s3c_rtc_enable_clk(struct s3c_rtc *info)
+> +static int s3c_rtc_enable_clk(struct s3c_rtc *info)
+>  {
+>  	unsigned long irq_flags;
+> +	int ret = 0;
+>  
+>  	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+> +
+>  	if (info->clk_disabled) {
+> -		clk_enable(info->rtc_clk);
+> -		if (info->data->needs_src_clk)
+> -			clk_enable(info->rtc_src_clk);
+> +		ret = clk_enable(info->rtc_clk);
+> +		if (ret)
+> +			goto out;
+> +
+> +		if (info->data->needs_src_clk) {
+> +			ret = clk_enable(info->rtc_src_clk);
+> +			if (ret) {
+> +				clk_disable(info->rtc_clk);
+> +				goto out;
+> +			}
+> +		}
+>  		info->clk_disabled = false;
+>  	}
+> +
+> +out:
+>  	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+> +
+> +	return ret;
+>  }
+>  
+>  static void s3c_rtc_disable_clk(struct s3c_rtc *info)
+> @@ -122,10 +136,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+>  {
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	unsigned int tmp;
+> +	int ret;
+>  
+>  	dev_dbg(info->dev, "%s: aie=%d\n", __func__, enabled);
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	tmp = readb(info->base + S3C2410_RTCALM) & ~S3C2410_RTCALM_ALMEN;
+>  
+> @@ -136,10 +153,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+>  
+>  	s3c_rtc_disable_clk(info);
+>  
+> -	if (enabled)
+> -		s3c_rtc_enable_clk(info);
+> -	else
+> +	if (enabled) {
+> +		ret = s3c_rtc_enable_clk(info);
+> +		if (ret)
+> +			return ret;
+> +	} else {
+>  		s3c_rtc_disable_clk(info);
+> +	}
+>  
+>  	return 0;
+>  }
+> @@ -147,10 +167,14 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+>  /* Set RTC frequency */
+>  static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
+>  {
+> +	int ret;
+> +
+>  	if (!is_power_of_2(freq))
+>  		return -EINVAL;
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  	spin_lock_irq(&info->pie_lock);
+>  
+>  	if (info->data->set_freq)
+> @@ -167,8 +191,11 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+>  {
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	unsigned int have_retried = 0;
+> +	int ret;
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  retry_get_time:
+>  	rtc_tm->tm_min  = readb(info->base + S3C2410_RTCMIN);
+> @@ -212,6 +239,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+>  {
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	int year = tm->tm_year - 100;
+> +	int ret;
+>  
+>  	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
+>  		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+> @@ -224,7 +252,9 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+>  		return -EINVAL;
+>  	}
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	writeb(bin2bcd(tm->tm_sec),  info->base + S3C2410_RTCSEC);
+>  	writeb(bin2bcd(tm->tm_min),  info->base + S3C2410_RTCMIN);
+> @@ -243,8 +273,11 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	struct rtc_time *alm_tm = &alrm->time;
+>  	unsigned int alm_en;
+> +	int ret;
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	alm_tm->tm_sec  = readb(info->base + S3C2410_ALMSEC);
+>  	alm_tm->tm_min  = readb(info->base + S3C2410_ALMMIN);
+> @@ -293,6 +326,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+>  	struct rtc_time *tm = &alrm->time;
+>  	unsigned int alrm_en;
+> +	int ret;
+>  	int year = tm->tm_year - 100;
+>  
+>  	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+> @@ -300,7 +334,9 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+>  		tm->tm_hour, tm->tm_min, tm->tm_sec);
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	alrm_en = readb(info->base + S3C2410_RTCALM) & S3C2410_RTCALM_ALMEN;
+>  	writeb(0x00, info->base + S3C2410_RTCALM);
+> @@ -349,8 +385,11 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  static int s3c_rtc_proc(struct device *dev, struct seq_file *seq)
+>  {
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+> +	int ret;
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	if (info->data->enable_tick)
+>  		info->data->enable_tick(info, seq);
+> @@ -589,8 +628,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+>  static int s3c_rtc_suspend(struct device *dev)
+>  {
+>  	struct s3c_rtc *info = dev_get_drvdata(dev);
+> +	int ret;
+>  
+> -	s3c_rtc_enable_clk(info);
+> +	ret = s3c_rtc_enable_clk(info);
+> +	if (ret)
+> +		return ret;
+>  
+>  	/* save TICNT for anyone using periodic interrupts */
+>  	if (info->data->save_tick_cnt)
+> -- 
+> 2.9.3
+> 
+
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
