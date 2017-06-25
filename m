@@ -1,144 +1,143 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:45848 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750916AbdFSOdU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Jun 2017 10:33:20 -0400
-Received: from localhost (80-110-36-81.static.upcbusiness.at [80.110.36.81])
-        by mail.free-electrons.com (Postfix) with ESMTPSA id A8F5F212A7
-        for <linux-rtc@vger.kernel.org>; Mon, 19 Jun 2017 16:33:16 +0200 (CEST)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
-        shuah@kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Cc: linaro-kernel@lists.linaro.org,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: [PATCH v2 1/3] tools: timer: add rtctest_setdate
-Date: Mon, 19 Jun 2017 11:36:20 +0200
-Message-Id: <1497864982-29284-2-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:34125 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751157AbdFYQju (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 25 Jun 2017 12:39:50 -0400
+MIME-Version: 1.0
+In-Reply-To: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
+References: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Sun, 25 Jun 2017 19:39:48 +0300
+Message-ID: <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
+To: Kirill Esipov <yesipov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Message-ID: <20170619093620.8jvqjNBHffFkK9-euz4OH8DXBvBkKOqxM3G9XPET_3g@z>
 
-This tool allow to set directly the time and date to a RTC device.
+On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
+> DS3232/DS3234 has the temperature registers with a resolution of 0.25
+> degree celsius. This enables to get the value through hwmon.
+>
+>         # cat /sys/class/hwmon/hwmon0/temp1_input
+>         37250
 
-Unlike other tools isn't doens't use "struct timeval" or "time_t"
-so it is safe for 32bits platforms when testing for y2038/2106 bug.
+> +config RTC_DRV_DS3232_HWMON
+> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
----
- tools/testing/selftests/timers/Makefile          |  2 +-
- tools/testing/selftests/timers/rtctest_setdate.c | 86 ++++++++++++++++++++++++
- 2 files changed, 87 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
+> +       depends on RTC_DRV_DS3232 && HWMON
+> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
 
-diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
-index 5fa1d7e9..54481f1 100644
---- a/tools/testing/selftests/timers/Makefile
-+++ b/tools/testing/selftests/timers/Makefile
-@@ -9,7 +9,7 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
- 
- TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
- 		      skew_consistency clocksource-switch leap-a-day \
--		      leapcrash set-tai set-2038 set-tz
-+		      leapcrash set-tai set-2038 set-tz rtctest_setdate
- 
- 
- include ../lib.mk
-diff --git a/tools/testing/selftests/timers/rtctest_setdate.c b/tools/testing/selftests/timers/rtctest_setdate.c
-new file mode 100644
-index 0000000..2cb7848
---- /dev/null
-+++ b/tools/testing/selftests/timers/rtctest_setdate.c
-@@ -0,0 +1,86 @@
-+/* Real Time Clock Driver Test
-+ *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
-+ *
-+ * To build
-+ *	gcc rtctest_setdate.c -o rtctest_setdate
-+ *
-+ *   This program is free software: you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation, either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ */
-+
-+#include <stdio.h>
-+#include <linux/rtc.h>
-+#include <sys/ioctl.h>
-+#include <sys/time.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+
-+static const char default_time[] = "00:00:00";
-+
-+int main(int argc, char **argv)
-+{
-+	int fd, retval;
-+	struct rtc_time new, current;
-+	const char *rtc, *date;
-+	const char *time = default_time;
-+
-+	switch (argc) {
-+	case 4:
-+		time = argv[3];
-+		/* FALLTHROUGH */
-+	case 3:
-+		date = argv[2];
-+		rtc = argv[1];
-+		break;
-+	default:
-+		fprintf(stderr, "usage: rtctest_setdate <rtcdev> <DD-MM-YYYY> [HH:MM:SS]\n");
-+		return 1;
-+	}
-+
-+	fd = open(rtc, O_RDONLY);
-+	if (fd == -1) {
-+		perror(rtc);
-+		exit(errno);
-+	}
-+
-+	sscanf(date, "%d-%d-%d", &new.tm_mday, &new.tm_mon, &new.tm_year);
-+	new.tm_mon -= 1;
-+	new.tm_year -= 1900;
-+	sscanf(time, "%d:%d:%d", &new.tm_hour, &new.tm_min, &new.tm_sec);
-+
-+	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
-+		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
-+		new.tm_hour, new.tm_min, new.tm_sec);
-+
-+	/* Write the new date in RTC */
-+	retval = ioctl(fd, RTC_SET_TIME, &new);
-+	if (retval == -1) {
-+		perror("RTC_SET_TIME ioctl");
-+		close(fd);
-+		exit(errno);
-+	}
-+
-+	/* Read back */
-+	retval = ioctl(fd, RTC_RD_TIME, &current);
-+	if (retval == -1) {
-+		perror("RTC_RD_TIME ioctl");
-+		exit(errno);
-+	}
-+
-+	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
-+		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
-+		current.tm_hour, current.tm_min, current.tm_sec);
-+
-+	close(fd);
-+	return 0;
-+}
+Perhaps it might be squeezed into one line (something like that logic
+has been required by I2C related PMIC IIRC)
+
+> +       default y
+
+Is it really sane default?
+
+> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+
+IS_BUILTIN() ?
+
+> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
+> +{
+> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+> +       u8 temp_buf[2];
+> +       s16 temp;
+> +       int ret;
+> +
+> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
+> +                               sizeof(temp_buf));
+
+> +
+
+Remove.
+
+> +       if (ret < 0)
+> +               return ret;
+
+> +static umode_t ds3232_hwmon_is_visible(const void *data,
+> +                                        enum hwmon_sensor_types type,
+> +                                        u32 attr, int channel)
+> +{
+> +       if (type != hwmon_temp)
+> +               return 0;
+> +
+> +       switch (attr) {
+> +       case hwmon_temp_input:
+> +               return 0444;
+> +       default:
+> +               return 0;
+> +       }
+> +}
+> +
+> +static int ds3232_hwmon_read(struct device *dev,
+> +                              enum hwmon_sensor_types type,
+> +                              u32 attr, int channel, long *temp)
+> +{
+> +       int err;
+> +
+> +       switch (attr) {
+> +       case hwmon_temp_input:
+> +               ds3232_hwmon_read_temp(dev, temp);
+> +               err = 0;
+> +               break;
+> +       default:
+> +               return -EOPNOTSUPP;
+> +       }
+> +
+> +       return err;
+
+You may do as in previous function. Or what did you mean here by
+introducing an err variable?
+
+> +}
+
+> +
+> +
+
+Remove one of them.
+
+> +static void ds3232_hwmon_register(struct device *dev, const char *name)
+> +{
+> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+> +       struct device *hwmon_dev;
+> +
+> +       hwmon_dev = devm_hwmon_device_register_with_info(dev, name, ds3232,
+> +                                                       &ds3232_hwmon_chip_info,
+> +                                                       NULL);
+
+> +
+
+Remove.
+
+> +       if (IS_ERR(hwmon_dev)) {
+> +               dev_warn(dev, "unable to register hwmon device %ld\n",
+> +                        PTR_ERR(hwmon_dev));
+> +       }
+> +}
+> +
+
+> +#else
+
+I dunno which style is preferred, though you may use
+if (IS_BUILTIN(...))
+ return;
+
+at the beginning of the function and allow gcc optimizer to take care
+of everything else.
+
+> +
+> +static void ds3232_hwmon_register(struct device *dev, const char *name)
+> +{
+> +}
+> +
+> +#endif
+
 -- 
-1.9.1
+With Best Regards,
+Andy Shevchenko
