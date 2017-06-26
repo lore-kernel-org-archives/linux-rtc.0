@@ -1,49 +1,34 @@
-Return-Path: <rtc-linux+bncBDZKLXNI4ACBB7OEUTFAKGQEUCTQ7SY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCH67JWTV4DBBR4CYXFAKGQEYX32U3A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from atrey.karlin.mff.cuni.cz (atrey.karlin.mff.cuni.cz. [195.113.26.193])
-        by gmr-mx.google.com with ESMTPS id q191si3016731wme.2.2017.06.20.06.26.21
+Received: from mail-wm0-x244.google.com (mail-wm0-x244.google.com. [2a00:1450:400c:c09::244])
+        by gmr-mx.google.com with ESMTPS id 5si116277wmj.1.2017.06.26.10.15.51
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 06:26:21 -0700 (PDT)
-Date: Tue, 20 Jun 2017 15:26:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
+        Mon, 26 Jun 2017 10:15:51 -0700 (PDT)
+Received: by mail-wm0-x244.google.com with SMTP id j85so1413666wmj.0
+        for <rtc-linux@googlegroups.com>; Mon, 26 Jun 2017 10:15:51 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	linaro-kernel@lists.linaro.org,
-	adi-buildroot-devel@lists.sourceforge.net,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Ingo Molnar <mingo@redhat.com>, Jason Cooper <jason@lakedaemon.net>,
-	John Stultz <john.stultz@linaro.org>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Michael Chan <michael.chan@broadcom.com>, netdev@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-	Baruch Siach <baruch@tkos.co.il>,
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>, linux-tegra@vger.kernel.org,
-	patches@opensource.wolfsonmicro.com,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 00/51] rtc: stop using rtc deprecated functions
-Message-ID: <20170620132620.GA16881@amd>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
- <20170620100348.zh4ygvjjgnhxvmvl@piout.net>
- <20170620121011.GA13221@amd>
- <20170620122400.sm7qqvwyj6cuzarw@piout.net>
+Cc: linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>,
+ Markus Mayer <mmayer@broadcom.com>, Alessandro Zummo <a.zummo@towertech.it>,
+ Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Gregory Fong <gregory.0xf0@gmail.com>,
+ "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE"
+ <bcm-kernel-feedback-list@broadcom.com>,
+ "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+ "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+ <devicetree@vger.kernel.org>,
+ "moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE"
+ <linux-arm-kernel@lists.infradead.org>
+References: <20170615195904.12653-1-f.fainelli@gmail.com>
+ <20170615195904.12653-3-f.fainelli@gmail.com>
+ <20170624185942.vq656pjxbqnqdhll@piout.net>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <35c43786-ee58-130c-2ecd-5577197bd5aa@gmail.com>
+Date: Mon, 26 Jun 2017 10:15:46 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
-In-Reply-To: <20170620122400.sm7qqvwyj6cuzarw@piout.net>
+In-Reply-To: <20170624185942.vq656pjxbqnqdhll@piout.net>
+Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -53,54 +38,106 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-
-On Tue 2017-06-20 14:24:00, Alexandre Belloni wrote:
-> On 20/06/2017 at 14:10:11 +0200, Pavel Machek wrote:
-> > On Tue 2017-06-20 12:03:48, Alexandre Belloni wrote:
-> > > On 20/06/2017 at 11:35:08 +0200, Benjamin Gaignard wrote:
-> > > > rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-> > > > rely on 32bits variables and that will make rtc break in y2038/2016.
-> > > 
-> > > Please don't, because this hide the fact that the hardware will not
-> > > handle dates in y2038 anyway and as pointed by Russell a few month ago,
-> > > rtc_time_to_tm will be able to catch it but the 64 bit version will
-> > > silently ignore it.
-> > 
-> > Reference? Because rtc on PCs stores date in binary coded decimal, so
-> > it is likely to break in 2100, not 2038...
+On 06/24/2017 11:59 AM, Alexandre Belloni wrote:
+> Hi,
 > 
-> I'm not saying it should be done but clearly, that is not the correct
-> thing to do for RTCs that are using a single 32 bits register to store
-> the time.
-> You give one example, I can give you three: armada38x, at91sam9,
-> at32ap700x and that just in the beginning of the series.
+> This seems mostly good.
+> 
+> On 15/06/2017 at 12:59:04 -0700, Florian Fainelli wrote:
+>> +static void wktmr_read(struct brcmstb_waketmr *timer,
+>> +		       struct wktmr_time *t)
+>> +{
+>> +	u32 tmp;
+>> +
+> 
+> To be sure, is this IP always 32bit, even on 64bit platforms?
 
-I wanted reference to Russell's mail.
+Correct, it's only 32-bit capable (saw the recent discussions about the
+2038yr "problem"...).
 
-> And yes, on PC, they will break in 2100, other in 2106, some in 2070.
-> I've delayed the tree wide patching until I manage to finish reworking
-> the infrastructure needed to handle the limits of the RTCs.
+> 
+>> +	do {
+>> +		t->sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_COUNTER);
+>> +		tmp = readl_relaxed(timer->base + BRCMSTB_WKTMR_PRESCALER_VAL);
+>> +	} while (tmp >= timer->rate);
+>> +
+>> +	t->pre = timer->rate - tmp;
+>> +}
+>> +
+> 
+> [...]
+> 
+>> +static int brcmstb_waketmr_settime(struct device *dev,
+>> +				   struct rtc_time *tm)
+>> +{
+>> +	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
+>> +	unsigned long sec;
+>> +	int ret;
+>> +
+>> +	ret = rtc_valid_tm(tm);
+>> +	if (ret)
+>> +		return ret;
+>> +
+> 
+> There is no way this function can be called without a valid tm. The only
+> caller checks before calling.
 
-Kernel does not know if it has working RTC or not, so it should use
-64bit variables. Merging this -- does not hide anything. Yes, some
-drivers still may have problems -- so we fix the drivers.
+OK.
 
-You said:
+> 
+>> +	rtc_tm_to_time(tm, &sec);
+>> +
+>> +	dev_dbg(dev, "%s: sec=%ld\n", __func__, sec);
+>> +	writel_relaxed(sec, timer->base + BRCMSTB_WKTMR_COUNTER);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int brcmstb_waketmr_getalarm(struct device *dev,
+>> +				    struct rtc_wkalrm *alarm)
+>> +{
+>> +	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
+>> +	unsigned long sec;
+>> +	u32 reg;
+>> +
+>> +	sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_ALARM);
+>> +	if (sec == 0) {
+>> +		/* Alarm is disabled */
+>> +		alarm->enabled = 0;
+>> +		alarm->time.tm_mon = -1;
+>> +		alarm->time.tm_mday = -1;
+>> +		alarm->time.tm_year = -1;
+>> +		alarm->time.tm_hour = -1;
+>> +		alarm->time.tm_min = -1;
+>> +		alarm->time.tm_sec = -1;
+> 
+> This is not needed since d68778b80dd7
 
-> > > rtc_time_to_tm will be able to catch it but the 64 bit will
-> > > silently ignore it.
+Great, I will take that out.
 
-If that's the case, we may need 64bit version to be smarter.. but
-we'll still need 64bit variables in the kernel.
-									Pavel
+Do you care whether some dev_dbg() prints are left in the driver or
+should I remove those in v2?
+
+> 
+>> +		dev_dbg(dev, "%s: alarm is disabled\n", __func__);
+>> +	} else {
+>> +		/* Alarm is enabled */
+>> +		alarm->enabled = 1;
+>> +		rtc_time_to_tm(sec, &alarm->time);
+>> +		dev_dbg(dev, "%s: alarm is enabled\n", __func__);
+>> +	}
+>> +
+>> +	reg = readl_relaxed(timer->base + BRCMSTB_WKTMR_EVENT);
+>> +	alarm->pending = !!(reg & 1);
+>> +	dev_dbg(dev, "%s: alarm pending=%d\n", __func__, alarm->pending);
+>> +
+>> +	return 0;
+>> +}
+> 
+
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Florian
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -111,17 +148,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAllJInwACgkQMOfwapXb+vKvOACfa+kGFBRxWhkRpGKLgcPlEMXc
-Xp4An1BROF4v4jttS9yXrXm9FyxGRyLs
-=CY2S
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
