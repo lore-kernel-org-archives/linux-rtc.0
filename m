@@ -1,206 +1,418 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752396AbdFPT2Z (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 16 Jun 2017 15:28:25 -0400
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.free-electrons.com ([62.4.15.54]:59603 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751758AbdFZVox (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Jun 2017 17:44:53 -0400
+Received: from localhost (unknown [37.169.111.164])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id 1639820766
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Jun 2017 23:44:50 +0200 (CEST)
+From: Florian Fainelli <f.fainelli@gmail.com>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Brian Norris <computersforpeace@gmail.com>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 6/6] rtc: s3c: Handle clock enable failures
-Date: Fri, 16 Jun 2017 21:28:07 +0200
-Message-Id: <20170616192807.10347-6-krzk@kernel.org>
-In-Reply-To: <20170616192807.10347-1-krzk@kernel.org>
-References: <20170616192807.10347-1-krzk@kernel.org>
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Gregory Fong <gregory.0xf0@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com (maintainer:BROADCOM BCM7XXX ARM
+        ARCHITECTURE),
+        rtc-linux@googlegroups.com (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
+        DEVICE TREE BINDINGS), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v2 2/2] rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
+Date: Mon, 26 Jun 2017 14:15:03 -0700
+Message-Id: <20170626211503.7471-3-f.fainelli@gmail.com>
+In-Reply-To: <20170626211503.7471-1-f.fainelli@gmail.com>
+References: <20170626211503.7471-1-f.fainelli@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
+Message-ID: <20170626211503.BYwITX7o0ajvEG0hK-U-rVTCC1y5id5TK58jgEWYXnk@z>
 
-clk_enable() can fail so handle such case.
+From: Brian Norris <computersforpeace@gmail.com>
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+This adds support for the Broadcom STB wake-timer which is a timer in
+the chip's 27Mhz clock domain that offers the ability to wake the system
+(wake-up source) from suspend states (S2, S3, S5). It is supported using
+the rtc framework allowing us to configure alarms for system wake-up.
+
+Signed-off-by: Brian Norris <computersforpeace@gmail.com>
+Signed-off-by: Markus Mayer <mmayer@broadcom.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/rtc/rtc-s3c.c | 72 ++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 57 insertions(+), 15 deletions(-)
+ drivers/rtc/Kconfig                 |  11 ++
+ drivers/rtc/Makefile                |   1 +
+ drivers/rtc/rtc-brcmstb-waketimer.c | 325 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 337 insertions(+)
+ create mode 100644 drivers/rtc/rtc-brcmstb-waketimer.c
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 0cb2f27a30b4..a8992c227f61 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -68,18 +68,32 @@ struct s3c_rtc_data {
- 	void (*disable) (struct s3c_rtc *info);
- };
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8d3b95728326..8e1aa67fe533 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -197,6 +197,17 @@ config RTC_DRV_AC100
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-ac100.
  
--static void s3c_rtc_enable_clk(struct s3c_rtc *info)
-+static int s3c_rtc_enable_clk(struct s3c_rtc *info)
- {
- 	unsigned long irq_flags;
++config RTC_DRV_BRCMSTB
++	tristate "Broadcom STB wake-timer"
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
++	default ARCH_BRCMSTB || BMIPS_GENERIC
++	help
++	  If you say yes here you get support for the wake-timer found on
++	  Broadcom STB SoCs (BCM7xxx).
++
++	  This driver can also be built as a module. If so, the module will
++	  be called rtc-brcmstb-waketimer.
++
+ config RTC_DRV_AS3722
+ 	tristate "ams AS3722 RTC driver"
+ 	depends on MFD_AS3722
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 13857d2fce09..df89cac1f9ae 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -36,6 +36,7 @@ obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
+ obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
+ obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
+ obj-$(CONFIG_RTC_DRV_BFIN)	+= rtc-bfin.o
++obj-$(CONFIG_RTC_DRV_BRCMSTB)	+= rtc-brcmstb-waketimer.o
+ obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
+ obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
+ obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
+diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+new file mode 100644
+index 000000000000..5dea6d0627d8
+--- /dev/null
++++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+@@ -0,0 +1,325 @@
++/*
++ * Copyright © 2014-2017 Broadcom
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
++
++#include <linux/clk.h>
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/irqreturn.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm.h>
++#include <linux/pm_wakeup.h>
++#include <linux/reboot.h>
++#include <linux/rtc.h>
++#include <linux/stat.h>
++#include <linux/suspend.h>
++
++struct brcmstb_waketmr {
++	struct rtc_device *rtc;
++	struct device *dev;
++	void __iomem *base;
++	int irq;
++	struct notifier_block reboot_notifier;
++	struct clk *clk;
++	u32 rate;
++};
++
++#define BRCMSTB_WKTMR_EVENT		0x00
++#define BRCMSTB_WKTMR_COUNTER		0x04
++#define BRCMSTB_WKTMR_ALARM		0x08
++#define BRCMSTB_WKTMR_PRESCALER		0x0C
++#define BRCMSTB_WKTMR_PRESCALER_VAL	0x10
++
++#define BRCMSTB_WKTMR_DEFAULT_FREQ	27000000
++
++static inline void brcmstb_waketmr_clear_alarm(struct brcmstb_waketmr *timer)
++{
++	writel_relaxed(1, timer->base + BRCMSTB_WKTMR_EVENT);
++	(void)readl_relaxed(timer->base + BRCMSTB_WKTMR_EVENT);
++}
++
++static void brcmstb_waketmr_set_alarm(struct brcmstb_waketmr *timer,
++				      unsigned int secs)
++{
++	brcmstb_waketmr_clear_alarm(timer);
++
++	writel_relaxed(secs + 1, timer->base + BRCMSTB_WKTMR_ALARM);
++}
++
++static irqreturn_t brcmstb_waketmr_irq(int irq, void *data)
++{
++	struct brcmstb_waketmr *timer = data;
++
++	pm_wakeup_event(timer->dev, 0);
++
++	return IRQ_HANDLED;
++}
++
++struct wktmr_time {
++	u32 sec;
++	u32 pre;
++};
++
++static void wktmr_read(struct brcmstb_waketmr *timer,
++		       struct wktmr_time *t)
++{
++	u32 tmp;
++
++	do {
++		t->sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_COUNTER);
++		tmp = readl_relaxed(timer->base + BRCMSTB_WKTMR_PRESCALER_VAL);
++	} while (tmp >= timer->rate);
++
++	t->pre = timer->rate - tmp;
++}
++
++static int brcmstb_waketmr_prepare_suspend(struct brcmstb_waketmr *timer)
++{
++	struct device *dev = timer->dev;
 +	int ret = 0;
- 
- 	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
 +
- 	if (info->clk_disabled) {
--		clk_enable(info->rtc_clk);
--		if (info->data->needs_src_clk)
--			clk_enable(info->rtc_src_clk);
-+		ret = clk_enable(info->rtc_clk);
-+		if (ret)
-+			goto out;
-+
-+		if (info->data->needs_src_clk) {
-+			ret = clk_enable(info->rtc_src_clk);
-+			if (ret) {
-+				clk_disable(info->rtc_clk);
-+				goto out;
-+			}
++	if (device_may_wakeup(dev)) {
++		ret = enable_irq_wake(timer->irq);
++		if (ret) {
++			dev_err(dev, "failed to enable wake-up interrupt\n");
++			return ret;
 +		}
- 		info->clk_disabled = false;
- 	}
-+
-+out:
- 	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
++	}
 +
 +	return ret;
- }
- 
- static void s3c_rtc_disable_clk(struct s3c_rtc *info)
-@@ -122,10 +136,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	unsigned int tmp;
-+	int ret;
- 
- 	dev_dbg(info->dev, "%s: aie=%d\n", __func__, enabled);
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	tmp = readb(info->base + S3C2410_RTCALM) & ~S3C2410_RTCALM_ALMEN;
- 
-@@ -136,10 +153,13 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- 
- 	s3c_rtc_disable_clk(info);
- 
--	if (enabled)
--		s3c_rtc_enable_clk(info);
--	else
-+	if (enabled) {
-+		ret = s3c_rtc_enable_clk(info);
-+		if (ret)
-+			return ret;
-+	} else {
- 		s3c_rtc_disable_clk(info);
-+	}
- 
- 	return 0;
- }
-@@ -147,10 +167,14 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- /* Set RTC frequency */
- static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
- {
++}
++
++/* If enabled as a wakeup-source, arm the timer when powering off */
++static int brcmstb_waketmr_reboot(struct notifier_block *nb,
++		unsigned long action, void *data)
++{
++	struct brcmstb_waketmr *timer;
++
++	timer = container_of(nb, struct brcmstb_waketmr, reboot_notifier);
++
++	/* Set timer for cold boot */
++	if (action == SYS_POWER_OFF)
++		brcmstb_waketmr_prepare_suspend(timer);
++
++	return NOTIFY_DONE;
++}
++
++static int brcmstb_waketmr_gettime(struct device *dev,
++				   struct rtc_time *tm)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
++	struct wktmr_time now;
++
++	wktmr_read(timer, &now);
++
++	rtc_time_to_tm(now.sec, tm);
++
++	return 0;
++}
++
++static int brcmstb_waketmr_settime(struct device *dev,
++				   struct rtc_time *tm)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
++	unsigned long sec;
 +	int ret;
 +
- 	if (!is_power_of_2(freq))
- 		return -EINVAL;
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 	spin_lock_irq(&info->pie_lock);
- 
- 	if (info->data->set_freq)
-@@ -167,8 +191,11 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	unsigned int have_retried = 0;
++	rtc_tm_to_time(tm, &sec);
++
++	writel_relaxed(sec, timer->base + BRCMSTB_WKTMR_COUNTER);
++
++	return 0;
++}
++
++static int brcmstb_waketmr_getalarm(struct device *dev,
++				    struct rtc_wkalrm *alarm)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
++	unsigned long sec;
++	u32 reg;
++
++	sec = readl_relaxed(timer->base + BRCMSTB_WKTMR_ALARM);
++	if (sec != 0) {
++		/* Alarm is enabled */
++		alarm->enabled = 1;
++		rtc_time_to_tm(sec, &alarm->time);
++	}
++
++	reg = readl_relaxed(timer->base + BRCMSTB_WKTMR_EVENT);
++	alarm->pending = !!(reg & 1);
++
++	return 0;
++}
++
++static int brcmstb_waketmr_setalarm(struct device *dev,
++				     struct rtc_wkalrm *alarm)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
++	unsigned long sec;
++
++	if (alarm->enabled)
++		rtc_tm_to_time(&alarm->time, &sec);
++	else
++		sec = 0;
++
++	brcmstb_waketmr_set_alarm(timer, sec);
++
++	return 0;
++}
++
++/*
++ * Does not do much but keep the RTC class happy. We always support
++ * alarms.
++ */
++static int brcmstb_waketmr_alarm_enable(struct device *dev,
++					unsigned int enabled)
++{
++	return 0;
++}
++
++static const struct rtc_class_ops brcmstb_waketmr_ops = {
++	.read_time	= brcmstb_waketmr_gettime,
++	.set_time	= brcmstb_waketmr_settime,
++	.read_alarm	= brcmstb_waketmr_getalarm,
++	.set_alarm	= brcmstb_waketmr_setalarm,
++	.alarm_irq_enable = brcmstb_waketmr_alarm_enable,
++};
++
++static int brcmstb_waketmr_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct brcmstb_waketmr *timer;
++	struct resource *res;
 +	int ret;
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
++
++	timer = devm_kzalloc(dev, sizeof(*timer), GFP_KERNEL);
++	if (!timer)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, timer);
++	timer->dev = dev;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	timer->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(timer->base))
++		return PTR_ERR(timer->base);
++
++	/*
++	 * Set wakeup capability before requesting wakeup interrupt, so we can
++	 * process boot-time "wakeups" (e.g., from S5 soft-off)
++	 */
++	device_set_wakeup_capable(dev, true);
++	device_wakeup_enable(dev);
++
++	timer->irq = platform_get_irq(pdev, 0);
++	if (timer->irq < 0)
++		return -ENODEV;
++
++	timer->clk = devm_clk_get(dev, NULL);
++	if (!IS_ERR(timer->clk)) {
++		ret = clk_prepare_enable(timer->clk);
++		if (ret)
++			return ret;
++		timer->rate = clk_get_rate(timer->clk);
++		if (!timer->rate)
++			timer->rate = BRCMSTB_WKTMR_DEFAULT_FREQ;
++	} else {
++		timer->rate = BRCMSTB_WKTMR_DEFAULT_FREQ;
++		timer->clk = NULL;
++	}
++
++	ret = devm_request_irq(dev, timer->irq, brcmstb_waketmr_irq, 0,
++			       "brcmstb-waketimer", timer);
++	if (ret < 0)
 +		return ret;
- 
- retry_get_time:
- 	rtc_tm->tm_min  = readb(info->base + S3C2410_RTCMIN);
-@@ -212,6 +239,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	int year = tm->tm_year - 100;
++
++	timer->reboot_notifier.notifier_call = brcmstb_waketmr_reboot;
++	register_reboot_notifier(&timer->reboot_notifier);
++
++	timer->rtc = rtc_device_register("brcmstb-waketmr", dev,
++					 &brcmstb_waketmr_ops, THIS_MODULE);
++	if (IS_ERR(timer->rtc)) {
++		dev_err(dev, "unable to register device\n");
++		unregister_reboot_notifier(&timer->reboot_notifier);
++		return PTR_ERR(timer->rtc);
++	}
++
++	dev_info(dev, "registered, with irq %d\n", timer->irq);
++
++	return ret;
++}
++
++static int brcmstb_waketmr_remove(struct platform_device *pdev)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(&pdev->dev);
++
++	unregister_reboot_notifier(&timer->reboot_notifier);
++	rtc_device_unregister(timer->rtc);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int brcmstb_waketmr_suspend(struct device *dev)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
++
++	return brcmstb_waketmr_prepare_suspend(timer);
++}
++
++static int brcmstb_waketmr_resume(struct device *dev)
++{
++	struct brcmstb_waketmr *timer = dev_get_drvdata(dev);
 +	int ret;
- 
- 	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
- 		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-@@ -224,7 +252,9 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- 		return -EINVAL;
- 	}
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	writeb(bin2bcd(tm->tm_sec),  info->base + S3C2410_RTCSEC);
- 	writeb(bin2bcd(tm->tm_min),  info->base + S3C2410_RTCMIN);
-@@ -243,8 +273,11 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	struct rtc_time *alm_tm = &alrm->time;
- 	unsigned int alm_en;
-+	int ret;
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	alm_tm->tm_sec  = readb(info->base + S3C2410_ALMSEC);
- 	alm_tm->tm_min  = readb(info->base + S3C2410_ALMMIN);
-@@ -293,6 +326,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	struct rtc_time *tm = &alrm->time;
- 	unsigned int alrm_en;
-+	int ret;
- 	int year = tm->tm_year - 100;
- 
- 	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
-@@ -300,7 +334,9 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
- 		tm->tm_hour, tm->tm_min, tm->tm_sec);
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	alrm_en = readb(info->base + S3C2410_RTCALM) & S3C2410_RTCALM_ALMEN;
- 	writeb(0x00, info->base + S3C2410_RTCALM);
-@@ -349,8 +385,11 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int s3c_rtc_proc(struct device *dev, struct seq_file *seq)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
-+	int ret;
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	if (info->data->enable_tick)
- 		info->data->enable_tick(info, seq);
-@@ -589,8 +628,11 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- static int s3c_rtc_suspend(struct device *dev)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
-+	int ret;
- 
--	s3c_rtc_enable_clk(info);
-+	ret = s3c_rtc_enable_clk(info);
-+	if (ret)
-+		return ret;
- 
- 	/* save TICNT for anyone using periodic interrupts */
- 	if (info->data->save_tick_cnt)
++
++	if (!device_may_wakeup(dev))
++		return 0;
++
++	ret = disable_irq_wake(timer->irq);
++
++	brcmstb_waketmr_clear_alarm(timer);
++
++	return ret;
++}
++#endif /* CONFIG_PM_SLEEP */
++
++static SIMPLE_DEV_PM_OPS(brcmstb_waketmr_pm_ops,
++			 brcmstb_waketmr_suspend, brcmstb_waketmr_resume);
++
++static const struct of_device_id brcmstb_waketmr_of_match[] = {
++	{ .compatible = "brcm,brcmstb-waketimer" },
++	{ /* sentinel */ },
++};
++
++static struct platform_driver brcmstb_waketmr_driver = {
++	.probe			= brcmstb_waketmr_probe,
++	.remove			= brcmstb_waketmr_remove,
++	.driver = {
++		.name		= "brcmstb-waketimer",
++		.pm		= &brcmstb_waketmr_pm_ops,
++		.of_match_table	= of_match_ptr(brcmstb_waketmr_of_match),
++	}
++};
++module_platform_driver(brcmstb_waketmr_driver);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Brian Norris");
++MODULE_AUTHOR("Markus Mayer");
++MODULE_DESCRIPTION("Wake-up timer driver for STB chips");
 -- 
 2.9.3
