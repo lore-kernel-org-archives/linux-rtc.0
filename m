@@ -1,28 +1,26 @@
-Return-Path: <rtc-linux+bncBDZKLXNI4ACBBPFBUTFAKGQEGO3YN2A@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBMFSYPFAKGQEQ3FX3DA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from atrey.karlin.mff.cuni.cz (atrey.karlin.mff.cuni.cz. [195.113.26.193])
-        by gmr-mx.google.com with ESMTPS id w136si3641419wmf.3.2017.06.20.05.10.35
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com. [62.209.51.94])
+        by gmr-mx.google.com with ESMTPS id f125si3266146wma.4.2017.06.26.02.51.44
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 05:10:35 -0700 (PDT)
-Date: Tue, 20 Jun 2017 14:10:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: linaro-kernel@lists.linaro.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <len.brown@intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] Re: [PATCH 51/51] power: suspend test: stop using rtc
- deprecated functions
-Message-ID: <20170620121035.GB13221@amd>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
- <1497951359-13334-52-git-send-email-benjamin.gaignard@linaro.org>
+        Mon, 26 Jun 2017 02:51:44 -0700 (PDT)
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni
+	<alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [rtc-linux] [PATCH 0/2] rtc: add support for STM32H7 RTC
+Date: Mon, 26 Jun 2017 11:51:27 +0200
+Message-ID: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
-In-Reply-To: <1497951359-13334-52-git-send-email-benjamin.gaignard@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,24 +30,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+Add support for STM32H7 Real Time Clock variant.
+Difference is regarding clocks: there is a 'pclk' clock on STM32H7
+for register access.
 
---pvezYHf7grwyp3Bc
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Amelie Delaunay (2):
+  dt-bindings: rtc: stm32: add support for STM32H7
+  rtc: stm32: add STM32H7 RTC support
 
-On Tue 2017-06-20 11:35:59, Benjamin Gaignard wrote:
-> rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-> rely on 32bits variables and that will make rtc break in y2038/2016.
-> Stop using those two functions to safer 64bits ones.
-> 
-> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-> CC: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-
-Acked-by: Pavel Machek <pavel@ucw.cz>
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 ++++++--
+ drivers/rtc/rtc-stm32.c                            | 85 +++++++++++++++++-----
+ 2 files changed, 95 insertions(+), 22 deletions(-)
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -60,17 +54,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---pvezYHf7grwyp3Bc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAllJELsACgkQMOfwapXb+vItPACfWZa9Zvws5xviE1Uo93s0SZFX
-nmAAoJE89i+iligrXRD5h2/QONUrMghS
-=0Eaj
------END PGP SIGNATURE-----
-
---pvezYHf7grwyp3Bc--
