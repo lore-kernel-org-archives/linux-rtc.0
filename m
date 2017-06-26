@@ -1,27 +1,38 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBCW2UPFAKGQEP6TUTCI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCH67JWTV4DBBJP6YXFAKGQE3YRHNBA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x230.google.com (mail-wr0-x230.google.com. [2a00:1450:400c:c0c::230])
-        by gmr-mx.google.com with ESMTPS id 140si3846457wmr.2.2017.06.20.02.38.18
+Received: from mail-wr0-x241.google.com (mail-wr0-x241.google.com. [2a00:1450:400c:c0c::241])
+        by gmr-mx.google.com with ESMTPS id 143si291277wmr.0.2017.06.26.14.39.48
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:18 -0700 (PDT)
-Received: by mail-wr0-x230.google.com with SMTP id 77so88340372wrb.1
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:18 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH 36/51] rtc: rs5c348: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:44 +0200
-Message-Id: <1497951359-13334-37-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Mon, 26 Jun 2017 14:39:48 -0700 (PDT)
+Received: by mail-wr0-x241.google.com with SMTP id z45so30485543wrb.2
+        for <rtc-linux@googlegroups.com>; Mon, 26 Jun 2017 14:39:48 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: brcmstb-waketimer: Add Broadcom STB wake-timer
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Florian Fainelli <f.fainelli@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>,
+ Markus Mayer <mmayer@broadcom.com>, Alessandro Zummo <a.zummo@towertech.it>,
+ Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Gregory Fong <gregory.0xf0@gmail.com>,
+ "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE"
+ <bcm-kernel-feedback-list@broadcom.com>,
+ "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <rtc-linux@googlegroups.com>,
+ "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+ <devicetree@vger.kernel.org>,
+ "moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE"
+ <linux-arm-kernel@lists.infradead.org>
+References: <20170615195904.12653-1-f.fainelli@gmail.com>
+ <20170615195904.12653-3-f.fainelli@gmail.com>
+ <20170624185942.vq656pjxbqnqdhll@piout.net>
+ <35c43786-ee58-130c-2ecd-5577197bd5aa@gmail.com>
+ <20170626213534.jur6rggwbzhk6r4t@piout.net>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <9d8f0475-5a52-c7dc-2f39-1b5cbad608e9@gmail.com>
+Date: Mon, 26 Jun 2017 14:39:42 -0700
+MIME-Version: 1.0
+In-Reply-To: <20170626213534.jur6rggwbzhk6r4t@piout.net>
 Content-Type: text/plain; charset="UTF-8"
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,43 +41,23 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 06/26/2017 02:35 PM, Alexandre Belloni wrote:
+> On 26/06/2017 at 10:15:46 -0700, Florian Fainelli wrote:
+>>> This is not needed since d68778b80dd7
+>>
+>> Great, I will take that out.
+>>
+>> Do you care whether some dev_dbg() prints are left in the driver or
+>> should I remove those in v2?
+>>
+> 
+> It could have stayed but it seems you removed it from v2.
+> 
+> I'll applay that but it is ok if you change your mind.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-rs5c348.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
-index 9a30698..f82c0bc 100644
---- a/drivers/rtc/rtc-rs5c348.c
-+++ b/drivers/rtc/rtc-rs5c348.c
-@@ -137,7 +137,7 @@ struct rs5c348_plat_data {
- 
- 	if (rtc_valid_tm(tm) < 0) {
- 		dev_err(&spi->dev, "retrieved date/time is not valid.\n");
--		rtc_time_to_tm(0, tm);
-+		rtc_time64_to_tm(0, tm);
- 	}
- 
- 	return 0;
-@@ -183,7 +183,7 @@ static int rs5c348_probe(struct spi_device *spi)
- 			dev_warn(&spi->dev, "voltage-low detected.\n");
- 		if (ret & RS5C348_BIT_XSTP)
- 			dev_warn(&spi->dev, "oscillator-stop detected.\n");
--		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
-+		rtc_time64_to_tm(0, &tm);	/* 1970/1/1 */
- 		ret = rs5c348_rtc_set_time(&spi->dev, &tm);
- 		if (ret < 0)
- 			goto kfree_exit;
+No, I think they don't really belong in the driver anymore, thanks!
 -- 
-1.9.1
+Florian
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
