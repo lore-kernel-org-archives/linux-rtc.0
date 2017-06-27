@@ -1,116 +1,155 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35118 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751083AbdFATJi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Jun 2017 15:09:38 -0400
-Received: by mail-wm0-f67.google.com with SMTP id g15so13625100wmc.2
-        for <linux-rtc@vger.kernel.org>; Thu, 01 Jun 2017 12:09:38 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 1/4] rtc: ds1307: make definition of ds1307_of_match more
- compact
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
-Message-ID: <bbccfbd0-3890-4eff-be88-094a8006dc9d@gmail.com>
-Date: Thu, 1 Jun 2017 21:09:17 +0200
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:33522 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751524AbdF0MY7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Jun 2017 08:24:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <22e48dc3-5d08-681c-5eed-d7c0e4552267@gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
+References: <1498150704-21777-1-git-send-email-yesipov@gmail.com> <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
+From: Kirill Esipov <yesipov@gmail.com>
+Date: Tue, 27 Jun 2017 15:24:57 +0300
+Message-ID: <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Make the definition of ds1307_of_match more compact. This makes the
-code better readable and more in line with the definition of
-ds1307_id and ds1307_acpi_ids.
+2017-06-25 19:39 GMT+03:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+> On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
+>> DS3232/DS3234 has the temperature registers with a resolution of 0.25
+>> degree celsius. This enables to get the value through hwmon.
+>>
+>>         # cat /sys/class/hwmon/hwmon0/temp1_input
+>>         37250
+>
+>> +config RTC_DRV_DS3232_HWMON
+>> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
+>
+>> +       depends on RTC_DRV_DS3232 && HWMON
+>> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
+>
+> Perhaps it might be squeezed into one line (something like that logic
+> has been required by I2C related PMIC IIRC)
+>
+>> +       default y
+>
+> Is it really sane default?
+>
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- no changes
----
- drivers/rtc/rtc-ds1307.c | 70 ++++++++++--------------------------------------
- 1 file changed, 14 insertions(+), 56 deletions(-)
+At first sight i thought that yes it is sane default (and others RTC with
+hwmon set it "default y" (ds1307, rv3029c2)).
+But if it's not sane, then we should turn it off by default in others drivers?
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a2649385..b960ec3f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -198,62 +198,20 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
- 
- #ifdef CONFIG_OF
- static const struct of_device_id ds1307_of_match[] = {
--	{
--		.compatible = "dallas,ds1307",
--		.data = (void *)ds_1307
--	},
--	{
--		.compatible = "dallas,ds1337",
--		.data = (void *)ds_1337
--	},
--	{
--		.compatible = "dallas,ds1338",
--		.data = (void *)ds_1338
--	},
--	{
--		.compatible = "dallas,ds1339",
--		.data = (void *)ds_1339
--	},
--	{
--		.compatible = "dallas,ds1388",
--		.data = (void *)ds_1388
--	},
--	{
--		.compatible = "dallas,ds1340",
--		.data = (void *)ds_1340
--	},
--	{
--		.compatible = "maxim,ds3231",
--		.data = (void *)ds_3231
--	},
--	{
--		.compatible = "st,m41t0",
--		.data = (void *)m41t00
--	},
--	{
--		.compatible = "st,m41t00",
--		.data = (void *)m41t00
--	},
--	{
--		.compatible = "microchip,mcp7940x",
--		.data = (void *)mcp794xx
--	},
--	{
--		.compatible = "microchip,mcp7941x",
--		.data = (void *)mcp794xx
--	},
--	{
--		.compatible = "pericom,pt7c4338",
--		.data = (void *)ds_1307
--	},
--	{
--		.compatible = "epson,rx8025",
--		.data = (void *)rx_8025
--	},
--	{
--		.compatible = "isil,isl12057",
--		.data = (void *)ds_1337
--	},
-+	{ .compatible = "dallas,ds1307",	.data = (void *)ds_1307 },
-+	{ .compatible = "dallas,ds1337",	.data = (void *)ds_1337 },
-+	{ .compatible = "dallas,ds1338",	.data = (void *)ds_1338 },
-+	{ .compatible = "dallas,ds1339",	.data = (void *)ds_1339 },
-+	{ .compatible = "dallas,ds1388",	.data = (void *)ds_1388 },
-+	{ .compatible = "dallas,ds1340",	.data = (void *)ds_1340 },
-+	{ .compatible = "maxim,ds3231",		.data = (void *)ds_3231 },
-+	{ .compatible = "st,m41t0",		.data = (void *)m41t00 },
-+	{ .compatible = "st,m41t00",		.data = (void *)m41t00 },
-+	{ .compatible = "microchip,mcp7940x",	.data = (void *)mcp794xx },
-+	{ .compatible = "microchip,mcp7941x",	.data = (void *)mcp794xx },
-+	{ .compatible = "pericom,pt7c4338",	.data = (void *)ds_1307 },
-+	{ .compatible = "epson,rx8025",		.data = (void *)rx_8025 },
-+	{ .compatible = "isil,isl12057",	.data = (void *)ds_1337 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, ds1307_of_match);
+
+>> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+>
+> IS_BUILTIN() ?
+>
+>> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
+>> +{
+>> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>> +       u8 temp_buf[2];
+>> +       s16 temp;
+>> +       int ret;
+>> +
+>> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
+>> +                               sizeof(temp_buf));
+>
+>> +
+>
+> Remove.
+>
+>> +       if (ret < 0)
+>> +               return ret;
+>
+>> +static umode_t ds3232_hwmon_is_visible(const void *data,
+>> +                                        enum hwmon_sensor_types type,
+>> +                                        u32 attr, int channel)
+>> +{
+>> +       if (type != hwmon_temp)
+>> +               return 0;
+>> +
+>> +       switch (attr) {
+>> +       case hwmon_temp_input:
+>> +               return 0444;
+>> +       default:
+>> +               return 0;
+>> +       }
+>> +}
+>> +
+>> +static int ds3232_hwmon_read(struct device *dev,
+>> +                              enum hwmon_sensor_types type,
+>> +                              u32 attr, int channel, long *temp)
+>> +{
+>> +       int err;
+>> +
+>> +       switch (attr) {
+>> +       case hwmon_temp_input:
+>> +               ds3232_hwmon_read_temp(dev, temp);
+>> +               err = 0;
+>> +               break;
+>> +       default:
+>> +               return -EOPNOTSUPP;
+>> +       }
+>> +
+>> +       return err;
+>
+> You may do as in previous function. Or what did you mean here by
+> introducing an err variable?
+>
+>> +}
+>
+>> +
+>> +
+>
+> Remove one of them.
+>
+>> +static void ds3232_hwmon_register(struct device *dev, const char *name)
+>> +{
+>> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>> +       struct device *hwmon_dev;
+>> +
+>> +       hwmon_dev = devm_hwmon_device_register_with_info(dev, name, ds3232,
+>> +                                                       &ds3232_hwmon_chip_info,
+>> +                                                       NULL);
+>
+>> +
+>
+> Remove.
+>
+>> +       if (IS_ERR(hwmon_dev)) {
+>> +               dev_warn(dev, "unable to register hwmon device %ld\n",
+>> +                        PTR_ERR(hwmon_dev));
+>> +       }
+>> +}
+>> +
+>
+>> +#else
+>
+> I dunno which style is preferred, though you may use
+> if (IS_BUILTIN(...))
+>  return;
+>
+> at the beginning of the function and allow gcc optimizer to take care
+> of everything else.
+>
+>> +
+>> +static void ds3232_hwmon_register(struct device *dev, const char *name)
+>> +{
+>> +}
+>> +
+>> +#endif
+>
+> --
+> With Best Regards,
+> Andy Shevchenko
+
+
+
 -- 
-2.13.0
+Kirill Esipov
