@@ -1,201 +1,116 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41244 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:56587 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751869AbdFPPfC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Jun 2017 11:35:02 -0400
-Received: from localhost (unknown [88.191.26.124])
-        by mail.free-electrons.com (Postfix) with ESMTPSA id 2335D21DF6
-        for <linux-rtc@vger.kernel.org>; Fri, 16 Jun 2017 17:34:57 +0200 (CEST)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
-        shuah@kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com
-Cc: linaro-kernel@lists.linaro.org,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: [PATCH 2/3] tools: timer: add test to check y2038/2106 bug
-Date: Fri, 16 Jun 2017 16:03:52 +0200
-Message-Id: <1497621833-9942-3-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497621833-9942-1-git-send-email-benjamin.gaignard@linaro.org>
+        with ESMTP id S1752311AbdF0SBp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Jun 2017 14:01:45 -0400
+Date: Tue, 27 Jun 2017 20:01:43 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Kirill Esipov <yesipov@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
+Message-ID: <20170627180143.cafxe6bvyblywuba@piout.net>
+References: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
+ <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
+ <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com>
+ <20170627130057.yhhalp2epmmdicz7@piout.net>
+ <CAJcpCzEHW8GSkykidpq=GBo-aFbFstmOmQZhAYu-NWBWxTc=uA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAJcpCzEHW8GSkykidpq=GBo-aFbFstmOmQZhAYu-NWBWxTc=uA@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Message-ID: <20170616140352.HP3_w2BGCNsE1mlmgJsJOGtTQK63z1L2M1YijX5LI1A@z>
 
-The goal of this test is to check if a RTC device correctly support
-dates after years 2038 or 2106.
-It set a date (1-1-2200) on RTC and read it back to be sure that the
-driver is working well.
-The same thing is done on alarm.
+On 27/06/2017 at 18:27:42 +0300, Kirill Esipov wrote:
+> 2017-06-27 16:00 GMT+03:00 Alexandre Belloni
+> <alexandre.belloni@free-electrons.com>:
+> > On 27/06/2017 at 15:24:57 +0300, Kirill Esipov wrote:
+> >> 2017-06-25 19:39 GMT+03:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+> >> > On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
+> >> >> DS3232/DS3234 has the temperature registers with a resolution of 0.25
+> >> >> degree celsius. This enables to get the value through hwmon.
+> >> >>
+> >> >>         # cat /sys/class/hwmon/hwmon0/temp1_input
+> >> >>         37250
+> >> >
+> >> >> +config RTC_DRV_DS3232_HWMON
+> >> >> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
+> >> >
+> >> >> +       depends on RTC_DRV_DS3232 && HWMON
+> >> >> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
+> >> >
+> >> > Perhaps it might be squeezed into one line (something like that logic
+> >> > has been required by I2C related PMIC IIRC)
+> >> >
+> >> >> +       default y
+> >> >
+> >> > Is it really sane default?
+> >> >
+> >>
+> >> At first sight i thought that yes it is sane default (and others RTC with
+> >> hwmon set it "default y" (ds1307, rv3029c2)).
+> >> But if it's not sane, then we should turn it off by default in others drivers?
+> >>
+> >
+> > It is definitively sane.
+> >
+> >>
+> >> >> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+> >> >
+> >> > IS_BUILTIN() ?
+> >> >
+> >
+> > I'd use IS_ENABLED in that case.
+> >
+> 
+> Why? "RTC_DRV_DS3232_HWMON" is bool, not tristate. So it can't be
+> defined as "m".
+> 
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
----
- tools/testing/selftests/timers/Makefile       |   4 +-
- tools/testing/selftests/timers/rtctest-2038.c | 135 ++++++++++++++++++++++++++
- 2 files changed, 138 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/timers/rtctest-2038.c
+It's clearer and doesn't hurt but really, #ifdef
+CONFIG_RTC_DRV_DS3232_HWMON is just fine.
 
-diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
-index 54481f1..7791f79 100644
---- a/tools/testing/selftests/timers/Makefile
-+++ b/tools/testing/selftests/timers/Makefile
-@@ -9,7 +9,8 @@ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
- 
- TEST_GEN_PROGS_EXTENDED = alarmtimer-suspend valid-adjtimex adjtick change_skew \
- 		      skew_consistency clocksource-switch leap-a-day \
--		      leapcrash set-tai set-2038 set-tz rtctest_setdate
-+		      leapcrash set-tai set-2038 set-tz rtctest_setdate \
-+		      rtctest-2038
- 
- 
- include ../lib.mk
-@@ -29,4 +30,5 @@ run_destructive_tests: run_tests
- 	./set-tz
- 	./set-tai
- 	./set-2038
-+	./rtctest-2038
- 
-diff --git a/tools/testing/selftests/timers/rtctest-2038.c b/tools/testing/selftests/timers/rtctest-2038.c
-new file mode 100644
-index 0000000..213b7ee
---- /dev/null
-+++ b/tools/testing/selftests/timers/rtctest-2038.c
-@@ -0,0 +1,135 @@
-+/* Real Time Clock Driver Test
-+ *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
-+ *
-+ * To build
-+ *	gcc rtctest-2038.c -o rtctest-2038
-+ *
-+ *   This program is free software: you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation, either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ */
-+
-+#include <stdio.h>
-+#include <linux/rtc.h>
-+#include <sys/ioctl.h>
-+#include <sys/time.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+
-+static const char default_rtc[] = "/dev/rtc0";
-+
-+int main(int argc, char **argv)
-+{
-+	int fd, retval;
-+	struct rtc_time new, current;
-+	const char *rtc = default_rtc;
-+
-+	switch (argc) {
-+	case 2:
-+		rtc = argv[1];
-+		/* FALLTHROUGH */
-+	case 1:
-+		break;
-+	default:
-+		fprintf(stderr, "usage: rtctest-2038 [rtcdev]\n");
-+		return 1;
-+	}
-+
-+	fprintf(stderr, "\nTest if RTC is robust for date after y2038/2106\n\n");
-+
-+	fd = open(rtc, O_RDONLY);
-+	if (fd == -1) {
-+		perror(rtc);
-+		exit(errno);
-+	}
-+
-+	new.tm_year = 300; /* 2200 - 1900 */
-+	new.tm_mon = 0;
-+	new.tm_mday = 1;
-+	new.tm_hour = 0;
-+	new.tm_min = 0;
-+	new.tm_sec = 0;
-+
-+	fprintf(stderr, "Test will set RTC date/time to %d-%d-%d, %02d:%02d:%02d.\n",
-+		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
-+		new.tm_hour, new.tm_min, new.tm_sec);
-+
-+	/* Write the new date in RTC */
-+	retval = ioctl(fd, RTC_SET_TIME, &new);
-+	if (retval == -1) {
-+		perror("RTC_SET_TIME ioctl");
-+		close(fd);
-+		exit(errno);
-+	}
-+
-+	/* Read back */
-+	retval = ioctl(fd, RTC_RD_TIME, &current);
-+	if (retval == -1) {
-+		perror("RTC_RD_TIME ioctl");
-+		exit(errno);
-+	}
-+
-+	fprintf(stderr, "RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
-+		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
-+		current.tm_hour, current.tm_min, current.tm_sec);
-+
-+	if (new.tm_year != current.tm_year ||
-+	    new.tm_mon != current.tm_mon ||
-+	    new.tm_mday != current.tm_mday ||
-+	    new.tm_hour != current.tm_hour ||
-+	    new.tm_min != current.tm_min ||
-+	    new.tm_sec != current.tm_sec) {
-+		fprintf(stderr, "\n\nSet Time test failed\n");
-+		close(fd);
-+		return 1;
-+	}
-+
-+	new.tm_sec += 5;
-+
-+	fprintf(stderr, "\nTest will set RTC alarm to %d-%d-%d, %02d:%02d:%02d.\n",
-+		new.tm_mday, new.tm_mon + 1, new.tm_year + 1900,
-+		new.tm_hour, new.tm_min, new.tm_sec);
-+
-+	/* Write the new alarm in RTC */
-+	retval = ioctl(fd, RTC_ALM_SET, &new);
-+	if (retval == -1) {
-+		perror("RTC_ALM_SET ioctl");
-+		close(fd);
-+		exit(errno);
-+	}
-+
-+	/* Read back */
-+	retval = ioctl(fd, RTC_ALM_READ, &current);
-+	if (retval == -1) {
-+		perror("RTC_ALM_READ ioctl");
-+		exit(errno);
-+	}
-+
-+	fprintf(stderr, "RTC alarm is %d-%d-%d, %02d:%02d:%02d.\n",
-+		current.tm_mday, current.tm_mon + 1, current.tm_year + 1900,
-+		current.tm_hour, current.tm_min, current.tm_sec);
-+
-+	if (new.tm_year != current.tm_year ||
-+	    new.tm_mon != current.tm_mon ||
-+	    new.tm_mday != current.tm_mday ||
-+	    new.tm_hour != current.tm_hour ||
-+	    new.tm_min != current.tm_min ||
-+	    new.tm_sec != current.tm_sec) {
-+		fprintf(stderr, "\n\nSet alarm test failed\n");
-+		close(fd);
-+		return 1;
-+	}
-+
-+	fprintf(stderr, "\nTest complete\n");
-+	close(fd);
-+	return 0;
-+}
+> >> >> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
+> >> >> +{
+> >> >> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+> >> >> +       u8 temp_buf[2];
+> >> >> +       s16 temp;
+> >> >> +       int ret;
+> >> >> +
+> >> >> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
+> >> >> +                               sizeof(temp_buf));
+> >> >
+> >> >> +
+> >> >
+> >> > Remove.
+> >
+> > I'd recommend running checkpatch.pl --strict to remove the remaining
+> > whitespace issues too (a few alignments are off).
+> >
+> >> >
+> >> > I dunno which style is preferred, though you may use
+> >> > if (IS_BUILTIN(...))
+> >> >  return;
+> >> >
+> >> > at the beginning of the function and allow gcc optimizer to take care
+> >> > of everything else.
+> >> >
+> >
+> > I don't have a strong opinion there.
+> >
+> > --
+> > Alexandre Belloni, Free Electrons
+> > Embedded Linux and Kernel engineering
+> > http://free-electrons.com
+> 
+> 
+> 
+> -- 
+> Kirill Esipov
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
