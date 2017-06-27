@@ -1,158 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33410 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752403AbdFUO6U (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Jun 2017 10:58:20 -0400
+Received: from mail-vk0-f65.google.com ([209.85.213.65]:36846 "EHLO
+        mail-vk0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751520AbdF0P1t (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Jun 2017 11:27:49 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170627130057.yhhalp2epmmdicz7@piout.net>
+References: <1498150704-21777-1-git-send-email-yesipov@gmail.com>
+ <CAHp75Vd-CoKpt0dhXspCDLSoohEVRTHEEPn9jZtFqUwvAeB1bA@mail.gmail.com>
+ <CAJcpCzF1SJ2v-KsJXN7c=BogeQv4LdAZEgZFsgVVy3HKPCcO1Q@mail.gmail.com> <20170627130057.yhhalp2epmmdicz7@piout.net>
 From: Kirill Esipov <yesipov@gmail.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kirill Esipov <yesipov@gmail.com>
-Subject: [PATCH] rtc: ds3232: add temperature support
-Date: Wed, 21 Jun 2017 17:49:43 +0300
-Message-Id: <1498056583-16551-1-git-send-email-yesipov@gmail.com>
+Date: Tue, 27 Jun 2017 18:27:42 +0300
+Message-ID: <CAJcpCzEHW8GSkykidpq=GBo-aFbFstmOmQZhAYu-NWBWxTc=uA@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: ds3232: add temperature support
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-DS3232/DS3234 has the temperature registers with a resolution of
-0.25 degree celsius. This enables to get the value through hwmon.
+2017-06-27 16:00 GMT+03:00 Alexandre Belloni
+<alexandre.belloni@free-electrons.com>:
+> On 27/06/2017 at 15:24:57 +0300, Kirill Esipov wrote:
+>> 2017-06-25 19:39 GMT+03:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+>> > On Thu, Jun 22, 2017 at 7:58 PM, Kirill Esipov <yesipov@gmail.com> wrote:
+>> >> DS3232/DS3234 has the temperature registers with a resolution of 0.25
+>> >> degree celsius. This enables to get the value through hwmon.
+>> >>
+>> >>         # cat /sys/class/hwmon/hwmon0/temp1_input
+>> >>         37250
+>> >
+>> >> +config RTC_DRV_DS3232_HWMON
+>> >> +       bool "HWMON support for Dallas/Maxim DS3232/DS3234"
+>> >
+>> >> +       depends on RTC_DRV_DS3232 && HWMON
+>> >> +       depends on !(RTC_DRV_DS3232=y && HWMON=m)
+>> >
+>> > Perhaps it might be squeezed into one line (something like that logic
+>> > has been required by I2C related PMIC IIRC)
+>> >
+>> >> +       default y
+>> >
+>> > Is it really sane default?
+>> >
+>>
+>> At first sight i thought that yes it is sane default (and others RTC with
+>> hwmon set it "default y" (ds1307, rv3029c2)).
+>> But if it's not sane, then we should turn it off by default in others drivers?
+>>
+>
+> It is definitively sane.
+>
+>>
+>> >> +#ifdef CONFIG_RTC_DRV_DS3232_HWMON
+>> >
+>> > IS_BUILTIN() ?
+>> >
+>
+> I'd use IS_ENABLED in that case.
+>
 
-	# cat /sys/class/hwmon/hwmon0/temp1_input
-	37250
+Why? "RTC_DRV_DS3232_HWMON" is bool, not tristate. So it can't be
+defined as "m".
 
-Signed-off-by: Kirill Esipov <yesipov@gmail.com>
----
- drivers/rtc/Kconfig      |  9 ++++++
- drivers/rtc/rtc-ds3232.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 93 insertions(+)
+>> >> +static int ds3232_hwmon_read_temp(struct device *dev, long int *mC)
+>> >> +{
+>> >> +       struct ds3232 *ds3232 = dev_get_drvdata(dev);
+>> >> +       u8 temp_buf[2];
+>> >> +       s16 temp;
+>> >> +       int ret;
+>> >> +
+>> >> +       ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
+>> >> +                               sizeof(temp_buf));
+>> >
+>> >> +
+>> >
+>> > Remove.
+>
+> I'd recommend running checkpatch.pl --strict to remove the remaining
+> whitespace issues too (a few alignments are off).
+>
+>> >
+>> > I dunno which style is preferred, though you may use
+>> > if (IS_BUILTIN(...))
+>> >  return;
+>> >
+>> > at the beginning of the function and allow gcc optimizer to take care
+>> > of everything else.
+>> >
+>
+> I don't have a strong opinion there.
+>
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8d3b95728326..b4a6a916d4df 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -791,6 +791,15 @@ config RTC_DRV_DS3232
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called rtc-ds3232.
- 
-+config RTC_DRV_DS3232_HWMON
-+	bool "HWMON support for Dallas/Maxim DS3232/DS3234"
-+	depends on RTC_DRV_DS3232 && HWMON
-+	depends on !(RTC_DRV_DS3232=y && HWMON=m)
-+	default y
-+	help
-+	  Say Y here if you want to expose temperature sensor data on
-+	  rtc-ds3232
-+
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index deff431a37c4..f94ff0685942 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -22,6 +22,8 @@
- #include <linux/bcd.h>
- #include <linux/slab.h>
- #include <linux/regmap.h>
-+#include <linux/hwmon.h>
-+#include <linux/hwmon-sysfs.h>
- 
- #define DS3232_REG_SECONDS      0x00
- #define DS3232_REG_MINUTES      0x01
-@@ -275,6 +277,86 @@ static int ds3232_update_alarm(struct device *dev, unsigned int enabled)
- 	return ret;
- }
- 
-+/*----------------------------------------------------------------------*/
-+
-+#ifdef CONFIG_RTC_DRV_DS3232_HWMON
-+
-+/*
-+ * Temperature sensor support for ds3232/ds3234 devices.
-+ */
-+
-+#define DS3232_REG_TEMPERATURE	0x11
-+
-+/*
-+ * A user-initiated temperature conversion is not started by this function,
-+ * so the temperature is updated once every 64 seconds.
-+ */
-+static int ds3232_hwmon_read_temp(struct device *dev, s32 *mC)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	u8 temp_buf[2];
-+	s16 temp;
-+	int ret;
-+
-+	ret = regmap_bulk_read(ds3232->regmap, DS3232_REG_TEMPERATURE, temp_buf,
-+				sizeof(temp_buf));
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Temperature is represented as a 10-bit code with a resolution of
-+	 * 0.25 degree celsius and encoded in two's complement format.
-+	 */
-+	temp = (temp_buf[0] << 8) | temp_buf[1];
-+	temp >>= 6;
-+	*mC = temp * 250;
-+
-+	return 0;
-+}
-+
-+static ssize_t ds3232_hwmon_show_temp(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	int ret;
-+	s32 temp;
-+
-+	ret = ds3232_hwmon_read_temp(dev, &temp);
-+	if (ret < 0)
-+		return ret;
-+
-+	return sprintf(buf, "%d\n", temp);
-+}
-+static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3232_hwmon_show_temp,
-+			NULL, 0);
-+
-+static struct attribute *ds3232_hwmon_attrs[] = {
-+	&sensor_dev_attr_temp1_input.dev_attr.attr,
-+	NULL,
-+};
-+ATTRIBUTE_GROUPS(ds3232_hwmon);
-+
-+static void ds3232_hwmon_register(struct device *dev, const char *name)
-+{
-+	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-+	struct device *hwmon_dev;
-+
-+	hwmon_dev = devm_hwmon_device_register_with_groups(dev, name, ds3232,
-+							   ds3232_hwmon_groups);
-+	if (IS_ERR(hwmon_dev)) {
-+		dev_warn(dev, "unable to register hwmon device %ld\n",
-+			 PTR_ERR(hwmon_dev));
-+	}
-+}
-+
-+#else
-+
-+static void ds3232_hwmon_register(struct ds3232 *ds3232)
-+{
-+}
-+
-+#endif
-+
- static int ds3232_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct ds3232 *ds3232 = dev_get_drvdata(dev);
-@@ -366,6 +448,8 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
- 	if (ds3232->irq > 0)
- 		device_init_wakeup(dev, 1);
- 
-+	ds3232_hwmon_register(dev, name);
-+
- 	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
- 						THIS_MODULE);
- 	if (IS_ERR(ds3232->rtc))
+
+
 -- 
-2.7.4
+Kirill Esipov
