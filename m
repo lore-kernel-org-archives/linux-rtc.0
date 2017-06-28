@@ -1,69 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:8519 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751711AbdFHNtX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 8 Jun 2017 09:49:23 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 17/25] rtc: rx6110: Switch to use %pt
-Date: Thu,  8 Jun 2017 16:48:03 +0300
-Message-Id: <20170608134811.60786-18-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34902 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751541AbdF1XPE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Jun 2017 19:15:04 -0400
+Subject: Re: [PATCH] rtc: brcmstb-waketimer: fix settime function
+To: Arnd Bergmann <arnd@arndb.de>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Gregory Fong <gregory.0xf0@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Markus Mayer <mmayer@broadcom.com>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20170628200839.3114345-1-arnd@arndb.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <e8c1c77c-dd16-afa8-509a-417e0ab7535c@gmail.com>
+Date: Wed, 28 Jun 2017 16:14:56 -0700
+MIME-Version: 1.0
+In-Reply-To: <20170628200839.3114345-1-arnd@arndb.de>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %pt instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On 06/28/2017 01:07 PM, Arnd Bergmann wrote:
+> gcc warns about an unused variable in the new driver:
+> 
+> drivers/rtc/rtc-brcmstb-waketimer.c: In function 'brcmstb_waketmr_settime':
+> drivers/rtc/rtc-brcmstb-waketimer.c:142:6: error: unused variable 'ret' [-Werror=unused-variable]
+> 
+> The same function also doesn't handle overflow correctly, this makes
+> it return -EINVAL when passed a time that doesn't fit within the
+> range of the register.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-rx6110.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+Yes, thanks for doing that.
 
-diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-index 7c9c08eab5e5..e4d352889133 100644
---- a/drivers/rtc/rtc-rx6110.c
-+++ b/drivers/rtc/rtc-rx6110.c
-@@ -114,9 +114,7 @@ struct rx6110_data {
-  */
- static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
- {
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptr\n", __func__, tm);
- 
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -154,9 +152,7 @@ static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
- 	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
- 	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
- 
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptr\n", __func__, tm);
- 
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -248,9 +244,7 @@ static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
- 	if (ret)
- 		return ret;
- 
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		tm->tm_sec, tm->tm_min, tm->tm_hour,
--		tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	dev_dbg(dev, "%s: date %ptr\n", __func__, tm);
- 
- 	return rtc_valid_tm(tm);
- }
+> 
+> Fixes: 9f4ad359c801 ("rtc: brcmstb-waketimer: Add Broadcom STB wake-timer")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.11.0
+Florian
