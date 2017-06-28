@@ -1,21 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBAFHXPFAKGQEBNR2V4A@googlegroups.com>
+Return-Path: <rtc-linux+bncBDJIP47K7MERBRW7Z7FAKGQEDABBHHQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 68si1582758wmg.2.2017.06.24.14.02.56
-        for <rtc-linux@googlegroups.com>;
-        Sat, 24 Jun 2017 14:02:56 -0700 (PDT)
-Date: Sat, 24 Jun 2017 23:02:55 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Marek Vasut <marex@denx.de>
-Cc: rtc-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
-	Felipe Balbi <balbi@ti.com>, Nishanth Menon <nm@ti.com>,
-	Tony Lindgren <tony@atomide.com>
-Subject: [rtc-linux] Re: [PATCH V2] rtc: ds1307: Add support for Epson RX8130CE
-Message-ID: <20170624210255.evnmwoec5xukla5c@piout.net>
-References: <20170618205528.10088-1-marex@denx.de>
+Received: from mail-io0-f196.google.com (mail-io0-f196.google.com. [209.85.223.196])
+        by gmr-mx.google.com with ESMTPS id 199si161438itz.4.2017.06.28.11.04.54
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Jun 2017 11:04:54 -0700 (PDT)
+Received: by mail-io0-f196.google.com with SMTP id j200so5919154ioe.0
+        for <rtc-linux@googlegroups.com>; Wed, 28 Jun 2017 11:04:54 -0700 (PDT)
+Date: Wed, 28 Jun 2017 13:04:52 -0500
+From: Rob Herring <robh@kernel.org>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCH 1/2] dt-bindings: rtc: stm32: add support for STM32H7
+Message-ID: <20170628180452.rdvnul7cifxglu7f@rob-hp-laptop>
+References: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
+ <1498470689-26829-2-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170618205528.10088-1-marex@denx.de>
+In-Reply-To: <1498470689-26829-2-git-send-email-amelie.delaunay@st.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -25,32 +33,18 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 18/06/2017 at 22:55:28 +0200, Marek Vasut wrote:
-> Add support for yet another RTC chip, Epson RX8130CE. This time around,
-> the chip has slightly permutated registers and also the register starts
-> at 0x10 instead of 0x0 .
+On Mon, Jun 26, 2017 at 11:51:28AM +0200, Amelie Delaunay wrote:
+> This patch documents support for STM32H7 Real Time Clock.
+> It introduces a new compatible and rework clock definitions.
+> On STM32H7 we have a 'pclk' clock for register access, in addition to
+> the 'rtc_ck' clock.
 > 
-> So far, we only support the RTC and NVRAM parts of the chip, Alarm and
-> Timer is not supported.
-> 
-> Signed-off-by: Marek Vasut <marex@denx.de>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: Nishanth Menon <nm@ti.com>
-> Cc: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 > ---
-> V2: Convert to regmap
-> ---
->  drivers/rtc/rtc-ds1307.c | 175 +++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 175 insertions(+)
-> 
-Applied, thanks.
+>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 ++++++++++++++++++----
+>  1 file changed, 27 insertions(+), 5 deletions(-)
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Acked-by: Rob Herring <robh@kernel.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
