@@ -1,29 +1,25 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBD62UPFAKGQECOLXOTI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBTXF2LFAKGQEJ5ME5QQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id t16si2539023wmt.3.2017.06.29.00.57.02
+        for <rtc-linux@googlegroups.com>;
+        Thu, 29 Jun 2017 00:57:02 -0700 (PDT)
+Date: Thu, 29 Jun 2017 09:56:51 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
+Message-ID: <20170629075651.jqa3jvxfer56dvh5@piout.net>
+References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
+ <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
+ <20170116175018.z74inrcapwqqtbcz@piout.net>
+ <1484641457.20968.6.camel@collabora.co.uk>
+ <20170117110016.ids6xheti242lxhe@piout.net>
+ <1498470673.9477.3.camel@collabora.co.uk>
 MIME-Version: 1.0
-Received: from mail-wm0-x22b.google.com (mail-wm0-x22b.google.com. [2a00:1450:400c:c09::22b])
-        by gmr-mx.google.com with ESMTPS id y3si713742wmc.1.2017.06.20.02.38.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Jun 2017 02:38:23 -0700 (PDT)
-Received: by mail-wm0-x22b.google.com with SMTP id d73so14630641wma.0
-        for <rtc-linux@googlegroups.com>; Tue, 20 Jun 2017 02:38:23 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Barry Song <baohua@kernel.org>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH 39/51] rtc: sirfsoc: stop using rtc deprecated functions
-Date: Tue, 20 Jun 2017 11:35:47 +0200
-Message-Id: <1497951359-13334-40-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1497951359-13334-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1498470673.9477.3.camel@collabora.co.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,81 +28,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 26/06/2017 at 11:51:13 +0200, Fabien Lahoudere wrote:
+> > Actually, after reading the datasheet, I realize it is only POC that is
+> > reset to 0 after reading so isinvalid is not needed. Just read status1
+> > and look for BLD instead of caching it.
+> > 
+> 
+> isinvalid is also used in s35390a_set_datetime. So if I remove it how can I detect that time setting
+> failed?
+> 
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Barry Song <baohua@kernel.org>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
-CC: linux-arm-kernel@lists.infradead.org
----
- drivers/rtc/rtc-sirfsoc.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+If it fails, simply don't reset BLD so it is still set when reading the
+time.
 
-diff --git a/drivers/rtc/rtc-sirfsoc.c b/drivers/rtc/rtc-sirfsoc.c
-index 7367f61..972ede9 100644
---- a/drivers/rtc/rtc-sirfsoc.c
-+++ b/drivers/rtc/rtc-sirfsoc.c
-@@ -91,11 +91,11 @@ static int sirfsoc_rtc_read_alarm(struct device *dev,
- 	 */
- 	/* if alarm is in next overflow cycle */
- 	if (rtc_count > rtc_alarm)
--		rtc_time_to_tm((rtcdrv->overflow_rtc + 1)
--				<< (BITS_PER_LONG - RTC_SHIFT)
--				| rtc_alarm >> RTC_SHIFT, &(alrm->time));
-+		rtc_time64_to_tm((rtcdrv->overflow_rtc + 1)
-+				  << (BITS_PER_LONG - RTC_SHIFT)
-+				  | rtc_alarm >> RTC_SHIFT, &(alrm->time));
- 	else
--		rtc_time_to_tm(rtcdrv->overflow_rtc
-+		rtc_time64_to_tm(rtcdrv->overflow_rtc
- 				<< (BITS_PER_LONG - RTC_SHIFT)
- 				| rtc_alarm >> RTC_SHIFT, &(alrm->time));
- 	if (sirfsoc_rtc_readl(rtcdrv, RTC_STATUS) & SIRFSOC_RTC_AL0E)
-@@ -109,12 +109,12 @@ static int sirfsoc_rtc_read_alarm(struct device *dev,
- static int sirfsoc_rtc_set_alarm(struct device *dev,
- 		struct rtc_wkalrm *alrm)
- {
--	unsigned long rtc_status_reg, rtc_alarm;
-+	unsigned long long rtc_status_reg, rtc_alarm;
- 	struct sirfsoc_rtc_drv *rtcdrv;
- 	rtcdrv = dev_get_drvdata(dev);
- 
- 	if (alrm->enabled) {
--		rtc_tm_to_time(&(alrm->time), &rtc_alarm);
-+		rtc_alarm = rtc_tm_to_time64(&alrm->time);
- 
- 		spin_lock_irq(&rtcdrv->lock);
- 
-@@ -182,7 +182,7 @@ static int sirfsoc_rtc_read_time(struct device *dev,
- 		cpu_relax();
- 	} while (tmp_rtc != sirfsoc_rtc_readl(rtcdrv, RTC_CN));
- 
--	rtc_time_to_tm(rtcdrv->overflow_rtc << (BITS_PER_LONG - RTC_SHIFT) |
-+	rtc_time64_to_tm(rtcdrv->overflow_rtc << (BITS_PER_LONG - RTC_SHIFT) |
- 					tmp_rtc >> RTC_SHIFT, tm);
- 	return 0;
- }
-@@ -190,11 +190,11 @@ static int sirfsoc_rtc_read_time(struct device *dev,
- static int sirfsoc_rtc_set_time(struct device *dev,
- 		struct rtc_time *tm)
- {
--	unsigned long rtc_time;
-+	unsigned long long rtc_time;
- 	struct sirfsoc_rtc_drv *rtcdrv;
- 	rtcdrv = dev_get_drvdata(dev);
- 
--	rtc_tm_to_time(tm, &rtc_time);
-+	rtc_time = rtc_tm_to_time64(tm);
- 
- 	rtcdrv->overflow_rtc = rtc_time >> (BITS_PER_LONG - RTC_SHIFT);
- 
+> > I think it is probably worth separating s35390a_reset() into two
+> > functions. One that does the initialization and another one that reads
+> > status1 and immediately doest the initialization when POC is set. If BLD
+> > is set, then we can wait for set_time to happen before initializing.
+> > 
+
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
