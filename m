@@ -1,27 +1,20 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBRNQS7FQKGQEC2G43KY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFVH6XFAKGQEHBWRA7A@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id o207si1639042wme.0.2017.07.05.14.01.09
+        for <rtc-linux@googlegroups.com>;
+        Wed, 05 Jul 2017 14:01:09 -0700 (PDT)
+Date: Wed, 5 Jul 2017 23:01:09 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH 1/3 v2] rtc: gemini: Add optional clock handling
+Message-ID: <20170705210109.mdallygdkpzqgazh@piout.net>
+References: <20170530075332.3740-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
-        by gmr-mx.google.com with ESMTPS id k68si392529wmg.4.2017.07.12.01.05.25
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:25 -0700 (PDT)
-Received: by mail-wr0-x232.google.com with SMTP id c11so21985882wrc.3
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:25 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 10/22] rtc: ds1553: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:30 +0200
-Message-Id: <1499846682-14093-11-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170530075332.3740-1-linus.walleij@linaro.org>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,34 +23,29 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 30/05/2017 at 09:53:30 +0200, Linus Walleij wrote:
+> This makes the Gemini optionally take two clock references to
+> the PCLK and EXTCLK. As we are adding a clock framework to the
+> Gemini platform we need to make sure that we get the right
+> references.
+> 
+> Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Use devm_clk_get() so we do not leave dangling clocks
+>   behind.
+> - Add Hans' ACK.
+> ---
+>  drivers/rtc/rtc-gemini.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+Applied, thanks.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-ds1553.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
-index 9961ec6..dc08366 100644
---- a/drivers/rtc/rtc-ds1553.c
-+++ b/drivers/rtc/rtc-ds1553.c
-@@ -129,7 +129,7 @@ static int ds1553_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	if (rtc_valid_tm(tm) < 0) {
- 		dev_err(dev, "retrieved date/time is not valid.\n");
--		rtc_time_to_tm(0, tm);
-+		rtc_time64_to_tm(0, tm);
- 	}
- 	return 0;
- }
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
