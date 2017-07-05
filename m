@@ -1,58 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f173.google.com ([209.85.192.173]:35369 "EHLO
-        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932162AbdGSOwF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 10:52:05 -0400
-Received: by mail-pf0-f173.google.com with SMTP id e199so1089362pfh.2
-        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 07:52:05 -0700 (PDT)
-Subject: Re: [PATCH v3 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-To: John Stultz <john.stultz@linaro.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Mark Salyzyn <salyzyn@google.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>
-References: <20170718221607.132539-1-salyzyn@android.com>
- <CALAqxLWK+_vnG_bpp4dPguNDTt1=JG6GANJm6b=V8gF1UGi1VQ@mail.gmail.com>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <99742846-b47b-4ee5-c971-e26e8a5f935b@android.com>
-Date: Wed, 19 Jul 2017 07:52:03 -0700
+Received: from mail.free-electrons.com ([62.4.15.54]:36206 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752360AbdGEUyJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Jul 2017 16:54:09 -0400
+Date: Wed, 5 Jul 2017 22:54:02 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] rtc: ds1307: use regmap_update_bits where
+ applicable
+Message-ID: <20170705205402.euakjjfldco33l7y@piout.net>
+References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+ <df917f73-1dfb-14db-be69-15aa52043938@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CALAqxLWK+_vnG_bpp4dPguNDTt1=JG6GANJm6b=V8gF1UGi1VQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <df917f73-1dfb-14db-be69-15aa52043938@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/18/2017 05:00 PM, John Stultz wrote:
-> On Tue, Jul 18, 2017 at 3:15 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->> Go directly to the rtc for persistent wall clock time and print.
-> So, first,  the above doesn't seem accurate to me. You're using
-> getnstimeofday64() which doesn't touch the RTC.
+On 05/06/2017 at 17:57:29 +0200, Heiner Kallweit wrote:
+> After the switch to regmap we can now make use of regmap_update_bits
+> to simplify read/modify/write ops.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> v2:
+> - no changes
+> v3:
+> - add Reviewed-by
+> ---
+>  drivers/rtc/rtc-ds1307.c | 82 ++++++++++++------------------------------------
+>  1 file changed, 20 insertions(+), 62 deletions(-)
+> 
+Applied, thanks.
 
-I admit I got that backwards. I copied and pasted a line, that was 
-supposed to read "We can not go" ... The point was that persistent or 
-RTC clock is _not_ always available,
-so we have to print suspend times when the timeofday clock is available 
-at the points before suspend, and after suspend is complete.
-
-The "Suspended for" message (in ms, we want us at least) albeit helpful, 
-is performed at the bottom, and can only be reported if there is a 
-persistent clock available. On most Android devices, it is not available.
-
-I will post update, a better description in the primary patch, dropping 
-the intro, printing in <epoch>.<ns> format. I asked in another thread if 
-it would be OK to preserve the Legacy of RTC time format printing with 
-another CONFIG parameter since we have 5 years of tooling that depends 
-on that format.
-
--- Mark
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
