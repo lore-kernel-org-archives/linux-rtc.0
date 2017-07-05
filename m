@@ -1,37 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36273 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751413AbdGRRqk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:46:40 -0400
+Received: from mail.free-electrons.com ([62.4.15.54]:36234 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752447AbdGEUyR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Jul 2017 16:54:17 -0400
+Date: Wed, 5 Jul 2017 22:54:16 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 3/4] rtc: ds1307: factor out century bit handling
+Message-ID: <20170705205416.afyhe5uw27szd6af@piout.net>
+References: <a8dce195-b22a-47ce-992d-6437ce4e8297@gmail.com>
+ <cec62c55-1a12-9804-e589-0014eb482ca1@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20170718172525.114514-1-salyzyn@android.com>
-References: <20170718172525.114514-1-salyzyn@android.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 18 Jul 2017 20:46:39 +0300
-Message-ID: <CAHp75VfZN45E2bXiaNgEfM_=NVhPhtER-8rN4PxeGsLoBQ-2Cg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] rtc-lib: Add rtc_show_time(const char *prefix_msg)
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <cec62c55-1a12-9804-e589-0014eb482ca1@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Jul 18, 2017 at 8:25 PM, Mark Salyzyn <salyzyn@android.com> wrote:
-> Go directly to the rtc for persistent wall clock time and print.
-> Useful if REALTIME is required to be logged in a low level power
-> management function or when clock activities are suspended.  An
-> aid to permit user space alignment of kernel activities.
->
-> Feature activated by CONFIG_RTC_SHOW_TIME.
-
-What's wrong with procfs device nodes for that?
+On 05/06/2017 at 17:57:33 +0200, Heiner Kallweit wrote:
+> The driver has lots of places with chip-specific code what doesn't
+> necessarily facilitate maintenance.
+> 
+> Let's describe chip-specific differences in century bit handling
+> in struct chip_desc to improve this.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> v2:
+> - no changes
+> v3:
+> - add Reviewed-by
+> ---
+>  drivers/rtc/rtc-ds1307.c | 70 ++++++++++++++++++------------------------------
+>  1 file changed, 26 insertions(+), 44 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
