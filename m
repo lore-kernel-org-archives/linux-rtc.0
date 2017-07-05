@@ -1,25 +1,20 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBUNQS7FQKGQEDFZKKRY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCZ3LK4RZYHRBHV26LFAKGQEIWVX5CI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wr0-x231.google.com (mail-wr0-x231.google.com. [2a00:1450:400c:c0c::231])
-        by gmr-mx.google.com with ESMTPS id 2si383795wms.6.2017.07.12.01.05.37
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id 71si2644786wmp.3.2017.07.05.01.02.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:37 -0700 (PDT)
-Received: by mail-wr0-x231.google.com with SMTP id k67so22298551wrc.2
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:37 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Wed, 05 Jul 2017 01:02:37 -0700 (PDT)
+From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+To: alexandre.belloni@free-electrons.com
+Cc: a.zummo@towertech.it,
 	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 17/22] rtc: snvs: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:37 +0200
-Message-Id: <1499846682-14093-18-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+	Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Subject: [rtc-linux] [PATCH v2 0/2] RTC: s35390a: Improve low voltage or
+ invalid time detection
+Date: Wed,  5 Jul 2017 10:02:28 +0200
+Message-Id: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,70 +25,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+This patchset implements feature to detect RTC low voltage or power off.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-snvs.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Changes since v1:
+	- Read register instead setting flags
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index d8ef9e0..774048e 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -121,9 +121,9 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
- static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time = rtc_read_lp_counter(data);
-+	unsigned long long time = rtc_read_lp_counter(data);
- 
--	rtc_time_to_tm(time, tm);
-+	rtc_time64_to_tm(time, tm);
- 
- 	return 0;
- }
-@@ -131,9 +131,9 @@ static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
--	unsigned long time;
-+	unsigned long long time;
- 
--	rtc_tm_to_time(tm, &time);
-+	time = rtc_tm_to_time64(tm);
- 
- 	/* Disable RTC first */
- 	snvs_rtc_enable(data, false);
-@@ -154,7 +154,7 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 lptar, lpsr;
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
--	rtc_time_to_tm(lptar, &alrm->time);
-+	rtc_time64_to_tm((u64)lptar, &alrm->time);
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
- 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
-@@ -179,9 +179,9 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &alrm->time;
--	unsigned long time;
-+	unsigned long long time;
- 
--	rtc_tm_to_time(alrm_tm, &time);
-+	time = rtc_tm_to_time64(alrm_tm);
- 
- 	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
- 	rtc_write_sync_lp(data);
+Fabien Lahoudere (2):
+  RTC: s35390a: handle invalid RTC time
+  RTC: s35390a: implement ioctls
+
+ drivers/rtc/rtc-s35390a.c | 104 ++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 73 insertions(+), 31 deletions(-)
+
 -- 
-1.9.1
+1.8.3.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
