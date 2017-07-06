@@ -1,165 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49155 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:49166 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752039AbdGFJmP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:15 -0400
+        with ESMTP id S1752370AbdGFJm0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:26 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 03/11] rtc: introduce new registration method
-Date: Thu,  6 Jul 2017 11:42:00 +0200
-Message-Id: <20170706094208.16240-4-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 08/11] rtc: rv8803: remove rv8803_remove
+Date: Thu,  6 Jul 2017 11:42:05 +0200
+Message-Id: <20170706094208.16240-9-alexandre.belloni@free-electrons.com>
 In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Introduce rtc_register_device() to register an already allocated and
-initialized struct rtc_device. It automatically sets up the owner and the
-two steps allocation/registration will allow to remove race conditions in
-the IRQ handling of some driver. It also allows to properly extend the core
-without adding more arguments to rtc_device_register().
+rv8803_remove() is now empty, remove it.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/class.c | 84 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/rtc.h |  7 +++++
- 2 files changed, 91 insertions(+)
+ drivers/rtc/rtc-rv8803.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 93ce88e1b1cb..58e2a05765bb 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -150,6 +150,7 @@ static SIMPLE_DEV_PM_OPS(rtc_class_dev_pm_ops, rtc_suspend, rtc_resume);
- #define RTC_CLASS_DEV_PM_OPS	NULL
- #endif
- 
-+/* Ensure the caller will set the id before releasing the device */
- static struct rtc_device *rtc_allocate_device(void)
- {
- 	struct rtc_device *rtc;
-@@ -372,6 +373,89 @@ void devm_rtc_device_unregister(struct device *dev, struct rtc_device *rtc)
- }
- EXPORT_SYMBOL_GPL(devm_rtc_device_unregister);
- 
-+static void devm_rtc_release_device(struct device *dev, void *res)
-+{
-+	struct rtc_device *rtc = *(struct rtc_device **)res;
-+
-+	if (rtc->registered)
-+		rtc_device_unregister(rtc);
-+	else
-+		put_device(&rtc->dev);
-+}
-+
-+struct rtc_device *devm_rtc_allocate_device(struct device *dev)
-+{
-+	struct rtc_device **ptr, *rtc;
-+	int id, err;
-+
-+	id = rtc_device_get_id(dev);
-+	if (id < 0)
-+		return ERR_PTR(id);
-+
-+	ptr = devres_alloc(devm_rtc_release_device, sizeof(*ptr), GFP_KERNEL);
-+	if (!ptr) {
-+		err = -ENOMEM;
-+		goto exit_ida;
-+	}
-+
-+	rtc = rtc_allocate_device();
-+	if (!rtc) {
-+		err = -ENOMEM;
-+		goto exit_devres;
-+	}
-+
-+	*ptr = rtc;
-+	devres_add(dev, ptr);
-+
-+	rtc->id = id;
-+	rtc->dev.parent = dev;
-+	dev_set_name(&rtc->dev, "rtc%d", id);
-+
-+	return rtc;
-+
-+exit_devres:
-+	devres_free(ptr);
-+exit_ida:
-+	ida_simple_remove(&rtc_ida, id);
-+	return ERR_PTR(err);
-+}
-+EXPORT_SYMBOL_GPL(devm_rtc_allocate_device);
-+
-+int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
-+{
-+	struct rtc_wkalrm alrm;
-+	int err;
-+
-+	if (!rtc->ops)
-+		return -EINVAL;
-+
-+	rtc->owner = owner;
-+
-+	/* Check to see if there is an ALARM already set in hw */
-+	err = __rtc_read_alarm(rtc, &alrm);
-+	if (!err && !rtc_valid_tm(&alrm.time))
-+		rtc_initialize_alarm(rtc, &alrm);
-+
-+	rtc_dev_prepare(rtc);
-+
-+	err = cdev_device_add(&rtc->char_dev, &rtc->dev);
-+	if (err)
-+		dev_warn(rtc->dev.parent, "failed to add char device %d:%d\n",
-+			 MAJOR(rtc->dev.devt), rtc->id);
-+	else
-+		dev_dbg(rtc->dev.parent, "char device (%d:%d)\n",
-+			MAJOR(rtc->dev.devt), rtc->id);
-+
-+	rtc_proc_add_device(rtc);
-+
-+	rtc->registered = true;
-+	dev_info(rtc->dev.parent, "registered as %s\n",
-+		 dev_name(&rtc->dev));
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(__rtc_register_device);
-+
- static int __init rtc_init(void)
- {
- 	rtc_class = class_create(THIS_MODULE, "rtc");
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index d354f56e0cf5..8e4a5f44f59e 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -142,6 +142,8 @@ struct rtc_device {
- 	/* Some hardware can't support UIE mode */
- 	int uie_unsupported;
- 
-+	bool registered;
-+
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
- 	struct work_struct uie_task;
- 	struct timer_list uie_timer;
-@@ -163,6 +165,8 @@ extern struct rtc_device *devm_rtc_device_register(struct device *dev,
- 					const char *name,
- 					const struct rtc_class_ops *ops,
- 					struct module *owner);
-+struct rtc_device *devm_rtc_allocate_device(struct device *dev);
-+int __rtc_register_device(struct module *owner, struct rtc_device *rtc);
- extern void rtc_device_unregister(struct rtc_device *rtc);
- extern void devm_rtc_device_unregister(struct device *dev,
- 					struct rtc_device *rtc);
-@@ -218,6 +222,9 @@ static inline bool is_leap_year(unsigned int year)
- 	return (!(year % 4) && (year % 100)) || !(year % 400);
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 10474ab7887d..aae2576741a6 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -612,11 +612,6 @@ static int rv8803_probe(struct i2c_client *client,
+ 	return 0;
  }
  
-+#define rtc_register_device(device) \
-+	__rtc_register_device(THIS_MODULE, device)
-+
- #ifdef CONFIG_RTC_HCTOSYS_DEVICE
- extern int rtc_hctosys_ret;
- #else
+-static int rv8803_remove(struct i2c_client *client)
+-{
+-	return 0;
+-}
+-
+ static const struct i2c_device_id rv8803_id[] = {
+ 	{ "rv8803", rv_8803 },
+ 	{ "rx8900", rx_8900 },
+@@ -643,7 +638,6 @@ static struct i2c_driver rv8803_driver = {
+ 		.of_match_table = of_match_ptr(rv8803_of_match),
+ 	},
+ 	.probe		= rv8803_probe,
+-	.remove		= rv8803_remove,
+ 	.id_table	= rv8803_id,
+ };
+ module_i2c_driver(rv8803_driver);
 -- 
 2.11.0
