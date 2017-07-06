@@ -1,74 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:56297 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933731AbdGTIU6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 04:20:58 -0400
-Date: Thu, 20 Jul 2017 10:20:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-        rjw@rjwysocki.net, len.brown@intel.com, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        Mark Salyzyn <salyzyn@google.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-Message-ID: <20170720082056.GA14149@amd>
-References: <20170718211930.123077-1-salyzyn@android.com>
- <alpine.DEB.2.20.1707182338470.2425@nanos>
- <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-In-Reply-To: <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:49149 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750778AbdGFJmT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:19 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 00/11] RTC: rework registration
+Date: Thu,  6 Jul 2017 11:41:57 +0200
+Message-Id: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+There are multiple race condition issues in the RTC drivers. It is
+especially apparent in the IRQ handling and additionnal sysfs attributes
+registration.
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+To solve most of those and allow to extend the framework more easily,
+introduce a new registration method that allows to first allocate an
+rtc_device and then register it.
 
-Hi!
+Also, introduce a generic way to register nvmem devices so RTCs can
+export their non volatile storage.
 
-> >
-> >       pr_info("My so important log message %lld\n", ktime_get_real_seco=
-nds());
->=20
-> Legacy (these prints have been in Android tree since 2013) for all our
-> battery and power analysis tools are keyed off RTC format. There is some
-> momentum, default should be epoch seconds/nanoseconds as that is a good
-> example; and another option can select RTC (the option can be an internal
-> patch to alter the format ... ick)
+One of the goal will be to get rid of the IS_ERR_OR_NULL(rtc) check in
+rtc_update_irq which makes people assume everything is properly handled
+in the core.
 
-Yes, android development is broken. Please fix it, rather then trying
-to break kernel to match.
+Alexandre Belloni (11):
+  rtc: class separate device allocation from registration
+  rtc: class separate id allocation from registration
+  rtc: introduce new registration method
+  rtc: at91rm9200: remove race condition
+  rtc: add generic nvmem support
+  rtc: rv8803: switch to rtc_register_device
+  rtc: rv8803: use generic nvmem support
+  rtc: rv8803: remove rv8803_remove
+  rtc: ds1307: switch to rtc_register_device
+  rtc: ds1307: use generic nvmem
+  rtc: ds1307: remove ds1307_remove
 
-Thank you,
-									Pavel
+ Documentation/rtc.txt        |   2 +
+ drivers/rtc/Kconfig          |   8 ++
+ drivers/rtc/Makefile         |   1 +
+ drivers/rtc/class.c          | 195 +++++++++++++++++++++++++++++++++----------
+ drivers/rtc/nvmem.c          | 113 +++++++++++++++++++++++++
+ drivers/rtc/rtc-at91rm9200.c |  14 ++--
+ drivers/rtc/rtc-core.h       |   8 ++
+ drivers/rtc/rtc-ds1307.c     | 103 +++++++----------------
+ drivers/rtc/rtc-rv8803.c     |  72 +++++++---------
+ include/linux/rtc.h          |  14 ++++
+ 10 files changed, 362 insertions(+), 168 deletions(-)
+ create mode 100644 drivers/rtc/nvmem.c
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAllwZ+gACgkQMOfwapXb+vIVfwCePk4KpuLs/i0zZy9OPlVmW1m3
-63cAoLdybneTlT37SgH41azZUEDtbI8Z
-=dL6m
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--
+-- 
+2.11.0
