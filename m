@@ -1,26 +1,28 @@
-Return-Path: <rtc-linux+bncBCZ3LK4RZYHRBG5Q5XFAKGQERNMKHJI@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IT2GSZUDRBM6P67FAKGQENTA25UI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id t129si3929808wmt.2.2017.07.04.01.55.55
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
+        by gmr-mx.google.com with ESMTPS id s84si8782415wmf.5.2017.07.06.00.33.07
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Jul 2017 01:55:55 -0700 (PDT)
-Message-ID: <1499158552.6885.1.camel@collabora.co.uk>
-Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
-From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+        Thu, 06 Jul 2017 00:33:07 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 2/2] rtc: stm32: add STM32H7 RTC support
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Date: Tue, 04 Jul 2017 10:55:52 +0200
-In-Reply-To: <20170629075651.jqa3jvxfer56dvh5@piout.net>
-References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
-	 <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
-	 <20170116175018.z74inrcapwqqtbcz@piout.net>
-	 <1484641457.20968.6.camel@collabora.co.uk>
-	 <20170117110016.ids6xheti242lxhe@piout.net>
-	 <1498470673.9477.3.camel@collabora.co.uk>
-	 <20170629075651.jqa3jvxfer56dvh5@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin
+	<mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>
+References: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
+ <1498470689-26829-3-git-send-email-amelie.delaunay@st.com>
+ <20170705213746.6hf5af57ty6wsfgs@piout.net>
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+Message-ID: <ebe3f3f0-263d-cf6c-6b6e-2f37ab435c88@st.com>
+Date: Thu, 6 Jul 2017 09:33:00 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170705213746.6hf5af57ty6wsfgs@piout.net>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,32 +32,38 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, 2017-06-29 at 09:56 +0200, Alexandre Belloni wrote:
-> On 26/06/2017 at 11:51:13 +0200, Fabien Lahoudere wrote:
-> > > Actually, after reading the datasheet, I realize it is only POC that is
-> > > reset to 0 after reading so isinvalid is not needed. Just read status1
-> > > and look for BLD instead of caching it.
-> > > 
-> > 
-> > isinvalid is also used in s35390a_set_datetime. So if I remove it how can I detect that time
-> > setting
-> > failed?
-> > 
-> 
-> If it fails, simply don't reset BLD so it is still set when reading the
-> time.
-> 
+Hi,
 
-In BLD section, datasheet says "When this flag is "1", be sure to initialize."
-So I think we need those flags.
+On 07/05/2017 11:37 PM, Alexandre Belloni wrote:
+> Hi,
+> 
+> This is mostly fine, even if I'm not too happy with the
+> s/ck_rtc/rtc_ck/.
+> 
+This clock name has changed in datasheet between STM32F4/STM32F7 and 
+STM32H7, so, I'm not really happy too... But, as there is only one clock 
+on F4/F7, its name is not important for the end user. Now that pclk 
+appears, we need to distinguish the two clocks, and for the end user, it 
+is better if the clock names match the datasheet.
 
-> > > I think it is probably worth separating s35390a_reset() into two
-> > > functions. One that does the initialization and another one that reads
-> > > status1 and immediately doest the initialization when POC is set. If BLD
-> > > is set, then we can wait for set_time to happen before initializing.
-> > > 
+> On 26/06/2017 at 11:51:29 +0200, Amelie Delaunay wrote:
+>> -	rtc->ck_rtc = devm_clk_get(&pdev->dev, NULL);
+>> -	if (IS_ERR(rtc->ck_rtc)) {
+>> -		dev_err(&pdev->dev, "no ck_rtc clock");
+>> -		return PTR_ERR(rtc->ck_rtc);
+>> +	match = of_match_device(stm32_rtc_of_match, &pdev->dev);
+>> +	if (match && match->data)
+>> +		rtc->data = (struct stm32_rtc_data *)match->data;
+>> +	else
+>> +		return -EINVAL;
+> 
+> This will never happen, you can remove that test.
 > 
 > 
+OK, will be done in V2.
+
+Thanks for the review,
+Amelie
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
