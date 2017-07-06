@@ -1,34 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCHv2 0/2] rtc: add support for STM32H7 RTC
-Date: Thu, 6 Jul 2017 10:47:43 +0200
-Message-ID: <1499330865-17232-1-git-send-email-amelie.delaunay@st.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:35332 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751887AbdGFUiM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 16:38:12 -0400
+Date: Thu, 6 Jul 2017 22:38:10 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH] rtc: ds1307: fix compile warning if
+ RTC_DRV_DS1307_CENTURY isn't defined
+Message-ID: <20170706203810.3qmnld6ptpta42rr@piout.net>
+References: <022ecfbf-c999-b76e-f8cf-1d02fb20237e@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <022ecfbf-c999-b76e-f8cf-1d02fb20237e@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
-List-ID: <rtc-linux.googlegroups.com>
+List-ID: <linux-rtc.vger.kernel.org>
 
-Add support for STM32H7 Real Time Clock variant.
-Difference is regarding clocks: there is a 'pclk' clock on STM32H7
-for register access.
+On 06/07/2017 at 22:03:12 +0200, Heiner Kallweit wrote:
+> Fix the following warning if RTC_DRV_DS1307_CENTURY isn't defined.
+> 
+> drivers/rtc/rtc-ds1307.c: In function 'ds1307_get_time':
+> drivers/rtc/rtc-ds1307.c:342:26: warning: unused variable 'chip' [-Wunused-variable]
+>   const struct chip_desc *chip = &chips[ds1307->type];
+>                           ^
+> Fixes: 436c93db60a4 ("rtc: ds1307: factor out century bit handling")
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
 
-Amelie Delaunay (2):
-  dt-bindings: rtc: stm32: add support for STM32H7
-  rtc: stm32: add STM32H7 RTC support
+I've squashed it in the original commit, thanks.
 
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 +++++++--
- drivers/rtc/rtc-stm32.c                            | 82 +++++++++++++++++-----
- 2 files changed, 92 insertions(+), 22 deletions(-)
 
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
