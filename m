@@ -1,30 +1,26 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBR7MS7FQKGQE3XYCRSA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBXOG7LFAKGQEHTCZCPA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id m89si277366wmi.0.2017.07.06.13.53.49
+        for <rtc-linux@googlegroups.com>;
+        Thu, 06 Jul 2017 13:53:49 -0700 (PDT)
+Date: Thu, 6 Jul 2017 22:53:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>,
+	rtc-linux@googlegroups.com, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [rtc-linux] Re: [PATCHv2 0/2] rtc: add support for STM32H7 RTC
+Message-ID: <20170706205338.oke7vnr7nh5s6ykq@piout.net>
+References: <1499330865-17232-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id 139si502109wmt.0.2017.07.12.03.13.27
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 03:13:27 -0700 (PDT)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	bleung@chromium.org
-Cc: martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v3 2/4] mfd: cros_ec: Introduce RTC commands and
- events definitions.
-Date: Wed, 12 Jul 2017 12:13:07 +0200
-Message-Id: <20170712101309.6045-3-enric.balletbo@collabora.com>
-In-Reply-To: <20170712101309.6045-1-enric.balletbo@collabora.com>
-References: <20170712101309.6045-1-enric.balletbo@collabora.com>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1499330865-17232-1-git-send-email-amelie.delaunay@st.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,53 +29,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+On 06/07/2017 at 10:47:43 +0200, Amelie Delaunay wrote:
+> Add support for STM32H7 Real Time Clock variant.
+> Difference is regarding clocks: there is a 'pclk' clock on STM32H7
+> for register access.
+> 
+> Amelie Delaunay (2):
+>   dt-bindings: rtc: stm32: add support for STM32H7
+>   rtc: stm32: add STM32H7 RTC support
+> 
+>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 32 +++++++--
+>  drivers/rtc/rtc-stm32.c                            | 82 +++++++++++++++++-----
+>  2 files changed, 92 insertions(+), 22 deletions(-)
+> 
+Applied, thanks.
 
-The EC can function as a simple RT, this patch adds the RTC related
-definitions needed by the rtc-cros-ec driver.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
- include/linux/mfd/cros_ec_commands.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 190c8f4..26ef492 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -286,6 +286,9 @@ enum host_event_code {
- 	/* Hang detect logic detected a hang and warm rebooted the AP */
- 	EC_HOST_EVENT_HANG_REBOOT = 21,
- 
-+	/* EC RTC event occurred */
-+	EC_HOST_EVENT_RTC = 26,
-+
- 	/*
- 	 * The high bit of the event mask is not used as a host event code.  If
- 	 * it reads back as set, then the entire event mask should be
-@@ -794,6 +797,8 @@ enum ec_feature_code {
- 	EC_FEATURE_USB_MUX = 23,
- 	/* Motion Sensor code has an internal software FIFO */
- 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
-+	/* EC has RTC feature that can be controlled by host commands */
-+	EC_FEATURE_RTC = 27,
- };
- 
- #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-@@ -1704,6 +1709,9 @@ struct ec_response_rtc {
- #define EC_CMD_RTC_SET_VALUE 0x46
- #define EC_CMD_RTC_SET_ALARM 0x47
- 
-+/* Pass as param to SET_ALARM to clear the current alarm */
-+#define EC_RTC_ALARM_CLEAR 0
-+
- /*****************************************************************************/
- /* Port80 log access */
- 
 -- 
-2.9.3
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
