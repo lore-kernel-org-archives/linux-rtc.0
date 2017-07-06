@@ -1,330 +1,265 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.rt-rk.com ([89.216.37.149]:59835 "EHLO mail.rt-rk.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754488AbdGUQ4U (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 21 Jul 2017 12:56:20 -0400
-From: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-To: linux-mips@linux-mips.org
-Cc: Miodrag Dinic <miodrag.dinic@imgtec.com>,
-        Goran Ferenc <goran.ferenc@imgtec.com>,
-        Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Bo Hu <bohu@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Douglas Leung <douglas.leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <james.hogan@imgtec.com>,
-        Jin Qian <jinqian@google.com>, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Paul Burton <paul.burton@imgtec.com>,
-        Petar Jovanovic <petar.jovanovic@imgtec.com>,
-        Raghu Gandham <raghu.gandham@imgtec.com>
-Subject: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
-Date: Fri, 21 Jul 2017 18:53:31 +0200
-Message-Id: <1500656111-9520-3-git-send-email-aleksandar.markovic@rt-rk.com>
-In-Reply-To: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
-References: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:49163 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752436AbdGFJmb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:31 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 05/11] rtc: add generic nvmem support
+Date: Thu,  6 Jul 2017 11:42:02 +0200
+Message-Id: <20170706094208.16240-6-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Miodrag Dinic <miodrag.dinic@imgtec.com>
+Many RTCs have an on board non volatile storage. It can be battery backed
+RAM or an EEPROM. Use the nvmem subsystem to export it to both userspace
+and in-kernel consumers.
 
-Add device driver for a virtual Goldfish RTC clock.
+This stays compatible with the previous (non documented) ABI that was using
+/sys/class/rtc/rtcx/device/nvram to export that memory. But will warn about
+the deprecation.
 
-The driver can be built only if CONFIG_MIPS and CONFIG_GOLDFISH are
-set. The compatible string used by OS for binding the driver is
-defined as "google,goldfish-rtc".
-
-Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- MAINTAINERS                |   1 +
- drivers/rtc/Kconfig        |   8 ++
- drivers/rtc/Makefile       |   1 +
- drivers/rtc/rtc-goldfish.c | 233 +++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 243 insertions(+)
- create mode 100644 drivers/rtc/rtc-goldfish.c
+ Documentation/rtc.txt  |   2 +
+ drivers/rtc/Kconfig    |   8 ++++
+ drivers/rtc/Makefile   |   1 +
+ drivers/rtc/class.c    |   4 ++
+ drivers/rtc/nvmem.c    | 113 +++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/rtc/rtc-core.h |   8 ++++
+ include/linux/rtc.h    |   7 +++
+ 7 files changed, 143 insertions(+)
+ create mode 100644 drivers/rtc/nvmem.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 847da3f..768426d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -845,6 +845,7 @@ ANDROID GOLDFISH RTC DRIVER
- M:	Miodrag Dinic <miodrag.dinic@imgtec.com>
- S:	Supported
- F:	Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
-+F:	drivers/rtc/rtc-goldfish.c
+diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+index 47feb4414b7e..c0c977445fb9 100644
+--- a/Documentation/rtc.txt
++++ b/Documentation/rtc.txt
+@@ -164,6 +164,8 @@ offset		 The amount which the rtc clock has been adjusted in firmware.
+ 		 which are added to or removed from the rtc's base clock per
+ 		 billion ticks. A positive value makes a day pass more slowly,
+ 		 longer, and a negative value makes a day pass more quickly.
++*/nvmem		 The non volatile storage exported as a raw file, as described
++		 in Documentation/nvmem/nvmem.txt
+ ================ ==============================================================
  
- ANDROID ION DRIVER
- M:	Laura Abbott <labbott@redhat.com>
+ IOCTL interface
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 72419ac..7cd27d3 100644
+index d0e4b4a1c2a1..72419ac2c52a 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -1780,5 +1780,13 @@ config RTC_DRV_HID_SENSOR_TIME
- 	  If this driver is compiled as a module, it will be named
- 	  rtc-hid-sensor-time.
+@@ -77,6 +77,14 @@ config RTC_DEBUG
+ 	  Say yes here to enable debugging support in the RTC framework
+ 	  and individual RTC drivers.
  
-+config RTC_DRV_GOLDFISH
-+	tristate "Goldfish Real Time Clock"
-+	depends on MIPS && GOLDFISH || COMPILE_TEST
++config RTC_NVMEM
++	bool "RTC non volatile storage support"
++	select NVMEM
++	default RTC_CLASS
 +	help
-+	  Say yes to enable RTC driver for the Goldfish based virtual platform.
++	  Say yes here to add support for the non volatile (often battery
++	  backed) storage present on RTCs.
 +
-+	  Goldfish is a code name for the virtual platform developed by Google
-+	  for Android emulation.
+ comment "RTC interfaces"
  
- endif # RTC_CLASS
+ config RTC_INTF_SYSFS
 diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index acd366b..d995d49 100644
+index 4050fc8b9271..acd366b41c85 100644
 --- a/drivers/rtc/Makefile
 +++ b/drivers/rtc/Makefile
-@@ -170,3 +170,4 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
- obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
-+obj-$(CONFIG_RTC_DRV_GOLDFISH)	+= rtc-goldfish.o
-diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+@@ -15,6 +15,7 @@ ifdef CONFIG_RTC_DRV_EFI
+ rtc-core-y			+= rtc-efi-platform.o
+ endif
+ 
++rtc-core-$(CONFIG_RTC_NVMEM)		+= nvmem.o
+ rtc-core-$(CONFIG_RTC_INTF_DEV)		+= rtc-dev.o
+ rtc-core-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
+ rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 58e2a05765bb..2ed970d61da1 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -290,6 +290,8 @@ EXPORT_SYMBOL_GPL(rtc_device_register);
+  */
+ void rtc_device_unregister(struct rtc_device *rtc)
+ {
++	rtc_nvmem_unregister(rtc);
++
+ 	mutex_lock(&rtc->ops_lock);
+ 	/*
+ 	 * Remove innards of this RTC, then disable it, before
+@@ -448,6 +450,8 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
+ 
+ 	rtc_proc_add_device(rtc);
+ 
++	rtc_nvmem_register(rtc);
++
+ 	rtc->registered = true;
+ 	dev_info(rtc->dev.parent, "registered as %s\n",
+ 		 dev_name(&rtc->dev));
+diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
 new file mode 100644
-index 0000000..aa13062
+index 000000000000..8567b4ed9ac6
 --- /dev/null
-+++ b/drivers/rtc/rtc-goldfish.c
-@@ -0,0 +1,233 @@
-+/* drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/nvmem.c
+@@ -0,0 +1,113 @@
++/*
++ * RTC subsystem, nvmem interface
 + *
-+ * Copyright (C) 2007 Google, Inc.
-+ * Copyright (C) 2017 Imagination Technologies Ltd.
++ * Copyright (C) 2017 Alexandre Belloni
 + *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + */
 +
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
++#include <linux/err.h>
++#include <linux/types.h>
++#include <linux/nvmem-consumer.h>
 +#include <linux/rtc.h>
++#include <linux/sysfs.h>
 +
-+#define TIMER_TIME_LOW		0x00	/* get low bits of current time  */
-+					/*   and update TIMER_TIME_HIGH  */
-+#define TIMER_TIME_HIGH	0x04	/* get high bits of time at last */
-+					/*   TIMER_TIME_LOW read         */
-+#define TIMER_ALARM_LOW	0x08	/* set low bits of alarm and     */
-+					/*   activate it                 */
-+#define TIMER_ALARM_HIGH	0x0c	/* set high bits of next alarm   */
-+#define TIMER_IRQ_ENABLED	0x10
-+#define TIMER_CLEAR_ALARM	0x14
-+#define TIMER_ALARM_STATUS	0x18
-+#define TIMER_CLEAR_INTERRUPT	0x1c
++#include "rtc-core.h"
 +
-+struct goldfish_rtc {
-+	void __iomem *base;
-+	u32 irq;
-+	struct rtc_device *rtc;
-+};
++/*
++ * Deprecated ABI compatibility, this should be removed at some point
++ */
 +
-+static int goldfish_rtc_read_alarm(struct device *dev,
-+		struct rtc_wkalrm *alrm)
++static const char nvram_warning[] = "Deprecated ABI, please use nvmem";
++
++static ssize_t
++rtc_nvram_read(struct file *filp, struct kobject *kobj,
++	       struct bin_attribute *attr,
++	       char *buf, loff_t off, size_t count)
 +{
-+	u64 rtc_alarm;
-+	u64 rtc_alarm_low;
-+	u64 rtc_alarm_high;
-+	void __iomem *base;
-+	struct goldfish_rtc *rtcdrv;
++	struct rtc_device *rtc = attr->private;
 +
-+	rtcdrv = dev_get_drvdata(dev);
-+	base = rtcdrv->base;
++	dev_warn_once(kobj_to_dev(kobj), nvram_warning);
 +
-+	rtc_alarm_low = readl(base + TIMER_ALARM_LOW);
-+	rtc_alarm_high = readl(base + TIMER_ALARM_HIGH);
-+	rtc_alarm = (rtc_alarm_high << 32) | rtc_alarm_low;
-+
-+	do_div(rtc_alarm, NSEC_PER_SEC);
-+	memset(alrm, 0, sizeof(struct rtc_wkalrm));
-+
-+	rtc_time_to_tm(rtc_alarm, &(alrm->time));
-+
-+	if (readl(base + TIMER_ALARM_STATUS))
-+		alrm->enabled = 1;
-+	else
-+		alrm->enabled = 0;
-+
-+	return 0;
++	return nvmem_device_read(rtc->nvmem, off, count, buf);
 +}
 +
-+static int goldfish_rtc_set_alarm(struct device *dev,
-+		struct rtc_wkalrm *alrm)
++static ssize_t
++rtc_nvram_write(struct file *filp, struct kobject *kobj,
++		struct bin_attribute *attr,
++		char *buf, loff_t off, size_t count)
 +{
-+	struct goldfish_rtc *rtcdrv;
-+	unsigned long rtc_alarm;
-+	u64 rtc_status_reg;
-+	void __iomem *base;
-+	int ret = 0;
++	struct rtc_device *rtc = attr->private;
 +
-+	rtcdrv = dev_get_drvdata(dev);
-+	base = rtcdrv->base;
++	dev_warn_once(kobj_to_dev(kobj), nvram_warning);
 +
-+	if (alrm->enabled) {
-+		ret = rtc_tm_to_time(&(alrm->time), &rtc_alarm);
-+		if (ret != 0)
-+			return ret;
-+
-+		rtc_alarm *= NSEC_PER_SEC;
-+		writel((rtc_alarm >> 32), base + TIMER_ALARM_HIGH);
-+		writel(rtc_alarm, base + TIMER_ALARM_LOW);
-+	} else {
-+		/*
-+		 * if this function was called with enabled=0
-+		 * then it could mean that the application is
-+		 * trying to cancel an ongoing alarm
-+		 */
-+		rtc_status_reg = readl(base + TIMER_ALARM_STATUS);
-+		if (rtc_status_reg)
-+			writel(1, base + TIMER_CLEAR_ALARM);
-+	}
-+
-+	return ret;
++	return nvmem_device_write(rtc->nvmem, off, count, buf);
 +}
 +
-+static int goldfish_rtc_alarm_irq_enable(struct device *dev,
-+		unsigned int enabled)
++static int rtc_nvram_register(struct rtc_device *rtc)
 +{
-+	void __iomem *base;
-+	struct goldfish_rtc *rtcdrv;
-+
-+	rtcdrv = dev_get_drvdata(dev);
-+	base = rtcdrv->base;
-+
-+	if (enabled)
-+		writel(1, base + TIMER_IRQ_ENABLED);
-+	else
-+		writel(0, base + TIMER_IRQ_ENABLED);
-+
-+	return 0;
-+
-+}
-+
-+static irqreturn_t goldfish_rtc_interrupt(int irq, void *dev_id)
-+{
-+	struct goldfish_rtc *rtcdrv = dev_id;
-+	void __iomem *base = rtcdrv->base;
-+
-+	writel(1, base + TIMER_CLEAR_INTERRUPT);
-+
-+	rtc_update_irq(rtcdrv->rtc, 1, RTC_IRQF | RTC_AF);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int goldfish_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct goldfish_rtc *rtcdrv;
-+	void __iomem *base;
-+	u64 time_high;
-+	u64 time_low;
-+	u64 time;
-+
-+	rtcdrv = dev_get_drvdata(dev);
-+	base = rtcdrv->base;
-+
-+	time_low = readl(base + TIMER_TIME_LOW);
-+	time_high = readl(base + TIMER_TIME_HIGH);
-+	time = (time_high << 32) | time_low;
-+
-+	do_div(time, NSEC_PER_SEC);
-+
-+	rtc_time_to_tm(time, tm);
-+
-+	return 0;
-+}
-+
-+static int goldfish_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct goldfish_rtc *rtcdrv;
-+	void __iomem *base;
-+	unsigned long now;
-+	int ret;
-+
-+	rtcdrv = dev_get_drvdata(dev);
-+	base = rtcdrv->base;
-+
-+	ret = rtc_tm_to_time(tm, &now);
-+	if (ret == 0) {
-+		now *= NSEC_PER_SEC;
-+		writel((now >> 32), base + TIMER_TIME_HIGH);
-+		writel(now, base + TIMER_TIME_LOW);
-+	}
-+
-+	return ret;
-+}
-+
-+static const struct rtc_class_ops goldfish_rtc_ops = {
-+	.read_time	= goldfish_rtc_read_time,
-+	.set_time	= goldfish_rtc_set_time,
-+	.read_alarm	= goldfish_rtc_read_alarm,
-+	.set_alarm	= goldfish_rtc_set_alarm,
-+	.alarm_irq_enable = goldfish_rtc_alarm_irq_enable
-+};
-+
-+static int goldfish_rtc_probe(struct platform_device *pdev)
-+{
-+	struct resource *r;
-+	struct goldfish_rtc *rtcdrv;
 +	int err;
 +
-+	rtcdrv = devm_kzalloc(&pdev->dev, sizeof(*rtcdrv), GFP_KERNEL);
-+	if (rtcdrv == NULL)
++	rtc->nvram = devm_kzalloc(rtc->dev.parent,
++				sizeof(struct bin_attribute),
++				GFP_KERNEL);
++	if (!rtc->nvram)
 +		return -ENOMEM;
 +
-+	platform_set_drvdata(pdev, rtcdrv);
++	rtc->nvram->attr.name = "nvram";
++	rtc->nvram->attr.mode = 0644;
++	rtc->nvram->private = rtc;
 +
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (r == NULL)
-+		return -ENODEV;
++	sysfs_bin_attr_init(rtc->nvram);
 +
-+	rtcdrv->base = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(rtcdrv->base))
-+		return -ENODEV;
++	rtc->nvram->read = rtc_nvram_read;
++	rtc->nvram->write = rtc_nvram_write;
++	rtc->nvram->size = rtc->nvmem_config->size;
 +
-+	rtcdrv->irq = platform_get_irq(pdev, 0);
-+	if (rtcdrv->irq < 0)
-+		return -ENODEV;
++	err = sysfs_create_bin_file(&rtc->dev.parent->kobj,
++				    rtc->nvram);
++	if (err) {
++		devm_kfree(rtc->dev.parent, rtc->nvram);
++		rtc->nvram = NULL;
++	}
 +
-+	rtcdrv->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
-+					&goldfish_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtcdrv->rtc))
-+		return PTR_ERR(rtcdrv->rtc);
-+
-+	err = devm_request_irq(&pdev->dev, rtcdrv->irq, goldfish_rtc_interrupt,
-+		0, pdev->name, rtcdrv);
-+	if (err)
-+		return err;
-+
-+	return 0;
++	return err;
 +}
 +
-+static const struct of_device_id goldfish_rtc_of_match[] = {
-+	{ .compatible = "google,goldfish-rtc", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, goldfish_rtc_of_match);
++static void rtc_nvram_unregister(struct rtc_device *rtc)
++{
++	sysfs_remove_bin_file(&rtc->dev.parent->kobj, rtc->nvram);
++}
 +
-+static struct platform_driver goldfish_rtc = {
-+	.probe = goldfish_rtc_probe,
-+	.driver = {
-+		.name = "goldfish_rtc",
-+		.of_match_table = goldfish_rtc_of_match,
-+	}
-+};
++/*
++ * New ABI, uses nvmem
++ */
++void rtc_nvmem_register(struct rtc_device *rtc)
++{
++	if (!rtc->nvmem_config)
++		return;
 +
-+module_platform_driver(goldfish_rtc);
++	rtc->nvmem_config->dev = &rtc->dev;
++	rtc->nvmem_config->owner = rtc->owner;
++	rtc->nvmem = nvmem_register(rtc->nvmem_config);
++	if (IS_ERR_OR_NULL(rtc->nvmem))
++		return;
++
++	/* Register the old ABI */
++	if (rtc->nvram_old_abi)
++		rtc_nvram_register(rtc);
++}
++
++void rtc_nvmem_unregister(struct rtc_device *rtc)
++{
++	if (IS_ERR_OR_NULL(rtc->nvmem))
++		return;
++
++	/* unregister the old ABI */
++	if (rtc->nvram)
++		rtc_nvram_unregister(rtc);
++
++	nvmem_unregister(rtc->nvmem);
++}
+diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
+index 7a4ed2f7c7d7..ecab76a3207c 100644
+--- a/drivers/rtc/rtc-core.h
++++ b/drivers/rtc/rtc-core.h
+@@ -45,3 +45,11 @@ static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
+ 	return NULL;
+ }
+ #endif
++
++#ifdef CONFIG_RTC_NVMEM
++void rtc_nvmem_register(struct rtc_device *rtc);
++void rtc_nvmem_unregister(struct rtc_device *rtc);
++#else
++static inline void rtc_nvmem_register(struct rtc_device *rtc) {}
++static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
++#endif
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 8e4a5f44f59e..d53ecdc060cf 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -14,6 +14,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/interrupt.h>
++#include <linux/nvmem-provider.h>
+ #include <uapi/linux/rtc.h>
+ 
+ extern int rtc_month_days(unsigned int month, unsigned int year);
+@@ -144,6 +145,12 @@ struct rtc_device {
+ 
+ 	bool registered;
+ 
++	struct nvmem_config *nvmem_config;
++	struct nvmem_device *nvmem;
++	/* Old ABI support */
++	bool nvram_old_abi;
++	struct bin_attribute *nvram;
++
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+ 	struct work_struct uie_task;
+ 	struct timer_list uie_timer;
 -- 
-2.7.4
+2.11.0
