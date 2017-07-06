@@ -1,97 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f44.google.com ([74.125.83.44]:33688 "EHLO
-        mail-pg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756087AbdGSSN2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 14:13:28 -0400
-Received: by mail-pg0-f44.google.com with SMTP id k14so3629310pgr.0
-        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 11:13:28 -0700 (PDT)
-Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-To: Prarit Bhargava <prarit@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        Mark Salyzyn <salyzyn@google.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-References: <20170718211930.123077-1-salyzyn@android.com>
- <alpine.DEB.2.20.1707182338470.2425@nanos>
- <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
- <alpine.DEB.2.20.1707190023010.2425@nanos>
- <5016ccc4-7faa-b61e-c0a1-b851620849c7@android.com>
- <alpine.DEB.2.20.1707190913500.2286@nanos>
- <f50dbf47-d1dc-5e51-fdcd-0318c2ab93cd@redhat.com>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <73fdb1d7-6333-be5e-46e6-20ac69ce2b7e@android.com>
-Date: Wed, 19 Jul 2017 11:13:26 -0700
-MIME-Version: 1.0
-In-Reply-To: <f50dbf47-d1dc-5e51-fdcd-0318c2ab93cd@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from mail.free-electrons.com ([62.4.15.54]:49164 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752042AbdGFJmQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:16 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 06/11] rtc: rv8803: switch to rtc_register_device
+Date: Thu,  6 Jul 2017 11:42:03 +0200
+Message-Id: <20170706094208.16240-7-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/19/2017 05:03 AM, Prarit Bhargava wrote:
->
-> On 07/19/2017 03:23 AM, Thomas Gleixner wrote:
->> On Tue, 18 Jul 2017, Mark Salyzyn wrote:
->>> On 07/18/2017 03:35 PM, Thomas Gleixner wrote:
->>>> There was some discussion about making the clock source for dmesg time
->>>> stamps selectable, so you can use MONOTONIC, REALTIME, BOOTTIME. The
->>>> patches looked sensible, but there was some showstopper vs. the user space
->>>> dmesg utility. See:
->>> The timestamps are useful for the 'second' purpose of these patches when
->>> dmesg time is BOOTTIME or MONOTONIC, and can be turned off if REALTIME
->>> is selected. Having rtc_show_time a single point for switching this no doubt
->>> helps,
->>> not hinders, that dmesg issue.
->>>
->>> The inflection points would still serve a purpose, still need
->>> suspend/resume/hibernate/restore. The reboot messages are _only_ useful to
->>> us with their timestamps, as I checked and the only tools that use those are
->>> for log synchronization. We may be able to do away with them on REALTIME
->>> dmesg'ing; but the standardization of the message as a marker would have a
->>> legacy purpose (!)
->>>
->>> NB: We have a similar configuration for the user space logger, which can be
->>> configured to report in MONOTONIC time. We have yet to have a vendor
->>> use the feature, opting for REALTIME logging for user space activities.
->>> Our klogd (which runs at background priority and is batched) manages a
->>> histogram relationship between MONOTONIC and REALTIME helped by these
->>> prints and incorporates the REALTIME dmesg logs merged into our user
->>> space logging database.
->> There is another option to remedy this and the dmesg tooling issues:
->>
->> Instead of switching the time stamps in dmesg to a different clock we might
->> as well have an optional secondary timestamp. So instead of:
->>
->>   [  341.590930] wlan0: associated
->>
->> you would get:
->>
->>   [  341.590930] [ sec.usec] wlan0: associated
->>
->> where the second time stamp would be CLOCK_REALTIME/BOOTTIME.
->>
->> That should also solve Prarits problem, hmm?
-> It would but I would prefer a single time stamp be printed than two.  I think
-> two timestamps is adding confusion to the output from a end-users point of view.
+This removes a possible race condition and allows for further improvement
+of the driver.
 
-Agreed, and so many tools will be in pain (toybox, busybox, for 
-instance). Not that I disagree, but API changes should always get an 
-environmental assessment ...
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-rv8803.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-> Mark, why don't we get together and fixup my original patchset to make sure it
-> meets your needs?  It will fix both of our issues albeit not necessarily in the
-> text format you want it.
-I am currently retesting with the rtc format patch rolled out 
-separately, could probably roll into your set.
-
--- Mark
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 9ad97ab29866..209edbb03971 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -577,6 +577,11 @@ static int rv8803_probe(struct i2c_client *client,
+ 	if (flags & RV8803_FLAG_AF)
+ 		dev_warn(&client->dev, "An alarm maybe have been missed.\n");
+ 
++	rv8803->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(rv8803->rtc)) {
++		return PTR_ERR(rv8803->rtc);
++	}
++
+ 	if (client->irq > 0) {
+ 		err = devm_request_threaded_irq(&client->dev, client->irq,
+ 						NULL, rv8803_handle_irq,
+@@ -592,12 +597,10 @@ static int rv8803_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	rv8803->rtc = devm_rtc_device_register(&client->dev, client->name,
+-					       &rv8803_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rv8803->rtc)) {
+-		dev_err(&client->dev, "unable to register the class device\n");
+-		return PTR_ERR(rv8803->rtc);
+-	}
++	rv8803->rtc->ops = &rv8803_rtc_ops;
++	err = rtc_register_device(rv8803->rtc);
++	if (err)
++		return err;
+ 
+ 	err = rv8803_write_reg(rv8803->client, RV8803_EXT, RV8803_EXT_WADA);
+ 	if (err)
+-- 
+2.11.0
