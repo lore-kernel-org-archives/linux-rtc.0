@@ -1,29 +1,56 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBPNQS7FQKGQEP5FYVAQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDTKFPPJUEHRBZ5Y67FAKGQE2BCR6EY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
-        by gmr-mx.google.com with ESMTPS id r131si415853wmg.3.2017.07.12.01.05.16
+Received: from mail-wr0-x241.google.com (mail-wr0-x241.google.com. [2a00:1450:400c:c0c::241])
+        by gmr-mx.google.com with ESMTPS id f140si7709243wme.4.2017.07.05.23.44.55
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:16 -0700 (PDT)
-Received: by mail-wr0-x236.google.com with SMTP id k67so22299460wrc.2
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:16 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
+        Wed, 05 Jul 2017 23:44:55 -0700 (PDT)
+Received: by mail-wr0-x241.google.com with SMTP id k67so2677489wrc.1
+        for <rtc-linux@googlegroups.com>; Wed, 05 Jul 2017 23:44:55 -0700 (PDT)
+Date: Thu, 6 Jul 2017 08:44:53 +0200
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+	Russell King <linux@armlinux.org.uk>,
 	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] [PATCH v2 05/22] rtc: ab8500: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:25 +0200
-Message-Id: <1499846682-14093-6-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170706064453.GH16144@ulmo.fritz.box>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="0XhtP95kHFp3KGBe"
+In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,201 +59,49 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
 
-version 2:
-- fix compilation issues by  using do_div()
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-CC: Linus Walleij <linus.walleij@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
-CC: linux-arm-kernel@lists.infradead.org
----
- drivers/rtc/rtc-ab8500.c | 53 +++++++++++++++++++++++-------------------------
- 1 file changed, 25 insertions(+), 28 deletions(-)
+--0XhtP95kHFp3KGBe
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
 
-diff --git a/drivers/rtc/rtc-ab8500.c b/drivers/rtc/rtc-ab8500.c
-index 24a0af6..4b8696f 100644
---- a/drivers/rtc/rtc-ab8500.c
-+++ b/drivers/rtc/rtc-ab8500.c
-@@ -71,7 +71,7 @@
- /* Calculate the seconds from 1970 to 01-01-2000 00:00:00 */
- static unsigned long get_elapsed_seconds(int year)
- {
--	unsigned long secs;
-+	unsigned long long secs;
- 	struct rtc_time tm = {
- 		.tm_year = year - 1900,
- 		.tm_mday = 1,
-@@ -81,7 +81,7 @@ static unsigned long get_elapsed_seconds(int year)
- 	 * This function calculates secs from 1970 and not from
- 	 * 1900, even if we supply the offset from year 1900.
- 	 */
--	rtc_tm_to_time(&tm, &secs);
-+	secs = rtc_tm_to_time64(&tm);
- 	return secs;
- }
- 
-@@ -89,7 +89,7 @@ static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	unsigned long timeout = jiffies + HZ;
- 	int retval, i;
--	unsigned long mins, secs;
-+	unsigned long long mins, secs;
- 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_time_regs)];
- 	u8 value;
- 
-@@ -130,7 +130,7 @@ static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	/* Add back the initially subtracted number of seconds */
- 	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
- 
--	rtc_time_to_tm(secs, tm);
-+	rtc_time64_to_tm(secs, tm);
- 	return rtc_valid_tm(tm);
- }
- 
-@@ -138,7 +138,7 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	int retval, i;
- 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_time_regs)];
--	unsigned long no_secs, no_mins, secs = 0;
-+	unsigned long long no_secs, secs = 0;
- 
- 	if (tm->tm_year < (AB8500_RTC_EPOCH - 1900)) {
- 		dev_dbg(dev, "year should be equal to or greater than %d\n",
-@@ -147,7 +147,7 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	}
- 
- 	/* Get the number of seconds since 1970 */
--	rtc_tm_to_time(tm, &secs);
-+	secs = rtc_tm_to_time64(tm);
- 
- 	/*
- 	 * Convert it to the number of seconds since 01-01-2000 00:00:00, since
-@@ -155,18 +155,16 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	 */
- 	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
- 
--	no_mins = secs / 60;
--
--	no_secs = secs % 60;
-+	no_secs = do_div(secs, 60);
- 	/* Make the seconds count as per the RTC resolution */
- 	no_secs = no_secs * COUNTS_PER_SEC;
- 
- 	buf[4] = no_secs & 0xFF;
- 	buf[3] = (no_secs >> 8) & 0xFF;
- 
--	buf[2] = no_mins & 0xFF;
--	buf[1] = (no_mins >> 8) & 0xFF;
--	buf[0] = (no_mins >> 16) & 0xFF;
-+	buf[2] = secs & 0xFF;
-+	buf[1] = (secs >> 8) & 0xFF;
-+	buf[0] = (secs >> 16) & 0xFF;
- 
- 	for (i = 0; i < ARRAY_SIZE(ab8500_rtc_time_regs); i++) {
- 		retval = abx500_set_register_interruptible(dev, AB8500_RTC,
-@@ -185,7 +183,7 @@ static int ab8500_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	int retval, i;
- 	u8 rtc_ctrl, value;
- 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_alarm_regs)];
--	unsigned long secs, mins;
-+	unsigned long long secs, mins;
- 
- 	/* Check if the alarm is enabled or not */
- 	retval = abx500_get_register_interruptible(dev, AB8500_RTC,
-@@ -214,7 +212,7 @@ static int ab8500_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	/* Add back the initially subtracted number of seconds */
- 	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
- 
--	rtc_time_to_tm(secs, &alarm->time);
-+	rtc_time64_to_tm(secs, &alarm->time);
- 
- 	return rtc_valid_tm(&alarm->time);
- }
-@@ -230,7 +228,7 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	int retval, i;
- 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_alarm_regs)];
--	unsigned long mins, secs = 0, cursec = 0;
-+	unsigned long long secs = 0, cursec = 0;
- 	struct rtc_time curtm;
- 
- 	if (alarm->time.tm_year < (AB8500_RTC_EPOCH - 1900)) {
-@@ -240,7 +238,7 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	}
- 
- 	/* Get the number of seconds since 1970 */
--	rtc_tm_to_time(&alarm->time, &secs);
-+	secs = rtc_tm_to_time64(&alarm->time);
- 
- 	/*
- 	 * Check whether alarm is set less than 1min.
-@@ -248,7 +246,7 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	 * return -EINVAL, so UIE EMUL can take it up, incase of UIE_ON
- 	 */
- 	ab8500_rtc_read_time(dev, &curtm); /* Read current time */
--	rtc_tm_to_time(&curtm, &cursec);
-+	cursec = rtc_tm_to_time64(&curtm);
- 	if ((secs - cursec) < 59) {
- 		dev_dbg(dev, "Alarm less than 1 minute not supported\r\n");
- 		return -EINVAL;
-@@ -260,11 +258,11 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	 */
- 	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
- 
--	mins = secs / 60;
-+	do_div(secs, 60);
- 
--	buf[2] = mins & 0xFF;
--	buf[1] = (mins >> 8) & 0xFF;
--	buf[0] = (mins >> 16) & 0xFF;
-+	buf[2] = secs & 0xFF;
-+	buf[1] = (secs >> 8) & 0xFF;
-+	buf[0] = (secs >> 16) & 0xFF;
- 
- 	/* Set the alarm time */
- 	for (i = 0; i < ARRAY_SIZE(ab8500_rtc_alarm_regs); i++) {
-@@ -281,7 +279,7 @@ static int ab8540_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	int retval, i;
- 	unsigned char buf[ARRAY_SIZE(ab8540_rtc_alarm_regs)];
--	unsigned long mins, secs = 0;
-+	unsigned long long secs = 0;
- 
- 	if (alarm->time.tm_year < (AB8500_RTC_EPOCH - 1900)) {
- 		dev_dbg(dev, "year should be equal to or greater than %d\n",
-@@ -290,18 +288,17 @@ static int ab8540_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	}
- 
- 	/* Get the number of seconds since 1970 */
--	rtc_tm_to_time(&alarm->time, &secs);
-+	secs = rtc_tm_to_time64(&alarm->time);
- 
- 	/*
- 	 * Convert it to the number of seconds since 01-01-2000 00:00:00
- 	 */
- 	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
--	mins = secs / 60;
- 
--	buf[3] = secs % 60;
--	buf[2] = mins & 0xFF;
--	buf[1] = (mins >> 8) & 0xFF;
--	buf[0] = (mins >> 16) & 0xFF;
-+	buf[3] = do_div(secs, 60);
-+	buf[2] = secs & 0xFF;
-+	buf[1] = (secs >> 8) & 0xFF;
-+	buf[0] = (secs >> 16) & 0xFF;
- 
- 	/* Set the alarm time */
- 	for (i = 0; i < ARRAY_SIZE(ab8540_rtc_alarm_regs); i++) {
--- 
-1.9.1
+On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  arch/arm/mach-omap2/common.h            | 2 +-
+>  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+>  drivers/gpio/gpio-twl4030.c             | 2 +-
+>  drivers/iio/adc/twl4030-madc.c          | 2 +-
+>  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+>  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+>  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+>  drivers/input/misc/twl4030-vibra.c      | 2 +-
+>  drivers/mfd/twl-core.c                  | 6 +++---
+>  drivers/mfd/twl4030-audio.c             | 2 +-
+>  drivers/mfd/twl4030-irq.c               | 2 +-
+>  drivers/mfd/twl4030-power.c             | 2 +-
+>  drivers/mfd/twl6030-irq.c               | 2 +-
+>  drivers/phy/phy-twl4030-usb.c           | 2 +-
+>  drivers/power/supply/twl4030_charger.c  | 2 +-
+>  drivers/pwm/pwm-twl-led.c               | 2 +-
+>  drivers/pwm/pwm-twl.c                   | 2 +-
+>  drivers/regulator/twl-regulator.c       | 2 +-
+>  drivers/regulator/twl6030-regulator.c   | 2 +-
+>  drivers/rtc/rtc-twl.c                   | 2 +-
+>  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+>  drivers/video/backlight/pandora_bl.c    | 2 +-
+>  drivers/watchdog/twl4030_wdt.c          | 2 +-
+>  include/linux/{i2c => mfd}/twl.h        | 0
+>  sound/soc/codecs/twl4030.c              | 2 +-
+>  25 files changed, 26 insertions(+), 26 deletions(-)
+>  rename include/linux/{i2c => mfd}/twl.h (100%)
+
+I didn't see this get applied yet, so just in case anyone was waiting
+for me (this is trivial, so I don't think there's a need):
+
+Acked-by: Thierry Reding <thierry.reding@gmail.com>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -237,3 +112,25 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--0XhtP95kHFp3KGBe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlld3GQACgkQ3SOs138+
+s6GKZBAAnbaonsyjZHxBKy02VF3I7RgESdTVzw24ZuKTsTfvsFmc2CA381KfPjjt
+Js7AMkJtv1xg+GEZo4NvX9YkJadeOsp1YDqdY+60JV/Zbc7fQKVq/FFxFNiC3+Xj
+ZAUG9SDF3CqERuu89WLgpE612bUJr7xqBBp9e6tC8gClFNrgWpy5obN3dEU3hE/N
+nJ9lDBIKVELG3YfqOHYC8ClAX1WIpPuXpJTVfEa25soRmyZc8HTXMxnQH8oYU9/i
+jTn4MZZ8JukuvxgMsyJ1IHSFJE0qRzWIzbQekjVpagpOoNzx9Ghy4dzs/1at8dZq
+CF3jQ9gdXOChmnFcVZWXcDDRrAk4h0AdcdSr6ZsL739XdUUVy+tKw+4G35fof6xU
+0CBx/lOsbhto9Zc67SmrnwY5TuTj2E34KM5vbdWybd3vEuIVyq+vvJSvi4hCLgBT
+b04xAUBruRDG3gjvRyInWU3E26UCsu4T5GTXmfgoxTBMEiGaeqHSi4J5Oa0mdCeS
+js+bQxkau26nSwVrxXbSEPu37zaJFe/g+tZb7v3xTjq6JM/+yjbVzCu66SiGUZJr
+mg+h/Qyl9v0m59/tHhde3QEaXGCPv1eMN/G92pIRId68wI+nYvlaBe3HkVT7pUj4
+TurLCCSyBwJqn56Sf6711848LT3rcKRmFk16PleVEcWPqHMNTyA=
+=MpPI
+-----END PGP SIGNATURE-----
+
+--0XhtP95kHFp3KGBe--
