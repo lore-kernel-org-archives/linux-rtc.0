@@ -1,63 +1,165 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f53.google.com ([74.125.83.53]:36772 "EHLO
-        mail-pg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751500AbdGRR0Z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:26:25 -0400
-Received: by mail-pg0-f53.google.com with SMTP id u5so16168081pgq.3
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 10:26:25 -0700 (PDT)
-From: Mark Salyzyn <salyzyn@android.com>
-To: linux-kernel@vger.kernel.org
-Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
-        linux-pm@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        Mark Salyzyn <salyzyn@android.com>
-Subject: [PATCH 4/4] PM: Print wall time at hibernate entry and exit
-Date: Tue, 18 Jul 2017 10:26:16 -0700
-Message-Id: <20170718172617.114825-1-salyzyn@android.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:49155 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752039AbdGFJmP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:15 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 03/11] rtc: introduce new registration method
+Date: Thu,  6 Jul 2017 11:42:00 +0200
+Message-Id: <20170706094208.16240-4-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Permits power state and battery life diagnosis.
+Introduce rtc_register_device() to register an already allocated and
+initialized struct rtc_device. It automatically sets up the owner and the
+two steps allocation/registration will allow to remove race conditions in
+the IRQ handling of some driver. It also allows to properly extend the core
+without adding more arguments to rtc_device_register().
 
-Feature activated by CONFIG_RTC_SHOW_TIME.
-
-Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- kernel/power/hibernate.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/rtc/class.c | 84 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtc.h |  7 +++++
+ 2 files changed, 91 insertions(+)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index e1914c7b85b1..0b5460f9189b 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -32,11 +32,11 @@
- #include <linux/ctype.h>
- #include <linux/genhd.h>
- #include <linux/ktime.h>
-+#include <linux/rtc.h>
- #include <trace/events/power.h>
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 93ce88e1b1cb..58e2a05765bb 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -150,6 +150,7 @@ static SIMPLE_DEV_PM_OPS(rtc_class_dev_pm_ops, rtc_suspend, rtc_resume);
+ #define RTC_CLASS_DEV_PM_OPS	NULL
+ #endif
  
- #include "power.h"
++/* Ensure the caller will set the id before releasing the device */
+ static struct rtc_device *rtc_allocate_device(void)
+ {
+ 	struct rtc_device *rtc;
+@@ -372,6 +373,89 @@ void devm_rtc_device_unregister(struct device *dev, struct rtc_device *rtc)
+ }
+ EXPORT_SYMBOL_GPL(devm_rtc_device_unregister);
  
--
- static int nocompress;
- static int noresume;
- static int nohibernate;
-@@ -342,6 +342,7 @@ int hibernation_snapshot(int platform_mode)
- 	pm_message_t msg;
- 	int error;
++static void devm_rtc_release_device(struct device *dev, void *res)
++{
++	struct rtc_device *rtc = *(struct rtc_device **)res;
++
++	if (rtc->registered)
++		rtc_device_unregister(rtc);
++	else
++		put_device(&rtc->dev);
++}
++
++struct rtc_device *devm_rtc_allocate_device(struct device *dev)
++{
++	struct rtc_device **ptr, *rtc;
++	int id, err;
++
++	id = rtc_device_get_id(dev);
++	if (id < 0)
++		return ERR_PTR(id);
++
++	ptr = devres_alloc(devm_rtc_release_device, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr) {
++		err = -ENOMEM;
++		goto exit_ida;
++	}
++
++	rtc = rtc_allocate_device();
++	if (!rtc) {
++		err = -ENOMEM;
++		goto exit_devres;
++	}
++
++	*ptr = rtc;
++	devres_add(dev, ptr);
++
++	rtc->id = id;
++	rtc->dev.parent = dev;
++	dev_set_name(&rtc->dev, "rtc%d", id);
++
++	return rtc;
++
++exit_devres:
++	devres_free(ptr);
++exit_ida:
++	ida_simple_remove(&rtc_ida, id);
++	return ERR_PTR(err);
++}
++EXPORT_SYMBOL_GPL(devm_rtc_allocate_device);
++
++int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
++{
++	struct rtc_wkalrm alrm;
++	int err;
++
++	if (!rtc->ops)
++		return -EINVAL;
++
++	rtc->owner = owner;
++
++	/* Check to see if there is an ALARM already set in hw */
++	err = __rtc_read_alarm(rtc, &alrm);
++	if (!err && !rtc_valid_tm(&alrm.time))
++		rtc_initialize_alarm(rtc, &alrm);
++
++	rtc_dev_prepare(rtc);
++
++	err = cdev_device_add(&rtc->char_dev, &rtc->dev);
++	if (err)
++		dev_warn(rtc->dev.parent, "failed to add char device %d:%d\n",
++			 MAJOR(rtc->dev.devt), rtc->id);
++	else
++		dev_dbg(rtc->dev.parent, "char device (%d:%d)\n",
++			MAJOR(rtc->dev.devt), rtc->id);
++
++	rtc_proc_add_device(rtc);
++
++	rtc->registered = true;
++	dev_info(rtc->dev.parent, "registered as %s\n",
++		 dev_name(&rtc->dev));
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(__rtc_register_device);
++
+ static int __init rtc_init(void)
+ {
+ 	rtc_class = class_create(THIS_MODULE, "rtc");
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index d354f56e0cf5..8e4a5f44f59e 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -142,6 +142,8 @@ struct rtc_device {
+ 	/* Some hardware can't support UIE mode */
+ 	int uie_unsupported;
  
-+	rtc_show_time("PM: hibernation entry");
- 	pm_suspend_clear_flags();
- 	error = platform_begin(platform_mode);
- 	if (error)
-@@ -409,6 +410,7 @@ int hibernation_snapshot(int platform_mode)
- 	thaw_kernel_threads();
-  Cleanup:
- 	swsusp_free();
-+	rtc_show_time("PM: hibernation exit");
- 	goto Close;
++	bool registered;
++
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+ 	struct work_struct uie_task;
+ 	struct timer_list uie_timer;
+@@ -163,6 +165,8 @@ extern struct rtc_device *devm_rtc_device_register(struct device *dev,
+ 					const char *name,
+ 					const struct rtc_class_ops *ops,
+ 					struct module *owner);
++struct rtc_device *devm_rtc_allocate_device(struct device *dev);
++int __rtc_register_device(struct module *owner, struct rtc_device *rtc);
+ extern void rtc_device_unregister(struct rtc_device *rtc);
+ extern void devm_rtc_device_unregister(struct device *dev,
+ 					struct rtc_device *rtc);
+@@ -218,6 +222,9 @@ static inline bool is_leap_year(unsigned int year)
+ 	return (!(year % 4) && (year % 100)) || !(year % 400);
  }
  
++#define rtc_register_device(device) \
++	__rtc_register_device(THIS_MODULE, device)
++
+ #ifdef CONFIG_RTC_HCTOSYS_DEVICE
+ extern int rtc_hctosys_ret;
+ #else
 -- 
-2.13.2.932.g7449e964c-goog
+2.11.0
