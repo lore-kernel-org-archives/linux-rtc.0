@@ -1,77 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:40847 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752906AbdGRVw1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 17:52:27 -0400
-Date: Tue, 18 Jul 2017 23:52:16 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Mark Salyzyn <salyzyn@android.com>
-cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        Mark Salyzyn <salyzyn@google.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-In-Reply-To: <20170718211930.123077-1-salyzyn@android.com>
-Message-ID: <alpine.DEB.2.20.1707182338470.2425@nanos>
-References: <20170718211930.123077-1-salyzyn@android.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail.free-electrons.com ([62.4.15.54]:49171 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752495AbdGFJmj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:39 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 11/11] rtc: ds1307: remove ds1307_remove
+Date: Thu,  6 Jul 2017 11:42:08 +0200
+Message-Id: <20170706094208.16240-12-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 18 Jul 2017, Mark Salyzyn wrote:
+ds1307_remove() is now empty, remove it
 
-> Go directly to the rtc for persistent wall clock time and print.
-> Useful if REALTIME is required to be logged in a low level power
-> management function or when clock activities are suspended.  An
-> aid to permit user space alignment of kernel activities.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-ds1307.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-That's a horrible idea, really. And there is no point at all.
-
-> +void rtc_show_time(const char *prefix_msg)
-> +{
-> +	struct timespec ts;
-> +	struct rtc_time tm;
-> +
-> +	getnstimeofday(&ts);
-
-It calls getnstimeofday(), which is wrong to begin with as we switch
-everything in kernel to the 64bit variants.
-
-> +	rtc_time64_to_tm(ts.tv_sec, &tm);
-
-This is even more wrong as rtc_time64_to_tm is for 64 bit wide second
-values....
-
-> +	pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
-> +		prefix_msg ? prefix_msg : "Time:",
-> +		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-> +		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
-
-Why on earth do you need to print that information in RTC format? What's
-wrong with just doing:
-
-      pr_info("My so important log message %lld\n", ktime_get_real_seconds());
-
-and then decoding the seconds in post processing? That's completely
-sufficient as you intend that for logging. Correlation with user space
-CLOCK_REALTIME is even simpler as this is the same as reading it from user
-space.
-
-If your main intention is logging/debugging, then you can just use
-tracepoints. The tracer allows correlation to user space tracing already.
-
-So unless you can come up with a reasonable explanation why all this voodoo
-is required, this is going nowhere.
-
-Thanks,
-
-	tglx
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 6f91c11a5f03..ea83ddc5a513 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1701,11 +1701,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 	return err;
+ }
+ 
+-static int ds1307_remove(struct i2c_client *client)
+-{
+-	return 0;
+-}
+-
+ static struct i2c_driver ds1307_driver = {
+ 	.driver = {
+ 		.name	= "rtc-ds1307",
+@@ -1713,7 +1708,6 @@ static struct i2c_driver ds1307_driver = {
+ 		.acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
+ 	},
+ 	.probe		= ds1307_probe,
+-	.remove		= ds1307_remove,
+ 	.id_table	= ds1307_id,
+ };
+ 
+-- 
+2.11.0
