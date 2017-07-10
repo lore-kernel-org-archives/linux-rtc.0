@@ -1,40 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36310 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751496AbdG2L5V (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 29 Jul 2017 07:57:21 -0400
-From: SZ Lin <sz.lin@moxa.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, SZ Lin <sz.lin@moxa.com>
-Subject: [PATCH] rtc: ds1374: Fix decimal permission coding issue
-Date: Sat, 29 Jul 2017 19:56:24 +0800
-Message-Id: <20170729115624.18814-1-sz.lin@moxa.com>
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:36271 "EHLO
+        mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932217AbdGJOIx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Jul 2017 10:08:53 -0400
+Date: Mon, 10 Jul 2017 09:08:50 -0500
+From: Rob Herring <robh@kernel.org>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: Re: [PATCH] rtc: ds1307: remove legacy check for
+ "isil,irq2-can-wakeup-machine" property
+Message-ID: <20170710140850.zqddgr2gy6gn3zpx@rob-hp-laptop>
+References: <ff4ea92b-4af3-1a59-2ea3-056a43125c20@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ff4ea92b-4af3-1a59-2ea3-056a43125c20@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Fixed ERROR: Use 4 digit octal (0777) not decimal permissions to fulfill
-the current coding-style
+On Thu, Jul 06, 2017 at 10:40:03PM +0200, Heiner Kallweit wrote:
+> Commit 8b44f5be20fd ("ARM: dts: armada: replace isil,irq2-can-wakeup-machine with wakeup-source property")
+> removed the last usage of "isil,irq2-can-wakeup-machine" almost
+> two years ago. So I think we can get rid of supporting this
+> legacy binding.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/power/wakeup-source.txt | 9 ++++-----
+>  Documentation/devicetree/bindings/rtc/isil,isl12057.txt   | 1 -
+>  drivers/rtc/rtc-ds1307.c                                  | 8 +-------
+>  3 files changed, 5 insertions(+), 13 deletions(-)
 
-This error was detected by checkpatch.pl
-
-Signed-off-by: SZ Lin <sz.lin@moxa.com>
----
- drivers/rtc/rtc-ds1374.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 38a2e9e684df..7d55ad297f36 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -378,7 +378,7 @@ static struct i2c_client *save_client;
- 
- static int wdt_margin = WD_TIMO;
- static unsigned long wdt_is_open;
--module_param(wdt_margin, int, 0);
-+module_param(wdt_margin, int, 0000);
- MODULE_PARM_DESC(wdt_margin, "Watchdog timeout in seconds (default 32s)");
- 
- static const struct watchdog_info ds1374_wdt_info = {
--- 
-2.13.3
+Acked-by: Rob Herring <robh@kernel.org>
