@@ -1,27 +1,25 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRBSPMS7FQKGQEVQCCR5I@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBRNQS7FQKGQEC2G43KY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id s84si469481wmf.5.2017.07.12.03.13.29
+Received: from mail-wr0-x232.google.com (mail-wr0-x232.google.com. [2a00:1450:400c:c0c::232])
+        by gmr-mx.google.com with ESMTPS id k68si392529wmg.4.2017.07.12.01.05.25
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 03:13:29 -0700 (PDT)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	bleung@chromium.org
-Cc: martinez.javier@gmail.com,
-	Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
+        Wed, 12 Jul 2017 01:05:25 -0700 (PDT)
+Received: by mail-wr0-x232.google.com with SMTP id c11so21985882wrc.3
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:25 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
-Date: Wed, 12 Jul 2017 12:13:09 +0200
-Message-Id: <20170712101309.6045-5-enric.balletbo@collabora.com>
-In-Reply-To: <20170712101309.6045-1-enric.balletbo@collabora.com>
-References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 10/22] rtc: ds1553: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:30 +0200
+Message-Id: <1499846682-14093-11-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -32,61 +30,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-If the EC supports RTC host commands, expose an RTC device.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
 ---
- drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/rtc/rtc-ds1553.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index 75a27a6..ff972fb 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -51,6 +51,10 @@ static const struct mfd_cell ec_pd_cell = {
- 	.pdata_size = sizeof(pd_p),
- };
+diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
+index 9961ec6..dc08366 100644
+--- a/drivers/rtc/rtc-ds1553.c
++++ b/drivers/rtc/rtc-ds1553.c
+@@ -129,7 +129,7 @@ static int ds1553_rtc_read_time(struct device *dev, struct rtc_time *tm)
  
-+static const struct mfd_cell ec_rtc_cell = {
-+	.name = "cros-ec-rtc",
-+};
-+
- static irqreturn_t ec_irq_thread(int irq, void *data)
- {
- 	struct cros_ec_device *ec_dev = data;
-@@ -245,6 +249,16 @@ static void cros_ec_sensors_register(struct cros_ec_device *ec_dev)
- 	kfree(msg);
+ 	if (rtc_valid_tm(tm) < 0) {
+ 		dev_err(dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, tm);
++		rtc_time64_to_tm(0, tm);
+ 	}
+ 	return 0;
  }
- 
-+static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
-+{
-+	int ret;
-+
-+	ret = mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_rtc_cell,
-+			      1, NULL, 0, NULL);
-+	if (ret)
-+		dev_err(ec_dev->dev, "failed to add EC RTC\n");
-+}
-+
- int cros_ec_register(struct cros_ec_device *ec_dev)
- {
- 	struct device *dev = ec_dev->dev;
-@@ -294,6 +308,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
- 		cros_ec_sensors_register(ec_dev);
- 
-+	/* Check whether this EC has RTC support */
-+	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
-+		cros_ec_rtc_register(ec_dev);
-+
- 	if (ec_dev->max_passthru) {
- 		/*
- 		 * Register a PD device as well on top of this device.
 -- 
-2.9.3
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
