@@ -1,22 +1,29 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBIFH6XFAKGQEXP2HGMY@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRBSPMS7FQKGQEVQCCR5I@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id o207si1639148wme.0.2017.07.05.14.01.20
-        for <rtc-linux@googlegroups.com>;
-        Wed, 05 Jul 2017 14:01:20 -0700 (PDT)
-Date: Wed, 5 Jul 2017 23:01:19 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	devicetree@vger.kernel.org, Po-Yu Chuang <ratbert@faraday-tech.com>
-Subject: [rtc-linux] Re: [PATCH 2/3 v2] rtc: gemini: Augment DT bindings for Faraday
-Message-ID: <20170705210119.fzzc2hqlj3hftmi7@piout.net>
-References: <20170530075332.3740-1-linus.walleij@linaro.org>
- <20170530075332.3740-2-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20170530075332.3740-2-linus.walleij@linaro.org>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id s84si469481wmf.5.2017.07.12.03.13.29
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 12 Jul 2017 03:13:29 -0700 (PDT)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	bleung@chromium.org
+Cc: martinez.javier@gmail.com,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Date: Wed, 12 Jul 2017 12:13:09 +0200
+Message-Id: <20170712101309.6045-5-enric.balletbo@collabora.com>
+In-Reply-To: <20170712101309.6045-1-enric.balletbo@collabora.com>
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -25,32 +32,61 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 30/05/2017 at 09:53:31 +0200, Linus Walleij wrote:
-> The Gemini RTC is actually a standard IP block from Faraday
-> Technology called FTRTC010. Rename the bindings, add the
-> generic compatible string and add definitions for the two
-> available clocks.
-> 
-> Cc: devicetree@vger.kernel.org
-> Cc: Po-Yu Chuang <ratbert@faraday-tech.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Add Rob's ACK.
-> ---
->  .../devicetree/bindings/rtc/cortina,gemini.txt     | 14 -----------
->  .../devicetree/bindings/rtc/faraday,ftrtc010.txt   | 28 ++++++++++++++++++++++
->  2 files changed, 28 insertions(+), 14 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/rtc/cortina,gemini.txt
->  create mode 100644 Documentation/devicetree/bindings/rtc/faraday,ftrtc010.txt
-> 
-Applied, thanks.
+From: Stephen Barber <smbarber@chromium.org>
 
+If the EC supports RTC host commands, expose an RTC device.
+
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+ drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+index 75a27a6..ff972fb 100644
+--- a/drivers/mfd/cros_ec.c
++++ b/drivers/mfd/cros_ec.c
+@@ -51,6 +51,10 @@ static const struct mfd_cell ec_pd_cell = {
+ 	.pdata_size = sizeof(pd_p),
+ };
+ 
++static const struct mfd_cell ec_rtc_cell = {
++	.name = "cros-ec-rtc",
++};
++
+ static irqreturn_t ec_irq_thread(int irq, void *data)
+ {
+ 	struct cros_ec_device *ec_dev = data;
+@@ -245,6 +249,16 @@ static void cros_ec_sensors_register(struct cros_ec_device *ec_dev)
+ 	kfree(msg);
+ }
+ 
++static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
++{
++	int ret;
++
++	ret = mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_rtc_cell,
++			      1, NULL, 0, NULL);
++	if (ret)
++		dev_err(ec_dev->dev, "failed to add EC RTC\n");
++}
++
+ int cros_ec_register(struct cros_ec_device *ec_dev)
+ {
+ 	struct device *dev = ec_dev->dev;
+@@ -294,6 +308,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
+ 		cros_ec_sensors_register(ec_dev);
+ 
++	/* Check whether this EC has RTC support */
++	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
++		cros_ec_rtc_register(ec_dev);
++
+ 	if (ec_dev->max_passthru) {
+ 		/*
+ 		 * Register a PD device as well on top of this device.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.9.3
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
