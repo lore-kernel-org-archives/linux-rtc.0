@@ -1,25 +1,27 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBENGRLFQKGQEPNAXGCQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBQVQS7FQKGQEWUF4SXY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id f67si1770259wme.1.2017.07.09.13.33.21
-        for <rtc-linux@googlegroups.com>;
-        Sun, 09 Jul 2017 13:33:21 -0700 (PDT)
-Date: Sun, 9 Jul 2017 22:33:20 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: john.stultz@linaro.org, tglx@linutronix.de, sboyd@codeaurora.org,
-	shuah@kernel.org, linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, patrice.chotard@st.com,
-	a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org,
-	rtc-linux@googlegroups.com, linaro-kernel@lists.linaro.org
-Subject: [rtc-linux] Re: [PATCH v2 0/3] rtc: make st-lpc robust against
- y2038/2106 bug
-Message-ID: <20170709203320.aub7iiub2bcwmuvm@piout.net>
-References: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1497864982-29284-1-git-send-email-benjamin.gaignard@linaro.org>
+Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
+        by gmr-mx.google.com with ESMTPS id r131si415853wmg.3.2017.07.12.01.05.21
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 12 Jul 2017 01:05:21 -0700 (PDT)
+Received: by mail-wr0-x236.google.com with SMTP id k67so22299460wrc.2
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:21 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 08/22] rtc: ds1305: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:28 +0200
+Message-Id: <1499846682-14093-9-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -28,40 +30,53 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 19/06/2017 at 11:36:19 +0200, Benjamin Gaignard wrote:
-> On 32bits platforms "struct timeval" or "time_t" are using u32 to code the
-> date, this cause tools like "date" or "hwclock" failed even before setting
-> the RTC device if the date is superior to year 2038 (or 2106).
-> 
-> To avoid this problem I add one RTC test file which directly use RTC ioctl
-> to set and read RTC time and alarm values.
-> rtctest_setdate allow to set any date/time given in the command line.
-> 
-> On this version 2 I add check of problematics years in rtctest like suggest
-> by Alexandre.
-> 
-> Finally that had allowed me to test and fix rtc-st-lpc driver.
-> 
-> Benjamin Gaignard (3):
->   tools: timer: add rtctest_setdate
->   tool: timer: rtctest add check for problematic dates
->   rtc: st-lpc: make it robust against y2038/2106 bug
-> 
->  drivers/rtc/rtc-st-lpc.c                         |  19 ++--
->  tools/testing/selftests/timers/Makefile          |   2 +-
->  tools/testing/selftests/timers/rtctest.c         | 121 ++++++++++++++++++++++-
->  tools/testing/selftests/timers/rtctest_setdate.c |  86 ++++++++++++++++
->  4 files changed, 212 insertions(+), 16 deletions(-)
->  create mode 100644 tools/testing/selftests/timers/rtctest_setdate.c
-> 
-Applied, thanks.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-I've fixed up the date to meaningful ones in patch 2.
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-ds1305.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 72b2293..b41168b 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -324,23 +324,20 @@ static int ds1305_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
+ 	struct ds1305	*ds1305 = dev_get_drvdata(dev);
+ 	struct spi_device *spi = ds1305->spi;
+-	unsigned long	now, later;
++	unsigned long long now, later;
+ 	struct rtc_time	tm;
+ 	int		status;
+ 	u8		buf[1 + DS1305_ALM_LEN];
+ 
+ 	/* convert desired alarm to time_t */
+-	status = rtc_tm_to_time(&alm->time, &later);
+-	if (status < 0)
+-		return status;
++	later = rtc_tm_to_time64(&alm->time);
+ 
+ 	/* Read current time as time_t */
+ 	status = ds1305_get_time(dev, &tm);
+ 	if (status < 0)
+ 		return status;
+-	status = rtc_tm_to_time(&tm, &now);
+-	if (status < 0)
+-		return status;
++
++	now = rtc_tm_to_time64(&tm);
+ 
+ 	/* make sure alarm fires within the next 24 hours */
+ 	if (later <= now)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
