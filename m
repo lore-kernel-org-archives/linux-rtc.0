@@ -1,55 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f181.google.com ([209.85.128.181]:35203 "EHLO
-        mail-wr0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751419AbdGRJ1n (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 05:27:43 -0400
-Received: by mail-wr0-f181.google.com with SMTP id w4so20025027wrb.2
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 02:27:42 -0700 (PDT)
-Date: Tue, 18 Jul 2017 10:27:39 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, wim@iguana.be,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD device
- binding
-Message-ID: <20170718092739.jjng44v543d4haah@dell>
-References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+Received: from foss.arm.com ([217.140.101.70]:53822 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756549AbdGLLAA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 12 Jul 2017 07:00:00 -0400
+From: Alexey Klimov <alexey.klimov@arm.com>
+To: linux-rtc@vger.kernel.org
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org,
+        alexandre.belloni@free-electrons.com, alexey.klimov@arm.com,
+        maxime.ripard@free-electrons.com, wens@csie.org, robh@kernel.org
+Subject: [PATCH 3/3] rtc: sun6i: Remove unneeded initalization of ret in sun6i_rtc_setalarm()
+Date: Wed, 12 Jul 2017 11:59:50 +0100
+Message-Id: <1499857190-30849-3-git-send-email-alexey.klimov@arm.com>
+In-Reply-To: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
+References: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 13 Jul 2017, Moritz Fischer wrote:
+Signed-off-by: Alexey Klimov <alexey.klimov@arm.com>
+---
+ drivers/rtc/rtc-sun6i.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> This adds a binding for the Maxim/Dallas DS1374 MFD.
-> 
-> Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> ---
-> Changes from RFC:
-> - dallas,ds1374-mode -> dallas,mode
-> - Clarified examples
-> - dallas,remap-reset property
-> 
-> On second thoughts the solution for the remapping found in the
-> discussion did not seem to be a good solution, since the INT
-> pin indicating watchdog reset does not necessarily have to be
-> connected to an interrupt line on the machine, it could equally
-> well be hooked up to a PMIC reset input or similar.
-> In that case using the presence of an 'interrupt' phandle is not
-> a good choice.
-
-For some really odd reason, my mailer is chopping the patch here!
-
-This has never happened before and I'm struggling to find out what's
-going on.  Would you be kind enough to fix RobH's comment(s) and
-resent please.  Hopefully a resend will fix things.
-
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 77bc4d3..1886b85 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -362,7 +362,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	unsigned long time_now = 0;
+ 	unsigned long time_set = 0;
+ 	unsigned long time_gap = 0;
+-	int ret = 0;
++	int ret;
+ 
+ 	ret = sun6i_rtc_gettime(dev, &tm_now);
+ 	if (ret < 0) {
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.9.1
