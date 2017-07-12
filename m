@@ -1,13 +1,13 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBWNQS7FQKGQECM4KFBQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBOVQS7FQKGQEPM5I4SI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
 Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
-        by gmr-mx.google.com with ESMTPS id 2si384814wms.6.2017.07.12.01.05.44
+        by gmr-mx.google.com with ESMTPS id 2si384814wms.6.2017.07.12.01.05.14
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:44 -0700 (PDT)
+        Wed, 12 Jul 2017 01:05:14 -0700 (PDT)
 Received: by mail-wr0-x236.google.com with SMTP id 77so22538376wrb.1
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:44 -0700 (PDT)
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:14 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
@@ -15,9 +15,10 @@ Cc: linaro-kernel@lists.linaro.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 21/22] rtc: test: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:41 +0200
-Message-Id: <1499846682-14093-22-git-send-email-benjamin.gaignard@linaro.org>
+Subject: [rtc-linux] [PATCH v2 04/22] rtc: ab-b5ze-s3: stop using rtc
+ deprecated functions
+Date: Wed, 12 Jul 2017 10:04:24 +0200
+Message-Id: <1499846682-14093-5-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -34,67 +35,134 @@ rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
 rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
-For the same reasons use set_mmss64 callback instead of set_mmss
-Since only set_mmss64 be will used remove module parameter.
-
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-test.c | 17 +----------------
- 1 file changed, 1 insertion(+), 16 deletions(-)
+ drivers/rtc/rtc-ab-b5ze-s3.c | 45 +++++++++++++-------------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 3a2da4c..6a460e3 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -13,10 +13,6 @@
- #include <linux/rtc.h>
- #include <linux/platform_device.h>
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index a319bf1..ce37997 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -328,7 +328,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+ 	u8 regs[ABB5ZES3_TIMA_SEC_LEN + 1];
+-	unsigned long rtc_secs;
++	unsigned long long rtc_secs;
+ 	unsigned int reg;
+ 	u8 timer_secs;
+ 	int ret;
+@@ -352,9 +352,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 		goto err;
  
--static int test_mmss64;
--module_param(test_mmss64, int, 0644);
--MODULE_PARM_DESC(test_mmss64, "Test struct rtc_class_ops.set_mmss64().");
--
- static struct platform_device *test0 = NULL, *test1 = NULL;
+ 	/* ... convert to seconds ... */
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
  
- static int test_rtc_read_alarm(struct device *dev,
-@@ -44,12 +40,6 @@ static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
- 	return 0;
- }
+ 	/* ... add remaining timer A time ... */
+ 	ret = sec_from_timer_a(&timer_secs, regs[1], regs[2]);
+@@ -362,7 +360,7 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 		goto err;
  
--static int test_rtc_set_mmss(struct device *dev, unsigned long secs)
--{
--	dev_info(dev, "%s, secs = %lu\n", __func__, secs);
--	return 0;
--}
--
- static int test_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	/* ... and convert back. */
+-	rtc_time_to_tm(rtc_secs + timer_secs, alarm_tm);
++	rtc_time64_to_tm(rtc_secs + timer_secs, alarm_tm);
+ 
+ 	ret = regmap_read(data->regmap, ABB5ZES3_REG_CTRL2, &reg);
+ 	if (ret) {
+@@ -383,7 +381,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
  {
- 	struct platform_device *plat_dev = to_platform_device(dev);
-@@ -70,7 +60,7 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- 	.read_time = test_rtc_read_time,
- 	.read_alarm = test_rtc_read_alarm,
- 	.set_alarm = test_rtc_set_alarm,
--	.set_mmss = test_rtc_set_mmss,
-+	.set_mmss64 = test_rtc_set_mmss64,
- 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
- };
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time rtc_tm, *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	unsigned int reg;
+ 	int ret;
+@@ -414,13 +412,8 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 	alarm_tm->tm_year = rtc_tm.tm_year;
+ 	alarm_tm->tm_mon = rtc_tm.tm_mon;
  
-@@ -111,11 +101,6 @@ static int test_probe(struct platform_device *plat_dev)
- 	int err;
- 	struct rtc_device *rtc;
- 
--	if (test_mmss64) {
--		test_rtc_ops.set_mmss64 = test_rtc_set_mmss64;
--		test_rtc_ops.set_mmss = NULL;
--	}
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
 -
- 	rtc = devm_rtc_device_register(&plat_dev->dev, "test",
- 				&test_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(rtc)) {
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	if (alarm_secs < rtc_secs) {
+ 		if (alarm_tm->tm_mon == 11) {
+@@ -477,7 +470,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	u8 regs[ABB5ZES3_ALRM_SEC_LEN];
+ 	struct rtc_time rtc_tm;
+ 	int ret, enable = 1;
+@@ -486,13 +479,8 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
+-
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	/* If alarm time is before current time, disable the alarm */
+ 	if (!alarm->enabled || alarm_secs <= rtc_secs) {
+@@ -511,9 +499,7 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 			rtc_tm.tm_mon += 1;
+ 		}
+ 
+-		ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-		if (ret)
+-			goto err;
++		rtc_secs = rtc_tm_to_time64(&rtc_tm);
+ 
+ 		if (alarm_secs > rtc_secs) {
+ 			dev_err(dev, "%s: alarm maximum is one month in the "
+@@ -597,7 +583,7 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alarm_tm = &alarm->time;
+-	unsigned long rtc_secs, alarm_secs;
++	unsigned long long rtc_secs, alarm_secs;
+ 	struct rtc_time rtc_tm;
+ 	int ret;
+ 
+@@ -606,13 +592,8 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+-	if (ret)
+-		goto err;
+-
+-	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+-	if (ret)
+-		goto err;
++	rtc_secs = rtc_tm_to_time64(&rtc_tm);
++	alarm_secs = rtc_tm_to_time64(alarm_tm);
+ 
+ 	/* Let's first disable both the alarm and the timer interrupts */
+ 	ret = _abb5zes3_rtc_update_alarm(dev, false);
 -- 
 1.9.1
 
