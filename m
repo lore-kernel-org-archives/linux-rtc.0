@@ -1,67 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:32806 "EHLO
-        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932306AbdGSVXd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:23:33 -0400
-Received: by mail-pf0-f180.google.com with SMTP id s70so4537191pfs.0
-        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 14:23:33 -0700 (PDT)
-Subject: Re: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry
- and exit
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-References: <20170719194600.29210-1-salyzyn@android.com>
- <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
-Date: Wed, 19 Jul 2017 14:23:31 -0700
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35549 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756689AbdGLFuJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jul 2017 01:50:09 -0400
+Received: by mail-wr0-f194.google.com with SMTP id z45so3219611wrb.2
+        for <linux-rtc@vger.kernel.org>; Tue, 11 Jul 2017 22:50:08 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 6/9] rtc: ds1307: factor out irq_handler to struct chip_desc
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
+Message-ID: <0eb50b5b-5042-672b-5a69-78079f1b355c@gmail.com>
+Date: Wed, 12 Jul 2017 07:49:41 +0200
 MIME-Version: 1.0
-In-Reply-To: <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/19/2017 01:40 PM, Rafael J. Wysocki wrote:
-> On Wed, Jul 19, 2017 at 9:45 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->> Permits power state and battery life diagnosis.
->>
->> Since one is not guaranteed to have a persistent hardware clock to
->> report Suspended for in milliseconds, we report at a higher level
->> at just the entry and exit points for suspend and hibernate.
->>
->> Feature activated by CONFIG_RTC_SHOW_TIME_*
->>
->> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
->>
->> v2:
->> - merge suspend and hibernate into a single patch
-> So now I guess you realize that this conflicts with
-> https://patchwork.kernel.org/patch/9850217/ and it actually would make
-> sense for it to go on top of that?
->
-> Thanks,
-> Rafael
+Factor out irq_handler to struct chip_desc and use ds1307_irq as default.
 
-I see. It would make sense to merge the concepts a bit since the prints 
-are at the same locations.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-Optimization idea: rtc_show_time() in my patch series should be able to 
-support varargs, never be _disabled_ (CONFIG_RTC_SHOW_TIME_NONE idea is 
-dropped) and the function would be a drop-in replacement for pr_info, 
-but add the specified timestamp before the newline. Change it's name to 
-pr_info_show_time() instead to reflect this adjustment.
-
-I would also prefer that the base messages in patch/980217 be "PM: 
-suspend entry" and "PM: suspend exit", only because I believe 1.6billion 
-Linux devices would not need to be retooled, and besides these messages 
-are shorter/sweeter.
-
-Anyone disagree with some more over-engineering (pr_info_show_time() and 
-varargs)
-
--- Mark
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 5aec1761..e64ea250 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -140,12 +140,15 @@ struct chip_desc {
+ 	u8			century_enable_bit;
+ 	u8			century_bit;
+ 	u8			bbsqi_bit;
++	irq_handler_t		irq_handler;
+ 	u16			trickle_charger_reg;
+ 	u8			(*do_trickle_setup)(struct ds1307 *, uint32_t,
+ 						    bool);
+ };
+ 
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, uint32_t ohms, bool diode);
++static irqreturn_t rx8130_irq(int irq, void *dev_id);
++static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ 
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+@@ -193,12 +196,14 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 0x20,
+ 		.nvram_size	= 4,	/* 32bit (4 word x 8 bit) */
++		.irq_handler = rx8130_irq,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 0x20,
+ 		.nvram_size	= 0x40,
++		.irq_handler = mcp794xx_irq,
+ 	},
+ };
+ 
+@@ -1320,8 +1325,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 	unsigned long		timestamp;
+ 	u8 			trickle_charger_setup = 0;
+ 
+-	irq_handler_t	irq_handler = ds1307_irq;
+-
+ 	const struct rtc_class_ops *rtc_ops = &ds13xx_rtc_ops;
+ 
+ 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+@@ -1493,16 +1496,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case rx_8130:
+ 		ds1307->offset = 0x10; /* Seconds starts at 0x10 */
+ 		rtc_ops = &rx8130_rtc_ops;
+-		if (want_irq)
+-			irq_handler = rx8130_irq;
+ 		break;
+ 	case ds_1388:
+ 		ds1307->offset = 1; /* Seconds starts at 1 */
+ 		break;
+ 	case mcp794xx:
+ 		rtc_ops = &mcp794xx_rtc_ops;
+-		if (want_irq || ds1307_can_wakeup_device)
+-			irq_handler = mcp794xx_irq;
+ 		break;
+ 	default:
+ 		break;
+@@ -1652,8 +1651,8 @@ static int ds1307_probe(struct i2c_client *client,
+ 	}
+ 
+ 	if (want_irq) {
+-		err = devm_request_threaded_irq(ds1307->dev,
+-						client->irq, NULL, irq_handler,
++		err = devm_request_threaded_irq(ds1307->dev, client->irq, NULL,
++						chip->irq_handler ?: ds1307_irq,
+ 						IRQF_SHARED | IRQF_ONESHOT,
+ 						ds1307->name, ds1307);
+ 		if (err) {
+-- 
+2.13.2
