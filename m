@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBCZ3LK4RZYHRBIV26LFAKGQE42HSSWI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBQ5QS7FQKGQEZWWQSOQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id r131si8283376wmd.2.2017.07.05.01.02.42
+Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
+        by gmr-mx.google.com with ESMTPS id k68si395891wmg.4.2017.07.12.01.05.23
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Jul 2017 01:02:42 -0700 (PDT)
-From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-To: alexandre.belloni@free-electrons.com
-Cc: a.zummo@towertech.it,
+        Wed, 12 Jul 2017 01:05:23 -0700 (PDT)
+Received: by mail-wr0-x236.google.com with SMTP id c11so22201995wrc.3
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:23 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Subject: [rtc-linux] [PATCH v2 2/2] RTC: s35390a: implement ioctls
-Date: Wed,  5 Jul 2017 10:02:30 +0200
-Message-Id: <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
-In-Reply-To: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-In-Reply-To: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 09/22] rtc: ds1511: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:29 +0200
+Message-Id: <1499846682-14093-10-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -28,63 +30,34 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Implements RTC_VL_READ and RTC_VL_CLR ioctls.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-s35390a.c | 32 +++++++++++++++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-ds1511.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 5ebb132..9261ba6 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -397,12 +397,42 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return s35390a_set_datetime(to_i2c_client(dev), tm);
+diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+index 1b2dcb5..3744114 100644
+--- a/drivers/rtc/rtc-ds1511.c
++++ b/drivers/rtc/rtc-ds1511.c
+@@ -279,7 +279,7 @@ static int ds1511_rtc_read_time(struct device *dev, struct rtc_time *rtc_tm)
+ 
+ 	if (rtc_valid_tm(rtc_tm) < 0) {
+ 		dev_err(dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, rtc_tm);
++		rtc_time64_to_tm(0, rtc_tm);
+ 	}
+ 	return 0;
  }
- 
-+static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
-+			     unsigned long arg)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct s35390a *s35390a = i2c_get_clientdata(client);
-+	char sts;
-+	int err;
-+
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		/* s35390a_reset set lowvoltage flag and init RTC if needed */
-+		err = s35390a_read_status(s35390a, &sts);
-+		if (err < 0)
-+			return err;
-+		if (copy_to_user((void __user *)arg, &err, sizeof(int)))
-+			return -EFAULT;
-+		break;
-+	case RTC_VL_CLR:
-+		/* update flag and clear register */
-+		err = s35390a_init(s35390a);
-+		if (err < 0)
-+			return err;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops s35390a_rtc_ops = {
- 	.read_time	= s35390a_rtc_read_time,
- 	.set_time	= s35390a_rtc_set_time,
- 	.set_alarm	= s35390a_rtc_set_alarm,
- 	.read_alarm	= s35390a_rtc_read_alarm,
--
-+	.ioctl          = s35390a_rtc_ioctl,
- };
- 
- static struct i2c_driver s35390a_driver;
 -- 
-1.8.3.1
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
