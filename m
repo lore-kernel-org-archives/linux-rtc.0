@@ -1,30 +1,27 @@
-Return-Path: <rtc-linux+bncBD6PHS6WQMDRBKVRT7FQKGQENHVMZZY@googlegroups.com>
-Received: from mail-pg0-x232.google.com (mail-pg0-x232.google.com. [2607:f8b0:400e:c05::232])
-        by gmr-mx.google.com with ESMTPS id y5si1502655pff.2.2017.07.13.13.31.37
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBTFQS7FQKGQEDU4RF5A@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
+        by gmr-mx.google.com with ESMTPS id k68si395891wmg.4.2017.07.12.01.05.32
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jul 2017 13:31:37 -0700 (PDT)
-Received: by mail-pg0-x232.google.com with SMTP id u62so34804445pgb.3
-        for <rtc-linux@googlegroups.com>; Thu, 13 Jul 2017 13:31:37 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH v3 3/4] rtc: cros-ec: add cros-ec-rtc driver.
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
- Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
- bleung@chromium.org
-Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
- Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
- linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
- Stephen Barber <smbarber@chromium.org>, 'Benson Leung' <bleung@chromium.org>
-References: <20170712101309.6045-1-enric.balletbo@collabora.com>
- <20170712101309.6045-4-enric.balletbo@collabora.com>
-From: "'Benson Leung' via rtc-linux" <rtc-linux@googlegroups.com>
-Message-ID: <7a2bc3c7-9177-6820-d4a8-38315ad9aace@google.com>
-Date: Thu, 13 Jul 2017 13:31:34 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170712101309.6045-4-enric.balletbo@collabora.com>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe"
+        Wed, 12 Jul 2017 01:05:32 -0700 (PDT)
+Received: by mail-wr0-x236.google.com with SMTP id c11so22201995wrc.3
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:32 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 14/22] rtc: pcap: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:34 +0200
+Message-Id: <1499846682-14093-15-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,53 +30,110 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe
-Content-Type: multipart/mixed; boundary="qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd";
- protected-headers="v1"
-From: Benson Leung <bleung@google.com>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
- Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
- bleung@chromium.org
-Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
- Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
- linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
- Stephen Barber <smbarber@chromium.org>, 'Benson Leung' <bleung@chromium.org>
-Message-ID: <7a2bc3c7-9177-6820-d4a8-38315ad9aace@google.com>
-Subject: Re: [PATCH v3 3/4] rtc: cros-ec: add cros-ec-rtc driver.
-References: <20170712101309.6045-1-enric.balletbo@collabora.com>
- <20170712101309.6045-4-enric.balletbo@collabora.com>
-In-Reply-To: <20170712101309.6045-4-enric.balletbo@collabora.com>
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
---qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd
-Content-Type: text/plain; charset="UTF-8"
-Content-Language: en-US
+version 2:
+- fix compilation issues by using do_div()
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-pcap.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
-Hi Enric,
-
-On 07/12/2017 03:13 AM, Enric Balletbo i Serra wrote:
-> From: Stephen Barber <smbarber@chromium.org>
-> 
-> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
-> Add a basic driver with this functionality.
-> 
-> Signed-off-by: Stephen Barber <smbarber@chromium.org>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
-Acked-by: Benson Leung <bleung@chromium.org>
-
-Thanks!
-Benson
-
+diff --git a/drivers/rtc/rtc-pcap.c b/drivers/rtc/rtc-pcap.c
+index c443324..65aa6e2 100644
+--- a/drivers/rtc/rtc-pcap.c
++++ b/drivers/rtc/rtc-pcap.c
+@@ -46,7 +46,7 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pcap_rtc *pcap_rtc = platform_get_drvdata(pdev);
+ 	struct rtc_time *tm = &alrm->time;
+-	unsigned long secs;
++	unsigned long long secs;
+ 	u32 tod;	/* time of day, seconds since midnight */
+ 	u32 days;	/* days since 1/1/1970 */
+ 
+@@ -56,7 +56,7 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAYA, &days);
+ 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
+ 
+-	rtc_time_to_tm(secs, tm);
++	rtc_time64_to_tm(secs, tm);
+ 
+ 	return 0;
+ }
+@@ -66,16 +66,14 @@ static int pcap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pcap_rtc *pcap_rtc = platform_get_drvdata(pdev);
+ 	struct rtc_time *tm = &alrm->time;
+-	unsigned long secs;
+-	u32 tod, days;
++	unsigned long long secs;
++	u32 tod;
+ 
+-	rtc_tm_to_time(tm, &secs);
++	secs = rtc_tm_to_time64(tm);
+ 
+-	tod = secs % SEC_PER_DAY;
++	tod = do_div(secs, SEC_PER_DAY);
+ 	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_TODA, tod);
+-
+-	days = secs / SEC_PER_DAY;
+-	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_DAYA, days);
++	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_DAYA, secs);
+ 
+ 	return 0;
+ }
+@@ -84,7 +82,7 @@ static int pcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pcap_rtc *pcap_rtc = platform_get_drvdata(pdev);
+-	unsigned long secs;
++	unsigned long long secs;
+ 	u32 tod, days;
+ 
+ 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_TOD, &tod);
+@@ -93,21 +91,19 @@ static int pcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAY, &days);
+ 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
+ 
+-	rtc_time_to_tm(secs, tm);
++	rtc_time64_to_tm(secs, tm);
+ 
+ 	return rtc_valid_tm(tm);
+ }
+ 
+-static int pcap_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int pcap_rtc_set_mmss64(struct device *dev, time64_t secs)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pcap_rtc *pcap_rtc = platform_get_drvdata(pdev);
+ 	u32 tod, days;
+ 
+-	tod = secs % SEC_PER_DAY;
++	days = div_s64_rem(secs, SEC_PER_DAY, &tod);
+ 	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_TOD, tod);
+-
+-	days = secs / SEC_PER_DAY;
+ 	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_DAY, days);
+ 
+ 	return 0;
+@@ -135,7 +131,7 @@ static int pcap_rtc_alarm_irq_enable(struct device *dev, unsigned int en)
+ 	.read_time = pcap_rtc_read_time,
+ 	.read_alarm = pcap_rtc_read_alarm,
+ 	.set_alarm = pcap_rtc_set_alarm,
+-	.set_mmss = pcap_rtc_set_mmss,
++	.set_mmss64 = pcap_rtc_set_mmss64,
+ 	.alarm_irq_enable = pcap_rtc_alarm_irq_enable,
+ };
+ 
 -- 
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -90,30 +144,3 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd--
-
---CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBCgAGBQJZZ9imAAoJEB8J9XsKL+ZY2eAQAJUGfSz4d/+tXzyf7QsQcu9Z
-CqtH6UrHvM03LboZBvHaOKxPSK3CiJFj3boDVVPwdpBGKPqsp7kStSw+A/OqkULH
-HhJNivgQs3UE+52POrrH9FxbINPZGoccLyAbaNmVEQmPNzRtavcb2VcU4eElM4Qv
-rjojM3Cyp15X6xp2HldGCMw1mJk3r+xK3Ydjr7a6qS+2cXfY1Iw+u+go7uJz+1G8
-PB/+QrhMuETz/pHzIQi6NJGvQX6cKDQH+wNkcOL7oPx8ySt7mQdECzTrr2cL8iTp
-sV23I14YDCVu+JHeoBv9iKDy5iBYSDRt5IPOWSvyVF5VwsY4/H0Ecjh5vtu9ZQrQ
-9E2fHI3Yte2f3OUovk2LUrkv1JJTmPxg7WfM77Zj7mRgG5D1/CgckOleFb3FhlWZ
-YovvWGu3OIGe+B/yNmsGxCA7aVU0YquMKcetmgrxfef+6zbZTV44Lk41rTARkBEz
-MWUbwOdJgEQ9pJwmNOZ89XCTGfGBKdfFFLFYxX+rBFTTh75izU1aIfQuiNdbmdLH
-zpprhlMYnHjnp935faGEJ8un7P9bX0LqqHRRQvmitlyuAwGK1bZ9LxZw9mBw0F4O
-O0j+a1sFlzVB+faj6gA7BG1vrmBvFf38tDcbaikc9rKeHfkydBZZre+ux+qSNvKV
-ZarUXvcPISNKm2QhekB7
-=ohJX
------END PGP SIGNATURE-----
-
---CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe--
