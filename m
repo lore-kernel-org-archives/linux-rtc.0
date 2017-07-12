@@ -1,28 +1,27 @@
-Return-Path: <rtc-linux+bncBCH4V2OOTYHBBKVVTHFQKGQETJO4Q6Q@googlegroups.com>
-Received: from mail-wm0-x241.google.com (mail-wm0-x241.google.com. [2a00:1450:400c:c09::241])
-        by gmr-mx.google.com with ESMTPS id r131si3666307wmd.2.2017.07.12.10.21.45
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBWNQS7FQKGQECM4KFBQ@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+MIME-Version: 1.0
+Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
+        by gmr-mx.google.com with ESMTPS id 2si384814wms.6.2017.07.12.01.05.44
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 10:21:45 -0700 (PDT)
-Received: by mail-wm0-x241.google.com with SMTP id u23so182223wma.2
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 10:21:45 -0700 (PDT)
-Date: Wed, 12 Jul 2017 19:20:17 +0200 (CEST)
-From: "'Hans Ulli Kroll' via rtc-linux" <rtc-linux@googlegroups.com>
-To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-cc: linaro-kernel@lists.linaro.org,
-    Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-    Alessandro Zummo <a.zummo@towertech.it>,
-    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-    rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-    linux-arm-kernel@lists.infradead.org
-Subject: [rtc-linux] Re: [PATCH v2 11/22] rtc: gemini: stop using rtc
- deprecated functions
-In-Reply-To: <1499846682-14093-12-git-send-email-benjamin.gaignard@linaro.org>
-Message-ID: <alpine.LNX.2.00.1707121915310.8002@T420s>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org> <1499846682-14093-12-git-send-email-benjamin.gaignard@linaro.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        Wed, 12 Jul 2017 01:05:44 -0700 (PDT)
+Received: by mail-wr0-x236.google.com with SMTP id 77so22538376wrb.1
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:44 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 21/22] rtc: test: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:41 +0200
+Message-Id: <1499846682-14093-22-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -31,37 +30,80 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi Benjamin,
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-On Wed, 12 Jul 2017, Benjamin Gaignard wrote:
+For the same reasons use set_mmss64 callback instead of set_mmss
+Since only set_mmss64 be will used remove module parameter.
 
-> @@ -93,12 +93,12 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
->  	unsigned int sec, min, hour, day;
-> -	unsigned long offset, time;
-> +	unsigned long long offset, time;
->  
->  	if (tm->tm_year >= 2148)	/* EPOCH Year + 179 */
->  		return -EINVAL;
->  
-> -	rtc_tm_to_time(tm, &time);
-> +	time = rtc_tm_to_time64(tm);
->  
->  	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
->  	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
+---
+ drivers/rtc/rtc-test.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-later on this will do
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 3a2da4c..6a460e3 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -13,10 +13,6 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+ 
+-static int test_mmss64;
+-module_param(test_mmss64, int, 0644);
+-MODULE_PARM_DESC(test_mmss64, "Test struct rtc_class_ops.set_mmss64().");
+-
+ static struct platform_device *test0 = NULL, *test1 = NULL;
+ 
+ static int test_rtc_read_alarm(struct device *dev,
+@@ -44,12 +40,6 @@ static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
+ 	return 0;
+ }
+ 
+-static int test_rtc_set_mmss(struct device *dev, unsigned long secs)
+-{
+-	dev_info(dev, "%s, secs = %lu\n", __func__, secs);
+-	return 0;
+-}
+-
+ static int test_rtc_proc(struct device *dev, struct seq_file *seq)
+ {
+ 	struct platform_device *plat_dev = to_platform_device(dev);
+@@ -70,7 +60,7 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 	.read_time = test_rtc_read_time,
+ 	.read_alarm = test_rtc_read_alarm,
+ 	.set_alarm = test_rtc_set_alarm,
+-	.set_mmss = test_rtc_set_mmss,
++	.set_mmss64 = test_rtc_set_mmss64,
+ 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
+ };
+ 
+@@ -111,11 +101,6 @@ static int test_probe(struct platform_device *plat_dev)
+ 	int err;
+ 	struct rtc_device *rtc;
+ 
+-	if (test_mmss64) {
+-		test_rtc_ops.set_mmss64 = test_rtc_set_mmss64;
+-		test_rtc_ops.set_mmss = NULL;
+-	}
+-
+ 	rtc = devm_rtc_device_register(&plat_dev->dev, "test",
+ 				&test_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc)) {
+-- 
+1.9.1
 
-	writel(offset, rtc->rtc_base + FTRTC010_RTC_RECORD);
-
-you are writing some 64bit value in a 32bit register ...
-
-NACK here
-
-Greetings from Cologne
-Hans Ulli Kroll
-
-> 1.9.1
-> 
-> 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
