@@ -1,29 +1,27 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBQHS67FAKGQE6UH46QA@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBUNQS7FQKGQEDFZKKRY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id 71si3594897wmp.3.2017.07.06.01.47.59
+MIME-Version: 1.0
+Received: from mail-wr0-x231.google.com (mail-wr0-x231.google.com. [2a00:1450:400c:c0c::231])
+        by gmr-mx.google.com with ESMTPS id 2si383795wms.6.2017.07.12.01.05.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 06 Jul 2017 01:47:59 -0700 (PDT)
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni
-	<alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [rtc-linux] [PATCHv2 2/2] rtc: stm32: add STM32H7 RTC support
-Date: Thu, 6 Jul 2017 10:47:45 +0200
-Message-ID: <1499330865-17232-3-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1499330865-17232-1-git-send-email-amelie.delaunay@st.com>
-References: <1499330865-17232-1-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+        Wed, 12 Jul 2017 01:05:37 -0700 (PDT)
+Received: by mail-wr0-x231.google.com with SMTP id k67so22298551wrc.2
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:37 -0700 (PDT)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+To: benjamin.gaignard@linaro.org
+Cc: linaro-kernel@lists.linaro.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [rtc-linux] [PATCH v2 17/22] rtc: snvs: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:37 +0200
+Message-Id: <1499846682-14093-18-git-send-email-benjamin.gaignard@linaro.org>
+In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
+References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -32,207 +30,68 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This patch adds support for STM32H7 RTC. On STM32H7, the RTC bus interface
-clock (APB clock) needs to be enabled.
+rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
+rely on 32bits variables and that will make rtc break in y2038/2016.
+Stop using those two functions to safer 64bits ones.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Alessandro Zummo <a.zummo@towertech.it>
+CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: rtc-linux@googlegroups.com
+CC: linux-kernel@vger.kernel.org
 ---
- drivers/rtc/rtc-stm32.c | 82 +++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 65 insertions(+), 17 deletions(-)
+ drivers/rtc/rtc-snvs.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index bd57eb1..3a5c3d7 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -94,11 +94,17 @@
- /* STM32_PWR_CR bit field */
- #define PWR_CR_DBP			BIT(8)
- 
-+struct stm32_rtc_data {
-+	bool has_pclk;
-+};
-+
- struct stm32_rtc {
- 	struct rtc_device *rtc_dev;
- 	void __iomem *base;
- 	struct regmap *dbp;
--	struct clk *ck_rtc;
-+	struct stm32_rtc_data *data;
-+	struct clk *pclk;
-+	struct clk *rtc_ck;
- 	int irq_alarm;
- };
- 
-@@ -122,9 +128,9 @@ static int stm32_rtc_enter_init_mode(struct stm32_rtc *rtc)
- 		writel_relaxed(isr, rtc->base + STM32_RTC_ISR);
- 
- 		/*
--		 * It takes around 2 ck_rtc clock cycles to enter in
-+		 * It takes around 2 rtc_ck clock cycles to enter in
- 		 * initialization phase mode (and have INITF flag set). As
--		 * slowest ck_rtc frequency may be 32kHz and highest should be
-+		 * slowest rtc_ck frequency may be 32kHz and highest should be
- 		 * 1MHz, we poll every 10 us with a timeout of 100ms.
- 		 */
- 		return readl_relaxed_poll_timeout_atomic(
-@@ -153,7 +159,7 @@ static int stm32_rtc_wait_sync(struct stm32_rtc *rtc)
- 
- 	/*
- 	 * Wait for RSF to be set to ensure the calendar registers are
--	 * synchronised, it takes around 2 ck_rtc clock cycles
-+	 * synchronised, it takes around 2 rtc_ck clock cycles
- 	 */
- 	return readl_relaxed_poll_timeout_atomic(rtc->base + STM32_RTC_ISR,
- 						 isr,
-@@ -456,7 +462,7 @@ static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	/*
- 	 * Poll Alarm write flag to be sure that Alarm update is allowed: it
--	 * takes around 2 ck_rtc clock cycles
-+	 * takes around 2 rtc_ck clock cycles
- 	 */
- 	ret = readl_relaxed_poll_timeout_atomic(rtc->base + STM32_RTC_ISR,
- 						isr,
-@@ -490,8 +496,17 @@ static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	.alarm_irq_enable = stm32_rtc_alarm_irq_enable,
- };
- 
-+static const struct stm32_rtc_data stm32_rtc_data = {
-+	.has_pclk = false,
-+};
-+
-+static const struct stm32_rtc_data stm32h7_rtc_data = {
-+	.has_pclk = true,
-+};
-+
- static const struct of_device_id stm32_rtc_of_match[] = {
--	{ .compatible = "st,stm32-rtc" },
-+	{ .compatible = "st,stm32-rtc", .data = &stm32_rtc_data },
-+	{ .compatible = "st,stm32h7-rtc", .data = &stm32h7_rtc_data },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, stm32_rtc_of_match);
-@@ -503,7 +518,7 @@ static int stm32_rtc_init(struct platform_device *pdev,
- 	unsigned int rate;
- 	int ret = 0;
- 
--	rate = clk_get_rate(rtc->ck_rtc);
-+	rate = clk_get_rate(rtc->rtc_ck);
- 
- 	/* Find prediv_a and prediv_s to obtain the 1Hz calendar clock */
- 	pred_a_max = STM32_RTC_PRER_PRED_A >> STM32_RTC_PRER_PRED_A_SHIFT;
-@@ -524,7 +539,7 @@ static int stm32_rtc_init(struct platform_device *pdev,
- 		pred_a = pred_a_max;
- 		pred_s = (rate / (pred_a + 1)) - 1;
- 
--		dev_warn(&pdev->dev, "ck_rtc is %s\n",
-+		dev_warn(&pdev->dev, "rtc_ck is %s\n",
- 			 (rate < ((pred_a + 1) * (pred_s + 1))) ?
- 			 "fast" : "slow");
- 	}
-@@ -561,6 +576,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index d8ef9e0..774048e 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -121,9 +121,9 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+ static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct stm32_rtc *rtc;
- 	struct resource *res;
-+	const struct of_device_id *match;
- 	int ret;
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	unsigned long time = rtc_read_lp_counter(data);
++	unsigned long long time = rtc_read_lp_counter(data);
  
- 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
-@@ -579,15 +595,34 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 		return PTR_ERR(rtc->dbp);
- 	}
- 
--	rtc->ck_rtc = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(rtc->ck_rtc)) {
--		dev_err(&pdev->dev, "no ck_rtc clock");
--		return PTR_ERR(rtc->ck_rtc);
-+	match = of_match_device(stm32_rtc_of_match, &pdev->dev);
-+	rtc->data = (struct stm32_rtc_data *)match->data;
-+
-+	if (!rtc->data->has_pclk) {
-+		rtc->pclk = NULL;
-+		rtc->rtc_ck = devm_clk_get(&pdev->dev, NULL);
-+	} else {
-+		rtc->pclk = devm_clk_get(&pdev->dev, "pclk");
-+		if (IS_ERR(rtc->pclk)) {
-+			dev_err(&pdev->dev, "no pclk clock");
-+			return PTR_ERR(rtc->pclk);
-+		}
-+		rtc->rtc_ck = devm_clk_get(&pdev->dev, "rtc_ck");
-+	}
-+	if (IS_ERR(rtc->rtc_ck)) {
-+		dev_err(&pdev->dev, "no rtc_ck clock");
-+		return PTR_ERR(rtc->rtc_ck);
-+	}
-+
-+	if (rtc->data->has_pclk) {
-+		ret = clk_prepare_enable(rtc->pclk);
-+		if (ret)
-+			return ret;
- 	}
- 
--	ret = clk_prepare_enable(rtc->ck_rtc);
-+	ret = clk_prepare_enable(rtc->rtc_ck);
- 	if (ret)
--		return ret;
-+		goto err;
- 
- 	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, PWR_CR_DBP);
- 
-@@ -595,7 +630,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 	 * After a system reset, RTC_ISR.INITS flag can be read to check if
- 	 * the calendar has been initalized or not. INITS flag is reset by a
- 	 * power-on reset (no vbat, no power-supply). It is not reset if
--	 * ck_rtc parent clock has changed (so RTC prescalers need to be
-+	 * rtc_ck parent clock has changed (so RTC prescalers need to be
- 	 * changed). That's why we cannot rely on this flag to know if RTC
- 	 * init has to be done.
- 	 */
-@@ -646,7 +681,9 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+-	rtc_time_to_tm(time, tm);
++	rtc_time64_to_tm(time, tm);
  
  	return 0;
- err:
--	clk_disable_unprepare(rtc->ck_rtc);
-+	if (rtc->data->has_pclk)
-+		clk_disable_unprepare(rtc->pclk);
-+	clk_disable_unprepare(rtc->rtc_ck);
- 
- 	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
- 
-@@ -667,7 +704,9 @@ static int stm32_rtc_remove(struct platform_device *pdev)
- 	writel_relaxed(cr, rtc->base + STM32_RTC_CR);
- 	stm32_rtc_wpr_lock(rtc);
- 
--	clk_disable_unprepare(rtc->ck_rtc);
-+	clk_disable_unprepare(rtc->rtc_ck);
-+	if (rtc->data->has_pclk)
-+		clk_disable_unprepare(rtc->pclk);
- 
- 	/* Enable backup domain write protection */
- 	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
-@@ -682,6 +721,9 @@ static int stm32_rtc_suspend(struct device *dev)
+ }
+@@ -131,9 +131,9 @@ static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	unsigned long time;
++	unsigned long long time;
  
-+	if (rtc->data->has_pclk)
-+		clk_disable_unprepare(rtc->pclk);
-+
- 	if (device_may_wakeup(dev))
- 		return enable_irq_wake(rtc->irq_alarm);
+-	rtc_tm_to_time(tm, &time);
++	time = rtc_tm_to_time64(tm);
  
-@@ -693,6 +735,12 @@ static int stm32_rtc_resume(struct device *dev)
- 	struct stm32_rtc *rtc = dev_get_drvdata(dev);
- 	int ret = 0;
+ 	/* Disable RTC first */
+ 	snvs_rtc_enable(data, false);
+@@ -154,7 +154,7 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	u32 lptar, lpsr;
  
-+	if (rtc->data->has_pclk) {
-+		ret = clk_prepare_enable(rtc->pclk);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	ret = stm32_rtc_wait_sync(rtc);
- 	if (ret < 0)
- 		return ret;
+ 	regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
+-	rtc_time_to_tm(lptar, &alrm->time);
++	rtc_time64_to_tm((u64)lptar, &alrm->time);
+ 
+ 	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
+ 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
+@@ -179,9 +179,9 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &alrm->time;
+-	unsigned long time;
++	unsigned long long time;
+ 
+-	rtc_tm_to_time(alrm_tm, &time);
++	time = rtc_tm_to_time64(alrm_tm);
+ 
+ 	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
+ 	rtc_write_sync_lp(data);
 -- 
 1.9.1
 
