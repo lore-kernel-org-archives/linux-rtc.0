@@ -1,23 +1,26 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBS5QS7FQKGQEYZF74UY@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKNBMNKRMJRBVNQS7FQKGQE4DFOTFY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-wr0-x230.google.com (mail-wr0-x230.google.com. [2a00:1450:400c:c0c::230])
-        by gmr-mx.google.com with ESMTPS id r131si3386615wmd.2.2017.07.12.01.05.29
+Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
+        by gmr-mx.google.com with ESMTPS id r131si415853wmg.3.2017.07.12.01.05.41
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:29 -0700 (PDT)
-Received: by mail-wr0-x230.google.com with SMTP id 77so22193698wrb.1
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:29 -0700 (PDT)
+        Wed, 12 Jul 2017 01:05:41 -0700 (PDT)
+Received: by mail-wr0-x236.google.com with SMTP id k67so22299460wrc.2
+        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:41 -0700 (PDT)
 From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 To: benjamin.gaignard@linaro.org
 Cc: linaro-kernel@lists.linaro.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Chen-Yu Tsai <wens@csie.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 12/22] rtc: mv: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:32 +0200
-Message-Id: <1499846682-14093-13-git-send-email-benjamin.gaignard@linaro.org>
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [rtc-linux] [PATCH v2 19/22] rtc: sun6i: stop using rtc deprecated functions
+Date: Wed, 12 Jul 2017 10:04:39 +0200
+Message-Id: <1499846682-14093-20-git-send-email-benjamin.gaignard@linaro.org>
 In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
@@ -35,27 +38,63 @@ rely on 32bits variables and that will make rtc break in y2038/2016.
 Stop using those two functions to safer 64bits ones.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+CC: Maxime Ripard <maxime.ripard@free-electrons.com>
+CC: Chen-Yu Tsai <wens@csie.org>
 CC: Alessandro Zummo <a.zummo@towertech.it>
 CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 CC: rtc-linux@googlegroups.com
 CC: linux-kernel@vger.kernel.org
+CC: linux-arm-kernel@lists.infradead.org
 ---
- drivers/rtc/rtc-mv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-index 79bb286..fce4658 100644
---- a/drivers/rtc/rtc-mv.c
-+++ b/drivers/rtc/rtc-mv.c
-@@ -127,7 +127,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 39cbc12..9928f74 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -120,7 +120,7 @@ struct sun6i_rtc_dev {
+ 	struct device *dev;
+ 	void __iomem *base;
+ 	int irq;
+-	unsigned long alarm;
++	unsigned long long alarm;
  
- 	if (rtc_valid_tm(&alm->time) < 0) {
- 		dev_err(dev, "retrieved alarm date/time is not valid.\n");
--		rtc_time_to_tm(0, &alm->time);
-+		rtc_time64_to_tm(0, &alm->time);
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+@@ -342,7 +342,7 @@ static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 
+ 	wkalrm->enabled = !!(alrm_en & SUN6I_ALRM_EN_CNT_EN);
+ 	wkalrm->pending = !!(alrm_st & SUN6I_ALRM_EN_CNT_EN);
+-	rtc_time_to_tm(chip->alarm, &wkalrm->time);
++	rtc_time64_to_tm(chip->alarm, &wkalrm->time);
+ 
+ 	return 0;
+ }
+@@ -352,9 +352,9 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &wkalrm->time;
+ 	struct rtc_time tm_now;
+-	unsigned long time_now = 0;
+-	unsigned long time_set = 0;
+-	unsigned long time_gap = 0;
++	unsigned long long time_now = 0;
++	unsigned long long time_set = 0;
++	unsigned long long time_gap = 0;
+ 	int ret = 0;
+ 
+ 	ret = sun6i_rtc_gettime(dev, &tm_now);
+@@ -363,8 +363,8 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		return -EINVAL;
  	}
  
- 	alm->enabled = !!readl(ioaddr + RTC_ALARM_INTERRUPT_MASK_REG_OFFS);
+-	rtc_tm_to_time(alrm_tm, &time_set);
+-	rtc_tm_to_time(&tm_now, &time_now);
++	time_set = rtc_tm_to_time64(alrm_tm);
++	time_now = rtc_tm_to_time64(&tm_now);
+ 	if (time_set <= time_now) {
+ 		dev_err(dev, "Date to set in the past\n");
+ 		return -EINVAL;
 -- 
 1.9.1
 
