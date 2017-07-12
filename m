@@ -1,75 +1,113 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:35795 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932092AbdGSVbM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:31:12 -0400
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:35567 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756689AbdGLFuL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jul 2017 01:50:11 -0400
+Received: by mail-wr0-f196.google.com with SMTP id z45so3219745wrb.2
+        for <linux-rtc@vger.kernel.org>; Tue, 11 Jul 2017 22:50:10 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 8/9] rtc: ds1307: factor out offset to struct chip_desc
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
+Message-ID: <d44e0d7a-e2b6-e339-7c27-648e207111ba@gmail.com>
+Date: Wed, 12 Jul 2017 07:49:47 +0200
 MIME-Version: 1.0
-In-Reply-To: <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
-References: <20170719194600.29210-1-salyzyn@android.com> <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
- <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 19 Jul 2017 23:31:11 +0200
-Message-ID: <CAJZ5v0iLMe_Q+U6cGqw87G2POjB8Rt+Urp2ALrVhGALNnUF9Dg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry
- and exit
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 19, 2017 at 11:23 PM, Mark Salyzyn <salyzyn@android.com> wrote:
-> On 07/19/2017 01:40 PM, Rafael J. Wysocki wrote:
->>
->> On Wed, Jul 19, 2017 at 9:45 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->>>
->>> Permits power state and battery life diagnosis.
->>>
->>> Since one is not guaranteed to have a persistent hardware clock to
->>> report Suspended for in milliseconds, we report at a higher level
->>> at just the entry and exit points for suspend and hibernate.
->>>
->>> Feature activated by CONFIG_RTC_SHOW_TIME_*
->>>
->>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
->>>
->>> v2:
->>> - merge suspend and hibernate into a single patch
->>
->> So now I guess you realize that this conflicts with
->> https://patchwork.kernel.org/patch/9850217/ and it actually would make
->> sense for it to go on top of that?
->>
->> Thanks,
->> Rafael
->
->
-> I see. It would make sense to merge the concepts a bit since the prints are
-> at the same locations.
+Factor out offset to struct chip_desc and remove it from struct ds1307.
 
-Exactly.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-> Optimization idea: rtc_show_time() in my patch series should be able to
-> support varargs, never be _disabled_ (CONFIG_RTC_SHOW_TIME_NONE idea is
-> dropped) and the function would be a drop-in replacement for pr_info, but
-> add the specified timestamp before the newline. Change it's name to
-> pr_info_show_time() instead to reflect this adjustment.
->
-> I would also prefer that the base messages in patch/980217 be "PM: suspend
-> entry" and "PM: suspend exit", only because I believe 1.6billion Linux
-> devices would not need to be retooled, and besides these messages are
-> shorter/sweeter.
-
-I can change the messages in patch/980217 if that helps.
-
-> Anyone disagree with some more over-engineering (pr_info_show_time() and
-> varargs)
-
-Hmm, do it as a macro maybe?
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 4083464f..43babd74 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -115,7 +115,6 @@ enum ds_type {
+ 
+ 
+ struct ds1307 {
+-	u8			offset; /* register's offset */
+ 	u8			regs[11];
+ 	u16			nvram_offset;
+ 	struct nvmem_config	nvmem_cfg;
+@@ -136,6 +135,7 @@ struct chip_desc {
+ 	unsigned		alarm:1;
+ 	u16			nvram_offset;
+ 	u16			nvram_size;
++	u8			offset; /* register's offset */
+ 	u8			century_reg;
+ 	u8			century_enable_bit;
+ 	u8			century_bit;
+@@ -208,6 +208,7 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.trickle_charger_reg = 0x08,
+ 	},
+ 	[ds_1388] = {
++		.offset		= 1,
+ 		.trickle_charger_reg = 0x0a,
+ 	},
+ 	[ds_3231] = {
+@@ -221,6 +222,7 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 0x20,
+ 		.nvram_size	= 4,	/* 32bit (4 word x 8 bit) */
++		.offset		= 0x10,
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
+@@ -387,7 +389,7 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	const struct chip_desc *chip = &chips[ds1307->type];
+ 
+ 	/* read the RTC date and time registers all at once */
+-	ret = regmap_bulk_read(ds1307->regmap, ds1307->offset, ds1307->regs, 7);
++	ret = regmap_bulk_read(ds1307->regmap, chip->offset, ds1307->regs, 7);
+ 	if (ret) {
+ 		dev_err(dev, "%s error %d\n", "read", ret);
+ 		return ret;
+@@ -479,7 +481,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 
+ 	dev_dbg(dev, "%s: %7ph\n", "write", buf);
+ 
+-	result = regmap_bulk_write(ds1307->regmap, ds1307->offset, buf, 7);
++	result = regmap_bulk_write(ds1307->regmap, chip->offset, buf, 7);
+ 	if (result) {
+ 		dev_err(dev, "%s error %d\n", "write", result);
+ 		return result;
+@@ -1502,19 +1504,13 @@ static int ds1307_probe(struct i2c_client *client,
+ 				     DS1307_REG_HOUR << 4 | 0x08, hour);
+ 		}
+ 		break;
+-	case rx_8130:
+-		ds1307->offset = 0x10; /* Seconds starts at 0x10 */
+-		break;
+-	case ds_1388:
+-		ds1307->offset = 1; /* Seconds starts at 1 */
+-		break;
+ 	default:
+ 		break;
+ 	}
+ 
+ read_rtc:
+ 	/* read RTC registers */
+-	err = regmap_bulk_read(ds1307->regmap, ds1307->offset, buf, 8);
++	err = regmap_bulk_read(ds1307->regmap, chip->offset, buf, 8);
+ 	if (err) {
+ 		dev_dbg(ds1307->dev, "read error %d\n", err);
+ 		goto exit;
+@@ -1615,7 +1611,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 			tmp = 0;
+ 		if (ds1307->regs[DS1307_REG_HOUR] & DS1307_BIT_PM)
+ 			tmp += 12;
+-		regmap_write(ds1307->regmap, ds1307->offset + DS1307_REG_HOUR,
++		regmap_write(ds1307->regmap, chip->offset + DS1307_REG_HOUR,
+ 			     bin2bcd(tmp));
+ 	}
+ 
+-- 
+2.13.2
