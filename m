@@ -1,34 +1,29 @@
-Return-Path: <rtc-linux+bncBD6PHS6WQMDRBM6PWPFQKGQEXZRBPOA@googlegroups.com>
-Received: from mail-pg0-x22e.google.com (mail-pg0-x22e.google.com. [2607:f8b0:400e:c05::22e])
-        by gmr-mx.google.com with ESMTPS id i89si907382pfi.9.2017.07.17.09.37.07
+Return-Path: <rtc-linux+bncBD6PHS6WQMDRBKVRT7FQKGQENHVMZZY@googlegroups.com>
+Received: from mail-pg0-x232.google.com (mail-pg0-x232.google.com. [2607:f8b0:400e:c05::232])
+        by gmr-mx.google.com with ESMTPS id y5si1502655pff.2.2017.07.13.13.31.37
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 Jul 2017 09:37:07 -0700 (PDT)
-Received: by mail-pg0-x22e.google.com with SMTP id 123so9512144pgj.1
-        for <rtc-linux@googlegroups.com>; Mon, 17 Jul 2017 09:37:07 -0700 (PDT)
-Date: Mon, 17 Jul 2017 09:37:02 -0700
-From: "'Benson Leung' via rtc-linux" <rtc-linux@googlegroups.com>
-To: Enric Balletbo Serra <eballetbo@gmail.com>
-Cc: Gwendal Grignou <gwendal@chromium.org>,
-	Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Benson Leung <bleung@chromium.org>,
-	Javier Martinez Canillas <martinez.javier@gmail.com>,
-	Guenter Roeck <groeck@chromium.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v3 1/4] mfd: cros_ec: Get rid of
- cros_ec_check_features from cros_ec_dev.
-Message-ID: <20170717163702.GA149214@decatoncale.mtv.corp.google.com>
+        Thu, 13 Jul 2017 13:31:37 -0700 (PDT)
+Received: by mail-pg0-x232.google.com with SMTP id u62so34804445pgb.3
+        for <rtc-linux@googlegroups.com>; Thu, 13 Jul 2017 13:31:37 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+ bleung@chromium.org
+Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
+ Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
+ Stephen Barber <smbarber@chromium.org>, 'Benson Leung' <bleung@chromium.org>
 References: <20170712101309.6045-1-enric.balletbo@collabora.com>
- <20170712101309.6045-2-enric.balletbo@collabora.com>
- <CAMHSBOUT2hpcXrSuvRrZfnEXWtN9QfNLqHvM4TCvHPKiokP0Ag@mail.gmail.com>
- <CAFqH_53O8UDPnhCq7BwS7tZ9814HD5GLXWGfbeYJ2PFFk06Uzg@mail.gmail.com>
+ <20170712101309.6045-4-enric.balletbo@collabora.com>
+From: "'Benson Leung' via rtc-linux" <rtc-linux@googlegroups.com>
+Message-ID: <7a2bc3c7-9177-6820-d4a8-38315ad9aace@google.com>
+Date: Thu, 13 Jul 2017 13:31:34 -0700
 MIME-Version: 1.0
+In-Reply-To: <20170712101309.6045-4-enric.balletbo@collabora.com>
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-In-Reply-To: <CAFqH_53O8UDPnhCq7BwS7tZ9814HD5GLXWGfbeYJ2PFFk06Uzg@mail.gmail.com>
+ protocol="application/pgp-signature";
+ boundary="CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -38,29 +33,43 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe
+Content-Type: multipart/mixed; boundary="qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd";
+ protected-headers="v1"
+From: Benson Leung <bleung@google.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+ bleung@chromium.org
+Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
+ Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
+ Stephen Barber <smbarber@chromium.org>, 'Benson Leung' <bleung@chromium.org>
+Message-ID: <7a2bc3c7-9177-6820-d4a8-38315ad9aace@google.com>
+Subject: Re: [PATCH v3 3/4] rtc: cros-ec: add cros-ec-rtc driver.
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-4-enric.balletbo@collabora.com>
+In-Reply-To: <20170712101309.6045-4-enric.balletbo@collabora.com>
 
---tThc/1wpZn/ma/RB
+--qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd
 Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Content-Language: en-US
 
 Hi Enric,
 
-On Mon, Jul 17, 2017 at 12:30:30PM +0200, Enric Balletbo Serra wrote:
-> Hi Gwendal,
+On 07/12/2017 03:13 AM, Enric Balletbo i Serra wrote:
+> From: Stephen Barber <smbarber@chromium.org>
 > 
-> Interesting I didn't know that. So are you saying that this patch will
-> break support for devices like Pixel 2? I tested the patches on
-> various devices but not on Pixel 2 so could be.
+> On platforms with a Chrome OS EC, the EC can function as a simple RTC.
+> Add a basic driver with this functionality.
+> 
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-This would affect any systems where we have chained ECs. Samus (Chromebook
-Pixel 2015) has its PD EC hooked up in this way. Practically speaking,
-that would mean that the cros_usbpd-charger power supply driver may not work
-correctly.
+Acked-by: Benson Leung <bleung@chromium.org>
 
-I don't think we expect any other systems to have this configuration,
-but the first one we shipped did, so we will have to support it.
-
-Thanks,
+Thanks!
 Benson
 
 -- 
@@ -82,26 +91,29 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---tThc/1wpZn/ma/RB
+--qFc2NpHn9DWsn5ipg6TajnVMXel1mBdVd--
+
+--CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQIcBAEBCgAGBQJZbOeuAAoJEB8J9XsKL+ZYPUUP/jl0EUnsXvp5RTP13/o8a0dK
-ZlHGscqp6Jj2HiokkAISVoMkumrToaNLkfCtsFGONoeF4ZrbifrmTRzITwYD0Uqn
-F3NOKPM4sVyNgsodDmY4sDAGf6YjUdDZNF/2qVBM/L3ZhGMerr2qC7JsYoSwUMjp
-CQEA4XNReWpscg0FFdcDsmxpHbJqZ3AeWYbCvbV0ylkCIZZG9HwtkPagO+ihaeTj
-q5KTL+lpmDhHpUqeQtdubAHrKhs9ZPWML67p4YIdnn6d7q5NR+QaqNpBleNBpAel
-J/kzKros3xLbe5UnbJ3KTtdK7OIAmyJJf6On78glwDI8m6qX1NwfcPIyKZofcymc
-il8Iyec1c0b54isZrl4wA4nTC33KzihATkAhqZBZPMwRn9kRIPnDHCag9ZQWfpME
-f36aV8pKPrgxnCrRA4WKpLOaUuHS4ks9aoVKa/6fvA7D0wnV7o2L8xQMtKL/QgWm
-/fCj34m59LiQ3XyNAlWaIuwiDk6UGHAZQRF9VJS8VTjWzmN5tEN63pOotCtFAVoY
-kM9S42mihlhmsGin55NcTTb5DixwPvJQVV5Fi+5dK6Kpa+xwQy6g0n9sNx/4cyX+
-KcrMOOUeDzueDOlb/Xth7Vl87qqZbhVdv1XIW4mVw7tnoiITlXjC39Q5GmDvdB4K
-rTYDExJIt5dn4Bq/zUrL
-=KeCE
+iQIcBAEBCgAGBQJZZ9imAAoJEB8J9XsKL+ZY2eAQAJUGfSz4d/+tXzyf7QsQcu9Z
+CqtH6UrHvM03LboZBvHaOKxPSK3CiJFj3boDVVPwdpBGKPqsp7kStSw+A/OqkULH
+HhJNivgQs3UE+52POrrH9FxbINPZGoccLyAbaNmVEQmPNzRtavcb2VcU4eElM4Qv
+rjojM3Cyp15X6xp2HldGCMw1mJk3r+xK3Ydjr7a6qS+2cXfY1Iw+u+go7uJz+1G8
+PB/+QrhMuETz/pHzIQi6NJGvQX6cKDQH+wNkcOL7oPx8ySt7mQdECzTrr2cL8iTp
+sV23I14YDCVu+JHeoBv9iKDy5iBYSDRt5IPOWSvyVF5VwsY4/H0Ecjh5vtu9ZQrQ
+9E2fHI3Yte2f3OUovk2LUrkv1JJTmPxg7WfM77Zj7mRgG5D1/CgckOleFb3FhlWZ
+YovvWGu3OIGe+B/yNmsGxCA7aVU0YquMKcetmgrxfef+6zbZTV44Lk41rTARkBEz
+MWUbwOdJgEQ9pJwmNOZ89XCTGfGBKdfFFLFYxX+rBFTTh75izU1aIfQuiNdbmdLH
+zpprhlMYnHjnp935faGEJ8un7P9bX0LqqHRRQvmitlyuAwGK1bZ9LxZw9mBw0F4O
+O0j+a1sFlzVB+faj6gA7BG1vrmBvFf38tDcbaikc9rKeHfkydBZZre+ux+qSNvKV
+ZarUXvcPISNKm2QhekB7
+=ohJX
 -----END PGP SIGNATURE-----
 
---tThc/1wpZn/ma/RB--
+--CpuwfwiKqjR3soLJHKexfxksNrRLgIsTe--
