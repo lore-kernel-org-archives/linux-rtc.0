@@ -1,56 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:47485 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751251AbdGPNt7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 16 Jul 2017 09:49:59 -0400
-Subject: Re: [rtc-linux] Re: [PATCH] RTC: Add functionality to read/write rtc
- scratch registers
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
- <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
- <20170504223827.l56sbaozuarq5xwi@piout.net>
- <20170713204355.sbtjip5skms6zwdq@piout.net>
-CC: <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, Russ Dill <Russ.Dill@ti.com>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <10b05dc7-74fd-8fbf-6b57-5443cf9f520b@ti.com>
-Date: Sun, 16 Jul 2017 19:19:26 +0530
+Received: from mail.free-electrons.com ([62.4.15.54]:37454 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751295AbdGMSSs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jul 2017 14:18:48 -0400
+Date: Thu, 13 Jul 2017 20:18:46 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] RTC for 4.13
+Message-ID: <20170713181846.xdoocvlziyfhrajk@piout.net>
+References: <20170713090151.47rrpc62dxcqwvtz@piout.net>
+ <20170713092239.r6cndjmnsrb35c34@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <20170713204355.sbtjip5skms6zwdq@piout.net>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170713092239.r6cndjmnsrb35c34@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+Me again...
 
+On 13/07/2017 at 11:22:39 +0200, Alexandre Belloni wrote:
+> On 13/07/2017 at 11:01:51 +0200, Alexandre Belloni wrote:
+> > Hi Linus,
+> > 
+> > Here is the pull-request for the RTC subsystem for 4.13.
+> > 
+> 
+> And I forgot to add that you will see a small Add/Add merge conflict in
+> tools/testing/selftests/timers/Makefile which is easy to solve.
+> 
 
-On Friday 14 July 2017 02:13 AM, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 05/05/2017 at 00:38:27 +0200, Alexandre Belloni wrote:
->> Hi,
->>
->> On 03/05/2017 at 11:39:34 +0530, Keerthy wrote:
->>> On Tuesday 18 April 2017 10:50 AM, Keerthy wrote:
->>>> From: Russ Dill <Russ.Dill@ti.com>
->>>>
->>>> Many RTCs provide scratch registers that are maintained so long as the RTC
->>>> has power. Provide a generic method to access these registers.
->>>>
->>>
->>> A gentle ping on this
->>>
->>
->> Yeah, I apologize for the delay (I know you already sent this 6-8 months
->> ago).
->> I'm not satisfied with the interface (and its name). I gave a lot of
->> thought into it and I'm currently reworking part of the subsystem to
->> create a similar feature. I'm planning to have it in 4.13.
->>
-> 
-> So, the nvmem stuff is now in 4.13. If you can still wait a bit, I'll
-> implement it myself and test on am335x.
+And its not actually add/add but both patches are adding a target on a
+different line.
 
-Sure.
+Sorry about the miscommunication, I'll get back to wiping baby poop.
 
-> 
-> 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
