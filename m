@@ -1,20 +1,30 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDO367FQKGQEJEGXGNI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id v142si614565wmv.8.2017.07.30.07.30.37
-        for <rtc-linux@googlegroups.com>;
-        Sun, 30 Jul 2017 07:30:37 -0700 (PDT)
-Date: Sun, 30 Jul 2017 16:30:36 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH v2 2/2] RTC: s35390a: implement ioctls
-Message-ID: <20170730143036.amozufkop6gc6sif@piout.net>
-References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
- <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
+Return-Path: <rtc-linux+bncBD6PHS6WQMDRBTNJT7FQKGQEYCTNJ4Q@googlegroups.com>
+Received: from mail-pf0-x231.google.com (mail-pf0-x231.google.com. [2607:f8b0:400e:c00::231])
+        by gmr-mx.google.com with ESMTPS id l18si1500872pfj.3.2017.07.13.13.15.09
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 13 Jul 2017 13:15:09 -0700 (PDT)
+Received: by mail-pf0-x231.google.com with SMTP id q86so34477984pfl.3
+        for <rtc-linux@googlegroups.com>; Thu, 13 Jul 2017 13:15:09 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH v3 2/4] mfd: cros_ec: Introduce RTC commands
+ and events definitions.
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+ bleung@chromium.org
+Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
+ Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
+ Stephen Barber <smbarber@chromium.org>
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-3-enric.balletbo@collabora.com>
+From: "'Benson Leung' via rtc-linux" <rtc-linux@googlegroups.com>
+Message-ID: <9f82780d-47a0-da3f-40ae-8a5ffe9470f2@google.com>
+Date: Thu, 13 Jul 2017 13:15:04 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
+In-Reply-To: <20170712101309.6045-3-enric.balletbo@collabora.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="gX3mn3NuoeV2chtOB4KgwTRTtBdBFGn27"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -24,20 +34,51 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 05/07/2017 at 10:02:30 +0200, Fabien Lahoudere wrote:
-> Implements RTC_VL_READ and RTC_VL_CLR ioctls.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--gX3mn3NuoeV2chtOB4KgwTRTtBdBFGn27
+Content-Type: multipart/mixed; boundary="bWwNRAcdFTtjl8ld3f9CVoU8bRaLpGINp";
+ protected-headers="v1"
+From: Benson Leung <bleung@google.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+ bleung@chromium.org
+Cc: martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
+ Gwendal Grignou <gwendal@chromium.org>, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, rtc-linux@googlegroups.com,
+ Stephen Barber <smbarber@chromium.org>
+Message-ID: <9f82780d-47a0-da3f-40ae-8a5ffe9470f2@google.com>
+Subject: Re: [PATCH v3 2/4] mfd: cros_ec: Introduce RTC commands and events
+ definitions.
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-3-enric.balletbo@collabora.com>
+In-Reply-To: <20170712101309.6045-3-enric.balletbo@collabora.com>
+
+--bWwNRAcdFTtjl8ld3f9CVoU8bRaLpGINp
+Content-Type: text/plain; charset="UTF-8"
+Content-Language: en-US
+
+Hi Enric,
+
+On 07/12/2017 03:13 AM, Enric Balletbo i Serra wrote:
+> From: Stephen Barber <smbarber@chromium.org>
 > 
-> Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-> ---
->  drivers/rtc/rtc-s35390a.c | 32 +++++++++++++++++++++++++++++++-
->  1 file changed, 31 insertions(+), 1 deletion(-)
+> The EC can function as a simple RT, this patch adds the RTC related
+> definitions needed by the rtc-cros-ec driver.
 > 
-Applied, thanks.
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+
+Acked-by: Benson Leung <bleung@chromium.org>
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -48,3 +89,30 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--bWwNRAcdFTtjl8ld3f9CVoU8bRaLpGINp--
+
+--gX3mn3NuoeV2chtOB4KgwTRTtBdBFGn27
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBCgAGBQJZZ9TJAAoJEB8J9XsKL+ZYT+gP/iE/nSTdk8SuMjd1VNH1JVkS
+47YPe66vRCWA6oILyxoQSblB1wG/1UM8aR8uTWIbQMm3Sl+VQGtJ0KLyCNVNYktK
+tQXWUxOy7zHtc31pfeLBr1eZRcKifduzl+35cPZ5kHjMpsL0aLPzo2Ue47FCRFXi
+rEQvqYisjrsuX5ul9sBjmDEFY74L64yNW32TI9BhD5v0ovI/96Bnac/onVFN77OQ
+QNWqmzFjZtkNwLvDKffOEg1MN5JUARMsHO9/IWZ2r+WLnMv01LjSkpkYrtcpbKkv
+FjQI8+vQiEkMIxnKwl5Bk4zZWbPud0vJgX8o6/f2yOuI/ZoMP7rfE0WUup9AbHvS
+uXwLhHEQdnEfAiMTXxefPD58FvBijeTzaL0WY8pJcPkNs4SMjQL2PvAchLSkUp7+
+f33uXDRa423aIOfNyA+NFN6RwOC1B53DBsug90weLHUUEsXXlJGDRRTWhBcMswT5
+K6/12Uw0A5QZ23ILCzefa1KmFHdi8piXFitbmz7fjHNaNOdlBnYwc0OGp2RhV+BW
+rsp51JhyqFuS5xY8xYdjyi31EUEq/ashPARj5qSdwKLLvZRbl9lNN14iML2idyar
+zFBrrwoUgABw4gwDzxVyzSECB40q0xP69vVNYOArDTBlpMlGk8AXH7OWf968LXK/
+ZkuUUb00Qmili12rzfiU
+=YaGE
+-----END PGP SIGNATURE-----
+
+--gX3mn3NuoeV2chtOB4KgwTRTtBdBFGn27--
