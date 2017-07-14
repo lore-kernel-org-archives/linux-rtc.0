@@ -1,56 +1,90 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:36274 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751311AbdGQSux (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Jul 2017 14:50:53 -0400
-Date: Mon, 17 Jul 2017 13:50:51 -0500
-From: Rob Herring <robh@kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56607 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751058AbdGNT1L (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 14 Jul 2017 15:27:11 -0400
+Date: Fri, 14 Jul 2017 12:27:08 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: Moritz Fischer <mdf@kernel.org>
-Cc: lee.jones@linaro.org, mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, wim@iguana.be,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
+Cc: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        wim@iguana.be, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD device
- binding
-Message-ID: <20170717185051.7yd5wdynyesc7lyy@rob-hp-laptop>
+        linux-rtc@vger.kernel.org,
+        Moritz Fischer <moritz.fischer@ettus.com>
+Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
+ Device
+Message-ID: <20170714192708.GB16125@roeck-us.net>
 References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+ <1499975665-14581-2-git-send-email-mdf@kernel.org>
+ <c37eaed9-10aa-190e-fa0e-bdce9277664b@roeck-us.net>
+ <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+In-Reply-To: <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jul 13, 2017 at 12:54:24PM -0700, Moritz Fischer wrote:
-> This adds a binding for the Maxim/Dallas DS1374 MFD.
+On Fri, Jul 14, 2017 at 09:54:23AM -0700, Moritz Fischer wrote:
+> Hi Guenter,
 > 
-> Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> ---
-> Changes from RFC:
-> - dallas,ds1374-mode -> dallas,mode
-> - Clarified examples
-> - dallas,remap-reset property
-> 
-> On second thoughts the solution for the remapping found in the
-> discussion did not seem to be a good solution, since the INT
-> pin indicating watchdog reset does not necessarily have to be
-> connected to an interrupt line on the machine, it could equally
-> well be hooked up to a PMIC reset input or similar.
-> In that case using the presence of an 'interrupt' phandle is not
-> a good choice.
-> 
-> Cheers,
-> 
-> Moritz
-> 
-> ---
->  Documentation/devicetree/bindings/mfd/ds1374.txt   | 88 ++++++++++++++++++++++
->  .../devicetree/bindings/trivial-devices.txt        |  1 -
->  drivers/rtc/Kconfig                                |  2 +
+> On Thu, Jul 13, 2017 at 08:57:52PM -0700, Guenter Roeck wrote:
+> > On 07/13/2017 12:54 PM, Moritz Fischer wrote:
+> > > From: Moritz Fischer <moritz.fischer@ettus.com>
+> > > 
+> > > Add support for the Maxim/Dallas DS1374 RTC/WDT with trickle charger.
+> > > The device can either be configured as simple RTC, as simple RTC with
+> > > Alarm (IRQ) as well as simple RTC with watchdog timer.
+> > > 
+> > > Break up the old monolithic driver in drivers/rtc/rtc-ds1374.c into:
+> > > - rtc part in drivers/rtc/rtc-ds1374.c
+> > > - watchdog part under drivers/watchdog/ds1374-wdt.c
+> > > - mfd part drivers/mfd/ds1374.c
+> > > 
+> > > The MFD part takes care of trickle charging and mode selection,
+> > > since the usage modes of a) RTC + Alarm or b) RTC + WDT
+> > > are mutually exclusive.
+> > > 
+> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> > 
+> > [ Only reviewing watchdog part ]
+> > 
+[ ... ]
 
-This belongs in patch 2. With that dropped,
+> > > +}
+> > > +
+> > > +static int ds1374_wdt_start(struct watchdog_device *wdog)
+> > > +{
+> > > +	int err;
+> > > +	struct ds1374_wdt *ds1374_wdt = watchdog_get_drvdata(wdog);
+> > > +
+> > > +	err = ds1374_wdt_set_timeout(wdog, wdog->timeout);
+> > > +	if (err) {
+> > > +		dev_err(ds1374_wdt->dev, "%s: failed to set timeout (%d) %u\n",
+> > > +			__func__, err, wdog->timeout);
+> > > +		return err;
+> > > +	}
+> > > +
+> > > +	err = ds1374_wdt_ping(wdog);
+> > > +	if (err) {
+> > > +		dev_err(ds1374_wdt->dev, "%s: failed to ping (%d)\n", __func__,
+> > > +			err);
+> 
+> I assume you'd want to get rid of that one too?
 
-Acked-by: Rob Herring <robh@kernel.org>
+Yes.
 
->  3 files changed, 90 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
+> > 
+> > This may bypass MAGICCLOSE: If the watchdog daemon is killed and the module removed,
+> > the watchdog will be stopped. Is this really what you want ? If so, why set MAGICCLOSE
+> > in the first place ?
+> 
+> So your suggestion would be:
+> 
+> - if (!nowayout)
+> -	ds1374_wdt_stop(&priv->wdd)
+> 
+Correct. Just drop the remove function.
+
+Thanks,
+Guenter
