@@ -1,26 +1,34 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBMHT5XFAKGQEOK5HNKY@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 2si3263933wms.6.2017.07.04.04.19.11
-        for <rtc-linux@googlegroups.com>;
-        Tue, 04 Jul 2017 04:19:11 -0700 (PDT)
-Date: Tue, 4 Jul 2017 13:19:01 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [PATCH 1/2] RTC: s35390a: handle invalid RTC time
-Message-ID: <20170704111901.v7z3sbn5bchz4zov@piout.net>
-References: <1484217818-27845-1-git-send-email-fabien.lahoudere@collabora.co.uk>
- <1484217818-27845-2-git-send-email-fabien.lahoudere@collabora.co.uk>
- <20170116175018.z74inrcapwqqtbcz@piout.net>
- <1484641457.20968.6.camel@collabora.co.uk>
- <20170117110016.ids6xheti242lxhe@piout.net>
- <1498470673.9477.3.camel@collabora.co.uk>
- <20170629075651.jqa3jvxfer56dvh5@piout.net>
- <1499158552.6885.1.camel@collabora.co.uk>
+Return-Path: <rtc-linux+bncBD6PHS6WQMDRBM6PWPFQKGQEXZRBPOA@googlegroups.com>
+Received: from mail-pg0-x22e.google.com (mail-pg0-x22e.google.com. [2607:f8b0:400e:c05::22e])
+        by gmr-mx.google.com with ESMTPS id i89si907382pfi.9.2017.07.17.09.37.07
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jul 2017 09:37:07 -0700 (PDT)
+Received: by mail-pg0-x22e.google.com with SMTP id 123so9512144pgj.1
+        for <rtc-linux@googlegroups.com>; Mon, 17 Jul 2017 09:37:07 -0700 (PDT)
+Date: Mon, 17 Jul 2017 09:37:02 -0700
+From: "'Benson Leung' via rtc-linux" <rtc-linux@googlegroups.com>
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Gwendal Grignou <gwendal@chromium.org>,
+	Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Benson Leung <bleung@chromium.org>,
+	Javier Martinez Canillas <martinez.javier@gmail.com>,
+	Guenter Roeck <groeck@chromium.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v3 1/4] mfd: cros_ec: Get rid of
+ cros_ec_check_features from cros_ec_dev.
+Message-ID: <20170717163702.GA149214@decatoncale.mtv.corp.google.com>
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-2-enric.balletbo@collabora.com>
+ <CAMHSBOUT2hpcXrSuvRrZfnEXWtN9QfNLqHvM4TCvHPKiokP0Ag@mail.gmail.com>
+ <CAFqH_53O8UDPnhCq7BwS7tZ9814HD5GLXWGfbeYJ2PFFk06Uzg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1499158552.6885.1.camel@collabora.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+In-Reply-To: <CAFqH_53O8UDPnhCq7BwS7tZ9814HD5GLXWGfbeYJ2PFFk06Uzg@mail.gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -30,44 +38,39 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 04/07/2017 at 10:55:52 +0200, Fabien Lahoudere wrote:
-> On Thu, 2017-06-29 at 09:56 +0200, Alexandre Belloni wrote:
-> > On 26/06/2017 at 11:51:13 +0200, Fabien Lahoudere wrote:
-> > > > Actually, after reading the datasheet, I realize it is only POC that is
-> > > > reset to 0 after reading so isinvalid is not needed. Just read status1
-> > > > and look for BLD instead of caching it.
-> > > > 
-> > > 
-> > > isinvalid is also used in s35390a_set_datetime. So if I remove it how can I detect that time
-> > > setting
-> > > failed?
-> > > 
-> > 
-> > If it fails, simply don't reset BLD so it is still set when reading the
-> > time.
-> > 
-> 
-> In BLD section, datasheet says "When this flag is "1", be sure to initialize."
-> So I think we need those flags.
-> 
 
-No, you don't. If BLD is set, return -EINVAL in read_time, initialize
-the RTC in set_time and that is it. You'll always know when power failed
-and you'll always initialize at the correct time (i.e before really
-caring about the date/time).
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
 
-> > > > I think it is probably worth separating s35390a_reset() into two
-> > > > functions. One that does the initialization and another one that reads
-> > > > status1 and immediately doest the initialization when POC is set. If BLD
-> > > > is set, then we can wait for set_time to happen before initializing.
-> > > > 
-> > 
-> > 
+Hi Enric,
+
+On Mon, Jul 17, 2017 at 12:30:30PM +0200, Enric Balletbo Serra wrote:
+> Hi Gwendal,
+> 
+> Interesting I didn't know that. So are you saying that this patch will
+> break support for devices like Pixel 2? I tested the patches on
+> various devices but not on Pixel 2 so could be.
+
+This would affect any systems where we have chained ECs. Samus (Chromebook
+Pixel 2015) has its PD EC hooked up in this way. Practically speaking,
+that would mean that the cros_usbpd-charger power supply driver may not work
+correctly.
+
+I don't think we expect any other systems to have this configuration,
+but the first one we shipped did, so we will have to support it.
+
+Thanks,
+Benson
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -78,3 +81,27 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJZbOeuAAoJEB8J9XsKL+ZYPUUP/jl0EUnsXvp5RTP13/o8a0dK
+ZlHGscqp6Jj2HiokkAISVoMkumrToaNLkfCtsFGONoeF4ZrbifrmTRzITwYD0Uqn
+F3NOKPM4sVyNgsodDmY4sDAGf6YjUdDZNF/2qVBM/L3ZhGMerr2qC7JsYoSwUMjp
+CQEA4XNReWpscg0FFdcDsmxpHbJqZ3AeWYbCvbV0ylkCIZZG9HwtkPagO+ihaeTj
+q5KTL+lpmDhHpUqeQtdubAHrKhs9ZPWML67p4YIdnn6d7q5NR+QaqNpBleNBpAel
+J/kzKros3xLbe5UnbJ3KTtdK7OIAmyJJf6On78glwDI8m6qX1NwfcPIyKZofcymc
+il8Iyec1c0b54isZrl4wA4nTC33KzihATkAhqZBZPMwRn9kRIPnDHCag9ZQWfpME
+f36aV8pKPrgxnCrRA4WKpLOaUuHS4ks9aoVKa/6fvA7D0wnV7o2L8xQMtKL/QgWm
+/fCj34m59LiQ3XyNAlWaIuwiDk6UGHAZQRF9VJS8VTjWzmN5tEN63pOotCtFAVoY
+kM9S42mihlhmsGin55NcTTb5DixwPvJQVV5Fi+5dK6Kpa+xwQy6g0n9sNx/4cyX+
+KcrMOOUeDzueDOlb/Xth7Vl87qqZbhVdv1XIW4mVw7tnoiITlXjC39Q5GmDvdB4K
+rTYDExJIt5dn4Bq/zUrL
+=KeCE
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
