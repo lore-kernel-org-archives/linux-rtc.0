@@ -1,50 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49171 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752495AbdGFJmj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:39 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 11/11] rtc: ds1307: remove ds1307_remove
-Date: Thu,  6 Jul 2017 11:42:08 +0200
-Message-Id: <20170706094208.16240-12-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
-References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+Received: from mail-pg0-f49.google.com ([74.125.83.49]:34619 "EHLO
+        mail-pg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752641AbdGRX0o (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 19:26:44 -0400
+Received: by mail-pg0-f49.google.com with SMTP id 123so20600198pgj.1
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 16:26:43 -0700 (PDT)
+Subject: Re: [PATCH 3/4] PM: Print wall time at suspend entry and exit
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
+References: <20170718172600.114761-1-salyzyn@android.com>
+ <214360396.4sfZrYBT7N@aspire.rjw.lan>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <749ae452-8626-7d6d-60f1-7a949be546a4@android.com>
+Date: Tue, 18 Jul 2017 16:26:41 -0700
+MIME-Version: 1.0
+In-Reply-To: <214360396.4sfZrYBT7N@aspire.rjw.lan>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-ds1307_remove() is now empty, remove it
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-ds1307.c | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 6f91c11a5f03..ea83ddc5a513 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1701,11 +1701,6 @@ static int ds1307_probe(struct i2c_client *client,
- 	return err;
- }
- 
--static int ds1307_remove(struct i2c_client *client)
--{
--	return 0;
--}
--
- static struct i2c_driver ds1307_driver = {
- 	.driver = {
- 		.name	= "rtc-ds1307",
-@@ -1713,7 +1708,6 @@ static struct i2c_driver ds1307_driver = {
- 		.acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
- 	},
- 	.probe		= ds1307_probe,
--	.remove		= ds1307_remove,
- 	.id_table	= ds1307_id,
- };
- 
--- 
-2.11.0
+On 07/18/2017 03:25 PM, Rafael J. Wysocki wrote:
+> On Tuesday, July 18, 2017 10:25:58 AM Mark Salyzyn wrote:
+>> Permits power state and battery life diagnosis.
+>>
+>> Feature activated by CONFIG_RTC_SHOW_TIME.
+>>
+>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> Please fold the [4/4] into this one and I have a patch series that you'd
+> want to rebase this on I guess.  I'll send it shortly.
+>
+> Thanks,
+> Rafael
+>
+Ok, after all the disputes are laid to rest, I will roll these in 
+together on the respin.
