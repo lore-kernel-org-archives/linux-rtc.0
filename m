@@ -1,36 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f177.google.com ([209.85.128.177]:35592 "EHLO
-        mail-wr0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750704AbdGLFXl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jul 2017 01:23:41 -0400
-Received: by mail-wr0-f177.google.com with SMTP id k67so17241806wrc.2
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Jul 2017 22:23:40 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 0/9] rtc: ds1307: series with refactorings / improvements
+Received: from mail-pg0-f41.google.com ([74.125.83.41]:33302 "EHLO
+        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751846AbdGRUIh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 16:08:37 -0400
+Received: by mail-pg0-f41.google.com with SMTP id k14so18389605pgr.0
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 13:08:36 -0700 (PDT)
+Subject: Re: [PATCH 1/4] rtc-lib: Add rtc_show_time(const char *prefix_msg)
+From: Mark Salyzyn <salyzyn@android.com>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Message-ID: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
-Date: Wed, 12 Jul 2017 07:23:31 +0200
+Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org
+References: <20170718172525.114514-1-salyzyn@android.com>
+ <20170718175224.xccqnv4zjggn4shu@piout.net>
+ <b6bce88c-a13c-8504-18ac-242f637f4d13@android.com>
+Message-ID: <5a1a1eab-5d5b-b91c-2990-abbd2d17480e@android.com>
+Date: Tue, 18 Jul 2017 13:08:35 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <b6bce88c-a13c-8504-18ac-242f637f4d13@android.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This series includes smaller refactorings and improvements.
+On 07/18/2017 01:00 PM, Mark Salyzyn wrote:
+> On 07/18/2017 10:52 AM, Alexandre Belloni wrote:
+>> Hi,
+>>
+>> On 18/07/2017 at 10:25:23 -0700, Mark Salyzyn wrote:
+>>> . . .
+>> Apart from using rtc_time_to_tm (and you should probably use
+>> rtc_time64_to_tm), none of this is actually related to the RTC
+>> subsystem. I feel like you should find another place to put that, maybe
+>> timekeeping_debug.c?
+> Makes a lot of sense!
+>
+> -- Mark
 
-Heiner Kallweit (9):
-  rtc: ds1307: remove member irq from struct ds1307
-  rtc: ds1307: factor out bbsqi bit to struct chip_desc
-  rtc: ds1307: improve trickle charger initialization
-  rtc: ds1307: constify struct chip_desc variables
-  rtc: ds1307: improve irq setup
-  rtc: ds1307: factor out irq_handler to struct chip_desc
-  rtc: ds1307: factor out rtc_ops to struct chip_desc
-  rtc: ds1307: factor out offset to struct chip_desc
-  rtc: ds1307: remove member nvram_offset from struct ds1307
+Ooops, timekeeping_debug.c is currently only to support a debugfs node. 
+Perhaps a _new_ file in that hierarchy like kernel/time/rtc_show_time.c.
 
- drivers/rtc/rtc-ds1307.c | 165 ++++++++++++++++++++++-------------------------
- 1 file changed, 76 insertions(+), 89 deletions(-)
-
--- 
-2.13.2
+-- Mark
