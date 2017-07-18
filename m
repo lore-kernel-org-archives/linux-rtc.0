@@ -1,109 +1,44 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:33632 "EHLO
-        mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934128AbdGSTpt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 15:45:49 -0400
-Received: by mail-pf0-f177.google.com with SMTP id s70so3766624pfs.0
-        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 12:45:48 -0700 (PDT)
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:35196 "EHLO
+        mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752395AbdGRVSd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 17:18:33 -0400
+Received: by mail-pf0-f172.google.com with SMTP id e199so17012528pfh.2
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 14:18:33 -0700 (PDT)
 From: Mark Salyzyn <salyzyn@android.com>
 To: linux-kernel@vger.kernel.org
 Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
         linux-pm@vger.kernel.org, a.zummo@towertech.it,
         alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        Mark Salyzyn <salyzyn@android.com>
-Subject: [PATCH v2 2/4] time: Print wall time at die and reboot
-Date: Wed, 19 Jul 2017 12:45:37 -0700
-Message-Id: <20170719194541.29031-1-salyzyn@android.com>
+        andy.shevchenko@gmail.com, Mark Salyzyn <salyzyn@android.com>
+Subject: [PATCH v2 0/4] PM / Suspend: Print wall time
+Date: Tue, 18 Jul 2017 14:18:05 -0700
+Message-Id: <20170718211813.122971-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Permits power state and battery life diagnosis.
+Helpful for post-mortem analysis to synchronize CLOCK_MONOTONIC
+kernel logs with CLOCK_REALTIME user space logs.  Post-mortem
+analysis for Battery and Power diagnosis.  Improved reporting
+of suspension times against the rtc wallclock, which is
+persistent even at the lowest power management states.
 
-Feature activated by CONFIG_RTC_SHOW_TIME.
+analyze_suspend.py requires a configured kernel to debug, these
+prints can remain in a field product with CONFIG_RTC_TIME_SHOW.
 
 Signed-off-by: Mark Salyzyn <salyzyn@android.com>
 
 v2:
-- react to implementation move to kernel timekeeping from rtc_lib
+- move implementation to kernel timekeeping from rtc_lib files
+- use rtc_time64_to_tm() instead of rtc_time_to_tm()
+- use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
 - use late_initcall to ensure rtc_lib driver(s) are loaded
 
 ---
- kernel/time/rtc_show_time.c | 59 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
-
-diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
-index 19a8a0cc94f0..6c7b8ae6be0c 100644
---- a/kernel/time/rtc_show_time.c
-+++ b/kernel/time/rtc_show_time.c
-@@ -6,6 +6,8 @@
-  * published by the Free Software Foundation.
-  */
- 
-+#include <linux/kdebug.h>
-+#include <linux/reboot.h>
- #include <linux/rtc.h>
- 
- void rtc_show_time(const char *prefix_msg)
-@@ -27,3 +29,60 @@ void rtc_show_time(const char *prefix_msg)
- #endif
- }
- EXPORT_SYMBOL(rtc_show_time);
-+
-+static int rtc_show_time_die_notify(struct notifier_block *self,
-+		unsigned long event, void *data)
-+{
-+	if (event != DIE_OOPS)
-+		return NOTIFY_DONE;
-+	rtc_show_time("Oops");
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block rtc_show_time_die_nb = {
-+	.notifier_call = rtc_show_time_die_notify,
-+	.priority = 0,
-+};
-+
-+static int rtc_show_time_reboot_notify(struct notifier_block *self,
-+		unsigned long event, void *data)
-+{
-+	const char *txt;
-+
-+	switch (event) {
-+	case SYS_RESTART:
-+		txt = "Restart";
-+		break;
-+	case SYS_HALT:
-+		txt = "Halt";
-+		break;
-+	case SYS_POWER_OFF:
-+		txt = "Power-Off";
-+		break;
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+	rtc_show_time(txt);
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block rtc_show_time_reboot_nb = {
-+	.notifier_call = rtc_show_time_reboot_notify,
-+	.priority = 0,
-+};
-+
-+static __init int init_rtc_show_time(void)
-+{
-+	int ret;
-+
-+	ret = register_die_notifier(&rtc_show_time_die_nb);
-+	if (ret)
-+		pr_warn("Failed to register rtc_show_time die notifier\n");
-+	ret = register_reboot_notifier(&rtc_show_time_reboot_nb);
-+	if (ret)
-+		pr_warn("Failed to register rtc_show_time reboot notifier\n");
-+
-+	return ret;
-+}
-+/* rtc driver needs to be loaded before this is truly functional */
-+late_initcall(init_rtc_show_time);
--- 
-2.14.0.rc0.284.gd933b75aa4-goog
+ include/linux/rtc.h         |    5 ++
+ kernel/power/hibernate.c    |    4 +-
+ kernel/power/suspend.c      |    3 +
+ kernel/time/Kconfig         |   11 +++++
+ kernel/time/Makefile        |    1 
+ kernel/time/rtc_show_time.c |   82 ++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 105 insertions(+), 1 deletion(-)
