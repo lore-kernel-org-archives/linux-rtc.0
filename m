@@ -1,36 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:60172 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751711AbdG3Okg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 30 Jul 2017 10:40:36 -0400
-Date: Sun, 30 Jul 2017 16:40:34 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Alexey Klimov <alexey.klimov@arm.com>
-Cc: linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        linux-kernel@vger.kernel.org, maxime.ripard@free-electrons.com,
-        wens@csie.org, robh@kernel.org
-Subject: Re: [PATCH 1/3] rtc: sun6i: Remove double init of spinlock in
- sun6i_rtc_clk_init()
-Message-ID: <20170730144034.keptgit33lrpzwn5@piout.net>
-References: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:33175 "EHLO
+        mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751995AbdGRWGW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 18:06:22 -0400
+Received: by mail-pf0-f181.google.com with SMTP id s70so8474888pfs.0
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 15:06:21 -0700 (PDT)
+Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        Mark Salyzyn <salyzyn@google.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>
+References: <20170718211930.123077-1-salyzyn@android.com>
+ <alpine.DEB.2.20.1707182338470.2425@nanos>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
+Date: Tue, 18 Jul 2017 15:06:20 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
+In-Reply-To: <alpine.DEB.2.20.1707182338470.2425@nanos>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 12/07/2017 at 11:59:48 +0100, Alexey Klimov wrote:
-> Fixes: 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator")
-> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
-> Cc: Rob Herring <robh@kernel.org>
-> Signed-off-by: Alexey Klimov <alexey.klimov@arm.com>
-> ---
->  drivers/rtc/rtc-sun6i.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, after adding a proper commit message.
+On 07/18/2017 02:52 PM, Thomas Gleixner wrote:
+> On Tue, 18 Jul 2017, Mark Salyzyn wrote:
+>
+>> Go directly to the rtc for persistent wall clock time and print.
+>> Useful if REALTIME is required to be logged in a low level power
+>> management function or when clock activities are suspended.  An
+>> aid to permit user space alignment of kernel activities.
+> That's a horrible idea, really. And there is no point at all.
+>
+>> +void rtc_show_time(const char *prefix_msg)
+>> +{
+>> +	struct timespec ts;
+>> +	struct rtc_time tm;
+>> +
+>> +	getnstimeofday(&ts);
+> It calls getnstimeofday(), which is wrong to begin with as we switch
+> everything in kernel to the 64bit variants.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+oops, good catch.
+>
+>> +	rtc_time64_to_tm(ts.tv_sec, &tm);
+> This is even more wrong as rtc_time64_to_tm is for 64 bit wide second
+> values....
+Again, oops, changed rtc_time_to_tm to rtc_time64_to_tm as requested, 
+did not change other pieces.
+>
+>> +	pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+>> +		prefix_msg ? prefix_msg : "Time:",
+>> +		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+>> +		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+> Why on earth do you need to print that information in RTC format? What's
+> wrong with just doing:
+>
+>        pr_info("My so important log message %lld\n", ktime_get_real_seconds());
+
+Legacy (these prints have been in Android tree since 2013) for all our 
+battery and power analysis tools are keyed off RTC format. There is some 
+momentum, default should be epoch seconds/nanoseconds as that is a good 
+example; and another option can select RTC (the option can be an 
+internal patch to alter the format ... ick)
+>
+> and then decoding the seconds in post processing? That's completely
+> sufficient as you intend that for logging. Correlation with user space
+> CLOCK_REALTIME is even simpler as this is the same as reading it from user
+> space.
+This is part of triage and post-analysis, there is no user space call 
+that can be made after the fact to correlate MONOTONIC time with 
+REALTIME. The historgram for the relationship between the two time 
+formats is built up in user space based on batched analysis of the 
+kernel logs. Although the values slip because of ntp and other sources, 
+suspend/resume/hibernate/restore and shutdown are definitive points of 
+interest for analysis. The analysis is performed on klogd data which has 
+a longer logging span than the internal buffer.
+>
+> If your main intention is logging/debugging, then you can just use
+> tracepoints. The tracer allows correlation to user space tracing already.
+tracepoints are disabled on field devices. As is debugfs. This is not 
+logging/debugging, but field battery and power analysis. Some of the 
+data shows up in the Battery Settings screen on the devices. We also 
+_benefit_ from this information when correlating kernel logs with user 
+space logs during triage.
+>
+> So unless you can come up with a reasonable explanation why all this voodoo
+> is required, this is going nowhere.
+>
+> Thanks,
+>
+> 	tglx
+>
+>
+>
+>
