@@ -1,60 +1,106 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:34583 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756689AbdGLFuG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jul 2017 01:50:06 -0400
-Received: by mail-wr0-f195.google.com with SMTP id k67so3202360wrc.1
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Jul 2017 22:50:06 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 4/9] rtc: ds1307: constify struct chip_desc variables
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
-Message-ID: <49e8545e-e1a1-3465-5640-822a4658ed11@gmail.com>
-Date: Wed, 12 Jul 2017 07:49:33 +0200
-MIME-Version: 1.0
-In-Reply-To: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:36100 "EHLO
+        mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751790AbdGRRZy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:25:54 -0400
+Received: by mail-pf0-f170.google.com with SMTP id o88so8140957pfk.3
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 10:25:54 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        Mark Salyzyn <salyzyn@android.com>
+Subject: [PATCH 2/4] rtc-lib: Print wall time at die and reboot
+Date: Tue, 18 Jul 2017 10:25:43 -0700
+Message-Id: <20170718172545.114568-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Constify struct chip_desc variables.
+Permits power state and battery life diagnosis.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Feature activated by CONFIG_RTC_SHOW_TIME.
+
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
 ---
- drivers/rtc/rtc-ds1307.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-lib.c | 58 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index d7158c9d..115fe1c5 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -147,7 +147,7 @@ struct chip_desc {
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index 676d6a83e843..c28fdfbb99d4 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -12,6 +12,8 @@
+ */
  
- static u8 do_trickle_setup_ds1339(struct ds1307 *, uint32_t ohms, bool diode);
+ #include <linux/export.h>
++#include <linux/kdebug.h>
++#include <linux/reboot.h>
+ #include <linux/rtc.h>
  
--static struct chip_desc chips[last_ds_type] = {
-+static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-@@ -941,7 +941,7 @@ static u8 do_trickle_setup_ds1339(struct ds1307 *ds1307,
+ static const unsigned char rtc_days_in_month[] = {
+@@ -108,6 +110,62 @@ void rtc_show_time(const char *prefix_msg)
+ 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
  }
+ EXPORT_SYMBOL(rtc_show_time);
++
++static int rtc_show_time_die_notify(struct notifier_block *self,
++		unsigned long event, void *data)
++{
++	if (event != DIE_OOPS)
++		return NOTIFY_DONE;
++	rtc_show_time("Oops");
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block rtc_show_time_die_nb = {
++	.notifier_call = rtc_show_time_die_notify,
++	.priority = 0,
++};
++
++static int rtc_show_time_reboot_notify(struct notifier_block *self,
++		unsigned long event, void *data)
++{
++	const char *txt;
++
++	switch (event) {
++	case SYS_RESTART:
++		txt = "Restart";
++		break;
++	case SYS_HALT:
++		txt = "Halt";
++		break;
++	case SYS_POWER_OFF:
++		txt = "Power-Off";
++		break;
++	default:
++		return NOTIFY_DONE;
++	}
++	rtc_show_time(txt);
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block rtc_show_time_reboot_nb = {
++	.notifier_call = rtc_show_time_reboot_notify,
++	.priority = 0,
++};
++
++static __init int init_rtc_show_time(void)
++{
++	int ret;
++
++	ret = register_die_notifier(&rtc_show_time_die_nb);
++	if (ret)
++		pr_warn("Failed to register rtc_show_time die notifier\n");
++	ret = register_reboot_notifier(&rtc_show_time_reboot_nb);
++	if (ret)
++		pr_warn("Failed to register rtc_show_time reboot notifier\n");
++
++	return ret;
++}
++device_initcall(init_rtc_show_time);
+ #endif
  
- static u8 ds1307_trickle_init(struct ds1307 *ds1307,
--			      struct chip_desc *chip)
-+			      const struct chip_desc *chip)
- {
- 	uint32_t ohms;
- 	bool diode = true;
-@@ -1311,7 +1311,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	struct ds1307		*ds1307;
- 	int			err = -ENODEV;
- 	int			tmp, wday;
--	struct chip_desc	*chip;
-+	const struct chip_desc	*chip;
- 	bool			want_irq = false;
- 	bool			ds1307_can_wakeup_device = false;
- 	unsigned char		*buf;
+ /*
 -- 
-2.13.2
+2.13.2.932.g7449e964c-goog
