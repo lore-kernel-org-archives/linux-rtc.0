@@ -1,113 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:35567 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756689AbdGLFuL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jul 2017 01:50:11 -0400
-Received: by mail-wr0-f196.google.com with SMTP id z45so3219745wrb.2
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Jul 2017 22:50:10 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 8/9] rtc: ds1307: factor out offset to struct chip_desc
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
-Message-ID: <d44e0d7a-e2b6-e339-7c27-648e207111ba@gmail.com>
-Date: Wed, 12 Jul 2017 07:49:47 +0200
-MIME-Version: 1.0
-In-Reply-To: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail-pg0-f53.google.com ([74.125.83.53]:36772 "EHLO
+        mail-pg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751500AbdGRR0Z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:26:25 -0400
+Received: by mail-pg0-f53.google.com with SMTP id u5so16168081pgq.3
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 10:26:25 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        Mark Salyzyn <salyzyn@android.com>
+Subject: [PATCH 4/4] PM: Print wall time at hibernate entry and exit
+Date: Tue, 18 Jul 2017 10:26:16 -0700
+Message-Id: <20170718172617.114825-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Factor out offset to struct chip_desc and remove it from struct ds1307.
+Permits power state and battery life diagnosis.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Feature activated by CONFIG_RTC_SHOW_TIME.
+
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
 ---
- drivers/rtc/rtc-ds1307.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ kernel/power/hibernate.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4083464f..43babd74 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -115,7 +115,6 @@ enum ds_type {
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index e1914c7b85b1..0b5460f9189b 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -32,11 +32,11 @@
+ #include <linux/ctype.h>
+ #include <linux/genhd.h>
+ #include <linux/ktime.h>
++#include <linux/rtc.h>
+ #include <trace/events/power.h>
  
+ #include "power.h"
  
- struct ds1307 {
--	u8			offset; /* register's offset */
- 	u8			regs[11];
- 	u16			nvram_offset;
- 	struct nvmem_config	nvmem_cfg;
-@@ -136,6 +135,7 @@ struct chip_desc {
- 	unsigned		alarm:1;
- 	u16			nvram_offset;
- 	u16			nvram_size;
-+	u8			offset; /* register's offset */
- 	u8			century_reg;
- 	u8			century_enable_bit;
- 	u8			century_bit;
-@@ -208,6 +208,7 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.trickle_charger_reg = 0x08,
- 	},
- 	[ds_1388] = {
-+		.offset		= 1,
- 		.trickle_charger_reg = 0x0a,
- 	},
- 	[ds_3231] = {
-@@ -221,6 +222,7 @@ static const struct chip_desc chips[last_ds_type] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 0x20,
- 		.nvram_size	= 4,	/* 32bit (4 word x 8 bit) */
-+		.offset		= 0x10,
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-@@ -387,7 +389,7 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	const struct chip_desc *chip = &chips[ds1307->type];
+-
+ static int nocompress;
+ static int noresume;
+ static int nohibernate;
+@@ -342,6 +342,7 @@ int hibernation_snapshot(int platform_mode)
+ 	pm_message_t msg;
+ 	int error;
  
- 	/* read the RTC date and time registers all at once */
--	ret = regmap_bulk_read(ds1307->regmap, ds1307->offset, ds1307->regs, 7);
-+	ret = regmap_bulk_read(ds1307->regmap, chip->offset, ds1307->regs, 7);
- 	if (ret) {
- 		dev_err(dev, "%s error %d\n", "read", ret);
- 		return ret;
-@@ -479,7 +481,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 
- 	dev_dbg(dev, "%s: %7ph\n", "write", buf);
- 
--	result = regmap_bulk_write(ds1307->regmap, ds1307->offset, buf, 7);
-+	result = regmap_bulk_write(ds1307->regmap, chip->offset, buf, 7);
- 	if (result) {
- 		dev_err(dev, "%s error %d\n", "write", result);
- 		return result;
-@@ -1502,19 +1504,13 @@ static int ds1307_probe(struct i2c_client *client,
- 				     DS1307_REG_HOUR << 4 | 0x08, hour);
- 		}
- 		break;
--	case rx_8130:
--		ds1307->offset = 0x10; /* Seconds starts at 0x10 */
--		break;
--	case ds_1388:
--		ds1307->offset = 1; /* Seconds starts at 1 */
--		break;
- 	default:
- 		break;
- 	}
- 
- read_rtc:
- 	/* read RTC registers */
--	err = regmap_bulk_read(ds1307->regmap, ds1307->offset, buf, 8);
-+	err = regmap_bulk_read(ds1307->regmap, chip->offset, buf, 8);
- 	if (err) {
- 		dev_dbg(ds1307->dev, "read error %d\n", err);
- 		goto exit;
-@@ -1615,7 +1611,7 @@ static int ds1307_probe(struct i2c_client *client,
- 			tmp = 0;
- 		if (ds1307->regs[DS1307_REG_HOUR] & DS1307_BIT_PM)
- 			tmp += 12;
--		regmap_write(ds1307->regmap, ds1307->offset + DS1307_REG_HOUR,
-+		regmap_write(ds1307->regmap, chip->offset + DS1307_REG_HOUR,
- 			     bin2bcd(tmp));
- 	}
++	rtc_show_time("PM: hibernation entry");
+ 	pm_suspend_clear_flags();
+ 	error = platform_begin(platform_mode);
+ 	if (error)
+@@ -409,6 +410,7 @@ int hibernation_snapshot(int platform_mode)
+ 	thaw_kernel_threads();
+  Cleanup:
+ 	swsusp_free();
++	rtc_show_time("PM: hibernation exit");
+ 	goto Close;
+ }
  
 -- 
-2.13.2
+2.13.2.932.g7449e964c-goog
