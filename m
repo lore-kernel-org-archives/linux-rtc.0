@@ -1,63 +1,29 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58062 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964882AbdGTXSw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:52 -0400
-In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 4/4] rtc: pl031: make interrupt optional
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dYKiP-0001kg-BQ@rmk-PC.armlinux.org.uk>
-Date: Fri, 21 Jul 2017 00:18:41 +0100
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:34655 "EHLO
+        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751388AbdGRRZM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:25:12 -0400
+Received: by mail-pf0-f173.google.com with SMTP id q85so14550868pfq.1
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 10:25:12 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        Mark Salyzyn <salyzyn@android.com>
+Subject: [PATCH 0/4] PM / Suspend: Print wall time
+Date: Tue, 18 Jul 2017 10:24:22 -0700
+Message-Id: <20170718172443.114401-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On some platforms, the interrupt for the PL031 is optional.  Avoid
-trying to claim the interrupt if it's not specified.
+Helpful for post-mortem analysis to synchronize CLOCK_MONOTONIC
+kernel logs with CLOCK_REALTIME user space logs.  Post-mortem
+analysis for Battery and Power diagnosis.  Improved reporting
+of suspension times against the rtc wallclock, which is
+persistent even at the lowest power management states.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/rtc/rtc-pl031.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+analyze_suspend.py requires a configured kernel to debug, these
+prints can remain in a field product with CONFIG_RTC_TIME_SHOW.
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 64c77ec1b4ea..82eb7da2c478 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -308,7 +308,8 @@ static int pl031_remove(struct amba_device *adev)
- 
- 	dev_pm_clear_wake_irq(&adev->dev);
- 	device_init_wakeup(&adev->dev, false);
--	free_irq(adev->irq[0], ldata);
-+	if (adev->irq[0])
-+		free_irq(adev->irq[0], ldata);
- 	rtc_device_unregister(ldata->rtc);
- 	amba_release_regions(adev);
- 
-@@ -389,12 +390,13 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto out;
- 	}
- 
--	if (request_irq(adev->irq[0], pl031_interrupt,
--			vendor->irqflags, "rtc-pl031", ldata)) {
--		ret = -EIO;
--		goto out_no_irq;
-+	if (adev->irq[0]) {
-+		ret = request_irq(adev->irq[0], pl031_interrupt,
-+				  vendor->irqflags, "rtc-pl031", ldata);
-+		if (ret)
-+			goto out_no_irq;
-+		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	}
--	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	return 0;
- 
- out_no_irq:
--- 
-2.7.4
+Sincerely -- Mark Salyzyn
