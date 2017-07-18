@@ -1,104 +1,125 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:33175 "EHLO
-        mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751995AbdGRWGW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 18:06:22 -0400
-Received: by mail-pf0-f181.google.com with SMTP id s70so8474888pfs.0
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 15:06:21 -0700 (PDT)
-Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        Mark Salyzyn <salyzyn@google.com>,
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:33494 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751962AbdGRWQ2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 18:16:28 -0400
+Received: by mail-pg0-f43.google.com with SMTP id k14so19895711pgr.0
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 15:16:28 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        andy.shevchenko@gmail.com, Mark Salyzyn <salyzyn@android.com>,
         "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Mark Salyzyn <salyzyn@google.com>,
         Thierry Strudel <tstrudel@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
+        Josh Triplett <josh@joshtriplett.org>,
         Nicolas Pitre <nicolas.pitre@linaro.org>,
         Kees Cook <keescook@chromium.org>
-References: <20170718211930.123077-1-salyzyn@android.com>
- <alpine.DEB.2.20.1707182338470.2425@nanos>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
-Date: Tue, 18 Jul 2017 15:06:20 -0700
-MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1707182338470.2425@nanos>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: [PATCH v3 1/4] time: rtc-lib: Add rtc_show_time(const char *prefix_msg)
+Date: Tue, 18 Jul 2017 15:15:57 -0700
+Message-Id: <20170718221607.132539-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/18/2017 02:52 PM, Thomas Gleixner wrote:
-> On Tue, 18 Jul 2017, Mark Salyzyn wrote:
->
->> Go directly to the rtc for persistent wall clock time and print.
->> Useful if REALTIME is required to be logged in a low level power
->> management function or when clock activities are suspended.  An
->> aid to permit user space alignment of kernel activities.
-> That's a horrible idea, really. And there is no point at all.
->
->> +void rtc_show_time(const char *prefix_msg)
->> +{
->> +	struct timespec ts;
->> +	struct rtc_time tm;
->> +
->> +	getnstimeofday(&ts);
-> It calls getnstimeofday(), which is wrong to begin with as we switch
-> everything in kernel to the 64bit variants.
+Go directly to the rtc for persistent wall clock time and print.
+Useful if REALTIME is required to be logged in a low level power
+management function or when clock activities are suspended.  An
+aid to permit user space alignment of kernel activities.
 
-oops, good catch.
->
->> +	rtc_time64_to_tm(ts.tv_sec, &tm);
-> This is even more wrong as rtc_time64_to_tm is for 64 bit wide second
-> values....
-Again, oops, changed rtc_time_to_tm to rtc_time64_to_tm as requested, 
-did not change other pieces.
->
->> +	pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
->> +		prefix_msg ? prefix_msg : "Time:",
->> +		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
->> +		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
-> Why on earth do you need to print that information in RTC format? What's
-> wrong with just doing:
->
->        pr_info("My so important log message %lld\n", ktime_get_real_seconds());
+Feature activated by CONFIG_RTC_SHOW_TIME.
 
-Legacy (these prints have been in Android tree since 2013) for all our 
-battery and power analysis tools are keyed off RTC format. There is some 
-momentum, default should be epoch seconds/nanoseconds as that is a good 
-example; and another option can select RTC (the option can be an 
-internal patch to alter the format ... ick)
->
-> and then decoding the seconds in post processing? That's completely
-> sufficient as you intend that for logging. Correlation with user space
-> CLOCK_REALTIME is even simpler as this is the same as reading it from user
-> space.
-This is part of triage and post-analysis, there is no user space call 
-that can be made after the fact to correlate MONOTONIC time with 
-REALTIME. The historgram for the relationship between the two time 
-formats is built up in user space based on batched analysis of the 
-kernel logs. Although the values slip because of ntp and other sources, 
-suspend/resume/hibernate/restore and shutdown are definitive points of 
-interest for analysis. The analysis is performed on klogd data which has 
-a longer logging span than the internal buffer.
->
-> If your main intention is logging/debugging, then you can just use
-> tracepoints. The tracer allows correlation to user space tracing already.
-tracepoints are disabled on field devices. As is debugfs. This is not 
-logging/debugging, but field battery and power analysis. Some of the 
-data shows up in the Battery Settings screen on the devices. We also 
-_benefit_ from this information when correlating kernel logs with user 
-space logs during triage.
->
-> So unless you can come up with a reasonable explanation why all this voodoo
-> is required, this is going nowhere.
->
-> Thanks,
->
-> 	tglx
->
->
->
->
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+
+v2
+- move implementation to kernel timekeeping from rtc_lib files
+- use rtc_time64_to_tm() instead of rtc_time_to_tm()
+- use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
+v3
+- _correctly_ use rtc_time64_to_tm
+---
+ include/linux/rtc.h         |  5 +++++
+ kernel/time/Kconfig         | 11 +++++++++++
+ kernel/time/Makefile        |  1 +
+ kernel/time/rtc_show_time.c | 23 +++++++++++++++++++++++
+ 4 files changed, 40 insertions(+)
+ create mode 100644 kernel/time/rtc_show_time.c
+
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 0a0f0d14a5fb..779401c937d5 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
+ extern int rtc_valid_tm(struct rtc_time *tm);
+ extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+ extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
++#ifdef CONFIG_RTC_SHOW_TIME
++extern void rtc_show_time(const char *prefix_msg);
++#else
++static inline void rtc_show_time(const char *prefix_msg) { }
++#endif
+ ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+ struct rtc_time rtc_ktime_to_tm(ktime_t kt);
+ 
+diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
+index ac09bc29eb08..4da093ae3e37 100644
+--- a/kernel/time/Kconfig
++++ b/kernel/time/Kconfig
+@@ -145,3 +145,14 @@ config HIGH_RES_TIMERS
+ 
+ endmenu
+ endif
++
++config RTC_SHOW_TIME
++	bool "rtc_show_time instrumentation"
++	select RTC_LIB
++	help
++	  Activate rtc_show_time(const char *msg) wall clock time
++	  instrumentation.
++
++	  The instrumentation is used to help triage and synchronize
++	  kernel logs using CLOCK_MONOTONIC and user space activity
++	  logs utilizing CLOCK_REALTIME references.
+diff --git a/kernel/time/Makefile b/kernel/time/Makefile
+index 938dbf33ef49..66f17e641052 100644
+--- a/kernel/time/Makefile
++++ b/kernel/time/Makefile
+@@ -17,3 +17,4 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)		+= sched_clock.o
+ obj-$(CONFIG_TICK_ONESHOT)			+= tick-oneshot.o tick-sched.o
+ obj-$(CONFIG_DEBUG_FS)				+= timekeeping_debug.o
+ obj-$(CONFIG_TEST_UDELAY)			+= test_udelay.o
++obj-$(CONFIG_RTC_SHOW_TIME)			+= rtc_show_time.o
+diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
+new file mode 100644
+index 000000000000..bbf4f92abf4f
+--- /dev/null
++++ b/kernel/time/rtc_show_time.c
+@@ -0,0 +1,23 @@
++/*
++ * rtc time printing utility functions
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/rtc.h>
++
++void rtc_show_time(const char *prefix_msg)
++{
++	struct timespec64 ts;
++	struct rtc_time tm;
++
++	getnstimeofday64(&ts);
++	rtc_time64_to_tm(ts.tv_sec, &tm);
++	pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
++		prefix_msg ? prefix_msg : "Time:",
++		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
++}
++EXPORT_SYMBOL(rtc_show_time);
+-- 
+2.13.2.932.g7449e964c-goog
