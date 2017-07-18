@@ -1,106 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f170.google.com ([209.85.192.170]:36100 "EHLO
-        mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751790AbdGRRZy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:25:54 -0400
-Received: by mail-pf0-f170.google.com with SMTP id o88so8140957pfk.3
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 10:25:54 -0700 (PDT)
-From: Mark Salyzyn <salyzyn@android.com>
-To: linux-kernel@vger.kernel.org
-Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
-        linux-pm@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        Mark Salyzyn <salyzyn@android.com>
-Subject: [PATCH 2/4] rtc-lib: Print wall time at die and reboot
-Date: Tue, 18 Jul 2017 10:25:43 -0700
-Message-Id: <20170718172545.114568-1-salyzyn@android.com>
+Received: from mail-wr0-f175.google.com ([209.85.128.175]:34515 "EHLO
+        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751430AbdGRJWt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 05:22:49 -0400
+Received: by mail-wr0-f175.google.com with SMTP id 12so20113637wrb.1
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 02:22:48 -0700 (PDT)
+Date: Tue, 18 Jul 2017 10:22:45 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Moritz Fischer <mdf@kernel.org>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, wim@iguana.be,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Moritz Fischer <moritz.fischer@ettus.com>
+Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
+ Device
+Message-ID: <20170718092245.tc5oosbbb6lzvqpy@dell>
+References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+ <1499975665-14581-2-git-send-email-mdf@kernel.org>
+ <20170717075117.btnhbmgpofwn7zdk@dell>
+ <20170717181409.GB8750@tyrael.ni.corp.natinst.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170717181409.GB8750@tyrael.ni.corp.natinst.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Permits power state and battery life diagnosis.
+On Mon, 17 Jul 2017, Moritz Fischer wrote:
 
-Feature activated by CONFIG_RTC_SHOW_TIME.
+> Hi Lee,
+> 
+> On Mon, Jul 17, 2017 at 08:51:17AM +0100, Lee Jones wrote:
+> > On Thu, 13 Jul 2017, Moritz Fischer wrote:
+> > 
+> > > From: Moritz Fischer <moritz.fischer@ettus.com>
+> > > 
+> > > Add support for the Maxim/Dallas DS1374 RTC/WDT with trickle charger.
+> > > The device can either be configured as simple RTC, as simple RTC with
+> > > Alarm (IRQ) as well as simple RTC with watchdog timer.
+> > > 
+> > > Break up the old monolithic driver in drivers/rtc/rtc-ds1374.c into:
+> > > - rtc part in drivers/rtc/rtc-ds1374.c
+> > > - watchdog part under drivers/watchdog/ds1374-wdt.c
+> > > - mfd part drivers/mfd/ds1374.c
+> > > 
+> > > The MFD part takes care of trickle charging and mode selection,
+> > > since the usage modes of a) RTC + Alarm or b) RTC + WDT
+> > > are mutually exclusive.
+> > > 
+> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> > > ---
+> > >  drivers/mfd/Kconfig              |  10 +
+> > >  drivers/mfd/Makefile             |   1 +
+> > >  drivers/mfd/ds1374.c             | 260 ++++++++++++++++
+> > >  drivers/rtc/rtc-ds1374.c         | 639 ++++++++++-----------------------------
+> > 
+> > It looks like this should now depend on MFD_DS1374, right?
+> > 
+> > >  drivers/watchdog/Kconfig         |  10 +
+> > >  drivers/watchdog/Makefile        |   1 +
+> > >  drivers/watchdog/ds1374-wdt.c    | 208 +++++++++++++
+> > 
+> > The RTC and Watchdog drivers need to be split out of this patch and
+> > placed into their own.  Then we can take them through their respective
+> > subsystem trees and do not have to rely on immutable branches for
+> > unification.
+> 
+> Ok, I haven't found a good way to keep this bisectable in that case. I'm
+> open to suggestions. If the consensus ends up being to split it up, I'm
+> more than happy to separate it out into multiple patches.
 
-Signed-off-by: Mark Salyzyn <salyzyn@android.com>
----
- drivers/rtc/rtc-lib.c | 58 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+If it's genuinely not bisectable, then leave it as is.
 
-diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-index 676d6a83e843..c28fdfbb99d4 100644
---- a/drivers/rtc/rtc-lib.c
-+++ b/drivers/rtc/rtc-lib.c
-@@ -12,6 +12,8 @@
- */
- 
- #include <linux/export.h>
-+#include <linux/kdebug.h>
-+#include <linux/reboot.h>
- #include <linux/rtc.h>
- 
- static const unsigned char rtc_days_in_month[] = {
-@@ -108,6 +110,62 @@ void rtc_show_time(const char *prefix_msg)
- 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
- }
- EXPORT_SYMBOL(rtc_show_time);
-+
-+static int rtc_show_time_die_notify(struct notifier_block *self,
-+		unsigned long event, void *data)
-+{
-+	if (event != DIE_OOPS)
-+		return NOTIFY_DONE;
-+	rtc_show_time("Oops");
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block rtc_show_time_die_nb = {
-+	.notifier_call = rtc_show_time_die_notify,
-+	.priority = 0,
-+};
-+
-+static int rtc_show_time_reboot_notify(struct notifier_block *self,
-+		unsigned long event, void *data)
-+{
-+	const char *txt;
-+
-+	switch (event) {
-+	case SYS_RESTART:
-+		txt = "Restart";
-+		break;
-+	case SYS_HALT:
-+		txt = "Halt";
-+		break;
-+	case SYS_POWER_OFF:
-+		txt = "Power-Off";
-+		break;
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+	rtc_show_time(txt);
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block rtc_show_time_reboot_nb = {
-+	.notifier_call = rtc_show_time_reboot_notify,
-+	.priority = 0,
-+};
-+
-+static __init int init_rtc_show_time(void)
-+{
-+	int ret;
-+
-+	ret = register_die_notifier(&rtc_show_time_die_nb);
-+	if (ret)
-+		pr_warn("Failed to register rtc_show_time die notifier\n");
-+	ret = register_reboot_notifier(&rtc_show_time_reboot_nb);
-+	if (ret)
-+		pr_warn("Failed to register rtc_show_time reboot notifier\n");
-+
-+	return ret;
-+}
-+device_initcall(init_rtc_show_time);
- #endif
- 
- /*
 -- 
-2.13.2.932.g7449e964c-goog
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
