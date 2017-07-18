@@ -1,52 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f53.google.com ([74.125.82.53]:37061 "EHLO
-        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751527AbdGWUPf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jul 2017 16:15:35 -0400
-Received: by mail-wm0-f53.google.com with SMTP id c184so17150649wmd.0
-        for <linux-rtc@vger.kernel.org>; Sun, 23 Jul 2017 13:15:34 -0700 (PDT)
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+Received: from mga04.intel.com ([192.55.52.120]:32637 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751497AbdGRR45 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 18 Jul 2017 13:56:57 -0400
+Message-ID: <1500400523.29303.92.camel@linux.intel.com>
+Subject: Re: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Joe Perches <joe@perches.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Duplicated drivers for Epson RX8025 RTC support
-Message-ID: <a82c9f50-31d2-d750-39fc-05501f3724ad@gmail.com>
-Date: Sun, 23 Jul 2017 22:15:24 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Cc: Mark Salyzyn <salyzyn@android.com>
+Date: Tue, 18 Jul 2017 20:55:23 +0300
+In-Reply-To: <1500400205.25934.27.camel@perches.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+         <1500400205.25934.27.camel@perches.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-When working on refactoring parts of the ds1307 I stumbled across the fact
-that there are two rtc drivers claiming to support the Epson RX8025 chip.
+On Tue, 2017-07-18 at 10:50 -0700, Joe Perches wrote:
+> On Thu, 2017-06-08 at 16:47 +0300, Andy Shevchenko wrote:
+> > Recently I have noticed too many users of struct rtc_time that
+> > printing
+> > its content field by field.
+> > 
+> > In this series I introduce %pt[dt][rv] specifier to make life a bit
+> > easier.
+> 
+> Hey Andy.
+> 
+> I just saw a patch with a printk for rtc time from Mark Salyzyn.
+> https://lkml.org/lkml/2017/7/18/885
 
-1. ds1307 claims to support also this chip. Support was added in 2009,
-   however I have doubts that it actually works.
-   RX8025 needs a special addressing mode (register address has to be
-   left-shifted by 4 bits) which is implemented for both control
-   registers but not for the standard registers.
+Same!
 
-   Also support for this chip misses the fix from patch 2e10e74df72
-   ("rtc: rx8025: fix transfer mode")
+> Any idea if you want to push this extension?
 
-   I'm curious whether support for this chip was ever tested, commit message
-   of a216685818a5 "rtc: add EPSON RX8025 support to DS1307 RTC driver"
-   does not mention that this piece of code was tested with any device
-   with this chip.
+Yes, just really lack of time for everything.
 
-2. There's a separate driver for this chip (rtc-rx8025), also added in 2009.
-   This drivers is actively maintained.
+I like the idea to make it conditional (config BLABLABLA). It will
+address some comments about footprint for no users.
 
-The separate driver mentions that it supports SA/NB variants of the chip.
-There's no info regarding supported chip variants in the ds1307-integrated
-driver. So there is a small chance that both drivers support different
-chip variants (in this case however the ds1307-integrated driver should
-clearly mention this, also in the Kconfig help text).
+> I like the concept and still think it could be extended a bit more.
+> 
+> from: https://lkml.org/lkml/2017/6/8/1134
+> 
+> My preference would be for %pt[type]<output style>
+> where <type> is mandatory and could be:
+> 
+>         r for struct rtc_time
+>         6 for time64_t
+>         k for ktime_t
+>         T for struct timespec64
+>         etc
 
-For me it's more likely that both drivers try support the same chip.
-Having said that I would propose to remove (rudimentary) RX8025 support
-in ds1307. As a first step we could leave the code in but use a WARN_ON
-to notify potential users that this code is deprecated and they should
-use the separate driver instead.
+I dunno about this.
 
-Rgds, Heiner
+However, I like this more than do conversion in each case where input
+reference has different type.
+
+> and <output style> has an unspecified default of
+> YYYY-MM-DD:hh:mm:ss
+
+I'm against this, sorry. Too many variations for almost no use (users).
+
+> Perhaps use the "date" formats without the leading
+> % uses for <output style> for additional styles.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
