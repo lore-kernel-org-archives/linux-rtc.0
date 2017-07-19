@@ -1,32 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from cloudserver094114.home.net.pl ([79.96.170.134]:58620 "EHLO
-        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751997AbdGRWdU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 18:33:20 -0400
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, pavel@ucw.cz,
+Received: from mail-pg0-f41.google.com ([74.125.83.41]:38506 "EHLO
+        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752994AbdGSTuY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 15:50:24 -0400
+Received: by mail-pg0-f41.google.com with SMTP id s4so4438660pgr.5
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 12:50:24 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
         linux-pm@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 3/4] PM: Print wall time at suspend entry and exit
-Date: Wed, 19 Jul 2017 00:25:29 +0200
-Message-ID: <214360396.4sfZrYBT7N@aspire.rjw.lan>
-In-Reply-To: <20170718172600.114761-1-salyzyn@android.com>
-References: <20170718172600.114761-1-salyzyn@android.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        prarit@redhat.com, andy.shevchenko@gmail.com,
+        Mark Salyzyn <salyzyn@android.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH 4/4] time: rtc-lib: Add CONFIG_RTC_SHOW_TIME_RTC
+Date: Wed, 19 Jul 2017 12:50:03 -0700
+Message-Id: <20170719195012.30187-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tuesday, July 18, 2017 10:25:58 AM Mark Salyzyn wrote:
-> Permits power state and battery life diagnosis.
-> 
-> Feature activated by CONFIG_RTC_SHOW_TIME.
-> 
-> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Add an option to report REALTIME in RTC time format for
+rtc_show_time() function.
 
-Please fold the [4/4] into this one and I have a patch series that you'd
-want to rebase this on I guess.  I'll send it shortly.
+Feature activated by CONFIG_RTC_SHOW_TIME_RTC.
 
-Thanks,
-Rafael
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+---
+ kernel/time/Kconfig         | 17 +++++++++++++++++
+ kernel/time/rtc_show_time.c | 12 ++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
+index 2dc891056635..3c2920b8825c 100644
+--- a/kernel/time/Kconfig
++++ b/kernel/time/Kconfig
+@@ -221,4 +221,21 @@ choice
+ 		  continues, and the timestamps help re-orient post-analysis.
+ 
+ 		  Print boottime <s>.<ns> timestamp in rtc_show_time
++	config RTC_SHOW_TIME_RTC
++		bool "realtime in wall clock format"
++		select RTC_SHOW_TIME
++		select RTC_LIB
++		help
++		  Activate optional rtc_show_time(const char *msg) wall clock
++		  time instrumentation.
++
++		  The primary use of the instrumentation is to aid field
++		  analysis of Battery and Power usage.  The instrumentation
++		  may also help triage and synchronize kernel logs and user
++		  space activity logs at key displacements.  For instance
++		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++		  continues, and the timestamps help re-orient post-analysis.
++
++		  Print realtime YYYY-MM-DD hh:mm:ss.<ns> timestamp in
++		  rtc_show_time.
+ endchoice
+diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
+index 6c7b8ae6be0c..d861a30aef77 100644
+--- a/kernel/time/rtc_show_time.c
++++ b/kernel/time/rtc_show_time.c
+@@ -24,9 +24,21 @@ void rtc_show_time(const char *prefix_msg)
+ 	struct timespec64 ts;
+ 
+ 	getnstimeofday64(&ts);
++#if defined(CONFIG_RTC_SHOW_TIME_RTC)
++	{
++		struct rtc_time tm;
++
++		rtc_time64_to_tm(ts.tv_sec, &tm);
++		pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
++			prefix_msg ? prefix_msg : "Time:",
++			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++			tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
++	}
++#else
+ 	pr_info("%s %lu.%09lu UTC\n",
+ 		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
+ #endif
++#endif
+ }
+ EXPORT_SYMBOL(rtc_show_time);
+ 
+-- 
+2.14.0.rc0.284.gd933b75aa4-goog
