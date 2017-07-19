@@ -1,88 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.rt-rk.com ([89.216.37.149]:59816 "EHLO mail.rt-rk.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754141AbdGUQz7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 21 Jul 2017 12:55:59 -0400
-From: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-To: linux-mips@linux-mips.org
-Cc: Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
-        Miodrag Dinic <miodrag.dinic@imgtec.com>,
-        Goran Ferenc <goran.ferenc@imgtec.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Bo Hu <bohu@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org,
-        Douglas Leung <douglas.leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <james.hogan@imgtec.com>,
-        Jin Qian <jinqian@google.com>, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Paul Burton <paul.burton@imgtec.com>,
-        Petar Jovanovic <petar.jovanovic@imgtec.com>,
-        Raghu Gandham <raghu.gandham@imgtec.com>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: [PATCH v3 1/8] Documentation: Add device tree binding for Goldfish RTC driver
-Date: Fri, 21 Jul 2017 18:53:30 +0200
-Message-Id: <1500656111-9520-2-git-send-email-aleksandar.markovic@rt-rk.com>
-In-Reply-To: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
-References: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
+Received: from mail-pg0-f45.google.com ([74.125.83.45]:34337 "EHLO
+        mail-pg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934175AbdGSTqG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 15:46:06 -0400
+Received: by mail-pg0-f45.google.com with SMTP id 123so4479081pgj.1
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 12:46:05 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        Mark Salyzyn <salyzyn@android.com>
+Subject: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry and exit
+Date: Wed, 19 Jul 2017 12:45:58 -0700
+Message-Id: <20170719194600.29210-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+Permits power state and battery life diagnosis.
 
-Add documentation for DT binding of Goldfish RTC driver. The compatible
-string used by OS for binding the driver is "google,goldfish-rtc".
+Since one is not guaranteed to have a persistent hardware clock to
+report Suspended for in milliseconds, we report at a higher level
+at just the entry and exit points for suspend and hibernate.
 
-Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+Feature activated by CONFIG_RTC_SHOW_TIME_*
+
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+
+v2:
+- merge suspend and hibernate into a single patch
 ---
- .../devicetree/bindings/rtc/google,goldfish-rtc.txt     | 17 +++++++++++++++++
- MAINTAINERS                                             |  5 +++++
- 2 files changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
+ kernel/power/hibernate.c | 4 +++-
+ kernel/power/suspend.c   | 3 +++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt b/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
-new file mode 100644
-index 0000000..634312d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
-@@ -0,0 +1,17 @@
-+Android Goldfish RTC
-+
-+Android Goldfish RTC device used by Android emulator.
-+
-+Required properties:
-+
-+- compatible : should contain "google,goldfish-rtc"
-+- reg        : <registers mapping>
-+- interrupts : <interrupt mapping>
-+
-+Example:
-+
-+	goldfish_timer@9020000 {
-+		compatible = "google,goldfish-rtc";
-+		reg = <0x9020000 0x1000>;
-+		interrupts = <0x3>;
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 02994f4..847da3f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -841,6 +841,11 @@ S:	Supported
- F:	drivers/android/
- F:	drivers/staging/android/
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index e1914c7b85b1..0b5460f9189b 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -32,11 +32,11 @@
+ #include <linux/ctype.h>
+ #include <linux/genhd.h>
+ #include <linux/ktime.h>
++#include <linux/rtc.h>
+ #include <trace/events/power.h>
  
-+ANDROID GOLDFISH RTC DRIVER
-+M:	Miodrag Dinic <miodrag.dinic@imgtec.com>
-+S:	Supported
-+F:	Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
-+
- ANDROID ION DRIVER
- M:	Laura Abbott <labbott@redhat.com>
- M:	Sumit Semwal <sumit.semwal@linaro.org>
+ #include "power.h"
+ 
+-
+ static int nocompress;
+ static int noresume;
+ static int nohibernate;
+@@ -342,6 +342,7 @@ int hibernation_snapshot(int platform_mode)
+ 	pm_message_t msg;
+ 	int error;
+ 
++	rtc_show_time("PM: hibernation entry");
+ 	pm_suspend_clear_flags();
+ 	error = platform_begin(platform_mode);
+ 	if (error)
+@@ -409,6 +410,7 @@ int hibernation_snapshot(int platform_mode)
+ 	thaw_kernel_threads();
+  Cleanup:
+ 	swsusp_free();
++	rtc_show_time("PM: hibernation exit");
+ 	goto Close;
+ }
+ 
+diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
+index 3ecf275d7e44..f44d2152ab3f 100644
+--- a/kernel/power/suspend.c
++++ b/kernel/power/suspend.c
+@@ -26,6 +26,7 @@
+ #include <linux/suspend.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/ftrace.h>
++#include <linux/rtc.h>
+ #include <trace/events/power.h>
+ #include <linux/compiler.h>
+ #include <linux/moduleparam.h>
+@@ -579,6 +580,7 @@ int pm_suspend(suspend_state_t state)
+ 	if (state <= PM_SUSPEND_ON || state >= PM_SUSPEND_MAX)
+ 		return -EINVAL;
+ 
++	rtc_show_time("PM: suspend entry");
+ 	error = enter_state(state);
+ 	if (error) {
+ 		suspend_stats.fail++;
+@@ -586,6 +588,7 @@ int pm_suspend(suspend_state_t state)
+ 	} else {
+ 		suspend_stats.success++;
+ 	}
++	rtc_show_time("PM: suspend exit");
+ 	return error;
+ }
+ EXPORT_SYMBOL(pm_suspend);
 -- 
-2.7.4
+2.14.0.rc0.284.gd933b75aa4-goog
