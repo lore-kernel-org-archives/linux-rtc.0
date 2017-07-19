@@ -1,81 +1,161 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59337 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753542AbdGJH7f (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Jul 2017 03:59:35 -0400
-Received: from localhost (unknown [88.191.26.124])
-        by mail.free-electrons.com (Postfix) with ESMTPSA id AFDC1208BF
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Jul 2017 09:58:50 +0200 (CEST)
-From: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-To: alexandre.belloni@free-electrons.com
-Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com,
-        Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
-Subject: [PATCH v2 2/2] RTC: s35390a: implement ioctls
-Date: Wed,  5 Jul 2017 10:02:30 +0200
-Message-Id:
- <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
-In-Reply-To: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-In-Reply-To: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
-References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
+Received: from mail-qt0-f171.google.com ([209.85.216.171]:34204 "EHLO
+        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751560AbdGSAAH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 20:00:07 -0400
+Received: by mail-qt0-f171.google.com with SMTP id 32so28978149qtv.1
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 17:00:06 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170718221607.132539-1-salyzyn@android.com>
+References: <20170718221607.132539-1-salyzyn@android.com>
+From: John Stultz <john.stultz@linaro.org>
+Date: Tue, 18 Jul 2017 17:00:04 -0700
+Message-ID: <CALAqxLWK+_vnG_bpp4dPguNDTt1=JG6GANJm6b=V8gF1UGi1VQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/4] time: rtc-lib: Add rtc_show_time(const char *prefix_msg)
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Mark Salyzyn <salyzyn@google.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
-Message-ID: <20170705080230.WuX0ErnHE9_-bOO_xYFCOteQctXg7rfKCL6ZQVdUWoY@z>
 
-Implements RTC_VL_READ and RTC_VL_CLR ioctls.
+On Tue, Jul 18, 2017 at 3:15 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+> Go directly to the rtc for persistent wall clock time and print.
 
-Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
----
- drivers/rtc/rtc-s35390a.c | 32 +++++++++++++++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
+So, first,  the above doesn't seem accurate to me. You're using
+getnstimeofday64() which doesn't touch the RTC.
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 5ebb132..9261ba6 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -397,12 +397,42 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return s35390a_set_datetime(to_i2c_client(dev), tm);
- }
- 
-+static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
-+			     unsigned long arg)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct s35390a *s35390a = i2c_get_clientdata(client);
-+	char sts;
-+	int err;
-+
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		/* s35390a_reset set lowvoltage flag and init RTC if needed */
-+		err = s35390a_read_status(s35390a, &sts);
-+		if (err < 0)
-+			return err;
-+		if (copy_to_user((void __user *)arg, &err, sizeof(int)))
-+			return -EFAULT;
-+		break;
-+	case RTC_VL_CLR:
-+		/* update flag and clear register */
-+		err = s35390a_init(s35390a);
-+		if (err < 0)
-+			return err;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops s35390a_rtc_ops = {
- 	.read_time	= s35390a_rtc_read_time,
- 	.set_time	= s35390a_rtc_set_time,
- 	.set_alarm	= s35390a_rtc_set_alarm,
- 	.read_alarm	= s35390a_rtc_read_alarm,
--
-+	.ioctl          = s35390a_rtc_ioctl,
- };
- 
- static struct i2c_driver s35390a_driver;
--- 
-1.8.3.1
+> Useful if REALTIME is required to be logged in a low level power
+> management function or when clock activities are suspended.  An
+> aid to permit user space alignment of kernel activities.
+
+This explanation doesn't make much sense either. I've tried looking
+over the patch series to better understand but its not super clear
+right off.
+
+A good practice is to start by explaining what you want to do ("allow
+for battery and suspend time analysis"), and why the current upstream
+kernel doesn't provide what you need ("timekeeping can be suspended,
+so we want to reference the persistent clock that is always running
+and provide a way to align those timestamps with
+CLOCK_MONOTONIC/CLOCK_REALTIME timestamps that userspace uses"), and
+only then explain how your solution addresses this issue.
+
+
+> Feature activated by CONFIG_RTC_SHOW_TIME.
+>
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+>
+> v2
+> - move implementation to kernel timekeeping from rtc_lib files
+> - use rtc_time64_to_tm() instead of rtc_time_to_tm()
+> - use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
+> v3
+> - _correctly_ use rtc_time64_to_tm
+> ---
+>  include/linux/rtc.h         |  5 +++++
+>  kernel/time/Kconfig         | 11 +++++++++++
+>  kernel/time/Makefile        |  1 +
+>  kernel/time/rtc_show_time.c | 23 +++++++++++++++++++++++
+>  4 files changed, 40 insertions(+)
+>  create mode 100644 kernel/time/rtc_show_time.c
+>
+> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> index 0a0f0d14a5fb..779401c937d5 100644
+> --- a/include/linux/rtc.h
+> +++ b/include/linux/rtc.h
+> @@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
+>  extern int rtc_valid_tm(struct rtc_time *tm);
+>  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+>  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
+> +#ifdef CONFIG_RTC_SHOW_TIME
+> +extern void rtc_show_time(const char *prefix_msg);
+> +#else
+> +static inline void rtc_show_time(const char *prefix_msg) { }
+> +#endif
+>  ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+>  struct rtc_time rtc_ktime_to_tm(ktime_t kt);
+>
+> diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
+> index ac09bc29eb08..4da093ae3e37 100644
+> --- a/kernel/time/Kconfig
+> +++ b/kernel/time/Kconfig
+> @@ -145,3 +145,14 @@ config HIGH_RES_TIMERS
+>
+>  endmenu
+>  endif
+> +
+> +config RTC_SHOW_TIME
+> +       bool "rtc_show_time instrumentation"
+> +       select RTC_LIB
+> +       help
+> +         Activate rtc_show_time(const char *msg) wall clock time
+> +         instrumentation.
+> +
+> +         The instrumentation is used to help triage and synchronize
+> +         kernel logs using CLOCK_MONOTONIC and user space activity
+> +         logs utilizing CLOCK_REALTIME references.
+
+RTC_SHOW_TIME seems like a poor name for this, as you're not really
+doing much with the RTC here (other then printing the current
+CLOCK_REALTIME value to be printed out in in a format that's commonly
+used w/ RTC hardware).  As for the reference to CLOCK_MONOTONIC, I
+assume you are correlating that via printk timestamp (which may not
+always be enabled)?
+
+
+> diff --git a/kernel/time/Makefile b/kernel/time/Makefile
+> index 938dbf33ef49..66f17e641052 100644
+> --- a/kernel/time/Makefile
+> +++ b/kernel/time/Makefile
+> @@ -17,3 +17,4 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)             += sched_clock.o
+>  obj-$(CONFIG_TICK_ONESHOT)                     += tick-oneshot.o tick-sched.o
+>  obj-$(CONFIG_DEBUG_FS)                         += timekeeping_debug.o
+>  obj-$(CONFIG_TEST_UDELAY)                      += test_udelay.o
+> +obj-$(CONFIG_RTC_SHOW_TIME)                    += rtc_show_time.o
+> diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
+> new file mode 100644
+> index 000000000000..bbf4f92abf4f
+> --- /dev/null
+> +++ b/kernel/time/rtc_show_time.c
+> @@ -0,0 +1,23 @@
+> +/*
+> + * rtc time printing utility functions
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/rtc.h>
+> +
+> +void rtc_show_time(const char *prefix_msg)
+> +{
+> +       struct timespec64 ts;
+> +       struct rtc_time tm;
+> +
+> +       getnstimeofday64(&ts);
+> +       rtc_time64_to_tm(ts.tv_sec, &tm);
+> +       pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+> +               prefix_msg ? prefix_msg : "Time:",
+> +               tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+> +               tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+> +}
+> +EXPORT_SYMBOL(rtc_show_time);
+
+Overall, this does feel very single-use-case specific.
+
+thanks
+-john
