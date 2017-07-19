@@ -1,44 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtprelay0053.hostedemail.com ([216.40.44.53]:36249 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751402AbdGRRtI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:49:08 -0400
-Message-ID: <1500399695.25934.25.camel@perches.com>
-Subject: Re: [PATCH 1/4] rtc-lib: Add rtc_show_time(const char *prefix_msg)
-From: Joe Perches <joe@perches.com>
-To: Mark Salyzyn <salyzyn@android.com>, linux-kernel@vger.kernel.org
-Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
-        linux-pm@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
-Date: Tue, 18 Jul 2017 10:41:35 -0700
-In-Reply-To: <20170718172525.114514-1-salyzyn@android.com>
-References: <20170718172525.114514-1-salyzyn@android.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
+Received: from mail-pg0-f44.google.com ([74.125.83.44]:36914 "EHLO
+        mail-pg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754498AbdGSVab (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:30:31 -0400
+Received: by mail-pg0-f44.google.com with SMTP id y129so5398244pgy.4
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 14:30:31 -0700 (PDT)
+Subject: Re: [PATCH v4 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>
+References: <20170719194511.28899-1-salyzyn@android.com>
+ <20170719212241.kla3d3j6vgaxy4ba@piout.net>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <2b5d9884-fe61-a7a4-567c-01ae61d2fff4@android.com>
+Date: Wed, 19 Jul 2017 14:30:29 -0700
+MIME-Version: 1.0
+In-Reply-To: <20170719212241.kla3d3j6vgaxy4ba@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2017-07-18 at 10:25 -0700, Mark Salyzyn wrote:
-> Go directly to the rtc for persistent wall clock time and print.
-> Useful if REALTIME is required to be logged in a low level power
-> management function or when clock activities are suspended.  An
-> aid to permit user space alignment of kernel activities.
-[]
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-[]
-> @@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
->  extern int rtc_valid_tm(struct rtc_time *tm);
->  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
->  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
-> +#ifdef CONFIG_RTC_SHOW_TIME
-> +extern void rtc_show_time(const char *prefix_msg);
-> +#else
-> +#define rtc_show_time(prefix_msg)
+On 07/19/2017 02:22 PM, Alexandre Belloni wrote:
+> Hi,
+>
+> On 19/07/2017 at 12:44:41 -0700, Mark Salyzyn wrote:
+>> Primary purpose of rtc_show_time is to provide a marker used for
+>> post-mortem Battery and Power analysis.  These markers occur at
+>> major discontinuities of time, and thus optionally add a timestamp
+>> to aid the analysis.  This function is to be called at a higher
+>> level, and were added because of a lack of current kernel logging
+>> data.
+>>
+> I really think you should drop rtc from the config, function and file
+> names because this doesn't have any relationship with any RTC stuff.
 
-It's generally better to use a static inline to avoid
-misuses in newly added code in the !CONFIG_RTC_SHOW_TIME
-compile path when CONFIG_RTC_SHOW_TIME may not be compiled.
+Agreed and Thanks. In another response, this function has more in common 
+with a pr_info_show_time() than I previously have accepted. Most of the 
+rtc part goes away if I follow that thread/idea Leaving the following:
+> I can just see that you are (ab)using rtc_time64_to_tm because there is
+> no struct tm or gmtime() in the kernel.
+Yes, since we put that part into a separate patch, that can be 
+punted/accepted on its own, using rtc-lib is a simple concept. The 
+commit message for that patch should have had your line of sentiment in 
+it! (even (ab)using message :-) )
 
-static inline void rtc_show_time(const char *prefix_msg)
-{
-}
+-- Mark
