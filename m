@@ -1,116 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49151 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750778AbdGFJmO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:14 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 01/11] rtc: class separate device allocation from registration
-Date: Thu,  6 Jul 2017 11:41:58 +0200
-Message-Id: <20170706094208.16240-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
-References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:35369 "EHLO
+        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932162AbdGSOwF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 10:52:05 -0400
+Received: by mail-pf0-f173.google.com with SMTP id e199so1089362pfh.2
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 07:52:05 -0700 (PDT)
+Subject: Re: [PATCH v3 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+To: John Stultz <john.stultz@linaro.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Mark Salyzyn <salyzyn@google.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>
+References: <20170718221607.132539-1-salyzyn@android.com>
+ <CALAqxLWK+_vnG_bpp4dPguNDTt1=JG6GANJm6b=V8gF1UGi1VQ@mail.gmail.com>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <99742846-b47b-4ee5-c971-e26e8a5f935b@android.com>
+Date: Wed, 19 Jul 2017 07:52:03 -0700
+MIME-Version: 1.0
+In-Reply-To: <CALAqxLWK+_vnG_bpp4dPguNDTt1=JG6GANJm6b=V8gF1UGi1VQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Create rtc_allocate_device to allocate memory for a struct rtc_device and
-initialize it.
+On 07/18/2017 05:00 PM, John Stultz wrote:
+> On Tue, Jul 18, 2017 at 3:15 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+>> Go directly to the rtc for persistent wall clock time and print.
+> So, first,  the above doesn't seem accurate to me. You're using
+> getnstimeofday64() which doesn't touch the RTC.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/class.c | 63 +++++++++++++++++++++++++++++++----------------------
- 1 file changed, 37 insertions(+), 26 deletions(-)
+I admit I got that backwards. I copied and pasted a line, that was 
+supposed to read "We can not go" ... The point was that persistent or 
+RTC clock is _not_ always available,
+so we have to print suspend times when the timeofday clock is available 
+at the points before suspend, and after suspend is complete.
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 543c64cd3df0..fb39c1334d7b 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -150,6 +150,41 @@ static SIMPLE_DEV_PM_OPS(rtc_class_dev_pm_ops, rtc_suspend, rtc_resume);
- #define RTC_CLASS_DEV_PM_OPS	NULL
- #endif
- 
-+static struct rtc_device *rtc_allocate_device(void)
-+{
-+	struct rtc_device *rtc;
-+
-+	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
-+	if (!rtc)
-+		return NULL;
-+
-+	device_initialize(&rtc->dev);
-+
-+	rtc->irq_freq = 1;
-+	rtc->max_user_freq = 64;
-+	rtc->dev.class = rtc_class;
-+	rtc->dev.groups = rtc_get_dev_attribute_groups();
-+	rtc->dev.release = rtc_device_release;
-+
-+	mutex_init(&rtc->ops_lock);
-+	spin_lock_init(&rtc->irq_lock);
-+	spin_lock_init(&rtc->irq_task_lock);
-+	init_waitqueue_head(&rtc->irq_queue);
-+
-+	/* Init timerqueue */
-+	timerqueue_init_head(&rtc->timerqueue);
-+	INIT_WORK(&rtc->irqwork, rtc_timer_do_work);
-+	/* Init aie timer */
-+	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, (void *)rtc);
-+	/* Init uie timer */
-+	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, (void *)rtc);
-+	/* Init pie timer */
-+	hrtimer_init(&rtc->pie_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	rtc->pie_timer.function = rtc_pie_update_irq;
-+	rtc->pie_enabled = 0;
-+
-+	return rtc;
-+}
- 
- /**
-  * rtc_device_register - register w/ RTC class
-@@ -189,40 +224,16 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 		}
- 	}
- 
--	rtc = kzalloc(sizeof(struct rtc_device), GFP_KERNEL);
--	if (rtc == NULL) {
-+	rtc = rtc_allocate_device();
-+	if (!rtc) {
- 		err = -ENOMEM;
- 		goto exit_ida;
- 	}
- 
--	device_initialize(&rtc->dev);
--
- 	rtc->id = id;
- 	rtc->ops = ops;
- 	rtc->owner = owner;
--	rtc->irq_freq = 1;
--	rtc->max_user_freq = 64;
- 	rtc->dev.parent = dev;
--	rtc->dev.class = rtc_class;
--	rtc->dev.groups = rtc_get_dev_attribute_groups();
--	rtc->dev.release = rtc_device_release;
--
--	mutex_init(&rtc->ops_lock);
--	spin_lock_init(&rtc->irq_lock);
--	spin_lock_init(&rtc->irq_task_lock);
--	init_waitqueue_head(&rtc->irq_queue);
--
--	/* Init timerqueue */
--	timerqueue_init_head(&rtc->timerqueue);
--	INIT_WORK(&rtc->irqwork, rtc_timer_do_work);
--	/* Init aie timer */
--	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, (void *)rtc);
--	/* Init uie timer */
--	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, (void *)rtc);
--	/* Init pie timer */
--	hrtimer_init(&rtc->pie_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
--	rtc->pie_timer.function = rtc_pie_update_irq;
--	rtc->pie_enabled = 0;
- 
- 	dev_set_name(&rtc->dev, "rtc%d", id);
- 
--- 
-2.11.0
+The "Suspended for" message (in ms, we want us at least) albeit helpful, 
+is performed at the bottom, and can only be reported if there is a 
+persistent clock available. On most Android devices, it is not available.
+
+I will post update, a better description in the primary patch, dropping 
+the intro, printing in <epoch>.<ns> format. I asked in another thread if 
+it would be OK to preserve the Legacy of RTC time format printing with 
+another CONFIG parameter since we have 5 years of tooling that depends 
+on that format.
+
+-- Mark
