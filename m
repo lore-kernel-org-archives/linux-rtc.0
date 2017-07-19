@@ -1,90 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56607 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751058AbdGNT1L (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 14 Jul 2017 15:27:11 -0400
-Date: Fri, 14 Jul 2017 12:27:08 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        wim@iguana.be, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Moritz Fischer <moritz.fischer@ettus.com>
-Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
- Device
-Message-ID: <20170714192708.GB16125@roeck-us.net>
-References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
- <1499975665-14581-2-git-send-email-mdf@kernel.org>
- <c37eaed9-10aa-190e-fa0e-bdce9277664b@roeck-us.net>
- <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:35013 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753911AbdGSRsa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 13:48:30 -0400
+Subject: Re: [PATCH] rtc: sun6i: ensure clk_data is kfree'd on error
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <20170719165702.22220-1-colin.king@canonical.com>
+ <20170719173248.l4w5xc33enuor5if@piout.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Colin Ian King <colin.king@canonical.com>
+Message-ID: <7412e733-e552-e280-6ea4-aa53b14a333a@canonical.com>
+Date: Wed, 19 Jul 2017 18:48:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
+In-Reply-To: <20170719173248.l4w5xc33enuor5if@piout.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 14, 2017 at 09:54:23AM -0700, Moritz Fischer wrote:
-> Hi Guenter,
+On 19/07/17 18:32, Alexandre Belloni wrote:
+> Hi,
 > 
-> On Thu, Jul 13, 2017 at 08:57:52PM -0700, Guenter Roeck wrote:
-> > On 07/13/2017 12:54 PM, Moritz Fischer wrote:
-> > > From: Moritz Fischer <moritz.fischer@ettus.com>
-> > > 
-> > > Add support for the Maxim/Dallas DS1374 RTC/WDT with trickle charger.
-> > > The device can either be configured as simple RTC, as simple RTC with
-> > > Alarm (IRQ) as well as simple RTC with watchdog timer.
-> > > 
-> > > Break up the old monolithic driver in drivers/rtc/rtc-ds1374.c into:
-> > > - rtc part in drivers/rtc/rtc-ds1374.c
-> > > - watchdog part under drivers/watchdog/ds1374-wdt.c
-> > > - mfd part drivers/mfd/ds1374.c
-> > > 
-> > > The MFD part takes care of trickle charging and mode selection,
-> > > since the usage modes of a) RTC + Alarm or b) RTC + WDT
-> > > are mutually exclusive.
-> > > 
-> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > 
-> > [ Only reviewing watchdog part ]
-> > 
-[ ... ]
+> On 19/07/2017 at 17:57:02 +0100, Colin King wrote:
+>> From: Colin Ian King <colin.king@canonical.com>
+>>
+>> There are two error return paths that do not kfree clk_data and
+>> we end up with a memory leak. Fix these with a kfree error exit
+>> path.
+>>
+>> Detected by CoverityScan, CID#1402959 ("Resource Leak")
+>>
+> 
+> I think that patch fixes the same issue (and more):
+> http://patchwork.ozlabs.org/patch/787151/
 
-> > > +}
-> > > +
-> > > +static int ds1374_wdt_start(struct watchdog_device *wdog)
-> > > +{
-> > > +	int err;
-> > > +	struct ds1374_wdt *ds1374_wdt = watchdog_get_drvdata(wdog);
-> > > +
-> > > +	err = ds1374_wdt_set_timeout(wdog, wdog->timeout);
-> > > +	if (err) {
-> > > +		dev_err(ds1374_wdt->dev, "%s: failed to set timeout (%d) %u\n",
-> > > +			__func__, err, wdog->timeout);
-> > > +		return err;
-> > > +	}
-> > > +
-> > > +	err = ds1374_wdt_ping(wdog);
-> > > +	if (err) {
-> > > +		dev_err(ds1374_wdt->dev, "%s: failed to ping (%d)\n", __func__,
-> > > +			err);
-> 
-> I assume you'd want to get rid of that one too?
+Yep, that's true.
 
-Yes.
-
-> > 
-> > This may bypass MAGICCLOSE: If the watchdog daemon is killed and the module removed,
-> > the watchdog will be stopped. Is this really what you want ? If so, why set MAGICCLOSE
-> > in the first place ?
 > 
-> So your suggestion would be:
+>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+>> ---
+>>  drivers/rtc/rtc-sun6i.c | 8 ++++++--
+>>  1 file changed, 6 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+>> index 39cbc1238b92..61502221ab6e 100644
+>> --- a/drivers/rtc/rtc-sun6i.c
+>> +++ b/drivers/rtc/rtc-sun6i.c
+>> @@ -204,7 +204,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>>  	rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
+>>  	if (IS_ERR(rtc->base)) {
+>>  		pr_crit("Can't map RTC registers");
+>> -		return;
+>> +		goto err;
+>>  	}
+>>  
+>>  	/* Switch to the external, more precise, oscillator */
+>> @@ -216,7 +216,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>>  
+>>  	/* Deal with old DTs */
+>>  	if (!of_get_property(node, "clocks", NULL))
+>> -		return;
+>> +		goto err;
+>>  
+>>  	rtc->int_osc = clk_hw_register_fixed_rate_with_accuracy(NULL,
+>>  								"rtc-int-osc",
+>> @@ -246,6 +246,10 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>>  	clk_data->num = 1;
+>>  	clk_data->hws[0] = &rtc->hw;
+>>  	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+>> +	return;
+>> +
+>> +err:
+>> +	kfree(clk_data);
+>>  }
+>>  CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+>>  		      sun6i_rtc_clk_init);
+>> -- 
+>> 2.11.0
+>>
 > 
-> - if (!nowayout)
-> -	ds1374_wdt_stop(&priv->wdd)
-> 
-Correct. Just drop the remove function.
-
-Thanks,
-Guenter
