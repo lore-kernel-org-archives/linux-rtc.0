@@ -1,36 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58008 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936121AbdGTXRz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:17:55 -0400
-Date: Fri, 21 Jul 2017 00:17:45 +0100
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 0/4] Make PL031 interrupt optional
-Message-ID: <20170720231745.GE31807@n2100.armlinux.org.uk>
+Received: from mx1.redhat.com ([209.132.183.28]:49246 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751448AbdGSO2I (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Jul 2017 10:28:08 -0400
+Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+To: Thomas Gleixner <tglx@linutronix.de>
+References: <20170718211930.123077-1-salyzyn@android.com>
+ <alpine.DEB.2.20.1707182338470.2425@nanos>
+ <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
+ <alpine.DEB.2.20.1707190023010.2425@nanos>
+ <5016ccc4-7faa-b61e-c0a1-b851620849c7@android.com>
+ <alpine.DEB.2.20.1707190913500.2286@nanos>
+ <f50dbf47-d1dc-5e51-fdcd-0318c2ab93cd@redhat.com>
+ <alpine.DEB.2.20.1707191426060.2286@nanos>
+Cc: Mark Salyzyn <salyzyn@android.com>,
+        LKML <linux-kernel@vger.kernel.org>, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        Mark Salyzyn <salyzyn@google.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+From: Prarit Bhargava <prarit@redhat.com>
+Message-ID: <abb4ef30-06c2-18db-6c8d-c29be1b1fa3d@redhat.com>
+Date: Wed, 19 Jul 2017 10:28:04 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.DEB.2.20.1707191426060.2286@nanos>
+Content-Type: text/plain; charset=windows-1252
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There are some boards out there which have a PL031 RTC, but its
-interrupt is not wired up.  To support these, we need the PL031
-to support the primecell without interrupts.
 
-When no interrupt is present, there's little point exposing the
-RTC's alarm capabilities, so we omit the alarm-related function
-calls - the RTC merely becomes a source of time-of-day.
 
-This patch series cleans pu the pl031 driver a little, and adds
-support for this configuration.
+On 07/19/2017 08:28 AM, Thomas Gleixner wrote:
+> On Wed, 19 Jul 2017, Prarit Bhargava wrote:
+>> On 07/19/2017 03:23 AM, Thomas Gleixner wrote:
+>>> There is another option to remedy this and the dmesg tooling issues:
+>>>
+>>> Instead of switching the time stamps in dmesg to a different clock we might
+>>> as well have an optional secondary timestamp. So instead of:
+>>>
+>>>  [  341.590930] wlan0: associated
+>>>
+>>> you would get:
+>>>
+>>>  [  341.590930] [ sec.usec] wlan0: associated
+>>>
+>>> where the second time stamp would be CLOCK_REALTIME/BOOTTIME.
+>>>
+>>> That should also solve Prarits problem, hmm?
+>>
+>> It would but I would prefer a single time stamp be printed than two.  I think
+>> two timestamps is adding confusion to the output from a end-users point of view.
+> 
+> Fair enough. I came up with that idea when I looked at the old thread. The
+> discussion about tools (e.g. dmesg) dried out at some point and looked
+> unresolved.
 
- drivers/rtc/rtc-pl031.c | 48 +++++++++++++++++++++++++++---------------------
- 1 file changed, 27 insertions(+), 21 deletions(-)
+tglx,
 
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+There were two outstanding issues with my patchset.  The first, as you mention
+above, is the issue with tooling.  I will handle the chicken-and-egg issue with
+the kernel modification and tooling.  I will post patches for dmesg & systemd
+once the kernel patchset lands in a "next" tree; other tools will have to be
+patched as we find them.
+
+The second issue is a sysfs stability and output issue that I have a question
+on.  Since I'm changing the value of print.time from a bool to an int, the
+output of /sys/modules/printk/parameters/time would change from Y/N to 0-3.  The
+file is not listed in Documentation/ABI/stable so I think I can change it.  Can
+you confirm that this is the case?  I wary of changing anything under sysfs and
+I'm not sure who else would know if I can change the output of that file.
+
+If it is the case that the output can be changed, then I'm going to suggest that
+we allow, for example, human-readable format "printk.time=monotonic" along with
+"printk.time=2" as kernel parameters.  I would also like your thoughts on that idea.
+
+If the file cannot be changed I will have to add an additional module parameter
+to printk.  Does "timestamp" sound okay to you?  I will go with whatever you
+suggest.
+
+Thanks,
+
+P.
