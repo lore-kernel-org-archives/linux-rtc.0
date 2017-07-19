@@ -1,51 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:36531 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752495AbdGFUDY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 16:03:24 -0400
-Received: by mail-wr0-f193.google.com with SMTP id 77so2822576wrb.3
-        for <linux-rtc@vger.kernel.org>; Thu, 06 Jul 2017 13:03:23 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] rtc: ds1307: fix compile warning if RTC_DRV_DS1307_CENTURY
- isn't defined
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-Message-ID: <022ecfbf-c999-b76e-f8cf-1d02fb20237e@gmail.com>
-Date: Thu, 6 Jul 2017 22:03:12 +0200
+Received: from mail-io0-f195.google.com ([209.85.223.195]:35795 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932092AbdGSVbM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:31:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
+References: <20170719194600.29210-1-salyzyn@android.com> <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
+ <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 19 Jul 2017 23:31:11 +0200
+Message-ID: <CAJZ5v0iLMe_Q+U6cGqw87G2POjB8Rt+Urp2ALrVhGALNnUF9Dg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry
+ and exit
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Fix the following warning if RTC_DRV_DS1307_CENTURY isn't defined.
+On Wed, Jul 19, 2017 at 11:23 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+> On 07/19/2017 01:40 PM, Rafael J. Wysocki wrote:
+>>
+>> On Wed, Jul 19, 2017 at 9:45 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+>>>
+>>> Permits power state and battery life diagnosis.
+>>>
+>>> Since one is not guaranteed to have a persistent hardware clock to
+>>> report Suspended for in milliseconds, we report at a higher level
+>>> at just the entry and exit points for suspend and hibernate.
+>>>
+>>> Feature activated by CONFIG_RTC_SHOW_TIME_*
+>>>
+>>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+>>>
+>>> v2:
+>>> - merge suspend and hibernate into a single patch
+>>
+>> So now I guess you realize that this conflicts with
+>> https://patchwork.kernel.org/patch/9850217/ and it actually would make
+>> sense for it to go on top of that?
+>>
+>> Thanks,
+>> Rafael
+>
+>
+> I see. It would make sense to merge the concepts a bit since the prints are
+> at the same locations.
 
-drivers/rtc/rtc-ds1307.c: In function 'ds1307_get_time':
-drivers/rtc/rtc-ds1307.c:342:26: warning: unused variable 'chip' [-Wunused-variable]
-  const struct chip_desc *chip = &chips[ds1307->type];
-                          ^
-Fixes: 436c93db60a4 ("rtc: ds1307: factor out century bit handling")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Exactly.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 43e9dc6f..18b6a6af 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -368,10 +368,9 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	t->tm_mon = bcd2bin(tmp) - 1;
- 	t->tm_year = bcd2bin(ds1307->regs[DS1307_REG_YEAR]) + 100;
- 
--#ifdef CONFIG_RTC_DRV_DS1307_CENTURY
--	if (ds1307->regs[chip->century_reg] & chip->century_bit)
-+	if (ds1307->regs[chip->century_reg] & chip->century_bit &&
-+	    IS_ENABLED(CONFIG_RTC_DRV_DS1307_CENTURY))
- 		t->tm_year += 100;
--#endif
- 
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
--- 
-2.13.1
+> Optimization idea: rtc_show_time() in my patch series should be able to
+> support varargs, never be _disabled_ (CONFIG_RTC_SHOW_TIME_NONE idea is
+> dropped) and the function would be a drop-in replacement for pr_info, but
+> add the specified timestamp before the newline. Change it's name to
+> pr_info_show_time() instead to reflect this adjustment.
+>
+> I would also prefer that the base messages in patch/980217 be "PM: suspend
+> entry" and "PM: suspend exit", only because I believe 1.6billion Linux
+> devices would not need to be retooled, and besides these messages are
+> shorter/sweeter.
+
+I can change the messages in patch/980217 if that helps.
+
+> Anyone disagree with some more over-engineering (pr_info_show_time() and
+> varargs)
+
+Hmm, do it as a macro maybe?
