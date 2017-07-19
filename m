@@ -1,80 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42588 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750921AbdGVV6x (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 22 Jul 2017 17:58:53 -0400
-Date: Sat, 22 Jul 2017 23:58:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: elseifthen@gmx.com
-Cc: rtc <linux-rtc@vger.kernel.org>
-Subject: Re: Hardware specific rtc regression in v4.4.76
-Message-ID: <20170722215851.ezxptqxetju44hgo@piout.net>
-References: <S1752256AbdGFSzp/20170706185546Z+86@vger.kernel.org>
- <5c2ebf93-e45b-bc2d-e13b-618fdc12b3f3@gmx.com>
+Received: from Galois.linutronix.de ([146.0.238.70]:44774 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751228AbdGSM2w (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 08:28:52 -0400
+Date: Wed, 19 Jul 2017 14:28:31 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Prarit Bhargava <prarit@redhat.com>
+cc: Mark Salyzyn <salyzyn@android.com>,
+        LKML <linux-kernel@vger.kernel.org>, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        Mark Salyzyn <salyzyn@google.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+In-Reply-To: <f50dbf47-d1dc-5e51-fdcd-0318c2ab93cd@redhat.com>
+Message-ID: <alpine.DEB.2.20.1707191426060.2286@nanos>
+References: <20170718211930.123077-1-salyzyn@android.com> <alpine.DEB.2.20.1707182338470.2425@nanos> <8afb372a-3951-6fb9-c0be-82756623061f@android.com> <alpine.DEB.2.20.1707190023010.2425@nanos> <5016ccc4-7faa-b61e-c0a1-b851620849c7@android.com>
+ <alpine.DEB.2.20.1707190913500.2286@nanos> <f50dbf47-d1dc-5e51-fdcd-0318c2ab93cd@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5c2ebf93-e45b-bc2d-e13b-618fdc12b3f3@gmx.com>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
-
-Thanks for the report.
-
-On 06/07/2017 at 15:16:11 -0400, elseifthen@gmx.com wrote:
-> There appears to be a hardware specific rtc regression in v4.4.76.
+On Wed, 19 Jul 2017, Prarit Bhargava wrote:
+> On 07/19/2017 03:23 AM, Thomas Gleixner wrote:
+> > There is another option to remedy this and the dmesg tooling issues:
+> > 
+> > Instead of switching the time stamps in dmesg to a different clock we might
+> > as well have an optional secondary timestamp. So instead of:
+> > 
+> >  [  341.590930] wlan0: associated
+> > 
+> > you would get:
+> > 
+> >  [  341.590930] [ sec.usec] wlan0: associated
+> > 
+> > where the second time stamp would be CLOCK_REALTIME/BOOTTIME.
+> > 
+> > That should also solve Prarits problem, hmm?
 > 
-> Introduced in v4.4.52 by:
-> 
-> commit f0414c1f8bb7a4e69064296f460773170c5435ac
-> Author: Colin Ian King <colin.king@canonical.com>
-> Date:   Mon May 16 17:22:54 2016 +0100
-> 
->     rtc: interface: ignore expired timers when enqueuing new timers
->     
->     commit 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 upstream.
-> 
->  8< ---
-> 
-> The problem does not appear to be in v4.9.x kernels.
-> 
-> Maybe v4.4.76 is missing one of these?
-> http://marc.info/?l=linux-rtc&m=149489307123605&w=2
-> Which also includes the commit in question.
-> 
-> See this thread for more details:
-> https://www.linuxquestions.org/questions/slackware-14/slow-hwclock-systohc-on-reboot-shutdown-4175609040/
-> 
-> Note: I am not the one having this issue. I'm only reporting it, so any
-> questions would need to be asked in the above thread. Or perhaps the
-> person with the problem will follow this email thread. I will post a
-> link to it for them.
-> 
+> It would but I would prefer a single time stamp be printed than two.  I think
+> two timestamps is adding confusion to the output from a end-users point of view.
 
-I can see a small issue with f0414c1f8bb7a4e69064296f460773170c5435ac
-but I'm not sure why it would be hit on v4.4 and not v4.9.
+Fair enough. I came up with that idea when I looked at the old thread. The
+discussion about tools (e.g. dmesg) dried out at some point and looked
+unresolved.
 
-Maybe one has CONFIG_RTC_INTF_DEV_UIE_EMUL and not the other one.
+Thanks,
 
-Could you try with the following on top of v4.4.57 (or any other
-v4.4.x):
-
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -764,7 +764,7 @@ static int rtc_timer_enqueue(struct rtc_device *rtc,
-struct rtc_timer *timer)
-        }
- 
-        timerqueue_add(&rtc->timerqueue, &timer->node);
--       if (!next) {
-+       if (!next || ktime_before(timer->node.expires, next->expires)) {
-                struct rtc_wkalrm alarm;
-                int err;
-                alarm.time = rtc_ktime_to_tm(timer->node.expires);
-
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+	tglx
