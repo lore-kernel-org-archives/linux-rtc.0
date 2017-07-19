@@ -1,165 +1,223 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37910 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752157AbdGEV4T (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Jul 2017 17:56:19 -0400
-Date: Wed, 5 Jul 2017 23:56:02 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-Cc: linux-mips@linux-mips.org,
-        Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
-        Miodrag Dinic <miodrag.dinic@imgtec.com>,
-        Goran Ferenc <goran.ferenc@imgtec.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "David S. Miller" <davem@davemloft.net>,
-        Douglas Leung <douglas.leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <james.hogan@imgtec.com>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Paul Burton <paul.burton@imgtec.com>,
-        Petar Jovanovic <petar.jovanovic@imgtec.com>,
-        Raghu Gandham <raghu.gandham@imgtec.com>
-Subject: Re: [PATCH v2 02/10] MIPS: ranchu: Add Goldfish RTC driver
-Message-ID: <20170705215602.vihwoio2dagxy2fc@piout.net>
-References: <1498664922-28493-1-git-send-email-aleksandar.markovic@rt-rk.com>
- <1498664922-28493-3-git-send-email-aleksandar.markovic@rt-rk.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1498664922-28493-3-git-send-email-aleksandar.markovic@rt-rk.com>
+Received: from mail-pg0-f41.google.com ([74.125.83.41]:35825 "EHLO
+        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934126AbdGSTpV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 15:45:21 -0400
+Received: by mail-pg0-f41.google.com with SMTP id v190so4449937pgv.2
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 12:45:20 -0700 (PDT)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
+        linux-pm@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        Mark Salyzyn <salyzyn@android.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>
+Subject: [PATCH v4 1/4] time: rtc-lib: Add rtc_show_time(const char *prefix_msg)
+Date: Wed, 19 Jul 2017 12:44:41 -0700
+Message-Id: <20170719194511.28899-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Primary purpose of rtc_show_time is to provide a marker used for
+post-mortem Battery and Power analysis.  These markers occur at
+major discontinuities of time, and thus optionally add a timestamp
+to aid the analysis.  This function is to be called at a higher
+level, and were added because of a lack of current kernel logging
+data.
 
-The subject doesn't fit the subsystem style, this needs to be changed.
+The persistent clock that is used to report Suspended for message
+is not present on all platforms, and is currently standardized for
+millisecond precision.
 
-On 28/06/2017 at 17:46:55 +0200, Aleksandar Markovic wrote:
-> From: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
-> 
-> Add device driver for a virtual Goldfish RTC clock.
-> 
-> The driver can be built only if CONFIG_MIPS and CONFIG_GOLDFISH are
-> set. The compatible string used by OS for binding the driver is
-> defined as "google,goldfish-rtc".
-> 
+An added value to the time report is the ability in post-mortem
+triage analysis to synchronize kernel activities in MONOTONIC
+time with user space activities in REALTIME.
 
-Is it really MIPS specific? I would expect the same driver to work on
-the ARM based emulator too.
+Feature activated by CONFIG_RTC_SHOW_TIME_<TYPE>, where <TYPE> is
+None (default, disabled), realtime, boottime or monotonic.
 
-> +config RTC_DRV_GOLDFISH
-> +	tristate "Goldfish Real Time Clock"
-> +	depends on MIPS
-> +	depends on GOLDFISH
+Since this is for post mortem field analysis, there is no debugfs
+or trace facility that can generally be leveraged.  analyze_suspend.py
+for example requires a debug configured kernel, on the other hand
+these prints can remain in a field product.  The purpose for
+rtc_show_time is not for development debugging.
 
-This should be made buildable with COMPILE_TEST to extend coverage.
+Data collected may be recorded by klogd with a longer logspan
+than the built-in dmesg buffer, or land in pstore console driver
+to be collected after a reboot.
 
-> +	help
-> +	  Say yes here to build support for the Goldfish RTC.
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
 
-Please, don't expect anybody to actually know what is goldfish can you
-add a sentence or two?
+v2:
+- move implementation to kernel timekeeping from rtc_lib files
+- use rtc_time64_to_tm() instead of rtc_time_to_tm()
+- use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
+v3:
+- _correctly_ use rtc_time64_to_tm
+v4:
+- introduce CONFIG_RTC_SHOW_TIME_<TYPE> and split off rtc time
+  format printing to a separate patch.
 
-> +static irqreturn_t goldfish_rtc_interrupt(int irq, void *dev_id)
-> +{
-> +	struct goldfish_rtc	*qrtc = dev_id;
-> +	unsigned long		events = 0;
-> +	void __iomem *base = qrtc->base;
-> +
-> +	writel(1, base + TIMER_CLEAR_INTERRUPT);
-> +	events = RTC_IRQF | RTC_AF;
-> +
-> +	rtc_update_irq(qrtc->rtc, 1, events);
+---
+ include/linux/rtc.h         |  5 +++
+ kernel/time/Kconfig         | 77 +++++++++++++++++++++++++++++++++++++++++++++
+ kernel/time/Makefile        |  1 +
+ kernel/time/rtc_show_time.c | 29 +++++++++++++++++
+ 4 files changed, 112 insertions(+)
+ create mode 100644 kernel/time/rtc_show_time.c
 
-I'd say that events is not needed you can pass the flags directly to
-rtc_update_irq
-
-> +static int goldfish_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	u64 time;
-> +	u64 time_low;
-> +	u64 time_high;
-> +	u64 time_high_prev;
-> +
-> +	struct goldfish_rtc *qrtc =
-> +			platform_get_drvdata(to_platform_device(dev));
-> +	void __iomem *base = qrtc->base;
-> +
-> +	time_high = readl(base + TIMER_TIME_HIGH);
-> +	do {
-> +		time_high_prev = time_high;
-> +		time_low = readl(base + TIMER_TIME_LOW);
-> +		time_high = readl(base + TIMER_TIME_HIGH);
-> +	} while (time_high != time_high_prev);
-
-I'm not sure why you need that loop as the comments for TIMER_TIME_LOW
-and TIMER_TIME_HIGH indicate that TIMER_TIME_HIGH is latched when
-TIMER_TIME_LOW is read. Note that the original driver from google
-doesn't do that.
-
-> +	time = (time_high << 32) | time_low;
-> +
-> +	do_div(time, NSEC_PER_SEC);
-> +
-> +	rtc_time_to_tm(time, tm);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct rtc_class_ops goldfish_rtc_ops = {
-> +	.read_time	= goldfish_rtc_read_time,
-> +};
-> +
-> +static int goldfish_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct resource *r;
-> +	struct goldfish_rtc *qrtc;
-> +	unsigned long rtc_dev_len;
-> +	unsigned long rtc_dev_addr;
-> +	int err;
-> +
-> +	qrtc = devm_kzalloc(&pdev->dev, sizeof(*qrtc), GFP_KERNEL);
-> +	if (qrtc == NULL)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, qrtc);
-> +
-> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (r == NULL)
-> +		return -ENODEV;
-> +
-> +	rtc_dev_addr = r->start;
-> +	rtc_dev_len = resource_size(r);
-> +	qrtc->base = devm_ioremap(&pdev->dev, rtc_dev_addr, rtc_dev_len);
-
-devm_ioremap_resource ?
-
-> +	if (IS_ERR(qrtc->base))
-> +		return -ENODEV;
-> +
-> +	qrtc->irq = platform_get_irq(pdev, 0);
-> +	if (qrtc->irq < 0)
-> +		return -ENODEV;
-> +
-
-Is the irq so important that you have to fail here even if the driver
-doesn't support any alarm?
-
-> +	qrtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
-> +					&goldfish_rtc_ops, THIS_MODULE);
-> +	if (IS_ERR(qrtc->rtc))
-> +		return PTR_ERR(qrtc->rtc);
-> +
-> +	err = devm_request_irq(&pdev->dev, qrtc->irq, goldfish_rtc_interrupt,
-> +		0, pdev->name, qrtc);
-> +	if (err)
-> +		return err;
-
-Ditto.
-
-
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 0a0f0d14a5fb..779401c937d5 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
+ extern int rtc_valid_tm(struct rtc_time *tm);
+ extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+ extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
++#ifdef CONFIG_RTC_SHOW_TIME
++extern void rtc_show_time(const char *prefix_msg);
++#else
++static inline void rtc_show_time(const char *prefix_msg) { }
++#endif
+ ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+ struct rtc_time rtc_ktime_to_tm(ktime_t kt);
+ 
+diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
+index ac09bc29eb08..2dc891056635 100644
+--- a/kernel/time/Kconfig
++++ b/kernel/time/Kconfig
+@@ -145,3 +145,80 @@ config HIGH_RES_TIMERS
+ 
+ endmenu
+ endif
++
++config RTC_SHOW_TIME
++	bool
++	help
++	  Activate optional rtc_show_time(const char *msg) wall clock
++	  time instrumentation.
++
++	  The primary use of the instrumentation is to aid field
++	  analysis of Battery and Power usage.  The instrumentation
++	  may also help triage and synchronize kernel logs and user
++	  space activity logs at key displacements.  For instance
++	  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++	  continues, and the timestamps help re-orient post-analysis.
++
++	  Select the appropriate RTC_SHOW_TIME_<type>
++
++choice
++	prompt "choose a clock for rtc_show_time"
++	config RTC_SHOW_TIME_NONE
++		bool "not activated"
++		help
++		  Turn off all printing associated with rtc_show_time
++
++		  The primary use of the instrumentation is to aid field
++		  analysis of Battery and Power usage.  The instrumentation
++		  may also help triage and synchronize kernel logs and user
++		  space activity logs at key displacements.  For instance
++		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++		  continues, and the timestamps help re-orient post-analysis.
++
++		  This is the default behavior.
++	config RTC_SHOW_TIME_REALTIME
++		bool "realtime"
++		select RTC_SHOW_TIME
++		help
++		  Activate optional rtc_show_time(const char *msg) wall clock
++		  time instrumentation.
++
++		  The primary use of the instrumentation is to aid field
++		  analysis of Battery and Power usage.  The instrumentation
++		  may also help triage and synchronize kernel logs and user
++		  space activity logs at key displacements.  For instance
++		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++		  continues, and the timestamps help re-orient post-analysis.
++
++		  Print realtime <epoch>.<ns> timestamp in rtc_show_time
++	config RTC_SHOW_TIME_MONOTONIC
++		bool "monotonic"
++		select RTC_SHOW_TIME
++		help
++		  Activate optional rtc_show_time(const char *msg) wall clock
++		  time instrumentation.
++
++		  The primary use of the instrumentation is to aid field
++		  analysis of Battery and Power usage.  The instrumentation
++		  may also help triage and synchronize kernel logs and user
++		  space activity logs at key displacements.  For instance
++		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++		  continues, and the timestamps help re-orient post-analysis.
++
++		  Print only the supplied message in rtc_show_time
++	config RTC_SHOW_TIME_BOOTTIME
++		bool "boottime"
++		select RTC_SHOW_TIME
++		help
++		  Activate optional rtc_show_time(const char *msg) wall clock
++		  time instrumentation.
++
++		  The primary use of the instrumentation is to aid field
++		  analysis of Battery and Power usage.  The instrumentation
++		  may also help triage and synchronize kernel logs and user
++		  space activity logs at key displacements.  For instance
++		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
++		  continues, and the timestamps help re-orient post-analysis.
++
++		  Print boottime <s>.<ns> timestamp in rtc_show_time
++endchoice
+diff --git a/kernel/time/Makefile b/kernel/time/Makefile
+index 938dbf33ef49..66f17e641052 100644
+--- a/kernel/time/Makefile
++++ b/kernel/time/Makefile
+@@ -17,3 +17,4 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)		+= sched_clock.o
+ obj-$(CONFIG_TICK_ONESHOT)			+= tick-oneshot.o tick-sched.o
+ obj-$(CONFIG_DEBUG_FS)				+= timekeeping_debug.o
+ obj-$(CONFIG_TEST_UDELAY)			+= test_udelay.o
++obj-$(CONFIG_RTC_SHOW_TIME)			+= rtc_show_time.o
+diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
+new file mode 100644
+index 000000000000..19a8a0cc94f0
+--- /dev/null
++++ b/kernel/time/rtc_show_time.c
+@@ -0,0 +1,29 @@
++/*
++ * rtc time printing utility functions
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/rtc.h>
++
++void rtc_show_time(const char *prefix_msg)
++{
++#if defined(CONFIG_RTC_SHOW_TIME_MONOTONIC) /* dmesg is in monotonic */
++	pr_info("%s\n", prefix_msg ? prefix_msg : "Time:");
++#elif defined(CONFIG_RTC_SHOW_TIME_BOOTTIME)
++	struct timespec64 ts;
++
++	getboottime64(&ts);
++	pr_info("%s %lu.%09lu B\n",
++		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
++#else /* realtime */
++	struct timespec64 ts;
++
++	getnstimeofday64(&ts);
++	pr_info("%s %lu.%09lu UTC\n",
++		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
++#endif
++}
++EXPORT_SYMBOL(rtc_show_time);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.14.0.rc0.284.gd933b75aa4-goog
