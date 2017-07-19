@@ -1,97 +1,241 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58036 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936121AbdGTXSj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:39 -0400
-In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 2/4] rtc: pl031: use devm_* for allocating memory and mapping
- resource
+Received: from mail.free-electrons.com ([62.4.15.54]:49694 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754455AbdGSVWy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:22:54 -0400
+Date: Wed, 19 Jul 2017 23:22:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>
+Subject: Re: [PATCH v4 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+Message-ID: <20170719212241.kla3d3j6vgaxy4ba@piout.net>
+References: <20170719194511.28899-1-salyzyn@android.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
-Date: Fri, 21 Jul 2017 00:18:31 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170719194511.28899-1-salyzyn@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use the devm_* APIs for allocating memory and mapping the memory in
-the probe function to relieve the driver from having to deal with
-this in the cleanup paths.
+Hi,
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/rtc/rtc-pl031.c | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+On 19/07/2017 at 12:44:41 -0700, Mark Salyzyn wrote:
+> Primary purpose of rtc_show_time is to provide a marker used for
+> post-mortem Battery and Power analysis.  These markers occur at
+> major discontinuities of time, and thus optionally add a timestamp
+> to aid the analysis.  This function is to be called at a higher
+> level, and were added because of a lack of current kernel logging
+> data.
+> 
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 0d87b90b1903..5960fbd08b05 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
- 	device_init_wakeup(&adev->dev, false);
- 	free_irq(adev->irq[0], ldata);
- 	rtc_device_unregister(ldata->rtc);
--	iounmap(ldata->base);
--	kfree(ldata);
- 	amba_release_regions(adev);
- 
- 	return 0;
-@@ -322,25 +320,26 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 	int ret;
- 	struct pl031_local *ldata;
- 	struct pl031_vendor_data *vendor = id->data;
--	struct rtc_class_ops *ops = &vendor->ops;
-+	struct rtc_class_ops *ops;
- 	unsigned long time, data;
- 
- 	ret = amba_request_regions(adev, NULL);
- 	if (ret)
- 		goto err_req;
- 
--	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
-+	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
-+			     GFP_KERNEL);
- 	if (!ldata) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
- 	ldata->vendor = vendor;
- 
--	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
--
-+	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
-+				   resource_size(&adev->res));
- 	if (!ldata->base) {
- 		ret = -ENOMEM;
--		goto out_no_remap;
-+		goto out;
- 	}
- 
- 	amba_set_drvdata(adev, ldata);
-@@ -378,7 +377,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 					THIS_MODULE);
- 	if (IS_ERR(ldata->rtc)) {
- 		ret = PTR_ERR(ldata->rtc);
--		goto out_no_rtc;
-+		goto out;
- 	}
- 
- 	if (request_irq(adev->irq[0], pl031_interrupt,
-@@ -391,10 +390,6 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 
- out_no_irq:
- 	rtc_device_unregister(ldata->rtc);
--out_no_rtc:
--	iounmap(ldata->base);
--out_no_remap:
--	kfree(ldata);
- out:
- 	amba_release_regions(adev);
- err_req:
+I really think you should drop rtc from the config, function and file
+names because this doesn't have any relationship with any RTC stuff.
+
+I can just see that you are (ab)using rtc_time64_to_tm because there is
+no struct tm or gmtime() in the kernel.
+
+> The persistent clock that is used to report Suspended for message
+> is not present on all platforms, and is currently standardized for
+> millisecond precision.
+> 
+> An added value to the time report is the ability in post-mortem
+> triage analysis to synchronize kernel activities in MONOTONIC
+> time with user space activities in REALTIME.
+> 
+> Feature activated by CONFIG_RTC_SHOW_TIME_<TYPE>, where <TYPE> is
+> None (default, disabled), realtime, boottime or monotonic.
+> 
+> Since this is for post mortem field analysis, there is no debugfs
+> or trace facility that can generally be leveraged.  analyze_suspend.py
+> for example requires a debug configured kernel, on the other hand
+> these prints can remain in a field product.  The purpose for
+> rtc_show_time is not for development debugging.
+> 
+> Data collected may be recorded by klogd with a longer logspan
+> than the built-in dmesg buffer, or land in pstore console driver
+> to be collected after a reboot.
+> 
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> 
+> v2:
+> - move implementation to kernel timekeeping from rtc_lib files
+> - use rtc_time64_to_tm() instead of rtc_time_to_tm()
+> - use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
+> v3:
+> - _correctly_ use rtc_time64_to_tm
+> v4:
+> - introduce CONFIG_RTC_SHOW_TIME_<TYPE> and split off rtc time
+>   format printing to a separate patch.
+> 
+> ---
+>  include/linux/rtc.h         |  5 +++
+>  kernel/time/Kconfig         | 77 +++++++++++++++++++++++++++++++++++++++++++++
+>  kernel/time/Makefile        |  1 +
+>  kernel/time/rtc_show_time.c | 29 +++++++++++++++++
+>  4 files changed, 112 insertions(+)
+>  create mode 100644 kernel/time/rtc_show_time.c
+> 
+> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> index 0a0f0d14a5fb..779401c937d5 100644
+> --- a/include/linux/rtc.h
+> +++ b/include/linux/rtc.h
+> @@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
+>  extern int rtc_valid_tm(struct rtc_time *tm);
+>  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
+>  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
+> +#ifdef CONFIG_RTC_SHOW_TIME
+> +extern void rtc_show_time(const char *prefix_msg);
+> +#else
+> +static inline void rtc_show_time(const char *prefix_msg) { }
+> +#endif
+>  ktime_t rtc_tm_to_ktime(struct rtc_time tm);
+>  struct rtc_time rtc_ktime_to_tm(ktime_t kt);
+>  
+> diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
+> index ac09bc29eb08..2dc891056635 100644
+> --- a/kernel/time/Kconfig
+> +++ b/kernel/time/Kconfig
+> @@ -145,3 +145,80 @@ config HIGH_RES_TIMERS
+>  
+>  endmenu
+>  endif
+> +
+> +config RTC_SHOW_TIME
+> +	bool
+> +	help
+> +	  Activate optional rtc_show_time(const char *msg) wall clock
+> +	  time instrumentation.
+> +
+> +	  The primary use of the instrumentation is to aid field
+> +	  analysis of Battery and Power usage.  The instrumentation
+> +	  may also help triage and synchronize kernel logs and user
+> +	  space activity logs at key displacements.  For instance
+> +	  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
+> +	  continues, and the timestamps help re-orient post-analysis.
+> +
+> +	  Select the appropriate RTC_SHOW_TIME_<type>
+> +
+> +choice
+> +	prompt "choose a clock for rtc_show_time"
+> +	config RTC_SHOW_TIME_NONE
+> +		bool "not activated"
+> +		help
+> +		  Turn off all printing associated with rtc_show_time
+> +
+> +		  The primary use of the instrumentation is to aid field
+> +		  analysis of Battery and Power usage.  The instrumentation
+> +		  may also help triage and synchronize kernel logs and user
+> +		  space activity logs at key displacements.  For instance
+> +		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
+> +		  continues, and the timestamps help re-orient post-analysis.
+> +
+> +		  This is the default behavior.
+> +	config RTC_SHOW_TIME_REALTIME
+> +		bool "realtime"
+> +		select RTC_SHOW_TIME
+> +		help
+> +		  Activate optional rtc_show_time(const char *msg) wall clock
+> +		  time instrumentation.
+> +
+> +		  The primary use of the instrumentation is to aid field
+> +		  analysis of Battery and Power usage.  The instrumentation
+> +		  may also help triage and synchronize kernel logs and user
+> +		  space activity logs at key displacements.  For instance
+> +		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
+> +		  continues, and the timestamps help re-orient post-analysis.
+> +
+> +		  Print realtime <epoch>.<ns> timestamp in rtc_show_time
+> +	config RTC_SHOW_TIME_MONOTONIC
+> +		bool "monotonic"
+> +		select RTC_SHOW_TIME
+> +		help
+> +		  Activate optional rtc_show_time(const char *msg) wall clock
+> +		  time instrumentation.
+> +
+> +		  The primary use of the instrumentation is to aid field
+> +		  analysis of Battery and Power usage.  The instrumentation
+> +		  may also help triage and synchronize kernel logs and user
+> +		  space activity logs at key displacements.  For instance
+> +		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
+> +		  continues, and the timestamps help re-orient post-analysis.
+> +
+> +		  Print only the supplied message in rtc_show_time
+> +	config RTC_SHOW_TIME_BOOTTIME
+> +		bool "boottime"
+> +		select RTC_SHOW_TIME
+> +		help
+> +		  Activate optional rtc_show_time(const char *msg) wall clock
+> +		  time instrumentation.
+> +
+> +		  The primary use of the instrumentation is to aid field
+> +		  analysis of Battery and Power usage.  The instrumentation
+> +		  may also help triage and synchronize kernel logs and user
+> +		  space activity logs at key displacements.  For instance
+> +		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
+> +		  continues, and the timestamps help re-orient post-analysis.
+> +
+> +		  Print boottime <s>.<ns> timestamp in rtc_show_time
+> +endchoice
+> diff --git a/kernel/time/Makefile b/kernel/time/Makefile
+> index 938dbf33ef49..66f17e641052 100644
+> --- a/kernel/time/Makefile
+> +++ b/kernel/time/Makefile
+> @@ -17,3 +17,4 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)		+= sched_clock.o
+>  obj-$(CONFIG_TICK_ONESHOT)			+= tick-oneshot.o tick-sched.o
+>  obj-$(CONFIG_DEBUG_FS)				+= timekeeping_debug.o
+>  obj-$(CONFIG_TEST_UDELAY)			+= test_udelay.o
+> +obj-$(CONFIG_RTC_SHOW_TIME)			+= rtc_show_time.o
+> diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
+> new file mode 100644
+> index 000000000000..19a8a0cc94f0
+> --- /dev/null
+> +++ b/kernel/time/rtc_show_time.c
+> @@ -0,0 +1,29 @@
+> +/*
+> + * rtc time printing utility functions
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/rtc.h>
+> +
+> +void rtc_show_time(const char *prefix_msg)
+> +{
+> +#if defined(CONFIG_RTC_SHOW_TIME_MONOTONIC) /* dmesg is in monotonic */
+> +	pr_info("%s\n", prefix_msg ? prefix_msg : "Time:");
+> +#elif defined(CONFIG_RTC_SHOW_TIME_BOOTTIME)
+> +	struct timespec64 ts;
+> +
+> +	getboottime64(&ts);
+> +	pr_info("%s %lu.%09lu B\n",
+> +		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
+> +#else /* realtime */
+> +	struct timespec64 ts;
+> +
+> +	getnstimeofday64(&ts);
+> +	pr_info("%s %lu.%09lu UTC\n",
+> +		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
+> +#endif
+> +}
+> +EXPORT_SYMBOL(rtc_show_time);
+> -- 
+> 2.14.0.rc0.284.gd933b75aa4-goog
+> 
+
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
