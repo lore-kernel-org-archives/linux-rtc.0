@@ -1,114 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:25763 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S964827AbdGTKaz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 20 Jul 2017 06:30:55 -0400
-Message-ID: <1500546621.29303.135.camel@linux.intel.com>
-Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
- readable format via %pt
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:32806 "EHLO
+        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932306AbdGSVXd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 17:23:33 -0400
+Received: by mail-pf0-f180.google.com with SMTP id s70so4537191pfs.0
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 14:23:33 -0700 (PDT)
+Subject: Re: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry
+ and exit
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux PM <linux-pm@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Date: Thu, 20 Jul 2017 13:30:21 +0300
-In-Reply-To: <CAK8P3a36FYzExs4UxB=dJ_rvEmvamq=__O9PXKgtpN=OqF6VSQ@mail.gmail.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-         <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
-         <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
-         <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
-         <20170608150540.rek7a4akuxm3k36l@piout.net>
-         <CAHp75Vfem=tj3esGx+7_8_Ygx+v09uk77rF-RJ34Tt2kLTHvVQ@mail.gmail.com>
-         <20170608184154.y7tqsv7ghpbcbf77@piout.net>
-         <CAHp75VcJZS+x8KdBs0nQj_sq9yx23gx3NBP_AqGi0xU+AqEDwQ@mail.gmail.com>
-         <87wp8mky7z.fsf@rasmusvillemoes.dk>
-         <CAHp75VdVV6i8SD6=z5Bt=UCsDB7mYTnxpZqP5=pWiob1CVPSaA@mail.gmail.com>
-         <CAK8P3a36FYzExs4UxB=dJ_rvEmvamq=__O9PXKgtpN=OqF6VSQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+References: <20170719194600.29210-1-salyzyn@android.com>
+ <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <507dec5d-3beb-4dd8-0d5f-90f22fccccd2@android.com>
+Date: Wed, 19 Jul 2017 14:23:31 -0700
+MIME-Version: 1.0
+In-Reply-To: <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 2017-06-08 at 23:45 +0200, Arnd Bergmann wrote:
-> On Thu, Jun 8, 2017 at 11:25 PM, Andy Shevchenko
-> <andy.shevchenko@gmail.com> wrote:
-> > On Thu, Jun 8, 2017 at 11:42 PM, Rasmus Villemoes
-> > <linux@rasmusvillemoes.dk> wrote:
-> > > On Thu, Jun 08 2017, Andy Shevchenko <andy.shevchenko@gmail.com>
-> > > wrote:
-> > > > On Thu, Jun 8, 2017 at 9:41 PM, Alexandre Belloni
-> > > > <alexandre.belloni@free-electrons.com> wrote:
-> > > > > On 08/06/2017 at 20:57:05 +0300, Andy Shevchenko wrote:
-> > > > > > On Thu, Jun 8, 2017 at 6:05 PM, Alexandre Belloni
-> > > > > > <alexandre.belloni@free-electrons.com> wrote:
-> > > > Yeah, but the problem is to pass the reference. All dances
-> > > > around will
-> > > > uglify the code.
-> > > > (Obviously we can't pass timespec64/time64_t or anything longer
-> > > > than
-> > > > 32 bits as is in %p extension)
-> > > I like that this gets rid of some mm/dd/yy and other more or less
-> > > random
-> > > format and ends up standardizing yyyy-mm-dd HH:MM:SS. However, I
-> > > do
-> > > think %pt should take either ktime_t or timespec64 (obviously by
-> > > reference),
-> > 
-> > I will try to look in this direction.
-> 
-> sounds good.
-> 
-> > > Please don't give people the option of eliding either the time or
-> > > the
-> > > date; I've spent too much time dealing with syslog files that
-> > > don't
-> > > include the year in the timestamps.
-> > 
-> > I understand that, but see above.
-> 
-> When we pretty-print a ktime_t, we probably want to leave out the high
-> fields as well, as this often refers to a time interval, e.g. a few
-> seconds.
-> Even for absolute values, the start of ktime_t is usually not the 1970
-> epoch but system boot, so we may not necessarily want the higher
-> fields. I hoped to find some inspiration in the 'date' man page, which
-> contains a lot of formatting options, but it's hard to translate that
-> into
-> a useful format string within the constraints of %p flags in printk.
+On 07/19/2017 01:40 PM, Rafael J. Wysocki wrote:
+> On Wed, Jul 19, 2017 at 9:45 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+>> Permits power state and battery life diagnosis.
+>>
+>> Since one is not guaranteed to have a persistent hardware clock to
+>> report Suspended for in milliseconds, we report at a higher level
+>> at just the entry and exit points for suspend and hibernate.
+>>
+>> Feature activated by CONFIG_RTC_SHOW_TIME_*
+>>
+>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+>>
+>> v2:
+>> - merge suspend and hibernate into a single patch
+> So now I guess you realize that this conflicts with
+> https://patchwork.kernel.org/patch/9850217/ and it actually would make
+> sense for it to go on top of that?
+>
+> Thanks,
+> Rafael
 
-Rasmus et al.,
+I see. It would make sense to merge the concepts a bit since the prints 
+are at the same locations.
 
-Summarizing this discussion I would go forward with the following
+Optimization idea: rtc_show_time() in my patch series should be able to 
+support varargs, never be _disabled_ (CONFIG_RTC_SHOW_TIME_NONE idea is 
+dropped) and the function would be a drop-in replacement for pr_info, 
+but add the specified timestamp before the newline. Change it's name to 
+pr_info_show_time() instead to reflect this adjustment.
 
-- add one more letter in the format to provide argument type (timespec,
-ktime, ...)
+I would also prefer that the base messages in patch/980217 be "PM: 
+suspend entry" and "PM: suspend exit", only because I believe 1.6billion 
+Linux devices would not need to be retooled, and besides these messages 
+are shorter/sweeter.
 
-- make a config option to enable / disable this facility and select it
-by users (and/or make it visible for configuration?)
+Anyone disagree with some more over-engineering (pr_info_show_time() and 
+varargs)
 
-- still leave possibility to print either date or time or both
-
-- add suffix to print nanoseconds in cases where input has them (and
-output is not just plain date)
-
-- address other (technical) comments
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+-- Mark
