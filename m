@@ -1,50 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49166 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752370AbdGFJm0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:26 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 08/11] rtc: rv8803: remove rv8803_remove
-Date: Thu,  6 Jul 2017 11:42:05 +0200
-Message-Id: <20170706094208.16240-9-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
-References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:34069 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753057AbdGSUkl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 16:40:41 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170719194600.29210-1-salyzyn@android.com>
+References: <20170719194600.29210-1-salyzyn@android.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 19 Jul 2017 22:40:40 +0200
+Message-ID: <CAJZ5v0iVwUy5fdvYu=6HEwLPpw7g6owbFuwNpUJcb_iJ3LCFMA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] PM: Print wall time at suspend & hibernate entry
+ and exit
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-rv8803_remove() is now empty, remove it.
+On Wed, Jul 19, 2017 at 9:45 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+> Permits power state and battery life diagnosis.
+>
+> Since one is not guaranteed to have a persistent hardware clock to
+> report Suspended for in milliseconds, we report at a higher level
+> at just the entry and exit points for suspend and hibernate.
+>
+> Feature activated by CONFIG_RTC_SHOW_TIME_*
+>
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+>
+> v2:
+> - merge suspend and hibernate into a single patch
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rv8803.c | 6 ------
- 1 file changed, 6 deletions(-)
+So now I guess you realize that this conflicts with
+https://patchwork.kernel.org/patch/9850217/ and it actually would make
+sense for it to go on top of that?
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 10474ab7887d..aae2576741a6 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -612,11 +612,6 @@ static int rv8803_probe(struct i2c_client *client,
- 	return 0;
- }
- 
--static int rv8803_remove(struct i2c_client *client)
--{
--	return 0;
--}
--
- static const struct i2c_device_id rv8803_id[] = {
- 	{ "rv8803", rv_8803 },
- 	{ "rx8900", rx_8900 },
-@@ -643,7 +638,6 @@ static struct i2c_driver rv8803_driver = {
- 		.of_match_table = of_match_ptr(rv8803_of_match),
- 	},
- 	.probe		= rv8803_probe,
--	.remove		= rv8803_remove,
- 	.id_table	= rv8803_id,
- };
- module_i2c_driver(rv8803_driver);
--- 
-2.11.0
+Thanks,
+Rafael
