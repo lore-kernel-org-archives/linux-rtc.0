@@ -1,68 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:34085 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754795AbdGSQ5J (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 12:57:09 -0400
-From: Colin King <colin.king@canonical.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58026 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936121AbdGTXSc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:32 -0400
+In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: sun6i: ensure clk_data is kfree'd on error
-Date: Wed, 19 Jul 2017 17:57:02 +0100
-Message-Id: <20170719165702.22220-1-colin.king@canonical.com>
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 1/4] rtc: pl031: constify amba_ids
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
+Date: Fri, 21 Jul 2017 00:18:25 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+The AMBA device IDs should be marked const.  Make that so.
 
-There are two error return paths that do not kfree clk_data and
-we end up with a memory leak. Fix these with a kfree error exit
-path.
-
-Detected by CoverityScan, CID#1402959 ("Resource Leak")
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 ---
- drivers/rtc/rtc-sun6i.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pl031.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 39cbc1238b92..61502221ab6e 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -204,7 +204,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
- 	if (IS_ERR(rtc->base)) {
- 		pr_crit("Can't map RTC registers");
--		return;
-+		goto err;
- 	}
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index e1687e19c59f..0d87b90b1903 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -446,7 +446,7 @@ static struct pl031_vendor_data stv2_pl031 = {
+ 	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
+ };
  
- 	/* Switch to the external, more precise, oscillator */
-@@ -216,7 +216,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 
- 	/* Deal with old DTs */
- 	if (!of_get_property(node, "clocks", NULL))
--		return;
-+		goto err;
- 
- 	rtc->int_osc = clk_hw_register_fixed_rate_with_accuracy(NULL,
- 								"rtc-int-osc",
-@@ -246,6 +246,10 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	clk_data->num = 1;
- 	clk_data->hws[0] = &rtc->hw;
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
-+	return;
-+
-+err:
-+	kfree(clk_data);
- }
- CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
- 		      sun6i_rtc_clk_init);
+-static struct amba_id pl031_ids[] = {
++static const struct amba_id pl031_ids[] = {
+ 	{
+ 		.id = 0x00041031,
+ 		.mask = 0x000fffff,
 -- 
-2.11.0
+2.7.4
