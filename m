@@ -1,41 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37454 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751295AbdGMSSs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jul 2017 14:18:48 -0400
-Date: Thu, 13 Jul 2017 20:18:46 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] RTC for 4.13
-Message-ID: <20170713181846.xdoocvlziyfhrajk@piout.net>
-References: <20170713090151.47rrpc62dxcqwvtz@piout.net>
- <20170713092239.r6cndjmnsrb35c34@piout.net>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58008 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936121AbdGTXRz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:17:55 -0400
+Date: Fri, 21 Jul 2017 00:17:45 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 0/4] Make PL031 interrupt optional
+Message-ID: <20170720231745.GE31807@n2100.armlinux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170713092239.r6cndjmnsrb35c34@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Me again...
+There are some boards out there which have a PL031 RTC, but its
+interrupt is not wired up.  To support these, we need the PL031
+to support the primecell without interrupts.
 
-On 13/07/2017 at 11:22:39 +0200, Alexandre Belloni wrote:
-> On 13/07/2017 at 11:01:51 +0200, Alexandre Belloni wrote:
-> > Hi Linus,
-> > 
-> > Here is the pull-request for the RTC subsystem for 4.13.
-> > 
-> 
-> And I forgot to add that you will see a small Add/Add merge conflict in
-> tools/testing/selftests/timers/Makefile which is easy to solve.
-> 
+When no interrupt is present, there's little point exposing the
+RTC's alarm capabilities, so we omit the alarm-related function
+calls - the RTC merely becomes a source of time-of-day.
 
-And its not actually add/add but both patches are adding a target on a
-different line.
+This patch series cleans pu the pl031 driver a little, and adds
+support for this configuration.
 
-Sorry about the miscommunication, I'll get back to wiping baby poop.
+ drivers/rtc/rtc-pl031.c | 48 +++++++++++++++++++++++++++---------------------
+ 1 file changed, 27 insertions(+), 21 deletions(-)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
