@@ -1,28 +1,29 @@
-Return-Path: <rtc-linux+bncBC2IT2GSZUDRBM6P67FAKGQENTA25UI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDKY3XOCXMIBBN44YHFQKGQEBT5JMJY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com. [91.207.212.93])
-        by gmr-mx.google.com with ESMTPS id s84si8782415wmf.5.2017.07.06.00.33.07
+Received: from mail-it0-x241.google.com (mail-it0-x241.google.com. [2607:f8b0:4001:c0b::241])
+        by gmr-mx.google.com with ESMTPS id 199si107670itz.4.2017.07.19.23.31.19
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 06 Jul 2017 00:33:07 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 2/2] rtc: stm32: add STM32H7 RTC support
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin
-	<mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        <rtc-linux@googlegroups.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>
-References: <1498470689-26829-1-git-send-email-amelie.delaunay@st.com>
- <1498470689-26829-3-git-send-email-amelie.delaunay@st.com>
- <20170705213746.6hf5af57ty6wsfgs@piout.net>
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-Message-ID: <ebe3f3f0-263d-cf6c-6b6e-2f37ab435c88@st.com>
-Date: Thu, 6 Jul 2017 09:33:00 +0200
+        Wed, 19 Jul 2017 23:31:19 -0700 (PDT)
+Received: by mail-it0-x241.google.com with SMTP id r9so550319ita.3
+        for <rtc-linux@googlegroups.com>; Wed, 19 Jul 2017 23:31:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170705213746.6hf5af57ty6wsfgs@piout.net>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+In-Reply-To: <20170718091906.trvcaacdfrizjfks@dell>
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-2-enric.balletbo@collabora.com> <CAMHSBOUT2hpcXrSuvRrZfnEXWtN9QfNLqHvM4TCvHPKiokP0Ag@mail.gmail.com>
+ <CAFqH_53O8UDPnhCq7BwS7tZ9814HD5GLXWGfbeYJ2PFFk06Uzg@mail.gmail.com> <20170718091906.trvcaacdfrizjfks@dell>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Date: Thu, 20 Jul 2017 08:31:18 +0200
+Message-ID: <CAFqH_52FwqJudZ9mYPotaX=GvA11JrpaYEKmZWwJJYWe=DZwMQ@mail.gmail.com>
+Subject: [rtc-linux] Re: [PATCH v3 1/4] mfd: cros_ec: Get rid of
+ cros_ec_check_features from cros_ec_dev.
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Gwendal Grignou <gwendal@chromium.org>,
+	Enric Balletbo i Serra <enric.balletbo@collabora.com>, Jonathan Cameron <jic23@kernel.org>,
+	Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <martinez.javier@gmail.com>,
+	Guenter Roeck <groeck@chromium.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -32,45 +33,80 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
+Lee,
 
-On 07/05/2017 11:37 PM, Alexandre Belloni wrote:
-> Hi,
-> 
-> This is mostly fine, even if I'm not too happy with the
-> s/ck_rtc/rtc_ck/.
-> 
-This clock name has changed in datasheet between STM32F4/STM32F7 and 
-STM32H7, so, I'm not really happy too... But, as there is only one clock 
-on F4/F7, its name is not important for the end user. Now that pclk 
-appears, we need to distinguish the two clocks, and for the end user, it 
-is better if the clock names match the datasheet.
+2017-07-18 11:19 GMT+02:00 Lee Jones <lee.jones@linaro.org>:
+> On Mon, 17 Jul 2017, Enric Balletbo Serra wrote:
+>
+>> Hi Gwendal,
+>>
+>> 2017-07-13 22:33 GMT+02:00 Gwendal Grignou <gwendal@chromium.org>:
+>> > On Wed, Jul 12, 2017 at 3:13 AM, Enric Balletbo i Serra
+>> > <enric.balletbo@collabora.com> wrote:
+>> >> The cros_ec_dev driver should be used only to expose the Chrome OS Em=
+bedded
+>> >> Controller to user-space and should not be used to add MFD devices by
+>> >> calling mfd_add_devices. This patch moves this logic to the MFD cros_=
+ec
+>> >> driver and removes the MFD bits from the character device driver. Als=
+o
+>> >> makes independent the IIO driver from the character device as also ha=
+s no
+>> >> sense.
+>> >
+>> > cros_ec_dev serves another purpose: it allows to represent an EC that
+>> > does not have a cros_ec structure. It happens when there are several
+>> > EC in a chromebook, and one EC is connected through another EC.
+>> > One example is Samus (Pixel 2): where we have:
+>> >
+>> > (main SOC, Application Processor) AP --> (main Embedded Controller) EC
+>> > ---> (Power Delivery [PD}) EC
+>> >
+>> > We  access to the PD EC via pass-through commands through the main EC.
+>> > Each EC has a cros_ec_dev structure, but only the main EC as a
+>> > cros_ec_device structure (I will forever regret the structure names).
+>> >
+>> > Now form the AP point of view, both ECs use the same protocol. That
+>> > why the sensors and other devcies that are registered by looking at
+>> > the feature fields are registered with cros_ec_dev as their parent.
+>> > Other devices that are registered from the device tree, predating the
+>> > feature field support, are registered with cros_ec_device as their
+>> > parent.
+>> >
+>>
+>> Interesting I didn't know that. So are you saying that this patch will
+>> break support for devices like Pixel 2? I tested the patches on
+>> various devices but not on Pixel 2 so could be.
+>
+> Does this affect the rest of the series?
+>
 
-> On 26/06/2017 at 11:51:29 +0200, Amelie Delaunay wrote:
->> -	rtc->ck_rtc = devm_clk_get(&pdev->dev, NULL);
->> -	if (IS_ERR(rtc->ck_rtc)) {
->> -		dev_err(&pdev->dev, "no ck_rtc clock");
->> -		return PTR_ERR(rtc->ck_rtc);
->> +	match = of_match_device(stm32_rtc_of_match, &pdev->dev);
->> +	if (match && match->data)
->> +		rtc->data = (struct stm32_rtc_data *)match->data;
->> +	else
->> +		return -EINVAL;
-> 
-> This will never happen, you can remove that test.
-> 
-> 
-OK, will be done in V2.
+Yes, because this patch moves cros_ec_check_features from char dev driver..=
+.
 
-Thanks for the review,
-Amelie
+> Or should I review/apply as usual?
+>
 
--- 
+Please, hold on while I figure out what's exactly the problem with
+Samus. Sorry for the noise.
+
+Cheers,
+ Enric
+
+> --
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
