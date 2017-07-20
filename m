@@ -1,43 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:41124 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751963AbdGRWg4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 18:36:56 -0400
-Date: Wed, 19 Jul 2017 00:36:49 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Mark Salyzyn <salyzyn@android.com>
-cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Mark Salyzyn <salyzyn@google.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v3 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-In-Reply-To: <20170718221607.132539-1-salyzyn@android.com>
-Message-ID: <alpine.DEB.2.20.1707190035270.2425@nanos>
-References: <20170718221607.132539-1-salyzyn@android.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58062 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964882AbdGTXSw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:52 -0400
+In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 4/4] rtc: pl031: make interrupt optional
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dYKiP-0001kg-BQ@rmk-PC.armlinux.org.uk>
+Date: Fri, 21 Jul 2017 00:18:41 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 18 Jul 2017, Mark Salyzyn wrote:
+On some platforms, the interrupt for the PL031 is optional.  Avoid
+trying to claim the interrupt if it's not specified.
 
-> Go directly to the rtc for persistent wall clock time and print.
-> Useful if REALTIME is required to be logged in a low level power
-> management function or when clock activities are suspended.  An
-> aid to permit user space alignment of kernel activities.
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/rtc/rtc-pl031.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-Can you please spare the churn and wait until the discussion about the
-general issues is resolved before sending out yet another set of patches,
-which do not address any of the real important questions?
-
-Thanks,
-
-	tglx
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 64c77ec1b4ea..82eb7da2c478 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -308,7 +308,8 @@ static int pl031_remove(struct amba_device *adev)
+ 
+ 	dev_pm_clear_wake_irq(&adev->dev);
+ 	device_init_wakeup(&adev->dev, false);
+-	free_irq(adev->irq[0], ldata);
++	if (adev->irq[0])
++		free_irq(adev->irq[0], ldata);
+ 	rtc_device_unregister(ldata->rtc);
+ 	amba_release_regions(adev);
+ 
+@@ -389,12 +390,13 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 		goto out;
+ 	}
+ 
+-	if (request_irq(adev->irq[0], pl031_interrupt,
+-			vendor->irqflags, "rtc-pl031", ldata)) {
+-		ret = -EIO;
+-		goto out_no_irq;
++	if (adev->irq[0]) {
++		ret = request_irq(adev->irq[0], pl031_interrupt,
++				  vendor->irqflags, "rtc-pl031", ldata);
++		if (ret)
++			goto out_no_irq;
++		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
+ 	}
+-	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
+ 	return 0;
+ 
+ out_no_irq:
+-- 
+2.7.4
