@@ -1,78 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:32637 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751497AbdGRR45 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 18 Jul 2017 13:56:57 -0400
-Message-ID: <1500400523.29303.92.camel@linux.intel.com>
-Subject: Re: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Joe Perches <joe@perches.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: Mark Salyzyn <salyzyn@android.com>
-Date: Tue, 18 Jul 2017 20:55:23 +0300
-In-Reply-To: <1500400205.25934.27.camel@perches.com>
-References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
-         <1500400205.25934.27.camel@perches.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:56297 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933731AbdGTIU6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 04:20:58 -0400
+Date: Thu, 20 Jul 2017 10:20:56 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+        rjw@rjwysocki.net, len.brown@intel.com, linux-pm@vger.kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
+        Mark Salyzyn <salyzyn@google.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thierry Strudel <tstrudel@google.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
+ *prefix_msg)
+Message-ID: <20170720082056.GA14149@amd>
+References: <20170718211930.123077-1-salyzyn@android.com>
+ <alpine.DEB.2.20.1707182338470.2425@nanos>
+ <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+In-Reply-To: <8afb372a-3951-6fb9-c0be-82756623061f@android.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2017-07-18 at 10:50 -0700, Joe Perches wrote:
-> On Thu, 2017-06-08 at 16:47 +0300, Andy Shevchenko wrote:
-> > Recently I have noticed too many users of struct rtc_time that
-> > printing
-> > its content field by field.
-> > 
-> > In this series I introduce %pt[dt][rv] specifier to make life a bit
-> > easier.
-> 
-> Hey Andy.
-> 
-> I just saw a patch with a printk for rtc time from Mark Salyzyn.
-> https://lkml.org/lkml/2017/7/18/885
 
-Same!
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Any idea if you want to push this extension?
+Hi!
 
-Yes, just really lack of time for everything.
+> >
+> >       pr_info("My so important log message %lld\n", ktime_get_real_seco=
+nds());
+>=20
+> Legacy (these prints have been in Android tree since 2013) for all our
+> battery and power analysis tools are keyed off RTC format. There is some
+> momentum, default should be epoch seconds/nanoseconds as that is a good
+> example; and another option can select RTC (the option can be an internal
+> patch to alter the format ... ick)
 
-I like the idea to make it conditional (config BLABLABLA). It will
-address some comments about footprint for no users.
+Yes, android development is broken. Please fix it, rather then trying
+to break kernel to match.
 
-> I like the concept and still think it could be extended a bit more.
-> 
-> from: https://lkml.org/lkml/2017/6/8/1134
-> 
-> My preference would be for %pt[type]<output style>
-> where <type> is mandatory and could be:
-> 
->         r for struct rtc_time
->         6 for time64_t
->         k for ktime_t
->         T for struct timespec64
->         etc
+Thank you,
+									Pavel
 
-I dunno about this.
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-However, I like this more than do conversion in each case where input
-reference has different type.
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> and <output style> has an unspecified default of
-> YYYY-MM-DD:hh:mm:ss
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-I'm against this, sorry. Too many variations for almost no use (users).
+iEYEARECAAYFAllwZ+gACgkQMOfwapXb+vIVfwCePk4KpuLs/i0zZy9OPlVmW1m3
+63cAoLdybneTlT37SgH41azZUEDtbI8Z
+=dL6m
+-----END PGP SIGNATURE-----
 
-> Perhaps use the "date" formats without the leading
-> % uses for <output style> for additional styles.
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+--u3/rZRmxL6MmkK24--
