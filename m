@@ -1,78 +1,97 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:42546 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751967AbdGSHXn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 03:23:43 -0400
-Date: Wed, 19 Jul 2017 09:23:25 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Mark Salyzyn <salyzyn@android.com>
-cc: LKML <linux-kernel@vger.kernel.org>, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, andy.shevchenko@gmail.com,
-        Mark Salyzyn <salyzyn@google.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thierry Strudel <tstrudel@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Prarit Bhargava <prarit@redhat.com>
-Subject: Re: [PATCH v2 1/4] time: rtc-lib: Add rtc_show_time(const char
- *prefix_msg)
-In-Reply-To: <5016ccc4-7faa-b61e-c0a1-b851620849c7@android.com>
-Message-ID: <alpine.DEB.2.20.1707190913500.2286@nanos>
-References: <20170718211930.123077-1-salyzyn@android.com> <alpine.DEB.2.20.1707182338470.2425@nanos> <8afb372a-3951-6fb9-c0be-82756623061f@android.com> <alpine.DEB.2.20.1707190023010.2425@nanos> <5016ccc4-7faa-b61e-c0a1-b851620849c7@android.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58036 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936121AbdGTXSj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:39 -0400
+In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 2/4] rtc: pl031: use devm_* for allocating memory and mapping
+ resource
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
+Date: Fri, 21 Jul 2017 00:18:31 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 18 Jul 2017, Mark Salyzyn wrote:
-> On 07/18/2017 03:35 PM, Thomas Gleixner wrote:
-> > There was some discussion about making the clock source for dmesg time
-> > stamps selectable, so you can use MONOTONIC, REALTIME, BOOTTIME. The
-> > patches looked sensible, but there was some showstopper vs. the user space
-> > dmesg utility. See:
-> 
-> The timestamps are useful for the 'second' purpose of these patches when
-> dmesg time is BOOTTIME or MONOTONIC, and can be turned off if REALTIME
-> is selected. Having rtc_show_time a single point for switching this no doubt
-> helps,
-> not hinders, that dmesg issue.
-> 
-> The inflection points would still serve a purpose, still need
-> suspend/resume/hibernate/restore. The reboot messages are _only_ useful to
-> us with their timestamps, as I checked and the only tools that use those are
-> for log synchronization. We may be able to do away with them on REALTIME
-> dmesg'ing; but the standardization of the message as a marker would have a
-> legacy purpose (!)
-> 
-> NB: We have a similar configuration for the user space logger, which can be
-> configured to report in MONOTONIC time. We have yet to have a vendor
-> use the feature, opting for REALTIME logging for user space activities.
-> Our klogd (which runs at background priority and is batched) manages a
-> histogram relationship between MONOTONIC and REALTIME helped by these
-> prints and incorporates the REALTIME dmesg logs merged into our user
-> space logging database.
+Use the devm_* APIs for allocating memory and mapping the memory in
+the probe function to relieve the driver from having to deal with
+this in the cleanup paths.
 
-There is another option to remedy this and the dmesg tooling issues:
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/rtc/rtc-pl031.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-Instead of switching the time stamps in dmesg to a different clock we might
-as well have an optional secondary timestamp. So instead of:
-
- [  341.590930] wlan0: associated
-
-you would get:
-
- [  341.590930] [ sec.usec] wlan0: associated
-
-where the second time stamp would be CLOCK_REALTIME/BOOTTIME.
-
-That should also solve Prarits problem, hmm?
-
-Thanks,
-
-	tglx
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 0d87b90b1903..5960fbd08b05 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
+ 	device_init_wakeup(&adev->dev, false);
+ 	free_irq(adev->irq[0], ldata);
+ 	rtc_device_unregister(ldata->rtc);
+-	iounmap(ldata->base);
+-	kfree(ldata);
+ 	amba_release_regions(adev);
+ 
+ 	return 0;
+@@ -322,25 +320,26 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 	int ret;
+ 	struct pl031_local *ldata;
+ 	struct pl031_vendor_data *vendor = id->data;
+-	struct rtc_class_ops *ops = &vendor->ops;
++	struct rtc_class_ops *ops;
+ 	unsigned long time, data;
+ 
+ 	ret = amba_request_regions(adev, NULL);
+ 	if (ret)
+ 		goto err_req;
+ 
+-	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
++	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
++			     GFP_KERNEL);
+ 	if (!ldata) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+ 	ldata->vendor = vendor;
+ 
+-	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
+-
++	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
++				   resource_size(&adev->res));
+ 	if (!ldata->base) {
+ 		ret = -ENOMEM;
+-		goto out_no_remap;
++		goto out;
+ 	}
+ 
+ 	amba_set_drvdata(adev, ldata);
+@@ -378,7 +377,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 					THIS_MODULE);
+ 	if (IS_ERR(ldata->rtc)) {
+ 		ret = PTR_ERR(ldata->rtc);
+-		goto out_no_rtc;
++		goto out;
+ 	}
+ 
+ 	if (request_irq(adev->irq[0], pl031_interrupt,
+@@ -391,10 +390,6 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 
+ out_no_irq:
+ 	rtc_device_unregister(ldata->rtc);
+-out_no_rtc:
+-	iounmap(ldata->base);
+-out_no_remap:
+-	kfree(ldata);
+ out:
+ 	amba_release_regions(adev);
+ err_req:
+-- 
+2.7.4
