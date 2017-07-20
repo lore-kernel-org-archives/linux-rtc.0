@@ -1,66 +1,73 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58048 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964882AbdGTXSq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:46 -0400
-In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
+Received: from mga04.intel.com ([192.55.52.120]:36138 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934145AbdGTKdq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 20 Jul 2017 06:33:46 -0400
+Message-ID: <1500546822.29303.136.camel@linux.intel.com>
+Subject: Re: [PATCH v1 00/25] lib, rtc: Print rtc_time via %pt[dt][rv]
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mark Salyzyn <salyzyn@android.com>, Joe Perches <joe@perches.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 3/4] rtc: pl031: avoid exposing alarm if no interrupt
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
-Date: Fri, 21 Jul 2017 00:18:36 +0100
+        linux-rtc@vger.kernel.org
+Date: Thu, 20 Jul 2017 13:33:42 +0300
+In-Reply-To: <861fe353-eb95-615f-b1dc-3326501342af@android.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+         <1500400205.25934.27.camel@perches.com>
+         <861fe353-eb95-615f-b1dc-3326501342af@android.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-If the RTC has no interrupt, there is little point in exposing the RTC
-alarm capabilities, as it can't be used as a wakeup source nor can it
-deliver an event to userspace.
+On Tue, 2017-07-18 at 12:57 -0700, Mark Salyzyn wrote:
+> On 07/18/2017 10:50 AM, Joe Perches wrote:
+> > On Thu, 2017-06-08 at 16:47 +0300, Andy Shevchenko wrote:
+> > > Recently I have noticed too many users of struct rtc_time that
+> > > printing
+> > > its content field by field.
+> > > 
+> > > In this series I introduce %pt[dt][rv] specifier to make life a
+> > > bit
+> > > easier.
+> > 
+> > Hey Andy.
+> > 
+> > I just saw a patch with a printk for rtc time from Mark Salyzyn.
+> > https://lkml.org/lkml/2017/7/18/885
+> > 
+> > Any idea if you want to push this extension?
+> > 
+> > I like the concept and still think it could be extended a bit more.
+> > 
+> > from: https://lkml.org/lkml/2017/6/8/1134
+> > 
+> > My preference would be for %pt[type]<output style>
+> > where <type> is mandatory and could be:
+> > 
+> >          r for struct rtc_time
+> >          6 for time64_t
+> >          k for ktime_t
+> >          T for struct timespec64
+> >          etc
+> > 
+> > and <output style> has an unspecified default of
+> > YYYY-MM-DD:hh:mm:ss
+> > 
+> > Perhaps use the "date" formats without the leading
+> > % uses for <output style> for additional styles.
+> > 
+> 
+> YYYY-MM-DD hh:mm:ss.nnnnnnnnn ?
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/rtc/rtc-pl031.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+As a separate modifier, yes.
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 5960fbd08b05..64c77ec1b4ea 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -329,12 +329,14 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 
- 	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
- 			     GFP_KERNEL);
--	if (!ldata) {
-+	ops = devm_kmemdup(&adev->dev, &vendor->ops, sizeof(vendor->ops),
-+			   GFP_KERNEL);
-+	if (!ldata || !ops) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
--	ldata->vendor = vendor;
- 
-+	ldata->vendor = vendor;
- 	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
- 				   resource_size(&adev->res));
- 	if (!ldata->base) {
-@@ -372,6 +374,13 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 		}
- 	}
- 
-+	if (!adev->irq[0]) {
-+		/* When there's no interrupt, no point in exposing the alarm */
-+		ops->read_alarm = NULL;
-+		ops->set_alarm = NULL;
-+		ops->alarm_irq_enable = NULL;
-+	}
-+
- 	device_init_wakeup(&adev->dev, true);
- 	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
- 					THIS_MODULE);
+See my answer to subthread in patch 4.
+
 -- 
-2.7.4
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
