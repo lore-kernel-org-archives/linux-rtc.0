@@ -1,80 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f175.google.com ([209.85.128.175]:34515 "EHLO
-        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751430AbdGRJWt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 05:22:49 -0400
-Received: by mail-wr0-f175.google.com with SMTP id 12so20113637wrb.1
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Jul 2017 02:22:48 -0700 (PDT)
-Date: Tue, 18 Jul 2017 10:22:45 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, wim@iguana.be,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+Received: from mga02.intel.com ([134.134.136.20]:25763 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S964827AbdGTKaz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 20 Jul 2017 06:30:55 -0400
+Message-ID: <1500546621.29303.135.camel@linux.intel.com>
+Subject: Re: [PATCH v1 04/25] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org,
-        Moritz Fischer <moritz.fischer@ettus.com>
-Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
- Device
-Message-ID: <20170718092245.tc5oosbbb6lzvqpy@dell>
-References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
- <1499975665-14581-2-git-send-email-mdf@kernel.org>
- <20170717075117.btnhbmgpofwn7zdk@dell>
- <20170717181409.GB8750@tyrael.ni.corp.natinst.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20170717181409.GB8750@tyrael.ni.corp.natinst.com>
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Date: Thu, 20 Jul 2017 13:30:21 +0300
+In-Reply-To: <CAK8P3a36FYzExs4UxB=dJ_rvEmvamq=__O9PXKgtpN=OqF6VSQ@mail.gmail.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+         <20170608134811.60786-5-andriy.shevchenko@linux.intel.com>
+         <CAK8P3a0JDvd-frxQvOe7RVPBgA6M-RBiw=Tt1dP1EJa+L4qQoQ@mail.gmail.com>
+         <CAHp75VfUU9fO-jnY32caKywf8h3bdst9zBf66Wjz6C5+4z1okA@mail.gmail.com>
+         <20170608150540.rek7a4akuxm3k36l@piout.net>
+         <CAHp75Vfem=tj3esGx+7_8_Ygx+v09uk77rF-RJ34Tt2kLTHvVQ@mail.gmail.com>
+         <20170608184154.y7tqsv7ghpbcbf77@piout.net>
+         <CAHp75VcJZS+x8KdBs0nQj_sq9yx23gx3NBP_AqGi0xU+AqEDwQ@mail.gmail.com>
+         <87wp8mky7z.fsf@rasmusvillemoes.dk>
+         <CAHp75VdVV6i8SD6=z5Bt=UCsDB7mYTnxpZqP5=pWiob1CVPSaA@mail.gmail.com>
+         <CAK8P3a36FYzExs4UxB=dJ_rvEmvamq=__O9PXKgtpN=OqF6VSQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 17 Jul 2017, Moritz Fischer wrote:
-
-> Hi Lee,
+On Thu, 2017-06-08 at 23:45 +0200, Arnd Bergmann wrote:
+> On Thu, Jun 8, 2017 at 11:25 PM, Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+> > On Thu, Jun 8, 2017 at 11:42 PM, Rasmus Villemoes
+> > <linux@rasmusvillemoes.dk> wrote:
+> > > On Thu, Jun 08 2017, Andy Shevchenko <andy.shevchenko@gmail.com>
+> > > wrote:
+> > > > On Thu, Jun 8, 2017 at 9:41 PM, Alexandre Belloni
+> > > > <alexandre.belloni@free-electrons.com> wrote:
+> > > > > On 08/06/2017 at 20:57:05 +0300, Andy Shevchenko wrote:
+> > > > > > On Thu, Jun 8, 2017 at 6:05 PM, Alexandre Belloni
+> > > > > > <alexandre.belloni@free-electrons.com> wrote:
+> > > > Yeah, but the problem is to pass the reference. All dances
+> > > > around will
+> > > > uglify the code.
+> > > > (Obviously we can't pass timespec64/time64_t or anything longer
+> > > > than
+> > > > 32 bits as is in %p extension)
+> > > I like that this gets rid of some mm/dd/yy and other more or less
+> > > random
+> > > format and ends up standardizing yyyy-mm-dd HH:MM:SS. However, I
+> > > do
+> > > think %pt should take either ktime_t or timespec64 (obviously by
+> > > reference),
+> > 
+> > I will try to look in this direction.
 > 
-> On Mon, Jul 17, 2017 at 08:51:17AM +0100, Lee Jones wrote:
-> > On Thu, 13 Jul 2017, Moritz Fischer wrote:
-> > 
-> > > From: Moritz Fischer <moritz.fischer@ettus.com>
-> > > 
-> > > Add support for the Maxim/Dallas DS1374 RTC/WDT with trickle charger.
-> > > The device can either be configured as simple RTC, as simple RTC with
-> > > Alarm (IRQ) as well as simple RTC with watchdog timer.
-> > > 
-> > > Break up the old monolithic driver in drivers/rtc/rtc-ds1374.c into:
-> > > - rtc part in drivers/rtc/rtc-ds1374.c
-> > > - watchdog part under drivers/watchdog/ds1374-wdt.c
-> > > - mfd part drivers/mfd/ds1374.c
-> > > 
-> > > The MFD part takes care of trickle charging and mode selection,
-> > > since the usage modes of a) RTC + Alarm or b) RTC + WDT
-> > > are mutually exclusive.
-> > > 
-> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > > ---
-> > >  drivers/mfd/Kconfig              |  10 +
-> > >  drivers/mfd/Makefile             |   1 +
-> > >  drivers/mfd/ds1374.c             | 260 ++++++++++++++++
-> > >  drivers/rtc/rtc-ds1374.c         | 639 ++++++++++-----------------------------
-> > 
-> > It looks like this should now depend on MFD_DS1374, right?
-> > 
-> > >  drivers/watchdog/Kconfig         |  10 +
-> > >  drivers/watchdog/Makefile        |   1 +
-> > >  drivers/watchdog/ds1374-wdt.c    | 208 +++++++++++++
-> > 
-> > The RTC and Watchdog drivers need to be split out of this patch and
-> > placed into their own.  Then we can take them through their respective
-> > subsystem trees and do not have to rely on immutable branches for
-> > unification.
+> sounds good.
 > 
-> Ok, I haven't found a good way to keep this bisectable in that case. I'm
-> open to suggestions. If the consensus ends up being to split it up, I'm
-> more than happy to separate it out into multiple patches.
+> > > Please don't give people the option of eliding either the time or
+> > > the
+> > > date; I've spent too much time dealing with syslog files that
+> > > don't
+> > > include the year in the timestamps.
+> > 
+> > I understand that, but see above.
+> 
+> When we pretty-print a ktime_t, we probably want to leave out the high
+> fields as well, as this often refers to a time interval, e.g. a few
+> seconds.
+> Even for absolute values, the start of ktime_t is usually not the 1970
+> epoch but system boot, so we may not necessarily want the higher
+> fields. I hoped to find some inspiration in the 'date' man page, which
+> contains a lot of formatting options, but it's hard to translate that
+> into
+> a useful format string within the constraints of %p flags in printk.
 
-If it's genuinely not bisectable, then leave it as is.
+Rasmus et al.,
+
+Summarizing this discussion I would go forward with the following
+
+- add one more letter in the format to provide argument type (timespec,
+ktime, ...)
+
+- make a config option to enable / disable this facility and select it
+by users (and/or make it visible for configuration?)
+
+- still leave possibility to print either date or time or both
+
+- add suffix to print nanoseconds in cases where input has them (and
+output is not just plain date)
+
+- address other (technical) comments
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
