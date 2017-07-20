@@ -1,27 +1,28 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBTVQS7FQKGQEGZOE2SI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBBH5RYHFQKGQELCQGZUI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
-        by gmr-mx.google.com with ESMTPS id j203si426280wmg.1.2017.07.12.01.05.33
+Received: from mail-wr0-x231.google.com (mail-wr0-x231.google.com. [2a00:1450:400c:c0c::231])
+        by gmr-mx.google.com with ESMTPS id k68si568493wmg.4.2017.07.20.00.15.43
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:33 -0700 (PDT)
-Received: by mail-wr0-x236.google.com with SMTP id 77so22548680wrb.1
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:33 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 15/22] rtc: rs5c348: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:35 +0200
-Message-Id: <1499846682-14093-16-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
+        Thu, 20 Jul 2017 00:15:43 -0700 (PDT)
+Received: by mail-wr0-x231.google.com with SMTP id f21so10373488wrf.5
+        for <rtc-linux@googlegroups.com>; Thu, 20 Jul 2017 00:15:43 -0700 (PDT)
+Date: Thu, 20 Jul 2017 08:15:40 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, bleung@chromium.org,
+	martinez.javier@gmail.com, Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com, Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] Re: [PATCH v3 4/4] mfd: cros_ec: add RTC as mfd subdevice
+Message-ID: <20170720071540.xyw4ccvqudiiusqh@dell>
+References: <20170712101309.6045-1-enric.balletbo@collabora.com>
+ <20170712101309.6045-5-enric.balletbo@collabora.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170712101309.6045-5-enric.balletbo@collabora.com>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,50 +31,83 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On Wed, 12 Jul 2017, Enric Balletbo i Serra wrote:
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-rs5c348.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> From: Stephen Barber <smbarber@chromium.org>
+>=20
+> If the EC supports RTC host commands, expose an RTC device.
+>=20
+> Signed-off-by: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  drivers/mfd/cros_ec.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index 75a27a6..ff972fb 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -51,6 +51,10 @@ static const struct mfd_cell ec_pd_cell =3D {
+>  	.pdata_size =3D sizeof(pd_p),
+>  };
+> =20
+> +static const struct mfd_cell ec_rtc_cell =3D {
+> +	.name =3D "cros-ec-rtc",
+> +};
+> +
+>  static irqreturn_t ec_irq_thread(int irq, void *data)
+>  {
+>  	struct cros_ec_device *ec_dev =3D data;
+> @@ -245,6 +249,16 @@ static void cros_ec_sensors_register(struct cros_ec_=
+device *ec_dev)
+>  	kfree(msg);
+>  }
+> =20
+> +static void cros_ec_rtc_register(struct cros_ec_device *ec_dev)
+> +{
+> +	int ret;
+> +
+> +	ret =3D mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_rtc_cell,
+> +			      1, NULL, 0, NULL);
+> +	if (ret)
+> +		dev_err(ec_dev->dev, "failed to add EC RTC\n");
+> +}
 
-diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
-index 9a30698..f82c0bc 100644
---- a/drivers/rtc/rtc-rs5c348.c
-+++ b/drivers/rtc/rtc-rs5c348.c
-@@ -137,7 +137,7 @@ struct rs5c348_plat_data {
- 
- 	if (rtc_valid_tm(tm) < 0) {
- 		dev_err(&spi->dev, "retrieved date/time is not valid.\n");
--		rtc_time_to_tm(0, tm);
-+		rtc_time64_to_tm(0, tm);
- 	}
- 
- 	return 0;
-@@ -183,7 +183,7 @@ static int rs5c348_probe(struct spi_device *spi)
- 			dev_warn(&spi->dev, "voltage-low detected.\n");
- 		if (ret & RS5C348_BIT_XSTP)
- 			dev_warn(&spi->dev, "oscillator-stop detected.\n");
--		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
-+		rtc_time64_to_tm(0, &tm);	/* 1970/1/1 */
- 		ret = rs5c348_rtc_set_time(&spi->dev, &tm);
- 		if (ret < 0)
- 			goto kfree_exit;
--- 
-1.9.1
+Why do you need a new function just to call a single function?
 
--- 
+And by making it void, you're also loosing the return value.
+
+If mfd_add_devices() fails, something has gone wrong!
+
+>  int cros_ec_register(struct cros_ec_device *ec_dev)
+>  {
+>  	struct device *dev =3D ec_dev->dev;
+> @@ -294,6 +308,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+>  	if (cros_ec_check_features(ec_dev, EC_FEATURE_MOTION_SENSE))
+>  		cros_ec_sensors_register(ec_dev);
+> =20
+> +	/* Check whether this EC has RTC support */
+> +	if (cros_ec_check_features(ec_dev, EC_FEATURE_RTC))
+> +		cros_ec_rtc_register(ec_dev);
+> +
+>  	if (ec_dev->max_passthru) {
+>  		/*
+>  		 * Register a PD device as well on top of this device.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
