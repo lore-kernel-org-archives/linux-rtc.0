@@ -1,45 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36029 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751702AbdGRRt1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:49:27 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAHp75VfZN45E2bXiaNgEfM_=NVhPhtER-8rN4PxeGsLoBQ-2Cg@mail.gmail.com>
-References: <20170718172525.114514-1-salyzyn@android.com> <CAHp75VfZN45E2bXiaNgEfM_=NVhPhtER-8rN4PxeGsLoBQ-2Cg@mail.gmail.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 18 Jul 2017 20:49:26 +0300
-Message-ID: <CAHp75Vezkqrx8vM-F41BCmK_HHQynfbLopo-HJLb5r=ULCqM-w@mail.gmail.com>
-Subject: Re: [PATCH 1/4] rtc-lib: Add rtc_show_time(const char *prefix_msg)
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58048 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964882AbdGTXSq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:46 -0400
+In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 3/4] rtc: pl031: avoid exposing alarm if no interrupt
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
+Date: Fri, 21 Jul 2017 00:18:36 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Jul 18, 2017 at 8:46 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> On Tue, Jul 18, 2017 at 8:25 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->> Go directly to the rtc for persistent wall clock time and print.
->> Useful if REALTIME is required to be logged in a low level power
->> management function or when clock activities are suspended.  An
->> aid to permit user space alignment of kernel activities.
->>
->> Feature activated by CONFIG_RTC_SHOW_TIME.
->
-> What's wrong with procfs device nodes for that?
+If the RTC has no interrupt, there is little point in exposing the RTC
+alarm capabilities, as it can't be used as a wakeup source nor can it
+deliver an event to userspace.
 
-Ah, it's internal API, ok.
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/rtc/rtc-pl031.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-Then would it be possible to use %pt [1] or alike?
-
-[1]: https://www.spinics.net/lists/kernel/msg2528401.html
-
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 5960fbd08b05..64c77ec1b4ea 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -329,12 +329,14 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 
+ 	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
+ 			     GFP_KERNEL);
+-	if (!ldata) {
++	ops = devm_kmemdup(&adev->dev, &vendor->ops, sizeof(vendor->ops),
++			   GFP_KERNEL);
++	if (!ldata || !ops) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	ldata->vendor = vendor;
+ 
++	ldata->vendor = vendor;
+ 	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
+ 				   resource_size(&adev->res));
+ 	if (!ldata->base) {
+@@ -372,6 +374,13 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 		}
+ 	}
+ 
++	if (!adev->irq[0]) {
++		/* When there's no interrupt, no point in exposing the alarm */
++		ops->read_alarm = NULL;
++		ops->set_alarm = NULL;
++		ops->alarm_irq_enable = NULL;
++	}
++
+ 	device_init_wakeup(&adev->dev, true);
+ 	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
+ 					THIS_MODULE);
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
