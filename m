@@ -1,61 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:50304 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:42588 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751678AbdG2W0K (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 29 Jul 2017 18:26:10 -0400
-Date: Sun, 30 Jul 2017 00:26:08 +0200
+        with ESMTP id S1750921AbdGVV6x (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 22 Jul 2017 17:58:53 -0400
+Date: Sat, 22 Jul 2017 23:58:51 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, wim@iguana.be, linux@roeck-us.net,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Moritz Fischer <moritz.fischer@ettus.com>
-Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
- Device
-Message-ID: <20170729222608.awlcjefi7wzfnahj@piout.net>
-References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
- <1499975665-14581-2-git-send-email-mdf@kernel.org>
+To: elseifthen@gmx.com
+Cc: rtc <linux-rtc@vger.kernel.org>
+Subject: Re: Hardware specific rtc regression in v4.4.76
+Message-ID: <20170722215851.ezxptqxetju44hgo@piout.net>
+References: <S1752256AbdGFSzp/20170706185546Z+86@vger.kernel.org>
+ <5c2ebf93-e45b-bc2d-e13b-618fdc12b3f3@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1499975665-14581-2-git-send-email-mdf@kernel.org>
+In-Reply-To: <5c2ebf93-e45b-bc2d-e13b-618fdc12b3f3@gmx.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/07/2017 at 12:54:25 -0700, Moritz Fischer wrote:
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 52a70ee..1703611 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -120,6 +120,16 @@ config DA9062_WATCHDOG
->  
->  	  This driver can be built as a module. The module name is da9062_wdt.
->  
-> +config DS1374_WATCHDOG
-> +	tristate "Maxim/Dallas 1374 Watchdog"
+Hi,
 
-If you want to keep the backward compatibility, this probably needs to
-be defaulting to RTC_DRV_DS1374 when RTC_DRV_DS1374_WDT is selected.
+Thanks for the report.
 
-Also, maybe we need to make RTC_DRV_DS1374_WDT not user selectable.
+On 06/07/2017 at 15:16:11 -0400, elseifthen@gmx.com wrote:
+> There appears to be a hardware specific rtc regression in v4.4.76.
+> 
+> Introduced in v4.4.52 by:
+> 
+> commit f0414c1f8bb7a4e69064296f460773170c5435ac
+> Author: Colin Ian King <colin.king@canonical.com>
+> Date:   Mon May 16 17:22:54 2016 +0100
+> 
+>     rtc: interface: ignore expired timers when enqueuing new timers
+>     
+>     commit 2b2f5ff00f63847d95adad6289bd8b05f5983dd5 upstream.
+> 
+>  8< ---
+> 
+> The problem does not appear to be in v4.9.x kernels.
+> 
+> Maybe v4.4.76 is missing one of these?
+> http://marc.info/?l=linux-rtc&m=149489307123605&w=2
+> Which also includes the commit in question.
+> 
+> See this thread for more details:
+> https://www.linuxquestions.org/questions/slackware-14/slow-hwclock-systohc-on-reboot-shutdown-4175609040/
+> 
+> Note: I am not the one having this issue. I'm only reporting it, so any
+> questions would need to be asked in the above thread. Or perhaps the
+> person with the problem will follow this email thread. I will post a
+> link to it for them.
+> 
 
-If you don't think backward compatibility can be achieved, then we can
-drop everything.
+I can see a small issue with f0414c1f8bb7a4e69064296f460773170c5435ac
+but I'm not sure why it would be hit on v4.4 and not v4.9.
 
-Else, the RTC part seems fine to me but the driver may be cleaned up a
-bit further afterwards.
+Maybe one has CONFIG_RTC_INTF_DEV_UIE_EMUL and not the other one.
 
-> +	depends on MFD_DS1374
-> +	depends on REGMAP_I2C
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Support for the watchdog in the Maxim/Dallas DS1374 MFD.
-> +
-> +	  This driver can be built as a module. The module name is ds1374-wdt.
-> +
->  config GPIO_WATCHDOG
->  	tristate "Watchdog device controlled through GPIO-line"
->  	depends on OF_GPIO
+Could you try with the following on top of v4.4.57 (or any other
+v4.4.x):
+
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -764,7 +764,7 @@ static int rtc_timer_enqueue(struct rtc_device *rtc,
+struct rtc_timer *timer)
+        }
+ 
+        timerqueue_add(&rtc->timerqueue, &timer->node);
+-       if (!next) {
++       if (!next || ktime_before(timer->node.expires, next->expires)) {
+                struct rtc_wkalrm alarm;
+                int err;
+                alarm.time = rtc_ktime_to_tm(timer->node.expires);
+
+
 
 -- 
 Alexandre Belloni, Free Electrons
