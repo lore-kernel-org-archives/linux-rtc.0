@@ -1,223 +1,52 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f41.google.com ([74.125.83.41]:35825 "EHLO
-        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934126AbdGSTpV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 19 Jul 2017 15:45:21 -0400
-Received: by mail-pg0-f41.google.com with SMTP id v190so4449937pgv.2
-        for <linux-rtc@vger.kernel.org>; Wed, 19 Jul 2017 12:45:20 -0700 (PDT)
-From: Mark Salyzyn <salyzyn@android.com>
-To: linux-kernel@vger.kernel.org
-Cc: rjw@rjwysocki.net, len.brown@intel.com, pavel@ucw.cz,
-        linux-pm@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        Mark Salyzyn <salyzyn@android.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>
-Subject: [PATCH v4 1/4] time: rtc-lib: Add rtc_show_time(const char *prefix_msg)
-Date: Wed, 19 Jul 2017 12:44:41 -0700
-Message-Id: <20170719194511.28899-1-salyzyn@android.com>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:37061 "EHLO
+        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751527AbdGWUPf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jul 2017 16:15:35 -0400
+Received: by mail-wm0-f53.google.com with SMTP id c184so17150649wmd.0
+        for <linux-rtc@vger.kernel.org>; Sun, 23 Jul 2017 13:15:34 -0700 (PDT)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+        linux-rtc@vger.kernel.org
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Duplicated drivers for Epson RX8025 RTC support
+Message-ID: <a82c9f50-31d2-d750-39fc-05501f3724ad@gmail.com>
+Date: Sun, 23 Jul 2017 22:15:24 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Primary purpose of rtc_show_time is to provide a marker used for
-post-mortem Battery and Power analysis.  These markers occur at
-major discontinuities of time, and thus optionally add a timestamp
-to aid the analysis.  This function is to be called at a higher
-level, and were added because of a lack of current kernel logging
-data.
+When working on refactoring parts of the ds1307 I stumbled across the fact
+that there are two rtc drivers claiming to support the Epson RX8025 chip.
 
-The persistent clock that is used to report Suspended for message
-is not present on all platforms, and is currently standardized for
-millisecond precision.
+1. ds1307 claims to support also this chip. Support was added in 2009,
+   however I have doubts that it actually works.
+   RX8025 needs a special addressing mode (register address has to be
+   left-shifted by 4 bits) which is implemented for both control
+   registers but not for the standard registers.
 
-An added value to the time report is the ability in post-mortem
-triage analysis to synchronize kernel activities in MONOTONIC
-time with user space activities in REALTIME.
+   Also support for this chip misses the fix from patch 2e10e74df72
+   ("rtc: rx8025: fix transfer mode")
 
-Feature activated by CONFIG_RTC_SHOW_TIME_<TYPE>, where <TYPE> is
-None (default, disabled), realtime, boottime or monotonic.
+   I'm curious whether support for this chip was ever tested, commit message
+   of a216685818a5 "rtc: add EPSON RX8025 support to DS1307 RTC driver"
+   does not mention that this piece of code was tested with any device
+   with this chip.
 
-Since this is for post mortem field analysis, there is no debugfs
-or trace facility that can generally be leveraged.  analyze_suspend.py
-for example requires a debug configured kernel, on the other hand
-these prints can remain in a field product.  The purpose for
-rtc_show_time is not for development debugging.
+2. There's a separate driver for this chip (rtc-rx8025), also added in 2009.
+   This drivers is actively maintained.
 
-Data collected may be recorded by klogd with a longer logspan
-than the built-in dmesg buffer, or land in pstore console driver
-to be collected after a reboot.
+The separate driver mentions that it supports SA/NB variants of the chip.
+There's no info regarding supported chip variants in the ds1307-integrated
+driver. So there is a small chance that both drivers support different
+chip variants (in this case however the ds1307-integrated driver should
+clearly mention this, also in the Kconfig help text).
 
-Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+For me it's more likely that both drivers try support the same chip.
+Having said that I would propose to remove (rudimentary) RX8025 support
+in ds1307. As a first step we could leave the code in but use a WARN_ON
+to notify potential users that this code is deprecated and they should
+use the separate driver instead.
 
-v2:
-- move implementation to kernel timekeeping from rtc_lib files
-- use rtc_time64_to_tm() instead of rtc_time_to_tm()
-- use inline in include/linux/rtc.h for !CONFIG_RTC_SHOW_TIME
-v3:
-- _correctly_ use rtc_time64_to_tm
-v4:
-- introduce CONFIG_RTC_SHOW_TIME_<TYPE> and split off rtc time
-  format printing to a separate patch.
-
----
- include/linux/rtc.h         |  5 +++
- kernel/time/Kconfig         | 77 +++++++++++++++++++++++++++++++++++++++++++++
- kernel/time/Makefile        |  1 +
- kernel/time/rtc_show_time.c | 29 +++++++++++++++++
- 4 files changed, 112 insertions(+)
- create mode 100644 kernel/time/rtc_show_time.c
-
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 0a0f0d14a5fb..779401c937d5 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
- extern int rtc_valid_tm(struct rtc_time *tm);
- extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
- extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
-+#ifdef CONFIG_RTC_SHOW_TIME
-+extern void rtc_show_time(const char *prefix_msg);
-+#else
-+static inline void rtc_show_time(const char *prefix_msg) { }
-+#endif
- ktime_t rtc_tm_to_ktime(struct rtc_time tm);
- struct rtc_time rtc_ktime_to_tm(ktime_t kt);
- 
-diff --git a/kernel/time/Kconfig b/kernel/time/Kconfig
-index ac09bc29eb08..2dc891056635 100644
---- a/kernel/time/Kconfig
-+++ b/kernel/time/Kconfig
-@@ -145,3 +145,80 @@ config HIGH_RES_TIMERS
- 
- endmenu
- endif
-+
-+config RTC_SHOW_TIME
-+	bool
-+	help
-+	  Activate optional rtc_show_time(const char *msg) wall clock
-+	  time instrumentation.
-+
-+	  The primary use of the instrumentation is to aid field
-+	  analysis of Battery and Power usage.  The instrumentation
-+	  may also help triage and synchronize kernel logs and user
-+	  space activity logs at key displacements.  For instance
-+	  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
-+	  continues, and the timestamps help re-orient post-analysis.
-+
-+	  Select the appropriate RTC_SHOW_TIME_<type>
-+
-+choice
-+	prompt "choose a clock for rtc_show_time"
-+	config RTC_SHOW_TIME_NONE
-+		bool "not activated"
-+		help
-+		  Turn off all printing associated with rtc_show_time
-+
-+		  The primary use of the instrumentation is to aid field
-+		  analysis of Battery and Power usage.  The instrumentation
-+		  may also help triage and synchronize kernel logs and user
-+		  space activity logs at key displacements.  For instance
-+		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
-+		  continues, and the timestamps help re-orient post-analysis.
-+
-+		  This is the default behavior.
-+	config RTC_SHOW_TIME_REALTIME
-+		bool "realtime"
-+		select RTC_SHOW_TIME
-+		help
-+		  Activate optional rtc_show_time(const char *msg) wall clock
-+		  time instrumentation.
-+
-+		  The primary use of the instrumentation is to aid field
-+		  analysis of Battery and Power usage.  The instrumentation
-+		  may also help triage and synchronize kernel logs and user
-+		  space activity logs at key displacements.  For instance
-+		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
-+		  continues, and the timestamps help re-orient post-analysis.
-+
-+		  Print realtime <epoch>.<ns> timestamp in rtc_show_time
-+	config RTC_SHOW_TIME_MONOTONIC
-+		bool "monotonic"
-+		select RTC_SHOW_TIME
-+		help
-+		  Activate optional rtc_show_time(const char *msg) wall clock
-+		  time instrumentation.
-+
-+		  The primary use of the instrumentation is to aid field
-+		  analysis of Battery and Power usage.  The instrumentation
-+		  may also help triage and synchronize kernel logs and user
-+		  space activity logs at key displacements.  For instance
-+		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
-+		  continues, and the timestamps help re-orient post-analysis.
-+
-+		  Print only the supplied message in rtc_show_time
-+	config RTC_SHOW_TIME_BOOTTIME
-+		bool "boottime"
-+		select RTC_SHOW_TIME
-+		help
-+		  Activate optional rtc_show_time(const char *msg) wall clock
-+		  time instrumentation.
-+
-+		  The primary use of the instrumentation is to aid field
-+		  analysis of Battery and Power usage.  The instrumentation
-+		  may also help triage and synchronize kernel logs and user
-+		  space activity logs at key displacements.  For instance
-+		  CLOCK_MONOTONIC stops while suspended, while CLOCK_REALTIME
-+		  continues, and the timestamps help re-orient post-analysis.
-+
-+		  Print boottime <s>.<ns> timestamp in rtc_show_time
-+endchoice
-diff --git a/kernel/time/Makefile b/kernel/time/Makefile
-index 938dbf33ef49..66f17e641052 100644
---- a/kernel/time/Makefile
-+++ b/kernel/time/Makefile
-@@ -17,3 +17,4 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)		+= sched_clock.o
- obj-$(CONFIG_TICK_ONESHOT)			+= tick-oneshot.o tick-sched.o
- obj-$(CONFIG_DEBUG_FS)				+= timekeeping_debug.o
- obj-$(CONFIG_TEST_UDELAY)			+= test_udelay.o
-+obj-$(CONFIG_RTC_SHOW_TIME)			+= rtc_show_time.o
-diff --git a/kernel/time/rtc_show_time.c b/kernel/time/rtc_show_time.c
-new file mode 100644
-index 000000000000..19a8a0cc94f0
---- /dev/null
-+++ b/kernel/time/rtc_show_time.c
-@@ -0,0 +1,29 @@
-+/*
-+ * rtc time printing utility functions
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/rtc.h>
-+
-+void rtc_show_time(const char *prefix_msg)
-+{
-+#if defined(CONFIG_RTC_SHOW_TIME_MONOTONIC) /* dmesg is in monotonic */
-+	pr_info("%s\n", prefix_msg ? prefix_msg : "Time:");
-+#elif defined(CONFIG_RTC_SHOW_TIME_BOOTTIME)
-+	struct timespec64 ts;
-+
-+	getboottime64(&ts);
-+	pr_info("%s %lu.%09lu B\n",
-+		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
-+#else /* realtime */
-+	struct timespec64 ts;
-+
-+	getnstimeofday64(&ts);
-+	pr_info("%s %lu.%09lu UTC\n",
-+		prefix_msg ? prefix_msg : "Time:", ts.tv_sec, ts.tv_nsec);
-+#endif
-+}
-+EXPORT_SYMBOL(rtc_show_time);
--- 
-2.14.0.rc0.284.gd933b75aa4-goog
+Rgds, Heiner
