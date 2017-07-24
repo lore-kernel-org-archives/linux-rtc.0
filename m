@@ -1,136 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49165 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752045AbdGFJmQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2017 05:42:16 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 07/11] rtc: rv8803: use generic nvmem support
-Date: Thu,  6 Jul 2017 11:42:04 +0200
-Message-Id: <20170706094208.16240-8-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
-References: <20170706094208.16240-1-alexandre.belloni@free-electrons.com>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:34272 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752087AbdGXUPZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Jul 2017 16:15:25 -0400
+Received: by mail-wr0-f193.google.com with SMTP id o33so10778625wrb.1
+        for <linux-rtc@vger.kernel.org>; Mon, 24 Jul 2017 13:15:25 -0700 (PDT)
+Subject: Re: Duplicated drivers for Epson RX8025 RTC support
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+        linux-rtc@vger.kernel.org, Wolfgang Grandegger <wg@grandegger.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+References: <a82c9f50-31d2-d750-39fc-05501f3724ad@gmail.com>
+ <20170724091601.sjz5shnv3ozq6the@piout.net>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <e38a63be-55c0-98bf-38e3-79ffe03d028a@gmail.com>
+Date: Mon, 24 Jul 2017 22:15:18 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170724091601.sjz5shnv3ozq6the@piout.net>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Instead of adding a binary sysfs attribute from the driver (which suffers
-from a race condition as the attribute appears after the device), use the
-core to register an nvmem device.
+Am 24.07.2017 um 11:16 schrieb Alexandre Belloni:
+> Hi,
+> 
+> On 23/07/2017 at 22:15:24 +0200, Heiner Kallweit wrote:
+>> When working on refactoring parts of the ds1307 I stumbled across the fact
+>> that there are two rtc drivers claiming to support the Epson RX8025 chip.
+>>
+>> 1. ds1307 claims to support also this chip. Support was added in 2009,
+>>    however I have doubts that it actually works.
+>>    RX8025 needs a special addressing mode (register address has to be
+>>    left-shifted by 4 bits) which is implemented for both control
+>>    registers but not for the standard registers.
+>>
+After checking again it could work due to the fact that mainly bulk ops
+starting with address 0 are used. Therefore the missing shift doesn't hurt.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-rv8803.c | 51 +++++++++++++++++++-----------------------------
- 1 file changed, 20 insertions(+), 31 deletions(-)
+>>    Also support for this chip misses the fix from patch 2e10e74df72
+>>    ("rtc: rx8025: fix transfer mode")
+>>
+>>    I'm curious whether support for this chip was ever tested, commit message
+>>    of a216685818a5 "rtc: add EPSON RX8025 support to DS1307 RTC driver"
+>>    does not mention that this piece of code was tested with any device
+>>    with this chip.
+>>
+>> 2. There's a separate driver for this chip (rtc-rx8025), also added in 2009.
+>>    This drivers is actively maintained.
+>>
+>> The separate driver mentions that it supports SA/NB variants of the chip.
+>> There's no info regarding supported chip variants in the ds1307-integrated
+>> driver. So there is a small chance that both drivers support different
+>> chip variants (in this case however the ds1307-integrated driver should
+>> clearly mention this, also in the Kconfig help text).
+>>
+>> For me it's more likely that both drivers try support the same chip.
+>> Having said that I would propose to remove (rudimentary) RX8025 support
+>> in ds1307. As a first step we could leave the code in but use a WARN_ON
+>> to notify potential users that this code is deprecated and they should
+>> use the separate driver instead.
+>>
+> 
+> The remaining issue is described here:
+> https://groups.google.com/d/msg/rtc-linux/M_uv9YkRbC8/MaKpMa3LGgAJ
+> 
+Thanks a lot for sharing the link. So I involve the people from the
+previous discussion.
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 209edbb03971..10474ab7887d 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -68,6 +68,7 @@ struct rv8803_data {
- 	struct mutex flags_lock;
- 	u8 ctrl;
- 	enum rv8803_type type;
-+	struct nvmem_config nvmem_cfg;
- };
- 
- static int rv8803_read_reg(const struct i2c_client *client, u8 reg)
-@@ -460,48 +461,32 @@ static int rv8803_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
--static ssize_t rv8803_nvram_write(struct file *filp, struct kobject *kobj,
--				  struct bin_attribute *attr,
--				  char *buf, loff_t off, size_t count)
-+static int rv8803_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
- {
--	struct device *dev = kobj_to_dev(kobj);
--	struct i2c_client *client = to_i2c_client(dev);
- 	int ret;
- 
--	ret = rv8803_write_reg(client, RV8803_RAM, buf[0]);
-+	ret = rv8803_write_reg(priv, RV8803_RAM, *(u8 *)val);
- 	if (ret)
- 		return ret;
- 
--	return 1;
-+	return 0;
- }
- 
--static ssize_t rv8803_nvram_read(struct file *filp, struct kobject *kobj,
--				 struct bin_attribute *attr,
--				 char *buf, loff_t off, size_t count)
-+static int rv8803_nvram_read(void *priv, unsigned int offset,
-+			     void *val, size_t bytes)
- {
--	struct device *dev = kobj_to_dev(kobj);
--	struct i2c_client *client = to_i2c_client(dev);
- 	int ret;
- 
--	ret = rv8803_read_reg(client, RV8803_RAM);
-+	ret = rv8803_read_reg(priv, RV8803_RAM);
- 	if (ret < 0)
- 		return ret;
- 
--	buf[0] = ret;
-+	*(u8 *)val = ret;
- 
--	return 1;
-+	return 0;
- }
- 
--static struct bin_attribute rv8803_nvram_attr = {
--	.attr = {
--		.name = "nvram",
--		.mode = S_IRUGO | S_IWUSR,
--	},
--	.size = 1,
--	.read = rv8803_nvram_read,
--	.write = rv8803_nvram_write,
--};
--
- static struct rtc_class_ops rv8803_rtc_ops = {
- 	.read_time = rv8803_get_time,
- 	.set_time = rv8803_set_time,
-@@ -597,7 +582,17 @@ static int rv8803_probe(struct i2c_client *client,
- 		}
- 	}
- 
-+	rv8803->nvmem_cfg.name = "rv8803_nvram",
-+	rv8803->nvmem_cfg.word_size = 1,
-+	rv8803->nvmem_cfg.stride = 1,
-+	rv8803->nvmem_cfg.size = 1,
-+	rv8803->nvmem_cfg.reg_read = rv8803_nvram_read,
-+	rv8803->nvmem_cfg.reg_write = rv8803_nvram_write,
-+	rv8803->nvmem_cfg.priv = client;
-+
- 	rv8803->rtc->ops = &rv8803_rtc_ops;
-+	rv8803->rtc->nvmem_config = &rv8803->nvmem_cfg;
-+	rv8803->rtc->nvram_old_abi = true;
- 	err = rtc_register_device(rv8803->rtc);
- 	if (err)
- 		return err;
-@@ -612,10 +607,6 @@ static int rv8803_probe(struct i2c_client *client,
- 		return err;
- 	}
- 
--	err = device_create_bin_file(&client->dev, &rv8803_nvram_attr);
--	if (err)
--		return err;
--
- 	rv8803->rtc->max_user_freq = 1;
- 
- 	return 0;
-@@ -623,8 +614,6 @@ static int rv8803_probe(struct i2c_client *client,
- 
- static int rv8803_remove(struct i2c_client *client)
- {
--	device_remove_bin_file(&client->dev, &rv8803_nvram_attr);
--
- 	return 0;
- }
- 
--- 
-2.11.0
+> It is even more apparent after your regmap rework.
+> 
+Most likely best would be to switch rtc-rx8025 to regmap-i2c as well
+as it automatically selects proper low-level access methods based on
+the supported i2c functions.
+Shouldn't be a big deal using 11e5890b5342 "rtc: ds1307: convert driver
+to regmap" as blueprint.
+
+Afterwards support for rx8025 in ds1307 could be dropped.
+
+Rgds, Heiner
