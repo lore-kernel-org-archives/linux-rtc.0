@@ -1,42 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58026 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936121AbdGTXSc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jul 2017 19:18:32 -0400
-In-Reply-To: <20170720231745.GE31807@n2100.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 1/4] rtc: pl031: constify amba_ids
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:53294 "EHLO
+        smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751853AbdGXDYm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jul 2017 23:24:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
-Date: Fri, 21 Jul 2017 00:18:25 +0100
+In-Reply-To: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
+References: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Mon, 24 Jul 2017 11:24:18 +0800
+Message-ID: <CAGb2v66UXM3ezjJdv0JdzdTG4qPdpcHj1DYSRJ1tBviTk-f-CA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] rtc: sun6i: Remove double init of spinlock in sun6i_rtc_clk_init()
+To: Alexey Klimov <alexey.klimov@arm.com>
+Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The AMBA device IDs should be marked const.  Make that so.
+On Wed, Jul 12, 2017 at 6:59 PM, Alexey Klimov <alexey.klimov@arm.com> wrote:
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/rtc/rtc-pl031.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+A bit more description would be nice. Maybe a kernel message that
+prompted this fix?
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index e1687e19c59f..0d87b90b1903 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -446,7 +446,7 @@ static struct pl031_vendor_data stv2_pl031 = {
- 	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
- };
- 
--static struct amba_id pl031_ids[] = {
-+static const struct amba_id pl031_ids[] = {
- 	{
- 		.id = 0x00041031,
- 		.mask = 0x000fffff,
--- 
-2.7.4
+> Fixes: 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator")
+> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Cc: Rob Herring <robh@kernel.org>
+> Signed-off-by: Alexey Klimov <alexey.klimov@arm.com>
+
+Otherwise,
+
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
