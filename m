@@ -1,53 +1,111 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:39908 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753182AbdGMUoH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jul 2017 16:44:07 -0400
-Date: Thu, 13 Jul 2017 22:43:55 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-omap@vger.kernel.org, Russ Dill <Russ.Dill@ti.com>
-Subject: Re: [rtc-linux] Re: [PATCH] RTC: Add functionality to read/write rtc
- scratch registers
-Message-ID: <20170713204355.sbtjip5skms6zwdq@piout.net>
-References: <1492492807-20316-1-git-send-email-j-keerthy@ti.com>
- <8b28ca13-9822-4172-95b0-59802187ec93@ti.com>
- <20170504223827.l56sbaozuarq5xwi@piout.net>
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:53250 "EHLO
+        smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751853AbdGXDWv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jul 2017 23:22:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170504223827.l56sbaozuarq5xwi@piout.net>
+In-Reply-To: <1499857190-30849-2-git-send-email-alexey.klimov@arm.com>
+References: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com> <1499857190-30849-2-git-send-email-alexey.klimov@arm.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Mon, 24 Jul 2017 11:22:26 +0800
+Message-ID: <CAGb2v65mqkSfy_ebgEz+VKrY05AvwXQ4Ei_fuFWYYW73Qs=PnA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] rtc: sun6i: fix memleaks and add error-path in sun6i_rtc_clk_init()
+To: Alexey Klimov <alexey.klimov@arm.com>
+Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Wed, Jul 12, 2017 at 6:59 PM, Alexey Klimov <alexey.klimov@arm.com> wrote:
+> The memory allocated for rtc and clk_data will never be freed in
+> sun6i_rtc_clk_init() in case of error and return. This patch adds
+> required error path with memory freeing.
+>
+> Fixes: 847b8bf62eb4 ("rtc: sun6i: Expose the 32kHz oscillator")
+> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Cc: Rob Herring <robh@kernel.org>
+> Signed-off-by: Alexey Klimov <alexey.klimov@arm.com>
+> ---
+>  drivers/rtc/rtc-sun6i.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index 7e7da60..77bc4d3 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -197,14 +197,14 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>         clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
+>                            GFP_KERNEL);
+>         if (!clk_data)
+> -               return;
+> +               goto out_rtc_free;
+>
+>         spin_lock_init(&rtc->lock);
+>
+>         rtc->base = of_io_request_and_map(node, 0, of_node_full_name(node));
+>         if (IS_ERR(rtc->base)) {
+>                 pr_crit("Can't map RTC registers");
+> -               return;
+> +               goto out_clk_data_free;
+>         }
+>
+>         /* Switch to the external, more precise, oscillator */
+> @@ -216,7 +216,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>
+>         /* Deal with old DTs */
+>         if (!of_get_property(node, "clocks", NULL))
+> -               return;
+> +               goto out_clk_data_free;
+>
+>         rtc->int_osc = clk_hw_register_fixed_rate_with_accuracy(NULL,
+>                                                                 "rtc-int-osc",
+> @@ -225,7 +225,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>                                                                 300000000);
+>         if (IS_ERR(rtc->int_osc)) {
+>                 pr_crit("Couldn't register the internal oscillator\n");
+> -               return;
+> +               goto out_clk_data_free;
+>         }
+>
+>         parents[0] = clk_hw_get_name(rtc->int_osc);
+> @@ -240,12 +240,19 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>         rtc->losc = clk_register(NULL, &rtc->hw);
+>         if (IS_ERR(rtc->losc)) {
+>                 pr_crit("Couldn't register the LOSC clock\n");
+> -               return;
+> +               goto out_clk_data_free;
 
-On 05/05/2017 at 00:38:27 +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 03/05/2017 at 11:39:34 +0530, Keerthy wrote:
-> > On Tuesday 18 April 2017 10:50 AM, Keerthy wrote:
-> > > From: Russ Dill <Russ.Dill@ti.com>
-> > > 
-> > > Many RTCs provide scratch registers that are maintained so long as the RTC
-> > > has power. Provide a generic method to access these registers.
-> > > 
-> > 
-> > A gentle ping on this
-> > 
-> 
-> Yeah, I apologize for the delay (I know you already sent this 6-8 months
-> ago).
-> I'm not satisfied with the interface (and its name). I gave a lot of
-> thought into it and I'm currently reworking part of the subsystem to
-> create a similar feature. I'm planning to have it in 4.13.
-> 
+You should also unregister the fixed rate clk above.
 
-So, the nvmem stuff is now in 4.13. If you can still wait a bit, I'll
-implement it myself and test on am335x.
+>         }
+>
+>         clk_data->num = 1;
+>         clk_data->hws[0] = &rtc->hw;
+>         of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+> +
+> +       return;
+> +
+> +out_clk_data_free:
+> +       kfree(clk_data);
+> +out_rtc_free:
+> +       kfree(rtc);
+
+rtc can not be freed. It has already been assigned to sun6i_rtc, a static
+variable within this module. It then gets used by the actual RTC driver
+later in this file to get the register base pointer. This was done to
+avoid issues with trying to map the same I/O addresses twice.
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Regards
+ChenYu
+
+>  }
+>  CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+>                       sun6i_rtc_clk_init);
+> --
+> 1.9.1
+>
