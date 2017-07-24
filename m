@@ -1,44 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36160 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752288AbdGYQoN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 25 Jul 2017 12:44:13 -0400
-Received: by mail-wm0-f68.google.com with SMTP id 184so16894328wmo.3
-        for <linux-rtc@vger.kernel.org>; Tue, 25 Jul 2017 09:44:12 -0700 (PDT)
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] rtc: ds1307: fix regmap config
-Message-ID: <2061233f-1187-d03c-51dc-8d7ad2faf90e@gmail.com>
-Date: Tue, 25 Jul 2017 18:44:04 +0200
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:34924
+        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751799AbdGXEyY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Jul 2017 00:54:24 -0400
+Date: Mon, 24 Jul 2017 06:54:20 +0200 (CEST)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
+cc: Miodrag Dinic <miodrag.dinic@imgtec.com>,
+        Goran Ferenc <goran.ferenc@imgtec.com>,
+        Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Bo Hu <bohu@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Douglas Leung <douglas.leung@imgtec.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Hogan <james.hogan@imgtec.com>,
+        Jin Qian <jinqian@google.com>, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Paul Burton <paul.burton@imgtec.com>,
+        Petar Jovanovic <petar.jovanovic@imgtec.com>,
+        Raghu Gandham <raghu.gandham@imgtec.com>,
+        linux-mips@linux-mips.org, kbuild-all@01.org
+Subject: Re: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver (fwd)
+Message-ID: <alpine.DEB.2.20.1707240652320.3169@hadrien>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Current max_register setting breaks reading nvram on certain chips and
-also reading the standard registers on RX8130 where register map starts
-at 0x10.
+Please check line 203; it seems that the tested value is unsigned.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Fixes: 11e5890b5342 "rtc: ds1307: convert driver to regmap"
----
-This fix should make it to 4.13.
----
- drivers/rtc/rtc-ds1307.c | 1 -
- 1 file changed, 1 deletion(-)
+julia
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4fac49e5..4b43aa62 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1301,7 +1301,6 @@ static void ds1307_clks_register(struct ds1307 *ds1307)
- static const struct regmap_config regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
--	.max_register = 0x12,
- };
- 
- static int ds1307_probe(struct i2c_client *client,
--- 
-2.13.2
+---------- Forwarded message ----------
+Date: Mon, 24 Jul 2017 11:40:38 +0800
+From: kbuild test robot <fengguang.wu@intel.com>
+To: kbuild@01.org
+Cc: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
+
+Hi Miodrag,
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on v4.13-rc2 next-20170721]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Aleksandar-Markovic/MIPS-Add-virtual-Ranchu-board-as-a-generic-based-board/20170724-062318
+:::::: branch date: 5 hours ago
+:::::: commit date: 5 hours ago
+
+>> drivers/rtc/rtc-goldfish.c:203:5-16: WARNING: Unsigned expression compared with zero: rtcdrv -> irq < 0
+
+git remote add linux-review https://github.com/0day-ci/linux
+git remote update linux-review
+git checkout 3b43c4b417a02749f734942456b41eb397e389ae
+vim +203 drivers/rtc/rtc-goldfish.c
+
+3b43c4b4 Miodrag Dinic 2017-07-21  181
+3b43c4b4 Miodrag Dinic 2017-07-21  182  static int goldfish_rtc_probe(struct platform_device *pdev)
+3b43c4b4 Miodrag Dinic 2017-07-21  183  {
+3b43c4b4 Miodrag Dinic 2017-07-21  184  	struct resource *r;
+3b43c4b4 Miodrag Dinic 2017-07-21  185  	struct goldfish_rtc *rtcdrv;
+3b43c4b4 Miodrag Dinic 2017-07-21  186  	int err;
+3b43c4b4 Miodrag Dinic 2017-07-21  187
+3b43c4b4 Miodrag Dinic 2017-07-21  188  	rtcdrv = devm_kzalloc(&pdev->dev, sizeof(*rtcdrv), GFP_KERNEL);
+3b43c4b4 Miodrag Dinic 2017-07-21  189  	if (rtcdrv == NULL)
+3b43c4b4 Miodrag Dinic 2017-07-21  190  		return -ENOMEM;
+3b43c4b4 Miodrag Dinic 2017-07-21  191
+3b43c4b4 Miodrag Dinic 2017-07-21  192  	platform_set_drvdata(pdev, rtcdrv);
+3b43c4b4 Miodrag Dinic 2017-07-21  193
+3b43c4b4 Miodrag Dinic 2017-07-21  194  	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+3b43c4b4 Miodrag Dinic 2017-07-21  195  	if (r == NULL)
+3b43c4b4 Miodrag Dinic 2017-07-21  196  		return -ENODEV;
+3b43c4b4 Miodrag Dinic 2017-07-21  197
+3b43c4b4 Miodrag Dinic 2017-07-21  198  	rtcdrv->base = devm_ioremap_resource(&pdev->dev, r);
+3b43c4b4 Miodrag Dinic 2017-07-21  199  	if (IS_ERR(rtcdrv->base))
+3b43c4b4 Miodrag Dinic 2017-07-21  200  		return -ENODEV;
+3b43c4b4 Miodrag Dinic 2017-07-21  201
+3b43c4b4 Miodrag Dinic 2017-07-21  202  	rtcdrv->irq = platform_get_irq(pdev, 0);
+3b43c4b4 Miodrag Dinic 2017-07-21 @203  	if (rtcdrv->irq < 0)
+3b43c4b4 Miodrag Dinic 2017-07-21  204  		return -ENODEV;
+3b43c4b4 Miodrag Dinic 2017-07-21  205
+3b43c4b4 Miodrag Dinic 2017-07-21  206  	rtcdrv->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+3b43c4b4 Miodrag Dinic 2017-07-21  207  					&goldfish_rtc_ops, THIS_MODULE);
+3b43c4b4 Miodrag Dinic 2017-07-21  208  	if (IS_ERR(rtcdrv->rtc))
+3b43c4b4 Miodrag Dinic 2017-07-21  209  		return PTR_ERR(rtcdrv->rtc);
+3b43c4b4 Miodrag Dinic 2017-07-21  210
+3b43c4b4 Miodrag Dinic 2017-07-21  211  	err = devm_request_irq(&pdev->dev, rtcdrv->irq, goldfish_rtc_interrupt,
+3b43c4b4 Miodrag Dinic 2017-07-21  212  		0, pdev->name, rtcdrv);
+3b43c4b4 Miodrag Dinic 2017-07-21  213  	if (err)
+3b43c4b4 Miodrag Dinic 2017-07-21  214  		return err;
+3b43c4b4 Miodrag Dinic 2017-07-21  215
+3b43c4b4 Miodrag Dinic 2017-07-21  216  	return 0;
+3b43c4b4 Miodrag Dinic 2017-07-21  217  }
+3b43c4b4 Miodrag Dinic 2017-07-21  218
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
