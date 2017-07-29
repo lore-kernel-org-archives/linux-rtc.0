@@ -1,114 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:39579 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:41617 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751679AbdGRRwg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 18 Jul 2017 13:52:36 -0400
-Date: Tue, 18 Jul 2017 19:52:24 +0200
+        with ESMTP id S1753562AbdG2LHj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 29 Jul 2017 07:07:39 -0400
+Date: Sat, 29 Jul 2017 13:07:37 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net,
-        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org,
-        a.zummo@towertech.it, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/4] rtc-lib: Add rtc_show_time(const char *prefix_msg)
-Message-ID: <20170718175224.xccqnv4zjggn4shu@piout.net>
-References: <20170718172525.114514-1-salyzyn@android.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Moritz Fischer <mdf@kernel.org>, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it, wim@iguana.be,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Moritz Fischer <moritz.fischer@ettus.com>
+Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
+ Device
+Message-ID: <20170729110737.dl2nly5xvurmb7eo@piout.net>
+References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+ <1499975665-14581-2-git-send-email-mdf@kernel.org>
+ <20170717075117.btnhbmgpofwn7zdk@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170718172525.114514-1-salyzyn@android.com>
+In-Reply-To: <20170717075117.btnhbmgpofwn7zdk@dell>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On 17/07/2017 at 08:51:17 +0100, Lee Jones wrote:
+> > +static int ds1374_probe(struct i2c_client *client,
+> > +			const struct i2c_device_id *id)
+> > +{
+> > +	struct ds1374 *ds1374;
+> > +	u32 mode;
+> > +	int err;
+> > +
+> > +	ds1374 = devm_kzalloc(&client->dev, sizeof(struct ds1374), GFP_KERNEL);
+> > +	if (!ds1374)
+> > +		return -ENOMEM;
+> > +
+> > +	ds1374->regmap = devm_regmap_init_i2c(client, &ds1374_regmap_config);
+> > +	if (IS_ERR(ds1374->regmap))
+> > +		return PTR_ERR(ds1374->regmap);
+> > +
+> > +	if (IS_ENABLED(CONFIG_OF) && client->dev.of_node) {
+> > +		err = of_property_read_u32(client->dev.of_node,
+> > +					   "dallas,mode", &mode);
+> > +		if (err < 0) {
+> > +			dev_err(&client->dev, "missing dallas,mode property\n");
+> > +			return -EINVAL;
+> > +		}
+> > +
+> > +		ds1374->remapped_reset
+> > +			= of_property_read_bool(client->dev.of_node,
+> > +						"dallas,remap-reset");
+> > +
+> > +		ds1374->mode = (enum ds1374_mode)mode;
+> > +	} else if (IS_ENABLED(CONFIG_RTC_DRV_DS1374_WDT)) {
+> > +		ds1374->mode = DS1374_MODE_RTC_WDT;
+> > +	} else {
+> > +		ds1374->mode = DS1374_MODE_RTC_ALM;
+> > +	}
+> 
+> This is non-standard.  So if OF is enabled, you're taking the 'mode'
+> from platform data (DT) and if it's not, you're relying on Kconfig.
+> May I suggest that you pick platform data OR Kconfig, but not mix the
+> two.
+> 
 
-On 18/07/2017 at 10:25:23 -0700, Mark Salyzyn wrote:
-> Go directly to the rtc for persistent wall clock time and print.
-> Useful if REALTIME is required to be logged in a low level power
-> management function or when clock activities are suspended.  An
-> aid to permit user space alignment of kernel activities.
-> 
-> Feature activated by CONFIG_RTC_SHOW_TIME.
-> 
-> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-> ---
->  drivers/rtc/Kconfig   | 11 +++++++++++
->  drivers/rtc/rtc-lib.c | 16 ++++++++++++++++
->  include/linux/rtc.h   |  5 +++++
->  3 files changed, 32 insertions(+)
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 72419ac2c52a..7c308605bf42 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -5,6 +5,17 @@
->  config RTC_LIB
->  	bool
->  
-> +config RTC_SHOW_TIME
-> +	bool "rtc_show_time instrumentation"
-> +	select RTC_LIB
-> +	help
-> +	  Activate rtc_show_time(const char *msg) wall clock time
-> +	  instrumentation.
-> +
-> +	  The instrumentation is used to help triage and synchronize
-> +	  kernel logs using CLOCK_MONOTONIC and user space activity
-> +	  logs utilizing CLOCK_REALTIME references.
-> +
->  config RTC_MC146818_LIB
->  	bool
->  	select RTC_LIB
-> diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-> index 1ae7da5cfc60..676d6a83e843 100644
-> --- a/drivers/rtc/rtc-lib.c
-> +++ b/drivers/rtc/rtc-lib.c
-> @@ -94,6 +94,22 @@ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
->  }
->  EXPORT_SYMBOL(rtc_time64_to_tm);
->  
-> +#ifdef CONFIG_RTC_SHOW_TIME
-> +void rtc_show_time(const char *prefix_msg)
-> +{
-> +	struct timespec ts;
-> +	struct rtc_time tm;
-> +
-> +	getnstimeofday(&ts);
-> +	rtc_time_to_tm(ts.tv_sec, &tm);
+I've explicitly asked for that. CONFIG_RTC_DRV_DS1374_WDT has been in
+the kernel since 2014. Requiring the use of dallas,mode now would break
+the functionality for people not updating their DT.
 
-Apart from using rtc_time_to_tm (and you should probably use
-rtc_time64_to_tm), none of this is actually related to the RTC
-subsystem. I feel like you should find another place to put that, maybe
-timekeeping_debug.c?
+However, my suggestion was that if OF is enabled and dallas,mode is not
+present, then rely on CONFIG_RTC_DRV_DS1374_WDT to set the mode.
 
-> +	pr_info("%s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
-> +		prefix_msg ? prefix_msg : "Time:",
-> +		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-> +		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
-> +}
-> +EXPORT_SYMBOL(rtc_show_time);
-> +#endif
-> +
->  /*
->   * Does the rtc_time represent a valid date/time?
->   */
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index 0a0f0d14a5fb..bf625e023799 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -22,6 +22,11 @@ extern int rtc_year_days(unsigned int day, unsigned int month, unsigned int year
->  extern int rtc_valid_tm(struct rtc_time *tm);
->  extern time64_t rtc_tm_to_time64(struct rtc_time *tm);
->  extern void rtc_time64_to_tm(time64_t time, struct rtc_time *tm);
-> +#ifdef CONFIG_RTC_SHOW_TIME
-> +extern void rtc_show_time(const char *prefix_msg);
-> +#else
-> +#define rtc_show_time(prefix_msg)
-> +#endif
->  ktime_t rtc_tm_to_ktime(struct rtc_time tm);
->  struct rtc_time rtc_ktime_to_tm(ktime_t kt);
->  
-> -- 
-> 2.13.2.932.g7449e964c-goog
-> 
+I personally don't care too much about breaking the DT ABI but this one
+can be a bit tricky to discover and I still think it can be avoided.
+At least, we should silently ignore CONFIG_RTC_DRV_DS1374_WDT.
+
 
 -- 
 Alexandre Belloni, Free Electrons
