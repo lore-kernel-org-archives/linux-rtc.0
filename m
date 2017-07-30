@@ -1,31 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:53282 "EHLO
-        smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751853AbdGXDXn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jul 2017 23:23:43 -0400
+Received: from mail.free-electrons.com ([62.4.15.54]:60020 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754128AbdG3ObB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 30 Jul 2017 10:31:01 -0400
+Date: Sun, 30 Jul 2017 16:30:59 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: Re: [PATCH] rtc: ds1307: remove legacy check for
+ "isil,irq2-can-wakeup-machine" property
+Message-ID: <20170730143059.bdopnnvajlj6gw6u@piout.net>
+References: <ff4ea92b-4af3-1a59-2ea3-056a43125c20@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1499857190-30849-3-git-send-email-alexey.klimov@arm.com>
-References: <1499857190-30849-1-git-send-email-alexey.klimov@arm.com> <1499857190-30849-3-git-send-email-alexey.klimov@arm.com>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Mon, 24 Jul 2017 11:23:19 +0800
-Message-ID: <CAGb2v64Up3DmY7DgbHYmkBbPA5hcK4hPkWknF=SAmCu72qetcw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] rtc: sun6i: Remove unneeded initalization of ret in sun6i_rtc_setalarm()
-To: Alexey Klimov <alexey.klimov@arm.com>
-Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ff4ea92b-4af3-1a59-2ea3-056a43125c20@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 12, 2017 at 6:59 PM, Alexey Klimov <alexey.klimov@arm.com> wrote:
+On 06/07/2017 at 22:40:03 +0200, Heiner Kallweit wrote:
+> Commit 8b44f5be20fd ("ARM: dts: armada: replace isil,irq2-can-wakeup-machine with wakeup-source property")
+> removed the last usage of "isil,irq2-can-wakeup-machine" almost
+> two years ago. So I think we can get rid of supporting this
+> legacy binding.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/power/wakeup-source.txt | 9 ++++-----
+>  Documentation/devicetree/bindings/rtc/isil,isl12057.txt   | 1 -
+>  drivers/rtc/rtc-ds1307.c                                  | 8 +-------
+>  3 files changed, 5 insertions(+), 13 deletions(-)
+> 
+Applied, thanks.
 
-A bit more description would be nice.
-
-> Signed-off-by: Alexey Klimov <alexey.klimov@arm.com>
-
-Otherwise,
-
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
