@@ -1,27 +1,21 @@
-Return-Path: <rtc-linux+bncBDKNBMNKRMJRBQVQS7FQKGQEWUF4SXY@googlegroups.com>
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBDO367FQKGQEJEGXGNI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id v142si614565wmv.8.2017.07.30.07.30.37
+        for <rtc-linux@googlegroups.com>;
+        Sun, 30 Jul 2017 07:30:37 -0700 (PDT)
+Date: Sun, 30 Jul 2017 16:30:36 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+Cc: a.zummo@towertech.it, rtc-linux@googlegroups.com
+Subject: [rtc-linux] Re: [PATCH v2 2/2] RTC: s35390a: implement ioctls
+Message-ID: <20170730143036.amozufkop6gc6sif@piout.net>
+References: <cover.1499240924.git.fabien.lahoudere@collabora.co.uk>
+ <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
 MIME-Version: 1.0
-Received: from mail-wr0-x236.google.com (mail-wr0-x236.google.com. [2a00:1450:400c:c0c::236])
-        by gmr-mx.google.com with ESMTPS id r131si415853wmg.3.2017.07.12.01.05.21
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 Jul 2017 01:05:21 -0700 (PDT)
-Received: by mail-wr0-x236.google.com with SMTP id k67so22299460wrc.2
-        for <rtc-linux@googlegroups.com>; Wed, 12 Jul 2017 01:05:21 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: benjamin.gaignard@linaro.org
-Cc: linaro-kernel@lists.linaro.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org
-Subject: [rtc-linux] [PATCH v2 08/22] rtc: ds1305: stop using rtc deprecated functions
-Date: Wed, 12 Jul 2017 10:04:28 +0200
-Message-Id: <1499846682-14093-9-git-send-email-benjamin.gaignard@linaro.org>
-In-Reply-To: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-References: <1499846682-14093-1-git-send-email-benjamin.gaignard@linaro.org>
-Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <bc0dd162f9b89349b41087f1fd710409cd9aaa8f.1499240924.git.fabien.lahoudere@collabora.co.uk>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -30,53 +24,20 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-rtc_time_to_tm() and rtc_tm_to_time() are deprecated because they
-rely on 32bits variables and that will make rtc break in y2038/2016.
-Stop using those two functions to safer 64bits ones.
+On 05/07/2017 at 10:02:30 +0200, Fabien Lahoudere wrote:
+> Implements RTC_VL_READ and RTC_VL_CLR ioctls.
+> 
+> Signed-off-by: Fabien Lahoudere <fabien.lahoudere@collabora.co.uk>
+> ---
+>  drivers/rtc/rtc-s35390a.c | 32 +++++++++++++++++++++++++++++++-
+>  1 file changed, 31 insertions(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: rtc-linux@googlegroups.com
-CC: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-ds1305.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
-index 72b2293..b41168b 100644
---- a/drivers/rtc/rtc-ds1305.c
-+++ b/drivers/rtc/rtc-ds1305.c
-@@ -324,23 +324,20 @@ static int ds1305_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- {
- 	struct ds1305	*ds1305 = dev_get_drvdata(dev);
- 	struct spi_device *spi = ds1305->spi;
--	unsigned long	now, later;
-+	unsigned long long now, later;
- 	struct rtc_time	tm;
- 	int		status;
- 	u8		buf[1 + DS1305_ALM_LEN];
- 
- 	/* convert desired alarm to time_t */
--	status = rtc_tm_to_time(&alm->time, &later);
--	if (status < 0)
--		return status;
-+	later = rtc_tm_to_time64(&alm->time);
- 
- 	/* Read current time as time_t */
- 	status = ds1305_get_time(dev, &tm);
- 	if (status < 0)
- 		return status;
--	status = rtc_tm_to_time(&tm, &now);
--	if (status < 0)
--		return status;
-+
-+	now = rtc_tm_to_time64(&tm);
- 
- 	/* make sure alarm fires within the next 24 hours */
- 	if (later <= now)
 -- 
-1.9.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
