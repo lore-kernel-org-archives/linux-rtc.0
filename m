@@ -1,83 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([218.249.47.111]:41104 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751560AbdHGB5z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Aug 2017 21:57:55 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core driver
-Date: Mon, 7 Aug 2017 09:57:41 +0800
-Message-ID: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+Received: from mail-it0-f48.google.com ([209.85.214.48]:34905 "EHLO
+        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752368AbdHBMck (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 08:32:40 -0400
+Received: by mail-it0-f48.google.com with SMTP id h199so22956133ith.0
+        for <linux-rtc@vger.kernel.org>; Wed, 02 Aug 2017 05:32:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk> <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 2 Aug 2017 14:32:38 +0200
+Message-ID: <CACRpkdadsnmL2e5XPoE9LFs4azqemZ69FbY_-bzjJigJMCf-qw@mail.gmail.com>
+Subject: Re: [PATCH 3/4] rtc: pl031: avoid exposing alarm if no interrupt
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>, linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The core driver should create and manage irq mappings instead of
-leaf drivers. This patch change to pass irq domain to
-devm_mfd_add_devices() and it will create mapping for irq resources
-automatically. And remove irq mapping in rtc driver since this has
-been done in core driver.
+On Fri, Jul 21, 2017 at 1:18 AM, Russell King
+<rmk+kernel@armlinux.org.uk> wrote:
 
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
----
- drivers/mfd/mt6397-core.c |    4 ++--
- drivers/rtc/rtc-mt6397.c  |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+> If the RTC has no interrupt, there is little point in exposing the RTC
+> alarm capabilities, as it can't be used as a wakeup source nor can it
+> deliver an event to userspace.
+>
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 04a601f..6546d7f 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
- 
- 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
- 					   ARRAY_SIZE(mt6323_devs), NULL,
--					   0, NULL);
-+					   0, pmic->irq_domain);
- 		break;
- 
- 	case MT6397_CID_CODE:
-@@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
- 
- 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
- 					   ARRAY_SIZE(mt6397_devs), NULL,
--					   0, NULL);
-+					   0, pmic->irq_domain);
- 		break;
- 
- 	default:
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 1a61fa5..22c52f7 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 	rtc->addr_base = res->start;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
-+	rtc->irq = res->start;
- 	if (rtc->irq <= 0)
- 		return -EINVAL;
- 
--- 
-1.7.9.5
+This makes all kind of sense.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
