@@ -1,139 +1,117 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:44079 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751061AbdHXOgq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 10:36:46 -0400
-Date: Thu, 24 Aug 2017 16:36:45 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: sun6i: Add support for the external oscillator gate
-Message-ID: <20170824143645.3pwfgnvhhqh3m2d6@piout.net>
-References: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:32953 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752294AbdHBIfM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 04:35:12 -0400
+From: Bhumika Goyal <bhumirks@gmail.com>
+To: julia.lawall@lip6.fr, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
+Subject: [PATCH] rtc: add const to bin_attribute structures
+Date: Wed,  2 Aug 2017 14:05:02 +0530
+Message-Id: <1501662902-16048-1-git-send-email-bhumirks@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Add const to bin_attribute structures as they are only passed to the
+functions sysfs_{remove/create}_bin_file or
+device_{remove/create}_bin_file. The arguments passed are of
+type const, so declare the structures to be const.
 
-On 24/08/2017 at 14:18:54 +0200, Maxime Ripard wrote:
-> The RTC can output its 32kHz clock outside of the SoC, for example to clock
-> a WiFi chip.
-> 
-> Create a new clock that other devices will be able to retrieve, while
-> maintaining the DT stability by providing a default name for that clock if
-> clock-output-names doesn't list one.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> ---
->  .../devicetree/bindings/rtc/sun6i-rtc.txt          |  4 ++--
->  drivers/rtc/rtc-sun6i.c                            | 24 +++++++++++++++++++---
->  2 files changed, 23 insertions(+), 5 deletions(-)
-> 
+Done using Coccinelle:
 
-It doesn't apply cleanly, can you rebase on top of -next?
+@m disable optional_qualifier@
+identifier s;
+position p;
+@@
+static struct bin_attribute s@p={...};
 
-> diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> index 945934918b71..d5e26d313f62 100644
-> --- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> @@ -10,7 +10,7 @@ Required properties:
->  
->  Required properties for new device trees
->  - clocks	: phandle to the 32kHz external oscillator
-> -- clock-output-names : name of the LOSC clock created
-> +- clock-output-names : names of the LOSC and its external output clocks created
->  - #clock-cells  : must be equals to 1. The RTC provides two clocks: the
->  		  LOSC and its external output, with index 0 and 1
->  		  respectively.
-> @@ -21,7 +21,7 @@ rtc: rtc@01f00000 {
->  	compatible = "allwinner,sun6i-a31-rtc";
->  	reg = <0x01f00000 0x54>;
->  	interrupts = <0 40 4>, <0 41 4>;
-> -	clock-output-names = "osc32k";
-> +	clock-output-names = "osc32k", "osc32k-out";
->  	clocks = <&ext_osc32k>;
->  	#clock-cells = <1>;
->  };
-> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-> index 39cbc1238b92..d4a6ddbfd872 100644
-> --- a/drivers/rtc/rtc-sun6i.c
-> +++ b/drivers/rtc/rtc-sun6i.c
-> @@ -73,6 +73,9 @@
->  #define SUN6I_ALARM_CONFIG			0x0050
->  #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
->  
-> +#define SUN6I_LOSC_OUT_GATING			0x0060
-> +#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-> +
->  /*
->   * Get date values
->   */
-> @@ -125,6 +128,7 @@ struct sun6i_rtc_dev {
->  	struct clk_hw hw;
->  	struct clk_hw *int_osc;
->  	struct clk *losc;
-> +	struct clk *ext_losc;
->  
->  	spinlock_t lock;
->  };
-> @@ -188,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
->  	struct clk_init_data init = {
->  		.ops		= &sun6i_rtc_osc_ops,
->  	};
-> +	const char *clkout_name = "osc32k-out";
->  	const char *parents[2];
->  
->  	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
-> @@ -195,7 +200,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
->  		return;
->  	spin_lock_init(&rtc->lock);
->  
-> -	clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
-> +	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
->  			   GFP_KERNEL);
->  	if (!clk_data)
->  		return;
-> @@ -235,7 +240,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
->  
->  	init.parent_names = parents;
->  	init.num_parents = of_clk_get_parent_count(node) + 1;
-> -	of_property_read_string(node, "clock-output-names", &init.name);
-> +	of_property_read_string_index(node, "clock-output-names", 0,
-> +				      &init.name);
->  
->  	rtc->losc = clk_register(NULL, &rtc->hw);
->  	if (IS_ERR(rtc->losc)) {
-> @@ -243,8 +249,20 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
->  		return;
->  	}
->  
-> -	clk_data->num = 1;
-> +	of_property_read_string_index(node, "clock-output-names", 1,
-> +				      &clkout_name);
-> +	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
-> +					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
-> +					  SUN6I_LOSC_OUT_GATING_EN, 0,
-> +					  &rtc->lock);
-> +	if (IS_ERR(rtc->ext_losc)) {
-> +		pr_crit("Couldn't register the LOSC external gate\n");
-> +		return;
-> +	}
-> +
-> +	clk_data->num = 2;
->  	clk_data->hws[0] = &rtc->hw;
-> +	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
->  	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
->  }
->  CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
-> -- 
-> 2.13.5
-> 
+@okay1@
+position p;
+identifier m.s;
+@@
+(
+sysfs_create_bin_file(...,&s@p,...)
+|
+sysfs_remove_bin_file(...,&s@p,...)
+)
 
+@bad@
+position p!={m.p,okay1.p};
+identifier m.s;
+@@
+s@p
+
+@change depends on !bad disable optional_qualifier@
+identifier m.s;
+@@
+static
++const
+struct bin_attribute s={...};
+
+Same script was modified for device_{create/remove}_bin_file functions.
+Cross compiled drivers/rtc/rtc-tx4939.o file for mips architecture.
+
+Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+---
+ drivers/rtc/rtc-ds1305.c   | 2 +-
+ drivers/rtc/rtc-ds1343.c   | 2 +-
+ drivers/rtc/rtc-stk17ta8.c | 2 +-
+ drivers/rtc/rtc-tx4939.c   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 72b2293..148e746 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -558,7 +558,7 @@ static void msg_init(struct spi_message *m, struct spi_transfer *x,
+ 	return (status < 0) ? status : count;
+ }
+ 
+-static struct bin_attribute nvram = {
++static const struct bin_attribute nvram = {
+ 	.attr.name	= "nvram",
+ 	.attr.mode	= S_IRUGO | S_IWUSR,
+ 	.read		= ds1305_nvram_read,
+diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
+index 895fbee..61d4254 100644
+--- a/drivers/rtc/rtc-ds1343.c
++++ b/drivers/rtc/rtc-ds1343.c
+@@ -191,7 +191,7 @@ static ssize_t ds1343_nvram_read(struct file *filp, struct kobject *kobj,
+ }
+ 
+ 
+-static struct bin_attribute nvram_attr = {
++static const struct bin_attribute nvram_attr = {
+ 	.attr.name	= "nvram",
+ 	.attr.mode	= S_IRUGO | S_IWUSR,
+ 	.read		= ds1343_nvram_read,
+diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
+index a456cb6..b84c83a 100644
+--- a/drivers/rtc/rtc-stk17ta8.c
++++ b/drivers/rtc/rtc-stk17ta8.c
+@@ -272,7 +272,7 @@ static ssize_t stk17ta8_nvram_write(struct file *filp, struct kobject *kobj,
+ 	return count;
+ }
+ 
+-static struct bin_attribute stk17ta8_nvram_attr = {
++static const struct bin_attribute stk17ta8_nvram_attr = {
+ 	.attr = {
+ 		.name = "nvram",
+ 		.mode = S_IRUGO | S_IWUSR,
+diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
+index 560d9a5..83fbfa5a 100644
+--- a/drivers/rtc/rtc-tx4939.c
++++ b/drivers/rtc/rtc-tx4939.c
+@@ -225,7 +225,7 @@ static ssize_t tx4939_rtc_nvram_write(struct file *filp, struct kobject *kobj,
+ 	return count;
+ }
+ 
+-static struct bin_attribute tx4939_rtc_nvram_attr = {
++static const struct bin_attribute tx4939_rtc_nvram_attr = {
+ 	.attr = {
+ 		.name = "nvram",
+ 		.mode = S_IRUGO | S_IWUSR,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
