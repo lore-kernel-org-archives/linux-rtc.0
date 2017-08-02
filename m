@@ -1,77 +1,34 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:33972 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751814AbdHUKtQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Aug 2017 06:49:16 -0400
-Received: by mail-wr0-f196.google.com with SMTP id p14so11708863wrg.1
-        for <linux-rtc@vger.kernel.org>; Mon, 21 Aug 2017 03:49:15 -0700 (PDT)
-Reply-To: monstr@monstr.eu
-Subject: Re: [PATCH] rtc: zynqmp: Disable the build as a module
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org,
-        =?UTF-8?Q?S=c3=b6ren_Brinkmann?= <soren.brinkmann@xilinx.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-arm-kernel@lists.infradead.org
-References: <9881f4ae2afb2cd671715bcd1fcb9035688c40c9.1500464394.git.michal.simek@xilinx.com>
- <20170821084641.p432yvwciwj6irdk@piout.net>
-From: Michal Simek <monstr@monstr.eu>
-Message-ID: <dd3127ef-8061-c357-8f55-5f661e8eda3a@monstr.eu>
-Date: Mon, 21 Aug 2017 12:49:07 +0200
+Received: from mail-io0-f172.google.com ([209.85.223.172]:36820 "EHLO
+        mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752370AbdHBMa7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 08:30:59 -0400
+Received: by mail-io0-f172.google.com with SMTP id g35so19804360ioi.3
+        for <linux-rtc@vger.kernel.org>; Wed, 02 Aug 2017 05:30:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170821084641.p432yvwciwj6irdk@piout.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="VofX8n1rqDJPwT4dOOVCukB3xiBOICp53"
+In-Reply-To: <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk> <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 2 Aug 2017 14:30:57 +0200
+Message-ID: <CACRpkda1kSAFJZHqGAPWiFckGJ5AoJG4htB0+r56gDFKmxubrg@mail.gmail.com>
+Subject: Re: [PATCH 1/4] rtc: pl031: constify amba_ids
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>, linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---VofX8n1rqDJPwT4dOOVCukB3xiBOICp53
-Content-Type: multipart/mixed; boundary="NRSNKS3L6hnna22hEhtI3HKHmDtJwA543";
- protected-headers="v1"
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, =?UTF-8?Q?S=c3=b6ren_Brinkmann?=
- <soren.brinkmann@xilinx.com>, linux-rtc@vger.kernel.org,
- Alessandro Zummo <a.zummo@towertech.it>, linux-arm-kernel@lists.infradead.org
-Message-ID: <dd3127ef-8061-c357-8f55-5f661e8eda3a@monstr.eu>
-Subject: Re: [PATCH] rtc: zynqmp: Disable the build as a module
-References: <9881f4ae2afb2cd671715bcd1fcb9035688c40c9.1500464394.git.michal.simek@xilinx.com>
- <20170821084641.p432yvwciwj6irdk@piout.net>
-In-Reply-To: <20170821084641.p432yvwciwj6irdk@piout.net>
+On Fri, Jul 21, 2017 at 1:18 AM, Russell King
+<rmk+kernel@armlinux.org.uk> wrote:
 
---NRSNKS3L6hnna22hEhtI3HKHmDtJwA543
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+> The AMBA device IDs should be marked const.  Make that so.
+>
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-On 21.8.2017 10:46, Alexandre Belloni wrote:
-> Hi,
->=20
-> As discussed, I will not apply that patch and instead will push for:
-> https://patchwork.kernel.org/patch/9911471/
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-no problem with this.
-
-M
-
-
---NRSNKS3L6hnna22hEhtI3HKHmDtJwA543--
-
---VofX8n1rqDJPwT4dOOVCukB3xiBOICp53
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAlmauqMACgkQykllyylKDCEAIQCfRaJk4QJ5hQDkQgeiOHut7MXz
-B2wAn3UV6YORU2Yk/NnqKuYkhMiMteS5
-=f3SJ
------END PGP SIGNATURE-----
-
---VofX8n1rqDJPwT4dOOVCukB3xiBOICp53--
+Yours,
+Linus Walleij
