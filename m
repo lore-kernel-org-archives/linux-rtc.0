@@ -1,59 +1,105 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34509 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751336AbdH2NrQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 09:47:16 -0400
-From: Himanshu Jha <himanshujha199640@gmail.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com, baruch@tkos.co.il,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Himanshu Jha <himanshujha199640@gmail.com>
-Subject: [PATCH] rtc: Use PTR_ERR_OR_ZERO
-Date: Tue, 29 Aug 2017 19:16:59 +0530
-Message-Id: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:57901 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751748AbdHGB54 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Aug 2017 21:57:56 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v2 5/5] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Mon, 7 Aug 2017 09:57:45 +0800
+Message-ID: <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-Signed-off-by: Himanshu Jha <himanshujha199640@gmail.com>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 ---
- drivers/rtc/rtc-digicolor.c | 5 +----
- drivers/rtc/rtc-ds1347.c    | 5 +----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/mfd/mt6397-core.c |   36 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
-index b253bf1..1e200a0 100644
---- a/drivers/rtc/rtc-digicolor.c
-+++ b/drivers/rtc/rtc-digicolor.c
-@@ -202,10 +202,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, rtc);
- 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
- 						&dc_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc_dev))
--		return PTR_ERR(rtc->rtc_dev);
--
--	return 0;
-+	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
- }
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 6546d7f..3c6a765 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,30 @@
+ 	},
+ };
  
- static const struct of_device_id dc_dt_ids[] = {
-diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
-index ccfc9d4..9a02ca7 100644
---- a/drivers/rtc/rtc-ds1347.c
-+++ b/drivers/rtc/rtc-ds1347.c
-@@ -155,10 +155,7 @@ static int ds1347_probe(struct spi_device *spi)
- 	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
- 				&ds1347_rtc_ops, THIS_MODULE);
++static const struct resource mt6323_keys_resources[] = {
++	{
++		.start = MT6323_IRQ_STATUS_PWRKEY,
++		.end   = MT6323_IRQ_STATUS_PWRKEY,
++		.flags = IORESOURCE_IRQ,
++	}, {
++		.start = MT6323_IRQ_STATUS_FCHRKEY,
++		.end   = MT6323_IRQ_STATUS_FCHRKEY,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
++static const struct resource mt6397_keys_resources[] = {
++	{
++		.start = MT6397_IRQ_PWRKEY,
++		.end   = MT6397_IRQ_PWRKEY,
++		.flags = IORESOURCE_IRQ,
++	}, {
++		.start = MT6397_IRQ_HOMEKEY,
++		.end   = MT6397_IRQ_HOMEKEY,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +74,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
  
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
--
--	return 0;
-+	return PTR_ERR_OR_ZERO(rtc);
- }
+@@ -71,7 +100,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
  
- static struct spi_driver ds1347_driver = {
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
-2.7.4
+1.7.9.5
