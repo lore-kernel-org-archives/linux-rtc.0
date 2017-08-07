@@ -1,18 +1,18 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:38133 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752983AbdHJUli (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2017 16:41:38 -0400
-Date: Thu, 10 Aug 2017 15:41:36 -0500
-From: Rob Herring <robh@kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:51452 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751662AbdHGVcu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Aug 2017 17:32:50 -0400
+Date: Mon, 7 Aug 2017 23:32:44 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Chen Zhong <chen.zhong@mediatek.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Eddie Huang <eddie.huang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         Jaechul Lee <jcsing.lee@samsung.com>,
         Jonathan Cameron <jic23@kernel.org>,
         Javier Martinez Canillas <javier@osg.samsung.com>,
@@ -22,76 +22,74 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-Message-ID: <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
+Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
+ driver
+Message-ID: <20170807213244.7hrd3isq5jj44dgd@piout.net>
 References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
- <1502071065-6745-3-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1502071065-6745-3-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Aug 07, 2017 at 09:57:42AM +0800, Chen Zhong wrote:
-> This patch adds the device tree binding documentation for the MediaTek
-> pmic keys found on PMIC MT6397/MT6323.
+On 07/08/2017 at 09:57:41 +0800, Chen Zhong wrote:
+> The core driver should create and manage irq mappings instead of
+> leaf drivers. This patch change to pass irq domain to
+> devm_mfd_add_devices() and it will create mapping for irq resources
+> automatically. And remove irq mapping in rtc driver since this has
+> been done in core driver.
 > 
 > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+
+For the RTC part:
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
 > ---
->  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 ++++++++++++++++++++
->  1 file changed, 36 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>  drivers/mfd/mt6397-core.c |    4 ++--
+>  drivers/rtc/rtc-mt6397.c  |    2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> new file mode 100644
-> index 0000000..c5b230f
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> @@ -0,0 +1,36 @@
-> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> +
-> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> +and homekey. The key functions are defined as the subnode of the function
-> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> +of Muti-Function Device (MFD)
-> +
-> +For MT6397/MT6323 MFD bindings see:
-> +Documentation/devicetree/bindings/mfd/mt6397.txt
-> +
-> +Required properties:
-> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> +- mediatek,pwrkey-code: Keycode of pwrkey
-> +
-> +Optional Properties:
-> +- mediatek,homekey-code: Keycode of homekey
-> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> +- mediatek,long-press-duration: Long press key shutdown duration setting,
-> +	0/1/2/3 for 8/11/14/5 seconds.
-
-Surely this could be a common property.
-
-> +
-> +Example:
-> +
-> +	pmic: mt6397 {
-> +		compatible = "mediatek,mt6397";
-> +
-> +		...
-> +
-> +		mt6397keys: mt6397keys {
-> +			compatible = "mediatek,mt6397-keys";
-> +			mediatek,pwrkey-code = <116>;
-> +			mediatek,homekey-code = <114>;
-
-We have a standard properties for keycodes.
-
-> +			mediatek,long-press-mode = <1>;
-> +			mediatek,long-press-duration = <0>;
-> +		};
-> +	};
-> \ No newline at end of file
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 04a601f..6546d7f 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+>  					   ARRAY_SIZE(mt6323_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	case MT6397_CID_CODE:
+> @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+>  					   ARRAY_SIZE(mt6397_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	default:
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index 1a61fa5..22c52f7 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  	rtc->addr_base = res->start;
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+> +	rtc->irq = res->start;
+>  	if (rtc->irq <= 0)
+>  		return -EINVAL;
+>  
 > -- 
 > 1.7.9.5
 > 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
