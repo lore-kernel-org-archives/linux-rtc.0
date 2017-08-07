@@ -1,82 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:8637 "EHLO
-        mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752724AbdHKQqT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Aug 2017 12:46:19 -0400
-From: Miodrag Dinic <Miodrag.Dinic@imgtec.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "Aleksandar Markovic" <aleksandar.markovic@rt-rk.com>
-CC: "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
-        Goran Ferenc <Goran.Ferenc@imgtec.com>,
-        Aleksandar Markovic <Aleksandar.Markovic@imgtec.com>,
+Received: from mailgw02.mediatek.com ([218.249.47.111]:41127 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751743AbdHGB54 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Aug 2017 21:57:56 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        "Bo Hu" <bohu@google.com>, "David S. Miller" <davem@davemloft.net>,
-        "Douglas Leung" <Douglas.Leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <James.Hogan@imgtec.com>,
-        Jin Qian <jinqian@google.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        "Paul Burton" <Paul.Burton@imgtec.com>,
-        Petar Jovanovic <Petar.Jovanovic@imgtec.com>,
-        Raghu Gandham <Raghu.Gandham@imgtec.com>
-Subject: RE: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
-Date: Fri, 11 Aug 2017 16:46:11 +0000
-Message-ID: <232DDC0A2B605E4F9E85F6904417885F015D937238@BADAG02.ba.imgtec.org>
-References: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
- <1500656111-9520-3-git-send-email-aleksandar.markovic@rt-rk.com>,<20170810203430.zgtxvi7uaqmg4dzr@piout.net>
-In-Reply-To: <20170810203430.zgtxvi7uaqmg4dzr@piout.net>
-Content-Type: text/plain; charset="us-ascii"
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v2 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+Date: Mon, 7 Aug 2017 09:57:43 +0800
+Message-ID: <1502071065-6745-4-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+This patch adds documentation for device tree bindings for keys support
+as the subnode of MT6397/MT6323 PMIC.
 
-we have this sorted & plan to submit version 4 of this series next week.
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thank you.
-
-Kind regards,
-Miodrag
-________________________________________
-From: Alexandre Belloni [alexandre.belloni@free-electrons.com]
-Sent: Thursday, August 10, 2017 10:34 PM
-To: Aleksandar Markovic
-Cc: linux-mips@linux-mips.org; Miodrag Dinic; Goran Ferenc; Aleksandar Markovic; Alessandro Zummo; Bo Hu; David S. Miller; Douglas Leung; Greg Kroah-Hartman; James Hogan; Jin Qian; linux-kernel@vger.kernel.org; linux-rtc@vger.kernel.org; Mauro Carvalho Chehab; Paul Burton; Petar Jovanovic; Raghu Gandham
-Subject: Re: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
-
-Hi,
-
-On 21/07/2017 at 18:53:31 +0200, Aleksandar Markovic wrote:
-> From: Miodrag Dinic <miodrag.dinic@imgtec.com>
->
-> Add device driver for a virtual Goldfish RTC clock.
->
-> The driver can be built only if CONFIG_MIPS and CONFIG_GOLDFISH are
-> set. The compatible string used by OS for binding the driver is
-> defined as "google,goldfish-rtc".
->
-> Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-> Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-> Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
-> ---
->  MAINTAINERS                |   1 +
->  drivers/rtc/Kconfig        |   8 ++
->  drivers/rtc/Makefile       |   1 +
->  drivers/rtc/rtc-goldfish.c | 233 +++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 243 insertions(+)
->  create mode 100644 drivers/rtc/rtc-goldfish.c
->
-
-Do you mind fixing the remaining checkpatch --strict issues, the two
-kbuild errors and the warning reported by Julia?
-
-Thanks!
-
-
---
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 522a3bb..d1df77f 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
+ - GPIO
+ - Clock
+ - LED
++- Keys
+ 
+ It is interfaced to host controller using SPI interface by a proprietary hardware
+ called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
+@@ -40,6 +41,11 @@ Optional subnodes:
+ 		- compatible: "mediatek,mt6323-led"
+ 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
+ 
++- keys
++	Required properties:
++		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++
+ Example:
+ 	pwrap: pwrap@1000f000 {
+ 		compatible = "mediatek,mt8135-pwrap";
+-- 
+1.7.9.5
