@@ -1,34 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f172.google.com ([209.85.223.172]:36820 "EHLO
-        mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752370AbdHBMa7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 08:30:59 -0400
-Received: by mail-io0-f172.google.com with SMTP id g35so19804360ioi.3
-        for <linux-rtc@vger.kernel.org>; Wed, 02 Aug 2017 05:30:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk> <E1dYKi9-0001kK-RQ@rmk-PC.armlinux.org.uk>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 2 Aug 2017 14:30:57 +0200
-Message-ID: <CACRpkda1kSAFJZHqGAPWiFckGJ5AoJG4htB0+r56gDFKmxubrg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] rtc: pl031: constify amba_ids
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:38741 "EHLO
+        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752383AbdHHLOR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2017 07:14:17 -0400
+Received: by mail-wm0-f46.google.com with SMTP id m85so4290077wma.1
+        for <linux-rtc@vger.kernel.org>; Tue, 08 Aug 2017 04:14:16 -0700 (PDT)
+Date: Tue, 8 Aug 2017 12:14:13 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>, linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
+ driver
+Message-ID: <20170808111413.qt6qc2w6l6gdihpu@dell>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 21, 2017 at 1:18 AM, Russell King
-<rmk+kernel@armlinux.org.uk> wrote:
+On Mon, 07 Aug 2017, Chen Zhong wrote:
 
-> The AMBA device IDs should be marked const.  Make that so.
->
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> The core driver should create and manage irq mappings instead of
+> leaf drivers. This patch change to pass irq domain to
+> devm_mfd_add_devices() and it will create mapping for irq resources
+> automatically. And remove irq mapping in rtc driver since this has
+> been done in core driver.
+> 
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> ---
+>  drivers/mfd/mt6397-core.c |    4 ++--
+>  drivers/rtc/rtc-mt6397.c  |    2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Once you've fixed Dmitry's comment:
 
-Yours,
-Linus Walleij
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
