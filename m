@@ -1,93 +1,464 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49063 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752749AbdHWBSY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 21:18:24 -0400
-Date: Wed, 23 Aug 2017 03:18:22 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
-Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
-Message-ID: <20170823011822.adda7emuz3eig3yt@piout.net>
-References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-3-afaerber@suse.de>
- <20170820083219.siez3rl2hbjgjgk5@piout.net>
- <3307d3ed-c8e0-a7b5-f0ee-d401f4b12a90@suse.de>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34629 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751834AbdHHDDW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Aug 2017 23:03:22 -0400
+Date: Mon, 7 Aug 2017 20:03:18 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 4/5] input: Add MediaTek PMIC keys support
+Message-ID: <20170808030318.GC12328@dtor-ws>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-5-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <3307d3ed-c8e0-a7b5-f0ee-d401f4b12a90@suse.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1502071065-6745-5-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 20/08/2017 at 23:10:16 +0200, Andreas Färber wrote:
-> > Is RTD_RTCDATE_HIGH latched when RTD_RTCDATE_LOW is read?
+Hi Chen,
+
+On Mon, Aug 07, 2017 at 09:57:44AM +0800, Chen Zhong wrote:
+> This patch add support to handle MediaTek PMIC MT6397/MT6323 key
+> interrupts including pwrkey and homekey, also add setting for
+> long press key shutdown behavior.
 > 
-> I do not have an answer to that.
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> ---
+>  drivers/input/keyboard/Kconfig         |    9 +
+>  drivers/input/keyboard/Makefile        |    1 +
+>  drivers/input/keyboard/mtk-pmic-keys.c |  331 ++++++++++++++++++++++++++++++++
+>  3 files changed, 341 insertions(+)
+>  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
 > 
-> > If this is not
-> > the case, you probably want to handle a possible update between both
-> > readl_relaxed.
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 4c4ab1c..730d9b5 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -756,4 +756,13 @@ config KEYBOARD_BCM
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called bcm-keypad.
+>  
+> +config KEYBOARD_MTK_PMIC
+> +	tristate "MediaTek PMIC keys support"
+> +	depends on MFD_MT6397
+> +	help
+> +	  Say Y here if you want to use the pmic keys (pwrkey/homekey).
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called pmic-keys.
+> +
+>  endif
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index d2338ba..20c0b98 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+>  obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
+>  obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
+>  obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
+> +obj-$(CONFIG_KEYBOARD_MTK_PMIC) 	+= mtk-pmic-keys.o
+>  obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+>  obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
+>  obj-$(CONFIG_KEYBOARD_NSPIRE)		+= nspire-keypad.o
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+> new file mode 100644
+> index 0000000..5d1f133
+> --- /dev/null
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> @@ -0,0 +1,331 @@
+> +/*
+> + * Copyright (C) 2017 MediaTek, Inc.
+> + *
+> + * Author: Chen Zhong <chen.zhong@mediatek.com>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/kernel.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/mfd/mt6323/registers.h>
+> +#include <linux/mfd/mt6397/registers.h>
+> +#include <linux/mfd/mt6397/core.h>
+> +#include <linux/slab.h>
+> +#include <linux/irqdomain.h>
+
+Not needed.
+
+> +
+> +#define PWRKEY_RST_EN_MASK	0x1
+> +#define PWRKEY_RST_EN_SHIFT	6
+> +#define HOMEKEY_RST_EN_MASK	0x1
+> +#define HOMEKEY_RST_EN_SHIFT	5
+> +#define RST_DU_MASK		0x3
+> +#define RST_DU_SHIFT		8
+> +
+> +struct pmic_keys_regs {
+> +	u32 deb_reg;
+> +	u32 deb_mask;
+> +	u32 intsel_reg;
+> +	u32 intsel_mask;
+> +};
+> +
+> +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
+> +{									\
+> +	.deb_reg		= _deb_reg,				\
+> +	.deb_mask		= _deb_mask,				\
+> +	.intsel_reg		= _intsel_reg,				\
+> +	.intsel_mask		= _intsel_mask,				\
+> +}
+> +
+> +struct pmic_regs {
+> +	const struct pmic_keys_regs pwrkey_regs;
+> +	const struct pmic_keys_regs homekey_regs;
+> +	u32 pmic_rst_reg;
+> +};
+> +
+> +static const struct pmic_regs mt6397_regs = {
+> +	.pwrkey_regs = PMIC_KEYS_REGS(MT6397_CHRSTATUS,
+> +		0x8, MT6397_INT_RSV, 0x10),
+> +	.homekey_regs = PMIC_KEYS_REGS(MT6397_OCSTATUS2,
+> +		0x10, MT6397_INT_RSV, 0x8),
+> +	.pmic_rst_reg = MT6397_TOP_RST_MISC,
+> +};
+> +
+> +static const struct pmic_regs mt6323_regs = {
+> +	.pwrkey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
+> +		0x2, MT6323_INT_MISC_CON, 0x10),
+> +	.homekey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
+> +		0x4, MT6323_INT_MISC_CON, 0x8),
+> +	.pmic_rst_reg = MT6323_TOP_RST_MISC,
+> +};
+> +
+> +struct pmic_keys_info {
+> +	struct mtk_pmic_keys *keys;
+> +	const struct pmic_keys_regs *regs;
+> +	int keycode;
+> +	int irq;
+> +};
+> +
+> +struct mtk_pmic_keys {
+> +	struct input_dev *input_dev;
+> +	struct device *dev;
+> +	struct regmap *regmap;
+> +	struct irq_domain *irq_domain;
+
+Not needed.
+
+> +	struct pmic_keys_info pwrkey, homekey;
+> +};
+> +
+> +enum long_press_mode {
+> +	LP_DISABLE,
+> +	LP_ONEKEY,
+> +	LP_TWOKEY,
+> +};
+> +
+> +static void long_press_reset_setup(struct mtk_pmic_keys *keys, u32 pmic_rst_reg)
+> +{
+> +	int ret;
+> +	u32 long_press_mode, long_press_duration;
+> +
+> +	ret = of_property_read_u32(keys->dev->of_node,
+> +		"mediatek,long-press-duration", &long_press_duration);
+> +	if (ret)
+> +		long_press_duration = 0;
+> +
+> +	regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +			   RST_DU_MASK << RST_DU_SHIFT,
+> +			   long_press_duration << RST_DU_SHIFT);
+> +
+> +	ret = of_property_read_u32(keys->dev->of_node,
+> +		"mediatek,long-press-mode", &long_press_mode);
+> +	if (ret)
+> +		long_press_mode = LP_DISABLE;
+> +
+> +	switch (long_press_mode) {
+> +	case LP_ONEKEY:
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   PWRKEY_RST_EN_MASK << PWRKEY_RST_EN_SHIFT,
+> +				   PWRKEY_RST_EN_MASK << PWRKEY_RST_EN_SHIFT);
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   HOMEKEY_RST_EN_MASK << HOMEKEY_RST_EN_SHIFT,
+> +				   0);
+> +		break;
+> +	case LP_TWOKEY:
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   PWRKEY_RST_EN_MASK << PWRKEY_RST_EN_SHIFT,
+> +				   PWRKEY_RST_EN_MASK << PWRKEY_RST_EN_SHIFT);
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   HOMEKEY_RST_EN_MASK << HOMEKEY_RST_EN_SHIFT,
+> +				   HOMEKEY_RST_EN_MASK << HOMEKEY_RST_EN_SHIFT);
+> +		break;
+> +	case LP_DISABLE:
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   PWRKEY_RST_EN_MASK << PWRKEY_RST_EN_SHIFT,
+> +				   0);
+> +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> +				   HOMEKEY_RST_EN_MASK << HOMEKEY_RST_EN_SHIFT,
+> +				   0);
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +}
+> +
+> +static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
+> +{
+> +	struct pmic_keys_info *info = data;
+> +	u32 key_deb, pressed;
+> +
+> +	regmap_read(info->keys->regmap, info->regs->deb_reg, &key_deb);
+> +
+> +	key_deb &= info->regs->deb_mask;
+> +
+> +	pressed = !key_deb;
+> +
+> +	input_report_key(info->keys->input_dev, info->keycode, pressed);
+> +	input_sync(info->keys->input_dev);
+> +
+> +	dev_dbg(info->keys->dev, "[PMICKEYS] (%s) key =%d using PMIC\n",
+> +		 pressed ? "pressed" : "released", info->keycode);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
+> +		const char *propname, struct pmic_keys_info *info, bool wakeup)
+> +{
+> +	int ret;
+> +
+> +	ret = of_property_read_u32(keys->dev->of_node,
+> +		propname, &info->keycode);
+> +	if (ret)
+> +		return 0;
+> +
+> +	if (!info->keycode)
+> +		return 0;
+> +
+> +	info->keys = keys;
+> +
+> +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
+> +				 info->regs->intsel_mask,
+> +				 info->regs->intsel_mask);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
+> +					mtk_pmic_keys_irq_handler_thread,
+> +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> +					"mtk-pmic-keys", info);
+> +	if (ret) {
+> +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+> +			info->irq, ret);
+> +		return ret;
+> +	}
+> +
+> +	if (wakeup)
+> +		irq_set_irq_wake(info->irq, 1);
+> +
+> +	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
+> +
+> +	return 0;
+> +}
+> +
+> +static void mtk_pmic_keys_dispose_irq(struct mtk_pmic_keys *keys)
+> +{
+> +	if (keys->pwrkey.irq)
+> +		irq_dispose_mapping(keys->pwrkey.irq);
+> +
+> +	if (keys->homekey.irq)
+> +		irq_dispose_mapping(keys->homekey.irq);
+
+You did not create the mapping, you should not destroy it.
+
+> +}
+> +
+> +static const struct of_device_id of_pmic_keys_match_tbl[] = {
+> +	{
+> +		.compatible = "mediatek,mt6397-keys",
+> +		.data = &mt6397_regs,
+> +	}, {
+> +		.compatible = "mediatek,mt6323-keys",
+> +		.data = &mt6323_regs,
+> +	}, {
+> +		/* sentinel */
+> +	}
+> +};
+> +MODULE_DEVICE_TABLE(of, of_pmic_keys_match_tbl);
+> +
+> +static int mtk_pmic_keys_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct resource *res_pwrkey, *res_homekey;
+> +	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
+> +	struct mtk_pmic_keys *keys;
+> +	const struct pmic_regs *pmic_regs;
+> +	struct input_dev *input_dev;
+> +	const struct of_device_id *of_id =
+> +		of_match_device(of_pmic_keys_match_tbl, &pdev->dev);
+> +
+> +	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
+> +	if (!keys)
+> +		return -ENOMEM;
+> +
+> +	keys->dev = &pdev->dev;
+> +	keys->regmap = pmic_chip->regmap;
+> +	keys->irq_domain = pmic_chip->irq_domain;
+
+Not needed.
+
+> +
+> +	pmic_regs = of_id->data;
+> +	keys->pwrkey.regs = &pmic_regs->pwrkey_regs;
+> +	keys->homekey.regs = &pmic_regs->homekey_regs;
+> +
+> +	res_pwrkey = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> +	if (!res_pwrkey) {
+> +		dev_err(&pdev->dev, "no IRQ resource\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	keys->pwrkey.irq = res_pwrkey->start;
+> +	if (keys->pwrkey.irq <= 0)
+> +		return -EINVAL;
+
+Please do
+
+	keys->pwrkey.irq = platform_get_irq(pdev, 0);
+	if (keys->pwrkey.irq < 0)
+		return keys->pwrkey.irq;
+
+> +
+> +	res_homekey = platform_get_resource(pdev, IORESOURCE_IRQ, 1);
+> +	if (!res_homekey) {
+> +		dev_err(&pdev->dev, "no IRQ resource\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	keys->homekey.irq = res_homekey->start;
+> +	if (keys->homekey.irq <= 0)
+> +		return -EINVAL;
+
+Same as above.
+
+> +
+> +	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
+> +	if (!input_dev) {
+> +		dev_err(&pdev->dev, "[PMICKEYS] input allocate device fail.\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input_dev->name = "mtk-pmic-keys";
+> +	input_dev->id.bustype = BUS_HOST;
+> +	input_dev->id.vendor = 0x0001;
+> +	input_dev->id.product = 0x0001;
+> +	input_dev->id.version = 0x0001;
+> +	input_dev->dev.parent = &pdev->dev;
+
+Not needed, devm_input_allocate_device() already does this. 
+
+> +
+> +	ret = mtk_pmic_key_setup(keys, "mediatek,pwrkey-code",
+> +				 &keys->pwrkey, true);
+> +	if (ret)
+> +		goto out_dispose_irq;
+
+Can you please call this variable "error" and do
+
+	if (error)
+		return error;
+
+You are using devm and no longer creating mappings, so you can return
+directly and rely on devm infrastructure to unwind.
+
+> +
+> +	ret = mtk_pmic_key_setup(keys, "mediatek,homekey-code",
+> +				 &keys->homekey, false);
+> +	if (ret)
+> +		goto out_dispose_irq;
+> +
+> +	ret = input_register_device(input_dev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"[PMICKEYS] register input device failed (%d)\n", ret);
+
+No need for [PMICKEYS] prefix, dev_err prints device and driver already.
+
+> +		return ret;
+> +	}
+> +
+> +	long_press_reset_setup(keys, pmic_regs->pmic_rst_reg);
+> +
+> +	return 0;
+> +
+> +out_dispose_irq:
+> +	mtk_pmic_keys_dispose_irq(keys);
+> +	return ret;
+> +}
+> +
+> +static int mtk_pmic_keys_remove(struct platform_device *pdev)
+> +{
+> +	struct mtk_pmic_keys *keys = platform_get_drvdata(pdev);
+> +
+> +	mtk_pmic_keys_dispose_irq(keys);
+
+Not needed. The whole function is not needed.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver pmic_keys_pdrv = {
+> +	.probe = mtk_pmic_keys_probe,
+> +	.remove = mtk_pmic_keys_remove,
+> +	.driver = {
+> +		   .name = "mtk-pmic-keys",
+> +		   .of_match_table = of_pmic_keys_match_tbl,
+> +	},
+> +};
+> +
+> +module_platform_driver(pmic_keys_pdrv);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Chen Zhong <chen.zhong@mediatek.com>");
+> +MODULE_DESCRIPTION("MTK pmic-keys driver v0.1");
+> -- 
+> 1.7.9.5
 > 
-> Are you proposing to disable the RTC while reading the registers, or
-> something related to my choice of _relaxed? (it follows an explanation
-> by Marc Zyngier on the irq mux series) Inconsistencies might not be
-> limited to the date.
-> 
 
-A simple way to be sure would be to read RTD_RTCSEC first, then the
-other registers and check RTD_RTCSEC didn't change. This will ensure the
-other registers have not be updated in the meantime (unless it takes
-one minute but I doubt this is the case). if RTD_RTCSEC changed, then
-you can start over.
-
-> >> +	t = mktime64(data->base_year, 1, 1, 0, 0, 0);
-> >> +	t += day * 24 * 60 * 60;
-> >> +	rtc_time64_to_tm(t, tm);
-> 
-> BTW is there any more efficient way to get from year+days to
-> day/month/year without going via seconds?
-> 
-
-Completely untested:
-
-for (y = data->base_year; (day - (365 + is_leap_year(y))) > 0; y++)
-	day -= (365 + is_leap_year(y));
-
-for (m = 0; (day - rtc_month_days(m, y)) > 0; m++)
-	day -= rtc_month_days(m, y);
-
-
-> >> +
-> >> +	rtd119x_rtc_set_enabled(dev, true);
-> >> +
-> > 
-> > This is certainly not what you want. The RTC device is usually not
-> > opened so enabling the RTC when open and disabling it when closed will
-> > not work on most systems. This is probably true for the clock too. i.e
-> > what you do here should be done in probe.
-> 
-> I did test the probe path to work, but I can change it again. The
-> downstream code had it in probe, but looking at rtc_class_ops I saw
-> those hooks and thought they'd serve a purpose - what are they for then?
-> (Any chance you can improve the documentation comments to avoid such
-> misunderstandings? :))
-> 
-
-They are (were) used only when the rtc character device (/dev/rtcx) is
-opened/released but the cdev interface is one of many interfaces to the
-RTC sod it doesn't make sense to do something only in that case
-(especially requesting IRQs).
-
-To solve your concern, this is what I'm going to apply after fixing the
-two remaining uses of .release:
-
-http://patchwork.ozlabs.org/patch/804707/
-
+Thanks.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Dmitry
