@@ -1,56 +1,100 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59290 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751255AbdH0T0k (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 27 Aug 2017 15:26:40 -0400
-Date: Sun, 27 Aug 2017 21:26:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Roc He <hepeng@zidoo.tv>,
-        ????????? <jiang.liqin@geniatech.com>,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 2/3] rtc: Add Realtek RTD1295
-Message-ID: <20170827192638.2wgkhr7k3n4vrqth@piout.net>
-References: <20170827003328.28370-1-afaerber@suse.de>
- <20170827003328.28370-3-afaerber@suse.de>
- <20170827091301.wbuzxkh7opz4blrc@piout.net>
- <d20fbc21-bd8f-c191-ed51-03487868e7b0@suse.de>
- <20170827133751.GD13622@lunn.ch>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35273 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751758AbdHHCxb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Aug 2017 22:53:31 -0400
+Date: Mon, 7 Aug 2017 19:53:28 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chen Zhong <chen.zhong@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
+ driver
+Message-ID: <20170808025328.GB12328@dtor-ws>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
+ <20170807213244.7hrd3isq5jj44dgd@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170827133751.GD13622@lunn.ch>
+In-Reply-To: <20170807213244.7hrd3isq5jj44dgd@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 27/08/2017 at 15:37:51 +0200, Andrew Lunn wrote:
-> > >> +static inline int rtd119x_rtc_year_days(int year)
-> > >> +{
-> > >> +	return rtc_year_days(1, 12, year);
-> > > 
-> > > I'm not sure it is worth wrapping rtc_year_days
-> > [snip]
+On Mon, Aug 07, 2017 at 11:32:44PM +0200, Alexandre Belloni wrote:
+> On 07/08/2017 at 09:57:41 +0800, Chen Zhong wrote:
+> > The core driver should create and manage irq mappings instead of
+> > leaf drivers. This patch change to pass irq domain to
+> > devm_mfd_add_devices() and it will create mapping for irq resources
+> > automatically. And remove irq mapping in rtc driver since this has
+> > been done in core driver.
 > > 
-> > Well, I found your rtc_year_days rather confusing and had to play with
-> > the arguments until I got it working as expected, so I wanted an inline
-> > function (or macro) as abstraction from my three callers.
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 > 
-> I agree with that. I was wondering why 1st December was being used. I
-> would say this API does not do too well on Rusty's API Design
-> Manifesto.
+> For the RTC part:
+> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > 
+> > ---
+> >  drivers/mfd/mt6397-core.c |    4 ++--
+> >  drivers/rtc/rtc-mt6397.c  |    2 +-
+> >  2 files changed, 3 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> > index 04a601f..6546d7f 100644
+> > --- a/drivers/mfd/mt6397-core.c
+> > +++ b/drivers/mfd/mt6397-core.c
+> > @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+> >  
+> >  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+> >  					   ARRAY_SIZE(mt6323_devs), NULL,
+> > -					   0, NULL);
+> > +					   0, pmic->irq_domain);
+> >  		break;
+> >  
+> >  	case MT6397_CID_CODE:
+> > @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+> >  
+> >  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+> >  					   ARRAY_SIZE(mt6397_devs), NULL,
+> > -					   0, NULL);
+> > +					   0, pmic->irq_domain);
+> >  		break;
+> >  
+> >  	default:
+> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> > index 1a61fa5..22c52f7 100644
+> > --- a/drivers/rtc/rtc-mt6397.c
+> > +++ b/drivers/rtc/rtc-mt6397.c
+> > @@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+> >  	rtc->addr_base = res->start;
+> >  
+> >  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> > -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+> > +	rtc->irq = res->start;
 
-It follows the convention that tm_mon is 0-11. Making it easy to read
-for anyone used to the RTC subsystem. I can agree it is not the most
-intuitive one. That choice predates the RTC subsystem (made in 1996), I
-won't give any name ;)
+Why not
 
-> It does at least get the day/month/year in the right order ;-)
-> 
-> 	Andrew
+	rtc->irq = platform_get_irq(pdev, 0);
+	if (rtc->irq < 0)
+		return rtc->irq;
+?
+
+This way you propagate error properly.
+
+Thanks.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Dmitry
