@@ -1,119 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:36022 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751184AbdH1Sh3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 14:37:29 -0400
-Received: by mail-wr0-f195.google.com with SMTP id 40so666111wrv.3
-        for <linux-rtc@vger.kernel.org>; Mon, 28 Aug 2017 11:37:29 -0700 (PDT)
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] rtc: ds1307: improve weekday handling
-Message-ID: <57598a86-21c7-b354-2840-309563440435@gmail.com>
-Date: Mon, 28 Aug 2017 20:37:21 +0200
+Received: from gateway23.websitewelcome.com ([192.185.50.104]:18036 "EHLO
+        gateway23.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751904AbdHIQRG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Aug 2017 12:17:06 -0400
+Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
+        by gateway23.websitewelcome.com (Postfix) with ESMTP id 8B1721F300
+        for <linux-rtc@vger.kernel.org>; Wed,  9 Aug 2017 10:52:45 -0500 (CDT)
+Date: Wed, 9 Aug 2017 10:52:44 -0500
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] rtc: at91rm9200: fix error return code in at91_rtc_probe()
+Message-ID: <20170809155244.GA25987@embeddedgus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-mcp794xx as one chip supported by this driver needs the weekday for
-alarm matching. RTC core ignores the weekday so we can't rely on
-the values we receive in member tm_wday of struct rtc_time.
-Therefore calculate the weekday from date/time when setting the
-time and setting the alarm time for mcp794xx.
+platform_get_irq() returns an error code, but the at91rm9200 driver
+ignores it and always returns -ENXIO. This is not correct and,
+prevents -EPROBE_DEFER from being propagated properly.
 
-When having this in place we don't have to check the weekday
-at each driver load.
-After a chip reset date/time and weekday may be out of sync but
-in this case date/time need to be set anyway.
+Print and propagate the return value of platform_get_irq on failure.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+This issue was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/rtc/rtc-ds1307.c | 39 +++++++++++++++------------------------
- 1 file changed, 15 insertions(+), 24 deletions(-)
+ drivers/rtc/rtc-at91rm9200.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 9d680d36..83b8c997 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -437,6 +437,18 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	return rtc_valid_tm(t);
- }
+diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+index e221b78..09bc2e0 100644
+--- a/drivers/rtc/rtc-at91rm9200.c
++++ b/drivers/rtc/rtc-at91rm9200.c
+@@ -398,8 +398,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
  
-+/*
-+ * Certain chips need the weekday for alarm matching and tm->t_wday
-+ * may be not or not properly populated
-+ */
-+static int ds1307_get_weekday(struct rtc_time *tm)
-+{
-+	time64_t secs64 = rtc_tm_to_time64(tm);
-+	int days = div_s64(secs64, 24 * 60 * 60);
-+
-+	return (days + 4) % 7 + 1;
-+}
-+
- static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- {
- 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
-@@ -465,7 +477,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
- 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
- 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
--	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
-+	regs[DS1307_REG_WDAY] = ds1307_get_weekday(t);
- 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
- 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
- 
-@@ -902,7 +914,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	regs[3] = bin2bcd(t->time.tm_sec);
- 	regs[4] = bin2bcd(t->time.tm_min);
- 	regs[5] = bin2bcd(t->time.tm_hour);
--	regs[6] = bin2bcd(t->time.tm_wday + 1);
-+	regs[6] = ds1307_get_weekday(&t->time);
- 	regs[7] = bin2bcd(t->time.tm_mday);
- 	regs[8] = bin2bcd(t->time.tm_mon + 1);
- 
-@@ -1355,14 +1367,12 @@ static int ds1307_probe(struct i2c_client *client,
- {
- 	struct ds1307		*ds1307;
- 	int			err = -ENODEV;
--	int			tmp, wday;
-+	int			tmp;
- 	const struct chip_desc	*chip;
- 	bool			want_irq;
- 	bool			ds1307_can_wakeup_device = false;
- 	unsigned char		regs[8];
- 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
--	struct rtc_time		tm;
--	unsigned long		timestamp;
- 	u8			trickle_charger_setup = 0;
- 
- 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
-@@ -1642,25 +1652,6 @@ static int ds1307_probe(struct i2c_client *client,
- 			     bin2bcd(tmp));
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		dev_err(&pdev->dev, "no irq resource defined\n");
+-		return -ENXIO;
++		dev_err(&pdev->dev, "no irq resource defined: %d\n", irq);
++		return irq;
  	}
  
--	/*
--	 * Some IPs have weekday reset value = 0x1 which might not correct
--	 * hence compute the wday using the current date/month/year values
--	 */
--	ds1307_get_time(ds1307->dev, &tm);
--	wday = tm.tm_wday;
--	timestamp = rtc_tm_to_time64(&tm);
--	rtc_time64_to_tm(timestamp, &tm);
--
--	/*
--	 * Check if reset wday is different from the computed wday
--	 * If different then set the wday which we computed using
--	 * timestamp
--	 */
--	if (wday != tm.tm_wday)
--		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
--				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
--				   tm.tm_wday + 1);
--
- 	if (want_irq || ds1307_can_wakeup_device) {
- 		device_set_wakeup_capable(ds1307->dev, true);
- 		set_bit(HAS_ALARM, &ds1307->flags);
+ 	at91_rtc_regs = devm_ioremap(&pdev->dev, regs->start,
 -- 
-2.14.1
+2.5.0
