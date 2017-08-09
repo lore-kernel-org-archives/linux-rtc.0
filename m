@@ -1,52 +1,19 @@
-Return-Path: <rtc-linux+bncBCAPDLF44QLBBEM7Y7GAKGQEFQIZCDQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBDPZV2O3QMERB7EGV3GAKGQE4QOQLKY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x229.google.com (mail-wr0-x229.google.com. [2a00:1450:400c:c0c::229])
-        by gmr-mx.google.com with ESMTPS id n126si301238wma.7.2017.08.14.09.28.01
+Received: from mail-ua0-x243.google.com (mail-ua0-x243.google.com. [2607:f8b0:400c:c08::243])
+        by gmr-mx.google.com with ESMTPS id h128si564747vke.11.2017.08.09.14.49.48
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
-Received: by mail-wr0-x229.google.com with SMTP id b65so11511535wrd.0
-        for <rtc-linux@googlegroups.com>; Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
-Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-To: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee.jones@linaro.org>,
- Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org,
- Russell King <linux@armlinux.org.uk>,
- Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Courbot <gnurou@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
- Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>,
- Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Felipe Balbi <balbi@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jingoo Han <jingoohan1@gmail.com>,
- Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
- Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
- Peter Ujfalusi <peter.ujfalusi@ti.com>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
- linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
- linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
- <20170706064453.GH16144@ulmo.fritz.box>
- <20170706070352.xdecvsnremwqed72@dell>
- <20170813133700.tv4ka7anvbzcplr7@ninjato>
- <20170814064247.qvggx4ito4vgjqvs@dell>
- <20170814084340.65morabelapfegph@ninjato> <20170814162219.GX8569@atomide.com>
-From: Daniel Thompson <daniel.thompson@linaro.org>
-Message-ID: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
-Date: Mon, 14 Aug 2017 17:27:57 +0100
+        Wed, 09 Aug 2017 14:49:48 -0700 (PDT)
+Received: by mail-ua0-x243.google.com with SMTP id w45so4579274uac.3
+        for <rtc-linux@googlegroups.com>; Wed, 09 Aug 2017 14:49:48 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170814162219.GX8569@atomide.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+From: Chaitanya Puvvada <chaitu.recruiter7@gmail.com>
+Date: Wed, 9 Aug 2017 17:49:47 -0400
+Message-ID: <CACteqcOEs3MgVqH8VT1Py6bPn3HQ+pbKhXoFFdyasXzPeMjmKA@mail.gmail.com>
+Subject: [rtc-linux] Job offer for JBPM Consultant at Dallas, TX
+To: Chaitanya Puvvada <chaitu.recruiter7@gmail.com>
+Content-Type: multipart/alternative; boundary="001a113552600ac80b0556590f19"
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -56,37 +23,338 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 14/08/17 17:22, Tony Lindgren wrote:
-> * Wolfram Sang <wsa@the-dreams.de> [170814 01:43]:
->>
->>>> Given the triviality of the change for non-MFD subsystems, can we apply
->>>> this for 4.14?
->>>
->>> I can't apply anything without Acks for *all* of the subsystems above.
->>
->> Well, there are cases when you can. Those should be exceptions and well
->> justified, of course.
->>
->>> My suggestion would be to collect the Acks you've received up until
->>> this point and identify which SS's are still lacking in change log
->>> section of a RESEND.
->>
->> I agree, though, that I can try a second round to get the acks.
-> 
-> As long as it's been compile tested with omap2plus_defconfig:
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
+--001a113552600ac80b0556590f19
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Don't recall if I sent an ack before but I do remember the patch... so 
-from a backlight PoV:
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Hi,
 
--- 
+Hope you are doing great,
+My Self,* Chaitanya* from R2 Technologies. We have a requirement for "*JBPM
+Consultant *=E2=80=9Cat *Dallas, TX*. Please review the Job description bel=
+ow and
+if you=E2=80=99d like to pursue this, please include a word copy of your la=
+test
+resume along with a daytime phone number and rate in your response. You can
+also reach me at *470-242-7345 Ex-304*, Drop the suitable profiles on
+*chaitu@r2techcorp.com
+<chaitu@r2techcorp.com>*.
+
+
+
+*Position: JBPM Consultant *
+
+*Location: Dallas, TX*
+
+*Contract: Long Term*
+
+
+
+* Must have*
+
+
+
+   - 8+ years in IT sector
+   - 3+ years=E2=80=99 experience with jBPM
+   - Implementing Business Processes on jBPM and designing integrated
+   solution using jBPM as a middleware.
+   - Experience defining & modeling BPMN 2.0 based Business processes on
+   jBPM platform
+   - Familiar with the forms design & development that's offered in the
+   jBPM product.
+   - Java based web-services & service tasks and batch oriented automation.
+   - Experience working with Rule engines like Drools/JBoss BRMS
+   - Java/J2EE Client/Server architecture and development  (Java, JBoss,
+   Teiid)
+   - Experience on Web Services Development including (REST/SOAP, WSDL/XML,
+   and JSON)
+
+
+
+*Nice to have:*
+
+   - Experience in the MEAN stack, JavaScript, CSS, Bootstrap, JQuery  etc.
+   is definitely a plus
+   - Exposure to Continuous Integration, using tools like GIT (or
+   equivalent Version Control System) and Jenkins (or equivalent) for chang=
+e,
+   Release & deployment of software packages on a distributed SOA environme=
+nt
+   is a strong plus
+   - Understanding of Agile design, development and delivery concepts
+
+
+
+Thanks,
+
+*Chaitanya*
+
+*Technical Recruiter*
+
+Desk:*470-242-7345 Ex-304*
+
+*Chaitu@r2techcorp.com <Chaitu@r2techcorp.com>*
+
+Office: 248-522-7855 |Fax: (248) 479-5559
+*R2 Technologies*
+
+6515 Shiloh Rd, Unit 110, Alpharetta,GA 30005
+
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--001a113552600ac80b0556590f19
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;lin=
+e-height:normal"><span style=3D"font-size:12pt;color:black;background-image=
+:initial;background-position:initial;background-size:initial;background-rep=
+eat:initial;background-origin:initial;background-clip:initial">Hi,</span><s=
+pan style=3D"font-size:12pt;font-family:&quot;Times New Roman&quot;,serif">=
+<span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">Hope you are doing great,<br>
+My Self,<b>=C2=A0Chaitanya</b>=C2=A0from=C2=A0R2 Technologies. We have a
+requirement for &quot;<b>JBPM Consultant=C2=A0</b>=E2=80=9Cat=C2=A0<b>Dalla=
+s, TX</b>.
+Please review the Job description below and if you=E2=80=99d like to pursue=
+ this,
+please include a word copy of your latest resume along with a daytime phone
+number and rate in your response.</span><span style=3D"font-size:12pt;color=
+:rgb(68,84,106)">=C2=A0</span><span style=3D"font-size:12pt;color:black">Yo=
+u can also=C2=A0reach me
+at=C2=A0<b>470-242-7345 Ex-304</b>, Drop the suitable profiles on=C2=A0</sp=
+an><b><u><span style=3D"font-size:12pt;color:blue"><a href=3D"mailto:chaitu=
+@r2techcorp.com">chaitu@r2techcorp.com</a></span></u></b><span style=3D"fon=
+t-size:12pt;color:black">.<span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">=C2=A0<span></span></span></p=
+>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;color:black">Position: JBPM
+Consultant=C2=A0</span></b><span style=3D"font-size:12pt;color:black"><span=
+></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;color:black">Location: Dallas, TX</span=
+></b><span style=3D"font-size:12pt;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;color:black">Contract: Long Term</span>=
+</b><span style=3D"font-size:12pt;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">=C2=A0<span></span></span></p=
+>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;color:black">=C2=A0Must have</span></b>=
+<span style=3D"font-size:12pt;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">=C2=A0<span></span></span></p=
+>
+
+<ul type=3D"disc">
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">8+ years in IT sector<span></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">3+ years=E2=80=99 experience with
+     jBPM<span></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Implementing Business
+     Processes on jBPM and designing integrated solution using jBPM as a
+     middleware.<span></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Experience defining &amp;
+     modeling BPMN 2.0 based Business processes on jBPM platform<span></spa=
+n></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Familiar with the forms
+     design &amp; development that&#39;s offered in the jBPM product.<span>=
+</span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Java based web-services
+     &amp; service tasks and batch oriented automation.<span></span></span>=
+</li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Experience working with
+     Rule engines like Drools/JBoss BRMS<span></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Java/J2EE Client/Server
+     architecture and development=C2=A0 (Java, JBoss, Teiid)<span></span></=
+span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Experience on Web Services
+     Development including (REST/SOAP, WSDL/XML, and JSON)<span></span></sp=
+an></li>
+</ul>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0<span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;color:black">Nice to have:</span></b><s=
+pan style=3D"font-size:12pt;color:black"><span></span></span></p>
+
+<ul type=3D"disc">
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Experience in the MEAN
+     stack, JavaScript, CSS, Bootstrap, JQuery =C2=A0etc. is definitely a p=
+lus<span></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Exposure to Continuous
+     Integration, using tools like GIT (or equivalent Version Control Syste=
+m)
+     and Jenkins (or equivalent) for change, Release &amp; deployment of
+     software packages on a distributed SOA environment is a strong plus<sp=
+an></span></span></li>
+ <li class=3D"MsoNormal" style=3D"color:black;line-height:normal;background=
+-image:initial;background-position:initial;background-size:initial;backgrou=
+nd-repeat:initial;background-origin:initial;background-clip:initial"><span =
+style=3D"font-size:12pt">Understanding of Agile
+     design, development and delivery concepts<span></span></span></li>
+</ul>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;color:black">=C2=A0<span></span></span></p=
+>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;font-family:Helvetica,sans-serif;color:bla=
+ck">Thanks,</span><span style=3D"font-size:12.5pt;font-family:Helvetica,san=
+s-serif;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12.5pt;font-family:Helvetica,sans-serif;colo=
+r:black;border:1pt none windowtext;padding:0in">Chaitanya</span></b><span s=
+tyle=3D"font-size:12.5pt;font-family:Helvetica,sans-serif;color:black"><spa=
+n></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12.5pt;font-family:Helvetica,sans-serif;colo=
+r:black;border:1pt none windowtext;padding:0in">Technical Recruiter</span><=
+/b><span style=3D"font-size:12.5pt;font-family:Helvetica,sans-serif;color:b=
+lack"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;font-family:Helvetica,sans-serif;color:bla=
+ck;border:1pt none windowtext;padding:0in">Desk:<b>470-242-7345 Ex-304<span=
+></span></b></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><b><span style=3D"font-size:12pt;font-family:Helvetica,sans-serif;color:=
+black;border:1pt none windowtext;padding:0in"><a href=3D"mailto:Chaitu@r2te=
+chcorp.com">Chaitu@r2techcorp.com</a></span></b><span style=3D"font-size:12=
+.5pt;font-family:Helvetica,sans-serif;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:12pt;font-family:Helvetica,sans-serif;color:bla=
+ck;border:1pt none windowtext;padding:0in">Office: 248-522-7855 |</span><sp=
+an style=3D"font-size:12.5pt;font-family:Helvetica,sans-serif;color:black;b=
+order:1pt none windowtext;padding:0in">Fax: (248) 479-5559</span><span styl=
+e=3D"font-size:12pt;font-family:Helvetica,sans-serif;color:black;border:1pt=
+ none windowtext;padding:0in"><br>
+<b>R2 Technologies</b></span><span style=3D"font-size:12.5pt;font-family:He=
+lvetica,sans-serif;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal" style=3D"margin-bottom:0.0001pt;line-height:normal;b=
+ackground-image:initial;background-position:initial;background-size:initial=
+;background-repeat:initial;background-origin:initial;background-clip:initia=
+l"><span style=3D"font-size:8pt;font-family:Helvetica,sans-serif;color:blac=
+k;border:1pt none windowtext;padding:0in">6515 Shiloh Rd, Unit
+110,=C2=A0Alpharetta,GA 30005</span><span style=3D"font-size:12.5pt;font-fa=
+mily:Helvetica,sans-serif;color:black"><span></span></span></p>
+
+<p class=3D"MsoNormal"><span>=C2=A0</span></p></div>
+
+<p></p>
+
+-- <br />
+You received this message because you are subscribed to &quot;rtc-linux&quo=
+t;.<br />
+Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
+http://groups.google.com/group/rtc-linux</a> .<br />
+Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
+st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
+before submitting a driver.<br />
+--- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;rtc-linux&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
++unsubscribe@googlegroups.com</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--001a113552600ac80b0556590f19--
