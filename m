@@ -1,110 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47987 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754231AbdHYGnn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:43:43 -0400
-Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
-To: Heiner Kallweit <hkallweit1@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
- <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
- <b5bed7f5-1963-74fb-dba6-dc465f357645@collabora.com>
- <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
- <f5cf7417-ac7a-4d52-56e3-c89c10f74df0@gmail.com>
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Message-ID: <68ae46ed-9136-ef79-bf35-9fd62e0390e8@collabora.com>
-Date: Fri, 25 Aug 2017 08:43:38 +0200
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:36999 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753126AbdHJUmH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2017 16:42:07 -0400
+Date: Thu, 10 Aug 2017 15:42:05 -0500
+From: Rob Herring <robh@kernel.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 3/5] dt-bindings: mfd: Add bindings for the keys as
+ subnode of PMIC
+Message-ID: <20170810204205.i4k56dophgvfyjrv@rob-hp-laptop>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-4-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <f5cf7417-ac7a-4d52-56e3-c89c10f74df0@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1502071065-6745-4-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Heiner,
-
-On 24/08/17 22:53, Heiner Kallweit wrote:
-> Am 24.08.2017 um 22:44 schrieb Heiner Kallweit:
->> Am 24.08.2017 um 22:13 schrieb Enric Balletbo i Serra:
->>> Hi Heiner
->>>
->>> On 24/08/17 21:16, Heiner Kallweit wrote:
->>>> Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
->>>>> Hi Enric,
->>>>>
->>>>> I just saw your submitted patch on patchwork. As I haven't been subscribed
->>>>> to linux-rtc list yet, I can't reply to the original mail.
->>>>>
->>>>> Few remarks:
->>>>> I think the same can be achieved easier (apart from the fact that member
->>>>> irq was just removed from struct ds1307).
->>>>> The curent call to device_set_wakeup_capable has to be replaced with
->>>>> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
->>>>> register the interrupt with the Linux wakeup core. Then the core takes
->>>>> care of everything.
->>>>>
->>>
->>> Oh I just saw your patches, thanks to advice me about them.
->>>
->>>> After further checking not even this may be necessary.
->>>> If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
->>>> enables the device as wakeup device and registers the interrupt with the
->>>> wakeup core.
->>>> If the i2c client is defined via DT, then of_i2c_register_device() sets
->>>> this flag based on the "wakeup-source" property.
->>>> Is your device configured via DT? If yes, did you check whether wakeup
->>>> works w/o your patch with just setting property wakeup-source ?
->>>>
->>>
->>> Yes, device is configured via DT and without my patch, just setting property
->>> wakeup-source didn't work, the reason is that code:
->>>
->>> http://elixir.free-electrons.com/linux/v4.13-rc6/source/drivers/rtc/rtc-ds1307.c#L1382
->>>
->> This shouldn't be the reason because registering the interrupt with the wakeup core
->> happens earlier in i2c_device_probe().
->> Can you check whether dev_pm_set_wake_irq() is actually called with the right
->> irq number in i2c_device_probe()?
->>
-
-You have reason again, I did something wrong on my tests and read the code in a
-wrong way, to sum up, adding both, the interrupt pin and the wakeup-source
-propriety, works as expected. So forget this patch. Sorry for the noise and
-thanks for replying and look at this.
-
-> See also description of commit 4990d4fe327b9d9a7a
-> "PM / Wakeirq: Add automated device wake IRQ handling" from 2015.
-> It explains why the code you want to add shouldn't be needed any longer.
+On Mon, Aug 07, 2017 at 09:57:43AM +0800, Chen Zhong wrote:
+> This patch adds documentation for device tree bindings for keys support
+> as the subnode of MT6397/MT6323 PMIC.
 > 
->> Would be interesting to see the DT config of your rtc.
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+>  1 file changed, 6 insertions(+)
 
-
-        rtc0: rtc@68 {
-                compatible = "dallas,ds1339";
-                pinctrl-names = "default";
-                pinctrl-0 = <&rtc0_irq_pins>;
-                interrupt-parent = <&gpio0>;
-                interrupts = <23 IRQ_TYPE_EDGE_FALLING>; /* gpio 23 */
-                wakeup-source;
-                trickle-resistor-ohms = <2000>;
-                reg = <0x68>;
-        };
-
->>
->>> I didn't test on top of your patches so let me rebase/rethink my patch on top of
->>> yours.
->>>
->>>>
->>>>> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
->>>>> are not needed there because the core takes care of this already
->>>>> (enable_irq_wake is called from dev_pm_arm_wake_irq).
->>>>>
->>>>> Rgds, Heiner
->>>>>
->>>>
->>>
->>> Thanks,
->>>  Enric
->>>
->>
-> 
+Acked-by: Rob Herring <robh@kernel.org>
