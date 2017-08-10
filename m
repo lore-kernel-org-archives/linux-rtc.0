@@ -1,66 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53391 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:36135 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932464AbdHVKG6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 06:06:58 -0400
+        with ESMTP id S1752983AbdHJVFU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2017 17:05:20 -0400
+Date: Thu, 10 Aug 2017 23:05:18 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Guan Xuetao <gxt@mprc.pku.edu.cn>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 1/2] rtc: puv3: switch to devm_rtc_allocate_device()/rtc_register_device()
-Date: Tue, 22 Aug 2017 12:06:50 +0200
-Message-Id: <20170822100651.26590-1-alexandre.belloni@free-electrons.com>
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 2/4] rtc: pl031: use devm_* for allocating memory and
+ mapping resource
+Message-ID: <20170810210518.wsmf5jt7fkks7g6y@piout.net>
+References: <20170720231745.GE31807@n2100.armlinux.org.uk>
+ <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use managed RTC device allocation as this allows for further cleanup.
+Hi Russell,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-puv3.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+On 21/07/2017 at 00:18:31 +0100, Russell King wrote:
+> Use the devm_* APIs for allocating memory and mapping the memory in
+> the probe function to relieve the driver from having to deal with
+> this in the cleanup paths.
+> 
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> ---
+>  drivers/rtc/rtc-pl031.c | 19 +++++++------------
+>  1 file changed, 7 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+> index 0d87b90b1903..5960fbd08b05 100644
+> --- a/drivers/rtc/rtc-pl031.c
+> +++ b/drivers/rtc/rtc-pl031.c
+> @@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
+>  	device_init_wakeup(&adev->dev, false);
+>  	free_irq(adev->irq[0], ldata);
+>  	rtc_device_unregister(ldata->rtc);
+> -	iounmap(ldata->base);
+> -	kfree(ldata);
+>  	amba_release_regions(adev);
+>  
+>  	return 0;
+> @@ -322,25 +320,26 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+>  	int ret;
+>  	struct pl031_local *ldata;
+>  	struct pl031_vendor_data *vendor = id->data;
+> -	struct rtc_class_ops *ops = &vendor->ops;
+> +	struct rtc_class_ops *ops;
 
-diff --git a/drivers/rtc/rtc-puv3.c b/drivers/rtc/rtc-puv3.c
-index c0a6e638c672..4f495dee2f48 100644
---- a/drivers/rtc/rtc-puv3.c
-+++ b/drivers/rtc/rtc-puv3.c
-@@ -222,10 +222,6 @@ static void puv3_rtc_enable(struct device *dev, int en)
- 
- static int puv3_rtc_remove(struct platform_device *dev)
- {
--	struct rtc_device *rtc = platform_get_drvdata(dev);
--
--	rtc_device_unregister(rtc);
--
- 	puv3_rtc_setpie(&dev->dev, 0);
- 	puv3_rtc_setaie(&dev->dev, 0);
- 
-@@ -259,6 +255,10 @@ static int puv3_rtc_probe(struct platform_device *pdev)
- 	dev_dbg(&pdev->dev, "PKUnity_rtc: tick irq %d, alarm irq %d\n",
- 		 puv3_rtc_tickno, puv3_rtc_alarmno);
- 
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
- 	/* get the memory region */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
-@@ -278,12 +278,10 @@ static int puv3_rtc_probe(struct platform_device *pdev)
- 	puv3_rtc_enable(&pdev->dev, 1);
- 
- 	/* register RTC and exit */
--	rtc = rtc_device_register("pkunity", &pdev->dev, &puv3_rtcops,
--				  THIS_MODULE);
--
--	if (IS_ERR(rtc)) {
-+	rtc->ops = &puv3_rtcops;
-+	ret = rtc_register_device(rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "cannot attach rtc\n");
--		ret = PTR_ERR(rtc);
- 		goto err_nortc;
- 	}
- 
+This change should probably go in patch 3/4
+
+
 -- 
-2.14.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
