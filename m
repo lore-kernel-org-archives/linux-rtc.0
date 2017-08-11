@@ -1,124 +1,117 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34151 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754564AbdHYHmF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 03:42:05 -0400
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND] rtc: sun6i: Add support for the external oscillator gate
-Date: Fri, 25 Aug 2017 09:42:02 +0200
-Message-Id: <20170825074202.18743-1-maxime.ripard@free-electrons.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:12209 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751871AbdHKHSf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Aug 2017 03:18:35 -0400
+Message-ID: <1502435908.28466.21.camel@mhfsdcap03>
+Subject: Re: [PATCH v2 5/5] mfd: mt6397: Add PMIC keys support to MT6397
+ driver
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        "Javier Martinez Canillas" <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Date: Fri, 11 Aug 2017 15:18:28 +0800
+In-Reply-To: <20170808111556.dmx2s6bcwnsccrkn@dell>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+         <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
+         <20170808111556.dmx2s6bcwnsccrkn@dell>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC can output its 32kHz clock outside of the SoC, for example to clock
-a WiFi chip.
+On Tue, 2017-08-08 at 12:15 +0100, Lee Jones wrote:
+> On Mon, 07 Aug 2017, Chen Zhong wrote:
+> 
+> > This patch adds compatible strings and interrupts for pmic keys
+> > which serves as child device of MFD.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> > ---
+> >  drivers/mfd/mt6397-core.c |   36 +++++++++++++++++++++++++++++++++++-
+> >  1 file changed, 35 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> > index 6546d7f..3c6a765 100644
+> > --- a/drivers/mfd/mt6397-core.c
+> > +++ b/drivers/mfd/mt6397-core.c
+> > @@ -43,6 +43,30 @@
+> >  	},
+> >  };
+> >  
+> > +static const struct resource mt6323_keys_resources[] = {
+> > +	{
+> > +		.start = MT6323_IRQ_STATUS_PWRKEY,
+> > +		.end   = MT6323_IRQ_STATUS_PWRKEY,
+> > +		.flags = IORESOURCE_IRQ,
+> > +	}, {
+> > +		.start = MT6323_IRQ_STATUS_FCHRKEY,
+> > +		.end   = MT6323_IRQ_STATUS_FCHRKEY,
+> > +		.flags = IORESOURCE_IRQ,
+> > +	},
+> > +};
+> > +
+> > +static const struct resource mt6397_keys_resources[] = {
+> > +	{
+> > +		.start = MT6397_IRQ_PWRKEY,
+> > +		.end   = MT6397_IRQ_PWRKEY,
+> > +		.flags = IORESOURCE_IRQ,
+> > +	}, {
+> > +		.start = MT6397_IRQ_HOMEKEY,
+> > +		.end   = MT6397_IRQ_HOMEKEY,
+> > +		.flags = IORESOURCE_IRQ,
+> > +	},
+> > +};
+> 
+> We have better ways to define these now.
+> 
+> Please grep for "DEFINE_RES_"
 
-Create a new clock that other devices will be able to retrieve, while
-maintaining the DT stability by providing a default name for that clock if
-clock-output-names doesn't list one.
+I'll define these with "DEFINE_RES_IRQ" here, Thank you for your
+suggestion.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- .../devicetree/bindings/rtc/sun6i-rtc.txt          |  4 ++--
- drivers/rtc/rtc-sun6i.c                            | 24 +++++++++++++++++++---
- 2 files changed, 23 insertions(+), 5 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-index 945934918b71..d5e26d313f62 100644
---- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-@@ -10,7 +10,7 @@ Required properties:
- 
- Required properties for new device trees
- - clocks	: phandle to the 32kHz external oscillator
--- clock-output-names : name of the LOSC clock created
-+- clock-output-names : names of the LOSC and its external output clocks created
- - #clock-cells  : must be equals to 1. The RTC provides two clocks: the
- 		  LOSC and its external output, with index 0 and 1
- 		  respectively.
-@@ -21,7 +21,7 @@ rtc: rtc@01f00000 {
- 	compatible = "allwinner,sun6i-a31-rtc";
- 	reg = <0x01f00000 0x54>;
- 	interrupts = <0 40 4>, <0 41 4>;
--	clock-output-names = "osc32k";
-+	clock-output-names = "osc32k", "osc32k-out";
- 	clocks = <&ext_osc32k>;
- 	#clock-cells = <1>;
- };
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 305c4d043f61..3d2216ccd860 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -73,6 +73,9 @@
- #define SUN6I_ALARM_CONFIG			0x0050
- #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
- 
-+#define SUN6I_LOSC_OUT_GATING			0x0060
-+#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-+
- /*
-  * Get date values
-  */
-@@ -125,6 +128,7 @@ struct sun6i_rtc_dev {
- 	struct clk_hw hw;
- 	struct clk_hw *int_osc;
- 	struct clk *losc;
-+	struct clk *ext_losc;
- 
- 	spinlock_t lock;
- };
-@@ -188,13 +192,14 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	struct clk_init_data init = {
- 		.ops		= &sun6i_rtc_osc_ops,
- 	};
-+	const char *clkout_name = "osc32k-out";
- 	const char *parents[2];
- 
- 	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
- 	if (!rtc)
- 		return;
- 
--	clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
-+	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
- 			   GFP_KERNEL);
- 	if (!clk_data)
- 		return;
-@@ -235,7 +240,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 
- 	init.parent_names = parents;
- 	init.num_parents = of_clk_get_parent_count(node) + 1;
--	of_property_read_string(node, "clock-output-names", &init.name);
-+	of_property_read_string_index(node, "clock-output-names", 0,
-+				      &init.name);
- 
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
-@@ -243,8 +249,20 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 		return;
- 	}
- 
--	clk_data->num = 1;
-+	of_property_read_string_index(node, "clock-output-names", 1,
-+				      &clkout_name);
-+	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
-+					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
-+					  SUN6I_LOSC_OUT_GATING_EN, 0,
-+					  &rtc->lock);
-+	if (IS_ERR(rtc->ext_losc)) {
-+		pr_crit("Couldn't register the LOSC external gate\n");
-+		return;
-+	}
-+
-+	clk_data->num = 2;
- 	clk_data->hws[0] = &rtc->hw;
-+	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	return;
- 
--- 
-2.13.5
+> 
+> >  static const struct mfd_cell mt6323_devs[] = {
+> >  	{
+> >  		.name = "mt6323-regulator",
+> > @@ -50,6 +74,11 @@
+> >  	}, {
+> >  		.name = "mt6323-led",
+> >  		.of_compatible = "mediatek,mt6323-led"
+> > +	}, {
+> > +		.name = "mtk-pmic-keys",
+> > +		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
+> > +		.resources = mt6323_keys_resources,
+> > +		.of_compatible = "mediatek,mt6323-keys"
+> >  	},
+> >  };
+> >  
+> > @@ -71,7 +100,12 @@
+> >  	}, {
+> >  		.name = "mt6397-pinctrl",
+> >  		.of_compatible = "mediatek,mt6397-pinctrl",
+> > -	},
+> > +	}, {
+> > +		.name = "mtk-pmic-keys",
+> > +		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
+> > +		.resources = mt6397_keys_resources,
+> > +		.of_compatible = "mediatek,mt6397-keys"
+> > +	}
+> >  };
+> >  
+> >  static void mt6397_irq_lock(struct irq_data *data)
+> 
