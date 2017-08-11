@@ -1,59 +1,112 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41638 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750735AbdH1HzA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 03:55:00 -0400
-Date: Mon, 28 Aug 2017 09:54:58 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
- wday
-Message-ID: <20170828075458.4cdi7pet3yxeskqc@piout.net>
-References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
- <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
- <20170826195947.jnipgyuxg3ceqie4@piout.net>
- <a6ccd0ab-a6f4-1122-233b-61e69b80aa54@gmail.com>
- <7da740e6-b1e0-0a58-8b54-2e5e3e2f6c54@gmail.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:28879 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751521AbdHKHBl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Aug 2017 03:01:41 -0400
+Message-ID: <1502434892.28466.18.camel@mhfsdcap03>
+Subject: Re: [PATCH v2 2/5] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Rob Herring <robh@kernel.org>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "Lee Jones" <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Beomho Seo" <beomho.seo@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Date: Fri, 11 Aug 2017 15:01:32 +0800
+In-Reply-To: <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+         <1502071065-6745-3-git-send-email-chen.zhong@mediatek.com>
+         <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7da740e6-b1e0-0a58-8b54-2e5e3e2f6c54@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 27/08/2017 at 21:35:34 +0200, Heiner Kallweit wrote:
-> When having a look at the MCP794XX datasheet it became clear why the
-> mentioned weekday-related patch was submitted. This chip is quite
-> strange regarding the possible alarm match conditions:
+Hi Rob,
+
+On Thu, 2017-08-10 at 15:41 -0500, Rob Herring wrote:
+> On Mon, Aug 07, 2017 at 09:57:42AM +0800, Chen Zhong wrote:
+> > This patch adds the device tree binding documentation for the MediaTek
+> > pmic keys found on PMIC MT6397/MT6323.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> > ---
+> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 ++++++++++++++++++++
+> >  1 file changed, 36 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > new file mode 100644
+> > index 0000000..c5b230f
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > @@ -0,0 +1,36 @@
+> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> > +
+> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> > +and homekey. The key functions are defined as the subnode of the function
+> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> > +of Muti-Function Device (MFD)
+> > +
+> > +For MT6397/MT6323 MFD bindings see:
+> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+> > +
+> > +Required properties:
+> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> > +- mediatek,pwrkey-code: Keycode of pwrkey
+> > +
+> > +Optional Properties:
+> > +- mediatek,homekey-code: Keycode of homekey
+> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> > +- mediatek,long-press-duration: Long press key shutdown duration setting,
+> > +	0/1/2/3 for 8/11/14/5 seconds.
 > 
-> ALMxMSK<2:0>: Alarm Mask bits
-> 000 = Seconds match
-> 001 = Minutes match
-> 010 = Hours match (logic takes into account 12-/24-hour operation)
-> 011 = Day of week match
-> 100 = Date match
-> 101 = Reserved; do not use
-> 110 = Reserved; do not use
-> 111 = Seconds, Minutes, Hour, Day of Week, Date and Month
+> Surely this could be a common property.
+
+Sorry I'm not very clear about this. Could i move this to required
+properties or remove the "mediatek" string here?
+
 > 
-> When not having a proper weekday you get only either seconds or
-> minutes or hours or date match.
+> > +
+> > +Example:
+> > +
+> > +	pmic: mt6397 {
+> > +		compatible = "mediatek,mt6397";
+> > +
+> > +		...
+> > +
+> > +		mt6397keys: mt6397keys {
+> > +			compatible = "mediatek,mt6397-keys";
+> > +			mediatek,pwrkey-code = <116>;
+> > +			mediatek,homekey-code = <114>;
 > 
-> So it's best to ensure that the weekday is properly populated.
-> However we can do this in the driver and don't have to touch the core.
+> We have a standard properties for keycodes.
+
+Could i write them like this way?
+
+linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>
+
 > 
+> > +			mediatek,long-press-mode = <1>;
+> > +			mediatek,long-press-duration = <0>;
+> > +		};
+> > +	};
+> > \ No newline at end of file
+> > -- 
+> > 1.7.9.5
+> > 
 
-Can you do that only for mcp794xx? I received one earlier this month and
-I'll separate the driver from rtc-ds1307.c at some point.
-
-BTW, I've rebased and pushed some cleanup for this driver in:
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/log/?h=rtc-ds1307
-
-Can you base yourself on that?
-
-Thanks,
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thanks.
