@@ -1,53 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([178.209.37.122]:45422 "EHLO vps0.lunn.ch"
+Received: from mx1.redhat.com ([209.132.183.28]:57906 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751338AbdH0Nrm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 27 Aug 2017 09:47:42 -0400
-Date: Sun, 27 Aug 2017 15:47:29 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Roc He <hepeng@zidoo.tv>, devicetree@vger.kernel.org,
-        ????????? <jiang.liqin@geniatech.com>,
-        linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
-Message-ID: <20170827134729.GE13622@lunn.ch>
-References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-2-afaerber@suse.de>
- <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
- <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
+        id S1751521AbdHKJPS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 11 Aug 2017 05:15:18 -0400
+From: =?UTF-8?q?Luk=C3=A1=C5=A1=20Doktor?= <ldoktor@redhat.com>
+To: ldoktor@redhat.com, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, john.stultz@linaro.org,
+        tglx@linutronix.de, sboyd@codeaurora.org, shuah@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH 0/1] rtc: rtctest: Support opal-rtc and rtc-generic
+Date: Fri, 11 Aug 2017 11:14:54 +0200
+Message-Id: <20170811091455.11041-1-ldoktor@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-> Thanks. Did you read the RFC question in the cover letter as well and
-> have any comments? Downstream has an rtc-base-year = <2014>; property
-> that I had left out in this RFC and due to your ack not included in v2.
-> 
-> Should we default to 2014 in the driver and add an optional base-year
-> property once we encounter a diverging device, or should we make it
-> required from the beginning? I did not spot any other rtc binding with
-> such a property and would appreciate a clarification.
+On ppc64le machines the opal-rtc, resp rtc-generic in guest is used. They only
+support minimal set of functionality and fail this test in not-yet treated
+way. This extends the checks and skips to the next test when feature is not
+supported.
 
-Hi Andreas
+Lukáš Doktor (1):
+  rtc: rtctest: Improve support detection
 
->From the perspective of the hardware, does it care what the base is?
+ tools/testing/selftests/timers/rtctest.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-A device using a different base will initially return the wrong
-time. But once the correct time has been written back, it will be O.K.
-
-This only becomes an issue if a device is used with different OSs,
-which have different bases. Swapping back and forth between OSs then
-becomes an issue.
-
-KISS suggests not having a base in DT until it is actually
-required. Since it is an additional property, it does not break
-backwards compatibility when added.
-
-	  Andrew
+-- 
+2.9.4
