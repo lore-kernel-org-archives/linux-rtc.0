@@ -1,36 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59202 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751451AbdHOIqE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 15 Aug 2017 04:46:04 -0400
-From: =?UTF-8?q?Luk=C3=A1=C5=A1=20Doktor?= <ldoktor@redhat.com>
-To: ldoktor@redhat.com, a.zummo@towertech.it,
-        linuxppc-dev@lists.ozlabs.org, sboyd@codeaurora.org,
-        linux-kernel@vger.kernel.org, alexandre.belloni@free-electrons.com,
-        linux-kselftest@vger.kernel.org, john.stultz@linaro.org,
-        tglx@linutronix.de, shuah@kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 0/1] rtc: rtctest: Support opal-rtc and rtc-generic
-Date: Tue, 15 Aug 2017 10:45:59 +0200
-Message-Id: <20170815084600.6285-1-ldoktor@redhat.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:48186 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751490AbdHLVZI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 12 Aug 2017 17:25:08 -0400
+Date: Sat, 12 Aug 2017 23:25:05 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: at91rm9200: fix error return code in
+ at91_rtc_probe()
+Message-ID: <20170812212505.cd3gi52pmidyluzo@piout.net>
+References: <20170809155244.GA25987@embeddedgus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170809155244.GA25987@embeddedgus>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On ppc64le machines the opal-rtc, resp rtc-generic in guest is used. They only
-support minimal set of functionality and fail this test in not-yet treated
-way. This extends the checks and skips to the next test when feature is not
-supported.
+On 09/08/2017 at 10:52:44 -0500, Gustavo A. R. Silva wrote:
+> platform_get_irq() returns an error code, but the at91rm9200 driver
+> ignores it and always returns -ENXIO. This is not correct and,
+> prevents -EPROBE_DEFER from being propagated properly.
+> 
+> Print and propagate the return value of platform_get_irq on failure.
+> 
+> This issue was detected with the help of Coccinelle.
+> 
 
-Changes in v2:
-- Removed the double EINVAL check
-- Added missing space before "EIO" check.
+This will never happen and is not an actual issue. I will not take such
+a patch until you
+1/ prove there is an issue
+2/ test your patch on real hardware
 
-Lukáš Doktor (1):
-  rtc: rtctest: Improve support detection
-
- tools/testing/selftests/timers/rtctest.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/rtc/rtc-at91rm9200.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+> index e221b78..09bc2e0 100644
+> --- a/drivers/rtc/rtc-at91rm9200.c
+> +++ b/drivers/rtc/rtc-at91rm9200.c
+> @@ -398,8 +398,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
+>  
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0) {
+> -		dev_err(&pdev->dev, "no irq resource defined\n");
+> -		return -ENXIO;
+> +		dev_err(&pdev->dev, "no irq resource defined: %d\n", irq);
+> +		return irq;
+>  	}
+>  
+>  	at91_rtc_regs = devm_ioremap(&pdev->dev, regs->start,
+> -- 
+> 2.5.0
+> 
 
 -- 
-2.9.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
