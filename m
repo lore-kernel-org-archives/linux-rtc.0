@@ -1,59 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:36135 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47692 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752983AbdHJVFU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2017 17:05:20 -0400
-Date: Thu, 10 Aug 2017 23:05:18 +0200
+        with ESMTP id S1751086AbdHLUWK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 12 Aug 2017 16:22:10 -0400
+Date: Sat, 12 Aug 2017 22:22:06 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 2/4] rtc: pl031: use devm_* for allocating memory and
- mapping resource
-Message-ID: <20170810210518.wsmf5jt7fkks7g6y@piout.net>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk>
- <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
+To: =?utf-8?B?THVrw6HFoQ==?= Doktor <ldoktor@redhat.com>
+Cc: a.zummo@towertech.it, john.stultz@linaro.org, tglx@linutronix.de,
+        sboyd@codeaurora.org, shuah@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH] rtc: rtctest: Improve support detection
+Message-ID: <20170812202206.6phv7fesej42jhxr@piout.net>
+References: <20170811091455.11041-1-ldoktor@redhat.com>
+ <20170811091455.11041-2-ldoktor@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <E1dYKiF-0001kS-1w@rmk-PC.armlinux.org.uk>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170811091455.11041-2-ldoktor@redhat.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Russell,
+Hi,
 
-On 21/07/2017 at 00:18:31 +0100, Russell King wrote:
-> Use the devm_* APIs for allocating memory and mapping the memory in
-> the probe function to relieve the driver from having to deal with
-> this in the cleanup paths.
+On 11/08/2017 at 11:14:55 +0200, Lukáš Doktor wrote:
+> The rtc-generic and opal-rtc are failing to run this test as they do not
+> support all the features. Let's treat the error returns and skip to the
+> following test.
 > 
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Theoretically the test_DATE should be also adjusted, but as it's enabled
+> on demand I think it makes sense to fail in such case.
+> 
+> Signed-off-by: Lukáš Doktor <ldoktor@redhat.com>
 > ---
->  drivers/rtc/rtc-pl031.c | 19 +++++++------------
->  1 file changed, 7 insertions(+), 12 deletions(-)
+>  tools/testing/selftests/timers/rtctest.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-> index 0d87b90b1903..5960fbd08b05 100644
-> --- a/drivers/rtc/rtc-pl031.c
-> +++ b/drivers/rtc/rtc-pl031.c
-> @@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
->  	device_init_wakeup(&adev->dev, false);
->  	free_irq(adev->irq[0], ldata);
->  	rtc_device_unregister(ldata->rtc);
-> -	iounmap(ldata->base);
-> -	kfree(ldata);
->  	amba_release_regions(adev);
->  
->  	return 0;
-> @@ -322,25 +320,26 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
->  	int ret;
->  	struct pl031_local *ldata;
->  	struct pl031_vendor_data *vendor = id->data;
-> -	struct rtc_class_ops *ops = &vendor->ops;
-> +	struct rtc_class_ops *ops;
+> diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+> index f61170f..6344842 100644
+> --- a/tools/testing/selftests/timers/rtctest.c
+> +++ b/tools/testing/selftests/timers/rtctest.c
+> @@ -125,7 +125,7 @@ int main(int argc, char **argv)
+>  	/* Turn on update interrupts (one per second) */
+>  	retval = ioctl(fd, RTC_UIE_ON, 0);
+>  	if (retval == -1) {
+> -		if (errno == EINVAL) {
+> +		if (errno == EINVAL || errno == EINVAL) {
 
-This change should probably go in patch 3/4
+Well, this needs to be fixed.
 
+>  			fprintf(stderr,
+>  				"\n...Update IRQs not supported.\n");
+>  			goto test_READ;
+> @@ -221,6 +221,11 @@ int main(int argc, char **argv)
+>  	/* Read the current alarm settings */
+>  	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
+>  	if (retval == -1) {
+> +		if (errno == EINVAL) {
+> +			fprintf(stderr,
+> +					"\n...EINVAL reading current alarm setting.\n");
+> +			goto test_PIE;
+> +		}
+>  		perror("RTC_ALM_READ ioctl");
+>  		exit(errno);
+>  	}
+> @@ -231,7 +236,7 @@ int main(int argc, char **argv)
+>  	/* Enable alarm interrupts */
+>  	retval = ioctl(fd, RTC_AIE_ON, 0);
+>  	if (retval == -1) {
+> -		if (errno == EINVAL) {
+> +		if (errno == EINVAL || errno ==EIO) {
+>  			fprintf(stderr,
+>  				"\n...Alarm IRQs not supported.\n");
+>  			goto test_PIE;
+> -- 
+> 2.9.4
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
