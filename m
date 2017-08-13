@@ -1,19 +1,54 @@
-Return-Path: <rtc-linux+bncBDFKL7OS4MBBBGHQVTGAKGQET24KHLI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP47C6LHEIP3K6BZQCRUBG2SV53C@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-qt0-x22b.google.com (mail-qt0-x22b.google.com. [2607:f8b0:400d:c0d::22b])
-        by gmr-mx.google.com with ESMTPS id z142si234379ywa.10.2017.08.09.09.28.08
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 09 Aug 2017 09:28:08 -0700 (PDT)
-Received: by mail-qt0-x22b.google.com with SMTP id a18so39700042qta.0
-        for <rtc-linux@googlegroups.com>; Wed, 09 Aug 2017 09:28:08 -0700 (PDT)
+Received: from pokefinder.org (sauhun.de. [88.99.104.3])
+        by gmr-mx.google.com with ESMTP id r143si226759wme.3.2017.08.13.06.37.01
+        for <rtc-linux@googlegroups.com>;
+        Sun, 13 Aug 2017 06:37:01 -0700 (PDT)
+Date: Sun, 13 Aug 2017 15:37:00 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org,
+	Tony Lindgren <tony@atomide.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170813133700.tv4ka7anvbzcplr7@ninjato>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170706064453.GH16144@ulmo.fritz.box>
+ <20170706070352.xdecvsnremwqed72@dell>
 MIME-Version: 1.0
-From: Current Bench <pradeep.groups1@gmail.com>
-Date: Wed, 9 Aug 2017 12:28:07 -0400
-Message-ID: <CAKYW0Wud=rF27+Ubg812PPWEU6aJquswiVMsuHAx_sxAOQ93bA@mail.gmail.com>
-Subject: [rtc-linux] Add me to your contact..
-To: undisclosed-recipients:;
-Content-Type: multipart/alternative; boundary="001a11420db6ad3ca90556549008"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="bf2u36sx3yv46k44"
+In-Reply-To: <20170706070352.xdecvsnremwqed72@dell>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -23,23 +58,55 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
---001a11420db6ad3ca90556549008
+
+--bf2u36sx3yv46k44
 Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
 
-Please add me ( Pradeep.kumar@summitworks.com ) to your contact and share
-me your requirements and hot list on daily basis
+On Thu, Jul 06, 2017 at 08:03:52AM +0100, Lee Jones wrote:
+> On Thu, 06 Jul 2017, Thierry Reding wrote:
+> 
+> > On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> > > include/linux/i2c is not for client devices. Move the header file to a
+> > > more appropriate location.
+> > > 
+> > > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> > > ---
+> > >  arch/arm/mach-omap2/common.h            | 2 +-
+> > >  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+> > >  drivers/gpio/gpio-twl4030.c             | 2 +-
+> > >  drivers/iio/adc/twl4030-madc.c          | 2 +-
+> > >  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+> > >  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+> > >  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+> > >  drivers/input/misc/twl4030-vibra.c      | 2 +-
+> > >  drivers/mfd/twl-core.c                  | 6 +++---
+> > >  drivers/mfd/twl4030-audio.c             | 2 +-
+> > >  drivers/mfd/twl4030-irq.c               | 2 +-
+> > >  drivers/mfd/twl4030-power.c             | 2 +-
+> > >  drivers/mfd/twl6030-irq.c               | 2 +-
+> > >  drivers/phy/phy-twl4030-usb.c           | 2 +-
+> > >  drivers/power/supply/twl4030_charger.c  | 2 +-
+> > >  drivers/pwm/pwm-twl-led.c               | 2 +-
+> > >  drivers/pwm/pwm-twl.c                   | 2 +-
+> > >  drivers/regulator/twl-regulator.c       | 2 +-
+> > >  drivers/regulator/twl6030-regulator.c   | 2 +-
+> > >  drivers/rtc/rtc-twl.c                   | 2 +-
+> > >  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+> > >  drivers/video/backlight/pandora_bl.c    | 2 +-
+> > >  drivers/watchdog/twl4030_wdt.c          | 2 +-
+> > >  include/linux/{i2c => mfd}/twl.h        | 0
+> > >  sound/soc/codecs/twl4030.c              | 2 +-
+> > >  25 files changed, 26 insertions(+), 26 deletions(-)
+> > >  rename include/linux/{i2c => mfd}/twl.h (100%)
+> > 
+> > I didn't see this get applied yet, so just in case anyone was waiting
+> > for me (this is trivial, so I don't think there's a need):
+> 
+> You're not the last. :)
 
-Thanks
-
-*-*
-
-*Pradeep*
-
-SUMMITWORKS TECHNOLOGIES INC.
-
-P: 908-922-4225 <(908)%20922-4225>
-
-E: Pradeep.kumar@summitworks.com
+Given the triviality of the change for non-MFD subsystems, can we apply
+this for 4.14?
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -51,56 +118,24 @@ You received this message because you are subscribed to the Google Groups "rtc-l
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
 
---001a11420db6ad3ca90556549008
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+--bf2u36sx3yv46k44
+Content-Type: application/pgp-signature; name="signature.asc"
 
-<div dir=3D"ltr"><p class=3D"MsoNormal"><a name=3D"_MailAutoSig"><span styl=
-e=3D"font-size:10pt">Please add me (=C2=A0</span></a><span style=3D"font-si=
-ze:9pt;color:rgb(5,99,193)"><a href=3D"mailto:Pradeep.kumar@summitworks.com=
-" target=3D"_blank">Pradeep.kumar@summitworks.com</a>=C2=A0)</span><a name=
-=3D"_MailAutoSig"><span style=3D"font-size:10pt">=C2=A0to your contact and =
-share me your </span><span style=3D"font-size:13.3333px">requirements</span=
-><span style=3D"font-size:10pt">=C2=A0and hot list on daily basis</span></a=
-></p><p class=3D"MsoNormal"><a name=3D"_MailAutoSig"><span style=3D"font-si=
-ze:10pt">Thanks<span></span></span></a></p>
+-----BEGIN PGP SIGNATURE-----
 
-<p class=3D"MsoNormal"><b><span style=3D"font-size:9pt">-</span></b><span s=
-tyle=3D"font-size:9pt"><span></span></span></p>
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmQVfwACgkQFA3kzBSg
+KbanFg//dxik+zStgiZtWtrgtgSmpeUOGOsX3FXnRhJCPNTaXUuGOMuuhjFgK3p3
+uDOXYfGtsdDPrnAGj3m8yjJI8JqQ1GI/9FtMxW9Jwcr3N6ZJ9dQYqzN7XMXwgnhd
+prXN/iTZgkF/XT1ZOc6GMXne2jbqhJOuRY3sk+N40xQHsOBa8ThqxqssFyJbn0BF
+jjSQP5TNp0KefTYS9ZyJGbnFxNZQhMb+AWHCMDgib2jCTQIIAQD5iMLH3aoCZEOn
+rQDxnEHlOwcR+qYKdz8LVPU5tOR2uEsY16F4awUYVR+6lkx3KLKsBFHZr7tZ2QPn
++w0767Mr+wyphuuG77YoBvTLU8pDJxwSYR21XGYqvJvYNdwVHCy5Y4M+DTV3xG8g
+DsY45lDHNspdDJvwBpZZRBO29uGPtqfCJfDgUpxvDllF99ES72urbNUXn5YrdvVy
+sTrUzmgX4kiBRzA6mpyG4autZE9Z6q/xNslSrV/0ll0arUMbzpMmVFQwE6yRgRsB
+1Ha3prXevF/UNZQcvnhHruUcakuzPgvK0hpdhirON2OTqXChTOHLKWquA+aYQ9lB
+cBe7cZhAUXkimtWvNheqOYEg8ZStjW1uNup5eHujXNYw/HY8+3p/cr/9Jf05xvQz
+H3Qawecv5x3sLjvuv0PuhEdFPr5dKQfLGoDZrLqmFLfYTJ3NWoE=
+=hKZZ
+-----END PGP SIGNATURE-----
 
-<p class=3D"MsoNormal"><b><span style=3D"font-size:10pt">Pradeep</span></b>=
-<span style=3D"font-size:10pt"><span></span></span></p>
-
-<p class=3D"MsoNormal"><span style=3D"font-size:9pt">SUMMITWORKS TECHNOLOGI=
-ES INC.<span></span></span></p>
-
-<p class=3D"MsoNormal"><span style=3D"font-size:9pt">P: </span><a href=3D"t=
-el:(908)%20922-4225" target=3D"_blank"><span style=3D"font-size:9pt;color:r=
-gb(5,99,193)">908-922-4225</span></a><span style=3D"font-size:9pt"><span></=
-span></span></p>
-
-<p class=3D"MsoNormal"><span style=3D"font-size:9pt">E: </span><a href=3D"m=
-ailto:Pradeep.kumar@summitworks.com" target=3D"_blank"><span style=3D"font-=
-size:9pt;color:rgb(5,99,193)">Pradeep.kumar@summitworks.com</span></a><br><=
-/p></div>
-
-<p></p>
-
--- <br />
-You received this message because you are subscribed to &quot;rtc-linux&quo=
-t;.<br />
-Membership options at <a href=3D"http://groups.google.com/group/rtc-linux">=
-http://groups.google.com/group/rtc-linux</a> .<br />
-Please read <a href=3D"http://groups.google.com/group/rtc-linux/web/checkli=
-st">http://groups.google.com/group/rtc-linux/web/checklist</a><br />
-before submitting a driver.<br />
---- <br />
-You received this message because you are subscribed to the Google Groups &=
-quot;rtc-linux&quot; group.<br />
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to <a href=3D"mailto:rtc-linux+unsubscribe@googlegroups.com">rtc-linux=
-+unsubscribe@googlegroups.com</a>.<br />
-For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
-s://groups.google.com/d/optout</a>.<br />
-
---001a11420db6ad3ca90556549008--
+--bf2u36sx3yv46k44--
