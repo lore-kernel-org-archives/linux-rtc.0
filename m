@@ -1,33 +1,58 @@
-Return-Path: <rtc-linux+bncBD3M5JPEVAFRBS475PGAKGQEWLQSLEI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDP47C6LHEIJPIOHZQCRUBAE6K6WS@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM03-BY2-obe.outbound.protection.outlook.com (mail-by2nam03on0046.outbound.protection.outlook.com. [104.47.42.46])
-        by gmr-mx.google.com with ESMTPS id p68si1806023pfp.10.2017.08.21.05.19.23
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 21 Aug 2017 05:19:23 -0700 (PDT)
-Subject: Re: [rtc-linux] RTC used as a module
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Michal Simek
-	<monstr@monstr.eu>
-CC: Michal Simek <michal.simek@xilinx.com>, John Stultz
-	<john.stultz@linaro.org>, "rtc-linux@googlegroups.com"
-	<rtc-linux@googlegroups.com>
-References: <20170223121426.i24ssrlwitrvb32h@piout.net>
- <232e7023-4571-3a91-2366-753a1479c52a@monstr.eu>
- <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
- <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
- <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
- <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
- <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
- <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
- <20170820220329.uzx3ryehq75qruwz@piout.net>
- <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
- <20170821121344.emzboqji3hhakzpf@piout.net>
-From: Michal Simek <michal.simek@xilinx.com>
-Message-ID: <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
-Date: Mon, 21 Aug 2017 14:19:07 +0200
+Received: from pokefinder.org (sauhun.de. [88.99.104.3])
+        by gmr-mx.google.com with ESMTP id m6si375906wmh.7.2017.08.14.09.32.23
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Aug 2017 09:32:23 -0700 (PDT)
+Date: Mon, 14 Aug 2017 18:32:21 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	linux-i2c@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170814163221.ef6rxfvtehmpq7qf@ninjato>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170706064453.GH16144@ulmo.fritz.box>
+ <20170706070352.xdecvsnremwqed72@dell>
+ <20170813133700.tv4ka7anvbzcplr7@ninjato>
+ <20170814064247.qvggx4ito4vgjqvs@dell>
+ <20170814084340.65morabelapfegph@ninjato>
+ <20170814162219.GX8569@atomide.com>
+ <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20170821121344.emzboqji3hhakzpf@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="r5bnhd66xto22335"
+In-Reply-To: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -37,38 +62,14 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.8.2017 14:13, Alexandre Belloni wrote:
-> On 21/08/2017 at 12:50:34 +0200, Michal Simek wrote:
->> Hi,
->>
->> On 21.8.2017 00:03, Alexandre Belloni wrote:
->>> Hi Michal,
->>>
->>> I've just send a patch to fix this issue (and avoid your other patch).
->>>
->>> Could you test it? (I did test on an atmel platform)
->>>
->>> Sorry it took so long!
->>
->> not a problem but it looks like it is still just temporary solution. I
->> would expect that you can't unload module when this alarm is used. It if
->> it is not used then you should be able to remove it.
->>
-> 
-> Yes, the alarmtimer handling needs to be made more flexible, especially
-> in the rtc device selection.
 
-ok. What about to extend that commit message for the patch you sent to
-explicitly say that this is temporary solution and what should be the
-right fix?
+--r5bnhd66xto22335
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
 
-Maybe you can also add link that patch which introduced this issue.
-It was in that patch I sent.
+> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-Thanks,
-Michal
-
-
+Added, thanks!
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
@@ -79,3 +80,25 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--r5bnhd66xto22335
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR0JUACgkQFA3kzBSg
+Kbb3UBAAgndBbA09/crNsM5iaqnA/DYgD6njMNag0No8CkC8WzDc8c1dZ3mD3+/b
+85cDD+WHMumbLsRhoqoiCMIk9izQTouKfop/DZZAA2pN0gEAcDJNyjL+4NuH/k2G
+suO6XQnuKEuNzUOcXQIrY6W3GEvO8W9WVBD2thjcu8Uf3UYFELAtAMgexqlB7JPa
+bvTGlLeCEhx8XcDz7utEjeiqJ/Ip1LjBXovQto0j/vioZ5BRaJWlfPJHDJquB9Uz
+fxJm0G4VfmT1OszuWMSZv5gTlazDKNOAadsw7swrp5jmuf3qNjCKkmztcq6rVnkm
+W5A8qOJcxjzPk9V/OmuLk/hlQAMrTHv9xmH4AuW/xnwP0OOrDb3lt9DnSGzW+pCi
+NAZfPEe5DzVlqvQ+RYWG1aM4f2lgJdGrX3EzwcPymVpN9qi+PtB+3oYgqky6CSew
++X5sULm/xrwoh2zdgiVWTRKrdfthPtk/XfNSTpXOGtGf0ZZsUTMYrSuckTd6zmxW
+TxuuZn4fPEx18Zfpy6uxof6nnrZbEZ6jGAF+s/nWHHAPCfn+aPPFOoIF6XsTkwyE
+q6iUSzT7QIaKQ3G5p9zYzCdaWDWq5ks3mhsa9nivBKKM15V9OMBgrKAMJtl2HmYY
+YQv+A1FOXchHAzSyKL/vhyCeu0gOValLeFdtzTIJZRjyYTvhtTk=
+=ltAb
+-----END PGP SIGNATURE-----
+
+--r5bnhd66xto22335--
