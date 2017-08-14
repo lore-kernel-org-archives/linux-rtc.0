@@ -1,37 +1,58 @@
-Return-Path: <rtc-linux+bncBD47PQ46SILBBFNO5PGAKGQEV46HRRI@googlegroups.com>
+Return-Path: <rtc-linux+bncBDA7X7F2WUEBB3EMYXGAKGQE3NHXMMA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail-wr0-x242.google.com (mail-wr0-x242.google.com. [2a00:1450:400c:c0c::242])
-        by gmr-mx.google.com with ESMTPS id k84si2706363wmh.5.2017.08.21.05.50.29
+Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
+        by gmr-mx.google.com with ESMTPS id b125si233792wmc.1.2017.08.13.23.42.52
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 21 Aug 2017 05:50:29 -0700 (PDT)
-Received: by mail-wr0-x242.google.com with SMTP id 30so5324099wrk.0
-        for <rtc-linux@googlegroups.com>; Mon, 21 Aug 2017 05:50:29 -0700 (PDT)
-Reply-To: rtc-linux@googlegroups.com
-Subject: Re: [rtc-linux] RTC used as a module
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Michal Simek <michal.simek@xilinx.com>
-Cc: John Stultz <john.stultz@linaro.org>,
- "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-References: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
- <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
- <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
- <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
- <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
- <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
- <20170820220329.uzx3ryehq75qruwz@piout.net>
- <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
- <20170821121344.emzboqji3hhakzpf@piout.net>
- <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
- <20170821124720.cmudjhugpssjuag6@piout.net>
-From: Michal Simek <monstr@monstr.eu>
-Message-ID: <007aa39d-2e1b-d919-9c53-8f03103b20db@monstr.eu>
-Date: Mon, 21 Aug 2017 14:50:12 +0200
+        Sun, 13 Aug 2017 23:42:52 -0700 (PDT)
+Received: by mail-wm0-x22d.google.com with SMTP id f15so35874750wmg.1
+        for <rtc-linux@googlegroups.com>; Sun, 13 Aug 2017 23:42:52 -0700 (PDT)
+Date: Mon, 14 Aug 2017 07:42:47 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org,
+	Tony Lindgren <tony@atomide.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170814064247.qvggx4ito4vgjqvs@dell>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170706064453.GH16144@ulmo.fritz.box>
+ <20170706070352.xdecvsnremwqed72@dell>
+ <20170813133700.tv4ka7anvbzcplr7@ninjato>
 MIME-Version: 1.0
-In-Reply-To: <20170821124720.cmudjhugpssjuag6@piout.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="C6OguqxJXCSV67MccmcACXAPNtAMlLLFR"
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170813133700.tv4ka7anvbzcplr7@ninjato>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -40,110 +61,76 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---C6OguqxJXCSV67MccmcACXAPNtAMlLLFR
-Content-Type: multipart/mixed; boundary="Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR";
- protected-headers="v1"
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Michal Simek <michal.simek@xilinx.com>
-Cc: John Stultz <john.stultz@linaro.org>,
- "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-Message-ID: <007aa39d-2e1b-d919-9c53-8f03103b20db@monstr.eu>
-Subject: Re: [rtc-linux] RTC used as a module
-References: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
- <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
- <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
- <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
- <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
- <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
- <20170820220329.uzx3ryehq75qruwz@piout.net>
- <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
- <20170821121344.emzboqji3hhakzpf@piout.net>
- <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
- <20170821124720.cmudjhugpssjuag6@piout.net>
-In-Reply-To: <20170821124720.cmudjhugpssjuag6@piout.net>
+On Sun, 13 Aug 2017, Wolfram Sang wrote:
 
---Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR
-Content-Type: text/plain; charset="UTF-8"
-Content-Language: en-US
+> On Thu, Jul 06, 2017 at 08:03:52AM +0100, Lee Jones wrote:
+> > On Thu, 06 Jul 2017, Thierry Reding wrote:
+> >=20
+> > > On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> > > > include/linux/i2c is not for client devices. Move the header file t=
+o a
+> > > > more appropriate location.
+> > > >=20
+> > > > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> > > > ---
+> > > >  arch/arm/mach-omap2/common.h            | 2 +-
+> > > >  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+> > > >  drivers/gpio/gpio-twl4030.c             | 2 +-
+> > > >  drivers/iio/adc/twl4030-madc.c          | 2 +-
+> > > >  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+> > > >  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+> > > >  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+> > > >  drivers/input/misc/twl4030-vibra.c      | 2 +-
+> > > >  drivers/mfd/twl-core.c                  | 6 +++---
+> > > >  drivers/mfd/twl4030-audio.c             | 2 +-
+> > > >  drivers/mfd/twl4030-irq.c               | 2 +-
+> > > >  drivers/mfd/twl4030-power.c             | 2 +-
+> > > >  drivers/mfd/twl6030-irq.c               | 2 +-
+> > > >  drivers/phy/phy-twl4030-usb.c           | 2 +-
+> > > >  drivers/power/supply/twl4030_charger.c  | 2 +-
+> > > >  drivers/pwm/pwm-twl-led.c               | 2 +-
+> > > >  drivers/pwm/pwm-twl.c                   | 2 +-
+> > > >  drivers/regulator/twl-regulator.c       | 2 +-
+> > > >  drivers/regulator/twl6030-regulator.c   | 2 +-
+> > > >  drivers/rtc/rtc-twl.c                   | 2 +-
+> > > >  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+> > > >  drivers/video/backlight/pandora_bl.c    | 2 +-
+> > > >  drivers/watchdog/twl4030_wdt.c          | 2 +-
+> > > >  include/linux/{i2c =3D> mfd}/twl.h        | 0
+> > > >  sound/soc/codecs/twl4030.c              | 2 +-
+> > > >  25 files changed, 26 insertions(+), 26 deletions(-)
+> > > >  rename include/linux/{i2c =3D> mfd}/twl.h (100%)
+> > >=20
+> > > I didn't see this get applied yet, so just in case anyone was waiting
+> > > for me (this is trivial, so I don't think there's a need):
+> >=20
+> > You're not the last. :)
+>=20
+> Given the triviality of the change for non-MFD subsystems, can we apply
+> this for 4.14?
 
-On 21.8.2017 14:47, Alexandre Belloni wrote:
-> On 21/08/2017 at 14:19:07 +0200, Michal Simek wrote:
->> On 21.8.2017 14:13, Alexandre Belloni wrote:
->>> On 21/08/2017 at 12:50:34 +0200, Michal Simek wrote:
->>>> Hi,
->>>>
->>>> On 21.8.2017 00:03, Alexandre Belloni wrote:
->>>>> Hi Michal,
->>>>>
->>>>> I've just send a patch to fix this issue (and avoid your other patch).
->>>>>
->>>>> Could you test it? (I did test on an atmel platform)
->>>>>
->>>>> Sorry it took so long!
->>>>
->>>> not a problem but it looks like it is still just temporary solution. I
->>>> would expect that you can't unload module when this alarm is used. It if
->>>> it is not used then you should be able to remove it.
->>>>
->>>
->>> Yes, the alarmtimer handling needs to be made more flexible, especially
->>> in the rtc device selection.
->>
->> ok. What about to extend that commit message for the patch you sent to
->> explicitly say that this is temporary solution and what should be the
->> right fix?
->>
->> Maybe you can also add link that patch which introduced this issue.
->> It was in that patch I sent.
->>
-> 
-> You didn't pinpoint the correct patch. The patch introducing the issue
-> you were seeing (i.e. being able to remove the module) is
-> 8bc0dafb5cf38a19484dfb16e2c6d29e85820046. Before this patch,
-> rtc_class_open() was called and this prevented the module from being
-> removed (it does try_module_get). For now, this is how the feature has
-> been implemented since 2011 and nobody cared enough to change that
-> behaviour.
+I can't apply anything without Acks for *all* of the subsystems above.
 
-ok but still isn't worth to mentioned it in commit message?
+As you well know, it is the submitters responsibility to obtain them.
 
-Thanks,
-Michal
+My suggestion would be to collect the Acks you've received up until
+this point and identify which SS's are still lacking in change log
+section of a RESEND.
 
--- 
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Xilinx Microblaze
-Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
-U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-
--- 
+--=20
 You received this message because you are subscribed to "rtc-linux".
 Membership options at http://groups.google.com/group/rtc-linux .
 Please read http://groups.google.com/group/rtc-linux/web/checklist
 before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
-
---Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR--
-
---C6OguqxJXCSV67MccmcACXAPNtAMlLLFR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAlma1wQACgkQykllyylKDCHVhgCdHajFVWFmjc1KHRPKX8hTepcm
-xMUAn2Ab+4xrIuk342fAw+h/qJCCQYVK
-=aUYw
------END PGP SIGNATURE-----
-
---C6OguqxJXCSV67MccmcACXAPNtAMlLLFR--
