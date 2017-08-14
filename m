@@ -1,32 +1,56 @@
-Return-Path: <rtc-linux+bncBD3M5JPEVAFRBBFT5PGAKGQEOTKNOPA@googlegroups.com>
+Return-Path: <rtc-linux+bncBCQPVKWLVAIRBRE4Y7GAKGQEQSRITUA@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from NAM03-CO1-obe.outbound.protection.outlook.com (mail-co1nam03on0066.outbound.protection.outlook.com. [104.47.40.66])
-        by gmr-mx.google.com with ESMTPS id z64si859886pfi.8.2017.08.21.06.00.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 21 Aug 2017 06:00:52 -0700 (PDT)
-Subject: Re: [rtc-linux] RTC used as a module
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Michal Simek
-	<michal.simek@xilinx.com>
-CC: Michal Simek <monstr@monstr.eu>, John Stultz <john.stultz@linaro.org>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
-References: <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
- <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
- <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
- <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
- <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
- <20170820220329.uzx3ryehq75qruwz@piout.net>
- <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
- <20170821121344.emzboqji3hhakzpf@piout.net>
- <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
- <20170821124720.cmudjhugpssjuag6@piout.net>
- <20170821125344.ch36irhbmuyda7vw@piout.net>
-From: Michal Simek <michal.simek@xilinx.com>
-Message-ID: <44ceadeb-812a-e639-4c53-4cc11eb9dec4@xilinx.com>
-Date: Mon, 21 Aug 2017 15:00:24 +0200
+Received: from muru.com (muru.com. [72.249.23.125])
+        by gmr-mx.google.com with ESMTP id y87si1288298pfk.14.2017.08.14.09.22.27
+        for <rtc-linux@googlegroups.com>;
+        Mon, 14 Aug 2017 09:22:28 -0700 (PDT)
+Date: Mon, 14 Aug 2017 09:22:20 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	linux-i2c@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Felipe Balbi <balbi@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Daniel Thompson <daniel.thompson@linaro.org>,
+	Jingoo Han <jingoohan1@gmail.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Peter Ujfalusi <peter.ujfalusi@ti.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux-usb@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170814162219.GX8569@atomide.com>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170706064453.GH16144@ulmo.fritz.box>
+ <20170706070352.xdecvsnremwqed72@dell>
+ <20170813133700.tv4ka7anvbzcplr7@ninjato>
+ <20170814064247.qvggx4ito4vgjqvs@dell>
+ <20170814084340.65morabelapfegph@ninjato>
 MIME-Version: 1.0
-In-Reply-To: <20170821125344.ch36irhbmuyda7vw@piout.net>
 Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170814084340.65morabelapfegph@ninjato>
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -36,63 +60,25 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 21.8.2017 14:53, Alexandre Belloni wrote:
-> On 21/08/2017 at 14:47:20 +0200, Alexandre Belloni wrote:
->> On 21/08/2017 at 14:19:07 +0200, Michal Simek wrote:
->>> On 21.8.2017 14:13, Alexandre Belloni wrote:
->>>> On 21/08/2017 at 12:50:34 +0200, Michal Simek wrote:
->>>>> Hi,
->>>>>
->>>>> On 21.8.2017 00:03, Alexandre Belloni wrote:
->>>>>> Hi Michal,
->>>>>>
->>>>>> I've just send a patch to fix this issue (and avoid your other patch).
->>>>>>
->>>>>> Could you test it? (I did test on an atmel platform)
->>>>>>
->>>>>> Sorry it took so long!
->>>>>
->>>>> not a problem but it looks like it is still just temporary solution. I
->>>>> would expect that you can't unload module when this alarm is used. It if
->>>>> it is not used then you should be able to remove it.
->>>>>
->>>>
->>>> Yes, the alarmtimer handling needs to be made more flexible, especially
->>>> in the rtc device selection.
->>>
->>> ok. What about to extend that commit message for the patch you sent to
->>> explicitly say that this is temporary solution and what should be the
->>> right fix?
->>>
->>> Maybe you can also add link that patch which introduced this issue.
->>> It was in that patch I sent.
->>>
->>
->> You didn't pinpoint the correct patch. The patch introducing the issue
->> you were seeing (i.e. being able to remove the module) is
->> 8bc0dafb5cf38a19484dfb16e2c6d29e85820046. Before this patch,
->> rtc_class_open() was called and this prevented the module from being
->> removed (it does try_module_get). For now, this is how the feature has
->> been implemented since 2011 and nobody cared enough to change that
->> behaviour.
->>
+* Wolfram Sang <wsa@the-dreams.de> [170814 01:43]:
 > 
-> To be clear, I'm not saying this should not be done. I'm just try to
-> explain that this would not be a fix but rather a feature improvement.
+> > > Given the triviality of the change for non-MFD subsystems, can we apply
+> > > this for 4.14?
+> > 
+> > I can't apply anything without Acks for *all* of the subsystems above.
+> 
+> Well, there are cases when you can. Those should be exceptions and well
+> justified, of course.
+> 
+> > My suggestion would be to collect the Acks you've received up until
+> > this point and identify which SS's are still lacking in change log
+> > section of a RESEND.
+> 
+> I agree, though, that I can try a second round to get the acks.
 
+As long as it's been compile tested with omap2plus_defconfig:
 
-I am not quite sure I agree with this description. It doesn't mean that
-none care about this from 2011 that this is correct behavior.
-You know much more than I in this area but it seems to me quite normal
-that if you have module and features which implement and you are not
-using them that you can remove module.
-It means your patch is a temporary solution for bug introduced in 2011
-and found in 2016/2017.
-
-Thanks,
-Michal
-
-
+Acked-by: Tony Lindgren <tony@atomide.com>
 
 
 -- 
