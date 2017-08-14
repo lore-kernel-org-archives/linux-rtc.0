@@ -1,40 +1,53 @@
-Return-Path: <rtc-linux+bncBAABBPGNZ3GAKGQEQBPHGPI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCAPDLF44QLBBEM7Y7GAKGQEFQIZCDQ@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.136])
-        by gmr-mx.google.com with ESMTPS id k69si1908714pfj.1.2017.08.15.18.58.20
+Received: from mail-wr0-x229.google.com (mail-wr0-x229.google.com. [2a00:1450:400c:c0c::229])
+        by gmr-mx.google.com with ESMTPS id n126si301238wma.7.2017.08.14.09.28.01
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 15 Aug 2017 18:58:20 -0700 (PDT)
-From: Joseph Chen <chenjh@rock-chips.com>
-To: gnurou@gmail.com,
-	linus.walleij@linaro.org,
-	dmitry.torokhov@gmail.com,
-	lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org,
-	huangtao@rock-chips.com,
-	devicetree@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	broonie@kernel.org,
-	zhangqing@rock-chips.com,
-	robh+dt@kernel.org,
-	lgirdwood@gmail.com,
-	linux-rockchip@lists.infradead.org,
-	wdc@rock-chips.com,
-	tony.xie@rock-chips.com,
-	linux-input@vger.kernel.org,
-	mark.rutland@arm.com,
-	w.egorov@phytec.de,
-	linux-clk@vger.kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	Joseph Chen <chenjh@rock-chips.com>
-Subject: [rtc-linux] [RESEND v9 00/12] rk808: Add RK805 support
-Date: Wed, 16 Aug 2017 09:56:56 +0800
-Message-Id: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
+Received: by mail-wr0-x229.google.com with SMTP id b65so11511535wrd.0
+        for <rtc-linux@googlegroups.com>; Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+To: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>,
+ Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org,
+ Russell King <linux@armlinux.org.uk>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Alexandre Courbot <gnurou@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
+ Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>,
+ Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Felipe Balbi <balbi@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jingoo Han <jingoohan1@gmail.com>,
+ Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+ Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+ Peter Ujfalusi <peter.ujfalusi@ti.com>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
+ linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
+ linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170706064453.GH16144@ulmo.fritz.box>
+ <20170706070352.xdecvsnremwqed72@dell>
+ <20170813133700.tv4ka7anvbzcplr7@ninjato>
+ <20170814064247.qvggx4ito4vgjqvs@dell>
+ <20170814084340.65morabelapfegph@ninjato> <20170814162219.GX8569@atomide.com>
+From: Daniel Thompson <daniel.thompson@linaro.org>
+Message-ID: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
+Date: Mon, 14 Aug 2017 17:27:57 +0100
+MIME-Version: 1.0
+In-Reply-To: <20170814162219.GX8569@atomide.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -43,138 +56,30 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-change in RESEND v9:
-None changes, add Lee Jones and other related email address.
+On 14/08/17 17:22, Tony Lindgren wrote:
+> * Wolfram Sang <wsa@the-dreams.de> [170814 01:43]:
+>>
+>>>> Given the triviality of the change for non-MFD subsystems, can we apply
+>>>> this for 4.14?
+>>>
+>>> I can't apply anything without Acks for *all* of the subsystems above.
+>>
+>> Well, there are cases when you can. Those should be exceptions and well
+>> justified, of course.
+>>
+>>> My suggestion would be to collect the Acks you've received up until
+>>> this point and identify which SS's are still lacking in change log
+>>> section of a RESEND.
+>>
+>> I agree, though, that I can try a second round to get the acks.
+> 
+> As long as it's been compile tested with omap2plus_defconfig:
+> 
+> Acked-by: Tony Lindgren <tony@atomide.com>
 
-change in v9:
-PATCH V9 1/12: (1) fix spelling issue: s/Chip/chip/
-	       (2) apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 2/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 3/12: None
-PATCH V9 4/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 5/12: None
-PATCH V9 6/12: None
-PATCH V9 7/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 8/12: apply tag: Acked-by: Linus Walleij <linus.walleij@linaro.org>
-PATCH V9 9/12: None (Actually, something directly updated by Dmitry Torokhov and applied on PATCH V7.
-	       Link: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/?h=next
-PATCH V9 10/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 11/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-PATCH V9 12/12: None
-
-change in v8:
-PATCH V8 1/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 2/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 3/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 4/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 5/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 6/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 7/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-PATCH V8 8/12: (1) Kconfig: update coding style
-	       (2) pinctrl-rk805.c: using #include <linux/gpio/driver.h>
-	       (3) pinctrl-rk805.c: inline data and open code it; remove FUNCTION_GROUP and PINGROUP macros definition 
-PATCH V8 9/12: NO change in V8
-PATCH V8 10/12: apply tag: Acked-by: Linus Walleij <linus.walleij@linaro.org>	
-PATCH V8 11/12: NO change in V8
-PATCH V8 12/12: (1) using semicolon after "output-high"
-		(2) apply tag: Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-change in v7:
-PATCH V7 1/12: NO change in V7
-PATCH V7 2/12: NO change in V7
-PATCH V7 3/12: fix missing: Acked-by: Mark Brown <broonie@kernel.org>
-PATCH V7 4/12: NO change in V7
-PATCH V7 5/12: NO change in V7
-PATCH V7 6/12: NO change in V7
-PATCH V7 7/12: fix missing: Acked-by: Rob Herring <robh@kernel.org>
-PATCH V7 8/12: abandon drivers/gpio/gpio-rk805.c and add drivers/pinctrl/pinctrl-rk805.c
-PATCH V7 9/12: reset author and signed off with my english name
-	       reset MODULE_AUTHOR() with my english name
-	       replace devm_request_threaded_irq() with devm_request_any_context_irq()
-PATCH V7 10/12: replace 'gpio-rk805' with 'pinctrl-rk805' in struct mfd_cell rk805s[]
-PATCH V7 11/12: NO change in V7
-PATCH V7 12/12: dt-bindings: abandon gpio-rk805.txt and add pinctrl-rk805.txt
-
-change in v6:
-patch1~7 no changed in V6.
-add patch 8~12 for gpio and powerkey func for rk805.
-
-change in v5:
-PATCH V5 1/7: NO change in V5
-PATCH V5 2/7: fix the rk805 reg addr in numerical order
-PATCH V5 3/7: NO change in V5
-PATCH V5 4/7: fix up the rk805_device_shutdown func
-PATCH V5 5/7: NO change in V5
-PATCH V5 6/7: NO change in V5
-PATCH V5 7/7: fix up the description of the rk805
-
-change in v4:
-PATCH V4 1/7: NO change in V4
-PATCH V4 2/7: rename the commit message
-PATCH V4 3/7: NO change in V4
-PATCH V4 4/7: Split this patch up into subsystems patch 5/7 6/7
-PATCH V4 5/7: new added
-PATCH V4 6/7: new added
-PATCH V4 7/7: NO change in V4
-
-
-change in V3:
-PATCH V3 1/5: NO change in V3
-PATCH V3 2/5: add rk805 RTC INT MASK define
-PATCH V3 3/5: RK805 set suspend enable and disable is different from rk808
-              use rk805_regs_ops and rk805_switch_ops
-PATCH V3 4/5: fix up the shutdown func
-              use pm_shutdown_prepare_fn to prepare shutdown
-              and pm_pwroff_fn pull down gpio to shut down rk805
-              it will update in the future(after rk808 support gpio func)
-PATCH V3 5/5: NO change in V3
-
-change in V2:
-PATCH V2 1/5: NO change in V2
-PATCH V2 2/5: add rk805 BUCK ILMAX define
-PATCH V2 3/5: NO change in V2
-PATCH V2 4/5: setting RK805 BUCK ILMAX in pre init
-PATCH V2 5/5: Add RK805 device tree bindings document
-
-Elaine Zhang (7):
-  mfd: rk808: fix up the chip id get failed
-  mfd: rk808: add rk805 regs addr and ID
-  regulator: rk808: Add regulator driver for RK805
-  mfd: rk808: Add RK805 support
-  clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
-  rtc: Kconfig: Name RK805 in Kconfig for RTC_DRV_RK808
-  mfd: dt-bindings: Add RK805 device tree bindings document
-
-Joseph Chen (5):
-  pinctrl: Add pinctrl driver for the RK805 PMIC
-  Input: Add power key driver for Rockchip RK805 PMIC
-  mfd: rk808: Add RK805 pinctrl support
-  mfd: rk808: Add RK805 power key support
-  pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
-
- Documentation/devicetree/bindings/mfd/rk808.txt    |  22 +-
- .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  |  63 +++
- drivers/clk/Kconfig                                |   4 +-
- drivers/input/misc/Kconfig                         |   6 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/rk805-pwrkey.c                  | 111 +++++
- drivers/mfd/Kconfig                                |   4 +-
- drivers/mfd/rk808.c                                | 147 +++++-
- drivers/pinctrl/Kconfig                            |   9 +
- drivers/pinctrl/Makefile                           |   1 +
- drivers/pinctrl/pinctrl-rk805.c                    | 493 +++++++++++++++++++++
- drivers/regulator/Kconfig                          |   4 +-
- drivers/regulator/rk808-regulator.c                | 130 ++++++
- drivers/rtc/Kconfig                                |   4 +-
- include/linux/mfd/rk808.h                          | 121 +++++
- 15 files changed, 1105 insertions(+), 15 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
- create mode 100644 drivers/input/misc/rk805-pwrkey.c
- create mode 100644 drivers/pinctrl/pinctrl-rk805.c
-
--- 
-1.9.1
-
+Don't recall if I sent an ack before but I do remember the patch... so 
+from a backlight PoV:
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
