@@ -1,30 +1,43 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBSVT7LGAKGQENGNY35A@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBNWPZ3GAKGQE4Q6FILY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id 74si406697wmf.8.2017.08.24.02.18.01
-        for <rtc-linux@googlegroups.com>;
-        Thu, 24 Aug 2017 02:18:01 -0700 (PDT)
-Date: Thu, 24 Aug 2017 11:17:50 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Joseph Chen <chenjh@rock-chips.com>
-Cc: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com,
-	lee.jones@linaro.org, linux-kernel@vger.kernel.org,
-	huangtao@rock-chips.com, devicetree@vger.kernel.org,
-	linux-gpio@vger.kernel.org, broonie@kernel.org,
-	zhangqing@rock-chips.com, robh+dt@kernel.org, lgirdwood@gmail.com,
-	linux-rockchip@lists.infradead.org, wdc@rock-chips.com,
-	tony.xie@rock-chips.com, linux-input@vger.kernel.org,
-	mark.rutland@arm.com, w.egorov@phytec.de, linux-clk@vger.kernel.org,
-	a.zummo@towertech.it, rtc-linux@googlegroups.com
-Subject: [rtc-linux] Re: [RESEND v9 06/12] rtc: Kconfig: Name RK805 in Kconfig
- for RTC_DRV_RK808
-Message-ID: <20170824091750.yoo5wzg77ftt2wyt@piout.net>
-References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
- <1502848835-24800-1-git-send-email-chenjh@rock-chips.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <1502848835-24800-1-git-send-email-chenjh@rock-chips.com>
+Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.135])
+        by gmr-mx.google.com with ESMTPS id c194si562itb.5.2017.08.15.19.02.10
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 15 Aug 2017 19:02:29 -0700 (PDT)
+From: Joseph Chen <chenjh@rock-chips.com>
+To: gnurou@gmail.com,
+	linus.walleij@linaro.org,
+	dmitry.torokhov@gmail.com,
+	lee.jones@linaro.org
+Cc: linux-kernel@vger.kernel.org,
+	huangtao@rock-chips.com,
+	devicetree@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	broonie@kernel.org,
+	zhangqing@rock-chips.com,
+	robh+dt@kernel.org,
+	lgirdwood@gmail.com,
+	linux-rockchip@lists.infradead.org,
+	wdc@rock-chips.com,
+	tony.xie@rock-chips.com,
+	linux-input@vger.kernel.org,
+	mark.rutland@arm.com,
+	w.egorov@phytec.de,
+	linux-clk@vger.kernel.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com,
+	rtc-linux@googlegroups.com,
+	Joseph Chen <chenjh@rock-chips.com>
+Subject: [rtc-linux] [RESEND v9 07/12] mfd: dt-bindings: Add RK805 device tree
+ bindings document
+Date: Wed, 16 Aug 2017 10:00:47 +0800
+Message-Id: <1502848847-26398-1-git-send-email-chenjh@rock-chips.com>
+In-Reply-To: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
+References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
 Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -33,25 +46,72 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-On 16/08/2017 at 10:00:35 +0800, Joseph Chen wrote:
-> From: Elaine Zhang <zhangqing@rock-chips.com>
-> 
-> The RK808 and RK805 PMICs are using a similar register map.
-> We can reuse the rtc driver for the RK805 PMIC. So let's add
-> the RK805 in the Kconfig description.
-> 
-> Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-> Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-> ---
->  drivers/rtc/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+From: Elaine Zhang <zhangqing@rock-chips.com>
 
+Add device tree bindings documentation for Rockchip's RK805 PMIC.
+
+Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
+Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 9636ae8..91b6522 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -1,11 +1,14 @@
+ RK8XX Power Management Integrated Circuit
+ 
+ The rk8xx family current members:
++rk805
+ rk808
+ rk818
+ 
+ Required properties:
+-- compatible: "rockchip,rk808", "rockchip,rk818"
++- compatible: "rockchip,rk805"
++- compatible: "rockchip,rk808"
++- compatible: "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+ - interrupts: the interrupt outputs of the controller.
+@@ -18,6 +21,14 @@ Optional properties:
+ - rockchip,system-power-controller: Telling whether or not this pmic is controlling
+   the system power.
+ 
++Optional RK805 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- vcc5-supply:  The input supply for LDO_REG1 and LDO_REG2
++- vcc6-supply:  The input supply for LDO_REG3
++
+ Optional RK808 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+@@ -56,6 +67,15 @@ by a child node of the 'regulators' node.
+ 		/* standard regulator bindings here */
+ 	};
+ 
++Following regulators of the RK805 PMIC regulators are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK805 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 3
++
+ Following regulators of the RK808 PMIC block are supported. Note that
+ the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
+ number as described in RK808 datasheet.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
+
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
