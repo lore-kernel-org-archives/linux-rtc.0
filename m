@@ -1,95 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:51452 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751662AbdHGVcu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Aug 2017 17:32:50 -0400
-Date: Mon, 7 Aug 2017 23:32:44 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
- driver
-Message-ID: <20170807213244.7hrd3isq5jj44dgd@piout.net>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
- <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
+Received: from mailout.easymail.ca ([64.68.200.34]:44875 "EHLO
+        mailout.easymail.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752339AbdHPXMl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Aug 2017 19:12:41 -0400
+Reply-To: shuah@kernel.org
+Subject: Re: [PATCH v2 1/1] rtc: rtctest: Improve support detection
+To: =?UTF-8?B?THVrw6HFoSBEb2t0b3I=?= <ldoktor@redhat.com>,
+        a.zummo@towertech.it, linuxppc-dev@lists.ozlabs.org,
+        sboyd@codeaurora.org, linux-kernel@vger.kernel.org,
+        alexandre.belloni@free-electrons.com,
+        linux-kselftest@vger.kernel.org, john.stultz@linaro.org,
+        tglx@linutronix.de, linux-rtc@vger.kernel.org,
+        Shuah Khan <shuahkh@osg.samsung.com>,
+        Shuah Khan <shuah@kernel.org>
+References: <20170815084600.6285-1-ldoktor@redhat.com>
+ <20170815084600.6285-2-ldoktor@redhat.com>
+From: Shuah Khan <shuah@kernel.org>
+Message-ID: <45cfdaa8-685a-4a7f-89c8-ed55d90c95c8@kernel.org>
+Date: Wed, 16 Aug 2017 17:06:24 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <20170815084600.6285-2-ldoktor@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/08/2017 at 09:57:41 +0800, Chen Zhong wrote:
-> The core driver should create and manage irq mappings instead of
-> leaf drivers. This patch change to pass irq domain to
-> devm_mfd_add_devices() and it will create mapping for irq resources
-> automatically. And remove irq mapping in rtc driver since this has
-> been done in core driver.
+On 08/15/2017 02:46 AM, Lukáš Doktor wrote:
+> The rtc-generic and opal-rtc are failing to run this test as they do not
+> support all the features. Let's treat the error returns and skip to the
+> following test.
 > 
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-
-For the RTC part:
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
+> Theoretically the test_DATE should be also adjusted, but as it's enabled
+> on demand I think it makes sense to fail in such case.
+> 
+> Signed-off-by: Lukáš Doktor <ldoktor@redhat.com>
 > ---
->  drivers/mfd/mt6397-core.c |    4 ++--
->  drivers/rtc/rtc-mt6397.c  |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+>  tools/testing/selftests/timers/rtctest.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 04a601f..6546d7f 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-> @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
->  
->  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
->  					   ARRAY_SIZE(mt6323_devs), NULL,
-> -					   0, NULL);
-> +					   0, pmic->irq_domain);
->  		break;
->  
->  	case MT6397_CID_CODE:
-> @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
->  
->  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
->  					   ARRAY_SIZE(mt6397_devs), NULL,
-> -					   0, NULL);
-> +					   0, pmic->irq_domain);
->  		break;
->  
->  	default:
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index 1a61fa5..22c52f7 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  	rtc->addr_base = res->start;
->  
->  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
-> +	rtc->irq = res->start;
->  	if (rtc->irq <= 0)
->  		return -EINVAL;
->  
-> -- 
-> 1.7.9.5
+> diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+> index f61170f..411eff6 100644
+> --- a/tools/testing/selftests/timers/rtctest.c
+> +++ b/tools/testing/selftests/timers/rtctest.c
+> @@ -221,6 +221,11 @@ int main(int argc, char **argv)
+>  	/* Read the current alarm settings */
+>  	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
+>  	if (retval == -1) {
+> +		if (errno == EINVAL) {
+> +			fprintf(stderr,
+> +					"\n...EINVAL reading current alarm setting.\n");
+> +			goto test_PIE;
+> +		}
+>  		perror("RTC_ALM_READ ioctl");
+>  		exit(errno);
+>  	}
+> @@ -231,7 +236,7 @@ int main(int argc, char **argv)
+>  	/* Enable alarm interrupts */
+>  	retval = ioctl(fd, RTC_AIE_ON, 0);
+>  	if (retval == -1) {
+> -		if (errno == EINVAL) {
+> +		if (errno == EINVAL || errno == EIO) {
+>  			fprintf(stderr,
+>  				"\n...Alarm IRQs not supported.\n");
+>  			goto test_PIE;
 > 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Applied to linux-kselftest next for 4.14-rc1
+
+thanks,
+-- Shuah
