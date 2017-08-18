@@ -1,69 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:34126 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751192AbdH1Q6A (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 12:58:00 -0400
-Date: Mon, 28 Aug 2017 09:57:57 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
+Received: from mx2.rt-rk.com ([89.216.37.149]:59500 "EHLO mail.rt-rk.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751264AbdHRNLZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 18 Aug 2017 09:11:25 -0400
+From: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
+To: linux-mips@linux-mips.org
+Cc: Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
+        Miodrag Dinic <miodrag.dinic@imgtec.com>,
+        Goran Ferenc <goran.ferenc@imgtec.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
-Message-ID: <20170828165757.GE12195@dtor-ws>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
- <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+        Bo Hu <bohu@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        devicetree@vger.kernel.org,
+        Douglas Leung <douglas.leung@imgtec.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Hogan <james.hogan@imgtec.com>,
+        Jin Qian <jinqian@google.com>, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Paul Burton <paul.burton@imgtec.com>,
+        Petar Jovanovic <petar.jovanovic@imgtec.com>,
+        Raghu Gandham <raghu.gandham@imgtec.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rob Herring <robh+dt@kernel.org>
+Subject: [PATCH v4 1/8] Documentation: Add device tree binding for Goldfish RTC driver
+Date: Fri, 18 Aug 2017 15:08:53 +0200
+Message-Id: <1503061833-26563-2-git-send-email-aleksandar.markovic@rt-rk.com>
+In-Reply-To: <1503061833-26563-1-git-send-email-aleksandar.markovic@rt-rk.com>
+References: <1503061833-26563-1-git-send-email-aleksandar.markovic@rt-rk.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Chen,
+From: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
 
-On Fri, Aug 25, 2017 at 02:32:32PM +0800, Chen Zhong wrote:
-> +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
-> +		struct pmic_keys_info *info)
-> +{
-> +	int ret;
-> +
-> +	info->keys = keys;
-> +
-> +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
-> +				 info->regs->intsel_mask,
-> +				 info->regs->intsel_mask);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
-> +					mtk_pmic_keys_irq_handler_thread,
-> +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> +					"mtk-pmic-keys", info);
-> +	if (ret) {
-> +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
-> +			info->irq, ret);
-> +		return ret;
-> +	}
-> +
-> +	if (info->wakeup)
-> +		irq_set_irq_wake(info->irq, 1);
+Add documentation for DT binding of Goldfish RTC driver. The compatible
+string used by OS for binding the driver is "google,goldfish-rtc".
 
-Normally we do this in suspend() (and undo in resume()), and I believe
-the drover API is enable_irq_wake() and disable_irq_wake().
+Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
+Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
+Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+---
+ .../devicetree/bindings/rtc/google,goldfish-rtc.txt     | 17 +++++++++++++++++
+ MAINTAINERS                                             |  5 +++++
+ 2 files changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
 
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt b/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
+new file mode 100644
+index 0000000..634312d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
+@@ -0,0 +1,17 @@
++Android Goldfish RTC
++
++Android Goldfish RTC device used by Android emulator.
++
++Required properties:
++
++- compatible : should contain "google,goldfish-rtc"
++- reg        : <registers mapping>
++- interrupts : <interrupt mapping>
++
++Example:
++
++	goldfish_timer@9020000 {
++		compatible = "google,goldfish-rtc";
++		reg = <0x9020000 0x1000>;
++		interrupts = <0x3>;
++	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 88bea9e..f64c81b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -840,6 +840,11 @@ S:	Supported
+ F:	drivers/android/
+ F:	drivers/staging/android/
+ 
++ANDROID GOLDFISH RTC DRIVER
++M:	Miodrag Dinic <miodrag.dinic@imgtec.com>
++S:	Supported
++F:	Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
++
+ ANDROID ION DRIVER
+ M:	Laura Abbott <labbott@redhat.com>
+ M:	Sumit Semwal <sumit.semwal@linaro.org>
 -- 
-Dmitry
+2.7.4
