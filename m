@@ -1,39 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:32959 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753215AbdHXOQN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 10:16:13 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170823220024.22861-1-alexandre.belloni@free-electrons.com>
-References: <20170823220024.22861-1-alexandre.belloni@free-electrons.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Thu, 24 Aug 2017 11:16:11 -0300
-Message-ID: <CAOMZO5B2MxGt8DnXU8v1DG9LdbvxyN0FFDJm=dTO=18i=1r4mA@mail.gmail.com>
-Subject: Re: [PATCH] rtc: mxc: avoid disabling interrupts on device close
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35147 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752185AbdHSTIQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Aug 2017 15:08:16 -0400
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 3/4] rtc: max6900: constify i2c_device_id
+Date: Sun, 20 Aug 2017 00:37:57 +0530
+Message-Id: <1503169678-18078-4-git-send-email-arvind.yadav.cs@gmail.com>
+In-Reply-To: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
+References: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Aug 23, 2017 at 7:00 PM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Currently, the IRQs are disabled when the rtc character device is closed.
-> This means that the device needs to stay open to get alarms while the usual
-> use case will open the device, set the alarm and close the device as is
-> done in rtcwake.
->
-> Keep the alarm functional on character device release so the platform can
-> actually wakeup
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+i2c_device_id are not supposed to change at runtime. All functions
+working with i2c_device_id provided by <linux/i2c.h> work with
+const i2c_device_id. So mark the non-const structs as const.
 
-Makes sense, thanks:
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/rtc/rtc-max6900.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+diff --git a/drivers/rtc/rtc-max6900.c b/drivers/rtc/rtc-max6900.c
+index 48b6b41..cbdc86a 100644
+--- a/drivers/rtc/rtc-max6900.c
++++ b/drivers/rtc/rtc-max6900.c
+@@ -226,7 +226,7 @@ max6900_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	return 0;
+ }
+ 
+-static struct i2c_device_id max6900_id[] = {
++static const struct i2c_device_id max6900_id[] = {
+ 	{ "max6900", 0 },
+ 	{ }
+ };
+-- 
+2.7.4
