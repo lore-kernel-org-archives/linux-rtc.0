@@ -1,37 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53262 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753551AbdHUOSE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Aug 2017 10:18:04 -0400
-Date: Mon, 21 Aug 2017 16:17:35 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1307: fix regmap config
-Message-ID: <20170821141735.2aw55st4fo35f42v@piout.net>
-References: <2061233f-1187-d03c-51dc-8d7ad2faf90e@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2061233f-1187-d03c-51dc-8d7ad2faf90e@gmail.com>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:37631 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752004AbdHSTIM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Aug 2017 15:08:12 -0400
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 1/4] rtc: ds1672: constify i2c_device_id
+Date: Sun, 20 Aug 2017 00:37:55 +0530
+Message-Id: <1503169678-18078-2-git-send-email-arvind.yadav.cs@gmail.com>
+In-Reply-To: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
+References: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 25/07/2017 at 18:44:04 +0200, Heiner Kallweit wrote:
-> Current max_register setting breaks reading nvram on certain chips and
-> also reading the standard registers on RX8130 where register map starts
-> at 0x10.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> Fixes: 11e5890b5342 "rtc: ds1307: convert driver to regmap"
-> ---
-> This fix should make it to 4.13.
-> ---
->  drivers/rtc/rtc-ds1307.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-Applied, thanks.
+i2c_device_id are not supposed to change at runtime. All functions
+working with i2c_device_id provided by <linux/i2c.h> work with
+const i2c_device_id. So mark the non-const structs as const.
 
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/rtc/rtc-ds1672.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 7bf46bf..9caaccc 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -190,7 +190,7 @@ static int ds1672_probe(struct i2c_client *client,
+ 	return 0;
+ }
+ 
+-static struct i2c_device_id ds1672_id[] = {
++static const struct i2c_device_id ds1672_id[] = {
+ 	{ "ds1672", 0 },
+ 	{ }
+ };
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.7.4
