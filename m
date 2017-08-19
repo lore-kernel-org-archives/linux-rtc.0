@@ -1,93 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:40155 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751062AbdHZT4S (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 Aug 2017 15:56:18 -0400
-Date: Sat, 26 Aug 2017 21:56:07 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
- wday
-Message-ID: <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
-References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:37481 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751533AbdHSTIS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Aug 2017 15:08:18 -0400
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 4/4] rtc: rv3029c2: constify i2c_device_id
+Date: Sun, 20 Aug 2017 00:37:58 +0530
+Message-Id: <1503169678-18078-5-git-send-email-arvind.yadav.cs@gmail.com>
+In-Reply-To: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
+References: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There is no point in fixing that. Nobody uses wday.
+i2c_device_id are not supposed to change at runtime. All functions
+working with i2c_device_id provided by <linux/i2c.h> work with
+const i2c_device_id. So mark the non-const structs as const.
 
-On 26/08/2017 at 21:16:34 +0200, Heiner Kallweit wrote:
-> Some drivers use element wday of the struct rtc_time which is passed to
-> callback set_time. However element wday may incorrectly or not be
-> populated if struct rtc_time is coming from userspace via rtc_dev_ioctl.
-> rtc_valid_tm() doesn't check element wday.
-> 
-> Therefore convert struct rtc_time to time64_t and then use
-> rtc_time64_to_tm to generate a struct rtc_time with all elements properly
-> populated.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
->  drivers/rtc/interface.c | 24 ++++++++++++++++--------
->  1 file changed, 16 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 8cec9a02..5a53c590 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -59,28 +59,36 @@ EXPORT_SYMBOL_GPL(rtc_read_time);
->  
->  int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
->  {
-> +	time64_t secs64;
->  	int err;
->  
->  	err = rtc_valid_tm(tm);
->  	if (err != 0)
->  		return err;
->  
-> +	secs64 = rtc_tm_to_time64(tm);
-> +
->  	err = mutex_lock_interruptible(&rtc->ops_lock);
->  	if (err)
->  		return err;
->  
->  	if (!rtc->ops)
->  		err = -ENODEV;
-> -	else if (rtc->ops->set_time)
-> -		err = rtc->ops->set_time(rtc->dev.parent, tm);
-> -	else if (rtc->ops->set_mmss64) {
-> -		time64_t secs64 = rtc_tm_to_time64(tm);
-> -
-> +	else if (rtc->ops->set_time) {
-> +		struct rtc_time tmp;
-> +
-> +		/*
-> +		 * element wday of tm may not be set, therefore use
-> +		 * rtc_time64_to_tm to generate a struct rtc_time
-> +		 * with all elements being properly populated
-> +		 */
-> +		rtc_time64_to_tm(secs64, &tmp);
-> +		err = rtc->ops->set_time(rtc->dev.parent, &tmp);
-> +	} else if (rtc->ops->set_mmss64)
->  		err = rtc->ops->set_mmss64(rtc->dev.parent, secs64);
-> -	} else if (rtc->ops->set_mmss) {
-> -		time64_t secs64 = rtc_tm_to_time64(tm);
-> +	else if (rtc->ops->set_mmss)
->  		err = rtc->ops->set_mmss(rtc->dev.parent, secs64);
-> -	} else
-> +	else
->  		err = -EINVAL;
->  
->  	pm_stay_awake(rtc->dev.parent);
-> -- 
-> 2.14.1
-> 
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/rtc/rtc-rv3029c2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index 85fa1da..aa09771 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -868,7 +868,7 @@ static int rv3029_i2c_probe(struct i2c_client *client,
+ 	return rv3029_probe(&client->dev, regmap, client->irq, client->name);
+ }
+ 
+-static struct i2c_device_id rv3029_id[] = {
++static const struct i2c_device_id rv3029_id[] = {
+ 	{ "rv3029", 0 },
+ 	{ "rv3029c2", 0 },
+ 	{ }
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.7.4
