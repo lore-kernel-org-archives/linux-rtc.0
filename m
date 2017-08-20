@@ -1,90 +1,176 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33046 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:49351 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751213AbdHXIxC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 04:53:02 -0400
+        with ESMTP id S1751264AbdHTIcW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Aug 2017 04:32:22 -0400
+Date: Sun, 20 Aug 2017 10:32:19 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2] rtc: remove .open() and .release()
-Date: Thu, 24 Aug 2017 10:52:59 +0200
-Message-Id: <20170824085259.12886-1-alexandre.belloni@free-electrons.com>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Roc He <hepeng@zidoo.tv>,
+        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
+Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
+Message-ID: <20170820083219.siez3rl2hbjgjgk5@piout.net>
+References: <20170820013632.18375-1-afaerber@suse.de>
+ <20170820013632.18375-3-afaerber@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20170820013632.18375-3-afaerber@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There are no driver left using .open and .release. There is no good use
-case for them as there is nothing the character device interface does that
-should not be done in the sysfs interface or in-kernel interface.
+Hi,
 
-Remove those callbacks now to avoid future confusion.
+On 20/08/2017 at 03:36:30 +0200, Andreas Färber wrote:
+> +static int rtd119x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +	time64_t t;
+> +	u32 day;
+> +
+> +	day = readl_relaxed(data->base + RTD_RTCDATE_LOW);
+> +	day |= readl_relaxed(data->base + RTD_RTCDATE_HIGH) << 8;
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Changes in v2:
- - remove warning
+Is RTD_RTCDATE_HIGH latched when RTD_RTCDATE_LOW is read? If this is not
+the case, you probably want to handle a possible update between both
+readl_relaxed.
 
+> +	t = mktime64(data->base_year, 1, 1, 0, 0, 0);
+> +	t += day * 24 * 60 * 60;
+> +	rtc_time64_to_tm(t, tm);
+> +	tm->tm_sec  = readl_relaxed(data->base + RTD_RTCSEC) >> 1;
+> +	tm->tm_min  = readl_relaxed(data->base + RTD_RTCMIN);
+> +	tm->tm_hour = readl_relaxed(data->base + RTD_RTCHR);
+> +
+> +	return rtc_valid_tm(tm);
+> +}
+> +
+> +static int rtd119x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +	time64_t time_base, new_time, time_delta;
+> +	unsigned long day;
+> +
+> +	if (tm->tm_year < data->base_year)
+> +		return -EINVAL;
+> +
+> +	time_base = mktime64(data->base_year, 1, 1, 0, 0, 0);
+> +	new_time = rtc_tm_to_time64(tm);
+> +	time_delta = new_time - time_base;
+> +	day = time_delta / (24 * 60 * 60);
+> +	if (day > 0x7fff)
+> +		return -EINVAL;
+> +
+> +	rtd119x_rtc_set_enabled(dev, false);
+> +
+> +	writel_relaxed(tm->tm_sec,  data->base + RTD_RTCSEC);
+> +	writel_relaxed(tm->tm_min,  data->base + RTD_RTCMIN);
+> +	writel_relaxed(tm->tm_hour, data->base + RTD_RTCHR);
+> +	writel_relaxed(day & 0xff, data->base + RTD_RTCDATE_LOW);
+> +	writel_relaxed((day >> 8) & 0x7f, data->base + RTD_RTCDATE_HIGH);
+> +
+> +	rtd119x_rtc_set_enabled(dev, true);
+> +
+> +	return 0;
+> +}
+> +
+> +static int rtd119x_rtc_open(struct device *dev)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = clk_prepare_enable(data->clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val = readl_relaxed(data->base + RTD_RTCACR);
+> +	dev_info(dev, "rtcacr = 0x%08x\n", val);
+> +	if (!(val & BIT(7))) {
+> +	}
 
- drivers/rtc/rtc-dev.c | 19 ++++---------------
- include/linux/rtc.h   |  2 --
- 2 files changed, 4 insertions(+), 17 deletions(-)
+I don't see the point of reading that register, and not doing anything
+with it.
 
-diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
-index 794bc4fa4937..2f5f6d6aa79a 100644
---- a/drivers/rtc/rtc-dev.c
-+++ b/drivers/rtc/rtc-dev.c
-@@ -27,25 +27,17 @@ static int rtc_dev_open(struct inode *inode, struct file *file)
- 	int err;
- 	struct rtc_device *rtc = container_of(inode->i_cdev,
- 					struct rtc_device, char_dev);
--	const struct rtc_class_ops *ops = rtc->ops;
- 
- 	if (test_and_set_bit_lock(RTC_DEV_BUSY, &rtc->flags))
- 		return -EBUSY;
- 
- 	file->private_data = rtc;
- 
--	err = ops->open ? ops->open(rtc->dev.parent) : 0;
--	if (err == 0) {
--		spin_lock_irq(&rtc->irq_lock);
--		rtc->irq_data = 0;
--		spin_unlock_irq(&rtc->irq_lock);
--
--		return 0;
--	}
-+	spin_lock_irq(&rtc->irq_lock);
-+	rtc->irq_data = 0;
-+	spin_unlock_irq(&rtc->irq_lock);
- 
--	/* something has gone wrong */
--	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
--	return err;
-+	return 0;
- }
- 
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
-@@ -438,9 +430,6 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
- 	rtc_update_irq_enable(rtc, 0);
- 	rtc_irq_set_state(rtc, NULL, 0);
- 
--	if (rtc->ops->release)
--		rtc->ops->release(rtc->dev.parent);
--
- 	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
- 	return 0;
- }
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 0a0f0d14a5fb..e6d0f9c1cafd 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -72,8 +72,6 @@ extern struct class *rtc_class;
-  * issued through ioctl() ...
-  */
- struct rtc_class_ops {
--	int (*open)(struct device *);
--	void (*release)(struct device *);
- 	int (*ioctl)(struct device *, unsigned int, unsigned long);
- 	int (*read_time)(struct device *, struct rtc_time *);
- 	int (*set_time)(struct device *, struct rtc_time *);
+> +
+> +	rtd119x_rtc_set_enabled(dev, true);
+> +
+
+This is certainly not what you want. The RTC device is usually not
+opened so enabling the RTC when open and disabling it when closed will
+not work on most systems. This is probably true for the clock too. i.e
+what you do here should be done in probe.
+
+> +	return 0;
+> +}
+> +
+> +static void rtd119x_rtc_release(struct device *dev)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +
+> +	rtd119x_rtc_set_enabled(dev, false);
+> +
+> +	clk_disable_unprepare(data->clk);
+> +}
+> +
+> +static const struct rtc_class_ops rtd119x_rtc_ops = {
+> +	.open		= rtd119x_rtc_open,
+> +	.release	= rtd119x_rtc_release,
+> +	.read_time	= rtd119x_rtc_read_time,
+> +	.set_time	= rtd119x_rtc_set_time,
+> +};
+> +
+> +static const struct of_device_id rtd119x_rtc_dt_ids[] = {
+> +	 { .compatible = "realtek,rtd1295-rtc" },
+> +	 { }
+> +};
+> +
+> +static int rtd119x_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct rtd119x_rtc *data;
+> +	struct resource *res;
+> +
+> +	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, data);
+> +	data->base_year = 2014;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	data->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(data->base))
+> +		return PTR_ERR(data->base);
+> +
+> +	data->clk = of_clk_get(pdev->dev.of_node, 0);
+> +	if (IS_ERR(data->clk))
+> +		return PTR_ERR(data->clk);
+> +
+> +	data->rtcdev = devm_rtc_device_register(&pdev->dev, "rtc",
+> +				&rtd119x_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(data->rtcdev)) {
+> +		dev_err(&pdev->dev, "failed to register rtc device");
+> +		clk_put(data->clk);
+> +		return PTR_ERR(data->rtcdev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver rtd119x_rtc_driver = {
+> +	.probe = rtd119x_rtc_probe,
+> +	.driver = {
+> +		.name = "rtd1295-rtc",
+> +		.of_match_table	= rtd119x_rtc_dt_ids,
+> +	},
+> +};
+> +builtin_platform_driver(rtd119x_rtc_driver);
+> -- 
+> 2.12.3
+> 
+
 -- 
-2.14.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
