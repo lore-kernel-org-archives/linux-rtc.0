@@ -1,35 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f180.google.com ([209.85.223.180]:34763 "EHLO
-        mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752370AbdHBMdR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 08:33:17 -0400
-Received: by mail-io0-f180.google.com with SMTP id o9so19917350iod.1
-        for <linux-rtc@vger.kernel.org>; Wed, 02 Aug 2017 05:33:17 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <E1dYKiP-0001kg-BQ@rmk-PC.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk> <E1dYKiP-0001kg-BQ@rmk-PC.armlinux.org.uk>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 2 Aug 2017 14:33:15 +0200
-Message-ID: <CACRpkdY-FCH8Fhaoi_CTqDUNGYTtFy247Q6jwPh6omQrspkgvg@mail.gmail.com>
-Subject: Re: [PATCH 4/4] rtc: pl031: make interrupt optional
-To: Russell King <rmk+kernel@armlinux.org.uk>
+Received: from vps0.lunn.ch ([178.209.37.122]:36254 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753039AbdHTPki (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 Aug 2017 11:40:38 -0400
+Date: Sun, 20 Aug 2017 17:40:17 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>, linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        ????????? <jiang.liqin@geniatech.com>,
+        linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>
+Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
+Message-ID: <20170820154017.GD24150@lunn.ch>
+References: <20170820013632.18375-1-afaerber@suse.de>
+ <20170820013632.18375-3-afaerber@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170820013632.18375-3-afaerber@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 21, 2017 at 1:18 AM, Russell King
-<rmk+kernel@armlinux.org.uk> wrote:
+> +static void rtd119x_rtc_set_enabled(struct device *dev, bool enable)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +	u32 val;
+> +
+> +	val = readl_relaxed(data->base + RTD_RTCEN);
+> +	dev_info(dev, "%s: rtcen = 0x%08x\n", __func__, val);
 
-> On some platforms, the interrupt for the PL031 is optional.  Avoid
-> trying to claim the interrupt if it's not specified.
->
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+dev_dbg()?
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> +static int rtd119x_rtc_open(struct device *dev)
+> +{
+> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = clk_prepare_enable(data->clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val = readl_relaxed(data->base + RTD_RTCACR);
+> +	dev_info(dev, "rtcacr = 0x%08x\n", val);
 
-Yours,
-Linus Walleij
+dev_dbg()?
+
+	Andrew
