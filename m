@@ -1,81 +1,137 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50356 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:45246 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751182AbdH0R0O (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 27 Aug 2017 13:26:14 -0400
-Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Roc He <hepeng@zidoo.tv>, devicetree@vger.kernel.org,
-        ????????? <jiang.liqin@geniatech.com>,
-        linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-arm-kernel@lists.infradead.org
+        id S1753234AbdHTVKU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 Aug 2017 17:10:20 -0400
+Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
 References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-2-afaerber@suse.de>
- <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
- <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
- <20170827134729.GE13622@lunn.ch>
+ <20170820013632.18375-3-afaerber@suse.de>
+ <20170820083219.siez3rl2hbjgjgk5@piout.net>
 From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>
-Message-ID: <feaa47ff-083a-9ee5-c055-ff1f7efce371@suse.de>
-Date: Sun, 27 Aug 2017 19:26:11 +0200
+Message-ID: <3307d3ed-c8e0-a7b5-f0ee-d401f4b12a90@suse.de>
+Date: Sun, 20 Aug 2017 23:10:16 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170827134729.GE13622@lunn.ch>
+In-Reply-To: <20170820083219.siez3rl2hbjgjgk5@piout.net>
 Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Andrew,
+Hi Alexandre,
 
-Am 27.08.2017 um 15:47 schrieb Andrew Lunn:
->> Thanks. Did you read the RFC question in the cover letter as well and
->> have any comments? Downstream has an rtc-base-year = <2014>; property
->> that I had left out in this RFC and due to your ack not included in v2.
->>
->> Should we default to 2014 in the driver and add an optional base-year
->> property once we encounter a diverging device, or should we make it
->> required from the beginning? I did not spot any other rtc binding with
->> such a property and would appreciate a clarification.
+Am 20.08.2017 um 10:32 schrieb Alexandre Belloni:
+> On 20/08/2017 at 03:36:30 +0200, Andreas Färber wrote:
+>> +static int rtd119x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>> +{
+>> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+>> +	time64_t t;
+>> +	u32 day;
+>> +
+>> +	day = readl_relaxed(data->base + RTD_RTCDATE_LOW);
+>> +	day |= readl_relaxed(data->base + RTD_RTCDATE_HIGH) << 8;
 > 
-> From the perspective of the hardware, does it care what the base is?
+> Is RTD_RTCDATE_HIGH latched when RTD_RTCDATE_LOW is read?
 
-The hardware stores a 15-bit number of days since Jan 1st of that base
-year. It does not store the base year.
+I do not have an answer to that.
 
-The datasheet does not name such a base year. No manual is available.
+> If this is not
+> the case, you probably want to handle a possible update between both
+> readl_relaxed.
 
-The driver needs to get it from somewhere for calculating day/month/year
-in read_time and days in set_time.
+Are you proposing to disable the RTC while reading the registers, or
+something related to my choice of _relaxed? (it follows an explanation
+by Marc Zyngier on the irq mux series) Inconsistencies might not be
+limited to the date.
 
-The read_offset/set_offset API appeared to be something different.
+>> +	t = mktime64(data->base_year, 1, 1, 0, 0, 0);
+>> +	t += day * 24 * 60 * 60;
+>> +	rtc_time64_to_tm(t, tm);
 
-> A device using a different base will initially return the wrong
-> time. But once the correct time has been written back, it will be O.K.
+BTW is there any more efficient way to get from year+days to
+day/month/year without going via seconds?
+
+>> +	tm->tm_sec  = readl_relaxed(data->base + RTD_RTCSEC) >> 1;
+>> +	tm->tm_min  = readl_relaxed(data->base + RTD_RTCMIN);
+>> +	tm->tm_hour = readl_relaxed(data->base + RTD_RTCHR);
+>> +
+>> +	return rtc_valid_tm(tm);
+>> +}
+>> +
+>> +static int rtd119x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>> +{
+>> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+>> +	time64_t time_base, new_time, time_delta;
+>> +	unsigned long day;
+>> +
+>> +	if (tm->tm_year < data->base_year)
+>> +		return -EINVAL;
+>> +
+>> +	time_base = mktime64(data->base_year, 1, 1, 0, 0, 0);
+>> +	new_time = rtc_tm_to_time64(tm);
+>> +	time_delta = new_time - time_base;
+>> +	day = time_delta / (24 * 60 * 60);
+>> +	if (day > 0x7fff)
+>> +		return -EINVAL;
+>> +
+>> +	rtd119x_rtc_set_enabled(dev, false);
+>> +
+>> +	writel_relaxed(tm->tm_sec,  data->base + RTD_RTCSEC);
+>> +	writel_relaxed(tm->tm_min,  data->base + RTD_RTCMIN);
+>> +	writel_relaxed(tm->tm_hour, data->base + RTD_RTCHR);
+>> +	writel_relaxed(day & 0xff, data->base + RTD_RTCDATE_LOW);
+>> +	writel_relaxed((day >> 8) & 0x7f, data->base + RTD_RTCDATE_HIGH);
+>> +
+>> +	rtd119x_rtc_set_enabled(dev, true);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int rtd119x_rtc_open(struct device *dev)
+>> +{
+>> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
+>> +	u32 val;
+>> +	int ret;
+>> +
+>> +	ret = clk_prepare_enable(data->clk);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	val = readl_relaxed(data->base + RTD_RTCACR);
+>> +	dev_info(dev, "rtcacr = 0x%08x\n", val);
+>> +	if (!(val & BIT(7))) {
+>> +	}
 > 
-> This only becomes an issue if a device is used with different OSs,
-> which have different bases. Swapping back and forth between OSs then
-> becomes an issue.
+> I don't see the point of reading that register, and not doing anything
+> with it.
 
-These are TV boxes, so yes, I'm dual-booting into Android with a vendor
-4.1 kernel and would like to keep date compatibility.
+Thanks for spotting this. The story is that the old downstream has code
+for this case, but in my testing I didn't run into that path and forgot.
+Explanations are largely missing in the vendor code. That code should
+probably be added here in v2 and the dev_info() dropped, rather than
+dropping the current no-op expression.
 
-https://en.opensuse.org/HCL:Zidoo_X9S
-https://en.opensuse.org/HCL:ProBox2_Ava
-https://en.opensuse.org/HCL:Lake1
+>> +
+>> +	rtd119x_rtc_set_enabled(dev, true);
+>> +
+> 
+> This is certainly not what you want. The RTC device is usually not
+> opened so enabling the RTC when open and disabling it when closed will
+> not work on most systems. This is probably true for the clock too. i.e
+> what you do here should be done in probe.
 
-As stated in the v2 rtc commit message, 2014 is the base year
-encountered on all three devices that I've had access to.
-@Jiang, if you're using a different base year, please speak up!
+I did test the probe path to work, but I can change it again. The
+downstream code had it in probe, but looking at rtc_class_ops I saw
+those hooks and thought they'd serve a purpose - what are they for then?
+(Any chance you can improve the documentation comments to avoid such
+misunderstandings? :))
 
-> KISS suggests not having a base in DT until it is actually
-> required. Since it is an additional property, it does not break
-> backwards compatibility when added.
-
-That's what I've attempted here - but for RDA8810PL serial Rob said he
-did not want future changes to my binding, therefore I am asking for his
-confirmation here.
+>> +	return 0;
+>> +}
+[snip]
 
 Regards,
 Andreas
