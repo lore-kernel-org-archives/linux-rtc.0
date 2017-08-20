@@ -1,45 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:36999 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753126AbdHJUmH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2017 16:42:07 -0400
-Date: Thu, 10 Aug 2017 15:42:05 -0500
-From: Rob Herring <robh@kernel.org>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mx2.suse.de ([195.135.220.15]:33181 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752499AbdHTBhc (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 19 Aug 2017 21:37:32 -0400
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 3/5] dt-bindings: mfd: Add bindings for the keys as
- subnode of PMIC
-Message-ID: <20170810204205.i4k56dophgvfyjrv@rob-hp-laptop>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
- <1502071065-6745-4-git-send-email-chen.zhong@mediatek.com>
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        devicetree@vger.kernel.org
+Subject: [RFC 0/3] arm64: Realtek RTD1295 RTC
+Date: Sun, 20 Aug 2017 03:36:28 +0200
+Message-Id: <20170820013632.18375-1-afaerber@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1502071065-6745-4-git-send-email-chen.zhong@mediatek.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Aug 07, 2017 at 09:57:43AM +0800, Chen Zhong wrote:
-> This patch adds documentation for device tree bindings for keys support
-> as the subnode of MT6397/MT6323 PMIC.
-> 
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> ---
->  Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
->  1 file changed, 6 insertions(+)
+Hello,
 
-Acked-by: Rob Herring <robh@kernel.org>
+This series adds the RTC for the Realtek RTD1295 SoC.
+Based on my RTD1295 clk series.
+
+There being no public source code for RTD1295, the implementation is based on
+register offsets seen in the vendor DT, as well as older mach-rtk119x code
+published by QNAP.
+
+The base year is hardcoded - probably should be a DT property like downstream?
+
+The DT node depends on the clk series for clock index and header.
+
+More experimental patches at:
+https://github.com/afaerber/linux/commits/rtd1295-next
+
+Have a lot of fun!
+
+Cheers,
+Andreas
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Cc: Roc He <hepeng@zidoo.tv>
+Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
+Cc: devicetree@vger.kernel.org
+
+Andreas Färber (3):
+  dt-bindings: rtc: Add Realtek RTD1295
+  rtc: Add Realtek RTD1295
+  arm64: dts: realtek: Add RTD1295 RTC node
+
+ .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
+ arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
+ drivers/rtc/Kconfig                                |   8 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-rtd119x.c                          | 175 +++++++++++++++++++++
+ 5 files changed, 206 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
+ create mode 100644 drivers/rtc/rtc-rtd119x.c
+
+-- 
+2.12.3
