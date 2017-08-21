@@ -1,43 +1,37 @@
-Return-Path: <rtc-linux+bncBAABB3GNZ3GAKGQECNSHX4Q@googlegroups.com>
+Return-Path: <rtc-linux+bncBD47PQ46SILBBFNO5PGAKGQEV46HRRI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-MIME-Version: 1.0
-Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.133])
-        by gmr-mx.google.com with ESMTPS id d81si664itc.4.2017.08.15.18.59.06
+Received: from mail-wr0-x242.google.com (mail-wr0-x242.google.com. [2a00:1450:400c:c0c::242])
+        by gmr-mx.google.com with ESMTPS id k84si2706363wmh.5.2017.08.21.05.50.29
         for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 15 Aug 2017 18:59:07 -0700 (PDT)
-From: Joseph Chen <chenjh@rock-chips.com>
-To: gnurou@gmail.com,
-	linus.walleij@linaro.org,
-	dmitry.torokhov@gmail.com,
-	lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org,
-	huangtao@rock-chips.com,
-	devicetree@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	broonie@kernel.org,
-	zhangqing@rock-chips.com,
-	robh+dt@kernel.org,
-	lgirdwood@gmail.com,
-	linux-rockchip@lists.infradead.org,
-	wdc@rock-chips.com,
-	tony.xie@rock-chips.com,
-	linux-input@vger.kernel.org,
-	mark.rutland@arm.com,
-	w.egorov@phytec.de,
-	linux-clk@vger.kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	Joseph Chen <chenjh@rock-chips.com>
-Subject: [rtc-linux] [RESEND v9 03/12] regulator: rk808: Add regulator driver
- for RK805
-Date: Wed, 16 Aug 2017 09:56:59 +0800
-Message-Id: <1502848628-27757-4-git-send-email-chenjh@rock-chips.com>
-In-Reply-To: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
-References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 21 Aug 2017 05:50:29 -0700 (PDT)
+Received: by mail-wr0-x242.google.com with SMTP id 30so5324099wrk.0
+        for <rtc-linux@googlegroups.com>; Mon, 21 Aug 2017 05:50:29 -0700 (PDT)
 Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [rtc-linux] RTC used as a module
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Michal Simek <michal.simek@xilinx.com>
+Cc: John Stultz <john.stultz@linaro.org>,
+ "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+References: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
+ <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
+ <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
+ <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
+ <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
+ <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
+ <20170820220329.uzx3ryehq75qruwz@piout.net>
+ <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
+ <20170821121344.emzboqji3hhakzpf@piout.net>
+ <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
+ <20170821124720.cmudjhugpssjuag6@piout.net>
+From: Michal Simek <monstr@monstr.eu>
+Message-ID: <007aa39d-2e1b-d919-9c53-8f03103b20db@monstr.eu>
+Date: Mon, 21 Aug 2017 14:50:12 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170821124720.cmudjhugpssjuag6@piout.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="C6OguqxJXCSV67MccmcACXAPNtAMlLLFR"
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
@@ -46,211 +40,85 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--C6OguqxJXCSV67MccmcACXAPNtAMlLLFR
+Content-Type: multipart/mixed; boundary="Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR";
+ protected-headers="v1"
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Michal Simek <michal.simek@xilinx.com>
+Cc: John Stultz <john.stultz@linaro.org>,
+ "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>
+Message-ID: <007aa39d-2e1b-d919-9c53-8f03103b20db@monstr.eu>
+Subject: Re: [rtc-linux] RTC used as a module
+References: <6e9bb8fa-52e5-0a3a-38b7-57c34bcdfb6b@monstr.eu>
+ <CALAqxLUWD23LWh3z8sr_hFMvrf+SmVOH-i6VHDr60uQZRyWXbA@mail.gmail.com>
+ <cd325ab6-b31c-a03f-2bd3-e2e8cb99a6a5@xilinx.com>
+ <8f181912-d6b1-fe2b-92ef-df2cb26f3f02@xilinx.com>
+ <cc3a8f33-1d68-2ad1-6aba-773f53c29d61@xilinx.com>
+ <59e7661e-7e1f-a11e-93c2-9a4bbe9ebe1a@xilinx.com>
+ <20170820220329.uzx3ryehq75qruwz@piout.net>
+ <44ce48f1-73bb-1b88-1e92-327e80f09f96@monstr.eu>
+ <20170821121344.emzboqji3hhakzpf@piout.net>
+ <ac7f1a06-a20a-3fe8-8ef1-01423d742836@xilinx.com>
+ <20170821124720.cmudjhugpssjuag6@piout.net>
+In-Reply-To: <20170821124720.cmudjhugpssjuag6@piout.net>
 
-Add support for the rk805 regulator. The regulator module consists
-of 4 DCDCs, 3 LDOs.
+--Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR
+Content-Type: text/plain; charset="UTF-8"
+Content-Language: en-US
 
-The output voltages are configurable and are meant to supply power
-to the main processor and other components.
+On 21.8.2017 14:47, Alexandre Belloni wrote:
+> On 21/08/2017 at 14:19:07 +0200, Michal Simek wrote:
+>> On 21.8.2017 14:13, Alexandre Belloni wrote:
+>>> On 21/08/2017 at 12:50:34 +0200, Michal Simek wrote:
+>>>> Hi,
+>>>>
+>>>> On 21.8.2017 00:03, Alexandre Belloni wrote:
+>>>>> Hi Michal,
+>>>>>
+>>>>> I've just send a patch to fix this issue (and avoid your other patch).
+>>>>>
+>>>>> Could you test it? (I did test on an atmel platform)
+>>>>>
+>>>>> Sorry it took so long!
+>>>>
+>>>> not a problem but it looks like it is still just temporary solution. I
+>>>> would expect that you can't unload module when this alarm is used. It if
+>>>> it is not used then you should be able to remove it.
+>>>>
+>>>
+>>> Yes, the alarmtimer handling needs to be made more flexible, especially
+>>> in the rtc device selection.
+>>
+>> ok. What about to extend that commit message for the patch you sent to
+>> explicitly say that this is temporary solution and what should be the
+>> right fix?
+>>
+>> Maybe you can also add link that patch which introduced this issue.
+>> It was in that patch I sent.
+>>
+> 
+> You didn't pinpoint the correct patch. The patch introducing the issue
+> you were seeing (i.e. being able to remove the module) is
+> 8bc0dafb5cf38a19484dfb16e2c6d29e85820046. Before this patch,
+> rtc_class_open() was called and this prevented the module from being
+> removed (it does try_module_get). For now, this is how the feature has
+> been implemented since 2011 and nobody cared enough to change that
+> behaviour.
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-Acked-by: Mark Brown <broonie@kernel.org>
----
- drivers/regulator/Kconfig           |   4 +-
- drivers/regulator/rk808-regulator.c | 130 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 132 insertions(+), 2 deletions(-)
+ok but still isn't worth to mentioned it in commit message?
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index be06eb2..285e280 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -650,11 +650,11 @@ config REGULATOR_RC5T583
- 	  outputs which can be controlled by i2c communication.
- 
- config REGULATOR_RK808
--	tristate "Rockchip RK808/RK818 Power regulators"
-+	tristate "Rockchip RK805/RK808/RK818 Power regulators"
- 	depends on MFD_RK808
- 	help
- 	  Select this option to enable the power regulator of ROCKCHIP
--	  PMIC RK808 and RK818.
-+	  PMIC RK805,RK808 and RK818.
- 	  This driver supports the control of different power rails of device
- 	  through regulator interface. The device supports multiple DCDC/LDO
- 	  outputs which can be controlled by i2c communication.
-diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
-index fb44d52..128c81e 100644
---- a/drivers/regulator/rk808-regulator.c
-+++ b/drivers/regulator/rk808-regulator.c
-@@ -65,6 +65,27 @@
- /* max steps for increase voltage of Buck1/2, equal 100mv*/
- #define MAX_STEPS_ONE_TIME 8
- 
-+#define RK805_DESC(_id, _match, _supply, _min, _max, _step, _vreg,      \
-+	_vmask, _ereg, _emask, _etime)                                  \
-+	[_id] = {                                                       \
-+		.name           = (_match),                             \
-+		.supply_name    = (_supply),                            \
-+		.of_match       = of_match_ptr(_match),                 \
-+		.regulators_node = of_match_ptr("regulators"),          \
-+		.type           = REGULATOR_VOLTAGE,                    \
-+		.id             = (_id),                                \
-+		.n_voltages     = (((_max) - (_min)) / (_step) + 1),    \
-+		.owner          = THIS_MODULE,                          \
-+		.min_uV         = (_min) * 1000,                        \
-+		.uV_step        = (_step) * 1000,                       \
-+		.vsel_reg       = (_vreg),                              \
-+		.vsel_mask      = (_vmask),                             \
-+		.enable_reg     = (_ereg),                              \
-+		.enable_mask    = (_emask),                             \
-+		.enable_time    = (_etime),                             \
-+		.ops            = &rk805_reg_ops,                       \
-+	}
-+
- #define RK8XX_DESC(_id, _match, _supply, _min, _max, _step, _vreg,	\
- 	_vmask, _ereg, _emask, _etime)					\
- 	[_id] = {							\
-@@ -298,6 +319,28 @@ static int rk808_set_suspend_voltage_range(struct regulator_dev *rdev, int uv)
- 				  sel);
- }
- 
-+static int rk805_set_suspend_enable(struct regulator_dev *rdev)
-+{
-+	unsigned int reg;
-+
-+	reg = rdev->desc->enable_reg + RK808_SLP_SET_OFF_REG_OFFSET;
-+
-+	return regmap_update_bits(rdev->regmap, reg,
-+				  rdev->desc->enable_mask,
-+				  rdev->desc->enable_mask);
-+}
-+
-+static int rk805_set_suspend_disable(struct regulator_dev *rdev)
-+{
-+	unsigned int reg;
-+
-+	reg = rdev->desc->enable_reg + RK808_SLP_SET_OFF_REG_OFFSET;
-+
-+	return regmap_update_bits(rdev->regmap, reg,
-+				  rdev->desc->enable_mask,
-+				  0);
-+}
-+
- static int rk808_set_suspend_enable(struct regulator_dev *rdev)
- {
- 	unsigned int reg;
-@@ -320,6 +363,27 @@ static int rk808_set_suspend_disable(struct regulator_dev *rdev)
- 				  rdev->desc->enable_mask);
- }
- 
-+static struct regulator_ops rk805_reg_ops = {
-+		.list_voltage           = regulator_list_voltage_linear,
-+		.map_voltage            = regulator_map_voltage_linear,
-+		.get_voltage_sel        = regulator_get_voltage_sel_regmap,
-+		.set_voltage_sel        = regulator_set_voltage_sel_regmap,
-+		.enable                 = regulator_enable_regmap,
-+		.disable                = regulator_disable_regmap,
-+		.is_enabled             = regulator_is_enabled_regmap,
-+		.set_suspend_voltage    = rk808_set_suspend_voltage,
-+		.set_suspend_enable     = rk805_set_suspend_enable,
-+		.set_suspend_disable    = rk805_set_suspend_disable,
-+};
-+
-+static struct regulator_ops rk805_switch_ops = {
-+		.enable                 = regulator_enable_regmap,
-+		.disable                = regulator_disable_regmap,
-+		.is_enabled             = regulator_is_enabled_regmap,
-+		.set_suspend_enable     = rk805_set_suspend_enable,
-+		.set_suspend_disable    = rk805_set_suspend_disable,
-+};
-+
- static struct regulator_ops rk808_buck1_2_ops = {
- 	.list_voltage		= regulator_list_voltage_linear,
- 	.map_voltage		= regulator_map_voltage_linear,
-@@ -369,6 +433,68 @@ static int rk808_set_suspend_disable(struct regulator_dev *rdev)
- 	.set_suspend_disable	= rk808_set_suspend_disable,
- };
- 
-+static const struct regulator_desc rk805_reg[] = {
-+	{
-+		.name = "DCDC_REG1",
-+		.supply_name = "vcc1",
-+		.of_match = of_match_ptr("DCDC_REG1"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK805_ID_DCDC1,
-+		.ops = &rk805_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK805_BUCK1_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK805_DCDC_EN_REG,
-+		.enable_mask = BIT(0),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG2",
-+		.supply_name = "vcc2",
-+		.of_match = of_match_ptr("DCDC_REG2"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK805_ID_DCDC2,
-+		.ops = &rk805_reg_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.min_uV = 712500,
-+		.uV_step = 12500,
-+		.n_voltages = 64,
-+		.vsel_reg = RK805_BUCK2_ON_VSEL_REG,
-+		.vsel_mask = RK818_BUCK_VSEL_MASK,
-+		.enable_reg = RK805_DCDC_EN_REG,
-+		.enable_mask = BIT(1),
-+		.owner = THIS_MODULE,
-+	}, {
-+		.name = "DCDC_REG3",
-+		.supply_name = "vcc3",
-+		.of_match = of_match_ptr("DCDC_REG3"),
-+		.regulators_node = of_match_ptr("regulators"),
-+		.id = RK805_ID_DCDC3,
-+		.ops = &rk805_switch_ops,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = 1,
-+		.enable_reg = RK805_DCDC_EN_REG,
-+		.enable_mask = BIT(2),
-+		.owner = THIS_MODULE,
-+	},
-+
-+	RK805_DESC(RK805_ID_DCDC4, "DCDC_REG4", "vcc4", 800, 3400, 100,
-+		RK805_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
-+		RK805_DCDC_EN_REG, BIT(3), 0),
-+
-+	RK805_DESC(RK805_ID_LDO1, "LDO_REG1", "vcc5", 800, 3400, 100,
-+		RK805_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
-+		BIT(0), 400),
-+	RK805_DESC(RK805_ID_LDO2, "LDO_REG2", "vcc5", 800, 3400, 100,
-+		RK805_LDO2_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
-+		BIT(1), 400),
-+	RK805_DESC(RK805_ID_LDO3, "LDO_REG3", "vcc6", 800, 3400, 100,
-+		RK805_LDO3_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
-+		BIT(2), 400),
-+};
-+
- static const struct regulator_desc rk808_reg[] = {
- 	{
- 		.name = "DCDC_REG1",
-@@ -625,6 +751,10 @@ static int rk808_regulator_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, pdata);
- 
- 	switch (rk808->variant) {
-+	case RK805_ID:
-+		regulators = rk805_reg;
-+		nregulators = RK805_NUM_REGULATORS;
-+		break;
- 	case RK808_ID:
- 		regulators = rk808_reg;
- 		nregulators = RK808_NUM_REGULATORS;
+Thanks,
+Michal
+
 -- 
-1.9.1
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
 
 
 -- 
@@ -262,3 +130,20 @@ before submitting a driver.
 You received this message because you are subscribed to the Google Groups "rtc-linux" group.
 To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
 For more options, visit https://groups.google.com/d/optout.
+
+--Tnvv7SkXq1O4Osxq96bduDIv2lTowseWR--
+
+--C6OguqxJXCSV67MccmcACXAPNtAMlLLFR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iEYEARECAAYFAlma1wQACgkQykllyylKDCHVhgCdHajFVWFmjc1KHRPKX8hTepcm
+xMUAn2Ab+4xrIuk342fAw+h/qJCCQYVK
+=aUYw
+-----END PGP SIGNATURE-----
+
+--C6OguqxJXCSV67MccmcACXAPNtAMlLLFR--
