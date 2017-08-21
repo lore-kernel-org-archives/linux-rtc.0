@@ -1,160 +1,121 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:38614 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750822AbdH2TxD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 15:53:03 -0400
-Received: by mail-wm0-f67.google.com with SMTP id u26so4768589wma.5
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Aug 2017 12:53:02 -0700 (PDT)
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH RfC] rtc: ds1307: improve weekday handling
-Message-ID: <abf5f5ff-b406-eff0-a1ec-9486efbe8506@gmail.com>
-Date: Tue, 29 Aug 2017 21:52:56 +0200
+Received: from mail.free-electrons.com ([62.4.15.54]:42039 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751245AbdHUIqw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Aug 2017 04:46:52 -0400
+Date: Mon, 21 Aug 2017 10:46:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
+        =?iso-8859-1?Q?S=F6ren?= Brinkmann <soren.brinkmann@xilinx.com>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] rtc: zynqmp: Disable the build as a module
+Message-ID: <20170821084641.p432yvwciwj6irdk@piout.net>
+References: <9881f4ae2afb2cd671715bcd1fcb9035688c40c9.1500464394.git.michal.simek@xilinx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9881f4ae2afb2cd671715bcd1fcb9035688c40c9.1500464394.git.michal.simek@xilinx.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The current code for checking and fixing the weekday in ds1307_probe
-faces some issues:
-- This check is applied to all chips even if its applicable (AFAIK)
-  to mcp794xx only
-- The check uses MCP794XX constants for registers and bits even though
-  it's executed also on other chips (ok, this could be fixed easily)
-- It relies on tm_wday being properly populated when core calls set_time
-  and set_alarm. This is not guaranteed at all.
+Hi,
 
-First two issue we could solve by moving the check to the
-mcp794xx-specific initialization (where also VBATEN flag is set).
+As discussed, I will not apply that patch and instead will push for:
+https://patchwork.kernel.org/patch/9911471/
 
-The proposed alternative is in the set_alarm path for mcp794xx only and
-calculates the alarm weekday based on the current weekday in the RTC
-timekeeping regs and the difference between alarm date and current date.
-So we are fine with any weekday even if it doesn't match the date.
+On 19/07/2017 at 13:39:57 +0200, Michal Simek wrote:
+> The patch:
+> "timers: Introduce in-kernel alarm-timer interface"
+> (sha1: ff3ead96d17f47ee70c294a5cc2cce9b61e82f0f)
+> introduced new requirement that RTC drivers with alarm functionality
+> can't be used as a module.
+> When module is unloaded there is still a reference that's why
+> rtc_device_release() is not called and ida is not freed.
+> 
+> That's why when module is loaded again it can't use the same RTC number
+> based on aliases.
+> 
+> Log:
+> sh-4.3# modprobe rtc-zynqmp
+> [   42.468565] rtc_zynqmp ffa60000.rtc: rtc core: registered
+> ffa60000.rtc as rtc5
+> sh-4.3# rmmod rtc-zynqmp
+> sh-4.3# modprobe rtc-zynqmp
+> [   48.648222] rtc_zynqmp ffa60000.rtc: /aliases ID 5 not available
+> [   48.654280] rtc_zynqmp ffa60000.rtc: rtc core: registered
+> ffa60000.rtc as rtc0
+> 
+> This patch is removing module support which is just a workaround till
+> alarm-timer interface is fixed to support device releasing when alarm
+> timer is not used.
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+> 
+> Based on discussion:
+> https://www.mail-archive.com/rtc-linux@googlegroups.com/msg00908.html
+> 
+> ---
+>  drivers/rtc/Kconfig      |  2 +-
+>  drivers/rtc/rtc-zynqmp.c | 15 +--------------
+>  2 files changed, 2 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 72419ac2c52a..a2bbe7c2cf92 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1225,7 +1225,7 @@ config RTC_DRV_OPAL
+>  	  will be called rtc-opal.
+>  
+>  config RTC_DRV_ZYNQMP
+> -	tristate "Xilinx Zynq Ultrascale+ MPSoC RTC"
+> +	bool "Xilinx Zynq Ultrascale+ MPSoC RTC"
+>  	depends on OF
+>  	help
+>  	  If you say yes here you get support for the RTC controller found on
+> diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+> index da18a8ae3c1d..5fc50145dbd2 100644
+> --- a/drivers/rtc/rtc-zynqmp.c
+> +++ b/drivers/rtc/rtc-zynqmp.c
+> @@ -268,14 +268,6 @@ static int xlnx_rtc_probe(struct platform_device *pdev)
+>  	return PTR_ERR_OR_ZERO(xrtcdev->rtc);
+>  }
+>  
+> -static int xlnx_rtc_remove(struct platform_device *pdev)
+> -{
+> -	xlnx_rtc_alarm_irq_enable(&pdev->dev, 0);
+> -	device_init_wakeup(&pdev->dev, 0);
+> -
+> -	return 0;
+> -}
+> -
+>  static int __maybe_unused xlnx_rtc_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+> @@ -312,7 +304,6 @@ static int __maybe_unused xlnx_rtc_resume(struct device *dev)
+>  
+>  static struct platform_driver xlnx_rtc_driver = {
+>  	.probe		= xlnx_rtc_probe,
+> -	.remove		= xlnx_rtc_remove,
+>  	.driver		= {
+>  		.name	= KBUILD_MODNAME,
+>  		.pm	= &xlnx_rtc_pm_ops,
+> @@ -320,8 +311,4 @@ static int __maybe_unused xlnx_rtc_resume(struct device *dev)
+>  	},
+>  };
+>  
+> -module_platform_driver(xlnx_rtc_driver);
+> -
+> -MODULE_DESCRIPTION("Xilinx Zynq MPSoC RTC driver");
+> -MODULE_AUTHOR("Xilinx Inc.");
+> -MODULE_LICENSE("GPL v2");
+> +builtin_platform_driver(xlnx_rtc_driver);
+> -- 
+> 1.9.1
+> 
 
-Still there are cases where this could fail, e.g.:
-- rtc date/time + weekday have power-on-reset default values
-- alarm is set to actual date/time + x
-- set_time is called (may change diff between rtc weekday and actual
-  weekday)
-
-But similar issues we have with the current code too:
-- rtc date/time + weekday have power-on-reset default values
-- alarm is set to rtc date/time + x
-- set_time is called before the alarm triggers
-
-Using random rtc date/time with relative alarms simply can interfere
-with set_time. I'm not totally convinced of either option yet.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 52 ++++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 9d680d36..4ba62549 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -787,8 +787,6 @@ static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
-  * Alarm support for mcp794xx devices.
-  */
- 
--#define MCP794XX_REG_WEEKDAY		0x3
--#define MCP794XX_REG_WEEKDAY_WDAY_MASK	0x7
- #define MCP794XX_REG_CONTROL		0x07
- #	define MCP794XX_BIT_ALM0_EN	0x10
- #	define MCP794XX_BIT_ALM1_EN	0x20
-@@ -877,15 +875,38 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
-+/*
-+ * We may have a random RTC weekday, therefore calculate alarm weekday based
-+ * on current weekday we read from the RTC timekeeping regs
-+ */
-+static int mcp794xx_alm_weekday(struct device *dev, struct rtc_time *tm_alarm)
-+{
-+	struct rtc_time tm_now;
-+	int days_now, days_alarm, ret;
-+
-+	ret = ds1307_get_time(dev, &tm_now);
-+	if (ret)
-+		return ret;
-+
-+	days_now = div_s64(rtc_tm_to_time64(&tm_now), 24 * 60 * 60);
-+	days_alarm = div_s64(rtc_tm_to_time64(tm_alarm), 24 * 60 * 60);
-+
-+	return (tm_now.tm_wday + days_alarm - days_now) % 7 + 1;
-+}
-+
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct ds1307 *ds1307 = dev_get_drvdata(dev);
- 	unsigned char regs[10];
--	int ret;
-+	int wday, ret;
- 
- 	if (!test_bit(HAS_ALARM, &ds1307->flags))
- 		return -EINVAL;
- 
-+	wday = mcp794xx_alm_weekday(dev, &t->time);
-+	if (wday < 0)
-+		return wday;
-+
- 	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d "
- 		"enabled=%d pending=%d\n", __func__,
- 		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
-@@ -902,7 +923,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	regs[3] = bin2bcd(t->time.tm_sec);
- 	regs[4] = bin2bcd(t->time.tm_min);
- 	regs[5] = bin2bcd(t->time.tm_hour);
--	regs[6] = bin2bcd(t->time.tm_wday + 1);
-+	regs[6] = wday;
- 	regs[7] = bin2bcd(t->time.tm_mday);
- 	regs[8] = bin2bcd(t->time.tm_mon + 1);
- 
-@@ -1355,14 +1376,12 @@ static int ds1307_probe(struct i2c_client *client,
- {
- 	struct ds1307		*ds1307;
- 	int			err = -ENODEV;
--	int			tmp, wday;
-+	int			tmp;
- 	const struct chip_desc	*chip;
- 	bool			want_irq;
- 	bool			ds1307_can_wakeup_device = false;
- 	unsigned char		regs[8];
- 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
--	struct rtc_time		tm;
--	unsigned long		timestamp;
- 	u8			trickle_charger_setup = 0;
- 
- 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
-@@ -1642,25 +1661,6 @@ static int ds1307_probe(struct i2c_client *client,
- 			     bin2bcd(tmp));
- 	}
- 
--	/*
--	 * Some IPs have weekday reset value = 0x1 which might not correct
--	 * hence compute the wday using the current date/month/year values
--	 */
--	ds1307_get_time(ds1307->dev, &tm);
--	wday = tm.tm_wday;
--	timestamp = rtc_tm_to_time64(&tm);
--	rtc_time64_to_tm(timestamp, &tm);
--
--	/*
--	 * Check if reset wday is different from the computed wday
--	 * If different then set the wday which we computed using
--	 * timestamp
--	 */
--	if (wday != tm.tm_wday)
--		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
--				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
--				   tm.tm_wday + 1);
--
- 	if (want_irq || ds1307_can_wakeup_device) {
- 		device_set_wakeup_capable(ds1307->dev, true);
- 		set_bit(HAS_ALARM, &ds1307->flags);
 -- 
-2.14.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
