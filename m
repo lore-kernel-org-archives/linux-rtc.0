@@ -1,83 +1,144 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:38544 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751056AbdHZTQp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 Aug 2017 15:16:45 -0400
-Received: by mail-wr0-f196.google.com with SMTP id o76so1750676wrb.5
-        for <linux-rtc@vger.kernel.org>; Sat, 26 Aug 2017 12:16:44 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] rtc: core: let rtc_set_time properly populate element wday
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Message-ID: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
-Date: Sat, 26 Aug 2017 21:16:34 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Received: from mail.free-electrons.com ([62.4.15.54]:59319 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753596AbdHWJuD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 05:50:03 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2] rtc: sa1100: make alarms useful
+Date: Wed, 23 Aug 2017 11:49:59 +0200
+Message-Id: <20170823094959.32488-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Some drivers use element wday of the struct rtc_time which is passed to
-callback set_time. However element wday may incorrectly or not be
-populated if struct rtc_time is coming from userspace via rtc_dev_ioctl.
-rtc_valid_tm() doesn't check element wday.
+Currently, the driver unregisters the IRQs when the rtc character device is
+closed. This means that the device needs to stay open to get alarms while
+the usual use case will open the device, set the alarm and close the
+device.
 
-Therefore convert struct rtc_time to time64_t and then use
-rtc_time64_to_tm to generate a struct rtc_time with all elements properly
-populated.
+Move the IRQ requests to sa1100_rtc_probe() and use the devm managed
+versions so we don't need to free them.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/interface.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+Changes in v2:
+ - Fix build issues
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 8cec9a02..5a53c590 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -59,28 +59,36 @@ EXPORT_SYMBOL_GPL(rtc_read_time);
+
+ drivers/rtc/rtc-sa1100.c | 63 +++++++++++++++++-------------------------------
+ 1 file changed, 22 insertions(+), 41 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
+index fe8ebf47bbe5..ed71d1113627 100644
+--- a/drivers/rtc/rtc-sa1100.c
++++ b/drivers/rtc/rtc-sa1100.c
+@@ -95,44 +95,6 @@ static irqreturn_t sa1100_rtc_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- {
-+	time64_t secs64;
- 	int err;
- 
- 	err = rtc_valid_tm(tm);
- 	if (err != 0)
- 		return err;
- 
-+	secs64 = rtc_tm_to_time64(tm);
-+
- 	err = mutex_lock_interruptible(&rtc->ops_lock);
- 	if (err)
- 		return err;
- 
- 	if (!rtc->ops)
- 		err = -ENODEV;
--	else if (rtc->ops->set_time)
--		err = rtc->ops->set_time(rtc->dev.parent, tm);
--	else if (rtc->ops->set_mmss64) {
--		time64_t secs64 = rtc_tm_to_time64(tm);
+-static int sa1100_rtc_open(struct device *dev)
+-{
+-	struct sa1100_rtc *info = dev_get_drvdata(dev);
+-	struct rtc_device *rtc = info->rtc;
+-	int ret;
 -
-+	else if (rtc->ops->set_time) {
-+		struct rtc_time tmp;
-+
-+		/*
-+		 * element wday of tm may not be set, therefore use
-+		 * rtc_time64_to_tm to generate a struct rtc_time
-+		 * with all elements being properly populated
-+		 */
-+		rtc_time64_to_tm(secs64, &tmp);
-+		err = rtc->ops->set_time(rtc->dev.parent, &tmp);
-+	} else if (rtc->ops->set_mmss64)
- 		err = rtc->ops->set_mmss64(rtc->dev.parent, secs64);
--	} else if (rtc->ops->set_mmss) {
--		time64_t secs64 = rtc_tm_to_time64(tm);
-+	else if (rtc->ops->set_mmss)
- 		err = rtc->ops->set_mmss(rtc->dev.parent, secs64);
--	} else
-+	else
- 		err = -EINVAL;
+-	ret = request_irq(info->irq_1hz, sa1100_rtc_interrupt, 0, "rtc 1Hz", dev);
+-	if (ret) {
+-		dev_err(dev, "IRQ %d already in use.\n", info->irq_1hz);
+-		return ret;
+-	}
+-	ret = request_irq(info->irq_alarm, sa1100_rtc_interrupt, 0, "rtc Alrm", dev);
+-	if (ret) {
+-		dev_err(dev, "IRQ %d already in use.\n", info->irq_alarm);
+-		goto fail_ai;
+-	}
+-	rtc->max_user_freq = RTC_FREQ;
+-	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
+-
+-	return 0;
+-
+- fail_ai:
+-	free_irq(info->irq_1hz, dev);
+-	return ret;
+-}
+-
+-static void sa1100_rtc_release(struct device *dev)
+-{
+-	struct sa1100_rtc *info = dev_get_drvdata(dev);
+-
+-	spin_lock_irq(&info->lock);
+-	writel_relaxed(0, info->rtsr);
+-	spin_unlock_irq(&info->lock);
+-
+-	free_irq(info->irq_alarm, dev);
+-	free_irq(info->irq_1hz, dev);
+-}
+-
+ static int sa1100_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	u32 rtsr;
+@@ -214,8 +176,6 @@ static int sa1100_rtc_proc(struct device *dev, struct seq_file *seq)
+ }
  
- 	pm_stay_awake(rtc->dev.parent);
+ static const struct rtc_class_ops sa1100_rtc_ops = {
+-	.open = sa1100_rtc_open,
+-	.release = sa1100_rtc_release,
+ 	.read_time = sa1100_rtc_read_time,
+ 	.set_time = sa1100_rtc_set_time,
+ 	.read_alarm = sa1100_rtc_read_alarm,
+@@ -263,6 +223,9 @@ int sa1100_rtc_init(struct platform_device *pdev, struct sa1100_rtc *info)
+ 	}
+ 	info->rtc = rtc;
+ 
++	rtc->max_user_freq = RTC_FREQ;
++	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
++
+ 	/* Fix for a nasty initialization problem the in SA11xx RTSR register.
+ 	 * See also the comments in sa1100_rtc_interrupt().
+ 	 *
+@@ -297,6 +260,7 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
+ 	struct resource *iores;
+ 	void __iomem *base;
+ 	int irq_1hz, irq_alarm;
++	int ret;
+ 
+ 	irq_1hz = platform_get_irq_byname(pdev, "rtc 1Hz");
+ 	irq_alarm = platform_get_irq_byname(pdev, "rtc alarm");
+@@ -309,6 +273,19 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
+ 	info->irq_1hz = irq_1hz;
+ 	info->irq_alarm = irq_alarm;
+ 
++	ret = devm_request_irq(&pdev->dev, irq_1hz, sa1100_rtc_interrupt, 0,
++			       "rtc 1Hz", &pdev->dev);
++	if (ret) {
++		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq_1hz);
++		return ret;
++	}
++	ret = devm_request_irq(&pdev->dev, irq_alarm, sa1100_rtc_interrupt, 0,
++			       "rtc Alrm", &pdev->dev);
++	if (ret) {
++		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq_alarm);
++		return ret;
++	}
++
+ 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, iores);
+ 	if (IS_ERR(base))
+@@ -337,8 +314,12 @@ static int sa1100_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct sa1100_rtc *info = platform_get_drvdata(pdev);
+ 
+-	if (info)
++	if (info) {
++		spin_lock_irq(&info->lock);
++		writel_relaxed(0, info->rtsr);
++		spin_unlock_irq(&info->lock);
+ 		clk_disable_unprepare(info->clk);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.14.1
