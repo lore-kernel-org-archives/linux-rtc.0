@@ -1,129 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34479 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:49063 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751192AbdH1TPU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 15:15:20 -0400
-Date: Mon, 28 Aug 2017 21:15:18 +0200
+        with ESMTP id S1752749AbdHWBSY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 21:18:24 -0400
+Date: Wed, 23 Aug 2017 03:18:22 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1307: improve weekday handling
-Message-ID: <20170828191518.ofntjb2tknttjexq@piout.net>
-References: <57598a86-21c7-b354-2840-309563440435@gmail.com>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Roc He <hepeng@zidoo.tv>,
+        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
+Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
+Message-ID: <20170823011822.adda7emuz3eig3yt@piout.net>
+References: <20170820013632.18375-1-afaerber@suse.de>
+ <20170820013632.18375-3-afaerber@suse.de>
+ <20170820083219.siez3rl2hbjgjgk5@piout.net>
+ <3307d3ed-c8e0-a7b5-f0ee-d401f4b12a90@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <57598a86-21c7-b354-2840-309563440435@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <3307d3ed-c8e0-a7b5-f0ee-d401f4b12a90@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 28/08/2017 at 20:37:21 +0200, Heiner Kallweit wrote:
-> mcp794xx as one chip supported by this driver needs the weekday for
-> alarm matching. RTC core ignores the weekday so we can't rely on
-> the values we receive in member tm_wday of struct rtc_time.
-> Therefore calculate the weekday from date/time when setting the
-> time and setting the alarm time for mcp794xx.
+On 20/08/2017 at 23:10:16 +0200, Andreas Färber wrote:
+> > Is RTD_RTCDATE_HIGH latched when RTD_RTCDATE_LOW is read?
 > 
-> When having this in place we don't have to check the weekday
-> at each driver load.
-> After a chip reset date/time and weekday may be out of sync but
-> in this case date/time need to be set anyway.
+> I do not have an answer to that.
+> 
+> > If this is not
+> > the case, you probably want to handle a possible update between both
+> > readl_relaxed.
+> 
+> Are you proposing to disable the RTC while reading the registers, or
+> something related to my choice of _relaxed? (it follows an explanation
+> by Marc Zyngier on the irq mux series) Inconsistencies might not be
+> limited to the date.
 > 
 
-Nope, the core issue is that you can actually set an alarm in the future
-without setting the time beforehand so this as to be fixed in the probe
-(this was the issue as reported at the time of the fix).
+A simple way to be sure would be to read RTD_RTCSEC first, then the
+other registers and check RTD_RTCSEC didn't change. This will ensure the
+other registers have not be updated in the meantime (unless it takes
+one minute but I doubt this is the case). if RTD_RTCSEC changed, then
+you can start over.
 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
->  drivers/rtc/rtc-ds1307.c | 39 +++++++++++++++------------------------
->  1 file changed, 15 insertions(+), 24 deletions(-)
+> >> +	t = mktime64(data->base_year, 1, 1, 0, 0, 0);
+> >> +	t += day * 24 * 60 * 60;
+> >> +	rtc_time64_to_tm(t, tm);
 > 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index 9d680d36..83b8c997 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -437,6 +437,18 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
->  	return rtc_valid_tm(t);
->  }
->  
-> +/*
-> + * Certain chips need the weekday for alarm matching and tm->t_wday
-> + * may be not or not properly populated
-> + */
-> +static int ds1307_get_weekday(struct rtc_time *tm)
-> +{
-> +	time64_t secs64 = rtc_tm_to_time64(tm);
-> +	int days = div_s64(secs64, 24 * 60 * 60);
-> +
-> +	return (days + 4) % 7 + 1;
-> +}
-> +
->  static int ds1307_set_time(struct device *dev, struct rtc_time *t)
->  {
->  	struct ds1307	*ds1307 = dev_get_drvdata(dev);
-> @@ -465,7 +477,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
->  	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
->  	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
->  	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
-> -	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
-> +	regs[DS1307_REG_WDAY] = ds1307_get_weekday(t);
->  	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
->  	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
->  
-> @@ -902,7 +914,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
->  	regs[3] = bin2bcd(t->time.tm_sec);
->  	regs[4] = bin2bcd(t->time.tm_min);
->  	regs[5] = bin2bcd(t->time.tm_hour);
-> -	regs[6] = bin2bcd(t->time.tm_wday + 1);
-> +	regs[6] = ds1307_get_weekday(&t->time);
->  	regs[7] = bin2bcd(t->time.tm_mday);
->  	regs[8] = bin2bcd(t->time.tm_mon + 1);
->  
-> @@ -1355,14 +1367,12 @@ static int ds1307_probe(struct i2c_client *client,
->  {
->  	struct ds1307		*ds1307;
->  	int			err = -ENODEV;
-> -	int			tmp, wday;
-> +	int			tmp;
->  	const struct chip_desc	*chip;
->  	bool			want_irq;
->  	bool			ds1307_can_wakeup_device = false;
->  	unsigned char		regs[8];
->  	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
-> -	struct rtc_time		tm;
-> -	unsigned long		timestamp;
->  	u8			trickle_charger_setup = 0;
->  
->  	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
-> @@ -1642,25 +1652,6 @@ static int ds1307_probe(struct i2c_client *client,
->  			     bin2bcd(tmp));
->  	}
->  
-> -	/*
-> -	 * Some IPs have weekday reset value = 0x1 which might not correct
-> -	 * hence compute the wday using the current date/month/year values
-> -	 */
-> -	ds1307_get_time(ds1307->dev, &tm);
-> -	wday = tm.tm_wday;
-> -	timestamp = rtc_tm_to_time64(&tm);
-> -	rtc_time64_to_tm(timestamp, &tm);
-> -
-> -	/*
-> -	 * Check if reset wday is different from the computed wday
-> -	 * If different then set the wday which we computed using
-> -	 * timestamp
-> -	 */
-> -	if (wday != tm.tm_wday)
-> -		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
-> -				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
-> -				   tm.tm_wday + 1);
-> -
->  	if (want_irq || ds1307_can_wakeup_device) {
->  		device_set_wakeup_capable(ds1307->dev, true);
->  		set_bit(HAS_ALARM, &ds1307->flags);
-> -- 
-> 2.14.1
+> BTW is there any more efficient way to get from year+days to
+> day/month/year without going via seconds?
 > 
+
+Completely untested:
+
+for (y = data->base_year; (day - (365 + is_leap_year(y))) > 0; y++)
+	day -= (365 + is_leap_year(y));
+
+for (m = 0; (day - rtc_month_days(m, y)) > 0; m++)
+	day -= rtc_month_days(m, y);
+
+
+> >> +
+> >> +	rtd119x_rtc_set_enabled(dev, true);
+> >> +
+> > 
+> > This is certainly not what you want. The RTC device is usually not
+> > opened so enabling the RTC when open and disabling it when closed will
+> > not work on most systems. This is probably true for the clock too. i.e
+> > what you do here should be done in probe.
+> 
+> I did test the probe path to work, but I can change it again. The
+> downstream code had it in probe, but looking at rtc_class_ops I saw
+> those hooks and thought they'd serve a purpose - what are they for then?
+> (Any chance you can improve the documentation comments to avoid such
+> misunderstandings? :))
+> 
+
+They are (were) used only when the rtc character device (/dev/rtcx) is
+opened/released but the cdev interface is one of many interfaces to the
+RTC sod it doesn't make sense to do something only in that case
+(especially requesting IRQs).
+
+To solve your concern, this is what I'm going to apply after fixing the
+two remaining uses of .release:
+
+http://patchwork.ozlabs.org/patch/804707/
+
 
 -- 
 Alexandre Belloni, Free Electrons
