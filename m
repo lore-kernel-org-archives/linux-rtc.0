@@ -1,82 +1,79 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:14639 "EHLO
-        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750796AbdH2Hew (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 03:34:52 -0400
-Date: Tue, 29 Aug 2017 16:34:53 +0900
-From: Andi Shyti <andi.shyti@samsung.com>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
-Message-id: <20170829073453.GB4469@gangnam>
-MIME-version: 1.0
-Content-type: text/plain; charset="us-ascii"
-In-reply-to: <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-        <CGME20170825063247epcas5p1df2f4440010dd55dada66e8764d18e50@epcas5p1.samsung.com>
-        <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:48232 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752770AbdHWAdJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 20:33:09 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: remove .open() and .release()
+Date: Wed, 23 Aug 2017 02:33:04 +0200
+Message-Id: <20170823003304.20031-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Chen,
+There are no driver left using .open and .release. There is no good use
+case for them as there is nothing the character device interface does that
+should not be done in the sysfs interface or in-kernel interface.
 
-what I would ask you is to be consistent with the naming, if your
-driver is called mtk-pmic, then all your functions and global
-variables should be named accordingly as mtk_pmic or MTK_PMIC.
-Please check in between the lines for real examples:
+Remove those callbacks now to avoid future confusion.
 
-> +#define PWRKEY_RST_EN_MASK	0x1
-> +#define PWRKEY_RST_EN_SHIFT	6
-> +#define HOMEKEY_RST_EN_MASK	0x1
-> +#define HOMEKEY_RST_EN_SHIFT	5
-> +#define RST_DU_MASK		0x3
-> +#define RST_DU_SHIFT		8
-> +
-> +#define PMIC_PWRKEY_INDEX	0
-> +#define PMIC_HOMEKEY_INDEX	1
-> +#define PMIC_MAX_KEY_COUNT	2
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-dev.c | 18 ++++--------------
+ include/linux/rtc.h   |  2 --
+ 2 files changed, 4 insertions(+), 16 deletions(-)
 
-#define MTK_PMIC_*
-
-> +struct pmic_keys_regs {
-
-struct mtk_pmic_keys_regs
-
-> +	u32 deb_reg;
-> +	u32 deb_mask;
-> +	u32 intsel_reg;
-> +	u32 intsel_mask;
-> +};
-> +
-> +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
-
-MTK_PMIC_KEYS_REGS
-
-> +{									\
-> +	.deb_reg		= _deb_reg,				\
-> +	.deb_mask		= _deb_mask,				\
-> +	.intsel_reg		= _intsel_reg,				\
-> +	.intsel_mask		= _intsel_mask,				\
-> +}
-> +
-> +struct pmic_regs {
-
-mtk_pmic_regs
-
-and so on... you got the point.
-
-Andi
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index 794bc4fa4937..107e5ca95113 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -34,18 +34,11 @@ static int rtc_dev_open(struct inode *inode, struct file *file)
+ 
+ 	file->private_data = rtc;
+ 
+-	err = ops->open ? ops->open(rtc->dev.parent) : 0;
+-	if (err == 0) {
+-		spin_lock_irq(&rtc->irq_lock);
+-		rtc->irq_data = 0;
+-		spin_unlock_irq(&rtc->irq_lock);
+-
+-		return 0;
+-	}
++	spin_lock_irq(&rtc->irq_lock);
++	rtc->irq_data = 0;
++	spin_unlock_irq(&rtc->irq_lock);
+ 
+-	/* something has gone wrong */
+-	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+-	return err;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+@@ -438,9 +431,6 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
+ 	rtc_update_irq_enable(rtc, 0);
+ 	rtc_irq_set_state(rtc, NULL, 0);
+ 
+-	if (rtc->ops->release)
+-		rtc->ops->release(rtc->dev.parent);
+-
+ 	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+ 	return 0;
+ }
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 0a0f0d14a5fb..e6d0f9c1cafd 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -72,8 +72,6 @@ extern struct class *rtc_class;
+  * issued through ioctl() ...
+  */
+ struct rtc_class_ops {
+-	int (*open)(struct device *);
+-	void (*release)(struct device *);
+ 	int (*ioctl)(struct device *, unsigned int, unsigned long);
+ 	int (*read_time)(struct device *, struct rtc_time *);
+ 	int (*set_time)(struct device *, struct rtc_time *);
+-- 
+2.14.1
