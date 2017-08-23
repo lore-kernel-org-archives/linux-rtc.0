@@ -1,56 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36426 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751189AbdH0Klt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 27 Aug 2017 06:41:49 -0400
-Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
-To: Rob Herring <robh@kernel.org>
+Received: from mail-oi0-f48.google.com ([209.85.218.48]:34612 "EHLO
+        mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753594AbdHWIZ6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 04:25:58 -0400
+Received: by mail-oi0-f48.google.com with SMTP id j144so9920099oib.1
+        for <linux-rtc@vger.kernel.org>; Wed, 23 Aug 2017 01:25:58 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170823053825.19841-1-nikita.yoush@cogentembedded.com>
+References: <20170823053825.19841-1-nikita.yoush@cogentembedded.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 23 Aug 2017 10:25:57 +0200
+Message-ID: <CACRpkda1kQkcVaChRcqg5z_b1TyWA=7FDB9aZvv_h5HAu5Fpbw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: ds1307: add basic support for ds1341 chip
+To: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
-        Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
-References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-2-afaerber@suse.de>
- <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
-From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>
-Message-ID: <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
-Date: Sun, 27 Aug 2017 12:41:46 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
-Content-Type: text/plain; charset=utf-8
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Arnaud Ebalard <arno@natisbad.org>,
+        David Lowe <dave-lowe@ntlworld.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Marek Vasut <marex@denx.de>, Tin Huynh <tnhuynh@apm.com>,
+        linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Chris Healy <cphealy@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Rob,
+On Wed, Aug 23, 2017 at 7:38 AM, Nikita Yushchenko
+<nikita.yoush@cogentembedded.com> wrote:
 
-Am 23.08.2017 um 02:29 schrieb Rob Herring:
-> On Sun, Aug 20, 2017 at 03:36:29AM +0200, Andreas Färber wrote:
->> Add a binding for the RTC on the Realtek RTD119x/RTD129x SoC families.
->>
->> Signed-off-by: Andreas Färber <afaerber@suse.de>
->> ---
->>  .../devicetree/bindings/rtc/realtek,rtd119x.txt          | 16 ++++++++++++++++
->>  1 file changed, 16 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
+> This adds support for reading and writing date/time from/to ds1314 chip.
+>
+> Other functionality (alarms, inout clock, output clock) is not added
+> yet, because availability of that depends on chip connections.
+>
+> Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 
-Thanks. Did you read the RFC question in the cover letter as well and
-have any comments? Downstream has an rtc-base-year = <2014>; property
-that I had left out in this RFC and due to your ack not included in v2.
+Overall this looks fine.
 
-Should we default to 2014 in the driver and add an optional base-year
-property once we encounter a diverging device, or should we make it
-required from the beginning? I did not spot any other rtc binding with
-such a property and would appreciate a clarification.
+> ---
+>  drivers/rtc/Kconfig      | 10 +++++-----
+>  drivers/rtc/rtc-ds1307.c | 13 +++++++++++++
+>  2 files changed, 18 insertions(+), 5 deletions(-)
+> ===
+> DS1341/1342 chips have additional features, namely
+> - alarms,
+> - input clock (can be used instead of intercal oscillator for better
+>   accuracy),
+> - output clock ("square wave generation")
 
-Thanks in advance,
+When you put all this useful information below the commit line
+like this it gets lost and is not in the commit message in
+git log.
 
-Andreas
+Please live it into the commit blurb or even, if really useful,
+as a comment in the driver itself.
 
--- 
-SUSE Linux GmbH, Maxfeldstr. 5, 90409 Nürnberg, Germany
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
+With that:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
