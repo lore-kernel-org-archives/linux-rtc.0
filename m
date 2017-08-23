@@ -1,75 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:60064 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:48322 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751804AbdH2OUM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 10:20:12 -0400
-Date: Tue, 29 Aug 2017 16:20:11 +0200
+        with ESMTP id S1750945AbdHWWAl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 18:00:41 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Himanshu Jha <himanshujha199640@gmail.com>
-Cc: a.zummo@towertech.it, baruch@tkos.co.il, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: Use PTR_ERR_OR_ZERO
-Message-ID: <20170829142011.76w67w64a7lheef4@piout.net>
-References: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
+To: linux-rtc@vger.kernel.org
+Cc: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: mxc: avoid disabling interrupts on device close
+Date: Thu, 24 Aug 2017 00:00:24 +0200
+Message-Id: <20170823220024.22861-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Currently, the IRQs are disabled when the rtc character device is closed.
+This means that the device needs to stay open to get alarms while the usual
+use case will open the device, set the alarm and close the device as is
+done in rtcwake.
 
-On 29/08/2017 at 19:16:59 +0530, Himanshu Jha wrote:
-> Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
-> 
+Keep the alarm functional on character device release so the platform can
+actually wakeup
 
-I'm not taking that kind of useless changes (especially since it make
-the code less readable) unless you have other significant improvement in
-those drivers.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-mxc.c | 21 ---------------------
+ 1 file changed, 21 deletions(-)
 
-> Signed-off-by: Himanshu Jha <himanshujha199640@gmail.com>
-> ---
->  drivers/rtc/rtc-digicolor.c | 5 +----
->  drivers/rtc/rtc-ds1347.c    | 5 +----
->  2 files changed, 2 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
-> index b253bf1..1e200a0 100644
-> --- a/drivers/rtc/rtc-digicolor.c
-> +++ b/drivers/rtc/rtc-digicolor.c
-> @@ -202,10 +202,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
->  	platform_set_drvdata(pdev, rtc);
->  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
->  						&dc_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(rtc->rtc_dev))
-> -		return PTR_ERR(rtc->rtc_dev);
-> -
-> -	return 0;
-> +	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
->  }
->  
->  static const struct of_device_id dc_dt_ids[] = {
-> diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
-> index ccfc9d4..9a02ca7 100644
-> --- a/drivers/rtc/rtc-ds1347.c
-> +++ b/drivers/rtc/rtc-ds1347.c
-> @@ -155,10 +155,7 @@ static int ds1347_probe(struct spi_device *spi)
->  	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
->  				&ds1347_rtc_ops, THIS_MODULE);
->  
-> -	if (IS_ERR(rtc))
-> -		return PTR_ERR(rtc);
-> -
-> -	return 0;
-> +	return PTR_ERR_OR_ZERO(rtc);
->  }
->  
->  static struct spi_driver ds1347_driver = {
-> -- 
-> 2.7.4
-> 
-
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 401f46d8f21b..bce427d202ee 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -238,26 +238,6 @@ static irqreturn_t mxc_rtc_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-/*
+- * Clear all interrupts and release the IRQ
+- */
+-static void mxc_rtc_release(struct device *dev)
+-{
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
+-	void __iomem *ioaddr = pdata->ioaddr;
+-
+-	spin_lock_irq(&pdata->rtc->irq_lock);
+-
+-	/* Disable all rtc interrupts */
+-	writew(0, ioaddr + RTC_RTCIENR);
+-
+-	/* Clear all interrupt status */
+-	writew(0xffffffff, ioaddr + RTC_RTCISR);
+-
+-	spin_unlock_irq(&pdata->rtc->irq_lock);
+-}
+-
+ static int mxc_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	mxc_rtc_irq_enable(dev, RTC_ALM_BIT, enabled);
+@@ -343,7 +323,6 @@ static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ /* RTC layer */
+ static const struct rtc_class_ops mxc_rtc_ops = {
+-	.release		= mxc_rtc_release,
+ 	.read_time		= mxc_rtc_read_time,
+ 	.set_mmss64		= mxc_rtc_set_mmss,
+ 	.read_alarm		= mxc_rtc_read_alarm,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.14.1
