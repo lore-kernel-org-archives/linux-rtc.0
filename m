@@ -1,72 +1,30 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48014 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751128AbdH0Adg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 26 Aug 2017 20:33:36 -0400
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        devicetree@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
-Subject: [PATCH v2 0/3] arm64: Realtek RTD1295 RTC
-Date: Sun, 27 Aug 2017 02:33:25 +0200
-Message-Id: <20170827003328.28370-1-afaerber@suse.de>
+Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:19440 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932433AbdHWTc4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 15:32:56 -0400
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: pxa: fix possible race condition
+References: <20170821155742.22290-1-alexandre.belloni@free-electrons.com>
+Date: Wed, 23 Aug 2017 21:32:54 +0200
+Message-ID: <87inheqduh.fsf@belgarion.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hello,
+Alexandre Belloni <alexandre.belloni@free-electrons.com> writes:
 
-This series adds the RTC for the Realtek RTD1295 SoC.
-Based on my RTD1295 clk series.
+> pxa_rtc_open() registers the interrupt handler which will access the RTC
+> registers. However, pxa_rtc_open() is called before the register range is
+> ioremapped. Instead, call it after devm_ioremap().
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-There being no public source code for RTD1295, the implementation is based on
-register offsets seen in the vendor DT, as well as older mach-rtk119x code
-published by QNAP.
+Cheers.
 
-The base year is still hardcoded in v2. Calculations changed.
-
-The DT node depends on the clk series for clock index and header.
-
-More experimental patches at:
-https://github.com/afaerber/linux/commits/rtd1295-next
-
-Have a lot of fun!
-
-Cheers,
-Andreas
-
-v1 -> v2:
-* Updated rtc driver to no longer use open/release (Alexandre)
-* Cleaned up debug output (Andrew)
-* Avoided COMPILE_TEST division errors (kbuild)
-* Various cleanups and extensions
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Cc: Roc He <hepeng@zidoo.tv>
-Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
-Cc: devicetree@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-
-Andreas Färber (3):
-  dt-bindings: rtc: Add Realtek RTD1295
-  rtc: Add Realtek RTD1295
-  arm64: dts: realtek: Add RTD1295 RTC node
-
- .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
- arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
- drivers/rtc/Kconfig                                |   8 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-rtd119x.c                          | 254 +++++++++++++++++++++
- 5 files changed, 285 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
- create mode 100644 drivers/rtc/rtc-rtd119x.c
-
--- 
-2.12.3
+--
+Robert
