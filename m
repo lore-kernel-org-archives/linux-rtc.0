@@ -1,47 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:45991 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46949 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752337AbdHLSMV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 12 Aug 2017 14:12:21 -0400
-Date: Sat, 12 Aug 2017 20:12:16 +0200
+        with ESMTP id S932568AbdHWUp2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 16:45:28 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-Cc: linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: Re: [RFCv2] rtc: ds1307: add square wave output from ds1308
-Message-ID: <20170812181216.u2p3yd3ogappnzh4@piout.net>
-References: <20170802052727.18289-1-sean.nyekjaer@prevas.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170802052727.18289-1-sean.nyekjaer@prevas.dk>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: vr41xx: make alarms useful
+Date: Wed, 23 Aug 2017 22:44:59 +0200
+Message-Id: <20170823204459.4866-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 02/08/2017 at 07:27:27 +0200, Sean Nyekjaer wrote:
-> +static int ds1308_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
-> +{
-> +	struct mutex *lock = &ds1307->rtc->ops_lock;
-> +	int ret;
-> +
-> +	mutex_lock(lock);
-> +	ret = regmap_update_bits(ds1307->regmap, DS1307_REG_CONTROL,
-> +				 mask, value);
+Currently, the IRQs are disabled when the rtc character device is closed.
+This means that the device needs to stay open to get alarms while the usual
+use case will open the device, set the alarm and close the device.
 
-This access is already properly locked, you don't need
-ds1308_write_control.
+Keep the alarms functional on character device release. Note that the PIE
+are never enabled and would anyway be disabled by the core.
 
-(I know, the function below is not necessary either but it is there for
-historical reasons).
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-vr41xx.c | 18 ------------------
+ 1 file changed, 18 deletions(-)
 
-> +	mutex_unlock(lock);
-> +
-> +	return ret;
-> +}
-> +
->  static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
->  {
->  	struct mutex *lock = &ds1307->rtc->ops_lock;
-
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index e1b86bb01062..7ce22967fd16 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -119,23 +119,6 @@ static inline void write_elapsed_second(unsigned long sec)
+ 	spin_unlock_irq(&rtc_lock);
+ }
+ 
+-static void vr41xx_rtc_release(struct device *dev)
+-{
+-
+-	spin_lock_irq(&rtc_lock);
+-
+-	rtc1_write(ECMPLREG, 0);
+-	rtc1_write(ECMPMREG, 0);
+-	rtc1_write(ECMPHREG, 0);
+-	rtc1_write(RTCL1LREG, 0);
+-	rtc1_write(RTCL1HREG, 0);
+-
+-	spin_unlock_irq(&rtc_lock);
+-
+-	disable_irq(aie_irq);
+-	disable_irq(pie_irq);
+-}
+-
+ static int vr41xx_rtc_read_time(struct device *dev, struct rtc_time *time)
+ {
+ 	unsigned long epoch_sec, elapsed_sec;
+@@ -272,7 +255,6 @@ static irqreturn_t rtclong1_interrupt(int irq, void *dev_id)
+ }
+ 
+ static const struct rtc_class_ops vr41xx_rtc_ops = {
+-	.release		= vr41xx_rtc_release,
+ 	.ioctl			= vr41xx_rtc_ioctl,
+ 	.read_time		= vr41xx_rtc_read_time,
+ 	.set_time		= vr41xx_rtc_set_time,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.14.1
