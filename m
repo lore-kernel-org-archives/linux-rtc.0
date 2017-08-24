@@ -1,70 +1,139 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailout.easymail.ca ([64.68.200.34]:44875 "EHLO
-        mailout.easymail.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752339AbdHPXMl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Aug 2017 19:12:41 -0400
-Reply-To: shuah@kernel.org
-Subject: Re: [PATCH v2 1/1] rtc: rtctest: Improve support detection
-To: =?UTF-8?B?THVrw6HFoSBEb2t0b3I=?= <ldoktor@redhat.com>,
-        a.zummo@towertech.it, linuxppc-dev@lists.ozlabs.org,
-        sboyd@codeaurora.org, linux-kernel@vger.kernel.org,
-        alexandre.belloni@free-electrons.com,
-        linux-kselftest@vger.kernel.org, john.stultz@linaro.org,
-        tglx@linutronix.de, linux-rtc@vger.kernel.org,
-        Shuah Khan <shuahkh@osg.samsung.com>,
-        Shuah Khan <shuah@kernel.org>
-References: <20170815084600.6285-1-ldoktor@redhat.com>
- <20170815084600.6285-2-ldoktor@redhat.com>
-From: Shuah Khan <shuah@kernel.org>
-Message-ID: <45cfdaa8-685a-4a7f-89c8-ed55d90c95c8@kernel.org>
-Date: Wed, 16 Aug 2017 17:06:24 -0600
+Received: from mail.free-electrons.com ([62.4.15.54]:44079 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751061AbdHXOgq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 10:36:46 -0400
+Date: Thu, 24 Aug 2017 16:36:45 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: sun6i: Add support for the external oscillator gate
+Message-ID: <20170824143645.3pwfgnvhhqh3m2d6@piout.net>
+References: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
-In-Reply-To: <20170815084600.6285-2-ldoktor@redhat.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 08/15/2017 02:46 AM, Lukáš Doktor wrote:
-> The rtc-generic and opal-rtc are failing to run this test as they do not
-> support all the features. Let's treat the error returns and skip to the
-> following test.
+Hi,
+
+On 24/08/2017 at 14:18:54 +0200, Maxime Ripard wrote:
+> The RTC can output its 32kHz clock outside of the SoC, for example to clock
+> a WiFi chip.
 > 
-> Theoretically the test_DATE should be also adjusted, but as it's enabled
-> on demand I think it makes sense to fail in such case.
+> Create a new clock that other devices will be able to retrieve, while
+> maintaining the DT stability by providing a default name for that clock if
+> clock-output-names doesn't list one.
 > 
-> Signed-off-by: Lukáš Doktor <ldoktor@redhat.com>
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 > ---
->  tools/testing/selftests/timers/rtctest.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+>  .../devicetree/bindings/rtc/sun6i-rtc.txt          |  4 ++--
+>  drivers/rtc/rtc-sun6i.c                            | 24 +++++++++++++++++++---
+>  2 files changed, 23 insertions(+), 5 deletions(-)
 > 
-> diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
-> index f61170f..411eff6 100644
-> --- a/tools/testing/selftests/timers/rtctest.c
-> +++ b/tools/testing/selftests/timers/rtctest.c
-> @@ -221,6 +221,11 @@ int main(int argc, char **argv)
->  	/* Read the current alarm settings */
->  	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
->  	if (retval == -1) {
-> +		if (errno == EINVAL) {
-> +			fprintf(stderr,
-> +					"\n...EINVAL reading current alarm setting.\n");
-> +			goto test_PIE;
-> +		}
->  		perror("RTC_ALM_READ ioctl");
->  		exit(errno);
+
+It doesn't apply cleanly, can you rebase on top of -next?
+
+> diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> index 945934918b71..d5e26d313f62 100644
+> --- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> +++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> @@ -10,7 +10,7 @@ Required properties:
+>  
+>  Required properties for new device trees
+>  - clocks	: phandle to the 32kHz external oscillator
+> -- clock-output-names : name of the LOSC clock created
+> +- clock-output-names : names of the LOSC and its external output clocks created
+>  - #clock-cells  : must be equals to 1. The RTC provides two clocks: the
+>  		  LOSC and its external output, with index 0 and 1
+>  		  respectively.
+> @@ -21,7 +21,7 @@ rtc: rtc@01f00000 {
+>  	compatible = "allwinner,sun6i-a31-rtc";
+>  	reg = <0x01f00000 0x54>;
+>  	interrupts = <0 40 4>, <0 41 4>;
+> -	clock-output-names = "osc32k";
+> +	clock-output-names = "osc32k", "osc32k-out";
+>  	clocks = <&ext_osc32k>;
+>  	#clock-cells = <1>;
+>  };
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index 39cbc1238b92..d4a6ddbfd872 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -73,6 +73,9 @@
+>  #define SUN6I_ALARM_CONFIG			0x0050
+>  #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
+>  
+> +#define SUN6I_LOSC_OUT_GATING			0x0060
+> +#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
+> +
+>  /*
+>   * Get date values
+>   */
+> @@ -125,6 +128,7 @@ struct sun6i_rtc_dev {
+>  	struct clk_hw hw;
+>  	struct clk_hw *int_osc;
+>  	struct clk *losc;
+> +	struct clk *ext_losc;
+>  
+>  	spinlock_t lock;
+>  };
+> @@ -188,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>  	struct clk_init_data init = {
+>  		.ops		= &sun6i_rtc_osc_ops,
+>  	};
+> +	const char *clkout_name = "osc32k-out";
+>  	const char *parents[2];
+>  
+>  	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
+> @@ -195,7 +200,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>  		return;
+>  	spin_lock_init(&rtc->lock);
+>  
+> -	clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
+> +	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
+>  			   GFP_KERNEL);
+>  	if (!clk_data)
+>  		return;
+> @@ -235,7 +240,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>  
+>  	init.parent_names = parents;
+>  	init.num_parents = of_clk_get_parent_count(node) + 1;
+> -	of_property_read_string(node, "clock-output-names", &init.name);
+> +	of_property_read_string_index(node, "clock-output-names", 0,
+> +				      &init.name);
+>  
+>  	rtc->losc = clk_register(NULL, &rtc->hw);
+>  	if (IS_ERR(rtc->losc)) {
+> @@ -243,8 +249,20 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>  		return;
 >  	}
-> @@ -231,7 +236,7 @@ int main(int argc, char **argv)
->  	/* Enable alarm interrupts */
->  	retval = ioctl(fd, RTC_AIE_ON, 0);
->  	if (retval == -1) {
-> -		if (errno == EINVAL) {
-> +		if (errno == EINVAL || errno == EIO) {
->  			fprintf(stderr,
->  				"\n...Alarm IRQs not supported.\n");
->  			goto test_PIE;
+>  
+> -	clk_data->num = 1;
+> +	of_property_read_string_index(node, "clock-output-names", 1,
+> +				      &clkout_name);
+> +	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
+> +					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
+> +					  SUN6I_LOSC_OUT_GATING_EN, 0,
+> +					  &rtc->lock);
+> +	if (IS_ERR(rtc->ext_losc)) {
+> +		pr_crit("Couldn't register the LOSC external gate\n");
+> +		return;
+> +	}
+> +
+> +	clk_data->num = 2;
+>  	clk_data->hws[0] = &rtc->hw;
+> +	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
+>  	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+>  }
+>  CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+> -- 
+> 2.13.5
 > 
 
-Applied to linux-kselftest next for 4.14-rc1
-
-thanks,
--- Shuah
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
