@@ -1,56 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:57202 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:52736 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751302AbdH3HxE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 30 Aug 2017 03:53:04 -0400
-Date: Wed, 30 Aug 2017 09:52:52 +0200
+        with ESMTP id S1753246AbdHXVEU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 17:04:20 -0400
+Date: Thu, 24 Aug 2017 23:04:19 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sean =?iso-8859-1?Q?Nyekj=E6r?= <sean.nyekjaer@prevas.dk>
+To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: linux-rtc@vger.kernel.org
-Subject: Re: [rtc-linux] [PATCH 1/2] rtc: pcf2127: add support for pcf2127
- watchdog functionality
-Message-ID: <20170830075252.bska2yik2tnxq25y@piout.net>
-References: <20170120123644.118612-1-sean.nyekjaer@prevas.dk>
- <20170829150739.apyt4lxguypebkbm@piout.net>
- <4294cb1e-a01f-66db-8b64-eb4d5e68569e@prevas.dk>
+Subject: Re: [PATCH 0/9] rtc: ds1307: series with refactorings / improvements
+Message-ID: <20170824210419.aqwpcqtftmean7nj@piout.net>
+References: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <4294cb1e-a01f-66db-8b64-eb4d5e68569e@prevas.dk>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <aded2895-cf4b-12f0-5525-c4389ccf3650@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 30/08/2017 at 09:45:06 +0200, Sean Nyekjær wrote:
+Hi,
+
+On 12/07/2017 at 07:23:31 +0200, Heiner Kallweit wrote:
+> This series includes smaller refactorings and improvements.
 > 
+> Heiner Kallweit (9):
+>   rtc: ds1307: remove member irq from struct ds1307
+>   rtc: ds1307: factor out bbsqi bit to struct chip_desc
+>   rtc: ds1307: improve trickle charger initialization
+>   rtc: ds1307: constify struct chip_desc variables
+>   rtc: ds1307: improve irq setup
+>   rtc: ds1307: factor out irq_handler to struct chip_desc
+>   rtc: ds1307: factor out rtc_ops to struct chip_desc
+>   rtc: ds1307: factor out offset to struct chip_desc
+>   rtc: ds1307: remove member nvram_offset from struct ds1307
 > 
-> On 2017-08-29 17:07, Alexandre Belloni wrote:
-> > Hi Sean,
-> > 
-> > I know this patch is 7 months old but I never had the time to write a
-> > proper reply.
-> > 
-> > This is using a pretty old API. Can you register a proper watchdog using
-> > the watchdog subsystem (see drivers/watchdog)? Also, please copy the
-> > watchdog maintainers.
-> > 
-> > I understand this will require a significant rewrite effort but the
-> > final code will be quite cleaner.
-> Hi Alexandre
-> 
-> I unfortunately don't have access to the hardware anymore...
-> I think it would be very risky to rewrite the whole code without testing it
-> :-)
+>  drivers/rtc/rtc-ds1307.c | 165 ++++++++++++++++++++++-------------------------
+>  1 file changed, 76 insertions(+), 89 deletions(-)
 > 
 
-Ok, too bad. :(
-
-> Yes this driver is quite hacky in some ways. It could be nice if the
-> watchdog part for this could be in the driver/watchdog and the rtc part
-> here. Maybe we could have 2 entries in the devicetree that shared the same
-> i2c device address.
-> 
-
-If you want to go that route, the proper way is to use the MFD
-subsystem.
+I finally reviewed and applied the series. I had to fix a few whitespace
+issues though.
 
 -- 
 Alexandre Belloni, Free Electrons
