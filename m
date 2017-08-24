@@ -1,118 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f179.google.com ([209.85.128.179]:35964 "EHLO
-        mail-wr0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752129AbdHHLQA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2017 07:16:00 -0400
-Received: by mail-wr0-f179.google.com with SMTP id y43so11573487wrd.3
-        for <linux-rtc@vger.kernel.org>; Tue, 08 Aug 2017 04:15:59 -0700 (PDT)
-Date: Tue, 8 Aug 2017 12:15:56 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 5/5] mfd: mt6397: Add PMIC keys support to MT6397
- driver
-Message-ID: <20170808111556.dmx2s6bcwnsccrkn@dell>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
- <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
+Received: from mail-wr0-f173.google.com ([209.85.128.173]:33337 "EHLO
+        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752801AbdHXSqZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 14:46:25 -0400
+Received: by mail-wr0-f173.google.com with SMTP id f8so1026315wrf.0
+        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 11:46:25 -0700 (PDT)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        enric.balletbo@collabora.com
+Cc: linux-rtc@vger.kernel.org
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
+Message-ID: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
+Date: Thu, 24 Aug 2017 20:46:14 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 07 Aug 2017, Chen Zhong wrote:
+Hi Enric,
 
-> This patch adds compatible strings and interrupts for pmic keys
-> which serves as child device of MFD.
-> 
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> ---
->  drivers/mfd/mt6397-core.c |   36 +++++++++++++++++++++++++++++++++++-
->  1 file changed, 35 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 6546d7f..3c6a765 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-> @@ -43,6 +43,30 @@
->  	},
->  };
->  
-> +static const struct resource mt6323_keys_resources[] = {
-> +	{
-> +		.start = MT6323_IRQ_STATUS_PWRKEY,
-> +		.end   = MT6323_IRQ_STATUS_PWRKEY,
-> +		.flags = IORESOURCE_IRQ,
-> +	}, {
-> +		.start = MT6323_IRQ_STATUS_FCHRKEY,
-> +		.end   = MT6323_IRQ_STATUS_FCHRKEY,
-> +		.flags = IORESOURCE_IRQ,
-> +	},
-> +};
-> +
-> +static const struct resource mt6397_keys_resources[] = {
-> +	{
-> +		.start = MT6397_IRQ_PWRKEY,
-> +		.end   = MT6397_IRQ_PWRKEY,
-> +		.flags = IORESOURCE_IRQ,
-> +	}, {
-> +		.start = MT6397_IRQ_HOMEKEY,
-> +		.end   = MT6397_IRQ_HOMEKEY,
-> +		.flags = IORESOURCE_IRQ,
-> +	},
-> +};
+I just saw your submitted patch on patchwork. As I haven't been subscribed
+to linux-rtc list yet, I can't reply to the original mail.
 
-We have better ways to define these now.
+Few remarks:
+I think the same can be achieved easier (apart from the fact that member
+irq was just removed from struct ds1307).
+The curent call to device_set_wakeup_capable has to be replaced with
+device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
+register the interrupt with the Linux wakeup core. Then the core takes
+care of everything.
 
-Please grep for "DEFINE_RES_"
+See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
+are not needed there because the core takes care of this already
+(enable_irq_wake is called from dev_pm_arm_wake_irq).
 
->  static const struct mfd_cell mt6323_devs[] = {
->  	{
->  		.name = "mt6323-regulator",
-> @@ -50,6 +74,11 @@
->  	}, {
->  		.name = "mt6323-led",
->  		.of_compatible = "mediatek,mt6323-led"
-> +	}, {
-> +		.name = "mtk-pmic-keys",
-> +		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-> +		.resources = mt6323_keys_resources,
-> +		.of_compatible = "mediatek,mt6323-keys"
->  	},
->  };
->  
-> @@ -71,7 +100,12 @@
->  	}, {
->  		.name = "mt6397-pinctrl",
->  		.of_compatible = "mediatek,mt6397-pinctrl",
-> -	},
-> +	}, {
-> +		.name = "mtk-pmic-keys",
-> +		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-> +		.resources = mt6397_keys_resources,
-> +		.of_compatible = "mediatek,mt6397-keys"
-> +	}
->  };
->  
->  static void mt6397_irq_lock(struct irq_data *data)
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Rgds, Heiner
