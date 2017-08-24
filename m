@@ -1,124 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47525 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752619AbdHVXyM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 19:54:12 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: sa1100: make alarms useful
-Date: Wed, 23 Aug 2017 01:53:54 +0200
-Message-Id: <20170822235354.15533-1-alexandre.belloni@free-electrons.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:34335 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752751AbdHXTQZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 15:16:25 -0400
+Received: by mail-wm0-f65.google.com with SMTP id i76so401381wme.1
+        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 12:16:25 -0700 (PDT)
+Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
+From: Heiner Kallweit <hkallweit1@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        enric.balletbo@collabora.com
+Cc: linux-rtc@vger.kernel.org
+References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
+Message-ID: <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
+Date: Thu, 24 Aug 2017 21:16:14 +0200
+MIME-Version: 1.0
+In-Reply-To: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Currently, the driver unregisters the IRQs when the rtc character device is
-closed. This means that the device needs to stay open to get alarms while
-the usual use case will open the device, set the alarm and close the
-device.
+Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
+> Hi Enric,
+> 
+> I just saw your submitted patch on patchwork. As I haven't been subscribed
+> to linux-rtc list yet, I can't reply to the original mail.
+> 
+> Few remarks:
+> I think the same can be achieved easier (apart from the fact that member
+> irq was just removed from struct ds1307).
+> The curent call to device_set_wakeup_capable has to be replaced with
+> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
+> register the interrupt with the Linux wakeup core. Then the core takes
+> care of everything.
+> 
+After further checking not even this may be necessary.
+If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
+enables the device as wakeup device and registers the interrupt with the
+wakeup core.
+If the i2c client is defined via DT, then of_i2c_register_device() sets
+this flag based on the "wakeup-source" property.
+Is your device configured via DT? If yes, did you check whether wakeup
+works w/o your patch with just setting property wakeup-source ?
 
-Move the IRQ requests to sa1100_rtc_probe() and use the devm managed
-versions so we don't need to free them.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-sa1100.c | 61 ++++++++++++++++--------------------------------
- 1 file changed, 20 insertions(+), 41 deletions(-)
-
-diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
-index fe8ebf47bbe5..8e6cf4323267 100644
---- a/drivers/rtc/rtc-sa1100.c
-+++ b/drivers/rtc/rtc-sa1100.c
-@@ -95,44 +95,6 @@ static irqreturn_t sa1100_rtc_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int sa1100_rtc_open(struct device *dev)
--{
--	struct sa1100_rtc *info = dev_get_drvdata(dev);
--	struct rtc_device *rtc = info->rtc;
--	int ret;
--
--	ret = request_irq(info->irq_1hz, sa1100_rtc_interrupt, 0, "rtc 1Hz", dev);
--	if (ret) {
--		dev_err(dev, "IRQ %d already in use.\n", info->irq_1hz);
--		return ret;
--	}
--	ret = request_irq(info->irq_alarm, sa1100_rtc_interrupt, 0, "rtc Alrm", dev);
--	if (ret) {
--		dev_err(dev, "IRQ %d already in use.\n", info->irq_alarm);
--		goto fail_ai;
--	}
--	rtc->max_user_freq = RTC_FREQ;
--	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
--
--	return 0;
--
-- fail_ai:
--	free_irq(info->irq_1hz, dev);
--	return ret;
--}
--
--static void sa1100_rtc_release(struct device *dev)
--{
--	struct sa1100_rtc *info = dev_get_drvdata(dev);
--
--	spin_lock_irq(&info->lock);
--	writel_relaxed(0, info->rtsr);
--	spin_unlock_irq(&info->lock);
--
--	free_irq(info->irq_alarm, dev);
--	free_irq(info->irq_1hz, dev);
--}
--
- static int sa1100_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	u32 rtsr;
-@@ -214,8 +176,6 @@ static int sa1100_rtc_proc(struct device *dev, struct seq_file *seq)
- }
- 
- static const struct rtc_class_ops sa1100_rtc_ops = {
--	.open = sa1100_rtc_open,
--	.release = sa1100_rtc_release,
- 	.read_time = sa1100_rtc_read_time,
- 	.set_time = sa1100_rtc_set_time,
- 	.read_alarm = sa1100_rtc_read_alarm,
-@@ -309,6 +269,21 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
- 	info->irq_1hz = irq_1hz;
- 	info->irq_alarm = irq_alarm;
- 
-+	ret = devm_request_irq(&pdev->dev, irq_1hz, sa1100_rtc_interrupt, 0,
-+			       "rtc 1Hz", dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq_1hz);
-+		return ret;
-+	}
-+	ret = devm_request_irq(&pdev->dev, irq_alarm, sa1100_rtc_interrupt, 0,
-+			       "rtc Alrm", dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, dev, "IRQ %d already in use.\n", irq_alarm);
-+		return ret;
-+	}
-+
-+	rtc->max_user_freq = RTC_FREQ;
-+	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
- 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(&pdev->dev, iores);
- 	if (IS_ERR(base))
-@@ -337,8 +312,12 @@ static int sa1100_rtc_remove(struct platform_device *pdev)
- {
- 	struct sa1100_rtc *info = platform_get_drvdata(pdev);
- 
--	if (info)
-+	if (info) {
-+		spin_lock_irq(&info->lock);
-+		writel_relaxed(0, info->rtsr);
-+		spin_unlock_irq(&info->lock);
- 		clk_disable_unprepare(info->clk);
-+	}
- 
- 	return 0;
- }
--- 
-2.14.1
+> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
+> are not needed there because the core takes care of this already
+> (enable_irq_wake is called from dev_pm_arm_wake_irq).
+> 
+> Rgds, Heiner
+> 
