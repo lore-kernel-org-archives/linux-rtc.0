@@ -1,51 +1,90 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway23.websitewelcome.com ([192.185.50.104]:18036 "EHLO
-        gateway23.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751904AbdHIQRG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Aug 2017 12:17:06 -0400
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
-        by gateway23.websitewelcome.com (Postfix) with ESMTP id 8B1721F300
-        for <linux-rtc@vger.kernel.org>; Wed,  9 Aug 2017 10:52:45 -0500 (CDT)
-Date: Wed, 9 Aug 2017 10:52:44 -0500
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.free-electrons.com ([62.4.15.54]:33046 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751213AbdHXIxC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 04:53:02 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] rtc: at91rm9200: fix error return code in at91_rtc_probe()
-Message-ID: <20170809155244.GA25987@embeddedgus>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2] rtc: remove .open() and .release()
+Date: Thu, 24 Aug 2017 10:52:59 +0200
+Message-Id: <20170824085259.12886-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-platform_get_irq() returns an error code, but the at91rm9200 driver
-ignores it and always returns -ENXIO. This is not correct and,
-prevents -EPROBE_DEFER from being propagated properly.
+There are no driver left using .open and .release. There is no good use
+case for them as there is nothing the character device interface does that
+should not be done in the sysfs interface or in-kernel interface.
 
-Print and propagate the return value of platform_get_irq on failure.
+Remove those callbacks now to avoid future confusion.
 
-This issue was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-at91rm9200.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in v2:
+ - remove warning
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index e221b78..09bc2e0 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -398,8 +398,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
+
+ drivers/rtc/rtc-dev.c | 19 ++++---------------
+ include/linux/rtc.h   |  2 --
+ 2 files changed, 4 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index 794bc4fa4937..2f5f6d6aa79a 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -27,25 +27,17 @@ static int rtc_dev_open(struct inode *inode, struct file *file)
+ 	int err;
+ 	struct rtc_device *rtc = container_of(inode->i_cdev,
+ 					struct rtc_device, char_dev);
+-	const struct rtc_class_ops *ops = rtc->ops;
  
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		dev_err(&pdev->dev, "no irq resource defined\n");
--		return -ENXIO;
-+		dev_err(&pdev->dev, "no irq resource defined: %d\n", irq);
-+		return irq;
- 	}
+ 	if (test_and_set_bit_lock(RTC_DEV_BUSY, &rtc->flags))
+ 		return -EBUSY;
  
- 	at91_rtc_regs = devm_ioremap(&pdev->dev, regs->start,
+ 	file->private_data = rtc;
+ 
+-	err = ops->open ? ops->open(rtc->dev.parent) : 0;
+-	if (err == 0) {
+-		spin_lock_irq(&rtc->irq_lock);
+-		rtc->irq_data = 0;
+-		spin_unlock_irq(&rtc->irq_lock);
+-
+-		return 0;
+-	}
++	spin_lock_irq(&rtc->irq_lock);
++	rtc->irq_data = 0;
++	spin_unlock_irq(&rtc->irq_lock);
+ 
+-	/* something has gone wrong */
+-	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+-	return err;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+@@ -438,9 +430,6 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
+ 	rtc_update_irq_enable(rtc, 0);
+ 	rtc_irq_set_state(rtc, NULL, 0);
+ 
+-	if (rtc->ops->release)
+-		rtc->ops->release(rtc->dev.parent);
+-
+ 	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+ 	return 0;
+ }
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 0a0f0d14a5fb..e6d0f9c1cafd 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -72,8 +72,6 @@ extern struct class *rtc_class;
+  * issued through ioctl() ...
+  */
+ struct rtc_class_ops {
+-	int (*open)(struct device *);
+-	void (*release)(struct device *);
+ 	int (*ioctl)(struct device *, unsigned int, unsigned long);
+ 	int (*read_time)(struct device *, struct rtc_time *);
+ 	int (*set_time)(struct device *, struct rtc_time *);
 -- 
-2.5.0
+2.14.1
