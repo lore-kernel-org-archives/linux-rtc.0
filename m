@@ -1,117 +1,88 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:51087 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753193AbdHNNNu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Aug 2017 09:13:50 -0400
-Date: Mon, 14 Aug 2017 15:13:48 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aleksandar Markovic <Aleksandar.Markovic@imgtec.com>
-Cc: "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
-        Goran Ferenc <Goran.Ferenc@imgtec.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Bo Hu <bohu@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Douglas Leung <Douglas.Leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <James.Hogan@imgtec.com>,
-        Jin Qian <jinqian@google.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Paul Burton <Paul.Burton@imgtec.com>,
-        Petar Jovanovic <Petar.Jovanovic@imgtec.com>,
-        Raghu Gandham <Raghu.Gandham@imgtec.com>,
-        Miodrag Dinic <Miodrag.Dinic@imgtec.com>,
-        Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-Subject: Re: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
-Message-ID: <20170814131348.ztdea5kzgiflzlgk@piout.net>
-References: <1500656111-9520-1-git-send-email-aleksandar.markovic@rt-rk.com>
- <1500656111-9520-3-git-send-email-aleksandar.markovic@rt-rk.com>
- <20170810203430.zgtxvi7uaqmg4dzr@piout.net>
- <232DDC0A2B605E4F9E85F6904417885F015D937238@BADAG02.ba.imgtec.org>
- <EF5FA6C3467F85449672C3E735957B85015D9CC3E1@BADAG02.ba.imgtec.org>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:36242 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753111AbdHXUxT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 16:53:19 -0400
+Received: by mail-wr0-f196.google.com with SMTP id p8so363595wrf.3
+        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 13:53:19 -0700 (PDT)
+Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
+From: Heiner Kallweit <hkallweit1@gmail.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
+ <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
+ <b5bed7f5-1963-74fb-dba6-dc465f357645@collabora.com>
+ <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
+Message-ID: <f5cf7417-ac7a-4d52-56e3-c89c10f74df0@gmail.com>
+Date: Thu, 24 Aug 2017 22:53:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <EF5FA6C3467F85449672C3E735957B85015D9CC3E1@BADAG02.ba.imgtec.org>
+In-Reply-To: <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 14/08/2017 at 12:45:55 +0000, Aleksandar Markovic wrote:
-> Hello, Alexandre,
+Am 24.08.2017 um 22:44 schrieb Heiner Kallweit:
+> Am 24.08.2017 um 22:13 schrieb Enric Balletbo i Serra:
+>> Hi Heiner
+>>
+>> On 24/08/17 21:16, Heiner Kallweit wrote:
+>>> Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
+>>>> Hi Enric,
+>>>>
+>>>> I just saw your submitted patch on patchwork. As I haven't been subscribed
+>>>> to linux-rtc list yet, I can't reply to the original mail.
+>>>>
+>>>> Few remarks:
+>>>> I think the same can be achieved easier (apart from the fact that member
+>>>> irq was just removed from struct ds1307).
+>>>> The curent call to device_set_wakeup_capable has to be replaced with
+>>>> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
+>>>> register the interrupt with the Linux wakeup core. Then the core takes
+>>>> care of everything.
+>>>>
+>>
+>> Oh I just saw your patches, thanks to advice me about them.
+>>
+>>> After further checking not even this may be necessary.
+>>> If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
+>>> enables the device as wakeup device and registers the interrupt with the
+>>> wakeup core.
+>>> If the i2c client is defined via DT, then of_i2c_register_device() sets
+>>> this flag based on the "wakeup-source" property.
+>>> Is your device configured via DT? If yes, did you check whether wakeup
+>>> works w/o your patch with just setting property wakeup-source ?
+>>>
+>>
+>> Yes, device is configured via DT and without my patch, just setting property
+>> wakeup-source didn't work, the reason is that code:
+>>
+>> http://elixir.free-electrons.com/linux/v4.13-rc6/source/drivers/rtc/rtc-ds1307.c#L1382
+>>
+> This shouldn't be the reason because registering the interrupt with the wakeup core
+> happens earlier in i2c_device_probe().
+> Can you check whether dev_pm_set_wake_irq() is actually called with the right
+> irq number in i2c_device_probe()?
 > 
-> In addition, if you, and everybody else, don't object, I plan to change the title of this patch form:
-> 
-> "MIPS: ranchu: Add Goldfish RTC driver"
-> 
-> to
-> 
-> "rtc: Add Goldfish RTC driver",
-> 
-> to be more consistent with all commit messages for this kernel source directory.
-> 
+See also description of commit 4990d4fe327b9d9a7a
+"PM / Wakeirq: Add automated device wake IRQ handling" from 2015.
+It explains why the code you want to add shouldn't be needed any longer.
 
-Yes please, I would have changed it anyway.
-
-> Regards,
-> Aleksandar
+> Would be interesting to see the DT config of your rtc.
 > 
-> ________________________________________
-> From: Miodrag Dinic
-> Sent: Friday, August 11, 2017 9:46 AM
-> To: Alexandre Belloni; Aleksandar Markovic
-> Cc: linux-mips@linux-mips.org; Goran Ferenc; Aleksandar Markovic; Alessandro Zummo; Bo Hu; David S. Miller; Douglas Leung; Greg Kroah-Hartman; James Hogan; Jin Qian; linux-kernel@vger.kernel.org; linux-rtc@vger.kernel.org; Mauro Carvalho Chehab; Paul Burton; Petar Jovanovic; Raghu Gandham
-> Subject: RE: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
+>> I didn't test on top of your patches so let me rebase/rethink my patch on top of
+>> yours.
+>>
+>>>
+>>>> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
+>>>> are not needed there because the core takes care of this already
+>>>> (enable_irq_wake is called from dev_pm_arm_wake_irq).
+>>>>
+>>>> Rgds, Heiner
+>>>>
+>>>
+>>
+>> Thanks,
+>>  Enric
+>>
 > 
-> Hi Alexandre,
-> 
-> we have this sorted & plan to submit version 4 of this series next week.
-> 
-> Thank you.
-> 
-> Kind regards,
-> Miodrag
-> ________________________________________
-> From: Alexandre Belloni [alexandre.belloni@free-electrons.com]
-> Sent: Thursday, August 10, 2017 10:34 PM
-> To: Aleksandar Markovic
-> Cc: linux-mips@linux-mips.org; Miodrag Dinic; Goran Ferenc; Aleksandar Markovic; Alessandro Zummo; Bo Hu; David S. Miller; Douglas Leung; Greg Kroah-Hartman; James Hogan; Jin Qian; linux-kernel@vger.kernel.org; linux-rtc@vger.kernel.org; Mauro Carvalho Chehab; Paul Burton; Petar Jovanovic; Raghu Gandham
-> Subject: Re: [PATCH v3 2/8] MIPS: ranchu: Add Goldfish RTC driver
-> 
-> Hi,
-> 
-> On 21/07/2017 at 18:53:31 +0200, Aleksandar Markovic wrote:
-> > From: Miodrag Dinic <miodrag.dinic@imgtec.com>
-> >
-> > Add device driver for a virtual Goldfish RTC clock.
-> >
-> > The driver can be built only if CONFIG_MIPS and CONFIG_GOLDFISH are
-> > set. The compatible string used by OS for binding the driver is
-> > defined as "google,goldfish-rtc".
-> >
-> > Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-> > Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-> > Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
-> > ---
-> >  MAINTAINERS                |   1 +
-> >  drivers/rtc/Kconfig        |   8 ++
-> >  drivers/rtc/Makefile       |   1 +
-> >  drivers/rtc/rtc-goldfish.c | 233 +++++++++++++++++++++++++++++++++++++++++++++
-> >  4 files changed, 243 insertions(+)
-> >  create mode 100644 drivers/rtc/rtc-goldfish.c
-> >
-> 
-> Do you mind fixing the remaining checkpatch --strict issues, the two
-> kbuild errors and the warning reported by Julia?
-> 
-> Thanks!
-> 
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
