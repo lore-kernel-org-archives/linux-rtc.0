@@ -1,59 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38502 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751295AbdH1LKy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 28 Aug 2017 07:10:54 -0400
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org
-Subject: [PATCH v3 3/3] arm64: dts: realtek: Add RTD1295 RTC node
-Date: Mon, 28 Aug 2017 13:10:41 +0200
-Message-Id: <20170828111041.17946-4-afaerber@suse.de>
-In-Reply-To: <20170828111041.17946-1-afaerber@suse.de>
-References: <20170828111041.17946-1-afaerber@suse.de>
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:32959 "EHLO
+        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753215AbdHXOQN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 10:16:13 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170823220024.22861-1-alexandre.belloni@free-electrons.com>
+References: <20170823220024.22861-1-alexandre.belloni@free-electrons.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Thu, 24 Aug 2017 11:16:11 -0300
+Message-ID: <CAOMZO5B2MxGt8DnXU8v1DG9LdbvxyN0FFDJm=dTO=18i=1r4mA@mail.gmail.com>
+Subject: Re: [PATCH] rtc: mxc: avoid disabling interrupts on device close
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add RTC node to the Realtek RTD1295 Device Tree.
+On Wed, Aug 23, 2017 at 7:00 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> Currently, the IRQs are disabled when the rtc character device is closed.
+> This means that the device needs to stay open to get alarms while the usual
+> use case will open the device, set the alarm and close the device as is
+> done in rtcwake.
+>
+> Keep the alarm functional on character device release so the platform can
+> actually wakeup
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Signed-off-by: Andreas Färber <afaerber@suse.de>
----
- v2 -> v3:
- * Rebased to no longer depend on reset controller series
- 
- v1 -> v2: Unchanged
- 
- Depends on the pending clock bindings.
- 
- arch/arm64/boot/dts/realtek/rtd1295.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+Makes sense, thanks:
 
-diff --git a/arch/arm64/boot/dts/realtek/rtd1295.dtsi b/arch/arm64/boot/dts/realtek/rtd1295.dtsi
-index ab72255f843f..fbbd6456079e 100644
---- a/arch/arm64/boot/dts/realtek/rtd1295.dtsi
-+++ b/arch/arm64/boot/dts/realtek/rtd1295.dtsi
-@@ -164,6 +164,12 @@
- 			status = "disabled";
- 		};
- 
-+		rtc@9801b600 {
-+			compatible = "realtek,rtd1295-rtc";
-+			reg = <0x9801b600 0x100>;
-+			clocks = <&clkc RTD1295_CLK_EN_MISC_RTC>;
-+		};
-+
- 		gic: interrupt-controller@ff011000 {
- 			compatible = "arm,gic-400";
- 			reg = <0xff011000 0x1000>,
--- 
-2.12.3
+Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
