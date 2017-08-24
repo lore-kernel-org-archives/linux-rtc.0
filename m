@@ -1,88 +1,125 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36242 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753111AbdHXUxT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 16:53:19 -0400
-Received: by mail-wr0-f196.google.com with SMTP id p8so363595wrf.3
-        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 13:53:19 -0700 (PDT)
-Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
-From: Heiner Kallweit <hkallweit1@gmail.com>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
- <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
- <b5bed7f5-1963-74fb-dba6-dc465f357645@collabora.com>
- <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
-Message-ID: <f5cf7417-ac7a-4d52-56e3-c89c10f74df0@gmail.com>
-Date: Thu, 24 Aug 2017 22:53:09 +0200
-MIME-Version: 1.0
-In-Reply-To: <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail.free-electrons.com ([62.4.15.54]:39141 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752358AbdHXMTB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 08:19:01 -0400
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: sun6i: Add support for the external oscillator gate
+Date: Thu, 24 Aug 2017 14:18:54 +0200
+Message-Id: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Am 24.08.2017 um 22:44 schrieb Heiner Kallweit:
-> Am 24.08.2017 um 22:13 schrieb Enric Balletbo i Serra:
->> Hi Heiner
->>
->> On 24/08/17 21:16, Heiner Kallweit wrote:
->>> Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
->>>> Hi Enric,
->>>>
->>>> I just saw your submitted patch on patchwork. As I haven't been subscribed
->>>> to linux-rtc list yet, I can't reply to the original mail.
->>>>
->>>> Few remarks:
->>>> I think the same can be achieved easier (apart from the fact that member
->>>> irq was just removed from struct ds1307).
->>>> The curent call to device_set_wakeup_capable has to be replaced with
->>>> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
->>>> register the interrupt with the Linux wakeup core. Then the core takes
->>>> care of everything.
->>>>
->>
->> Oh I just saw your patches, thanks to advice me about them.
->>
->>> After further checking not even this may be necessary.
->>> If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
->>> enables the device as wakeup device and registers the interrupt with the
->>> wakeup core.
->>> If the i2c client is defined via DT, then of_i2c_register_device() sets
->>> this flag based on the "wakeup-source" property.
->>> Is your device configured via DT? If yes, did you check whether wakeup
->>> works w/o your patch with just setting property wakeup-source ?
->>>
->>
->> Yes, device is configured via DT and without my patch, just setting property
->> wakeup-source didn't work, the reason is that code:
->>
->> http://elixir.free-electrons.com/linux/v4.13-rc6/source/drivers/rtc/rtc-ds1307.c#L1382
->>
-> This shouldn't be the reason because registering the interrupt with the wakeup core
-> happens earlier in i2c_device_probe().
-> Can you check whether dev_pm_set_wake_irq() is actually called with the right
-> irq number in i2c_device_probe()?
-> 
-See also description of commit 4990d4fe327b9d9a7a
-"PM / Wakeirq: Add automated device wake IRQ handling" from 2015.
-It explains why the code you want to add shouldn't be needed any longer.
+The RTC can output its 32kHz clock outside of the SoC, for example to clock
+a WiFi chip.
 
-> Would be interesting to see the DT config of your rtc.
-> 
->> I didn't test on top of your patches so let me rebase/rethink my patch on top of
->> yours.
->>
->>>
->>>> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
->>>> are not needed there because the core takes care of this already
->>>> (enable_irq_wake is called from dev_pm_arm_wake_irq).
->>>>
->>>> Rgds, Heiner
->>>>
->>>
->>
->> Thanks,
->>  Enric
->>
-> 
+Create a new clock that other devices will be able to retrieve, while
+maintaining the DT stability by providing a default name for that clock if
+clock-output-names doesn't list one.
+
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/sun6i-rtc.txt          |  4 ++--
+ drivers/rtc/rtc-sun6i.c                            | 24 +++++++++++++++++++---
+ 2 files changed, 23 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+index 945934918b71..d5e26d313f62 100644
+--- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+@@ -10,7 +10,7 @@ Required properties:
+ 
+ Required properties for new device trees
+ - clocks	: phandle to the 32kHz external oscillator
+-- clock-output-names : name of the LOSC clock created
++- clock-output-names : names of the LOSC and its external output clocks created
+ - #clock-cells  : must be equals to 1. The RTC provides two clocks: the
+ 		  LOSC and its external output, with index 0 and 1
+ 		  respectively.
+@@ -21,7 +21,7 @@ rtc: rtc@01f00000 {
+ 	compatible = "allwinner,sun6i-a31-rtc";
+ 	reg = <0x01f00000 0x54>;
+ 	interrupts = <0 40 4>, <0 41 4>;
+-	clock-output-names = "osc32k";
++	clock-output-names = "osc32k", "osc32k-out";
+ 	clocks = <&ext_osc32k>;
+ 	#clock-cells = <1>;
+ };
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 39cbc1238b92..d4a6ddbfd872 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -73,6 +73,9 @@
+ #define SUN6I_ALARM_CONFIG			0x0050
+ #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
+ 
++#define SUN6I_LOSC_OUT_GATING			0x0060
++#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
++
+ /*
+  * Get date values
+  */
+@@ -125,6 +128,7 @@ struct sun6i_rtc_dev {
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+ 	struct clk *losc;
++	struct clk *ext_losc;
+ 
+ 	spinlock_t lock;
+ };
+@@ -188,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	struct clk_init_data init = {
+ 		.ops		= &sun6i_rtc_osc_ops,
+ 	};
++	const char *clkout_name = "osc32k-out";
+ 	const char *parents[2];
+ 
+ 	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
+@@ -195,7 +200,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 		return;
+ 	spin_lock_init(&rtc->lock);
+ 
+-	clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
++	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
+ 			   GFP_KERNEL);
+ 	if (!clk_data)
+ 		return;
+@@ -235,7 +240,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 
+ 	init.parent_names = parents;
+ 	init.num_parents = of_clk_get_parent_count(node) + 1;
+-	of_property_read_string(node, "clock-output-names", &init.name);
++	of_property_read_string_index(node, "clock-output-names", 0,
++				      &init.name);
+ 
+ 	rtc->losc = clk_register(NULL, &rtc->hw);
+ 	if (IS_ERR(rtc->losc)) {
+@@ -243,8 +249,20 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 		return;
+ 	}
+ 
+-	clk_data->num = 1;
++	of_property_read_string_index(node, "clock-output-names", 1,
++				      &clkout_name);
++	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
++					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
++					  SUN6I_LOSC_OUT_GATING_EN, 0,
++					  &rtc->lock);
++	if (IS_ERR(rtc->ext_losc)) {
++		pr_crit("Couldn't register the LOSC external gate\n");
++		return;
++	}
++
++	clk_data->num = 2;
+ 	clk_data->hws[0] = &rtc->hw;
++	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
+ 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+ }
+ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+-- 
+2.13.5
