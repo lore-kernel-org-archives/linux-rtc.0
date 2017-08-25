@@ -1,81 +1,106 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f180.google.com ([209.85.128.180]:34565 "EHLO
-        mail-wr0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753456AbdHXUpK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 16:45:10 -0400
-Received: by mail-wr0-f180.google.com with SMTP id z91so1854671wrc.1
-        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 13:45:10 -0700 (PDT)
-Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
- <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
- <b5bed7f5-1963-74fb-dba6-dc465f357645@collabora.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33681 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932771AbdHYUGg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 16:06:36 -0400
+Received: by mail-wm0-f65.google.com with SMTP id e67so844263wmd.0
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Aug 2017 13:06:36 -0700 (PDT)
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Message-ID: <04725acb-b57f-a303-1be6-2b5d74396f96@gmail.com>
-Date: Thu, 24 Aug 2017 22:44:59 +0200
+Subject: [PATCH 3/5] rtc: ds1307: factor out fixing the weekday
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
+Message-ID: <b2ffce23-6c19-e073-d8c4-691ca62e80f1@gmail.com>
+Date: Fri, 25 Aug 2017 22:06:15 +0200
 MIME-Version: 1.0
-In-Reply-To: <b5bed7f5-1963-74fb-dba6-dc465f357645@collabora.com>
+In-Reply-To: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Am 24.08.2017 um 22:13 schrieb Enric Balletbo i Serra:
-> Hi Heiner
-> 
-> On 24/08/17 21:16, Heiner Kallweit wrote:
->> Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
->>> Hi Enric,
->>>
->>> I just saw your submitted patch on patchwork. As I haven't been subscribed
->>> to linux-rtc list yet, I can't reply to the original mail.
->>>
->>> Few remarks:
->>> I think the same can be achieved easier (apart from the fact that member
->>> irq was just removed from struct ds1307).
->>> The curent call to device_set_wakeup_capable has to be replaced with
->>> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
->>> register the interrupt with the Linux wakeup core. Then the core takes
->>> care of everything.
->>>
-> 
-> Oh I just saw your patches, thanks to advice me about them.
-> 
->> After further checking not even this may be necessary.
->> If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
->> enables the device as wakeup device and registers the interrupt with the
->> wakeup core.
->> If the i2c client is defined via DT, then of_i2c_register_device() sets
->> this flag based on the "wakeup-source" property.
->> Is your device configured via DT? If yes, did you check whether wakeup
->> works w/o your patch with just setting property wakeup-source ?
->>
-> 
-> Yes, device is configured via DT and without my patch, just setting property
-> wakeup-source didn't work, the reason is that code:
-> 
-> http://elixir.free-electrons.com/linux/v4.13-rc6/source/drivers/rtc/rtc-ds1307.c#L1382
-> 
-This shouldn't be the reason because registering the interrupt with the wakeup core
-happens earlier in i2c_device_probe().
-Can you check whether dev_pm_set_wake_irq() is actually called with the right
-irq number in i2c_device_probe()?
+Factor out checking and fixing the weekday.
 
-Would be interesting to see the DT config of your rtc.
+In addition fix two issues with the old implementation:
+- For variable timestamp use correct type time64_t instead of
+  unsigned long which may be just 32bit long.
+- Updating the weekday register only may be racy, therefore write all
+  timekeeping registers.
 
-> I didn't test on top of your patches so let me rebase/rethink my patch on top of
-> yours.
-> 
->>
->>> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
->>> are not needed there because the core takes care of this already
->>> (enable_irq_wake is called from dev_pm_arm_wake_irq).
->>>
->>> Rgds, Heiner
->>>
->>
-> 
-> Thanks,
->  Enric
-> 
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 42 +++++++++++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index ea88e4b3..69f514b6 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1368,6 +1368,29 @@ static void ds1307_trickle_init(struct ds1307 *ds1307)
+ 	}
+ }
+ 
++static void ds1307_fix_weekday(struct ds1307 *ds1307)
++{
++	struct rtc_time tm;
++	time64_t timestamp;
++	int wday;
++
++	if (ds1307_get_time(ds1307->dev, &tm))
++		return;
++
++	wday = tm.tm_wday;
++	timestamp = rtc_tm_to_time64(&tm);
++	rtc_time64_to_tm(timestamp, &tm);
++
++	/*
++	 * Check if reset wday is different from the computed wday
++	 * If different then set the wday which we computed using
++	 * timestamp
++	 * Set not only wday but complete date to avoid potential races.
++	 */
++	if (wday != tm.tm_wday)
++		ds1307_set_time(ds1307->dev, &tm);
++}
++
+ static const struct regmap_config regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -1378,13 +1401,11 @@ static int ds1307_probe(struct i2c_client *client,
+ {
+ 	struct ds1307		*ds1307;
+ 	int			err = -ENODEV;
+-	int			tmp, wday;
++	int			tmp;
+ 	const struct chip_desc	*chip;
+ 	bool			want_irq;
+ 	bool			ds1307_can_wakeup_device = false;
+ 	unsigned char		*buf;
+-	struct rtc_time		tm;
+-	unsigned long		timestamp;
+ 
+ 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+ 	if (!ds1307)
+@@ -1642,20 +1663,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	 * Some IPs have weekday reset value = 0x1 which might not correct
+ 	 * hence compute the wday using the current date/month/year values
+ 	 */
+-	ds1307_get_time(ds1307->dev, &tm);
+-	wday = tm.tm_wday;
+-	timestamp = rtc_tm_to_time64(&tm);
+-	rtc_time64_to_tm(timestamp, &tm);
+-
+-	/*
+-	 * Check if reset wday is different from the computed wday
+-	 * If different then set the wday which we computed using
+-	 * timestamp
+-	 */
+-	if (wday != tm.tm_wday)
+-		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
+-				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
+-				   tm.tm_wday + 1);
++	ds1307_fix_weekday(ds1307);
+ 
+ 	if (want_irq || ds1307_can_wakeup_device) {
+ 		device_set_wakeup_capable(ds1307->dev, true);
+-- 
+2.14.1
