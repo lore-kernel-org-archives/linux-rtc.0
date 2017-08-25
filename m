@@ -1,117 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:12209 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751871AbdHKHSf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Aug 2017 03:18:35 -0400
-Message-ID: <1502435908.28466.21.camel@mhfsdcap03>
-Subject: Re: [PATCH v2 5/5] mfd: mt6397: Add PMIC keys support to MT6397
- driver
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Received: from mail.free-electrons.com ([62.4.15.54]:35638 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754923AbdHYIkS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 04:40:18 -0400
+Date: Fri, 25 Aug 2017 10:39:29 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Eddie Huang <eddie.huang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        "Javier Martinez Canillas" <javier@osg.samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Fri, 11 Aug 2017 15:18:28 +0800
-In-Reply-To: <20170808111556.dmx2s6bcwnsccrkn@dell>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
-         <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
-         <20170808111556.dmx2s6bcwnsccrkn@dell>
-Content-Type: text/plain; charset="UTF-8"
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 1/5] mfd: mt6397: create irq mappings in mfd core
+ driver
+Message-ID: <20170825083929.ztyzfelwqcxvpiex@piout.net>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-2-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1503642753-12385-2-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2017-08-08 at 12:15 +0100, Lee Jones wrote:
-> On Mon, 07 Aug 2017, Chen Zhong wrote:
+On 25/08/2017 at 14:32:29 +0800, Chen Zhong wrote:
+> The core driver should create and manage irq mappings instead of
+> leaf drivers. This patch change to pass irq domain to
+> devm_mfd_add_devices() and it will create mapping for irq resources
+> automatically. And remove irq mapping in rtc driver since this has
+> been done in core driver.
 > 
-> > This patch adds compatible strings and interrupts for pmic keys
-> > which serves as child device of MFD.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > ---
-> >  drivers/mfd/mt6397-core.c |   36 +++++++++++++++++++++++++++++++++++-
-> >  1 file changed, 35 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> > index 6546d7f..3c6a765 100644
-> > --- a/drivers/mfd/mt6397-core.c
-> > +++ b/drivers/mfd/mt6397-core.c
-> > @@ -43,6 +43,30 @@
-> >  	},
-> >  };
-> >  
-> > +static const struct resource mt6323_keys_resources[] = {
-> > +	{
-> > +		.start = MT6323_IRQ_STATUS_PWRKEY,
-> > +		.end   = MT6323_IRQ_STATUS_PWRKEY,
-> > +		.flags = IORESOURCE_IRQ,
-> > +	}, {
-> > +		.start = MT6323_IRQ_STATUS_FCHRKEY,
-> > +		.end   = MT6323_IRQ_STATUS_FCHRKEY,
-> > +		.flags = IORESOURCE_IRQ,
-> > +	},
-> > +};
-> > +
-> > +static const struct resource mt6397_keys_resources[] = {
-> > +	{
-> > +		.start = MT6397_IRQ_PWRKEY,
-> > +		.end   = MT6397_IRQ_PWRKEY,
-> > +		.flags = IORESOURCE_IRQ,
-> > +	}, {
-> > +		.start = MT6397_IRQ_HOMEKEY,
-> > +		.end   = MT6397_IRQ_HOMEKEY,
-> > +		.flags = IORESOURCE_IRQ,
-> > +	},
-> > +};
-> 
-> We have better ways to define these now.
-> 
-> Please grep for "DEFINE_RES_"
+> Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-I'll define these with "DEFINE_RES_IRQ" here, Thank you for your
-suggestion.
+> ---
+>  drivers/mfd/mt6397-core.c |    4 ++--
+>  drivers/rtc/rtc-mt6397.c  |    7 +++----
+>  2 files changed, 5 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 04a601f..6546d7f 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+>  					   ARRAY_SIZE(mt6323_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	case MT6397_CID_CODE:
+> @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+>  					   ARRAY_SIZE(mt6397_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	default:
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index 1a61fa5..385f830 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -322,10 +322,9 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	rtc->addr_base = res->start;
+>  
+> -	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+> -	if (rtc->irq <= 0)
+> -		return -EINVAL;
+> +	rtc->irq = platform_get_irq(pdev, 0);
+> +	if (rtc->irq < 0)
+> +		return rtc->irq;
+>  
+>  	rtc->regmap = mt6397_chip->regmap;
+>  	rtc->dev = &pdev->dev;
+> -- 
+> 1.7.9.5
+> 
 
-> 
-> >  static const struct mfd_cell mt6323_devs[] = {
-> >  	{
-> >  		.name = "mt6323-regulator",
-> > @@ -50,6 +74,11 @@
-> >  	}, {
-> >  		.name = "mt6323-led",
-> >  		.of_compatible = "mediatek,mt6323-led"
-> > +	}, {
-> > +		.name = "mtk-pmic-keys",
-> > +		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-> > +		.resources = mt6323_keys_resources,
-> > +		.of_compatible = "mediatek,mt6323-keys"
-> >  	},
-> >  };
-> >  
-> > @@ -71,7 +100,12 @@
-> >  	}, {
-> >  		.name = "mt6397-pinctrl",
-> >  		.of_compatible = "mediatek,mt6397-pinctrl",
-> > -	},
-> > +	}, {
-> > +		.name = "mtk-pmic-keys",
-> > +		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-> > +		.resources = mt6397_keys_resources,
-> > +		.of_compatible = "mediatek,mt6397-keys"
-> > +	}
-> >  };
-> >  
-> >  static void mt6397_irq_lock(struct irq_data *data)
-> 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
