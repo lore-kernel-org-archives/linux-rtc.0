@@ -1,176 +1,164 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49351 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751264AbdHTIcW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Aug 2017 04:32:22 -0400
-Date: Sun, 20 Aug 2017 10:32:19 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
-Subject: Re: [RFC 2/3] rtc: Add Realtek RTD1295
-Message-ID: <20170820083219.siez3rl2hbjgjgk5@piout.net>
-References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-3-afaerber@suse.de>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:37532 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932771AbdHYUGi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 16:06:38 -0400
+Received: by mail-wr0-f193.google.com with SMTP id p14so435580wrg.4
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Aug 2017 13:06:37 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 4/5] rtc: ds1307: introduce constants for the timekeeping
+ register masks
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
+Message-ID: <d6b499e6-307f-fe33-353f-4be6864f1503@gmail.com>
+Date: Fri, 25 Aug 2017 22:06:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170820013632.18375-3-afaerber@suse.de>
+In-Reply-To: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+So far for masking the relevant bits of the timekeeping registers
+magic numbers are used. Replace them with proper constants.
 
-On 20/08/2017 at 03:36:30 +0200, Andreas Färber wrote:
-> +static int rtd119x_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
-> +	time64_t t;
-> +	u32 day;
-> +
-> +	day = readl_relaxed(data->base + RTD_RTCDATE_LOW);
-> +	day |= readl_relaxed(data->base + RTD_RTCDATE_HIGH) << 8;
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 63 ++++++++++++++++++++++++++----------------------
+ 1 file changed, 34 insertions(+), 29 deletions(-)
 
-Is RTD_RTCDATE_HIGH latched when RTD_RTCDATE_LOW is read? If this is not
-the case, you probably want to handle a possible update between both
-readl_relaxed.
-
-> +	t = mktime64(data->base_year, 1, 1, 0, 0, 0);
-> +	t += day * 24 * 60 * 60;
-> +	rtc_time64_to_tm(t, tm);
-> +	tm->tm_sec  = readl_relaxed(data->base + RTD_RTCSEC) >> 1;
-> +	tm->tm_min  = readl_relaxed(data->base + RTD_RTCMIN);
-> +	tm->tm_hour = readl_relaxed(data->base + RTD_RTCHR);
-> +
-> +	return rtc_valid_tm(tm);
-> +}
-> +
-> +static int rtd119x_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
-> +	time64_t time_base, new_time, time_delta;
-> +	unsigned long day;
-> +
-> +	if (tm->tm_year < data->base_year)
-> +		return -EINVAL;
-> +
-> +	time_base = mktime64(data->base_year, 1, 1, 0, 0, 0);
-> +	new_time = rtc_tm_to_time64(tm);
-> +	time_delta = new_time - time_base;
-> +	day = time_delta / (24 * 60 * 60);
-> +	if (day > 0x7fff)
-> +		return -EINVAL;
-> +
-> +	rtd119x_rtc_set_enabled(dev, false);
-> +
-> +	writel_relaxed(tm->tm_sec,  data->base + RTD_RTCSEC);
-> +	writel_relaxed(tm->tm_min,  data->base + RTD_RTCMIN);
-> +	writel_relaxed(tm->tm_hour, data->base + RTD_RTCHR);
-> +	writel_relaxed(day & 0xff, data->base + RTD_RTCDATE_LOW);
-> +	writel_relaxed((day >> 8) & 0x7f, data->base + RTD_RTCDATE_HIGH);
-> +
-> +	rtd119x_rtc_set_enabled(dev, true);
-> +
-> +	return 0;
-> +}
-> +
-> +static int rtd119x_rtc_open(struct device *dev)
-> +{
-> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
-> +	u32 val;
-> +	int ret;
-> +
-> +	ret = clk_prepare_enable(data->clk);
-> +	if (ret)
-> +		return ret;
-> +
-> +	val = readl_relaxed(data->base + RTD_RTCACR);
-> +	dev_info(dev, "rtcacr = 0x%08x\n", val);
-> +	if (!(val & BIT(7))) {
-> +	}
-
-I don't see the point of reading that register, and not doing anything
-with it.
-
-> +
-> +	rtd119x_rtc_set_enabled(dev, true);
-> +
-
-This is certainly not what you want. The RTC device is usually not
-opened so enabling the RTC when open and disabling it when closed will
-not work on most systems. This is probably true for the clock too. i.e
-what you do here should be done in probe.
-
-> +	return 0;
-> +}
-> +
-> +static void rtd119x_rtc_release(struct device *dev)
-> +{
-> +	struct rtd119x_rtc *data = dev_get_drvdata(dev);
-> +
-> +	rtd119x_rtc_set_enabled(dev, false);
-> +
-> +	clk_disable_unprepare(data->clk);
-> +}
-> +
-> +static const struct rtc_class_ops rtd119x_rtc_ops = {
-> +	.open		= rtd119x_rtc_open,
-> +	.release	= rtd119x_rtc_release,
-> +	.read_time	= rtd119x_rtc_read_time,
-> +	.set_time	= rtd119x_rtc_set_time,
-> +};
-> +
-> +static const struct of_device_id rtd119x_rtc_dt_ids[] = {
-> +	 { .compatible = "realtek,rtd1295-rtc" },
-> +	 { }
-> +};
-> +
-> +static int rtd119x_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct rtd119x_rtc *data;
-> +	struct resource *res;
-> +
-> +	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, data);
-> +	data->base_year = 2014;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	data->base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(data->base))
-> +		return PTR_ERR(data->base);
-> +
-> +	data->clk = of_clk_get(pdev->dev.of_node, 0);
-> +	if (IS_ERR(data->clk))
-> +		return PTR_ERR(data->clk);
-> +
-> +	data->rtcdev = devm_rtc_device_register(&pdev->dev, "rtc",
-> +				&rtd119x_rtc_ops, THIS_MODULE);
-> +	if (IS_ERR(data->rtcdev)) {
-> +		dev_err(&pdev->dev, "failed to register rtc device");
-> +		clk_put(data->clk);
-> +		return PTR_ERR(data->rtcdev);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver rtd119x_rtc_driver = {
-> +	.probe = rtd119x_rtc_probe,
-> +	.driver = {
-> +		.name = "rtd1295-rtc",
-> +		.of_match_table	= rtd119x_rtc_dt_ids,
-> +	},
-> +};
-> +builtin_platform_driver(rtd119x_rtc_driver);
-> -- 
-> 2.12.3
-> 
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 69f514b6..a43a80b2 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -54,22 +54,29 @@ enum ds_type {
+ 
+ /* RTC registers don't differ much, except for the century flag */
+ #define DS1307_REG_SECS		0x00	/* 00-59 */
++#define DS1307_SECS_MASK	GENMASK(6, 0)
+ #	define DS1307_BIT_CH		0x80
+ #	define DS1340_BIT_nEOSC		0x80
+ #	define MCP794XX_BIT_ST		0x80
+ #define DS1307_REG_MIN		0x01	/* 00-59 */
++#define DS1307_MIN_MASK		GENMASK(6, 0)
+ #	define M41T0_BIT_OF		0x80
+ #define DS1307_REG_HOUR		0x02	/* 00-23, or 1-12{am,pm} */
++#define DS1307_HOUR_MASK	GENMASK(5, 0)
+ #	define DS1307_BIT_12HR		0x40	/* in REG_HOUR */
+ #	define DS1307_BIT_PM		0x20	/* in REG_HOUR */
+ #	define DS1340_BIT_CENTURY_EN	0x80	/* in REG_HOUR */
+ #	define DS1340_BIT_CENTURY	0x40	/* in REG_HOUR */
+ #define DS1307_REG_WDAY		0x03	/* 01-07 */
++#define DS1307_WDAY_MASK	GENMASK(2, 0)
+ #	define MCP794XX_BIT_VBATEN	0x08
+ #define DS1307_REG_MDAY		0x04	/* 01-31 */
++#define DS1307_MDAY_MASK	GENMASK(5, 0)
+ #define DS1307_REG_MONTH	0x05	/* 01-12 */
++#define DS1307_MONTH_MASK	GENMASK(4, 0)
+ #	define DS1337_BIT_CENTURY	0x80	/* in REG_MONTH */
+ #define DS1307_REG_YEAR		0x06	/* 00-99 */
++#define DS1307_YEAR_MASK	GENMASK(7, 0)
+ 
+ /*
+  * Other registers (control, status, alarms, trickle charge, NVRAM, etc)
+@@ -395,36 +402,34 @@ static irqreturn_t ds1307_irq(int irq, void *dev_id)
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ {
+ 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
+-	int		tmp, ret;
+ 	const struct chip_desc *chip = &chips[ds1307->type];
++	u8		*buf = ds1307->regs;
++	int		ret;
+ 
+ 	/* read the RTC date and time registers all at once */
+-	ret = regmap_bulk_read(ds1307->regmap, chip->offset, ds1307->regs, 7);
++	ret = regmap_bulk_read(ds1307->regmap, chip->offset, buf, 7);
+ 	if (ret) {
+ 		dev_err(dev, "%s error %d\n", "read", ret);
+ 		return ret;
+ 	}
+ 
+-	dev_dbg(dev, "%s: %7ph\n", "read", ds1307->regs);
++	dev_dbg(dev, "%s: %7ph\n", "read", buf);
+ 
+ 	/* if oscillator fail bit is set, no data can be trusted */
+-	if (ds1307->type == m41t0 &&
+-	    ds1307->regs[DS1307_REG_MIN] & M41T0_BIT_OF) {
++	if (ds1307->type == m41t0 && buf[DS1307_REG_MIN] & M41T0_BIT_OF) {
+ 		dev_warn_once(dev, "oscillator failed, set time!\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	t->tm_sec = bcd2bin(ds1307->regs[DS1307_REG_SECS] & 0x7f);
+-	t->tm_min = bcd2bin(ds1307->regs[DS1307_REG_MIN] & 0x7f);
+-	tmp = ds1307->regs[DS1307_REG_HOUR] & 0x3f;
+-	t->tm_hour = bcd2bin(tmp);
+-	t->tm_wday = bcd2bin(ds1307->regs[DS1307_REG_WDAY] & 0x07) - 1;
+-	t->tm_mday = bcd2bin(ds1307->regs[DS1307_REG_MDAY] & 0x3f);
+-	tmp = ds1307->regs[DS1307_REG_MONTH] & 0x1f;
+-	t->tm_mon = bcd2bin(tmp) - 1;
+-	t->tm_year = bcd2bin(ds1307->regs[DS1307_REG_YEAR]) + 100;
+-
+-	if (ds1307->regs[chip->century_reg] & chip->century_bit &&
++	t->tm_sec = bcd2bin(buf[DS1307_REG_SECS] & DS1307_SECS_MASK);
++	t->tm_min = bcd2bin(buf[DS1307_REG_MIN] & DS1307_MIN_MASK);
++	t->tm_hour = bcd2bin(buf[DS1307_REG_HOUR] & DS1307_HOUR_MASK);
++	t->tm_wday = bcd2bin(buf[DS1307_REG_WDAY] & DS1307_WDAY_MASK) - 1;
++	t->tm_mday = bcd2bin(buf[DS1307_REG_MDAY] & DS1307_MDAY_MASK);
++	t->tm_mon = bcd2bin(buf[DS1307_REG_MONTH] & DS1307_MONTH_MASK) - 1;
++	t->tm_year = bcd2bin(buf[DS1307_REG_YEAR] & DS1307_YEAR_MASK) + 100;
++
++	if (buf[chip->century_reg] & chip->century_bit &&
+ 	    IS_ENABLED(CONFIG_RTC_DRV_DS1307_CENTURY))
+ 		t->tm_year += 100;
+ 
+@@ -522,10 +527,10 @@ static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	 * report alarm time (ALARM1); assume 24 hour and day-of-month modes,
+ 	 * and that all four fields are checked matches
+ 	 */
+-	t->time.tm_sec = bcd2bin(ds1307->regs[0] & 0x7f);
+-	t->time.tm_min = bcd2bin(ds1307->regs[1] & 0x7f);
+-	t->time.tm_hour = bcd2bin(ds1307->regs[2] & 0x3f);
+-	t->time.tm_mday = bcd2bin(ds1307->regs[3] & 0x3f);
++	t->time.tm_sec = bcd2bin(ds1307->regs[0] & DS1307_SECS_MASK);
++	t->time.tm_min = bcd2bin(ds1307->regs[1] & DS1307_MIN_MASK);
++	t->time.tm_hour = bcd2bin(ds1307->regs[2] & DS1307_HOUR_MASK);
++	t->time.tm_mday = bcd2bin(ds1307->regs[3] & DS1307_MDAY_MASK);
+ 
+ 	/* ... and status */
+ 	t->enabled = !!(ds1307->regs[7] & DS1337_BIT_A1IE);
+@@ -689,10 +694,10 @@ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 
+ 	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
+ 	t->time.tm_sec = -1;
+-	t->time.tm_min = bcd2bin(ald[0] & 0x7f);
+-	t->time.tm_hour = bcd2bin(ald[1] & 0x7f);
++	t->time.tm_min = bcd2bin(ald[0] & DS1307_MIN_MASK);
++	t->time.tm_hour = bcd2bin(ald[1] & DS1307_HOUR_MASK);
+ 	t->time.tm_wday = -1;
+-	t->time.tm_mday = bcd2bin(ald[2] & 0x7f);
++	t->time.tm_mday = bcd2bin(ald[2] & DS1307_MDAY_MASK);
+ 	t->time.tm_mon = -1;
+ 	t->time.tm_year = -1;
+ 	t->time.tm_yday = -1;
+@@ -844,12 +849,12 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	t->enabled = !!(regs[0] & MCP794XX_BIT_ALM0_EN);
+ 
+ 	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
+-	t->time.tm_sec = bcd2bin(ds1307->regs[3] & 0x7f);
+-	t->time.tm_min = bcd2bin(ds1307->regs[4] & 0x7f);
+-	t->time.tm_hour = bcd2bin(ds1307->regs[5] & 0x3f);
+-	t->time.tm_wday = bcd2bin(ds1307->regs[6] & 0x7) - 1;
+-	t->time.tm_mday = bcd2bin(ds1307->regs[7] & 0x3f);
+-	t->time.tm_mon = bcd2bin(ds1307->regs[8] & 0x1f) - 1;
++	t->time.tm_sec = bcd2bin(ds1307->regs[3] & DS1307_SECS_MASK);
++	t->time.tm_min = bcd2bin(ds1307->regs[4] & DS1307_MIN_MASK);
++	t->time.tm_hour = bcd2bin(ds1307->regs[5] & DS1307_HOUR_MASK);
++	t->time.tm_wday = bcd2bin(ds1307->regs[6] & DS1307_WDAY_MASK) - 1;
++	t->time.tm_mday = bcd2bin(ds1307->regs[7] & DS1307_MDAY_MASK);
++	t->time.tm_mon = bcd2bin(ds1307->regs[8] & DS1307_MONTH_MASK) - 1;
+ 	t->time.tm_year = -1;
+ 	t->time.tm_yday = -1;
+ 	t->time.tm_isdst = -1;
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.14.1
