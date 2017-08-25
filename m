@@ -1,112 +1,88 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:37428 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751152AbdH0Mjh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 27 Aug 2017 08:39:37 -0400
-Received: by mail-wr0-f193.google.com with SMTP id p14so2558581wrg.4
-        for <linux-rtc@vger.kernel.org>; Sun, 27 Aug 2017 05:39:37 -0700 (PDT)
-Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
- wday
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
- <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
- <20170826195947.jnipgyuxg3ceqie4@piout.net>
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Message-ID: <a6ccd0ab-a6f4-1122-233b-61e69b80aa54@gmail.com>
-Date: Sun, 27 Aug 2017 14:39:26 +0200
+Received: from mailgw01.mediatek.com ([218.249.47.110]:57671 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751905AbdHYGcs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v3 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Fri, 25 Aug 2017 14:32:30 +0800
+Message-ID: <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20170826195947.jnipgyuxg3ceqie4@piout.net>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Am 26.08.2017 um 21:59 schrieb Alexandre Belloni:
-> On 26/08/2017 at 21:56:07 +0200, Alexandre Belloni wrote:
->> There is no point in fixing that. Nobody uses wday.
->>
-> 
-> And that was going to be my comment on your other patch. You may as well
-> just remove the whole wday correction from ds1307.
-> 
-Actually I was wondering too when wday should ever be used, except
-theoretically for an alarm, however commit e29385fab0bf
-"rtc: ds1307: Fix relying on reset value for weekday" was added just
-a year ago.
+This patch adds the device tree binding documentation for the MediaTek
+pmic keys found on PMIC MT6397/MT6323.
 
-I think then we can remove the usage of wday in general, including
-writing / reading wday in ds1307_get/set_time.
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 
->> On 26/08/2017 at 21:16:34 +0200, Heiner Kallweit wrote:
->>> Some drivers use element wday of the struct rtc_time which is passed to
->>> callback set_time. However element wday may incorrectly or not be
->>> populated if struct rtc_time is coming from userspace via rtc_dev_ioctl.
->>> rtc_valid_tm() doesn't check element wday.
->>>
->>> Therefore convert struct rtc_time to time64_t and then use
->>> rtc_time64_to_tm to generate a struct rtc_time with all elements properly
->>> populated.
->>>
->>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>> ---
->>>  drivers/rtc/interface.c | 24 ++++++++++++++++--------
->>>  1 file changed, 16 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
->>> index 8cec9a02..5a53c590 100644
->>> --- a/drivers/rtc/interface.c
->>> +++ b/drivers/rtc/interface.c
->>> @@ -59,28 +59,36 @@ EXPORT_SYMBOL_GPL(rtc_read_time);
->>>  
->>>  int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
->>>  {
->>> +	time64_t secs64;
->>>  	int err;
->>>  
->>>  	err = rtc_valid_tm(tm);
->>>  	if (err != 0)
->>>  		return err;
->>>  
->>> +	secs64 = rtc_tm_to_time64(tm);
->>> +
->>>  	err = mutex_lock_interruptible(&rtc->ops_lock);
->>>  	if (err)
->>>  		return err;
->>>  
->>>  	if (!rtc->ops)
->>>  		err = -ENODEV;
->>> -	else if (rtc->ops->set_time)
->>> -		err = rtc->ops->set_time(rtc->dev.parent, tm);
->>> -	else if (rtc->ops->set_mmss64) {
->>> -		time64_t secs64 = rtc_tm_to_time64(tm);
->>> -
->>> +	else if (rtc->ops->set_time) {
->>> +		struct rtc_time tmp;
->>> +
->>> +		/*
->>> +		 * element wday of tm may not be set, therefore use
->>> +		 * rtc_time64_to_tm to generate a struct rtc_time
->>> +		 * with all elements being properly populated
->>> +		 */
->>> +		rtc_time64_to_tm(secs64, &tmp);
->>> +		err = rtc->ops->set_time(rtc->dev.parent, &tmp);
->>> +	} else if (rtc->ops->set_mmss64)
->>>  		err = rtc->ops->set_mmss64(rtc->dev.parent, secs64);
->>> -	} else if (rtc->ops->set_mmss) {
->>> -		time64_t secs64 = rtc_tm_to_time64(tm);
->>> +	else if (rtc->ops->set_mmss)
->>>  		err = rtc->ops->set_mmss(rtc->dev.parent, secs64);
->>> -	} else
->>> +	else
->>>  		err = -EINVAL;
->>>  
->>>  	pm_stay_awake(rtc->dev.parent);
->>> -- 
->>> 2.14.1
->>>
->>
->> -- 
->> Alexandre Belloni, Free Electrons
->> Embedded Linux and Kernel engineering
->> http://free-electrons.com
-> 
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+new file mode 100644
+index 0000000..100ec44
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -0,0 +1,38 @@
++MediaTek MT6397/MT6323 PMIC Keys Device Driver
++
++There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
++and homekey. The key functions are defined as the subnode of the function
++node provided by MT6397/MT6323 PMIC that is being defined as one kind
++of Muti-Function Device (MFD)
++
++For MT6397/MT6323 MFD bindings see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++Required properties:
++- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- linux,keycodes: Specifies the numeric keycode values to
++	be used for reporting keys presses. The array can
++	contain up to 2 entries.
++
++Optional Properties:
++- wakeup-source: each key can be used as a wakeup source.
++- mediatek,long-press-mode: Long press key shutdown setting, 1 for
++	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
++- debounce-interval: Long press key shutdown debouncing interval time
++	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
++
++Example:
++
++	pmic: mt6397 {
++		compatible = "mediatek,mt6397";
++
++		...
++
++		mt6397keys: mt6397keys {
++			compatible = "mediatek,mt6397-keys";
++			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
++			wakeup-source = <1>, <0>;
++			mediatek,long-press-mode = <1>;
++			debounce-interval = <0>;
++		};
++	};
+-- 
+1.7.9.5
