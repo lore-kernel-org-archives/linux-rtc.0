@@ -1,104 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:40200 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751063AbdHZT76 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 Aug 2017 15:59:58 -0400
-Date: Sat, 26 Aug 2017 21:59:47 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
- wday
-Message-ID: <20170826195947.jnipgyuxg3ceqie4@piout.net>
-References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
- <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:57663 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1753998AbdHYGcs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v3 0/5] Add MediaTek PMIC keys support
+Date: Fri, 25 Aug 2017 14:32:28 +0800
+Message-ID: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 26/08/2017 at 21:56:07 +0200, Alexandre Belloni wrote:
-> There is no point in fixing that. Nobody uses wday.
-> 
+MediaTek PMIC are multi-function devices that can handle key interrupts,
+typically there are two keys attached to PMIC, which called pwrkey
+and homekey. PWRKEY usually used to wake up system from sleep. Homekey
+can used as volume down key due to board design. Long press keys can
+shutdown PMIC, the mode can be choose to be one key only or two keys
+together.
+This series add support for key functions for MediaTek PMIC MT6397/MT6323.
 
-And that was going to be my comment on your other patch. You may as well
-just remove the whole wday correction from ds1307.
+Chen Zhong (5):
+  mfd: mt6397: create irq mappings in mfd core driver
+  dt-bindings: input: Add document bindings for mtk-pmic-keys
+  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+  input: Add MediaTek PMIC keys support
+  mfd: mt6397: Add PMIC keys support to MT6397 driver
 
-> On 26/08/2017 at 21:16:34 +0200, Heiner Kallweit wrote:
-> > Some drivers use element wday of the struct rtc_time which is passed to
-> > callback set_time. However element wday may incorrectly or not be
-> > populated if struct rtc_time is coming from userspace via rtc_dev_ioctl.
-> > rtc_valid_tm() doesn't check element wday.
-> > 
-> > Therefore convert struct rtc_time to time64_t and then use
-> > rtc_time64_to_tm to generate a struct rtc_time with all elements properly
-> > populated.
-> > 
-> > Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> > ---
-> >  drivers/rtc/interface.c | 24 ++++++++++++++++--------
-> >  1 file changed, 16 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> > index 8cec9a02..5a53c590 100644
-> > --- a/drivers/rtc/interface.c
-> > +++ b/drivers/rtc/interface.c
-> > @@ -59,28 +59,36 @@ EXPORT_SYMBOL_GPL(rtc_read_time);
-> >  
-> >  int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
-> >  {
-> > +	time64_t secs64;
-> >  	int err;
-> >  
-> >  	err = rtc_valid_tm(tm);
-> >  	if (err != 0)
-> >  		return err;
-> >  
-> > +	secs64 = rtc_tm_to_time64(tm);
-> > +
-> >  	err = mutex_lock_interruptible(&rtc->ops_lock);
-> >  	if (err)
-> >  		return err;
-> >  
-> >  	if (!rtc->ops)
-> >  		err = -ENODEV;
-> > -	else if (rtc->ops->set_time)
-> > -		err = rtc->ops->set_time(rtc->dev.parent, tm);
-> > -	else if (rtc->ops->set_mmss64) {
-> > -		time64_t secs64 = rtc_tm_to_time64(tm);
-> > -
-> > +	else if (rtc->ops->set_time) {
-> > +		struct rtc_time tmp;
-> > +
-> > +		/*
-> > +		 * element wday of tm may not be set, therefore use
-> > +		 * rtc_time64_to_tm to generate a struct rtc_time
-> > +		 * with all elements being properly populated
-> > +		 */
-> > +		rtc_time64_to_tm(secs64, &tmp);
-> > +		err = rtc->ops->set_time(rtc->dev.parent, &tmp);
-> > +	} else if (rtc->ops->set_mmss64)
-> >  		err = rtc->ops->set_mmss64(rtc->dev.parent, secs64);
-> > -	} else if (rtc->ops->set_mmss) {
-> > -		time64_t secs64 = rtc_tm_to_time64(tm);
-> > +	else if (rtc->ops->set_mmss)
-> >  		err = rtc->ops->set_mmss(rtc->dev.parent, secs64);
-> > -	} else
-> > +	else
-> >  		err = -EINVAL;
-> >  
-> >  	pm_stay_awake(rtc->dev.parent);
-> > -- 
-> > 2.14.1
-> > 
-> 
-> -- 
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |  38 +++
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
+ drivers/input/keyboard/Kconfig                     |   9 +
+ drivers/input/keyboard/Makefile                    |   1 +
+ drivers/input/keyboard/mtk-pmic-keys.c             | 308 +++++++++++++++++++++
+ drivers/mfd/mt6397-core.c                          |  26 +-
+ drivers/rtc/rtc-mt6397.c                           |   7 +-
+ 7 files changed, 388 insertions(+), 7 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+ create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
