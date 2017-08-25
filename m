@@ -1,76 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38465 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751276AbdH1LKw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 28 Aug 2017 07:10:52 -0400
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mailgw02.mediatek.com ([218.249.47.111]:41211 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754056AbdHYGcs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        devicetree@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
-Subject: [PATCH v3 0/3] arm64: Realtek RTD1295 RTC
-Date: Mon, 28 Aug 2017 13:10:38 +0200
-Message-Id: <20170828111041.17946-1-afaerber@suse.de>
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v3 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+Date: Fri, 25 Aug 2017 14:32:31 +0800
+Message-ID: <1503642753-12385-4-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hello,
+This patch adds documentation for device tree bindings for keys support
+as the subnode of MT6397/MT6323 PMIC.
 
-This series adds the RTC for the Realtek RTD1295 SoC.
-Based on my RTD1295 clk series.
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-There being no public source code for RTD1295, the implementation is based on
-register offsets seen in the vendor DT, as well as older mach-rtk119x code
-published by QNAP.
-
-v3 drops a redundant spinlock and refactors a helper.
-
-The DT node depends on the clk series for clock index and header.
-
-More experimental patches at:
-https://github.com/afaerber/linux/commits/rtd1295-next
-
-Have a lot of fun!
-
-Cheers,
-Andreas
-
-v2 -> v3:
-* Dropped spinlock (Andrew)
-* Improved year_days vs. days_in_year readability
-
-v1 -> v2:
-* Updated rtc driver to no longer use open/release (Alexandre)
-* Cleaned up debug output (Andrew)
-* Avoided COMPILE_TEST division errors (kbuild)
-* Various cleanups and extensions
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Cc: Roc He <hepeng@zidoo.tv>
-Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
-Cc: devicetree@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-
-Andreas Färber (3):
-  dt-bindings: rtc: Add Realtek RTD1295
-  rtc: Add Realtek RTD1295
-  arm64: dts: realtek: Add RTD1295 RTC node
-
- .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
- arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
- drivers/rtc/Kconfig                                |   8 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-rtd119x.c                          | 241 +++++++++++++++++++++
- 5 files changed, 272 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
- create mode 100644 drivers/rtc/rtc-rtd119x.c
-
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 522a3bb..d1df77f 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
+ - GPIO
+ - Clock
+ - LED
++- Keys
+ 
+ It is interfaced to host controller using SPI interface by a proprietary hardware
+ called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
+@@ -40,6 +41,11 @@ Optional subnodes:
+ 		- compatible: "mediatek,mt6323-led"
+ 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
+ 
++- keys
++	Required properties:
++		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++
+ Example:
+ 	pwrap: pwrap@1000f000 {
+ 		compatible = "mediatek,mt8135-pwrap";
 -- 
-2.12.3
+1.7.9.5
