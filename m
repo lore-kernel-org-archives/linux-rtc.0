@@ -1,89 +1,90 @@
-Return-Path: <rtc-linux+bncBAABBVOOZ3GAKGQESGHOKYI@googlegroups.com>
-Sender: rtc-linux@googlegroups.com
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Received: from mailgw02.mediatek.com ([218.249.47.111]:41227 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754197AbdHYGcs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v3 5/5] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Fri, 25 Aug 2017 14:32:33 +0800
+Message-ID: <1503642753-12385-6-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Received: from regular1.263xmail.com (regular1.263xmail.com. [211.150.99.131])
-        by gmr-mx.google.com with ESMTPS id e11si1855398pfd.4.2017.08.15.19.00.52
-        for <rtc-linux@googlegroups.com>
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 15 Aug 2017 19:00:52 -0700 (PDT)
-From: Joseph Chen <chenjh@rock-chips.com>
-To: gnurou@gmail.com,
-	linus.walleij@linaro.org,
-	dmitry.torokhov@gmail.com,
-	lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org,
-	huangtao@rock-chips.com,
-	devicetree@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	broonie@kernel.org,
-	zhangqing@rock-chips.com,
-	robh+dt@kernel.org,
-	lgirdwood@gmail.com,
-	linux-rockchip@lists.infradead.org,
-	wdc@rock-chips.com,
-	tony.xie@rock-chips.com,
-	linux-input@vger.kernel.org,
-	mark.rutland@arm.com,
-	w.egorov@phytec.de,
-	linux-clk@vger.kernel.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com,
-	rtc-linux@googlegroups.com,
-	Joseph Chen <chenjh@rock-chips.com>
-Subject: [rtc-linux] [RESEND v9 05/12] clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
-Date: Wed, 16 Aug 2017 10:00:03 +0800
-Message-Id: <1502848803-22954-1-git-send-email-chenjh@rock-chips.com>
-In-Reply-To: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
-References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
-Reply-To: rtc-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <rtc-linux.googlegroups.com>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
- <https://groups.google.com/group/rtc-linux/subscribe>
+Content-Type: text/plain
+Sender: linux-rtc-owner@vger.kernel.org
+List-ID: <linux-rtc.vger.kernel.org>
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-The RK808 and RK805 PMICs are using a similar register map.
-We can reuse the clk driver for the RK805 PMIC. So let's add
-the RK805 in the Kconfig description.
-
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 ---
- drivers/clk/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 9356ab4..7ca8f02 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -39,10 +39,10 @@ config COMMON_CLK_MAX77686
- 	  clock.
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 6546d7f..77b64bd 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,16 @@
+ 	},
+ };
  
- config COMMON_CLK_RK808
--	tristate "Clock driver for RK808/RK818"
-+	tristate "Clock driver for RK805/RK808/RK818"
- 	depends on MFD_RK808
- 	---help---
--	  This driver supports RK808 and RK818 crystal oscillator clock. These
-+	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
- 	  multi-function devices have two fixed-rate oscillators,
- 	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
- 	  by control register.
++static const struct resource mt6323_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
++};
++
++static const struct resource mt6397_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
++	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +60,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
+ 
+@@ -71,7 +86,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
+ 
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
-1.9.1
-
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
-For more options, visit https://groups.google.com/d/optout.
+1.7.9.5
