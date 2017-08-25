@@ -1,94 +1,88 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46679 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752555AbdHVXRd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 19:17:33 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: m41t80: remove debug sysfs attribute
-Date: Wed, 23 Aug 2017 01:17:28 +0200
-Message-Id: <20170822231728.10795-1-alexandre.belloni@free-electrons.com>
+Received: from mailgw02.mediatek.com ([218.249.47.111]:41173 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754142AbdHYGcs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v3 1/5] mfd: mt6397: create irq mappings in mfd core driver
+Date: Fri, 25 Aug 2017 14:32:29 +0800
+Message-ID: <1503642753-12385-2-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The last remaining sysfs attribute is undocumented and useless as it can
-only be used to debug the driver. Remove it.
+The core driver should create and manage irq mappings instead of
+leaf drivers. This patch change to pass irq domain to
+devm_mfd_add_devices() and it will create mapping for irq resources
+automatically. And remove irq mapping in rtc driver since this has
+been done in core driver.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 ---
- drivers/rtc/rtc-m41t80.c | 44 --------------------------------------------
- 1 file changed, 44 deletions(-)
+ drivers/mfd/mt6397-core.c |    4 ++--
+ drivers/rtc/rtc-mt6397.c  |    7 +++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 3b6ef4b0f4ac..56fa6ca93c25 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -440,28 +440,6 @@ static int m41t80_resume(struct device *dev)
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 04a601f..6546d7f 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
  
- static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t80_suspend, m41t80_resume);
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+ 					   ARRAY_SIZE(mt6323_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
  
--static ssize_t flags_show(struct device *dev,
--			  struct device_attribute *attr, char *buf)
--{
--	struct i2c_client *client = to_i2c_client(dev);
--	int val;
--
--	val = i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
--	if (val < 0)
--		return val;
--	return sprintf(buf, "%#x\n", val);
--}
--static DEVICE_ATTR_RO(flags);
--
--static struct attribute *attrs[] = {
--	&dev_attr_flags.attr,
--	NULL,
--};
--
--static struct attribute_group attr_group = {
--	.attrs = attrs,
--};
--
- #ifdef CONFIG_COMMON_CLK
- #define sqw_to_m41t80_data(_hw) container_of(_hw, struct m41t80_data, sqw)
+ 	case MT6397_CID_CODE:
+@@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
  
-@@ -912,13 +890,6 @@ static struct notifier_block wdt_notifier = {
-  *****************************************************************************
-  */
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+ 					   ARRAY_SIZE(mt6397_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
  
--static void m41t80_remove_sysfs_group(void *_dev)
--{
--	struct device *dev = _dev;
--
--	sysfs_remove_group(&dev->kobj, &attr_group);
--}
--
- static int m41t80_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -1015,21 +986,6 @@ static int m41t80_probe(struct i2c_client *client,
- 		return rc;
- 	}
+ 	default:
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 1a61fa5..385f830 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -322,10 +322,9 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->addr_base = res->start;
  
--	/* Export sysfs entries */
--	rc = sysfs_create_group(&(&client->dev)->kobj, &attr_group);
--	if (rc) {
--		dev_err(&client->dev, "Failed to create sysfs group: %d\n", rc);
--		return rc;
--	}
--
--	rc = devm_add_action_or_reset(&client->dev, m41t80_remove_sysfs_group,
--				      &client->dev);
--	if (rc) {
--		dev_err(&client->dev,
--			"Failed to add sysfs cleanup action: %d\n", rc);
--		return rc;
--	}
--
- #ifdef CONFIG_RTC_DRV_M41T80_WDT
- 	if (m41t80_data->features & M41T80_FEATURE_HT) {
- 		save_client = client;
+-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+-	if (rtc->irq <= 0)
+-		return -EINVAL;
++	rtc->irq = platform_get_irq(pdev, 0);
++	if (rtc->irq < 0)
++		return rtc->irq;
+ 
+ 	rtc->regmap = mt6397_chip->regmap;
+ 	rtc->dev = &pdev->dev;
 -- 
-2.14.1
+1.7.9.5
