@@ -1,112 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:28879 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751521AbdHKHBl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Aug 2017 03:01:41 -0400
-Message-ID: <1502434892.28466.18.camel@mhfsdcap03>
-Subject: Re: [PATCH v2 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Rob Herring <robh@kernel.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Lee Jones" <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Beomho Seo" <beomho.seo@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Fri, 11 Aug 2017 15:01:32 +0800
-In-Reply-To: <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
-         <1502071065-6745-3-git-send-email-chen.zhong@mediatek.com>
-         <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.free-electrons.com ([62.4.15.54]:59126 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751868AbdHZITQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 Aug 2017 04:19:16 -0400
+Date: Sat, 26 Aug 2017 10:19:04 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 0/5] rtc: ds1307: factor out more stuff from ds1307_probe
+ and improve ds1307_set_time
+Message-ID: <20170826081904.ibsxi7crvi7qop3m@piout.net>
+References: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Rob,
+Hi,
 
-On Thu, 2017-08-10 at 15:41 -0500, Rob Herring wrote:
-> On Mon, Aug 07, 2017 at 09:57:42AM +0800, Chen Zhong wrote:
-> > This patch adds the device tree binding documentation for the MediaTek
-> > pmic keys found on PMIC MT6397/MT6323.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > ---
-> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 ++++++++++++++++++++
-> >  1 file changed, 36 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > new file mode 100644
-> > index 0000000..c5b230f
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > @@ -0,0 +1,36 @@
-> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> > +
-> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> > +and homekey. The key functions are defined as the subnode of the function
-> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> > +of Muti-Function Device (MFD)
-> > +
-> > +For MT6397/MT6323 MFD bindings see:
-> > +Documentation/devicetree/bindings/mfd/mt6397.txt
-> > +
-> > +Required properties:
-> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> > +- mediatek,pwrkey-code: Keycode of pwrkey
-> > +
-> > +Optional Properties:
-> > +- mediatek,homekey-code: Keycode of homekey
-> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> > +- mediatek,long-press-duration: Long press key shutdown duration setting,
-> > +	0/1/2/3 for 8/11/14/5 seconds.
+Could you explain were you are going with this because this is a lot of
+churn that takes a lot of my reviewing time and this doesn't seem to end
+soon.
+
+I want that driver to stop growing, maybe by creating a library. Some of
+the supported RTCs doesn't share much more than the time and date layout
+and should be in a separate driver.
+
+On 25/08/2017 at 21:30:09 +0200, Heiner Kallweit wrote:
+> Final goal of the refactoring is to abstract everything that the chips
+> have in common and handle it in generic code. Then we can get rid of
+> all the "switch (chip)" and "if (chip == xxx)" code.
 > 
-> Surely this could be a common property.
-
-Sorry I'm not very clear about this. Could i move this to required
-properties or remove the "mediatek" string here?
-
+> To give one example:
+> A lot of chips have a bit for setting 12hr / 24hr mode. However some
+> chips have this config bit in the timekeeping registers, others in
+> a config register, and on some chips it's inverted.
+> But the functionality of the bit is always the same.
 > 
-> > +
-> > +Example:
-> > +
-> > +	pmic: mt6397 {
-> > +		compatible = "mediatek,mt6397";
-> > +
-> > +		...
-> > +
-> > +		mt6397keys: mt6397keys {
-> > +			compatible = "mediatek,mt6397-keys";
-> > +			mediatek,pwrkey-code = <116>;
-> > +			mediatek,homekey-code = <114>;
+> Ultimately adding support for a chip just requires to add one config
+> structure member.
 > 
-> We have a standard properties for keycodes.
-
-Could i write them like this way?
-
-linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>
-
+> The way to reach this goal is a long one and to faciliate reviewing
+> the patches I'll split them into series of 5 to 10 patches.
 > 
-> > +			mediatek,long-press-mode = <1>;
-> > +			mediatek,long-press-duration = <0>;
-> > +		};
-> > +	};
-> > \ No newline at end of file
-> > -- 
-> > 1.7.9.5
-> > 
+> Heiner Kallweit (5):
+>   rtc: ds1307: factor out determining the chip type
+>   rtc: ds1307: factor out trickle charger initialization
+>   rtc: ds1307: factor out fixing the weekday
+>   rtc: ds1307: introduce constants for the timekeeping register masks
+>   rtc: ds1307: improve ds1307_set_time to respect config flag bits
+> 
+>  drivers/rtc/rtc-ds1307.c | 256 ++++++++++++++++++++++++++---------------------
+>  1 file changed, 140 insertions(+), 116 deletions(-)
+> 
+> -- 
+> 2.14.1
+> 
 
-Thanks.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
