@@ -1,37 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f48.google.com ([209.85.214.48]:34905 "EHLO
-        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752368AbdHBMck (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 08:32:40 -0400
-Received: by mail-it0-f48.google.com with SMTP id h199so22956133ith.0
-        for <linux-rtc@vger.kernel.org>; Wed, 02 Aug 2017 05:32:40 -0700 (PDT)
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:38544 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751056AbdHZTQp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 Aug 2017 15:16:45 -0400
+Received: by mail-wr0-f196.google.com with SMTP id o76so1750676wrb.5
+        for <linux-rtc@vger.kernel.org>; Sat, 26 Aug 2017 12:16:44 -0700 (PDT)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH] rtc: core: let rtc_set_time properly populate element wday
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Message-ID: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
+Date: Sat, 26 Aug 2017 21:16:34 +0200
 MIME-Version: 1.0
-In-Reply-To: <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
-References: <20170720231745.GE31807@n2100.armlinux.org.uk> <E1dYKiK-0001kZ-6E@rmk-PC.armlinux.org.uk>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 2 Aug 2017 14:32:38 +0200
-Message-ID: <CACRpkdadsnmL2e5XPoE9LFs4azqemZ69FbY_-bzjJigJMCf-qw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] rtc: pl031: avoid exposing alarm if no interrupt
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>, linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 21, 2017 at 1:18 AM, Russell King
-<rmk+kernel@armlinux.org.uk> wrote:
+Some drivers use element wday of the struct rtc_time which is passed to
+callback set_time. However element wday may incorrectly or not be
+populated if struct rtc_time is coming from userspace via rtc_dev_ioctl.
+rtc_valid_tm() doesn't check element wday.
 
-> If the RTC has no interrupt, there is little point in exposing the RTC
-> alarm capabilities, as it can't be used as a wakeup source nor can it
-> deliver an event to userspace.
->
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Therefore convert struct rtc_time to time64_t and then use
+rtc_time64_to_tm to generate a struct rtc_time with all elements properly
+populated.
 
-This makes all kind of sense.
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/interface.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 8cec9a02..5a53c590 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -59,28 +59,36 @@ EXPORT_SYMBOL_GPL(rtc_read_time);
+ 
+ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+ {
++	time64_t secs64;
+ 	int err;
+ 
+ 	err = rtc_valid_tm(tm);
+ 	if (err != 0)
+ 		return err;
+ 
++	secs64 = rtc_tm_to_time64(tm);
++
+ 	err = mutex_lock_interruptible(&rtc->ops_lock);
+ 	if (err)
+ 		return err;
+ 
+ 	if (!rtc->ops)
+ 		err = -ENODEV;
+-	else if (rtc->ops->set_time)
+-		err = rtc->ops->set_time(rtc->dev.parent, tm);
+-	else if (rtc->ops->set_mmss64) {
+-		time64_t secs64 = rtc_tm_to_time64(tm);
+-
++	else if (rtc->ops->set_time) {
++		struct rtc_time tmp;
++
++		/*
++		 * element wday of tm may not be set, therefore use
++		 * rtc_time64_to_tm to generate a struct rtc_time
++		 * with all elements being properly populated
++		 */
++		rtc_time64_to_tm(secs64, &tmp);
++		err = rtc->ops->set_time(rtc->dev.parent, &tmp);
++	} else if (rtc->ops->set_mmss64)
+ 		err = rtc->ops->set_mmss64(rtc->dev.parent, secs64);
+-	} else if (rtc->ops->set_mmss) {
+-		time64_t secs64 = rtc_tm_to_time64(tm);
++	else if (rtc->ops->set_mmss)
+ 		err = rtc->ops->set_mmss(rtc->dev.parent, secs64);
+-	} else
++	else
+ 		err = -EINVAL;
+ 
+ 	pm_stay_awake(rtc->dev.parent);
+-- 
+2.14.1
