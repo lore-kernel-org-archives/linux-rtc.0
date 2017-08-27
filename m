@@ -1,40 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:37481 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751533AbdHSTIS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Aug 2017 15:08:18 -0400
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 4/4] rtc: rv3029c2: constify i2c_device_id
-Date: Sun, 20 Aug 2017 00:37:58 +0530
-Message-Id: <1503169678-18078-5-git-send-email-arvind.yadav.cs@gmail.com>
-In-Reply-To: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
-References: <1503169678-18078-1-git-send-email-arvind.yadav.cs@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:35892 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751181AbdH0K2k (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 27 Aug 2017 06:28:40 -0400
+Subject: Re: [PATCH v2 2/3] rtc: Add Realtek RTD1295
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Andrew Lunn <andrew@lunn.ch>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        ????????? <jiang.liqin@geniatech.com>,
+        linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>
+References: <20170827003328.28370-1-afaerber@suse.de>
+ <20170827003328.28370-3-afaerber@suse.de> <20170827020501.GB13622@lunn.ch>
+ <a2a21bc4-b7a9-cadf-920c-f078c673dbb9@suse.de>
+ <20170827082714.nya7m3movufujtjk@piout.net>
+From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>
+Message-ID: <1e054135-b825-5d3e-e508-201589b0c451@suse.de>
+Date: Sun, 27 Aug 2017 12:28:38 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170827082714.nya7m3movufujtjk@piout.net>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-i2c_device_id are not supposed to change at runtime. All functions
-working with i2c_device_id provided by <linux/i2c.h> work with
-const i2c_device_id. So mark the non-const structs as const.
+Am 27.08.2017 um 10:27 schrieb Alexandre Belloni:
+> On 27/08/2017 at 04:30:08 +0200, Andreas Färber wrote:
+>> Am 27.08.2017 um 04:05 schrieb Andrew Lunn:
+>> By that same argument we could ask why so many drivers (and mine, too)
+>> are calling rtc_valid_tm() when __rtc_read_time() calls it again...
+> 
+> Most of them probably predates the introduction of the check in
+> __rtc_read_time().
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/rtc/rtc-rv3029c2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Replacing with 0 here then.
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 85fa1da..aa09771 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -868,7 +868,7 @@ static int rv3029_i2c_probe(struct i2c_client *client,
- 	return rv3029_probe(&client->dev, regmap, client->irq, client->name);
- }
- 
--static struct i2c_device_id rv3029_id[] = {
-+static const struct i2c_device_id rv3029_id[] = {
- 	{ "rv3029", 0 },
- 	{ "rv3029c2", 0 },
- 	{ }
+Regards,
+Andreas
+
 -- 
-2.7.4
+SUSE Linux GmbH, Maxfeldstr. 5, 90409 Nürnberg, Germany
+GF: Felix Imendörffer, Jane Smithard, Graham Norton
+HRB 21284 (AG Nürnberg)
