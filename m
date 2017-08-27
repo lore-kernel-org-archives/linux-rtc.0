@@ -1,149 +1,97 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:38644 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751991AbdHBQT3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2017 12:19:29 -0400
-Date: Wed, 2 Aug 2017 09:19:26 -0700
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-Cc: linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
-        alexandre.belloni@free-electrons.com
-Subject: Re: [RFCv2] rtc: ds1307: add square wave output from ds1308
-Message-ID: <20170802161926.GQ2146@codeaurora.org>
-References: <20170802052727.18289-1-sean.nyekjaer@prevas.dk>
+Received: from mail.free-electrons.com ([62.4.15.54]:58996 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751264AbdH0THw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 27 Aug 2017 15:07:52 -0400
+Date: Sun, 27 Aug 2017 21:07:49 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Roc He <hepeng@zidoo.tv>, devicetree@vger.kernel.org,
+        ????????? <jiang.liqin@geniatech.com>,
+        linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
+Message-ID: <20170827190749.6njixw7cxwbhmclp@piout.net>
+References: <20170820013632.18375-1-afaerber@suse.de>
+ <20170820013632.18375-2-afaerber@suse.de>
+ <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
+ <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
+ <20170827134729.GE13622@lunn.ch>
+ <feaa47ff-083a-9ee5-c055-ff1f7efce371@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170802052727.18289-1-sean.nyekjaer@prevas.dk>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <feaa47ff-083a-9ee5-c055-ff1f7efce371@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 08/02, Sean Nyekjaer wrote:
-> Add square wave output to generic clock framework
-
-s/to/via the/
-
-perhaps? This makes it sound like we're adding square wave output
-support in the generic clock framework by some new clk API or
-something.
-
+On 27/08/2017 at 19:26:11 +0200, Andreas Färber wrote:
+> Hi Andrew,
 > 
-> Signed-off-by: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
-> @@ -1056,6 +1057,13 @@ enum {
->  #define clk_32khz_to_ds1307(clk)	\
->  	container_of(clk, struct ds1307, clks[DS3231_CLK_32KHZ])
->  
-> +static int ds1308_clk_sqw_rates[] = {
+> Am 27.08.2017 um 15:47 schrieb Andrew Lunn:
+> >> Thanks. Did you read the RFC question in the cover letter as well and
+> >> have any comments? Downstream has an rtc-base-year = <2014>; property
+> >> that I had left out in this RFC and due to your ack not included in v2.
+> >>
+> >> Should we default to 2014 in the driver and add an optional base-year
+> >> property once we encounter a diverging device, or should we make it
+> >> required from the beginning? I did not spot any other rtc binding with
+> >> such a property and would appreciate a clarification.
+> > 
+> > From the perspective of the hardware, does it care what the base is?
+> 
+> The hardware stores a 15-bit number of days since Jan 1st of that base
+> year. It does not store the base year.
+> 
+> The datasheet does not name such a base year. No manual is available.
+> 
+> The driver needs to get it from somewhere for calculating day/month/year
+> in read_time and days in set_time.
+> 
+> The read_offset/set_offset API appeared to be something different.
+> 
 
-const?
+There is no api to change the epoch of an RTC because it is difficult to
+do in a race free way. This has to be worked on.
 
-> +	1,
-> +	4096,
-> +	8192,
-> +	32768,
-> +};
-> +
->  static int ds3231_clk_sqw_rates[] = {
->  	1,
->  	1024,
-> @@ -1076,6 +1097,24 @@ static int ds1337_write_control(struct ds1307 *ds1307, u8 mask, u8 value)
->  	return ret;
->  }
->  
-> +static unsigned long ds1308_clk_sqw_recalc_rate(struct clk_hw *hw,
-> +						unsigned long parent_rate)
-> +{
-> +	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-> +	int control, ret;
-> +	int rate_sel = 0;
-> +
-> +	ret = regmap_read(ds1307->regmap, DS1307_REG_CONTROL, &control);
-> +	if (ret)
-> +		return ret;
-> +	if (control & DS1307_BIT_RS0)
-> +		rate_sel += 1;
-> +	if (control & DS1307_BIT_RS1)
-> +		rate_sel += 2;
-> +
-> +	return ds1308_clk_sqw_rates[rate_sel];
+Anyway, you don't really care for now as it goes up to 2093 and
+hopefully, you will never have a product with a different epoch.
 
-rate_sel can't be out of bounds on the array here, right?
+> > A device using a different base will initially return the wrong
+> > time. But once the correct time has been written back, it will be O.K.
+> > 
 
-> +}
-> +
->  static unsigned long ds3231_clk_sqw_recalc_rate(struct clk_hw *hw,
->  						unsigned long parent_rate)
->  {
-> @@ -1146,6 +1237,18 @@ static void ds3231_clk_sqw_unprepare(struct clk_hw *hw)
->  	ds1337_write_control(ds1307, DS1337_BIT_INTCN, DS1337_BIT_INTCN);
->  }
->  
-> +static int ds1308_clk_sqw_is_prepared(struct clk_hw *hw)
-> +{
-> +	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-> +	int control, ret;
-> +
-> +	ret = regmap_read(ds1307->regmap, DS1307_REG_CONTROL, &control);
-> +	if (ret)
-> +		return ret;
+The other issue being that you don't have any way to know whether the
+base is correct or not until the date is set.
 
-This should return 0 on failure? The is_prepared() clk op has an
-int return value, but the return value is interpreted as a bool.
+> > This only becomes an issue if a device is used with different OSs,
+> > which have different bases. Swapping back and forth between OSs then
+> > becomes an issue.
+> 
+> These are TV boxes, so yes, I'm dual-booting into Android with a vendor
+> 4.1 kernel and would like to keep date compatibility.
+> 
+> https://en.opensuse.org/HCL:Zidoo_X9S
+> https://en.opensuse.org/HCL:ProBox2_Ava
+> https://en.opensuse.org/HCL:Lake1
+> 
+> As stated in the v2 rtc commit message, 2014 is the base year
+> encountered on all three devices that I've had access to.
+> @Jiang, if you're using a different base year, please speak up!
+> 
+> > KISS suggests not having a base in DT until it is actually
+> > required. Since it is an additional property, it does not break
+> > backwards compatibility when added.
+> 
+> That's what I've attempted here - but for RDA8810PL serial Rob said he
+> did not want future changes to my binding, therefore I am asking for his
+> confirmation here.
 
-> +
-> +	return control & DS1307_BIT_SQWE;
-> +}
-> +
->  static int ds3231_clk_sqw_is_prepared(struct clk_hw *hw)
->  {
->  	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
-> @@ -1231,6 +1350,44 @@ static struct clk_init_data ds3231_clks_init[] = {
->  	},
->  };
->  
-> +static int ds1308_clks_register(struct ds1307 *ds1307)
-> +{
-> +	struct device_node *node = ds1307->dev->of_node;
-> +	struct clk_onecell_data	*onecell;
-> +	int i;
-> +
-> +	onecell = devm_kzalloc(ds1307->dev, sizeof(*onecell), GFP_KERNEL);
-> +	if (!onecell)
-> +		return -ENOMEM;
-> +
-> +	onecell->clk_num = ARRAY_SIZE(ds1308_clks_init);
-> +	onecell->clks = devm_kcalloc(ds1307->dev, onecell->clk_num,
-> +				     sizeof(onecell->clks[0]), GFP_KERNEL);
-> +	if (!onecell->clks)
-> +		return -ENOMEM;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(ds1308_clks_init); i++) {
-> +		struct clk_init_data init = ds1308_clks_init[i];
-> +
-> +		/* optional override of the clockname */
-> +		of_property_read_string_index(node, "clock-output-names", i,
-> +						&init.name);
-> +		ds1307->clks[i].init = &init;
-> +
-> +		onecell->clks[i] = devm_clk_register(ds1307->dev,
-> +						     &ds1307->clks[i]);
-
-Can you please use devm_clk_hw_register() instead?
-
-> +		if (IS_ERR(onecell->clks[i]))
-> +			return PTR_ERR(onecell->clks[i]);
-> +	}
-> +
-> +	if (!node)
-> +		return 0;
-> +
-> +	of_clk_add_provider(node, of_clk_src_onecell_get, onecell);
-
-And of_clk_add_hw_provider()?
-
-> +
-> +	return 0;
-> +}
+It would be a change that is easy enough to do in a backward compatible
+way so that is probably fine.
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
