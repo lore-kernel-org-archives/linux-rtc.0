@@ -1,78 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:17464 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751209AbdH2CLl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 22:11:41 -0400
-Message-ID: <1503972695.3340.16.camel@mhfsdcap03>
-Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        "Alessandro Zummo" <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Tue, 29 Aug 2017 10:11:35 +0800
-In-Reply-To: <20170828165757.GE12195@dtor-ws>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
-         <20170828165757.GE12195@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.free-electrons.com ([62.4.15.54]:59290 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751255AbdH0T0k (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 27 Aug 2017 15:26:40 -0400
+Date: Sun, 27 Aug 2017 21:26:38 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Roc He <hepeng@zidoo.tv>,
+        ????????? <jiang.liqin@geniatech.com>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 2/3] rtc: Add Realtek RTD1295
+Message-ID: <20170827192638.2wgkhr7k3n4vrqth@piout.net>
+References: <20170827003328.28370-1-afaerber@suse.de>
+ <20170827003328.28370-3-afaerber@suse.de>
+ <20170827091301.wbuzxkh7opz4blrc@piout.net>
+ <d20fbc21-bd8f-c191-ed51-03487868e7b0@suse.de>
+ <20170827133751.GD13622@lunn.ch>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170827133751.GD13622@lunn.ch>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 2017-08-28 at 09:57 -0700, Dmitry Torokhov wrote:
-> Hi Chen,
+On 27/08/2017 at 15:37:51 +0200, Andrew Lunn wrote:
+> > >> +static inline int rtd119x_rtc_year_days(int year)
+> > >> +{
+> > >> +	return rtc_year_days(1, 12, year);
+> > > 
+> > > I'm not sure it is worth wrapping rtc_year_days
+> > [snip]
+> > 
+> > Well, I found your rtc_year_days rather confusing and had to play with
+> > the arguments until I got it working as expected, so I wanted an inline
+> > function (or macro) as abstraction from my three callers.
 > 
-> On Fri, Aug 25, 2017 at 02:32:32PM +0800, Chen Zhong wrote:
-> > +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
-> > +		struct pmic_keys_info *info)
-> > +{
-> > +	int ret;
-> > +
-> > +	info->keys = keys;
-> > +
-> > +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
-> > +				 info->regs->intsel_mask,
-> > +				 info->regs->intsel_mask);
-> > +	if (ret < 0)
-> > +		return ret;
-> > +
-> > +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
-> > +					mtk_pmic_keys_irq_handler_thread,
-> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> > +					"mtk-pmic-keys", info);
-> > +	if (ret) {
-> > +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
-> > +			info->irq, ret);
-> > +		return ret;
-> > +	}
-> > +
-> > +	if (info->wakeup)
-> > +		irq_set_irq_wake(info->irq, 1);
-> 
-> Normally we do this in suspend() (and undo in resume()), and I believe
-> the drover API is enable_irq_wake() and disable_irq_wake().
+> I agree with that. I was wondering why 1st December was being used. I
+> would say this API does not do too well on Rusty's API Design
+> Manifesto.
 > 
 
-Hi Dmitry,
+It follows the convention that tm_mon is 0-11. Making it easy to read
+for anyone used to the RTC subsystem. I can agree it is not the most
+intuitive one. That choice predates the RTC subsystem (made in 1996), I
+won't give any name ;)
 
-I'll add suspend/resume callback functions and do this with
-enable_irq_wake() and disable_irq_wake().
-
-Thank you.
-
-
-> Thanks.
+> It does at least get the day/month/year in the right order ;-)
 > 
+> 	Andrew
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
