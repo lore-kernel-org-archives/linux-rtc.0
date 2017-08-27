@@ -1,144 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59319 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753596AbdHWJuD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2017 05:50:03 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2] rtc: sa1100: make alarms useful
-Date: Wed, 23 Aug 2017 11:49:59 +0200
-Message-Id: <20170823094959.32488-1-alexandre.belloni@free-electrons.com>
+Received: from vps0.lunn.ch ([178.209.37.122]:45422 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751338AbdH0Nrm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 27 Aug 2017 09:47:42 -0400
+Date: Sun, 27 Aug 2017 15:47:29 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc: Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Roc He <hepeng@zidoo.tv>, devicetree@vger.kernel.org,
+        ????????? <jiang.liqin@geniatech.com>,
+        linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
+Message-ID: <20170827134729.GE13622@lunn.ch>
+References: <20170820013632.18375-1-afaerber@suse.de>
+ <20170820013632.18375-2-afaerber@suse.de>
+ <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
+ <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <629b9ed0-7b2d-7c5c-20b8-17289a76f097@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Currently, the driver unregisters the IRQs when the rtc character device is
-closed. This means that the device needs to stay open to get alarms while
-the usual use case will open the device, set the alarm and close the
-device.
+> Thanks. Did you read the RFC question in the cover letter as well and
+> have any comments? Downstream has an rtc-base-year = <2014>; property
+> that I had left out in this RFC and due to your ack not included in v2.
+> 
+> Should we default to 2014 in the driver and add an optional base-year
+> property once we encounter a diverging device, or should we make it
+> required from the beginning? I did not spot any other rtc binding with
+> such a property and would appreciate a clarification.
 
-Move the IRQ requests to sa1100_rtc_probe() and use the devm managed
-versions so we don't need to free them.
+Hi Andreas
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
-Changes in v2:
- - Fix build issues
+>From the perspective of the hardware, does it care what the base is?
 
+A device using a different base will initially return the wrong
+time. But once the correct time has been written back, it will be O.K.
 
- drivers/rtc/rtc-sa1100.c | 63 +++++++++++++++++-------------------------------
- 1 file changed, 22 insertions(+), 41 deletions(-)
+This only becomes an issue if a device is used with different OSs,
+which have different bases. Swapping back and forth between OSs then
+becomes an issue.
 
-diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
-index fe8ebf47bbe5..ed71d1113627 100644
---- a/drivers/rtc/rtc-sa1100.c
-+++ b/drivers/rtc/rtc-sa1100.c
-@@ -95,44 +95,6 @@ static irqreturn_t sa1100_rtc_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int sa1100_rtc_open(struct device *dev)
--{
--	struct sa1100_rtc *info = dev_get_drvdata(dev);
--	struct rtc_device *rtc = info->rtc;
--	int ret;
--
--	ret = request_irq(info->irq_1hz, sa1100_rtc_interrupt, 0, "rtc 1Hz", dev);
--	if (ret) {
--		dev_err(dev, "IRQ %d already in use.\n", info->irq_1hz);
--		return ret;
--	}
--	ret = request_irq(info->irq_alarm, sa1100_rtc_interrupt, 0, "rtc Alrm", dev);
--	if (ret) {
--		dev_err(dev, "IRQ %d already in use.\n", info->irq_alarm);
--		goto fail_ai;
--	}
--	rtc->max_user_freq = RTC_FREQ;
--	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
--
--	return 0;
--
-- fail_ai:
--	free_irq(info->irq_1hz, dev);
--	return ret;
--}
--
--static void sa1100_rtc_release(struct device *dev)
--{
--	struct sa1100_rtc *info = dev_get_drvdata(dev);
--
--	spin_lock_irq(&info->lock);
--	writel_relaxed(0, info->rtsr);
--	spin_unlock_irq(&info->lock);
--
--	free_irq(info->irq_alarm, dev);
--	free_irq(info->irq_1hz, dev);
--}
--
- static int sa1100_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	u32 rtsr;
-@@ -214,8 +176,6 @@ static int sa1100_rtc_proc(struct device *dev, struct seq_file *seq)
- }
- 
- static const struct rtc_class_ops sa1100_rtc_ops = {
--	.open = sa1100_rtc_open,
--	.release = sa1100_rtc_release,
- 	.read_time = sa1100_rtc_read_time,
- 	.set_time = sa1100_rtc_set_time,
- 	.read_alarm = sa1100_rtc_read_alarm,
-@@ -263,6 +223,9 @@ int sa1100_rtc_init(struct platform_device *pdev, struct sa1100_rtc *info)
- 	}
- 	info->rtc = rtc;
- 
-+	rtc->max_user_freq = RTC_FREQ;
-+	rtc_irq_set_freq(rtc, NULL, RTC_FREQ);
-+
- 	/* Fix for a nasty initialization problem the in SA11xx RTSR register.
- 	 * See also the comments in sa1100_rtc_interrupt().
- 	 *
-@@ -297,6 +260,7 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
- 	struct resource *iores;
- 	void __iomem *base;
- 	int irq_1hz, irq_alarm;
-+	int ret;
- 
- 	irq_1hz = platform_get_irq_byname(pdev, "rtc 1Hz");
- 	irq_alarm = platform_get_irq_byname(pdev, "rtc alarm");
-@@ -309,6 +273,19 @@ static int sa1100_rtc_probe(struct platform_device *pdev)
- 	info->irq_1hz = irq_1hz;
- 	info->irq_alarm = irq_alarm;
- 
-+	ret = devm_request_irq(&pdev->dev, irq_1hz, sa1100_rtc_interrupt, 0,
-+			       "rtc 1Hz", &pdev->dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq_1hz);
-+		return ret;
-+	}
-+	ret = devm_request_irq(&pdev->dev, irq_alarm, sa1100_rtc_interrupt, 0,
-+			       "rtc Alrm", &pdev->dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq_alarm);
-+		return ret;
-+	}
-+
- 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(&pdev->dev, iores);
- 	if (IS_ERR(base))
-@@ -337,8 +314,12 @@ static int sa1100_rtc_remove(struct platform_device *pdev)
- {
- 	struct sa1100_rtc *info = platform_get_drvdata(pdev);
- 
--	if (info)
-+	if (info) {
-+		spin_lock_irq(&info->lock);
-+		writel_relaxed(0, info->rtsr);
-+		spin_unlock_irq(&info->lock);
- 		clk_disable_unprepare(info->clk);
-+	}
- 
- 	return 0;
- }
--- 
-2.14.1
+KISS suggests not having a base in DT until it is actually
+required. Since it is an additional property, it does not break
+backwards compatibility when added.
+
+	  Andrew
