@@ -1,59 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35167 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755109AbdHYIeQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 04:34:16 -0400
-Date: Fri, 25 Aug 2017 10:34:15 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-Cc: linux-mips@linux-mips.org,
-        Aleksandar Markovic <aleksandar.markovic@imgtec.com>,
-        Miodrag Dinic <miodrag.dinic@imgtec.com>,
-        Goran Ferenc <goran.ferenc@imgtec.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Bo Hu <bohu@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org,
-        Douglas Leung <douglas.leung@imgtec.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Hogan <james.hogan@imgtec.com>,
-        Jin Qian <jinqian@google.com>, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Paul Burton <paul.burton@imgtec.com>,
-        Petar Jovanovic <petar.jovanovic@imgtec.com>,
-        Raghu Gandham <raghu.gandham@imgtec.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v4 1/8] Documentation: Add device tree binding for
- Goldfish RTC driver
-Message-ID: <20170825083415.vgrkd6sdltvrnty4@piout.net>
-References: <1503061833-26563-1-git-send-email-aleksandar.markovic@rt-rk.com>
- <1503061833-26563-2-git-send-email-aleksandar.markovic@rt-rk.com>
+Received: from mx2.suse.de ([195.135.220.15]:48023 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751135AbdH0Adg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 26 Aug 2017 20:33:36 -0400
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org
+Subject: [PATCH v2 3/3] arm64: dts: realtek: Add RTD1295 RTC node
+Date: Sun, 27 Aug 2017 02:33:28 +0200
+Message-Id: <20170827003328.28370-4-afaerber@suse.de>
+In-Reply-To: <20170827003328.28370-1-afaerber@suse.de>
+References: <20170827003328.28370-1-afaerber@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1503061833-26563-2-git-send-email-aleksandar.markovic@rt-rk.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 18/08/2017 at 15:08:53 +0200, Aleksandar Markovic wrote:
-> From: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
-> 
-> Add documentation for DT binding of Goldfish RTC driver. The compatible
-> string used by OS for binding the driver is "google,goldfish-rtc".
-> 
-> Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-> Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-> Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
-> ---
->  .../devicetree/bindings/rtc/google,goldfish-rtc.txt     | 17 +++++++++++++++++
->  MAINTAINERS                                             |  5 +++++
->  2 files changed, 22 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
-> 
-Applied, thanks.
+Add RTC node to the Realtek RTD1295 Device Tree.
 
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ v1 -> v2: Unchanged
+ 
+ Depends on the pending clock bindings.
+ 
+ arch/arm64/boot/dts/realtek/rtd1295.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/realtek/rtd1295.dtsi b/arch/arm64/boot/dts/realtek/rtd1295.dtsi
+index 503e2d5fc334..8ae0949ad89e 100644
+--- a/arch/arm64/boot/dts/realtek/rtd1295.dtsi
++++ b/arch/arm64/boot/dts/realtek/rtd1295.dtsi
+@@ -192,6 +192,12 @@
+ 			status = "disabled";
+ 		};
+ 
++		rtc@9801b600 {
++			compatible = "realtek,rtd1295-rtc";
++			reg = <0x9801b600 0x100>;
++			clocks = <&clkc RTD1295_CLK_EN_MISC_RTC>;
++		};
++
+ 		gic: interrupt-controller@ff011000 {
+ 			compatible = "arm,gic-400";
+ 			reg = <0xff011000 0x1000>,
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.12.3
