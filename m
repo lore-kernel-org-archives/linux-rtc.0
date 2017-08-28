@@ -1,92 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:21224 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750909AbdH2HlI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 03:41:08 -0400
-Message-ID: <1503992459.15359.4.camel@mhfsdcap03>
-Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Andi Shyti <andi.shyti@samsung.com>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "Javier Martinez Canillas" <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Tue, 29 Aug 2017 15:40:59 +0800
-In-Reply-To: <20170829073453.GB4469@gangnam>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <CGME20170825063247epcas5p1df2f4440010dd55dada66e8764d18e50@epcas5p1.samsung.com>
-         <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
-         <20170829073453.GB4469@gangnam>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.free-electrons.com ([62.4.15.54]:34128 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751203AbdH1Syv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 14:54:51 -0400
+Date: Mon, 28 Aug 2017 20:54:39 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
+ wday
+Message-ID: <20170828185439.7jd4ogjuj6htl5c2@piout.net>
+References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
+ <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
+ <20170826195947.jnipgyuxg3ceqie4@piout.net>
+ <a6ccd0ab-a6f4-1122-233b-61e69b80aa54@gmail.com>
+ <7da740e6-b1e0-0a58-8b54-2e5e3e2f6c54@gmail.com>
+ <20170828075458.4cdi7pet3yxeskqc@piout.net>
+ <9a11b823-abe0-6611-9d97-75e2a2ec7745@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9a11b823-abe0-6611-9d97-75e2a2ec7745@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Andi,
+On 28/08/2017 at 20:13:25 +0200, Heiner Kallweit wrote:
+> Am 28.08.2017 um 09:54 schrieb Alexandre Belloni:
+> > On 27/08/2017 at 21:35:34 +0200, Heiner Kallweit wrote:
+> >> When having a look at the MCP794XX datasheet it became clear why the
+> >> mentioned weekday-related patch was submitted. This chip is quite
+> >> strange regarding the possible alarm match conditions:
+> >>
+> >> ALMxMSK<2:0>: Alarm Mask bits
+> >> 000 = Seconds match
+> >> 001 = Minutes match
+> >> 010 = Hours match (logic takes into account 12-/24-hour operation)
+> >> 011 = Day of week match
+> >> 100 = Date match
+> >> 101 = Reserved; do not use
+> >> 110 = Reserved; do not use
+> >> 111 = Seconds, Minutes, Hour, Day of Week, Date and Month
+> >>
+> >> When not having a proper weekday you get only either seconds or
+> >> minutes or hours or date match.
+> >>
+> >> So it's best to ensure that the weekday is properly populated.
+> >> However we can do this in the driver and don't have to touch the core.
+> >>
+> > 
+> > Can you do that only for mcp794xx? I received one earlier this month and
+> > I'll separate the driver from rtc-ds1307.c at some point.
+> > 
+> Sure, I'll submit a patch for this. Separating the driver for mcp794xx may
+> not be needed as it is not that different from the other chips supported
+> by this driver. Once I have my patch series proposal towards a ds1307_lib
+> in a little more clean state this should become clearer.
+> 
 
-Sorry for that, i deleted some prefix since the namings will be such
-long. If this should be consistent, I'll check and modify them in the
-next version.
+I would like to find a better name than that but I didn't come up with
+anything yet... feel free to get creative ;)
 
-Thank you.
 
-On Tue, 2017-08-29 at 16:34 +0900, Andi Shyti wrote:
-> Hi Chen,
-> 
-> what I would ask you is to be consistent with the naming, if your
-> driver is called mtk-pmic, then all your functions and global
-> variables should be named accordingly as mtk_pmic or MTK_PMIC.
-> Please check in between the lines for real examples:
-> 
-> > +#define PWRKEY_RST_EN_MASK	0x1
-> > +#define PWRKEY_RST_EN_SHIFT	6
-> > +#define HOMEKEY_RST_EN_MASK	0x1
-> > +#define HOMEKEY_RST_EN_SHIFT	5
-> > +#define RST_DU_MASK		0x3
-> > +#define RST_DU_SHIFT		8
-> > +
-> > +#define PMIC_PWRKEY_INDEX	0
-> > +#define PMIC_HOMEKEY_INDEX	1
-> > +#define PMIC_MAX_KEY_COUNT	2
-> 
-> #define MTK_PMIC_*
-> 
-> > +struct pmic_keys_regs {
-> 
-> struct mtk_pmic_keys_regs
-> 
-> > +	u32 deb_reg;
-> > +	u32 deb_mask;
-> > +	u32 intsel_reg;
-> > +	u32 intsel_mask;
-> > +};
-> > +
-> > +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
-> 
-> MTK_PMIC_KEYS_REGS
-> 
-> > +{									\
-> > +	.deb_reg		= _deb_reg,				\
-> > +	.deb_mask		= _deb_mask,				\
-> > +	.intsel_reg		= _intsel_reg,				\
-> > +	.intsel_mask		= _intsel_mask,				\
-> > +}
-> > +
-> > +struct pmic_regs {
-> 
-> mtk_pmic_regs
-> 
-> and so on... you got the point.
-> 
-> Andi
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
