@@ -1,120 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37860 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751124AbdH0LbD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 27 Aug 2017 07:31:03 -0400
-Subject: Re: [PATCH v2 2/3] rtc: Add Realtek RTD1295
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34200 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750735AbdH1SNe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 14:13:34 -0400
+Received: by mail-wm0-f68.google.com with SMTP id l19so1385192wmi.1
+        for <linux-rtc@vger.kernel.org>; Mon, 28 Aug 2017 11:13:33 -0700 (PDT)
+Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
+ wday
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
-        Andrew Lunn <andrew@lunn.ch>
-References: <20170827003328.28370-1-afaerber@suse.de>
- <20170827003328.28370-3-afaerber@suse.de>
- <20170827091301.wbuzxkh7opz4blrc@piout.net>
-From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>
-Message-ID: <d20fbc21-bd8f-c191-ed51-03487868e7b0@suse.de>
-Date: Sun, 27 Aug 2017 13:30:59 +0200
+Cc: linux-rtc@vger.kernel.org
+References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
+ <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
+ <20170826195947.jnipgyuxg3ceqie4@piout.net>
+ <a6ccd0ab-a6f4-1122-233b-61e69b80aa54@gmail.com>
+ <7da740e6-b1e0-0a58-8b54-2e5e3e2f6c54@gmail.com>
+ <20170828075458.4cdi7pet3yxeskqc@piout.net>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <9a11b823-abe0-6611-9d97-75e2a2ec7745@gmail.com>
+Date: Mon, 28 Aug 2017 20:13:25 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170827091301.wbuzxkh7opz4blrc@piout.net>
+In-Reply-To: <20170828075458.4cdi7pet3yxeskqc@piout.net>
 Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
-
-Am 27.08.2017 um 11:13 schrieb Alexandre Belloni:
-> Not much to add, apart from the spinlock issue already spotted by Andrew.
+Am 28.08.2017 um 09:54 schrieb Alexandre Belloni:
+> On 27/08/2017 at 21:35:34 +0200, Heiner Kallweit wrote:
+>> When having a look at the MCP794XX datasheet it became clear why the
+>> mentioned weekday-related patch was submitted. This chip is quite
+>> strange regarding the possible alarm match conditions:
+>>
+>> ALMxMSK<2:0>: Alarm Mask bits
+>> 000 = Seconds match
+>> 001 = Minutes match
+>> 010 = Hours match (logic takes into account 12-/24-hour operation)
+>> 011 = Day of week match
+>> 100 = Date match
+>> 101 = Reserved; do not use
+>> 110 = Reserved; do not use
+>> 111 = Seconds, Minutes, Hour, Day of Week, Date and Month
+>>
+>> When not having a proper weekday you get only either seconds or
+>> minutes or hours or date match.
+>>
+>> So it's best to ensure that the weekday is properly populated.
+>> However we can do this in the driver and don't have to touch the core.
+>>
 > 
-> On 27/08/2017 at 02:33:27 +0200, Andreas Färber wrote:
->> +struct rtd119x_rtc {
->> +	void __iomem *base;
->> +	struct clk *clk;
->> +	struct rtc_device *rtcdev;
->> +	unsigned base_year;
+> Can you do that only for mcp794xx? I received one earlier this month and
+> I'll separate the driver from rtc-ds1307.c at some point.
 > 
-> checkpatch complains this should be made unsigned int
+Sure, I'll submit a patch for this. Separating the driver for mcp794xx may
+not be needed as it is not that different from the other chips supported
+by this driver. Once I have my patch series proposal towards a ds1307_lib
+in a little more clean state this should become clearer.
 
-Ouch, I forgot to add my pre-commit hook in this tree and wasn't aware
-of that rule yet. The RFC had it already. Fixed.
+Regards, Heiner
 
->> +	spinlock_t lock;
->> +};
->> +
->> +static inline int rtd119x_rtc_year_days(int year)
->> +{
->> +	return rtc_year_days(1, 12, year);
+> BTW, I've rebased and pushed some cleanup for this driver in:
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/log/?h=rtc-ds1307
 > 
-> I'm not sure it is worth wrapping rtc_year_days
-[snip]
+> Can you base yourself on that?
+> 
+OK
 
-Well, I found your rtc_year_days rather confusing and had to play with
-the arguments until I got it working as expected, so I wanted an inline
-function (or macro) as abstraction from my three callers.
-
-Sadly the naming is rather confusing as I am looking for the number of
-days 365..366, whereas your rtc_year_days is meant to return 0..365 and
-I would just like to extract the 12th array element but need to counter
-the -1 subtraction. rtc_year_days(31, 11, year) + 1 is not intuitive
-either - reads like November (and ranges are not documented).
-
-What about exporting a convenient rtc_days_in_year(year) from rtc-lib.c
-accessing the table directly without rtc_year_days detour? Alternatively
-an inline function in rtc.h to the same effect without the array?
-
-Also despite is_leap_year() returning a bool || expression you keep
-using it as array index or integer to add. That assumes true == 1,
-whereas to my knowledge only false is guaranteed to be 0 and any
-non-zero value means true. So I'd expect the code to be like this:
-
-diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-index 1ae7da5cfc60..8983a408fc30 100644
---- a/drivers/rtc/rtc-lib.c
-+++ b/drivers/rtc/rtc-lib.c
-@@ -32,7 +32,7 @@ static const unsigned short rtc_ydays[2][13] = {
-  */
- int rtc_month_days(unsigned int month, unsigned int year)
- {
--       return rtc_days_in_month[month] + (is_leap_year(year) && month
-== 1);
-+       return rtc_days_in_month[month] + ((is_leap_year(year) && month
-== 1) ? 1 : 0);
- }
- EXPORT_SYMBOL(rtc_month_days);
-
-@@ -41,7 +41,7 @@ EXPORT_SYMBOL(rtc_month_days);
-  */
- int rtc_year_days(unsigned int day, unsigned int month, unsigned int year)
- {
--       return rtc_ydays[is_leap_year(year)][month] + day-1;
-+       return rtc_ydays[is_leap_year(year) ? 1 : 0][month] + day-1;
- }
- EXPORT_SYMBOL(rtc_year_days);
-
-@@ -69,7 +69,7 @@ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-                - LEAPS_THRU_END_OF(1970 - 1);
-        if (days < 0) {
-                year -= 1;
--               days += 365 + is_leap_year(year);
-+               days += 365 + (is_leap_year(year) ? 1 : 0);
-        }
-        tm->tm_year = year - 1900;
-        tm->tm_yday = days + 1;
-
-The above rtc_time64_to_tm() hunk could be converted to the proposed
-rtc_days_in_year(). rtc-mcp795.c has another candidate.
-
-By reusing rtc_year_days I elegantly avoided is_leap_year in my code,
-but I could spell out 365 + (is_leap_year(year) ? 1 : 0) in my function
-if preferred. I dislike duplicating expressions in code.
-
-What do you think?
-
-Regards,
-Andreas
-
--- 
-SUSE Linux GmbH, Maxfeldstr. 5, 90409 Nürnberg, Germany
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
+> Thanks,
+> 
