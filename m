@@ -1,70 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35671 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750735AbdH1U0D (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 16:26:03 -0400
-Date: Mon, 28 Aug 2017 22:25:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1307: improve weekday handling
-Message-ID: <20170828202551.p2ngspladxlquboc@piout.net>
-References: <57598a86-21c7-b354-2840-309563440435@gmail.com>
- <20170828191518.ofntjb2tknttjexq@piout.net>
- <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:38465 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751276AbdH1LKw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 28 Aug 2017 07:10:52 -0400
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        devicetree@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH v3 0/3] arm64: Realtek RTD1295 RTC
+Date: Mon, 28 Aug 2017 13:10:38 +0200
+Message-Id: <20170828111041.17946-1-afaerber@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 28/08/2017 at 21:58:23 +0200, Heiner Kallweit wrote:
-> Am 28.08.2017 um 21:15 schrieb Alexandre Belloni:
-> > On 28/08/2017 at 20:37:21 +0200, Heiner Kallweit wrote:
-> >> mcp794xx as one chip supported by this driver needs the weekday for
-> >> alarm matching. RTC core ignores the weekday so we can't rely on
-> >> the values we receive in member tm_wday of struct rtc_time.
-> >> Therefore calculate the weekday from date/time when setting the
-> >> time and setting the alarm time for mcp794xx.
-> >>
-> >> When having this in place we don't have to check the weekday
-> >> at each driver load.
-> >> After a chip reset date/time and weekday may be out of sync but
-> >> in this case date/time need to be set anyway.
-> >>
-> > 
-> > Nope, the core issue is that you can actually set an alarm in the future
-> > without setting the time beforehand so this as to be fixed in the probe
-> > (this was the issue as reported at the time of the fix).
-> > 
-> Ah, found the original thread where this was discussed.
-> Still I don't really understand the problem. mcp794xx matches based on
-> secs, min, hour, wday, mday, month. When I use "rtcwake -s 5" I expect
-> the alarm to trigger 5 secs from now. How can this ever work if the
-> RTC has random date/time (wday being valid or not)?
-> 
+Hello,
 
-wakealarm_store() reads the rtc time, adds the relative offset and sets
-the alarm.
+This series adds the RTC for the Realtek RTD1295 SoC.
+Based on my RTD1295 clk series.
 
-> I'd tend to say that if we know the RTC time is incorrect we shouldn't
-> allow setting an alarm.
+There being no public source code for RTD1295, the implementation is based on
+register offsets seen in the vendor DT, as well as older mach-rtk119x code
+published by QNAP.
 
-Unfortunately, this would break some platforms. Note that this is
-already handled that way by some RTC drivers because they return an
-error when it is known that the time is invalid.
+v3 drops a redundant spinlock and refactors a helper.
 
-I've started to work on that but it is far from finished.
+The DT node depends on the clk series for clock index and header.
 
-> At least I wouldn't dare to program a bomb explosion time if I stand in
-> front of it and know that the bomb's clock has a random value ;)
-> 
+More experimental patches at:
+https://github.com/afaerber/linux/commits/rtd1295-next
 
-A timer will work as long as the clock is ticking, it doesn't matter
-when it is started ;)
+Have a lot of fun!
 
+Cheers,
+Andreas
+
+v2 -> v3:
+* Dropped spinlock (Andrew)
+* Improved year_days vs. days_in_year readability
+
+v1 -> v2:
+* Updated rtc driver to no longer use open/release (Alexandre)
+* Cleaned up debug output (Andrew)
+* Avoided COMPILE_TEST division errors (kbuild)
+* Various cleanups and extensions
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Cc: Roc He <hepeng@zidoo.tv>
+Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
+Cc: devicetree@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+
+Andreas Färber (3):
+  dt-bindings: rtc: Add Realtek RTD1295
+  rtc: Add Realtek RTD1295
+  arm64: dts: realtek: Add RTD1295 RTC node
+
+ .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
+ arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
+ drivers/rtc/Kconfig                                |   8 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-rtd119x.c                          | 241 +++++++++++++++++++++
+ 5 files changed, 272 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
+ create mode 100644 drivers/rtc/rtc-rtd119x.c
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.12.3
