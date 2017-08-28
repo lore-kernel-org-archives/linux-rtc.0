@@ -1,78 +1,149 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53001 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754351AbdHUONj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Aug 2017 10:13:39 -0400
-Date: Mon, 21 Aug 2017 16:13:27 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC fixes for 4.13
-Message-ID: <20170821141327.lskwzhypx7t5gw77@piout.net>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:35094 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750841AbdH1UMT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 16:12:19 -0400
+Received: by mail-wr0-f196.google.com with SMTP id a47so1011812wra.2
+        for <linux-rtc@vger.kernel.org>; Mon, 28 Aug 2017 13:12:19 -0700 (PDT)
+Subject: Re: [PATCH] rtc: ds1307: improve weekday handling
+From: Heiner Kallweit <hkallweit1@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+References: <57598a86-21c7-b354-2840-309563440435@gmail.com>
+ <20170828191518.ofntjb2tknttjexq@piout.net>
+ <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
+Message-ID: <c41e959f-dd6f-62f4-86e6-ca9f2b714565@gmail.com>
+Date: Mon, 28 Aug 2017 22:12:11 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="oqg5kxkcontpvzif"
+In-Reply-To: <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+Am 28.08.2017 um 21:58 schrieb Heiner Kallweit:
+> Am 28.08.2017 um 21:15 schrieb Alexandre Belloni:
+>> On 28/08/2017 at 20:37:21 +0200, Heiner Kallweit wrote:
+>>> mcp794xx as one chip supported by this driver needs the weekday for
+>>> alarm matching. RTC core ignores the weekday so we can't rely on
+>>> the values we receive in member tm_wday of struct rtc_time.
+>>> Therefore calculate the weekday from date/time when setting the
+>>> time and setting the alarm time for mcp794xx.
+>>>
+>>> When having this in place we don't have to check the weekday
+>>> at each driver load.
+>>> After a chip reset date/time and weekday may be out of sync but
+>>> in this case date/time need to be set anyway.
+>>>
+>>
+>> Nope, the core issue is that you can actually set an alarm in the future
+>> without setting the time beforehand so this as to be fixed in the probe
+>> (this was the issue as reported at the time of the fix).
+>>
+> Ah, found the original thread where this was discussed.
+> Still I don't really understand the problem. mcp794xx matches based on
+> secs, min, hour, wday, mday, month. When I use "rtcwake -s 5" I expect
+> the alarm to trigger 5 secs from now. How can this ever work if the
+> RTC has random date/time (wday being valid or not)?
+> 
+OK, if "rtcwake -s 5" sets the alarm relative to the rtc time, not the
+sys time then it would work. But allowing to use the rtc when it has
+a random date / time still seems to be a weird use case to me.
 
---oqg5kxkcontpvzif
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull this late fix for 4.13.
-
-The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba20877:
-
-  Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc=
--4.13-fixes
-
-for you to fetch changes up to 03619844d81d7459874e88034f0f36d959f0e2df:
-
-  rtc: ds1307: fix regmap config (2017-08-21 11:08:03 +0200)
-
-----------------------------------------------------------------
-RTC fixes for 4.13:
-
- - ds1307: fix regmap configuration
-
-----------------------------------------------------------------
-Heiner Kallweit (1):
-      rtc: ds1307: fix regmap config
-
- drivers/rtc/rtc-ds1307.c | 1 -
- 1 file changed, 1 deletion(-)
-
---=20
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---oqg5kxkcontpvzif
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEXx9Viay1+e7J/aM4AyWl4gNJNJIFAlma6ocACgkQAyWl4gNJ
-NJKtxQ//QAby+jTEBAbC0kJtxKoWqKOTF6LEJ/ksVzJ0/xFA1FJ5LnZ9TF9oe+eS
-hvt7lMQAIll6TcnXSsMLF8Bzo166ov3tOKoWfinnVE+aO7e11AMhUttJX9EBuAwS
-kECR75FYcLwlhR64d36HtfdOqm+oHDgUdLxlp1PfOtbgTAqwBrgo6mdZ+k8/cAHx
-8ep7foE5Ip/nlEonzhTWOk7FdCL4ROrgfZcCyV8E38T20omL4Qdpi5YrGq/XqNkm
-bEauTGmoj5enz0cEmsjeS7GSp+V7cRN8TePRj/pVQefsmxOV10jj9BxsSshLLzuO
-xdO4S2LEEgzmnCBxu1IcAtt8LS55VtIGGTwY9xnxivk9MG4pvU2+JqZZqUZ27dci
-RHBdffQAueXpHiDw+zUPubtAJ39MO2EcgjJUDFAntK+qzAdKZD9nuf38orcNPkJi
-musyxS+dx7fkrGZgc27dGBTNBsiPqWaYBDkcuY+FNtorvSyHJzEnc/6bpE7BLuUL
-gGUwn91CUr7EbES1a40uojdj5epnpnoLnxPhoXruFlzsmZF8E7QL++/K9oPH+aGg
-p0vXmJxBOofnotnG1qC77fkebxEfVnqYIY5iAC5HeIOE97JwMXZmHO6IKyvOyn29
-sHcCzK+cjDa/LBwotv+rOLJ7zCzDBveXvGwG6oiBMF74elvCsGo=
-=2PXQ
------END PGP SIGNATURE-----
-
---oqg5kxkcontpvzif--
+> I'd tend to say that if we know the RTC time is incorrect we shouldn't
+> allow setting an alarm.
+> At least I wouldn't dare to program a bomb explosion time if I stand in
+> front of it and know that the bomb's clock has a random value ;)
+> 
+>>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+>>> ---
+>>>  drivers/rtc/rtc-ds1307.c | 39 +++++++++++++++------------------------
+>>>  1 file changed, 15 insertions(+), 24 deletions(-)
+>>>
+>>> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+>>> index 9d680d36..83b8c997 100644
+>>> --- a/drivers/rtc/rtc-ds1307.c
+>>> +++ b/drivers/rtc/rtc-ds1307.c
+>>> @@ -437,6 +437,18 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+>>>  	return rtc_valid_tm(t);
+>>>  }
+>>>  
+>>> +/*
+>>> + * Certain chips need the weekday for alarm matching and tm->t_wday
+>>> + * may be not or not properly populated
+>>> + */
+>>> +static int ds1307_get_weekday(struct rtc_time *tm)
+>>> +{
+>>> +	time64_t secs64 = rtc_tm_to_time64(tm);
+>>> +	int days = div_s64(secs64, 24 * 60 * 60);
+>>> +
+>>> +	return (days + 4) % 7 + 1;
+>>> +}
+>>> +
+>>>  static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+>>>  {
+>>>  	struct ds1307	*ds1307 = dev_get_drvdata(dev);
+>>> @@ -465,7 +477,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+>>>  	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
+>>>  	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
+>>>  	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
+>>> -	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
+>>> +	regs[DS1307_REG_WDAY] = ds1307_get_weekday(t);
+>>>  	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+>>>  	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+>>>  
+>>> @@ -902,7 +914,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>>>  	regs[3] = bin2bcd(t->time.tm_sec);
+>>>  	regs[4] = bin2bcd(t->time.tm_min);
+>>>  	regs[5] = bin2bcd(t->time.tm_hour);
+>>> -	regs[6] = bin2bcd(t->time.tm_wday + 1);
+>>> +	regs[6] = ds1307_get_weekday(&t->time);
+>>>  	regs[7] = bin2bcd(t->time.tm_mday);
+>>>  	regs[8] = bin2bcd(t->time.tm_mon + 1);
+>>>  
+>>> @@ -1355,14 +1367,12 @@ static int ds1307_probe(struct i2c_client *client,
+>>>  {
+>>>  	struct ds1307		*ds1307;
+>>>  	int			err = -ENODEV;
+>>> -	int			tmp, wday;
+>>> +	int			tmp;
+>>>  	const struct chip_desc	*chip;
+>>>  	bool			want_irq;
+>>>  	bool			ds1307_can_wakeup_device = false;
+>>>  	unsigned char		regs[8];
+>>>  	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+>>> -	struct rtc_time		tm;
+>>> -	unsigned long		timestamp;
+>>>  	u8			trickle_charger_setup = 0;
+>>>  
+>>>  	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+>>> @@ -1642,25 +1652,6 @@ static int ds1307_probe(struct i2c_client *client,
+>>>  			     bin2bcd(tmp));
+>>>  	}
+>>>  
+>>> -	/*
+>>> -	 * Some IPs have weekday reset value = 0x1 which might not correct
+>>> -	 * hence compute the wday using the current date/month/year values
+>>> -	 */
+>>> -	ds1307_get_time(ds1307->dev, &tm);
+>>> -	wday = tm.tm_wday;
+>>> -	timestamp = rtc_tm_to_time64(&tm);
+>>> -	rtc_time64_to_tm(timestamp, &tm);
+>>> -
+>>> -	/*
+>>> -	 * Check if reset wday is different from the computed wday
+>>> -	 * If different then set the wday which we computed using
+>>> -	 * timestamp
+>>> -	 */
+>>> -	if (wday != tm.tm_wday)
+>>> -		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
+>>> -				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
+>>> -				   tm.tm_wday + 1);
+>>> -
+>>>  	if (want_irq || ds1307_can_wakeup_device) {
+>>>  		device_set_wakeup_capable(ds1307->dev, true);
+>>>  		set_bit(HAS_ALARM, &ds1307->flags);
+>>> -- 
+>>> 2.14.1
+>>>
+>>
+> 
