@@ -1,63 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34128 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:35671 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751203AbdH1Syv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 14:54:51 -0400
-Date: Mon, 28 Aug 2017 20:54:39 +0200
+        with ESMTP id S1750735AbdH1U0D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 16:26:03 -0400
+Date: Mon, 28 Aug 2017 22:25:51 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: core: let rtc_set_time properly populate element
- wday
-Message-ID: <20170828185439.7jd4ogjuj6htl5c2@piout.net>
-References: <3b43da73-ff4e-4519-d1c7-266b17cc5d05@gmail.com>
- <20170826195607.s6p7u7vr3hxhwwqs@piout.net>
- <20170826195947.jnipgyuxg3ceqie4@piout.net>
- <a6ccd0ab-a6f4-1122-233b-61e69b80aa54@gmail.com>
- <7da740e6-b1e0-0a58-8b54-2e5e3e2f6c54@gmail.com>
- <20170828075458.4cdi7pet3yxeskqc@piout.net>
- <9a11b823-abe0-6611-9d97-75e2a2ec7745@gmail.com>
+Subject: Re: [PATCH] rtc: ds1307: improve weekday handling
+Message-ID: <20170828202551.p2ngspladxlquboc@piout.net>
+References: <57598a86-21c7-b354-2840-309563440435@gmail.com>
+ <20170828191518.ofntjb2tknttjexq@piout.net>
+ <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <9a11b823-abe0-6611-9d97-75e2a2ec7745@gmail.com>
+In-Reply-To: <dea642c9-872e-1871-bdcd-13944d77d5be@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 28/08/2017 at 20:13:25 +0200, Heiner Kallweit wrote:
-> Am 28.08.2017 um 09:54 schrieb Alexandre Belloni:
-> > On 27/08/2017 at 21:35:34 +0200, Heiner Kallweit wrote:
-> >> When having a look at the MCP794XX datasheet it became clear why the
-> >> mentioned weekday-related patch was submitted. This chip is quite
-> >> strange regarding the possible alarm match conditions:
+On 28/08/2017 at 21:58:23 +0200, Heiner Kallweit wrote:
+> Am 28.08.2017 um 21:15 schrieb Alexandre Belloni:
+> > On 28/08/2017 at 20:37:21 +0200, Heiner Kallweit wrote:
+> >> mcp794xx as one chip supported by this driver needs the weekday for
+> >> alarm matching. RTC core ignores the weekday so we can't rely on
+> >> the values we receive in member tm_wday of struct rtc_time.
+> >> Therefore calculate the weekday from date/time when setting the
+> >> time and setting the alarm time for mcp794xx.
 > >>
-> >> ALMxMSK<2:0>: Alarm Mask bits
-> >> 000 = Seconds match
-> >> 001 = Minutes match
-> >> 010 = Hours match (logic takes into account 12-/24-hour operation)
-> >> 011 = Day of week match
-> >> 100 = Date match
-> >> 101 = Reserved; do not use
-> >> 110 = Reserved; do not use
-> >> 111 = Seconds, Minutes, Hour, Day of Week, Date and Month
-> >>
-> >> When not having a proper weekday you get only either seconds or
-> >> minutes or hours or date match.
-> >>
-> >> So it's best to ensure that the weekday is properly populated.
-> >> However we can do this in the driver and don't have to touch the core.
+> >> When having this in place we don't have to check the weekday
+> >> at each driver load.
+> >> After a chip reset date/time and weekday may be out of sync but
+> >> in this case date/time need to be set anyway.
 > >>
 > > 
-> > Can you do that only for mcp794xx? I received one earlier this month and
-> > I'll separate the driver from rtc-ds1307.c at some point.
+> > Nope, the core issue is that you can actually set an alarm in the future
+> > without setting the time beforehand so this as to be fixed in the probe
+> > (this was the issue as reported at the time of the fix).
 > > 
-> Sure, I'll submit a patch for this. Separating the driver for mcp794xx may
-> not be needed as it is not that different from the other chips supported
-> by this driver. Once I have my patch series proposal towards a ds1307_lib
-> in a little more clean state this should become clearer.
+> Ah, found the original thread where this was discussed.
+> Still I don't really understand the problem. mcp794xx matches based on
+> secs, min, hour, wday, mday, month. When I use "rtcwake -s 5" I expect
+> the alarm to trigger 5 secs from now. How can this ever work if the
+> RTC has random date/time (wday being valid or not)?
 > 
 
-I would like to find a better name than that but I didn't come up with
-anything yet... feel free to get creative ;)
+wakealarm_store() reads the rtc time, adds the relative offset and sets
+the alarm.
+
+> I'd tend to say that if we know the RTC time is incorrect we shouldn't
+> allow setting an alarm.
+
+Unfortunately, this would break some platforms. Note that this is
+already handled that way by some RTC drivers because they return an
+error when it is known that the time is invalid.
+
+I've started to work on that but it is far from finished.
+
+> At least I wouldn't dare to program a bomb explosion time if I stand in
+> front of it and know that the bomb's clock has a random value ;)
+> 
+
+A timer will work as long as the clock is ticking, it doesn't matter
+when it is started ;)
 
 
 -- 
