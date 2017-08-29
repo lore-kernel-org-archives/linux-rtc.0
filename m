@@ -1,59 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:57663 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1753998AbdHYGcs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 02:32:48 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v3 0/5] Add MediaTek PMIC keys support
-Date: Fri, 25 Aug 2017 14:32:28 +0800
-Message-ID: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34509 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751336AbdH2NrQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 09:47:16 -0400
+From: Himanshu Jha <himanshujha199640@gmail.com>
+To: a.zummo@towertech.it
+Cc: alexandre.belloni@free-electrons.com, baruch@tkos.co.il,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Himanshu Jha <himanshujha199640@gmail.com>
+Subject: [PATCH] rtc: Use PTR_ERR_OR_ZERO
+Date: Tue, 29 Aug 2017 19:16:59 +0530
+Message-Id: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-MediaTek PMIC are multi-function devices that can handle key interrupts,
-typically there are two keys attached to PMIC, which called pwrkey
-and homekey. PWRKEY usually used to wake up system from sleep. Homekey
-can used as volume down key due to board design. Long press keys can
-shutdown PMIC, the mode can be choose to be one key only or two keys
-together.
-This series add support for key functions for MediaTek PMIC MT6397/MT6323.
+Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
 
-Chen Zhong (5):
-  mfd: mt6397: create irq mappings in mfd core driver
-  dt-bindings: input: Add document bindings for mtk-pmic-keys
-  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-  input: Add MediaTek PMIC keys support
-  mfd: mt6397: Add PMIC keys support to MT6397 driver
+Signed-off-by: Himanshu Jha <himanshujha199640@gmail.com>
+---
+ drivers/rtc/rtc-digicolor.c | 5 +----
+ drivers/rtc/rtc-ds1347.c    | 5 +----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |  38 +++
- Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
- drivers/input/keyboard/Kconfig                     |   9 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/mtk-pmic-keys.c             | 308 +++++++++++++++++++++
- drivers/mfd/mt6397-core.c                          |  26 +-
- drivers/rtc/rtc-mt6397.c                           |   7 +-
- 7 files changed, 388 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-
+diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+index b253bf1..1e200a0 100644
+--- a/drivers/rtc/rtc-digicolor.c
++++ b/drivers/rtc/rtc-digicolor.c
+@@ -202,10 +202,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, rtc);
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 						&dc_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev))
+-		return PTR_ERR(rtc->rtc_dev);
+-
+-	return 0;
++	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+ }
+ 
+ static const struct of_device_id dc_dt_ids[] = {
+diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+index ccfc9d4..9a02ca7 100644
+--- a/drivers/rtc/rtc-ds1347.c
++++ b/drivers/rtc/rtc-ds1347.c
+@@ -155,10 +155,7 @@ static int ds1347_probe(struct spi_device *spi)
+ 	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
+ 				&ds1347_rtc_ops, THIS_MODULE);
+ 
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
+-
+-	return 0;
++	return PTR_ERR_OR_ZERO(rtc);
+ }
+ 
+ static struct spi_driver ds1347_driver = {
 -- 
-1.9.1
+2.7.4
