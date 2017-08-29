@@ -1,125 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:39141 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752358AbdHXMTB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 08:19:01 -0400
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: sun6i: Add support for the external oscillator gate
-Date: Thu, 24 Aug 2017 14:18:54 +0200
-Message-Id: <20170824121854.23995-1-maxime.ripard@free-electrons.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:21224 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750909AbdH2HlI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 03:41:08 -0400
+Message-ID: <1503992459.15359.4.camel@mhfsdcap03>
+Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Andi Shyti <andi.shyti@samsung.com>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "Javier Martinez Canillas" <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Date: Tue, 29 Aug 2017 15:40:59 +0800
+In-Reply-To: <20170829073453.GB4469@gangnam>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+         <CGME20170825063247epcas5p1df2f4440010dd55dada66e8764d18e50@epcas5p1.samsung.com>
+         <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+         <20170829073453.GB4469@gangnam>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC can output its 32kHz clock outside of the SoC, for example to clock
-a WiFi chip.
+Hi Andi,
 
-Create a new clock that other devices will be able to retrieve, while
-maintaining the DT stability by providing a default name for that clock if
-clock-output-names doesn't list one.
+Sorry for that, i deleted some prefix since the namings will be such
+long. If this should be consistent, I'll check and modify them in the
+next version.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- .../devicetree/bindings/rtc/sun6i-rtc.txt          |  4 ++--
- drivers/rtc/rtc-sun6i.c                            | 24 +++++++++++++++++++---
- 2 files changed, 23 insertions(+), 5 deletions(-)
+Thank you.
 
-diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-index 945934918b71..d5e26d313f62 100644
---- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-@@ -10,7 +10,7 @@ Required properties:
- 
- Required properties for new device trees
- - clocks	: phandle to the 32kHz external oscillator
--- clock-output-names : name of the LOSC clock created
-+- clock-output-names : names of the LOSC and its external output clocks created
- - #clock-cells  : must be equals to 1. The RTC provides two clocks: the
- 		  LOSC and its external output, with index 0 and 1
- 		  respectively.
-@@ -21,7 +21,7 @@ rtc: rtc@01f00000 {
- 	compatible = "allwinner,sun6i-a31-rtc";
- 	reg = <0x01f00000 0x54>;
- 	interrupts = <0 40 4>, <0 41 4>;
--	clock-output-names = "osc32k";
-+	clock-output-names = "osc32k", "osc32k-out";
- 	clocks = <&ext_osc32k>;
- 	#clock-cells = <1>;
- };
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 39cbc1238b92..d4a6ddbfd872 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -73,6 +73,9 @@
- #define SUN6I_ALARM_CONFIG			0x0050
- #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
- 
-+#define SUN6I_LOSC_OUT_GATING			0x0060
-+#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-+
- /*
-  * Get date values
-  */
-@@ -125,6 +128,7 @@ struct sun6i_rtc_dev {
- 	struct clk_hw hw;
- 	struct clk_hw *int_osc;
- 	struct clk *losc;
-+	struct clk *ext_losc;
- 
- 	spinlock_t lock;
- };
-@@ -188,6 +192,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	struct clk_init_data init = {
- 		.ops		= &sun6i_rtc_osc_ops,
- 	};
-+	const char *clkout_name = "osc32k-out";
- 	const char *parents[2];
- 
- 	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
-@@ -195,7 +200,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 		return;
- 	spin_lock_init(&rtc->lock);
- 
--	clk_data = kzalloc(sizeof(*clk_data) + sizeof(*clk_data->hws),
-+	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
- 			   GFP_KERNEL);
- 	if (!clk_data)
- 		return;
-@@ -235,7 +240,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 
- 	init.parent_names = parents;
- 	init.num_parents = of_clk_get_parent_count(node) + 1;
--	of_property_read_string(node, "clock-output-names", &init.name);
-+	of_property_read_string_index(node, "clock-output-names", 0,
-+				      &init.name);
- 
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
-@@ -243,8 +249,20 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 		return;
- 	}
- 
--	clk_data->num = 1;
-+	of_property_read_string_index(node, "clock-output-names", 1,
-+				      &clkout_name);
-+	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
-+					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
-+					  SUN6I_LOSC_OUT_GATING_EN, 0,
-+					  &rtc->lock);
-+	if (IS_ERR(rtc->ext_losc)) {
-+		pr_crit("Couldn't register the LOSC external gate\n");
-+		return;
-+	}
-+
-+	clk_data->num = 2;
- 	clk_data->hws[0] = &rtc->hw;
-+	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- }
- CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
--- 
-2.13.5
+On Tue, 2017-08-29 at 16:34 +0900, Andi Shyti wrote:
+> Hi Chen,
+> 
+> what I would ask you is to be consistent with the naming, if your
+> driver is called mtk-pmic, then all your functions and global
+> variables should be named accordingly as mtk_pmic or MTK_PMIC.
+> Please check in between the lines for real examples:
+> 
+> > +#define PWRKEY_RST_EN_MASK	0x1
+> > +#define PWRKEY_RST_EN_SHIFT	6
+> > +#define HOMEKEY_RST_EN_MASK	0x1
+> > +#define HOMEKEY_RST_EN_SHIFT	5
+> > +#define RST_DU_MASK		0x3
+> > +#define RST_DU_SHIFT		8
+> > +
+> > +#define PMIC_PWRKEY_INDEX	0
+> > +#define PMIC_HOMEKEY_INDEX	1
+> > +#define PMIC_MAX_KEY_COUNT	2
+> 
+> #define MTK_PMIC_*
+> 
+> > +struct pmic_keys_regs {
+> 
+> struct mtk_pmic_keys_regs
+> 
+> > +	u32 deb_reg;
+> > +	u32 deb_mask;
+> > +	u32 intsel_reg;
+> > +	u32 intsel_mask;
+> > +};
+> > +
+> > +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
+> 
+> MTK_PMIC_KEYS_REGS
+> 
+> > +{									\
+> > +	.deb_reg		= _deb_reg,				\
+> > +	.deb_mask		= _deb_mask,				\
+> > +	.intsel_reg		= _intsel_reg,				\
+> > +	.intsel_mask		= _intsel_mask,				\
+> > +}
+> > +
+> > +struct pmic_regs {
+> 
+> mtk_pmic_regs
+> 
+> and so on... you got the point.
+> 
+> Andi
