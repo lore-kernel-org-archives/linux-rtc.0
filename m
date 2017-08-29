@@ -1,61 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:38741 "EHLO
-        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752383AbdHHLOR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2017 07:14:17 -0400
-Received: by mail-wm0-f46.google.com with SMTP id m85so4290077wma.1
-        for <linux-rtc@vger.kernel.org>; Tue, 08 Aug 2017 04:14:16 -0700 (PDT)
-Date: Tue, 8 Aug 2017 12:14:13 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
+Received: from mailgw01.mediatek.com ([210.61.82.183]:17464 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751209AbdH2CLl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 22:11:41 -0400
+Message-ID: <1503972695.3340.16.camel@mhfsdcap03>
+Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        "Alessandro Zummo" <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
+        Andi Shyti <andi.shyti@samsung.com>,
         Javier Martinez Canillas <javier@osg.samsung.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
- driver
-Message-ID: <20170808111413.qt6qc2w6l6gdihpu@dell>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
- <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Date: Tue, 29 Aug 2017 10:11:35 +0800
+In-Reply-To: <20170828165757.GE12195@dtor-ws>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+         <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+         <20170828165757.GE12195@dtor-ws>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 07 Aug 2017, Chen Zhong wrote:
-
-> The core driver should create and manage irq mappings instead of
-> leaf drivers. This patch change to pass irq domain to
-> devm_mfd_add_devices() and it will create mapping for irq resources
-> automatically. And remove irq mapping in rtc driver since this has
-> been done in core driver.
+On Mon, 2017-08-28 at 09:57 -0700, Dmitry Torokhov wrote:
+> Hi Chen,
 > 
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> ---
->  drivers/mfd/mt6397-core.c |    4 ++--
->  drivers/rtc/rtc-mt6397.c  |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+> On Fri, Aug 25, 2017 at 02:32:32PM +0800, Chen Zhong wrote:
+> > +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
+> > +		struct pmic_keys_info *info)
+> > +{
+> > +	int ret;
+> > +
+> > +	info->keys = keys;
+> > +
+> > +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
+> > +				 info->regs->intsel_mask,
+> > +				 info->regs->intsel_mask);
+> > +	if (ret < 0)
+> > +		return ret;
+> > +
+> > +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
+> > +					mtk_pmic_keys_irq_handler_thread,
+> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> > +					"mtk-pmic-keys", info);
+> > +	if (ret) {
+> > +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+> > +			info->irq, ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	if (info->wakeup)
+> > +		irq_set_irq_wake(info->irq, 1);
+> 
+> Normally we do this in suspend() (and undo in resume()), and I believe
+> the drover API is enable_irq_wake() and disable_irq_wake().
+> 
 
-Once you've fixed Dmitry's comment:
+Hi Dmitry,
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+I'll add suspend/resume callback functions and do this with
+enable_irq_wake() and disable_irq_wake().
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thank you.
+
+
+> Thanks.
+> 
