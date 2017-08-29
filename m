@@ -1,55 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:58262 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:60064 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751197AbdH1QQ3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Aug 2017 12:16:29 -0400
-Date: Mon, 28 Aug 2017 18:16:27 +0200
+        with ESMTP id S1751804AbdH2OUM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 10:20:12 -0400
+Date: Tue, 29 Aug 2017 16:20:11 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>
-Subject: Re: [PATCH v3 2/3] rtc: Add Realtek RTD1295
-Message-ID: <20170828161627.4vndoeucudh3rfto@piout.net>
-References: <20170828111041.17946-1-afaerber@suse.de>
- <20170828111041.17946-3-afaerber@suse.de>
+To: Himanshu Jha <himanshujha199640@gmail.com>
+Cc: a.zummo@towertech.it, baruch@tkos.co.il, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: Use PTR_ERR_OR_ZERO
+Message-ID: <20170829142011.76w67w64a7lheef4@piout.net>
+References: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170828111041.17946-3-afaerber@suse.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1504014419-16894-1-git-send-email-himanshujha199640@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 Hi,
 
-Seems fine to me, one small comment:
+On 29/08/2017 at 19:16:59 +0530, Himanshu Jha wrote:
+> Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
+> 
 
-On 28/08/2017 at 13:10:40 +0200, Andreas Färber wrote:
-> +static int rtd119x_rtc_remove(struct platform_device *pdev)
-> +{
-> +	struct rtd119x_rtc *data = platform_get_drvdata(pdev);
-> +
-> +	rtd119x_rtc_set_enabled(&pdev->dev, false);
-> +
-> +	clk_disable_unprepare(data->clk);
+I'm not taking that kind of useless changes (especially since it make
+the code less readable) unless you have other significant improvement in
+those drivers.
 
-Missing clk_put ?
-
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver rtd119x_rtc_driver = {
-> +	.probe = rtd119x_rtc_probe,
-> +	.remove = rtd119x_rtc_remove,
-> +	.driver = {
-> +		.name = "rtd1295-rtc",
-> +		.of_match_table	= rtd119x_rtc_dt_ids,
-> +	},
-> +};
-> +builtin_platform_driver(rtd119x_rtc_driver);
+> Signed-off-by: Himanshu Jha <himanshujha199640@gmail.com>
+> ---
+>  drivers/rtc/rtc-digicolor.c | 5 +----
+>  drivers/rtc/rtc-ds1347.c    | 5 +----
+>  2 files changed, 2 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+> index b253bf1..1e200a0 100644
+> --- a/drivers/rtc/rtc-digicolor.c
+> +++ b/drivers/rtc/rtc-digicolor.c
+> @@ -202,10 +202,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>  	platform_set_drvdata(pdev, rtc);
+>  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+>  						&dc_rtc_ops, THIS_MODULE);
+> -	if (IS_ERR(rtc->rtc_dev))
+> -		return PTR_ERR(rtc->rtc_dev);
+> -
+> -	return 0;
+> +	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+>  }
+>  
+>  static const struct of_device_id dc_dt_ids[] = {
+> diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+> index ccfc9d4..9a02ca7 100644
+> --- a/drivers/rtc/rtc-ds1347.c
+> +++ b/drivers/rtc/rtc-ds1347.c
+> @@ -155,10 +155,7 @@ static int ds1347_probe(struct spi_device *spi)
+>  	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
+>  				&ds1347_rtc_ops, THIS_MODULE);
+>  
+> -	if (IS_ERR(rtc))
+> -		return PTR_ERR(rtc);
+> -
+> -	return 0;
+> +	return PTR_ERR_OR_ZERO(rtc);
+>  }
+>  
+>  static struct spi_driver ds1347_driver = {
 > -- 
-> 2.12.3
+> 2.7.4
 > 
 
 -- 
