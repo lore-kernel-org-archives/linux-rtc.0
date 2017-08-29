@@ -1,106 +1,160 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:30993 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751868AbdHHJKC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2017 05:10:02 -0400
-Message-ID: <1502183395.28466.5.camel@mhfsdcap03>
-Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
- driver
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Tue, 8 Aug 2017 17:09:55 +0800
-In-Reply-To: <20170808025328.GB12328@dtor-ws>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
-         <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
-         <20170807213244.7hrd3isq5jj44dgd@piout.net>
-         <20170808025328.GB12328@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:38614 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750822AbdH2TxD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 15:53:03 -0400
+Received: by mail-wm0-f67.google.com with SMTP id u26so4768589wma.5
+        for <linux-rtc@vger.kernel.org>; Tue, 29 Aug 2017 12:53:02 -0700 (PDT)
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH RfC] rtc: ds1307: improve weekday handling
+Message-ID: <abf5f5ff-b406-eff0-a1ec-9486efbe8506@gmail.com>
+Date: Tue, 29 Aug 2017 21:52:56 +0200
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 2017-08-07 at 19:53 -0700, Dmitry Torokhov wrote:
-> On Mon, Aug 07, 2017 at 11:32:44PM +0200, Alexandre Belloni wrote:
-> > On 07/08/2017 at 09:57:41 +0800, Chen Zhong wrote:
-> > > The core driver should create and manage irq mappings instead of
-> > > leaf drivers. This patch change to pass irq domain to
-> > > devm_mfd_add_devices() and it will create mapping for irq resources
-> > > automatically. And remove irq mapping in rtc driver since this has
-> > > been done in core driver.
-> > > 
-> > > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > 
-> > For the RTC part:
-> > Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > 
-> > > ---
-> > >  drivers/mfd/mt6397-core.c |    4 ++--
-> > >  drivers/rtc/rtc-mt6397.c  |    2 +-
-> > >  2 files changed, 3 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> > > index 04a601f..6546d7f 100644
-> > > --- a/drivers/mfd/mt6397-core.c
-> > > +++ b/drivers/mfd/mt6397-core.c
-> > > @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
-> > >  
-> > >  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
-> > >  					   ARRAY_SIZE(mt6323_devs), NULL,
-> > > -					   0, NULL);
-> > > +					   0, pmic->irq_domain);
-> > >  		break;
-> > >  
-> > >  	case MT6397_CID_CODE:
-> > > @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
-> > >  
-> > >  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
-> > >  					   ARRAY_SIZE(mt6397_devs), NULL,
-> > > -					   0, NULL);
-> > > +					   0, pmic->irq_domain);
-> > >  		break;
-> > >  
-> > >  	default:
-> > > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> > > index 1a61fa5..22c52f7 100644
-> > > --- a/drivers/rtc/rtc-mt6397.c
-> > > +++ b/drivers/rtc/rtc-mt6397.c
-> > > @@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
-> > >  	rtc->addr_base = res->start;
-> > >  
-> > >  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> > > -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
-> > > +	rtc->irq = res->start;
-> 
-> Why not
-> 
-> 	rtc->irq = platform_get_irq(pdev, 0);
-> 	if (rtc->irq < 0)
-> 		return rtc->irq;
-> ?
-> 
-> This way you propagate error properly.
-> 
-> Thanks.
-> 
+The current code for checking and fixing the weekday in ds1307_probe
+faces some issues:
+- This check is applied to all chips even if its applicable (AFAIK)
+  to mcp794xx only
+- The check uses MCP794XX constants for registers and bits even though
+  it's executed also on other chips (ok, this could be fixed easily)
+- It relies on tm_wday being properly populated when core calls set_time
+  and set_alarm. This is not guaranteed at all.
 
-Hi Dmitry,
+First two issue we could solve by moving the check to the
+mcp794xx-specific initialization (where also VBATEN flag is set).
 
-	I'll modify it to get irq number via this way.
+The proposed alternative is in the set_alarm path for mcp794xx only and
+calculates the alarm weekday based on the current weekday in the RTC
+timekeeping regs and the difference between alarm date and current date.
+So we are fine with any weekday even if it doesn't match the date.
 
-Thank you.
+Still there are cases where this could fail, e.g.:
+- rtc date/time + weekday have power-on-reset default values
+- alarm is set to actual date/time + x
+- set_time is called (may change diff between rtc weekday and actual
+  weekday)
+
+But similar issues we have with the current code too:
+- rtc date/time + weekday have power-on-reset default values
+- alarm is set to rtc date/time + x
+- set_time is called before the alarm triggers
+
+Using random rtc date/time with relative alarms simply can interfere
+with set_time. I'm not totally convinced of either option yet.
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/rtc/rtc-ds1307.c | 52 ++++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 9d680d36..4ba62549 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -787,8 +787,6 @@ static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
+  * Alarm support for mcp794xx devices.
+  */
+ 
+-#define MCP794XX_REG_WEEKDAY		0x3
+-#define MCP794XX_REG_WEEKDAY_WDAY_MASK	0x7
+ #define MCP794XX_REG_CONTROL		0x07
+ #	define MCP794XX_BIT_ALM0_EN	0x10
+ #	define MCP794XX_BIT_ALM1_EN	0x20
+@@ -877,15 +875,38 @@ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	return 0;
+ }
+ 
++/*
++ * We may have a random RTC weekday, therefore calculate alarm weekday based
++ * on current weekday we read from the RTC timekeeping regs
++ */
++static int mcp794xx_alm_weekday(struct device *dev, struct rtc_time *tm_alarm)
++{
++	struct rtc_time tm_now;
++	int days_now, days_alarm, ret;
++
++	ret = ds1307_get_time(dev, &tm_now);
++	if (ret)
++		return ret;
++
++	days_now = div_s64(rtc_tm_to_time64(&tm_now), 24 * 60 * 60);
++	days_alarm = div_s64(rtc_tm_to_time64(tm_alarm), 24 * 60 * 60);
++
++	return (tm_now.tm_wday + days_alarm - days_now) % 7 + 1;
++}
++
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ {
+ 	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+ 	unsigned char regs[10];
+-	int ret;
++	int wday, ret;
+ 
+ 	if (!test_bit(HAS_ALARM, &ds1307->flags))
+ 		return -EINVAL;
+ 
++	wday = mcp794xx_alm_weekday(dev, &t->time);
++	if (wday < 0)
++		return wday;
++
+ 	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d "
+ 		"enabled=%d pending=%d\n", __func__,
+ 		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
+@@ -902,7 +923,7 @@ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	regs[3] = bin2bcd(t->time.tm_sec);
+ 	regs[4] = bin2bcd(t->time.tm_min);
+ 	regs[5] = bin2bcd(t->time.tm_hour);
+-	regs[6] = bin2bcd(t->time.tm_wday + 1);
++	regs[6] = wday;
+ 	regs[7] = bin2bcd(t->time.tm_mday);
+ 	regs[8] = bin2bcd(t->time.tm_mon + 1);
+ 
+@@ -1355,14 +1376,12 @@ static int ds1307_probe(struct i2c_client *client,
+ {
+ 	struct ds1307		*ds1307;
+ 	int			err = -ENODEV;
+-	int			tmp, wday;
++	int			tmp;
+ 	const struct chip_desc	*chip;
+ 	bool			want_irq;
+ 	bool			ds1307_can_wakeup_device = false;
+ 	unsigned char		regs[8];
+ 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+-	struct rtc_time		tm;
+-	unsigned long		timestamp;
+ 	u8			trickle_charger_setup = 0;
+ 
+ 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+@@ -1642,25 +1661,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 			     bin2bcd(tmp));
+ 	}
+ 
+-	/*
+-	 * Some IPs have weekday reset value = 0x1 which might not correct
+-	 * hence compute the wday using the current date/month/year values
+-	 */
+-	ds1307_get_time(ds1307->dev, &tm);
+-	wday = tm.tm_wday;
+-	timestamp = rtc_tm_to_time64(&tm);
+-	rtc_time64_to_tm(timestamp, &tm);
+-
+-	/*
+-	 * Check if reset wday is different from the computed wday
+-	 * If different then set the wday which we computed using
+-	 * timestamp
+-	 */
+-	if (wday != tm.tm_wday)
+-		regmap_update_bits(ds1307->regmap, MCP794XX_REG_WEEKDAY,
+-				   MCP794XX_REG_WEEKDAY_WDAY_MASK,
+-				   tm.tm_wday + 1);
+-
+ 	if (want_irq || ds1307_can_wakeup_device) {
+ 		device_set_wakeup_capable(ds1307->dev, true);
+ 		set_bit(HAS_ALARM, &ds1307->flags);
+-- 
+2.14.1
