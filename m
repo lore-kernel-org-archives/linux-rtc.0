@@ -1,34 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:37960 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752628AbdHWA3N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2017 20:29:13 -0400
-Date: Tue, 22 Aug 2017 19:29:11 -0500
-From: Rob Herring <robh@kernel.org>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mailout3.samsung.com ([203.254.224.33]:14639 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750796AbdH2Hew (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Aug 2017 03:34:52 -0400
+Date: Tue, 29 Aug 2017 16:34:53 +0900
+From: Andi Shyti <andi.shyti@samsung.com>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
-        Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
-Subject: Re: [RFC 1/3] dt-bindings: rtc: Add Realtek RTD1295
-Message-ID: <20170823002911.y35nn7jkt34dvjbc@rob-hp-laptop>
-References: <20170820013632.18375-1-afaerber@suse.de>
- <20170820013632.18375-2-afaerber@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170820013632.18375-2-afaerber@suse.de>
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
+Message-id: <20170829073453.GB4469@gangnam>
+MIME-version: 1.0
+Content-type: text/plain; charset="us-ascii"
+In-reply-to: <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+        <CGME20170825063247epcas5p1df2f4440010dd55dada66e8764d18e50@epcas5p1.samsung.com>
+        <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sun, Aug 20, 2017 at 03:36:29AM +0200, Andreas Färber wrote:
-> Add a binding for the RTC on the Realtek RTD119x/RTD129x SoC families.
-> 
-> Signed-off-by: Andreas Färber <afaerber@suse.de>
-> ---
->  .../devicetree/bindings/rtc/realtek,rtd119x.txt          | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
+Hi Chen,
 
-Acked-by: Rob Herring <robh@kernel.org>
+what I would ask you is to be consistent with the naming, if your
+driver is called mtk-pmic, then all your functions and global
+variables should be named accordingly as mtk_pmic or MTK_PMIC.
+Please check in between the lines for real examples:
+
+> +#define PWRKEY_RST_EN_MASK	0x1
+> +#define PWRKEY_RST_EN_SHIFT	6
+> +#define HOMEKEY_RST_EN_MASK	0x1
+> +#define HOMEKEY_RST_EN_SHIFT	5
+> +#define RST_DU_MASK		0x3
+> +#define RST_DU_SHIFT		8
+> +
+> +#define PMIC_PWRKEY_INDEX	0
+> +#define PMIC_HOMEKEY_INDEX	1
+> +#define PMIC_MAX_KEY_COUNT	2
+
+#define MTK_PMIC_*
+
+> +struct pmic_keys_regs {
+
+struct mtk_pmic_keys_regs
+
+> +	u32 deb_reg;
+> +	u32 deb_mask;
+> +	u32 intsel_reg;
+> +	u32 intsel_mask;
+> +};
+> +
+> +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
+
+MTK_PMIC_KEYS_REGS
+
+> +{									\
+> +	.deb_reg		= _deb_reg,				\
+> +	.deb_mask		= _deb_mask,				\
+> +	.intsel_reg		= _intsel_reg,				\
+> +	.intsel_mask		= _intsel_mask,				\
+> +}
+> +
+> +struct pmic_regs {
+
+mtk_pmic_regs
+
+and so on... you got the point.
+
+Andi
