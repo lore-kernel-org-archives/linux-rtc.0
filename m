@@ -1,85 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33536 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932711AbdHYUGe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Aug 2017 16:06:34 -0400
-Received: by mail-wr0-f193.google.com with SMTP id z91so449440wrc.0
-        for <linux-rtc@vger.kernel.org>; Fri, 25 Aug 2017 13:06:33 -0700 (PDT)
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 1/5] rtc: ds1307: factor out determining the chip type
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:57202 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751302AbdH3HxE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 30 Aug 2017 03:53:04 -0400
+Date: Wed, 30 Aug 2017 09:52:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sean =?iso-8859-1?Q?Nyekj=E6r?= <sean.nyekjaer@prevas.dk>
 Cc: linux-rtc@vger.kernel.org
-References: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
-Message-ID: <6096da22-92b7-ecac-382c-39dbb7f494db@gmail.com>
-Date: Fri, 25 Aug 2017 22:06:05 +0200
+Subject: Re: [rtc-linux] [PATCH 1/2] rtc: pcf2127: add support for pcf2127
+ watchdog functionality
+Message-ID: <20170830075252.bska2yik2tnxq25y@piout.net>
+References: <20170120123644.118612-1-sean.nyekjaer@prevas.dk>
+ <20170829150739.apyt4lxguypebkbm@piout.net>
+ <4294cb1e-a01f-66db-8b64-eb4d5e68569e@prevas.dk>
 MIME-Version: 1.0
-In-Reply-To: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <4294cb1e-a01f-66db-8b64-eb4d5e68569e@prevas.dk>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-ds1307_probe is very long and confusing, so let's factor out
-functionalities. As a first step factor out determining the chip type.
+On 30/08/2017 at 09:45:06 +0200, Sean Nyekjær wrote:
+> 
+> 
+> On 2017-08-29 17:07, Alexandre Belloni wrote:
+> > Hi Sean,
+> > 
+> > I know this patch is 7 months old but I never had the time to write a
+> > proper reply.
+> > 
+> > This is using a pretty old API. Can you register a proper watchdog using
+> > the watchdog subsystem (see drivers/watchdog)? Also, please copy the
+> > watchdog maintainers.
+> > 
+> > I understand this will require a significant rewrite effort but the
+> > final code will be quite cleaner.
+> Hi Alexandre
+> 
+> I unfortunately don't have access to the hardware anymore...
+> I think it would be very risky to rewrite the whole code without testing it
+> :-)
+> 
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/rtc/rtc-ds1307.c | 37 ++++++++++++++++++++-----------------
- 1 file changed, 20 insertions(+), 17 deletions(-)
+Ok, too bad. :(
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 4f00cea2..2b5c6d60 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1329,6 +1329,21 @@ static void ds1307_clks_register(struct ds1307 *ds1307)
- 
- #endif /* CONFIG_COMMON_CLK */
- 
-+static enum ds_type ds1307_get_type(struct device *dev,
-+				    const struct i2c_device_id *id)
-+{
-+	const struct acpi_device_id *acpi_id;
-+
-+	if (dev->of_node)
-+		return (enum ds_type) of_device_get_match_data(dev);
-+
-+	if (id)
-+		return id->driver_data;
-+
-+	acpi_id = acpi_match_device(ACPI_PTR(ds1307_acpi_ids), dev);
-+	return acpi_id ? acpi_id->driver_data : -ENODEV;
-+}
-+
- static const struct regmap_config regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -1365,23 +1380,11 @@ static int ds1307_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, ds1307);
- 
--	if (client->dev.of_node) {
--		ds1307->type = (enum ds_type)
--			of_device_get_match_data(&client->dev);
--		chip = &chips[ds1307->type];
--	} else if (id) {
--		chip = &chips[id->driver_data];
--		ds1307->type = id->driver_data;
--	} else {
--		const struct acpi_device_id *acpi_id;
--
--		acpi_id = acpi_match_device(ACPI_PTR(ds1307_acpi_ids),
--					    ds1307->dev);
--		if (!acpi_id)
--			return -ENODEV;
--		chip = &chips[acpi_id->driver_data];
--		ds1307->type = acpi_id->driver_data;
--	}
-+	ds1307->type = ds1307_get_type(&client->dev, id);
-+	if (ds1307->type < 0)
-+		return ds1307->type;
-+
-+	chip = &chips[ds1307->type];
- 
- 	want_irq = client->irq > 0 && chip->alarm;
- 
+> Yes this driver is quite hacky in some ways. It could be nice if the
+> watchdog part for this could be in the driver/watchdog and the rtc part
+> here. Maybe we could have 2 entries in the devicetree that shared the same
+> i2c device address.
+> 
+
+If you want to go that route, the proper way is to use the MFD
+subsystem.
+
 -- 
-2.14.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
