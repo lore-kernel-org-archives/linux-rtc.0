@@ -1,51 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34335 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752751AbdHXTQZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Aug 2017 15:16:25 -0400
-Received: by mail-wm0-f65.google.com with SMTP id i76so401381wme.1
-        for <linux-rtc@vger.kernel.org>; Thu, 24 Aug 2017 12:16:25 -0700 (PDT)
-Subject: Re: rtc: ds1307: call the platform's logic for handle IRQs.
-From: Heiner Kallweit <hkallweit1@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        enric.balletbo@collabora.com
-Cc: linux-rtc@vger.kernel.org
-References: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
-Message-ID: <019f5769-b3ec-2afd-9469-e722b7b0a2e5@gmail.com>
-Date: Thu, 24 Aug 2017 21:16:14 +0200
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:33132 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751336AbdHaTwl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Aug 2017 15:52:41 -0400
+Date: Thu, 31 Aug 2017 14:52:39 -0500
+From: Rob Herring <robh@kernel.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+Message-ID: <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <832da9eb-abed-67c9-1d53-34f19d27c0d9@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Am 24.08.2017 um 20:46 schrieb Heiner Kallweit:
-> Hi Enric,
+On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
+> This patch adds the device tree binding documentation for the MediaTek
+> pmic keys found on PMIC MT6397/MT6323.
 > 
-> I just saw your submitted patch on patchwork. As I haven't been subscribed
-> to linux-rtc list yet, I can't reply to the original mail.
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> ---
+>  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 > 
-> Few remarks:
-> I think the same can be achieved easier (apart from the fact that member
-> irq was just removed from struct ds1307).
-> The curent call to device_set_wakeup_capable has to be replaced with
-> device_init_wakeup, in addition we have to call dev_pm_set_wake_irq to
-> register the interrupt with the Linux wakeup core. Then the core takes
-> care of everything.
-> 
-After further checking not even this may be necessary.
-If flag I2C_CLIENT_WAKE is set for the i2c client then i2c_device_probe()
-enables the device as wakeup device and registers the interrupt with the
-wakeup core.
-If the i2c client is defined via DT, then of_i2c_register_device() sets
-this flag based on the "wakeup-source" property.
-Is your device configured via DT? If yes, did you check whether wakeup
-works w/o your patch with just setting property wakeup-source ?
+> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> new file mode 100644
+> index 0000000..100ec44
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> @@ -0,0 +1,38 @@
+> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> +
+> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> +and homekey. The key functions are defined as the subnode of the function
+> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> +of Muti-Function Device (MFD)
+> +
+> +For MT6397/MT6323 MFD bindings see:
+> +Documentation/devicetree/bindings/mfd/mt6397.txt
+> +
+> +Required properties:
+> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> +- linux,keycodes: Specifies the numeric keycode values to
+> +	be used for reporting keys presses. The array can
+> +	contain up to 2 entries.
+> +
+> +Optional Properties:
+> +- wakeup-source: each key can be used as a wakeup source.
 
+wakeup-source is defined as a boolean.
 
-> See also rtc-ds1343, although I think the calls to enable/disable_irq_wake
-> are not needed there because the core takes care of this already
-> (enable_irq_wake is called from dev_pm_arm_wake_irq).
-> 
-> Rgds, Heiner
+> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> +- debounce-interval: Long press key shutdown debouncing interval time
+> +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
+> +
+> +Example:
+> +
+> +	pmic: mt6397 {
+> +		compatible = "mediatek,mt6397";
+> +
+> +		...
+> +
+> +		mt6397keys: mt6397keys {
+> +			compatible = "mediatek,mt6397-keys";
+> +			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
+> +			wakeup-source = <1>, <0>;
+> +			mediatek,long-press-mode = <1>;
+> +			debounce-interval = <0>;
+> +		};
+> +	};
+> -- 
+> 1.7.9.5
 > 
