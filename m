@@ -1,109 +1,123 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53958 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:53967 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754020AbdIDUqN (ORCPT
+        with ESMTP id S1754026AbdIDUqN (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Sep 2017 16:46:13 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Heiner Kallweit <hkallweit1@gmail.com>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 2/7] rtc: ds1307: use sizeof
-Date: Mon,  4 Sep 2017 22:46:03 +0200
-Message-Id: <20170904204608.7090-2-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 5/7] rtc: ds1307: fix alignments and blank lines
+Date: Mon,  4 Sep 2017 22:46:06 +0200
+Message-Id: <20170904204608.7090-5-alexandre.belloni@free-electrons.com>
 In-Reply-To: <20170904204608.7090-1-alexandre.belloni@free-electrons.com>
 References: <20170904204608.7090-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use sizeof where possible to ensure we don't read/write more than the
-allocated buffer.
+Alignment should always match open parenthesis.
+Also remove two unnecessary blank lines
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-ds1307.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 8de1d7116461..93fb08452159 100644
+index 5b2fe3579e45..bac0f9ec9351 100644
 --- a/drivers/rtc/rtc-ds1307.c
 +++ b/drivers/rtc/rtc-ds1307.c
-@@ -650,7 +650,8 @@ static irqreturn_t rx8130_irq(int irq, void *dev_id)
- 	mutex_lock(lock);
+@@ -51,7 +51,6 @@ enum ds_type {
+ 	/* rs5c372 too?  different address... */
+ };
  
- 	/* Read control registers. */
--	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+			       sizeof(ctl));
- 	if (ret < 0)
- 		goto out;
- 	if (!(ctl[1] & RX8130_REG_FLAG_AF))
-@@ -658,7 +659,8 @@ static irqreturn_t rx8130_irq(int irq, void *dev_id)
- 	ctl[1] &= ~RX8130_REG_FLAG_AF;
- 	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
+-
+ /* RTC registers don't differ much, except for the century flag */
+ #define DS1307_REG_SECS		0x00	/* 00-59 */
+ #	define DS1307_BIT_CH		0x80
+@@ -114,7 +113,6 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
  
--	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+				sizeof(ctl));
- 	if (ret < 0)
- 		goto out;
- 
-@@ -680,12 +682,14 @@ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		return -EINVAL;
- 
- 	/* Read alarm registers. */
--	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_ALARM_MIN, ald, 3);
-+	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_ALARM_MIN, ald,
-+			       sizeof(ald));
- 	if (ret < 0)
- 		return ret;
- 
- 	/* Read control registers. */
--	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+			       sizeof(ctl));
- 	if (ret < 0)
- 		return ret;
- 
-@@ -726,7 +730,8 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		t->enabled, t->pending);
- 
- 	/* Read control registers. */
--	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+			       sizeof(ctl));
- 	if (ret < 0)
- 		return ret;
- 
-@@ -734,7 +739,8 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	ctl[1] |= RX8130_REG_FLAG_AF;
- 	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
- 
--	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+				sizeof(ctl));
- 	if (ret < 0)
- 		return ret;
- 
-@@ -743,7 +749,8 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	ald[1] = bin2bcd(t->time.tm_hour);
- 	ald[2] = bin2bcd(t->time.tm_mday);
- 
--	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_ALARM_MIN, ald, 3);
-+	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_ALARM_MIN, ald,
-+				sizeof(ald));
- 	if (ret < 0)
- 		return ret;
- 
-@@ -752,7 +759,8 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 
- 	ctl[2] |= RX8130_REG_CONTROL0_AIE;
- 
--	return regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl, 3);
-+	return regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-+				 sizeof(ctl));
+-
+ struct ds1307 {
+ 	struct nvmem_config	nvmem_cfg;
+ 	enum ds_type		type;
+@@ -1042,7 +1040,7 @@ static int ds3231_hwmon_read_temp(struct device *dev, s32 *mC)
  }
  
- static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ static ssize_t ds3231_hwmon_show_temp(struct device *dev,
+-				struct device_attribute *attr, char *buf)
++				      struct device_attribute *attr, char *buf)
+ {
+ 	int ret;
+ 	s32 temp;
+@@ -1054,7 +1052,7 @@ static ssize_t ds3231_hwmon_show_temp(struct device *dev,
+ 	return sprintf(buf, "%d\n", temp);
+ }
+ static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ds3231_hwmon_show_temp,
+-			NULL, 0);
++			  NULL, 0);
+ 
+ static struct attribute *ds3231_hwmon_attrs[] = {
+ 	&sensor_dev_attr_temp1_input.dev_attr.attr,
+@@ -1070,7 +1068,8 @@ static void ds1307_hwmon_register(struct ds1307 *ds1307)
+ 		return;
+ 
+ 	dev = devm_hwmon_device_register_with_groups(ds1307->dev, ds1307->name,
+-						ds1307, ds3231_hwmon_groups);
++						     ds1307,
++						     ds3231_hwmon_groups);
+ 	if (IS_ERR(dev)) {
+ 		dev_warn(ds1307->dev, "unable to register hwmon device %ld\n",
+ 			 PTR_ERR(dev));
+@@ -1142,7 +1141,7 @@ static unsigned long ds3231_clk_sqw_recalc_rate(struct clk_hw *hw,
+ }
+ 
+ static long ds3231_clk_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+-					unsigned long *prate)
++				      unsigned long *prate)
+ {
+ 	int i;
+ 
+@@ -1155,7 +1154,7 @@ static long ds3231_clk_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+ }
+ 
+ static int ds3231_clk_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
+-					unsigned long parent_rate)
++				   unsigned long parent_rate)
+ {
+ 	struct ds1307 *ds1307 = clk_sqw_to_ds1307(hw);
+ 	int control = 0;
+@@ -1215,7 +1214,7 @@ static const struct clk_ops ds3231_clk_sqw_ops = {
+ };
+ 
+ static unsigned long ds3231_clk_32khz_recalc_rate(struct clk_hw *hw,
+-						unsigned long parent_rate)
++						  unsigned long parent_rate)
+ {
+ 	return 32768;
+ }
+@@ -1306,7 +1305,7 @@ static int ds3231_clks_register(struct ds1307 *ds1307)
+ 
+ 		/* optional override of the clockname */
+ 		of_property_read_string_index(node, "clock-output-names", i,
+-						&init.name);
++					      &init.name);
+ 		ds1307->clks[i].init = &init;
+ 
+ 		onecell->clks[i] = devm_clk_register(ds1307->dev,
+@@ -1570,8 +1569,8 @@ static int ds1307_probe(struct i2c_client *client,
+ 		/* oscillator fault?  clear flag, and warn */
+ 		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
+ 			regmap_write(ds1307->regmap, DS1307_REG_CONTROL,
+-					regs[DS1307_REG_CONTROL] &
+-					~DS1338_BIT_OSF);
++				     regs[DS1307_REG_CONTROL] &
++				     ~DS1338_BIT_OSF);
+ 			dev_warn(ds1307->dev, "SET TIME!\n");
+ 			goto read_rtc;
+ 		}
 -- 
 2.14.1
