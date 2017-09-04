@@ -1,68 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:6520 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751009AbdITDWy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Sep 2017 23:22:54 -0400
-From: Xu Yiping <xuyiping@hisilicon.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <roy.chenjun@hisilicon.com>, <colin.king@canonical.com>,
-        <wanghao24@huawei.com>
-Subject: [PATCH] rtc: interface: set the next alarm event appropriately
-Date: Wed, 20 Sep 2017 11:22:31 +0800
-Message-ID: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
+Received: from mx2.suse.de ([195.135.220.15]:38479 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754006AbdIDWxt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 4 Sep 2017 18:53:49 -0400
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
+        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH v4 1/3] dt-bindings: rtc: Add Realtek RTD1295
+Date: Tue,  5 Sep 2017 00:53:22 +0200
+Message-Id: <20170904225324.29138-2-afaerber@suse.de>
+In-Reply-To: <20170904225324.29138-1-afaerber@suse.de>
+References: <20170904225324.29138-1-afaerber@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Xu YiPing  <xuyiping@hisilicon.com>
+Add a binding for the RTC on the Realtek RTD119x/RTD129x SoC families.
 
-After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
-enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
-when there is any non-expired timers in the timerqueue. If we set a
-RTC_TIMER between now and the next non-expired timers, it won't go into
-effect in time.
-
-So, besides ignoring the expired timers, we should take the next effect
-timer into account, and reprogram the RTC timer appropriately.
-
-Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
-Signed-off-by: Chen Jun <roy.chenjun@hisilicon.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
 ---
- drivers/rtc/interface.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ v1 -> v2 -> v3 -> v4: Unchanged
+ 
+ .../devicetree/bindings/rtc/realtek,rtd119x.txt          | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 8cec9a0..e237166 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -766,20 +766,23 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
- 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
- 	struct rtc_time tm;
- 	ktime_t now;
-+	ktime_t next_effect = KTIME_MAX;
-
- 	timer->enabled = 1;
- 	__rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
-
--	/* Skip over expired timers */
-+	/* Skip over expired timers, get next effect timer */
- 	while (next) {
--		if (next->expires >= now)
-+		if (next->expires >= now) {
-+			next_effect = next->expires;
- 			break;
-+		}
- 		next = timerqueue_iterate_next(next);
- 	}
-
- 	timerqueue_add(&rtc->timerqueue, &timer->node);
--	if (!next) {
-+	if (timer->node.expires < next_effect) {
- 		struct rtc_wkalrm alarm;
- 		int err;
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
---
-2.7.4
+diff --git a/Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt b/Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
+new file mode 100644
+index 000000000000..bbf1ccb5df31
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
+@@ -0,0 +1,16 @@
++Realtek RTD129x Real-Time Clock
++===============================
++
++Required properties:
++- compatible :  Should be "realtek,rtd1295-rtc"
++- reg        :  Specifies the physical base address and size
++- clocks     :  Specifies the clock gate
++
++
++Example:
++
++	rtc@9801b600 {
++		compatible = "realtek,rtd1295-clk";
++		reg = <0x9801b600 0x100>;
++		clocks = <&clkc RTD1295_CLK_EN_MISC_RTC>;
++	};
+-- 
+2.13.5
