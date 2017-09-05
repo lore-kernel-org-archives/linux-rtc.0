@@ -1,47 +1,96 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53543 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751848AbdIOCA1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 22:00:27 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Anatolij Gustschin <agust@denx.de>,
-        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 2/3] ARM: dts: at91: usb_a9g20: fix rtc node
-Date: Fri, 15 Sep 2017 04:00:03 +0200
-Message-Id: <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
-References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
+Received: from mail.kernel.org ([198.145.29.99]:51442 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752127AbdIEQFv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Sep 2017 12:05:51 -0400
+MIME-Version: 1.0
+In-Reply-To: <1504318583.15359.12.camel@mhfsdcap03>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
+ <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop> <1504318583.15359.12.camel@mhfsdcap03>
+From: Rob Herring <robh@kernel.org>
+Date: Tue, 5 Sep 2017 11:05:27 -0500
+Message-ID: <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        linux-mediatek@lists.infradead.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The rv3029 compatible is missing its vendor string, add it.
-Also fix the node name to be a proper generic name.
+On Fri, Sep 1, 2017 at 9:16 PM, Chen Zhong <chen.zhong@mediatek.com> wrote:
+> On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
+>> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
+>> > This patch adds the device tree binding documentation for the MediaTek
+>> > pmic keys found on PMIC MT6397/MT6323.
+>> >
+>> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+>> > ---
+>> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+>> >  1 file changed, 38 insertions(+)
+>> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> >
+>> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > new file mode 100644
+>> > index 0000000..100ec44
+>> > --- /dev/null
+>> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > @@ -0,0 +1,38 @@
+>> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+>> > +
+>> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+>> > +and homekey. The key functions are defined as the subnode of the function
+>> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+>> > +of Muti-Function Device (MFD)
+>> > +
+>> > +For MT6397/MT6323 MFD bindings see:
+>> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+>> > +
+>> > +Required properties:
+>> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+>> > +- linux,keycodes: Specifies the numeric keycode values to
+>> > +   be used for reporting keys presses. The array can
+>> > +   contain up to 2 entries.
+>> > +
+>> > +Optional Properties:
+>> > +- wakeup-source: each key can be used as a wakeup source.
+>>
+>> wakeup-source is defined as a boolean.
+>
+> Hi Rob,
+>
+> Could I modify it as this?
+>
+> mediatek,wakeup-keys = <1>, <0>;
+> wakeup-source;
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- arch/arm/boot/dts/usb_a9g20_common.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+What do the values and index signify? The power key is index 0 and the
+value 1 means enable wakeup? Or each value is the raw key (i.e.
+indexes in linux,keycode) that wakeup is enabled for?
 
-diff --git a/arch/arm/boot/dts/usb_a9g20_common.dtsi b/arch/arm/boot/dts/usb_a9g20_common.dtsi
-index 088c2c3685ab..81c3fe0465d9 100644
---- a/arch/arm/boot/dts/usb_a9g20_common.dtsi
-+++ b/arch/arm/boot/dts/usb_a9g20_common.dtsi
-@@ -20,8 +20,8 @@
- 	};
- 
- 	i2c-gpio-0 {
--		rv3029c2@56 {
--			compatible = "rv3029c2";
-+		rtc@56 {
-+			compatible = "microcrystal,rv3029";
- 			reg = <0x56>;
- 		};
- 	};
--- 
-2.14.1
+I don't think this should be in DT really. It's really up to the user
+(i.e. userspace) to decide what keys cause wakeup (or maybe that's
+only suspend). If you default to the power key causes wakeup, do you
+really need to support different options?
+
+If we do put this in DT, then it should be a common binding to specify
+keys that cause wake-up.
+
+Rob
