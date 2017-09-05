@@ -1,33 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:36540 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751164AbdIOHNd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Sep 2017 03:13:33 -0400
-Date: Fri, 15 Sep 2017 09:13:26 +0200
-From: Anatolij Gustschin <agust@denx.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+Received: from mail-wr0-f173.google.com ([209.85.128.173]:35577 "EHLO
+        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751420AbdIEHhC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Sep 2017 03:37:02 -0400
+Received: by mail-wr0-f173.google.com with SMTP id y15so6582834wrc.2
+        for <linux-rtc@vger.kernel.org>; Tue, 05 Sep 2017 00:37:02 -0700 (PDT)
+Date: Tue, 5 Sep 2017 08:36:58 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH 3/3] powerpc/5200: dts: digsy_mtc.dts: fix rv3029
- compatible
-Message-ID: <20170915091326.4b93bde1@crub>
-In-Reply-To: <20170915020004.24272-3-alexandre.belloni@free-electrons.com>
-References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
-        <20170915020004.24272-3-alexandre.belloni@free-electrons.com>
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 3/5] dt-bindings: mfd: Add bindings for the keys as
+ subnode of PMIC
+Message-ID: <20170905073658.dwlbsyqtl3ei7e4s@dell>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-4-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1503642753-12385-4-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 15 Sep 2017 04:00:04 +0200
-Alexandre Belloni alexandre.belloni@free-electrons.com wrote:
+On Fri, 25 Aug 2017, Chen Zhong wrote:
 
->The proper compatible for rv3029 is microcrystal,rv3029.
->
->Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> This patch adds documentation for device tree bindings for keys support
+> as the subnode of MT6397/MT6323 PMIC.
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+>  1 file changed, 6 insertions(+)
 
-Acked-by: Anatolij Gustschin <agust@denx.de>
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
