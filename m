@@ -1,424 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([218.249.47.111]:57824 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752648AbdI0KoX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:23 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:53173 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751657AbdIOBqK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 21:46:10 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v5 5/6] input: Add MediaTek PMIC keys support
-Date: Wed, 27 Sep 2017 18:44:07 +0800
-Message-ID: <1506509048-19032-6-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: [PATCH] dt-bindings: RTC: Add bindings for m41t80 and compatibles
+Date: Fri, 15 Sep 2017 03:45:50 +0200
+Message-Id: <20170915014551.22664-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch add support to handle MediaTek PMIC MT6397/MT6323 key
-interrupts including pwrkey and homekey, also add setting for
-long press key shutdown behavior.
+The ST M41T80 family of RTC are not trivial devices, document them.
 
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/input/keyboard/Kconfig         |    9 +
- drivers/input/keyboard/Makefile        |    1 +
- drivers/input/keyboard/mtk-pmic-keys.c |  341 ++++++++++++++++++++++++++++++++
- 3 files changed, 351 insertions(+)
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
+ .../devicetree/bindings/rtc/rtc-m41t80.txt         | 32 ++++++++++++++++++++++
+ .../devicetree/bindings/trivial-devices.txt        |  2 --
+ 2 files changed, 32 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 4c4ab1c..bd4e20a 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -756,4 +756,13 @@ config KEYBOARD_BCM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bcm-keypad.
- 
-+config KEYBOARD_MTK_PMIC
-+	tristate "MediaTek PMIC keys support"
-+	depends on MFD_MT6397
-+	help
-+	  Say Y here if you want to use the pmic keys (powerkey/homekey).
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pmic-keys.
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index d2338ba..20c0b98 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
- obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
- obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
-+obj-$(CONFIG_KEYBOARD_MTK_PMIC) 	+= mtk-pmic-keys.o
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
- obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
- obj-$(CONFIG_KEYBOARD_NSPIRE)		+= nspire-keypad.o
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt b/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
 new file mode 100644
-index 0000000..529fd95
+index 000000000000..12add61e5687
 --- /dev/null
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -0,0 +1,341 @@
-+/*
-+ * Copyright (C) 2017 MediaTek, Inc.
-+ *
-+ * Author: Chen Zhong <chen.zhong@mediatek.com>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
++++ b/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
+@@ -0,0 +1,32 @@
++ST M41T80 family of RTC and compatible
 +
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/kernel.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/regmap.h>
-+#include <linux/mfd/mt6323/registers.h>
-+#include <linux/mfd/mt6397/registers.h>
-+#include <linux/mfd/mt6397/core.h>
++Required properties:
++- compatible: should be one of:
++	"st,m41t62",
++	"st,m41t65",
++	"st,m41t80",
++	"st,m41t81",
++	"st,m41t81s",
++	"st,m41t82",
++	"st,m41t83",
++	"st,m41t84",
++	"st,m41t85",
++	"st,m41t87",
++	"microcrystal,rv4162",
++- reg: I2C bus address of the device
 +
-+#define MTK_PMIC_PWRKEY_RST_EN_MASK	0x1
-+#define MTK_PMIC_PWRKEY_RST_EN_SHIFT	6
-+#define MTK_PMIC_HOMEKEY_RST_EN_MASK	0x1
-+#define MTK_PMIC_HOMEKEY_RST_EN_SHIFT	5
-+#define MTK_PMIC_RST_DU_MASK		0x3
-+#define MTK_PMIC_RST_DU_SHIFT		8
++Optional properties:
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- clock-output-names: From common clock binding to override the default output
++                      clock name
++- wakeup-source: Enables wake up of host system on alarm
 +
-+#define MTK_PMIC_PWRKEY_RST		\
-+	(MTK_PMIC_PWRKEY_RST_EN_MASK << MTK_PMIC_PWRKEY_RST_EN_SHIFT)
-+#define MTK_PMIC_HOMEKEY_RST		\
-+	(MTK_PMIC_HOMEKEY_RST_EN_MASK << MTK_PMIC_HOMEKEY_RST_EN_SHIFT)
++Example:
++	rtc@68 {
++		compatible = "st,m41t80";
++		reg = <0x68>;
++		interrupt-parent = <&UIC0>;
++		interrupts = <0x9 0x8>;
++	};
 +
-+#define MTK_PMIC_PWRKEY_INDEX	0
-+#define MTK_PMIC_HOMEKEY_INDEX	1
-+#define MTK_PMIC_MAX_KEY_COUNT	2
-+
-+struct mtk_pmic_keys_regs {
-+	u32 deb_reg;
-+	u32 deb_mask;
-+	u32 intsel_reg;
-+	u32 intsel_mask;
-+};
-+
-+#define MTK_PMIC_KEYS_REGS(_deb_reg, _deb_mask,		\
-+	_intsel_reg, _intsel_mask)			\
-+{							\
-+	.deb_reg		= _deb_reg,		\
-+	.deb_mask		= _deb_mask,		\
-+	.intsel_reg		= _intsel_reg,		\
-+	.intsel_mask		= _intsel_mask,		\
-+}
-+
-+struct mtk_pmic_regs {
-+	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
-+	u32 pmic_rst_reg;
-+};
-+
-+static const struct mtk_pmic_regs mt6397_regs = {
-+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6397_CHRSTATUS,
-+		0x8, MT6397_INT_RSV, 0x10),
-+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6397_OCSTATUS2,
-+		0x10, MT6397_INT_RSV, 0x8),
-+	.pmic_rst_reg = MT6397_TOP_RST_MISC,
-+};
-+
-+static const struct mtk_pmic_regs mt6323_regs = {
-+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-+		0x2, MT6323_INT_MISC_CON, 0x10),
-+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-+		0x4, MT6323_INT_MISC_CON, 0x8),
-+	.pmic_rst_reg = MT6323_TOP_RST_MISC,
-+};
-+
-+struct mtk_pmic_keys_info {
-+	struct mtk_pmic_keys *keys;
-+	const struct mtk_pmic_keys_regs *regs;
-+	unsigned int keycode;
-+	int irq;
-+	bool wakeup:1;
-+};
-+
-+struct mtk_pmic_keys {
-+	struct input_dev *input_dev;
-+	struct device *dev;
-+	struct regmap *regmap;
-+	struct mtk_pmic_keys_info keys[MTK_PMIC_MAX_KEY_COUNT];
-+};
-+
-+enum mtk_pmic_keys_lp_mode {
-+	LP_DISABLE,
-+	LP_ONEKEY,
-+	LP_TWOKEY,
-+};
-+
-+static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
-+		u32 pmic_rst_reg)
-+{
-+	int ret;
-+	u32 long_press_mode, long_press_debounce;
-+
-+	ret = of_property_read_u32(keys->dev->of_node,
-+		"power-off-time-sec", &long_press_debounce);
-+	if (ret)
-+		long_press_debounce = 0;
-+
-+	regmap_update_bits(keys->regmap, pmic_rst_reg,
-+			   MTK_PMIC_RST_DU_MASK << MTK_PMIC_RST_DU_SHIFT,
-+			   long_press_debounce << MTK_PMIC_RST_DU_SHIFT);
-+
-+	ret = of_property_read_u32(keys->dev->of_node,
-+		"mediatek,long-press-mode", &long_press_mode);
-+	if (ret)
-+		long_press_mode = LP_DISABLE;
-+
-+	switch (long_press_mode) {
-+	case LP_ONEKEY:
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_PWRKEY_RST,
-+				   MTK_PMIC_PWRKEY_RST);
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_HOMEKEY_RST,
-+				   0);
-+		break;
-+	case LP_TWOKEY:
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_PWRKEY_RST,
-+				   MTK_PMIC_PWRKEY_RST);
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_HOMEKEY_RST,
-+				   MTK_PMIC_HOMEKEY_RST);
-+		break;
-+	case LP_DISABLE:
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_PWRKEY_RST,
-+				   0);
-+		regmap_update_bits(keys->regmap, pmic_rst_reg,
-+				   MTK_PMIC_HOMEKEY_RST,
-+				   0);
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
-+{
-+	struct mtk_pmic_keys_info *info = data;
-+	u32 key_deb, pressed;
-+
-+	regmap_read(info->keys->regmap, info->regs->deb_reg, &key_deb);
-+
-+	key_deb &= info->regs->deb_mask;
-+
-+	pressed = !key_deb;
-+
-+	input_report_key(info->keys->input_dev, info->keycode, pressed);
-+	input_sync(info->keys->input_dev);
-+
-+	dev_dbg(info->keys->dev, "(%s) key =%d using PMIC\n",
-+		 pressed ? "pressed" : "released", info->keycode);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
-+		struct mtk_pmic_keys_info *info)
-+{
-+	int ret;
-+
-+	info->keys = keys;
-+
-+	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
-+				 info->regs->intsel_mask,
-+				 info->regs->intsel_mask);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
-+					mtk_pmic_keys_irq_handler_thread,
-+					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-+					"mtk-pmic-keys", info);
-+	if (ret) {
-+		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
-+			info->irq, ret);
-+		return ret;
-+	}
-+
-+	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int mtk_pmic_keys_suspend(struct device *dev)
-+{
-+	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
-+	int index;
-+
-+	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-+		if (keys->keys[index].wakeup)
-+			enable_irq_wake(keys->keys[index].irq);
-+	}
-+
-+	return 0;
-+}
-+
-+static int mtk_pmic_keys_resume(struct device *dev)
-+{
-+	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
-+	int index;
-+
-+	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-+		if (keys->keys[index].wakeup)
-+			disable_irq_wake(keys->keys[index].irq);
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
-+			mtk_pmic_keys_resume);
-+
-+static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
-+	{
-+		.compatible = "mediatek,mt6397-keys",
-+		.data = &mt6397_regs,
-+	}, {
-+		.compatible = "mediatek,mt6323-keys",
-+		.data = &mt6323_regs,
-+	}, {
-+		/* sentinel */
-+	}
-+};
-+MODULE_DEVICE_TABLE(of, of_mtk_pmic_keys_match_tbl);
-+
-+static int mtk_pmic_keys_probe(struct platform_device *pdev)
-+{
-+	int error, index = 0;
-+	unsigned int keycount;
-+	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
-+	struct device_node *node = pdev->dev.of_node, *child;
-+	struct mtk_pmic_keys *keys;
-+	const struct mtk_pmic_regs *mtk_pmic_regs;
-+	struct input_dev *input_dev;
-+	const struct of_device_id *of_id =
-+		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
-+
-+	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
-+	if (!keys)
-+		return -ENOMEM;
-+
-+	keys->dev = &pdev->dev;
-+	keys->regmap = pmic_chip->regmap;
-+	mtk_pmic_regs = of_id->data;
-+
-+	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
-+	if (!input_dev) {
-+		dev_err(keys->dev, "input allocate device fail.\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev->name = "mtk-pmic-keys";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0001;
-+	input_dev->id.version = 0x0001;
-+
-+	keycount = device_get_child_node_count(keys->dev);
-+	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
-+		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-+		return -EINVAL;
-+	}
-+
-+	for_each_child_of_node(node, child) {
-+		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
-+
-+		keys->keys[index].irq = platform_get_irq(pdev, index);
-+		if (keys->keys[index].irq < 0)
-+			return keys->keys[index].irq;
-+
-+		error = of_property_read_u32(child,
-+			"linux,keycodes", &keys->keys[index].keycode);
-+		if (error) {
-+			dev_err(keys->dev,
-+				"failed to read key:%d linux,keycode property: %d\n",
-+				index, error);
-+			return error;
-+		}
-+
-+		if (of_property_read_bool(child, "wakeup-source"))
-+			keys->keys[index].wakeup = true;
-+
-+		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
-+		if (error)
-+			return error;
-+
-+		index++;
-+	}
-+
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"register input device failed (%d)\n", error);
-+		return error;
-+	}
-+
-+	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs->pmic_rst_reg);
-+
-+	platform_set_drvdata(pdev, keys);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver pmic_keys_pdrv = {
-+	.probe = mtk_pmic_keys_probe,
-+	.driver = {
-+		   .name = "mtk-pmic-keys",
-+		   .of_match_table = of_mtk_pmic_keys_match_tbl,
-+		   .pm = &mtk_pmic_keys_pm_ops,
-+	},
-+};
-+
-+module_platform_driver(pmic_keys_pdrv);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Chen Zhong <chen.zhong@mediatek.com>");
-+MODULE_DESCRIPTION("MTK pmic-keys driver v0.1");
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index 4353151367a1..4b169caab0eb 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -175,8 +175,6 @@ sii,s35390a		2-wire CMOS real-time clock
+ silabs,si7020		Relative Humidity and Temperature Sensors
+ skyworks,sky81452	Skyworks SKY81452: Six-Channel White LED Driver with Touch Panel Bias Supply
+ st,24c256		i2c serial eeprom  (24cxx)
+-st,m41t62		Serial real-time clock (RTC) with alarm
+-st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
+ taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
+ ti,ads7828		8-Channels, 12-bit ADC
+ ti,ads7830		8-Channels, 8-bit ADC
 -- 
-1.7.9.5
+2.14.1
