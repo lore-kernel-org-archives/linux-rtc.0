@@ -1,69 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([218.249.47.111]:58498 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750802AbdIQIBC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Sep 2017 04:01:02 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:53543 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751848AbdIOCA1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 22:00:27 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Anatolij Gustschin <agust@denx.de>,
+        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v4 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-Date: Sun, 17 Sep 2017 16:00:50 +0800
-Message-ID: <1505635252-27716-4-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
-References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: [PATCH 2/3] ARM: dts: at91: usb_a9g20: fix rtc node
+Date: Fri, 15 Sep 2017 04:00:03 +0200
+Message-Id: <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
+References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds documentation for device tree bindings for keys support
-as the subnode of MT6397/MT6323 PMIC.
+The rv3029 compatible is missing its vendor string, add it.
+Also fix the node name to be a proper generic name.
 
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/usb_a9g20_common.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 522a3bb..d1df77f 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
- - GPIO
- - Clock
- - LED
-+- Keys
+diff --git a/arch/arm/boot/dts/usb_a9g20_common.dtsi b/arch/arm/boot/dts/usb_a9g20_common.dtsi
+index 088c2c3685ab..81c3fe0465d9 100644
+--- a/arch/arm/boot/dts/usb_a9g20_common.dtsi
++++ b/arch/arm/boot/dts/usb_a9g20_common.dtsi
+@@ -20,8 +20,8 @@
+ 	};
  
- It is interfaced to host controller using SPI interface by a proprietary hardware
- called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
-@@ -40,6 +41,11 @@ Optional subnodes:
- 		- compatible: "mediatek,mt6323-led"
- 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
- 
-+- keys
-+	Required properties:
-+		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-+	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-+
- Example:
- 	pwrap: pwrap@1000f000 {
- 		compatible = "mediatek,mt8135-pwrap";
+ 	i2c-gpio-0 {
+-		rv3029c2@56 {
+-			compatible = "rv3029c2";
++		rtc@56 {
++			compatible = "microcrystal,rv3029";
+ 			reg = <0x56>;
+ 		};
+ 	};
 -- 
-1.7.9.5
+2.14.1
