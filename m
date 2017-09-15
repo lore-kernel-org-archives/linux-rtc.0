@@ -1,78 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53173 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751657AbdIOBqK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 21:46:10 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] dt-bindings: RTC: Add bindings for m41t80 and compatibles
-Date: Fri, 15 Sep 2017 03:45:50 +0200
-Message-Id: <20170915014551.22664-1-alexandre.belloni@free-electrons.com>
+Received: from esa2.microchip.iphmx.com ([68.232.149.84]:47393 "EHLO
+        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751185AbdIOHHh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Sep 2017 03:07:37 -0400
+Subject: Re: [PATCH 2/3] ARM: dts: at91: usb_a9g20: fix rtc node
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Anatolij Gustschin <agust@denx.de>,
+        <linuxppc-dev@lists.ozlabs.org>, Rob Herring <robh+dt@kernel.org>,
+        <devicetree@vger.kernel.org>
+References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
+ <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
+Message-ID: <bf64c774-9057-d73e-8f39-7fcc5f32725c@microchip.com>
+Date: Fri, 15 Sep 2017 09:08:31 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The ST M41T80 family of RTC are not trivial devices, document them.
+On 15/09/2017 at 04:00, Alexandre Belloni wrote:
+> The rv3029 compatible is missing its vendor string, add it.
+> Also fix the node name to be a proper generic name.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- .../devicetree/bindings/rtc/rtc-m41t80.txt         | 32 ++++++++++++++++++++++
- .../devicetree/bindings/trivial-devices.txt        |  2 --
- 2 files changed, 32 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt b/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
-new file mode 100644
-index 000000000000..12add61e5687
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
-@@ -0,0 +1,32 @@
-+ST M41T80 family of RTC and compatible
-+
-+Required properties:
-+- compatible: should be one of:
-+	"st,m41t62",
-+	"st,m41t65",
-+	"st,m41t80",
-+	"st,m41t81",
-+	"st,m41t81s",
-+	"st,m41t82",
-+	"st,m41t83",
-+	"st,m41t84",
-+	"st,m41t85",
-+	"st,m41t87",
-+	"microcrystal,rv4162",
-+- reg: I2C bus address of the device
-+
-+Optional properties:
-+- interrupt-parent: phandle for the interrupt controller.
-+- interrupts: rtc alarm interrupt.
-+- clock-output-names: From common clock binding to override the default output
-+                      clock name
-+- wakeup-source: Enables wake up of host system on alarm
-+
-+Example:
-+	rtc@68 {
-+		compatible = "st,m41t80";
-+		reg = <0x68>;
-+		interrupt-parent = <&UIC0>;
-+		interrupts = <0x9 0x8>;
-+	};
-+
-diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
-index 4353151367a1..4b169caab0eb 100644
---- a/Documentation/devicetree/bindings/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/trivial-devices.txt
-@@ -175,8 +175,6 @@ sii,s35390a		2-wire CMOS real-time clock
- silabs,si7020		Relative Humidity and Temperature Sensors
- skyworks,sky81452	Skyworks SKY81452: Six-Channel White LED Driver with Touch Panel Bias Supply
- st,24c256		i2c serial eeprom  (24cxx)
--st,m41t62		Serial real-time clock (RTC) with alarm
--st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
- taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
- ti,ads7828		8-Channels, 12-bit ADC
- ti,ads7830		8-Channels, 8-bit ADC
+> ---
+>  arch/arm/boot/dts/usb_a9g20_common.dtsi | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/usb_a9g20_common.dtsi b/arch/arm/boot/dts/usb_a9g20_common.dtsi
+> index 088c2c3685ab..81c3fe0465d9 100644
+> --- a/arch/arm/boot/dts/usb_a9g20_common.dtsi
+> +++ b/arch/arm/boot/dts/usb_a9g20_common.dtsi
+> @@ -20,8 +20,8 @@
+>  	};
+>  
+>  	i2c-gpio-0 {
+> -		rv3029c2@56 {
+> -			compatible = "rv3029c2";
+> +		rtc@56 {
+> +			compatible = "microcrystal,rv3029";
+>  			reg = <0x56>;
+>  		};
+>  	};
+> 
+
+
 -- 
-2.14.1
+Nicolas Ferre
