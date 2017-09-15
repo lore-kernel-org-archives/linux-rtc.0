@@ -1,59 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:39759 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752516AbdI0KoU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:20 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:52426 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751516AbdIOBFu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 21:05:50 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v5 2/6] dt-bindings: input: Add common keyboard document bindings
-Date: Wed, 27 Sep 2017 18:44:04 +0800
-Message-ID: <1506509048-19032-3-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: [PATCH] dt-bindings: RTC: DS1307 and compatibles are not trivial
+Date: Fri, 15 Sep 2017 03:05:34 +0200
+Message-Id: <20170915010534.17637-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds the device tree binding documentation for common
-keyboard.
+Document optional properties for ds1307 and compatible RTCs
 
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- Documentation/devicetree/bindings/input/keys.txt |    8 ++++++++
- 1 file changed, 8 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/keys.txt
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         | 37 ++++++++++++++++++++++
+ .../devicetree/bindings/trivial-devices.txt        |  6 ----
+ 2 files changed, 37 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
 
-diff --git a/Documentation/devicetree/bindings/input/keys.txt b/Documentation/devicetree/bindings/input/keys.txt
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
 new file mode 100644
-index 0000000..a0ea7eb
+index 000000000000..d1a820e25cb9
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/keys.txt
-@@ -0,0 +1,8 @@
-+General Keys Properties:
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -0,0 +1,37 @@
++Dallas DS1307 and compatible RTC
 +
-+Optional properties for Keys:
-+- power-off-time-sec: Duration in seconds which the key should be kept
-+ 	pressed for device to power off automatically. Device with key pressed
-+ 	shutdown feature can specify this property.
-+- linux,keycodes: Specifies the numeric keycode values to be used for
-+	reporting key presses.
-\ No newline at end of file
++Required properties:
++- compatible: should be one of:
++	"dallas,ds1307",
++	"dallas,ds1308",
++	"dallas,ds1337",
++	"dallas,ds1338",
++	"dallas,ds1339",
++	"dallas,ds1388",
++	"dallas,ds1340",
++	"dallas,ds1341",
++	"maxim,ds3231",
++	"st,m41t0",
++	"st,m41t00",
++	"microchip,mcp7940x",
++	"microchip,mcp7941x",
++	"pericom,pt7c4338",
++	"epson,rx8025",
++	"isil,isl12057"
++- reg: I2C bus address of the device
++
++Optional properties:
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- clock-output-names: From common clock binding to override the default output
++                      clock name
++- wakeup-source: Enables wake up of host system on alarm
++
++Example:
++	rtc1: ds1339@68 {
++		compatible = "dallas,ds1339";
++		reg = <0x68>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <20 0>;
++	};
++
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index e3992013133e..4353151367a1 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -36,9 +36,6 @@ atmel,at97sc3204t	i2c trusted platform module (TPM)
+ capella,cm32181		CM32181: Ambient Light Sensor
+ capella,cm3232		CM3232: Ambient Light Sensor
+ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
+-dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
+-dallas,ds1338		I2C RTC with 56-Byte NV RAM
+-dallas,ds1340		I2C RTC with Trickle Charger
+ dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
+ dallas,ds1631		High-Precision Digital Thermometer
+ dallas,ds1672		Dallas DS1672 Real-time Clock
+@@ -55,7 +52,6 @@ dlg,da9063		DA9063: system PMIC for quad-core application processors
+ domintech,dmard09	DMARD09: 3-axis Accelerometer
+ domintech,dmard10	DMARD10: 3-axis Accelerometer
+ epson,rx8010		I2C-BUS INTERFACE REAL TIME CLOCK MODULE
+-epson,rx8025		High-Stability. I2C-Bus INTERFACE REAL TIME CLOCK MODULE
+ epson,rx8581		I2C-BUS INTERFACE REAL TIME CLOCK MODULE
+ emmicro,em3027		EM Microelectronic EM3027 Real-time Clock
+ fsl,mag3110		MAG3110: Xtrinsic High Accuracy, 3D Magnetometer
+@@ -179,8 +175,6 @@ sii,s35390a		2-wire CMOS real-time clock
+ silabs,si7020		Relative Humidity and Temperature Sensors
+ skyworks,sky81452	Skyworks SKY81452: Six-Channel White LED Driver with Touch Panel Bias Supply
+ st,24c256		i2c serial eeprom  (24cxx)
+-st,m41t0		Serial real-time clock (RTC)
+-st,m41t00		Serial real-time clock (RTC)
+ st,m41t62		Serial real-time clock (RTC) with alarm
+ st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
+ taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
 -- 
-1.7.9.5
+2.14.1
