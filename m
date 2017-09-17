@@ -1,98 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37592 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750927AbdIEIJR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Sep 2017 04:09:17 -0400
-Date: Tue, 5 Sep 2017 10:09:05 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
+Received: from mailgw01.mediatek.com ([218.249.47.110]:44656 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751334AbdIQIBD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Sep 2017 04:01:03 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v4 0/3] arm64: Realtek RTD1295 RTC
-Message-ID: <20170905080905.iddfowmhwxz73ms4@piout.net>
-References: <20170904225324.29138-1-afaerber@suse.de>
- <20170905075900.wsroxyp6mzdzjclu@piout.net>
- <12aac585-64f4-f08b-c5bf-b1f0ac124924@suse.de>
+        Andi Shyti <andi.shyti@samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v4 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Sun, 17 Sep 2017 16:00:49 +0800
+Message-ID: <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
+References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <12aac585-64f4-f08b-c5bf-b1f0ac124924@suse.de>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 05/09/2017 at 10:03:58 +0200, Andreas Färber wrote:
-> Am 05.09.2017 um 09:59 schrieb Alexandre Belloni:
-> > On 05/09/2017 at 00:53:21 +0200, Andreas Färber wrote:
-> >> Hello,
-> >>
-> >> This series adds the RTC for the Realtek RTD1295 SoC.
-> >> Based on my RTD1295 clk series.
-> >>
-> >> There being no public source code for RTD1295, the implementation is based on
-> >> register offsets seen in the vendor DT, as well as older mach-rtk119x code
-> >> published by QNAP.
-> >>
-> >> v4 adds a missing clk_put().
-> >>
-> >> The DT node depends on the clk series for clock index and header.
-> >>
-> >> More experimental patches at:
-> >> https://github.com/afaerber/linux/commits/rtd1295-next
-> >>
-> >> Have a lot of fun!
-> >>
-> >> Cheers,
-> >> Andreas
-> >>
-> >> v3 -> v4:
-> >> * Added clk_put() (Alexandre)
-> >>
-> >> v2 -> v3:
-> >> * Dropped spinlock (Andrew)
-> >> * Improved year_days vs. days_in_year readability
-> >>
-> >> v1 -> v2:
-> >> * Updated rtc driver to no longer use open/release (Alexandre)
-> >> * Cleaned up debug output (Andrew)
-> >> * Avoided COMPILE_TEST division errors (kbuild)
-> >> * Various cleanups and extensions
-> >>
-> >> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> >> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> >> Cc: linux-rtc@vger.kernel.org
-> >> Cc: Roc He <hepeng@zidoo.tv>
-> >> Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
-> >> Cc: devicetree@vger.kernel.org
-> >> Cc: Andrew Lunn <andrew@lunn.ch>
-> >>
-> >> Andreas Färber (3):
-> >>   dt-bindings: rtc: Add Realtek RTD1295
-> >>   rtc: Add Realtek RTD1295
-> >>   arm64: dts: realtek: Add RTD1295 RTC node
-> >>
-> >>  .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
-> >>  arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
-> >>  drivers/rtc/Kconfig                                |   8 +
-> >>  drivers/rtc/Makefile                               |   1 +
-> >>  drivers/rtc/rtc-rtd119x.c                          | 242 +++++++++++++++++++++
-> >>  5 files changed, 273 insertions(+)
-> >>  create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
-> >>  create mode 100644 drivers/rtc/rtc-rtd119x.c
-> >>
-> > Applied, thanks.
-> 
-> Err, I am hoping you only queued patches 1-2? Please do not queue patch
-> 3, that needs to go through my tree as per the comments - it will not build.
-> 
+This patch adds the device tree binding documentation for the MediaTek
+pmic keys found on PMIC MT6397/MT6323.
 
-Yes, I'm not taking DT patches through the RTC tree.
-I didn't receive v4 of the DT patch that's why I forgot to clarify.
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 
-
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+new file mode 100644
+index 0000000..fd48ff7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -0,0 +1,41 @@
++MediaTek MT6397/MT6323 PMIC Keys Device Driver
++
++There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
++and homekey. The key functions are defined as the subnode of the function
++node provided by MT6397/MT6323 PMIC that is being defined as one kind
++of Muti-Function Device (MFD)
++
++For MT6397/MT6323 MFD bindings see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++Required properties:
++- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- linux,keycodes: Specifies the numeric keycode values to
++	be used for reporting keys presses. The array can
++	contain up to 2 entries.
++
++Optional Properties:
++- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
++	or not. This can be customized depends on board design.
++- wakeup-source: PMIC keys can be used as wakeup sources.
++- mediatek,long-press-mode: Long press key shutdown setting, 1 for
++	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
++- debounce-interval: Long press key shutdown debouncing interval time
++	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
++
++Example:
++
++	pmic: mt6397 {
++		compatible = "mediatek,mt6397";
++
++		...
++
++		mt6397keys: mt6397keys {
++			compatible = "mediatek,mt6397-keys";
++			linux,keycodes = <116>, <114>;
++			mediatek,wakeup-keys = <1>, <0>;
++			wakeup-source;
++			mediatek,long-press-mode = <1>;
++			debounce-interval = <0>;
++		};
++	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
