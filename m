@@ -1,94 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39234 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751630AbdIEIED (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Sep 2017 04:04:03 -0400
-Subject: Re: [PATCH v4 0/3] arm64: Realtek RTD1295 RTC
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
+Received: from mailgw02.mediatek.com ([218.249.47.111]:58529 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751319AbdIQIBD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Sep 2017 04:01:03 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Andrew Lunn <andrew@lunn.ch>
-References: <20170904225324.29138-1-afaerber@suse.de>
- <20170905075900.wsroxyp6mzdzjclu@piout.net>
-From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>
-Message-ID: <12aac585-64f4-f08b-c5bf-b1f0ac124924@suse.de>
-Date: Tue, 5 Sep 2017 10:03:58 +0200
+        Andi Shyti <andi.shyti@samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v4 1/5] mfd: mt6397: create irq mappings in mfd core driver
+Date: Sun, 17 Sep 2017 16:00:48 +0800
+Message-ID: <1505635252-27716-2-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
+References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20170905075900.wsroxyp6mzdzjclu@piout.net>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Am 05.09.2017 um 09:59 schrieb Alexandre Belloni:
-> On 05/09/2017 at 00:53:21 +0200, Andreas Färber wrote:
->> Hello,
->>
->> This series adds the RTC for the Realtek RTD1295 SoC.
->> Based on my RTD1295 clk series.
->>
->> There being no public source code for RTD1295, the implementation is based on
->> register offsets seen in the vendor DT, as well as older mach-rtk119x code
->> published by QNAP.
->>
->> v4 adds a missing clk_put().
->>
->> The DT node depends on the clk series for clock index and header.
->>
->> More experimental patches at:
->> https://github.com/afaerber/linux/commits/rtd1295-next
->>
->> Have a lot of fun!
->>
->> Cheers,
->> Andreas
->>
->> v3 -> v4:
->> * Added clk_put() (Alexandre)
->>
->> v2 -> v3:
->> * Dropped spinlock (Andrew)
->> * Improved year_days vs. days_in_year readability
->>
->> v1 -> v2:
->> * Updated rtc driver to no longer use open/release (Alexandre)
->> * Cleaned up debug output (Andrew)
->> * Avoided COMPILE_TEST division errors (kbuild)
->> * Various cleanups and extensions
->>
->> Cc: Alessandro Zummo <a.zummo@towertech.it>
->> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> Cc: linux-rtc@vger.kernel.org
->> Cc: Roc He <hepeng@zidoo.tv>
->> Cc: 蒋丽琴 <jiang.liqin@geniatech.com>
->> Cc: devicetree@vger.kernel.org
->> Cc: Andrew Lunn <andrew@lunn.ch>
->>
->> Andreas Färber (3):
->>   dt-bindings: rtc: Add Realtek RTD1295
->>   rtc: Add Realtek RTD1295
->>   arm64: dts: realtek: Add RTD1295 RTC node
->>
->>  .../devicetree/bindings/rtc/realtek,rtd119x.txt    |  16 ++
->>  arch/arm64/boot/dts/realtek/rtd1295.dtsi           |   6 +
->>  drivers/rtc/Kconfig                                |   8 +
->>  drivers/rtc/Makefile                               |   1 +
->>  drivers/rtc/rtc-rtd119x.c                          | 242 +++++++++++++++++++++
->>  5 files changed, 273 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/realtek,rtd119x.txt
->>  create mode 100644 drivers/rtc/rtc-rtd119x.c
->>
-> Applied, thanks.
+The core driver should create and manage irq mappings instead of
+leaf drivers. This patch change to pass irq domain to
+devm_mfd_add_devices() and it will create mapping for irq resources
+automatically. And remove irq mapping in rtc driver since this has
+been done in core driver.
 
-Err, I am hoping you only queued patches 1-2? Please do not queue patch
-3, that needs to go through my tree as per the comments - it will not build.
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c |    4 ++--
+ drivers/rtc/rtc-mt6397.c  |    7 +++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-Thanks,
-Andreas
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 04a601f..6546d7f 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+ 
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+ 					   ARRAY_SIZE(mt6323_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
+ 
+ 	case MT6397_CID_CODE:
+@@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+ 
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+ 					   ARRAY_SIZE(mt6397_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
+ 
+ 	default:
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 1a61fa5..385f830 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -322,10 +322,9 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->addr_base = res->start;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+-	if (rtc->irq <= 0)
+-		return -EINVAL;
++	rtc->irq = platform_get_irq(pdev, 0);
++	if (rtc->irq < 0)
++		return rtc->irq;
+ 
+ 	rtc->regmap = mt6397_chip->regmap;
+ 	rtc->dev = &pdev->dev;
 -- 
-SUSE Linux GmbH, Maxfeldstr. 5, 90409 Nürnberg, Germany
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
+1.7.9.5
