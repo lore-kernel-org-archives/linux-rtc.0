@@ -1,104 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:12401 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750762AbdIACAN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Aug 2017 22:00:13 -0400
-Message-ID: <1504231205.15359.9.camel@mhfsdcap03>
-Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Rob Herring <robh@kernel.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Lee Jones" <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
+Received: from smtp3-g21.free.fr ([212.27.42.3]:8028 "EHLO smtp3-g21.free.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751585AbdIRTKa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 18 Sep 2017 15:10:30 -0400
+From: Mathieu Malaterre <malat@debian.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Alex Smith <alex.smith@imgtec.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Jaechul Lee" <jcsing.lee@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Date: Fri, 1 Sep 2017 10:00:05 +0800
-In-Reply-To: <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
-         <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: jz4740: fix loading of rtc driver
+Date: Mon, 18 Sep 2017 21:10:13 +0200
+Message-Id: <20170918191014.28106-1-malat@debian.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
-> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
-> > This patch adds the device tree binding documentation for the MediaTek
-> > pmic keys found on PMIC MT6397/MT6323.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > ---
-> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
-> >  1 file changed, 38 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > new file mode 100644
-> > index 0000000..100ec44
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > @@ -0,0 +1,38 @@
-> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> > +
-> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> > +and homekey. The key functions are defined as the subnode of the function
-> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> > +of Muti-Function Device (MFD)
-> > +
-> > +For MT6397/MT6323 MFD bindings see:
-> > +Documentation/devicetree/bindings/mfd/mt6397.txt
-> > +
-> > +Required properties:
-> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> > +- linux,keycodes: Specifies the numeric keycode values to
-> > +	be used for reporting keys presses. The array can
-> > +	contain up to 2 entries.
-> > +
-> > +Optional Properties:
-> > +- wakeup-source: each key can be used as a wakeup source.
-> 
-> wakeup-source is defined as a boolean.
+The current timeout for waiting for WRDY is not always sufficient. Always
+increase it to 10000 even on JZ4740. This is technically only required on
+JZ4780, where the current symptoms seen after a hard reboot are:
 
-Hi Rob,
+  jz4740-rtc 10003000.rtc: rtc core: registered 10003000.rtc as rtc0
+  jz4740-rtc 10003000.rtc: Could not write to RTC registers
+  jz4740-rtc: probe of 10003000.rtc failed with error -5
 
-We have two keys, maybe one key can be used as a wakeup source, another
-not.Since wakeup-source is defined as a boolean, we cannot distinguish
-the behavior of the two keys. May i know the better way to do this?
+Suggested-by: Alex Smith <alex.smith@imgtec.com>
+Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+Signed-off-by: Mathieu Malaterre <malat@debian.org>
+---
+ drivers/rtc/rtc-jz4740.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thank you.
-> 
-> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> > +- debounce-interval: Long press key shutdown debouncing interval time
-> > +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
-> > +
-> > +Example:
-> > +
-> > +	pmic: mt6397 {
-> > +		compatible = "mediatek,mt6397";
-> > +
-> > +		...
-> > +
-> > +		mt6397keys: mt6397keys {
-> > +			compatible = "mediatek,mt6397-keys";
-> > +			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
-> > +			wakeup-source = <1>, <0>;
-> > +			mediatek,long-press-mode = <1>;
-> > +			debounce-interval = <0>;
-> > +		};
-> > +	};
-> > -- 
-> > 1.7.9.5
-> > 
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index c9536fb0ba4a..ff65a7d2b9c9 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -82,7 +82,7 @@ static inline uint32_t jz4740_rtc_reg_read(struct jz4740_rtc *rtc, size_t reg)
+ static int jz4740_rtc_wait_write_ready(struct jz4740_rtc *rtc)
+ {
+ 	uint32_t ctrl;
+-	int timeout = 1000;
++	int timeout = 10000;
+ 
+ 	do {
+ 		ctrl = jz4740_rtc_reg_read(rtc, JZ_REG_RTC_CTRL);
+@@ -94,7 +94,7 @@ static int jz4740_rtc_wait_write_ready(struct jz4740_rtc *rtc)
+ static inline int jz4780_rtc_enable_write(struct jz4740_rtc *rtc)
+ {
+ 	uint32_t ctrl;
+-	int ret, timeout = 1000;
++	int ret, timeout = 10000;
+ 
+ 	ret = jz4740_rtc_wait_write_ready(rtc);
+ 	if (ret != 0)
+-- 
+2.11.0
