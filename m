@@ -1,87 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:6503 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751480AbdITJgh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Sep 2017 05:36:37 -0400
-Subject: Re: [PATCH] rtc: interface: set the next alarm event appropriately
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:37057 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751450AbdITUwT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Sep 2017 16:52:19 -0400
+Date: Wed, 20 Sep 2017 15:52:16 -0500
+From: Rob Herring <robh@kernel.org>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
- <20170920091617.j7sie3mrncjkcj3m@piout.net>
-CC: <a.zummo@towertech.it>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <roy.chenjun@hisilicon.com>,
-        <colin.king@canonical.com>, <wanghao24@huawei.com>
-From: YiPing Xu <xuyiping@hisilicon.com>
-Message-ID: <a5e3fa58-f514-bb26-3911-7ca800d277c9@hisilicon.com>
-Date: Wed, 20 Sep 2017 17:36:10 +0800
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, Barry Song <baohua@kernel.org>
+Subject: Re: [PATCH] dt-bindings: RTC: Add sirf,prima2-sysrtc bindings
+Message-ID: <20170920205216.sgxyxc3bjcw3whot@rob-hp-laptop>
+References: <20170915002035.13284-1-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-In-Reply-To: <20170920091617.j7sie3mrncjkcj3m@piout.net>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170915002035.13284-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Fri, Sep 15, 2017 at 02:20:35AM +0200, Alexandre Belloni wrote:
+> Add device tree bindings for the SiRFSoC Real Time Clock.
 
-On 2017/9/20 17:16, Alexandre Belloni wrote:
-> Hi,
->
-> On 20/09/2017 at 11:22:31 +0800, Xu Yiping wrote:
->> From: Xu YiPing  <xuyiping@hisilicon.com>
->>
->> After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
->> enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
->> when there is any non-expired timers in the timerqueue. If we set a
->> RTC_TIMER between now and the next non-expired timers, it won't go into
->> effect in time.
->>
->> So, besides ignoring the expired timers, we should take the next effect
->> timer into account, and reprogram the RTC timer appropriately.
->>
->
-> Can you try this patch instead? I think it solves this issue:
-> http://patchwork.ozlabs.org/patch/792482/
+Would be useful to note this is already in use and was undocumented.
 
-it looks work.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+>  .../devicetree/bindings/rtc/sirf,prima2-sysrtc.txt         | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/sirf,prima2-sysrtc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/sirf,prima2-sysrtc.txt b/Documentation/devicetree/bindings/rtc/sirf,prima2-sysrtc.txt
+> new file mode 100644
+> index 000000000000..206a5b44af48
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/sirf,prima2-sysrtc.txt
+> @@ -0,0 +1,14 @@
+> +SiRFSoC Real Time Clock
+> +
+> +Required properties:
+> +- compatible: must be "sirf,prima2-sysrtc"
+> +- reg: address range of rtc register set.
+> +- interrupts: rtc alarm interrupts.
+> +
+> +Example:
+> +			sysrtc@2000 {
 
-will it be merged into the main tree ?
+rtc@...
 
->> Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
->> Signed-off-by: Chen Jun <roy.chenjun@hisilicon.com>
->> ---
->>  drivers/rtc/interface.c | 9 ++++++---
->>  1 file changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
->> index 8cec9a0..e237166 100644
->> --- a/drivers/rtc/interface.c
->> +++ b/drivers/rtc/interface.c
->> @@ -766,20 +766,23 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
->>  	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
->>  	struct rtc_time tm;
->>  	ktime_t now;
->> +	ktime_t next_effect = KTIME_MAX;
->>
->>  	timer->enabled = 1;
->>  	__rtc_read_time(rtc, &tm);
->>  	now = rtc_tm_to_ktime(tm);
->>
->> -	/* Skip over expired timers */
->> +	/* Skip over expired timers, get next effect timer */
->>  	while (next) {
->> -		if (next->expires >= now)
->> +		if (next->expires >= now) {
->> +			next_effect = next->expires;
->>  			break;
->> +		}
->>  		next = timerqueue_iterate_next(next);
->>  	}
->>
->>  	timerqueue_add(&rtc->timerqueue, &timer->node);
->> -	if (!next) {
->> +	if (timer->node.expires < next_effect) {
->>  		struct rtc_wkalrm alarm;
->>  		int err;
->>  		alarm.time = rtc_ktime_to_tm(timer->node.expires);
->> --
->> 2.7.4
->>
->
+Did you want to take all these patches or I can? At least the ones 
+touching trivial-devices.txt I'll take so I can deal with any conflicts.
+
+Rob
