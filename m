@@ -1,53 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:38051 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753123AbdI0ODu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 10:03:50 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2 2/6] dt-bindings: rtc: add stericsson,coh901331 bindings
-Date: Wed, 27 Sep 2017 16:03:41 +0200
-Message-Id: <20170927140345.5537-3-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
-References: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:6503 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751480AbdITJgh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Sep 2017 05:36:37 -0400
+Subject: Re: [PATCH] rtc: interface: set the next alarm event appropriately
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
+ <20170920091617.j7sie3mrncjkcj3m@piout.net>
+CC: <a.zummo@towertech.it>, <linux-rtc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <roy.chenjun@hisilicon.com>,
+        <colin.king@canonical.com>, <wanghao24@huawei.com>
+From: YiPing Xu <xuyiping@hisilicon.com>
+Message-ID: <a5e3fa58-f514-bb26-3911-7ca800d277c9@hisilicon.com>
+Date: Wed, 20 Sep 2017 17:36:10 +0800
+MIME-Version: 1.0
+In-Reply-To: <20170920091617.j7sie3mrncjkcj3m@piout.net>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add device tree bindings for the ST-Ericsson COH 901 331 Real Time Clock
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- .../devicetree/bindings/rtc/stericsson,coh901331.txt    | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
+On 2017/9/20 17:16, Alexandre Belloni wrote:
+> Hi,
+>
+> On 20/09/2017 at 11:22:31 +0800, Xu Yiping wrote:
+>> From: Xu YiPing  <xuyiping@hisilicon.com>
+>>
+>> After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
+>> enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
+>> when there is any non-expired timers in the timerqueue. If we set a
+>> RTC_TIMER between now and the next non-expired timers, it won't go into
+>> effect in time.
+>>
+>> So, besides ignoring the expired timers, we should take the next effect
+>> timer into account, and reprogram the RTC timer appropriately.
+>>
+>
+> Can you try this patch instead? I think it solves this issue:
+> http://patchwork.ozlabs.org/patch/792482/
 
-diff --git a/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt b/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
-new file mode 100644
-index 000000000000..3ebeb311335f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
-@@ -0,0 +1,17 @@
-+ST-Ericsson COH 901 331 Real Time Clock
-+
-+Required properties:
-+- compatible: must be "stericsson,coh901331"
-+- reg: address range of rtc register set.
-+- interrupt-parent: phandle for the interrupt controller.
-+- interrupts: rtc alarm interrupt.
-+- clocks: phandle to the rtc clock source
-+
-+Example:
-+	rtc: rtc@c0017000 {
-+		compatible = "stericsson,coh901331";
-+		reg = <0xc0017000 0x1000>;
-+		interrupt-parent = <&vicb>;
-+		interrupts = <10>;
-+		clocks = <&rtc_clk>;
-+	};
--- 
-2.14.2
+it looks work.
+
+will it be merged into the main tree ?
+
+>> Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
+>> Signed-off-by: Chen Jun <roy.chenjun@hisilicon.com>
+>> ---
+>>  drivers/rtc/interface.c | 9 ++++++---
+>>  1 file changed, 6 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+>> index 8cec9a0..e237166 100644
+>> --- a/drivers/rtc/interface.c
+>> +++ b/drivers/rtc/interface.c
+>> @@ -766,20 +766,23 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
+>>  	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+>>  	struct rtc_time tm;
+>>  	ktime_t now;
+>> +	ktime_t next_effect = KTIME_MAX;
+>>
+>>  	timer->enabled = 1;
+>>  	__rtc_read_time(rtc, &tm);
+>>  	now = rtc_tm_to_ktime(tm);
+>>
+>> -	/* Skip over expired timers */
+>> +	/* Skip over expired timers, get next effect timer */
+>>  	while (next) {
+>> -		if (next->expires >= now)
+>> +		if (next->expires >= now) {
+>> +			next_effect = next->expires;
+>>  			break;
+>> +		}
+>>  		next = timerqueue_iterate_next(next);
+>>  	}
+>>
+>>  	timerqueue_add(&rtc->timerqueue, &timer->node);
+>> -	if (!next) {
+>> +	if (timer->node.expires < next_effect) {
+>>  		struct rtc_wkalrm alarm;
+>>  		int err;
+>>  		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+>> --
+>> 2.7.4
+>>
+>
