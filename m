@@ -1,113 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:63254 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752616AbdIGDFs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Sep 2017 23:05:48 -0400
-Message-ID: <1504753540.9882.15.camel@mhfsdcap03>
-Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Rob Herring <robh@kernel.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Lee Jones" <lee.jones@linaro.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Jaechul Lee" <jcsing.lee@samsung.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>
-Date: Thu, 7 Sep 2017 11:05:40 +0800
-In-Reply-To: <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
-         <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
-         <1504318583.15359.12.camel@mhfsdcap03>
-         <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Received: from szxga05-in.huawei.com ([45.249.212.191]:6520 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751009AbdITDWy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Sep 2017 23:22:54 -0400
+From: Xu Yiping <xuyiping@hisilicon.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <roy.chenjun@hisilicon.com>, <colin.king@canonical.com>,
+        <wanghao24@huawei.com>
+Subject: [PATCH] rtc: interface: set the next alarm event appropriately
+Date: Wed, 20 Sep 2017 11:22:31 +0800
+Message-ID: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2017-09-05 at 11:05 -0500, Rob Herring wrote:
-> On Fri, Sep 1, 2017 at 9:16 PM, Chen Zhong <chen.zhong@mediatek.com> wrote:
-> > On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
-> >> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
-> >> > This patch adds the device tree binding documentation for the MediaTek
-> >> > pmic keys found on PMIC MT6397/MT6323.
-> >> >
-> >> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> >> > ---
-> >> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
-> >> >  1 file changed, 38 insertions(+)
-> >> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> >
-> >> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> > new file mode 100644
-> >> > index 0000000..100ec44
-> >> > --- /dev/null
-> >> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> > @@ -0,0 +1,38 @@
-> >> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> >> > +
-> >> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> >> > +and homekey. The key functions are defined as the subnode of the function
-> >> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> >> > +of Muti-Function Device (MFD)
-> >> > +
-> >> > +For MT6397/MT6323 MFD bindings see:
-> >> > +Documentation/devicetree/bindings/mfd/mt6397.txt
-> >> > +
-> >> > +Required properties:
-> >> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> >> > +- linux,keycodes: Specifies the numeric keycode values to
-> >> > +   be used for reporting keys presses. The array can
-> >> > +   contain up to 2 entries.
-> >> > +
-> >> > +Optional Properties:
-> >> > +- wakeup-source: each key can be used as a wakeup source.
-> >>
-> >> wakeup-source is defined as a boolean.
-> >
-> > Hi Rob,
-> >
-> > Could I modify it as this?
-> >
-> > mediatek,wakeup-keys = <1>, <0>;
-> > wakeup-source;
-> 
-> What do the values and index signify? The power key is index 0 and the
-> value 1 means enable wakeup? Or each value is the raw key (i.e.
-> indexes in linux,keycode) that wakeup is enabled for?
-> 
-> I don't think this should be in DT really. It's really up to the user
-> (i.e. userspace) to decide what keys cause wakeup (or maybe that's
-> only suspend). If you default to the power key causes wakeup, do you
-> really need to support different options?
-> 
-> If we do put this in DT, then it should be a common binding to specify
-> keys that cause wake-up.
-> 
-> Rob
+From: Xu YiPing  <xuyiping@hisilicon.com>
 
-Hi Rob,
+After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
+enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
+when there is any non-expired timers in the timerqueue. If we set a
+RTC_TIMER between now and the next non-expired timers, it won't go into
+effect in time.
 
-Yes, we want to describe that power key is index 0 and is a wakeup
-source, homekey is index 1 and not a wakeup source.
+So, besides ignoring the expired timers, we should take the next effect
+timer into account, and reprogram the RTC timer appropriately.
 
-Since power key and homekey are two real HW keys, customer can decide
-which key to be the wakeup source or both due to their hw design, so we
-put this in DT and can be different for different boards.
+Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
+Signed-off-by: Chen Jun <roy.chenjun@hisilicon.com>
+---
+ drivers/rtc/interface.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Thank you.
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 8cec9a0..e237166 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -766,20 +766,23 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
+ 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+ 	struct rtc_time tm;
+ 	ktime_t now;
++	ktime_t next_effect = KTIME_MAX;
 
-Chen
+ 	timer->enabled = 1;
+ 	__rtc_read_time(rtc, &tm);
+ 	now = rtc_tm_to_ktime(tm);
+
+-	/* Skip over expired timers */
++	/* Skip over expired timers, get next effect timer */
+ 	while (next) {
+-		if (next->expires >= now)
++		if (next->expires >= now) {
++			next_effect = next->expires;
+ 			break;
++		}
+ 		next = timerqueue_iterate_next(next);
+ 	}
+
+ 	timerqueue_add(&rtc->timerqueue, &timer->node);
+-	if (!next) {
++	if (timer->node.expires < next_effect) {
+ 		struct rtc_wkalrm alarm;
+ 		int err;
+ 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+--
+2.7.4
