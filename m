@@ -1,77 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53177 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:40155 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751774AbdIOBqR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Sep 2017 21:46:17 -0400
+        with ESMTP id S1750912AbdIUI56 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 04:57:58 -0400
+Date: Thu, 21 Sep 2017 10:57:52 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] dt-bindings: RTC: merge ds1339 in ds1307 documentation
-Date: Fri, 15 Sep 2017 03:45:51 +0200
-Message-Id: <20170915014551.22664-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170915014551.22664-1-alexandre.belloni@free-electrons.com>
-References: <20170915014551.22664-1-alexandre.belloni@free-electrons.com>
+To: YiPing Xu <xuyiping@hisilicon.com>
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, roy.chenjun@hisilicon.com,
+        colin.king@canonical.com, wanghao24@huawei.com
+Subject: Re: [PATCH] rtc: interface: set the next alarm event appropriately
+Message-ID: <20170921085752.q7kepvl7zmrdvm3t@piout.net>
+References: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
+ <20170920091617.j7sie3mrncjkcj3m@piout.net>
+ <b13fabbb-fe2e-b3a3-6e8e-c42b8bab063c@hisilicon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <b13fabbb-fe2e-b3a3-6e8e-c42b8bab063c@hisilicon.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Now that there is documentation for the ds1307 and compatible RTCs, merge
-the ds1339 documentation in it.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- .../devicetree/bindings/rtc/dallas,ds1339.txt          | 18 ------------------
- Documentation/devicetree/bindings/rtc/rtc-ds1307.txt   |  6 ++++++
- 2 files changed, 6 insertions(+), 18 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1339.txt
+On 21/09/2017 at 14:45:17 +0800, YiPing Xu wrote:
+> 
+> 
+> On 2017/9/20 17:16, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 20/09/2017 at 11:22:31 +0800, Xu Yiping wrote:
+> > > From: Xu YiPing  <xuyiping@hisilicon.com>
+> > > 
+> > > After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
+> > > enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
+> > > when there is any non-expired timers in the timerqueue. If we set a
+> > > RTC_TIMER between now and the next non-expired timers, it won't go into
+> > > effect in time.
+> > > 
+> > > So, besides ignoring the expired timers, we should take the next effect
+> > > timer into account, and reprogram the RTC timer appropriately.
+> > > 
+> > 
+> > Can you try this patch instead? I think it solves this issue:
+> > http://patchwork.ozlabs.org/patch/792482/
+> 
+>    We've tested this patch, it works too.
+> 
+>    Will it be merged into the main tree?
+> 
 
-diff --git a/Documentation/devicetree/bindings/rtc/dallas,ds1339.txt b/Documentation/devicetree/bindings/rtc/dallas,ds1339.txt
-deleted file mode 100644
-index 916f57601a8f..000000000000
---- a/Documentation/devicetree/bindings/rtc/dallas,ds1339.txt
-+++ /dev/null
-@@ -1,18 +0,0 @@
--* Dallas DS1339		I2C Serial Real-Time Clock
--
--Required properties:
--- compatible: Should contain "dallas,ds1339".
--- reg: I2C address for chip
--
--Optional properties:
--- trickle-resistor-ohms : Selected resistor for trickle charger
--	Values usable for ds1339 are 250, 2000, 4000
--	Should be given if trickle charger should be enabled
--- trickle-diode-disable : Do not use internal trickle charger diode
--	Should be given if internal trickle charger diode should be disabled
--Example:
--	ds1339: rtc@68 {
--		compatible = "dallas,ds1339";
--		trickle-resistor-ohms = <250>;
--		reg = <0x68>;
--	};
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d1a820e25cb9..2eacc17a9b8d 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -26,6 +26,11 @@ Optional properties:
- - clock-output-names: From common clock binding to override the default output
-                       clock name
- - wakeup-source: Enables wake up of host system on alarm
-+- trickle-resistor-ohms : Selected resistor for trickle charger
-+	Values usable for ds1339 are 250, 2000, 4000
-+	Should be given if trickle charger should be enabled
-+- trickle-diode-disable : Do not use internal trickle charger diode
-+	Should be given if internal trickle charger diode should be disabled
- 
- Example:
- 	rtc1: ds1339@68 {
-@@ -33,5 +38,6 @@ Example:
- 		reg = <0x68>;
- 		interrupt-parent = <&gpio4>;
- 		interrupts = <20 0>;
-+		trickle-resistor-ohms = <250>;
- 	};
- 
+Yes, I will send it as a fix for 4.14.
+
+
 -- 
-2.14.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
