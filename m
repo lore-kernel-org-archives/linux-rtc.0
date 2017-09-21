@@ -1,73 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:44614 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751324AbdIQIBD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Sep 2017 04:01:03 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v4 0/5] Add MediaTek PMIC keys support
-Date: Sun, 17 Sep 2017 16:00:47 +0800
-Message-ID: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:6946 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751811AbdIUGps (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 02:45:48 -0400
+Subject: Re: [PATCH] rtc: interface: set the next alarm event appropriately
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+References: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
+ <20170920091617.j7sie3mrncjkcj3m@piout.net>
+CC: <a.zummo@towertech.it>, <linux-rtc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <roy.chenjun@hisilicon.com>,
+        <colin.king@canonical.com>, <wanghao24@huawei.com>
+From: YiPing Xu <xuyiping@hisilicon.com>
+Message-ID: <b13fabbb-fe2e-b3a3-6e8e-c42b8bab063c@hisilicon.com>
+Date: Thu, 21 Sep 2017 14:45:17 +0800
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20170920091617.j7sie3mrncjkcj3m@piout.net>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Changes since v3:
-- make the naming to be consistent as mtk_pmic or MTK_PMIC
-- add suspend/resume functions to enable/disable irq
-- change binding properties to define wakeup sources
 
-Changes since v2:
-- use standard properties for keycodes and debounce time
-- change to use platform_get_irq in leaf drivers
-- use better ways to define IRQ resources
 
-Changes since v1:
-- create irq mappings in mfd core driver instead of leaf drivers
-- remove some unused parts in mtk-pmic-keys driver
+On 2017/9/20 17:16, Alexandre Belloni wrote:
+> Hi,
+>
+> On 20/09/2017 at 11:22:31 +0800, Xu Yiping wrote:
+>> From: Xu YiPing  <xuyiping@hisilicon.com>
+>>
+>> After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
+>> enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
+>> when there is any non-expired timers in the timerqueue. If we set a
+>> RTC_TIMER between now and the next non-expired timers, it won't go into
+>> effect in time.
+>>
+>> So, besides ignoring the expired timers, we should take the next effect
+>> timer into account, and reprogram the RTC timer appropriately.
+>>
+>
+> Can you try this patch instead? I think it solves this issue:
+> http://patchwork.ozlabs.org/patch/792482/
 
-MediaTek PMIC are multi-function devices that can handle key interrupts,
-typically there are two keys attached to PMIC, which called pwrkey
-and homekey. PWRKEY usually used to wake up system from sleep. Homekey
-can used as volume down key due to board design. Long press keys can
-shutdown PMIC, the mode can be choose to be one key only or two keys
-together.
-This series add support for key functions for MediaTek PMIC MT6397/MT6323.
+    We've tested this patch, it works too.
 
-Chen Zhong (5):
-  mfd: mt6397: create irq mappings in mfd core driver
-  dt-bindings: input: Add document bindings for mtk-pmic-keys
-  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-  input: Add MediaTek PMIC keys support
-  mfd: mt6397: Add PMIC keys support to MT6397 driver
+    Will it be merged into the main tree?
 
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 +++
- Documentation/devicetree/bindings/mfd/mt6397.txt   |    6 +
- drivers/input/keyboard/Kconfig                     |    9 +
- drivers/input/keyboard/Makefile                    |    1 +
- drivers/input/keyboard/mtk-pmic-keys.c             |  354 ++++++++++++++++++++
- drivers/mfd/mt6397-core.c                          |   26 +-
- drivers/rtc/rtc-mt6397.c                           |    7 +-
- 7 files changed, 437 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-
---
-1.7.9.5
+>> Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
+>> Signed-off-by: Chen Jun <roy.chenjun@hisilicon.com>
+>> ---
+>>  drivers/rtc/interface.c | 9 ++++++---
+>>  1 file changed, 6 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+>> index 8cec9a0..e237166 100644
+>> --- a/drivers/rtc/interface.c
+>> +++ b/drivers/rtc/interface.c
+>> @@ -766,20 +766,23 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
+>>  	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+>>  	struct rtc_time tm;
+>>  	ktime_t now;
+>> +	ktime_t next_effect = KTIME_MAX;
+>>
+>>  	timer->enabled = 1;
+>>  	__rtc_read_time(rtc, &tm);
+>>  	now = rtc_tm_to_ktime(tm);
+>>
+>> -	/* Skip over expired timers */
+>> +	/* Skip over expired timers, get next effect timer */
+>>  	while (next) {
+>> -		if (next->expires >= now)
+>> +		if (next->expires >= now) {
+>> +			next_effect = next->expires;
+>>  			break;
+>> +		}
+>>  		next = timerqueue_iterate_next(next);
+>>  	}
+>>
+>>  	timerqueue_add(&rtc->timerqueue, &timer->node);
+>> -	if (!next) {
+>> +	if (timer->node.expires < next_effect) {
+>>  		struct rtc_wkalrm alarm;
+>>  		int err;
+>>  		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+>> --
+>> 2.7.4
+>>
+>
