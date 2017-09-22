@@ -1,91 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([218.249.47.111]:58551 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751343AbdIQIBF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Sep 2017 04:01:05 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
+Received: from mailgw01.mediatek.com ([210.61.82.183]:37941 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751898AbdIVDdo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 23:33:44 -0400
+From: <sean.wang@mediatek.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v4 5/5] mfd: mt6397: Add PMIC keys support to MT6397 driver
-Date: Sun, 17 Sep 2017 16:00:52 +0800
-Message-ID: <1505635252-27716-6-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
-References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>,
+        Eddie Huang <eddie.huang@mediatek.com>
+Subject: [PATCH 4/4] rtc: mediatek: update MAINTAINERS entry with MediaTek RTC driver
+Date: Fri, 22 Sep 2017 11:33:17 +0800
+Message-ID: <54b8e1ee92e64b788ace4240640eb4d54b373587.1506049341.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1506049341.git.sean.wang@mediatek.com>
+References: <cover.1506049341.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds compatible strings and interrupts for pmic keys
-which serves as child device of MFD.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+I work for MediaTek on maintaining the MediaTek SoC based RTC driver for
+the existing SoCs and keep adding support for the following SoCs in the
+future.
+
+Cc: Eddie Huang <eddie.huang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ MAINTAINERS | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 6546d7f..77b64bd 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -43,6 +43,16 @@
- 	},
- };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2281af4..5142029 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1579,10 +1579,13 @@ F:	drivers/rtc/rtc-armada38x.c
  
-+static const struct resource mt6323_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
-+};
-+
-+static const struct resource mt6397_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
-+	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
-+};
-+
- static const struct mfd_cell mt6323_devs[] = {
- 	{
- 		.name = "mt6323-regulator",
-@@ -50,6 +60,11 @@
- 	}, {
- 		.name = "mt6323-led",
- 		.of_compatible = "mediatek,mt6323-led"
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-+		.resources = mt6323_keys_resources,
-+		.of_compatible = "mediatek,mt6323-keys"
- 	},
- };
+ ARM/Mediatek RTC DRIVER
+ M:	Eddie Huang <eddie.huang@mediatek.com>
++M:	Sean Wang <sean.wang@mediatek.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
++F:	Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+ F:	drivers/rtc/rtc-mt6397.c
++F:	drivers/rtc/rtc-mediatek.c
  
-@@ -71,7 +86,12 @@
- 	}, {
- 		.name = "mt6397-pinctrl",
- 		.of_compatible = "mediatek,mt6397-pinctrl",
--	},
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-+		.resources = mt6397_keys_resources,
-+		.of_compatible = "mediatek,mt6397-keys"
-+	}
- };
- 
- static void mt6397_irq_lock(struct irq_data *data)
+ ARM/Mediatek SoC support
+ M:	Matthias Brugger <matthias.bgg@gmail.com>
 -- 
-1.7.9.5
+2.7.4
