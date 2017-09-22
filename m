@@ -1,64 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:43472 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751241AbdI2KWb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:22:31 -0400
-In-Reply-To: <20170929102116.GX20805@n2100.armlinux.org.uk>
-References: <20170929102116.GX20805@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 4/4] rtc: pl031: make interrupt optional
+Received: from mailgw02.mediatek.com ([210.61.82.184]:36787 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751803AbdIVDdn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 23:33:43 -0400
+From: <sean.wang@mediatek.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>,
+        Eddie Huang <eddie.huang@mediatek.com>
+Subject: [PATCH 3/4] rtc: mediatek: enhance the description for MediaTek PMIC based RTC
+Date: Fri, 22 Sep 2017 11:33:16 +0800
+Message-ID: <0d9d5559d9d884c98ef589a8f56ab0dcb140e5e0.1506049341.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1506049341.git.sean.wang@mediatek.com>
+References: <cover.1506049341.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dxsQx-0006Nw-RL@rmk-PC.armlinux.org.uk>
-Date: Fri, 29 Sep 2017 11:22:15 +0100
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On some platforms, the interrupt for the PL031 is optional.  Avoid
-trying to claim the interrupt if it's not specified.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Give a better description for original MediaTek RTC driver as PMIC based
+RTC in order to distinguish SoC based RTC. Also turning all words with
+Mediatek to MediaTek here.
+
+Cc: Eddie Huang <eddie.huang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- drivers/rtc/rtc-pl031.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/rtc/Kconfig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 64c77ec1b4ea..82eb7da2c478 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -308,7 +308,8 @@ static int pl031_remove(struct amba_device *adev)
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 4226295..4500f77 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1716,14 +1716,14 @@ config RTC_DRV_MEDIATEK
+ 	  will be called rtc-mediatek.
  
- 	dev_pm_clear_wake_irq(&adev->dev);
- 	device_init_wakeup(&adev->dev, false);
--	free_irq(adev->irq[0], ldata);
-+	if (adev->irq[0])
-+		free_irq(adev->irq[0], ldata);
- 	rtc_device_unregister(ldata->rtc);
- 	amba_release_regions(adev);
+ config RTC_DRV_MT6397
+-	tristate "Mediatek Real Time Clock driver"
++	tristate "MediaTek PMIC based RTC"
+ 	depends on MFD_MT6397 || (COMPILE_TEST && IRQ_DOMAIN)
+ 	help
+-	  This selects the Mediatek(R) RTC driver. RTC is part of Mediatek
++	  This selects the MediaTek(R) RTC driver. RTC is part of MediaTek
+ 	  MT6397 PMIC. You should enable MT6397 PMIC MFD before select
+-	  Mediatek(R) RTC driver.
++	  MediaTek(R) RTC driver.
  
-@@ -389,12 +390,13 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto out;
- 	}
+-	  If you want to use Mediatek(R) RTC interface, select Y or M here.
++	  If you want to use MediaTek(R) RTC interface, select Y or M here.
  
--	if (request_irq(adev->irq[0], pl031_interrupt,
--			vendor->irqflags, "rtc-pl031", ldata)) {
--		ret = -EIO;
--		goto out_no_irq;
-+	if (adev->irq[0]) {
-+		ret = request_irq(adev->irq[0], pl031_interrupt,
-+				  vendor->irqflags, "rtc-pl031", ldata);
-+		if (ret)
-+			goto out_no_irq;
-+		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	}
--	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	return 0;
- 
- out_no_irq:
+ config RTC_DRV_XGENE
+ 	tristate "APM X-Gene RTC"
 -- 
 2.7.4
