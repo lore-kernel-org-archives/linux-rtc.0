@@ -1,89 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:43442 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751349AbdI2KWV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:22:21 -0400
-In-Reply-To: <20170929102116.GX20805@n2100.armlinux.org.uk>
-References: <20170929102116.GX20805@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 2/4] rtc: pl031: use devm_* for allocating memory and
- mapping resource
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dxsQn-0006Nd-IQ@rmk-PC.armlinux.org.uk>
-Date: Fri, 29 Sep 2017 11:22:05 +0100
+Received: from m50-138.163.com ([123.125.50.138]:38887 "EHLO m50-138.163.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S935345AbdIYMOZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 25 Sep 2017 08:14:25 -0400
+From: "winton.liu" <18502523564@163.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "winton.liu" <18502523564@163.com>
+Subject: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+Date: Mon, 25 Sep 2017 19:58:44 +0800
+Message-Id: <1506340724-18108-1-git-send-email-18502523564@163.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use the devm_* APIs for allocating memory and mapping the memory in
-the probe function to relieve the driver from having to deal with
-this in the cleanup paths.
+When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
+in suspend mode, watchdog is still working but no daemon
+patting the watchdog. The system will reboot if timeout.
+So disable watchdog in suspend  and recover it in resume.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: winton.liu <18502523564@163.com>
 ---
- drivers/rtc/rtc-pl031.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/rtc/rtc-ds1374.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 0d87b90b1903..777da06d53ee 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
- 	device_init_wakeup(&adev->dev, false);
- 	free_irq(adev->irq[0], ldata);
- 	rtc_device_unregister(ldata->rtc);
--	iounmap(ldata->base);
--	kfree(ldata);
- 	amba_release_regions(adev);
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 38a2e9e..e990773 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
  
++#ifdef CONFIG_RTC_DRV_DS1374_WDT
++	ds1374_wdt_disable();
++#endif
++
+ 	if (client->irq > 0 && device_may_wakeup(&client->dev))
+ 		enable_irq_wake(client->irq);
  	return 0;
-@@ -329,18 +327,19 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 	if (ret)
- 		goto err_req;
+@@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
  
--	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
-+	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
-+			     GFP_KERNEL);
- 	if (!ldata) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
- 	ldata->vendor = vendor;
- 
--	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
--
-+	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
-+				   resource_size(&adev->res));
- 	if (!ldata->base) {
- 		ret = -ENOMEM;
--		goto out_no_remap;
-+		goto out;
- 	}
- 
- 	amba_set_drvdata(adev, ldata);
-@@ -378,7 +377,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 					THIS_MODULE);
- 	if (IS_ERR(ldata->rtc)) {
- 		ret = PTR_ERR(ldata->rtc);
--		goto out_no_rtc;
-+		goto out;
- 	}
- 
- 	if (request_irq(adev->irq[0], pl031_interrupt,
-@@ -391,10 +390,6 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 
- out_no_irq:
- 	rtc_device_unregister(ldata->rtc);
--out_no_rtc:
--	iounmap(ldata->base);
--out_no_remap:
--	kfree(ldata);
- out:
- 	amba_release_regions(adev);
- err_req:
++#ifdef CONFIG_RTC_DRV_DS1374_WDT
++	ds1374_wdt_settimeout(131072);
++#endif
++
+ 	if (client->irq > 0 && device_may_wakeup(&client->dev))
+ 		disable_irq_wake(client->irq);
+ 	return 0;
 -- 
-2.7.4
+1.9.1
