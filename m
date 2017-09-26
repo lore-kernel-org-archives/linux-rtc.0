@@ -1,42 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42513 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:49111 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752155AbdI1MLj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Sep 2017 08:11:39 -0400
+        with ESMTP id S1754174AbdIZKWl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Sep 2017 06:22:41 -0400
+Date: Tue, 26 Sep 2017 12:22:39 +0200
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: set the alarm to the next expiring timer
-Date: Thu, 28 Sep 2017 14:11:32 +0200
-Message-Id: <20170928121132.9454-1-alexandre.belloni@free-electrons.com>
+To: 18502523564 <18502523564@163.com>
+Cc: "a.zummo" <a.zummo@towertech.it>,
+        linux-rtc <linux-rtc@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+Message-ID: <20170926102239.qjmhfry4vtaow4gk@piout.net>
+References: <1506340724-18108-1-git-send-email-18502523564@163.com>
+ <20170925120742.ja54wu2orgai6fsr@piout.net>
+ <tencent_BD3706918C1500105699D4E6@qq.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <tencent_BD3706918C1500105699D4E6@qq.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-If there is any non expired timer in the queue, the RTC alarm is never set.
-This is an issue when adding a timer that expires before the next non
-expired timer.
+(+Cc wdt maintainers)
 
-Ensure the RTC alarm is set in that case.
+On 26/09/2017 at 09:56:32 +0800, 18502523564 wrote:
+> Hi Alexandre,
+> 
+> Thanks for your reply.
+> Do you think is this a issue when using as a watchdog in suspend?
+> I takes the drivers/watchdog/ subsystem for reference, some drivers in suspend
+> also call disable_watchdog.Or do you have any  better suggestion?
 
-Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/interface.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I guess this is a question for the watchdog subsystem maintainers.
+However, I think that everything can be handled properly from userspace
+as I know some atmel based devices have their watchdog enabled while
+the platform is suspended.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 8cec9a02c0b8..9eb32ead63db 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -779,7 +779,7 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
- 	}
- 
- 	timerqueue_add(&rtc->timerqueue, &timer->node);
--	if (!next) {
-+	if (!next || ktime_before(timer->node.expires, next->expires)) {
- 		struct rtc_wkalrm alarm;
- 		int err;
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+> Thank you.
+> 
+> 
+> 
+> 
+> ------------------ Original ------------------
+> From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Date: 周一,9月 25,2017 20:07
+> To: winton.liu <18502523564@163.com>
+> Cc: a.zummo <a.zummo@towertech.it>, linux-rtc <linux-rtc@vger.kernel.org>,
+> linux-kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+> 
+> 
+> Hi,
+> 
+> On 25/09/2017 at 19:58:44 +0800, winton.liu wrote:
+> > When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
+> > in suspend mode, watchdog is still working but no daemon
+> > patting the watchdog. The system will reboot if timeout.
+> > So disable watchdog in suspend  and recover it in resume.
+> >
+> 
+> That is definitively not what we want. Many people will want to still
+> have the watchdog running when the platform is suspended. Your options
+> are to either disable the watchdog before going to suspend or wake up
+> the platform just in time to ping the watchdog.
+> 
+> > Signed-off-by: winton.liu <18502523564@163.com>
+> > ---
+> >  drivers/rtc/rtc-ds1374.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+> > index 38a2e9e..e990773 100644
+> > --- a/drivers/rtc/rtc-ds1374.c
+> > +++ b/drivers/rtc/rtc-ds1374.c
+> > @@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
+> >  {
+> >       struct i2c_client *client = to_i2c_client(dev);
+> >
+> > +#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> > +     ds1374_wdt_disable();
+> > +#endif
+> > +
+> >       if (client->irq > 0 && device_may_wakeup(&client->dev))
+> >               enable_irq_wake(client->irq);
+> >       return 0;
+> > @@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
+> >  {
+> >       struct i2c_client *client = to_i2c_client(dev);
+> >
+> > +#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> > +     ds1374_wdt_settimeout(131072);
+> > +#endif
+> > +
+> >       if (client->irq > 0 && device_may_wakeup(&client->dev))
+> >               disable_irq_wake(client->irq);
+> >       return 0;
+> > --
+> > 1.9.1
+> >
+> >
+> 
+> --
+> Alexandre Belloni, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
+> 
+
 -- 
-2.14.2
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
