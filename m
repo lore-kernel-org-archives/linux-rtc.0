@@ -1,43 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:43428 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751813AbdI2KWM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:22:12 -0400
-In-Reply-To: <20170929102116.GX20805@n2100.armlinux.org.uk>
-References: <20170929102116.GX20805@n2100.armlinux.org.uk>
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 1/4] rtc: pl031: constify amba_ids
+Received: from mail.free-electrons.com ([62.4.15.54]:55719 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1030329AbdIZNlE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Sep 2017 09:41:04 -0400
+Date: Tue, 26 Sep 2017 15:40:52 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Anatolij Gustschin <agust@denx.de>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCH 3/3] powerpc/5200: dts: digsy_mtc.dts: fix rv3029
+ compatible
+Message-ID: <20170926134052.pjntycy5tbxggmvl@piout.net>
+References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
+ <20170915020004.24272-3-alexandre.belloni@free-electrons.com>
+ <20170915091326.4b93bde1@crub>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dxsQi-0006NV-EF@rmk-PC.armlinux.org.uk>
-Date: Fri, 29 Sep 2017 11:22:00 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170915091326.4b93bde1@crub>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The AMBA device IDs should be marked const.  Make that so.
+Hi,
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/rtc/rtc-pl031.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 15/09/2017 at 09:13:26 +0200, Anatolij Gustschin wrote:
+> On Fri, 15 Sep 2017 04:00:04 +0200
+> Alexandre Belloni alexandre.belloni@free-electrons.com wrote:
+> 
+> >The proper compatible for rv3029 is microcrystal,rv3029.
+> >
+> >Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> 
+> Acked-by: Anatolij Gustschin <agust@denx.de>
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index e1687e19c59f..0d87b90b1903 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -446,7 +446,7 @@ static struct pl031_vendor_data stv2_pl031 = {
- 	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
- };
- 
--static struct amba_id pl031_ids[] = {
-+static const struct amba_id pl031_ids[] = {
- 	{
- 		.id = 0x00041031,
- 		.mask = 0x000fffff,
+If that is fine for you, I would prefer that goes through your tree as
+I'm not usually taking DT patches through the RTC tree. there is no
+dependency as the i2c subsystem will already match the new compatible
+with the i2c device_id.
+
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
