@@ -1,118 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:38845 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S968208AbdIZNw0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Sep 2017 09:52:26 -0400
-Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        18502523564 <18502523564@163.com>
-Cc: "a.zummo" <a.zummo@towertech.it>,
-        linux-rtc <linux-rtc@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-References: <1506340724-18108-1-git-send-email-18502523564@163.com>
- <20170925120742.ja54wu2orgai6fsr@piout.net>
- <tencent_BD3706918C1500105699D4E6@qq.com>
- <20170926102239.qjmhfry4vtaow4gk@piout.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <2b8f974f-6151-ea72-55e1-58df07279a06@roeck-us.net>
-Date: Tue, 26 Sep 2017 06:52:24 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170926102239.qjmhfry4vtaow4gk@piout.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from mail.free-electrons.com ([62.4.15.54]:38051 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753123AbdI0ODu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 10:03:50 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2 2/6] dt-bindings: rtc: add stericsson,coh901331 bindings
+Date: Wed, 27 Sep 2017 16:03:41 +0200
+Message-Id: <20170927140345.5537-3-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
+References: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 09/26/2017 03:22 AM, Alexandre Belloni wrote:
-> (+Cc wdt maintainers)
-> 
-> On 26/09/2017 at 09:56:32 +0800, 18502523564 wrote:
->> Hi Alexandre,
->>
->> Thanks for your reply.
->> Do you think is this a issue when using as a watchdog in suspend?
->> I takes the drivers/watchdog/ subsystem for reference, some drivers in suspend
->> also call disable_watchdog.Or do you have any  better suggestion?
-> 
-> I guess this is a question for the watchdog subsystem maintainers.
-> However, I think that everything can be handled properly from userspace
-> as I know some atmel based devices have their watchdog enabled while
-> the platform is suspended.
-> 
+Add device tree bindings for the ST-Ericsson COH 901 331 Real Time Clock
 
-Depends on the driver, really. There is one thing wrong below, though:
-It appears that on resume, the watchdog is unconditionally enabled.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ .../devicetree/bindings/rtc/stericsson,coh901331.txt    | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
 
-Guenter
-
->> Thank you.
->>
->>
->>
->>
->> ------------------ Original ------------------
->> From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> Date: 周一,9月 25,2017 20:07
->> To: winton.liu <18502523564@163.com>
->> Cc: a.zummo <a.zummo@towertech.it>, linux-rtc <linux-rtc@vger.kernel.org>,
->> linux-kernel <linux-kernel@vger.kernel.org>
->> Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
->>
->>
->> Hi,
->>
->> On 25/09/2017 at 19:58:44 +0800, winton.liu wrote:
->>> When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
->>> in suspend mode, watchdog is still working but no daemon
->>> patting the watchdog. The system will reboot if timeout.
->>> So disable watchdog in suspend  and recover it in resume.
->>>
->>
->> That is definitively not what we want. Many people will want to still
->> have the watchdog running when the platform is suspended. Your options
->> are to either disable the watchdog before going to suspend or wake up
->> the platform just in time to ping the watchdog.
->>
->>> Signed-off-by: winton.liu <18502523564@163.com>
->>> ---
->>>   drivers/rtc/rtc-ds1374.c | 8 ++++++++
->>>   1 file changed, 8 insertions(+)
->>>
->>> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
->>> index 38a2e9e..e990773 100644
->>> --- a/drivers/rtc/rtc-ds1374.c
->>> +++ b/drivers/rtc/rtc-ds1374.c
->>> @@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
->>>   {
->>>        struct i2c_client *client = to_i2c_client(dev);
->>>
->>> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
->>> +     ds1374_wdt_disable();
->>> +#endif
->>> +
->>>        if (client->irq > 0 && device_may_wakeup(&client->dev))
->>>                enable_irq_wake(client->irq);
->>>        return 0;
->>> @@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
->>>   {
->>>        struct i2c_client *client = to_i2c_client(dev);
->>>
->>> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
->>> +     ds1374_wdt_settimeout(131072);
->>> +#endif
->>> +
->>>        if (client->irq > 0 && device_may_wakeup(&client->dev))
->>>                disable_irq_wake(client->irq);
->>>        return 0;
->>> --
->>> 1.9.1
->>>
->>>
->>
->> --
->> Alexandre Belloni, Free Electrons
->> Embedded Linux and Kernel engineering
->> http://free-electrons.com
->>
-> 
+diff --git a/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt b/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
+new file mode 100644
+index 000000000000..3ebeb311335f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
+@@ -0,0 +1,17 @@
++ST-Ericsson COH 901 331 Real Time Clock
++
++Required properties:
++- compatible: must be "stericsson,coh901331"
++- reg: address range of rtc register set.
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- clocks: phandle to the rtc clock source
++
++Example:
++	rtc: rtc@c0017000 {
++		compatible = "stericsson,coh901331";
++		reg = <0xc0017000 0x1000>;
++		interrupt-parent = <&vicb>;
++		interrupts = <10>;
++		clocks = <&rtc_clk>;
++	};
+-- 
+2.14.2
