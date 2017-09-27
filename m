@@ -1,53 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from m50-138.163.com ([123.125.50.138]:38887 "EHLO m50-138.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935345AbdIYMOZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 25 Sep 2017 08:14:25 -0400
-From: "winton.liu" <18502523564@163.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "winton.liu" <18502523564@163.com>
-Subject: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-Date: Mon, 25 Sep 2017 19:58:44 +0800
-Message-Id: <1506340724-18108-1-git-send-email-18502523564@163.com>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:39702 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752521AbdI0KoU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:20 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v5 3/6] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Wed, 27 Sep 2017 18:44:05 +0800
+Message-ID: <1506509048-19032-4-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
-in suspend mode, watchdog is still working but no daemon
-patting the watchdog. The system will reboot if timeout.
-So disable watchdog in suspend  and recover it in resume.
+This patch adds the device tree binding documentation for the MediaTek
+pmic keys found on PMIC MT6397/MT6323.
 
-Signed-off-by: winton.liu <18502523564@163.com>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 ---
- drivers/rtc/rtc-ds1374.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |   43 ++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 38a2e9e..e990773 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 
-+#ifdef CONFIG_RTC_DRV_DS1374_WDT
-+	ds1374_wdt_disable();
-+#endif
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+new file mode 100644
+index 0000000..2888d07
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -0,0 +1,43 @@
++MediaTek MT6397/MT6323 PMIC Keys Device Driver
 +
- 	if (client->irq > 0 && device_may_wakeup(&client->dev))
- 		enable_irq_wake(client->irq);
- 	return 0;
-@@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 
-+#ifdef CONFIG_RTC_DRV_DS1374_WDT
-+	ds1374_wdt_settimeout(131072);
-+#endif
++There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
++and homekey. The key functions are defined as the subnode of the function
++node provided by MT6397/MT6323 PMIC that is being defined as one kind
++of Muti-Function Device (MFD)
 +
- 	if (client->irq > 0 && device_may_wakeup(&client->dev))
- 		disable_irq_wake(client->irq);
- 	return 0;
++For MT6397/MT6323 MFD bindings see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++Required properties:
++- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
++
++Optional Properties:
++- wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
++- mediatek,long-press-mode: Long press key shutdown setting, 1 for
++	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
++- power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
++
++Example:
++
++	pmic: mt6397 {
++		compatible = "mediatek,mt6397";
++
++		...
++
++		mt6397keys: mt6397keys {
++			compatible = "mediatek,mt6397-keys";
++			mediatek,long-press-mode = <1>;
++			power-off-time-sec = <0>;
++
++			power {
++				linux,keycodes = <116>;
++				wakeup-source;
++			};
++
++			home {
++				linux,keycodes = <114>;
++			};
++		};
++
++	};
 -- 
-1.9.1
+1.7.9.5
