@@ -1,58 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:40155 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750912AbdIUI56 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 04:57:58 -0400
-Date: Thu, 21 Sep 2017 10:57:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: YiPing Xu <xuyiping@hisilicon.com>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, roy.chenjun@hisilicon.com,
-        colin.king@canonical.com, wanghao24@huawei.com
-Subject: Re: [PATCH] rtc: interface: set the next alarm event appropriately
-Message-ID: <20170921085752.q7kepvl7zmrdvm3t@piout.net>
-References: <1505877751-26566-1-git-send-email-xuyiping@hisilicon.com>
- <20170920091617.j7sie3mrncjkcj3m@piout.net>
- <b13fabbb-fe2e-b3a3-6e8e-c42b8bab063c@hisilicon.com>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:39821 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752651AbdI0KoX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:23 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v5 6/6] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Wed, 27 Sep 2017 18:44:08 +0800
+Message-ID: <1506509048-19032-7-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <b13fabbb-fe2e-b3a3-6e8e-c42b8bab063c@hisilicon.com>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-On 21/09/2017 at 14:45:17 +0800, YiPing Xu wrote:
-> 
-> 
-> On 2017/9/20 17:16, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 20/09/2017 at 11:22:31 +0800, Xu Yiping wrote:
-> > > From: Xu YiPing  <xuyiping@hisilicon.com>
-> > > 
-> > > After commit 2b2f5ff00f63 ("rtc: interface: ignore expired timers when
-> > > enqueuing new timers"), the rtc_timer_enqueue will not reprogram the RTC
-> > > when there is any non-expired timers in the timerqueue. If we set a
-> > > RTC_TIMER between now and the next non-expired timers, it won't go into
-> > > effect in time.
-> > > 
-> > > So, besides ignoring the expired timers, we should take the next effect
-> > > timer into account, and reprogram the RTC timer appropriately.
-> > > 
-> > 
-> > Can you try this patch instead? I think it solves this issue:
-> > http://patchwork.ozlabs.org/patch/792482/
-> 
->    We've tested this patch, it works too.
-> 
->    Will it be merged into the main tree?
-> 
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-Yes, I will send it as a fix for 4.14.
-
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 6546d7f..77b64bd 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,16 @@
+ 	},
+ };
+ 
++static const struct resource mt6323_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
++};
++
++static const struct resource mt6397_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
++	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +60,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
+ 
+@@ -71,7 +86,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
+ 
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
