@@ -1,47 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:55719 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030329AbdIZNlE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Sep 2017 09:41:04 -0400
-Date: Tue, 26 Sep 2017 15:40:52 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Anatolij Gustschin <agust@denx.de>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH 3/3] powerpc/5200: dts: digsy_mtc.dts: fix rv3029
- compatible
-Message-ID: <20170926134052.pjntycy5tbxggmvl@piout.net>
-References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
- <20170915020004.24272-3-alexandre.belloni@free-electrons.com>
- <20170915091326.4b93bde1@crub>
+Received: from mailgw02.mediatek.com ([218.249.47.111]:57796 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752358AbdI0KoU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:20 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v5 4/6] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+Date: Wed, 27 Sep 2017 18:44:06 +0800
+Message-ID: <1506509048-19032-5-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170915091326.4b93bde1@crub>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+This patch adds documentation for device tree bindings for keys support
+as the subnode of MT6397/MT6323 PMIC.
 
-On 15/09/2017 at 09:13:26 +0200, Anatolij Gustschin wrote:
-> On Fri, 15 Sep 2017 04:00:04 +0200
-> Alexandre Belloni alexandre.belloni@free-electrons.com wrote:
-> 
-> >The proper compatible for rv3029 is microcrystal,rv3029.
-> >
-> >Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> 
-> Acked-by: Anatolij Gustschin <agust@denx.de>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-If that is fine for you, I would prefer that goes through your tree as
-I'm not usually taking DT patches through the RTC tree. there is no
-dependency as the i2c subsystem will already match the new compatible
-with the i2c device_id.
-
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 522a3bb..d1df77f 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
+ - GPIO
+ - Clock
+ - LED
++- Keys
+ 
+ It is interfaced to host controller using SPI interface by a proprietary hardware
+ called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
+@@ -40,6 +41,11 @@ Optional subnodes:
+ 		- compatible: "mediatek,mt6323-led"
+ 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
+ 
++- keys
++	Required properties:
++		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++
+ Example:
+ 	pwrap: pwrap@1000f000 {
+ 		compatible = "mediatek,mt8135-pwrap";
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
