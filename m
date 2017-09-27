@@ -1,91 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:39821 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752651AbdI0KoX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:23 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:38043 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753057AbdI0ODt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 10:03:49 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v5 6/6] mfd: mt6397: Add PMIC keys support to MT6397 driver
-Date: Wed, 27 Sep 2017 18:44:08 +0800
-Message-ID: <1506509048-19032-7-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: [PATCH v2 0/6] dt-bindings: rtc: document existing bindings
+Date: Wed, 27 Sep 2017 16:03:39 +0200
+Message-Id: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds compatible strings and interrupts for pmic keys
-which serves as child device of MFD.
+Document currently undocumented bindings.
 
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
----
- drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+Rob, as discussed, all of this can probably go through your tree.
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 6546d7f..77b64bd 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -43,6 +43,16 @@
- 	},
- };
- 
-+static const struct resource mt6323_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
-+};
-+
-+static const struct resource mt6397_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
-+	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
-+};
-+
- static const struct mfd_cell mt6323_devs[] = {
- 	{
- 		.name = "mt6323-regulator",
-@@ -50,6 +60,11 @@
- 	}, {
- 		.name = "mt6323-led",
- 		.of_compatible = "mediatek,mt6323-led"
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-+		.resources = mt6323_keys_resources,
-+		.of_compatible = "mediatek,mt6323-keys"
- 	},
- };
- 
-@@ -71,7 +86,12 @@
- 	}, {
- 		.name = "mt6397-pinctrl",
- 		.of_compatible = "mediatek,mt6397-pinctrl",
--	},
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-+		.resources = mt6397_keys_resources,
-+		.of_compatible = "mediatek,mt6397-keys"
-+	}
- };
- 
- static void mt6397_irq_lock(struct irq_data *data)
+Changes in v2:
+ - made a proper series
+ - fixed sirf2 example
+ - listed the ds1307 compatible that support the trickle charging properties
+
+Alexandre Belloni (6):
+  dt-bindings: trivial: Add RTCs
+  dt-bindings: rtc: add stericsson,coh901331 bindings
+  dt-bindings: rtc: Add sirf,prima2-sysrtc bindings
+  dt-bindings: rtc: DS1307 and compatibles are not trivial
+  dt-bindings: rtc: Add bindings for m41t80 and compatibles
+  dt-bindings: rtc: merge ds1339 in ds1307 documentation
+
+ .../devicetree/bindings/rtc/dallas,ds1339.txt      | 18 ---------
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         | 44 ++++++++++++++++++++++
+ .../devicetree/bindings/rtc/rtc-m41t80.txt         | 31 +++++++++++++++
+ .../devicetree/bindings/rtc/sirf,prima2-sysrtc.txt | 13 +++++++
+ .../bindings/rtc/stericsson,coh901331.txt          | 17 +++++++++
+ .../devicetree/bindings/trivial-devices.txt        | 13 +++----
+ 6 files changed, 110 insertions(+), 26 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/dallas,ds1339.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-m41t80.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/sirf,prima2-sysrtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/stericsson,coh901331.txt
+
 -- 
-1.7.9.5
+2.14.2
