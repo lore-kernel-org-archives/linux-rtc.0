@@ -1,163 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:43522 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751978AbdI2KXv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:23:51 -0400
-From: Russell King <rmk+kernel@armlinux.org.uk>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@free-electrons.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH] rtc: armada38x: add support for trimming the RTC
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <E1dxsSB-0006RM-08@rmk-PC.armlinux.org.uk>
-Date: Fri, 29 Sep 2017 11:23:31 +0100
+Received: from mail.free-electrons.com ([62.4.15.54]:38058 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753142AbdI0ODv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 10:03:51 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2 4/6] dt-bindings: rtc: DS1307 and compatibles are not trivial
+Date: Wed, 27 Sep 2017 16:03:43 +0200
+Message-Id: <20170927140345.5537-5-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
+References: <20170927140345.5537-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add support for trimming the RTC using the offset mechanism.  This RTC
-supports two modes: low update mode and high update mode.  Low update
-mode has finer precision than high update mode, so we use the low mode
-where possible.
+Document optional properties for ds1307 and compatible RTCs
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/rtc/rtc-armada38x.c | 101 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         | 36 ++++++++++++++++++++++
+ .../devicetree/bindings/trivial-devices.txt        |  6 ----
+ 2 files changed, 36 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 21f355c37eab..1e4978c96ffd 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -28,6 +28,8 @@
- #define RTC_IRQ_AL_EN		    BIT(0)
- #define RTC_IRQ_FREQ_EN		    BIT(1)
- #define RTC_IRQ_FREQ_1HZ	    BIT(2)
-+#define RTC_CCR		    0x18
-+#define RTC_CCR_MODE		    BIT(15)
- 
- #define RTC_TIME	    0xC
- #define RTC_ALARM1	    0x10
-@@ -343,18 +345,117 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
-+/*
-+ * The information given in the Armada 388 functional spec is complex.
-+ * They give two different formulas for calculating the offset value,
-+ * but when considering "Offset" as an 8-bit signed integer, they both
-+ * reduce down to (we shall rename "Offset" as "val" here):
-+ *
-+ *   val = (f_ideal / f_measured - 1) / resolution   where f_ideal = 32768
-+ *
-+ * Converting to time, f = 1/t:
-+ *   val = (t_measured / t_ideal - 1) / resolution   where t_ideal = 1/32768
-+ *
-+ *   =>  t_measured / t_ideal = val * resolution + 1
-+ *
-+ * "offset" in the RTC interface is defined as:
-+ *   t = t0 * (1 + offset * 1e-9)
-+ * where t is the desired period, t0 is the measured period with a zero
-+ * offset, which is t_measured above. With t0 = t_measured and t = t_ideal,
-+ *   offset = (t_ideal / t_measured - 1) / 1e-9
-+ *
-+ *   => t_ideal / t_measured = offset * 1e-9 + 1
-+ *
-+ * so:
-+ *
-+ *   offset * 1e-9 + 1 = 1 / (val * resolution + 1)
-+ *
-+ * We want "resolution" to be an integer, so resolution = R * 1e-9, giving
-+ *   offset = 1e18 / (val * R + 1e9) - 1e9
-+ *   val = (1e18 / (offset + 1e9) - 1e9) / R
-+ * with a common transformation:
-+ *   f(x) = 1e18 / (x + 1e9) - 1e9
-+ *   offset = f(val * R)
-+ *   val = f(offset) / R
-+ *
-+ * Armada 38x supports two modes, fine mode (954ppb) and coarse mode (3815ppb).
-+ */
-+static long armada38x_ppb_convert(long ppb)
-+{
-+	long div = ppb + 1000000000L;
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+new file mode 100644
+index 000000000000..c010f18a85a0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -0,0 +1,36 @@
++Dallas DS1307 and compatible RTC
 +
-+	return div_s64(1000000000000000000LL + div / 2, div) - 1000000000L;
-+}
++Required properties:
++- compatible: should be one of:
++	"dallas,ds1307",
++	"dallas,ds1308",
++	"dallas,ds1337",
++	"dallas,ds1338",
++	"dallas,ds1339",
++	"dallas,ds1388",
++	"dallas,ds1340",
++	"dallas,ds1341",
++	"maxim,ds3231",
++	"st,m41t0",
++	"st,m41t00",
++	"microchip,mcp7940x",
++	"microchip,mcp7941x",
++	"pericom,pt7c4338",
++	"epson,rx8025",
++	"isil,isl12057"
++- reg: I2C bus address of the device
 +
-+static int armada38x_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-+	unsigned long ccr, flags;
-+	long ppb_cor;
++Optional properties:
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++- clock-output-names: From common clock binding to override the default output
++                      clock name
++- wakeup-source: Enables wake up of host system on alarm
 +
-+	spin_lock_irqsave(&rtc->lock, flags);
-+	ccr = rtc->data->read_rtc_reg(rtc, RTC_CCR);
-+	spin_unlock_irqrestore(&rtc->lock, flags);
-+
-+	ppb_cor = (ccr & RTC_CCR_MODE ? 3815 : 954) * (s8)ccr;
-+	/* ppb_cor + 1000000000L can never be zero */
-+	*offset = armada38x_ppb_convert(ppb_cor);
-+
-+	return 0;
-+}
-+
-+static int armada38x_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-+	unsigned long ccr = 0;
-+	long ppb_cor, off;
-+
-+	/*
-+	 * The maximum ppb_cor is -128 * 3815 .. 127 * 3815, but we
-+	 * need to clamp the input.  This equates to -484270 .. 488558.
-+	 * Not only is this to stop out of range "off" but also to
-+	 * avoid the division by zero in armada38x_ppb_convert().
-+	 */
-+	offset = clamp(offset, -484270L, 488558L);
-+
-+	ppb_cor = armada38x_ppb_convert(offset);
-+
-+	/*
-+	 * Use low update mode where possible, which gives a better
-+	 * resolution of correction.
-+	 */
-+	off = DIV_ROUND_CLOSEST(ppb_cor, 954);
-+	if (off > 127 || off < -128) {
-+		ccr = RTC_CCR_MODE;
-+		off = DIV_ROUND_CLOSEST(ppb_cor, 3815);
-+	}
-+
-+	/*
-+	 * Armada 388 requires a bit pattern in bits 14..8 depending on
-+	 * the sign bit: { 0, ~S, S, S, S, S, S }
-+	 */
-+	ccr |= (off & 0x3fff) ^ 0x2000;
-+	rtc_delayed_write(ccr, rtc, RTC_CCR);
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops armada38x_rtc_ops = {
- 	.read_time = armada38x_rtc_read_time,
- 	.set_time = armada38x_rtc_set_time,
- 	.read_alarm = armada38x_rtc_read_alarm,
- 	.set_alarm = armada38x_rtc_set_alarm,
- 	.alarm_irq_enable = armada38x_rtc_alarm_irq_enable,
-+	.read_offset = armada38x_rtc_read_offset,
-+	.set_offset = armada38x_rtc_set_offset,
- };
- 
- static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
- 	.read_time = armada38x_rtc_read_time,
- 	.set_time = armada38x_rtc_set_time,
- 	.read_alarm = armada38x_rtc_read_alarm,
-+	.read_offset = armada38x_rtc_read_offset,
-+	.set_offset = armada38x_rtc_set_offset,
- };
- 
- static const struct armada38x_rtc_data armada38x_data = {
++Example:
++	rtc1: ds1339@68 {
++		compatible = "dallas,ds1339";
++		reg = <0x68>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <20 0>;
++	};
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index d0666acdec66..db7dc1edd4a2 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -36,9 +36,6 @@ atmel,at97sc3204t	i2c trusted platform module (TPM)
+ capella,cm32181		CM32181: Ambient Light Sensor
+ capella,cm3232		CM3232: Ambient Light Sensor
+ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
+-dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
+-dallas,ds1338		I2C RTC with 56-Byte NV RAM
+-dallas,ds1340		I2C RTC with Trickle Charger
+ dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
+ dallas,ds1631		High-Precision Digital Thermometer
+ dallas,ds1672		Dallas DS1672 Real-time Clock
+@@ -55,7 +52,6 @@ dlg,da9063		DA9063: system PMIC for quad-core application processors
+ domintech,dmard09	DMARD09: 3-axis Accelerometer
+ domintech,dmard10	DMARD10: 3-axis Accelerometer
+ epson,rx8010		I2C-BUS INTERFACE REAL TIME CLOCK MODULE
+-epson,rx8025		High-Stability. I2C-Bus INTERFACE REAL TIME CLOCK MODULE
+ epson,rx8581		I2C-BUS INTERFACE REAL TIME CLOCK MODULE
+ emmicro,em3027		EM Microelectronic EM3027 Real-time Clock
+ fsl,mag3110		MAG3110: Xtrinsic High Accuracy, 3D Magnetometer
+@@ -179,8 +175,6 @@ sii,s35390a		2-wire CMOS real-time clock
+ silabs,si7020		Relative Humidity and Temperature Sensors
+ skyworks,sky81452	Skyworks SKY81452: Six-Channel White LED Driver with Touch Panel Bias Supply
+ st,24c256		i2c serial eeprom  (24cxx)
+-st,m41t0		Serial real-time clock (RTC)
+-st,m41t00		Serial real-time clock (RTC)
+ st,m41t62		Serial real-time clock (RTC) with alarm
+ st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
+ taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
 -- 
-2.7.4
+2.14.2
