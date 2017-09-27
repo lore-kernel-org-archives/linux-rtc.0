@@ -1,114 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49111 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754174AbdIZKWl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Sep 2017 06:22:41 -0400
-Date: Tue, 26 Sep 2017 12:22:39 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: 18502523564 <18502523564@163.com>
-Cc: "a.zummo" <a.zummo@towertech.it>,
-        linux-rtc <linux-rtc@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-Message-ID: <20170926102239.qjmhfry4vtaow4gk@piout.net>
-References: <1506340724-18108-1-git-send-email-18502523564@163.com>
- <20170925120742.ja54wu2orgai6fsr@piout.net>
- <tencent_BD3706918C1500105699D4E6@qq.com>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:39702 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752114AbdI0KoS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:18 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v5 0/6] Add MediaTek PMIC keys support
+Date: Wed, 27 Sep 2017 18:44:02 +0800
+Message-ID: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <tencent_BD3706918C1500105699D4E6@qq.com>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-(+Cc wdt maintainers)
+Changes since v4:
+- rebase to Linux 4.14-rc1
+- add a common keyboard binding document
+- use child device tree node to define each key
 
-On 26/09/2017 at 09:56:32 +0800, 18502523564 wrote:
-> Hi Alexandre,
-> 
-> Thanks for your reply.
-> Do you think is this a issue when using as a watchdog in suspend?
-> I takes the drivers/watchdog/ subsystem for reference, some drivers in suspend
-> also call disable_watchdog.Or do you have any  better suggestion?
+Changes since v3:
+- make the naming to be consistent as mtk_pmic or MTK_PMIC
+- add suspend/resume functions to enable/disable irq
+- change binding properties to define wakeup sources
 
-I guess this is a question for the watchdog subsystem maintainers.
-However, I think that everything can be handled properly from userspace
-as I know some atmel based devices have their watchdog enabled while
-the platform is suspended.
+Changes since v2:
+- use standard properties for keycodes and debounce time
+- change to use platform_get_irq in leaf drivers
+- use better ways to define IRQ resources
 
-> Thank you.
-> 
-> 
-> 
-> 
-> ------------------ Original ------------------
-> From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Date: 周一,9月 25,2017 20:07
-> To: winton.liu <18502523564@163.com>
-> Cc: a.zummo <a.zummo@towertech.it>, linux-rtc <linux-rtc@vger.kernel.org>,
-> linux-kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-> 
-> 
-> Hi,
-> 
-> On 25/09/2017 at 19:58:44 +0800, winton.liu wrote:
-> > When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
-> > in suspend mode, watchdog is still working but no daemon
-> > patting the watchdog. The system will reboot if timeout.
-> > So disable watchdog in suspend  and recover it in resume.
-> >
-> 
-> That is definitively not what we want. Many people will want to still
-> have the watchdog running when the platform is suspended. Your options
-> are to either disable the watchdog before going to suspend or wake up
-> the platform just in time to ping the watchdog.
-> 
-> > Signed-off-by: winton.liu <18502523564@163.com>
-> > ---
-> >  drivers/rtc/rtc-ds1374.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> >
-> > diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-> > index 38a2e9e..e990773 100644
-> > --- a/drivers/rtc/rtc-ds1374.c
-> > +++ b/drivers/rtc/rtc-ds1374.c
-> > @@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
-> >  {
-> >       struct i2c_client *client = to_i2c_client(dev);
-> >
-> > +#ifdef CONFIG_RTC_DRV_DS1374_WDT
-> > +     ds1374_wdt_disable();
-> > +#endif
-> > +
-> >       if (client->irq > 0 && device_may_wakeup(&client->dev))
-> >               enable_irq_wake(client->irq);
-> >       return 0;
-> > @@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
-> >  {
-> >       struct i2c_client *client = to_i2c_client(dev);
-> >
-> > +#ifdef CONFIG_RTC_DRV_DS1374_WDT
-> > +     ds1374_wdt_settimeout(131072);
-> > +#endif
-> > +
-> >       if (client->irq > 0 && device_may_wakeup(&client->dev))
-> >               disable_irq_wake(client->irq);
-> >       return 0;
-> > --
-> > 1.9.1
-> >
-> >
-> 
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
-> 
+Changes since v1:
+- create irq mappings in mfd core driver instead of leaf drivers
+- remove some unused parts in mtk-pmic-keys driver
+
+MediaTek PMIC are multi-function devices that can handle key interrupts,
+typically there are two keys attached to PMIC, which called pwrkey
+and homekey. PWRKEY usually used to wake up system from sleep. Homekey
+can used as volume down key due to board design. Long press keys can
+shutdown PMIC, the mode can be choose to be one key only or two keys
+together.
+This series add support for key functions for MediaTek PMIC MT6397/MT6323.
+
+Chen Zhong (6):
+  mfd: mt6397: create irq mappings in mfd core driver
+  dt-bindings: input: Add common keyboard document bindings
+  dt-bindings: input: Add document bindings for mtk-pmic-keys
+  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+  input: Add MediaTek PMIC keys support
+  mfd: mt6397: Add PMIC keys support to MT6397 driver
+
+ Documentation/devicetree/bindings/input/keys.txt   |   8 +
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
+ drivers/input/keyboard/Kconfig                     |   9 +
+ drivers/input/keyboard/Makefile                    |   1 +
+ drivers/input/keyboard/mtk-pmic-keys.c             | 341 +++++++++++++++++++++
+ drivers/mfd/mt6397-core.c                          |  26 +-
+ drivers/rtc/rtc-mt6397.c                           |   7 +-
+ 8 files changed, 434 insertions(+), 7 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/keys.txt
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+ create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.9.1
