@@ -1,33 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34026 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751728AbdIUW5h (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 18:57:37 -0400
-Date: Thu, 21 Sep 2017 17:57:35 -0500
-From: Rob Herring <robh@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: fix vendor prefix for Abracon
-Message-ID: <20170921225735.qkxpbjmiip5krhvw@rob-hp-laptop>
-References: <20170914213938.4980-1-alexandre.belloni@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170914213938.4980-1-alexandre.belloni@free-electrons.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:42513 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752155AbdI1MLj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Sep 2017 08:11:39 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: set the alarm to the next expiring timer
+Date: Thu, 28 Sep 2017 14:11:32 +0200
+Message-Id: <20170928121132.9454-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Sep 14, 2017 at 11:39:38PM +0200, Alexandre Belloni wrote:
-> Commit 446810f2dd41 ("of: add vendor prefix for Abracon Corporation")
-> claimed that "abcn" was used as the vendor prefix while in fact "abracon"
-> was used in the subsequent commits. It is also the only prefix used in the
-> tree.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  Documentation/devicetree/bindings/vendor-prefixes.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+If there is any non expired timer in the queue, the RTC alarm is never set.
+This is an issue when adding a timer that expires before the next non
+expired timer.
 
-Applied with alphabetical ordering fixed.
+Ensure the RTC alarm is set in that case.
 
-Rob
+Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/interface.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 8cec9a02c0b8..9eb32ead63db 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -779,7 +779,7 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
+ 	}
+ 
+ 	timerqueue_add(&rtc->timerqueue, &timer->node);
+-	if (!next) {
++	if (!next || ktime_before(timer->node.expires, next->expires)) {
+ 		struct rtc_wkalrm alarm;
+ 		int err;
+ 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+-- 
+2.14.2
