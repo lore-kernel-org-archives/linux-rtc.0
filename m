@@ -1,57 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from esa2.microchip.iphmx.com ([68.232.149.84]:47393 "EHLO
-        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751185AbdIOHHh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Sep 2017 03:07:37 -0400
-Subject: Re: [PATCH 2/3] ARM: dts: at91: usb_a9g20: fix rtc node
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Anatolij Gustschin <agust@denx.de>,
-        <linuxppc-dev@lists.ozlabs.org>, Rob Herring <robh+dt@kernel.org>,
-        <devicetree@vger.kernel.org>
-References: <20170915020004.24272-1-alexandre.belloni@free-electrons.com>
- <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
-Message-ID: <bf64c774-9057-d73e-8f39-7fcc5f32725c@microchip.com>
-Date: Fri, 15 Sep 2017 09:08:31 +0200
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:43442 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751349AbdI2KWV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:22:21 -0400
+In-Reply-To: <20170929102116.GX20805@n2100.armlinux.org.uk>
+References: <20170929102116.GX20805@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH v2 2/4] rtc: pl031: use devm_* for allocating memory and
+ mapping resource
 MIME-Version: 1.0
-In-Reply-To: <20170915020004.24272-2-alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dxsQn-0006Nd-IQ@rmk-PC.armlinux.org.uk>
+Date: Fri, 29 Sep 2017 11:22:05 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 15/09/2017 at 04:00, Alexandre Belloni wrote:
-> The rv3029 compatible is missing its vendor string, add it.
-> Also fix the node name to be a proper generic name.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Use the devm_* APIs for allocating memory and mapping the memory in
+the probe function to relieve the driver from having to deal with
+this in the cleanup paths.
 
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/rtc/rtc-pl031.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-> ---
->  arch/arm/boot/dts/usb_a9g20_common.dtsi | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/usb_a9g20_common.dtsi b/arch/arm/boot/dts/usb_a9g20_common.dtsi
-> index 088c2c3685ab..81c3fe0465d9 100644
-> --- a/arch/arm/boot/dts/usb_a9g20_common.dtsi
-> +++ b/arch/arm/boot/dts/usb_a9g20_common.dtsi
-> @@ -20,8 +20,8 @@
->  	};
->  
->  	i2c-gpio-0 {
-> -		rv3029c2@56 {
-> -			compatible = "rv3029c2";
-> +		rtc@56 {
-> +			compatible = "microcrystal,rv3029";
->  			reg = <0x56>;
->  		};
->  	};
-> 
-
-
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 0d87b90b1903..777da06d53ee 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -310,8 +310,6 @@ static int pl031_remove(struct amba_device *adev)
+ 	device_init_wakeup(&adev->dev, false);
+ 	free_irq(adev->irq[0], ldata);
+ 	rtc_device_unregister(ldata->rtc);
+-	iounmap(ldata->base);
+-	kfree(ldata);
+ 	amba_release_regions(adev);
+ 
+ 	return 0;
+@@ -329,18 +327,19 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 	if (ret)
+ 		goto err_req;
+ 
+-	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
++	ldata = devm_kzalloc(&adev->dev, sizeof(struct pl031_local),
++			     GFP_KERNEL);
+ 	if (!ldata) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+ 	ldata->vendor = vendor;
+ 
+-	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
+-
++	ldata->base = devm_ioremap(&adev->dev, adev->res.start,
++				   resource_size(&adev->res));
+ 	if (!ldata->base) {
+ 		ret = -ENOMEM;
+-		goto out_no_remap;
++		goto out;
+ 	}
+ 
+ 	amba_set_drvdata(adev, ldata);
+@@ -378,7 +377,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 					THIS_MODULE);
+ 	if (IS_ERR(ldata->rtc)) {
+ 		ret = PTR_ERR(ldata->rtc);
+-		goto out_no_rtc;
++		goto out;
+ 	}
+ 
+ 	if (request_irq(adev->irq[0], pl031_interrupt,
+@@ -391,10 +390,6 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 
+ out_no_irq:
+ 	rtc_device_unregister(ldata->rtc);
+-out_no_rtc:
+-	iounmap(ldata->base);
+-out_no_remap:
+-	kfree(ldata);
+ out:
+ 	amba_release_regions(adev);
+ err_req:
 -- 
-Nicolas Ferre
+2.7.4
