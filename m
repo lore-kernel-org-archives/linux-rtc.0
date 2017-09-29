@@ -1,61 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:22583 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751791AbdIVDdd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Sep 2017 23:33:33 -0400
-From: <sean.wang@mediatek.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH 1/4] dt-bindings: rtc: mediatek: add bindings for MediaTek SoC based RTC
-Date: Fri, 22 Sep 2017 11:33:14 +0800
-Message-ID: <1357cb02adb88a8a2d7c2268b8573c0a9b6f8d0c.1506049341.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1506049341.git.sean.wang@mediatek.com>
-References: <cover.1506049341.git.sean.wang@mediatek.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:43498 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750936AbdI2KXe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:23:34 -0400
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: clarify the RTC offset correction
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dxsS5-0006RD-Sy@rmk-PC.armlinux.org.uk>
+Date: Fri, 29 Sep 2017 11:23:25 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+The RTC offset correction documentation is not very clear about the
+exact relationship between "offset" and the effect it has on the RTC.
+Supplement the documentation with an equation giving the relationship.
 
-Add device-tree binding for MediaTek SoC based RTC
-
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 ---
- .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+ drivers/rtc/interface.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-new file mode 100644
-index 0000000..09fe8f5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-@@ -0,0 +1,21 @@
-+Device-Tree bindings for MediaTek SoC based RTC
-+
-+Required properties:
-+- compatible	    : Should be
-+			"mediatek,mt7622-rtc", "mediatek,soc-rtc" : for MT7622 SoC
-+- reg 		    : Specifies base physical address and size of the registers;
-+- interrupts	    : Should contain the interrupt for RTC alarm;
-+- clocks	    : Specifies list of clock specifiers, corresponding to
-+		      entries in clock-names property;
-+- clock-names	    : Should contain "rtc" entries
-+
-+Example:
-+
-+rtc: rtc@10212800 {
-+	compatible = "mediatek,mt7622-rtc",
-+		     "mediatek,soc-rtc";
-+	reg = <0 0x10212800 0 0x200>;
-+	interrupts = <GIC_SPI 129 IRQ_TYPE_LEVEL_LOW>;
-+	clocks = <&topckgen CLK_TOP_RTC>;
-+	clock-names = "rtc";
-+};
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 8cec9a02c0b8..045e0a72d14b 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -1004,6 +1004,10 @@ int rtc_read_offset(struct rtc_device *rtc, long *offset)
+  * to compensate for differences in the actual clock rate due to temperature,
+  * the crystal, capacitor, etc.
+  *
++ * The adjustment applied is as follows:
++ *   t = t0 * (1 + offset * 1e-9)
++ * where t0 is the measured length of 1 RTC second with offset = 0
++ *
+  * Kernel interface to adjust an rtc clock offset.
+  * Return 0 on success, or a negative number on error.
+  * If the rtc offset is not setable (or not implemented), return -EINVAL
 -- 
 2.7.4
