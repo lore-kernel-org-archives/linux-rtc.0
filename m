@@ -1,93 +1,163 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:39702 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752521AbdI0KoU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 27 Sep 2017 06:44:20 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v5 3/6] dt-bindings: input: Add document bindings for mtk-pmic-keys
-Date: Wed, 27 Sep 2017 18:44:05 +0800
-Message-ID: <1506509048-19032-4-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:43522 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751978AbdI2KXv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Sep 2017 06:23:51 -0400
+From: Russell King <rmk+kernel@armlinux.org.uk>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+        Gregory Clement <gregory.clement@free-electrons.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: armada38x: add support for trimming the RTC
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <E1dxsSB-0006RM-08@rmk-PC.armlinux.org.uk>
+Date: Fri, 29 Sep 2017 11:23:31 +0100
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds the device tree binding documentation for the MediaTek
-pmic keys found on PMIC MT6397/MT6323.
+Add support for trimming the RTC using the offset mechanism.  This RTC
+supports two modes: low update mode and high update mode.  Low update
+mode has finer precision than high update mode, so we use the low mode
+where possible.
 
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 ---
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |   43 ++++++++++++++++++++
- 1 file changed, 43 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+ drivers/rtc/rtc-armada38x.c | 101 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 101 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-new file mode 100644
-index 0000000..2888d07
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-@@ -0,0 +1,43 @@
-+MediaTek MT6397/MT6323 PMIC Keys Device Driver
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 21f355c37eab..1e4978c96ffd 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -28,6 +28,8 @@
+ #define RTC_IRQ_AL_EN		    BIT(0)
+ #define RTC_IRQ_FREQ_EN		    BIT(1)
+ #define RTC_IRQ_FREQ_1HZ	    BIT(2)
++#define RTC_CCR		    0x18
++#define RTC_CCR_MODE		    BIT(15)
+ 
+ #define RTC_TIME	    0xC
+ #define RTC_ALARM1	    0x10
+@@ -343,18 +345,117 @@ static irqreturn_t armada38x_rtc_alarm_irq(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
+ 
++/*
++ * The information given in the Armada 388 functional spec is complex.
++ * They give two different formulas for calculating the offset value,
++ * but when considering "Offset" as an 8-bit signed integer, they both
++ * reduce down to (we shall rename "Offset" as "val" here):
++ *
++ *   val = (f_ideal / f_measured - 1) / resolution   where f_ideal = 32768
++ *
++ * Converting to time, f = 1/t:
++ *   val = (t_measured / t_ideal - 1) / resolution   where t_ideal = 1/32768
++ *
++ *   =>  t_measured / t_ideal = val * resolution + 1
++ *
++ * "offset" in the RTC interface is defined as:
++ *   t = t0 * (1 + offset * 1e-9)
++ * where t is the desired period, t0 is the measured period with a zero
++ * offset, which is t_measured above. With t0 = t_measured and t = t_ideal,
++ *   offset = (t_ideal / t_measured - 1) / 1e-9
++ *
++ *   => t_ideal / t_measured = offset * 1e-9 + 1
++ *
++ * so:
++ *
++ *   offset * 1e-9 + 1 = 1 / (val * resolution + 1)
++ *
++ * We want "resolution" to be an integer, so resolution = R * 1e-9, giving
++ *   offset = 1e18 / (val * R + 1e9) - 1e9
++ *   val = (1e18 / (offset + 1e9) - 1e9) / R
++ * with a common transformation:
++ *   f(x) = 1e18 / (x + 1e9) - 1e9
++ *   offset = f(val * R)
++ *   val = f(offset) / R
++ *
++ * Armada 38x supports two modes, fine mode (954ppb) and coarse mode (3815ppb).
++ */
++static long armada38x_ppb_convert(long ppb)
++{
++	long div = ppb + 1000000000L;
 +
-+There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-+and homekey. The key functions are defined as the subnode of the function
-+node provided by MT6397/MT6323 PMIC that is being defined as one kind
-+of Muti-Function Device (MFD)
++	return div_s64(1000000000000000000LL + div / 2, div) - 1000000000L;
++}
 +
-+For MT6397/MT6323 MFD bindings see:
-+Documentation/devicetree/bindings/mfd/mt6397.txt
++static int armada38x_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	unsigned long ccr, flags;
++	long ppb_cor;
 +
-+Required properties:
-+- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-+- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
++	spin_lock_irqsave(&rtc->lock, flags);
++	ccr = rtc->data->read_rtc_reg(rtc, RTC_CCR);
++	spin_unlock_irqrestore(&rtc->lock, flags);
 +
-+Optional Properties:
-+- wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
-+- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-+	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-+- power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
++	ppb_cor = (ccr & RTC_CCR_MODE ? 3815 : 954) * (s8)ccr;
++	/* ppb_cor + 1000000000L can never be zero */
++	*offset = armada38x_ppb_convert(ppb_cor);
 +
-+Example:
++	return 0;
++}
 +
-+	pmic: mt6397 {
-+		compatible = "mediatek,mt6397";
++static int armada38x_rtc_set_offset(struct device *dev, long offset)
++{
++	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
++	unsigned long ccr = 0;
++	long ppb_cor, off;
 +
-+		...
++	/*
++	 * The maximum ppb_cor is -128 * 3815 .. 127 * 3815, but we
++	 * need to clamp the input.  This equates to -484270 .. 488558.
++	 * Not only is this to stop out of range "off" but also to
++	 * avoid the division by zero in armada38x_ppb_convert().
++	 */
++	offset = clamp(offset, -484270L, 488558L);
 +
-+		mt6397keys: mt6397keys {
-+			compatible = "mediatek,mt6397-keys";
-+			mediatek,long-press-mode = <1>;
-+			power-off-time-sec = <0>;
++	ppb_cor = armada38x_ppb_convert(offset);
 +
-+			power {
-+				linux,keycodes = <116>;
-+				wakeup-source;
-+			};
++	/*
++	 * Use low update mode where possible, which gives a better
++	 * resolution of correction.
++	 */
++	off = DIV_ROUND_CLOSEST(ppb_cor, 954);
++	if (off > 127 || off < -128) {
++		ccr = RTC_CCR_MODE;
++		off = DIV_ROUND_CLOSEST(ppb_cor, 3815);
++	}
 +
-+			home {
-+				linux,keycodes = <114>;
-+			};
-+		};
++	/*
++	 * Armada 388 requires a bit pattern in bits 14..8 depending on
++	 * the sign bit: { 0, ~S, S, S, S, S, S }
++	 */
++	ccr |= (off & 0x3fff) ^ 0x2000;
++	rtc_delayed_write(ccr, rtc, RTC_CCR);
 +
-+	};
++	return 0;
++}
++
+ static const struct rtc_class_ops armada38x_rtc_ops = {
+ 	.read_time = armada38x_rtc_read_time,
+ 	.set_time = armada38x_rtc_set_time,
+ 	.read_alarm = armada38x_rtc_read_alarm,
+ 	.set_alarm = armada38x_rtc_set_alarm,
+ 	.alarm_irq_enable = armada38x_rtc_alarm_irq_enable,
++	.read_offset = armada38x_rtc_read_offset,
++	.set_offset = armada38x_rtc_set_offset,
+ };
+ 
+ static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
+ 	.read_time = armada38x_rtc_read_time,
+ 	.set_time = armada38x_rtc_set_time,
+ 	.read_alarm = armada38x_rtc_read_alarm,
++	.read_offset = armada38x_rtc_read_offset,
++	.set_offset = armada38x_rtc_set_offset,
+ };
+ 
+ static const struct armada38x_rtc_data armada38x_data = {
 -- 
-1.7.9.5
+2.7.4
