@@ -1,98 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:33059 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751641AbdJELFj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 07:05:39 -0400
-Date: Thu, 5 Oct 2017 13:05:34 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: John Stultz <john.stultz@linaro.org>
-cc: Gabriel Beddingfield <gabe@nestlabs.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com, Miroslav Lichvar <mlichvar@redhat.com>
-Subject: Re: Extreme time jitter with suspend/resume cycles
-In-Reply-To: <CALAqxLUO-62B0umVSUK979A+dApOLN3xt5nnZA5HKHsWnRz3KQ@mail.gmail.com>
-Message-ID: <alpine.DEB.2.20.1710051301250.2083@nanos>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <CALAqxLUO-62B0umVSUK979A+dApOLN3xt5nnZA5HKHsWnRz3KQ@mail.gmail.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:33596 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751267AbdJCN4m (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 3 Oct 2017 09:56:42 -0400
+Date: Tue, 3 Oct 2017 14:56:21 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory Clement <gregory.clement@free-electrons.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: armada38x: add support for trimming the RTC
+Message-ID: <20171003135620.GN20805@n2100.armlinux.org.uk>
+References: <E1dxsSB-0006RM-08@rmk-PC.armlinux.org.uk>
+ <20171003132433.vkgjxuoeq26x3f47@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171003132433.vkgjxuoeq26x3f47@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 4 Oct 2017, John Stultz wrote:
-> On Wed, Oct 4, 2017 at 9:11 AM, Gabriel Beddingfield <gabe@nestlabs.com> wrote:
-> > TL;DR: the "delta_delta" hack[1 and 2] in kernel/time/timekeeping.c
-> > and drivers/rtc/class.c undermines the NTP system. It's not
-> > appropriate to use if sub-second precision is available. I've attached
-> > a patch to resolve this... please let me know the ways you hate it.
-> > :-)
-> >
-> > Hello Kernel Timekeeping Maintainers,
-> >
-> > We have been developing a device that has very a very aggressive power
-> > policy, doing suspend/resume cycles a few times a minute ("echo mem >
-> > /sys/power/state"). In doing so, we found that the system time
-> > experiences a lot of jitter (compared to, say, an NTP server). It was
-> > not uncommon for us to see time corrections of 1s to 4s on a regular
-> > basis. This didn't happen when the device stayed awake, only when it
-> > was allowed to do suspend/resume.
-> >
-> > We found that the problem is an interaction between the NTP code and
-> > what I call the "delta_delta hack." (see [1] and [2]) This code
-> > allocates a static variable in a function that contains an offset from
-> > the system time to the persistent/rtc clock. It uses that time to
-> > fudge the suspend timestamp so that on resume the sleep time will be
-> > compensated. It's kind of a statistical hack that assumes things will
-> > average out. It seems to have two main assumptions:
-> >
-> >   1. The persistent/rtc clock has only single-second precision
-> >   2. The system does not frequently suspend/resume.
-> >   3. If delta_delta is less than 2 seconds, these assumptions are "true"
-> >
-> > Because the delta_delta hack is trying to maintain an offset from the
-> > system time to the persistent/rtc clock, any minor NTP corrections
-> > that have occurred since the last suspend will be discarded. However,
-> > the NTP subsystem isn't notified that this is happening -- and so it
-> > causes some level of instability in its PLL logic.
+On Tue, Oct 03, 2017 at 03:24:33PM +0200, Alexandre Belloni wrote:
+> Hi Russell,
 > 
-> So, on resume when we call __timekeeping_inject_sleeptime(), that uses
-> the TK_CLEAR_NTP which clears the NTP state (sets STA_UNSYNC, etc) .
-> I'm not sure how else we can notify userspace.  It may be that ntpd
-> doesn't expect the kernel to set things as unsynced and doesn't
-> recover well, but the proper fix for that probably is in userspace.
+> On 29/09/2017 at 11:23:31 +0100, Russell King wrote:
+> > +/*
+> > + * The information given in the Armada 388 functional spec is complex.
+> > + * They give two different formulas for calculating the offset value,
+> > + * but when considering "Offset" as an 8-bit signed integer, they both
+> > + * reduce down to (we shall rename "Offset" as "val" here):
+> > + *
+> > + *   val = (f_ideal / f_measured - 1) / resolution   where f_ideal = 32768
+> > + *
+> > + * Converting to time, f = 1/t:
+> > + *   val = (t_measured / t_ideal - 1) / resolution   where t_ideal = 1/32768
+> > + *
+> > + *   =>  t_measured / t_ideal = val * resolution + 1
+> > + *
+> > + * "offset" in the RTC interface is defined as:
+> > + *   t = t0 * (1 + offset * 1e-9)
+> > + * where t is the desired period, t0 is the measured period with a zero
+> > + * offset, which is t_measured above. With t0 = t_measured and t = t_ideal,
+> > + *   offset = (t_ideal / t_measured - 1) / 1e-9
+> > + *
+> > + *   => t_ideal / t_measured = offset * 1e-9 + 1
+> > + *
+> > + * so:
+> > + *
+> > + *   offset * 1e-9 + 1 = 1 / (val * resolution + 1)
+> > + *
+> > + * We want "resolution" to be an integer, so resolution = R * 1e-9, giving
+> > + *   offset = 1e18 / (val * R + 1e9) - 1e9
+> > + *   val = (1e18 / (offset + 1e9) - 1e9) / R
+> > + * with a common transformation:
+> > + *   f(x) = 1e18 / (x + 1e9) - 1e9
+> > + *   offset = f(val * R)
+> > + *   val = f(offset) / R
+> > + *
+> > + * Armada 38x supports two modes, fine mode (954ppb) and coarse mode (3815ppb).
+> > + */
+> > +static long armada38x_ppb_convert(long ppb)
+> > +{
+> > +	long div = ppb + 1000000000L;
+> > +
+> > +	return div_s64(1000000000000000000LL + div / 2, div) - 1000000000L;
+> 
+> The previous comment is perfect but it was not completely obvious to me
+> why you are adding div / 2. Maybe you can add a small comment.
 
-Errm. No, __timekeeping_inject_sleeptime() only updates the timekeeper.
+It's the standard way to turn a regular integer division into one which
+rounds-to-closest - I consider it to be one of the basics which every
+programmer should know, and therefore should be obvious.
 
-We have two call sites:
+Integer division in the form of:
 
-timekeeping_resume()
-{
-	.....
-	if (sleeptime_injected)
-		__timekeeping_inject_sleeptime(tk, &ts_delta);
-	...
-	timekeeping_update(tk, TK_MIRROR | TK_CLOCK_WAS_SET);
-	...
-}
+	r = (a + b / 2) / b
 
-and
+should be part of the programmers basic knowledge set.
 
-timekeeping_inject_sleeptime64()
-{
-	__timekeeping_inject_sleeptime(tk, &delta);
-	...
-	timekeeping_update(tk, TK_CLEAR_NTP | TK_MIRROR | TK_CLOCK_WAS_SET);
-	...
-}
-
-But Gabriel talks about the effects from injecting sleep time in
-timekeeping_resume() because that's where we use
-read_persistent_clock64(). And there we don't clear NTP, unless there is
-some magic I'm missing completely.
-
-Thanks,
-
-	tglx
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
+According to speedtest.net: 8.21Mbps down 510kbps up
