@@ -1,92 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:39542 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750949AbdJYNwM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Oct 2017 09:52:12 -0400
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Subject: [PATCH v6 6/6] mfd: mt6397: Add PMIC keys support to MT6397 driver
-Date: Wed, 25 Oct 2017 21:16:04 +0800
-Message-ID: <1508937364-30054-7-git-send-email-chen.zhong@mediatek.com>
-In-Reply-To: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:56297 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751171AbdJCNcA (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 3 Oct 2017 09:32:00 -0400
+Date: Tue, 3 Oct 2017 15:31:58 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: clarify the RTC offset correction
+Message-ID: <20171003133158.db4eibi6xqdtvbxg@piout.net>
+References: <E1dxsS5-0006RD-Sy@rmk-PC.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <E1dxsS5-0006RD-Sy@rmk-PC.armlinux.org.uk>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds compatible strings and interrupts for pmic keys
-which serves as child device of MFD.
+Hi,
 
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
----
- drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+On 29/09/2017 at 11:23:25 +0100, Russell King wrote:
+> The RTC offset correction documentation is not very clear about the
+> exact relationship between "offset" and the effect it has on the RTC.
+> Supplement the documentation with an equation giving the relationship.
+> 
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> ---
+>  drivers/rtc/interface.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 8cec9a02c0b8..045e0a72d14b 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -1004,6 +1004,10 @@ int rtc_read_offset(struct rtc_device *rtc, long *offset)
+>   * to compensate for differences in the actual clock rate due to temperature,
+>   * the crystal, capacitor, etc.
+>   *
+> + * The adjustment applied is as follows:
+> + *   t = t0 * (1 + offset * 1e-9)
+> + * where t0 is the measured length of 1 RTC second with offset = 0
+> + *
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 6546d7f..77b64bd 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -43,6 +43,16 @@
- 	},
- };
- 
-+static const struct resource mt6323_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
-+};
-+
-+static const struct resource mt6397_keys_resources[] = {
-+	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
-+	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
-+};
-+
- static const struct mfd_cell mt6323_devs[] = {
- 	{
- 		.name = "mt6323-regulator",
-@@ -50,6 +60,11 @@
- 	}, {
- 		.name = "mt6323-led",
- 		.of_compatible = "mediatek,mt6323-led"
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-+		.resources = mt6323_keys_resources,
-+		.of_compatible = "mediatek,mt6323-keys"
- 	},
- };
- 
-@@ -71,7 +86,12 @@
- 	}, {
- 		.name = "mt6397-pinctrl",
- 		.of_compatible = "mediatek,mt6397-pinctrl",
--	},
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-+		.resources = mt6397_keys_resources,
-+		.of_compatible = "mediatek,mt6397-keys"
-+	}
- };
- 
- static void mt6397_irq_lock(struct irq_data *data)
+More documentation is available in Documentation/rtc.txt. Maybe it is
+worth having the formula in both.
+
+
+>   * Kernel interface to adjust an rtc clock offset.
+>   * Return 0 on success, or a negative number on error.
+>   * If the rtc offset is not setable (or not implemented), return -EINVAL
+> -- 
+> 2.7.4
+> 
+
 -- 
-1.7.9.5
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
