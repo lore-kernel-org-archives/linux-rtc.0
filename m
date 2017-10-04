@@ -1,18 +1,17 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f170.google.com ([209.85.220.170]:56860 "EHLO
-        mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751768AbdJEQro (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 12:47:44 -0400
-Received: by mail-qk0-f170.google.com with SMTP id l194so5336191qke.13
-        for <linux-rtc@vger.kernel.org>; Thu, 05 Oct 2017 09:47:43 -0700 (PDT)
+Received: from mail-qt0-f179.google.com ([209.85.216.179]:56389 "EHLO
+        mail-qt0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750951AbdJDXKD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Oct 2017 19:10:03 -0400
+Received: by mail-qt0-f179.google.com with SMTP id 34so5190437qtb.13
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Oct 2017 16:10:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1710051216050.2083@nanos>
+In-Reply-To: <alpine.DEB.2.20.1710041931560.2406@nanos>
 References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
- <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
- <alpine.DEB.2.20.1710051216050.2083@nanos>
+ <alpine.DEB.2.20.1710041931560.2406@nanos>
 From: Gabriel Beddingfield <gabe@nestlabs.com>
-Date: Thu, 5 Oct 2017 09:47:42 -0700
-Message-ID: <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com>
+Date: Wed, 4 Oct 2017 16:10:01 -0700
+Message-ID: <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
 Subject: Re: Extreme time jitter with suspend/resume cycles
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: LKML <linux-kernel@vger.kernel.org>,
@@ -21,110 +20,116 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        Howard Harte <hharte@nestlabs.com>
+        hharte@nestlabs.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 Hi Thomas,
 
-On Thu, Oct 5, 2017 at 4:01 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> > The SoC we use backs the monotonic clock (sched_clock_register()) with a
+Thanks for your reply!
+
+On Wed, Oct 4, 2017 at 11:22 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> Calling things a hack which might have been thought out carefully does not
+> make people more receptive.
+
+My bad... sorry! You're right. The code in question is better than a "hack."
+
+>> Many ARM systems provide a "persistent clock." Most of them are backed
+>> by a 32kHz clock that gives good precision and makes the delta_delta
+>> hack unnecessary. However, devices that only have single-second
+>> precision for the persistent clock and/or are forced to use the RTC
+>> (whose API only allows for single-second precision) -- they still need
+>> this hack.
 >
-> Again. monotonic clock != sched clock. The clocksource which feeds the
-> monotonic timekeeper clock is registered via clocksource_register() & al.
+> I have no idea what you are trying to tell me. We know that there are
+> systems which have a clocksource which continues to tick across
+> suspend/resume.
 
-Sorry. I was hedging since I wasn't sure *which* term to use.
+I'm referring to read_persistent_clock64() API... which is distinct from the
+CLOCK_SOURCE_SUSPEND_NONSTOP flag.
 
-> Groan. Engineering based on theories is doomed to begin with.
+> Such clocksources can be flagged with CLOCK_SOURCE_SUSPEND_NONSTOP and the
+> timekeeping resume code uses them when available instead of using the
+> RTC. There are a few of them flagged as such in the kernel, but it might
+...
+> It's neither a problem of the timekeeping core code to select the
+> appropriate clocksource for a system. That's up to the developer who
+> implemented the SoC/CPU support and made a decision about rating the
+> clocksource(s), which might end up selecting one which stops in suspend.
 
-I knew you'd say that. :-p
+This was our first approach. However, because of some hardware
+limitations we couldn't
+move the system's monotonic clock to the persistent clock. They had to
+be two different
+clocks. (Details below.)
 
-> Your 36 hour time jump is probably exactly 36.4089 hours as that's
->
->      ((1 << 32) / 32768) / 3600
->
-> i.e. the 32bit rollover of the clocksource. So, if the clocksource->read()
-> function returns a full 64bit counter value, then it must have protection
-> against observing the rollover independent of the clock which feeds that
-> counter. Of course the frequency changes the probablity of observing it,
-> but still the read function must be protected against observing the
-> rollover unconditionally.
+> Without looking at what it does, I can tell you that making it a config
+> option is not going to fly. It has to be runtime discoverable as we have to
+> support multi platform kernels.
 
-Right, but isn't this what clocksource->mask is supposed to do? When we change
-the back-end frequency, we're still using the same front-end 32-bit register and
-we don't see the same jumps.
+OK. Here's a couple ideas...
 
-> Which SoC/clocksource driver are you talking about?
+APPROACH ONE: Use a heuristic
 
-NXP i.MX 6SoloX
-drivers/clocksource/timer-imx-gpt.c
-drivers/rtc/rtc-snvs.c
-arch/arm/boot/dts/imx6sx.dtsi (included from imx6sx-sdb.dts)
-   (node: soc/aips1/gpt)
+If read_persistent_clock64() ever returns fractional seconds (as
+apposed to whole seconds), then
+permanently disable the compensation.
 
-We patched the RTC driver to call register_persistent_clock()
-(arch/arm/kernel/time.c)
+APPROACH TWO: Use a property
 
-The upstream driver doesn't support using the 32kHz clock, but the silicone
-does... so we modified the driver to accept it and set the "NONSTOP" flag.
+Provide another weak symbol like this:
 
-> I can understand that. Though, using that value for injecting accurate
-> sleep time should just work with the existing code no matter how long the
-> actual sleep time was. The timekeeping core takes the nsec part of the
-> timespec value retrieved via read_persistent_clock64() into account.
->
-> I still have a hard time to figure out what you are trying to achieve.
+    extern u64 persistent_clock_precision;
 
-I'm trying to disable this block:
+or..
 
-int timekeeping_suspend(void)
-{
-        struct timekeeper *tk = &tk_core.timekeeper;
-        unsigned long flags;
-#ifdef CONFIG_PERSISTENT_CLOCK_IS_LOW_PRECISION
-        struct timespec64               delta, delta_delta;
-        static struct timespec64        old_delta;
-#endif
+    void get_persistent_clock_precision(struct timespec *ts);
+    void get_persistent_clock_percision64(struct timespec64 *ts);
 
-        read_persistent_clock64(&timekeeping_suspend_time);
+And the value returned should be, approximately, the minimum time
+between clock ticks.
+For clocks that only supply whole-second precision... the value should
+be NSECS_PER_SEC.
+For clocks that are backed by, say, a 32kHz clock... the value should be
+(NSECS_PER_SEC/32768).
 
-//...
+> Though I still want to know exactly why you think that you need some extra
+> magic in the timekeeping core code. If your system has a clocksource which
+> is not stopping on suspend and it lacks the flag, then this is a one liner
+> patch. If there is something else, then please elaborate.
 
-#ifdef CONFIG_PERSISTENT_CLOCK_IS_LOW_PRECISION
-        if (persistent_clock_exists) {
-                /*
-                 * To avoid drift caused by repeated suspend/resumes,
-                 * which each can add ~1 second drift error,
-                 * try to compensate so the difference in system time
-                 * and persistent_clock time stays close to constant.
-                 */
-                delta = timespec64_sub(tk_xtime(tk), timekeeping_suspend_time);
-                delta_delta = timespec64_sub(delta, old_delta);
-                if (abs(delta_delta.tv_sec) >= 2) {
-                        /*
-                         * if delta_delta is too large, assume time correction
-                         * has occurred and set old_delta to the current delta.
-                         */
-                        old_delta = delta;
-                } else {
-                        /* Otherwise try to adjust old_system to compensate */
-                        timekeeping_suspend_time =
+Long story short: you can't always have your low-power clock be your
+monotonic/sched
+clock.
 
-timespec64_add(timekeeping_suspend_time, delta_delta);
-                }
-        }
-#endif
+The SoC we use backs the monotonic clock (sched_clock_register()) with
+a counter that is
+high frequency (>10 MHz) in their reference implementation. But it
+does not count when the
+system is in low-power mode. However, it can be configured to use a
+32kHz clock that *does*
+count when the system is in low-power mode. So, we started by using
+this clock and setting the
+CLOCK_SOURCE_SUSPEND_NONSTOP flag. It worked great... at first.
 
-In the typical case, it is trying to maintain the assumption that
-(ideally) 'delta'
-is a constant. It tries to maintain this assumption by fiddling with
-the "suspend
-time" -- adding or subtracting a little to it.
+Then we found that devices would randomly experience a 36-hour time jump.
+While we don't have a definitive root cause, the current theory is
+that we are getting
+non-atomic reads because the clock source isn't synchronized with the
+the high frequency
+clock (which is used for most of the digital logic on the SoC).
 
-However, if NTP has adjusted the system time but *not* adjusted the persistent
-clock's time... then the assumption is violated, 'delta' is *not*
-constant, and this
-block cancels out the NTP corrections.
+Therefore, we moved the monotonic/sched clock back to the high-frequency source.
 
--gabe
+Meanwhile, we can directly read the RTC clock on this system, and it
+will give us 32kHz
+resolution and also runs non-stop. Since reads are non-atomic, we have
+to read the
+registers in a loop. We used this register to implement
+read_persistent_clock64().
+Because we have to read the registers in a loop, it seemed unfit for use as the
+monotonic/sched clock.
+
+Thanks,
+Gabe
