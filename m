@@ -1,49 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47898 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752151AbdJ0LJw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 27 Oct 2017 07:09:52 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: ds1390: Add OF device ID table
-Date: Fri, 27 Oct 2017 13:09:47 +0200
-Message-Id: <20171027110947.12803-1-alexandre.belloni@free-electrons.com>
+Received: from Galois.linutronix.de ([146.0.238.70]:36207 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751756AbdJEVEt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 17:04:49 -0400
+Date: Thu, 5 Oct 2017 23:04:42 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Gabriel Beddingfield <gabe@nestlabs.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
+        Howard Harte <hharte@nestlabs.com>
+Subject: Re: Extreme time jitter with suspend/resume cycles
+In-Reply-To: <CAOdF7nssJZZG_VKO+G_K6+aukOApmXp823yA9k3sUsSYpSB71g@mail.gmail.com>
+Message-ID: <alpine.DEB.2.20.1710052302440.2398@nanos>
+References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com> <alpine.DEB.2.20.1710051216050.2083@nanos>
+ <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com> <alpine.DEB.2.20.1710051943570.2398@nanos> <CAOdF7nssJZZG_VKO+G_K6+aukOApmXp823yA9k3sUsSYpSB71g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. Worse, the compatible is documented but
-doesn't currently match the driver.
+On Thu, 5 Oct 2017, Gabriel Beddingfield wrote:
 
-Add the proper compatible to the driver.
+> Hi Thomas,
+> 
+> On Thu, Oct 5, 2017 at 11:01 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> >> > Which SoC/clocksource driver are you talking about?
+> >>
+> >> NXP i.MX 6SoloX
+> >> drivers/clocksource/timer-imx-gpt.c
+> >
+> > So that clocksource driver looks correct. Do you have an idea in which
+> > context this time jump happens? Does it happen when you exercise your high
+> > frequency suspend/resume dance or is that happening just when you let the
+> > machine run forever as well?
+> 
+> We couldn't devise any reproduction steps. We observed it happening at
+> unexpected times in a fleet of devices -- and we couldn't find any
+> patterns to clue us in.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-ds1390.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Ok. Did you talk to NXP about that? Or did you try to exercise reads in a
+loop to detect the wreckage and maybe a pattern in there?
 
-diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-index aa0d2c6f1edc..4d5b007d7fc6 100644
---- a/drivers/rtc/rtc-ds1390.c
-+++ b/drivers/rtc/rtc-ds1390.c
-@@ -216,9 +216,16 @@ static int ds1390_probe(struct spi_device *spi)
- 	return res;
- }
- 
-+static const struct of_device_id ds1390_of_match[] = {
-+	{ .compatible = "dallas,ds1390" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, ds1390_of_match);
-+
- static struct spi_driver ds1390_driver = {
- 	.driver = {
- 		.name	= "rtc-ds1390",
-+		.of_match_table = of_match_ptr(ds1390_of_match),
- 	},
- 	.probe	= ds1390_probe,
- };
--- 
-2.15.0.rc2
+> > The timekeeping_resume() path definitely has an issue:
+> >
+> >         cycle_now = tk_clock_read(&tk->tkr_mono);
+> >         if ((clock->flags & CLOCK_SOURCE_SUSPEND_NONSTOP) &&
+> >                 cycle_now > tk->tkr_mono.cycle_last) {
+> >
+> > This works nice for clocksources which wont wrap across suspend/resume but
+> > not for those which can. That cycle_now -> cycle_last check should take
+> > cs-mask into account ...
+> >
+> > Of course for clocksources which can wrap within realistic suspend times,
+> > which 36 hours might be accounted for, this would need an extra sanity
+> > check against a RTC whether wrap time has been exceeded.
+> >
+> > I haven't thought it through whether that buggered check fully explains
+> > what you are observing, but it's wrong nevertheless. John?
+> 
+> Nah. It looks like the consequence is that you'll either fail to inject
+> the sleep time or you'll fall back to having the RTC inject the sleep
+> time. In our case, we never sleep for more than a couple of minutes so
+> the error would be seconds rather than hours.
+
+Fair enough. It's still wrong though and wants to be fixed.
+
+Thanks,
+
+	tglx
