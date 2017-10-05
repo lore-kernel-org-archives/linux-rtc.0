@@ -1,59 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:33509 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751081AbdJGQNS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 7 Oct 2017 12:13:18 -0400
-MIME-Version: 1.0
-In-Reply-To: <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com> <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sat, 7 Oct 2017 19:13:16 +0300
-Message-ID: <CAHp75VdFybPNxXU5URVHBBWROV6h1eX+u_R-r5Kue08kBUmGHQ@mail.gmail.com>
-Subject: Re: [RFC v4 2/8] platform/x86: intel_pmc_ipc: Use spin_lock to
- protect GCR updates
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@redhat.com>,
+Received: from Galois.linutronix.de ([146.0.238.70]:35462 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751849AbdJESB2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 14:01:28 -0400
+Date: Thu, 5 Oct 2017 20:01:16 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Gabriel Beddingfield <gabe@nestlabs.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
+        Howard Harte <hharte@nestlabs.com>
+Subject: Re: Extreme time jitter with suspend/resume cycles
+In-Reply-To: <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com>
+Message-ID: <alpine.DEB.2.20.1710051943570.2398@nanos>
+References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com> <alpine.DEB.2.20.1710051216050.2083@nanos>
+ <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sat, Oct 7, 2017 at 5:33 AM,
-<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->
-> Currently, update_no_reboot_bit() function implemented in this driver
-> uses mutex_lock() to protect its register updates. But this function is
-> called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
-> functions in iTCO_wdt.c driver, which in turn causes "sleeping into
-> atomic context" issue. This patch fixes this issue by replacing the
-> mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
->
+Gabriel,
 
-> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory
-> mapping failure")
+On Thu, 5 Oct 2017, Gabriel Beddingfield wrote:
+> On Thu, Oct 5, 2017 at 4:01 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > i.e. the 32bit rollover of the clocksource. So, if the clocksource->read()
+> > function returns a full 64bit counter value, then it must have protection
+> > against observing the rollover independent of the clock which feeds that
+> > counter. Of course the frequency changes the probablity of observing it,
+> > but still the read function must be protected against observing the
+> > rollover unconditionally.
+> 
+> Right, but isn't this what clocksource->mask is supposed to do? When we change
+> the back-end frequency, we're still using the same front-end 32-bit register and
+> we don't see the same jumps.
 
-I think it need to be a one line.
+Right. That's what the mask should protect. I was assuming that this is one
+of the fancy clocksources which expose two 32bit registers of a 64bit
+counter and the rollover protection was missing. So that's not the
+case. Good, or not so good :)
 
-Does it apply on top of v4.14-rc3 ?
-Btw, this patch should be first in the series.
+> > Which SoC/clocksource driver are you talking about?
+> 
+> NXP i.MX 6SoloX
+> drivers/clocksource/timer-imx-gpt.c
 
+So that clocksource driver looks correct. Do you have an idea in which
+context this time jump happens? Does it happen when you exercise your high
+frequency suspend/resume dance or is that happening just when you let the
+machine run forever as well?
 
--- 
-With Best Regards,
-Andy Shevchenko
+The timekeeping_resume() path definitely has an issue:
+
+        cycle_now = tk_clock_read(&tk->tkr_mono);
+        if ((clock->flags & CLOCK_SOURCE_SUSPEND_NONSTOP) &&
+                cycle_now > tk->tkr_mono.cycle_last) {
+
+This works nice for clocksources which wont wrap across suspend/resume but
+not for those which can. That cycle_now -> cycle_last check should take
+cs-mask into account ...
+
+Of course for clocksources which can wrap within realistic suspend times,
+which 36 hours might be accounted for, this would need an extra sanity
+check against a RTC whether wrap time has been exceeded.
+
+I haven't thought it through whether that buggered check fully explains
+what you are observing, but it's wrong nevertheless. John?
+
+Thanks,
+
+	tglx
