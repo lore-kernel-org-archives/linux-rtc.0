@@ -1,52 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:9884 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751479AbdJSDA0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 23:00:26 -0400
-Message-ID: <1508382018.21840.124.camel@mtkswgap22>
-Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: mediatek: add bindings for
- MediaTek SoC based RTC
-From: Sean Wang <sean.wang@mediatek.com>
-To: Yingjoe Chen <yingjoe.chen@mediatek.com>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Thu, 19 Oct 2017 11:00:18 +0800
-In-Reply-To: <1508333529.13340.26.camel@mtksdaap41>
-References: <cover.1508231935.git.sean.wang@mediatek.com>
-         <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
-         <1508333529.13340.26.camel@mtksdaap41>
-Content-Type: text/plain; charset="UTF-8"
+Received: from Galois.linutronix.de ([146.0.238.70]:32999 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751705AbdJELBX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 07:01:23 -0400
+Date: Thu, 5 Oct 2017 13:01:17 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Gabriel Beddingfield <gabe@nestlabs.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
+        hharte@nestlabs.com
+Subject: Re: Extreme time jitter with suspend/resume cycles
+In-Reply-To: <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
+Message-ID: <alpine.DEB.2.20.1710051216050.2083@nanos>
+References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 2017-10-18 at 21:32 +0800, Yingjoe Chen wrote:
-> On Tue, 2017-10-17 at 17:40 +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > Add device-tree binding for MediaTek SoC based RTC
-> > 
-> > Cc: devicetree@vger.kernel.org
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > Acked-by: Rob Herring <robh@kernel.org>
-> > ---
-> >  .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
-> >  1 file changed, 21 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-> > new file mode 100644
-> > index 0000000..09fe8f5
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-> 
-> 
-> How about change this filename to match driver filename change?
-> 
-> Joe.C
-> 
+On Wed, 4 Oct 2017, Gabriel Beddingfield wrote:
+> On Wed, Oct 4, 2017 at 11:22 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> Long story short: you can't always have your low-power clock be your
+> monotonic/sched clock.
 
-Will be improved together with the other patches
+sched_clock and the clocksource for timekeeping, which feeds monotonic are
+not required to be the same thing.
+ 
+> The SoC we use backs the monotonic clock (sched_clock_register()) with a
+
+Again. monotonic clock != sched clock. The clocksource which feeds the
+monotonic timekeeper clock is registered via clocksource_register() & al.
+
+> counter that is high frequency (>10 MHz) in their reference
+> implementation. But it does not count when the system is in low-power
+> mode. However, it can be configured to use a 32kHz clock that *does*
+> count when the system is in low-power mode. So, we started by using this
+> clock and setting the CLOCK_SOURCE_SUSPEND_NONSTOP flag. It worked
+> great... at first.
+> 
+> Then we found that devices would randomly experience a 36-hour time jump.
+> While we don't have a definitive root cause, the current theory is that
+> we are getting non-atomic reads because the clock source isn't
+> synchronized with the the high frequency clock (which is used for most of
+> the digital logic on the SoC).
+
+Groan. Engineering based on theories is doomed to begin with.
+
+Your 36 hour time jump is probably exactly 36.4089 hours as that's
+
+     ((1 << 32) / 32768) / 3600
+
+i.e. the 32bit rollover of the clocksource. So, if the clocksource->read()
+function returns a full 64bit counter value, then it must have protection
+against observing the rollover independent of the clock which feeds that
+counter. Of course the frequency changes the probablity of observing it,
+but still the read function must be protected against observing the
+rollover unconditionally.
+
+Which SoC/clocksource driver are you talking about?
+
+> Therefore, we moved the monotonic/sched clock back to the high-frequency source.
+
+Please stop confusing timekeeping clock source and sched clock. They might
+be the same physical device but conceptually they are different.
+
+> Meanwhile, we can directly read the RTC clock on this system, and it will
+> give us 32kHz resolution and also runs non-stop. Since reads are
+> non-atomic, we have to read the registers in a loop. We used this
+> register to implement read_persistent_clock64().  Because we have to read
+> the registers in a loop, it seemed unfit for use as the monotonic/sched
+> clock.
+
+I can understand that. Though, using that value for injecting accurate
+sleep time should just work with the existing code no matter how long the
+actual sleep time was. The timekeeping core takes the nsec part of the
+timespec value retrieved via read_persistent_clock64() into account.
+
+I still have a hard time to figure out what you are trying to achieve.
+
+Thanks,
+
+	tglx
