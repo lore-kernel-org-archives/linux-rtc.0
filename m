@@ -1,96 +1,108 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:36382 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751393AbdJEVba (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 17:31:30 -0400
-Date: Thu, 5 Oct 2017 23:31:23 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Gabriel Beddingfield <gabe@nestlabs.com>
-cc: John Stultz <john.stultz@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        Howard Harte <hharte@nestlabs.com>,
-        Miroslav Lichvar <mlichvar@redhat.com>
-Subject: Re: Extreme time jitter with suspend/resume cycles
-In-Reply-To: <CAOdF7nv5re6Hvv5e3Mj=tiQKBw2CvEEdE1Nt96gqZmhr5+xZ+g@mail.gmail.com>
-Message-ID: <alpine.DEB.2.20.1710052305200.2398@nanos>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <CALAqxLUO-62B0umVSUK979A+dApOLN3xt5nnZA5HKHsWnRz3KQ@mail.gmail.com> <CAOdF7nv5re6Hvv5e3Mj=tiQKBw2CvEEdE1Nt96gqZmhr5+xZ+g@mail.gmail.com>
+Received: from mail1.bemta6.messagelabs.com ([193.109.254.114]:56960 "EHLO
+        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751323AbdJEOSf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 10:18:35 -0400
+From: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>
+To: "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>
+CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: DryIce , RTC not working on imx53.
+Date: Thu, 5 Oct 2017 14:18:31 +0000
+Message-ID: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Gabriel,
-
-On Thu, 5 Oct 2017, Gabriel Beddingfield wrote:
-
-> Hi John,
-> 
-> On Wed, Oct 4, 2017 at 5:16 PM, John Stultz <john.stultz@linaro.org> wrote:
-> >> Please let me know what you think -- and what the right approach for
-> >> solving this would be.
-> >
-> > So I suspect the best solution for you here is: provide some
-> > infrastructure so clocksources that set CLOCK_SOURCE_SUSPEND_NONSTOP
-> > which are not the current clocksource can be used for suspend timing.
-> 
-> Let me see if I understand how this might work in my situation...
-> 
-> 1. I register a clocksource and set the NONSTOP flag.
-> 2. Give it a "low" rating so that it's not selected as the timekeeping
-> clocksource.
-> 3. Create functions clocksource_select_persistent() and
-> timekeeping_notify_persistent()
-> 4. Add `struct tk_read_base tk_persistent' to `struct timekeeper'
-> 5. Possibly add a change_persistent_clocksource() function to timekeeping.c
-
-That might work, but that looks a tad too complex. Let me give it a try:
-
-1) Create a new flag CLOCK_SOURCE_SUSPEND_BACKUP
-
-   This makes sense because such a clocksource is likely to be something
-   which you don't want ever to use for timekeeping even if its the only
-   thing aside of jiffies.
-
-2) Set this flag when registering a clocksource, which excludes it from the
-   normal selection process.
-
-3) Make the registration code select such a clocksource as the backup for
-   suspend resume to brige the gap when the timekeeper clocksource does not
-   have the NONSTOP flag set.
-
-   You don't need the extra timekeeping_notify_persistent() because in that
-   case the maybe current backup clocksource is definitely not in use and
-   can be replaced without the stompmachine muck which we need for
-   replacing the current timekeeper clocksource. The system cannot be in
-   suspend at this point obviously. so all it needs is to switch a pointer.
-
-   You neither need this extra stuff in struct timekeeper, it's big enough
-   anyway. A simple static struct tk_read_base should be sufficient.
-
-On suspend you do
-
-   if (tk_backup->clock)
-   	sync_data(timekeeper, tk_backup);
-
-   You still want to record the RTC based time if possible, in case that
-   the backup timekeeper can wrap so you have a sanity check for that
-   similar to the one we need for NONSTOP clocksources. If there is no RTC
-   then we need a sensible cutoff for that wraparound time which makes sure
-   that we don't trip over our own feet.
-
-On resume you check tk_backup->clock again, do the RTC sanity check, if
-available and valid (either wraps above cutoff or is checked via RTC). If
-that's ok, then you update the timekeeper and proceed. If not, use the
-fallback or do nothing in the worst case.
-
-Thoughts?
-
-Thanks,
-
-	tglx
-
-   
+SGVsbG8sDQoNCkRyeUljZSAsIFNSVEMgbm90IHdvcmtpbmcgb24gaW14NTMuICgga2VybmVsIDQu
+eCkgwqAoIHNhbWUgaGFyZHdhcmUgcnVubmluZyBvbGRlciBrZXJuZWwgdmVyc2lvbnMuLiBtZWFu
+cyAsIHJ0YyBpcyB3b3JraW5nKQ0KDQpEdXJpbmcgYm9vdCBhbGwgc2VlbXMgdG8gYmUgZmluZSBi
+dXQgb25jZSB5b3UgdHJ5IHRvIHJlYWQgb3Igd3JpdGUgdGhlIGhhcmR3YXJlIGNsb2NrIGxhdGVy
+IG9uIOKApiBpdCBiYWlscyBvdXQgd2l0aCB0aGlzIGVycm9yIG9uIHRoZSBjb25zb2xlLiANCg0K
+aHdjbG9jaw0KDQpbICAgOTcuMTg2NTc3XSBpbXhkaV9ydGMgNTNmYTQwMDAucnRjOiBXcml0ZS13
+YWl0IHRpbWVvdXQgdmFsID0gMHg1YTJmZjhkMyByZWcgPSAweDAwMDAwMDA4DQoNCkh3Y2xvY2sg
+OiBzZWxlY3QoKSB0byAvZGV2L3J0YzAgdG8gd2FpdCBmb3IgY2xvY2sgdGljayB0aW1lZCBvdXQ6
+IE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkNCg0KDQoNCkkndmUgQWRkZWQgc29tZSBkcml2ZXIg
+4oCTIHByaW50a+KAmXPigKYuDQoNCiMgaHdjbG9jaw0KWyAgIDczLjM2MjU1OV0gZHJ5aWNlX3J0
+Y19yZWFkX3RpbWUgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tDQpbICAgNzMuMzk1MDc3XSBkcnlpY2VfcnRjX3JlYWRfdGltZSAtLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NClsgICA3My40MTQxNTZdIGRyeWljZV9y
+dGNfcmVhZF90aW1lIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLQ0KWyAgIDczLjQyMTcwMF0gZGlfd3JpdGVfd2FpdCAtLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NClsgICA3My40NzI2MjRdIGRpX2ludF9lbmFibGUg
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpbICAgNzMu
+NTE0NjA5XSBpbXhkaV9ydGMgNTNmYTQwMDAuc3J0YzogV3JpdGUtd2FpdCB0aW1lb3V0IHZhbCA9
+IDB4NWEzMDAwYzggcmVnID0gMHgwMDAwMDAwOA0KWyAgIDczLjUyMzAxOV0gZGlfaW50X2VuYWJs
+ZSAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCg0KPDwg
+U1RBTExTIGZvciA1IHNlY29uZHMgaGVyZSA+Pg0KPDwgU1RBTExTIGZvciA1IHNlY29uZHMgaGVy
+ZSA+Pg0KPDwgU1RBTExTIGZvciA1IHNlY29uZHMgaGVyZSA+Pg0KPDwgU1RBTExTIGZvciA1IHNl
+Y29uZHMgaGVyZSA+Pg0KPDwgU1RBTExTIGZvciA1IHNlY29uZHMgaGVyZSA+Pg0KDQpod2Nsb2Nr
+WyAgIDc4LjU4NDkwOV0gZHJ5aWNlX3J0Y19hbGFybV9pcnFfZW5hYmxlIC0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KOiBzZWxlY3QoKSB0byAvZGV2L3J0
+YzAgdG8gd2FpdCBmWyAgIDc4LjU5MzQ1Nl0gZGlfaW50X2Rpc2FibGUgLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpvciBjbG9jayB0aWNrIHRpbWVkIG91
+dDogTm8gc3VjaCBmaWxlIG9yIGRpcmVjdG9yeQ0KDQoNCg0KDQoNCg0KU3RyYWNlIC4uIGxvZ2dp
+bmcgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCg0KDQpzdGF0KCIvbGliL2xkLXVD
+bGliYy5zby4wIiwge3N0X21vZGU9U19JRlJFR3wwNzc3LCBzdF9zaXplPTI1MzAwLCAuLi59KSA9
+IDANCm1tYXAyKE5VTEwsIDQwOTYsIFBST1RfUkVBRHxQUk9UX1dSSVRFLCBNQVBfUFJJVkFURXxN
+QVBfQU5PTllNT1VTfDB4NDAwMDAwMCwgLTEsIDApID0gMHhiNmYwNDAwMA0Kc2V0X3RscygweGI2
+ZjA0NDkwLCAweGI2ZjA0YjM4LCAweGI2ZjA3MDg4LCAweGI2ZjA0NDkwLCAweGI2ZjA2Zjc0KSA9
+IDANCm1wcm90ZWN0KDB4YjZlZDIwMDAsIDQwOTYsIFBST1RfUkVBRCkgICA9IDANCm1wcm90ZWN0
+KDB4YjZmMDYwMDAsIDQwOTYsIFBST1RfUkVBRCkgICA9IDANCmlvY3RsKDAsIFNORENUTF9UTVJf
+VElNRUJBU0Ugb3IgVENHRVRTLCB7QjExNTIwMCBvcG9zdCBpc2lnIGljYW5vbiBlY2hvIC4uLn0p
+ID0gMA0KaW9jdGwoMSwgU05EQ1RMX1RNUl9USU1FQkFTRSBvciBUQ0dFVFMsIHtCMTE1MjAwIG9w
+b3N0IGlzaWcgaWNhbm9uIGVjaG8gLi4ufSkgPSAwDQpnZXR0aW1lb2ZkYXkoezE1MTMwOTU0MzAs
+IDcwODA5N30sIE5VTEwpID0gMA0KZ2V0dWlkMzIoKSAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgID0gMA0Kb3BlbigiL2Rldi9ydGMiLCBPX1JET05MWXxPX0xBUkdFRklMRSkgID0gLTEgRU5P
+RU5UIChObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5KQ0Kb3BlbigiL2Rldi9ydGMwIiwgT19SRE9O
+TFl8T19MQVJHRUZJTEUpID0gMw0KYnJrKDApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgID0gMHgxODAwMA0KYnJrKDB4MTkwMDApICAgICAgICAgICAgICAgICAgICAgICAgICAgID0g
+MHgxOTAwMA0Kc3RhdDY0KCIvZXRjL2FkanRpbWUiLCAweGJlZWMyNmE4KSAgICAgID0gLTEgRU5P
+RU5UIChObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5KQ0KaW9jdGwoMywgUEhOX1NFVF9SRUdTIG9y
+IFJUQ19VSUVfT04sIDApID0gMA0Kc2VsZWN0KDQsIFszXSwgTlVMTCwgTlVMTCwgezUsIDB9DQoN
+Cg0KPDwgU1RBTExTIGZvciA1IHNlY29uZHMgaGVyZSAgLS0gIHNlbGVjdCBpcyBub3QgcmV0dXJu
+aW5nICEhISB0aW1lb3V0IGlzIDUgc2Vjb25kc+KApi4gPj4NCg0KKSAgICAgID0gMCAoVGltZW91
+dClbICAxNDEuNzY2MTYyXSBkcnlpY2VfcnRjX2FsYXJtX2lycV9lbmFibGUgLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCndyaXRlKDIsICJod2Nsb2Nr
+IiwgN2h3Y2xvY2spICAgICAgICAgICAgICAgICAgPSA3DQp3cml0ZSgyLCAiOiAiLCAyOiApICAg
+ICAgICAgICAgICAgICAgICAgICA9WyAgMTQxLjc4MjE5NV0gZGlfaW50X2Rpc2FibGUgLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoyDQp3cml0ZSgyLCAi
+c2VsZWN0KCkgdG8gIiwgMTJzZWxlY3QoKSB0byApICAgICAgICAgICAgPSAxMg0Kd3JpdGUoMiwg
+Ii9kZXYvcnRjMCIsIDkvZGV2L3J0YzApICAgICAgICAgICAgICAgID0gOQ0Kd3JpdGUoMiwgIiB0
+byB3YWl0IGZvciBjbG9jayB0aWNrIHRpbWVkIG91Ii4uLiwgMzMgdG8gd2FpdCBmb3IgY2xvY2sg
+dGljayB0aW1lZCBvdXQpID0gMzMNCndyaXRlKDIsICI6ICIsIDI6ICkgICAgICAgICAgICAgICAg
+ICAgICAgID0gMg0Kd3JpdGUoMiwgIk5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkiLCAyNU5vIHN1
+Y2ggZmlsZSBvciBkaXJlY3RvcnkpID0gMjUNCndyaXRlKDIsICJcbiIsIDENCikgICAgICAgICAg
+ICAgICAgICAgICAgID0gMQ0KaW9jdGwoMywgUEhOX05PVF9PSCBvciBSVENfVUlFX09GRiwgMCkg
+ID0gMA0KY2xvc2UoMykgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0gMA0KZXhpdF9n
+cm91cCg3NCkgICAgICAgICAgICAgICAgICAgICAgICAgID0gPw0KDQoNCg0KDQoNCg0KDQoNClFV
+SUNLIGFuYWx5c2VzICAoIGNvdWxkIGJlIHdyb25nKSA/IA0KSXQgc2VlbXMgdGhhdCBod2Nsb2Nr
+IGlzIHJlYWRpbmcgdGhlIGN1cnJlbnQtdGltZXN0YW1wIDMgdGltZXMgYW5kIGlmIG5vdCBjaGFu
+Z2VkIGluIHRob3NlIDMgcmVhZCBjeWNsZXPigKYgaXQgc2V0cyB1cCBhbiByZWFkLWludGVycnVw
+dC1hYm9ydCBhYmxlIHRpbWUgcmVhZGVyIHRoYXQgc2hvdWxkIHJldHVybiBhcyBzb29uIGFzIHRo
+ZSBpcnEgZmlyZXPigKYgYnV0IHRoaXMgc2VlbXMgdG8gYmUgbWlzc2luZyAhDQoNCkZZSTogIEni
+gJl2ZSBiZWVuIHVzaW5nIGZvbGxvd2luZyBjb21taW50IHRvIGVuYWJsZSBzcnRjLg0KY29tbWl0
+IDViNzI1MDU0MTQ3ZGVhZjk2NmIzOTE5ZTEwYTg2YzZiZmU5NDZhMTgNCkF1dGhvcjogUGF0cmlj
+ayBCcnVlbm4gPHAuYnJ1ZW5uQGJlY2tob2ZmLmNvbT4NCkRhdGU6wqAgwqBXZWQgSnVsIDI2IDE0
+OjA1OjMyIDIwMTcgKzAyMDANCg0KwqAgwqAgQVJNOiBkdHM6IGlteDUzOiBhZGQgc3J0YyBub2Rl
+DQrCoCDCoMKgDQrCoCDCoCBUaGUgaS5NWDUzIGhhcyBhbiBpbnRlZ3JhdGVkIHNlY3VyZSByZWFs
+IHRpbWUgY2xvY2suIEFkZCBpdCB0byB0aGUgZHRzaS4NCsKgIMKgwqANCsKgIMKgIFNpZ25lZC1v
+ZmYtYnk6IFBhdHJpY2sgQnJ1ZW5uIDxwLmJydWVubkBiZWNraG9mZi5jb20+DQrCoCDCoCBTaWdu
+ZWQtb2ZmLWJ5OiBTaGF3biBHdW8gPHNoYXduZ3VvQGtlcm5lbC5vcmc+DQoNCmRpZmYgLS1naXQg
+YS9hcmNoL2FybS9ib290L2R0cy9pbXg1My5kdHNpIGIvYXJjaC9hcm0vYm9vdC9kdHMvaW14NTMu
+ZHRzaQ0KaW5kZXggMmU1MTZmNC4uOGJmMGQ4OSAxMDA2NDQNCi0tLSBhL2FyY2gvYXJtL2Jvb3Qv
+ZHRzL2lteDUzLmR0c2kNCisrKyBiL2FyY2gvYXJtL2Jvb3QvZHRzL2lteDUzLmR0c2kNCkBAIC00
+MzMsNiArNDMzLDE1IEBADQrCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCBjbG9jay1uYW1lcyA9ICJpcGciLCAicGVyIjsNCsKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIH07DQrCoA0KK8KgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgc3J0Yzogc3J0Y0A1M2ZhNDAwMCB7DQorwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqBjb21wYXRpYmxlID0gImZzbCxpbXg1My1ydGMiLCAiZnNsLGlteDI1
+LXJ0YyI7DQorwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBy
+ZWcgPSA8MHg1M2ZhNDAwMCAweDQwMDA+Ow0KK8KgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgaW50ZXJydXB0cyA9IDwyND47DQorwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBpbnRlcnJ1cHQtcGFyZW50ID0gPCZ0emljPjsN
+CivCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGNsb2NrcyA9
+IDwmY2xrcyBJTVg1X0NMS19TUlRDX0dBVEU+Ow0KK8KgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgY2xvY2stbmFtZXMgPSAiaXBnIjsNCivCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoH07DQorDQoNCkJlc3QgUmVnYXJkcw0KTm9lbA0KDQoNCg==
