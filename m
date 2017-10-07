@@ -1,36 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:33121 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751188AbdJCV6D (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 3 Oct 2017 17:58:03 -0400
-Date: Tue, 3 Oct 2017 16:58:01 -0500
-From: Rob Herring <robh@kernel.org>
-To: sean.wang@mediatek.com
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] dt-bindings: rtc: mediatek: add bindings for
- MediaTek SoC based RTC
-Message-ID: <20171003215801.b5cupghaamlid66y@rob-hp-laptop>
-References: <cover.1506049341.git.sean.wang@mediatek.com>
- <1357cb02adb88a8a2d7c2268b8573c0a9b6f8d0c.1506049341.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1357cb02adb88a8a2d7c2268b8573c0a9b6f8d0c.1506049341.git.sean.wang@mediatek.com>
+Received: from mga06.intel.com ([134.134.136.31]:31671 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753292AbdJGWUY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 7 Oct 2017 18:20:24 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v5 5/8] platform/x86: intel_punit_ipc: Fix resource ioremap warning
+Date: Sat,  7 Oct 2017 15:19:55 -0700
+Message-Id: <1e7336dd8ddc44f0e38433961c96e88afbeddad9.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Sep 22, 2017 at 11:33:14AM +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> Add device-tree binding for MediaTek SoC based RTC
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> ---
->  .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Acked-by: Rob Herring <robh@kernel.org>
+For PUNIT device, ISPDRIVER_IPC and GTDDRIVER_IPC resources are
+not mandatory. So when PMC IPC driver creates a PUNIT device, if
+these resources are not available then it creates dummy resource
+entries for these missing resources. But during PUNIT device probe
+, doing ioremap on these dummy resources generates following warning
+messages.
+
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+
+This patch fixes this issue by adding extra check for resource size
+before performing ioremap operation.
+
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+---
+ drivers/platform/x86/intel_punit_ipc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+Changes since v4:
+ * None
+
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index a47a41f..b5b8901 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -252,28 +252,28 @@ static int intel_punit_get_bars(struct platform_device *pdev)
+ 	 * - GTDRIVER_IPC BASE_IFACE
+ 	 */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_IFACE] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 5);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_IFACE] = addr;
+-- 
+2.7.4
