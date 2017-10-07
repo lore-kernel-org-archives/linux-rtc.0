@@ -1,129 +1,118 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:52689 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756094AbdJLWEZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:04:25 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 2/2] rtc: m48t86: use generic nvmem
-Date: Fri, 13 Oct 2017 00:04:21 +0200
-Message-Id: <20171012220421.7784-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20171012220421.7784-1-alexandre.belloni@free-electrons.com>
-References: <20171012220421.7784-1-alexandre.belloni@free-electrons.com>
+Received: from mga11.intel.com ([192.55.52.93]:14950 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752191AbdJGCeV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 6 Oct 2017 22:34:21 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v4 0/8] PMC/PUNIT IPC driver cleanup
+Date: Fri,  6 Oct 2017 19:33:54 -0700
+Message-Id: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Instead of adding a binary sysfs attribute from the driver (which suffers
-from a race condition as the attribute appears after the device), use the
-core to register an nvmem device.
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-m48t86.c | 48 +++++++++++++++++++++++-------------------------
- 1 file changed, 23 insertions(+), 25 deletions(-)
+Hi All,
 
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index 22656a90cfc5..d9aea9b6d9cd 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -163,35 +163,30 @@ static const struct rtc_class_ops m48t86_rtc_ops = {
- 	.proc		= m48t86_rtc_proc,
- };
- 
--static ssize_t m48t86_nvram_read(struct file *filp, struct kobject *kobj,
--				 struct bin_attribute *attr,
--				 char *buf, loff_t off, size_t count)
-+static int m48t86_nvram_read(void *priv, unsigned int off, void *buf,
-+			     size_t count)
- {
--	struct device *dev = kobj_to_dev(kobj);
-+	struct device *dev = priv;
- 	unsigned int i;
- 
- 	for (i = 0; i < count; i++)
--		buf[i] = m48t86_readb(dev, M48T86_NVRAM(off + i));
-+		((u8 *)buf)[i] = m48t86_readb(dev, M48T86_NVRAM(off + i));
- 
--	return count;
-+	return 0;
- }
- 
--static ssize_t m48t86_nvram_write(struct file *filp, struct kobject *kobj,
--				  struct bin_attribute *attr,
--				  char *buf, loff_t off, size_t count)
-+static int m48t86_nvram_write(void *priv, unsigned int off, void *buf,
-+			      size_t count)
- {
--	struct device *dev = kobj_to_dev(kobj);
-+	struct device *dev = priv;
- 	unsigned int i;
- 
- 	for (i = 0; i < count; i++)
--		m48t86_writeb(dev, buf[i], M48T86_NVRAM(off + i));
-+		m48t86_writeb(dev, ((u8 *)buf)[i], M48T86_NVRAM(off + i));
- 
--	return count;
-+	return 0;
- }
- 
--static BIN_ATTR(nvram, 0644, m48t86_nvram_read, m48t86_nvram_write,
--		M48T86_NVRAM_LEN);
--
- /*
-  * The RTC is an optional feature at purchase time on some Technologic Systems
-  * boards. Verify that it actually exists by checking if the last two bytes
-@@ -223,6 +218,15 @@ static bool m48t86_verify_chip(struct platform_device *pdev)
- 	return false;
- }
- 
-+static struct nvmem_config m48t86_nvmem_cfg = {
-+	.name = "m48t86_nvram",
-+	.word_size = 1,
-+	.stride = 1,
-+	.size = M48T86_NVRAM_LEN,
-+	.reg_read = m48t86_nvram_read,
-+	.reg_write = m48t86_nvram_write,
-+};
-+
- static int m48t86_rtc_probe(struct platform_device *pdev)
- {
- 	struct m48t86_rtc_info *info;
-@@ -261,6 +265,10 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
- 
- 	info->rtc->ops = &m48t86_rtc_ops;
- 
-+	m48t86_nvmem_cfg.priv = &pdev->dev;
-+	info->rtc->nvmem_config = &m48t86_nvmem_cfg;
-+	info->rtc->nvram_old_abi = true;
-+
- 	err = rtc_register_device(info->rtc);
- 	if (err)
- 		return err;
-@@ -270,15 +278,6 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
- 	dev_info(&pdev->dev, "battery %s\n",
- 		 (reg & M48T86_D_VRT) ? "ok" : "exhausted");
- 
--	if (device_create_bin_file(&pdev->dev, &bin_attr_nvram))
--		dev_err(&pdev->dev, "failed to create nvram sysfs entry\n");
--
--	return 0;
--}
--
--static int m48t86_rtc_remove(struct platform_device *pdev)
--{
--	device_remove_bin_file(&pdev->dev, &bin_attr_nvram);
- 	return 0;
- }
- 
-@@ -287,7 +286,6 @@ static struct platform_driver m48t86_rtc_platform_driver = {
- 		.name	= "rtc-m48t86",
- 	},
- 	.probe		= m48t86_rtc_probe,
--	.remove		= m48t86_rtc_remove,
- };
- 
- module_platform_driver(m48t86_rtc_platform_driver);
+Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
+This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
+device drivers use API provided by generic driver. This patchset mainly addresses this issue.
+
+Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
+intel_punit_ipc drivers. 
+
+1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
+3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
+
+More info on Intel IPC device library:
+-------------------------------------
+
+A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
+
+API for creating a new IPC channel device is,
+
+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
+
+The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
+
+For example, after using this new model, IPC call to PMC device will look like,
+
+pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
+ipc_dev_raw_cmd(pmc_ipc_dev, cmd, PMC_PARAM_LEN, (u32 *)ipc_in, 1, NULL, 0, 0, 0);
+intel_ipc_dev_put(pmc_ipc_dev);
+
+I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
+
+Changes since v3:
+ * Rebased on top of Andy's review branch.
+ * Fixed resource ioremap warning in intel_punit_ipc.c.
+ * Divided "platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates" patch
+   into two patches. One fixing the existing issue and another to add regmap support.
+ * Fixed error in resource initalization logic in ipc_create_punit_device.
+ * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+ * Added unique name to PUNIT BIOS, GTD, & ISP regmaps.
+ * Fixed NULL pointer exception in intel_ipc_dev_get().
+ * In intel_ipc_dev.c,
+    * Fixed error in check for duplicate intel_ipc_dev.
+    * Added custom interrupt handler support.
+    * Used char array for error string conversion.
+    * Added put dev support.
+
+Changes since v2:
+ * Refactored intel_scu_ipc.c to use generic IPC device APIs.
+ * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
+
+Changes since v1:
+ * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
+   single patch.
+ * Addressed Andy's comment about keeping the library generic by not implementing
+   the low level reg access calls in intel_ipc_dev.c. This version will start using
+   the regmap pointer provided by channel drivers instead of fixed memory map.
+ * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
+ * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
+
+Kuppuswamy Sathyanarayanan (8):
+  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
+    devices
+  platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
+  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+  platform: x86: Add generic Intel IPC driver
+  platform/x86: intel_punit_ipc: Fix resource ioremap warning
+  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
+  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
+  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
+
+ arch/x86/include/asm/intel_pmc_ipc.h            |  37 +-
+ arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
+ arch/x86/include/asm/intel_scu_ipc.h            |  23 +-
+ arch/x86/platform/intel-mid/intel-mid.c         |  15 +-
+ drivers/mfd/intel_soc_pmic_bxtwc.c              |  21 +-
+ drivers/platform/x86/Kconfig                    |  11 +
+ drivers/platform/x86/Makefile                   |   1 +
+ drivers/platform/x86/intel_ipc_dev.c            | 576 +++++++++++++++
+ drivers/platform/x86/intel_pmc_ipc.c            | 886 +++++++++---------------
+ drivers/platform/x86/intel_punit_ipc.c          | 311 +++------
+ drivers/platform/x86/intel_scu_ipc.c            | 483 ++++++-------
+ drivers/platform/x86/intel_telemetry_pltdrv.c   | 212 +++---
+ drivers/rtc/rtc-mrst.c                          |  16 +-
+ drivers/watchdog/intel-mid_wdt.c                |  12 +-
+ drivers/watchdog/intel_scu_watchdog.c           |  18 +-
+ include/linux/mfd/intel_soc_pmic.h              |   2 +
+ include/linux/platform_data/x86/intel_ipc_dev.h | 206 ++++++
+ 17 files changed, 1683 insertions(+), 1272 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+ create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+
 -- 
-2.14.2
+2.7.4
