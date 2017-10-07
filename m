@@ -1,455 +1,124 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:55806 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751935AbdJXJhn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Oct 2017 05:37:43 -0400
-Message-ID: <1508837852.4057.6.camel@mhfsdcap03>
-Subject: Re: [PATCH v5 5/6] input: Add MediaTek PMIC keys support
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Eddie Huang" <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Andi Shyti <andi.shyti@samsung.com>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Date: Tue, 24 Oct 2017 17:37:32 +0800
-In-Reply-To: <20171024054409.6qbuzenzymkkjdth@dtor-ws>
-References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
-         <1506509048-19032-6-git-send-email-chen.zhong@mediatek.com>
-         <20171024054409.6qbuzenzymkkjdth@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+Received: from mga06.intel.com ([134.134.136.31]:9740 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752685AbdJGWUV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 7 Oct 2017 18:20:21 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v5 0/8] PMC/PUNIT IPC driver cleanup
+Date: Sat,  7 Oct 2017 15:19:50 -0700
+Message-Id: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 2017-10-23 at 22:44 -0700, Dmitry Torokhov wrote:
-> On Wed, Sep 27, 2017 at 06:44:07PM +0800, Chen Zhong wrote:
-> > This patch add support to handle MediaTek PMIC MT6397/MT6323 key
-> > interrupts including pwrkey and homekey, also add setting for
-> > long press key shutdown behavior.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > ---
-> >  drivers/input/keyboard/Kconfig         |    9 +
-> >  drivers/input/keyboard/Makefile        |    1 +
-> >  drivers/input/keyboard/mtk-pmic-keys.c |  341 ++++++++++++++++++++++++++++++++
-> >  3 files changed, 351 insertions(+)
-> >  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-> > 
-> > diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> > index 4c4ab1c..bd4e20a 100644
-> > --- a/drivers/input/keyboard/Kconfig
-> > +++ b/drivers/input/keyboard/Kconfig
-> > @@ -756,4 +756,13 @@ config KEYBOARD_BCM
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called bcm-keypad.
-> >  
-> > +config KEYBOARD_MTK_PMIC
-> > +	tristate "MediaTek PMIC keys support"
-> > +	depends on MFD_MT6397
-> > +	help
-> > +	  Say Y here if you want to use the pmic keys (powerkey/homekey).
-> > +
-> > +	  To compile this driver as a module, choose M here: the
-> > +	  module will be called pmic-keys.
-> > +
-> >  endif
-> > diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> > index d2338ba..20c0b98 100644
-> > --- a/drivers/input/keyboard/Makefile
-> > +++ b/drivers/input/keyboard/Makefile
-> > @@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-> >  obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
-> >  obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
-> >  obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
-> > +obj-$(CONFIG_KEYBOARD_MTK_PMIC) 	+= mtk-pmic-keys.o
-> >  obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
-> >  obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
-> >  obj-$(CONFIG_KEYBOARD_NSPIRE)		+= nspire-keypad.o
-> > diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-> > new file mode 100644
-> > index 0000000..529fd95
-> > --- /dev/null
-> > +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> > @@ -0,0 +1,341 @@
-> > +/*
-> > + * Copyright (C) 2017 MediaTek, Inc.
-> > + *
-> > + * Author: Chen Zhong <chen.zhong@mediatek.com>
-> > + *
-> > + * This software is licensed under the terms of the GNU General Public
-> > + * License version 2, as published by the Free Software Foundation, and
-> > + * may be copied, distributed, and modified under those terms.
-> > + *
-> > + * This program is distributed in the hope that it will be useful,
-> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > + * GNU General Public License for more details.
-> > + *
-> > + */
-> > +
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/input.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/of.h>
-> > +#include <linux/of_device.h>
-> > +#include <linux/regmap.h>
-> > +#include <linux/mfd/mt6323/registers.h>
-> > +#include <linux/mfd/mt6397/registers.h>
-> > +#include <linux/mfd/mt6397/core.h>
-> > +
-> > +#define MTK_PMIC_PWRKEY_RST_EN_MASK	0x1
-> > +#define MTK_PMIC_PWRKEY_RST_EN_SHIFT	6
-> > +#define MTK_PMIC_HOMEKEY_RST_EN_MASK	0x1
-> > +#define MTK_PMIC_HOMEKEY_RST_EN_SHIFT	5
-> > +#define MTK_PMIC_RST_DU_MASK		0x3
-> > +#define MTK_PMIC_RST_DU_SHIFT		8
-> > +
-> > +#define MTK_PMIC_PWRKEY_RST		\
-> > +	(MTK_PMIC_PWRKEY_RST_EN_MASK << MTK_PMIC_PWRKEY_RST_EN_SHIFT)
-> > +#define MTK_PMIC_HOMEKEY_RST		\
-> > +	(MTK_PMIC_HOMEKEY_RST_EN_MASK << MTK_PMIC_HOMEKEY_RST_EN_SHIFT)
-> > +
-> > +#define MTK_PMIC_PWRKEY_INDEX	0
-> > +#define MTK_PMIC_HOMEKEY_INDEX	1
-> > +#define MTK_PMIC_MAX_KEY_COUNT	2
-> > +
-> > +struct mtk_pmic_keys_regs {
-> > +	u32 deb_reg;
-> > +	u32 deb_mask;
-> > +	u32 intsel_reg;
-> > +	u32 intsel_mask;
-> > +};
-> > +
-> > +#define MTK_PMIC_KEYS_REGS(_deb_reg, _deb_mask,		\
-> > +	_intsel_reg, _intsel_mask)			\
-> > +{							\
-> > +	.deb_reg		= _deb_reg,		\
-> > +	.deb_mask		= _deb_mask,		\
-> > +	.intsel_reg		= _intsel_reg,		\
-> > +	.intsel_mask		= _intsel_mask,		\
-> > +}
-> > +
-> > +struct mtk_pmic_regs {
-> > +	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
-> > +	u32 pmic_rst_reg;
-> > +};
-> > +
-> > +static const struct mtk_pmic_regs mt6397_regs = {
-> > +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-> > +		MTK_PMIC_KEYS_REGS(MT6397_CHRSTATUS,
-> > +		0x8, MT6397_INT_RSV, 0x10),
-> > +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-> > +		MTK_PMIC_KEYS_REGS(MT6397_OCSTATUS2,
-> > +		0x10, MT6397_INT_RSV, 0x8),
-> > +	.pmic_rst_reg = MT6397_TOP_RST_MISC,
-> > +};
-> > +
-> > +static const struct mtk_pmic_regs mt6323_regs = {
-> > +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-> > +		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> > +		0x2, MT6323_INT_MISC_CON, 0x10),
-> > +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-> > +		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> > +		0x4, MT6323_INT_MISC_CON, 0x8),
-> > +	.pmic_rst_reg = MT6323_TOP_RST_MISC,
-> > +};
-> > +
-> > +struct mtk_pmic_keys_info {
-> > +	struct mtk_pmic_keys *keys;
-> > +	const struct mtk_pmic_keys_regs *regs;
-> > +	unsigned int keycode;
-> > +	int irq;
-> > +	bool wakeup:1;
-> > +};
-> > +
-> > +struct mtk_pmic_keys {
-> > +	struct input_dev *input_dev;
-> > +	struct device *dev;
-> > +	struct regmap *regmap;
-> > +	struct mtk_pmic_keys_info keys[MTK_PMIC_MAX_KEY_COUNT];
-> > +};
-> > +
-> > +enum mtk_pmic_keys_lp_mode {
-> > +	LP_DISABLE,
-> > +	LP_ONEKEY,
-> > +	LP_TWOKEY,
-> > +};
-> > +
-> > +static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
-> > +		u32 pmic_rst_reg)
-> > +{
-> > +	int ret;
-> > +	u32 long_press_mode, long_press_debounce;
-> > +
-> > +	ret = of_property_read_u32(keys->dev->of_node,
-> > +		"power-off-time-sec", &long_press_debounce);
-> > +	if (ret)
-> > +		long_press_debounce = 0;
-> > +
-> > +	regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +			   MTK_PMIC_RST_DU_MASK << MTK_PMIC_RST_DU_SHIFT,
-> > +			   long_press_debounce << MTK_PMIC_RST_DU_SHIFT);
-> > +
-> > +	ret = of_property_read_u32(keys->dev->of_node,
-> > +		"mediatek,long-press-mode", &long_press_mode);
-> > +	if (ret)
-> > +		long_press_mode = LP_DISABLE;
-> > +
-> > +	switch (long_press_mode) {
-> > +	case LP_ONEKEY:
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_PWRKEY_RST,
-> > +				   MTK_PMIC_PWRKEY_RST);
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_HOMEKEY_RST,
-> > +				   0);
-> > +		break;
-> > +	case LP_TWOKEY:
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_PWRKEY_RST,
-> > +				   MTK_PMIC_PWRKEY_RST);
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_HOMEKEY_RST,
-> > +				   MTK_PMIC_HOMEKEY_RST);
-> > +		break;
-> > +	case LP_DISABLE:
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_PWRKEY_RST,
-> > +				   0);
-> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
-> > +				   MTK_PMIC_HOMEKEY_RST,
-> > +				   0);
-> > +		break;
-> > +	default:
-> > +		break;
-> > +	}
-> > +}
-> > +
-> > +static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
-> > +{
-> > +	struct mtk_pmic_keys_info *info = data;
-> > +	u32 key_deb, pressed;
-> > +
-> > +	regmap_read(info->keys->regmap, info->regs->deb_reg, &key_deb);
-> > +
-> > +	key_deb &= info->regs->deb_mask;
-> > +
-> > +	pressed = !key_deb;
-> > +
-> > +	input_report_key(info->keys->input_dev, info->keycode, pressed);
-> > +	input_sync(info->keys->input_dev);
-> > +
-> > +	dev_dbg(info->keys->dev, "(%s) key =%d using PMIC\n",
-> > +		 pressed ? "pressed" : "released", info->keycode);
-> > +
-> > +	return IRQ_HANDLED;
-> > +}
-> > +
-> > +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
-> > +		struct mtk_pmic_keys_info *info)
-> > +{
-> > +	int ret;
-> > +
-> > +	info->keys = keys;
-> > +
-> > +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
-> > +				 info->regs->intsel_mask,
-> > +				 info->regs->intsel_mask);
-> > +	if (ret < 0)
-> > +		return ret;
-> > +
-> > +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
-> > +					mtk_pmic_keys_irq_handler_thread,
-> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> > +					"mtk-pmic-keys", info);
-> > +	if (ret) {
-> > +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
-> > +			info->irq, ret);
-> > +		return ret;
-> > +	}
-> > +
-> > +	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int mtk_pmic_keys_suspend(struct device *dev)
-> 
-> Please use __maybe_unused annotation instead of #ifdef guard.
-> 
-> > +{
-> > +	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
-> > +	int index;
-> > +
-> > +	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> > +		if (keys->keys[index].wakeup)
-> > +			enable_irq_wake(keys->keys[index].irq);
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int mtk_pmic_keys_resume(struct device *dev)
-> 
-> __maybe_unused here as well.
-> 
-> > +{
-> > +	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
-> > +	int index;
-> > +
-> > +	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
-> > +		if (keys->keys[index].wakeup)
-> > +			disable_irq_wake(keys->keys[index].irq);
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +#endif
-> > +
-> > +static SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
-> > +			mtk_pmic_keys_resume);
-> > +
-> > +static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
-> > +	{
-> > +		.compatible = "mediatek,mt6397-keys",
-> > +		.data = &mt6397_regs,
-> > +	}, {
-> > +		.compatible = "mediatek,mt6323-keys",
-> > +		.data = &mt6323_regs,
-> > +	}, {
-> > +		/* sentinel */
-> > +	}
-> > +};
-> > +MODULE_DEVICE_TABLE(of, of_mtk_pmic_keys_match_tbl);
-> > +
-> > +static int mtk_pmic_keys_probe(struct platform_device *pdev)
-> > +{
-> > +	int error, index = 0;
-> > +	unsigned int keycount;
-> > +	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
-> > +	struct device_node *node = pdev->dev.of_node, *child;
-> > +	struct mtk_pmic_keys *keys;
-> > +	const struct mtk_pmic_regs *mtk_pmic_regs;
-> > +	struct input_dev *input_dev;
-> > +	const struct of_device_id *of_id =
-> > +		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
-> > +
-> > +	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
-> > +	if (!keys)
-> > +		return -ENOMEM;
-> > +
-> > +	keys->dev = &pdev->dev;
-> > +	keys->regmap = pmic_chip->regmap;
-> > +	mtk_pmic_regs = of_id->data;
-> > +
-> > +	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
-> > +	if (!input_dev) {
-> > +		dev_err(keys->dev, "input allocate device fail.\n");
-> > +		return -ENOMEM;
-> > +	}
-> > +
-> > +	input_dev->name = "mtk-pmic-keys";
-> > +	input_dev->id.bustype = BUS_HOST;
-> > +	input_dev->id.vendor = 0x0001;
-> > +	input_dev->id.product = 0x0001;
-> > +	input_dev->id.version = 0x0001;
-> > +
-> > +	keycount = device_get_child_node_count(keys->dev);
-> 
-> Since you are using of_* API everywhere else I'd rather we used
-> of_get_available_child_count() here.
-> 
-> 
-> Once these 2 issues are fixed please feel free to add 
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> I assume it will all go though MFD tree, right?
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-I will fix these 2 issues and send the new version.
+Hi All,
 
-Since patch 2,3,4,5 of this series are all for input driver, could you
-help to merge them with the new version later?
+Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
+This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
+device drivers use API provided by generic driver. This patchset mainly addresses this issue.
 
-Thank you.
+Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
+intel_punit_ipc drivers. 
 
-> 
-> > +	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
-> > +		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	for_each_child_of_node(node, child) {
-> > +		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
-> > +
-> > +		keys->keys[index].irq = platform_get_irq(pdev, index);
-> > +		if (keys->keys[index].irq < 0)
-> > +			return keys->keys[index].irq;
-> > +
-> > +		error = of_property_read_u32(child,
-> > +			"linux,keycodes", &keys->keys[index].keycode);
-> > +		if (error) {
-> > +			dev_err(keys->dev,
-> > +				"failed to read key:%d linux,keycode property: %d\n",
-> > +				index, error);
-> > +			return error;
-> > +		}
-> > +
-> > +		if (of_property_read_bool(child, "wakeup-source"))
-> > +			keys->keys[index].wakeup = true;
-> > +
-> > +		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
-> > +		if (error)
-> > +			return error;
-> > +
-> > +		index++;
-> > +	}
-> > +
-> > +	error = input_register_device(input_dev);
-> > +	if (error) {
-> > +		dev_err(&pdev->dev,
-> > +			"register input device failed (%d)\n", error);
-> > +		return error;
-> > +	}
-> > +
-> > +	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs->pmic_rst_reg);
-> > +
-> > +	platform_set_drvdata(pdev, keys);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static struct platform_driver pmic_keys_pdrv = {
-> > +	.probe = mtk_pmic_keys_probe,
-> > +	.driver = {
-> > +		   .name = "mtk-pmic-keys",
-> > +		   .of_match_table = of_mtk_pmic_keys_match_tbl,
-> > +		   .pm = &mtk_pmic_keys_pm_ops,
-> > +	},
-> > +};
-> > +
-> > +module_platform_driver(pmic_keys_pdrv);
-> > +
-> > +MODULE_LICENSE("GPL v2");
-> > +MODULE_AUTHOR("Chen Zhong <chen.zhong@mediatek.com>");
-> > +MODULE_DESCRIPTION("MTK pmic-keys driver v0.1");
-> > -- 
-> > 1.7.9.5
-> > 
-> 
-> Thanks.
-> 
+1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
+3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
+
+More info on Intel IPC device library:
+-------------------------------------
+
+A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
+
+API for creating a new IPC channel device is,
+
+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
+
+The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
+
+For example, after using this new model, IPC call to PMC device will look like,
+
+pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
+ipc_dev_raw_cmd(pmc_ipc_dev, cmd, PMC_PARAM_LEN, (u32 *)ipc_in, 1, NULL, 0, 0, 0);
+intel_ipc_dev_put(pmc_ipc_dev);
+
+I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
+
+Changes since v4:
+ * Pushed "platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR update" patch
+   to the top of the patch list. Also its rebased on top of Andy's review branch.
+
+Changes since v3:
+ * Rebased on top of Andy's review branch.
+ * Fixed resource ioremap warning in intel_punit_ipc.c.
+ * Divided "platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates" patch
+   into two patches. One fixing the existing issue and another to add regmap support.
+ * Fixed error in resource initalization logic in ipc_create_punit_device.
+ * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+ * Added unique name to PUNIT BIOS, GTD, & ISP regmaps.
+ * Fixed NULL pointer exception in intel_ipc_dev_get().
+ * In intel_ipc_dev.c,
+    * Fixed error in check for duplicate intel_ipc_dev.
+    * Added custom interrupt handler support.
+    * Used char array for error string conversion.
+    * Added put dev support.
+
+Changes since v2:
+ * Refactored intel_scu_ipc.c to use generic IPC device APIs.
+ * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
+
+Changes since v1:
+ * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
+   single patch.
+ * Addressed Andy's comment about keeping the library generic by not implementing
+   the low level reg access calls in intel_ipc_dev.c. This version will start using
+   the regmap pointer provided by channel drivers instead of fixed memory map.
+ * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
+ * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
+
+
+
+Kuppuswamy Sathyanarayanan (8):
+  platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
+  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
+    devices
+  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+  platform: x86: Add generic Intel IPC driver
+  platform/x86: intel_punit_ipc: Fix resource ioremap warning
+  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
+  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
+  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
+
+ arch/x86/include/asm/intel_pmc_ipc.h            |  37 +-
+ arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
+ arch/x86/include/asm/intel_scu_ipc.h            |  23 +-
+ arch/x86/platform/intel-mid/intel-mid.c         |  15 +-
+ drivers/mfd/intel_soc_pmic_bxtwc.c              |  21 +-
+ drivers/platform/x86/Kconfig                    |  11 +
+ drivers/platform/x86/Makefile                   |   1 +
+ drivers/platform/x86/intel_ipc_dev.c            | 576 +++++++++++++++
+ drivers/platform/x86/intel_pmc_ipc.c            | 886 +++++++++---------------
+ drivers/platform/x86/intel_punit_ipc.c          | 311 +++------
+ drivers/platform/x86/intel_scu_ipc.c            | 483 ++++++-------
+ drivers/platform/x86/intel_telemetry_pltdrv.c   | 212 +++---
+ drivers/rtc/rtc-mrst.c                          |  16 +-
+ drivers/watchdog/intel-mid_wdt.c                |  12 +-
+ drivers/watchdog/intel_scu_watchdog.c           |  18 +-
+ include/linux/mfd/intel_soc_pmic.h              |   2 +
+ include/linux/platform_data/x86/intel_ipc_dev.h | 206 ++++++
+ 17 files changed, 1683 insertions(+), 1272 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+ create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+
+-- 
+2.7.4
