@@ -1,143 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:55874 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750946AbdJSAXm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 18 Oct 2017 20:23:42 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:37583 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752185AbdJHSyP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 8 Oct 2017 14:54:15 -0400
+Subject: Re: [RFC v5 1/8] platform/x86: intel_pmc_ipc: Use spin_lock to
+ protect GCR updates
+To: Andy Shevchenko <andy.shevchenko@gmail.com>,
         Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Ingo Molnar <mingo@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
         Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kupuswamy@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [RFC v6 1/9] platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
-Date: Wed, 18 Oct 2017 17:23:04 -0700
-Message-Id: <0c13dfd2626df7b91b64dcc393e1d31e1a2c933f.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+        <sathyanarayanan.kupuswamy@linux.intel.com>
+References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <e70046c8d49173840f8ee7218e8b2288301f8e67.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAHp75VdaTvaOgNJE1vHHDfT2V8MYyQFnpr0qdUmBVJ2743eQKA@mail.gmail.com>
+From: "Kuppuswamy, Sathyanarayanan" <sathyaosid@gmail.com>
+Message-ID: <3e38abb3-efce-49b9-ce2d-854c42bdfb12@gmail.com>
+Date: Sun, 8 Oct 2017 11:54:13 -0700
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VdaTvaOgNJE1vHHDfT2V8MYyQFnpr0qdUmBVJ2743eQKA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Hi Andy,
 
-Currently, update_no_reboot_bit() function implemented in this driver
-uses mutex_lock() to protect its register updates. But this function is
-called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
-functions in iTCO_wdt.c driver, which in turn causes "sleeping into
-atomic context" issue. This patch fixes this issue by replacing the
-mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
 
-Fixes: 9d855d468dc6 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure")
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kupuswamy@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/platform/x86/intel_pmc_ipc.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index bb792a5..af88221 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -33,6 +33,7 @@
- #include <linux/suspend.h>
- #include <linux/acpi.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
-+#include <linux/spinlock.h>
- 
- #include <asm/intel_pmc_ipc.h>
- 
-@@ -131,6 +132,7 @@ static struct intel_pmc_ipc_dev {
- 	/* gcr */
- 	void __iomem *gcr_mem_base;
- 	bool has_gcr_regs;
-+	spinlock_t gcr_lock;
- 
- 	/* punit */
- 	struct platform_device *punit_dev;
-@@ -225,17 +227,17 @@ int intel_pmc_gcr_read(u32 offset, u32 *data)
- {
- 	int ret;
- 
--	mutex_lock(&ipclock);
-+	spin_lock(&ipcdev.gcr_lock);
- 
- 	ret = is_gcr_valid(offset);
- 	if (ret < 0) {
--		mutex_unlock(&ipclock);
-+		spin_unlock(&ipcdev.gcr_lock);
- 		return ret;
- 	}
- 
- 	*data = readl(ipcdev.gcr_mem_base + offset);
- 
--	mutex_unlock(&ipclock);
-+	spin_unlock(&ipcdev.gcr_lock);
- 
- 	return 0;
- }
-@@ -255,17 +257,17 @@ int intel_pmc_gcr_write(u32 offset, u32 data)
- {
- 	int ret;
- 
--	mutex_lock(&ipclock);
-+	spin_lock(&ipcdev.gcr_lock);
- 
- 	ret = is_gcr_valid(offset);
- 	if (ret < 0) {
--		mutex_unlock(&ipclock);
-+		spin_unlock(&ipcdev.gcr_lock);
- 		return ret;
- 	}
- 
- 	writel(data, ipcdev.gcr_mem_base + offset);
- 
--	mutex_unlock(&ipclock);
-+	spin_unlock(&ipcdev.gcr_lock);
- 
- 	return 0;
- }
-@@ -287,7 +289,7 @@ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
- 	u32 new_val;
- 	int ret = 0;
- 
--	mutex_lock(&ipclock);
-+	spin_lock(&ipcdev.gcr_lock);
- 
- 	ret = is_gcr_valid(offset);
- 	if (ret < 0)
-@@ -309,7 +311,7 @@ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
- 	}
- 
- gcr_ipc_unlock:
--	mutex_unlock(&ipclock);
-+	spin_unlock(&ipcdev.gcr_lock);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
-@@ -487,6 +489,8 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	ipcdev.dev = &pci_dev_get(pdev)->dev;
- 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
- 
-+	spin_lock_init(&ipcdev.gcr_lock);
-+
- 	ret = pci_enable_device(pdev);
- 	if (ret)
- 		return ret;
-@@ -924,6 +928,8 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
- 	init_completion(&ipcdev.cmd_complete);
- 
-+	spin_lock_init(&ipcdev.gcr_lock);
-+
- 	ipcdev.irq = platform_get_irq(pdev, 0);
- 	if (ipcdev.irq < 0) {
- 		dev_err(&pdev->dev, "Failed to get irq\n");
--- 
-2.7.4
+On 10/8/2017 11:38 AM, Andy Shevchenko wrote:
+> On Sun, Oct 8, 2017 at 1:19 AM,
+> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+>> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+>>
+>> Currently, update_no_reboot_bit() function implemented in this driver
+>> uses mutex_lock() to protect its register updates. But this function is
+>> called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
+>> functions in iTCO_wdt.c driver, which in turn causes "sleeping into
+>> atomic context" issue. This patch fixes this issue by replacing the
+>> mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
+>>
+>> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure")
+>> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kupuswamy@linux.intel.com>
+>>   * Rebased this patch on top of Andy's review branch.
+> Oh, what I asked you is to use vanilla kernel as a base.
+> Please, be sure (you assured me, though it's not true)
+I did test this patch on top of 4.14-rc3, but I have included another 
+patch (""platform/x86: intel_pmc_ipc: Use devm_* calls in driver probe 
+function") from your review branch before testing.
+I assumed that your will be pushing this patch along with devm_* fixes 
+patch (since you already reviewed it), So I re-based them together on 
+top of 4.14-rc3.  Sorry, it looks like my assumption is incorrect.
+>   that it's
+> applied against vanilla (or our fixes branch) and send just this one
+> patch separately.
+I will send it separately now.
+>
+> No need to resend v5 right now.
+>
