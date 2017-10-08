@@ -1,109 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42808 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752419AbdJSJCV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Oct 2017 05:02:21 -0400
-Date: Thu, 19 Oct 2017 11:02:19 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sean Wang <sean.wang@mediatek.com>
-Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, a.zummo@towertech.it,
-        robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] rtc: mediatek: add driver for RTC on MT7622 SoC
-Message-ID: <20171019090219.2odtq3xosqk5ytsb@piout.net>
-References: <cover.1508231935.git.sean.wang@mediatek.com>
- <2f86eebfd380cf932808df3404e2f4a6f2f0f874.1508231935.git.sean.wang@mediatek.com>
- <1508325126.13340.25.camel@mtksdaap41>
- <20171018125743.kqna6b4lgng674om@piout.net>
- <1508381749.21840.123.camel@mtkswgap22>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:38797 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753172AbdJHSie (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 8 Oct 2017 14:38:34 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1508381749.21840.123.camel@mtkswgap22>
+In-Reply-To: <e70046c8d49173840f8ee7218e8b2288301f8e67.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com> <e70046c8d49173840f8ee7218e8b2288301f8e67.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Sun, 8 Oct 2017 21:38:33 +0300
+Message-ID: <CAHp75VdaTvaOgNJE1vHHDfT2V8MYyQFnpr0qdUmBVJ2743eQKA@mail.gmail.com>
+Subject: Re: [RFC v5 1/8] platform/x86: intel_pmc_ipc: Use spin_lock to
+ protect GCR updates
+To: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Ingo Molnar <mingo@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kupuswamy@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 19/10/2017 at 10:55:49 +0800, Sean Wang wrote:
-> Hi, both
-> 
-> On Wed, 2017-10-18 at 14:57 +0200, Alexandre Belloni wrote:
-> > On 18/10/2017 at 19:12:06 +0800, Yingjoe Chen wrote:
-> > > On Tue, 2017-10-17 at 17:40 +0800, sean.wang@mediatek.com wrote:
-> > > > From: Sean Wang <sean.wang@mediatek.com>
-> > > > 
-> > > > This patch introduces the driver for the RTC on MT7622 SoC.
-> > > > 
-> > > > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > > > ---
-> > > >  drivers/rtc/Kconfig      |  10 ++
-> > > >  drivers/rtc/Makefile     |   1 +
-> > > >  drivers/rtc/rtc-mt7622.c | 418 +++++++++++++++++++++++++++++++++++++++++++++++
-> > > >  3 files changed, 429 insertions(+)
-> > > >  create mode 100644 drivers/rtc/rtc-mt7622.c
-> > > > 
-> > > > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > > > index e0e58f3..4226295 100644
-> > > > --- a/drivers/rtc/Kconfig
-> > > > +++ b/drivers/rtc/Kconfig
-> > > > @@ -1705,6 +1705,16 @@ config RTC_DRV_MOXART
-> > > >  	   This driver can also be built as a module. If so, the module
-> > > >  	   will be called rtc-moxart
-> > > >  
-> > > > +config RTC_DRV_MEDIATEK
-> > > 
-> > > How about changing this to RTC_DRV_MT7622 or RTC_DRV_MEDIATEK_SOC?
-> > > It is confusing to have both RTC_DRV_MEDIATEK & RTC_DRV_MT6397 here.
-> > > 
-> > 
-> > Yes, this has to be RTC_DRV_MT7622. It doesn't matter if it support
-> > future SoCs named differently, it will be less confusing than using
-> > anything with only mediatek in it.
-> > 
-> 
-> Agreed on. RTC_DRV_MT7622 will be applied instead to align the usage on
-> MT6397 and to get rid of such kind of confusion.
-> 
-> 
-> > > > +		return -EINVAL;
-> > > > +
-> > > > +	/* Keep yr_base used to calculate the calculate year when userspace
-> > > > +	 * queries and extend the maximum year the RTC can count.
-> > > > +	 */
-> > > > +	hw->yr_base[MTK_TC] = tm->tm_year - MTK_RTC_TM_YR_L -
-> > > > +			      (tm->tm_year % MTK_RTC_HW_YR_LIMIT);
-> > > 
-> > > 
-> > > I'm not sure this worth it.
-> > > If maximum year it can hold is 99, I'd bet it won't support leap year
-> > > correctly after 2100. This make the RTC useless after that. 
-> > > 
-> > > Also, yr_base is lost after power cycle, so you can't get correct year
-> > > back anyway.
-> > > 
-> > 
-> > I agree, the best you can do here is to only support 2000 to 2099.
-> > 
-> 
-> O.K. I will remove those yr_base extension and only consider only
-> support from 2000 to 2099 because of no much gain we can get from
-> yr_base.
-> 
-> The only gain is yr_base I thought just allows people have the
-> opportunity to set up rtc after 2100. However, it appears to not much
-> practical to foresee these things after 2100 and rtc must be setup again
-> when either year overflowing or power cycle happens after 2100 as Joe.C
-> mentioned.
-> 
-> In addition, I also found the rtc hardware would take year == 0 as not
-> leap year that works for 2100, 2200, 2300, but not for 2000, 2400,
-> 2800,... and thus 2000 is also needed to be excluded in both set_time
-> and set_alarm if only 2000 to 2099 is supported.
-> 
+On Sun, Oct 8, 2017 at 1:19 AM,
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+>
+> Currently, update_no_reboot_bit() function implemented in this driver
+> uses mutex_lock() to protect its register updates. But this function is
+> called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
+> functions in iTCO_wdt.c driver, which in turn causes "sleeping into
+> atomic context" issue. This patch fixes this issue by replacing the
+> mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
+>
+> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure")
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kupuswamy@linux.intel.com>
 
-So you can make it work from 2001 to 2100 but I'm not sure it is worth
-it.
+>  * Rebased this patch on top of Andy's review branch.
+
+Oh, what I asked you is to use vanilla kernel as a base.
+Please, be sure (you assured me, though it's not true) that it's
+applied against vanilla (or our fixes branch) and send just this one
+patch separately.
+
+No need to resend v5 right now.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+With Best Regards,
+Andy Shevchenko
