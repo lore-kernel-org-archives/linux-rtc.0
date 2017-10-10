@@ -1,258 +1,933 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:45628 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751020AbdJAOeo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 1 Oct 2017 10:34:44 -0400
-MIME-Version: 1.0
-In-Reply-To: <eada94e0dfe0302b22c16c22ba2ea806e096144a.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com> <eada94e0dfe0302b22c16c22ba2ea806e096144a.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sun, 1 Oct 2017 17:34:41 +0300
-Message-ID: <CAHp75VdXP+R=HrbicYSWTyLMZQWf54tmgviVW7J_+hhJBPkF1A@mail.gmail.com>
-Subject: Re: [RFC v3 1/7] platform/x86: intel_pmc_ipc: Use devm_* calls in
- driver probe function
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
+Received: from mga02.intel.com ([134.134.136.20]:34103 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751415AbdJJWJt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 10 Oct 2017 18:09:49 -0400
+Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
+Subject: Re: [RFC v5 4/8] platform: x86: Add generic Intel IPC driver
+To: "Chakravarty, Souvik K" <souvik.k.chakravarty@intel.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "x86@kernel.org" <x86@kernel.org>, "wim@iguana.be" <wim@iguana.be>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>,
+        "Zha, Qipeng" <qipeng.zha@intel.com>,
+        "hpa@zytor.com" <hpa@zytor.com>,
         "dvhart@infradead.org" <dvhart@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "andy@infradead.org" <andy@infradead.org>
+Cc: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        "platform-driver-x86@vger.kernel.org"
+        <platform-driver-x86@vger.kernel.org>,
+        "sathyaosid@gmail.com" <sathyaosid@gmail.com>
+References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <983bc2330acc5eb3f384e9aed7ceba22b5c7ea5f.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <5F7315E704FA0841B5DFCE90329B2BB4661E20EC@BGSMSX102.gar.corp.intel.com>
+From: sathyanarayanan kuppuswamy
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Message-ID: <d6d98062-9abe-9bd3-8ab7-52b9d1ec8336@linux.intel.com>
+Date: Tue, 10 Oct 2017 15:09:28 -0700
+MIME-Version: 1.0
+In-Reply-To: <5F7315E704FA0841B5DFCE90329B2BB4661E20EC@BGSMSX102.gar.corp.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Sep 5, 2017 at 8:37 AM,
-<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->
-> This patch cleans up unnecessary free/alloc calls in ipc_plat_probe(),
-> ipc_pci_probe() and ipc_plat_get_res() functions by using devm_*
-> calls.
->
-> This patch also adds proper error handling for failure cases in
-> ipc_pci_probe() function.
->
-
-Pushed (this patch only) to my review queue with slight style changes, thanks.
-
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> ---
->  drivers/platform/x86/intel_pmc_ipc.c | 104 ++++++++++++-----------------------
->  1 file changed, 34 insertions(+), 70 deletions(-)
->
-> Changes since v2:
->  * Used pcim_* device managed functions.
->
-> Changes since v1:
->  * Merged devm_* related changes into a single function.
->  * Instead of removing free_irq, use devm_free_irq function.
->
-> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-> index bb792a5..5eef649 100644
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
-> @@ -480,52 +480,39 @@ static irqreturn_t ioc(int irq, void *dev_id)
->
->  static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
->  {
-> -       resource_size_t pci_resource;
->         int ret;
-> -       int len;
-> +       struct intel_pmc_ipc_dev *pmc = &ipcdev;
->
-> -       ipcdev.dev = &pci_dev_get(pdev)->dev;
-> -       ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
-> +       /* Only one PMC is supported */
-> +       if (pmc->dev)
-> +               return -EBUSY;
->
-> -       ret = pci_enable_device(pdev);
-> +       pmc->irq_mode = IPC_TRIGGER_MODE_IRQ;
-> +
-> +       ret = pcim_enable_device(pdev);
->         if (ret)
->                 return ret;
->
-> -       ret = pci_request_regions(pdev, "intel_pmc_ipc");
-> +       ret = pcim_iomap_regions(pdev, 1 << 0, pci_name(pdev));
->         if (ret)
->                 return ret;
->
-> -       pci_resource = pci_resource_start(pdev, 0);
-> -       len = pci_resource_len(pdev, 0);
-> -       if (!pci_resource || !len) {
-> -               dev_err(&pdev->dev, "Failed to get resource\n");
-> -               return -ENOMEM;
-> -       }
-> +       init_completion(&pmc->cmd_complete);
->
-> -       init_completion(&ipcdev.cmd_complete);
-> +       pmc->ipc_base =  pcim_iomap_table(pdev)[0];
->
-> -       if (request_irq(pdev->irq, ioc, 0, "intel_pmc_ipc", &ipcdev)) {
-> +       ret = devm_request_irq(&pdev->dev, pdev->irq, ioc, 0, "intel_pmc_ipc",
-> +                               pmc);
-> +       if (ret) {
->                 dev_err(&pdev->dev, "Failed to request irq\n");
-> -               return -EBUSY;
-> +               return ret;
->         }
->
-> -       ipcdev.ipc_base = ioremap_nocache(pci_resource, len);
-> -       if (!ipcdev.ipc_base) {
-> -               dev_err(&pdev->dev, "Failed to ioremap ipc base\n");
-> -               free_irq(pdev->irq, &ipcdev);
-> -               ret = -ENOMEM;
-> -       }
-> +       pmc->dev = &pdev->dev;
->
-> -       return ret;
-> -}
-> +       pci_set_drvdata(pdev, pmc);
->
-> -static void ipc_pci_remove(struct pci_dev *pdev)
-> -{
-> -       free_irq(pdev->irq, &ipcdev);
-> -       pci_release_regions(pdev);
-> -       pci_dev_put(pdev);
-> -       iounmap(ipcdev.ipc_base);
-> -       ipcdev.dev = NULL;
-> +       return 0;
->  }
->
->  static const struct pci_device_id ipc_pci_ids[] = {
-> @@ -540,7 +527,6 @@ static struct pci_driver ipc_pci_driver = {
->         .name = "intel_pmc_ipc",
->         .id_table = ipc_pci_ids,
->         .probe = ipc_pci_probe,
-> -       .remove = ipc_pci_remove,
->  };
->
->  static ssize_t intel_pmc_ipc_simple_cmd_store(struct device *dev,
-> @@ -849,18 +835,16 @@ static int ipc_plat_get_res(struct platform_device *pdev)
->                 dev_err(&pdev->dev, "Failed to get ipc resource\n");
->                 return -ENXIO;
->         }
-> -       size = PLAT_RESOURCE_IPC_SIZE + PLAT_RESOURCE_GCR_SIZE;
-> +       res->end = (res->start + PLAT_RESOURCE_IPC_SIZE +
-> +                   PLAT_RESOURCE_GCR_SIZE - 1);
->
-> -       if (!request_mem_region(res->start, size, pdev->name)) {
-> -               dev_err(&pdev->dev, "Failed to request ipc resource\n");
-> -               return -EBUSY;
-> -       }
-> -       addr = ioremap_nocache(res->start, size);
-> -       if (!addr) {
-> -               dev_err(&pdev->dev, "I/O memory remapping failed\n");
-> -               release_mem_region(res->start, size);
-> -               return -ENOMEM;
-> +       addr = devm_ioremap_resource(&pdev->dev, res);
-> +       if (IS_ERR(addr)) {
-> +               dev_err(&pdev->dev,
-> +                       "PMC I/O memory remapping failed\n");
-> +               return PTR_ERR(addr);
->         }
-> +
->         ipcdev.ipc_base = addr;
->
->         ipcdev.gcr_mem_base = addr + PLAT_RESOURCE_GCR_OFFSET;
-> @@ -917,7 +901,6 @@ MODULE_DEVICE_TABLE(acpi, ipc_acpi_ids);
->
->  static int ipc_plat_probe(struct platform_device *pdev)
->  {
-> -       struct resource *res;
->         int ret;
->
->         ipcdev.dev = &pdev->dev;
-> @@ -939,61 +922,42 @@ static int ipc_plat_probe(struct platform_device *pdev)
->         ret = ipc_create_pmc_devices();
->         if (ret) {
->                 dev_err(&pdev->dev, "Failed to create pmc devices\n");
-> -               goto err_device;
-> +               return ret;
->         }
->
-> -       if (request_irq(ipcdev.irq, ioc, IRQF_NO_SUSPEND,
-> -                       "intel_pmc_ipc", &ipcdev)) {
-> +       if (devm_request_irq(&pdev->dev, ipcdev.irq, ioc, IRQF_NO_SUSPEND,
-> +                            "intel_pmc_ipc", &ipcdev)) {
->                 dev_err(&pdev->dev, "Failed to request irq\n");
->                 ret = -EBUSY;
-> -               goto err_irq;
-> +               goto unregister_devices;
->         }
->
->         ret = sysfs_create_group(&pdev->dev.kobj, &intel_ipc_group);
->         if (ret) {
->                 dev_err(&pdev->dev, "Failed to create sysfs group %d\n",
->                         ret);
-> -               goto err_sys;
-> +               goto unregister_devices;
->         }
->
->         ipcdev.has_gcr_regs = true;
->
->         return 0;
-> -err_sys:
-> -       free_irq(ipcdev.irq, &ipcdev);
-> -err_irq:
-> +
-> +unregister_devices:
->         platform_device_unregister(ipcdev.tco_dev);
->         platform_device_unregister(ipcdev.punit_dev);
->         platform_device_unregister(ipcdev.telemetry_dev);
-> -err_device:
-> -       iounmap(ipcdev.ipc_base);
-> -       res = platform_get_resource(pdev, IORESOURCE_MEM,
-> -                                   PLAT_RESOURCE_IPC_INDEX);
-> -       if (res) {
-> -               release_mem_region(res->start,
-> -                                  PLAT_RESOURCE_IPC_SIZE +
-> -                                  PLAT_RESOURCE_GCR_SIZE);
-> -       }
-> +
->         return ret;
->  }
->
->  static int ipc_plat_remove(struct platform_device *pdev)
->  {
-> -       struct resource *res;
-> -
->         sysfs_remove_group(&pdev->dev.kobj, &intel_ipc_group);
-> -       free_irq(ipcdev.irq, &ipcdev);
-> +       devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
->         platform_device_unregister(ipcdev.tco_dev);
->         platform_device_unregister(ipcdev.punit_dev);
->         platform_device_unregister(ipcdev.telemetry_dev);
-> -       iounmap(ipcdev.ipc_base);
-> -       res = platform_get_resource(pdev, IORESOURCE_MEM,
-> -                                   PLAT_RESOURCE_IPC_INDEX);
-> -       if (res) {
-> -               release_mem_region(res->start,
-> -                                  PLAT_RESOURCE_IPC_SIZE +
-> -                                  PLAT_RESOURCE_GCR_SIZE);
-> -       }
->         ipcdev.dev = NULL;
->         return 0;
->  }
-> --
-> 2.7.4
->
+Hi,
 
 
+On 10/08/2017 09:53 PM, Chakravarty, Souvik K wrote:
+>> From: sathyanarayanan.kuppuswamy@linux.intel.com
+>> [mailto:sathyanarayanan.kuppuswamy@linux.intel.com]
+>> Sent: Sunday, October 8, 2017 3:50 AM
+>> To: a.zummo@towertech.it; x86@kernel.org; wim@iguana.be;
+>> mingo@redhat.com; alexandre.belloni@free-electrons.com; Zha, Qipeng
+>> <qipeng.zha@intel.com>; hpa@zytor.com; dvhart@infradead.org;
+>> tglx@linutronix.de; lee.jones@linaro.org; andy@infradead.org; Chakravarty,
+>> Souvik K <souvik.k.chakravarty@intel.com>
+>> Cc: linux-rtc@vger.kernel.org; linux-watchdog@vger.kernel.org; linux-
+>> kernel@vger.kernel.org; platform-driver-x86@vger.kernel.org;
+>> sathyaosid@gmail.com; Kuppuswamy Sathyanarayanan
+>> <sathyanarayanan.kuppuswamy@linux.intel.com>
+>> Subject: [RFC v5 4/8] platform: x86: Add generic Intel IPC driver
+>>
+>> From: Kuppuswamy Sathyanarayanan
+>> <sathyanarayanan.kuppuswamy@linux.intel.com>
+>>
+>> Currently intel_scu_ipc.c, intel_pmc_ipc.c and intel_punit_ipc.c redundantly
+>> implements the same IPC features and has lot of code duplication between
+>> them. This driver addresses this issue by grouping the common IPC
+>> functionalities under the same driver.
+>>
+>> Signed-off-by: Kuppuswamy Sathyanarayanan
+>> <sathyanarayanan.kuppuswamy@linux.intel.com>
+>> ---
+>>   drivers/platform/x86/Kconfig                    |   8 +
+>>   drivers/platform/x86/Makefile                   |   1 +
+>>   drivers/platform/x86/intel_ipc_dev.c            | 576
+>> ++++++++++++++++++++++++
+>>   include/linux/platform_data/x86/intel_ipc_dev.h | 206 +++++++++
+>>   4 files changed, 791 insertions(+)
+>>   create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+>>   create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+>>
+>> Changes since v4:
+>>   * None
+>>
+>> Changes since v3:
+>>   * Fixed NULL pointer exception in intel_ipc_dev_get().
+>>   * Fixed error in check for duplicate intel_ipc_dev.
+>>   * Added custom interrupt handler support.
+>>   * Used char array for error string conversion.
+>>   * Added put dev support.
+>>   * Added devm_* variant of intel_ipc_dev_get().
+>>
+>> Changes since v2:
+>>   * Added ipc_dev_cmd API support.
+>>
+>> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+>> index da2d9ba..724ee696 100644
+>> --- a/drivers/platform/x86/Kconfig
+>> +++ b/drivers/platform/x86/Kconfig
+>> @@ -1153,6 +1153,14 @@ config SILEAD_DMI
+>>   	  with the OS-image for the device. This option supplies the missing
+>>   	  information. Enable this for x86 tablets with Silead touchscreens.
+>>
+>> +config INTEL_IPC_DEV
+>> +	bool "Intel IPC Device Driver"
+>> +	depends on X86_64
+>> +	---help---
+>> +	  This driver implements core features of Intel IPC device. Devices
+>> +	  like PMC, SCU, PUNIT, etc can use interfaces provided by this
+>> +	  driver to implement IPC protocol of their respective device.
+>> +
+>>   endif # X86_PLATFORM_DEVICES
+>>
+>>   config PMC_ATOM
+>> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+>> index 2b315d0..99a1af1 100644
+>> --- a/drivers/platform/x86/Makefile
+>> +++ b/drivers/platform/x86/Makefile
+>> @@ -84,3 +84,4 @@ obj-$(CONFIG_PMC_ATOM)		+=
+>> pmc_atom.o
+>>   obj-$(CONFIG_MLX_PLATFORM)	+= mlx-platform.o
+>>   obj-$(CONFIG_MLX_CPLD_PLATFORM)	+= mlxcpld-hotplug.o
+>>   obj-$(CONFIG_INTEL_TURBO_MAX_3) += intel_turbo_max_3.o
+>> +obj-$(CONFIG_INTEL_IPC_DEV)	+= intel_ipc_dev.o
+>> diff --git a/drivers/platform/x86/intel_ipc_dev.c
+>> b/drivers/platform/x86/intel_ipc_dev.c
+>> new file mode 100644
+>> index 0000000..f55ddec
+>> --- /dev/null
+>> +++ b/drivers/platform/x86/intel_ipc_dev.c
+>> @@ -0,0 +1,576 @@
+>> +/*
+>> + * intel_ipc_dev.c: Intel IPC device class driver
+>> + *
+>> + * (C) Copyright 2017 Intel Corporation
+>> + *
+>> + * This program is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU General Public License
+>> + * as published by the Free Software Foundation; version 2
+>> + * of the License.
+>> + *
+>> + */
+>> +
+>> +#include <linux/device.h>
+>> +#include <linux/module.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/err.h>
+>> +#include <linux/export.h>
+>> +#include <linux/idr.h>
+>> +#include <linux/init.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/platform_data/x86/intel_ipc_dev.h>
+>> +#include <linux/regmap.h>
+>> +
+>> +/* mutex to sync different ipc devices in same channel */ static struct
+>> +mutex channel_lock[IPC_CHANNEL_MAX];
+>> +
+>> +static char *ipc_err_sources[] = {
+>> +	[IPC_DEV_ERR_NONE] =
+>> +		"No error",
+>> +	[IPC_DEV_ERR_CMD_NOT_SUPPORTED] =
+>> +		"Command not-supported/Invalid",
+>> +	[IPC_DEV_ERR_CMD_NOT_SERVICED] =
+>> +		"Command not-serviced/Invalid param",
+>> +	[IPC_DEV_ERR_UNABLE_TO_SERVICE] =
+>> +		"Unable-to-service/Cmd-timeout",
+>> +	[IPC_DEV_ERR_CMD_INVALID] =
+>> +		"Command-invalid/Cmd-locked",
+>> +	[IPC_DEV_ERR_CMD_FAILED] =
+>> +		"Command-failed/Invalid-VR-id",
+>> +	[IPC_DEV_ERR_EMSECURITY] =
+>> +		"Invalid Battery/VR-Error",
+>> +	[IPC_DEV_ERR_UNSIGNEDKERNEL] =
+>> +		"Unsigned kernel",
+>> +};
+>> +
+>> +static void ipc_channel_lock_init(void) {
+>> +	int i;
+>> +
+>> +	for (i = 0; i < IPC_CHANNEL_MAX; i++)
+>> +		mutex_init(&channel_lock[i]);
+>> +}
+>> +
+>> +static struct class intel_ipc_class = {
+>> +	.name = "intel_ipc",
+>> +	.owner = THIS_MODULE,
+>> +};
+>> +
+>> +static int ipc_dev_lock(struct intel_ipc_dev *ipc_dev) {
+>> +	int chan_type;
+>> +
+>> +	if (!ipc_dev || !ipc_dev->cfg)
+>> +		return -ENODEV;
+>> +
+>> +	chan_type = ipc_dev->cfg->chan_type;
+>> +	if (chan_type > IPC_CHANNEL_MAX)
+>> +		return -EINVAL;
+>> +
+>> +	/* acquire channel lock */
+>> +	mutex_lock(&channel_lock[chan_type]);
+>> +
+>> +	/* acquire IPC device lock */
+>> +	mutex_lock(&ipc_dev->lock);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int ipc_dev_unlock(struct intel_ipc_dev *ipc_dev) {
+>> +	int chan_type;
+>> +
+>> +	if (!ipc_dev || !ipc_dev->cfg)
+>> +		return -ENODEV;
+>> +
+>> +	chan_type = ipc_dev->cfg->chan_type;
+>> +	if (chan_type > IPC_CHANNEL_MAX)
+>> +		return -EINVAL;
+>> +
+>> +	/* release IPC device lock */
+>> +	mutex_unlock(&ipc_dev->lock);
+>> +
+>> +	/* release channel lock */
+>> +	mutex_unlock(&channel_lock[chan_type]);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static const char *ipc_dev_err_string(struct intel_ipc_dev *ipc_dev,
+>> +	int error)
+>> +{
+>> +	if (error < IPC_DEV_ERR_MAX)
+>> +		return ipc_err_sources[error];
+>> +
+>> +	return "Unknown Command";
+>> +}
+>> +
+>> +/* Helper function to send given command to IPC device */ static inline
+>> +void ipc_dev_send_cmd(struct intel_ipc_dev *ipc_dev, u32 cmd) {
+>> +	ipc_dev->cmd = cmd;
+>> +
+>> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ)
+>> +		reinit_completion(&ipc_dev->cmd_complete);
+>> +
+>> +	if (ipc_dev->ops->enable_msi)
+>> +		cmd = ipc_dev->ops->enable_msi(cmd);
+>> +
+>> +	regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->cmd_reg, cmd);
+>> }
+>> +
+>> +static inline int ipc_dev_status_busy(struct intel_ipc_dev *ipc_dev) {
+>> +	int status;
+>> +
+>> +	regmap_read(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->status_reg,
+>> +&status);
+>> +
+>> +	if (ipc_dev->ops->busy_check)
+>> +		return ipc_dev->ops->busy_check(status);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +/* Check the status of IPC command and return err code if failed */
+>> +static int ipc_dev_check_status(struct intel_ipc_dev *ipc_dev) {
+>> +	int loop_count = IPC_DEV_CMD_LOOP_CNT;
+>> +	int status;
+>> +	int ret = 0;
+>> +
+>> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
+>> +		if (!wait_for_completion_timeout(&ipc_dev->cmd_complete,
+>> +				IPC_DEV_CMD_TIMEOUT))
+>> +			ret = -ETIMEDOUT;
+>> +	} else {
+>> +		while (ipc_dev_status_busy(ipc_dev) && --loop_count)
+>> +			udelay(1);
+>> +		if (!loop_count)
+>> +			ret = -ETIMEDOUT;
+>> +	}
+>> +
+>> +	if (ret < 0) {
+>> +		dev_err(&ipc_dev->dev,
+>> +				"IPC timed out, CMD=0x%x\n", ipc_dev-
+>>> cmd);
+>> +		return ret;
+>> +	}
+>> +
+>> +	regmap_read(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->status_reg,
+>> +&status);
+>> +
+>> +	if (ipc_dev->ops->to_err_code)
+>> +		ret = ipc_dev->ops->to_err_code(status);
+>> +
+>> +	if (ret) {
+>> +		dev_err(&ipc_dev->dev,
+>> +				"IPC failed: %s, STS=0x%x, CMD=0x%x\n",
+>> +				ipc_dev_err_string(ipc_dev, ret),
+>> +				status, ipc_dev->cmd);
+>> +		return -EIO;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +/**
+>> + * ipc_dev_simple_cmd() - Send simple IPC command
+>> + * @ipc_dev     : Reference to ipc device.
+>> + * @cmd_list    : IPC command list.
+>> + * @cmdlen      : Number of cmd/sub-cmds.
+>> + *
+>> + * Send a simple IPC command to ipc device.
+>> + * Use this when don't need to specify input/output data
+>> + * and source/dest pointers.
+>> + *
+>> + * Return:	an IPC error code or 0 on success.
+>> + */
+>> +
+>> +int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
+>> +		u32 cmdlen)
+>> +{
+>> +	int ret;
+>> +
+>> +	if (!cmd_list)
+>> +		return -EINVAL;
+>> +
+>> +	ret = ipc_dev_lock(ipc_dev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	/* Call custom pre-processing handler */
+>> +	if (ipc_dev->ops->pre_simple_cmd_fn) {
+>> +		ret = ipc_dev->ops->pre_simple_cmd_fn(cmd_list, cmdlen);
+>> +		if (ret)
+>> +			goto unlock_device;
+>> +	}
+>> +
+>> +	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
+>> +
+>> +	ret = ipc_dev_check_status(ipc_dev);
+>> +
+>> +unlock_device:
+>> +	ipc_dev_unlock(ipc_dev);
+>> +
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL_GPL(ipc_dev_simple_cmd);
+>> +
+>> +/**
+>> + * ipc_dev_cmd() - Send IPC command with data.
+>> + * @ipc_dev     : Reference to ipc_dev.
+>> + * @cmd_list    : Array of commands/sub-commands.
+>> + * @cmdlen      : Number of commands.
+>> + * @in          : Input data of this IPC command.
+>> + * @inlen       : Input data length in dwords.
+>> + * @out         : Output data of this IPC command.
+>> + * @outlen      : Length of output data in dwords.
+>> + *
+>> + * Send an IPC command to device with input/output data.
+>> + *
+>> + * Return:	an IPC error code or 0 on success.
+>> + */
+>> +int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
+>> +		u32 *in, u32 inlen, u32 *out, u32 outlen) {
+>> +	int ret;
+>> +
+>> +	if (!cmd_list || !in)
+>> +		return -EINVAL;
+>> +
+>> +	ret = ipc_dev_lock(ipc_dev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	/* Call custom pre-processing handler. */
+>> +	if (ipc_dev->ops->pre_cmd_fn) {
+>> +		ret = ipc_dev->ops->pre_cmd_fn(cmd_list, cmdlen, in, inlen,
+>> +				out, outlen);
+>> +		if (ret)
+>> +			goto unlock_device;
+>> +	}
+>> +
+>> +	/* Write inlen dwords of data to wrbuf_reg. */
+>> +	if (inlen > 0)
+>> +		regmap_bulk_write(ipc_dev->cfg->data_regs,
+>> +				ipc_dev->cfg->wrbuf_reg, in, inlen);
+>> +
+>> +	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
+>> +
+>> +	ret = ipc_dev_check_status(ipc_dev);
+>> +
+>> +	/* Read outlen dwords of data from rbug_reg. */
+>> +	if (!ret && outlen > 0)
+>> +		regmap_bulk_read(ipc_dev->cfg->data_regs,
+>> +				ipc_dev->cfg->rbuf_reg, out, outlen);
+>> +unlock_device:
+>> +	ipc_dev_unlock(ipc_dev);
+>> +
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL_GPL(ipc_dev_cmd);
+>> +
+>> +/**
+>> + * ipc_dev_raw_cmd() - Send IPC command with data and pointers.
+>> + * @ipc_dev     : Reference to ipc_dev.
+>> + * @cmd_list    : Array of commands/sub-commands.
+>> + * @cmdlen      : Number of commands.
+>> + * @in          : Input data of this IPC command.
+>> + * @inlen       : Input data length in bytes.
+>> + * @out         : Output data of this IPC command.
+>> + * @outlen      : Length of output data in dwords.
+>> + * @dptr        : IPC destination data address.
+>> + * @sptr        : IPC source data address.
+>> + *
+>> + * Send an IPC command to device with input/output data and
+>> + * source/dest pointers.
+>> + *
+>> + * Return:	an IPC error code or 0 on success.
+>> + */
+> Sorry for coming in so late but since we are refactoring the API anyways, isn't it better to reduce the signature? Nine parameters is an awful lot and prone to errors and difficult to debug. (We found it out the hard way when we started using this a few years ago.)
+I agree. Initially I thought of adding a command structure just like you 
+mentioned. But finally decided not to do it because,
+
+1. Not all drivers uses all parameters of this API. Most of them pass 
+0,0 for DPTR and SPTR pointers. So the last two arguments are almost not 
+used.
+2. Adding a new structure requires all users of this API to add buffer 
+code / some additional call to initialize the command structure which in 
+turn makes the code look bit complex.
+
+So I am not really sure whether it add any value. But if its the 
+recommended approach then I will make that modification.
+> This can be consolidated into a few neat structs, e.g.,:
+> int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, struct ipc_cmd *cmd,
+> 		struct ipc_cmd_data *cmd_data, struct ipc_data_addr *addr)
+>
+> Same for the ipc_dev_cmd() APIs above as well.
+>
+>> +
+>> +int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32
+>> cmdlen,
+>> +		u8 *in, u32 inlen, u32 *out, u32 outlen, u32 dptr, u32 sptr) {
+>> +	int ret;
+>> +	int inbuflen = DIV_ROUND_UP(inlen, 4);
+>> +	u32 *inbuf;
+>> +
+>> +	if (!cmd_list || !in)
+>> +		return -EINVAL;
+>> +
+>> +	inbuf = kzalloc(inbuflen, GFP_KERNEL);
+>> +	if (!inbuf)
+>> +		return -ENOMEM;
+>> +
+>> +	ret = ipc_dev_lock(ipc_dev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	/* Call custom pre-processing handler. */
+>> +	if (ipc_dev->ops->pre_raw_cmd_fn) {
+>> +		ret = ipc_dev->ops->pre_raw_cmd_fn(cmd_list, cmdlen, in,
+>> inlen,
+>> +				out, outlen, dptr, sptr);
+>> +		if (ret)
+>> +			goto unlock_device;
+>> +	}
+>> +
+>> +	/* If supported, write DPTR register.*/
+>> +	if (ipc_dev->cfg->support_dptr)
+>> +		regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg-
+>>> dptr_reg,
+>> +				dptr);
+>> +
+>> +	/* If supported, write SPTR register. */
+>> +	if (ipc_dev->cfg->support_sptr)
+>> +		regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg-
+>>> sptr_reg,
+>> +				sptr);
+>> +
+>> +	memcpy(inbuf, in, inlen);
+>> +
+>> +	/* Write inlen dwords of data to wrbuf_reg. */
+>> +	if (inlen > 0)
+>> +		regmap_bulk_write(ipc_dev->cfg->data_regs,
+>> +				ipc_dev->cfg->wrbuf_reg, inbuf, inbuflen);
+>> +
+>> +	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
+>> +
+>> +	ret = ipc_dev_check_status(ipc_dev);
+>> +
+>> +	/* Read outlen dwords of data from rbug_reg. */
+>> +	if (!ret && outlen > 0)
+>> +		regmap_bulk_read(ipc_dev->cfg->data_regs,
+>> +				ipc_dev->cfg->rbuf_reg, out, outlen);
+>> +unlock_device:
+>> +	ipc_dev_unlock(ipc_dev);
+>> +	kfree(inbuf);
+>> +
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL_GPL(ipc_dev_raw_cmd);
+>> +
+>> +/* sysfs option to send simple IPC commands from userspace */ static
+>> +ssize_t ipc_dev_cmd_reg_store(struct device *dev,
+>> +				     struct device_attribute *attr,
+>> +				     const char *buf, size_t count) {
+>> +	struct intel_ipc_dev *ipc_dev = dev_get_drvdata(dev);
+>> +	u32 cmd;
+>> +	int ret;
+>> +
+>> +	ret = sscanf(buf, "%d", &cmd);
+>> +	if (ret != 1) {
+>> +		dev_err(dev, "Error args\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	ret = ipc_dev_simple_cmd(ipc_dev, &cmd, 1);
+>> +	if (ret) {
+>> +		dev_err(dev, "command 0x%x error with %d\n", cmd, ret);
+>> +		return ret;
+>> +	}
+>> +	return (ssize_t)count;
+>> +}
+>> +
+>> +static DEVICE_ATTR(send_cmd, S_IWUSR, NULL, ipc_dev_cmd_reg_store);
+>> +
+>> +static struct attribute *ipc_dev_attrs[] = {
+>> +	&dev_attr_send_cmd.attr,
+>> +	NULL
+>> +};
+>> +
+>> +static const struct attribute_group ipc_dev_group = {
+>> +	.attrs = ipc_dev_attrs,
+>> +};
+>> +
+>> +static const struct attribute_group *ipc_dev_groups[] = {
+>> +	&ipc_dev_group,
+>> +	NULL,
+>> +};
+>> +
+>> +/* IPC device IRQ handler */
+>> +static irqreturn_t ipc_dev_irq_handler(int irq, void *dev_id) {
+>> +	struct intel_ipc_dev *ipc_dev = (struct intel_ipc_dev *)dev_id;
+>> +
+>> +	if (ipc_dev->ops->pre_irq_handler_fn)
+>> +		ipc_dev->ops->pre_irq_handler_fn(ipc_dev, irq);
+>> +
+>> +	complete(&ipc_dev->cmd_complete);
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static void devm_intel_ipc_dev_release(struct device *dev, void *res) {
+>> +	struct intel_ipc_dev *ipc_dev = *(struct intel_ipc_dev **)res;
+>> +
+>> +	if (!ipc_dev)
+>> +		return;
+>> +
+>> +	device_del(&ipc_dev->dev);
+>> +
+>> +	kfree(ipc_dev);
+>> +}
+>> +
+>> +static int match_name(struct device *dev, const void *data) {
+>> +        if (!dev_name(dev))
+>> +                return 0;
+>> +
+>> +        return !strcmp(dev_name(dev), (char *)data); }
+>> +
+>> +/**
+>> + * intel_ipc_dev_get() - Get Intel IPC device from name.
+>> + * @dev_name    : Name of the IPC device.
+>> + *
+>> + * Return       : ERR_PTR/NULL or intel_ipc_dev pointer on success.
+>> + */
+>> +struct intel_ipc_dev *intel_ipc_dev_get(const char *dev_name) {
+>> +        struct device *dev;
+>> +
+>> +	if (!dev_name)
+>> +		return ERR_PTR(-EINVAL);
+>> +
+>> +	dev = class_find_device(&intel_ipc_class, NULL, dev_name,
+>> match_name);
+>> +
+>> +	return dev ? dev_get_drvdata(dev) : NULL; }
+>> +EXPORT_SYMBOL_GPL(intel_ipc_dev_get);
+>> +
+>> +static void devm_intel_ipc_dev_put(struct device *dev, void *res) {
+>> +	intel_ipc_dev_put(*(struct intel_ipc_dev **)res); }
+>> +
+>> +/**
+>> + * devm_intel_ipc_dev_get() - Resource managed version of
+>> intel_ipc_dev_get().
+>> + * @dev         : Device pointer.
+>> + * @dev_name    : Name of the IPC device.
+>> + *
+>> + * Return       : ERR_PTR/NULL or intel_ipc_dev pointer on success.
+>> + */
+>> +struct intel_ipc_dev *devm_intel_ipc_dev_get(struct device *dev,
+>> +					const char *dev_name)
+>> +{
+>> +	struct intel_ipc_dev **ptr, *ipc_dev;
+>> +
+>> +	ptr = devres_alloc(devm_intel_ipc_dev_put, sizeof(*ptr),
+>> GFP_KERNEL);
+>> +	if (!ptr)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	ipc_dev = intel_ipc_dev_get(dev_name);
+>> +	if (!IS_ERR_OR_NULL(ipc_dev)) {
+>> +		*ptr = ipc_dev;
+>> +		devres_add(dev, ptr);
+>> +	} else {
+>> +		devres_free(ptr);
+>> +	}
+>> +
+>> +	return ipc_dev;
+>> +}
+>> +EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_get);
+>> +
+>> +/**
+>> + * devm_intel_ipc_dev_create() - Create IPC device
+>> + * @dev		: IPC parent device.
+>> + * @devname	: Name of the IPC device.
+>> + * @cfg		: IPC device configuration.
+>> + * @ops		: IPC device ops.
+>> + *
+>> + * Resource managed API to create IPC device with
+>> + * given configuration.
+>> + *
+>> + * Return	: IPC device pointer or ERR_PTR(error code).
+>> + */
+>> +struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
+>> +		const char *devname,
+>> +		struct intel_ipc_dev_cfg *cfg,
+>> +		struct intel_ipc_dev_ops *ops)
+>> +{
+>> +	struct intel_ipc_dev **ptr, *ipc_dev;
+>> +	int ret;
+>> +
+>> +	if (!dev && !devname && !cfg)
+>> +		return ERR_PTR(-EINVAL);
+>> +
+>> +	if (intel_ipc_dev_get(devname)) {
+>> +		dev_err(dev, "IPC device %s already exist\n", devname);
+>> +		return ERR_PTR(-EINVAL);
+>> +	}
+>> +
+>> +	ptr = devres_alloc(devm_intel_ipc_dev_release, sizeof(*ptr),
+>> +			GFP_KERNEL);
+>> +	if (!ptr)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	ipc_dev = kzalloc(sizeof(*ipc_dev), GFP_KERNEL);
+>> +	if (!ipc_dev) {
+>> +		ret = -ENOMEM;
+>> +		goto err_dev_create;
+>> +	}
+>> +
+>> +	ipc_dev->dev.class = &intel_ipc_class;
+>> +	ipc_dev->dev.parent = dev;
+>> +	ipc_dev->dev.groups = ipc_dev_groups;
+>> +	ipc_dev->cfg = cfg;
+>> +	ipc_dev->ops = ops;
+>> +
+>> +	mutex_init(&ipc_dev->lock);
+>> +	init_completion(&ipc_dev->cmd_complete);
+>> +	dev_set_drvdata(&ipc_dev->dev, ipc_dev);
+>> +	dev_set_name(&ipc_dev->dev, devname);
+>> +	device_initialize(&ipc_dev->dev);
+>> +
+>> +	ret = device_add(&ipc_dev->dev);
+>> +	if (ret < 0) {
+>> +		dev_err(&ipc_dev->dev, "%s device create failed\n",
+>> +				__func__);
+>> +		ret = -ENODEV;
+>> +		goto err_dev_add;
+>> +	}
+>> +
+>> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
+>> +		if (devm_request_irq(&ipc_dev->dev,
+>> +				ipc_dev->cfg->irq,
+>> +				ipc_dev_irq_handler,
+>> +				ipc_dev->cfg->irqflags,
+>> +				dev_name(&ipc_dev->dev),
+>> +				ipc_dev)) {
+>> +			dev_err(&ipc_dev->dev,
+>> +					"Failed to request irq\n");
+>> +			goto err_irq_request;
+>> +		}
+>> +	}
+>> +
+>> +	*ptr = ipc_dev;
+>> +
+>> +	devres_add(dev, ptr);
+>> +
+>> +	return ipc_dev;
+>> +
+>> +err_irq_request:
+>> +	device_del(&ipc_dev->dev);
+>> +err_dev_add:
+>> +	kfree(ipc_dev);
+>> +err_dev_create:
+>> +	devres_free(ptr);
+>> +	return ERR_PTR(ret);
+>> +}
+>> +EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_create);
+>> +
+>> +static int __init intel_ipc_init(void)
+>> +{
+>> +	ipc_channel_lock_init();
+>> +	return class_register(&intel_ipc_class); }
+>> +
+>> +static void __exit intel_ipc_exit(void) {
+>> +	class_unregister(&intel_ipc_class);
+>> +}
+>> +subsys_initcall(intel_ipc_init);
+>> +module_exit(intel_ipc_exit);
+>> +
+>> +MODULE_LICENSE("GPL v2");
+>> +MODULE_AUTHOR("Kuppuswamy
+>> +Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>");
+>> +MODULE_DESCRIPTION("Intel IPC device class driver");
+>> diff --git a/include/linux/platform_data/x86/intel_ipc_dev.h
+>> b/include/linux/platform_data/x86/intel_ipc_dev.h
+>> new file mode 100644
+>> index 0000000..eaeedaf
+>> --- /dev/null
+>> +++ b/include/linux/platform_data/x86/intel_ipc_dev.h
+>> @@ -0,0 +1,206 @@
+>> +/*
+>> + * Intel IPC class device header file.
+>> + *
+>> + * (C) Copyright 2017 Intel Corporation
+>> + *
+>> + * This program is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU General Public License
+>> + * as published by the Free Software Foundation; version 2
+>> + * of the License.
+>> + *
+>> + */
+>> +
+>> +#ifndef INTEL_IPC_DEV_H
+>> +#define INTEL_IPC_DEV_H
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/device.h>
+>> +
+>> +/* IPC channel type */
+>> +#define IPC_CHANNEL_IA_PMC                      0
+>> +#define IPC_CHANNEL_IA_PUNIT                    1
+>> +#define IPC_CHANNEL_PMC_PUNIT                   2
+>> +#define IPC_CHANNEL_IA_SCU                      3
+>> +#define IPC_CHANNEL_MAX                         4
+>> +
+>> +/* IPC return code */
+>> +#define IPC_DEV_ERR_NONE			0
+>> +#define IPC_DEV_ERR_CMD_NOT_SUPPORTED		1
+>> +#define IPC_DEV_ERR_CMD_NOT_SERVICED		2
+>> +#define IPC_DEV_ERR_UNABLE_TO_SERVICE		3
+>> +#define IPC_DEV_ERR_CMD_INVALID			4
+>> +#define IPC_DEV_ERR_CMD_FAILED			5
+>> +#define IPC_DEV_ERR_EMSECURITY			6
+>> +#define IPC_DEV_ERR_UNSIGNEDKERNEL		7
+>> +#define IPC_DEV_ERR_MAX				8
+>> +
+>> +/* IPC mode */
+>> +#define IPC_DEV_MODE_IRQ			0
+>> +#define IPC_DEV_MODE_POLLING			1
+>> +
+>> +/* IPC dev constants */
+>> +#define IPC_DEV_CMD_LOOP_CNT			3000000
+>> +#define IPC_DEV_CMD_TIMEOUT			3 * HZ
+>> +#define IPC_DEV_DATA_BUFFER_SIZE		16
+>> +
+>> +struct intel_ipc_dev;
+>> +struct intel_ipc_raw_cmd;
+>> +
+>> +/**
+>> + * struct intel_ipc_dev_cfg - IPC device config structure.
+>> + *
+>> + * IPC device drivers uses the following config options to
+>> + * register new IPC device.
+>> + *
+>> + * @cmd_regs            : IPC device command base regmap.
+>> + * @data_regs           : IPC device data base regmap.
+>> + * @wrbuf_reg           : IPC device data write register address.
+>> + * @rbuf_reg            : IPC device data read register address.
+>> + * @sptr_reg            : IPC device source data pointer register address.
+>> + * @dptr_reg            : IPC device destination data pointer register
+>> + *                        address.
+>> + * @status_reg          : IPC command status register address.
+>> + * @cmd_reg             : IPC command register address.
+>> + * @mode                : IRQ/POLLING mode.
+>> + * @irq                 : IPC device IRQ number.
+>> + * @irqflags            : IPC device IRQ flags.
+>> + * @chan_type           : IPC device channel type(PMC/PUNIT).
+>> + * @msi                 : Enable/Disable MSI for IPC commands.
+>> + * @support_dptr        : Support DPTR update.
+>> + * @support_sptr        : Support SPTR update.
+>> + *
+>> + */
+>> +struct intel_ipc_dev_cfg {
+>> +	struct regmap *cmd_regs;
+>> +	struct regmap *data_regs;
+>> +	unsigned int wrbuf_reg;
+>> +	unsigned int rbuf_reg;
+>> +	unsigned int sptr_reg;
+>> +	unsigned int dptr_reg;
+>> +	unsigned int status_reg;
+>> +	unsigned int cmd_reg;
+>> +	int mode;
+>> +	int irq;
+>> +	int irqflags;
+>> +	int chan_type;
+>> +	bool use_msi;
+>> +	bool support_dptr;
+>> +	bool support_sptr;
+>> +};
+>> +
+>> +/**
+>> + * struct intel_ipc_dev_ops - IPC device ops structure.
+>> + *
+>> + * Call backs for IPC device specific operations.
+>> + *
+>> + * @to_err_code         : Status to error code conversion function.
+>> + * @busy_check          : Check for IPC busy status.
+>> + * @enable_msi          : Enable MSI for IPC commands.
+>> + * @pre_simple_cmd_fn   : Custom pre-processing function for
+>> + *                        ipc_dev_simple_cmd()
+>> + * @pre_cmd_fn          : Custom pre-processing function for
+>> + *                        ipc_dev_cmd()
+>> + * @pre_raw_cmd_fn      : Custom pre-processing function for
+>> + *                        ipc_dev_raw_cmd()
+>> + *
+>> + */
+>> +struct intel_ipc_dev_ops {
+>> +	int (*to_err_code)(int status);
+>> +	int (*busy_check)(int status);
+>> +	u32 (*enable_msi)(u32 cmd);
+>> +	int (*pre_simple_cmd_fn)(u32 *cmd_list, u32 cmdlen);
+>> +	int (*pre_cmd_fn)(u32 *cmd_list, u32 cmdlen, u32 *in, u32 inlen,
+>> +			u32 *out, u32 outlen);
+>> +	int (*pre_raw_cmd_fn)(u32 *cmd_list, u32 cmdlen, u8 *in, u32 inlen,
+>> +			u32 *out, u32 outlen, u32 dptr, u32 sptr);
+>> +	int (*pre_irq_handler_fn)(struct intel_ipc_dev *ipc_dev, int irq); };
+>> +
+>> +/**
+>> + * struct intel_ipc_dev - Intel IPC device structure.
+>> + *
+>> + * Used with devm_intel_ipc_dev_create() to create new IPC device.
+>> + *
+>> + * @dev                 : IPC device object.
+>> + * @cmd                 : Current IPC device command.
+>> + * @cmd_complete        : Command completion object.
+>> + * @lock                : Lock to protect IPC device structure.
+>> + * @ops                 : IPC device ops pointer.
+>> + * @cfg                 : IPC device cfg pointer.
+>> + *
+>> + */
+>> +struct intel_ipc_dev {
+>> +	struct device dev;
+>> +	int cmd;
+>> +	struct completion cmd_complete;
+>> +	struct mutex lock;
+>> +	struct intel_ipc_dev_ops *ops;
+>> +	struct intel_ipc_dev_cfg *cfg;
+>> +};
+>> +
+>> +#if IS_ENABLED(CONFIG_INTEL_IPC_DEV)
+>> +
+>> +/* API to create new IPC device */
+>> +struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
+>> +		const char *devname, struct intel_ipc_dev_cfg *cfg,
+>> +		struct intel_ipc_dev_ops *ops);
+>> +
+>> +int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
+>> +		u32 cmdlen);
+>> +int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
+>> +		u32 *in, u32 inlen, u32 *out, u32 outlen); int
+>> ipc_dev_raw_cmd(struct
+>> +intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
+>> +		u8 *in, u32 inlen, u32 *out, u32 outlen, u32 dptr, u32 sptr);
+>> struct
+>> +intel_ipc_dev *intel_ipc_dev_get(const char *dev_name); struct
+>> +intel_ipc_dev *devm_intel_ipc_dev_get(struct device *dev,
+>> +					const char *dev_name);
+>> +static inline void intel_ipc_dev_put(struct intel_ipc_dev *ipc_dev) {
+>> +	put_device(&ipc_dev->dev);
+>> +}
+>> +#else
+>> +
+>> +static inline struct intel_ipc_dev *devm_intel_ipc_dev_create(
+>> +		struct device *dev,
+>> +		const char *devname, struct intel_ipc_dev_cfg *cfg,
+>> +		struct intel_ipc_dev_ops *ops)
+>> +{
+>> +	return -EINVAL;
+>> +}
+>> +
+>> +static inline int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev,
+>> +		u32 *cmd_list, u32 cmdlen)
+>> +{
+>> +	return -EINVAL;
+>> +}
+>> +
+>> +static int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
+>> +		u32 cmdlen, u32 *in, u32 inlen, u32 *out, u32 outlen) {
+>> +	return -EINVAL;
+>> +}
+>> +
+>> +static inline int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, u32
+>> *cmd_list,
+>> +		u32 cmdlen, u8 *in, u32 inlen, u32 *out, u32 outlen,
+>> +		u32 dptr, u32 sptr);
+>> +{
+>> +	return -EINVAL;
+>> +}
+>> +
+>> +static inline struct intel_ipc_dev *intel_ipc_dev_get(const char
+>> +*dev_name) {
+>> +	return NULL;
+>> +}
+>> +
+>> +static inline struct intel_ipc_dev *devm_intel_ipc_dev_get(struct device
+>> *dev,
+>> +					const char *dev_name);
+>> +{
+>> +	return NULL;
+>> +}
+>> +
+>> +static inline void intel_ipc_dev_put(struct intel_ipc_dev *ipc_dev) {
+>> +	return NULL;
+>> +}
+>> +#endif /* CONFIG_INTEL_IPC_DEV */
+>> +#endif /* INTEL_IPC_DEV_H */
+>> --
+>> 2.7.4
+>
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Sathyanarayanan Kuppuswamy
+Linux kernel developer
