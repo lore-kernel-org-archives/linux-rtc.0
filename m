@@ -1,62 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:16641 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S934839AbdJQJkt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 17 Oct 2017 05:40:49 -0400
-From: <sean.wang@mediatek.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 1/4] dt-bindings: rtc: mediatek: add bindings for MediaTek SoC based RTC
-Date: Tue, 17 Oct 2017 17:40:32 +0800
-Message-ID: <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1508231935.git.sean.wang@mediatek.com>
-References: <cover.1508231935.git.sean.wang@mediatek.com>
+Received: from mail-pf0-f174.google.com ([209.85.192.174]:45870 "EHLO
+        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751168AbdJKVlw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Oct 2017 17:41:52 -0400
+Received: by mail-pf0-f174.google.com with SMTP id d28so2163694pfe.2
+        for <linux-rtc@vger.kernel.org>; Wed, 11 Oct 2017 14:41:52 -0700 (PDT)
+Subject: Re: [PATCH V2] imx: mx7dsabresd: include BLK for MMC/eMMC support of
+ driver model
+To: linux-rtc@vger.kernel.org
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        robh+dt@kernel.org, mark.rutland@arm.com,
+        devicetree@vger.kernel.org, otavio.salvador@ossystems.com.br,
+        peng.fan@nxp.com
+References: <1507753798-20666-1-git-send-email-eric@nelint.com>
+ <1507757654-22114-1-git-send-email-eric@nelint.com>
+From: Eric Nelson <eric@nelint.com>
+Message-ID: <c52f889f-6958-026d-c530-4a815dcd9f28@nelint.com>
+Date: Wed, 11 Oct 2017 14:41:49 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1507757654-22114-1-git-send-email-eric@nelint.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+Please disregard.
 
-Add device-tree binding for MediaTek SoC based RTC
+I chose the wrong entry in my command-line history and
+sent this to the wrong list.
 
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
- .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-new file mode 100644
-index 0000000..09fe8f5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-@@ -0,0 +1,21 @@
-+Device-Tree bindings for MediaTek SoC based RTC
-+
-+Required properties:
-+- compatible	    : Should be
-+			"mediatek,mt7622-rtc", "mediatek,soc-rtc" : for MT7622 SoC
-+- reg 		    : Specifies base physical address and size of the registers;
-+- interrupts	    : Should contain the interrupt for RTC alarm;
-+- clocks	    : Specifies list of clock specifiers, corresponding to
-+		      entries in clock-names property;
-+- clock-names	    : Should contain "rtc" entries
-+
-+Example:
-+
-+rtc: rtc@10212800 {
-+	compatible = "mediatek,mt7622-rtc",
-+		     "mediatek,soc-rtc";
-+	reg = <0 0x10212800 0 0x200>;
-+	interrupts = <GIC_SPI 129 IRQ_TYPE_LEVEL_LOW>;
-+	clocks = <&topckgen CLK_TOP_RTC>;
-+	clock-names = "rtc";
-+};
--- 
-2.7.4
+On 10/11/2017 02:34 PM, Eric Nelson wrote:
+> Commit 6fbbcfd introduced device-tree support for MMC devices on
+> the mx7sabresd boards and didn't include BLK, which requires BLK.
+> 
+> Commit 8ae5bb3 did the same for secure boot.
+> 
+> Fix both by allowing blk-uclass (BLK) support.
+> 
+> Tested-by: Fabio Estevam <festevam@gmail.com>
+> Signed-off-by: Eric Nelson <eric@nelint.com>
+> ---
+> V2 includes the updated to mx7dsabresd_secure_defconfig
+>   configs/mx7dsabresd_defconfig        | 1 -
+>   configs/mx7dsabresd_secure_defconfig | 1 -
+>   2 files changed, 2 deletions(-)
+> 
+> diff --git a/configs/mx7dsabresd_defconfig b/configs/mx7dsabresd_defconfig
+> index 795c4f2..144fb50 100644
+> --- a/configs/mx7dsabresd_defconfig
+> +++ b/configs/mx7dsabresd_defconfig
+> @@ -38,7 +38,6 @@ CONFIG_CMD_EXT4=y
+>   CONFIG_CMD_EXT4_WRITE=y
+>   CONFIG_CMD_FAT=y
+>   CONFIG_OF_CONTROL=y
+> -# CONFIG_BLK is not set
+>   CONFIG_DFU_MMC=y
+>   CONFIG_DFU_RAM=y
+>   CONFIG_DM_GPIO=y
+> diff --git a/configs/mx7dsabresd_secure_defconfig b/configs/mx7dsabresd_secure_defconfig
+> index bd68831..d1af138 100644
+> --- a/configs/mx7dsabresd_secure_defconfig
+> +++ b/configs/mx7dsabresd_secure_defconfig
+> @@ -40,7 +40,6 @@ CONFIG_CMD_EXT4=y
+>   CONFIG_CMD_EXT4_WRITE=y
+>   CONFIG_CMD_FAT=y
+>   CONFIG_OF_CONTROL=y
+> -# CONFIG_BLK is not set
+>   CONFIG_DFU_MMC=y
+>   CONFIG_DFU_RAM=y
+>   CONFIG_DM_GPIO=y
+> 
