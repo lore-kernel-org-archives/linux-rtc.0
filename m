@@ -1,68 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41854 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751956AbdJELIM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 5 Oct 2017 07:08:12 -0400
-Date: Thu, 5 Oct 2017 13:08:08 +0200
-From: Miroslav Lichvar <mlichvar@redhat.com>
-To: John Stultz <john.stultz@linaro.org>
-Cc: Gabriel Beddingfield <gabe@nestlabs.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com
-Subject: Re: Extreme time jitter with suspend/resume cycles
-Message-ID: <20171005110808.GA19251@localhost>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
- <CALAqxLUO-62B0umVSUK979A+dApOLN3xt5nnZA5HKHsWnRz3KQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALAqxLUO-62B0umVSUK979A+dApOLN3xt5nnZA5HKHsWnRz3KQ@mail.gmail.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:52673 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755342AbdJLWDb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:03:31 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 1/2] rtc: ds1305: switch to rtc_register_device
+Date: Fri, 13 Oct 2017 00:03:22 +0200
+Message-Id: <20171012220323.7515-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Oct 04, 2017 at 05:16:31PM -0700, John Stultz wrote:
-> On Wed, Oct 4, 2017 at 9:11 AM, Gabriel Beddingfield <gabe@nestlabs.com> wrote:
-> > We found that the problem is an interaction between the NTP code and
-> > what I call the "delta_delta hack." (see [1] and [2]) This code
-> > allocates a static variable in a function that contains an offset from
-> > the system time to the persistent/rtc clock. It uses that time to
-> > fudge the suspend timestamp so that on resume the sleep time will be
-> > compensated. It's kind of a statistical hack that assumes things will
-> > average out. It seems to have two main assumptions:
-> >
-> >   1. The persistent/rtc clock has only single-second precision
-> >   2. The system does not frequently suspend/resume.
-> >   3. If delta_delta is less than 2 seconds, these assumptions are "true"
-> >
-> > Because the delta_delta hack is trying to maintain an offset from the
-> > system time to the persistent/rtc clock, any minor NTP corrections
-> > that have occurred since the last suspend will be discarded. However,
-> > the NTP subsystem isn't notified that this is happening -- and so it
-> > causes some level of instability in its PLL logic.
+This allows for future improvement of the driver.
 
-This is interesting. What polling interval was ntpd using? If I
-understand it correctly, with a high-resolution persistent clock the
-delta-delta compensation should be very small and shouldn't disrupt
-ntpd. Does this instability disappear when ntpd is not controlling the
-clock (i.e. "disable ntp" in ntp.conf)?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-ds1305.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-> We should also figure out how to best handle ntpd in userspace dealing
-> with frequent suspend/resume cycles. This is problematic, as the
-> closest analogy is trying driving on the road while frequently falling
-> asleep.  This is not something I think ntpd handles well.  I suspect
-> our options are that any ntp adjustments being made might be made for
-> far too long (causing potentially massive over-correction) or not at
-> all, and not at all seems slightly better in my mind.
-
-Yeah, controlling the clock in such conditions will be difficult. The
-kernel/ntp PLL requires periodic updates. There is some code in
-ntp_update_offset() that reduces the frequency adjustment when PLL
-updates are missing, but I'm not actually sure if it works correctly
-with suspend.
-
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 72b22935eb62..c3232c818e65 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -708,10 +708,15 @@ static int ds1305_probe(struct spi_device *spi)
+ 		dev_dbg(&spi->dev, "AM/PM\n");
+ 
+ 	/* register RTC ... from here on, ds1305->ctrl needs locking */
+-	ds1305->rtc = devm_rtc_device_register(&spi->dev, "ds1305",
+-			&ds1305_ops, THIS_MODULE);
++	ds1305->rtc = devm_rtc_allocate_device(&spi->dev);
+ 	if (IS_ERR(ds1305->rtc)) {
+-		status = PTR_ERR(ds1305->rtc);
++		return PTR_ERR(ds1305->rtc);
++	}
++
++	ds1305->rtc->ops = &ds1305_ops;
++
++	status = rtc_register_device(ds1305->rtc);
++	if (status) {
+ 		dev_dbg(&spi->dev, "register rtc --> %d\n", status);
+ 		return status;
+ 	}
 -- 
-Miroslav Lichvar
+2.14.2
