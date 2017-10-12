@@ -1,74 +1,139 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34474 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:52677 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750853AbdJRV05 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 17:26:57 -0400
-Date: Wed, 18 Oct 2017 23:26:45 +0200
+        with ESMTP id S1755342AbdJLWDf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:03:35 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
-        Gabriel Beddingfield <gabe@nestlabs.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com
-Subject: Re: Introduce clock precision to help time travelers was Re: Extreme
- time jitter with suspend/resume cycles
-Message-ID: <20171018212645.7htby4qmnfbep3vx@piout.net>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
- <20171015063738.GA24716@xo-6d-61-c0.localdomain>
- <20171018213449.523cd958@alans-desktop>
- <20171018210828.GA3581@amd>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171018210828.GA3581@amd>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 2/2] rtc: ds1305: use generic nvmem
+Date: Fri, 13 Oct 2017 00:03:23 +0200
+Message-Id: <20171012220323.7515-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20171012220323.7515-1-alexandre.belloni@free-electrons.com>
+References: <20171012220323.7515-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 18/10/2017 at 23:08:28 +0200, Pavel Machek wrote:
-> On Wed 2017-10-18 21:34:49, Alan Cox wrote:
-> > > And even the boring ones have pretty imprecise RTCs... For example Nokia N9.
-> > > I only power it up from time to time, I believe it drifts something like
-> > > minute per month... For normal use with SIM card, it can probably correct
-> > > from GSM network if you happen to have a cell phone signal, but...
-> > > 
-> > > More interesting machines... Old thinkpad is running without CMOS battery.
-> > > ARM OLPC has _three_ RTCs, but not a single working one. N900 has working
-> > > RTC but no or dead backup battery. On these, RTC driver probably knows
-> > > time is not valid, but feeds the garbage into the system time, anyway. Ouch.
-> > > Neither Sharp Zaurus SL-5500 nor C-3000 had battery backup on RTC...
-> > 
-> > Not a new problem, RTC's used to cost lots of money 8)
-> > 
-> > Most early Unixen set the clock at boot from the superblock timestamp of
-> > the root fs, some with RTC's also used to scream at you if the superblock
-> > stamp was too far head of current time.That doesn't quite work with
-> > initrd but you can do the same in userspace on Linux so you'll at least
-> > get 'when I last booted it' and because it's always moving forward lots
-> > of other messes don't happen.
-> 
-> Yeah, that's what "swclock" module of init system does. Someone solved
-> that one for me. But... that's not good enough. In particular, I'd
-> like time not to be displayed when "swclock" was used. Nokia 6230
-> could do it, so linux should be able to do it, too.
-> 
-> It seems kernel should pass accurancy info, or at least "this time is
-> probably off by hours at least" from gettimeofday() and similar
-> syscalls...
+Instead of adding a binary sysfs attribute from the driver (which suffers
+from a race condition as the attribute appears after the device), use the
+core to register an nvmem device.
 
-The question being how do you expect the kernel to get that information?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-ds1305.c | 59 +++++++++++++++++-------------------------------
+ 1 file changed, 21 insertions(+), 38 deletions(-)
 
-Some RTCs will tell you when they lost time/time accuracy and this
-should be properly reported by the driver. If not, this has to be
-implemented.
-
-For anything else, it is probably the job of userspace to try to be
-clever.
-
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index c3232c818e65..d8df2e9e14ad 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -514,56 +514,43 @@ static void msg_init(struct spi_message *m, struct spi_transfer *x,
+ 	spi_message_add_tail(x, m);
+ }
+ 
+-static ssize_t
+-ds1305_nvram_read(struct file *filp, struct kobject *kobj,
+-		struct bin_attribute *attr,
+-		char *buf, loff_t off, size_t count)
++static int ds1305_nvram_read(void *priv, unsigned int off, void *buf,
++			     size_t count)
+ {
+-	struct spi_device	*spi;
++	struct ds1305		*ds1305 = priv;
++	struct spi_device	*spi = ds1305->spi;
+ 	u8			addr;
+ 	struct spi_message	m;
+ 	struct spi_transfer	x[2];
+-	int			status;
+-
+-	spi = to_spi_device(kobj_to_dev(kobj));
+ 
+ 	addr = DS1305_NVRAM + off;
+ 	msg_init(&m, x, &addr, count, NULL, buf);
+ 
+-	status = spi_sync(spi, &m);
+-	if (status < 0)
+-		dev_err(&spi->dev, "nvram %s error %d\n", "read", status);
+-	return (status < 0) ? status : count;
++	return spi_sync(spi, &m);
+ }
+ 
+-static ssize_t
+-ds1305_nvram_write(struct file *filp, struct kobject *kobj,
+-		struct bin_attribute *attr,
+-		char *buf, loff_t off, size_t count)
++static int ds1305_nvram_write(void *priv, unsigned int off, void *buf,
++			      size_t count)
+ {
+-	struct spi_device	*spi;
++	struct ds1305		*ds1305 = priv;
++	struct spi_device	*spi = ds1305->spi;
+ 	u8			addr;
+ 	struct spi_message	m;
+ 	struct spi_transfer	x[2];
+-	int			status;
+-
+-	spi = to_spi_device(kobj_to_dev(kobj));
+ 
+ 	addr = (DS1305_WRITE | DS1305_NVRAM) + off;
+ 	msg_init(&m, x, &addr, count, buf, NULL);
+ 
+-	status = spi_sync(spi, &m);
+-	if (status < 0)
+-		dev_err(&spi->dev, "nvram %s error %d\n", "write", status);
+-	return (status < 0) ? status : count;
++	return spi_sync(spi, &m);
+ }
+ 
+-static struct bin_attribute nvram = {
+-	.attr.name	= "nvram",
+-	.attr.mode	= S_IRUGO | S_IWUSR,
+-	.read		= ds1305_nvram_read,
+-	.write		= ds1305_nvram_write,
+-	.size		= DS1305_NVRAM_LEN,
++static struct nvmem_config ds1305_nvmem_cfg = {
++	.name = "ds1305_nvram",
++	.word_size = 1,
++	.stride = 1,
++	.size = DS1305_NVRAM_LEN,
++	.reg_read = ds1305_nvram_read,
++	.reg_write = ds1305_nvram_write,
+ };
+ 
+ /*----------------------------------------------------------------------*/
+@@ -715,6 +702,10 @@ static int ds1305_probe(struct spi_device *spi)
+ 
+ 	ds1305->rtc->ops = &ds1305_ops;
+ 
++	ds1305_nvmem_cfg.priv = ds1305;
++	ds1305->rtc->nvmem_config = &ds1305_nvmem_cfg;
++	ds1305->rtc->nvram_old_abi = true;
++
+ 	status = rtc_register_device(ds1305->rtc);
+ 	if (status) {
+ 		dev_dbg(&spi->dev, "register rtc --> %d\n", status);
+@@ -739,12 +730,6 @@ static int ds1305_probe(struct spi_device *spi)
+ 		}
+ 	}
+ 
+-	/* export NVRAM */
+-	status = sysfs_create_bin_file(&spi->dev.kobj, &nvram);
+-	if (status < 0) {
+-		dev_err(&spi->dev, "register nvram --> %d\n", status);
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -752,8 +737,6 @@ static int ds1305_remove(struct spi_device *spi)
+ {
+ 	struct ds1305 *ds1305 = spi_get_drvdata(spi);
+ 
+-	sysfs_remove_bin_file(&spi->dev.kobj, &nvram);
+-
+ 	/* carefully shut down irq and workqueue, if present */
+ 	if (spi->irq) {
+ 		set_bit(FLAG_EXITING, &ds1305->flags);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.14.2
