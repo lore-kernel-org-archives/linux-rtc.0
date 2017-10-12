@@ -1,67 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:38730 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753214AbdJGW3v (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 7 Oct 2017 18:29:51 -0400
-Subject: Re: [RFC v4 2/8] platform/x86: intel_pmc_ipc: Use spin_lock to
- protect GCR updates
-To: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>
-References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75VdFybPNxXU5URVHBBWROV6h1eX+u_R-r5Kue08kBUmGHQ@mail.gmail.com>
-From: "Kuppuswamy, Sathyanarayanan" <sathyaosid@gmail.com>
-Message-ID: <98547c75-c7a8-cdb8-a0e0-50d115df286a@gmail.com>
-Date: Sat, 7 Oct 2017 15:29:49 -0700
+Received: from mail.free-electrons.com ([62.4.15.54]:36581 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752133AbdJLMUM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 08:20:12 -0400
+Date: Thu, 12 Oct 2017 14:20:09 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [PATCH RfC] rtc: ds1307: improve weekday handling
+Message-ID: <20171012122009.vqv4d3o6levhrxeo@piout.net>
+References: <abf5f5ff-b406-eff0-a1ec-9486efbe8506@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VdFybPNxXU5URVHBBWROV6h1eX+u_R-r5Kue08kBUmGHQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <abf5f5ff-b406-eff0-a1ec-9486efbe8506@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On 29/08/2017 at 21:52:56 +0200, Heiner Kallweit wrote:
+> The current code for checking and fixing the weekday in ds1307_probe
+> faces some issues:
+> - This check is applied to all chips even if its applicable (AFAIK)
+>   to mcp794xx only
+> - The check uses MCP794XX constants for registers and bits even though
+>   it's executed also on other chips (ok, this could be fixed easily)
+> - It relies on tm_wday being properly populated when core calls set_time
+>   and set_alarm. This is not guaranteed at all.
+> 
+> First two issue we could solve by moving the check to the
+> mcp794xx-specific initialization (where also VBATEN flag is set).
+> 
+> The proposed alternative is in the set_alarm path for mcp794xx only and
+> calculates the alarm weekday based on the current weekday in the RTC
+> timekeeping regs and the difference between alarm date and current date.
+> So we are fine with any weekday even if it doesn't match the date.
+> 
+> Still there are cases where this could fail, e.g.:
+> - rtc date/time + weekday have power-on-reset default values
+> - alarm is set to actual date/time + x
+> - set_time is called (may change diff between rtc weekday and actual
+>   weekday)
+> 
+> But similar issues we have with the current code too:
+> - rtc date/time + weekday have power-on-reset default values
+> - alarm is set to rtc date/time + x
+> - set_time is called before the alarm triggers
+> 
+> Using random rtc date/time with relative alarms simply can interfere
+> with set_time. I'm not totally convinced of either option yet.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 52 ++++++++++++++++++++++++------------------------
+>  1 file changed, 26 insertions(+), 26 deletions(-)
+> 
 
+It took me some time to test it (I've received an mcp79410) because at
+first, it seemed the regmap conversion made the IO timeout. I can't
+reproduce that anymore though.
 
-On 10/7/2017 9:13 AM, Andy Shevchenko wrote:
-> On Sat, Oct 7, 2017 at 5:33 AM,
-> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->>
->> Currently, update_no_reboot_bit() function implemented in this driver
->> uses mutex_lock() to protect its register updates. But this function is
->> called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
->> functions in iTCO_wdt.c driver, which in turn causes "sleeping into
->> atomic context" issue. This patch fixes this issue by replacing the
->> mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
->>
->> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory
->> mapping failure")
-> I think it need to be a one line.
-Fixed it in v5 version. But it crosses 80 char limit. I am not sure 
-whether its alright.
->
-> Does it apply on top of v4.14-rc3 ?
-Yes. Just checked it now.  It applies cleanly on top of v4.14-rc3. But 
-v5 patch set is re-based on top of your review branch.
-So it has dependency on a patch ( "platform/x86: intel_pmc_ipc: Use 
-devm_* calls in driver probe function") in your review branch.
-> Btw, this patch should be first in the series.
-Fixed it in v5 version.
->
->
+Applied, thanks.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
