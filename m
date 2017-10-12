@@ -1,55 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:36411 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751369AbdJEVeA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 17:34:00 -0400
-Date: Thu, 5 Oct 2017 23:33:55 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Gabriel Beddingfield <gabe@nestlabs.com>
-cc: LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        Howard Harte <hharte@nestlabs.com>
-Subject: Re: Extreme time jitter with suspend/resume cycles
-In-Reply-To: <alpine.DEB.2.20.1710052302440.2398@nanos>
-Message-ID: <alpine.DEB.2.20.1710052331310.2398@nanos>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com> <alpine.DEB.2.20.1710051216050.2083@nanos>
- <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com> <alpine.DEB.2.20.1710051943570.2398@nanos> <CAOdF7nssJZZG_VKO+G_K6+aukOApmXp823yA9k3sUsSYpSB71g@mail.gmail.com> <alpine.DEB.2.20.1710052302440.2398@nanos>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail.free-electrons.com ([62.4.15.54]:52699 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755462AbdJLWEu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:04:50 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 1/2] rtc: abx80x: switch to rtc_register_device
+Date: Fri, 13 Oct 2017 00:04:46 +0200
+Message-Id: <20171012220447.7940-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 5 Oct 2017, Thomas Gleixner wrote:
-> On Thu, 5 Oct 2017, Gabriel Beddingfield wrote:
-> 
-> > Hi Thomas,
-> > 
-> > On Thu, Oct 5, 2017 at 11:01 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> > >> > Which SoC/clocksource driver are you talking about?
-> > >>
-> > >> NXP i.MX 6SoloX
-> > >> drivers/clocksource/timer-imx-gpt.c
-> > >
-> > > So that clocksource driver looks correct. Do you have an idea in which
-> > > context this time jump happens? Does it happen when you exercise your high
-> > > frequency suspend/resume dance or is that happening just when you let the
-> > > machine run forever as well?
-> > 
-> > We couldn't devise any reproduction steps. We observed it happening at
-> > unexpected times in a fleet of devices -- and we couldn't find any
-> > patterns to clue us in.
-> 
-> Ok. Did you talk to NXP about that? Or did you try to exercise reads in a
-> loop to detect the wreckage and maybe a pattern in there?
+This allows for future improvement of the driver.
 
-The reason I'm asking is to exclude any weird issue in the timekeeping
-code, which is still a possibility, despite the fact that I went through it
-with a fine comb after stumbling over that check in the resume path.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-abx80x.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-Thanks,
-
-	tglx
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index fea9a60b06cf..442e62a3c9a9 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -614,12 +614,16 @@ static int abx80x_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
+-	rtc = devm_rtc_device_register(&client->dev, "abx8xx",
+-				       &abx80x_rtc_ops, THIS_MODULE);
+-
++	rtc = devm_rtc_allocate_device(&client->dev);
+ 	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
+ 
++	rtc->ops = &abx80x_rtc_ops;
++
++	err = rtc_register_device(rtc);
++	if (err)
++		return err;
++
+ 	i2c_set_clientdata(client, rtc);
+ 
+ 	if (client->irq > 0) {
+-- 
+2.14.2
