@@ -1,87 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([146.0.238.70]:32999 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751705AbdJELBX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 07:01:23 -0400
-Date: Thu, 5 Oct 2017 13:01:17 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Gabriel Beddingfield <gabe@nestlabs.com>
-cc: LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com
-Subject: Re: Extreme time jitter with suspend/resume cycles
-In-Reply-To: <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
-Message-ID: <alpine.DEB.2.20.1710051216050.2083@nanos>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com> <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:62026 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751632AbdJLIFn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 04:05:43 -0400
+From: =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>
+To: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>
+CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: DryIce , RTC not working on imx53.
+Date: Thu, 12 Oct 2017 07:50:41 +0000
+Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+In-Reply-To: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 4 Oct 2017, Gabriel Beddingfield wrote:
-> On Wed, Oct 4, 2017 at 11:22 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> Long story short: you can't always have your low-power clock be your
-> monotonic/sched clock.
-
-sched_clock and the clocksource for timekeeping, which feeds monotonic are
-not required to be the same thing.
- 
-> The SoC we use backs the monotonic clock (sched_clock_register()) with a
-
-Again. monotonic clock != sched clock. The clocksource which feeds the
-monotonic timekeeper clock is registered via clocksource_register() & al.
-
-> counter that is high frequency (>10 MHz) in their reference
-> implementation. But it does not count when the system is in low-power
-> mode. However, it can be configured to use a 32kHz clock that *does*
-> count when the system is in low-power mode. So, we started by using this
-> clock and setting the CLOCK_SOURCE_SUSPEND_NONSTOP flag. It worked
-> great... at first.
-> 
-> Then we found that devices would randomly experience a 36-hour time jump.
-> While we don't have a definitive root cause, the current theory is that
-> we are getting non-atomic reads because the clock source isn't
-> synchronized with the the high frequency clock (which is used for most of
-> the digital logic on the SoC).
-
-Groan. Engineering based on theories is doomed to begin with.
-
-Your 36 hour time jump is probably exactly 36.4089 hours as that's
-
-     ((1 << 32) / 32768) / 3600
-
-i.e. the 32bit rollover of the clocksource. So, if the clocksource->read()
-function returns a full 64bit counter value, then it must have protection
-against observing the rollover independent of the clock which feeds that
-counter. Of course the frequency changes the probablity of observing it,
-but still the read function must be protected against observing the
-rollover unconditionally.
-
-Which SoC/clocksource driver are you talking about?
-
-> Therefore, we moved the monotonic/sched clock back to the high-frequency source.
-
-Please stop confusing timekeeping clock source and sched clock. They might
-be the same physical device but conceptually they are different.
-
-> Meanwhile, we can directly read the RTC clock on this system, and it will
-> give us 32kHz resolution and also runs non-stop. Since reads are
-> non-atomic, we have to read the registers in a loop. We used this
-> register to implement read_persistent_clock64().  Because we have to read
-> the registers in a loop, it seemed unfit for use as the monotonic/sched
-> clock.
-
-I can understand that. Though, using that value for injecting accurate
-sleep time should just work with the existing code no matter how long the
-actual sleep time was. The timekeeping core takes the nsec part of the
-timespec value retrieved via read_persistent_clock64() into account.
-
-I still have a hard time to figure out what you are trying to achieve.
-
-Thanks,
-
-	tglx
+PkZyb206IFZlbGxlbWFucywgTm9lbCBbbWFpbHRvOk5vZWwuVmVsbGVtYW5zQHZpc2lvbkJNUy5j
+b21dDQo+U2VudDogRG9ubmVyc3RhZywgNS4gT2t0b2JlciAyMDE3IDE2OjE5DQo+SGVsbG8sDQo+
+DQpIaSwNCm5vdCBzdXJlIGlmIEkgY2FuIGhlbHAgb24gdGhpcywgYnV0IGFzIEkgZGlkIHNvbWUg
+dGVzdGluZyBteXNlbGYgSSB0aG91Z2h0IEkgc2hvdWxkIHRocm93IGluIG15IHJlc3VsdHMgYXMg
+d2VsbC4NCg0KPkRyeUljZSAsIFNSVEMgbm90IHdvcmtpbmcgb24gaW14NTMuICgga2VybmVsIDQu
+eCkgICggc2FtZSBoYXJkd2FyZSBydW5uaW5nDQo+b2xkZXIga2VybmVsIHZlcnNpb25zLi4gbWVh
+bnMgLCBydGMgaXMgd29ya2luZykNCj4NCklzIGl0IG9ubHkgdGhlIGtlcm5lbCB5b3UgYXJlIGNo
+YW5naW5nPyBJIGFtIGFza2luZyBiZWNhdXNlIEkgaGFkIHRoZSBpbXByZXNzaW9uIHRoYXQgaHdj
+bG9jayBiZWhhdmVzIGRpZmZlcmVudCBvbiBEZWJpYW4gc3RyZXRjaCAodXRpbC1saW51eCAyLjI5
+LjIpIGFuZCBqZXNzaWUgKHV0aWwtbGludXggMi4yNS4yKS4NCkkgYW0gc2F5aW5nIGltcHJlc3Np
+b24gYmVjYXVzZSBpdCBzZWVtZWQgb24gamVzc2llIEkgd291bGQgYWx3YXlzIGdldCBhIHJlc3Bv
+bnNlIG9mIGh3Y2xvY2ssIGJ1dCBvbiBzdHJldGNoIG5ldmVyLiBXaGVuIEkgZGlkIG1vcmUgc3lz
+dGVtYXRpYyB0ZXN0aW5nIGl0IGxvb2tzIGxpa2UgcmlnaHQgYWZ0ZXIgYm9vdCBod2Nsb2NrIC1y
+IHdpbGwgYWx3YXlzIGZhaWwuIEJ1dCBpZiBJIHdhaXQgc29tZSBtaW51dGVzLCBhbGwgY2FsbHMg
+c3VjY2VlZC4NCj4uLi4NCj5RVUlDSyBhbmFseXNlcyAgKCBjb3VsZCBiZSB3cm9uZykgPw0KPkl0
+IHNlZW1zIHRoYXQgaHdjbG9jayBpcyByZWFkaW5nIHRoZSBjdXJyZW50LXRpbWVzdGFtcCAzIHRp
+bWVzIGFuZCBpZiBub3QNCj5jaGFuZ2VkIGluIHRob3NlIDMgcmVhZCBjeWNsZXPigKYgaXQgc2V0
+cyB1cCBhbiByZWFkLWludGVycnVwdC1hYm9ydCBhYmxlIHRpbWUNCj5yZWFkZXIgdGhhdCBzaG91
+bGQgcmV0dXJuIGFzIHNvb24gYXMgdGhlIGlycSBmaXJlc+KApiBidXQgdGhpcyBzZWVtcyB0byBi
+ZQ0KPm1pc3NpbmcgIQ0KPg0KSSBhbSBzZWVpbmcgYSBsb3Qgb2YgaW50ZXJydXB0cyB3aXRoIGtl
+cm5lbCA0LjE0LXJjNCAoamVzc2llIGFuZCBzdHJldGNoKSwgYnV0IHRoZXkgc2VlbSB0byBiZSB1
+bmhhbmRsZWQ6DQpyb290QENYOTAyMDp+IyB1bmFtZSAtYQ0KTGludXggQ1g5MDIwIDQuMTQuMC1y
+YzQrICMxNTEgUFJFRU1QVCBXZWQgT2N0IDExIDEwOjQwOjM0IENFU1QgMjAxNyBhcm12N2wgR05V
+L0xpbnV4DQpyb290QENYOTAyMDp+IyBod2Nsb2NrIC1EIC1yDQpod2Nsb2NrIGZyb20gdXRpbC1s
+aW51eCAyLjI5LjINClVzaW5nIHRoZSAvZGV2IGludGVyZmFjZSB0byB0aGUgY2xvY2suDQpMYXN0
+IGRyaWZ0IGFkanVzdG1lbnQgZG9uZSBhdCAxNDkwODg1MDgyIHNlY29uZHMgYWZ0ZXIgMTk2OQ0K
+TGFzdCBjYWxpYnJhdGlvbiBkb25lIGF0IDE0OTA4ODUwODIgc2Vjb25kcyBhZnRlciAxOTY5DQpI
+YXJkd2FyZSBjbG9jayBpcyBvbiBVVEMgdGltZQ0KQXNzdW1pbmcgaGFyZHdhcmUgY2xvY2sgaXMg
+a2VwdCBpbiBVVEMgdGltZS4NCldhaXRpbmcgZm9yIGNsb2NrIHRpY2suLi4NClsgICAyNi43OTU0
+MzddIGlycSA0MDogbm9ib2R5IGNhcmVkICh0cnkgYm9vdGluZyB3aXRoIHRoZSAiaXJxcG9sbCIg
+b3B0aW9uKQ0KWyAgIDI2LjgwMjY5Nl0gaGFuZGxlcnM6DQpbICAgMjYuODA1MDMxXSBbPGMwNjAy
+OWU4Pl0gZHJ5aWNlX2lycQ0KWyAgIDI2LjgwODU4NF0gRGlzYWJsaW5nIElSUSAjNDANCnNlbGVj
+dCgpIHRvIC9kZXYvcnRjIHRvIHdhaXQgZm9yIGNsb2NrIHRpY2sgdGltZWQgb3V0Li4uc3luY2hy
+b25pemF0aW9uIGZhaWxlZA0Kcm9vdEBDWDkwMjA6fiMgY2F0IC9wcm9jL2ludGVycnVwdHMNCiAg
+ICAgICAgICAgQ1BVMA0KIDE3OiAgICAgICA0Mjc2ICAgICAgdHppYyAgIDEgRWRnZSAgICAgIG1t
+YzANCiAxODogICAgICAgICA1MiAgICAgIHR6aWMgICAyIEVkZ2UgICAgICBtbWMxDQogMjI6ICAg
+ICAgICAgIDAgICAgICB0emljICAgNiBFZGdlICAgICAgc2RtYQ0KIDMwOiAgICAgICAgMTc2ICAg
+ICAgdHppYyAgMTQgRWRnZSAgICAgIDUzZjgwMjAwLnVzYg0KIDQwOiAgICAgMTAwMDAwICAgICAg
+dHppYyAgMjQgRWRnZSAgICAgIDUzZmE0MDAwLnNydGMNCiA0ODogICAgICAgIDI2OCAgICAgIHR6
+aWMgIDMyIEVkZ2UgICAgICA1M2ZjMDAwMC5zZXJpYWwNCiA1NTogICAgICAgMjI4OCAgICAgIHR6
+aWMgIDM5IEVkZ2UgICAgICBpLk1YIFRpbWVyIFRpY2sNCiA3NDogICAgICAgICAgMCAgICAgIHR6
+aWMgIDU4IEVkZ2UgICAgICA1M2Y5ODAwMC53ZG9nDQogNzk6ICAgICAgICAyNzggICAgICB0emlj
+ICA2MyBFZGdlICAgICAgNjNmYzQwMDAuaTJjDQogOTM6ICAgICAgICAgIDAgICAgICB0emljICA3
+NyBFZGdlICAgICAgYXJtLXBtdQ0KMTAzOiAgICAgICAgNjYyICAgICAgdHppYyAgODcgRWRnZSAg
+ICAgIDYzZmVjMDAwLmV0aGVybmV0DQoxNDU6ICAgICAgICAgIDAgIGdwaW8tbXhjICAgMSBFZGdl
+ICAgICAgNTAwMDQwMDAuZXNkaGMgY2QNCjE0ODogICAgICAgICAgMCAgZ3Bpby1teGMgICA0IEVk
+Z2UgICAgICA1MDAwODAwMC5lc2RoYyBjZA0KMzY4OiAgICAgICAgNjc0ICAgICAgIElQVSAgMjMg
+RWRnZSAgICAgIGlteF9kcm0NCjM2OTogICAgICAgICAgMCAgICAgICBJUFUgIDI4IEVkZ2UgICAg
+ICBpbXhfZHJtDQpFcnI6ICAgICAgICAgIDANCg0KSSBhZGRlZCBzb21lIHRyYWNpbmcgdG8gZHJ5
+aWNlX2lycSgpIGFuZCBzYXcgdGhhdCBtb3N0IG9mIHRoZSB0aW1lIChpZiBub3QgYWxsIHRoZSB0
+aW1lKSBkc3IgPT0gRFNSX01DTyAvKiBtb25vdG9uaWMgY2xvY2sgb3ZlcmZsb3cgKi8gd2l0aCBk
+aWVyIHZhcnkgYmV0d2VlbiAweDExMCwgMHgxMCBhbmQgZXZlbiAweDAuDQpJIGRvbid0IGtub3cg
+d2hhdCdzIHRoZSByaWdodCB0aGluZyB0byBkbywgdG8gcmVjb3ZlciBmcm9tIERTUl9NQ08uICIg
+cmV0dXJuIElSUV9IQU5ETEVEIiB3aWxsIHN0b3AgdGhlIG5vYm9keSBjYXJlZCBtZXNzYWdlIGJ1
+dCBod2Nsb2NrIHN0aWxsIHRpbWVzIG91dC4NCg0KQW5kIGZvciBjb21wbGV0ZW5lc3M6DQpyb290
+QENYOTAyMDp+IyBkbWVzZyB8IGdyZXAgc3J0Yw0KWyAgICAwLjI5OTA0M10gaW14ZGlfcnRjIDUz
+ZmE0MDAwLnNydGM6IFVubG9ja2VkIHVuaXQgZGV0ZWN0ZWQNClsgICAgMC4yOTk1MzldIGlteGRp
+X3J0YyA1M2ZhNDAwMC5zcnRjOiBzZWN1cml0eSB2aW9sYXRpb24gaW50ZXJydXB0IG5vdCBhdmFp
+bGFibGUuDQpbICAgIDAuMjk5NzU3XSBydGMgcnRjMDogNTNmYTQwMDAuc3J0YzogZGV2ICgyNTM6
+MCkNClsgICAgMC4yOTk3NzhdIGlteGRpX3J0YyA1M2ZhNDAwMC5zcnRjOiBydGMgY29yZTogcmVn
+aXN0ZXJlZCA1M2ZhNDAwMC5zcnRjIGFzIHJ0YzANClsgICAgMC40MzY3ODVdIGlteGRpX3J0YyA1
+M2ZhNDAwMC5zcnRjOiBzZXR0aW5nIHN5c3RlbSBjbG9jayB0byAyMDE3LTEwLTEyIDA2OjM4OjA4
+IFVUQyAoMTUwNzc5MDI4OCkNClsgIDQ0NS40ODY2MjRdIGlteGRpX3J0YyA1M2ZhNDAwMC5zcnRj
+OiBXcml0ZS13YWl0IHRpbWVvdXQgdmFsID0gMHg1OWRmMGY4ZSByZWcgPSAweDAwMDAwMDA4DQpb
+IDMwMjUuMDc2NjEyXSBpbXhkaV9ydGMgNTNmYTQwMDAuc3J0YzogV3JpdGUtd2FpdCB0aW1lb3V0
+IHZhbCA9IDB4NTlkZjE5YTIgcmVnID0gMHgwMDAwMDAwOA0KWyAzMDgyLjMxNjYxMl0gaW14ZGlf
+cnRjIDUzZmE0MDAwLnNydGM6IFdyaXRlLXdhaXQgdGltZW91dCB2YWwgPSAweDU5ZGYxOWRiIHJl
+ZyA9IDB4MDAwMDAwMDgNCg0KTm92aWNlIHF1ZXN0aW9uOiBJcyBod2Nsb2NrIHN0aWxsIHJlcXVp
+cmVkIHRoZXNlIGRheXM/IEZvciBtZSBpdCBsb29rcyBsaWtlIHRoZSBrZXJuZWwgaXMgc3luY2hy
+b25pemluZyB3aXRoIHJ0YyBvbiBpdCdzIG93bi4gTWF5YmUgc29tZSBrZXJuZWwgY29uZmlnIGlz
+IGluY29tcGF0aWJsZSB3aXRoIGh3Y2xvY2s/DQoNClJlZ2FyZHMsDQpQYXRyaWNrDQpCZWNraG9m
+ZiBBdXRvbWF0aW9uIEdtYkggJiBDby4gS0cgfCBNYW5hZ2luZyBEaXJlY3RvcjogRGlwbC4gUGh5
+cy4gSGFucyBCZWNraG9mZg0KUmVnaXN0ZXJlZCBvZmZpY2U6IFZlcmwsIEdlcm1hbnkgfCBSZWdp
+c3RlciBjb3VydDogR3VldGVyc2xvaCBIUkEgNzA3NQ0KDQoNCg==
