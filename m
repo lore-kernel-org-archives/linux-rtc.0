@@ -1,91 +1,100 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:33265 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751141AbdJRVIa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 17:08:30 -0400
-Date: Wed, 18 Oct 2017 23:08:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Cc: Gabriel Beddingfield <gabe@nestlabs.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com
-Subject: Re: Introduce clock precision to help time travelers was Re: Extreme
- time jitter with suspend/resume cycles
-Message-ID: <20171018210828.GA3581@amd>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
- <20171015063738.GA24716@xo-6d-61-c0.localdomain>
- <20171018213449.523cd958@alans-desktop>
+Received: from m13-125.163.com ([220.181.13.125]:11260 "EHLO m13-125.163.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751138AbdJLN5O (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 12 Oct 2017 09:57:14 -0400
+Date: Thu, 12 Oct 2017 21:40:33 +0800 (CST)
+From: =?GBK?B?wfXOyA==?= <18502523564@163.com>
+To: "Guenter Roeck" <linux@roeck-us.net>
+Cc: "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re:Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+In-Reply-To: <20171010150514.GB1879@roeck-us.net>
+References: <1507641172-6099-1-git-send-email-18502523564@163.com>
+ <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
+ <20171010135134.2zepquujhfwbhxoq@piout.net>
+ <20171010150514.GB1879@roeck-us.net>
+Content-Type: text/plain; charset=GBK
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-In-Reply-To: <20171018213449.523cd958@alans-desktop>
+Message-ID: <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed 2017-10-18 21:34:49, Alan Cox wrote:
-> > And even the boring ones have pretty imprecise RTCs... For example Noki=
-a N9.
-> > I only power it up from time to time, I believe it drifts something like
-> > minute per month... For normal use with SIM card, it can probably corre=
-ct
-> > from GSM network if you happen to have a cell phone signal, but...
-> >=20
-> > More interesting machines... Old thinkpad is running without CMOS batte=
-ry.
-> > ARM OLPC has _three_ RTCs, but not a single working one. N900 has worki=
-ng
-> > RTC but no or dead backup battery. On these, RTC driver probably knows
-> > time is not valid, but feeds the garbage into the system time, anyway. =
-Ouch.
-> > Neither Sharp Zaurus SL-5500 nor C-3000 had battery backup on RTC...
->=20
-> Not a new problem, RTC's used to cost lots of money 8)
->=20
-> Most early Unixen set the clock at boot from the superblock timestamp of
-> the root fs, some with RTC's also used to scream at you if the superblock
-> stamp was too far head of current time.That doesn't quite work with
-> initrd but you can do the same in userspace on Linux so you'll at least
-> get 'when I last booted it' and because it's always moving forward lots
-> of other messes don't happen.
-
-Yeah, that's what "swclock" module of init system does. Someone solved
-that one for me. But... that's not good enough. In particular, I'd
-like time not to be displayed when "swclock" was used. Nokia 6230
-could do it, so linux should be able to do it, too.
-
-It seems kernel should pass accurancy info, or at least "this time is
-probably off by hours at least" from gettimeofday() and similar
-syscalls...
-
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlnnwswACgkQMOfwapXb+vKUkACcC0Y70OHLyZcLpr3ls4FEhfB8
-TlAAnjCE8fuetR7gp8q7N1oHaNKwmgrt
-=mdMd
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--
+CgoKCgoKCgoKCkF0IDIwMTctMTAtMTAgMjM6MDU6MTQsICJHdWVudGVyIFJvZWNrIiA8bGludXhA
+cm9lY2stdXMubmV0PiB3cm90ZToKPk9uIFR1ZSwgT2N0IDEwLCAyMDE3IGF0IDAzOjUxOjM0UE0g
+KzAyMDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOgo+PiBPbiAxMC8xMC8yMDE3IGF0IDA2OjQx
+OjE1IC0wNzAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiA+IE9uIDEwLzEwLzIwMTcgMDY6MTIg
+QU0sIHdpbnRvbi5saXUgd3JvdGU6Cj4+ID4gPiBXaGVuIGVuYWJsZSBDT05GSUdfUlRDX0RSVl9E
+UzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKPj4gPiA+IGluIHN1c3BlbmQgbW9kZSwgd2F0Y2hk
+b2cgaXMgc3RpbGwgd29ya2luZyBidXQgbm8gZGFlbW9uCj4+ID4gPiBwYXR0aW5nIHRoZSB3YXRj
+aGRvZy4gVGhlIHN5c3RlbSB3aWxsIHJlYm9vdCBpZiB0aW1lb3V0Lgo+PiA+ID4gCj4+ID4gPiBB
+ZGQgc3VwcG9ydCBzdXNwZW5kL3Jlc3VtZSBmb3Igd2F0Y2hkb2cuCj4+ID4gPiBzdXNwZW5kOiBk
+aXNhYmxlIHRoZSB3YXRjaGRvZwo+PiA+ID4gcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5nIHdhdGNo
+ZG9nLCByZWxvYWQgd2F0Y2hkb2cgdGltZXIsIGVuYWJsZSB3YXRjaGRvZwo+PiA+ID4gCj4+ID4g
+PiBTaWduZWQtb2ZmLWJ5OiB3aW50b24ubGl1IDwxODUwMjUyMzU2NEAxNjMuY29tPgo+PiA+ID4g
+LS0tCj4+ID4gPiAgIGRyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyB8IDMxICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysKPj4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDMxIGluc2VydGlvbnMo
+KykKPj4gPiA+IAo+PiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyBi
+L2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gaW5kZXggMzhhMmU5ZS4uNjQyZTMxZCAx
+MDA2NDQKPj4gPiA+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gKysrIGIv
+ZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jCj4+ID4gPiBAQCAtNDM3LDYgKzQzNywyOSBAQCBzdGF0
+aWMgdm9pZCBkczEzNzRfd2R0X3Bpbmcodm9pZCkKPj4gPiA+ICAgCQlwcl9pbmZvKCJXRCBUSUNL
+IEZBSUwhISEhISEhISEhICVpXG4iLCByZXQpOwo+PiA+ID4gICB9Cj4+ID4gPiArc3RhdGljIHZv
+aWQgZHMxMzc0X3dkdF9yZXN1bWUodm9pZCkKPj4gPiA+ICt7Cj4+ID4gPiArCWludCByZXQgPSAt
+RU5PSU9DVExDTUQ7Cj4+ID4gCj4+ID4gVXNlbGVzcyBpbml0aWFsaXphdGlvbiAoeWVzLCBJIGNh
+biBzZWUgdGhhdCB0aGlzIGlzIHdpZGVseSBkb25lIGluIHRoZSBkcml2ZXIsCj4+ID4gYnV0IHRo
+YXQgZG9lc24ndCBtYWtlIGl0IGJldHRlcikuCj4+ID4gCiAgICAgICAgWWVzLCBJIHRoaW5rIHRo
+aXMgaXMgdXNlbGVzcy4gVGhlIG9yaWdpbmFsIGRzMTM3NF93ZHRfZGlzYWJsZSBoYXMgdGhlIHNh
+bWUgaXNzdWUuCj4+ID4gPiArCWludCBjcjsKPj4gPiA+ICsKPj4gPiA+ICsJY3IgPSBpMmNfc21i
+dXNfcmVhZF9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9SRUdfQ1IpOwo+PiA+ID4gKwo+
+PiA+ID4gKwkvKiBEaXNhYmxlIGFueSBleGlzdGluZyB3YXRjaGRvZy9hbGFybSBiZWZvcmUgc2V0
+dGluZyB0aGUgbmV3IG9uZSAqLwo+PiA+ID4gKwljciAmPSB+RFMxMzc0X1JFR19DUl9XQUNFOwo+
+PiA+ID4gKwo+PiA+ID4gKwlpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKHNhdmVfY2xpZW50LCBE
+UzEzNzRfUkVHX0NSLCBjcik7Cj4+ID4gPiArCj4+ID4gPiArCS8qIFJlbG9hZCB3YXRjaGRvZyB0
+aW1lciAqLwo+PiA+ID4gKwlkczEzNzRfd2R0X3BpbmcoKTsKPj4gPiA+ICsKPj4gPiA+ICsJLyog
+RW5hYmxlIHdhdGNoZG9nIHRpbWVyICovCj4+ID4gPiArCWNyIHw9IERTMTM3NF9SRUdfQ1JfV0FD
+RSB8IERTMTM3NF9SRUdfQ1JfV0RBTE07Cj4+ID4gPiArCWNyICY9IH5EUzEzNzRfUkVHX0NSX0FJ
+RTsKPj4gPiA+ICsKPj4gPiA+ICsJcmV0ID0gaTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShzYXZl
+X2NsaWVudCwgRFMxMzc0X1JFR19DUiwgY3IpOwo+PiA+ID4gKwo+PiA+IEV4dHJhIGVtcHR5IGxp
+bmUuIEFsc28sIHJldHVybnMgdm9pZCwgc28gd2hhdCBpcyB0aGUgcG9pbnQgb2YgYXNzaWduaW5n
+Cj4+ID4gdGhlIHJlc3VsdCB0byByZXQgPwo+PiA+IAo+PiA+ID4gK30KPj4gPiAKPj4gPiBVbmxl
+c3MgSSBhbSBtaXNzaW5nIHNvbWV0aGluZywgdGhpcyB1bmNvbmRpdGlvbmFsbHkgc3RhcnRzIHRo
+ZSB3YXRjaGRvZwo+PiA+IGF0IHJlc3VtZSB0aW1lLiBTbyBpZiBpdCB3YXMgbm90IHJ1bm5pbmcg
+YmVmb3JlLCBpdCB3aWxsIGJlIHN0YXJ0ZWQgYW55d2F5LAo+PiA+IGFuZCB0aGUgc3lzdGVtIHdp
+bGwgcmVib290IHNpbmNlIHRoZXJlIHdpbGwgYmUgbm8gcGluZy4KPj4gPiAKICAgIFRoaXMgZHJp
+dmVyIHN0YXJ0cyB3YXRjaGRvZyBieSBkZWZhdWx0LiBJbiBwcm9iZSB3YXRjaGRvZyBzdGFydHM6
+IAogICAjaWZkZWYgQ09ORklHX1JUQ19EUlZfRFMxMzc0X1dEVAogICAgc2F2ZV9jbGllbnQgPSBj
+bGllbnQ7CiAgICByZXQgPSBtaXNjX3JlZ2lzdGVyKCZkczEzNzRfbWlzY2Rldik7CiAgICBpZiAo
+cmV0KQogICAgICAgIHJldHVybiByZXQ7CiAgICByZXQgPSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZp
+ZXIoJmRzMTM3NF93ZHRfbm90aWZpZXIpOwogICAgaWYgKHJldCkgewogICAgICAgIG1pc2NfZGVy
+ZWdpc3RlcigmZHMxMzc0X21pc2NkZXYpOwogICAgICAgIHJldHVybiByZXQ7CiAgICB9CiAgICBk
+czEzNzRfd2R0X3NldHRpbWVvdXQoMTMxMDcyKTsgICAvL0hlcmUgc3RhcnRzIHdhdGNoZG9nCiNl
+bmRpZgogICBBbmQgdXNlcnNwYWNlIHdhdGNoZG9nZCB3aWxsIHBpbmcuCj4+IAo+PiBBbHNvLCBJ
+J20gc3RpbGwgbm90IGNvbnZpbmNlZCB0aGlzIGlzIHRoZSByaWdodCB0aGluZyB0byBkby4gSSBo
+YXZlIHNlZW4KPj4gbWFueSBzeXN0ZW1zIHdlcmUgaXQgd2FzIGRlc2lyYWJsZSB0byBsZXQgdGhl
+IHdhdGNoZG9nIHJ1biB3aGlsZSB0aGUKPj4gc3lzdGVtIGlzIHN1c3BlbmRlZC4gSXQgZW5zdXJl
+cyBpdCB3aWxsIGVpdGhlciB3YWtlIHVwIG9yIHJlYm9vdC4gSWYgeW91Cj4+IGRvbid0IHdhbnQg
+dGhhdCwgd2h5IG5vdCBkaXNhYmxpbmcgdGhlIHdhdGNoZG9nIGZyb20gdXNlcnNwYWNlIGJlZm9y
+ZQo+PiBnb2luZyB0byBzdXNwZW5kPwo+PiAKPgo+VXN1YWxseSB3YXRjaGRvZyBkcml2ZXJzIHN1
+cHBvcnRpbmcgc3VzcGVuZC9yZXN1bWUgZG8gaGFuZGxlIGl0IHRoaXMgd2F5Lgo+TWF5YmUgdGhh
+dCBkZXBlbmRzIG9uIHRoZSBIVy4gRXhwZWN0aW5nIHVzZXIgc3BhY2UgdG8gZG8gaXQgbWFrZXMg
+aXQKPmV2ZW4gbW9yZSByYWN5IHRoYW4gaXQgYWxyZWFkeSBpcywgc2luY2UgdGhlcmUgaXMgbm8g
+d2F0Y2hkb2cgcHJvdGVjdGlvbgo+YWZ0ZXIgaXQgaGFzIGJlZW4gZGlzYWJsZWQsIHNvIEkgYW0g
+bm90IHN1cmUgaWYgdGhhdCBpcyByZWFsbHkgYmV0dGVyLgo+RG9lcyBhbnlvbmUgaGFwcGVuIHRv
+IGtub3cgaWYvaG93IHN5c3RlbWQgYW5kIHdhdGNoZG9nZCBhcmUgaGFuZGxpbmcKPnRoaXMgc2l0
+dWF0aW9uID8KPgo+PiA+IEkgYXNzdW1lIGl0IGlzIGd1YXJhbnRlZWQgdGhhdCB0aGUgY2hpcCBk
+b2Vzbid0IGZvcmdldCB0aGUgcHJldmlvdXNseQo+PiA+IGNvbmZpZ3VyZWQgdGltZW91dCBvbiBy
+ZXN1bWUuCj4+ID4gCj4+ID4gT3ZlcmFsbCB0aGUgZHJpdmVyIHdvdWxkIHJlYWxseSBiZW5lZml0
+IGZyb20gYSBjb252ZXJzaW9uIHRvIHRoZSB3YXRjaGRvZwo+PiA+IHN1YnN5c3RlbS4KPj4gPiAK
+Pj4gCj4+IFRoYXQgaXMgdGhlIHBvaW50IG9mIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0L2xpc3Rz
+L2xpbnV4LXdhdGNoZG9nL21zZzEyMDk1Lmh0bWwKPgo+QWgsIHllcywgYW5kIEkgZXZlbiBwcm92
+aWRlZCBmZWVkYmFjay4gSG9wZSBJIGRpZG4ndCBtaXNzIGFuIHVwZGF0ZWQKPnZlcnNpb24gb2Yg
+dGhhdCBwYXRjaC4gRWl0aGVyIGNhc2UsIHNlZW1zIHRvIG1lIHdlIHNob3VsZCB3YWl0IGZvciB0
+aGF0Cj5wYXRjaCB0byBtYWtlIGl0IGluIGJlZm9yZSBhY2NlcHRpbmcgYW55IGZ1cnRoZXIgY2hh
+bmdlcyB0byB0aGUgZHJpdmVyLgo+CiAgIElzIHRoaXMgbXVsdGkgZnVuY3Rpb24gcGF0Y2ggaGFz
+IGFueSB1cGRhdGUgPyBJZiBub3QsIGNvdWxkIG15IHBhdGNoIGJlIGFjY2VwdGFibGUgYmVmb3Jl
+IG1vdmluZyB0byB3YXRjaGRvZyBzdWJzeXN0ZW0uKEkgY291bGQgdXBkYXRlIGEgbmV3IHBhdGNo
+IGZvciB5b3VyIHN1Z2dlc3Rpb24pPwogICBCZWNhdXNlIGN1cnJlbnQga2VybmVsIHVzaW5nIGRz
+MTM3NCBmb3Igd2F0Y2hkb2cuIElmIHRoZSBkZXZpY2UgbmVlZCBzdXNwZW5kLCB0aGVyZSB3aWxs
+IGJlIGEgcmVib290IGlzc3VlLgoKPkd1ZW50ZXIK
