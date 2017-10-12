@@ -1,109 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34203 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756138AbdJJNlS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Oct 2017 09:41:18 -0400
-Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-To: "winton.liu" <18502523564@163.com>, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-References: <1507641172-6099-1-git-send-email-18502523564@163.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
-Date: Tue, 10 Oct 2017 06:41:15 -0700
-MIME-Version: 1.0
-In-Reply-To: <1507641172-6099-1-git-send-email-18502523564@163.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from mail.free-electrons.com ([62.4.15.54]:52725 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750990AbdJLWFe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:05:34 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 1/3] rtc: ds1511: switch to rtc_register_device
+Date: Fri, 13 Oct 2017 00:05:27 +0200
+Message-Id: <20171012220529.8142-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 10/10/2017 06:12 AM, winton.liu wrote:
-> When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
-> in suspend mode, watchdog is still working but no daemon
-> patting the watchdog. The system will reboot if timeout.
-> 
-> Add support suspend/resume for watchdog.
-> suspend: disable the watchdog
-> resume: disable existing watchdog, reload watchdog timer, enable watchdog
-> 
-> Signed-off-by: winton.liu <18502523564@163.com>
-> ---
->   drivers/rtc/rtc-ds1374.c | 31 +++++++++++++++++++++++++++++++
->   1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-> index 38a2e9e..642e31d 100644
-> --- a/drivers/rtc/rtc-ds1374.c
-> +++ b/drivers/rtc/rtc-ds1374.c
-> @@ -437,6 +437,29 @@ static void ds1374_wdt_ping(void)
->   		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
->   }
->   
-> +static void ds1374_wdt_resume(void)
-> +{
-> +	int ret = -ENOIOCTLCMD;
+This allows for future improvement of the driver.
 
-Useless initialization (yes, I can see that this is widely done in the driver,
-but that doesn't make it better).
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-ds1511.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-> +	int cr;
-> +
-> +	cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
-> +
-> +	/* Disable any existing watchdog/alarm before setting the new one */
-> +	cr &= ~DS1374_REG_CR_WACE;
-> +
-> +	i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
-> +
-> +	/* Reload watchdog timer */
-> +	ds1374_wdt_ping();
-> +
-> +	/* Enable watchdog timer */
-> +	cr |= DS1374_REG_CR_WACE | DS1374_REG_CR_WDALM;
-> +	cr &= ~DS1374_REG_CR_AIE;
-> +
-> +	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
-> +
-Extra empty line. Also, returns void, so what is the point of assigning
-the result to ret ?
-
-> +}
-
-Unless I am missing something, this unconditionally starts the watchdog
-at resume time. So if it was not running before, it will be started anyway,
-and the system will reboot since there will be no ping.
-
-I assume it is guaranteed that the chip doesn't forget the previously
-configured timeout on resume.
-
-Overall the driver would really benefit from a conversion to the watchdog
-subsystem.
-
-> +
->   static void ds1374_wdt_disable(void)
->   {
->   	int ret = -ENOIOCTLCMD;
-> @@ -690,6 +713,10 @@ static int ds1374_suspend(struct device *dev)
->   {
->   	struct i2c_client *client = to_i2c_client(dev);
->   
-> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
-> +	ds1374_wdt_disable();
-> +#endif
-> +
->   	if (client->irq > 0 && device_may_wakeup(&client->dev))
->   		enable_irq_wake(client->irq);
->   	return 0;
-> @@ -699,6 +726,10 @@ static int ds1374_resume(struct device *dev)
->   {
->   	struct i2c_client *client = to_i2c_client(dev);
->   
-> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
-> +	ds1374_wdt_resume();
-> +#endif
-> +
->   	if (client->irq > 0 && device_may_wakeup(&client->dev))
->   		disable_irq_wake(client->irq);
->   	return 0;
-> 
+diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+index 1b2dcb58c0ab..d44635178771 100644
+--- a/drivers/rtc/rtc-ds1511.c
++++ b/drivers/rtc/rtc-ds1511.c
+@@ -477,11 +477,16 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&pdata->lock);
+ 	platform_set_drvdata(pdev, pdata);
+ 
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					      &ds1511_rtc_ops, THIS_MODULE);
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(pdata->rtc))
+ 		return PTR_ERR(pdata->rtc);
+ 
++	pdata->rtc->ops = &ds1511_rtc_ops;
++
++	ret = rtc_register_device(pdata->rtc);
++	if (ret)
++		return ret;
++
+ 	/*
+ 	 * if the platform has an interrupt in mind for this device,
+ 	 * then by all means, set it
+-- 
+2.14.2
