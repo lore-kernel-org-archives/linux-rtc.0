@@ -1,56 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:55429 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932245AbdJWPqA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Oct 2017 11:46:00 -0400
-Received: by mail-wm0-f68.google.com with SMTP id u138so10736717wmu.4
-        for <linux-rtc@vger.kernel.org>; Mon, 23 Oct 2017 08:45:59 -0700 (PDT)
-Date: Mon, 23 Oct 2017 16:45:40 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, andy@infradead.org,
-        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, sathyaosid@gmail.com
-Subject: Re: [RFC v6 8/9] platform/x86: intel_pmc_ipc: Use generic Intel IPC
- device calls
-Message-ID: <20171023154540.tdl7u4ntmeljybhx@dell>
-References: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <491e7ea183ada1e50ac4ece6ca3f73ccda9cd42e.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:49600 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752761AbdJLJgu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 05:36:50 -0400
+Date: Thu, 12 Oct 2017 10:36:38 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
+Cc: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: Re: DryIce , RTC not working on imx53.
+Message-ID: <20171012093638.GA20805@n2100.armlinux.org.uk>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <491e7ea183ada1e50ac4ece6ca3f73ccda9cd42e.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 18 Oct 2017, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
+On Thu, Oct 12, 2017 at 07:50:41AM +0000, Patrick Brünn wrote:
+> Novice question: Is hwclock still required these days? For me it looks
+> like the kernel is synchronizing with rtc on it's own. Maybe some kernel
+> config is incompatible with hwclock?
 
-> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> 
-> Removed redundant IPC helper functions and refactored the driver to use
-> generic IPC device driver APIs. Also, cleaned up the driver to minimize
-> the usage of global variable ipcdev by propogating the struct
-> intel_pmc_ipc_dev pointer or by getting it from device private data.
-> 
-> This patch also cleans-up PMC IPC user drivers(intel_telemetry_pltdrv.c,
-> intel_soc_pmic_bxtwc.c) to use APIs provided by generic IPC driver.
-> 
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> ---
->  arch/x86/include/asm/intel_pmc_ipc.h          |  31 +-
->  drivers/mfd/intel_soc_pmic_bxtwc.c            |  37 ++-
->  drivers/platform/x86/intel_pmc_ipc.c          | 393 ++++++++++----------------
->  drivers/platform/x86/intel_telemetry_pltdrv.c | 128 ++++-----
+It depends on your application.  If you want the kernel's idea of time
+to be wrong up to a second or two, then you can rely on the kernel's
+time setting.
 
->  include/linux/mfd/intel_soc_pmic.h            |   2 +
+Please realise that the kernel has always set the time from the RTC,
+even on x86 where hwclock has been used.  hwclock, however, has some
+advanced features and advantages that are beneficial if you're after
+accuracy.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+1) hwclock will try to read the RTC as close to a second-change as
+   possible, so that the time read from the RTC is as close to the
+   second.
+
+2) hwclock can measure and correct the RTC time for its own drift if
+   hwclock has been allowed to capture and process the offset.
+
+What this means is that hwclock has the capability to precisely set
+the kernel's time at boot, way more accurately than the kernel does.
+The kernel's time setting is focused on speed, not accuracy.
+
+So, if your userspace application is to monitor something using a
+precise timestamp, and you are NTP synchronising (or other method) the
+time on the system, then you need the kernel's idea of time to be set
+much more precisely to avoid NTP making big corrections over the
+following three to six hours.
+
+This happens because NTP will slew the clock for a few seconds of
+difference, which makes storing and reloading the PPM value useless,
+and can also mean that in such a monitoring application, the results
+are unreliable until NTP has re-stabilised.
+
+Here's an example of an application where this may matter: average
+speed camera system.  You have two cameras over a section of road,
+each with their own processing, which are NTP synchronised.  Each
+reads the numberplate of passing vehicles using ANPR technology,
+and timestamps the passing of the vehicle using their local clock.
+The distance is known, so it's an easy calculation to calculate the
+vehicle speed.  If the vehicle speed is over the limit, the driver
+is fined.
+
+Consider what the implications are if one of the systems rebooted
+and then had incorrect time (up to two seconds wrong) for up to six
+hours after - a two second error is about a 3% error in recorded
+speed.  Would you want to be sent a speeding fine from such a system?
+
+(We have the first non-motorway road in Surrey, UK to have average
+speed cameras installed down its entire length because of "piston
+heads" who think the speed limit is 60mph rather than the sign-
+posted 40mph.)
+
+Another, probably more relevant application is a stratum-1 NTP server
+synchronised via PPS to a GPS.  I wonder how many people are aware
+that if you reboot such a setup relying on the kernel's time setting
+only, the time sent to clients will be wrong while NTP slews the local
+clock.  I've seen these effects locally, where rebooting exactly such
+a system results in slaved systems which have no other source of time
+also making big corrections.
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org â”‚ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
+According to speedtest.net: 8.21Mbps down 510kbps up
