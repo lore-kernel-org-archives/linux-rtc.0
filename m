@@ -1,63 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:41430 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750756AbdJWHQz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Oct 2017 03:16:55 -0400
-From: <sean.wang@mediatek.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v3 0/4] rtc: mediatek: add support for SoC based RTC on MT7622
-Date: Mon, 23 Oct 2017 15:16:43 +0800
-Message-ID: <cover.1508741262.git.sean.wang@mediatek.com>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:33127 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753135AbdJMHmr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 13 Oct 2017 03:42:47 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1507827914.16112.449.camel@linux.intel.com>
+References: <20170608134811.60786-1-andriy.shevchenko@linux.intel.com>
+ <20170608134811.60786-25-andriy.shevchenko@linux.intel.com>
+ <CAK8P3a3RNAty5T8nR2F3JMJB2zYyeJQ0qvj0gJxa0QB57TcVuQ@mail.gmail.com> <1507827914.16112.449.camel@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 13 Oct 2017 09:42:46 +0200
+Message-ID: <CAK8P3a18OJgyA-wePsUCk+H2_3eA5AqoMNBSN3QQL0ki9mGHEw@mail.gmail.com>
+Subject: Re: [PATCH v1 24/25] kdb: Switch to use %pt
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Ingo Molnar <mingo@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On Thu, Oct 12, 2017 at 7:05 PM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Thu, 2017-10-12 at 15:31 +0200, Arnd Bergmann wrote:
+>> On Thu, Jun 8, 2017 at 3:48 PM, Andy Shevchenko
+>> <andriy.shevchenko@linux.intel.com> wrote:
+>>
+>> > diff --git a/kernel/debug/kdb/kdb_main.c
+>> > b/kernel/debug/kdb/kdb_main.c
+>> > index c8146d53ca67..2a6f12be79d8 100644
+>> > --- a/kernel/debug/kdb/kdb_main.c
+>> > +++ b/kernel/debug/kdb/kdb_main.c
+>> > @@ -2556,12 +2556,7 @@ static int kdb_summary(int argc, const char
+>> > **argv)
+>> >
+>> >         now = __current_kernel_time();
+>> >         kdb_gmtime(&now, &tm);
+>> > -       kdb_printf("date       %04d-%02d-%02d %02d:%02d:%02d "
+>> > -                  "tz_minuteswest %d\n",
+>> > -               1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
+>> > -               tm.tm_hour, tm.tm_min, tm.tm_sec,
+>> > -               sys_tz.tz_minuteswest);
+>> > -
+>>
+>> I just experimented with a similar change and noticed your version.
+>>
+>> You forgot to remove the kdb_gmtime() function that is now completely
+>> unneeded. My patch takes care of that now.
+>
+> So, are you going to substitute entire series by your variant?
+>
+> What did you choose to be format for the %p extension?
 
-Changes since v2:
-- Remove time extension with yr_base 
-- Add fixup that ensures all time fields in hardware keeping consistency
-inside the mtk_rtc_get_alarm_or_time call
-- Add validity for time range should be between 2001 to 2099
-- Enhance comments with aligned style and explanation for certain limiation in
-hardware
-- Rename dt-binding naming from rtc-mediatek.txt to rtc-mt7622.txt
-- Rename config naming from RTC_DRV_MEDIATEK to RTC_DRV_MT7622
+My patch doesn't touch printf at all, instead it removes the
+__current_kernel_time() function, so it's unrelated but happens
+to change the same lines here. Since kdb_gmtime() doesn't
+work with 64-bit time_t, I replaced it using the generic
+time64_to_tm() helper and removed it here.
 
-Changes since v1:
-- Rename to rtc-mt7622.c from rtc-mediatek.c
-- Use [readl,writel]_relaxed instead of __raw_* version
-- Remove redundant register reading in mtk_rtc_get_alarm_or_time()
-- Stop alarm when alarm is really expired in mtk_rtc_alarmirq()
-- Extend the maximum year the RTC/Alarm can count/support using year rebasing
-- Remove unnesscary log which is already done in core layer
-
-This patchset introduces support for MediaTek SoC based real time clock
-(RTC) Currently, the driver is already tested successfully with hwclock
-and wakealarm on MT7622 SoC. And it should also be workable on other
-similar MediaTek SoCs. And patch 3 is a distinct patch used to distinguish
-between either SoC based or PMIC based RTC to avoid confusion for the RTC
-selection for the target SoC.
-
-Sean Wang (4):
-  dt-bindings: rtc: mediatek: add bindings for MediaTek SoC based RTC
-  rtc: mediatek: add driver for RTC on MT7622 SoC
-  rtc: mediatek: enhance the description for MediaTek PMIC based RTC
-  rtc: mediatek: update MAINTAINERS entry with MediaTek RTC driver
-
- .../devicetree/bindings/rtc/rtc-mt7622.txt         |  21 +
- MAINTAINERS                                        |   3 +
- drivers/rtc/Kconfig                                |  18 +-
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-mt7622.c                           | 422 +++++++++++++++++++++
- 5 files changed, 461 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt7622.txt
- create mode 100644 drivers/rtc/rtc-mt7622.c
-
--- 
-2.7.4
+       Arnd
