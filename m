@@ -1,41 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:52774 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753010AbdJLWGw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:06:52 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 1/2] rtc: omap: fix error path when pinctrl_register fails
-Date: Fri, 13 Oct 2017 00:06:44 +0200
-Message-Id: <20171012220645.8704-1-alexandre.belloni@free-electrons.com>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59467 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750913AbdJOVjj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 15 Oct 2017 17:39:39 -0400
+Date: Sun, 15 Oct 2017 08:39:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Gabriel Beddingfield <gabe@nestlabs.com>, pavel@ucw.cz
+Cc: LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
+        hharte@nestlabs.com
+Subject: Introduce clock precision to help time travelers was Re: Extreme
+ time jitter with suspend/resume cycles
+Message-ID: <20171015063738.GA24716@xo-6d-61-c0.localdomain>
+References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-If pinctrl_register() fails probe will return with an error without locking
-the RTC and disabling pm_runtime.
-Set ret and jump to err instead.
+H!
 
-Fixes: 97ea1906b3c2 ("rtc: omap: Support ext_wakeup configuration")
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-omap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> We have been developing a device that has very a very aggressive power
+> policy, doing suspend/resume cycles a few times a minute ("echo mem >
+> /sys/power/state"). In doing so, we found that the system time
+> experiences a lot of jitter (compared to, say, an NTP server). It was
+> not uncommon for us to see time corrections of 1s to 4s on a regular
+> basis. This didn't happen when the device stayed awake, only when it
+> was allowed to do suspend/resume.
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 13f7cd11c07e..3bdc041fc2e9 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -830,7 +830,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	rtc->pctldev = pinctrl_register(&rtc_pinctrl_desc, &pdev->dev, rtc);
- 	if (IS_ERR(rtc->pctldev)) {
- 		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
--		return PTR_ERR(rtc->pctldev);
-+		ret = PTR_ERR(rtc->pctldev);
-+		goto err;
- 	}
- 
- 	return 0;
--- 
-2.14.2
+Ok, so I have various machines here. It seems only about half of them has
+working RTC. That are the boring ones.
+
+And even the boring ones have pretty imprecise RTCs... For example Nokia N9.
+I only power it up from time to time, I believe it drifts something like
+minute per month... For normal use with SIM card, it can probably correct
+from GSM network if you happen to have a cell phone signal, but...
+
+More interesting machines... Old thinkpad is running without CMOS battery.
+ARM OLPC has _three_ RTCs, but not a single working one. N900 has working
+RTC but no or dead backup battery. On these, RTC driver probably knows
+time is not valid, but feeds the garbage into the system time, anyway. Ouch.
+Neither Sharp Zaurus SL-5500 nor C-3000 had battery backup on RTC...
+
+Even in new end-user machines, time quality varies a lot. "First boot, please
+enter time" is only accurate to seconds, if the user is careful. RTC is usually
+not very accurate, either... and noone uses adjtime these days. GSM time and
+ntpdate are probably accurate to miliseconds, GPS can provide time down to
+picoseconds... And broken systems are so common "swclock" is available in
+init system to store time in file, so it at least does not go backwards.
+
+https (and other crypto) depends on time... so it is important to know approximate
+month we are in.
+
+Is it time we handle it better?
+
+Could we return both time and log2(expected error) from system calls?
+
+That way we could hide the clock in GUI if time is not available or not precise
+to minutes, ignore certificate dates when time is not precise to months, and
+you would not have to send me a "Pavel, are you time traveling, again?" message
+next time my mailer sends email dated to 1970.
+
+									Pavel
+
+PS: And yes, I'm time-travaling again, this time by ~15 hours.
