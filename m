@@ -1,280 +1,208 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:12515 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751475AbdJ2IHI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 29 Oct 2017 04:07:08 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v7 3/7] platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
-Date: Sun, 29 Oct 2017 01:03:19 -0700
-Message-Id: <e9ddfbc1b14ed71e16e5c73ba492266de78a11d6.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:5891 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754506AbdJQDYf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 16 Oct 2017 23:24:35 -0400
+Message-ID: <1508210661.21840.86.camel@mtkswgap22>
+Subject: Re: [PATCH 2/4] rtc: mediatek: add driver for RTC on MT7622 SoC
+From: Sean Wang <sean.wang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <a.zummo@towertech.it>, <robh+dt@kernel.org>,
+        <mark.rutland@arm.com>, <linux-rtc@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Tue, 17 Oct 2017 11:24:21 +0800
+In-Reply-To: <1508141876.21840.75.camel@mtkswgap22>
+References: <cover.1506049341.git.sean.wang@mediatek.com>
+         <5b2a7e5c9c5bc179f89e48fb614b2ae789be4254.1506049341.git.sean.wang@mediatek.com>
+         <20171012212052.xkhbgdjrghmnvcfe@piout.net>
+         <1508141876.21840.75.camel@mtkswgap22>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On Mon, 2017-10-16 at 16:17 +0800, Sean Wang wrote:
+> Hi Alexandre,
+> 
+> Thanks for your valuable suggestions on the driver.
+> 
+> I added comments inline and will have following-ups in the next version
+> 
+> 	Sean
+> 
+> On Thu, 2017-10-12 at 23:20 +0200, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 22/09/2017 at 11:33:15 +0800, sean.wang@mediatek.com wrote:
+> > > diff --git a/drivers/rtc/rtc-mediatek.c b/drivers/rtc/rtc-mediatek.c
+> > 
+> > I'm pretty sure this should be named rtc-mt7622.c instead of
+> > rtc-mediatek.c, exactly for the same reason you have patch 3/4.
+> > 
+> 
+> It's okay for naming with rtc-mt7622.c at this moment. But if more SoCs
+> support gets into the driver, I will consider again to give a more
+> generic name for the driver.
+> 
+> > > +static void mtk_w32(struct mtk_rtc *rtc, u32 reg, u32 val)
+> > > +{
+> > > +	__raw_writel(val, rtc->base + reg);
+> > 
+> > Do you really need the __raw accessors? What about running your SoC in
+> > BE mode? I guess the _relaxed version are fast enough.
+> > 
+> 
+> SoC runs on LE mode. I also think it's fine and enough to use _relaxed
+> version instead of __raw version.
+> 
+> > > +}
+> > > +
+> > > +static u32 mtk_r32(struct mtk_rtc *rtc, u32 reg)
+> > > +{
+> > > +	return __raw_readl(rtc->base + reg);
+> > > +}
+> > > +
+> > 
+> > 
+> > > +static void mtk_rtc_hw_init(struct mtk_rtc *hw)
+> > > +{
+> > > +	/* The setup of the init sequence is for allowing RTC got to work */
+> > > +	mtk_w32(hw, MTK_RTC_PWRCHK1, RTC_PWRCHK1_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_PWRCHK2, RTC_PWRCHK2_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_KEY, RTC_KEY_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_PROT1, RTC_PROT1_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_PROT2, RTC_PROT2_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_PROT3, RTC_PROT3_MAGIC);
+> > > +	mtk_w32(hw, MTK_RTC_PROT4, RTC_PROT4_MAGIC);
+> > > +	mtk_rmw(hw, MTK_RTC_DEBNCE, RTC_DEBNCE_MASK, 0);
+> > > +	mtk_clr(hw, MTK_RTC_CTL, RTC_RC_STOP);
+> > > +}
+> > > +
+> > > +static void mtk_rtc_get_alarm_or_time(struct mtk_rtc *hw, struct rtc_time *tm,
+> > > +				      int time_alarm)
+> > > +{
+> > > +	u32 year, mon, mday, wday, hour, min, sec;
+> > > +
+> > > +	/*
+> > > +	 * Read again until all fields are not changed for all fields in the
+> > > +	 * consistent state.
+> > > +	 */
+> > > +	do {
+> > > +		year = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_YEA));
+> > > +		mon = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MON));
+> > > +		wday = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOW));
+> > > +		mday = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOM));
+> > > +		hour = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_HOU));
+> > > +		min = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MIN));
+> > > +		sec = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_SEC));
+> > > +	} while (year != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_YEA)) ||
+> > > +		 mon != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MON))  ||
+> > > +		 mday != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOM))	||
+> > > +		 wday != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOW))	||
+> > > +		 hour != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_HOU))	||
+> > > +		 min != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MIN))	||
+> > > +		 sec != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_SEC))
+> > > +		);
+> > 
+> > I'm pretty sure only checking sec is enough because it is highly
+> > unlikely that 7 reads take a minute.
+> > 
+> 
+> You're right. I made something stupid here. Only checking on sec is
+> enough and will give simpler and better code.
+> 
+> > > +static irqreturn_t mtk_rtc_alarmirq(int irq, void *id)
+> > > +{
+> > > +	struct mtk_rtc *hw = (struct mtk_rtc *)id;
+> > > +	u32 irq_sta;
+> > > +
+> > > +	/* Stop alarm also implicitly disable the alarm interrupt */
+> > > +	mtk_w32(hw, MTK_RTC_AL_CTL, 0);
+> > 
+> > You stop the alarm here, before testing whether the alarm really
+> > happened.
+> > 
+> 
+> Okay. I will exchange the order for alarm stopping and the examination
+> whether the alarm is really expired. 
+> 
+> > > +	irq_sta = mtk_r32(hw, MTK_RTC_INT);
+> > > +	if (irq_sta & RTC_INT_AL_STA) {
+> > > +		rtc_update_irq(hw->rtc, 1, RTC_IRQF | RTC_AF);
+> > > +
+> > > +		/* Ack alarm interrupt status */
+> > > +		mtk_w32(hw, MTK_RTredundantC_INT, RTC_INT_AL_STA);
+> > > +		return IRQ_HANDLED;
+> > > +	}
+> > > +
+> > > +	return IRQ_NONE;
+> > > +}
+> > > +
+> > > +static int mtk_rtc_gettime(struct device *dev, struct rtc_time *tm)
+> > > +{
+> > > +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> > > +
+> > > +	mtk_rtc_get_alarm_or_time(hw, tm, MTK_TC);
+> > > +
+> > > +	return rtc_valid_tm(tm);
+> > > +}
+> > > +
+> > > +static int mtk_rtc_settime(struct device *dev, struct rtc_time *tm)
+> > > +{
+> > > +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> > > +
+> > > +	/* Stop time counter before setting a new one*/
+> > > +	mtk_set(hw, MTK_RTC_CTL, RTC_RC_STOP);
+> > > +
+> > > +	/* Epoch == 1900 */
+> > > +	if (tm->tm_year < 100 || tm->tm_year > 199)
+> > > +		return -EINVAL;
+> > 
+> > Year is a 32 bits register, what makes the RTC fail in 2100? Is it
+> > because of the leap year handling?
+> > 
+> 
+> I made something stupid again here: rtc hardware doesn't have such the
+> limitation. I just felt alarm set up prior to 2100 is enough in my
+> initial thought, but it seemed I shouldn't do this. I will remove the
+> sanity condition.
+> 
+Sorry for that I gave incorrect information for the RTC in the previous
+reply: After check again the usage of the register, the maximum number
+of the year the RTC can hold is 99 and then wraparound to 0 when
+overflow occurs although the year register is a 32 bits register.
 
-This patch adds support for regmap based implementation for GCR
-read/write/update APIs.
+Therefore, the sanity for tm->tm_year is still required for the both
+setup handler on alarm and rtc to ensure the user input data is valid,
+where the current driver assume it's valid when tm->tm_year is between
+2000 and 2099. I'll add more comments for the hardware limitation.
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/platform/x86/Kconfig         |   1 +
- drivers/platform/x86/intel_pmc_ipc.c | 122 +++++++++++++----------------------
- 2 files changed, 46 insertions(+), 77 deletions(-)
-
-Changes since v6:
- * None
-
-Changes since v5:
- * None
-
-Changes since v4:
- * None
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 80b8795..45f4e79 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1054,6 +1054,7 @@ config PVPANIC
- config INTEL_PMC_IPC
- 	tristate "Intel PMC IPC Driver"
- 	depends on ACPI
-+	select REGMAP_MMIO
- 	---help---
- 	This driver provides support for PMC control on some Intel platforms.
- 	The PMC is an ARC processor which defines IPC commands for communication
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index 8a079ff..5d5485c 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -35,6 +35,8 @@
- #include <linux/acpi.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
- #include <linux/spinlock.h>
-+#include <linux/mfd/core.h>
-+#include <linux/regmap.h>
- 
- #include <asm/intel_pmc_ipc.h>
- 
-@@ -126,8 +128,7 @@ static struct intel_pmc_ipc_dev {
- 
- 	/* gcr */
- 	void __iomem *gcr_mem_base;
--	bool has_gcr_regs;
--	spinlock_t gcr_lock;
-+	struct regmap *gcr_regs;
- } ipcdev;
- 
- static char *ipc_err_sources[] = {
-@@ -149,6 +150,15 @@ static char *ipc_err_sources[] = {
- 		"Unsigned kernel",
- };
- 
-+static struct regmap_config gcr_regmap_config = {
-+	.name = "intel_pmc_gcr",
-+        .reg_bits = 32,
-+        .reg_stride = 4,
-+        .val_bits = 32,
-+	.fast_io = true,
-+	.max_register = PLAT_RESOURCE_GCR_SIZE,
-+};
-+
- /* Prevent concurrent calls to the PMC */
- static DEFINE_MUTEX(ipclock);
- 
-@@ -182,21 +192,6 @@ static inline u32 ipc_data_readl(u32 offset)
- 	return readl(ipcdev.ipc_base + IPC_READ_BUFFER + offset);
- }
- 
--static inline u64 gcr_data_readq(u32 offset)
--{
--	return readq(ipcdev.gcr_mem_base + offset);
--}
--
--static inline int is_gcr_valid(u32 offset)
--{
--	if (!ipcdev.has_gcr_regs)
--		return -EACCES;
--
--	if (offset > PLAT_RESOURCE_GCR_SIZE)
--		return -EINVAL;
--
--	return 0;
--}
- 
- /**
-  * intel_pmc_gcr_read() - Read PMC GCR register
-@@ -209,21 +204,12 @@ static inline int is_gcr_valid(u32 offset)
-  */
- int intel_pmc_gcr_read(u32 offset, u32 *data)
- {
--	int ret;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0) {
--		spin_unlock(&ipcdev.gcr_lock);
--		return ret;
--	}
--
--	*data = readl(ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	spin_unlock(&ipcdev.gcr_lock);
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--	return 0;
-+	return regmap_read(pmc->gcr_regs, offset, data);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
- 
-@@ -239,21 +225,12 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
-  */
- int intel_pmc_gcr_write(u32 offset, u32 data)
- {
--	int ret;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0) {
--		spin_unlock(&ipcdev.gcr_lock);
--		return ret;
--	}
--
--	writel(data, ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	spin_unlock(&ipcdev.gcr_lock);
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--	return 0;
-+	return regmap_write(pmc->gcr_regs, offset, data);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
- 
-@@ -270,33 +247,12 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
-  */
- int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
- {
--	u32 new_val;
--	int ret = 0;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0)
--		goto gcr_ipc_unlock;
--
--	new_val = readl(ipcdev.gcr_mem_base + offset);
--
--	new_val &= ~mask;
--	new_val |= val & mask;
--
--	writel(new_val, ipcdev.gcr_mem_base + offset);
--
--	new_val = readl(ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	/* check whether the bit update is successful */
--	if ((new_val & mask) != (val & mask)) {
--		ret = -EIO;
--		goto gcr_ipc_unlock;
--	}
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--gcr_ipc_unlock:
--	spin_unlock(&ipcdev.gcr_lock);
--	return ret;
-+	return regmap_update_bits(pmc->gcr_regs, offset, mask, val);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
- 
-@@ -475,8 +431,6 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	pmc->irq_mode = IPC_TRIGGER_MODE_IRQ;
- 
--	spin_lock_init(&ipcdev.gcr_lock);
--
- 	ret = pcim_enable_device(pdev);
- 	if (ret)
- 		return ret;
-@@ -764,17 +718,26 @@ static int ipc_plat_get_res(struct platform_device *pdev)
-  */
- int intel_pmc_s0ix_counter_read(u64 *data)
- {
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 	u64 deep, shlw;
-+	int ret;
- 
--	if (!ipcdev.has_gcr_regs)
-+	if (!pmc->gcr_regs)
- 		return -EACCES;
- 
--	deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
--	shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
-+	ret = regmap_bulk_read(pmc->gcr_regs, PMC_GCR_TELEM_DEEP_S0IX_REG,
-+			       &deep, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_read(pmc->gcr_regs, PMC_GCR_TELEM_SHLW_S0IX_REG,
-+			       &shlw, 2);
-+	if (ret)
-+		return ret;
- 
- 	*data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(intel_pmc_s0ix_counter_read);
- 
-@@ -793,7 +756,6 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 	ipcdev.dev = &pdev->dev;
- 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
- 	init_completion(&ipcdev.cmd_complete);
--	spin_lock_init(&ipcdev.gcr_lock);
- 
- 	ipcdev.irq = platform_get_irq(pdev, 0);
- 	if (ipcdev.irq < 0) {
-@@ -807,6 +769,14 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+        ipcdev.gcr_regs = devm_regmap_init_mmio_clk(ipcdev.dev, NULL,
-+						    ipcdev.gcr_mem_base,
-+						    &gcr_regmap_config);
-+        if (IS_ERR(ipcdev.gcr_regs)) {
-+                dev_err(ipcdev.dev, "gcr_regs regmap init failed\n");
-+                return PTR_ERR(ipcdev.gcr_regs);;
-+        }
-+
- 	ret = ipc_create_pmc_devices(pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to create PMC devices\n");
-@@ -828,8 +798,6 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	ipcdev.has_gcr_regs = true;
--
- 	return 0;
- }
- 
--- 
-2.7.4
+	Sean
+> 
+> > > +static int mtk_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+> > > +{
+> > > +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> > > +	struct rtc_time *alrm_tm = &wkalrm->time;
+> > > +
+> > > +	/* Epoch == 1900 */
+> > > +	if (alrm_tm->tm_year < 100 || alrm_tm->tm_year > 199)
+> > > +		return -EINVAL;
+> > > +
+> > 
+> > Ditto.
+> > 
+> Ditto. those condition will be removed.
+> 
+> > > +
+> > > +	dev_info(&pdev->dev, "MediaTek SoC based RTC enabled\n");
+> > > +
+> > 
+> > I think the rtc core is verbose enough that this message is not needed.
+> > 
+> 
+> Okay. the redundant and specific log prompt would be removed as well.
+> 
+> 
+> > 
+> 
