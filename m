@@ -1,23 +1,25 @@
-Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFUZZHHQKGQECIDUU6I@googlegroups.com>
+Return-Path: <rtc-linux+bncBAABBSX3S7HQKGQEUG6OUPI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
-Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
-        by gmr-mx.google.com with ESMTP id o2si12344wmf.1.2017.10.26.13.59.01
-        for <rtc-linux@googlegroups.com>;
-        Thu, 26 Oct 2017 13:59:01 -0700 (PDT)
-Date: Thu, 26 Oct 2017 22:59:01 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Bastian Stender <bst@pengutronix.de>
-Cc: rtc-linux@googlegroups.com, Marek Vasut <marex@denx.de>,
-	Arnd Bergmann <arnd@arndb.de>, Felipe Balbi <balbi@ti.com>,
-	Nishanth Menon <nm@ti.com>, Tony Lindgren <tony@atomide.com>,
-	kernel@pengutronix.de
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de. [2001:67c:670:201:290:27ff:fe1d:cc33])
+        by gmr-mx.google.com with ESMTPS id c23si394120ljf.4.2017.10.17.05.55.38
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 17 Oct 2017 05:55:38 -0700 (PDT)
 Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: add OF and ACPI entries for
  Epson RX8130
-Message-ID: <20171026205901.k3ym3uejsslddne3@piout.net>
+To: Marek Vasut <marex@denx.de>, rtc-linux@googlegroups.com
+Cc: Nishanth Menon <nm@ti.com>, Arnd Bergmann <arnd@arndb.de>,
+ Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ kernel@pengutronix.de
 References: <20171017124607.17461-1-bst@pengutronix.de>
+ <6c4c6718-fda0-80df-d217-da27108f4809@denx.de>
+From: Bastian Stender <bst@pengutronix.de>
+Message-ID: <c4c1e5d6-6c46-1a9a-d7b9-1f34fc1c6296@pengutronix.de>
+Date: Tue, 17 Oct 2017 14:55:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20171017124607.17461-1-bst@pengutronix.de>
+In-Reply-To: <6c4c6718-fda0-80df-d217-da27108f4809@denx.de>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
@@ -27,27 +29,27 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-Hi,
-
-Note that this has not been sent to the correct mailing list (please use
-a more recent kernel ;))
-
-On 17/10/2017 at 14:46:07 +0200, Bastian Stender wrote:
-> Make Epson RX8130 device tree and ACPI aware.
+On 10/17/2017 02:49 PM, Marek Vasut wrote:
+> On 10/17/2017 02:46 PM, Bastian Stender wrote:
+>> Make Epson RX8130 device tree and ACPI aware.
+>>
+>> Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
 > 
-> Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-> Signed-off-by: Bastian Stender <bst@pengutronix.de>
-> ---
->  drivers/rtc/rtc-ds1307.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
+> Fixes , really ? I don't think it's broken in any way without the ACPI
+> entries.
 
-Applied, thanks.
+I think it's incomplete without ACPI/OF support - all other devices do 
+have entries there. But yes, it is not really a bug, so this can discarded.
+
+Regards,
+Bastian
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Pengutronix e.K.
+Industrial Linux Solutions
+http://www.pengutronix.de/
+Peiner Str. 6-8, 31137 Hildesheim, Germany
+Amtsgericht Hildesheim, HRA 2686
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
