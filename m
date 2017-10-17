@@ -1,73 +1,82 @@
-Return-Path: <18502523564@163.com>
-From: "=?utf-8?B?MTg1MDI1MjM1NjQ=?="<18502523564@163.com>
-To: "=?utf-8?B?QWxleGFuZHJlIEJlbGxvbmkg?="<alexandre.belloni@free-electrons.com>
-Cc: "=?utf-8?B?YS56dW1tbw==?="<a.zummo@towertech.it>, "=?utf-8?B?bGludXgtcnRj?="<linux-rtc@vger.kernel.org>, "=?utf-8?B?bGludXgta2VybmVs?="<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-Mime-Version: 1.0
-Content-Type: text/html;
-	charset="utf-8"
-Date: Tue, 26 Sep 2017 09:56:32 +0800
-Message-ID: <tencent_BD3706918C1500105699D4E6@qq.com>
-References: <1506340724-18108-1-git-send-email-18502523564@163.com>
-	<20170925120742.ja54wu2orgai6fsr@piout.net>
-List-ID: <linux-rtc.vger.kernel.org>
+Return-Path: <rtc-linux+bncBDIOBYPK6QDRBTPYS7HQKGQE7Q2HJKA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail-out.m-online.net (mail-out.m-online.net. [2001:a60:0:28:0:1:25:1])
+        by gmr-mx.google.com with ESMTPS id w14si466155lfk.2.2017.10.17.05.49.16
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 17 Oct 2017 05:49:16 -0700 (PDT)
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: add OF and ACPI entries for
+ Epson RX8130
+To: Bastian Stender <bst@pengutronix.de>, rtc-linux@googlegroups.com
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+ Arnd Bergmann <arnd@arndb.de>, Felipe Balbi <balbi@ti.com>,
+ Nishanth Menon <nm@ti.com>, Tony Lindgren <tony@atomide.com>,
+ kernel@pengutronix.de
+References: <20171017124607.17461-1-bst@pengutronix.de>
+From: Marek Vasut <marex@denx.de>
+Message-ID: <6c4c6718-fda0-80df-d217-da27108f4809@denx.de>
+Date: Tue, 17 Oct 2017 14:49:14 +0200
+MIME-Version: 1.0
+In-Reply-To: <20171017124607.17461-1-bst@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Reply-To: rtc-linux@googlegroups.com
+List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-PGRpdiBzdHlsZT0ibWluLWhlaWdodDoyMnB4O21hcmdpbi1ib3R0b206OHB4OyI+SGkgQWxl
-eGFuZHJlLDwvZGl2PjxkaXYgc3R5bGU9Im1pbi1oZWlnaHQ6MjJweDttYXJnaW4tYm90dG9t
-OjhweDsiPjxicj48L2Rpdj48ZGl2IHN0eWxlPSJtaW4taGVpZ2h0OjIycHg7bWFyZ2luLWJv
-dHRvbTo4cHg7Ij5UaGFua3MgZm9yIHlvdXIgcmVwbHkuPC9kaXY+PGRpdiBzdHlsZT0ibWlu
-LWhlaWdodDoyMnB4O21hcmdpbi1ib3R0b206OHB4OyI+RG8geW91IHRoaW5rIGlzIHRoaXMg
-YSBpc3N1ZSB3aGVuIHVzaW5nIGFzIGEgd2F0Y2hkb2cgaW4gc3VzcGVuZD88L2Rpdj48ZGl2
-IHN0eWxlPSJtaW4taGVpZ2h0OjIycHg7bWFyZ2luLWJvdHRvbTo4cHg7Ij5JIHRha2VzIHRo
-ZSBkcml2ZXJzL3dhdGNoZG9nLyBzdWJzeXN0ZW0gZm9yIHJlZmVyZW5jZSwgc29tZSBkcml2
-ZXJzIGluIHN1c3BlbmQgYWxzbyBjYWxsIGRpc2FibGVfd2F0Y2hkb2cuT3IgZG8geW91IGhh
-dmUgYW55ICZuYnNwO2JldHRlciBzdWdnZXN0aW9uPzwvZGl2PjxkaXYgc3R5bGU9Im1pbi1o
-ZWlnaHQ6MjJweDttYXJnaW4tYm90dG9tOjhweDsiPlRoYW5rIHlvdS48L2Rpdj48ZGl2IHN0
-eWxlPSJtaW4taGVpZ2h0OjIycHg7bWFyZ2luLWJvdHRvbTo4cHg7Ij48YnI+PC9kaXY+PGJy
-PjxkaXYgaWQ9Im9yaWdpbmFsLWNvbnRlbnQiPjxicj48YnI+PGRpdj48ZGl2IHN0eWxlPSJm
-b250LXNpemU6NzAlO3BhZGRpbmc6MnB4IDA7Ij4tLS0tLS0tLS0tLS0tLS0tLS0gT3JpZ2lu
-YWwgLS0tLS0tLS0tLS0tLS0tLS0tPC9kaXY+PGRpdiBzdHlsZT0iZm9udC1zaXplOjcwJTti
-YWNrZ3JvdW5kOiNmMGYwZjA7Y29sb3I6IzIxMjEyMTtwYWRkaW5nOjhweDtib3JkZXItcmFk
-aXVzOjRweCI+PGRpdj48Yj5Gcm9tOjwvYj4gQWxleGFuZHJlIEJlbGxvbmkgICZsdDthbGV4
-YW5kcmUuYmVsbG9uaUBmcmVlLWVsZWN0cm9ucy5jb20mZ3Q7PC9kaXY+PGRpdj48Yj5EYXRl
-OjwvYj4g5ZGo5LiALDnmnIggMjUsMjAxNyAyMDowNzwvZGl2PjxkaXY+PGI+VG86PC9iPiB3
-aW50b24ubGl1ICZsdDsxODUwMjUyMzU2NEAxNjMuY29tJmd0OzwvZGl2PjxkaXY+PGI+Q2M6
-PC9iPiBhLnp1bW1vICZsdDthLnp1bW1vQHRvd2VydGVjaC5pdCZndDssIGxpbnV4LXJ0YyAm
-bHQ7bGludXgtcnRjQHZnZXIua2VybmVsLm9yZyZndDssIGxpbnV4LWtlcm5lbCAmbHQ7bGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZyZndDs8L2Rpdj48ZGl2PjxiPlN1YmplY3Q6PC9i
-PiBSZTogW1BBVENIXSBydGM6IGRzMTM3NDogd2R0OnN1cHBvcnQgc3VzcGVuZC9yZXN1bWUg
-Zm9yIHdhdGNoZG9nPC9kaXY+PC9kaXY+PC9kaXY+PGJyPjxwcmUgc3R5bGU9IndoaXRlLXNw
-YWNlOnByZS13cmFwOyI+SGksCgpPbiAyNS8wOS8yMDE3IGF0IDE5OjU4OjQ0ICswODAwLCB3
-aW50b24ubGl1IHdyb3RlOgomZ3Q7IFdoZW4gZW5hYmxlIENPTkZJR19SVENfRFJWX0RTMTM3
-NF9XRFQgdXNlIGFzIHdhdGNoZG9nLAomZ3Q7IGluIHN1c3BlbmQgbW9kZSwgd2F0Y2hkb2cg
-aXMgc3RpbGwgd29ya2luZyBidXQgbm8gZGFlbW9uCiZndDsgcGF0dGluZyB0aGUgd2F0Y2hk
-b2cuIFRoZSBzeXN0ZW0gd2lsbCByZWJvb3QgaWYgdGltZW91dC4KJmd0OyBTbyBkaXNhYmxl
-IHdhdGNoZG9nIGluIHN1c3BlbmQgIGFuZCByZWNvdmVyIGl0IGluIHJlc3VtZS4KJmd0OyAK
-ClRoYXQgaXMgZGVmaW5pdGl2ZWx5IG5vdCB3aGF0IHdlIHdhbnQuIE1hbnkgcGVvcGxlIHdp
-bGwgd2FudCB0byBzdGlsbApoYXZlIHRoZSB3YXRjaGRvZyBydW5uaW5nIHdoZW4gdGhlIHBs
-YXRmb3JtIGlzIHN1c3BlbmRlZC4gWW91ciBvcHRpb25zCmFyZSB0byBlaXRoZXIgZGlzYWJs
-ZSB0aGUgd2F0Y2hkb2cgYmVmb3JlIGdvaW5nIHRvIHN1c3BlbmQgb3Igd2FrZSB1cAp0aGUg
-cGxhdGZvcm0ganVzdCBpbiB0aW1lIHRvIHBpbmcgdGhlIHdhdGNoZG9nLgoKJmd0OyBTaWdu
-ZWQtb2ZmLWJ5OiB3aW50b24ubGl1ICZsdDsxODUwMjUyMzU2NEAxNjMuY29tJmd0OwomZ3Q7
-IC0tLQomZ3Q7ICBkcml2ZXJzL3J0Yy9ydGMtZHMxMzc0LmMgfCA4ICsrKysrKysrCiZndDsg
-IDEgZmlsZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKykKJmd0OyAKJmd0OyBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jIGIvZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5j
-CiZndDsgaW5kZXggMzhhMmU5ZS4uZTk5MDc3MyAxMDA2NDQKJmd0OyAtLS0gYS9kcml2ZXJz
-L3J0Yy9ydGMtZHMxMzc0LmMKJmd0OyArKysgYi9kcml2ZXJzL3J0Yy9ydGMtZHMxMzc0LmMK
-Jmd0OyBAQCAtNjkwLDYgKzY5MCwxMCBAQCBzdGF0aWMgaW50IGRzMTM3NF9zdXNwZW5kKHN0
-cnVjdCBkZXZpY2UgKmRldikKJmd0OyAgewomZ3Q7ICAJc3RydWN0IGkyY19jbGllbnQgKmNs
-aWVudCA9IHRvX2kyY19jbGllbnQoZGV2KTsKJmd0OyAgCiZndDsgKyNpZmRlZiBDT05GSUdf
-UlRDX0RSVl9EUzEzNzRfV0RUCiZndDsgKwlkczEzNzRfd2R0X2Rpc2FibGUoKTsKJmd0OyAr
-I2VuZGlmCiZndDsgKwomZ3Q7ICAJaWYgKGNsaWVudC0mZ3Q7aXJxICZndDsgMCAmYW1wOyZh
-bXA7IGRldmljZV9tYXlfd2FrZXVwKCZhbXA7Y2xpZW50LSZndDtkZXYpKQomZ3Q7ICAJCWVu
-YWJsZV9pcnFfd2FrZShjbGllbnQtJmd0O2lycSk7CiZndDsgIAlyZXR1cm4gMDsKJmd0OyBA
-QCAtNjk5LDYgKzcwMywxMCBAQCBzdGF0aWMgaW50IGRzMTM3NF9yZXN1bWUoc3RydWN0IGRl
-dmljZSAqZGV2KQomZ3Q7ICB7CiZndDsgIAlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0g
-dG9faTJjX2NsaWVudChkZXYpOwomZ3Q7ICAKJmd0OyArI2lmZGVmIENPTkZJR19SVENfRFJW
-X0RTMTM3NF9XRFQKJmd0OyArCWRzMTM3NF93ZHRfc2V0dGltZW91dCgxMzEwNzIpOwomZ3Q7
-ICsjZW5kaWYKJmd0OyArCiZndDsgIAlpZiAoY2xpZW50LSZndDtpcnEgJmd0OyAwICZhbXA7
-JmFtcDsgZGV2aWNlX21heV93YWtldXAoJmFtcDtjbGllbnQtJmd0O2RldikpCiZndDsgIAkJ
-ZGlzYWJsZV9pcnFfd2FrZShjbGllbnQtJmd0O2lycSk7CiZndDsgIAlyZXR1cm4gMDsKJmd0
-OyAtLSAKJmd0OyAxLjkuMQomZ3Q7IAomZ3Q7IAoKLS0gCkFsZXhhbmRyZSBCZWxsb25pLCBG
-cmVlIEVsZWN0cm9ucwpFbWJlZGRlZCBMaW51eCBhbmQgS2VybmVsIGVuZ2luZWVyaW5nCmh0
-dHA6Ly9mcmVlLWVsZWN0cm9ucy5jb20KPC9wcmU+PC9kaXY+
+On 10/17/2017 02:46 PM, Bastian Stender wrote:
+> Make Epson RX8130 device tree and ACPI aware.
+> 
+> Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
+
+Fixes , really ? I don't think it's broken in any way without the ACPI
+entries.
+
+> Signed-off-by: Bastian Stender <bst@pengutronix.de>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index e7d9215c9201..8e2cd45a2f96 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -325,6 +325,10 @@ static const struct of_device_id ds1307_of_match[] = {
+>  		.compatible = "isil,isl12057",
+>  		.data = (void *)ds_1337
+>  	},
+> +	{
+> +		.compatible = "epson,rx8130",
+> +		.data = (void *)rx_8130
+> +	},
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(of, ds1307_of_match);
+> @@ -348,6 +352,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
+>  	{ .id = "PT7C4338", .driver_data = ds_1307 },
+>  	{ .id = "RX8025", .driver_data = rx_8025 },
+>  	{ .id = "ISL12057", .driver_data = ds_1337 },
+> +	{ .id = "RX8130", .driver_data = rx_8130 },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(acpi, ds1307_acpi_ids);
+> 
+
+
+-- 
+Best regards,
+Marek Vasut
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
