@@ -1,879 +1,501 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:63995 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753280AbdJGWUX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 7 Oct 2017 18:20:23 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v5 4/8] platform: x86: Add generic Intel IPC driver
-Date: Sat,  7 Oct 2017 15:19:54 -0700
-Message-Id: <983bc2330acc5eb3f384e9aed7ceba22b5c7ea5f.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:33613 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S932934AbdJRJwj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 05:52:39 -0400
+Message-ID: <1508320354.13340.19.camel@mtksdaap41>
+Subject: Re: [PATCH v2 2/4] rtc: mediatek: add driver for RTC on MT7622 SoC
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+To: <sean.wang@mediatek.com>
+CC: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Wed, 18 Oct 2017 17:52:34 +0800
+In-Reply-To: <2f86eebfd380cf932808df3404e2f4a6f2f0f874.1508231935.git.sean.wang@mediatek.com>
+References: <cover.1508231935.git.sean.wang@mediatek.com>
+         <2f86eebfd380cf932808df3404e2f4a6f2f0f874.1508231935.git.sean.wang@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On Tue, 2017-10-17 at 17:40 +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> This patch introduces the driver for the RTC on MT7622 SoC.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  drivers/rtc/Kconfig      |  10 ++
+>  drivers/rtc/Makefile     |   1 +
+>  drivers/rtc/rtc-mt7622.c | 418 +++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 429 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-mt7622.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index e0e58f3..4226295 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1705,6 +1705,16 @@ config RTC_DRV_MOXART
+>  	   This driver can also be built as a module. If so, the module
+>  	   will be called rtc-moxart
+>  
+> +config RTC_DRV_MEDIATEK
+> +	tristate "MediaTek SoC based RTC"
+> +	depends on ARCH_MEDIATEK || COMPILE_TEST
+> +	help
+> +	  This enables support for the real time clock built in the MediaTek
+> +	  SoCs.
+> +
+> +	  This drive can also be built as a module. If so, the module
+> +	  will be called rtc-mediatek.
+> +
+>  config RTC_DRV_MT6397
+>  	tristate "Mediatek Real Time Clock driver"
+>  	depends on MFD_MT6397 || (COMPILE_TEST && IRQ_DOMAIN)
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 7230014..593a02c 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -101,6 +101,7 @@ obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
+>  obj-$(CONFIG_RTC_DRV_MPC5121)	+= rtc-mpc5121.o
+>  obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
+>  obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
+> +obj-$(CONFIG_RTC_DRV_MEDIATEK)	+= rtc-mt7622.o
+>  obj-$(CONFIG_RTC_DRV_MT6397)	+= rtc-mt6397.o
+>  obj-$(CONFIG_RTC_DRV_MV)	+= rtc-mv.o
+>  obj-$(CONFIG_RTC_DRV_MXC)	+= rtc-mxc.o
+> diff --git a/drivers/rtc/rtc-mt7622.c b/drivers/rtc/rtc-mt7622.c
+> new file mode 100644
+> index 0000000..1f00494
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-mt7622.c
+> @@ -0,0 +1,418 @@
+> +/*
+> + * Driver for MediaTek SoC based RTC
+> + *
+> + * Copyright (C) 2017 Sean Wang <sean.wang@mediatek.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of
+> + * the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/rtc.h>
+> +
+> +#define MTK_RTC_DEV KBUILD_MODNAME
+> +
+> +#define MTK_RTC_PWRCHK1		0x4
+> +#define	RTC_PWRCHK1_MAGIC	0xc6
+> +
+> +#define MTK_RTC_PWRCHK2		0x8
+> +#define	RTC_PWRCHK2_MAGIC	0x9a
+> +
+> +#define MTK_RTC_KEY		0xc
+> +#define	RTC_KEY_MAGIC		0x59
+> +
+> +#define MTK_RTC_PROT1		0x10
+> +#define	RTC_PROT1_MAGIC		0xa3
+> +
+> +#define MTK_RTC_PROT2		0x14
+> +#define	RTC_PROT2_MAGIC		0x57
+> +
+> +#define MTK_RTC_PROT3		0x18
+> +#define	RTC_PROT3_MAGIC		0x67
+> +
+> +#define MTK_RTC_PROT4		0x1c
+> +#define	RTC_PROT4_MAGIC		0xd2
+> +
+> +#define MTK_RTC_CTL		0x20
+> +#define	RTC_RC_STOP		BIT(0)
+> +
+> +#define MTK_RTC_DEBNCE		0x2c
+> +#define	RTC_DEBNCE_MASK		GENMASK(2, 0)
+> +
+> +#define MTK_RTC_INT		0x30
+> +#define RTC_INT_AL_STA		BIT(4)
+> +
+> +/* Ranges from 0x40 to 0x78 provide RTC time setup for year, month,
+> + * day of month, day of week, hour, minute and second.
+> + */
+> +#define MTK_RTC_TREG(_t, _f)	(0x40 + (0x4 * (_f)) + ((_t) * 0x20))
+> +
+> +#define MTK_RTC_AL_CTL		0x7c
+> +#define	RTC_AL_EN		BIT(0)
+> +#define	RTC_AL_ALL		GENMASK(7, 0)
+> +
+> +#define MTK_RTC_TM_YR_L		100
+> +
+> +/* The maximum years the RTC can support is 99, For MT7622 */
+> +#define MTK_RTC_HW_YR_LIMIT	100
+> +
+> +/* Types of the function the RTC provides are time counter and alarm. */
+> +enum {
+> +	MTK_TC,
+> +	MTK_AL,
+> +	MTK_TYPE_MAX,
+> +};
+> +
+> +/* Indexes are used for the pointer to relevant registers in MTK_RTC_TREG */
+> +enum {
+> +	MTK_YEA,
+> +	MTK_MON,
+> +	MTK_DOM,
+> +	MTK_DOW,
+> +	MTK_HOU,
+> +	MTK_MIN,
+> +	MTK_SEC
+> +};
+> +
+> +struct mtk_rtc {
+> +	struct rtc_device *rtc;
+> +	void __iomem *base;
+> +	int irq;
+> +	struct clk *clk;
+> +	u32 yr_base[MTK_TYPE_MAX];
+> +};
+> +
+> +static void mtk_w32(struct mtk_rtc *rtc, u32 reg, u32 val)
+> +{
+> +	writel_relaxed(val, rtc->base + reg);
+> +}
+> +
+> +static u32 mtk_r32(struct mtk_rtc *rtc, u32 reg)
+> +{
+> +	return readl_relaxed(rtc->base + reg);
+> +}
+> +
+> +static void mtk_rmw(struct mtk_rtc *rtc, u32 reg, u32 mask, u32 set)
+> +{
+> +	u32 val;
+> +
+> +	val = mtk_r32(rtc, reg);
+> +	val &= ~mask;
+> +	val |= set;
+> +	mtk_w32(rtc, reg, val);
+> +}
+> +
+> +static void mtk_set(struct mtk_rtc *rtc, u32 reg, u32 val)
+> +{
+> +	mtk_rmw(rtc, reg, 0, val);
+> +}
+> +
+> +static void mtk_clr(struct mtk_rtc *rtc, u32 reg, u32 val)
+> +{
+> +	mtk_rmw(rtc, reg, val, 0);
+> +}
+> +
+> +static void mtk_rtc_hw_init(struct mtk_rtc *hw)
+> +{
+> +	/* The setup of the init sequence is for allowing RTC got to work */
+> +	mtk_w32(hw, MTK_RTC_PWRCHK1, RTC_PWRCHK1_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_PWRCHK2, RTC_PWRCHK2_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_KEY, RTC_KEY_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_PROT1, RTC_PROT1_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_PROT2, RTC_PROT2_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_PROT3, RTC_PROT3_MAGIC);
+> +	mtk_w32(hw, MTK_RTC_PROT4, RTC_PROT4_MAGIC);
+> +	mtk_rmw(hw, MTK_RTC_DEBNCE, RTC_DEBNCE_MASK, 0);
+> +	mtk_clr(hw, MTK_RTC_CTL, RTC_RC_STOP);
+> +}
+> +
+> +static void mtk_rtc_get_alarm_or_time(struct mtk_rtc *hw, struct rtc_time *tm,
+> +				      int time_alarm)
+> +{
+> +	u32 year, mon, mday, wday, hour, min, sec;
+> +
+> +	/*
+> +	 * Read again until the field of the second is not changed which
+> +	 * ensures all fields in the consistent state.
 
-Currently intel_scu_ipc.c, intel_pmc_ipc.c and intel_punit_ipc.c
-redundantly implements the same IPC features and has lot of code
-duplication between them. This driver addresses this issue by grouping
-the common IPC functionalities under the same driver.
+Sean,
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/platform/x86/Kconfig                    |   8 +
- drivers/platform/x86/Makefile                   |   1 +
- drivers/platform/x86/intel_ipc_dev.c            | 576 ++++++++++++++++++++++++
- include/linux/platform_data/x86/intel_ipc_dev.h | 206 +++++++++
- 4 files changed, 791 insertions(+)
- create mode 100644 drivers/platform/x86/intel_ipc_dev.c
- create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+You need to read sec first for this to work.
+It is possible sec changed from 59 to 00 after you read min.
 
-Changes since v4:
- * None
+Joe.C
 
-Changes since v3:
- * Fixed NULL pointer exception in intel_ipc_dev_get().
- * Fixed error in check for duplicate intel_ipc_dev.
- * Added custom interrupt handler support.
- * Used char array for error string conversion.
- * Added put dev support.
- * Added devm_* variant of intel_ipc_dev_get().
-
-Changes since v2:
- * Added ipc_dev_cmd API support.
-
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index da2d9ba..724ee696 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1153,6 +1153,14 @@ config SILEAD_DMI
- 	  with the OS-image for the device. This option supplies the missing
- 	  information. Enable this for x86 tablets with Silead touchscreens.
- 
-+config INTEL_IPC_DEV
-+	bool "Intel IPC Device Driver"
-+	depends on X86_64
-+	---help---
-+	  This driver implements core features of Intel IPC device. Devices
-+	  like PMC, SCU, PUNIT, etc can use interfaces provided by this
-+	  driver to implement IPC protocol of their respective device.
-+
- endif # X86_PLATFORM_DEVICES
- 
- config PMC_ATOM
-diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-index 2b315d0..99a1af1 100644
---- a/drivers/platform/x86/Makefile
-+++ b/drivers/platform/x86/Makefile
-@@ -84,3 +84,4 @@ obj-$(CONFIG_PMC_ATOM)		+= pmc_atom.o
- obj-$(CONFIG_MLX_PLATFORM)	+= mlx-platform.o
- obj-$(CONFIG_MLX_CPLD_PLATFORM)	+= mlxcpld-hotplug.o
- obj-$(CONFIG_INTEL_TURBO_MAX_3) += intel_turbo_max_3.o
-+obj-$(CONFIG_INTEL_IPC_DEV)	+= intel_ipc_dev.o
-diff --git a/drivers/platform/x86/intel_ipc_dev.c b/drivers/platform/x86/intel_ipc_dev.c
-new file mode 100644
-index 0000000..f55ddec
---- /dev/null
-+++ b/drivers/platform/x86/intel_ipc_dev.c
-@@ -0,0 +1,576 @@
-+/*
-+ * intel_ipc_dev.c: Intel IPC device class driver
-+ *
-+ * (C) Copyright 2017 Intel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; version 2
-+ * of the License.
-+ *
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/export.h>
-+#include <linux/idr.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
-+#include <linux/regmap.h>
-+
-+/* mutex to sync different ipc devices in same channel */
-+static struct mutex channel_lock[IPC_CHANNEL_MAX];
-+
-+static char *ipc_err_sources[] = {
-+	[IPC_DEV_ERR_NONE] =
-+		"No error",
-+	[IPC_DEV_ERR_CMD_NOT_SUPPORTED] =
-+		"Command not-supported/Invalid",
-+	[IPC_DEV_ERR_CMD_NOT_SERVICED] =
-+		"Command not-serviced/Invalid param",
-+	[IPC_DEV_ERR_UNABLE_TO_SERVICE] =
-+		"Unable-to-service/Cmd-timeout",
-+	[IPC_DEV_ERR_CMD_INVALID] =
-+		"Command-invalid/Cmd-locked",
-+	[IPC_DEV_ERR_CMD_FAILED] =
-+		"Command-failed/Invalid-VR-id",
-+	[IPC_DEV_ERR_EMSECURITY] =
-+		"Invalid Battery/VR-Error",
-+	[IPC_DEV_ERR_UNSIGNEDKERNEL] =
-+		"Unsigned kernel",
-+};
-+
-+static void ipc_channel_lock_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < IPC_CHANNEL_MAX; i++)
-+		mutex_init(&channel_lock[i]);
-+}
-+
-+static struct class intel_ipc_class = {
-+	.name = "intel_ipc",
-+	.owner = THIS_MODULE,
-+};
-+
-+static int ipc_dev_lock(struct intel_ipc_dev *ipc_dev)
-+{
-+	int chan_type;
-+
-+	if (!ipc_dev || !ipc_dev->cfg)
-+		return -ENODEV;
-+
-+	chan_type = ipc_dev->cfg->chan_type;
-+	if (chan_type > IPC_CHANNEL_MAX)
-+		return -EINVAL;
-+
-+	/* acquire channel lock */
-+	mutex_lock(&channel_lock[chan_type]);
-+
-+	/* acquire IPC device lock */
-+	mutex_lock(&ipc_dev->lock);
-+
-+	return 0;
-+}
-+
-+static int ipc_dev_unlock(struct intel_ipc_dev *ipc_dev)
-+{
-+	int chan_type;
-+
-+	if (!ipc_dev || !ipc_dev->cfg)
-+		return -ENODEV;
-+
-+	chan_type = ipc_dev->cfg->chan_type;
-+	if (chan_type > IPC_CHANNEL_MAX)
-+		return -EINVAL;
-+
-+	/* release IPC device lock */
-+	mutex_unlock(&ipc_dev->lock);
-+
-+	/* release channel lock */
-+	mutex_unlock(&channel_lock[chan_type]);
-+
-+	return 0;
-+}
-+
-+static const char *ipc_dev_err_string(struct intel_ipc_dev *ipc_dev,
-+	int error)
-+{
-+	if (error < IPC_DEV_ERR_MAX)
-+		return ipc_err_sources[error];
-+
-+	return "Unknown Command";
-+}
-+
-+/* Helper function to send given command to IPC device */
-+static inline void ipc_dev_send_cmd(struct intel_ipc_dev *ipc_dev, u32 cmd)
-+{
-+	ipc_dev->cmd = cmd;
-+
-+	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ)
-+		reinit_completion(&ipc_dev->cmd_complete);
-+
-+	if (ipc_dev->ops->enable_msi)
-+		cmd = ipc_dev->ops->enable_msi(cmd);
-+
-+	regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->cmd_reg, cmd);
-+}
-+
-+static inline int ipc_dev_status_busy(struct intel_ipc_dev *ipc_dev)
-+{
-+	int status;
-+
-+	regmap_read(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->status_reg, &status);
-+
-+	if (ipc_dev->ops->busy_check)
-+		return ipc_dev->ops->busy_check(status);
-+
-+	return 0;
-+}
-+
-+/* Check the status of IPC command and return err code if failed */
-+static int ipc_dev_check_status(struct intel_ipc_dev *ipc_dev)
-+{
-+	int loop_count = IPC_DEV_CMD_LOOP_CNT;
-+	int status;
-+	int ret = 0;
-+
-+	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
-+		if (!wait_for_completion_timeout(&ipc_dev->cmd_complete,
-+				IPC_DEV_CMD_TIMEOUT))
-+			ret = -ETIMEDOUT;
-+	} else {
-+		while (ipc_dev_status_busy(ipc_dev) && --loop_count)
-+			udelay(1);
-+		if (!loop_count)
-+			ret = -ETIMEDOUT;
-+	}
-+
-+	if (ret < 0) {
-+		dev_err(&ipc_dev->dev,
-+				"IPC timed out, CMD=0x%x\n", ipc_dev->cmd);
-+		return ret;
-+	}
-+
-+	regmap_read(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->status_reg, &status);
-+
-+	if (ipc_dev->ops->to_err_code)
-+		ret = ipc_dev->ops->to_err_code(status);
-+
-+	if (ret) {
-+		dev_err(&ipc_dev->dev,
-+				"IPC failed: %s, STS=0x%x, CMD=0x%x\n",
-+				ipc_dev_err_string(ipc_dev, ret),
-+				status, ipc_dev->cmd);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * ipc_dev_simple_cmd() - Send simple IPC command
-+ * @ipc_dev     : Reference to ipc device.
-+ * @cmd_list    : IPC command list.
-+ * @cmdlen      : Number of cmd/sub-cmds.
-+ *
-+ * Send a simple IPC command to ipc device.
-+ * Use this when don't need to specify input/output data
-+ * and source/dest pointers.
-+ *
-+ * Return:	an IPC error code or 0 on success.
-+ */
-+
-+int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
-+		u32 cmdlen)
-+{
-+	int ret;
-+
-+	if (!cmd_list)
-+		return -EINVAL;
-+
-+	ret = ipc_dev_lock(ipc_dev);
-+	if (ret)
-+		return ret;
-+
-+	/* Call custom pre-processing handler */
-+	if (ipc_dev->ops->pre_simple_cmd_fn) {
-+		ret = ipc_dev->ops->pre_simple_cmd_fn(cmd_list, cmdlen);
-+		if (ret)
-+			goto unlock_device;
-+	}
-+
-+	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
-+
-+	ret = ipc_dev_check_status(ipc_dev);
-+
-+unlock_device:
-+	ipc_dev_unlock(ipc_dev);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(ipc_dev_simple_cmd);
-+
-+/**
-+ * ipc_dev_cmd() - Send IPC command with data.
-+ * @ipc_dev     : Reference to ipc_dev.
-+ * @cmd_list    : Array of commands/sub-commands.
-+ * @cmdlen      : Number of commands.
-+ * @in          : Input data of this IPC command.
-+ * @inlen       : Input data length in dwords.
-+ * @out         : Output data of this IPC command.
-+ * @outlen      : Length of output data in dwords.
-+ *
-+ * Send an IPC command to device with input/output data.
-+ *
-+ * Return:	an IPC error code or 0 on success.
-+ */
-+int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
-+		u32 *in, u32 inlen, u32 *out, u32 outlen)
-+{
-+	int ret;
-+
-+	if (!cmd_list || !in)
-+		return -EINVAL;
-+
-+	ret = ipc_dev_lock(ipc_dev);
-+	if (ret)
-+		return ret;
-+
-+	/* Call custom pre-processing handler. */
-+	if (ipc_dev->ops->pre_cmd_fn) {
-+		ret = ipc_dev->ops->pre_cmd_fn(cmd_list, cmdlen, in, inlen,
-+				out, outlen);
-+		if (ret)
-+			goto unlock_device;
-+	}
-+
-+	/* Write inlen dwords of data to wrbuf_reg. */
-+	if (inlen > 0)
-+		regmap_bulk_write(ipc_dev->cfg->data_regs,
-+				ipc_dev->cfg->wrbuf_reg, in, inlen);
-+
-+	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
-+
-+	ret = ipc_dev_check_status(ipc_dev);
-+
-+	/* Read outlen dwords of data from rbug_reg. */
-+	if (!ret && outlen > 0)
-+		regmap_bulk_read(ipc_dev->cfg->data_regs,
-+				ipc_dev->cfg->rbuf_reg, out, outlen);
-+unlock_device:
-+	ipc_dev_unlock(ipc_dev);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(ipc_dev_cmd);
-+
-+/**
-+ * ipc_dev_raw_cmd() - Send IPC command with data and pointers.
-+ * @ipc_dev     : Reference to ipc_dev.
-+ * @cmd_list    : Array of commands/sub-commands.
-+ * @cmdlen      : Number of commands.
-+ * @in          : Input data of this IPC command.
-+ * @inlen       : Input data length in bytes.
-+ * @out         : Output data of this IPC command.
-+ * @outlen      : Length of output data in dwords.
-+ * @dptr        : IPC destination data address.
-+ * @sptr        : IPC source data address.
-+ *
-+ * Send an IPC command to device with input/output data and
-+ * source/dest pointers.
-+ *
-+ * Return:	an IPC error code or 0 on success.
-+ */
-+
-+int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
-+		u8 *in, u32 inlen, u32 *out, u32 outlen, u32 dptr, u32 sptr)
-+{
-+	int ret;
-+	int inbuflen = DIV_ROUND_UP(inlen, 4);
-+	u32 *inbuf;
-+
-+	if (!cmd_list || !in)
-+		return -EINVAL;
-+
-+	inbuf = kzalloc(inbuflen, GFP_KERNEL);
-+	if (!inbuf)
-+		return -ENOMEM;
-+
-+	ret = ipc_dev_lock(ipc_dev);
-+	if (ret)
-+		return ret;
-+
-+	/* Call custom pre-processing handler. */
-+	if (ipc_dev->ops->pre_raw_cmd_fn) {
-+		ret = ipc_dev->ops->pre_raw_cmd_fn(cmd_list, cmdlen, in, inlen,
-+				out, outlen, dptr, sptr);
-+		if (ret)
-+			goto unlock_device;
-+	}
-+
-+	/* If supported, write DPTR register.*/
-+	if (ipc_dev->cfg->support_dptr)
-+		regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->dptr_reg,
-+				dptr);
-+
-+	/* If supported, write SPTR register. */
-+	if (ipc_dev->cfg->support_sptr)
-+		regmap_write(ipc_dev->cfg->cmd_regs, ipc_dev->cfg->sptr_reg,
-+				sptr);
-+
-+	memcpy(inbuf, in, inlen);
-+
-+	/* Write inlen dwords of data to wrbuf_reg. */
-+	if (inlen > 0)
-+		regmap_bulk_write(ipc_dev->cfg->data_regs,
-+				ipc_dev->cfg->wrbuf_reg, inbuf, inbuflen);
-+
-+	ipc_dev_send_cmd(ipc_dev, cmd_list[0]);
-+
-+	ret = ipc_dev_check_status(ipc_dev);
-+
-+	/* Read outlen dwords of data from rbug_reg. */
-+	if (!ret && outlen > 0)
-+		regmap_bulk_read(ipc_dev->cfg->data_regs,
-+				ipc_dev->cfg->rbuf_reg, out, outlen);
-+unlock_device:
-+	ipc_dev_unlock(ipc_dev);
-+	kfree(inbuf);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(ipc_dev_raw_cmd);
-+
-+/* sysfs option to send simple IPC commands from userspace */
-+static ssize_t ipc_dev_cmd_reg_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct intel_ipc_dev *ipc_dev = dev_get_drvdata(dev);
-+	u32 cmd;
-+	int ret;
-+
-+	ret = sscanf(buf, "%d", &cmd);
-+	if (ret != 1) {
-+		dev_err(dev, "Error args\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = ipc_dev_simple_cmd(ipc_dev, &cmd, 1);
-+	if (ret) {
-+		dev_err(dev, "command 0x%x error with %d\n", cmd, ret);
-+		return ret;
-+	}
-+	return (ssize_t)count;
-+}
-+
-+static DEVICE_ATTR(send_cmd, S_IWUSR, NULL, ipc_dev_cmd_reg_store);
-+
-+static struct attribute *ipc_dev_attrs[] = {
-+	&dev_attr_send_cmd.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group ipc_dev_group = {
-+	.attrs = ipc_dev_attrs,
-+};
-+
-+static const struct attribute_group *ipc_dev_groups[] = {
-+	&ipc_dev_group,
-+	NULL,
-+};
-+
-+/* IPC device IRQ handler */
-+static irqreturn_t ipc_dev_irq_handler(int irq, void *dev_id)
-+{
-+	struct intel_ipc_dev *ipc_dev = (struct intel_ipc_dev *)dev_id;
-+
-+	if (ipc_dev->ops->pre_irq_handler_fn)
-+		ipc_dev->ops->pre_irq_handler_fn(ipc_dev, irq);
-+
-+	complete(&ipc_dev->cmd_complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void devm_intel_ipc_dev_release(struct device *dev, void *res)
-+{
-+	struct intel_ipc_dev *ipc_dev = *(struct intel_ipc_dev **)res;
-+
-+	if (!ipc_dev)
-+		return;
-+
-+	device_del(&ipc_dev->dev);
-+
-+	kfree(ipc_dev);
-+}
-+
-+static int match_name(struct device *dev, const void *data)
-+{
-+        if (!dev_name(dev))
-+                return 0;
-+
-+        return !strcmp(dev_name(dev), (char *)data);
-+}
-+
-+/**
-+ * intel_ipc_dev_get() - Get Intel IPC device from name.
-+ * @dev_name    : Name of the IPC device.
-+ *
-+ * Return       : ERR_PTR/NULL or intel_ipc_dev pointer on success.
-+ */
-+struct intel_ipc_dev *intel_ipc_dev_get(const char *dev_name)
-+{
-+        struct device *dev;
-+
-+	if (!dev_name)
-+		return ERR_PTR(-EINVAL);
-+
-+	dev = class_find_device(&intel_ipc_class, NULL, dev_name, match_name);
-+
-+	return dev ? dev_get_drvdata(dev) : NULL;
-+}
-+EXPORT_SYMBOL_GPL(intel_ipc_dev_get);
-+
-+static void devm_intel_ipc_dev_put(struct device *dev, void *res)
-+{
-+	intel_ipc_dev_put(*(struct intel_ipc_dev **)res);
-+}
-+
-+/**
-+ * devm_intel_ipc_dev_get() - Resource managed version of intel_ipc_dev_get().
-+ * @dev         : Device pointer.
-+ * @dev_name    : Name of the IPC device.
-+ *
-+ * Return       : ERR_PTR/NULL or intel_ipc_dev pointer on success.
-+ */
-+struct intel_ipc_dev *devm_intel_ipc_dev_get(struct device *dev,
-+					const char *dev_name)
-+{
-+	struct intel_ipc_dev **ptr, *ipc_dev;
-+
-+	ptr = devres_alloc(devm_intel_ipc_dev_put, sizeof(*ptr), GFP_KERNEL);
-+	if (!ptr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ipc_dev = intel_ipc_dev_get(dev_name);
-+	if (!IS_ERR_OR_NULL(ipc_dev)) {
-+		*ptr = ipc_dev;
-+		devres_add(dev, ptr);
-+	} else {
-+		devres_free(ptr);
-+	}
-+
-+	return ipc_dev;
-+}
-+EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_get);
-+
-+/**
-+ * devm_intel_ipc_dev_create() - Create IPC device
-+ * @dev		: IPC parent device.
-+ * @devname	: Name of the IPC device.
-+ * @cfg		: IPC device configuration.
-+ * @ops		: IPC device ops.
-+ *
-+ * Resource managed API to create IPC device with
-+ * given configuration.
-+ *
-+ * Return	: IPC device pointer or ERR_PTR(error code).
-+ */
-+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
-+		const char *devname,
-+		struct intel_ipc_dev_cfg *cfg,
-+		struct intel_ipc_dev_ops *ops)
-+{
-+	struct intel_ipc_dev **ptr, *ipc_dev;
-+	int ret;
-+
-+	if (!dev && !devname && !cfg)
-+		return ERR_PTR(-EINVAL);
-+
-+	if (intel_ipc_dev_get(devname)) {
-+		dev_err(dev, "IPC device %s already exist\n", devname);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	ptr = devres_alloc(devm_intel_ipc_dev_release, sizeof(*ptr),
-+			GFP_KERNEL);
-+	if (!ptr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ipc_dev = kzalloc(sizeof(*ipc_dev), GFP_KERNEL);
-+	if (!ipc_dev) {
-+		ret = -ENOMEM;
-+		goto err_dev_create;
-+	}
-+
-+	ipc_dev->dev.class = &intel_ipc_class;
-+	ipc_dev->dev.parent = dev;
-+	ipc_dev->dev.groups = ipc_dev_groups;
-+	ipc_dev->cfg = cfg;
-+	ipc_dev->ops = ops;
-+
-+	mutex_init(&ipc_dev->lock);
-+	init_completion(&ipc_dev->cmd_complete);
-+	dev_set_drvdata(&ipc_dev->dev, ipc_dev);
-+	dev_set_name(&ipc_dev->dev, devname);
-+	device_initialize(&ipc_dev->dev);
-+
-+	ret = device_add(&ipc_dev->dev);
-+	if (ret < 0) {
-+		dev_err(&ipc_dev->dev, "%s device create failed\n",
-+				__func__);
-+		ret = -ENODEV;
-+		goto err_dev_add;
-+	}
-+
-+	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
-+		if (devm_request_irq(&ipc_dev->dev,
-+				ipc_dev->cfg->irq,
-+				ipc_dev_irq_handler,
-+				ipc_dev->cfg->irqflags,
-+				dev_name(&ipc_dev->dev),
-+				ipc_dev)) {
-+			dev_err(&ipc_dev->dev,
-+					"Failed to request irq\n");
-+			goto err_irq_request;
-+		}
-+	}
-+
-+	*ptr = ipc_dev;
-+
-+	devres_add(dev, ptr);
-+
-+	return ipc_dev;
-+
-+err_irq_request:
-+	device_del(&ipc_dev->dev);
-+err_dev_add:
-+	kfree(ipc_dev);
-+err_dev_create:
-+	devres_free(ptr);
-+	return ERR_PTR(ret);
-+}
-+EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_create);
-+
-+static int __init intel_ipc_init(void)
-+{
-+	ipc_channel_lock_init();
-+	return class_register(&intel_ipc_class);
-+}
-+
-+static void __exit intel_ipc_exit(void)
-+{
-+	class_unregister(&intel_ipc_class);
-+}
-+subsys_initcall(intel_ipc_init);
-+module_exit(intel_ipc_exit);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Kuppuswamy Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>");
-+MODULE_DESCRIPTION("Intel IPC device class driver");
-diff --git a/include/linux/platform_data/x86/intel_ipc_dev.h b/include/linux/platform_data/x86/intel_ipc_dev.h
-new file mode 100644
-index 0000000..eaeedaf
---- /dev/null
-+++ b/include/linux/platform_data/x86/intel_ipc_dev.h
-@@ -0,0 +1,206 @@
-+/*
-+ * Intel IPC class device header file.
-+ *
-+ * (C) Copyright 2017 Intel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; version 2
-+ * of the License.
-+ *
-+ */
-+
-+#ifndef INTEL_IPC_DEV_H
-+#define INTEL_IPC_DEV_H
-+
-+#include <linux/module.h>
-+#include <linux/device.h>
-+
-+/* IPC channel type */
-+#define IPC_CHANNEL_IA_PMC                      0
-+#define IPC_CHANNEL_IA_PUNIT                    1
-+#define IPC_CHANNEL_PMC_PUNIT                   2
-+#define IPC_CHANNEL_IA_SCU                      3
-+#define IPC_CHANNEL_MAX                         4
-+
-+/* IPC return code */
-+#define IPC_DEV_ERR_NONE			0
-+#define IPC_DEV_ERR_CMD_NOT_SUPPORTED		1
-+#define IPC_DEV_ERR_CMD_NOT_SERVICED		2
-+#define IPC_DEV_ERR_UNABLE_TO_SERVICE		3
-+#define IPC_DEV_ERR_CMD_INVALID			4
-+#define IPC_DEV_ERR_CMD_FAILED			5
-+#define IPC_DEV_ERR_EMSECURITY			6
-+#define IPC_DEV_ERR_UNSIGNEDKERNEL		7
-+#define IPC_DEV_ERR_MAX				8
-+
-+/* IPC mode */
-+#define IPC_DEV_MODE_IRQ			0
-+#define IPC_DEV_MODE_POLLING			1
-+
-+/* IPC dev constants */
-+#define IPC_DEV_CMD_LOOP_CNT			3000000
-+#define IPC_DEV_CMD_TIMEOUT			3 * HZ
-+#define IPC_DEV_DATA_BUFFER_SIZE		16
-+
-+struct intel_ipc_dev;
-+struct intel_ipc_raw_cmd;
-+
-+/**
-+ * struct intel_ipc_dev_cfg - IPC device config structure.
-+ *
-+ * IPC device drivers uses the following config options to
-+ * register new IPC device.
-+ *
-+ * @cmd_regs            : IPC device command base regmap.
-+ * @data_regs           : IPC device data base regmap.
-+ * @wrbuf_reg           : IPC device data write register address.
-+ * @rbuf_reg            : IPC device data read register address.
-+ * @sptr_reg            : IPC device source data pointer register address.
-+ * @dptr_reg            : IPC device destination data pointer register
-+ *                        address.
-+ * @status_reg          : IPC command status register address.
-+ * @cmd_reg             : IPC command register address.
-+ * @mode                : IRQ/POLLING mode.
-+ * @irq                 : IPC device IRQ number.
-+ * @irqflags            : IPC device IRQ flags.
-+ * @chan_type           : IPC device channel type(PMC/PUNIT).
-+ * @msi                 : Enable/Disable MSI for IPC commands.
-+ * @support_dptr        : Support DPTR update.
-+ * @support_sptr        : Support SPTR update.
-+ *
-+ */
-+struct intel_ipc_dev_cfg {
-+	struct regmap *cmd_regs;
-+	struct regmap *data_regs;
-+	unsigned int wrbuf_reg;
-+	unsigned int rbuf_reg;
-+	unsigned int sptr_reg;
-+	unsigned int dptr_reg;
-+	unsigned int status_reg;
-+	unsigned int cmd_reg;
-+	int mode;
-+	int irq;
-+	int irqflags;
-+	int chan_type;
-+	bool use_msi;
-+	bool support_dptr;
-+	bool support_sptr;
-+};
-+
-+/**
-+ * struct intel_ipc_dev_ops - IPC device ops structure.
-+ *
-+ * Call backs for IPC device specific operations.
-+ *
-+ * @to_err_code         : Status to error code conversion function.
-+ * @busy_check          : Check for IPC busy status.
-+ * @enable_msi          : Enable MSI for IPC commands.
-+ * @pre_simple_cmd_fn   : Custom pre-processing function for
-+ *                        ipc_dev_simple_cmd()
-+ * @pre_cmd_fn          : Custom pre-processing function for
-+ *                        ipc_dev_cmd()
-+ * @pre_raw_cmd_fn      : Custom pre-processing function for
-+ *                        ipc_dev_raw_cmd()
-+ *
-+ */
-+struct intel_ipc_dev_ops {
-+	int (*to_err_code)(int status);
-+	int (*busy_check)(int status);
-+	u32 (*enable_msi)(u32 cmd);
-+	int (*pre_simple_cmd_fn)(u32 *cmd_list, u32 cmdlen);
-+	int (*pre_cmd_fn)(u32 *cmd_list, u32 cmdlen, u32 *in, u32 inlen,
-+			u32 *out, u32 outlen);
-+	int (*pre_raw_cmd_fn)(u32 *cmd_list, u32 cmdlen, u8 *in, u32 inlen,
-+			u32 *out, u32 outlen, u32 dptr, u32 sptr);
-+	int (*pre_irq_handler_fn)(struct intel_ipc_dev *ipc_dev, int irq);
-+};
-+
-+/**
-+ * struct intel_ipc_dev - Intel IPC device structure.
-+ *
-+ * Used with devm_intel_ipc_dev_create() to create new IPC device.
-+ *
-+ * @dev                 : IPC device object.
-+ * @cmd                 : Current IPC device command.
-+ * @cmd_complete        : Command completion object.
-+ * @lock                : Lock to protect IPC device structure.
-+ * @ops                 : IPC device ops pointer.
-+ * @cfg                 : IPC device cfg pointer.
-+ *
-+ */
-+struct intel_ipc_dev {
-+	struct device dev;
-+	int cmd;
-+	struct completion cmd_complete;
-+	struct mutex lock;
-+	struct intel_ipc_dev_ops *ops;
-+	struct intel_ipc_dev_cfg *cfg;
-+};
-+
-+#if IS_ENABLED(CONFIG_INTEL_IPC_DEV)
-+
-+/* API to create new IPC device */
-+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
-+		const char *devname, struct intel_ipc_dev_cfg *cfg,
-+		struct intel_ipc_dev_ops *ops);
-+
-+int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
-+		u32 cmdlen);
-+int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
-+		u32 *in, u32 inlen, u32 *out, u32 outlen);
-+int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list, u32 cmdlen,
-+		u8 *in, u32 inlen, u32 *out, u32 outlen, u32 dptr, u32 sptr);
-+struct intel_ipc_dev *intel_ipc_dev_get(const char *dev_name);
-+struct intel_ipc_dev *devm_intel_ipc_dev_get(struct device *dev,
-+					const char *dev_name);
-+static inline void intel_ipc_dev_put(struct intel_ipc_dev *ipc_dev)
-+{
-+	put_device(&ipc_dev->dev);
-+}
-+#else
-+
-+static inline struct intel_ipc_dev *devm_intel_ipc_dev_create(
-+		struct device *dev,
-+		const char *devname, struct intel_ipc_dev_cfg *cfg,
-+		struct intel_ipc_dev_ops *ops)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline int ipc_dev_simple_cmd(struct intel_ipc_dev *ipc_dev,
-+		u32 *cmd_list, u32 cmdlen)
-+{
-+	return -EINVAL;
-+}
-+
-+static int ipc_dev_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
-+		u32 cmdlen, u32 *in, u32 inlen, u32 *out, u32 outlen)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline int ipc_dev_raw_cmd(struct intel_ipc_dev *ipc_dev, u32 *cmd_list,
-+		u32 cmdlen, u8 *in, u32 inlen, u32 *out, u32 outlen,
-+		u32 dptr, u32 sptr);
-+{
-+	return -EINVAL;
-+}
-+
-+static inline struct intel_ipc_dev *intel_ipc_dev_get(const char *dev_name)
-+{
-+	return NULL;
-+}
-+
-+static inline struct intel_ipc_dev *devm_intel_ipc_dev_get(struct device *dev,
-+					const char *dev_name);
-+{
-+	return NULL;
-+}
-+
-+static inline void intel_ipc_dev_put(struct intel_ipc_dev *ipc_dev)
-+{
-+	return NULL;
-+}
-+#endif /* CONFIG_INTEL_IPC_DEV */
-+#endif /* INTEL_IPC_DEV_H */
--- 
-2.7.4
+> +	 */
+> +	do {
+> +		year = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_YEA));
+> +		mon = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MON));
+> +		wday = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOW));
+> +		mday = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_DOM));
+> +		hour = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_HOU));
+> +		min = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_MIN));
+> +		sec = mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_SEC));
+> +	} while (sec != mtk_r32(hw, MTK_RTC_TREG(time_alarm, MTK_SEC)));
+> +
+> +	tm->tm_sec  = sec;
+> +	tm->tm_min  = min;
+> +	tm->tm_hour = hour;
+> +	tm->tm_wday = wday;
+> +	tm->tm_mday = mday;
+> +	tm->tm_mon  = mon - 1;
+> +
+> +	/* Rebase to the absolute year which userspace requires */
+> +	tm->tm_year = year + MTK_RTC_TM_YR_L + hw->yr_base[time_alarm];
+> +}
+> +
+> +static void mtk_rtc_set_alarm_or_time(struct mtk_rtc *hw, struct rtc_time *tm,
+> +				      int time_alarm)
+> +{
+> +	u32 year;
+> +
+> +	/* Rebase to the relative year which RTC hardware requires */
+> +	year = tm->tm_year - MTK_RTC_TM_YR_L - hw->yr_base[time_alarm];
+> +
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_YEA), year);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_MON), tm->tm_mon + 1);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_DOW), tm->tm_wday);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_DOM), tm->tm_mday);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_HOU), tm->tm_hour);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_MIN), tm->tm_min);
+> +	mtk_w32(hw, MTK_RTC_TREG(time_alarm, MTK_SEC), tm->tm_sec);
+> +}
+> +
+> +static irqreturn_t mtk_rtc_alarmirq(int irq, void *id)
+> +{
+> +	struct mtk_rtc *hw = (struct mtk_rtc *)id;
+> +	u32 irq_sta;
+> +
+> +	irq_sta = mtk_r32(hw, MTK_RTC_INT);
+> +	if (irq_sta & RTC_INT_AL_STA) {
+> +		/* Stop alarm also implicitly disables the alarm interrupt */
+> +		mtk_w32(hw, MTK_RTC_AL_CTL, 0);
+> +		rtc_update_irq(hw->rtc, 1, RTC_IRQF | RTC_AF);
+> +
+> +		/* Ack alarm interrupt status */
+> +		mtk_w32(hw, MTK_RTC_INT, RTC_INT_AL_STA);
+> +		return IRQ_HANDLED;
+> +	}
+> +
+> +	return IRQ_NONE;
+> +}
+> +
+> +static int mtk_rtc_gettime(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +
+> +	mtk_rtc_get_alarm_or_time(hw, tm, MTK_TC);
+> +
+> +	return rtc_valid_tm(tm);
+> +}
+> +
+> +static int mtk_rtc_settime(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +
+> +	/* Epoch == 1900, and the driver assumes that tm->tm_year has to be
+> +	 * at least MTK_RTC_TM_YR_L.
+> +	 */
+> +	if (tm->tm_year <  MTK_RTC_TM_YR_L)
+> +		return -EINVAL;
+> +
+> +	/* Keep yr_base used to calculate the calculate year when userspace
+> +	 * queries and extend the maximum year the RTC can count.
+> +	 */
+> +	hw->yr_base[MTK_TC] = tm->tm_year - MTK_RTC_TM_YR_L -
+> +			      (tm->tm_year % MTK_RTC_HW_YR_LIMIT);
+> +
+> +	/* Stop time counter before setting a new one*/
+> +	mtk_set(hw, MTK_RTC_CTL, RTC_RC_STOP);
+> +
+> +	mtk_rtc_set_alarm_or_time(hw, tm, MTK_TC);
+> +
+> +	/* Restart the time counter */
+> +	mtk_clr(hw, MTK_RTC_CTL, RTC_RC_STOP);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mtk_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +	struct rtc_time *alrm_tm = &wkalrm->time;
+> +
+> +	mtk_rtc_get_alarm_or_time(hw, alrm_tm, MTK_AL);
+> +
+> +	wkalrm->enabled = !!(mtk_r32(hw, MTK_RTC_AL_CTL) & RTC_AL_EN);
+> +	wkalrm->pending = !!(mtk_r32(hw, MTK_RTC_INT) & RTC_INT_AL_STA);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mtk_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +	struct rtc_time *alrm_tm = &wkalrm->time;
+> +
+> +	/* Epoch == 1900, and the driver assumes that alrm_tm->tm_year has to
+> +	 * be at least MTK_RTC_TM_YR_L.
+> +	 */
+> +	if (alrm_tm->tm_year < MTK_RTC_TM_YR_L)
+> +		return -EINVAL;
+> +
+> +	/* Keep yr_base used to calculate the calculate year when userspace
+> +	 * queries and extend the maximum time the alarm can support.
+> +	 */
+> +	hw->yr_base[MTK_AL] = alrm_tm->tm_year - MTK_RTC_TM_YR_L -
+> +			      (alrm_tm->tm_year % MTK_RTC_HW_YR_LIMIT);
+> +
+> +	/*
+> +	 * Stop the alarm also implicitly including disables interrupt before
+> +	 * setting a new one.
+> +	 */
+> +	mtk_clr(hw, MTK_RTC_AL_CTL, RTC_AL_EN);
+> +
+> +	/*
+> +	 * Avoid contention between mtk_rtc_setalarm and IRQ handler so that
+> +	 * disabling the interrupt and awaiting for pending IRQ handler to
+> +	 * complete.
+> +	 */
+> +	synchronize_irq(hw->irq);
+> +
+> +	mtk_rtc_set_alarm_or_time(hw, alrm_tm, MTK_AL);
+> +
+> +	/* Restart the alarm with the new setup */
+> +	mtk_w32(hw, MTK_RTC_AL_CTL, RTC_AL_ALL);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct rtc_class_ops mtk_rtc_ops = {
+> +	.read_time		= mtk_rtc_gettime,
+> +	.set_time		= mtk_rtc_settime,
+> +	.read_alarm		= mtk_rtc_getalarm,
+> +	.set_alarm		= mtk_rtc_setalarm,
+> +};
+> +
+> +static const struct of_device_id mtk_rtc_match[] = {
+> +	{ .compatible = "mediatek,mt7622-rtc" },
+> +	{ .compatible = "mediatek,soc-rtc" },
+> +	{},
+> +};
+> +
+> +static int mtk_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct mtk_rtc *hw;
+> +	struct resource *res;
+> +	int ret;
+> +
+> +	hw = devm_kzalloc(&pdev->dev, sizeof(*hw), GFP_KERNEL);
+> +	if (!hw)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, hw);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	hw->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(hw->base))
+> +		return PTR_ERR(hw->base);
+> +
+> +	hw->clk = devm_clk_get(&pdev->dev, "rtc");
+> +	if (IS_ERR(hw->clk)) {
+> +		dev_err(&pdev->dev, "No clock\n");
+> +		return PTR_ERR(hw->clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(hw->clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	hw->irq = platform_get_irq(pdev, 0);
+> +	if (hw->irq < 0) {
+> +		dev_err(&pdev->dev, "No IRQ resource\n");
+> +		ret = hw->irq;
+> +		goto err;
+> +	}
+> +
+> +	ret = devm_request_irq(&pdev->dev, hw->irq, mtk_rtc_alarmirq,
+> +			       0, dev_name(&pdev->dev), hw);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Can't request IRQ\n");
+> +		goto err;
+> +	}
+> +
+> +	mtk_rtc_hw_init(hw);
+> +
+> +	device_init_wakeup(&pdev->dev, true);
+> +
+> +	hw->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+> +					   &mtk_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(hw->rtc)) {
+> +		ret = PTR_ERR(hw->rtc);
+> +		dev_err(&pdev->dev, "Unable to register device\n");
+> +		goto err;
+> +	}
+> +
+> +	return 0;
+> +err:
+> +	clk_disable_unprepare(hw->clk);
+> +
+> +	return ret;
+> +}
+> +
+> +static int mtk_rtc_remove(struct platform_device *pdev)
+> +{
+> +	struct mtk_rtc *hw = platform_get_drvdata(pdev);
+> +
+> +	clk_disable_unprepare(hw->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int mtk_rtc_suspend(struct device *dev)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(hw->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mtk_rtc_resume(struct device *dev)
+> +{
+> +	struct mtk_rtc *hw = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(hw->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(mtk_rtc_pm_ops, mtk_rtc_suspend, mtk_rtc_resume);
+> +
+> +#define MTK_RTC_PM_OPS (&mtk_rtc_pm_ops)
+> +#else	/* CONFIG_PM */
+> +#define MTK_RTC_PM_OPS NULL
+> +#endif	/* CONFIG_PM */
+> +
+> +static struct platform_driver mtk_rtc_driver = {
+> +	.probe	= mtk_rtc_probe,
+> +	.remove	= mtk_rtc_remove,
+> +	.driver = {
+> +		.name = MTK_RTC_DEV,
+> +		.of_match_table = mtk_rtc_match,
+> +		.pm = MTK_RTC_PM_OPS,
+> +	},
+> +};
+> +
+> +module_platform_driver(mtk_rtc_driver);
+> +
+> +MODULE_DESCRIPTION("MediaTek SoC based RTC Driver");
+> +MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
+> +MODULE_LICENSE("GPL");
