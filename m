@@ -1,63 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:32941 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751315AbdJDBA2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 3 Oct 2017 21:00:28 -0400
-Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Subject: Re: [RFC v3 2/7] platform/x86: intel_pmc_ipc: Use MFD framework to
- create dependent devices
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-References: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <3e7a05561840a7dd4fa945e4969edb834d9870b6.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75Vd4wNg9tpRUHpkk8-Y75xXtPe4F7_27dPQHZT9uN9DJ5g@mail.gmail.com>
-From: sathyanarayanan kuppuswamy
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Message-ID: <6b854d35-6430-c790-3608-15cefac03a52@linux.intel.com>
-Date: Tue, 3 Oct 2017 18:00:15 -0700
+Received: from mailgw02.mediatek.com ([210.61.82.184]:45195 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1753871AbdJRNcO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 09:32:14 -0400
+Message-ID: <1508333529.13340.26.camel@mtksdaap41>
+Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: mediatek: add bindings for
+ MediaTek SoC based RTC
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+To: <sean.wang@mediatek.com>
+CC: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Wed, 18 Oct 2017 21:32:09 +0800
+In-Reply-To: <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
+References: <cover.1508231935.git.sean.wang@mediatek.com>
+         <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-In-Reply-To: <CAHp75Vd4wNg9tpRUHpkk8-Y75xXtPe4F7_27dPQHZT9uN9DJ5g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Andy,
+On Tue, 2017-10-17 at 17:40 +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Add device-tree binding for MediaTek SoC based RTC
+> 
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> ---
+>  .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+> new file mode 100644
+> index 0000000..09fe8f5
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
 
 
-On 10/01/2017 07:44 AM, Andy Shevchenko wrote:
-> On Tue, Sep 5, 2017 at 8:37 AM,
-> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->>
->> Currently, we have lot of repetitive code in dependent device resource
->> allocation and device creation handling code. This logic can be improved if
->> we use MFD framework for dependent device creation. This patch adds this
->> support.
->>
->> +       punit_cell.id = -1;
-I will remove this line in next version.
->> +       return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
->> +                       &punit_cell, 1, NULL, 0, NULL);
-> IIRC you don't need to file cell ID in case of DEVID_AUTO.
-I am planning to use DEVID_NONE here to match the current behavior. 
-Unless you have some concerns?
->
+How about change this filename to match driver filename change?
 
--- 
-Sathyanarayanan Kuppuswamy
-Linux kernel developer
+Joe.C
