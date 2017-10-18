@@ -1,273 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:9740 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753264AbdJGWUW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 7 Oct 2017 18:20:22 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v5 3/8] platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
-Date: Sat,  7 Oct 2017 15:19:53 -0700
-Message-Id: <b2872acd5a0f4c4643bd50bb79c951581846d577.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:34474 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750853AbdJRV05 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 17:26:57 -0400
+Date: Wed, 18 Oct 2017 23:26:45 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
+        Gabriel Beddingfield <gabe@nestlabs.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
+        hharte@nestlabs.com
+Subject: Re: Introduce clock precision to help time travelers was Re: Extreme
+ time jitter with suspend/resume cycles
+Message-ID: <20171018212645.7htby4qmnfbep3vx@piout.net>
+References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
+ <20171015063738.GA24716@xo-6d-61-c0.localdomain>
+ <20171018213449.523cd958@alans-desktop>
+ <20171018210828.GA3581@amd>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171018210828.GA3581@amd>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On 18/10/2017 at 23:08:28 +0200, Pavel Machek wrote:
+> On Wed 2017-10-18 21:34:49, Alan Cox wrote:
+> > > And even the boring ones have pretty imprecise RTCs... For example Nokia N9.
+> > > I only power it up from time to time, I believe it drifts something like
+> > > minute per month... For normal use with SIM card, it can probably correct
+> > > from GSM network if you happen to have a cell phone signal, but...
+> > > 
+> > > More interesting machines... Old thinkpad is running without CMOS battery.
+> > > ARM OLPC has _three_ RTCs, but not a single working one. N900 has working
+> > > RTC but no or dead backup battery. On these, RTC driver probably knows
+> > > time is not valid, but feeds the garbage into the system time, anyway. Ouch.
+> > > Neither Sharp Zaurus SL-5500 nor C-3000 had battery backup on RTC...
+> > 
+> > Not a new problem, RTC's used to cost lots of money 8)
+> > 
+> > Most early Unixen set the clock at boot from the superblock timestamp of
+> > the root fs, some with RTC's also used to scream at you if the superblock
+> > stamp was too far head of current time.That doesn't quite work with
+> > initrd but you can do the same in userspace on Linux so you'll at least
+> > get 'when I last booted it' and because it's always moving forward lots
+> > of other messes don't happen.
+> 
+> Yeah, that's what "swclock" module of init system does. Someone solved
+> that one for me. But... that's not good enough. In particular, I'd
+> like time not to be displayed when "swclock" was used. Nokia 6230
+> could do it, so linux should be able to do it, too.
+> 
+> It seems kernel should pass accurancy info, or at least "this time is
+> probably off by hours at least" from gettimeofday() and similar
+> syscalls...
 
-This patch adds support for regmap based implementation for GCR
-read/write/update APIs.
+The question being how do you expect the kernel to get that information?
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/platform/x86/Kconfig         |   1 +
- drivers/platform/x86/intel_pmc_ipc.c | 120 +++++++++++++----------------------
- 2 files changed, 44 insertions(+), 77 deletions(-)
+Some RTCs will tell you when they lost time/time accuracy and this
+should be properly reported by the driver. If not, this has to be
+implemented.
 
-Changes since v4:
- * None
+For anything else, it is probably the job of userspace to try to be
+clever.
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 1f7959f..da2d9ba 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1067,6 +1067,7 @@ config PVPANIC
- config INTEL_PMC_IPC
- 	tristate "Intel PMC IPC Driver"
- 	depends on ACPI
-+	select REGMAP_MMIO
- 	---help---
- 	This driver provides support for PMC control on some Intel platforms.
- 	The PMC is an ARC processor which defines IPC commands for communication
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index 18e94fa..fd5bcdf 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -35,6 +35,7 @@
- #include <linux/io-64-nonatomic-lo-hi.h>
- #include <linux/spinlock.h>
- #include <linux/mfd/core.h>
-+#include <linux/regmap.h>
- 
- #include <asm/intel_pmc_ipc.h>
- 
-@@ -126,8 +127,7 @@ static struct intel_pmc_ipc_dev {
- 
- 	/* gcr */
- 	void __iomem *gcr_mem_base;
--	bool has_gcr_regs;
--	spinlock_t gcr_lock;
-+	struct regmap *gcr_regs;
- } ipcdev;
- 
- static char *ipc_err_sources[] = {
-@@ -149,6 +149,15 @@ static char *ipc_err_sources[] = {
- 		"Unsigned kernel",
- };
- 
-+static struct regmap_config gcr_regmap_config = {
-+	.name = "intel_pmc_gcr",
-+        .reg_bits = 32,
-+        .reg_stride = 4,
-+        .val_bits = 32,
-+	.fast_io = true,
-+	.max_register = PLAT_RESOURCE_GCR_SIZE,
-+};
-+
- /* Prevent concurrent calls to the PMC */
- static DEFINE_MUTEX(ipclock);
- 
-@@ -182,21 +191,6 @@ static inline u32 ipc_data_readl(u32 offset)
- 	return readl(ipcdev.ipc_base + IPC_READ_BUFFER + offset);
- }
- 
--static inline u64 gcr_data_readq(u32 offset)
--{
--	return readq(ipcdev.gcr_mem_base + offset);
--}
--
--static inline int is_gcr_valid(u32 offset)
--{
--	if (!ipcdev.has_gcr_regs)
--		return -EACCES;
--
--	if (offset > PLAT_RESOURCE_GCR_SIZE)
--		return -EINVAL;
--
--	return 0;
--}
- 
- /**
-  * intel_pmc_gcr_read() - Read PMC GCR register
-@@ -209,21 +203,12 @@ static inline int is_gcr_valid(u32 offset)
-  */
- int intel_pmc_gcr_read(u32 offset, u32 *data)
- {
--	int ret;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0) {
--		spin_unlock(&ipcdev.gcr_lock);
--		return ret;
--	}
--
--	*data = readl(ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	spin_unlock(&ipcdev.gcr_lock);
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--	return 0;
-+	return regmap_read(pmc->gcr_regs, offset, data);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
- 
-@@ -239,21 +224,12 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
-  */
- int intel_pmc_gcr_write(u32 offset, u32 data)
- {
--	int ret;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0) {
--		spin_unlock(&ipcdev.gcr_lock);
--		return ret;
--	}
--
--	writel(data, ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	spin_unlock(&ipcdev.gcr_lock);
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--	return 0;
-+	return regmap_write(pmc->gcr_regs, offset, data);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
- 
-@@ -270,33 +246,12 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
-  */
- int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
- {
--	u32 new_val;
--	int ret = 0;
--
--	spin_lock(&ipcdev.gcr_lock);
--
--	ret = is_gcr_valid(offset);
--	if (ret < 0)
--		goto gcr_ipc_unlock;
--
--	new_val = readl(ipcdev.gcr_mem_base + offset);
--
--	new_val &= ~mask;
--	new_val |= val & mask;
--
--	writel(new_val, ipcdev.gcr_mem_base + offset);
--
--	new_val = readl(ipcdev.gcr_mem_base + offset);
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 
--	/* check whether the bit update is successful */
--	if ((new_val & mask) != (val & mask)) {
--		ret = -EIO;
--		goto gcr_ipc_unlock;
--	}
-+	if (!pmc->gcr_regs)
-+		return -EACCES;
- 
--gcr_ipc_unlock:
--	spin_unlock(&ipcdev.gcr_lock);
--	return ret;
-+	return regmap_update_bits(pmc->gcr_regs, offset, mask, val);
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
- 
-@@ -475,8 +430,6 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	pmc->irq_mode = IPC_TRIGGER_MODE_IRQ;
- 
--	spin_lock_init(&ipcdev.gcr_lock);
--
- 	ret = pcim_enable_device(pdev);
- 	if (ret)
- 		return ret;
-@@ -769,17 +722,26 @@ static int ipc_plat_get_res(struct platform_device *pdev)
-  */
- int intel_pmc_s0ix_counter_read(u64 *data)
- {
-+	struct intel_pmc_ipc_dev *pmc = &ipcdev;
- 	u64 deep, shlw;
-+	int ret;
- 
--	if (!ipcdev.has_gcr_regs)
-+	if (!pmc->gcr_regs)
- 		return -EACCES;
- 
--	deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
--	shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
-+	ret = regmap_bulk_read(pmc->gcr_regs, PMC_GCR_TELEM_DEEP_S0IX_REG,
-+			       &deep, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_read(pmc->gcr_regs, PMC_GCR_TELEM_SHLW_S0IX_REG,
-+			       &shlw, 2);
-+	if (ret)
-+		return ret;
- 
- 	*data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(intel_pmc_s0ix_counter_read);
- 
-@@ -798,7 +760,6 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 	ipcdev.dev = &pdev->dev;
- 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
- 	init_completion(&ipcdev.cmd_complete);
--	spin_lock_init(&ipcdev.gcr_lock);
- 
- 	ipcdev.irq = platform_get_irq(pdev, 0);
- 	if (ipcdev.irq < 0) {
-@@ -812,6 +773,13 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+        ipcdev.gcr_regs = devm_regmap_init_mmio_clk(ipcdev.dev, NULL,
-+			ipcdev.gcr_mem_base, &gcr_regmap_config);
-+        if (IS_ERR(ipcdev.gcr_regs)) {
-+                dev_err(ipcdev.dev, "gcr_regs regmap init failed\n");
-+                return PTR_ERR(ipcdev.gcr_regs);;
-+        }
-+
- 	ret = ipc_create_pmc_devices(pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to create pmc devices\n");
-@@ -832,8 +800,6 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	ipcdev.has_gcr_regs = true;
--
- 	return 0;
- }
- 
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
