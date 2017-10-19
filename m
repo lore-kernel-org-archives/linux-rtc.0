@@ -1,100 +1,143 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from m13-125.163.com ([220.181.13.125]:11260 "EHLO m13-125.163.com"
+Received: from mga09.intel.com ([134.134.136.24]:55874 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751138AbdJLN5O (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 12 Oct 2017 09:57:14 -0400
-Date: Thu, 12 Oct 2017 21:40:33 +0800 (CST)
-From: =?GBK?B?wfXOyA==?= <18502523564@163.com>
-To: "Guenter Roeck" <linux@roeck-us.net>
-Cc: "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
-        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re:Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-In-Reply-To: <20171010150514.GB1879@roeck-us.net>
-References: <1507641172-6099-1-git-send-email-18502523564@163.com>
- <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
- <20171010135134.2zepquujhfwbhxoq@piout.net>
- <20171010150514.GB1879@roeck-us.net>
-Content-Type: text/plain; charset=GBK
-MIME-Version: 1.0
-Message-ID: <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
+        id S1750946AbdJSAXm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 18 Oct 2017 20:23:42 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kupuswamy@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [RFC v6 1/9] platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
+Date: Wed, 18 Oct 2017 17:23:04 -0700
+Message-Id: <0c13dfd2626df7b91b64dcc393e1d31e1a2c933f.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-CgoKCgoKCgoKCkF0IDIwMTctMTAtMTAgMjM6MDU6MTQsICJHdWVudGVyIFJvZWNrIiA8bGludXhA
-cm9lY2stdXMubmV0PiB3cm90ZToKPk9uIFR1ZSwgT2N0IDEwLCAyMDE3IGF0IDAzOjUxOjM0UE0g
-KzAyMDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOgo+PiBPbiAxMC8xMC8yMDE3IGF0IDA2OjQx
-OjE1IC0wNzAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiA+IE9uIDEwLzEwLzIwMTcgMDY6MTIg
-QU0sIHdpbnRvbi5saXUgd3JvdGU6Cj4+ID4gPiBXaGVuIGVuYWJsZSBDT05GSUdfUlRDX0RSVl9E
-UzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKPj4gPiA+IGluIHN1c3BlbmQgbW9kZSwgd2F0Y2hk
-b2cgaXMgc3RpbGwgd29ya2luZyBidXQgbm8gZGFlbW9uCj4+ID4gPiBwYXR0aW5nIHRoZSB3YXRj
-aGRvZy4gVGhlIHN5c3RlbSB3aWxsIHJlYm9vdCBpZiB0aW1lb3V0Lgo+PiA+ID4gCj4+ID4gPiBB
-ZGQgc3VwcG9ydCBzdXNwZW5kL3Jlc3VtZSBmb3Igd2F0Y2hkb2cuCj4+ID4gPiBzdXNwZW5kOiBk
-aXNhYmxlIHRoZSB3YXRjaGRvZwo+PiA+ID4gcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5nIHdhdGNo
-ZG9nLCByZWxvYWQgd2F0Y2hkb2cgdGltZXIsIGVuYWJsZSB3YXRjaGRvZwo+PiA+ID4gCj4+ID4g
-PiBTaWduZWQtb2ZmLWJ5OiB3aW50b24ubGl1IDwxODUwMjUyMzU2NEAxNjMuY29tPgo+PiA+ID4g
-LS0tCj4+ID4gPiAgIGRyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyB8IDMxICsrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysKPj4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDMxIGluc2VydGlvbnMo
-KykKPj4gPiA+IAo+PiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyBi
-L2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gaW5kZXggMzhhMmU5ZS4uNjQyZTMxZCAx
-MDA2NDQKPj4gPiA+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gKysrIGIv
-ZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jCj4+ID4gPiBAQCAtNDM3LDYgKzQzNywyOSBAQCBzdGF0
-aWMgdm9pZCBkczEzNzRfd2R0X3Bpbmcodm9pZCkKPj4gPiA+ICAgCQlwcl9pbmZvKCJXRCBUSUNL
-IEZBSUwhISEhISEhISEhICVpXG4iLCByZXQpOwo+PiA+ID4gICB9Cj4+ID4gPiArc3RhdGljIHZv
-aWQgZHMxMzc0X3dkdF9yZXN1bWUodm9pZCkKPj4gPiA+ICt7Cj4+ID4gPiArCWludCByZXQgPSAt
-RU5PSU9DVExDTUQ7Cj4+ID4gCj4+ID4gVXNlbGVzcyBpbml0aWFsaXphdGlvbiAoeWVzLCBJIGNh
-biBzZWUgdGhhdCB0aGlzIGlzIHdpZGVseSBkb25lIGluIHRoZSBkcml2ZXIsCj4+ID4gYnV0IHRo
-YXQgZG9lc24ndCBtYWtlIGl0IGJldHRlcikuCj4+ID4gCiAgICAgICAgWWVzLCBJIHRoaW5rIHRo
-aXMgaXMgdXNlbGVzcy4gVGhlIG9yaWdpbmFsIGRzMTM3NF93ZHRfZGlzYWJsZSBoYXMgdGhlIHNh
-bWUgaXNzdWUuCj4+ID4gPiArCWludCBjcjsKPj4gPiA+ICsKPj4gPiA+ICsJY3IgPSBpMmNfc21i
-dXNfcmVhZF9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9SRUdfQ1IpOwo+PiA+ID4gKwo+
-PiA+ID4gKwkvKiBEaXNhYmxlIGFueSBleGlzdGluZyB3YXRjaGRvZy9hbGFybSBiZWZvcmUgc2V0
-dGluZyB0aGUgbmV3IG9uZSAqLwo+PiA+ID4gKwljciAmPSB+RFMxMzc0X1JFR19DUl9XQUNFOwo+
-PiA+ID4gKwo+PiA+ID4gKwlpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKHNhdmVfY2xpZW50LCBE
-UzEzNzRfUkVHX0NSLCBjcik7Cj4+ID4gPiArCj4+ID4gPiArCS8qIFJlbG9hZCB3YXRjaGRvZyB0
-aW1lciAqLwo+PiA+ID4gKwlkczEzNzRfd2R0X3BpbmcoKTsKPj4gPiA+ICsKPj4gPiA+ICsJLyog
-RW5hYmxlIHdhdGNoZG9nIHRpbWVyICovCj4+ID4gPiArCWNyIHw9IERTMTM3NF9SRUdfQ1JfV0FD
-RSB8IERTMTM3NF9SRUdfQ1JfV0RBTE07Cj4+ID4gPiArCWNyICY9IH5EUzEzNzRfUkVHX0NSX0FJ
-RTsKPj4gPiA+ICsKPj4gPiA+ICsJcmV0ID0gaTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShzYXZl
-X2NsaWVudCwgRFMxMzc0X1JFR19DUiwgY3IpOwo+PiA+ID4gKwo+PiA+IEV4dHJhIGVtcHR5IGxp
-bmUuIEFsc28sIHJldHVybnMgdm9pZCwgc28gd2hhdCBpcyB0aGUgcG9pbnQgb2YgYXNzaWduaW5n
-Cj4+ID4gdGhlIHJlc3VsdCB0byByZXQgPwo+PiA+IAo+PiA+ID4gK30KPj4gPiAKPj4gPiBVbmxl
-c3MgSSBhbSBtaXNzaW5nIHNvbWV0aGluZywgdGhpcyB1bmNvbmRpdGlvbmFsbHkgc3RhcnRzIHRo
-ZSB3YXRjaGRvZwo+PiA+IGF0IHJlc3VtZSB0aW1lLiBTbyBpZiBpdCB3YXMgbm90IHJ1bm5pbmcg
-YmVmb3JlLCBpdCB3aWxsIGJlIHN0YXJ0ZWQgYW55d2F5LAo+PiA+IGFuZCB0aGUgc3lzdGVtIHdp
-bGwgcmVib290IHNpbmNlIHRoZXJlIHdpbGwgYmUgbm8gcGluZy4KPj4gPiAKICAgIFRoaXMgZHJp
-dmVyIHN0YXJ0cyB3YXRjaGRvZyBieSBkZWZhdWx0LiBJbiBwcm9iZSB3YXRjaGRvZyBzdGFydHM6
-IAogICAjaWZkZWYgQ09ORklHX1JUQ19EUlZfRFMxMzc0X1dEVAogICAgc2F2ZV9jbGllbnQgPSBj
-bGllbnQ7CiAgICByZXQgPSBtaXNjX3JlZ2lzdGVyKCZkczEzNzRfbWlzY2Rldik7CiAgICBpZiAo
-cmV0KQogICAgICAgIHJldHVybiByZXQ7CiAgICByZXQgPSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZp
-ZXIoJmRzMTM3NF93ZHRfbm90aWZpZXIpOwogICAgaWYgKHJldCkgewogICAgICAgIG1pc2NfZGVy
-ZWdpc3RlcigmZHMxMzc0X21pc2NkZXYpOwogICAgICAgIHJldHVybiByZXQ7CiAgICB9CiAgICBk
-czEzNzRfd2R0X3NldHRpbWVvdXQoMTMxMDcyKTsgICAvL0hlcmUgc3RhcnRzIHdhdGNoZG9nCiNl
-bmRpZgogICBBbmQgdXNlcnNwYWNlIHdhdGNoZG9nZCB3aWxsIHBpbmcuCj4+IAo+PiBBbHNvLCBJ
-J20gc3RpbGwgbm90IGNvbnZpbmNlZCB0aGlzIGlzIHRoZSByaWdodCB0aGluZyB0byBkby4gSSBo
-YXZlIHNlZW4KPj4gbWFueSBzeXN0ZW1zIHdlcmUgaXQgd2FzIGRlc2lyYWJsZSB0byBsZXQgdGhl
-IHdhdGNoZG9nIHJ1biB3aGlsZSB0aGUKPj4gc3lzdGVtIGlzIHN1c3BlbmRlZC4gSXQgZW5zdXJl
-cyBpdCB3aWxsIGVpdGhlciB3YWtlIHVwIG9yIHJlYm9vdC4gSWYgeW91Cj4+IGRvbid0IHdhbnQg
-dGhhdCwgd2h5IG5vdCBkaXNhYmxpbmcgdGhlIHdhdGNoZG9nIGZyb20gdXNlcnNwYWNlIGJlZm9y
-ZQo+PiBnb2luZyB0byBzdXNwZW5kPwo+PiAKPgo+VXN1YWxseSB3YXRjaGRvZyBkcml2ZXJzIHN1
-cHBvcnRpbmcgc3VzcGVuZC9yZXN1bWUgZG8gaGFuZGxlIGl0IHRoaXMgd2F5Lgo+TWF5YmUgdGhh
-dCBkZXBlbmRzIG9uIHRoZSBIVy4gRXhwZWN0aW5nIHVzZXIgc3BhY2UgdG8gZG8gaXQgbWFrZXMg
-aXQKPmV2ZW4gbW9yZSByYWN5IHRoYW4gaXQgYWxyZWFkeSBpcywgc2luY2UgdGhlcmUgaXMgbm8g
-d2F0Y2hkb2cgcHJvdGVjdGlvbgo+YWZ0ZXIgaXQgaGFzIGJlZW4gZGlzYWJsZWQsIHNvIEkgYW0g
-bm90IHN1cmUgaWYgdGhhdCBpcyByZWFsbHkgYmV0dGVyLgo+RG9lcyBhbnlvbmUgaGFwcGVuIHRv
-IGtub3cgaWYvaG93IHN5c3RlbWQgYW5kIHdhdGNoZG9nZCBhcmUgaGFuZGxpbmcKPnRoaXMgc2l0
-dWF0aW9uID8KPgo+PiA+IEkgYXNzdW1lIGl0IGlzIGd1YXJhbnRlZWQgdGhhdCB0aGUgY2hpcCBk
-b2Vzbid0IGZvcmdldCB0aGUgcHJldmlvdXNseQo+PiA+IGNvbmZpZ3VyZWQgdGltZW91dCBvbiBy
-ZXN1bWUuCj4+ID4gCj4+ID4gT3ZlcmFsbCB0aGUgZHJpdmVyIHdvdWxkIHJlYWxseSBiZW5lZml0
-IGZyb20gYSBjb252ZXJzaW9uIHRvIHRoZSB3YXRjaGRvZwo+PiA+IHN1YnN5c3RlbS4KPj4gPiAK
-Pj4gCj4+IFRoYXQgaXMgdGhlIHBvaW50IG9mIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0L2xpc3Rz
-L2xpbnV4LXdhdGNoZG9nL21zZzEyMDk1Lmh0bWwKPgo+QWgsIHllcywgYW5kIEkgZXZlbiBwcm92
-aWRlZCBmZWVkYmFjay4gSG9wZSBJIGRpZG4ndCBtaXNzIGFuIHVwZGF0ZWQKPnZlcnNpb24gb2Yg
-dGhhdCBwYXRjaC4gRWl0aGVyIGNhc2UsIHNlZW1zIHRvIG1lIHdlIHNob3VsZCB3YWl0IGZvciB0
-aGF0Cj5wYXRjaCB0byBtYWtlIGl0IGluIGJlZm9yZSBhY2NlcHRpbmcgYW55IGZ1cnRoZXIgY2hh
-bmdlcyB0byB0aGUgZHJpdmVyLgo+CiAgIElzIHRoaXMgbXVsdGkgZnVuY3Rpb24gcGF0Y2ggaGFz
-IGFueSB1cGRhdGUgPyBJZiBub3QsIGNvdWxkIG15IHBhdGNoIGJlIGFjY2VwdGFibGUgYmVmb3Jl
-IG1vdmluZyB0byB3YXRjaGRvZyBzdWJzeXN0ZW0uKEkgY291bGQgdXBkYXRlIGEgbmV3IHBhdGNo
-IGZvciB5b3VyIHN1Z2dlc3Rpb24pPwogICBCZWNhdXNlIGN1cnJlbnQga2VybmVsIHVzaW5nIGRz
-MTM3NCBmb3Igd2F0Y2hkb2cuIElmIHRoZSBkZXZpY2UgbmVlZCBzdXNwZW5kLCB0aGVyZSB3aWxs
-IGJlIGEgcmVib290IGlzc3VlLgoKPkd1ZW50ZXIK
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+
+Currently, update_no_reboot_bit() function implemented in this driver
+uses mutex_lock() to protect its register updates. But this function is
+called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
+functions in iTCO_wdt.c driver, which in turn causes "sleeping into
+atomic context" issue. This patch fixes this issue by replacing the
+mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
+
+Fixes: 9d855d468dc6 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure")
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kupuswamy@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/platform/x86/intel_pmc_ipc.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index bb792a5..af88221 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -33,6 +33,7 @@
+ #include <linux/suspend.h>
+ #include <linux/acpi.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/intel_pmc_ipc.h>
+ 
+@@ -131,6 +132,7 @@ static struct intel_pmc_ipc_dev {
+ 	/* gcr */
+ 	void __iomem *gcr_mem_base;
+ 	bool has_gcr_regs;
++	spinlock_t gcr_lock;
+ 
+ 	/* punit */
+ 	struct platform_device *punit_dev;
+@@ -225,17 +227,17 @@ int intel_pmc_gcr_read(u32 offset, u32 *data)
+ {
+ 	int ret;
+ 
+-	mutex_lock(&ipclock);
++	spin_lock(&ipcdev.gcr_lock);
+ 
+ 	ret = is_gcr_valid(offset);
+ 	if (ret < 0) {
+-		mutex_unlock(&ipclock);
++		spin_unlock(&ipcdev.gcr_lock);
+ 		return ret;
+ 	}
+ 
+ 	*data = readl(ipcdev.gcr_mem_base + offset);
+ 
+-	mutex_unlock(&ipclock);
++	spin_unlock(&ipcdev.gcr_lock);
+ 
+ 	return 0;
+ }
+@@ -255,17 +257,17 @@ int intel_pmc_gcr_write(u32 offset, u32 data)
+ {
+ 	int ret;
+ 
+-	mutex_lock(&ipclock);
++	spin_lock(&ipcdev.gcr_lock);
+ 
+ 	ret = is_gcr_valid(offset);
+ 	if (ret < 0) {
+-		mutex_unlock(&ipclock);
++		spin_unlock(&ipcdev.gcr_lock);
+ 		return ret;
+ 	}
+ 
+ 	writel(data, ipcdev.gcr_mem_base + offset);
+ 
+-	mutex_unlock(&ipclock);
++	spin_unlock(&ipcdev.gcr_lock);
+ 
+ 	return 0;
+ }
+@@ -287,7 +289,7 @@ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
+ 	u32 new_val;
+ 	int ret = 0;
+ 
+-	mutex_lock(&ipclock);
++	spin_lock(&ipcdev.gcr_lock);
+ 
+ 	ret = is_gcr_valid(offset);
+ 	if (ret < 0)
+@@ -309,7 +311,7 @@ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
+ 	}
+ 
+ gcr_ipc_unlock:
+-	mutex_unlock(&ipclock);
++	spin_unlock(&ipcdev.gcr_lock);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
+@@ -487,6 +489,8 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	ipcdev.dev = &pci_dev_get(pdev)->dev;
+ 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
+ 
++	spin_lock_init(&ipcdev.gcr_lock);
++
+ 	ret = pci_enable_device(pdev);
+ 	if (ret)
+ 		return ret;
+@@ -924,6 +928,8 @@ static int ipc_plat_probe(struct platform_device *pdev)
+ 	ipcdev.irq_mode = IPC_TRIGGER_MODE_IRQ;
+ 	init_completion(&ipcdev.cmd_complete);
+ 
++	spin_lock_init(&ipcdev.gcr_lock);
++
+ 	ipcdev.irq = platform_get_irq(pdev, 0);
+ 	if (ipcdev.irq < 0) {
+ 		dev_err(&pdev->dev, "Failed to get irq\n");
+-- 
+2.7.4
