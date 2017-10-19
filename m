@@ -1,51 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f175.google.com ([209.85.220.175]:44441 "EHLO
-        mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751969AbdJEVM7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Oct 2017 17:12:59 -0400
-Received: by mail-qk0-f175.google.com with SMTP id r64so15850604qkc.1
-        for <linux-rtc@vger.kernel.org>; Thu, 05 Oct 2017 14:12:59 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1710052302440.2398@nanos>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
- <alpine.DEB.2.20.1710041931560.2406@nanos> <CAOdF7ntda5TuCDBUTsuPZ0TCofo-GVfBmrGVyPk-hqGgHEkBQw@mail.gmail.com>
- <alpine.DEB.2.20.1710051216050.2083@nanos> <CAOdF7nu9JpG0C=d_2vMka00eEX_wWWv-UUaiUo-YsDcP9-7VdQ@mail.gmail.com>
- <alpine.DEB.2.20.1710051943570.2398@nanos> <CAOdF7nssJZZG_VKO+G_K6+aukOApmXp823yA9k3sUsSYpSB71g@mail.gmail.com>
- <alpine.DEB.2.20.1710052302440.2398@nanos>
-From: Gabriel Beddingfield <gabe@nestlabs.com>
-Date: Thu, 5 Oct 2017 14:12:57 -0700
-Message-ID: <CAOdF7nuAY5P6fAQymtVPsgdHt+UybkZ5eCzvB=unvW8r+v_fDQ@mail.gmail.com>
-Subject: Re: Extreme time jitter with suspend/resume cycles
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        Howard Harte <hharte@nestlabs.com>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mga09.intel.com ([134.134.136.24]:55874 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751329AbdJSAXm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 18 Oct 2017 20:23:42 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v6 3/9] platform/x86: intel_punit_ipc: Fix resource ioremap warning
+Date: Wed, 18 Oct 2017 17:23:06 -0700
+Message-Id: <de1b81a25959bcda0a73aa58ecc91df8207f7787.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Oct 5, 2017 at 2:04 PM, Thomas Gleixner <tglx@linutronix.de> wrote:
->> > So that clocksource driver looks correct. Do you have an idea in which
->> > context this time jump happens? Does it happen when you exercise your high
->> > frequency suspend/resume dance or is that happening just when you let the
->> > machine run forever as well?
->>
->> We couldn't devise any reproduction steps. We observed it happening at
->> unexpected times in a fleet of devices -- and we couldn't find any
->> patterns to clue us in.
->
-> Ok. Did you talk to NXP about that? Or did you try to exercise reads in a
-> loop to detect the wreckage and maybe a pattern in there?
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Yes, we talked to NXP about it. They don't have a conclusion on what happened.
-While they've been very helpful... we were off the path from their reference
-implementation and so it's not a high priority for them.
+For PUNIT device, ISPDRIVER_IPC and GTDDRIVER_IPC resources are
+not mandatory. So when PMC IPC driver creates a PUNIT device, if
+these resources are not available then it creates dummy resource
+entries for these missing resources. But during PUNIT device probe
+, doing ioremap on these dummy resources generates following warning
+messages.
 
-No, we didn't try that because we prioritized the "persistent clock" approach.
-I have a little more time now and can try the loop-reading strategy.
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
 
--gabe
+This patch fixes this issue by adding extra check for resource size
+before performing ioremap operation.
+
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+---
+ drivers/platform/x86/intel_punit_ipc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+Changes since v5:
+ * None
+
+Changes since v4:
+ * None
+
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index a47a41f..b5b8901 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -252,28 +252,28 @@ static int intel_punit_get_bars(struct platform_device *pdev)
+ 	 * - GTDRIVER_IPC BASE_IFACE
+ 	 */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_IFACE] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 5);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_IFACE] = addr;
+-- 
+2.7.4
