@@ -1,608 +1,455 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:54901 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751282AbdJ2Juo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 29 Oct 2017 05:50:44 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [RFC v8 2/7] platform/x86: intel_pmc_ipc: Use MFD framework to create dependent devices
-Date: Sun, 29 Oct 2017 02:49:55 -0700
-Message-Id: <d7b0fadb708a50e6d9ccf92f106d6939314ccf0f.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:55806 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751935AbdJXJhn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Oct 2017 05:37:43 -0400
+Message-ID: <1508837852.4057.6.camel@mhfsdcap03>
+Subject: Re: [PATCH v5 5/6] input: Add MediaTek PMIC keys support
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "Eddie Huang" <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Andi Shyti <andi.shyti@samsung.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Date: Tue, 24 Oct 2017 17:37:32 +0800
+In-Reply-To: <20171024054409.6qbuzenzymkkjdth@dtor-ws>
+References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+         <1506509048-19032-6-git-send-email-chen.zhong@mediatek.com>
+         <20171024054409.6qbuzenzymkkjdth@dtor-ws>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On Mon, 2017-10-23 at 22:44 -0700, Dmitry Torokhov wrote:
+> On Wed, Sep 27, 2017 at 06:44:07PM +0800, Chen Zhong wrote:
+> > This patch add support to handle MediaTek PMIC MT6397/MT6323 key
+> > interrupts including pwrkey and homekey, also add setting for
+> > long press key shutdown behavior.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> > ---
+> >  drivers/input/keyboard/Kconfig         |    9 +
+> >  drivers/input/keyboard/Makefile        |    1 +
+> >  drivers/input/keyboard/mtk-pmic-keys.c |  341 ++++++++++++++++++++++++++++++++
+> >  3 files changed, 351 insertions(+)
+> >  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
+> > 
+> > diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> > index 4c4ab1c..bd4e20a 100644
+> > --- a/drivers/input/keyboard/Kconfig
+> > +++ b/drivers/input/keyboard/Kconfig
+> > @@ -756,4 +756,13 @@ config KEYBOARD_BCM
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called bcm-keypad.
+> >  
+> > +config KEYBOARD_MTK_PMIC
+> > +	tristate "MediaTek PMIC keys support"
+> > +	depends on MFD_MT6397
+> > +	help
+> > +	  Say Y here if you want to use the pmic keys (powerkey/homekey).
+> > +
+> > +	  To compile this driver as a module, choose M here: the
+> > +	  module will be called pmic-keys.
+> > +
+> >  endif
+> > diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> > index d2338ba..20c0b98 100644
+> > --- a/drivers/input/keyboard/Makefile
+> > +++ b/drivers/input/keyboard/Makefile
+> > @@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+> >  obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
+> >  obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
+> >  obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
+> > +obj-$(CONFIG_KEYBOARD_MTK_PMIC) 	+= mtk-pmic-keys.o
+> >  obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+> >  obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
+> >  obj-$(CONFIG_KEYBOARD_NSPIRE)		+= nspire-keypad.o
+> > diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+> > new file mode 100644
+> > index 0000000..529fd95
+> > --- /dev/null
+> > +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> > @@ -0,0 +1,341 @@
+> > +/*
+> > + * Copyright (C) 2017 MediaTek, Inc.
+> > + *
+> > + * Author: Chen Zhong <chen.zhong@mediatek.com>
+> > + *
+> > + * This software is licensed under the terms of the GNU General Public
+> > + * License version 2, as published by the Free Software Foundation, and
+> > + * may be copied, distributed, and modified under those terms.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> > + *
+> > + */
+> > +
+> > +#include <linux/module.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/input.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/of.h>
+> > +#include <linux/of_device.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/mfd/mt6323/registers.h>
+> > +#include <linux/mfd/mt6397/registers.h>
+> > +#include <linux/mfd/mt6397/core.h>
+> > +
+> > +#define MTK_PMIC_PWRKEY_RST_EN_MASK	0x1
+> > +#define MTK_PMIC_PWRKEY_RST_EN_SHIFT	6
+> > +#define MTK_PMIC_HOMEKEY_RST_EN_MASK	0x1
+> > +#define MTK_PMIC_HOMEKEY_RST_EN_SHIFT	5
+> > +#define MTK_PMIC_RST_DU_MASK		0x3
+> > +#define MTK_PMIC_RST_DU_SHIFT		8
+> > +
+> > +#define MTK_PMIC_PWRKEY_RST		\
+> > +	(MTK_PMIC_PWRKEY_RST_EN_MASK << MTK_PMIC_PWRKEY_RST_EN_SHIFT)
+> > +#define MTK_PMIC_HOMEKEY_RST		\
+> > +	(MTK_PMIC_HOMEKEY_RST_EN_MASK << MTK_PMIC_HOMEKEY_RST_EN_SHIFT)
+> > +
+> > +#define MTK_PMIC_PWRKEY_INDEX	0
+> > +#define MTK_PMIC_HOMEKEY_INDEX	1
+> > +#define MTK_PMIC_MAX_KEY_COUNT	2
+> > +
+> > +struct mtk_pmic_keys_regs {
+> > +	u32 deb_reg;
+> > +	u32 deb_mask;
+> > +	u32 intsel_reg;
+> > +	u32 intsel_mask;
+> > +};
+> > +
+> > +#define MTK_PMIC_KEYS_REGS(_deb_reg, _deb_mask,		\
+> > +	_intsel_reg, _intsel_mask)			\
+> > +{							\
+> > +	.deb_reg		= _deb_reg,		\
+> > +	.deb_mask		= _deb_mask,		\
+> > +	.intsel_reg		= _intsel_reg,		\
+> > +	.intsel_mask		= _intsel_mask,		\
+> > +}
+> > +
+> > +struct mtk_pmic_regs {
+> > +	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
+> > +	u32 pmic_rst_reg;
+> > +};
+> > +
+> > +static const struct mtk_pmic_regs mt6397_regs = {
+> > +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
+> > +		MTK_PMIC_KEYS_REGS(MT6397_CHRSTATUS,
+> > +		0x8, MT6397_INT_RSV, 0x10),
+> > +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
+> > +		MTK_PMIC_KEYS_REGS(MT6397_OCSTATUS2,
+> > +		0x10, MT6397_INT_RSV, 0x8),
+> > +	.pmic_rst_reg = MT6397_TOP_RST_MISC,
+> > +};
+> > +
+> > +static const struct mtk_pmic_regs mt6323_regs = {
+> > +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
+> > +		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
+> > +		0x2, MT6323_INT_MISC_CON, 0x10),
+> > +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
+> > +		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
+> > +		0x4, MT6323_INT_MISC_CON, 0x8),
+> > +	.pmic_rst_reg = MT6323_TOP_RST_MISC,
+> > +};
+> > +
+> > +struct mtk_pmic_keys_info {
+> > +	struct mtk_pmic_keys *keys;
+> > +	const struct mtk_pmic_keys_regs *regs;
+> > +	unsigned int keycode;
+> > +	int irq;
+> > +	bool wakeup:1;
+> > +};
+> > +
+> > +struct mtk_pmic_keys {
+> > +	struct input_dev *input_dev;
+> > +	struct device *dev;
+> > +	struct regmap *regmap;
+> > +	struct mtk_pmic_keys_info keys[MTK_PMIC_MAX_KEY_COUNT];
+> > +};
+> > +
+> > +enum mtk_pmic_keys_lp_mode {
+> > +	LP_DISABLE,
+> > +	LP_ONEKEY,
+> > +	LP_TWOKEY,
+> > +};
+> > +
+> > +static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
+> > +		u32 pmic_rst_reg)
+> > +{
+> > +	int ret;
+> > +	u32 long_press_mode, long_press_debounce;
+> > +
+> > +	ret = of_property_read_u32(keys->dev->of_node,
+> > +		"power-off-time-sec", &long_press_debounce);
+> > +	if (ret)
+> > +		long_press_debounce = 0;
+> > +
+> > +	regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +			   MTK_PMIC_RST_DU_MASK << MTK_PMIC_RST_DU_SHIFT,
+> > +			   long_press_debounce << MTK_PMIC_RST_DU_SHIFT);
+> > +
+> > +	ret = of_property_read_u32(keys->dev->of_node,
+> > +		"mediatek,long-press-mode", &long_press_mode);
+> > +	if (ret)
+> > +		long_press_mode = LP_DISABLE;
+> > +
+> > +	switch (long_press_mode) {
+> > +	case LP_ONEKEY:
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_PWRKEY_RST,
+> > +				   MTK_PMIC_PWRKEY_RST);
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_HOMEKEY_RST,
+> > +				   0);
+> > +		break;
+> > +	case LP_TWOKEY:
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_PWRKEY_RST,
+> > +				   MTK_PMIC_PWRKEY_RST);
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_HOMEKEY_RST,
+> > +				   MTK_PMIC_HOMEKEY_RST);
+> > +		break;
+> > +	case LP_DISABLE:
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_PWRKEY_RST,
+> > +				   0);
+> > +		regmap_update_bits(keys->regmap, pmic_rst_reg,
+> > +				   MTK_PMIC_HOMEKEY_RST,
+> > +				   0);
+> > +		break;
+> > +	default:
+> > +		break;
+> > +	}
+> > +}
+> > +
+> > +static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
+> > +{
+> > +	struct mtk_pmic_keys_info *info = data;
+> > +	u32 key_deb, pressed;
+> > +
+> > +	regmap_read(info->keys->regmap, info->regs->deb_reg, &key_deb);
+> > +
+> > +	key_deb &= info->regs->deb_mask;
+> > +
+> > +	pressed = !key_deb;
+> > +
+> > +	input_report_key(info->keys->input_dev, info->keycode, pressed);
+> > +	input_sync(info->keys->input_dev);
+> > +
+> > +	dev_dbg(info->keys->dev, "(%s) key =%d using PMIC\n",
+> > +		 pressed ? "pressed" : "released", info->keycode);
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
+> > +		struct mtk_pmic_keys_info *info)
+> > +{
+> > +	int ret;
+> > +
+> > +	info->keys = keys;
+> > +
+> > +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
+> > +				 info->regs->intsel_mask,
+> > +				 info->regs->intsel_mask);
+> > +	if (ret < 0)
+> > +		return ret;
+> > +
+> > +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
+> > +					mtk_pmic_keys_irq_handler_thread,
+> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> > +					"mtk-pmic-keys", info);
+> > +	if (ret) {
+> > +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+> > +			info->irq, ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int mtk_pmic_keys_suspend(struct device *dev)
+> 
+> Please use __maybe_unused annotation instead of #ifdef guard.
+> 
+> > +{
+> > +	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
+> > +	int index;
+> > +
+> > +	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
+> > +		if (keys->keys[index].wakeup)
+> > +			enable_irq_wake(keys->keys[index].irq);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int mtk_pmic_keys_resume(struct device *dev)
+> 
+> __maybe_unused here as well.
+> 
+> > +{
+> > +	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
+> > +	int index;
+> > +
+> > +	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
+> > +		if (keys->keys[index].wakeup)
+> > +			disable_irq_wake(keys->keys[index].irq);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +#endif
+> > +
+> > +static SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
+> > +			mtk_pmic_keys_resume);
+> > +
+> > +static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
+> > +	{
+> > +		.compatible = "mediatek,mt6397-keys",
+> > +		.data = &mt6397_regs,
+> > +	}, {
+> > +		.compatible = "mediatek,mt6323-keys",
+> > +		.data = &mt6323_regs,
+> > +	}, {
+> > +		/* sentinel */
+> > +	}
+> > +};
+> > +MODULE_DEVICE_TABLE(of, of_mtk_pmic_keys_match_tbl);
+> > +
+> > +static int mtk_pmic_keys_probe(struct platform_device *pdev)
+> > +{
+> > +	int error, index = 0;
+> > +	unsigned int keycount;
+> > +	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
+> > +	struct device_node *node = pdev->dev.of_node, *child;
+> > +	struct mtk_pmic_keys *keys;
+> > +	const struct mtk_pmic_regs *mtk_pmic_regs;
+> > +	struct input_dev *input_dev;
+> > +	const struct of_device_id *of_id =
+> > +		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
+> > +
+> > +	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
+> > +	if (!keys)
+> > +		return -ENOMEM;
+> > +
+> > +	keys->dev = &pdev->dev;
+> > +	keys->regmap = pmic_chip->regmap;
+> > +	mtk_pmic_regs = of_id->data;
+> > +
+> > +	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
+> > +	if (!input_dev) {
+> > +		dev_err(keys->dev, "input allocate device fail.\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	input_dev->name = "mtk-pmic-keys";
+> > +	input_dev->id.bustype = BUS_HOST;
+> > +	input_dev->id.vendor = 0x0001;
+> > +	input_dev->id.product = 0x0001;
+> > +	input_dev->id.version = 0x0001;
+> > +
+> > +	keycount = device_get_child_node_count(keys->dev);
+> 
+> Since you are using of_* API everywhere else I'd rather we used
+> of_get_available_child_count() here.
+> 
+> 
+> Once these 2 issues are fixed please feel free to add 
+> 
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> I assume it will all go though MFD tree, right?
 
-Currently, we have lot of repetitive code in dependent device resource
-allocation and device creation handling code. This logic can be improved if
-we use MFD framework for dependent device creation. This patch adds this
-support.
+I will fix these 2 issues and send the new version.
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/platform/x86/intel_pmc_ipc.c | 398 ++++++++++++-----------------------
- 1 file changed, 139 insertions(+), 259 deletions(-)
+Since patch 2,3,4,5 of this series are all for input driver, could you
+help to merge them with the new version later?
 
-Changes since v7:
- * Fixed style issues.
+Thank you.
 
-Changes since v6:
- * Fixed style issues.
- * Used Andy's modified version.
-
-Changes since v5:
- * Changed the order of patches in this patchlist.
-
-Changes since v4:
- * Changed the order of patches in this patchlist.
-
-Changes since v3:
- * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
- * Fixed error in resource initalization logic in ipc_create_punit_device.
- * Removed mfd cell id initialization.
-
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index e03fa314..e36144c 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -20,6 +20,7 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/device.h>
-+#include <linux/mfd/core.h>
- #include <linux/pm.h>
- #include <linux/pci.h>
- #include <linux/platform_device.h>
-@@ -88,6 +89,7 @@
- #define PLAT_RESOURCE_ISP_IFACE_INDEX	5
- #define PLAT_RESOURCE_GTD_DATA_INDEX	6
- #define PLAT_RESOURCE_GTD_IFACE_INDEX	7
-+#define PLAT_RESOURCE_MEM_MAX_INDEX	8
- #define PLAT_RESOURCE_ACPI_IO_INDEX	0
- 
- /*
-@@ -106,8 +108,6 @@
- #define TELEM_SSRAM_SIZE		240
- #define TELEM_PMC_SSRAM_OFFSET		0x1B00
- #define TELEM_PUNIT_SSRAM_OFFSET	0x1A00
--#define TCO_PMC_OFFSET			0x8
--#define TCO_PMC_SIZE			0x4
- 
- /* PMC register bit definitions */
- 
-@@ -124,26 +124,10 @@ static struct intel_pmc_ipc_dev {
- 	int cmd;
- 	struct completion cmd_complete;
- 
--	/* The following PMC BARs share the same ACPI device with the IPC */
--	resource_size_t acpi_io_base;
--	int acpi_io_size;
--	struct platform_device *tco_dev;
--
- 	/* gcr */
- 	void __iomem *gcr_mem_base;
- 	bool has_gcr_regs;
- 	spinlock_t gcr_lock;
--
--	/* punit */
--	struct platform_device *punit_dev;
--
--	/* Telemetry */
--	resource_size_t telem_pmc_ssram_base;
--	resource_size_t telem_punit_ssram_base;
--	int telem_pmc_ssram_size;
--	int telem_punit_ssram_size;
--	u8 telem_res_inval;
--	struct platform_device *telemetry_dev;
- } ipcdev;
- 
- static char *ipc_err_sources[] = {
-@@ -508,7 +492,7 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	ret = devm_request_irq(&pdev->dev, pdev->irq, ioc, 0, "intel_pmc_ipc",
- 				pmc);
- 	if (ret) {
--		dev_err(&pdev->dev, "Failed to request irq\n");
-+		dev_err(&pdev->dev, "Failed to request IRQ\n");
- 		return ret;
- 	}
- 
-@@ -593,44 +577,6 @@ static const struct attribute_group intel_ipc_group = {
- 	.attrs = intel_ipc_attrs,
- };
- 
--static struct resource punit_res_array[] = {
--	/* Punit BIOS */
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	/* Punit ISP */
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	/* Punit GTD */
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	{
--		.flags = IORESOURCE_MEM,
--	},
--};
--
--#define TCO_RESOURCE_ACPI_IO		0
--#define TCO_RESOURCE_SMI_EN_IO		1
--#define TCO_RESOURCE_GCR_MEM		2
--static struct resource tco_res[] = {
--	/* ACPI - TCO */
--	{
--		.flags = IORESOURCE_IO,
--	},
--	/* ACPI - SMI */
--	{
--		.flags = IORESOURCE_IO,
--	},
--};
--
- static struct itco_wdt_platform_data tco_info = {
- 	.name = "Apollo Lake SoC",
- 	.version = 5,
-@@ -638,234 +584,177 @@ static struct itco_wdt_platform_data tco_info = {
- 	.update_no_reboot_bit = update_no_reboot_bit,
- };
- 
--#define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
--#define TELEMETRY_RESOURCE_PMC_SSRAM	1
--static struct resource telemetry_res[] = {
--	/*Telemetry*/
--	{
--		.flags = IORESOURCE_MEM,
--	},
--	{
--		.flags = IORESOURCE_MEM,
--	},
--};
--
--static int ipc_create_punit_device(void)
-+static int ipc_create_punit_device(struct platform_device *pdev)
- {
--	struct platform_device *pdev;
--	const struct platform_device_info pdevinfo = {
--		.parent = ipcdev.dev,
--		.name = PUNIT_DEVICE_NAME,
--		.id = -1,
--		.res = punit_res_array,
--		.num_res = ARRAY_SIZE(punit_res_array),
-+	struct resource punit_res[PLAT_RESOURCE_MEM_MAX_INDEX];
-+	struct mfd_cell punit_cell;
-+	struct resource *res;
-+	int mindex, pindex = 0;
-+
-+	for (mindex = 0; mindex <= PLAT_RESOURCE_MEM_MAX_INDEX; mindex++) {
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, mindex);
-+
-+		switch (mindex) {
-+		/* Get PUNIT resources */
-+		case PLAT_RESOURCE_BIOS_DATA_INDEX:
-+		case PLAT_RESOURCE_BIOS_IFACE_INDEX:
-+			/* BIOS resources are required, so return error if not
-+			 * available
-+			 */
-+			if (!res) {
-+				dev_err(&pdev->dev,
-+					"Failed to get PUNIT MEM resource %d\n",
-+					pindex);
-+				return -ENXIO;
-+			}
-+		case PLAT_RESOURCE_ISP_DATA_INDEX:
-+		case PLAT_RESOURCE_ISP_IFACE_INDEX:
-+		case PLAT_RESOURCE_GTD_DATA_INDEX:
-+		case PLAT_RESOURCE_GTD_IFACE_INDEX:
-+			/* if valid resource found, copy the resource to PUNIT
-+			 * resource
-+			 */
-+			if (res)
-+				memcpy(&punit_res[pindex], res, sizeof(*res));
-+			punit_res[pindex].flags = IORESOURCE_MEM;
-+			dev_dbg(&pdev->dev, "PUNIT memory res: %pR\n",
-+				&punit_res[pindex]);
-+			pindex++;
-+			break;
- 		};
-+	}
- 
--	pdev = platform_device_register_full(&pdevinfo);
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
--
--	ipcdev.punit_dev = pdev;
-+	/* Create PUNIT IPC MFD cell */
-+	punit_cell.name = PUNIT_DEVICE_NAME;
-+	punit_cell.num_resources = ARRAY_SIZE(punit_res);
-+	punit_cell.resources = punit_res;
-+	punit_cell.ignore_resource_conflicts = 1;
- 
--	return 0;
-+	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-+				    &punit_cell, 1, NULL, 0, NULL);
- }
- 
--static int ipc_create_tco_device(void)
-+static int ipc_create_wdt_device(struct platform_device *pdev)
- {
--	struct platform_device *pdev;
-+	static struct resource wdt_ipc_res[2];
- 	struct resource *res;
--	const struct platform_device_info pdevinfo = {
--		.parent = ipcdev.dev,
--		.name = TCO_DEVICE_NAME,
--		.id = -1,
--		.res = tco_res,
--		.num_res = ARRAY_SIZE(tco_res),
--		.data = &tco_info,
--		.size_data = sizeof(tco_info),
--		};
-+	static struct mfd_cell wdt_cell;
- 
--	res = tco_res + TCO_RESOURCE_ACPI_IO;
--	res->start = ipcdev.acpi_io_base + TCO_BASE_OFFSET;
--	res->end = res->start + TCO_REGS_SIZE - 1;
-+	/* If we have ACPI based watchdog use that instead, othewise create
-+	 * a MFD cell for iTCO watchdog
-+	 */
-+	if (acpi_has_watchdog())
-+		return 0;
- 
--	res = tco_res + TCO_RESOURCE_SMI_EN_IO;
--	res->start = ipcdev.acpi_io_base + SMI_EN_OFFSET;
--	res->end = res->start + SMI_EN_SIZE - 1;
-+	/* Get iTCO watchdog resources */
-+	res = platform_get_resource(pdev, IORESOURCE_IO,
-+				    PLAT_RESOURCE_ACPI_IO_INDEX);
-+	if (!res) {
-+		dev_err(&pdev->dev, "Failed to get WDT resource\n");
-+		return -ENXIO;
-+	}
- 
--	pdev = platform_device_register_full(&pdevinfo);
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
-+	wdt_ipc_res[0].start = res->start + TCO_BASE_OFFSET;
-+	wdt_ipc_res[0].end = res->start +
-+		TCO_BASE_OFFSET + TCO_REGS_SIZE - 1;
-+	wdt_ipc_res[0].flags = IORESOURCE_IO;
-+	wdt_ipc_res[1].start = res->start + SMI_EN_OFFSET;
-+	wdt_ipc_res[1].end = res->start +
-+		SMI_EN_OFFSET + SMI_EN_SIZE - 1;
-+	wdt_ipc_res[1].flags = IORESOURCE_IO;
- 
--	ipcdev.tco_dev = pdev;
-+	dev_dbg(&pdev->dev, "watchdog res 0: %pR\n", &wdt_ipc_res[0]);
-+	dev_dbg(&pdev->dev, "watchdog res 1: %pR\n", &wdt_ipc_res[1]);
- 
--	return 0;
-+	wdt_cell.name = TCO_DEVICE_NAME;
-+	wdt_cell.platform_data = &tco_info;
-+	wdt_cell.pdata_size = sizeof(tco_info);
-+	wdt_cell.num_resources = ARRAY_SIZE(wdt_ipc_res);
-+	wdt_cell.resources = wdt_ipc_res;
-+	wdt_cell.ignore_resource_conflicts = 1;
-+
-+	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-+				    &wdt_cell, 1, NULL, 0, NULL);
- }
- 
--static int ipc_create_telemetry_device(void)
-+static int ipc_create_telemetry_device(struct platform_device *pdev)
- {
--	struct platform_device *pdev;
-+	struct resource telemetry_ipc_res[2];
-+	struct mfd_cell telemetry_cell;
- 	struct resource *res;
--	const struct platform_device_info pdevinfo = {
--		.parent = ipcdev.dev,
--		.name = TELEMETRY_DEVICE_NAME,
--		.id = -1,
--		.res = telemetry_res,
--		.num_res = ARRAY_SIZE(telemetry_res),
--		};
- 
--	res = telemetry_res + TELEMETRY_RESOURCE_PUNIT_SSRAM;
--	res->start = ipcdev.telem_punit_ssram_base;
--	res->end = res->start + ipcdev.telem_punit_ssram_size - 1;
-+	/* Get telemetry resources */
-+	res = platform_get_resource(pdev, IORESOURCE_MEM,
-+				    PLAT_RESOURCE_TELEM_SSRAM_INDEX);
-+	if (!res) {
-+		dev_err(&pdev->dev, "Failed to get telemetry resource\n");
-+		return -ENXIO;
-+	}
- 
--	res = telemetry_res + TELEMETRY_RESOURCE_PMC_SSRAM;
--	res->start = ipcdev.telem_pmc_ssram_base;
--	res->end = res->start + ipcdev.telem_pmc_ssram_size - 1;
-+	telemetry_ipc_res[0].start = res->start + TELEM_PUNIT_SSRAM_OFFSET;
-+	telemetry_ipc_res[0].end = res->start +
-+		TELEM_PUNIT_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
-+	telemetry_ipc_res[0].flags = IORESOURCE_MEM;
-+	telemetry_ipc_res[1].start = res->start + TELEM_PMC_SSRAM_OFFSET;
-+	telemetry_ipc_res[1].end = res->start +
-+		TELEM_PMC_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
-+	telemetry_ipc_res[1].flags = IORESOURCE_MEM;
- 
--	pdev = platform_device_register_full(&pdevinfo);
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
-+	dev_dbg(&pdev->dev, "Telemetry res 0: %pR\n", &telemetry_ipc_res[0]);
-+	dev_dbg(&pdev->dev, "Telemetry res 1: %pR\n", &telemetry_ipc_res[1]);
- 
--	ipcdev.telemetry_dev = pdev;
-+	telemetry_cell.name = TELEMETRY_DEVICE_NAME;
-+	telemetry_cell.num_resources = ARRAY_SIZE(telemetry_ipc_res);
-+	telemetry_cell.resources = telemetry_ipc_res;
-+	telemetry_cell.ignore_resource_conflicts = 1;
- 
--	return 0;
-+	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-+				    &telemetry_cell, 1, NULL, 0, NULL);
- }
- 
--static int ipc_create_pmc_devices(void)
-+static int ipc_create_pmc_devices(struct platform_device *pdev)
- {
- 	int ret;
- 
--	/* If we have ACPI based watchdog use that instead */
--	if (!acpi_has_watchdog()) {
--		ret = ipc_create_tco_device();
--		if (ret) {
--			dev_err(ipcdev.dev, "Failed to add tco platform device\n");
--			return ret;
--		}
--	}
-+	ret = ipc_create_punit_device(pdev);
-+	if (ret < 0)
-+		return ret;
- 
--	ret = ipc_create_punit_device();
--	if (ret) {
--		dev_err(ipcdev.dev, "Failed to add punit platform device\n");
--		platform_device_unregister(ipcdev.tco_dev);
--	}
-+	ret = ipc_create_wdt_device(pdev);
-+	if (ret < 0)
-+		return ret;
- 
--	if (!ipcdev.telem_res_inval) {
--		ret = ipc_create_telemetry_device();
--		if (ret)
--			dev_warn(ipcdev.dev,
--				"Failed to add telemetry platform device\n");
--	}
-+	ret = ipc_create_telemetry_device(pdev);
-+	if (ret < 0)
-+		return ret;
- 
--	return ret;
-+	return 0;
- }
- 
- static int ipc_plat_get_res(struct platform_device *pdev)
- {
--	struct resource *res, *punit_res;
-+	struct resource *res;
- 	void __iomem *addr;
--	int size;
--
--	res = platform_get_resource(pdev, IORESOURCE_IO,
--				    PLAT_RESOURCE_ACPI_IO_INDEX);
--	if (!res) {
--		dev_err(&pdev->dev, "Failed to get io resource\n");
--		return -ENXIO;
--	}
--	size = resource_size(res);
--	ipcdev.acpi_io_base = res->start;
--	ipcdev.acpi_io_size = size;
--	dev_info(&pdev->dev, "io res: %pR\n", res);
--
--	punit_res = punit_res_array;
--	/* This is index 0 to cover BIOS data register */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_BIOS_DATA_INDEX);
--	if (!res) {
--		dev_err(&pdev->dev, "Failed to get res of punit BIOS data\n");
--		return -ENXIO;
--	}
--	*punit_res = *res;
--	dev_info(&pdev->dev, "punit BIOS data res: %pR\n", res);
--
--	/* This is index 1 to cover BIOS interface register */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_BIOS_IFACE_INDEX);
--	if (!res) {
--		dev_err(&pdev->dev, "Failed to get res of punit BIOS iface\n");
--		return -ENXIO;
--	}
--	*++punit_res = *res;
--	dev_info(&pdev->dev, "punit BIOS interface res: %pR\n", res);
--
--	/* This is index 2 to cover ISP data register, optional */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_ISP_DATA_INDEX);
--	++punit_res;
--	if (res) {
--		*punit_res = *res;
--		dev_info(&pdev->dev, "punit ISP data res: %pR\n", res);
--	}
--
--	/* This is index 3 to cover ISP interface register, optional */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_ISP_IFACE_INDEX);
--	++punit_res;
--	if (res) {
--		*punit_res = *res;
--		dev_info(&pdev->dev, "punit ISP interface res: %pR\n", res);
--	}
--
--	/* This is index 4 to cover GTD data register, optional */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_GTD_DATA_INDEX);
--	++punit_res;
--	if (res) {
--		*punit_res = *res;
--		dev_info(&pdev->dev, "punit GTD data res: %pR\n", res);
--	}
--
--	/* This is index 5 to cover GTD interface register, optional */
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_GTD_IFACE_INDEX);
--	++punit_res;
--	if (res) {
--		*punit_res = *res;
--		dev_info(&pdev->dev, "punit GTD interface res: %pR\n", res);
--	}
- 
-+	/* Get IPC resources */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM,
- 				    PLAT_RESOURCE_IPC_INDEX);
- 	if (!res) {
--		dev_err(&pdev->dev, "Failed to get ipc resource\n");
-+		dev_err(&pdev->dev, "Failed to get IPC resources\n");
- 		return -ENXIO;
- 	}
--	size = PLAT_RESOURCE_IPC_SIZE + PLAT_RESOURCE_GCR_SIZE;
--	res->end = res->start + size - 1;
-+
-+	res->end = res->start +
-+		   PLAT_RESOURCE_IPC_SIZE + PLAT_RESOURCE_GCR_SIZE - 1;
- 
- 	addr = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(addr))
- 		return PTR_ERR(addr);
- 
- 	ipcdev.ipc_base = addr;
--
- 	ipcdev.gcr_mem_base = addr + PLAT_RESOURCE_GCR_OFFSET;
--	dev_info(&pdev->dev, "ipc res: %pR\n", res);
--
--	ipcdev.telem_res_inval = 0;
--	res = platform_get_resource(pdev, IORESOURCE_MEM,
--				    PLAT_RESOURCE_TELEM_SSRAM_INDEX);
--	if (!res) {
--		dev_err(&pdev->dev, "Failed to get telemetry ssram resource\n");
--		ipcdev.telem_res_inval = 1;
--	} else {
--		ipcdev.telem_punit_ssram_base = res->start +
--						TELEM_PUNIT_SSRAM_OFFSET;
--		ipcdev.telem_punit_ssram_size = TELEM_SSRAM_SIZE;
--		ipcdev.telem_pmc_ssram_base = res->start +
--						TELEM_PMC_SSRAM_OFFSET;
--		ipcdev.telem_pmc_ssram_size = TELEM_SSRAM_SIZE;
--		dev_info(&pdev->dev, "telemetry ssram res: %pR\n", res);
--	}
-+	dev_dbg(&pdev->dev, "PMC IPC resource %pR\n", res);
- 
- 	return 0;
- }
-@@ -911,7 +800,7 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 
- 	ipcdev.irq = platform_get_irq(pdev, 0);
- 	if (ipcdev.irq < 0) {
--		dev_err(&pdev->dev, "Failed to get irq\n");
-+		dev_err(&pdev->dev, "Failed to get IRQ\n");
- 		return -EINVAL;
- 	}
- 
-@@ -921,47 +810,38 @@ static int ipc_plat_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	ret = ipc_create_pmc_devices();
-+	ret = ipc_create_pmc_devices(pdev);
- 	if (ret) {
--		dev_err(&pdev->dev, "Failed to create pmc devices\n");
-+		dev_err(&pdev->dev, "Failed to create PMC devices\n");
- 		return ret;
- 	}
- 
--	if (devm_request_irq(&pdev->dev, ipcdev.irq, ioc, IRQF_NO_SUSPEND,
--			     "intel_pmc_ipc", &ipcdev)) {
--		dev_err(&pdev->dev, "Failed to request irq\n");
--		ret = -EBUSY;
--		goto err_irq;
-+	ret = devm_request_irq(&pdev->dev, ipcdev.irq, ioc, IRQF_NO_SUSPEND,
-+			       "intel_pmc_ipc", &ipcdev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to request IRQ\n");
-+		return ret;
- 	}
- 
- 	ret = sysfs_create_group(&pdev->dev.kobj, &intel_ipc_group);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to create sysfs group %d\n",
- 			ret);
--		goto err_sys;
-+		devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
-+		return ret;
- 	}
- 
- 	ipcdev.has_gcr_regs = true;
- 
- 	return 0;
--err_sys:
--	devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
--err_irq:
--	platform_device_unregister(ipcdev.tco_dev);
--	platform_device_unregister(ipcdev.punit_dev);
--	platform_device_unregister(ipcdev.telemetry_dev);
--
--	return ret;
- }
- 
- static int ipc_plat_remove(struct platform_device *pdev)
- {
- 	sysfs_remove_group(&pdev->dev.kobj, &intel_ipc_group);
- 	devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
--	platform_device_unregister(ipcdev.tco_dev);
--	platform_device_unregister(ipcdev.punit_dev);
--	platform_device_unregister(ipcdev.telemetry_dev);
- 	ipcdev.dev = NULL;
-+
- 	return 0;
- }
- 
-@@ -980,12 +860,12 @@ static int __init intel_pmc_ipc_init(void)
- 
- 	ret = platform_driver_register(&ipc_plat_driver);
- 	if (ret) {
--		pr_err("Failed to register PMC ipc platform driver\n");
-+		pr_err("Failed to register PMC IPC platform driver\n");
- 		return ret;
- 	}
- 	ret = pci_register_driver(&ipc_pci_driver);
- 	if (ret) {
--		pr_err("Failed to register PMC ipc pci driver\n");
-+		pr_err("Failed to register PMC IPC PCI driver\n");
- 		platform_driver_unregister(&ipc_plat_driver);
- 		return ret;
- 	}
--- 
-2.7.4
+> 
+> > +	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
+> > +		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	for_each_child_of_node(node, child) {
+> > +		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
+> > +
+> > +		keys->keys[index].irq = platform_get_irq(pdev, index);
+> > +		if (keys->keys[index].irq < 0)
+> > +			return keys->keys[index].irq;
+> > +
+> > +		error = of_property_read_u32(child,
+> > +			"linux,keycodes", &keys->keys[index].keycode);
+> > +		if (error) {
+> > +			dev_err(keys->dev,
+> > +				"failed to read key:%d linux,keycode property: %d\n",
+> > +				index, error);
+> > +			return error;
+> > +		}
+> > +
+> > +		if (of_property_read_bool(child, "wakeup-source"))
+> > +			keys->keys[index].wakeup = true;
+> > +
+> > +		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
+> > +		if (error)
+> > +			return error;
+> > +
+> > +		index++;
+> > +	}
+> > +
+> > +	error = input_register_device(input_dev);
+> > +	if (error) {
+> > +		dev_err(&pdev->dev,
+> > +			"register input device failed (%d)\n", error);
+> > +		return error;
+> > +	}
+> > +
+> > +	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs->pmic_rst_reg);
+> > +
+> > +	platform_set_drvdata(pdev, keys);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver pmic_keys_pdrv = {
+> > +	.probe = mtk_pmic_keys_probe,
+> > +	.driver = {
+> > +		   .name = "mtk-pmic-keys",
+> > +		   .of_match_table = of_mtk_pmic_keys_match_tbl,
+> > +		   .pm = &mtk_pmic_keys_pm_ops,
+> > +	},
+> > +};
+> > +
+> > +module_platform_driver(pmic_keys_pdrv);
+> > +
+> > +MODULE_LICENSE("GPL v2");
+> > +MODULE_AUTHOR("Chen Zhong <chen.zhong@mediatek.com>");
+> > +MODULE_DESCRIPTION("MTK pmic-keys driver v0.1");
+> > -- 
+> > 1.7.9.5
+> > 
+> 
+> Thanks.
+> 
