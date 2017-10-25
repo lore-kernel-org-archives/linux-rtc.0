@@ -1,44 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42389 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751632AbdJLPHH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 11:07:07 -0400
-Date: Thu, 12 Oct 2017 17:07:05 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+Received: from mailgw01.mediatek.com ([218.249.47.110]:39542 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750949AbdJYNwM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Oct 2017 09:52:12 -0400
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 0/4] Make PL031 interrupt optional
-Message-ID: <20171012150705.zwpkvjhxigcd2puj@piout.net>
-References: <20170929102116.GX20805@n2100.armlinux.org.uk>
+        Beomho Seo <beomho.seo@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v6 6/6] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Wed, 25 Oct 2017 21:16:04 +0800
+Message-ID: <1508937364-30054-7-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170929102116.GX20805@n2100.armlinux.org.uk>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 29/09/2017 at 11:21:16 +0100, Russell King - ARM Linux wrote:
-> There are some boards out there which have a PL031 RTC, but its
-> interrupt is not wired up.  To support these, we need the PL031
-> to support the primecell without interrupts.
-> 
-> When no interrupt is present, there's little point exposing the
-> RTC's alarm capabilities, so we omit the alarm-related function
-> calls - the RTC merely becomes a source of time-of-day.
-> 
-> This patch series cleans up the pl031 driver a little, and adds
-> support for this configuration.
-> 
->  drivers/rtc/rtc-pl031.c | 48 +++++++++++++++++++++++++++---------------------
->  1 file changed, 27 insertions(+), 21 deletions(-)
-> 
-> v2: update patch 2 & 3 for review comment on v1.
-> 
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-Applied, thanks.
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 6546d7f..77b64bd 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,16 @@
+ 	},
+ };
+ 
++static const struct resource mt6323_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
++};
++
++static const struct resource mt6397_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
++	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +60,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
+ 
+@@ -71,7 +86,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
+ 
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
