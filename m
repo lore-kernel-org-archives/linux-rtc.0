@@ -1,47 +1,60 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-From: Bastian Stender <bst@pengutronix.de>
-To: rtc-linux@googlegroups.com
-Cc: Marek Vasut <marex@denx.de>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Arnd Bergmann <arnd@arndb.de>, Felipe Balbi <balbi@ti.com>,
-        Nishanth Menon <nm@ti.com>, Tony Lindgren <tony@atomide.com>,
-        kernel@pengutronix.de, Bastian Stender <bst@pengutronix.de>
-Subject: [PATCH] rtc: ds1307: add OF and ACPI entries for Epson RX8130
-Date: Tue, 17 Oct 2017 14:46:07 +0200
-Message-Id: <20171017124607.17461-1-bst@pengutronix.de>
-Sender: linux-rtc-owner@vger.kernel.org
+Return-Path: <rtc-linux+bncBCKYNX7Y3IMBBFUZZHHQKGQECIDUU6I@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
+Received: from mail.free-electrons.com (mail.free-electrons.com. [62.4.15.54])
+        by gmr-mx.google.com with ESMTP id o2si12344wmf.1.2017.10.26.13.59.01
+        for <rtc-linux@googlegroups.com>;
+        Thu, 26 Oct 2017 13:59:01 -0700 (PDT)
+Date: Thu, 26 Oct 2017 22:59:01 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Bastian Stender <bst@pengutronix.de>
+Cc: rtc-linux@googlegroups.com, Marek Vasut <marex@denx.de>,
+	Arnd Bergmann <arnd@arndb.de>, Felipe Balbi <balbi@ti.com>,
+	Nishanth Menon <nm@ti.com>, Tony Lindgren <tony@atomide.com>,
+	kernel@pengutronix.de
+Subject: [rtc-linux] Re: [PATCH] rtc: ds1307: add OF and ACPI entries for
+ Epson RX8130
+Message-ID: <20171026205901.k3ym3uejsslddne3@piout.net>
+References: <20171017124607.17461-1-bst@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20171017124607.17461-1-bst@pengutronix.de>
+Reply-To: rtc-linux@googlegroups.com
 List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-Make Epson RX8130 device tree and ACPI aware.
+Hi,
 
-Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-Signed-off-by: Bastian Stender <bst@pengutronix.de>
----
- drivers/rtc/rtc-ds1307.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Note that this has not been sent to the correct mailing list (please use
+a more recent kernel ;))
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index e7d9215c9201..8e2cd45a2f96 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -325,6 +325,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "isil,isl12057",
- 		.data = (void *)ds_1337
- 	},
-+	{
-+		.compatible = "epson,rx8130",
-+		.data = (void *)rx_8130
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, ds1307_of_match);
-@@ -348,6 +352,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
- 	{ .id = "RX8025", .driver_data = rx_8025 },
- 	{ .id = "ISL12057", .driver_data = ds_1337 },
-+	{ .id = "RX8130", .driver_data = rx_8130 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, ds1307_acpi_ids);
+On 17/10/2017 at 14:46:07 +0200, Bastian Stender wrote:
+> Make Epson RX8130 device tree and ACPI aware.
+> 
+> Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
+> Signed-off-by: Bastian Stender <bst@pengutronix.de>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+
+Applied, thanks.
+
 -- 
-2.11.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
