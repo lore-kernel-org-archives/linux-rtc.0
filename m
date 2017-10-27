@@ -1,47 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:52725 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750990AbdJLWFe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 18:05:34 -0400
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 1/3] rtc: ds1511: switch to rtc_register_device
-Date: Fri, 13 Oct 2017 00:05:27 +0200
-Message-Id: <20171012220529.8142-1-alexandre.belloni@free-electrons.com>
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:49076 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751975AbdJ0QZC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 27 Oct 2017 12:25:02 -0400
+MIME-Version: 1.0
+In-Reply-To: <31869190769e357ae56dd345dce5862bab4eff4a.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com> <31869190769e357ae56dd345dce5862bab4eff4a.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 27 Oct 2017 19:25:01 +0300
+Message-ID: <CAHp75Vc8kww3YSNEtR4dYp4Y2o2XiQ5YpkrW_nSkjSn0mpWh-A@mail.gmail.com>
+Subject: Re: [RFC v6 4/9] platform/x86: intel_pmc_ipc: Use MFD framework to
+ create dependent devices
+To: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Ingo Molnar <mingo@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This allows for future improvement of the driver.
+On Thu, Oct 19, 2017 at 3:23 AM,
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+>
+> Currently, we have lot of repetitive code in dependent device resource
+> allocation and device creation handling code. This logic can be improved if
+> we use MFD framework for dependent device creation. This patch adds this
+> support.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-ds1511.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+I have applied this patch with some modifications to my review-andy branch.
+Please, take it from there (and probably patch 3) and resend new
+version of the series based on our testing branch.
 
-diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
-index 1b2dcb58c0ab..d44635178771 100644
---- a/drivers/rtc/rtc-ds1511.c
-+++ b/drivers/rtc/rtc-ds1511.c
-@@ -477,11 +477,16 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
- 	spin_lock_init(&pdata->lock);
- 	platform_set_drvdata(pdev, pdata);
- 
--	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					      &ds1511_rtc_ops, THIS_MODULE);
-+	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(pdata->rtc))
- 		return PTR_ERR(pdata->rtc);
- 
-+	pdata->rtc->ops = &ds1511_rtc_ops;
-+
-+	ret = rtc_register_device(pdata->rtc);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * if the platform has an interrupt in mind for this device,
- 	 * then by all means, set it
+P.S. This patch still needs more work, I will comment on new version.
+
 -- 
-2.14.2
+With Best Regards,
+Andy Shevchenko
