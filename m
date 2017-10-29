@@ -1,94 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:56636 "EHLO mga02.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:62933 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751225AbdJDBHb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 3 Oct 2017 21:07:31 -0400
-Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Subject: Re: [RFC v3 4/7] platform: x86: Add generic Intel IPC driver
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-References: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <7d1a79925df8d2e35cfbd6974706d0d1ef0fc0de.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75VecDGzs=esey6hSDWMxvYPeeiy5T-9x6MNFaHspLq0ctA@mail.gmail.com>
-From: sathyanarayanan kuppuswamy
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Message-ID: <96f8c550-da66-c11f-4db4-34fe520188aa@linux.intel.com>
-Date: Tue, 3 Oct 2017 18:07:18 -0700
-MIME-Version: 1.0
-In-Reply-To: <CAHp75VecDGzs=esey6hSDWMxvYPeeiy5T-9x6MNFaHspLq0ctA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S1751086AbdJ2IHE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 29 Oct 2017 04:07:04 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [RFC v7 1/7] platform/x86: intel_punit_ipc: Fix resource ioremap warning
+Date: Sun, 29 Oct 2017 01:03:17 -0700
+Message-Id: <00b3b8efd4f78294be61e4effaf6e2b186c5dc88.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
+For PUNIT device, ISPDRIVER_IPC and GTDDRIVER_IPC resources are not
+mandatory. So when PMC IPC driver creates a PUNIT device, if these
+resources are not available then it creates dummy resource entries for
+these missing resources. But during PUNIT device probe, doing ioremap on
+these dummy resources generates following warning messages.
 
-On 10/01/2017 07:59 AM, Andy Shevchenko wrote:
-> On Tue, Sep 5, 2017 at 8:37 AM,
-> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->>
->> Currently intel_scu_ipc.c, intel_pmc_ipc.c and intel_punit_ipc.c
->> redundantly implements the same IPC features and has lot of code
->> duplication between them. This driver addresses this issue by grouping
->> the common IPC functionalities under the same driver.
->> +static const char *ipc_dev_err_string(struct intel_ipc_dev *ipc_dev,
->> +       int error)
->> +{
->> +       switch (error) {
->> +       case IPC_DEV_ERR_NONE:
->> +               return "No error";
->> +       case IPC_DEV_ERR_CMD_NOT_SUPPORTED:
->> +               return "Command not-supported/Invalid";
->> +       case IPC_DEV_ERR_CMD_NOT_SERVICED:
->> +               return "Command not-serviced/Invalid param";
->> +       case IPC_DEV_ERR_UNABLE_TO_SERVICE:
->> +               return "Unable-to-service/Cmd-timeout";
->> +       case IPC_DEV_ERR_CMD_INVALID:
->> +               return "Command-invalid/Cmd-locked";
->> +       case IPC_DEV_ERR_CMD_FAILED:
->> +               return "Command-failed/Invalid-VR-id";
->> +       case IPC_DEV_ERR_EMSECURITY:
->> +               return "Invalid Battery/VR-Error";
->> +       case IPC_DEV_ERR_UNSIGNEDKERNEL:
->> +               return "Unsigned kernel";
->> +       default:
->> +               return "Unknown Command";
->> +       };
->> +}
-> Since it's continuous list you can define an array of messages like
->
-> const char * const *errors = {
->   [..._ERR_...] = "",
->   ...
->
-> };
->
-> Also you can use enum in the header and define _ERR_MAX there.
-> Thus, code would be transformed to
->
-> if (error < _ERR_MAX)
->   return errors[error];
->
-> return "Unknown Command";
-Thanks will fix it in next version.
->
+intel_punit_ipc: can't request region for resource [mem 0x00000000]
+intel_punit_ipc: can't request region for resource [mem 0x00000000]
+intel_punit_ipc: can't request region for resource [mem 0x00000000]
+intel_punit_ipc: can't request region for resource [mem 0x00000000]
 
+This patch fixes this issue by adding extra check for resource size
+before performing ioremap operation.
+
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/platform/x86/intel_punit_ipc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+Changes since v6:
+ * None
+
+Changes since v5:
+ * None
+
+Changes since v4:
+ * None
+
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index a47a41f..b5b8901 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -252,28 +252,28 @@ static int intel_punit_get_bars(struct platform_device *pdev)
+ 	 * - GTDRIVER_IPC BASE_IFACE
+ 	 */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_IFACE] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 5);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_IFACE] = addr;
 -- 
-Sathyanarayanan Kuppuswamy
-Linux kernel developer
+2.7.4
