@@ -1,72 +1,138 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59467 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750913AbdJOVjj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 15 Oct 2017 17:39:39 -0400
-Date: Sun, 15 Oct 2017 08:39:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Gabriel Beddingfield <gabe@nestlabs.com>, pavel@ucw.cz
-Cc: LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Guy Erb <guy@nestlabs.com>,
-        hharte@nestlabs.com
-Subject: Introduce clock precision to help time travelers was Re: Extreme
- time jitter with suspend/resume cycles
-Message-ID: <20171015063738.GA24716@xo-6d-61-c0.localdomain>
-References: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAOdF7nvHfh_M3UQDYjbofNOm0-S_-LXHdmsMY7DeEwgOQCmfFA@mail.gmail.com>
+Received: from mga01.intel.com ([192.55.52.88]:58900 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750999AbdJ2IHC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 29 Oct 2017 04:07:02 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v7 0/7] SCU/PMC/PUNIT Inter-Processor Communication(IPC) driver cleanup
+Date: Sun, 29 Oct 2017 01:03:16 -0700
+Message-Id: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-H!
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-> We have been developing a device that has very a very aggressive power
-> policy, doing suspend/resume cycles a few times a minute ("echo mem >
-> /sys/power/state"). In doing so, we found that the system time
-> experiences a lot of jitter (compared to, say, an NTP server). It was
-> not uncommon for us to see time corrections of 1s to 4s on a regular
-> basis. This didn't happen when the device stayed awake, only when it
-> was allowed to do suspend/resume.
 
-Ok, so I have various machines here. It seems only about half of them has
-working RTC. That are the boring ones.
+Hi All,
 
-And even the boring ones have pretty imprecise RTCs... For example Nokia N9.
-I only power it up from time to time, I believe it drifts something like
-minute per month... For normal use with SIM card, it can probably correct
-from GSM network if you happen to have a cell phone signal, but...
+Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
+This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
+device drivers use API provided by generic driver. This patchset mainly addresses this issue.
 
-More interesting machines... Old thinkpad is running without CMOS battery.
-ARM OLPC has _three_ RTCs, but not a single working one. N900 has working
-RTC but no or dead backup battery. On these, RTC driver probably knows
-time is not valid, but feeds the garbage into the system time, anyway. Ouch.
-Neither Sharp Zaurus SL-5500 nor C-3000 had battery backup on RTC...
+Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
+intel_punit_ipc drivers. 
 
-Even in new end-user machines, time quality varies a lot. "First boot, please
-enter time" is only accurate to seconds, if the user is careful. RTC is usually
-not very accurate, either... and noone uses adjtime these days. GSM time and
-ntpdate are probably accurate to miliseconds, GPS can provide time down to
-picoseconds... And broken systems are so common "swclock" is available in
-init system to store time in file, so it at least does not go backwards.
+1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
+3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
 
-https (and other crypto) depends on time... so it is important to know approximate
-month we are in.
+More info on Intel IPC device library:
+-------------------------------------
 
-Is it time we handle it better?
+A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
 
-Could we return both time and log2(expected error) from system calls?
+API for creating a new IPC channel device is,
 
-That way we could hide the clock in GUI if time is not available or not precise
-to minutes, ignore certificate dates when time is not precise to months, and
-you would not have to send me a "Pavel, are you time traveling, again?" message
-next time my mailer sends email dated to 1970.
+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
 
-									Pavel
+The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
 
-PS: And yes, I'm time-travaling again, this time by ~15 hours.
+For example, after using this new model, IPC call to PMC device will look like,
+
+pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
+ipc_dev_raw_cmd(pmc_ipc_dev, ipc_raw_cmd);
+intel_ipc_dev_put(pmc_ipc_dev);
+
+I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
+
+Changes since v6:
+ * First two patches of v6 patch set has already been approved, So removed it
+   from the list.
+ * Rebased rest of the patches on top of testing branch.
+ * Fixed some style issues.
+
+Changes since v5:
+ * Added intel_ipc_cmd and intel_ipc_raw_cmd structures.
+ * Fixed some minor style issues.
+ * Rebased "intel_pmc_ipc: Use devm_* calls in driver probe function" patch on top of
+   4.14-rc5 kernel.
+
+Changes since v4:
+ * Pushed "platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR update" patch
+   to the top of the patch list. Also its rebased on top of Andy's review branch.
+
+Changes since v3:
+ * Rebased on top of Andy's review branch.
+ * Fixed resource ioremap warning in intel_punit_ipc.c.
+ * Divided "platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates" patch
+   into two patches. One fixing the existing issue and another to add regmap support.
+ * Fixed error in resource initalization logic in ipc_create_punit_device.
+ * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+ * Added unique name to PUNIT BIOS, GTD, & ISP regmaps.
+ * Fixed NULL pointer exception in intel_ipc_dev_get().
+ * In intel_ipc_dev.c,
+    * Fixed error in check for duplicate intel_ipc_dev.
+    * Added custom interrupt handler support.
+    * Used char array for error string conversion.
+    * Added put dev support.
+
+Changes since v2:
+ * Refactored intel_scu_ipc.c to use generic IPC device APIs.
+ * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
+
+Changes since v1:
+ * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
+   single patch.
+ * Addressed Andy's comment about keeping the library generic by not implementing
+   the low level reg access calls in intel_ipc_dev.c. This version will start using
+   the regmap pointer provided by channel drivers instead of fixed memory map.
+ * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
+ * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
+
+
+
+
+
+Kuppuswamy Sathyanarayanan (7):
+  platform/x86: intel_punit_ipc: Fix resource ioremap warning
+  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
+    devices
+  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+  platform: x86: Add generic Intel IPC driver
+  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
+  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
+  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
+
+ arch/x86/include/asm/intel_pmc_ipc.h            |  31 +-
+ arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
+ arch/x86/include/asm/intel_scu_ipc.h            |  10 +-
+ arch/x86/platform/intel-mid/intel-mid.c         |  15 +-
+ drivers/mfd/intel_soc_pmic_bxtwc.c              |  37 +-
+ drivers/platform/x86/Kconfig                    |  11 +
+ drivers/platform/x86/Makefile                   |   1 +
+ drivers/platform/x86/intel_ipc_dev.c            | 565 +++++++++++++++
+ drivers/platform/x86/intel_pmc_ipc.c            | 883 +++++++++---------------
+ drivers/platform/x86/intel_punit_ipc.c          | 307 +++-----
+ drivers/platform/x86/intel_scu_ipc.c            | 488 ++++++-------
+ drivers/platform/x86/intel_telemetry_pltdrv.c   | 229 +++---
+ drivers/rtc/rtc-mrst.c                          |  16 +-
+ drivers/watchdog/intel-mid_wdt.c                |  18 +-
+ drivers/watchdog/intel_scu_watchdog.c           |  23 +-
+ include/linux/mfd/intel_soc_pmic.h              |   2 +
+ include/linux/platform_data/x86/intel_ipc_dev.h | 246 +++++++
+ 17 files changed, 1733 insertions(+), 1274 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+ create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+
+-- 
+2.7.4
