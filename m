@@ -1,47 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:45195 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1753871AbdJRNcO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Oct 2017 09:32:14 -0400
-Message-ID: <1508333529.13340.26.camel@mtksdaap41>
-Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: mediatek: add bindings for
- MediaTek SoC based RTC
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-To: <sean.wang@mediatek.com>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Wed, 18 Oct 2017 21:32:09 +0800
-In-Reply-To: <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
-References: <cover.1508231935.git.sean.wang@mediatek.com>
-         <235e4bdaa605021facf4ab5c4e8a2ecc5293516d.1508231935.git.sean.wang@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+Received: from mail.free-electrons.com ([62.4.15.54]:60639 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751295AbdJaQ1o (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 31 Oct 2017 12:27:44 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: Keerthy <j-keerthy@ti.com>, linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: omap: Support scratch registers
+Date: Tue, 31 Oct 2017 17:27:31 +0100
+Message-Id: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2017-10-17 at 17:40 +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> Add device-tree binding for MediaTek SoC based RTC
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
->  .../devicetree/bindings/rtc/rtc-mediatek.txt        | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
-> new file mode 100644
-> index 0000000..09fe8f5
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-mediatek.txt
+Register an nvmem device to expose the 3 scratch registers (total of 12
+bytes) to both userspace and kernel space.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-How about change this filename to match driver filename change?
-
-Joe.C
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index d56d937966dc..1d666ac9ef70 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -70,6 +70,10 @@
+ #define OMAP_RTC_COMP_MSB_REG		0x50
+ #define OMAP_RTC_OSC_REG		0x54
+ 
++#define OMAP_RTC_SCRATCH0_REG		0x60
++#define OMAP_RTC_SCRATCH1_REG		0x64
++#define OMAP_RTC_SCRATCH2_REG		0x68
++
+ #define OMAP_RTC_KICK0_REG		0x6c
+ #define OMAP_RTC_KICK1_REG		0x70
+ 
+@@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
++				 size_t bytes)
++{
++	struct omap_rtc	*rtc = priv;
++	u32 *val = _val;
++	int i;
++
++	for (i = 0; i < bytes / 4; i++)
++		val[i] = rtc_readl(rtc,
++				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
++
++	return 0;
++}
++
++static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
++				  size_t bytes)
++{
++	struct omap_rtc	*rtc = priv;
++	u32 *val = _val;
++	int i;
++
++	rtc->type->unlock(rtc);
++	for (i = 0; i < bytes / 4; i++)
++		rtc_writel(rtc,
++			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
++	rtc->type->lock(rtc);
++
++	return 0;
++}
++
++static struct nvmem_config omap_rtc_nvmem_config = {
++	.name = "omap_rtc_scratch",
++	.word_size = 4,
++	.stride = 4,
++	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
++	.reg_read = omap_rtc_scratch_read,
++	.reg_write = omap_rtc_scratch_write,
++};
++
+ static int omap_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct omap_rtc	*rtc;
+@@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	rtc->rtc->ops = &omap_rtc_ops;
++	omap_rtc_nvmem_config.priv = rtc;
++	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
+ 
+ 	/* handle periodic and alarm irqs */
+ 	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
+-- 
+2.15.0.rc2
