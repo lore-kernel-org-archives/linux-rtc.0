@@ -1,71 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:25487 "EHLO
-        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1752259AbdKIDp2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 22:45:28 -0500
-From: Baolin Wang <baolin.wang@spreadtrum.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <robh+dt@kernel.org>, <mark.rutland@arm.com>
-CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <broonie@kernel.org>,
-        <baolin.wang@linaro.org>, <baolin.wang@spreadtrum.com>
-Subject: [PATCH v3 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC documentation
-Date: Thu, 9 Nov 2017 11:34:16 +0800
-Message-ID: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
+Received: from mail.kernel.org ([198.145.29.99]:47600 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754687AbdKARpz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 1 Nov 2017 13:45:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1509548480-29472-1-git-send-email-eric@nelint.com>
+References: <CAL_Jsq+QQK=NTMBwk=h0uszLW0uSiEd1fmF09USRNFM-2VgiSQ@mail.gmail.com>
+ <1509548480-29472-1-git-send-email-eric@nelint.com>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 1 Nov 2017 12:45:33 -0500
+Message-ID: <CAL_JsqK6inxGGWtV3hU6Y1HFMfx9szpF=OCfvE2hCZDkerOMVA@mail.gmail.com>
+Subject: Re: [PATCH V3] rtc: add support for NXP PCF85363 real-time clock
+To: Eric Nelson <eric@nelint.com>
+Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Otavio Salvador <otavio.salvador@ossystems.com.br>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch adds the binding documentation for Spreadtrum SC27xx series
-RTC device.
+On Wed, Nov 1, 2017 at 10:01 AM, Eric Nelson <eric@nelint.com> wrote:
+> Note that alarms are not currently implemented.
+>
+> 64 bytes of nvmem is supported and exposed in
+> sysfs (# is the instance number, starting with 0):
+>
+>         /sys/bus/nvmem/devices/pcf85363-#/nvmem
+>
+> Signed-off-by: Eric Nelson <eric@nelint.com>
+> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+> ---
+> V2 addresses a couple of issues highlighted by Fabio Estevam
+>     1. Kconfig updated to select REGMAP_I2C
+>     2. Switch to of_device_id from i2c_device_id for driver matching
+>
+> V3 adds interrupts as an optional property in device tree bindings
+>
+>  drivers/rtc/Kconfig                                |  13 ++
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-pcf85363.c                         | 221 +++++++++++++++++++++
+>  4 files changed, 252 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/pcf85363.txt
+>  create mode 100644 drivers/rtc/rtc-pcf85363.c
 
-Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
----
-Changes since v2:
- - No updates.
+For the binding:
 
-Changes since v1:
- - Use a specific chip name as compatible string.
- - Remove useless alias.
- - Add the parent MFD node.
----
- .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   27 ++++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
-
-diff --git a/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
-new file mode 100644
-index 0000000..7c170da
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
-@@ -0,0 +1,27 @@
-+Spreadtrum SC27xx Real Time Clock
-+
-+Required properties:
-+- compatible: should be "sprd,sc2731-rtc".
-+- reg: address offset of rtc register.
-+- interrupt-parent: phandle for the interrupt controller.
-+- interrupts: rtc alarm interrupt.
-+
-+Example:
-+
-+	sc2731_pmic: pmic@0 {
-+		compatible = "sprd,sc2731";
-+		reg = <0>;
-+		spi-max-frequency = <26000000>;
-+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		rtc@280 {
-+			compatible = "sprd,sc2731-rtc";
-+			reg = <0x280>;
-+			interrupt-parent = <&sc2731_pmic>;
-+			interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
-+		};
-+	};
--- 
-1.7.9.5
+Acked-by: Rob Herring <robh@kernel.org>
