@@ -1,89 +1,117 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:52368 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751042AbdKHFDA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 00:03:00 -0500
-Received: by mail-oi0-f67.google.com with SMTP id r128so1119120oig.9
-        for <linux-rtc@vger.kernel.org>; Tue, 07 Nov 2017 21:03:00 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20171108031520.zx2ipqugiyypmpms@piout.net>
-References: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
- <20171108031520.zx2ipqugiyypmpms@piout.net>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Wed, 8 Nov 2017 13:02:59 +0800
-Message-ID: <CAMz4kuKPtTv0brSgcZb9UKM5n4T_dc+=0k6HoT7BAo1RWqfqpg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC documentation
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Baolin Wang <baolin.wang@spreadtrum.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-rtc@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from wsip-98-189-142-135.oc.oc.cox.net ([98.189.142.135]:11476 "EHLO
+        office-server2" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S934715AbdKCCTM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Nov 2017 22:19:12 -0400
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: gary.bisson@boundarydevices.com, linux-rtc@vger.kernel.org,
+        Troy Kisky <troy.kisky@boundarydevices.com>
+Subject: [PATCH v1 3/5] rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
+Date: Thu,  2 Nov 2017 18:58:14 -0700
+Message-Id: <20171103015816.16972-3-troy.kisky@boundarydevices.com>
+In-Reply-To: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
+References: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+This is a little more efficient, and avoids the warning
 
-On 8 November 2017 at 11:15, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Hi,
->
-> On 07/11/2017 at 19:34:07 +0800, Baolin Wang wrote:
->> This patch adds the binding documentation for Spreadtrum SC27xx series
->> RTC device.
->>
->> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
->> ---
->>  .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   16 ++++++++++++++++
->>  1 file changed, 16 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
->> new file mode 100644
->> index 0000000..971d3a2
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
->> @@ -0,0 +1,16 @@
->> +Spreadtrum SC27xx Real Time Clock
->> +
->> +Required properties:
->> +- compatible: should be "sprd,sc27xx-rtc".
->
-> Don't use wildcards in a compatible, use a specific chip model. later
-> chips may or may not be compatible with that one.
+ WARNING: possible circular locking dependency detected
+ 4.14.0-rc7-00007 #14 Not tainted
+ ------------------------------------------------------
+ alsactl/330 is trying to acquire lock:
+ (prepare_lock){+.+.}, at: [<c049300c>] clk_prepare_lock+0x80/0xf4
 
-Our Spreadtrum SC27xx series PMICs contain SC2720, SC2721, SC2723,
-SC2730 and SC2731. They all integrate the same RTC IP, so I think it
-will be better to use "sc27xx" string. Our PMIC driver also used the
-"sprd,sc27xx-rtc" sting which has been merged into Lee's MFD next
-tree.
+ but task is already holding lock:
+ (i2c_register_adapter){+.+.}, at: [<c0690ae0>]
+		i2c_adapter_lock_bus+0x14/0x18
 
->
->> +- reg: address offset of rtc register.
->> +- interrupt-parent: phandle for the interrupt controller.
->> +- interrupts: rtc alarm interrupt.
->> +
->> +Example:
->> +
->> +     rtc: rtc@280 {
->
-> The rtc: alias is probably useless
+ which lock already depends on the new lock.
 
-Yes, I will remove it.
+ the existing dependency chain (in reverse order) is:
 
->
->> +             compatible = "sprd,sc27xx-rtc";
->> +             reg = <0x280>;
->> +             interrupt-parent = <&pmic>;
->> +             interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
->> +     };
->
-> I would include the parent MFD node too.
+ -> #1 (i2c_register_adapter){+.+.}:
+        rt_mutex_lock+0x44/0x5c
+        i2c_adapter_lock_bus+0x14/0x18
+        i2c_transfer+0xa8/0xbc
+        i2c_smbus_xfer+0x20c/0x5d8
+        i2c_smbus_read_byte_data+0x38/0x48
+        m41t80_sqw_recalc_rate+0x24/0x58
 
-OK. Thanks for your comments.
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+---
+ drivers/rtc/rtc-m41t80.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 42fc735a5446..f44dcf628c87 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -154,6 +154,7 @@ struct m41t80_data {
+ 	struct rtc_device *rtc;
+ #ifdef CONFIG_COMMON_CLK
+ 	struct clk_hw sqw;
++	unsigned long freq;
+ #endif
+ };
+ 
+@@ -443,26 +444,28 @@ static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t80_suspend, m41t80_resume);
+ #ifdef CONFIG_COMMON_CLK
+ #define sqw_to_m41t80_data(_hw) container_of(_hw, struct m41t80_data, sqw)
+ 
+-static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
+-					    unsigned long parent_rate)
++static unsigned long m41t80_decode_freq(int setting)
++{
++	return (setting == 0) ? 0 : (setting == 1) ? M41T80_SQW_MAX_FREQ :
++		M41T80_SQW_MAX_FREQ >> setting;
++}
++
++static unsigned long m41t80_get_freq(struct m41t80_data *m41t80)
+ {
+-	struct m41t80_data *m41t80 = sqw_to_m41t80_data(hw);
+ 	struct i2c_client *client = m41t80->client;
+ 	int reg_sqw = (m41t80->features & M41T80_FEATURE_SQ_ALT) ?
+ 		M41T80_REG_WDAY : M41T80_REG_SQW;
+ 	int ret = i2c_smbus_read_byte_data(client, reg_sqw);
+-	unsigned long val = M41T80_SQW_MAX_FREQ;
+ 
+ 	if (ret < 0)
+ 		return 0;
++	return m41t80_decode_freq(ret >> 4);
++}
+ 
+-	ret >>= 4;
+-	if (ret == 0)
+-		val = 0;
+-	else if (ret > 1)
+-		val = val / (1 << ret);
+-
+-	return val;
++static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
++					    unsigned long parent_rate)
++{
++	return sqw_to_m41t80_data(hw)->freq;
+ }
+ 
+ static long m41t80_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+@@ -505,6 +508,8 @@ static int m41t80_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	reg = (reg & 0x0f) | (val << 4);
+ 
+ 	ret = i2c_smbus_write_byte_data(client, reg_sqw, reg);
++	if (!ret)
++		m41t80->freq = m41t80_decode_freq(val);
+ 	return ret;
+ }
+ 
+@@ -579,6 +584,7 @@ static struct clk *m41t80_sqw_register_clk(struct m41t80_data *m41t80)
+ 	init.parent_names = NULL;
+ 	init.num_parents = 0;
+ 	m41t80->sqw.init = &init;
++	m41t80->freq = m41t80_get_freq(m41t80);
+ 
+ 	/* optional override of the clockname */
+ 	of_property_read_string(node, "clock-output-names", &init.name);
 -- 
-Baolin Wang
-Best Regards
+2.11.0
