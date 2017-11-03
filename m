@@ -1,40 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:53429 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751181AbdKHR0m (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 12:26:42 -0500
-Received: by mail-io0-f193.google.com with SMTP id 189so6747278iow.10
-        for <linux-rtc@vger.kernel.org>; Wed, 08 Nov 2017 09:26:42 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20171108120815.3175571-1-arnd@arndb.de>
-References: <20171108120815.3175571-1-arnd@arndb.de>
-From: Loc Ho <lho@apm.com>
-Date: Wed, 8 Nov 2017 09:26:41 -0800
-Message-ID: <CAPw-ZT=dryHW9i4v=U-te7BEfhD-_0zUy40Uei8mLh2sY1gcOg@mail.gmail.com>
-Subject: Re: [PATCH] rtc: x-gene: mark PM functions as __maybe_unused
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Brown <broonie@linaro.org>, linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from wsip-98-189-142-135.oc.oc.cox.net ([98.189.142.135]:64712 "EHLO
+        office-server2" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S934715AbdKCCTW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Nov 2017 22:19:22 -0400
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: gary.bisson@boundarydevices.com, linux-rtc@vger.kernel.org,
+        Troy Kisky <troy.kisky@boundarydevices.com>
+Subject: [PATCH v1 2/5] rtc: m41t80: fix m41t80_sqw_round_rate return value
+Date: Thu,  2 Nov 2017 18:58:13 -0700
+Message-Id: <20171103015816.16972-2-troy.kisky@boundarydevices.com>
+In-Reply-To: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
+References: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Previously it was returning the best of
+32768, 8192, 1024, 64, 2, 0
 
-> The new xgene_rtc_alarm_irq_enabled() function is only accessed
-> from PM code, which is inside of an #ifdef; this causes a harmless
-> build warning when CONFIG_PM is disabled:
->
-> drivers/rtc/rtc-xgene.c:108:12: error: 'xgene_rtc_alarm_irq_enabled' defined but not used [-Werror=unused-function]
->
-> Just remove the #ifdef and use __maybe_unused annotations instead,
-> to make the code more robust here.
+Now, best of
+32768, 8192, 4096, 2048, 1024, 512, 256, 128,
+64, 32, 16, 8, 4, 2, 1, 0
 
-It sounds like desire to merge in the suspend/resume support as this
-is in linux-next 14 hours ago.
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+---
+ drivers/rtc/rtc-m41t80.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-Reviewed-by: Loc Ho <lho@apm.com>
-
--Loc
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 8f5843169dc2..42fc735a5446 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -468,18 +468,13 @@ static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
+ static long m41t80_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+ 				  unsigned long *prate)
+ {
+-	int i, freq = M41T80_SQW_MAX_FREQ;
+-
+-	if (freq <= rate)
+-		return freq;
+-
+-	for (i = 2; i <= ilog2(M41T80_SQW_MAX_FREQ); i++) {
+-		freq /= 1 << i;
+-		if (freq <= rate)
+-			return freq;
+-	}
+-
+-	return 0;
++	if (rate >= M41T80_SQW_MAX_FREQ)
++		return M41T80_SQW_MAX_FREQ;
++	if (rate >= M41T80_SQW_MAX_FREQ / 4)
++		return M41T80_SQW_MAX_FREQ / 4;
++	if (!rate)
++		return 0;
++	return 1 << ilog2(rate);
+ }
+ 
+ static int m41t80_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
+-- 
+2.11.0
