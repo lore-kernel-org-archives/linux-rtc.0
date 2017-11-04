@@ -1,48 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx210.ext.ti.com ([198.47.19.17]:37476 "EHLO
-        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750749AbdKFHC1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Nov 2017 02:02:27 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-To: Keerthy <j-keerthy@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
-From: Sekhar Nori <nsekhar@ti.com>
-Message-ID: <764e60e1-59a4-1082-4307-9d9742d86562@ti.com>
-Date: Mon, 6 Nov 2017 12:32:22 +0530
+Received: from mail.free-electrons.com ([62.4.15.54]:52803 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751945AbdKDQIh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Nov 2017 12:08:37 -0400
+Date: Sat, 4 Nov 2017 17:08:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Eric Nelson <eric@nelint.com>
+Cc: linux-rtc@vger.kernel.org, robh@kernel.org, a.zummo@towertech.it,
+        mark.rutland@arm.com, devicetree@vger.kernel.org,
+        otavio.salvador@ossystems.com.br
+Subject: Re: [PATCH V3] rtc: add support for NXP PCF85363 real-time clock
+Message-ID: <20171104160836.bah5su2ld5ckycr3@piout.net>
+References: <CAL_Jsq+QQK=NTMBwk=h0uszLW0uSiEd1fmF09USRNFM-2VgiSQ@mail.gmail.com>
+ <1509548480-29472-1-git-send-email-eric@nelint.com>
 MIME-Version: 1.0
-In-Reply-To: <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1509548480-29472-1-git-send-email-eric@nelint.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Monday 06 November 2017 12:29 PM, Keerthy wrote:
-> 
-> 
-> On Monday 06 November 2017 12:25 PM, Sekhar Nori wrote:
->> + linux omap list
->>
->> On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
->>> Register an nvmem device to expose the 3 scratch registers (total of 12
->>> bytes) to both userspace and kernel space.
->>>
->>> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->>
->> Looks good to me.
->>
->> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
->>
->> Curious on what you are using these registers for.
-> 
-> This is in response to this:
-> https://patchwork.kernel.org/patch/9684955/
+Hi,
 
-Ah, okay. Makes sense then :)
+On 01/11/2017 at 08:01:20 -0700, Eric Nelson wrote:
+> Note that alarms are not currently implemented.
+> 
+> 64 bytes of nvmem is supported and exposed in
+> sysfs (# is the instance number, starting with 0):
+> 
+> 	/sys/bus/nvmem/devices/pcf85363-#/nvmem
+> 
+> Signed-off-by: Eric Nelson <eric@nelint.com>
+> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+> ---
+> V2 addresses a couple of issues highlighted by Fabio Estevam
+>     1. Kconfig updated to select REGMAP_I2C
+>     2. Switch to of_device_id from i2c_device_id for driver matching
+> 
+> V3 adds interrupts as an optional property in device tree bindings
+> 
+>  drivers/rtc/Kconfig                                |  13 ++
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-pcf85363.c                         | 221 +++++++++++++++++++++
+>  4 files changed, 252 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/pcf85363.txt
+>  create mode 100644 drivers/rtc/rtc-pcf85363.c
+> 
 
-Regards,
-Sekhar
+I've tested it (thanks to Fabio, I received one a few weeks ago)
+
+Applied with the following change:
+
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -194,7 +194,6 @@ static int pcf85363_probe(struct i2c_client *client,
+        pcf85363->nvmem_cfg.reg_write = pcf85363_nvram_write;
+        pcf85363->nvmem_cfg.priv = pcf85363;
+        pcf85363->rtc->nvmem_config = &pcf85363->nvmem_cfg;
+-       pcf85363->rtc->nvram_old_abi = true;
+        pcf85363->rtc->ops = &rtc_ops;
+ 
+        return rtc_register_device(pcf85363->rtc);
+
+
+nvram_old_abi must not be used for new drivers and will generate warning
+when the (undocumented) ABI is used anyway.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
