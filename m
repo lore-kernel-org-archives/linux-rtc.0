@@ -1,98 +1,125 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:47024 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751650AbdK1KD3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Nov 2017 05:03:29 -0500
-Date: Tue, 28 Nov 2017 10:03:10 +0000
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>,
-        John Stultz <john.stultz@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: Allow rtc drivers to specify the tv_nsec value for
- ntp
-Message-ID: <20171128100309.GS31757@n2100.armlinux.org.uk>
-References: <20171013175433.GA22062@obsidianresearch.com>
- <20171123095456.lkc4nkuzsd2q26mm@piout.net>
- <20171123112338.GN31757@n2100.armlinux.org.uk>
- <20171123120451.v74j3z2c5oodxlud@piout.net>
- <20171123125300.GO31757@n2100.armlinux.org.uk>
- <20171127201812.GB21126@piout.net>
+Received: from fllnx210.ext.ti.com ([198.47.19.17]:37288 "EHLO
+        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751307AbdKFG7U (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Nov 2017 01:59:20 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+To: Sekhar Nori <nsekhar@ti.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+Date: Mon, 6 Nov 2017 12:29:15 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171127201812.GB21126@piout.net>
+In-Reply-To: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Nov 27, 2017 at 09:18:12PM +0100, Alexandre Belloni wrote:
-> On 23/11/2017 at 12:53:00 +0000, Russell King - ARM Linux wrote:
-> > systohc is more questionable, and always has been.  The "push it out
-> > to userspace" approach has been tried in the past, yet we seem to
-> > have it back in the kernel.  IIRC, it was originally decided that
-> > rtclib would not support it, and that it was going to be done in
-> > userspace.
-> > 
-> > However, the userspace part never appeared, and instead rtclib
-> > eventually gained support for it, because it's what people want to
-> > see.
-> > 
-> > I'm not yet convinced by the "lets push it all into userspace" argument
-> > because that's vapourware - and we've been there before.  It's "nice"
-> > to state but if no one steps up and does it, it's of no benefit and
-> > just results in people carrying local hacks (eg in vendor kernels), or
-> > working around those who state it.
-> > 
+
+
+On Monday 06 November 2017 12:25 PM, Sekhar Nori wrote:
+> + linux omap list
 > 
-> What I see is that people that care about precisely setting the RTC are
-> not using systohc because of the 0.5s offset issue or because it doesn't
-> do what they want and instead are using their own userspace tool to set
-> the RTC time.
-
-If that is the case, where are these tools?
-
-> They have the right to keep those tools closed if they desire so.
+> On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
+>> Register an nvmem device to expose the 3 scratch registers (total of 12
+>> bytes) to both userspace and kernel space.
+>>
+>> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > 
-> The necessary ABI for userspace to do the right thing is already there
-> and you are going to add a new one.
+> Looks good to me.
+> 
+> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+> 
+> Curious on what you are using these registers for.
 
-Sorry, I don't think userspace has the information to do a good job.
-The idea of setting the RTC to measure the offset is a hack - it's
-something that is going to have to be measured each and every time
-that the RTC is set, and would need to be done by a real-time process
-to ensure that other system noise does not affect it.
+This is in response to this:
+https://patchwork.kernel.org/patch/9684955/
 
-> Also, fixing systohc will not fix the offset for people using hwclock or
-> any other tools (e.g. systemd).
 
-As has already been said, Jason's suggestion is to export this
-information to userspace so that hwclock can be fixed in a similar
-way.  hwclock isn't too relevant to the NTP question though, because
-it isn't used while ntpd is running.
-
-> I pretty much prefer trying to fix existing userspace tools or if this
-> is not possible have a new tool to handle reading/setting the RTC time.
-
-I suspect that won't happen, because there won't be enough interest
-in fixing it.  As I've said, this issue had come up years ago, and
-the same suggestions were made at that time.  Here we are today,
-still without a userspace tool to do it.  What's different this
-time around?
-
-Are you going to put the effort in yourself to solve this problem,
-or are you going to leave it to some ghostly apperition to do,
-resulting in yet another vapourware tool that never actually
-materialises?
-
-I'll repeat that I have no interest in creating such a tool as I
-already have a working in-kernel solution that doesn't need me to
-create any userspace tooling, and I don't care that it isn't in
-mainline.
-
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
-According to speedtest.net: 8.21Mbps down 510kbps up
+> 
+> Thanks,
+> Sekhar
+> 
+>> ---
+>>  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 45 insertions(+)
+>>
+>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>> index d56d937966dc..1d666ac9ef70 100644
+>> --- a/drivers/rtc/rtc-omap.c
+>> +++ b/drivers/rtc/rtc-omap.c
+>> @@ -70,6 +70,10 @@
+>>  #define OMAP_RTC_COMP_MSB_REG		0x50
+>>  #define OMAP_RTC_OSC_REG		0x54
+>>  
+>> +#define OMAP_RTC_SCRATCH0_REG		0x60
+>> +#define OMAP_RTC_SCRATCH1_REG		0x64
+>> +#define OMAP_RTC_SCRATCH2_REG		0x68
+>> +
+>>  #define OMAP_RTC_KICK0_REG		0x6c
+>>  #define OMAP_RTC_KICK1_REG		0x70
+>>  
+>> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
+>>  	.owner = THIS_MODULE,
+>>  };
+>>  
+>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+>> +				 size_t bytes)
+>> +{
+>> +	struct omap_rtc	*rtc = priv;
+>> +	u32 *val = _val;
+>> +	int i;
+>> +
+>> +	for (i = 0; i < bytes / 4; i++)
+>> +		val[i] = rtc_readl(rtc,
+>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
+>> +				  size_t bytes)
+>> +{
+>> +	struct omap_rtc	*rtc = priv;
+>> +	u32 *val = _val;
+>> +	int i;
+>> +
+>> +	rtc->type->unlock(rtc);
+>> +	for (i = 0; i < bytes / 4; i++)
+>> +		rtc_writel(rtc,
+>> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
+>> +	rtc->type->lock(rtc);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static struct nvmem_config omap_rtc_nvmem_config = {
+>> +	.name = "omap_rtc_scratch",
+>> +	.word_size = 4,
+>> +	.stride = 4,
+>> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
+>> +	.reg_read = omap_rtc_scratch_read,
+>> +	.reg_write = omap_rtc_scratch_write,
+>> +};
+>> +
+>>  static int omap_rtc_probe(struct platform_device *pdev)
+>>  {
+>>  	struct omap_rtc	*rtc;
+>> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>>  	}
+>>  
+>>  	rtc->rtc->ops = &omap_rtc_ops;
+>> +	omap_rtc_nvmem_config.priv = rtc;
+>> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
+>>  
+>>  	/* handle periodic and alarm irqs */
+>>  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
+>> -- 
+>> 2.15.0.rc2
+>>
+> 
