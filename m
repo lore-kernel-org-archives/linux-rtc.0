@@ -1,71 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:58351 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751352AbdKHDP1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Nov 2017 22:15:27 -0500
-Date: Wed, 8 Nov 2017 04:15:20 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, broonie@kernel.org,
-        baolin.wang@linaro.org
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC
- documentation
-Message-ID: <20171108031520.zx2ipqugiyypmpms@piout.net>
-References: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:16653 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751401AbdKFGzi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Nov 2017 01:55:38 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>
+CC: Keerthy <j-keerthy@ti.com>, <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Message-ID: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+Date: Mon, 6 Nov 2017 12:25:06 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
+In-Reply-To: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
++ linux omap list
 
-On 07/11/2017 at 19:34:07 +0800, Baolin Wang wrote:
-> This patch adds the binding documentation for Spreadtrum SC27xx series
-> RTC device.
+On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
+> Register an nvmem device to expose the 3 scratch registers (total of 12
+> bytes) to both userspace and kernel space.
 > 
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+Looks good to me.
+
+Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+
+Curious on what you are using these registers for.
+
+Thanks,
+Sekhar
+
 > ---
->  .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
+>  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 45 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
-> new file mode 100644
-> index 0000000..971d3a2
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
-> @@ -0,0 +1,16 @@
-> +Spreadtrum SC27xx Real Time Clock
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index d56d937966dc..1d666ac9ef70 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -70,6 +70,10 @@
+>  #define OMAP_RTC_COMP_MSB_REG		0x50
+>  #define OMAP_RTC_OSC_REG		0x54
+>  
+> +#define OMAP_RTC_SCRATCH0_REG		0x60
+> +#define OMAP_RTC_SCRATCH1_REG		0x64
+> +#define OMAP_RTC_SCRATCH2_REG		0x68
 > +
-> +Required properties:
-> +- compatible: should be "sprd,sc27xx-rtc".
-
-Don't use wildcards in a compatible, use a specific chip model. later
-chips may or may not be compatible with that one.
-
-> +- reg: address offset of rtc register.
-> +- interrupt-parent: phandle for the interrupt controller.
-> +- interrupts: rtc alarm interrupt.
+>  #define OMAP_RTC_KICK0_REG		0x6c
+>  #define OMAP_RTC_KICK1_REG		0x70
+>  
+> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
+>  	.owner = THIS_MODULE,
+>  };
+>  
+> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+> +				 size_t bytes)
+> +{
+> +	struct omap_rtc	*rtc = priv;
+> +	u32 *val = _val;
+> +	int i;
 > +
-> +Example:
+> +	for (i = 0; i < bytes / 4; i++)
+> +		val[i] = rtc_readl(rtc,
+> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
 > +
-> +	rtc: rtc@280 {
-
-The rtc: alias is probably useless
-
-> +		compatible = "sprd,sc27xx-rtc";
-> +		reg = <0x280>;
-> +		interrupt-parent = <&pmic>;
-> +		interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
-> +	};
-
-I would include the parent MFD node too.
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> +	return 0;
+> +}
+> +
+> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
+> +				  size_t bytes)
+> +{
+> +	struct omap_rtc	*rtc = priv;
+> +	u32 *val = _val;
+> +	int i;
+> +
+> +	rtc->type->unlock(rtc);
+> +	for (i = 0; i < bytes / 4; i++)
+> +		rtc_writel(rtc,
+> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
+> +	rtc->type->lock(rtc);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct nvmem_config omap_rtc_nvmem_config = {
+> +	.name = "omap_rtc_scratch",
+> +	.word_size = 4,
+> +	.stride = 4,
+> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
+> +	.reg_read = omap_rtc_scratch_read,
+> +	.reg_write = omap_rtc_scratch_write,
+> +};
+> +
+>  static int omap_rtc_probe(struct platform_device *pdev)
+>  {
+>  	struct omap_rtc	*rtc;
+> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	rtc->rtc->ops = &omap_rtc_ops;
+> +	omap_rtc_nvmem_config.priv = rtc;
+> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
+>  
+>  	/* handle periodic and alarm irqs */
+>  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
+> -- 
+> 2.15.0.rc2
+> 
