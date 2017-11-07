@@ -1,39 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59337 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751093AbdKJI7v (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 03:59:51 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:39521 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1756059AbdKGMMY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Nov 2017 07:12:24 -0500
+From: Philipp Zabel <p.zabel@pengutronix.de>
 To: linux-rtc@vger.kernel.org
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 1/2] rtc: at91rm9200: stop calculating yday in at91_rtc_readalarm
-Date: Fri, 10 Nov 2017 09:59:30 +0100
-Message-Id: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-kernel@vger.kernel.org, kernel@pengutronix.de,
+        Philipp Zabel <p.zabel@pengutronix.de>
+Subject: [PATCH] rtc: pcf8563: fix output clock rate
+Date: Tue,  7 Nov 2017 13:12:17 +0100
+Message-Id: <20171107121217.31309-1-p.zabel@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Calculating yday in the read_alarm callback is useless as this value is
-never used later. Also, it was buggy anyway because at the time this is
-done, tm_year is always 0 as the alarm register doesn't hold the year.
+The pcf8563_clkout_recalc_rate function erroneously ignores the
+frequency index read from the CLKO register and always returns
+32768 Hz.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 ---
- drivers/rtc/rtc-at91rm9200.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/rtc/rtc-pcf8563.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index e221b78b6f10..e84f5ec4faf6 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -208,7 +208,6 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rtc_time *tm = &alrm->time;
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index cea6ea4df970f..8c836c51a508f 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -419,13 +419,13 @@ static unsigned long pcf8563_clkout_recalc_rate(struct clk_hw *hw,
+ 	int ret = pcf8563_read_block_data(client, PCF8563_REG_CLKO, 1, &buf);
  
- 	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
--	tm->tm_yday = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
- 	tm->tm_year = at91_alarm_year - 1900;
+ 	if (ret < 0)
+ 		return 0;
  
- 	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
+ 	buf &= PCF8563_REG_CLKO_F_MASK;
+-	return clkout_rates[ret];
++	return clkout_rates[buf];
+ }
+ 
+ static long pcf8563_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
+ 				      unsigned long *prate)
+ {
+ 	int i;
 -- 
-2.15.0
+2.11.0
