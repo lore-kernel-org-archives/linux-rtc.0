@@ -1,42 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:61899 "EHLO
-        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751190AbdKIJ7Z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Nov 2017 04:59:25 -0500
-From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:10756 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751139AbdKHIcg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:32:36 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+From: Keerthy <j-keerthy@ti.com>
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: RE: DryIce , RTC not working on imx53.
-Date: Thu, 9 Nov 2017 09:59:02 +0000
-Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net>
-In-Reply-To: <20171109030327.anzo47xayxckn47r@piout.net>
-Content-Type: text/plain; charset="iso-8859-1"
+CC: Sekhar Nori <nsekhar@ti.com>, <linux-rtc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+ <20171108062738.cml7qaek324rvc4e@piout.net>
+ <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+ <20171108071612.65wrw7mhoip55lia@piout.net>
+ <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
+ <20171108082145.kpd3c45x5skce5wd@piout.net>
+ <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
+Message-ID: <c24e76cc-ba52-3d26-7dce-5c9ed7e68db1@ti.com>
+Date: Wed, 8 Nov 2017 14:02:31 +0530
 MIME-Version: 1.0
+In-Reply-To: <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 
->From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
->Sent: Donnerstag, 9. November 2017 04:03
->
->hwclock times out because the alarm is not working properly. Can you
->check whether rtctest is working?
->
-You mean "tools/testing/selftests/timers/rtctest", right?
 
-I just run it and it's stuck at "Counting 5 update (1/sec) interrupts from reading /dev/rtc0:"
+On Wednesday 08 November 2017 02:01 PM, Keerthy wrote:
+> 
+> 
+> On Wednesday 08 November 2017 01:51 PM, Alexandre Belloni wrote:
+>> On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
+>>>
+>>>
+>>> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
+>>>> On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
+>>>>>
+>>>>>
+>>>>> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+>>>>>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+>>>>>>>>>> +				 size_t bytes)
+>>>>>>>>>> +{
+>>>>>>>>>> +	struct omap_rtc	*rtc = priv;
+>>>>>>>>>> +	u32 *val = _val;
+>>>>>>>>>> +	int i;
+>>>>>>>>>> +
+>>>>>>>>>> +	for (i = 0; i < bytes / 4; i++)
+>>>>>>>>>> +		val[i] = rtc_readl(rtc,
+>>>>>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+>>>>>>>
+>>>>>>> Can the offset be the Scratch register number instead of bytes offset?
+>>>>>>> More intuitive to me.
+>>>>>>>
+>>>>>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+>>>>>>>
+>>>>>>
+>>>>>> Well, the offset is coming from the nvmem core, itself getting it from
+>>>>>> the Linux file API (and it is in bytes). However, you have the guarantee
+>>>>>> that it will be aligned on a word, see:
+>>>>>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
+>>>>>
+>>>>> Okay Alexandre. Thanks for clarifying. Looks good to me.
+>>>>> I have tested on AM437X-GP-EVM.
+>>>>>
+>>>>
+>>>> If needed, you can define nvmem cells (and I guess that is what you
+>>>> want):
+>>>> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
+>>>
+>>> With this patch we cannot still use nvmem_device_write and
+>>> nvmem_device_read as the nvmem_device is still not registered.
+>>>
+>>> How can a driver write to scratch pad registers? Should we be calling
+>>> nvmem_register in the probe?
+>>
+>> It is not needed, it is registered by rtc_nvmem_register().
+> 
+> Let me go through the chain:
+> 
+> rtc_register_device -> __rtc_register_device --> rtc_nvmem_register ->
+> rtc_nvram_register
+> 
+> I am seeing that for rtc-omap driver there is rtc_register_device call
 
-Kernel log shows a new message for each try I restart rtctest.
-[ 1032.349562] imxdi_rtc 53fa4000.srtc: Write-wait timeout val = 0x5a042418 reg = 0x00000008"
+I mean there NO rtc_register_device call.
 
-
-Regards, Patrick
-
-Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
-Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
+> and i see that rtc_nvmem_register is not getting called.
+> 
+> Should we add rtc_register_device in probe of rtc-omap?
+> 
+>>
+>> nvmem_device_read/write are working because that is what I'm using to
+>> implement the old sysfs ABI with rtc_nvram_read/write.
+>>
