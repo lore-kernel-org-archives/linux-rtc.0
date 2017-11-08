@@ -1,43 +1,154 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:46746 "EHLO
-        mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754165AbdKNKNP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:13:15 -0500
-Received: by mail-oi0-f47.google.com with SMTP id n16so4233463oig.3
-        for <linux-rtc@vger.kernel.org>; Tue, 14 Nov 2017 02:13:15 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <D24E577EA1E37B4788A3BFBC418F14A707646377@wetsrvex01.loepfe.com>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net> <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
- <20171113161522.2kq7un7gl5vg4qlq@piout.net> <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
- <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com> <D24E577EA1E37B4788A3BFBC418F14A707646377@wetsrvex01.loepfe.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Tue, 14 Nov 2017 08:13:14 -0200
-Message-ID: <CAOMZO5BqhhFMRByY+cHXcqmUiLVVngYHvjmTcNJP8M08ew8xnw@mail.gmail.com>
-Subject: Re: DryIce , RTC not working on imx53.
-To: "Vellemans, Noel" <Noel.Vellemans@visionbms.com>
-Cc: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>,
+Received: from fllnx210.ext.ti.com ([198.47.19.17]:28071 "EHLO
+        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750922AbdKHGAv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 01:00:51 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+From: Keerthy <j-keerthy@ti.com>
+To: Sekhar Nori <nsekhar@ti.com>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        <linux-rtc@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+Message-ID: <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+Date: Wed, 8 Nov 2017 11:30:45 +0530
+MIME-Version: 1.0
+In-Reply-To: <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Noel,
 
-On Tue, Nov 14, 2017 at 4:40 AM, Vellemans, Noel
-<Noel.Vellemans@visionbms.com> wrote:
-> HI all,
->
-> I've been digging a while in the DryIce code (some time ago, it was in a hurry because I needed to release).
->
-> I finally ended up by NOT using the DryIce code , for the IMX53 ( internal RTC)
->
-> If I recall correctly , this is not the correct driver for the Internal IMX53 RTC, ( for example the register BASE-Addresses / offsets are not correct..)
-> resulting in all kind of strange behavior, depending on your situational use-cases:-(
 
-Could you clarify about this? Which base address or offsets are not correct?
+On Monday 06 November 2017 12:29 PM, Keerthy wrote:
+> 
+> 
+> On Monday 06 November 2017 12:25 PM, Sekhar Nori wrote:
+>> + linux omap list
+>>
+>> On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
+>>> Register an nvmem device to expose the 3 scratch registers (total of 12
+>>> bytes) to both userspace and kernel space.
+>>>
+>>> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>>
+>> Looks good to me.
+>>
+>> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+>>
+>> Curious on what you are using these registers for.
+> 
+> This is in response to this:
+> https://patchwork.kernel.org/patch/9684955/
+
+Couple of minor comments below. Apart from that:
+
+Tested-by: Keerthy <j-keerthy@ti.com>
+Reviewed-by: Keerthy <j-keerthy@ti.com>
+
+> 
+> 
+>>
+>> Thanks,
+>> Sekhar
+>>
+>>> ---
+>>>  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>>>  1 file changed, 45 insertions(+)
+>>>
+>>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>>> index d56d937966dc..1d666ac9ef70 100644
+>>> --- a/drivers/rtc/rtc-omap.c
+>>> +++ b/drivers/rtc/rtc-omap.c
+>>> @@ -70,6 +70,10 @@
+>>>  #define OMAP_RTC_COMP_MSB_REG		0x50
+>>>  #define OMAP_RTC_OSC_REG		0x54
+>>>  
+>>> +#define OMAP_RTC_SCRATCH0_REG		0x60
+>>> +#define OMAP_RTC_SCRATCH1_REG		0x64
+>>> +#define OMAP_RTC_SCRATCH2_REG		0x68
+>>> +
+>>>  #define OMAP_RTC_KICK0_REG		0x6c
+>>>  #define OMAP_RTC_KICK1_REG		0x70
+>>>  
+>>> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
+>>>  	.owner = THIS_MODULE,
+>>>  };
+>>>  
+>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+>>> +				 size_t bytes)
+>>> +{
+>>> +	struct omap_rtc	*rtc = priv;
+>>> +	u32 *val = _val;
+>>> +	int i;
+>>> +
+>>> +	for (i = 0; i < bytes / 4; i++)
+>>> +		val[i] = rtc_readl(rtc,
+>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+
+Can the offset be the Scratch register number instead of bytes offset?
+More intuitive to me.
+
+So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+
+The above can be:
+rtc_readl(rtc, OMAP_RTC_SCRATCH0_REG + (offset + i) * 4), val[i]);
+
+
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
+>>> +				  size_t bytes)
+>>> +{
+>>> +	struct omap_rtc	*rtc = priv;
+>>> +	u32 *val = _val;
+>>> +	int i;
+>>> +
+>>> +	rtc->type->unlock(rtc);
+>>> +	for (i = 0; i < bytes / 4; i++)
+>>> +		rtc_writel(rtc,
+>>> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
+
+The above can be:
+rtc_writel(rtc, OMAP_RTC_SCRATCH0_REG + (offset + i) * 4), val[i]);
+
+>>> +	rtc->type->lock(rtc);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static struct nvmem_config omap_rtc_nvmem_config = {
+>>> +	.name = "omap_rtc_scratch",
+>>> +	.word_size = 4,
+>>> +	.stride = 4,
+>>> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
+>>> +	.reg_read = omap_rtc_scratch_read,
+>>> +	.reg_write = omap_rtc_scratch_write,
+>>> +};
+>>> +
+>>>  static int omap_rtc_probe(struct platform_device *pdev)
+>>>  {
+>>>  	struct omap_rtc	*rtc;
+>>> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>>>  	}
+>>>  
+>>>  	rtc->rtc->ops = &omap_rtc_ops;
+>>> +	omap_rtc_nvmem_config.priv = rtc;
+>>> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
+>>>  
+>>>  	/* handle periodic and alarm irqs */
+>>>  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
+>>> -- 
+>>> 2.15.0.rc2
+>>>
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
