@@ -1,65 +1,785 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35136 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:58567 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751779AbdKHHQV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 02:16:21 -0500
-Date: Wed, 8 Nov 2017 08:16:12 +0100
+        with ESMTP id S1751405AbdKHDoT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Nov 2017 22:44:19 -0500
+Date: Wed, 8 Nov 2017 04:44:09 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-Message-ID: <20171108071612.65wrw7mhoip55lia@piout.net>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
- <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
- <20171108062738.cml7qaek324rvc4e@piout.net>
- <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+To: Baolin Wang <baolin.wang@spreadtrum.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, broonie@kernel.org,
+        baolin.wang@linaro.org
+Subject: Re: [PATCH 2/2] rtc: sprd: Add Spreadtrum RTC driver
+Message-ID: <20171108034409.cm65hvuhz67hmz3b@piout.net>
+References: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
+ <b053858c3325e7c35436f35adf09b5df90106d42.1510051749.git.baolin.wang@spreadtrum.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+In-Reply-To: <b053858c3325e7c35436f35adf09b5df90106d42.1510051749.git.baolin.wang@spreadtrum.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
-> 
-> 
-> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
-> >>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
-> >>>>> +				 size_t bytes)
-> >>>>> +{
-> >>>>> +	struct omap_rtc	*rtc = priv;
-> >>>>> +	u32 *val = _val;
-> >>>>> +	int i;
-> >>>>> +
-> >>>>> +	for (i = 0; i < bytes / 4; i++)
-> >>>>> +		val[i] = rtc_readl(rtc,
-> >>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
-> >>
-> >> Can the offset be the Scratch register number instead of bytes offset?
-> >> More intuitive to me.
-> >>
-> >> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
-> >>
-> > 
-> > Well, the offset is coming from the nvmem core, itself getting it from
-> > the Linux file API (and it is in bytes). However, you have the guarantee
-> > that it will be aligned on a word, see:
-> > http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
-> 
-> Okay Alexandre. Thanks for clarifying. Looks good to me.
-> I have tested on AM437X-GP-EVM.
-> 
+Hi,
 
-If needed, you can define nvmem cells (and I guess that is what you
-want):
-http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
+On 07/11/2017 at 19:34:08 +0800, Baolin Wang wrote:
+> This patch adds the Spreadtrum RTC driver, which embedded in the
+> Spreadtrum SC27xx PMIC series.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+> ---
+>  drivers/rtc/Kconfig    |    7 +
+>  drivers/rtc/Makefile   |    1 +
+>  drivers/rtc/rtc-sprd.c |  673 ++++++++++++++++++++++++++++++++++++++++++++++++
 
+I would prefer that filename to be more specific. What if at some point
+one of your SoC includes an RTC that is not handled by this driver. This
+will become a naming nightmare.
+
+>  3 files changed, 681 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-sprd.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index e0e58f3..c3059fa 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1182,6 +1182,13 @@ config RTC_DRV_SPEAR
+>  	 If you say Y here you will get support for the RTC found on
+>  	 spear
+>  
+> +config RTC_DRV_SPRD
+> +	tristate "Spreadtrum SC27xx RTC"
+> +	depends on ARCH_SPRD || COMPILE_TEST
+
+the commit message says this is a PMIC RTC, not a SoC RTC. I don't think
+you need to depend on ARCH_SPRD. But you probably need to depend on the
+MFD parent.
+
+> +	help
+> +	 If you say Y here you will get support for the RTC found on
+> +	 Spreadtrum.
+
+Be mor precise here.
+
+> +
+>  config RTC_DRV_PCF50633
+>  	depends on MFD_PCF50633
+>  	tristate "NXP PCF50633 RTC"
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 7230014..ec5cb75 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -147,6 +147,7 @@ obj-$(CONFIG_RTC_DRV_SH)	+= rtc-sh.o
+>  obj-$(CONFIG_RTC_DRV_SIRFSOC)	+= rtc-sirfsoc.o
+>  obj-$(CONFIG_RTC_DRV_SNVS)	+= rtc-snvs.o
+>  obj-$(CONFIG_RTC_DRV_SPEAR)	+= rtc-spear.o
+> +obj-$(CONFIG_RTC_DRV_SPRD)	+= rtc-sprd.o
+>  obj-$(CONFIG_RTC_DRV_STARFIRE)	+= rtc-starfire.o
+>  obj-$(CONFIG_RTC_DRV_STK17TA8)	+= rtc-stk17ta8.o
+>  obj-$(CONFIG_RTC_DRV_STM32) 	+= rtc-stm32.o
+> diff --git a/drivers/rtc/rtc-sprd.c b/drivers/rtc/rtc-sprd.c
+> new file mode 100644
+> index 0000000..6b2477f
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-sprd.c
+> @@ -0,0 +1,673 @@
+> +/*
+> + * Copyright (C) 2017 Spreadtrum Communications Inc.
+> + *
+> + * SPDX-License-Identifier: GPL-2.0
+> + */
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/delay.h>
+> +#include <linux/err.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/rtc.h>
+> +
+> +#define SPRD_RTC_SEC_CNT_VALUE		0x0
+> +#define SPRD_RTC_MIN_CNT_VALUE		0x4
+> +#define SPRD_RTC_HOUR_CNT_VALUE		0x8
+> +#define SPRD_RTC_DAY_CNT_VALUE		0xc
+> +#define SPRD_RTC_SEC_CNT_UPD		0x10
+> +#define SPRD_RTC_MIN_CNT_UPD		0x14
+> +#define SPRD_RTC_HOUR_CNT_UPD		0x18
+> +#define SPRD_RTC_DAY_CNT_UPD		0x1c
+> +#define SPRD_RTC_SEC_ALM_UPD		0x20
+> +#define SPRD_RTC_MIN_ALM_UPD		0x24
+> +#define SPRD_RTC_HOUR_ALM_UPD		0x28
+> +#define SPRD_RTC_DAY_ALM_UPD		0x2c
+> +#define SPRD_RTC_INT_EN			0x30
+> +#define SPRD_RTC_INT_RAW_STS		0x34
+> +#define SPRD_RTC_INT_CLR		0x38
+> +#define SPRD_RTC_INT_MASK_STS		0x3C
+> +#define SPRD_RTC_SEC_ALM_VALUE		0x40
+> +#define SPRD_RTC_MIN_ALM_VALUE		0x44
+> +#define SPRD_RTC_HOUR_ALM_VALUE		0x48
+> +#define SPRD_RTC_DAY_ALM_VALUE		0x4c
+> +#define SPRD_RTC_SPG_VALUE		0x50
+> +#define SPRD_RTC_SPG_UPD		0x54
+> +#define SPRD_RTC_SEC_AUXALM_UPD		0x60
+> +#define SPRD_RTC_MIN_AUXALM_UPD		0x64
+> +#define SPRD_RTC_HOUR_AUXALM_UPD	0x68
+> +#define SPRD_RTC_DAY_AUXALM_UPD		0x6c
+> +
+> +/* BIT & MASK definition for SPRD_RTC_INT_* registers */
+> +#define SPRD_RTC_SEC_EN			BIT(0)
+> +#define SPRD_RTC_MIN_EN			BIT(1)
+> +#define SPRD_RTC_HOUR_EN		BIT(2)
+> +#define SPRD_RTC_DAY_EN			BIT(3)
+> +#define SPRD_RTC_ALARM_EN		BIT(4)
+> +#define SPRD_RTC_HRS_FORMAT_EN		BIT(5)
+> +#define SPRD_RTC_AUXALM_EN		BIT(6)
+> +#define SPRD_RTC_SPG_UPD_EN		BIT(7)
+> +#define SPRD_RTC_SEC_UPD_EN		BIT(8)
+> +#define SPRD_RTC_MIN_UPD_EN		BIT(9)
+> +#define SPRD_RTC_HOUR_UPD_EN		BIT(10)
+> +#define SPRD_RTC_DAY_UPD_EN		BIT(11)
+> +#define SPRD_RTC_ALMSEC_UPD_EN		BIT(12)
+> +#define SPRD_RTC_ALMMIN_UPD_EN		BIT(13)
+> +#define SPRD_RTC_ALMHOUR_UPD_EN		BIT(14)
+> +#define SPRD_RTC_ALMDAY_UPD_EN		BIT(15)
+> +#define SPRD_RTC_INT_MASK		GENMASK(15, 0)
+> +
+> +#define SPRD_RTC_TIME_INT_MASK				\
+> +	(SPRD_RTC_SEC_UPD_EN | SPRD_RTC_MIN_UPD_EN |	\
+> +	 SPRD_RTC_HOUR_UPD_EN | SPRD_RTC_DAY_UPD_EN)
+> +
+> +#define SPRD_RTC_ALMTIME_INT_MASK				\
+> +	(SPRD_RTC_ALMSEC_UPD_EN | SPRD_RTC_ALMMIN_UPD_EN |	\
+> +	 SPRD_RTC_ALMHOUR_UPD_EN | SPRD_RTC_ALMDAY_UPD_EN)
+> +
+> +#define SPRD_RTC_ALM_INT_MASK			\
+> +	(SPRD_RTC_SEC_EN | SPRD_RTC_MIN_EN |	\
+> +	 SPRD_RTC_HOUR_EN | SPRD_RTC_DAY_EN |	\
+> +	 SPRD_RTC_ALARM_EN | SPRD_RTC_AUXALM_EN)
+> +
+> +/* second/minute/hour/day values mask definition */
+> +#define SPRD_RTC_SEC_MASK		GENMASK(5, 0)
+> +#define SPRD_RTC_MIN_MASK		GENMASK(5, 0)
+> +#define SPRD_RTC_HOUR_MASK		GENMASK(4, 0)
+> +#define SPRD_RTC_DAY_MASK		GENMASK(15, 0)
+> +
+> +/* alarm lock definition for SPRD_RTC_SPG_UPD register */
+> +#define SPRD_RTC_ALMLOCK_MASK		GENMASK(7, 0)
+> +#define SPRD_RTC_ALM_UNLOCK		0xa5
+> +#define SPRD_RTC_ALM_LOCK		(~SPRD_RTC_ALM_UNLOCK & SPRD_RTC_ALMLOCK_MASK)
+> +
+> +/* SPG values definition for SPRD_RTC_SPG_UPD register */
+> +#define SPRD_RTC_POWEROFF_ALM_FLAG	BIT(8)
+> +#define SPRD_RTC_POWER_RESET_FLAG	BIT(9)
+> +
+> +/* timeout of synchronizing time and alarm registers (us) */
+> +#define SPRD_RTC_POLL_TIMEOUT		200000
+> +#define SPRD_RTC_POLL_DELAY_US		20000
+> +#define SPRD_RTC_START_YEAR		2017
+> +
+> +struct sprd_rtc {
+> +	struct rtc_device	*rtc;
+> +	struct regmap		*regmap;
+> +	struct device		*dev;
+> +	u32			base;
+> +	int			irq;
+> +};
+> +
+> +/*
+> + * The Spreadtrum RTC controller has 3 groups registers, including time, normal
+> + * alarm and auxiliary alarm. The time group registers are used to set RTC time,
+> + * the normal alarm registers are used to set normal alarm, and the auxiliary
+> + * alarm registers are used to set auxiliary alarm. Both alarm event and
+> + * auxiliary alarm event can wake up system from deep sleep, but only alarm
+> + * event can power up system from power down status.
+> + */
+> +enum sprd_rtc_reg_types {
+> +	SPRD_RTC_TIME,
+> +	SPRD_RTC_ALARM,
+> +	SPRD_RTC_AUX_ALARM,
+> +};
+> +
+> +static int sprd_rtc_read(struct sprd_rtc *rtc, u32 reg, u32 *val)
+> +{
+> +	return regmap_read(rtc->regmap, rtc->base + reg, val);
+> +}
+> +
+> +static int sprd_rtc_write(struct sprd_rtc *rtc, u32 reg, u32 val)
+> +{
+> +	return regmap_write(rtc->regmap, rtc->base + reg, val);
+> +}
+> +
+> +static int sprd_rtc_update(struct sprd_rtc *rtc, u32 reg, u32 mask, u32 val)
+> +{
+> +	return regmap_update_bits(rtc->regmap, rtc->base + reg, mask, val);
+> +}
+> +
+> +static int sprd_rtc_read_poll(struct sprd_rtc *rtc, u32 reg, u32 mask)
+> +{
+> +	u32 val;
+> +
+> +	return regmap_read_poll_timeout(rtc->regmap, rtc->base + reg, val,
+> +					((val & mask) == mask),
+> +					SPRD_RTC_POLL_DELAY_US,
+> +					SPRD_RTC_POLL_TIMEOUT);
+> +}
+> +
+
+All those functions are only wrappers around regmap, they are useless,
+please use regmap_* directly.
+
+> +static int sprd_rtc_clear_alarm_ints(struct sprd_rtc *rtc)
+> +{
+> +	return sprd_rtc_write(rtc, SPRD_RTC_INT_CLR, SPRD_RTC_ALM_INT_MASK);
+> +}
+> +
+> +static int sprd_rtc_disable_ints(struct sprd_rtc *rtc)
+> +{
+> +	int ret;
+> +
+> +	ret = sprd_rtc_update(rtc, SPRD_RTC_INT_EN, SPRD_RTC_INT_MASK, 0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return sprd_rtc_write(rtc, SPRD_RTC_INT_CLR, SPRD_RTC_INT_MASK);
+> +}
+> +
+> +static int sprd_rtc_lock_alarm(struct sprd_rtc *rtc)
+> +{
+> +	int ret;
+> +	u32 val;
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_SPG_VALUE, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val &= ~(SPRD_RTC_ALMLOCK_MASK | SPRD_RTC_POWEROFF_ALM_FLAG);
+> +	val |= SPRD_RTC_ALM_LOCK;
+> +	return sprd_rtc_write(rtc, SPRD_RTC_SPG_UPD, val);
+> +}
+> +
+> +static int sprd_rtc_unlock_alarm(struct sprd_rtc *rtc)
+> +{
+> +	int ret;
+> +	u32 val;
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_SPG_VALUE, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val &= ~(SPRD_RTC_ALMLOCK_MASK | SPRD_RTC_POWEROFF_ALM_FLAG);
+> +	val |= SPRD_RTC_ALM_UNLOCK | SPRD_RTC_POWEROFF_ALM_FLAG;
+> +	return sprd_rtc_write(rtc, SPRD_RTC_SPG_UPD, val);
+> +}
+> +
+> +static int sprd_rtc_get_secs(struct sprd_rtc *rtc, enum sprd_rtc_reg_types type,
+> +			     time64_t *secs)
+> +{
+> +	u32 sec_reg, min_reg, hour_reg, day_reg;
+> +	u32 val, sec, min, hour, day;
+> +	int ret;
+> +
+> +	switch (type) {
+> +	case SPRD_RTC_TIME:
+> +		sec_reg = SPRD_RTC_SEC_CNT_VALUE;
+> +		min_reg = SPRD_RTC_MIN_CNT_VALUE;
+> +		hour_reg = SPRD_RTC_HOUR_CNT_VALUE;
+> +		day_reg = SPRD_RTC_DAY_CNT_VALUE;
+> +		break;
+> +	case SPRD_RTC_ALARM:
+> +		sec_reg = SPRD_RTC_SEC_ALM_VALUE;
+> +		min_reg = SPRD_RTC_MIN_ALM_VALUE;
+> +		hour_reg = SPRD_RTC_HOUR_ALM_VALUE;
+> +		day_reg = SPRD_RTC_DAY_ALM_VALUE;
+> +		break;
+> +	case SPRD_RTC_AUX_ALARM:
+> +		sec_reg = SPRD_RTC_SEC_AUXALM_UPD;
+> +		min_reg = SPRD_RTC_MIN_AUXALM_UPD;
+> +		hour_reg = SPRD_RTC_HOUR_AUXALM_UPD;
+> +		day_reg = SPRD_RTC_DAY_AUXALM_UPD;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	ret = sprd_rtc_read(rtc, sec_reg, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sec = val & SPRD_RTC_SEC_MASK;
+> +
+> +	ret = sprd_rtc_read(rtc, min_reg, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	min = val & SPRD_RTC_MIN_MASK;
+> +
+> +	ret = sprd_rtc_read(rtc, hour_reg, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	hour = val & SPRD_RTC_HOUR_MASK;
+> +
+> +	ret = sprd_rtc_read(rtc, day_reg, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	day = val & SPRD_RTC_DAY_MASK;
+> +	*secs = (((time64_t)(day * 24) + hour) * 60 + min) * 60 + sec;
+> +	return 0;
+> +}
+> +
+> +static int sprd_rtc_set_secs(struct sprd_rtc *rtc, enum sprd_rtc_reg_types type,
+> +			     time64_t secs)
+> +{
+> +	u32 sec_reg, min_reg, hour_reg, day_reg, sts_mask;
+> +	u32 sec, min, hour, day;
+> +	int ret, rem;
+> +
+> +	/* convert seconds to RTC time format */
+> +	day = div_s64_rem(secs, 86400, &rem);
+> +	hour = rem / 3600;
+> +	rem -= hour * 3600;
+> +	min = rem / 60;
+> +	sec = rem - min * 60;
+> +
+> +	switch (type) {
+> +	case SPRD_RTC_TIME:
+> +		sec_reg = SPRD_RTC_SEC_CNT_UPD;
+> +		min_reg = SPRD_RTC_MIN_CNT_UPD;
+> +		hour_reg = SPRD_RTC_HOUR_CNT_UPD;
+> +		day_reg = SPRD_RTC_DAY_CNT_UPD;
+> +		sts_mask = SPRD_RTC_TIME_INT_MASK;
+> +		break;
+> +	case SPRD_RTC_ALARM:
+> +		sec_reg = SPRD_RTC_SEC_ALM_UPD;
+> +		min_reg = SPRD_RTC_MIN_ALM_UPD;
+> +		hour_reg = SPRD_RTC_HOUR_ALM_UPD;
+> +		day_reg = SPRD_RTC_DAY_ALM_UPD;
+> +		sts_mask = SPRD_RTC_ALMTIME_INT_MASK;
+> +		break;
+> +	case SPRD_RTC_AUX_ALARM:
+> +		sec_reg = SPRD_RTC_SEC_AUXALM_UPD;
+> +		min_reg = SPRD_RTC_MIN_AUXALM_UPD;
+> +		hour_reg = SPRD_RTC_HOUR_AUXALM_UPD;
+> +		day_reg = SPRD_RTC_DAY_AUXALM_UPD;
+> +		sts_mask = 0;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	ret = sprd_rtc_write(rtc, sec_reg, sec);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = sprd_rtc_write(rtc, min_reg, min);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = sprd_rtc_write(rtc, hour_reg, hour);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = sprd_rtc_write(rtc, day_reg, day);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (type == SPRD_RTC_AUX_ALARM)
+> +		return 0;
+> +
+> +	/*
+> +	 * Since the time and normal alarm registers are put in always-power-on
+> +	 * region supplied by VDDRTC, then these registers changing time will
+> +	 * be very long, about 125ms. Thus here we should wait until all
+> +	 * values are updated successfully.
+> +	 */
+> +	ret = sprd_rtc_read_poll(rtc, SPRD_RTC_INT_RAW_STS, sts_mask);
+> +	if (ret < 0) {
+> +		dev_err(rtc->dev, "set time/alarm values timeout\n");
+> +		return ret;
+> +	}
+> +
+> +	return sprd_rtc_write(rtc, SPRD_RTC_INT_CLR, sts_mask);
+> +}
+> +
+> +static int sprd_rtc_read_aux_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	time64_t secs;
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = sprd_rtc_get_secs(rtc, SPRD_RTC_AUX_ALARM, &secs);
+> +	if (ret)
+> +		return ret;
+> +
+> +	rtc_time64_to_tm(secs, &alrm->time);
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_INT_EN, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	alrm->enabled = !!(val & SPRD_RTC_AUXALM_EN);
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_INT_RAW_STS, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	alrm->pending = !!(val & SPRD_RTC_AUXALM_EN);
+> +	return 0;
+> +}
+> +
+> +static int sprd_rtc_set_aux_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	/* clear the auxiliary alarm interrupt status */
+> +	ret = sprd_rtc_write(rtc, SPRD_RTC_INT_CLR, SPRD_RTC_AUXALM_EN);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (alrm->enabled) {
+> +		time64_t secs = rtc_tm_to_time64(&alrm->time);
+> +
+> +		/* enable the auxiliary alarm interrupt */
+> +		ret = sprd_rtc_update(rtc, SPRD_RTC_INT_EN, SPRD_RTC_AUXALM_EN,
+> +				      SPRD_RTC_AUXALM_EN);
+> +		if (ret)
+> +			return ret;
+> +
+> +		ret = sprd_rtc_set_secs(rtc, SPRD_RTC_AUX_ALARM, secs);
+> +		if (ret) {
+> +			sprd_rtc_update(rtc, SPRD_RTC_INT_EN,
+> +					SPRD_RTC_AUXALM_EN, 0);
+> +		}
+> +	} else {
+> +		/* disable the auxiliary alarm interrupt */
+> +		ret = sprd_rtc_update(rtc, SPRD_RTC_INT_EN,
+> +				      SPRD_RTC_AUXALM_EN, 0);
+
+This is not setting the alarm registers properly. What if the alarm is
+enabled at a later time by sprd_rtc_alarm_irq_enable()?
+
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int sprd_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	time64_t secs;
+> +	int ret;
+> +
+> +	ret = sprd_rtc_get_secs(rtc, SPRD_RTC_TIME, &secs);
+> +	if (ret)
+> +		return ret;
+> +
+> +	rtc_time64_to_tm(secs, tm);
+> +	return rtc_valid_tm(tm);
+> +}
+> +
+> +static int sprd_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	time64_t secs = rtc_tm_to_time64(tm);
+> +
+> +	return sprd_rtc_set_secs(rtc, SPRD_RTC_TIME, secs);
+> +}
+> +
+> +static int sprd_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	time64_t secs;
+> +	int ret;
+> +	u32 val;
+> +
+> +	/*
+> +	 * If aie_timer is enabled, we should get the normal alarm time.
+> +	 * Otherwise we should get auxiliary alarm time.
+> +	 */
+> +	if (rtc->rtc && rtc->rtc->aie_timer.enabled == 0)
+> +		return sprd_rtc_read_aux_alarm(dev, alrm);
+> +
+> +	ret = sprd_rtc_get_secs(rtc, SPRD_RTC_ALARM, &secs);
+> +	if (ret)
+> +		return ret;
+> +
+> +	rtc_time64_to_tm(secs, &alrm->time);
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_INT_EN, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	alrm->enabled = !!(val & SPRD_RTC_ALARM_EN);
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_INT_RAW_STS, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	alrm->pending = !!(val & SPRD_RTC_ALARM_EN);
+> +	return 0;
+> +}
+> +
+> +static int sprd_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +	struct rtc_time aie_time =
+> +		rtc_ktime_to_tm(rtc->rtc->aie_timer.node.expires);
+> +	int ret;
+> +
+> +	/*
+> +	 * We have 2 groups alarms: normal alarm and auxiliary alarm. Since
+> +	 * both normal alarm event and auxiliary alarm event can wake up system
+> +	 * from deep sleep, but only alarm event can power up system from power
+> +	 * down status. Moreover we do not need to poll about 125ms when
+> +	 * updating auxiliary alarm registers. Thus we usually set auxiliary
+> +	 * alarm when wake up system from deep sleep, and for other scenarios,
+> +	 * we should set normal alarm with polling status.
+> +	 *
+> +	 * So here we check if the alarm time is set by aie_timer, if yes, we
+> +	 * should set normal alarm, if not, we should set auxiliary alarm which
+> +	 * means it is just a wake event.
+> +	 */
+> +	if (!rtc->rtc->aie_timer.enabled || rtc_tm_sub(&aie_time, &alrm->time))
+> +		return sprd_rtc_set_aux_alarm(dev, alrm);
+> +
+> +	/* clear the alarm interrupt status firstly */
+> +	ret = sprd_rtc_write(rtc, SPRD_RTC_INT_CLR, SPRD_RTC_ALARM_EN);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (alrm->enabled) {
+> +		time64_t secs = rtc_tm_to_time64(&alrm->time);
+> +
+> +		/* enable the alarm interrupt */
+> +		ret = sprd_rtc_update(rtc, SPRD_RTC_INT_EN, SPRD_RTC_ALARM_EN,
+> +				      SPRD_RTC_ALARM_EN);
+> +		if (ret)
+> +			return ret;
+> +
+> +		ret = sprd_rtc_set_secs(rtc, SPRD_RTC_ALARM, secs);
+> +		if (ret)
+> +			goto err;
+> +
+> +		/* unlock the alarm to enable the alarm function. */
+> +		ret = sprd_rtc_unlock_alarm(rtc);
+> +		if (ret)
+> +			goto err;
+> +	} else {
+
+ditto.
+
+> +		/* disable the alarm interrupt */
+> +		ret = sprd_rtc_update(rtc, SPRD_RTC_INT_EN,
+> +				      SPRD_RTC_ALARM_EN, 0);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/*
+> +		 * Lock the alarm function in case fake alarm event will power
+> +		 * up systems.
+> +		 */
+> +		ret = sprd_rtc_lock_alarm(rtc);
+> +	}
+> +
+> +	return ret;
+> +
+> +err:
+> +	sprd_rtc_update(rtc, SPRD_RTC_INT_EN, SPRD_RTC_ALARM_EN, 0);
+> +	return ret;
+> +}
+> +
+> +static int sprd_rtc_set_mmss(struct device *dev, time64_t secs)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +
+> +	return sprd_rtc_set_secs(rtc, SPRD_RTC_TIME, secs);
+> +}
+
+Because set_time is defined, this function will never be called, please
+remove it.
+
+> +
+> +static int sprd_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+> +{
+> +	struct sprd_rtc *rtc = dev_get_drvdata(dev);
+> +
+> +	if (enabled) {
+> +		return sprd_rtc_update(rtc, SPRD_RTC_INT_EN,
+> +				       SPRD_RTC_ALARM_EN | SPRD_RTC_AUXALM_EN,
+> +				       SPRD_RTC_ALARM_EN | SPRD_RTC_AUXALM_EN);
+> +	} else {
+> +		return sprd_rtc_update(rtc, SPRD_RTC_INT_EN,
+> +				       SPRD_RTC_ALARM_EN | SPRD_RTC_AUXALM_EN,
+> +				       0);
+> +	}
+> +}
+> +
+> +static const struct rtc_class_ops sprd_rtc_ops = {
+> +	.read_time = sprd_rtc_read_time,
+> +	.set_time = sprd_rtc_set_time,
+> +	.read_alarm = sprd_rtc_read_alarm,
+> +	.set_alarm = sprd_rtc_set_alarm,
+> +	.set_mmss64 = sprd_rtc_set_mmss,
+> +	.alarm_irq_enable = sprd_rtc_alarm_irq_enable,
+> +};
+> +
+> +static irqreturn_t sprd_rtc_handler(int irq, void *dev_id)
+> +{
+> +	struct sprd_rtc *rtc = dev_id;
+> +	int ret;
+> +
+> +	ret = sprd_rtc_clear_alarm_ints(rtc);
+> +	if (ret)
+> +		return IRQ_RETVAL(ret);
+> +
+> +	rtc_update_irq(rtc->rtc, 1, RTC_AF | RTC_IRQF);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int sprd_rtc_init_time(struct sprd_rtc *rtc)
+> +{
+> +	time64_t secs = mktime64(SPRD_RTC_START_YEAR, 1, 1, 0, 0, 0);
+> +
+> +	dev_dbg(rtc->dev, "RTC power down and reset time.\n");
+> +	return sprd_rtc_set_secs(rtc, SPRD_RTC_TIME, secs);
+> +}
+> +
+> +static int sprd_rtc_check_power_down(struct sprd_rtc *rtc)
+> +{
+> +	int ret;
+> +	u32 val;
+> +
+> +	ret = sprd_rtc_read(rtc, SPRD_RTC_SPG_VALUE, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (val & SPRD_RTC_POWER_RESET_FLAG)
+> +		return 0;
+> +
+> +	ret = sprd_rtc_init_time(rtc);
+
+Don't do that. This is a valuable information. If you know the time is
+invalid, return -EINVAL in read_time(). What your are doing here is
+confusing the system by making it believe your fake date is the correct
+time.
+
+> +	if (ret < 0) {
+> +		dev_err(rtc->dev, "failed to initialize RTC time\n");
+> +		return ret;
+> +	}
+> +
+> +	val |= SPRD_RTC_POWER_RESET_FLAG;
+> +	ret = sprd_rtc_write(rtc, SPRD_RTC_SPG_UPD, val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* wait until the SPG value is updated successfully */
+> +	ret = sprd_rtc_read_poll(rtc, SPRD_RTC_INT_RAW_STS,
+> +				 SPRD_RTC_SPG_UPD_EN);
+> +	if (ret < 0) {
+> +		dev_err(rtc->dev, "failed to update SPG value\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int sprd_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *node = pdev->dev.of_node;
+> +	struct sprd_rtc *rtc;
+> +	int ret;
+> +
+> +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> +	if (!rtc)
+> +		return -ENOMEM;
+> +
+> +	rtc->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+> +	if (!rtc->regmap)
+> +		return -ENODEV;
+> +
+> +	ret = of_property_read_u32(node, "reg", &rtc->base);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to get RTC base address\n");
+> +		return ret;
+> +	}
+> +
+> +	rtc->irq = platform_get_irq(pdev, 0);
+> +	if (rtc->irq < 0) {
+> +		dev_err(&pdev->dev, "failed to get RTC irq number\n");
+> +		return rtc->irq;
+> +	}
+> +
+> +	rtc->dev = &pdev->dev;
+> +	platform_set_drvdata(pdev, rtc);
+> +
+> +	/* Clear all RTC interrupts and disable all RTC interrupts */
+> +	ret = sprd_rtc_disable_ints(rtc);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to disable RTC interrupts\n");
+> +		return ret;
+> +	}
+> +
+> +	/*
+> +	 * Check if RTC has been powered down, if so, we should reset RTC
+> +	 * time to avoid uncertain values in RTC registers.
+> +	 */
+> +	ret = sprd_rtc_check_power_down(rtc);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to check RTC power\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+> +					sprd_rtc_handler,
+> +					IRQF_ONESHOT | IRQF_EARLY_RESUME,
+> +					pdev->name, rtc);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "failed to request RTC irq\n");
+> +		return ret;
+> +	}
+> +
+> +	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+> +					    &sprd_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(rtc->rtc))
+> +		return PTR_ERR(rtc->rtc);
+> +
+> +	device_init_wakeup(&pdev->dev, 1);
+> +	return 0;
+> +}
+> +
+> +static int sprd_rtc_remove(struct platform_device *pdev)
+> +{
+> +	device_init_wakeup(&pdev->dev, 0);
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id sprd_rtc_of_match[] = {
+> +	{ .compatible = "sprd,sc27xx-rtc", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, sprd_rtc_of_match);
+> +
+> +static struct platform_driver sprd_rtc_driver = {
+> +	.driver = {
+> +		.name = "sprd-rtc",
+> +		.of_match_table = sprd_rtc_of_match,
+> +	},
+> +	.probe	= sprd_rtc_probe,
+> +	.remove = sprd_rtc_remove,
+> +};
+> +module_platform_driver(sprd_rtc_driver);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DESCRIPTION("Spreadtrum RTC Device Driver");
+> +MODULE_AUTHOR("Baolin Wang <baolin.wang@spreadtrum.com>");
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
