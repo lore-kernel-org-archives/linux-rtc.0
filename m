@@ -1,35 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:58635 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750918AbdKHDrT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Nov 2017 22:47:19 -0500
-Date: Wed, 8 Nov 2017 04:47:12 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH] rtc: pcf8563: fix output clock rate
-Message-ID: <20171108034712.matghz4fyvpt6aa5@piout.net>
-References: <20171107121217.31309-1-p.zabel@pengutronix.de>
+Received: from mail-io0-f193.google.com ([209.85.223.193]:53429 "EHLO
+        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751181AbdKHR0m (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 12:26:42 -0500
+Received: by mail-io0-f193.google.com with SMTP id 189so6747278iow.10
+        for <linux-rtc@vger.kernel.org>; Wed, 08 Nov 2017 09:26:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171107121217.31309-1-p.zabel@pengutronix.de>
+In-Reply-To: <20171108120815.3175571-1-arnd@arndb.de>
+References: <20171108120815.3175571-1-arnd@arndb.de>
+From: Loc Ho <lho@apm.com>
+Date: Wed, 8 Nov 2017 09:26:41 -0800
+Message-ID: <CAPw-ZT=dryHW9i4v=U-te7BEfhD-_0zUy40Uei8mLh2sY1gcOg@mail.gmail.com>
+Subject: Re: [PATCH] rtc: x-gene: mark PM functions as __maybe_unused
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Brown <broonie@linaro.org>, linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/11/2017 at 13:12:17 +0100, Philipp Zabel wrote:
-> The pcf8563_clkout_recalc_rate function erroneously ignores the
-> frequency index read from the CLKO register and always returns
-> 32768 Hz.
-> 
-> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-> ---
->  drivers/rtc/rtc-pcf8563.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+Hi,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> The new xgene_rtc_alarm_irq_enabled() function is only accessed
+> from PM code, which is inside of an #ifdef; this causes a harmless
+> build warning when CONFIG_PM is disabled:
+>
+> drivers/rtc/rtc-xgene.c:108:12: error: 'xgene_rtc_alarm_irq_enabled' defined but not used [-Werror=unused-function]
+>
+> Just remove the #ifdef and use __maybe_unused annotations instead,
+> to make the code more robust here.
+
+It sounds like desire to merge in the suspend/resume support as this
+is in linux-next 14 hours ago.
+
+Reviewed-by: Loc Ho <lho@apm.com>
+
+-Loc
