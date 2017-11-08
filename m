@@ -1,79 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:12078 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754853AbdKNKaC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:30:02 -0500
-From: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>
-To: Fabio Estevam <festevam@gmail.com>
-CC: =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>,
-        "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: RE: DryIce , RTC not working on imx53.
-Date: Tue, 14 Nov 2017 10:29:51 +0000
-Message-ID: <D24E577EA1E37B4788A3BFBC418F14A707646790@wetsrvex01.loepfe.com>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
- <20171113161522.2kq7un7gl5vg4qlq@piout.net>
- <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
- <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
- <D24E577EA1E37B4788A3BFBC418F14A707646377@wetsrvex01.loepfe.com>
- <CAOMZO5BqhhFMRByY+cHXcqmUiLVVngYHvjmTcNJP8M08ew8xnw@mail.gmail.com>
-In-Reply-To: <CAOMZO5BqhhFMRByY+cHXcqmUiLVVngYHvjmTcNJP8M08ew8xnw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:63073 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750727AbdKHIcI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:32:08 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Sekhar Nori <nsekhar@ti.com>, <linux-rtc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+ <20171108062738.cml7qaek324rvc4e@piout.net>
+ <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+ <20171108071612.65wrw7mhoip55lia@piout.net>
+ <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
+ <20171108082145.kpd3c45x5skce5wd@piout.net>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
+Date: Wed, 8 Nov 2017 14:01:37 +0530
 MIME-Version: 1.0
+In-Reply-To: <20171108082145.kpd3c45x5skce5wd@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGkgRmFiaW8NCg0KSXQncyBiZWVuIGEgd2hpbGUuLi4gKCBidXQgSSdtIHF1aXRlIHN1cmUpLCBp
-ZiB5b3UgbG9vayBjbG9zZWx5IGF0IHRoZSByZWdpc3RlciBkZWZpbmVzICggaW50byB0aGUgRFJZ
-SUNFLWRyaXZlci1jb2RlKSB0aGVuIHlvdSB3aWxsIG5vdGljZS4uLiB0aGF0IFNPTUUgcmVnaXN0
-ZXJzIG9mZnNldHMgYXJlIGNvcnJlY3QgLCBidXQgb3RoZXJzIGFyZSBub3QgbWF0Y2hpbmcgdGhl
-IElOVEVSTkFMIHJ0YyBvZiB0aGUgSU1YNTMuDQoNCldoZW4gSSBub3RpY2VkIHRoYXQgKCBJIHNr
-aXBwZWQgUlRDIGRyaXZlciBmdW5jdGlvbmFsaXR5LCB1bmRlciByZWxlYXNlIHByZXNzdXJlLCBJ
-IGhhZCBzdGlsbCBtYW55IGl0ZW1zIHRvIHRlc3Qgb24gdGhvc2Uga2VybmVsICwgYW5kIEkgd2Fz
-IHVuZGVyIHJlbGVhc2UgcHJlc3N1cmUuLiBzbyBJIHJlbW92ZWQgUlRDIGZvciB0aGUgdGltZSBi
-ZWluZy4pDQoNCnsgeW91IGNhbiBnZXQgYmFzaWMgUlRDICwgdGltZXIgb25seSAsIG5vIGFsYXJt
-cy9ldmVudHMgd29ya2luZy4uLiBieSBjb21tZW50aW5nIGEgbG90IG9mIHRoaW5ncyBvdXQsICBi
-dXQgLi4gSSBkZWNpZGVkIHRvIHNvbHZlIHRoaXMgbGF0ZXIgdGhlIGNvcnJlY3Qgd2F5LCAgd2hl
-biBJIGZpbmQgc29tZSB0aW1lICAoIGFuZCB0byByZXBvcnQgYmFjayB3aGVuIHNvbHZlZCwgZGlk
-bid0IHdhbnQgdG8gYm90aGVyIG1hbnkgcGVvcGxlLCBvciBvdGhlcndpc2Ugc2FpZCBkaWRuJ3Qg
-d2FudCBtYWtlIHRvbyBtYW55IG5vaXNlIC4uLi4gKCBiZWNhdXNlIHJ0YyBpcyBub3QgY3JpdGlj
-YWwgaW4gbXkgYXBwbGljYXRpb24gKSB9DQoNClRoaXMgZHJpdmVyIHdpbGwgbm90IHdvcmsgZm9y
-IHRoZSBJTlRFUk5BTC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2lsbCBuZXZlciBo
-YXZlIHdvcmtlZCwgSSBjYW4gY29uZmlybSB0aGlzLCBpdCBtaWdodCBoYXZlIHdvcmtlZCBmb3Ig
-c29tZSBvdGhlciB2YXJpYW50IG9mIHRoZSBSVEMsIGJ1dCBpdCB3aWxsIG5vdCBkbyB3aGF0IHdl
-IGFsbCBleHBlY3RlZCBmb3IgdGhlIFJUQyBsb2NhdGVkIGludG8gSU1YNTMhDQoNCg0KUmVnYXJk
-cw0KTm9lbA0KDQoNClBTOiBKdXN0IGZvciBpbmZvLCAgYXQgdGhpcyB0aW1lIEknbSBpbnZlc3Rp
-Z2F0aW5nIGEgTk9UIGJvb3RpbmcgcHJvYmxlbSAuLiBhbmQgLi4gaXTigJlzIGEgaGFyZCBvbmUg
-KCBrZWVwcyBtZSBidXN5IGZvciBzb21lIGRheSdzIGFscmVhZHkgLi4uIGxldCdzIHNheSBpbiBh
-IDUwMCBib290cyB0aGVyZSBpcyBvbmUgaXNzdWUgd2hlcmUgdGhlICdrZXJuZWwnIGxvY2tzLXVw
-IGluIGEgdmVyeSB2ZXJ5IGVhcmx5IHN0YWdlLi4gKGludG8gdGhlIGZpcnN0IG1pbGktc2VjIG9m
-IHRoZSBib290IGl0IGhhbmdzLCBzb21lLXdoZXJlIGFyb3VuZCBJUlEtaW5pdGlhbGl6YXRpb24g
-Li4gYWxsIGJsb2NrcyAsIGJlZm9yZSBDUFUtaWRlbnRpZmljYXRpb24uLi4gbm8gY2x1ZSB5ZXQg
-d2hlcmUgZXhhY3RseS4uISkNCnsgaXQncyBvbmx5IGhhcHBlbmluZyBpbiBsYXRlc3Qga2VybmVs
-cyA0LjQueCAvIDQuMXgueCAsIG9sZGVyIDIuNi4zNSBkbyBub3Qgc3VmZmVyIHRoaXMgbm9uZSBi
-b290IGJlaGF2aW9yICggb24gdGhlIHNhbWUgaGFyZHdhcmUpICwgc28gLi4gZGlnZ2luZyAvIGRl
-YnVnZ2luZyAvIHByaW50aW5nLi4gOi0pIGF0IHRoaXMgdGltZSB9DQoNCg0KX19fX19fX19fX19f
-X19fX19fX19fX18NCk5vZWwgVmVsbGVtYW5zDQpCTVMgYnZiYQ0KDQotLS0tLU9yaWdpbmFsIE1l
-c3NhZ2UtLS0tLQ0KRnJvbTogRmFiaW8gRXN0ZXZhbSBbbWFpbHRvOmZlc3RldmFtQGdtYWlsLmNv
-bV0gDQpTZW50OiBUdWVzZGF5LCBOb3ZlbWJlciAxNCwgMjAxNyAxMToxMyBBTQ0KVG86IFZlbGxl
-bWFucywgTm9lbA0KQ2M6IFBhdHJpY2sgQnLDvG5uOyBBbGV4YW5kcmUgQmVsbG9uaTsgbGludXgt
-YXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC1ydGNAdmdlci5rZXJuZWwub3Jn
-DQpTdWJqZWN0OiBSZTogRHJ5SWNlICwgUlRDIG5vdCB3b3JraW5nIG9uIGlteDUzLg0KDQpIaSBO
-b2VsLA0KDQpPbiBUdWUsIE5vdiAxNCwgMjAxNyBhdCA0OjQwIEFNLCBWZWxsZW1hbnMsIE5vZWwg
-PE5vZWwuVmVsbGVtYW5zQHZpc2lvbmJtcy5jb20+IHdyb3RlOg0KPiBISSBhbGwsDQo+DQo+IEkn
-dmUgYmVlbiBkaWdnaW5nIGEgd2hpbGUgaW4gdGhlIERyeUljZSBjb2RlIChzb21lIHRpbWUgYWdv
-LCBpdCB3YXMgaW4gYSBodXJyeSBiZWNhdXNlIEkgbmVlZGVkIHRvIHJlbGVhc2UpLg0KPg0KPiBJ
-IGZpbmFsbHkgZW5kZWQgdXAgYnkgTk9UIHVzaW5nIHRoZSBEcnlJY2UgY29kZSAsIGZvciB0aGUg
-SU1YNTMgKCANCj4gaW50ZXJuYWwgUlRDKQ0KPg0KPiBJZiBJIHJlY2FsbCBjb3JyZWN0bHkgLCB0
-aGlzIGlzIG5vdCB0aGUgY29ycmVjdCBkcml2ZXIgZm9yIHRoZSANCj4gSW50ZXJuYWwgSU1YNTMg
-UlRDLCAoIGZvciBleGFtcGxlIHRoZSByZWdpc3RlciBCQVNFLUFkZHJlc3NlcyAvIA0KPiBvZmZz
-ZXRzIGFyZSBub3QgY29ycmVjdC4uKSByZXN1bHRpbmcgaW4gYWxsIGtpbmQgb2Ygc3RyYW5nZSBi
-ZWhhdmlvciwgDQo+IGRlcGVuZGluZyBvbiB5b3VyIHNpdHVhdGlvbmFsIHVzZS1jYXNlczotKA0K
-DQpDb3VsZCB5b3UgY2xhcmlmeSBhYm91dCB0aGlzPyBXaGljaCBiYXNlIGFkZHJlc3Mgb3Igb2Zm
-c2V0cyBhcmUgbm90IGNvcnJlY3Q/DQo=
+
+
+On Wednesday 08 November 2017 01:51 PM, Alexandre Belloni wrote:
+> On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
+>>
+>>
+>> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
+>>> On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
+>>>>
+>>>>
+>>>> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
+>>>>> Hi,
+>>>>>
+>>>>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+>>>>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+>>>>>>>>> +				 size_t bytes)
+>>>>>>>>> +{
+>>>>>>>>> +	struct omap_rtc	*rtc = priv;
+>>>>>>>>> +	u32 *val = _val;
+>>>>>>>>> +	int i;
+>>>>>>>>> +
+>>>>>>>>> +	for (i = 0; i < bytes / 4; i++)
+>>>>>>>>> +		val[i] = rtc_readl(rtc,
+>>>>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+>>>>>>
+>>>>>> Can the offset be the Scratch register number instead of bytes offset?
+>>>>>> More intuitive to me.
+>>>>>>
+>>>>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+>>>>>>
+>>>>>
+>>>>> Well, the offset is coming from the nvmem core, itself getting it from
+>>>>> the Linux file API (and it is in bytes). However, you have the guarantee
+>>>>> that it will be aligned on a word, see:
+>>>>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
+>>>>
+>>>> Okay Alexandre. Thanks for clarifying. Looks good to me.
+>>>> I have tested on AM437X-GP-EVM.
+>>>>
+>>>
+>>> If needed, you can define nvmem cells (and I guess that is what you
+>>> want):
+>>> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
+>>
+>> With this patch we cannot still use nvmem_device_write and
+>> nvmem_device_read as the nvmem_device is still not registered.
+>>
+>> How can a driver write to scratch pad registers? Should we be calling
+>> nvmem_register in the probe?
+> 
+> It is not needed, it is registered by rtc_nvmem_register().
+
+Let me go through the chain:
+
+rtc_register_device -> __rtc_register_device --> rtc_nvmem_register ->
+rtc_nvram_register
+
+I am seeing that for rtc-omap driver there is rtc_register_device call
+and i see that rtc_nvmem_register is not getting called.
+
+Should we add rtc_register_device in probe of rtc-omap?
+
+> 
+> nvmem_device_read/write are working because that is what I'm using to
+> implement the old sysfs ABI with rtc_nvram_read/write.
+> 
