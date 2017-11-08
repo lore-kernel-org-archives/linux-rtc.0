@@ -1,105 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33481 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:36163 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752472AbdK3NmX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 30 Nov 2017 08:42:23 -0500
-Date: Thu, 30 Nov 2017 14:42:10 +0100
+        with ESMTP id S1751470AbdKHIVx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:21:53 -0500
+Date: Wed, 8 Nov 2017 09:21:45 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH] rtc: add mxc driver for i.MX53
-Message-ID: <20171130134209.GX21126@piout.net>
-References: <20171128073927.12035-1-linux-kernel-dev@beckhoff.com>
- <20171129221114.GV21126@piout.net>
- <CAOFm3uFb8Jo9detD2CziuYt_DH_ohYD9P=uvqHugKDxpN+xvAQ@mail.gmail.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB531330@NT-Mail07.beckhoff.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+Message-ID: <20171108082145.kpd3c45x5skce5wd@piout.net>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+ <20171108062738.cml7qaek324rvc4e@piout.net>
+ <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+ <20171108071612.65wrw7mhoip55lia@piout.net>
+ <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB531330@NT-Mail07.beckhoff.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
-
-On 30/11/2017 at 13:36:22 +0000, Patrick Brünn wrote:
-> >From: Philippe Ombredanne [mailto:pombredanne@nexb.com]
-> >Sent: Donnerstag, 30. November 2017 09:18
+On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
+> 
+> 
+> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
+> > On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
 > >>
-> >>> +/*
-> >>> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
-> >Reserved.
-> >>> + */
-> >>> +
-> >>> +/*
-> >>> + * The code contained herein is licensed under the GNU General Public
-> >>> + * License. You may obtain a copy of the GNU General Public License
-> >>> + * Version 2 or later at the following locations:
-> >>> + *
-> >>> + * http://www.opensource.org/licenses/gpl-license.html
-> >>> + * http://www.gnu.org/copyleft/gpl.html
-> >>> + */
-> >
-> >Exactly!
-> >And while you are it , you could replace the boilerplate license text
-> >with the SPDX id.
-> >--
+> >>
+> >> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
+> >>> Hi,
+> >>>
+> >>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+> >>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+> >>>>>>> +				 size_t bytes)
+> >>>>>>> +{
+> >>>>>>> +	struct omap_rtc	*rtc = priv;
+> >>>>>>> +	u32 *val = _val;
+> >>>>>>> +	int i;
+> >>>>>>> +
+> >>>>>>> +	for (i = 0; i < bytes / 4; i++)
+> >>>>>>> +		val[i] = rtc_readl(rtc,
+> >>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+> >>>>
+> >>>> Can the offset be the Scratch register number instead of bytes offset?
+> >>>> More intuitive to me.
+> >>>>
+> >>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+> >>>>
+> >>>
+> >>> Well, the offset is coming from the nvmem core, itself getting it from
+> >>> the Linux file API (and it is in bytes). However, you have the guarantee
+> >>> that it will be aligned on a word, see:
+> >>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
+> >>
+> >> Okay Alexandre. Thanks for clarifying. Looks good to me.
+> >> I have tested on AM437X-GP-EVM.
+> >>
+> > 
+> > If needed, you can define nvmem cells (and I guess that is what you
+> > want):
+> > http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
 > 
-> How would a perfect header look like?
-> Looking at :
-> git show b24413180f5600bcb3bb70fbed5cf186b60864bd -- drivers/
-> and:
-> git grep SPDX -- Documentation/
+> With this patch we cannot still use nvmem_device_write and
+> nvmem_device_read as the nvmem_device is still not registered.
 > 
-> it could be:
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
-> + */
-> or:
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
-> + */
-> 
-> Personally I would prefer:
-> +/*
-> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
-> + *
-> + * SPDX-License-Identifier: GPL-2.0
-> + */
-> 
-> So, is there any guideline?
-> 
+> How can a driver write to scratch pad registers? Should we be calling
+> nvmem_register in the probe?
 
-I'm quoting LWN here:
+It is not needed, it is registered by rtc_nvmem_register().
 
-"For normal C source files, the string will be a comment using the "//"
-syntax; header files, instead, use traditional (/* */) comments for
-reasons related to tooling."
-
-> To be clear: I don't want to waste anyone's time on this. But as SPDX
-> was intended for automation, I think it might be good to try having
-> some common pattern here.
-> I don't want to start a discussion, so in case there is no guideline I will
-> just take the /* SPDX */ in firstline version.
+nvmem_device_read/write are working because that is what I'm using to
+implement the old sysfs ABI with rtc_nvram_read/write.
 
 -- 
 Alexandre Belloni, Free Electrons
