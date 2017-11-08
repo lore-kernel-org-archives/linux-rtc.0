@@ -1,83 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f54.google.com ([209.85.218.54]:52896 "EHLO
-        mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751887AbdKNKME (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:12:04 -0500
-Received: by mail-oi0-f54.google.com with SMTP id r128so13292778oig.9
-        for <linux-rtc@vger.kernel.org>; Tue, 14 Nov 2017 02:12:04 -0800 (PST)
+Received: from mail.free-electrons.com ([62.4.15.54]:34076 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755236AbdKHG15 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 01:27:57 -0500
+Date: Wed, 8 Nov 2017 07:27:38 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+Message-ID: <20171108062738.cml7qaek324rvc4e@piout.net>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net> <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
- <20171113161522.2kq7un7gl5vg4qlq@piout.net> <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
- <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com> <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Tue, 14 Nov 2017 08:12:03 -0200
-Message-ID: <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
-Subject: Re: DryIce , RTC not working on imx53.
-To: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Patrick,
+Hi,
 
-On Tue, Nov 14, 2017 at 3:00 AM, Patrick Br=C3=BCnn <P.Bruenn@beckhoff.com>=
- wrote:
->>From: Fabio Estevam [mailto:festevam@gmail.com]
->>Sent: Montag, 13. November 2017 19:57
->>> I don't recall of any recent change in this area.
->>>
-> I don't think the behavior changed recently. I tried a kernel 4.4.65 and =
-it shows the same symptoms. I guess Noel really means 3.19-> 4.0.
+On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+> >>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+> >>> +				 size_t bytes)
+> >>> +{
+> >>> +	struct omap_rtc	*rtc = priv;
+> >>> +	u32 *val = _val;
+> >>> +	int i;
+> >>> +
+> >>> +	for (i = 0; i < bytes / 4; i++)
+> >>> +		val[i] = rtc_readl(rtc,
+> >>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+> 
+> Can the offset be the Scratch register number instead of bytes offset?
+> More intuitive to me.
+> 
+> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+> 
 
-Or maybe by 'old kernel' he meant the vendor 2.6.35 kernel.
+Well, the offset is coming from the nvmem core, itself getting it from
+the Linux file API (and it is in bytes). However, you have the guarantee
+that it will be aligned on a word, see:
+http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
 
-I have the impression that the dryice driver has never worked in
-mainlune for mx53.
+> The above can be:
+> rtc_readl(rtc, OMAP_RTC_SCRATCH0_REG + (offset + i) * 4), val[i]);
+> 
+> 
 
-> Unfortunately no. Did you run hwclock or rtctest?
-
-Yes, this is what I get:
-
-# hwclock -r -D
-hwclock from util-linux 2.31
-System Time: 14.876372
-Trying to open: /dev/rtc0
-Using the rtc interface to the clock.
-Last drift adjustment done at 2167 seconds after 1969
-Last calibrat[   14.892484] imxdi_rtc 53fa4000.srtc: Write-wait timeout val=
- =3D 08
-ion done at 2167 seconds after 1969
-Hardware clock is on UTC time
-Assuming hardware clock is kept in UTC time.
-Waiting for clock tick...
-hwclock: select() to /dev/rtc0 to wait for clock tick timed out
-...synchronization failed
-
-
-> I still see:
-> root@CX9020:~# cat /proc/interrupts | grep rtc
->  40:          0      tzic  24 Edge      53fa4000.srtc
->  41:          0      tzic  25 Edge      53fa4000.srtc
-> root@CX9020:~# hwclock -D -r
-> hwclock from util-linux 2.29.2
-> Using the /dev interface to the clock.
-> Last drift adjustment done at 1490885082 seconds after 1969
-> Last calibration done at 1490885082 seconds after 1969
-> Hardware clock is on UTC time
-> Assuming hardware clock is kept in UTC time.
-> Waiting for clock tick...
-> [   41.035269] irq 40: nobody cared (try booting with the "irqpoll" optio=
-n)
-> [   41.042514] handlers:
-> [   41.044847] [<c06031e0>] dryice_irq
-> [   41.048398] Disabling IRQ #40
-
-This error I don't get with the 2.31 hwclock version I tried.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
