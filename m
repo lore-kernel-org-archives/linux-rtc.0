@@ -1,49 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:56763 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753355AbdKHFsz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 00:48:55 -0500
-Received: by mail-ot0-f195.google.com with SMTP id i19so1369138ote.13
-        for <linux-rtc@vger.kernel.org>; Tue, 07 Nov 2017 21:48:55 -0800 (PST)
+Received: from mail.free-electrons.com ([62.4.15.54]:35136 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751779AbdKHHQV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 02:16:21 -0500
+Date: Wed, 8 Nov 2017 08:16:12 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+Message-ID: <20171108071612.65wrw7mhoip55lia@piout.net>
+References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
+ <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+ <20171108062738.cml7qaek324rvc4e@piout.net>
+ <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <20171108053522.qhoagssswonevae4@piout.net>
-References: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
- <b053858c3325e7c35436f35adf09b5df90106d42.1510051749.git.baolin.wang@spreadtrum.com>
- <20171108034409.cm65hvuhz67hmz3b@piout.net> <CAMz4kuK=7W7t63Axi=jcqLPYz-L=MF=uE-8rNNf9LhqP1E=hXw@mail.gmail.com>
- <20171108053522.qhoagssswonevae4@piout.net>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Wed, 8 Nov 2017 13:48:54 +0800
-Message-ID: <CAMz4kuJNALMSmGV7tSiGZMj6S2=5LyfaqTpzowzM95gLKpHO1A@mail.gmail.com>
-Subject: Re: [PATCH 2/2] rtc: sprd: Add Spreadtrum RTC driver
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Baolin Wang <baolin.wang@spreadtrum.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-rtc@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 8 November 2017 at 13:35, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 08/11/2017 at 13:29:21 +0800, Baolin Wang wrote:
->> > Don't do that. This is a valuable information. If you know the time is
->> > invalid, return -EINVAL in read_time(). What your are doing here is
->> > confusing the system by making it believe your fake date is the correct
->> > time.
->>
->> Usually for mobile device, we should give one reasonable start time if
->> the RTC powered down. Anyway I can remove this feature now.
->> Very appreciated for your helpful comments.
->
-> Then userspace will have -EINVAL when reading the RTC and will be able
-> to set the RTC to whatever value it wants. Don't encode that policy in
-> the kernel.
+On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
+> 
+> 
+> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+> >>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+> >>>>> +				 size_t bytes)
+> >>>>> +{
+> >>>>> +	struct omap_rtc	*rtc = priv;
+> >>>>> +	u32 *val = _val;
+> >>>>> +	int i;
+> >>>>> +
+> >>>>> +	for (i = 0; i < bytes / 4; i++)
+> >>>>> +		val[i] = rtc_readl(rtc,
+> >>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+> >>
+> >> Can the offset be the Scratch register number instead of bytes offset?
+> >> More intuitive to me.
+> >>
+> >> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+> >>
+> > 
+> > Well, the offset is coming from the nvmem core, itself getting it from
+> > the Linux file API (and it is in bytes). However, you have the guarantee
+> > that it will be aligned on a word, see:
+> > http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
+> 
+> Okay Alexandre. Thanks for clarifying. Looks good to me.
+> I have tested on AM437X-GP-EVM.
+> 
 
-That's great. Thanks for explanation.
+If needed, you can define nvmem cells (and I guess that is what you
+want):
+http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
+
 
 -- 
-Baolin.wang
-Best Regards
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
