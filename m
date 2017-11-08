@@ -1,88 +1,120 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from wsip-98-189-142-135.oc.oc.cox.net ([98.189.142.135]:61167 "EHLO
-        office-server2" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S934708AbdKCCTb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Nov 2017 22:19:31 -0400
-From: Troy Kisky <troy.kisky@boundarydevices.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: gary.bisson@boundarydevices.com, linux-rtc@vger.kernel.org,
-        Troy Kisky <troy.kisky@boundarydevices.com>
-Subject: [PATCH v1 4/5] rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
-Date: Thu,  2 Nov 2017 18:58:15 -0700
-Message-Id: <20171103015816.16972-4-troy.kisky@boundarydevices.com>
-In-Reply-To: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
-References: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:11415 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750752AbdKHIsk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:48:40 -0500
+Subject: Re: [PATCH] rtc: omap: Support scratch registers
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Sekhar Nori <nsekhar@ti.com>, <linux-rtc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Linux OMAP List <linux-omap@vger.kernel.org>
+References: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+ <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
+ <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
+ <20171108062738.cml7qaek324rvc4e@piout.net>
+ <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
+ <20171108071612.65wrw7mhoip55lia@piout.net>
+ <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
+ <20171108082145.kpd3c45x5skce5wd@piout.net>
+ <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
+ <c24e76cc-ba52-3d26-7dce-5c9ed7e68db1@ti.com>
+ <20171108083533.5ibx43biwk7exlnc@piout.net>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <6e511121-d713-2056-f8f9-6cdd668a7598@ti.com>
+Date: Wed, 8 Nov 2017 14:18:35 +0530
+MIME-Version: 1.0
+In-Reply-To: <20171108083533.5ibx43biwk7exlnc@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This is a little more efficient and avoids the warning
 
- WARNING: possible circular locking dependency detected
- 4.14.0-rc7-00010 #16 Not tainted
- ------------------------------------------------------
- kworker/2:1/70 is trying to acquire lock:
-  (prepare_lock){+.+.}, at: [<c049300c>] clk_prepare_lock+0x80/0xf4
 
- but task is already holding lock:
-  (i2c_register_adapter){+.+.}, at: [<c0690b04>]
-		i2c_adapter_lock_bus+0x14/0x18
+On Wednesday 08 November 2017 02:05 PM, Alexandre Belloni wrote:
+> On 08/11/2017 at 14:02:31 +0530, Keerthy wrote:
+>>
+>>
+>> On Wednesday 08 November 2017 02:01 PM, Keerthy wrote:
+>>>
+>>>
+>>> On Wednesday 08 November 2017 01:51 PM, Alexandre Belloni wrote:
+>>>> On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
+>>>>>
+>>>>>
+>>>>> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
+>>>>>> On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
+>>>>>>>> Hi,
+>>>>>>>>
+>>>>>>>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
+>>>>>>>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
+>>>>>>>>>>>> +				 size_t bytes)
+>>>>>>>>>>>> +{
+>>>>>>>>>>>> +	struct omap_rtc	*rtc = priv;
+>>>>>>>>>>>> +	u32 *val = _val;
+>>>>>>>>>>>> +	int i;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +	for (i = 0; i < bytes / 4; i++)
+>>>>>>>>>>>> +		val[i] = rtc_readl(rtc,
+>>>>>>>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
+>>>>>>>>>
+>>>>>>>>> Can the offset be the Scratch register number instead of bytes offset?
+>>>>>>>>> More intuitive to me.
+>>>>>>>>>
+>>>>>>>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
+>>>>>>>>>
+>>>>>>>>
+>>>>>>>> Well, the offset is coming from the nvmem core, itself getting it from
+>>>>>>>> the Linux file API (and it is in bytes). However, you have the guarantee
+>>>>>>>> that it will be aligned on a word, see:
+>>>>>>>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
+>>>>>>>
+>>>>>>> Okay Alexandre. Thanks for clarifying. Looks good to me.
+>>>>>>> I have tested on AM437X-GP-EVM.
+>>>>>>>
+>>>>>>
+>>>>>> If needed, you can define nvmem cells (and I guess that is what you
+>>>>>> want):
+>>>>>> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
+>>>>>
+>>>>> With this patch we cannot still use nvmem_device_write and
+>>>>> nvmem_device_read as the nvmem_device is still not registered.
+>>>>>
+>>>>> How can a driver write to scratch pad registers? Should we be calling
+>>>>> nvmem_register in the probe?
+>>>>
+>>>> It is not needed, it is registered by rtc_nvmem_register().
+>>>
+>>> Let me go through the chain:
+>>>
+>>> rtc_register_device -> __rtc_register_device --> rtc_nvmem_register ->
+>>> rtc_nvram_register
+>>>
+>>> I am seeing that for rtc-omap driver there is rtc_register_device call
+>>
+>> I mean there NO rtc_register_device call.
+>>
+>>> and i see that rtc_nvmem_register is not getting called.
+>>>
+>>> Should we add rtc_register_device in probe of rtc-omap?
+>>>
+> 
+> Do you also have that patch:
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=57072758623fa4f3019bce65e2b00f24af8dfdd7
+> 
+> ?
 
- which lock already depends on the new lock.
+Ah! Now everything falls in place :-). I did not receive this patch. I
+believe i need to add a patch so linux-omap list gets Cc'd whenever
+rtc-omap driver is touched.
 
- the existing dependency chain (in reverse order) is:
+Thanks a bunch!
 
- -> #1 (i2c_register_adapter){+.+.}:
-        rt_mutex_lock+0x44/0x5c
-        i2c_adapter_lock_bus+0x14/0x18
-        i2c_transfer+0xa8/0xbc
-        i2c_smbus_xfer+0x20c/0x5d8
-        i2c_smbus_read_byte_data+0x38/0x48
-        m41t80_sqw_is_prepared+0x18/0x28
-
-Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
----
- drivers/rtc/rtc-m41t80.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index f44dcf628c87..96a606d5f6e6 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -155,6 +155,7 @@ struct m41t80_data {
- #ifdef CONFIG_COMMON_CLK
- 	struct clk_hw sqw;
- 	unsigned long freq;
-+	unsigned int sqwe;
- #endif
- };
- 
-@@ -527,7 +528,10 @@ static int m41t80_sqw_control(struct clk_hw *hw, bool enable)
- 	else
- 		ret &= ~M41T80_ALMON_SQWE;
- 
--	return i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON, ret);
-+	ret = i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON, ret);
-+	if (!ret)
-+		m41t80->sqwe = enable;
-+	return ret;
- }
- 
- static int m41t80_sqw_prepare(struct clk_hw *hw)
-@@ -542,14 +546,7 @@ static void m41t80_sqw_unprepare(struct clk_hw *hw)
- 
- static int m41t80_sqw_is_prepared(struct clk_hw *hw)
- {
--	struct m41t80_data *m41t80 = sqw_to_m41t80_data(hw);
--	struct i2c_client *client = m41t80->client;
--	int ret = i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_MON);
--
--	if (ret < 0)
--		return ret;
--
--	return !!(ret & M41T80_ALMON_SQWE);
-+	return sqw_to_m41t80_data(hw)->sqwe;
- }
- 
- static const struct clk_ops m41t80_sqw_ops = {
--- 
-2.11.0
+> 
+>>>>
+>>>> nvmem_device_read/write are working because that is what I'm using to
+>>>> implement the old sysfs ABI with rtc_nvram_read/write.
+>>>>
+> 
