@@ -1,154 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx210.ext.ti.com ([198.47.19.17]:28071 "EHLO
-        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750922AbdKHGAv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 01:00:51 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-From: Keerthy <j-keerthy@ti.com>
-To: Sekhar Nori <nsekhar@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
-Message-ID: <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
-Date: Wed, 8 Nov 2017 11:30:45 +0530
+Received: from mail.free-electrons.com ([62.4.15.54]:33683 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753001AbdKHFfk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 00:35:40 -0500
+Date: Wed, 8 Nov 2017 06:35:22 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Baolin Wang <baolin.wang@spreadtrum.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        linux-rtc@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 2/2] rtc: sprd: Add Spreadtrum RTC driver
+Message-ID: <20171108053522.qhoagssswonevae4@piout.net>
+References: <7037c5053a533505f38fc036290a398989cfdafc.1510051749.git.baolin.wang@spreadtrum.com>
+ <b053858c3325e7c35436f35adf09b5df90106d42.1510051749.git.baolin.wang@spreadtrum.com>
+ <20171108034409.cm65hvuhz67hmz3b@piout.net>
+ <CAMz4kuK=7W7t63Axi=jcqLPYz-L=MF=uE-8rNNf9LhqP1E=hXw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAMz4kuK=7W7t63Axi=jcqLPYz-L=MF=uE-8rNNf9LhqP1E=hXw@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-
-
-On Monday 06 November 2017 12:29 PM, Keerthy wrote:
+On 08/11/2017 at 13:29:21 +0800, Baolin Wang wrote:
+> > Don't do that. This is a valuable information. If you know the time is
+> > invalid, return -EINVAL in read_time(). What your are doing here is
+> > confusing the system by making it believe your fake date is the correct
+> > time.
 > 
-> 
-> On Monday 06 November 2017 12:25 PM, Sekhar Nori wrote:
->> + linux omap list
->>
->> On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
->>> Register an nvmem device to expose the 3 scratch registers (total of 12
->>> bytes) to both userspace and kernel space.
->>>
->>> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->>
->> Looks good to me.
->>
->> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
->>
->> Curious on what you are using these registers for.
-> 
-> This is in response to this:
-> https://patchwork.kernel.org/patch/9684955/
+> Usually for mobile device, we should give one reasonable start time if
+> the RTC powered down. Anyway I can remove this feature now.
+> Very appreciated for your helpful comments.
 
-Couple of minor comments below. Apart from that:
-
-Tested-by: Keerthy <j-keerthy@ti.com>
-Reviewed-by: Keerthy <j-keerthy@ti.com>
-
-> 
-> 
->>
->> Thanks,
->> Sekhar
->>
->>> ---
->>>  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
->>>  1 file changed, 45 insertions(+)
->>>
->>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->>> index d56d937966dc..1d666ac9ef70 100644
->>> --- a/drivers/rtc/rtc-omap.c
->>> +++ b/drivers/rtc/rtc-omap.c
->>> @@ -70,6 +70,10 @@
->>>  #define OMAP_RTC_COMP_MSB_REG		0x50
->>>  #define OMAP_RTC_OSC_REG		0x54
->>>  
->>> +#define OMAP_RTC_SCRATCH0_REG		0x60
->>> +#define OMAP_RTC_SCRATCH1_REG		0x64
->>> +#define OMAP_RTC_SCRATCH2_REG		0x68
->>> +
->>>  #define OMAP_RTC_KICK0_REG		0x6c
->>>  #define OMAP_RTC_KICK1_REG		0x70
->>>  
->>> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
->>>  	.owner = THIS_MODULE,
->>>  };
->>>  
->>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
->>> +				 size_t bytes)
->>> +{
->>> +	struct omap_rtc	*rtc = priv;
->>> +	u32 *val = _val;
->>> +	int i;
->>> +
->>> +	for (i = 0; i < bytes / 4; i++)
->>> +		val[i] = rtc_readl(rtc,
->>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
-
-Can the offset be the Scratch register number instead of bytes offset?
-More intuitive to me.
-
-So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
-
-The above can be:
-rtc_readl(rtc, OMAP_RTC_SCRATCH0_REG + (offset + i) * 4), val[i]);
+Then userspace will have -EINVAL when reading the RTC and will be able
+to set the RTC to whatever value it wants. Don't encode that policy in
+the kernel.
 
 
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
->>> +				  size_t bytes)
->>> +{
->>> +	struct omap_rtc	*rtc = priv;
->>> +	u32 *val = _val;
->>> +	int i;
->>> +
->>> +	rtc->type->unlock(rtc);
->>> +	for (i = 0; i < bytes / 4; i++)
->>> +		rtc_writel(rtc,
->>> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
-
-The above can be:
-rtc_writel(rtc, OMAP_RTC_SCRATCH0_REG + (offset + i) * 4), val[i]);
-
->>> +	rtc->type->lock(rtc);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static struct nvmem_config omap_rtc_nvmem_config = {
->>> +	.name = "omap_rtc_scratch",
->>> +	.word_size = 4,
->>> +	.stride = 4,
->>> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
->>> +	.reg_read = omap_rtc_scratch_read,
->>> +	.reg_write = omap_rtc_scratch_write,
->>> +};
->>> +
->>>  static int omap_rtc_probe(struct platform_device *pdev)
->>>  {
->>>  	struct omap_rtc	*rtc;
->>> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
->>>  	}
->>>  
->>>  	rtc->rtc->ops = &omap_rtc_ops;
->>> +	omap_rtc_nvmem_config.priv = rtc;
->>> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
->>>  
->>>  	/* handle periodic and alarm irqs */
->>>  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
->>> -- 
->>> 2.15.0.rc2
->>>
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
