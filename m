@@ -1,94 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:63073 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750727AbdKHIcI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:32:08 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Sekhar Nori <nsekhar@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
- <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
- <20171108062738.cml7qaek324rvc4e@piout.net>
- <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
- <20171108071612.65wrw7mhoip55lia@piout.net>
- <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
- <20171108082145.kpd3c45x5skce5wd@piout.net>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
-Date: Wed, 8 Nov 2017 14:01:37 +0530
-MIME-Version: 1.0
-In-Reply-To: <20171108082145.kpd3c45x5skce5wd@piout.net>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:46666 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751716AbdKHT6a (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 14:58:30 -0500
+Received: by mail-qk0-f196.google.com with SMTP id o6so4900717qkh.3
+        for <linux-rtc@vger.kernel.org>; Wed, 08 Nov 2017 11:58:30 -0800 (PST)
+From: Akshay Bhat <akshay.bhat@timesys.com>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Akshay Bhat <akshay.bhat@timesys.com>
+Subject: [PATCH v2] rtc: rx8010: Fix for incorrect return value
+Date: Wed,  8 Nov 2017 14:58:14 -0500
+Message-Id: <1510171094-4859-1-git-send-email-akshay.bhat@timesys.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+The err variable is not being reset after a successful read. Explicitly
+return 0 at the end of function call to account for all return paths.
 
+Reported-by: Jens-Peter Oswald <oswald@lre.de>
+Signed-off-by: Akshay Bhat <akshay.bhat@timesys.com>
+---
+v2: Address comments from Alexandre Belloni
+- Return 0 at end of function instead of resetting err variable
 
-On Wednesday 08 November 2017 01:51 PM, Alexandre Belloni wrote:
-> On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
->>
->>
->> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
->>> On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
->>>>
->>>>
->>>> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
->>>>> Hi,
->>>>>
->>>>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
->>>>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
->>>>>>>>> +				 size_t bytes)
->>>>>>>>> +{
->>>>>>>>> +	struct omap_rtc	*rtc = priv;
->>>>>>>>> +	u32 *val = _val;
->>>>>>>>> +	int i;
->>>>>>>>> +
->>>>>>>>> +	for (i = 0; i < bytes / 4; i++)
->>>>>>>>> +		val[i] = rtc_readl(rtc,
->>>>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
->>>>>>
->>>>>> Can the offset be the Scratch register number instead of bytes offset?
->>>>>> More intuitive to me.
->>>>>>
->>>>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
->>>>>>
->>>>>
->>>>> Well, the offset is coming from the nvmem core, itself getting it from
->>>>> the Linux file API (and it is in bytes). However, you have the guarantee
->>>>> that it will be aligned on a word, see:
->>>>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
->>>>
->>>> Okay Alexandre. Thanks for clarifying. Looks good to me.
->>>> I have tested on AM437X-GP-EVM.
->>>>
->>>
->>> If needed, you can define nvmem cells (and I guess that is what you
->>> want):
->>> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
->>
->> With this patch we cannot still use nvmem_device_write and
->> nvmem_device_read as the nvmem_device is still not registered.
->>
->> How can a driver write to scratch pad registers? Should we be calling
->> nvmem_register in the probe?
-> 
-> It is not needed, it is registered by rtc_nvmem_register().
+ drivers/rtc/rtc-rx8010.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Let me go through the chain:
-
-rtc_register_device -> __rtc_register_device --> rtc_nvmem_register ->
-rtc_nvram_register
-
-I am seeing that for rtc-omap driver there is rtc_register_device call
-and i see that rtc_nvmem_register is not getting called.
-
-Should we add rtc_register_device in probe of rtc-omap?
-
-> 
-> nvmem_device_read/write are working because that is what I'm using to
-> implement the old sysfs ABI with rtc_nvram_read/write.
-> 
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index 2e06e5f..5c5938a 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -247,7 +247,7 @@ static int rx8010_init_client(struct i2c_client *client)
+ 
+ 	rx8010->ctrlreg = (ctrl[1] & ~RX8010_CTRL_TEST);
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static int rx8010_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+@@ -276,7 +276,7 @@ static int rx8010_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	t->enabled = !!(rx8010->ctrlreg & RX8010_CTRL_AIE);
+ 	t->pending = (flagreg & RX8010_FLAG_AF) && t->enabled;
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+-- 
+2.7.4
