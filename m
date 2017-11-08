@@ -1,120 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelnx193.ext.ti.com ([198.47.27.77]:11415 "EHLO
-        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750752AbdKHIsk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:48:40 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Sekhar Nori <nsekhar@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
- <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
- <20171108062738.cml7qaek324rvc4e@piout.net>
- <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
- <20171108071612.65wrw7mhoip55lia@piout.net>
- <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
- <20171108082145.kpd3c45x5skce5wd@piout.net>
- <79f52c27-1c6a-c4ec-9635-d05eec635661@ti.com>
- <c24e76cc-ba52-3d26-7dce-5c9ed7e68db1@ti.com>
- <20171108083533.5ibx43biwk7exlnc@piout.net>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <6e511121-d713-2056-f8f9-6cdd668a7598@ti.com>
-Date: Wed, 8 Nov 2017 14:18:35 +0530
-MIME-Version: 1.0
-In-Reply-To: <20171108083533.5ibx43biwk7exlnc@piout.net>
-Content-Type: text/plain; charset="utf-8"
+Received: from mout.kundenserver.de ([212.227.17.10]:56010 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752158AbdKHMIf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 07:08:35 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Loc Ho <lho@apm.com>,
+        Mark Brown <broonie@linaro.org>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: x-gene: mark PM functions as __maybe_unused
+Date: Wed,  8 Nov 2017 13:08:10 +0100
+Message-Id: <20171108120815.3175571-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+The new xgene_rtc_alarm_irq_enabled() function is only accessed
+from PM code, which is inside of an #ifdef; this causes a harmless
+build warning when CONFIG_PM is disabled:
 
+drivers/rtc/rtc-xgene.c:108:12: error: 'xgene_rtc_alarm_irq_enabled' defined but not used [-Werror=unused-function]
 
-On Wednesday 08 November 2017 02:05 PM, Alexandre Belloni wrote:
-> On 08/11/2017 at 14:02:31 +0530, Keerthy wrote:
->>
->>
->> On Wednesday 08 November 2017 02:01 PM, Keerthy wrote:
->>>
->>>
->>> On Wednesday 08 November 2017 01:51 PM, Alexandre Belloni wrote:
->>>> On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
->>>>>
->>>>>
->>>>> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
->>>>>> On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
->>>>>>>
->>>>>>>
->>>>>>> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
->>>>>>>> Hi,
->>>>>>>>
->>>>>>>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
->>>>>>>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
->>>>>>>>>>>> +				 size_t bytes)
->>>>>>>>>>>> +{
->>>>>>>>>>>> +	struct omap_rtc	*rtc = priv;
->>>>>>>>>>>> +	u32 *val = _val;
->>>>>>>>>>>> +	int i;
->>>>>>>>>>>> +
->>>>>>>>>>>> +	for (i = 0; i < bytes / 4; i++)
->>>>>>>>>>>> +		val[i] = rtc_readl(rtc,
->>>>>>>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
->>>>>>>>>
->>>>>>>>> Can the offset be the Scratch register number instead of bytes offset?
->>>>>>>>> More intuitive to me.
->>>>>>>>>
->>>>>>>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
->>>>>>>>>
->>>>>>>>
->>>>>>>> Well, the offset is coming from the nvmem core, itself getting it from
->>>>>>>> the Linux file API (and it is in bytes). However, you have the guarantee
->>>>>>>> that it will be aligned on a word, see:
->>>>>>>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
->>>>>>>
->>>>>>> Okay Alexandre. Thanks for clarifying. Looks good to me.
->>>>>>> I have tested on AM437X-GP-EVM.
->>>>>>>
->>>>>>
->>>>>> If needed, you can define nvmem cells (and I guess that is what you
->>>>>> want):
->>>>>> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
->>>>>
->>>>> With this patch we cannot still use nvmem_device_write and
->>>>> nvmem_device_read as the nvmem_device is still not registered.
->>>>>
->>>>> How can a driver write to scratch pad registers? Should we be calling
->>>>> nvmem_register in the probe?
->>>>
->>>> It is not needed, it is registered by rtc_nvmem_register().
->>>
->>> Let me go through the chain:
->>>
->>> rtc_register_device -> __rtc_register_device --> rtc_nvmem_register ->
->>> rtc_nvram_register
->>>
->>> I am seeing that for rtc-omap driver there is rtc_register_device call
->>
->> I mean there NO rtc_register_device call.
->>
->>> and i see that rtc_nvmem_register is not getting called.
->>>
->>> Should we add rtc_register_device in probe of rtc-omap?
->>>
-> 
-> Do you also have that patch:
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=57072758623fa4f3019bce65e2b00f24af8dfdd7
-> 
-> ?
+Just remove the #ifdef and use __maybe_unused annotations instead,
+to make the code more robust here.
 
-Ah! Now everything falls in place :-). I did not receive this patch. I
-believe i need to add a patch so linux-omap list gets Cc'd whenever
-rtc-omap driver is touched.
+Fixes: 9f8f1c8b727d ("rtc: Fix suspend/resume for APM X-Gene SoC RTC driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-xgene.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Thanks a bunch!
-
-> 
->>>>
->>>> nvmem_device_read/write are working because that is what I'm using to
->>>> implement the old sysfs ABI with rtc_nvram_read/write.
->>>>
-> 
+diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
+index 360eae24a8c8..0c34d3b81279 100644
+--- a/drivers/rtc/rtc-xgene.c
++++ b/drivers/rtc/rtc-xgene.c
+@@ -221,8 +221,7 @@ static int xgene_rtc_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int xgene_rtc_suspend(struct device *dev)
++static int __maybe_unused xgene_rtc_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct xgene_rtc_dev *pdata = platform_get_drvdata(pdev);
+@@ -246,7 +245,7 @@ static int xgene_rtc_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int xgene_rtc_resume(struct device *dev)
++static int __maybe_unused xgene_rtc_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct xgene_rtc_dev *pdata = platform_get_drvdata(pdev);
+@@ -271,7 +270,6 @@ static int xgene_rtc_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-#endif
+ 
+ static SIMPLE_DEV_PM_OPS(xgene_rtc_pm_ops, xgene_rtc_suspend, xgene_rtc_resume);
+ 
+-- 
+2.9.0
