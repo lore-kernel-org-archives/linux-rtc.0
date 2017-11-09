@@ -1,42 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53170 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:55132 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756727AbdKOQBf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Nov 2017 11:01:35 -0500
-Date: Wed, 15 Nov 2017 17:01:23 +0100
+        with ESMTP id S1753203AbdKIASH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 19:18:07 -0500
+Date: Thu, 9 Nov 2017 01:17:57 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, broonie@kernel.org,
-        baolin.wang@linaro.org
-Subject: Re: [PATCH v3 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC
- documentation
-Message-ID: <20171115160123.gn27j4ki5mxv4v4j@piout.net>
-References: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Loc Ho <lho@apm.com>,
+        Mark Brown <broonie@linaro.org>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: x-gene: mark PM functions as __maybe_unused
+Message-ID: <20171109001757.ejakbizypi4sbgmh@piout.net>
+References: <20171108120815.3175571-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
+In-Reply-To: <20171108120815.3175571-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 09/11/2017 at 11:34:16 +0800, Baolin Wang wrote:
-> This patch adds the binding documentation for Spreadtrum SC27xx series
-> RTC device.
+On 08/11/2017 at 13:08:10 +0100, Arnd Bergmann wrote:
+> The new xgene_rtc_alarm_irq_enabled() function is only accessed
+> from PM code, which is inside of an #ifdef; this causes a harmless
+> build warning when CONFIG_PM is disabled:
 > 
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
-> ---
-> Changes since v2:
->  - No updates.
+> drivers/rtc/rtc-xgene.c:108:12: error: 'xgene_rtc_alarm_irq_enabled' defined but not used [-Werror=unused-function]
 > 
-> Changes since v1:
->  - Use a specific chip name as compatible string.
->  - Remove useless alias.
->  - Add the parent MFD node.
+> Just remove the #ifdef and use __maybe_unused annotations instead,
+> to make the code more robust here.
+> 
+> Fixes: 9f8f1c8b727d ("rtc: Fix suspend/resume for APM X-Gene SoC RTC driver")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   27 ++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
+>  drivers/rtc/rtc-xgene.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 > 
 Applied, thanks.
 
