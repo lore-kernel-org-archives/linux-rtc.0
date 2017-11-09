@@ -1,83 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:36163 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751470AbdKHIVx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 03:21:53 -0500
-Date: Wed, 8 Nov 2017 09:21:45 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Keerthy <j-keerthy@ti.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-Message-ID: <20171108082145.kpd3c45x5skce5wd@piout.net>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
- <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
- <9a383f74-e049-885b-4705-93968f4c75d4@ti.com>
- <20171108062738.cml7qaek324rvc4e@piout.net>
- <775d3cfc-95ca-1dff-d146-64efbdd71e1f@ti.com>
- <20171108071612.65wrw7mhoip55lia@piout.net>
- <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
+Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:25487 "EHLO
+        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1752259AbdKIDp2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 22:45:28 -0500
+From: Baolin Wang <baolin.wang@spreadtrum.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <broonie@kernel.org>,
+        <baolin.wang@linaro.org>, <baolin.wang@spreadtrum.com>
+Subject: [PATCH v3 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC documentation
+Date: Thu, 9 Nov 2017 11:34:16 +0800
+Message-ID: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <898f67e7-5d65-9067-f40d-0d80462324d5@ti.com>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 08/11/2017 at 13:36:15 +0530, Keerthy wrote:
-> 
-> 
-> On Wednesday 08 November 2017 12:46 PM, Alexandre Belloni wrote:
-> > On 08/11/2017 at 12:38:05 +0530, Keerthy wrote:
-> >>
-> >>
-> >> On Wednesday 08 November 2017 11:57 AM, Alexandre Belloni wrote:
-> >>> Hi,
-> >>>
-> >>> On 08/11/2017 at 11:30:45 +0530, Keerthy wrote:
-> >>>>>>> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
-> >>>>>>> +				 size_t bytes)
-> >>>>>>> +{
-> >>>>>>> +	struct omap_rtc	*rtc = priv;
-> >>>>>>> +	u32 *val = _val;
-> >>>>>>> +	int i;
-> >>>>>>> +
-> >>>>>>> +	for (i = 0; i < bytes / 4; i++)
-> >>>>>>> +		val[i] = rtc_readl(rtc,
-> >>>>>>> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
-> >>>>
-> >>>> Can the offset be the Scratch register number instead of bytes offset?
-> >>>> More intuitive to me.
-> >>>>
-> >>>> So that one can request using offset as 0, 1, 2 instead of 0, 4, 8?
-> >>>>
-> >>>
-> >>> Well, the offset is coming from the nvmem core, itself getting it from
-> >>> the Linux file API (and it is in bytes). However, you have the guarantee
-> >>> that it will be aligned on a word, see:
-> >>> http://elixir.free-electrons.com/linux/latest/source/drivers/nvmem/core.c#L88
-> >>
-> >> Okay Alexandre. Thanks for clarifying. Looks good to me.
-> >> I have tested on AM437X-GP-EVM.
-> >>
-> > 
-> > If needed, you can define nvmem cells (and I guess that is what you
-> > want):
-> > http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/nvmem/nvmem.txt
-> 
-> With this patch we cannot still use nvmem_device_write and
-> nvmem_device_read as the nvmem_device is still not registered.
-> 
-> How can a driver write to scratch pad registers? Should we be calling
-> nvmem_register in the probe?
+This patch adds the binding documentation for Spreadtrum SC27xx series
+RTC device.
 
-It is not needed, it is registered by rtc_nvmem_register().
+Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+---
+Changes since v2:
+ - No updates.
 
-nvmem_device_read/write are working because that is what I'm using to
-implement the old sysfs ABI with rtc_nvram_read/write.
+Changes since v1:
+ - Use a specific chip name as compatible string.
+ - Remove useless alias.
+ - Add the parent MFD node.
+---
+ .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   27 ++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
 
+diff --git a/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
+new file mode 100644
+index 0000000..7c170da
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
+@@ -0,0 +1,27 @@
++Spreadtrum SC27xx Real Time Clock
++
++Required properties:
++- compatible: should be "sprd,sc2731-rtc".
++- reg: address offset of rtc register.
++- interrupt-parent: phandle for the interrupt controller.
++- interrupts: rtc alarm interrupt.
++
++Example:
++
++	sc2731_pmic: pmic@0 {
++		compatible = "sprd,sc2731";
++		reg = <0>;
++		spi-max-frequency = <26000000>;
++		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-controller;
++		#interrupt-cells = <2>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		rtc@280 {
++			compatible = "sprd,sc2731-rtc";
++			reg = <0x280>;
++			interrupt-parent = <&sc2731_pmic>;
++			interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
++		};
++	};
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
