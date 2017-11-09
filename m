@@ -1,114 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:16653 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751401AbdKFGzi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Nov 2017 01:55:38 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: Keerthy <j-keerthy@ti.com>, <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
-From: Sekhar Nori <nsekhar@ti.com>
-Message-ID: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
-Date: Mon, 6 Nov 2017 12:25:06 +0530
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:46304 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751125AbdKIKiq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Nov 2017 05:38:46 -0500
 MIME-Version: 1.0
-In-Reply-To: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <672d468478f3f67ef22e027460c59918dc581818.1510211132.git.baolin.wang@linaro.org>
+References: <672d468478f3f67ef22e027460c59918dc581818.1510211132.git.baolin.wang@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 9 Nov 2017 11:38:45 +0100
+Message-ID: <CAK8P3a0tC53_5cdfd1N2LEg7Mjt6as923h9vbfBd_=k6MRo=Jw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: Use time64_t variables to set time/alarm from sysfs
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-+ linux omap list
+On Thu, Nov 9, 2017 at 8:09 AM, Baolin Wang <baolin.wang@linaro.org> wrote:
+> Use time64_t variables and related APIs for sysfs interfaces to
+> support setting time or alarm after the year 2038 on 32-bit system.
+>
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 
-On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
-> Register an nvmem device to expose the 3 scratch registers (total of 12
-> bytes) to both userspace and kernel space.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Looks good to me.
+Looks good,
 
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-
-Curious on what you are using these registers for.
-
-Thanks,
-Sekhar
-
-> ---
->  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index d56d937966dc..1d666ac9ef70 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -70,6 +70,10 @@
->  #define OMAP_RTC_COMP_MSB_REG		0x50
->  #define OMAP_RTC_OSC_REG		0x54
->  
-> +#define OMAP_RTC_SCRATCH0_REG		0x60
-> +#define OMAP_RTC_SCRATCH1_REG		0x64
-> +#define OMAP_RTC_SCRATCH2_REG		0x68
-> +
->  #define OMAP_RTC_KICK0_REG		0x6c
->  #define OMAP_RTC_KICK1_REG		0x70
->  
-> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
->  	.owner = THIS_MODULE,
->  };
->  
-> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
-> +				 size_t bytes)
-> +{
-> +	struct omap_rtc	*rtc = priv;
-> +	u32 *val = _val;
-> +	int i;
-> +
-> +	for (i = 0; i < bytes / 4; i++)
-> +		val[i] = rtc_readl(rtc,
-> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
-> +
-> +	return 0;
-> +}
-> +
-> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
-> +				  size_t bytes)
-> +{
-> +	struct omap_rtc	*rtc = priv;
-> +	u32 *val = _val;
-> +	int i;
-> +
-> +	rtc->type->unlock(rtc);
-> +	for (i = 0; i < bytes / 4; i++)
-> +		rtc_writel(rtc,
-> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
-> +	rtc->type->lock(rtc);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct nvmem_config omap_rtc_nvmem_config = {
-> +	.name = "omap_rtc_scratch",
-> +	.word_size = 4,
-> +	.stride = 4,
-> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
-> +	.reg_read = omap_rtc_scratch_read,
-> +	.reg_write = omap_rtc_scratch_write,
-> +};
-> +
->  static int omap_rtc_probe(struct platform_device *pdev)
->  {
->  	struct omap_rtc	*rtc;
-> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	}
->  
->  	rtc->rtc->ops = &omap_rtc_ops;
-> +	omap_rtc_nvmem_config.priv = rtc;
-> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
->  
->  	/* handle periodic and alarm irqs */
->  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
-> -- 
-> 2.15.0.rc2
-> 
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
