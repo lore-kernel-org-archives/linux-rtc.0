@@ -1,43 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:46060 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753186AbdK2O0w (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 29 Nov 2017 09:26:52 -0500
-Received: by mail-wr0-f193.google.com with SMTP id h1so3538172wre.12
-        for <linux-rtc@vger.kernel.org>; Wed, 29 Nov 2017 06:26:52 -0800 (PST)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@st.com
-Cc: linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH] rtc: stm32: Fix copyright
-Date: Wed, 29 Nov 2017 15:26:44 +0100
-Message-Id: <20171129142644.23576-1-benjamin.gaignard@st.com>
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:61899 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751190AbdKIJ7Z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Nov 2017 04:59:25 -0500
+From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: DryIce , RTC not working on imx53.
+Date: Thu, 9 Nov 2017 09:59:02 +0000
+Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net>
+In-Reply-To: <20171109030327.anzo47xayxckn47r@piout.net>
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Uniformize STMicroelectronics copyrights header
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-CC: Amelie Delaunay <amelie.delaunay@st.com>
----
- drivers/rtc/rtc-stm32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+>Sent: Donnerstag, 9. November 2017 04:03
+>
+>hwclock times out because the alarm is not working properly. Can you
+>check whether rtctest is working?
+>
+You mean "tools/testing/selftests/timers/rtctest", right?
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 3a5c3d7d0c77..f25dabe8fd02 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -1,6 +1,6 @@
- /*
-- * Copyright (C) Amelie Delaunay 2016
-- * Author:  Amelie Delaunay <amelie.delaunay@st.com>
-+ * Copyright (C) STMicroelectronics SA 2017
-+ * Author:  Amelie Delaunay <amelie.delaunay@st.com> for STMicroelectronics.
-  * License terms:  GNU General Public License (GPL), version 2
-  */
- 
--- 
-2.15.0
+I just run it and it's stuck at "Counting 5 update (1/sec) interrupts from reading /dev/rtc0:"
+
+Kernel log shows a new message for each try I restart rtctest.
+[ 1032.349562] imxdi_rtc 53fa4000.srtc: Write-wait timeout val = 0x5a042418 reg = 0x00000008"
+
+
+Regards, Patrick
+
+Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
+Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
