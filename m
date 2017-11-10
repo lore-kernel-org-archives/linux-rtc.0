@@ -1,75 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail1.bemta6.messagelabs.com ([193.109.254.112]:49193 "EHLO
-        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753656AbdKNM4f (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 07:56:35 -0500
-From: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>
-To: Juergen Borleis <jbe@pengutronix.de>,
+Received: from mail.free-electrons.com ([62.4.15.54]:59342 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750994AbdKJI74 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 03:59:56 -0500
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: linux-rtc@vger.kernel.org
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Fabio Estevam <festevam@gmail.com>,
-        =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: RE: DryIce , RTC not working on imx53.
-Date: Tue, 14 Nov 2017 12:56:30 +0000
-Message-ID: <D24E577EA1E37B4788A3BFBC418F14A707646BEA@wetsrvex01.loepfe.com>
-References: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <CAOMZO5CdGAqBkBQ5DdphzNr-tB5r7Sj9jBAhFTFPNezTEjJOMg@mail.gmail.com>
- <20171114105517.74ycmwcjsab7xp2j@piout.net>
- <201711141343.15309.jbe@pengutronix.de>
-In-Reply-To: <201711141343.15309.jbe@pengutronix.de>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Subject: [PATCH 2/2] rtc: at91rm9200: fix reading alarm value
+Date: Fri, 10 Nov 2017 09:59:31 +0100
+Message-Id: <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
+In-Reply-To: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
+References: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGkgYWxsLCANCg0KSnVlcmdlbiBJdCB3b24ndCB3b3JrICggYXMgaXQgaXMpICwgcmVnaXN0ZXJz
-IGFyZSBub3Qgb24gdGhlIGNvcnJlY3Qgb2Zmc2V0cyBhbmQgc29tZSBiaXRzIGFyZSBub3Qgb24g
-dGhlIHNhbWUgcG9zaXRpb25zICggZm9yIHRoZSBJTVg1MykNClRoaXMgZHJpdmVyIHdpbGwgbm90
-IHdvcmsgZm9yIHRoZSBJTlRFUk5BTC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2ls
-bCBuZXZlciBoYXZlIHdvcmtlZCAoIG9uIElNWDUzKS4gDQpJIGNhbiBjb25maXJtLCBpdCBtaWdo
-dCB3b3JrIGZvciBzb21lIG90aGVyIHZhcmlhbnQgb2YgdGhlIFJUQywgYnV0IGl0IHdpbGwgbm90
-IGRvIHdoYXQgd2UgYWxsIGV4cGVjdGVkIGZvciB0aGUgUlRDIGxvY2F0ZWQgaW50byBJTVg1MyEN
-Cg0KKCBub3Qgc3VyZSBteSBwcmV2aW91cyBtYWlsIGdvdCB0byB0aGUgZGVzdGluYXRpb24pDQoN
-CkJlc3QgUmVnYXJkcw0KTm9lbA0KDQoNCg0KDQo+Pg0KPj4gPiBKdWVyZ2VuIGNhbiBjb25maXJt
-LCBidXQgaXQgc2VlbXMgdGhlIGRyeWljZSBkcml2ZXIgd2FzIG9ubHkgdXNlZCBvbg0KPiA+IG14
-MjUgaW4gbWFpbmxpbmUuDQo+Pg0KPj4+IE9rLCB0aGF0IHdvdWxkIGV4cGxhaW4gaXQuDQo+Pg0K
-Pj5ZZXMuIFRoZSBkZXZlbG9wbWVudCB3YXMgbWFkZSBvbiBhbiBpLk1YMjUuIEJ1dCBjdXJyZW50
-bHkgSSBoYXZlIGFuIGkuTVg1MyBvbiBteSBkZXNrIGhlcmUgYW5kIGNvdWxkIHRlc3QuLi4NCj4+
-DQo+PmpiDQoNCj4+Pg0KPj4NCj4+DQo+Pg0KPj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
-Pj5Gcm9tOiBWZWxsZW1hbnMsIE5vZWwgDQo+PlNlbnQ6IFR1ZXNkYXksIE5vdmVtYmVyIDE0LCAy
-MDE3IDExOjMwIEFNDQo+PlRvOiAnRmFiaW8gRXN0ZXZhbScNCj4+Q2M6IFBhdHJpY2sgQnLDvG5u
-OyBBbGV4YW5kcmUgQmVsbG9uaTsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3Jn
-OyBsaW51eC1ydGNAdmdlci5rZXJuZWwub3JnDQo+PlN1YmplY3Q6IFJFOiBEcnlJY2UgLCBSVEMg
-bm90IHdvcmtpbmcgb24gaW14NTMuDQo+Pg0KPj5IaSBGYWJpbw0KPj4NCj4+SXQncyBiZWVuIGEg
-d2hpbGUuLi4gKCBidXQgSSdtIHF1aXRlIHN1cmUpLCBpZiB5b3UgbG9vayBjbG9zZWx5IGF0IHRo
-ZSByZWdpc3RlciBkZWZpbmVzICggaW50byB0aGUgRFJZSUNFLWRyaXZlci1jb2RlKSB0aGVuIHlv
-dSB3aWxsIG5vdGljZS4uLiB0aGF0IFNPTUUgcmVnaXN0ZXJzIG9mZnNldHMgYXJlIGNvcnJlY3Qg
-LCBidXQgb3RoZXJzIGFyZSBub3QgbWF0Y2hpbmcgdGhlIElOVEVSTkFMIHJ0YyBvZiB0aGUgSU1Y
-NTMuDQo+Pg0KPj5XaGVuIEkgbm90aWNlZCB0aGF0ICggSSBza2lwcGVkIFJUQyBkcml2ZXIgZnVu
-Y3Rpb25hbGl0eSwgdW5kZXIgcmVsZWFzZSBwcmVzc3VyZSwgSSBoYWQgc3RpbGwgbWFueSBpdGVt
-cyB0byB0ZXN0IG9uIHRob3NlIGtlcm5lbCAsIGFuZCBJIHdhcyB1bmRlciByZWxlYXNlIHByZXNz
-dXJlLi4gc28gSSByZW1vdmVkIFJUQyBmb3IgdGhlIHRpbWUgYmVpbmcuKQ0KPj4NCj4+eyB5b3Ug
-Y2FuIGdldCBiYXNpYyBSVEMgLCB0aW1lciBvbmx5ICwgbm8gYWxhcm1zL2V2ZW50cyB3b3JraW5n
-Li4uIGJ5IGNvbW1lbnRpbmcgYSBsb3Qgb2YgdGhpbmdzIG91dCwgIGJ1dCAuLiBJIGRlY2lkZWQg
-dG8gc29sdmUgdGhpcyBsYXRlciB0aGUgY29ycmVjdCB3YXksICB3aGVuIEkgZmluZCBzb21lIHRp
-bWUgICggYW5kIHRvIHJlcG9ydCBiYWNrIHdoZW4gc29sdmVkLCBkaWRuJ3Qgd2FudCB0byBib3Ro
-ZXIgbWFueSBwZW9wbGUsIG9yIG90aGVyd2lzZSBzYWlkIGRpZG4ndCB3YW50IG1ha2UgdG9vIG1h
-bnkgbm9pc2UgLi4uLiAoIGJlY2F1c2UgcnRjIGlzIG5vdCBjcml0aWNhbCBpbiBteSBhcHBsaWNh
-dGlvbiApIH0NCj4+DQo+PlRoaXMgZHJpdmVyIHdpbGwgbm90IHdvcmsgZm9yIHRoZSBJTlRFUk5B
-TC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2lsbCBuZXZlciBoYXZlIHdvcmtlZCwg
-SSBjYW4gY29uZmlybSB0aGlzLCBpdCBtaWdodCBoYXZlIHdvcmtlZCBmb3Igc29tZSBvdGhlciB2
-YXJpYW50IG9mIHRoZSBSVEMsIGJ1dCBpdCB3aWxsIG5vdCBkbyB3aGF0IHdlIGFsbCBleHBlY3Rl
-ZCBmb3IgdGhlIFJUQyBsb2NhdGVkIGludG8gSU1YNTMhDQo+Pg0KPj4NCj4+UmVnYXJkcw0KPj5O
-b2VsDQo+Pg0KPj5QUzogSnVzdCBmb3IgaW5mbywgIGF0IHRoaXMgdGltZSBJJ20gaW52ZXN0aWdh
-dGluZyBhIE5PVCBib290aW5nIHByb2JsZW0gLi4gYW5kIC4uIGl04oCZcyBhIGhhcmQgb25lICgg
-a2VlcHMgbWUgYnVzeSBmb3Igc29tZSBkYXkncyBhbHJlYWR5IC4uLiBsZXQncyBzYXkgaW4gYSA1
-MDAgYm9vdHMgdGhlcmUgaXMgb25lIGlzc3VlIHdoZXJlIHRoZSAna2VybmVsJyBsb2Nrcy11cCBp
-biBhIA0KPj52ZXJ5IHZlcnkgZWFybHkgc3RhZ2UuLiAoaW50byB0aGUgZmlyc3QgbWlsaS1zZWMg
-b2YgdGhlIGJvb3QgaXQgaGFuZ3MsIHNvbWUtd2hlcmUgYXJvdW5kIElSUS1pbml0aWFsaXphdGlv
-biAuLiBhbGwgYmxvY2tzICwgYmVmb3JlIENQVS1pZGVudGlmaWNhdGlvbi4uLiBubyBjbHVlIHll
-dCB3aGVyZSBleGFjdGx5Li4hKSANCj4+eyBpdCdzIG9ubHkgaGFwcGVuaW5nIGluIGxhdGVzdCBr
-ZXJuZWxzIDQuNC54IC8gNC4xeC54ICwgb2xkZXIgMi42LjM1IGRvIG5vdCBzdWZmZXIgdGhpcyBu
-b25lIGJvb3QgYmVoYXZpb3IgKCBvbiB0aGUgc2FtZSBoYXJkd2FyZSkgLCBzbyAuLiBkaWdnaW5n
-IC8gZGVidWdnaW5nIC8gcHJpbnRpbmcuLiA6LSkgYXQgdGhpcyB0aW1lIH0NCg0K
+When alarm value is read at boot time, at91_alarm_year is not yet set to
+the proper value so the year is always set to 1900.
+
+This results in that kind of message at boot:
+rtc rtc0: invalid alarm value: 1900-1-14 2:11:39
+
+There is no way to recover from that as the alarm is now only read when
+booting.
+
+Instead, rely on the rtc core to figure out the proper year.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-at91rm9200.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+index e84f5ec4faf6..de81ecedd571 100644
+--- a/drivers/rtc/rtc-at91rm9200.c
++++ b/drivers/rtc/rtc-at91rm9200.c
+@@ -42,8 +42,6 @@
+ #define at91_rtc_write(field, val) \
+ 	writel_relaxed((val), at91_rtc_regs + field)
+ 
+-#define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
+-
+ struct at91_rtc_config {
+ 	bool use_shadow_imr;
+ };
+@@ -51,7 +49,6 @@ struct at91_rtc_config {
+ static const struct at91_rtc_config *at91_rtc_config;
+ static DECLARE_COMPLETION(at91_rtc_updated);
+ static DECLARE_COMPLETION(at91_rtc_upd_rdy);
+-static unsigned int at91_alarm_year = AT91_RTC_EPOCH;
+ static void __iomem *at91_rtc_regs;
+ static int irq;
+ static DEFINE_SPINLOCK(at91_rtc_lock);
+@@ -131,8 +128,7 @@ static void at91_rtc_decodetime(unsigned int timereg, unsigned int calreg,
+ 
+ 	/*
+ 	 * The Calendar Alarm register does not have a field for
+-	 * the year - so these will return an invalid value.  When an
+-	 * alarm is set, at91_alarm_year will store the current year.
++	 * the year - so these will return an invalid value.
+ 	 */
+ 	tm->tm_year  = bcd2bin(date & AT91_RTC_CENT) * 100;	/* century */
+ 	tm->tm_year += bcd2bin((date & AT91_RTC_YEAR) >> 8);	/* year */
+@@ -208,14 +204,14 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct rtc_time *tm = &alrm->time;
+ 
+ 	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
+-	tm->tm_year = at91_alarm_year - 1900;
++	tm->tm_year = -1;
+ 
+ 	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
+ 			? 1 : 0;
+ 
+-	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s(): %02d-%02d %02d:%02d:%02d %sabled\n", __func__,
++		tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
++		alrm->enabled ? "en" : "dis");
+ 
+ 	return 0;
+ }
+@@ -229,8 +225,6 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, &tm);
+ 
+-	at91_alarm_year = tm.tm_year;
+-
+ 	tm.tm_mon = alrm->time.tm_mon;
+ 	tm.tm_mday = alrm->time.tm_mday;
+ 	tm.tm_hour = alrm->time.tm_hour;
+@@ -254,7 +248,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	}
+ 
+ 	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+-		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
++		tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
+ 		tm.tm_min, tm.tm_sec);
+ 
+ 	return 0;
+-- 
+2.15.0
