@@ -1,125 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllnx210.ext.ti.com ([198.47.19.17]:37288 "EHLO
-        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751307AbdKFG7U (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Nov 2017 01:59:20 -0500
-Subject: Re: [PATCH] rtc: omap: Support scratch registers
-To: Sekhar Nori <nsekhar@ti.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from esa5.microchip.iphmx.com ([216.71.150.166]:14233 "EHLO
+        esa5.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751455AbdKJOzR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 09:55:17 -0500
+Subject: Re: [PATCH 2/2] rtc: at91rm9200: fix reading alarm value
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
         <linux-rtc@vger.kernel.org>
-CC: <linux-kernel@vger.kernel.org>,
-        Linux OMAP List <linux-omap@vger.kernel.org>
-References: <20171031162731.27019-1-alexandre.belloni@free-electrons.com>
- <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <4741d4c7-d6f7-ecdb-1eed-1293175f38d9@ti.com>
-Date: Mon, 6 Nov 2017 12:29:15 +0530
+CC: <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
+ <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
+Message-ID: <31cc33d1-1953-f02b-c8fc-3b3ee2b4a123@microchip.com>
+Date: Fri, 10 Nov 2017 15:55:06 +0100
 MIME-Version: 1.0
-In-Reply-To: <600fd106-9f79-0f5a-a2fd-e6b067785c17@ti.com>
+In-Reply-To: <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On 10/11/2017 at 09:59, Alexandre Belloni wrote:
+> When alarm value is read at boot time, at91_alarm_year is not yet set to
+> the proper value so the year is always set to 1900.
+> 
+> This results in that kind of message at boot:
+> rtc rtc0: invalid alarm value: 1900-1-14 2:11:39
+> 
+> There is no way to recover from that as the alarm is now only read when
+> booting.
+> 
+> Instead, rely on the rtc core to figure out the proper year.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+
+> ---
+>  drivers/rtc/rtc-at91rm9200.c | 18 ++++++------------
+>  1 file changed, 6 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+> index e84f5ec4faf6..de81ecedd571 100644
+> --- a/drivers/rtc/rtc-at91rm9200.c
+> +++ b/drivers/rtc/rtc-at91rm9200.c
+> @@ -42,8 +42,6 @@
+>  #define at91_rtc_write(field, val) \
+>  	writel_relaxed((val), at91_rtc_regs + field)
+>  
+> -#define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
+> -
+>  struct at91_rtc_config {
+>  	bool use_shadow_imr;
+>  };
+> @@ -51,7 +49,6 @@ struct at91_rtc_config {
+>  static const struct at91_rtc_config *at91_rtc_config;
+>  static DECLARE_COMPLETION(at91_rtc_updated);
+>  static DECLARE_COMPLETION(at91_rtc_upd_rdy);
+> -static unsigned int at91_alarm_year = AT91_RTC_EPOCH;
+>  static void __iomem *at91_rtc_regs;
+>  static int irq;
+>  static DEFINE_SPINLOCK(at91_rtc_lock);
+> @@ -131,8 +128,7 @@ static void at91_rtc_decodetime(unsigned int timereg, unsigned int calreg,
+>  
+>  	/*
+>  	 * The Calendar Alarm register does not have a field for
+> -	 * the year - so these will return an invalid value.  When an
+> -	 * alarm is set, at91_alarm_year will store the current year.
+> +	 * the year - so these will return an invalid value.
+>  	 */
+>  	tm->tm_year  = bcd2bin(date & AT91_RTC_CENT) * 100;	/* century */
+>  	tm->tm_year += bcd2bin((date & AT91_RTC_YEAR) >> 8);	/* year */
+> @@ -208,14 +204,14 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	struct rtc_time *tm = &alrm->time;
+>  
+>  	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
+> -	tm->tm_year = at91_alarm_year - 1900;
+> +	tm->tm_year = -1;
+>  
+>  	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
+>  			? 1 : 0;
+>  
+> -	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+> -		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+> -		tm->tm_hour, tm->tm_min, tm->tm_sec);
+> +	dev_dbg(dev, "%s(): %02d-%02d %02d:%02d:%02d %sabled\n", __func__,
+> +		tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
+> +		alrm->enabled ? "en" : "dis");
+>  
+>  	return 0;
+>  }
+> @@ -229,8 +225,6 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  
+>  	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, &tm);
+>  
+> -	at91_alarm_year = tm.tm_year;
+> -
+>  	tm.tm_mon = alrm->time.tm_mon;
+>  	tm.tm_mday = alrm->time.tm_mday;
+>  	tm.tm_hour = alrm->time.tm_hour;
+> @@ -254,7 +248,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	}
+>  
+>  	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
+> -		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
+> +		tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
+>  		tm.tm_min, tm.tm_sec);
+>  
+>  	return 0;
+> 
 
 
-On Monday 06 November 2017 12:25 PM, Sekhar Nori wrote:
-> + linux omap list
-> 
-> On Tuesday 31 October 2017 09:57 PM, Alexandre Belloni wrote:
->> Register an nvmem device to expose the 3 scratch registers (total of 12
->> bytes) to both userspace and kernel space.
->>
->> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> 
-> Looks good to me.
-> 
-> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-> 
-> Curious on what you are using these registers for.
-
-This is in response to this:
-https://patchwork.kernel.org/patch/9684955/
-
-
-> 
-> Thanks,
-> Sekhar
-> 
->> ---
->>  drivers/rtc/rtc-omap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
->>  1 file changed, 45 insertions(+)
->>
->> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->> index d56d937966dc..1d666ac9ef70 100644
->> --- a/drivers/rtc/rtc-omap.c
->> +++ b/drivers/rtc/rtc-omap.c
->> @@ -70,6 +70,10 @@
->>  #define OMAP_RTC_COMP_MSB_REG		0x50
->>  #define OMAP_RTC_OSC_REG		0x54
->>  
->> +#define OMAP_RTC_SCRATCH0_REG		0x60
->> +#define OMAP_RTC_SCRATCH1_REG		0x64
->> +#define OMAP_RTC_SCRATCH2_REG		0x68
->> +
->>  #define OMAP_RTC_KICK0_REG		0x6c
->>  #define OMAP_RTC_KICK1_REG		0x70
->>  
->> @@ -667,6 +671,45 @@ static struct pinctrl_desc rtc_pinctrl_desc = {
->>  	.owner = THIS_MODULE,
->>  };
->>  
->> +static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
->> +				 size_t bytes)
->> +{
->> +	struct omap_rtc	*rtc = priv;
->> +	u32 *val = _val;
->> +	int i;
->> +
->> +	for (i = 0; i < bytes / 4; i++)
->> +		val[i] = rtc_readl(rtc,
->> +				   OMAP_RTC_SCRATCH0_REG + offset + (i * 4));
->> +
->> +	return 0;
->> +}
->> +
->> +static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
->> +				  size_t bytes)
->> +{
->> +	struct omap_rtc	*rtc = priv;
->> +	u32 *val = _val;
->> +	int i;
->> +
->> +	rtc->type->unlock(rtc);
->> +	for (i = 0; i < bytes / 4; i++)
->> +		rtc_writel(rtc,
->> +			   OMAP_RTC_SCRATCH0_REG + offset + (i * 4), val[i]);
->> +	rtc->type->lock(rtc);
->> +
->> +	return 0;
->> +}
->> +
->> +static struct nvmem_config omap_rtc_nvmem_config = {
->> +	.name = "omap_rtc_scratch",
->> +	.word_size = 4,
->> +	.stride = 4,
->> +	.size = OMAP_RTC_KICK0_REG - OMAP_RTC_SCRATCH0_REG,
->> +	.reg_read = omap_rtc_scratch_read,
->> +	.reg_write = omap_rtc_scratch_write,
->> +};
->> +
->>  static int omap_rtc_probe(struct platform_device *pdev)
->>  {
->>  	struct omap_rtc	*rtc;
->> @@ -804,6 +847,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
->>  	}
->>  
->>  	rtc->rtc->ops = &omap_rtc_ops;
->> +	omap_rtc_nvmem_config.priv = rtc;
->> +	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
->>  
->>  	/* handle periodic and alarm irqs */
->>  	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
->> -- 
->> 2.15.0.rc2
->>
-> 
+-- 
+Nicolas Ferre
