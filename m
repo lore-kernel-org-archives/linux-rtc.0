@@ -1,11 +1,11 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRB7OATDIAKGQE4Y74YAA@googlegroups.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB66ATDIAKGQEZBK32AI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by gmr-mx.google.com with ESMTPS id i6si766118eda.1.2017.11.10.13.56.12
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
+        by gmr-mx.google.com with ESMTPS id w29si754321lfc.1.2017.11.10.13.56.11
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 10 Nov 2017 13:56:12 -0800 (PST)
+        Fri, 10 Nov 2017 13:56:11 -0800 (PST)
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 To: Lee Jones <lee.jones@linaro.org>,
 	bleung@chromium.org
@@ -13,14 +13,10 @@ Cc: Guenter Roeck <groeck@chromium.org>,
 	Gwendal Grignou <gwendal@chromium.org>,
 	linux-kernel@vger.kernel.org,
 	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v4 1/2] mfd: cros_ec: Introduce RTC commands and
- events definitions.
-Date: Fri, 10 Nov 2017 22:55:52 +0100
-Message-Id: <20171110215553.20696-2-enric.balletbo@collabora.com>
-In-Reply-To: <20171110215553.20696-1-enric.balletbo@collabora.com>
-References: <20171110215553.20696-1-enric.balletbo@collabora.com>
+	rtc-linux@googlegroups.com
+Subject: [rtc-linux] [PATCH v4 0/2] Add support for cros-ec-rtc driver.
+Date: Fri, 10 Nov 2017 22:55:51 +0100
+Message-Id: <20171110215553.20696-1-enric.balletbo@collabora.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -31,52 +27,48 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+Dear all,
 
-The EC can function as a simple RT, this patch adds the RTC related
-definitions needed by the rtc-cros-ec driver.
+This is an attempt to revive some patches from that [1] patchset, some
+of them are still under discussion but I think there is no reason to not
+have the other two in this fourth version to land upstream meanwhile we
+discuss about the others.
 
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Benson Leung <bleung@chromium.org>
----
- include/linux/mfd/cros_ec_commands.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+[1] https://lkml.org/lkml/2017/7/12/182
 
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 2b16e95..c6046a2 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -291,6 +291,9 @@ enum host_event_code {
- 	/* EC desires to change state of host-controlled USB mux */
- 	EC_HOST_EVENT_USB_MUX = 28,
- 
-+	/* EC RTC event occurred */
-+	EC_HOST_EVENT_RTC = 26,
-+
- 	/*
- 	 * The high bit of the event mask is not used as a host event code.  If
- 	 * it reads back as set, then the entire event mask should be
-@@ -799,6 +802,8 @@ enum ec_feature_code {
- 	EC_FEATURE_USB_MUX = 23,
- 	/* Motion Sensor code has an internal software FIFO */
- 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
-+	/* EC has RTC feature that can be controlled by host commands */
-+	EC_FEATURE_RTC = 27,
- };
- 
- #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-@@ -1709,6 +1714,9 @@ struct ec_response_rtc {
- #define EC_CMD_RTC_SET_VALUE 0x46
- #define EC_CMD_RTC_SET_ALARM 0x47
- 
-+/* Pass as param to SET_ALARM to clear the current alarm */
-+#define EC_RTC_ALARM_CLEAR 0
-+
- /*****************************************************************************/
- /* Port80 log access */
- 
+Changes since v3:
+* Rebased an retested with current mainline using a Samsung Chromebook Plus
+* Removed from patchset
+  * 1/4 mfd: cros_ec: Get rid of cros_ec_check_features from cros_ec_dev.
+  * 4/4 mfd: cros_ec: add RTC as mfd subdevice.
+
+Changes since v2:
+- Rebase on top of mainline.
+- Removed patch 'mfd: cros-ec: Fix host command buffer size' from series
+as was already picked.
+
+Changes since v1:
+- Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
+calibbias data' from series as was already picked.
+- Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
+calibbias data' from series as was already picked.
+- Patch 2/5: Acked-by: Jonathan Cameron <***@kernel.org>
+
+Best regards,
+
+ Enric
+
+Stephen Barber (2):
+  mfd: cros_ec: Introduce RTC commands and events definitions.
+  rtc: cros-ec: add cros-ec-rtc driver.
+
+ drivers/rtc/Kconfig                  |  10 +
+ drivers/rtc/Makefile                 |   1 +
+ drivers/rtc/rtc-cros-ec.c            | 413 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/cros_ec_commands.h |   8 +
+ 4 files changed, 432 insertions(+)
+ create mode 100644 drivers/rtc/rtc-cros-ec.c
+
 -- 
 2.9.3
 
