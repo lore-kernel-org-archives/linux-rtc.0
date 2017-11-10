@@ -1,89 +1,91 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:49600 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752761AbdJLJgu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Oct 2017 05:36:50 -0400
-Date: Thu, 12 Oct 2017 10:36:38 +0100
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
-Cc: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: DryIce , RTC not working on imx53.
-Message-ID: <20171012093638.GA20805@n2100.armlinux.org.uk>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+Return-Path: <rtc-linux+bncBC2IF264UIPRB7OATDIAKGQE4Y74YAA@googlegroups.com>
+Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
-Sender: linux-rtc-owner@vger.kernel.org
-List-ID: <linux-rtc.vger.kernel.org>
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by gmr-mx.google.com with ESMTPS id i6si766118eda.1.2017.11.10.13.56.12
+        for <rtc-linux@googlegroups.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 10 Nov 2017 13:56:12 -0800 (PST)
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: Lee Jones <lee.jones@linaro.org>,
+	bleung@chromium.org
+Cc: Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	rtc-linux@googlegroups.com,
+	Stephen Barber <smbarber@chromium.org>
+Subject: [rtc-linux] [PATCH v4 1/2] mfd: cros_ec: Introduce RTC commands and
+ events definitions.
+Date: Fri, 10 Nov 2017 22:55:52 +0100
+Message-Id: <20171110215553.20696-2-enric.balletbo@collabora.com>
+In-Reply-To: <20171110215553.20696-1-enric.balletbo@collabora.com>
+References: <20171110215553.20696-1-enric.balletbo@collabora.com>
+Reply-To: rtc-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <rtc-linux.googlegroups.com>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux@googlegroups.com>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help@googlegroups.com>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe@googlegroups.com>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
 
-On Thu, Oct 12, 2017 at 07:50:41AM +0000, Patrick Brünn wrote:
-> Novice question: Is hwclock still required these days? For me it looks
-> like the kernel is synchronizing with rtc on it's own. Maybe some kernel
-> config is incompatible with hwclock?
+From: Stephen Barber <smbarber@chromium.org>
 
-It depends on your application.  If you want the kernel's idea of time
-to be wrong up to a second or two, then you can rely on the kernel's
-time setting.
+The EC can function as a simple RT, this patch adds the RTC related
+definitions needed by the rtc-cros-ec driver.
 
-Please realise that the kernel has always set the time from the RTC,
-even on x86 where hwclock has been used.  hwclock, however, has some
-advanced features and advantages that are beneficial if you're after
-accuracy.
+Signed-off-by: Stephen Barber <smbarber@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Benson Leung <bleung@chromium.org>
+---
+ include/linux/mfd/cros_ec_commands.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-1) hwclock will try to read the RTC as close to a second-change as
-   possible, so that the time read from the RTC is as close to the
-   second.
-
-2) hwclock can measure and correct the RTC time for its own drift if
-   hwclock has been allowed to capture and process the offset.
-
-What this means is that hwclock has the capability to precisely set
-the kernel's time at boot, way more accurately than the kernel does.
-The kernel's time setting is focused on speed, not accuracy.
-
-So, if your userspace application is to monitor something using a
-precise timestamp, and you are NTP synchronising (or other method) the
-time on the system, then you need the kernel's idea of time to be set
-much more precisely to avoid NTP making big corrections over the
-following three to six hours.
-
-This happens because NTP will slew the clock for a few seconds of
-difference, which makes storing and reloading the PPM value useless,
-and can also mean that in such a monitoring application, the results
-are unreliable until NTP has re-stabilised.
-
-Here's an example of an application where this may matter: average
-speed camera system.  You have two cameras over a section of road,
-each with their own processing, which are NTP synchronised.  Each
-reads the numberplate of passing vehicles using ANPR technology,
-and timestamps the passing of the vehicle using their local clock.
-The distance is known, so it's an easy calculation to calculate the
-vehicle speed.  If the vehicle speed is over the limit, the driver
-is fined.
-
-Consider what the implications are if one of the systems rebooted
-and then had incorrect time (up to two seconds wrong) for up to six
-hours after - a two second error is about a 3% error in recorded
-speed.  Would you want to be sent a speeding fine from such a system?
-
-(We have the first non-motorway road in Surrey, UK to have average
-speed cameras installed down its entire length because of "piston
-heads" who think the speed limit is 60mph rather than the sign-
-posted 40mph.)
-
-Another, probably more relevant application is a stratum-1 NTP server
-synchronised via PPS to a GPS.  I wonder how many people are aware
-that if you reboot such a setup relying on the kernel's time setting
-only, the time sent to clients will be wrong while NTP slews the local
-clock.  I've seen these effects locally, where rebooting exactly such
-a system results in slaved systems which have no other source of time
-also making big corrections.
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 2b16e95..c6046a2 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -291,6 +291,9 @@ enum host_event_code {
+ 	/* EC desires to change state of host-controlled USB mux */
+ 	EC_HOST_EVENT_USB_MUX = 28,
+ 
++	/* EC RTC event occurred */
++	EC_HOST_EVENT_RTC = 26,
++
+ 	/*
+ 	 * The high bit of the event mask is not used as a host event code.  If
+ 	 * it reads back as set, then the entire event mask should be
+@@ -799,6 +802,8 @@ enum ec_feature_code {
+ 	EC_FEATURE_USB_MUX = 23,
+ 	/* Motion Sensor code has an internal software FIFO */
+ 	EC_FEATURE_MOTION_SENSE_FIFO = 24,
++	/* EC has RTC feature that can be controlled by host commands */
++	EC_FEATURE_RTC = 27,
+ };
+ 
+ #define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
+@@ -1709,6 +1714,9 @@ struct ec_response_rtc {
+ #define EC_CMD_RTC_SET_VALUE 0x46
+ #define EC_CMD_RTC_SET_ALARM 0x47
+ 
++/* Pass as param to SET_ALARM to clear the current alarm */
++#define EC_RTC_ALARM_CLEAR 0
++
+ /*****************************************************************************/
+ /* Port80 log access */
+ 
+-- 
+2.9.3
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
-According to speedtest.net: 8.21Mbps down 510kbps up
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+For more options, visit https://groups.google.com/d/optout.
