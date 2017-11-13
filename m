@@ -1,67 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.ispras.ru ([83.149.199.45]:40934 "EHLO mail.ispras.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762260AbdKQVQJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 17 Nov 2017 16:16:09 -0500
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-To: Brian Norris <computersforpeace@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        bcm-kernel-feedback-list@broadcom.com, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        ldv-project@linuxtesting.org
-Subject: [PATCH] rtc: brcmstb-waketimer: fix error handling in brcmstb_waketmr_probe()
-Date: Sat, 18 Nov 2017 00:15:58 +0300
-Message-Id: <1510953358-7043-1-git-send-email-khoroshilov@ispras.ru>
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:54561 "EHLO
+        mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753862AbdKMQyj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 13 Nov 2017 11:54:39 -0500
+Received: by mail-oi0-f54.google.com with SMTP id a132so11668620oih.11
+        for <linux-rtc@vger.kernel.org>; Mon, 13 Nov 2017 08:54:38 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20171113161522.2kq7un7gl5vg4qlq@piout.net>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net> <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Mon, 13 Nov 2017 14:54:37 -0200
+Message-ID: <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+Subject: Re: DryIce , RTC not working on imx53.
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>,
+        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-brcmstb_waketmr_probe() does not disable timer->clk on error paths.
+Hi Alexandre,
 
-Found by Linux Driver Verification project (linuxtesting.org).
+On Mon, Nov 13, 2017 at 2:15 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/rtc/rtc-brcmstb-waketimer.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+> Fabio, is there any recent change in the platform code that would make
+> reading/writing the rtc register fail?
 
-diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-index 796ac792a381..6cee61201c30 100644
---- a/drivers/rtc/rtc-brcmstb-waketimer.c
-+++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-@@ -253,7 +253,7 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
- 	ret = devm_request_irq(dev, timer->irq, brcmstb_waketmr_irq, 0,
- 			       "brcmstb-waketimer", timer);
- 	if (ret < 0)
--		return ret;
-+		goto err_clk;
- 
- 	timer->reboot_notifier.notifier_call = brcmstb_waketmr_reboot;
- 	register_reboot_notifier(&timer->reboot_notifier);
-@@ -262,12 +262,21 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
- 					 &brcmstb_waketmr_ops, THIS_MODULE);
- 	if (IS_ERR(timer->rtc)) {
- 		dev_err(dev, "unable to register device\n");
--		unregister_reboot_notifier(&timer->reboot_notifier);
--		return PTR_ERR(timer->rtc);
-+		ret = PTR_ERR(timer->rtc);
-+		goto err_notifier;
- 	}
- 
- 	dev_info(dev, "registered, with irq %d\n", timer->irq);
- 
-+	return 0;
-+
-+err_notifier:
-+	unregister_reboot_notifier(&timer->reboot_notifier);
-+
-+err_clk:
-+	if (timer->clk)
-+		clk_disable_unprepare(timer->clk);
-+
- 	return ret;
- }
- 
--- 
-2.7.4
+I don't recall of any recent change in this area.
+
+Patrick/Noel,
+
+Does the change below help?
+
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -436,8 +436,7 @@
+                        srtc: srtc@53fa4000 {
+                                compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
+                                reg = <0x53fa4000 0x4000>;
+-                               interrupts = <24>;
+-                               interrupt-parent = <&tzic>;
++                               interrupts = <24 25>;
+                                clocks = <&clks IMX5_CLK_SRTC_GATE>;
+                                clock-names = "ipg";
+                        };
