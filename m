@@ -1,67 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:38172 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752975AbdK3C4X (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 29 Nov 2017 21:56:23 -0500
-Received: by mail-ot0-f195.google.com with SMTP id p3so4943734oti.5
-        for <linux-rtc@vger.kernel.org>; Wed, 29 Nov 2017 18:56:23 -0800 (PST)
+Received: from mail-ot0-f179.google.com ([74.125.82.179]:54528 "EHLO
+        mail-ot0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754879AbdKNKdL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:33:11 -0500
+Received: by mail-ot0-f179.google.com with SMTP id w8so16196191otw.11
+        for <linux-rtc@vger.kernel.org>; Tue, 14 Nov 2017 02:33:10 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
-References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Thu, 30 Nov 2017 10:56:22 +0800
-Message-ID: <CAMz4ku+eNkkrpboFpcmNN1yqktRu17SZzMbv6qXfV8_fxqm8mQ@mail.gmail.com>
-Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc: linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
-        Baolin Wang <baolin.wang@linaro.org>
+In-Reply-To: <20171114102614.g2bxstg5qacvmtk6@piout.net>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net> <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net> <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+ <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+ <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com> <20171114102614.g2bxstg5qacvmtk6@piout.net>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Tue, 14 Nov 2017 08:33:09 -0200
+Message-ID: <CAOMZO5CdGAqBkBQ5DdphzNr-tB5r7Sj9jBAhFTFPNezTEjJOMg@mail.gmail.com>
+Subject: Re: DryIce , RTC not working on imx53.
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre and Ingo,
+On Tue, Nov 14, 2017 at 8:26 AM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
 
-On 16 November 2017 at 13:59, Baolin Wang <baolin.wang@linaro.org> wrote:
-> It will be more helpful to add some tracepoints to track RTC actions when
-> debugging RTC driver. Below sample is that we set/read the RTC time, then
-> set 2 alarms, so we can see the trace logs:
+>> I have the impression that the dryice driver has never worked in
+>> mainlune for mx53.
+>>
 >
-> set/read RTC time:
-> kworker/0:1-67 [000] 21.814245: rtc_set_time: 2017-11-10 08:13:00 UTC (1510301580) (0)
-> kworker/0:1-67 [000] 21.814312: rtc_read_time: 2017-11-10 08:13:00 UTC (1510301580) (0)
->
-> set the first alarm timer:
-> kworker/0:1-67 [000] 21.829238: rtc_timer_enqueue: RTC timer:(ffffffc15eb49bc8) expires:1510301700000000000 period:0
-> kworker/0:1-67 [000] 22.018279: rtc_set_alarm: 2017-11-10 08:15:00 UTC (1510301700) (0)
->
-> set the second alarm timer:
-> kworker/0:1-67 [000] 22.230284: rtc_timer_enqueue: RTC timer:(ffffff80088e6430) expires:1510301820000000000 period:0
->
-> the first alarm timer was expired:
-> kworker/0:1-67 [000] 145.155584: rtc_timer_dequeue: RTC timer:(ffffffc15eb49bc8) expires:1510301700000000000 period:0
-> kworker/0:1-67 [000] 145.155593: rtc_timer_fired: RTC timer:(ffffffc15eb49bc8) expires:1510301700000000000 period:0
-> kworker/0:1-67 [000] 145.172504: rtc_set_alarm: 2017-11-10 08:17:00 UTC (1510301820) (0)
->
-> the second alarm timer was expired:
-> kworker/0:1-67 [000] 269.102353: rtc_timer_dequeue: RTC timer:(ffffff80088e6430) expires:1510301820000000000 period:0
-> kworker/0:1-67 [000] 269.102360: rtc_timer_fired: RTC timer:(ffffff80088e6430) expires:1510301820000000000 period:0
->
-> disable alarm irq:
-> kworker/0:1-67 [000] 269.102469: rtc_alarm_irq_enable: disable RTC alarm IRQ (0)
->
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
-> Changes since v1:
->  - Use unconditional tracepoints with tracing the failures.
->  - Simplify the rtc_timer_class.
-> ---
+> I doubt that because it seems to have been used by Pengutronix.
 
-Do you have any comments for this patch? Thanks.
-
--- 
-Baolin Wang
-Best Regards
+Juergen can confirm, but it seems the dryice driver was only used on
+mx25 in mainline.
