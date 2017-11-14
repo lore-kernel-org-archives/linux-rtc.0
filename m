@@ -1,41 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:52748 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756300AbdKOPcH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Nov 2017 10:32:07 -0500
-Date: Wed, 15 Nov 2017 09:32:05 -0600
-From: Rob Herring <robh@kernel.org>
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        mark.rutland@arm.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        broonie@kernel.org, baolin.wang@linaro.org
-Subject: Re: [PATCH v3 1/2] dt-bindings: rtc: Add Spreadtrum SC27xx RTC
- documentation
-Message-ID: <20171115153205.l5ab5vmufvqwkkze@rob-hp-laptop>
-References: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:54521 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751887AbdKNK0Z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:26:25 -0500
+Date: Tue, 14 Nov 2017 11:26:14 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: Re: DryIce , RTC not working on imx53.
+Message-ID: <20171114102614.g2bxstg5qacvmtk6@piout.net>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net>
+ <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+ <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+ <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c65b61e5e37cb43214973cb3e479ce06c4a73395.1510198341.git.baolin.wang@spreadtrum.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Nov 09, 2017 at 11:34:16AM +0800, Baolin Wang wrote:
-> This patch adds the binding documentation for Spreadtrum SC27xx series
-> RTC device.
-> 
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
-> ---
-> Changes since v2:
->  - No updates.
-> 
-> Changes since v1:
->  - Use a specific chip name as compatible string.
->  - Remove useless alias.
->  - Add the parent MFD node.
-> ---
->  .../devicetree/bindings/rtc/sprd,sc27xx-rtc.txt    |   27 ++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/sprd,sc27xx-rtc.txt
++Cc Juergen
 
-Acked-by: Rob Herring <robh@kernel.org>
+On 14/11/2017 at 08:12:03 -0200, Fabio Estevam wrote:
+> Hi Patrick,
+> 
+> On Tue, Nov 14, 2017 at 3:00 AM, Patrick Brünn <P.Bruenn@beckhoff.com> wrote:
+> >>From: Fabio Estevam [mailto:festevam@gmail.com]
+> >>Sent: Montag, 13. November 2017 19:57
+> >>> I don't recall of any recent change in this area.
+> >>>
+> > I don't think the behavior changed recently. I tried a kernel 4.4.65 and it shows the same symptoms. I guess Noel really means 3.19-> 4.0.
+> 
+> Or maybe by 'old kernel' he meant the vendor 2.6.35 kernel.
+> 
+> I have the impression that the dryice driver has never worked in
+> mainlune for mx53.
+> 
+
+I doubt that because it seems to have been used by Pengutronix.
+
+> > Unfortunately no. Did you run hwclock or rtctest?
+> 
+> Yes, this is what I get:
+> 
+> # hwclock -r -D
+> hwclock from util-linux 2.31
+> System Time: 14.876372
+> Trying to open: /dev/rtc0
+> Using the rtc interface to the clock.
+> Last drift adjustment done at 2167 seconds after 1969
+> Last calibrat[   14.892484] imxdi_rtc 53fa4000.srtc: Write-wait timeout val = 08
+> ion done at 2167 seconds after 1969
+> Hardware clock is on UTC time
+> Assuming hardware clock is kept in UTC time.
+> Waiting for clock tick...
+> hwclock: select() to /dev/rtc0 to wait for clock tick timed out
+> ...synchronization failed
+> 
+> 
+> > I still see:
+> > root@CX9020:~# cat /proc/interrupts | grep rtc
+> >  40:          0      tzic  24 Edge      53fa4000.srtc
+> >  41:          0      tzic  25 Edge      53fa4000.srtc
+> > root@CX9020:~# hwclock -D -r
+> > hwclock from util-linux 2.29.2
+> > Using the /dev interface to the clock.
+> > Last drift adjustment done at 1490885082 seconds after 1969
+> > Last calibration done at 1490885082 seconds after 1969
+> > Hardware clock is on UTC time
+> > Assuming hardware clock is kept in UTC time.
+> > Waiting for clock tick...
+> > [   41.035269] irq 40: nobody cared (try booting with the "irqpoll" option)
+> > [   41.042514] handlers:
+> > [   41.044847] [<c06031e0>] dryice_irq
+> > [   41.048398] Disabling IRQ #40
+> 
+> This error I don't get with the 2.31 hwclock version I tried.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
