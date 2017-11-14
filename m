@@ -1,59 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42741 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753034AbdKMQPe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 13 Nov 2017 11:15:34 -0500
-Date: Mon, 13 Nov 2017 17:15:22 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
-Cc: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
-        Fabio Estevam <festevam@gmail.com>,
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:52896 "EHLO
+        mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751887AbdKNKME (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:12:04 -0500
+Received: by mail-oi0-f54.google.com with SMTP id r128so13292778oig.9
+        for <linux-rtc@vger.kernel.org>; Tue, 14 Nov 2017 02:12:04 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net> <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net> <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+ <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com> <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Tue, 14 Nov 2017 08:12:03 -0200
+Message-ID: <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
+Subject: Re: DryIce , RTC not working on imx53.
+To: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
         "linux-arm-kernel@lists.infradead.org"
         <linux-arm-kernel@lists.infradead.org>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: DryIce , RTC not working on imx53.
-Message-ID: <20171113161522.2kq7un7gl5vg4qlq@piout.net>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-+Cc Fabio
+Hi Patrick,
 
-On 09/11/2017 at 09:59:02 +0000, Patrick Brünn wrote:
-> 
-> >From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
-> >Sent: Donnerstag, 9. November 2017 04:03
-> >
-> >hwclock times out because the alarm is not working properly. Can you
-> >check whether rtctest is working?
-> >
-> You mean "tools/testing/selftests/timers/rtctest", right?
-> 
-> I just run it and it's stuck at "Counting 5 update (1/sec) interrupts from reading /dev/rtc0:"
-> 
+On Tue, Nov 14, 2017 at 3:00 AM, Patrick Br=C3=BCnn <P.Bruenn@beckhoff.com>=
+ wrote:
+>>From: Fabio Estevam [mailto:festevam@gmail.com]
+>>Sent: Montag, 13. November 2017 19:57
+>>> I don't recall of any recent change in this area.
+>>>
+> I don't think the behavior changed recently. I tried a kernel 4.4.65 and =
+it shows the same symptoms. I guess Noel really means 3.19-> 4.0.
 
-So alarms or interrupts definitively don't work.
+Or maybe by 'old kernel' he meant the vendor 2.6.35 kernel.
 
-> Kernel log shows a new message for each try I restart rtctest.
-> [ 1032.349562] imxdi_rtc 53fa4000.srtc: Write-wait timeout val = 0x5a042418 reg = 0x00000008"
-> 
+I have the impression that the dryice driver has never worked in
+mainlune for mx53.
 
-That would explain it because failing to write DCAMR means that the
-alarm is not set to the proper value.
+> Unfortunately no. Did you run hwclock or rtctest?
 
-But that doesn't explain all the spurious interrupts you are seeing.
+Yes, this is what I get:
 
-Fabio, is there any recent change in the platform code that would make
-reading/writing the rtc register fail?
+# hwclock -r -D
+hwclock from util-linux 2.31
+System Time: 14.876372
+Trying to open: /dev/rtc0
+Using the rtc interface to the clock.
+Last drift adjustment done at 2167 seconds after 1969
+Last calibrat[   14.892484] imxdi_rtc 53fa4000.srtc: Write-wait timeout val=
+ =3D 08
+ion done at 2167 seconds after 1969
+Hardware clock is on UTC time
+Assuming hardware clock is kept in UTC time.
+Waiting for clock tick...
+hwclock: select() to /dev/rtc0 to wait for clock tick timed out
+...synchronization failed
 
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> I still see:
+> root@CX9020:~# cat /proc/interrupts | grep rtc
+>  40:          0      tzic  24 Edge      53fa4000.srtc
+>  41:          0      tzic  25 Edge      53fa4000.srtc
+> root@CX9020:~# hwclock -D -r
+> hwclock from util-linux 2.29.2
+> Using the /dev interface to the clock.
+> Last drift adjustment done at 1490885082 seconds after 1969
+> Last calibration done at 1490885082 seconds after 1969
+> Hardware clock is on UTC time
+> Assuming hardware clock is kept in UTC time.
+> Waiting for clock tick...
+> [   41.035269] irq 40: nobody cared (try booting with the "irqpoll" optio=
+n)
+> [   41.042514] handlers:
+> [   41.044847] [<c06031e0>] dryice_irq
+> [   41.048398] Disabling IRQ #40
+
+This error I don't get with the 2.31 hwclock version I tried.
