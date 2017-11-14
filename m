@@ -1,104 +1,79 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59342 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750994AbdKJI74 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 03:59:56 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 2/2] rtc: at91rm9200: fix reading alarm value
-Date: Fri, 10 Nov 2017 09:59:31 +0100
-Message-Id: <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
-References: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:12078 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754853AbdKNKaC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:30:02 -0500
+From: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>
+To: Fabio Estevam <festevam@gmail.com>
+CC: =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>,
+        "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: DryIce , RTC not working on imx53.
+Date: Tue, 14 Nov 2017 10:29:51 +0000
+Message-ID: <D24E577EA1E37B4788A3BFBC418F14A707646790@wetsrvex01.loepfe.com>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net>
+ <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+ <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+ <D24E577EA1E37B4788A3BFBC418F14A707646377@wetsrvex01.loepfe.com>
+ <CAOMZO5BqhhFMRByY+cHXcqmUiLVVngYHvjmTcNJP8M08ew8xnw@mail.gmail.com>
+In-Reply-To: <CAOMZO5BqhhFMRByY+cHXcqmUiLVVngYHvjmTcNJP8M08ew8xnw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-When alarm value is read at boot time, at91_alarm_year is not yet set to
-the proper value so the year is always set to 1900.
-
-This results in that kind of message at boot:
-rtc rtc0: invalid alarm value: 1900-1-14 2:11:39
-
-There is no way to recover from that as the alarm is now only read when
-booting.
-
-Instead, rely on the rtc core to figure out the proper year.
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/rtc/rtc-at91rm9200.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index e84f5ec4faf6..de81ecedd571 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -42,8 +42,6 @@
- #define at91_rtc_write(field, val) \
- 	writel_relaxed((val), at91_rtc_regs + field)
- 
--#define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
--
- struct at91_rtc_config {
- 	bool use_shadow_imr;
- };
-@@ -51,7 +49,6 @@ struct at91_rtc_config {
- static const struct at91_rtc_config *at91_rtc_config;
- static DECLARE_COMPLETION(at91_rtc_updated);
- static DECLARE_COMPLETION(at91_rtc_upd_rdy);
--static unsigned int at91_alarm_year = AT91_RTC_EPOCH;
- static void __iomem *at91_rtc_regs;
- static int irq;
- static DEFINE_SPINLOCK(at91_rtc_lock);
-@@ -131,8 +128,7 @@ static void at91_rtc_decodetime(unsigned int timereg, unsigned int calreg,
- 
- 	/*
- 	 * The Calendar Alarm register does not have a field for
--	 * the year - so these will return an invalid value.  When an
--	 * alarm is set, at91_alarm_year will store the current year.
-+	 * the year - so these will return an invalid value.
- 	 */
- 	tm->tm_year  = bcd2bin(date & AT91_RTC_CENT) * 100;	/* century */
- 	tm->tm_year += bcd2bin((date & AT91_RTC_YEAR) >> 8);	/* year */
-@@ -208,14 +204,14 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rtc_time *tm = &alrm->time;
- 
- 	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
--	tm->tm_year = at91_alarm_year - 1900;
-+	tm->tm_year = -1;
- 
- 	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
- 			? 1 : 0;
- 
--	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
--		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "%s(): %02d-%02d %02d:%02d:%02d %sabled\n", __func__,
-+		tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-+		alrm->enabled ? "en" : "dis");
- 
- 	return 0;
- }
-@@ -229,8 +225,6 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, &tm);
- 
--	at91_alarm_year = tm.tm_year;
--
- 	tm.tm_mon = alrm->time.tm_mon;
- 	tm.tm_mday = alrm->time.tm_mday;
- 	tm.tm_hour = alrm->time.tm_hour;
-@@ -254,7 +248,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	}
- 
- 	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
--		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
-+		tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
- 		tm.tm_min, tm.tm_sec);
- 
- 	return 0;
--- 
-2.15.0
+SGkgRmFiaW8NCg0KSXQncyBiZWVuIGEgd2hpbGUuLi4gKCBidXQgSSdtIHF1aXRlIHN1cmUpLCBp
+ZiB5b3UgbG9vayBjbG9zZWx5IGF0IHRoZSByZWdpc3RlciBkZWZpbmVzICggaW50byB0aGUgRFJZ
+SUNFLWRyaXZlci1jb2RlKSB0aGVuIHlvdSB3aWxsIG5vdGljZS4uLiB0aGF0IFNPTUUgcmVnaXN0
+ZXJzIG9mZnNldHMgYXJlIGNvcnJlY3QgLCBidXQgb3RoZXJzIGFyZSBub3QgbWF0Y2hpbmcgdGhl
+IElOVEVSTkFMIHJ0YyBvZiB0aGUgSU1YNTMuDQoNCldoZW4gSSBub3RpY2VkIHRoYXQgKCBJIHNr
+aXBwZWQgUlRDIGRyaXZlciBmdW5jdGlvbmFsaXR5LCB1bmRlciByZWxlYXNlIHByZXNzdXJlLCBJ
+IGhhZCBzdGlsbCBtYW55IGl0ZW1zIHRvIHRlc3Qgb24gdGhvc2Uga2VybmVsICwgYW5kIEkgd2Fz
+IHVuZGVyIHJlbGVhc2UgcHJlc3N1cmUuLiBzbyBJIHJlbW92ZWQgUlRDIGZvciB0aGUgdGltZSBi
+ZWluZy4pDQoNCnsgeW91IGNhbiBnZXQgYmFzaWMgUlRDICwgdGltZXIgb25seSAsIG5vIGFsYXJt
+cy9ldmVudHMgd29ya2luZy4uLiBieSBjb21tZW50aW5nIGEgbG90IG9mIHRoaW5ncyBvdXQsICBi
+dXQgLi4gSSBkZWNpZGVkIHRvIHNvbHZlIHRoaXMgbGF0ZXIgdGhlIGNvcnJlY3Qgd2F5LCAgd2hl
+biBJIGZpbmQgc29tZSB0aW1lICAoIGFuZCB0byByZXBvcnQgYmFjayB3aGVuIHNvbHZlZCwgZGlk
+bid0IHdhbnQgdG8gYm90aGVyIG1hbnkgcGVvcGxlLCBvciBvdGhlcndpc2Ugc2FpZCBkaWRuJ3Qg
+d2FudCBtYWtlIHRvbyBtYW55IG5vaXNlIC4uLi4gKCBiZWNhdXNlIHJ0YyBpcyBub3QgY3JpdGlj
+YWwgaW4gbXkgYXBwbGljYXRpb24gKSB9DQoNClRoaXMgZHJpdmVyIHdpbGwgbm90IHdvcmsgZm9y
+IHRoZSBJTlRFUk5BTC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2lsbCBuZXZlciBo
+YXZlIHdvcmtlZCwgSSBjYW4gY29uZmlybSB0aGlzLCBpdCBtaWdodCBoYXZlIHdvcmtlZCBmb3Ig
+c29tZSBvdGhlciB2YXJpYW50IG9mIHRoZSBSVEMsIGJ1dCBpdCB3aWxsIG5vdCBkbyB3aGF0IHdl
+IGFsbCBleHBlY3RlZCBmb3IgdGhlIFJUQyBsb2NhdGVkIGludG8gSU1YNTMhDQoNCg0KUmVnYXJk
+cw0KTm9lbA0KDQoNClBTOiBKdXN0IGZvciBpbmZvLCAgYXQgdGhpcyB0aW1lIEknbSBpbnZlc3Rp
+Z2F0aW5nIGEgTk9UIGJvb3RpbmcgcHJvYmxlbSAuLiBhbmQgLi4gaXTigJlzIGEgaGFyZCBvbmUg
+KCBrZWVwcyBtZSBidXN5IGZvciBzb21lIGRheSdzIGFscmVhZHkgLi4uIGxldCdzIHNheSBpbiBh
+IDUwMCBib290cyB0aGVyZSBpcyBvbmUgaXNzdWUgd2hlcmUgdGhlICdrZXJuZWwnIGxvY2tzLXVw
+IGluIGEgdmVyeSB2ZXJ5IGVhcmx5IHN0YWdlLi4gKGludG8gdGhlIGZpcnN0IG1pbGktc2VjIG9m
+IHRoZSBib290IGl0IGhhbmdzLCBzb21lLXdoZXJlIGFyb3VuZCBJUlEtaW5pdGlhbGl6YXRpb24g
+Li4gYWxsIGJsb2NrcyAsIGJlZm9yZSBDUFUtaWRlbnRpZmljYXRpb24uLi4gbm8gY2x1ZSB5ZXQg
+d2hlcmUgZXhhY3RseS4uISkNCnsgaXQncyBvbmx5IGhhcHBlbmluZyBpbiBsYXRlc3Qga2VybmVs
+cyA0LjQueCAvIDQuMXgueCAsIG9sZGVyIDIuNi4zNSBkbyBub3Qgc3VmZmVyIHRoaXMgbm9uZSBi
+b290IGJlaGF2aW9yICggb24gdGhlIHNhbWUgaGFyZHdhcmUpICwgc28gLi4gZGlnZ2luZyAvIGRl
+YnVnZ2luZyAvIHByaW50aW5nLi4gOi0pIGF0IHRoaXMgdGltZSB9DQoNCg0KX19fX19fX19fX19f
+X19fX19fX19fX18NCk5vZWwgVmVsbGVtYW5zDQpCTVMgYnZiYQ0KDQotLS0tLU9yaWdpbmFsIE1l
+c3NhZ2UtLS0tLQ0KRnJvbTogRmFiaW8gRXN0ZXZhbSBbbWFpbHRvOmZlc3RldmFtQGdtYWlsLmNv
+bV0gDQpTZW50OiBUdWVzZGF5LCBOb3ZlbWJlciAxNCwgMjAxNyAxMToxMyBBTQ0KVG86IFZlbGxl
+bWFucywgTm9lbA0KQ2M6IFBhdHJpY2sgQnLDvG5uOyBBbGV4YW5kcmUgQmVsbG9uaTsgbGludXgt
+YXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC1ydGNAdmdlci5rZXJuZWwub3Jn
+DQpTdWJqZWN0OiBSZTogRHJ5SWNlICwgUlRDIG5vdCB3b3JraW5nIG9uIGlteDUzLg0KDQpIaSBO
+b2VsLA0KDQpPbiBUdWUsIE5vdiAxNCwgMjAxNyBhdCA0OjQwIEFNLCBWZWxsZW1hbnMsIE5vZWwg
+PE5vZWwuVmVsbGVtYW5zQHZpc2lvbmJtcy5jb20+IHdyb3RlOg0KPiBISSBhbGwsDQo+DQo+IEkn
+dmUgYmVlbiBkaWdnaW5nIGEgd2hpbGUgaW4gdGhlIERyeUljZSBjb2RlIChzb21lIHRpbWUgYWdv
+LCBpdCB3YXMgaW4gYSBodXJyeSBiZWNhdXNlIEkgbmVlZGVkIHRvIHJlbGVhc2UpLg0KPg0KPiBJ
+IGZpbmFsbHkgZW5kZWQgdXAgYnkgTk9UIHVzaW5nIHRoZSBEcnlJY2UgY29kZSAsIGZvciB0aGUg
+SU1YNTMgKCANCj4gaW50ZXJuYWwgUlRDKQ0KPg0KPiBJZiBJIHJlY2FsbCBjb3JyZWN0bHkgLCB0
+aGlzIGlzIG5vdCB0aGUgY29ycmVjdCBkcml2ZXIgZm9yIHRoZSANCj4gSW50ZXJuYWwgSU1YNTMg
+UlRDLCAoIGZvciBleGFtcGxlIHRoZSByZWdpc3RlciBCQVNFLUFkZHJlc3NlcyAvIA0KPiBvZmZz
+ZXRzIGFyZSBub3QgY29ycmVjdC4uKSByZXN1bHRpbmcgaW4gYWxsIGtpbmQgb2Ygc3RyYW5nZSBi
+ZWhhdmlvciwgDQo+IGRlcGVuZGluZyBvbiB5b3VyIHNpdHVhdGlvbmFsIHVzZS1jYXNlczotKA0K
+DQpDb3VsZCB5b3UgY2xhcmlmeSBhYm91dCB0aGlzPyBXaGljaCBiYXNlIGFkZHJlc3Mgb3Igb2Zm
+c2V0cyBhcmUgbm90IGNvcnJlY3Q/DQo=
