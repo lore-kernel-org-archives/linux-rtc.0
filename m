@@ -1,50 +1,119 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:47600 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754687AbdKARpz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 1 Nov 2017 13:45:55 -0400
+Received: from internet2.beckhoff.com ([194.25.186.210]:61141 "EHLO
+        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751659AbdKNFPZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 00:15:25 -0500
+From: =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>
+To: Fabio Estevam <festevam@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: DryIce , RTC not working on imx53.
+Date: Tue, 14 Nov 2017 05:00:23 +0000
+Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
+References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <20171109030327.anzo47xayxckn47r@piout.net>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
+ <20171113161522.2kq7un7gl5vg4qlq@piout.net>
+ <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
+ <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
+In-Reply-To: <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <1509548480-29472-1-git-send-email-eric@nelint.com>
-References: <CAL_Jsq+QQK=NTMBwk=h0uszLW0uSiEd1fmF09USRNFM-2VgiSQ@mail.gmail.com>
- <1509548480-29472-1-git-send-email-eric@nelint.com>
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 1 Nov 2017 12:45:33 -0500
-Message-ID: <CAL_JsqK6inxGGWtV3hU6Y1HFMfx9szpF=OCfvE2hCZDkerOMVA@mail.gmail.com>
-Subject: Re: [PATCH V3] rtc: add support for NXP PCF85363 real-time clock
-To: Eric Nelson <eric@nelint.com>
-Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Otavio Salvador <otavio.salvador@ossystems.com.br>
-Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Nov 1, 2017 at 10:01 AM, Eric Nelson <eric@nelint.com> wrote:
-> Note that alarms are not currently implemented.
->
-> 64 bytes of nvmem is supported and exposed in
-> sysfs (# is the instance number, starting with 0):
->
->         /sys/bus/nvmem/devices/pcf85363-#/nvmem
->
-> Signed-off-by: Eric Nelson <eric@nelint.com>
-> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
-> ---
-> V2 addresses a couple of issues highlighted by Fabio Estevam
->     1. Kconfig updated to select REGMAP_I2C
->     2. Switch to of_device_id from i2c_device_id for driver matching
->
-> V3 adds interrupts as an optional property in device tree bindings
->
->  drivers/rtc/Kconfig                                |  13 ++
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-pcf85363.c                         | 221 +++++++++++++++++++++
->  4 files changed, 252 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/pcf85363.txt
->  create mode 100644 drivers/rtc/rtc-pcf85363.c
-
-For the binding:
-
-Acked-by: Rob Herring <robh@kernel.org>
+PkZyb206IEZhYmlvIEVzdGV2YW0gW21haWx0bzpmZXN0ZXZhbUBnbWFpbC5jb21dDQo+U2VudDog
+TW9udGFnLCAxMy4gTm92ZW1iZXIgMjAxNyAxOTo1Nw0KPj4gSSBkb24ndCByZWNhbGwgb2YgYW55
+IHJlY2VudCBjaGFuZ2UgaW4gdGhpcyBhcmVhLg0KPj4NCkkgZG9uJ3QgdGhpbmsgdGhlIGJlaGF2
+aW9yIGNoYW5nZWQgcmVjZW50bHkuIEkgdHJpZWQgYSBrZXJuZWwgNC40LjY1IGFuZCBpdCBzaG93
+cyB0aGUgc2FtZSBzeW1wdG9tcy4gSSBndWVzcyBOb2VsIHJlYWxseSBtZWFucyAzLjE5LT4gNC4w
+Lg0KDQo+PiBQYXRyaWNrL05vZWwsDQo+Pg0KPj4gRG9lcyB0aGUgY2hhbmdlIGJlbG93IGhlbHA/
+DQpVbmZvcnR1bmF0ZWx5IG5vLiBEaWQgeW91IHJ1biBod2Nsb2NrIG9yIHJ0Y3Rlc3Q/DQpJIHN0
+aWxsIHNlZToNCnJvb3RAQ1g5MDIwOn4jIGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCBydGMN
+CiA0MDogICAgICAgICAgMCAgICAgIHR6aWMgIDI0IEVkZ2UgICAgICA1M2ZhNDAwMC5zcnRjDQog
+NDE6ICAgICAgICAgIDAgICAgICB0emljICAyNSBFZGdlICAgICAgNTNmYTQwMDAuc3J0Yw0Kcm9v
+dEBDWDkwMjA6fiMgaHdjbG9jayAtRCAtcg0KaHdjbG9jayBmcm9tIHV0aWwtbGludXggMi4yOS4y
+DQpVc2luZyB0aGUgL2RldiBpbnRlcmZhY2UgdG8gdGhlIGNsb2NrLg0KTGFzdCBkcmlmdCBhZGp1
+c3RtZW50IGRvbmUgYXQgMTQ5MDg4NTA4MiBzZWNvbmRzIGFmdGVyIDE5NjkNCkxhc3QgY2FsaWJy
+YXRpb24gZG9uZSBhdCAxNDkwODg1MDgyIHNlY29uZHMgYWZ0ZXIgMTk2OQ0KSGFyZHdhcmUgY2xv
+Y2sgaXMgb24gVVRDIHRpbWUNCkFzc3VtaW5nIGhhcmR3YXJlIGNsb2NrIGlzIGtlcHQgaW4gVVRD
+IHRpbWUuDQpXYWl0aW5nIGZvciBjbG9jayB0aWNrLi4uDQpbICAgNDEuMDM1MjY5XSBpcnEgNDA6
+IG5vYm9keSBjYXJlZCAodHJ5IGJvb3Rpbmcgd2l0aCB0aGUgImlycXBvbGwiIG9wdGlvbikNClsg
+ICA0MS4wNDI1MTRdIGhhbmRsZXJzOg0KWyAgIDQxLjA0NDg0N10gWzxjMDYwMzFlMD5dIGRyeWlj
+ZV9pcnENClsgICA0MS4wNDgzOThdIERpc2FibGluZyBJUlEgIzQwDQpzZWxlY3QoKSB0byAvZGV2
+L3J0YyB0byB3YWl0IGZvciBjbG9jayB0aWNrIHRpbWVkIG91dC4uLnN5bmNocm9uaXphdGlvbiBm
+YWlsZWQNCnJvb3RAQ1g5MDIwOn4jIGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCBydGMNCiA0
+MDogICAgIDEwMDAwMCAgICAgIHR6aWMgIDI0IEVkZ2UgICAgICA1M2ZhNDAwMC5zcnRjDQogNDE6
+ICAgICAgICAgIDAgICAgICB0emljICAyNSBFZGdlICAgICAgNTNmYTQwMDAuc3J0Yw0KDQoNCm9y
+IGlmIEkgcnVuIHJ0Y3Rlc3QgZnJvbSB0b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy90aW1lcnMvIChh
+ZnRlciByZWJvb3QpOg0KDQpyb290QENYOTAyMDp+IyBjYXQgL3Byb2MvaW50ZXJydXB0cyB8IGdy
+ZXAgcnRjDQogNDA6ICAgICAgICAgIDAgICAgICB0emljICAyNCBFZGdlICAgICAgNTNmYTQwMDAu
+c3J0Yw0KIDQxOiAgICAgICAgICAwICAgICAgdHppYyAgMjUgRWRnZSAgICAgIDUzZmE0MDAwLnNy
+dGMNCnJvb3RAQ1g5MDIwOn4jIC4vcnRjdGVzdA0KDQogICAgICAgICAgICAgICAgICAgICAgICBS
+VEMgRHJpdmVyIFRlc3QgRXhhbXBsZS4NCg0KQ291bnRpbmcgNSB1cGRhdGUgKDEvc2VjKSBpbnRl
+cnJ1cHRzIGZyb20gcmVhZGluZyAvZGV2L3J0YzA6WyAgIDM3LjU1MDM5OV0gaXJxIDQwOiBub2Jv
+ZHkgY2FyZWQgKHRyeSBib290aW5nIHdpdGggdGhlICJpcnFwb2xsIiBvcHRpb24pDQpbICAgMzcu
+NTU3NjQ2XSBoYW5kbGVyczoNClsgICAzNy41NTk5ODBdIFs8YzA2MDMxZTA+XSBkcnlpY2VfaXJx
+DQpbICAgMzcuNTYzNTMyXSBEaXNhYmxpbmcgSVJRICM0MA0KXkMNCnJvb3RAQ1g5MDIwOn4jIGNh
+dCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCBydGMNCiA0MDogICAgIDEwMDAwMCAgICAgIHR6aWMg
+IDI0IEVkZ2UgICAgICA1M2ZhNDAwMC5zcnRjDQogNDE6ICAgICAgICAgIDAgICAgICB0emljICAy
+NSBFZGdlICAgICAgNTNmYTQwMDAuc3J0Yw0KDQoNCldpdGggdGhlIGF0dGFjaGVkIHBhdGNoIEkg
+Z2V0IHJpZCBvZiB0aGUgdW5oYW5kbGVkIGludGVycnVwdHMuIEJ1dCB0aGF0IHBhdGNoIGp1c3Qg
+QUNLcyBldmVyeXRoaW5nLg0KIHJvb3RAQ1g5MDIwOn4jIGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwg
+Z3JlcCBydGMNCiA0MDogICAgICAgICAgMCAgICAgIHR6aWMgIDI0IEVkZ2UgICAgICA1M2ZhNDAw
+MC5zcnRjDQogNDE6ICAgICAgICAgIDAgICAgICB0emljICAyNSBFZGdlICAgICAgNTNmYTQwMDAu
+c3J0Yw0Kcm9vdEBDWDkwMjA6fiMgaHdjbG9jayAtRCAtcg0KaHdjbG9jayBmcm9tIHV0aWwtbGlu
+dXggMi4yOS4yDQpVc2luZyB0aGUgL2RldiBpbnRlcmZhY2UgdG8gdGhlIGNsb2NrLg0KTGFzdCBk
+cmlmdCBhZGp1c3RtZW50IGRvbmUgYXQgMTQ5MDg4NTA4MiBzZWNvbmRzIGFmdGVyIDE5NjkNCkxh
+c3QgY2FsaWJyYXRpb24gZG9uZSBhdCAxNDkwODg1MDgyIHNlY29uZHMgYWZ0ZXIgMTk2OQ0KSGFy
+ZHdhcmUgY2xvY2sgaXMgb24gVVRDIHRpbWUNCkFzc3VtaW5nIGhhcmR3YXJlIGNsb2NrIGlzIGtl
+cHQgaW4gVVRDIHRpbWUuDQpXYWl0aW5nIGZvciBjbG9jayB0aWNrLi4uDQpzZWxlY3QoKSB0byAv
+ZGV2L3J0YyB0byB3YWl0IGZvciBjbG9jayB0aWNrIHRpbWVkIG91dC4uLnN5bmNocm9uaXphdGlv
+biBmYWlsZWQNCnJvb3RAQ1g5MDIwOn4jIGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCBydGMN
+CiA0MDogICAgIDMwMTg0NCAgICAgIHR6aWMgIDI0IEVkZ2UgICAgICA1M2ZhNDAwMC5zcnRjDQog
+NDE6ICAgICAgICAgIDAgICAgICB0emljICAyNSBFZGdlICAgICAgNTNmYTQwMDAuc3J0Yw0KDQpG
+cm9tIDQyMjc0NzY4NmY1NzIzYWM3NWI5OGFkNjEwYjNlZjRkOTRlZjI3MWYgTW9uIFNlcCAxNyAw
+MDowMDowMCAyMDAxDQpGcm9tOiBQYXRyaWNrIEJydWVubiA8cC5icnVlbm5AYmVja2hvZmYuY29t
+Pg0KRGF0ZTogVHVlLCAxNCBOb3YgMjAxNyAwNToyMzoyNCArMDEwMA0KU3ViamVjdDogW1BBVENI
+XSBYWFg6IGRpc2FibGUgaW50ZXJydXB0cyBtYW51YWxseQ0KDQotLS0NCiBkcml2ZXJzL3J0Yy9y
+dGMtaW14ZGkuYyB8IDI0ICsrKysrKysrKysrKysrKysrKysrKysrKw0KIDEgZmlsZSBjaGFuZ2Vk
+LCAyNCBpbnNlcnRpb25zKCspDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL3J0Yy9ydGMtaW14ZGku
+YyBiL2RyaXZlcnMvcnRjL3J0Yy1pbXhkaS5jDQppbmRleCA4MDkzMTExNGM4OTkuLjRiNjRhNTM1
+MGJhYyAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1pbXhkaS5jDQorKysgYi9kcml2ZXJz
+L3J0Yy9ydGMtaW14ZGkuYw0KQEAgLTY4Niw2ICs2ODYsMjQgQEAgc3RhdGljIGlycXJldHVybl90
+IGRyeWljZV9pcnEoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KICAgICAgICBkaWVyID0gcmVhZGwo
+aW14ZGktPmlvYWRkciArIERJRVIpOw0KICAgICAgICBkc3IgPSByZWFkbChpbXhkaS0+aW9hZGRy
+ICsgRFNSKTsNCg0KKyAgICAgICAvKiBhY2sgbW9ub3RvbmljIGNvdW50ZXIgb3ZlcmZsb3cgKi8N
+CisgICAgICAgaWYgKERTUl9NQ08gPT0gZHNyKSB7DQorICAgICAgICAgICAgICAgcmV0dXJuIElS
+UV9IQU5ETEVEOw0KKyAgICAgICB9DQorICAgICAgIGlmIChkaWVyICYgRElFUl9XQ0lFKSB7DQor
+ICAgICAgICAgICAgICAgaWYgKGRzciAmIERTUl9NQ08pIHsNCisgICAgICAgICAgICAgICAgICAg
+ICAgIGRpX2ludF9kaXNhYmxlKGlteGRpLCBESUVSX1dDSUUpOw0KKyAgICAgICAgICAgICAgICAg
+ICAgICAgcmV0dXJuIElSUV9IQU5ETEVEOw0KKyAgICAgICAgICAgICAgIH0NCisgICAgICAgfQ0K
+Kw0KKyAgICAgICBpZiAoZGllciAmIERJRVJfQ0FJRSkgew0KKyAgICAgICAgICAgICAgIGlmIChk
+c3IgJiBEU1JfTUNPKSB7DQorICAgICAgICAgICAgICAgICAgICAgICBkaV9pbnRfZGlzYWJsZShp
+bXhkaSwgRElFUl9DQUlFKTsNCisgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBJUlFfSEFO
+RExFRDsNCisgICAgICAgICAgICAgICB9DQorICAgICAgIH0NCisNCiAgICAgICAgLyogaGFuZGxl
+IHRoZSBzZWN1cml0eSB2aW9sYXRpb24gZXZlbnQgKi8NCiAgICAgICAgaWYgKGRpZXIgJiBESUVS
+X1NWSUUpIHsNCiAgICAgICAgICAgICAgICBpZiAoZHNyICYgRFNSX1NWRikgew0KQEAgLTcxMCw3
+ICs3MjgsMTAgQEAgc3RhdGljIGlycXJldHVybl90IGRyeWljZV9pcnEoaW50IGlycSwgdm9pZCAq
+ZGV2X2lkKQ0KICAgICAgICAgICAgICAgICAgb3BlcmF0aW9ucy4gSXQgbWVhbnMgdGhlIGludGVy
+cnVwdCBpcyBmb3IgRHJ5SWNlIC1TZWN1cml0eS4NCiAgICAgICAgICAgICAgICAgIElSUSBtdXN0
+IGJlIHJldHVybmVkIGFzIG5vbmUuKi8NCiAgICAgICAgICAgICAgICBpZiAobGlzdF9lbXB0eV9j
+YXJlZnVsKCZpbXhkaS0+d3JpdGVfd2FpdC5oZWFkKSkNCisgICAgICAgICAgICAgICB7DQorICAg
+ICAgICAgICAgICAgICAgICAgICBwcmludGsoInJ0YzogWFhYWDogZGllcjogMHgleCBkc3I6IDB4
+JXhcbiIsIGRpZXIsIGRzcik7DQogICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gcmM7DQor
+ICAgICAgICAgICAgICAgfQ0KDQogICAgICAgICAgICAgICAgLyogRFNSX1dDRiBjbGVhcnMgaXRz
+ZWxmIG9uIERTUiByZWFkICovDQogICAgICAgICAgICAgICAgaWYgKGRzciAmIChEU1JfV0NGIHwg
+RFNSX1dFRikpIHsNCkBAIC03MzcsNiArNzU4LDkgQEAgc3RhdGljIGlycXJldHVybl90IGRyeWlj
+ZV9pcnEoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KICAgICAgICAgICAgICAgICAgICAgICAgcmMg
+PSBJUlFfSEFORExFRDsNCiAgICAgICAgICAgICAgICB9DQogICAgICAgIH0NCisgICAgICAgaWYg
+KHJjICE9IElSUV9IQU5ETEVEKSB7DQorICAgICAgICAgICAgICAgcHJpbnRrKCJydGM6IFhYWFg6
+IGRpZXI6IDB4JXggZHNyOiAweCV4XG4iLCBkaWVyLCBkc3IpOw0KKyAgICAgICB9DQogICAgICAg
+IHJldHVybiByYzsNCiB9DQoNCi0tDQoyLjExLjANCkJlY2tob2ZmIEF1dG9tYXRpb24gR21iSCAm
+IENvLiBLRyB8IE1hbmFnaW5nIERpcmVjdG9yOiBEaXBsLiBQaHlzLiBIYW5zIEJlY2tob2ZmDQpS
+ZWdpc3RlcmVkIG9mZmljZTogVmVybCwgR2VybWFueSB8IFJlZ2lzdGVyIGNvdXJ0OiBHdWV0ZXJz
+bG9oIEhSQSA3MDc1DQoNCg0K
