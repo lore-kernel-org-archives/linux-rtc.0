@@ -1,151 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:14989 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752893AbdKWNfy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 23 Nov 2017 08:35:54 -0500
-Date: Thu, 23 Nov 2017 15:29:16 +0200
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, sathyaosid@gmail.com
-Subject: Re: [RFC v8 4/7] platform: x86: Add generic Intel IPC driver
-Message-ID: <20171123132916.GE17418@kuha.fi.intel.com>
-References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <5c66498c110e52343d810db9c281fe72d0d299cc.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mail1.bemta6.messagelabs.com ([193.109.254.112]:49193 "EHLO
+        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753656AbdKNM4f (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 07:56:35 -0500
+From: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>
+To: Juergen Borleis <jbe@pengutronix.de>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Fabio Estevam <festevam@gmail.com>,
+        =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: DryIce , RTC not working on imx53.
+Date: Tue, 14 Nov 2017 12:56:30 +0000
+Message-ID: <D24E577EA1E37B4788A3BFBC418F14A707646BEA@wetsrvex01.loepfe.com>
+References: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+ <CAOMZO5CdGAqBkBQ5DdphzNr-tB5r7Sj9jBAhFTFPNezTEjJOMg@mail.gmail.com>
+ <20171114105517.74ycmwcjsab7xp2j@piout.net>
+ <201711141343.15309.jbe@pengutronix.de>
+In-Reply-To: <201711141343.15309.jbe@pengutronix.de>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5c66498c110e52343d810db9c281fe72d0d299cc.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
-
-On Sun, Oct 29, 2017 at 02:49:57AM -0700, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
-> +/**
-> + * devm_intel_ipc_dev_create() - Create IPC device
-> + * @dev		: IPC parent device.
-> + * @devname	: Name of the IPC device.
-> + * @cfg		: IPC device configuration.
-> + * @ops		: IPC device ops.
-> + *
-> + * Resource managed API to create IPC device with
-> + * given configuration.
-> + *
-> + * Return	: IPC device pointer or ERR_PTR(error code).
-> + */
-> +struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
-> +		const char *devname,
-> +		struct intel_ipc_dev_cfg *cfg,
-> +		struct intel_ipc_dev_ops *ops)
-> +{
-> +	struct intel_ipc_dev **ptr, *ipc_dev;
-> +	int ret;
-> +
-> +	if (!dev && !devname && !cfg)
-> +		return ERR_PTR(-EINVAL);
-> +
-> +	if (intel_ipc_dev_get(devname)) {
-> +		dev_err(dev, "IPC device %s already exist\n", devname);
-> +		return ERR_PTR(-EINVAL);
-> +	}
-> +
-> +	ptr = devres_alloc(devm_intel_ipc_dev_release, sizeof(*ptr),
-> +			GFP_KERNEL);
-> +	if (!ptr)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	ipc_dev = kzalloc(sizeof(*ipc_dev), GFP_KERNEL);
-> +	if (!ipc_dev) {
-> +		ret = -ENOMEM;
-> +		goto err_dev_create;
-> +	}
-> +
-> +	ipc_dev->dev.class = &intel_ipc_class;
-> +	ipc_dev->dev.parent = dev;
-> +	ipc_dev->dev.groups = ipc_dev_groups;
-> +	ipc_dev->cfg = cfg;
-> +	ipc_dev->ops = ops;
-> +
-> +	mutex_init(&ipc_dev->lock);
-> +	init_completion(&ipc_dev->cmd_complete);
-> +	dev_set_drvdata(&ipc_dev->dev, ipc_dev);
-> +	dev_set_name(&ipc_dev->dev, devname);
-> +	device_initialize(&ipc_dev->dev);
-> +
-> +	ret = device_add(&ipc_dev->dev);
-> +	if (ret < 0) {
-> +		dev_err(&ipc_dev->dev, "%s device create failed\n",
-> +				__func__);
-> +		ret = -ENODEV;
-> +		goto err_dev_add;
-> +	}
-> +
-> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
-> +		if (devm_request_irq(&ipc_dev->dev,
-> +				ipc_dev->cfg->irq,
-> +				ipc_dev_irq_handler,
-> +				ipc_dev->cfg->irqflags,
-> +				dev_name(&ipc_dev->dev),
-> +				ipc_dev)) {
-> +			dev_err(&ipc_dev->dev,
-> +					"Failed to request irq\n");
-> +			goto err_irq_request;
-> +		}
-> +	}
-
-That looks really wrong to me. This is the class driver, so why are
-you handling the interrupts of the devices in it? You are clearly
-making assumption that the interrupt will always be used only for
-command completion, but that may not be the case. No assumptions.
-
-Just define completion callbacks, and let the drivers handle the
-actual interrupts.
-
-> +	*ptr = ipc_dev;
-> +
-> +	devres_add(dev, ptr);
-> +	return ipc_dev;
-> +
-> +err_irq_request:
-> +	device_del(&ipc_dev->dev);
-> +err_dev_add:
-> +	kfree(ipc_dev);
-> +err_dev_create:
-> +	devres_free(ptr);
-> +	return ERR_PTR(ret);
-> +}
-> +EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_create);
-> +
-> +static int __init intel_ipc_init(void)
-> +{
-> +	ipc_channel_lock_init();
-> +	return class_register(&intel_ipc_class);
-> +}
-> +
-> +static void __exit intel_ipc_exit(void)
-> +{
-> +	class_unregister(&intel_ipc_class);
-> +}
-> +subsys_initcall(intel_ipc_init);
-> +module_exit(intel_ipc_exit);
-> +
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Kuppuswamy Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>");
-> +MODULE_DESCRIPTION("Intel IPC device class driver");
-
-To be honest, creating an extra logical device for the IPC hosts, and
-the entire class, all feel unnecessarily complex to me.
-
-The goal of this patch should be possible to achieve in a much simpler
-and flexible way. IMO this patch needs to be redesigned.
-
-
-Thanks,
-
--- 
-heikki
+SGkgYWxsLCANCg0KSnVlcmdlbiBJdCB3b24ndCB3b3JrICggYXMgaXQgaXMpICwgcmVnaXN0ZXJz
+IGFyZSBub3Qgb24gdGhlIGNvcnJlY3Qgb2Zmc2V0cyBhbmQgc29tZSBiaXRzIGFyZSBub3Qgb24g
+dGhlIHNhbWUgcG9zaXRpb25zICggZm9yIHRoZSBJTVg1MykNClRoaXMgZHJpdmVyIHdpbGwgbm90
+IHdvcmsgZm9yIHRoZSBJTlRFUk5BTC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2ls
+bCBuZXZlciBoYXZlIHdvcmtlZCAoIG9uIElNWDUzKS4gDQpJIGNhbiBjb25maXJtLCBpdCBtaWdo
+dCB3b3JrIGZvciBzb21lIG90aGVyIHZhcmlhbnQgb2YgdGhlIFJUQywgYnV0IGl0IHdpbGwgbm90
+IGRvIHdoYXQgd2UgYWxsIGV4cGVjdGVkIGZvciB0aGUgUlRDIGxvY2F0ZWQgaW50byBJTVg1MyEN
+Cg0KKCBub3Qgc3VyZSBteSBwcmV2aW91cyBtYWlsIGdvdCB0byB0aGUgZGVzdGluYXRpb24pDQoN
+CkJlc3QgUmVnYXJkcw0KTm9lbA0KDQoNCg0KDQo+Pg0KPj4gPiBKdWVyZ2VuIGNhbiBjb25maXJt
+LCBidXQgaXQgc2VlbXMgdGhlIGRyeWljZSBkcml2ZXIgd2FzIG9ubHkgdXNlZCBvbg0KPiA+IG14
+MjUgaW4gbWFpbmxpbmUuDQo+Pg0KPj4+IE9rLCB0aGF0IHdvdWxkIGV4cGxhaW4gaXQuDQo+Pg0K
+Pj5ZZXMuIFRoZSBkZXZlbG9wbWVudCB3YXMgbWFkZSBvbiBhbiBpLk1YMjUuIEJ1dCBjdXJyZW50
+bHkgSSBoYXZlIGFuIGkuTVg1MyBvbiBteSBkZXNrIGhlcmUgYW5kIGNvdWxkIHRlc3QuLi4NCj4+
+DQo+PmpiDQoNCj4+Pg0KPj4NCj4+DQo+Pg0KPj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
+Pj5Gcm9tOiBWZWxsZW1hbnMsIE5vZWwgDQo+PlNlbnQ6IFR1ZXNkYXksIE5vdmVtYmVyIDE0LCAy
+MDE3IDExOjMwIEFNDQo+PlRvOiAnRmFiaW8gRXN0ZXZhbScNCj4+Q2M6IFBhdHJpY2sgQnLDvG5u
+OyBBbGV4YW5kcmUgQmVsbG9uaTsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3Jn
+OyBsaW51eC1ydGNAdmdlci5rZXJuZWwub3JnDQo+PlN1YmplY3Q6IFJFOiBEcnlJY2UgLCBSVEMg
+bm90IHdvcmtpbmcgb24gaW14NTMuDQo+Pg0KPj5IaSBGYWJpbw0KPj4NCj4+SXQncyBiZWVuIGEg
+d2hpbGUuLi4gKCBidXQgSSdtIHF1aXRlIHN1cmUpLCBpZiB5b3UgbG9vayBjbG9zZWx5IGF0IHRo
+ZSByZWdpc3RlciBkZWZpbmVzICggaW50byB0aGUgRFJZSUNFLWRyaXZlci1jb2RlKSB0aGVuIHlv
+dSB3aWxsIG5vdGljZS4uLiB0aGF0IFNPTUUgcmVnaXN0ZXJzIG9mZnNldHMgYXJlIGNvcnJlY3Qg
+LCBidXQgb3RoZXJzIGFyZSBub3QgbWF0Y2hpbmcgdGhlIElOVEVSTkFMIHJ0YyBvZiB0aGUgSU1Y
+NTMuDQo+Pg0KPj5XaGVuIEkgbm90aWNlZCB0aGF0ICggSSBza2lwcGVkIFJUQyBkcml2ZXIgZnVu
+Y3Rpb25hbGl0eSwgdW5kZXIgcmVsZWFzZSBwcmVzc3VyZSwgSSBoYWQgc3RpbGwgbWFueSBpdGVt
+cyB0byB0ZXN0IG9uIHRob3NlIGtlcm5lbCAsIGFuZCBJIHdhcyB1bmRlciByZWxlYXNlIHByZXNz
+dXJlLi4gc28gSSByZW1vdmVkIFJUQyBmb3IgdGhlIHRpbWUgYmVpbmcuKQ0KPj4NCj4+eyB5b3Ug
+Y2FuIGdldCBiYXNpYyBSVEMgLCB0aW1lciBvbmx5ICwgbm8gYWxhcm1zL2V2ZW50cyB3b3JraW5n
+Li4uIGJ5IGNvbW1lbnRpbmcgYSBsb3Qgb2YgdGhpbmdzIG91dCwgIGJ1dCAuLiBJIGRlY2lkZWQg
+dG8gc29sdmUgdGhpcyBsYXRlciB0aGUgY29ycmVjdCB3YXksICB3aGVuIEkgZmluZCBzb21lIHRp
+bWUgICggYW5kIHRvIHJlcG9ydCBiYWNrIHdoZW4gc29sdmVkLCBkaWRuJ3Qgd2FudCB0byBib3Ro
+ZXIgbWFueSBwZW9wbGUsIG9yIG90aGVyd2lzZSBzYWlkIGRpZG4ndCB3YW50IG1ha2UgdG9vIG1h
+bnkgbm9pc2UgLi4uLiAoIGJlY2F1c2UgcnRjIGlzIG5vdCBjcml0aWNhbCBpbiBteSBhcHBsaWNh
+dGlvbiApIH0NCj4+DQo+PlRoaXMgZHJpdmVyIHdpbGwgbm90IHdvcmsgZm9yIHRoZSBJTlRFUk5B
+TC1SVEMgKCBydGMgaW50byB0aGUgSU1YNTMpLCBhbmQgd2lsbCBuZXZlciBoYXZlIHdvcmtlZCwg
+SSBjYW4gY29uZmlybSB0aGlzLCBpdCBtaWdodCBoYXZlIHdvcmtlZCBmb3Igc29tZSBvdGhlciB2
+YXJpYW50IG9mIHRoZSBSVEMsIGJ1dCBpdCB3aWxsIG5vdCBkbyB3aGF0IHdlIGFsbCBleHBlY3Rl
+ZCBmb3IgdGhlIFJUQyBsb2NhdGVkIGludG8gSU1YNTMhDQo+Pg0KPj4NCj4+UmVnYXJkcw0KPj5O
+b2VsDQo+Pg0KPj5QUzogSnVzdCBmb3IgaW5mbywgIGF0IHRoaXMgdGltZSBJJ20gaW52ZXN0aWdh
+dGluZyBhIE5PVCBib290aW5nIHByb2JsZW0gLi4gYW5kIC4uIGl04oCZcyBhIGhhcmQgb25lICgg
+a2VlcHMgbWUgYnVzeSBmb3Igc29tZSBkYXkncyBhbHJlYWR5IC4uLiBsZXQncyBzYXkgaW4gYSA1
+MDAgYm9vdHMgdGhlcmUgaXMgb25lIGlzc3VlIHdoZXJlIHRoZSAna2VybmVsJyBsb2Nrcy11cCBp
+biBhIA0KPj52ZXJ5IHZlcnkgZWFybHkgc3RhZ2UuLiAoaW50byB0aGUgZmlyc3QgbWlsaS1zZWMg
+b2YgdGhlIGJvb3QgaXQgaGFuZ3MsIHNvbWUtd2hlcmUgYXJvdW5kIElSUS1pbml0aWFsaXphdGlv
+biAuLiBhbGwgYmxvY2tzICwgYmVmb3JlIENQVS1pZGVudGlmaWNhdGlvbi4uLiBubyBjbHVlIHll
+dCB3aGVyZSBleGFjdGx5Li4hKSANCj4+eyBpdCdzIG9ubHkgaGFwcGVuaW5nIGluIGxhdGVzdCBr
+ZXJuZWxzIDQuNC54IC8gNC4xeC54ICwgb2xkZXIgMi42LjM1IGRvIG5vdCBzdWZmZXIgdGhpcyBu
+b25lIGJvb3QgYmVoYXZpb3IgKCBvbiB0aGUgc2FtZSBoYXJkd2FyZSkgLCBzbyAuLiBkaWdnaW5n
+IC8gZGVidWdnaW5nIC8gcHJpbnRpbmcuLiA6LSkgYXQgdGhpcyB0aW1lIH0NCg0K
