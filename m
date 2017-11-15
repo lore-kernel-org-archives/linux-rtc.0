@@ -1,38 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33183 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:48969 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751118AbdKHE3I (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Nov 2017 23:29:08 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: pcf8563: don't alway enable the alarm
-Date: Wed,  8 Nov 2017 05:29:01 +0100
-Message-Id: <20171108042901.10686-1-alexandre.belloni@free-electrons.com>
+        with ESMTP id S932115AbdKONHS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Nov 2017 08:07:18 -0500
+Received: from localhost (unknown [37.71.171.242])
+        by mail.free-electrons.com (Postfix) with ESMTPSA id 2C6C320381
+        for <linux-rtc@vger.kernel.org>; Wed, 15 Nov 2017 14:07:14 +0100 (CET)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: robh+dt@kernel.org, devicetree@vger.kernel.org, jbe@pengutronix.de,
+        Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH] dt-bindings: rtc: imxdi: Improve the bindings text
+Date: Wed, 15 Nov 2017 10:59:53 -0200
+Message-Id: <1510750793-25564-1-git-send-email-festevam@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Allow setting the alarm and later enable it instead of enabling it
-unconditionally.
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Improve the bindings text by doing the following changes:
+
+- Remove the i.MX53 reference, as the RTC on i.MX53 is a different hardware
+- Add 'clocks' to the list of required properties
+- Explain that the optional security violation irq is the second entry
+- Use the real unit address and irq numbers for i.MX25
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 ---
- drivers/rtc/rtc-pcf8563.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/rtc/imxdi-rtc.txt | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 8c836c51a508..3efc86c25d27 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -387,7 +387,7 @@ static int pcf8563_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
- 	if (err)
- 		return err;
+diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+index 323cf26..b8f3050 100644
+--- a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+@@ -1,20 +1,20 @@
+ * i.MX25 Real Time Clock controller
  
--	return pcf8563_set_alarm_mode(client, 1);
-+	return pcf8563_set_alarm_mode(client, !!tm->enabled);
- }
+-This binding supports the following chips: i.MX25, i.MX53
+-
+ Required properties:
+ - compatible: should be: "fsl,imx25-rtc"
+ - reg: physical base address of the controller and length of memory mapped
+   region.
++- clocks: should contain the phandle for the rtc clock
+ - interrupts: rtc alarm interrupt
  
- static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
+ Optional properties:
+-- interrupts: dryice security violation interrupt
++- interrupts: dryice security violation interrupt (second entry)
+ 
+ Example:
+ 
+-rtc@80056000 {
+-	compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
+-	reg = <0x80056000 2000>;
+-	interrupts = <29 56>;
++rtc@53ffc000 {
++	compatible = "fsl,imx25-rtc";
++	reg = <0x53ffc000 0x4000>;
++	clocks = <&clks 81>;
++	interrupts = <25 56>;
+ };
 -- 
-2.15.0
+2.7.4
