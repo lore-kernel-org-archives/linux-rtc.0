@@ -1,71 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:52803 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751945AbdKDQIh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Nov 2017 12:08:37 -0400
-Date: Sat, 4 Nov 2017 17:08:36 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Eric Nelson <eric@nelint.com>
-Cc: linux-rtc@vger.kernel.org, robh@kernel.org, a.zummo@towertech.it,
-        mark.rutland@arm.com, devicetree@vger.kernel.org,
-        otavio.salvador@ossystems.com.br
-Subject: Re: [PATCH V3] rtc: add support for NXP PCF85363 real-time clock
-Message-ID: <20171104160836.bah5su2ld5ckycr3@piout.net>
-References: <CAL_Jsq+QQK=NTMBwk=h0uszLW0uSiEd1fmF09USRNFM-2VgiSQ@mail.gmail.com>
- <1509548480-29472-1-git-send-email-eric@nelint.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1509548480-29472-1-git-send-email-eric@nelint.com>
+Received: from mail.ispras.ru ([83.149.199.45]:40934 "EHLO mail.ispras.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1762260AbdKQVQJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 17 Nov 2017 16:16:09 -0500
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: Brian Norris <computersforpeace@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        bcm-kernel-feedback-list@broadcom.com, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        ldv-project@linuxtesting.org
+Subject: [PATCH] rtc: brcmstb-waketimer: fix error handling in brcmstb_waketmr_probe()
+Date: Sat, 18 Nov 2017 00:15:58 +0300
+Message-Id: <1510953358-7043-1-git-send-email-khoroshilov@ispras.ru>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+brcmstb_waketmr_probe() does not disable timer->clk on error paths.
 
-On 01/11/2017 at 08:01:20 -0700, Eric Nelson wrote:
-> Note that alarms are not currently implemented.
-> 
-> 64 bytes of nvmem is supported and exposed in
-> sysfs (# is the instance number, starting with 0):
-> 
-> 	/sys/bus/nvmem/devices/pcf85363-#/nvmem
-> 
-> Signed-off-by: Eric Nelson <eric@nelint.com>
-> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
-> ---
-> V2 addresses a couple of issues highlighted by Fabio Estevam
->     1. Kconfig updated to select REGMAP_I2C
->     2. Switch to of_device_id from i2c_device_id for driver matching
-> 
-> V3 adds interrupts as an optional property in device tree bindings
-> 
->  drivers/rtc/Kconfig                                |  13 ++
->  drivers/rtc/Makefile                               |   1 +
->  drivers/rtc/rtc-pcf85363.c                         | 221 +++++++++++++++++++++
->  4 files changed, 252 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/pcf85363.txt
->  create mode 100644 drivers/rtc/rtc-pcf85363.c
-> 
+Found by Linux Driver Verification project (linuxtesting.org).
 
-I've tested it (thanks to Fabio, I received one a few weeks ago)
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/rtc/rtc-brcmstb-waketimer.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-Applied with the following change:
-
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -194,7 +194,6 @@ static int pcf85363_probe(struct i2c_client *client,
-        pcf85363->nvmem_cfg.reg_write = pcf85363_nvram_write;
-        pcf85363->nvmem_cfg.priv = pcf85363;
-        pcf85363->rtc->nvmem_config = &pcf85363->nvmem_cfg;
--       pcf85363->rtc->nvram_old_abi = true;
-        pcf85363->rtc->ops = &rtc_ops;
+diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+index 796ac792a381..6cee61201c30 100644
+--- a/drivers/rtc/rtc-brcmstb-waketimer.c
++++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+@@ -253,7 +253,7 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
+ 	ret = devm_request_irq(dev, timer->irq, brcmstb_waketmr_irq, 0,
+ 			       "brcmstb-waketimer", timer);
+ 	if (ret < 0)
+-		return ret;
++		goto err_clk;
  
-        return rtc_register_device(pcf85363->rtc);
-
-
-nvram_old_abi must not be used for new drivers and will generate warning
-when the (undocumented) ABI is used anyway.
-
+ 	timer->reboot_notifier.notifier_call = brcmstb_waketmr_reboot;
+ 	register_reboot_notifier(&timer->reboot_notifier);
+@@ -262,12 +262,21 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
+ 					 &brcmstb_waketmr_ops, THIS_MODULE);
+ 	if (IS_ERR(timer->rtc)) {
+ 		dev_err(dev, "unable to register device\n");
+-		unregister_reboot_notifier(&timer->reboot_notifier);
+-		return PTR_ERR(timer->rtc);
++		ret = PTR_ERR(timer->rtc);
++		goto err_notifier;
+ 	}
+ 
+ 	dev_info(dev, "registered, with irq %d\n", timer->irq);
+ 
++	return 0;
++
++err_notifier:
++	unregister_reboot_notifier(&timer->reboot_notifier);
++
++err_clk:
++	if (timer->clk)
++		clk_disable_unprepare(timer->clk);
++
+ 	return ret;
+ }
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.7.4
