@@ -1,91 +1,151 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:54521 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:34162 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751887AbdKNK0Z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Nov 2017 05:26:25 -0500
-Date: Tue, 14 Nov 2017 11:26:14 +0100
+        with ESMTP id S1751734AbdKWMFD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Nov 2017 07:05:03 -0500
+Date: Thu, 23 Nov 2017 13:04:51 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        "Vellemans, Noel" <Noel.Vellemans@visionbms.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: DryIce , RTC not working on imx53.
-Message-ID: <20171114102614.g2bxstg5qacvmtk6@piout.net>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
- <20171109030327.anzo47xayxckn47r@piout.net>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52290E@NT-Mail07.beckhoff.com>
- <20171113161522.2kq7un7gl5vg4qlq@piout.net>
- <CAOMZO5Bi5PcuGiVRZykw9Zp-ysHmHzThhwNai-cqy3HRTUKQAg@mail.gmail.com>
- <CAOMZO5AOAo8OU86CrneFeWuu2ti1sea9843UQ16=7AyU5-B11Q@mail.gmail.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB52F4BE@NT-Mail07.beckhoff.com>
- <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Jason Gunthorpe <jgg@mellanox.com>,
+        John Stultz <john.stultz@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: Allow rtc drivers to specify the tv_nsec value for
+ ntp
+Message-ID: <20171123120451.v74j3z2c5oodxlud@piout.net>
+References: <20171013175433.GA22062@obsidianresearch.com>
+ <20171123095456.lkc4nkuzsd2q26mm@piout.net>
+ <20171123112338.GN31757@n2100.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAOMZO5B_RcXb6X7gUVSJbDpKSHj9eqtDqcYHjEN1n6zhkyCAjQ@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171123112338.GN31757@n2100.armlinux.org.uk>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-+Cc Juergen
+(Correcting Jason's email)
 
-On 14/11/2017 at 08:12:03 -0200, Fabio Estevam wrote:
-> Hi Patrick,
+On 23/11/2017 at 11:23:38 +0000, Russell King - ARM Linux wrote:
+> > So I'm discovering that this patch made it upstream silently. While it
+> > somewhat solves the issue for some RTCs, it is not a proper solution for
+> > most.
+> > 
+> > With this patch, set_offset_nsec will be hardcoded in the driver and
+> > this basically work for the mc146818 but many RTCs are connected on a
+> > slow bus (let's say i2c) and that bus may have various latencies
+> > depending on the platform so the value actually depends on the platform
+> > rather than on the RTC itself.
+> > 
+> > As noted by Russell in another thread, there is already a proper
+> > solution: do it from userspace as hwclock will already handle most
+> > issues.
 > 
-> On Tue, Nov 14, 2017 at 3:00 AM, Patrick Brünn <P.Bruenn@beckhoff.com> wrote:
-> >>From: Fabio Estevam [mailto:festevam@gmail.com]
-> >>Sent: Montag, 13. November 2017 19:57
-> >>> I don't recall of any recent change in this area.
-> >>>
-> > I don't think the behavior changed recently. I tried a kernel 4.4.65 and it shows the same symptoms. I guess Noel really means 3.19-> 4.0.
+> That's incorrect.  hwclock does not have the information to know when
+> it should set the time - that is hardware specific.  Some RTCs require
+> it set .5s before the second flips over, others require it at other
+> times.
 > 
-> Or maybe by 'old kernel' he meant the vendor 2.6.35 kernel.
-> 
-> I have the impression that the dryice driver has never worked in
-> mainlune for mx53.
+> hwclock has hard-coded the assumption that it's writing to a standard
+> PC RTC, so it does the .5s thing, which doesn't give good results on
+> various ARM platforms.
 > 
 
-I doubt that because it seems to have been used by Pengutronix.
+The 0.5s hardcoding depends on the version of hwclock you use (the
+busybox one doesn't do it anymore).
 
-> > Unfortunately no. Did you run hwclock or rtctest?
+I thought it was handling it better than that and I was indeed
+incorrect.
+
+What about setting the time on the RTC once, then using UIE to get the
+offset between the set time and the real time then set the time on the
+RTC again after accounting for the offset. That would work nicely for
+most RTCs.
+
+> Accurately reading the current time is way simpler - hwclock does this
+> by watching for the RTC's seconds changing (via the update interrupt
+> or emulation.)  That's way easier than setting the time.
 > 
-> Yes, this is what I get:
+> > I really think that we should simply consider dropping hctosys,
+> > systohc and update_persistent_clock. Most distributions have been
+> > handling it from userspace for a long time. Openembedded has a
+> > startup/shutdown script.
 > 
-> # hwclock -r -D
-> hwclock from util-linux 2.31
-> System Time: 14.876372
-> Trying to open: /dev/rtc0
-> Using the rtc interface to the clock.
-> Last drift adjustment done at 2167 seconds after 1969
-> Last calibrat[   14.892484] imxdi_rtc 53fa4000.srtc: Write-wait timeout val = 08
-> ion done at 2167 seconds after 1969
-> Hardware clock is on UTC time
-> Assuming hardware clock is kept in UTC time.
-> Waiting for clock tick...
-> hwclock: select() to /dev/rtc0 to wait for clock tick timed out
-> ...synchronization failed
+> Not every system does though - you have to adjust debian's
+> configuration for it to happen at shutdown.
 > 
+> However, that's not the point of the kernel updating the RTC time -
+> the point of the RTC updates while synchronised is to reduce the
+> disruption that a crash/reboot causes on NTP by allowing the system
+> time to be restored as close as possible to the real time as possible.
+> If the system has crashed with your idea, the RTC will not have been
+> synchronised since who-knows-when, and the RTC could be way out,
+> especially if the system has been running for more than a month.
 > 
-> > I still see:
-> > root@CX9020:~# cat /proc/interrupts | grep rtc
-> >  40:          0      tzic  24 Edge      53fa4000.srtc
-> >  41:          0      tzic  25 Edge      53fa4000.srtc
-> > root@CX9020:~# hwclock -D -r
-> > hwclock from util-linux 2.29.2
-> > Using the /dev interface to the clock.
-> > Last drift adjustment done at 1490885082 seconds after 1969
-> > Last calibration done at 1490885082 seconds after 1969
-> > Hardware clock is on UTC time
-> > Assuming hardware clock is kept in UTC time.
-> > Waiting for clock tick...
-> > [   41.035269] irq 40: nobody cared (try booting with the "irqpoll" option)
-> > [   41.042514] handlers:
-> > [   41.044847] [<c06031e0>] dryice_irq
-> > [   41.048398] Disabling IRQ #40
+
+But nothing prevents you from using hwclock every 11 minutes from
+userspace. I really don't think this should be done from the kernel.
+
+Even better, from userspace you can actually chose the time interval you
+want. To me, this all seems to be policy encoded in the kernel.
+
+> > Even better, systemd has a timesyncing daemon (but it doesn't yet do the
+> > correct offset calculations).
 > 
-> This error I don't get with the 2.31 hwclock version I tried.
+> No thanks.  systemd's timesyncing daemon replaces ntpd, so it forces
+> you to use systemd if you want this facility.  What if you want this
+> facility but also facilities from ntpd (eg, for synchronising with
+> a reference clock?)
+> 
+> The solution that Alexander and myself have come up with is, IMHO, the
+> best solution, even on buses such as I2C buses.  I've a bunch of
+> follow-up patches that add set_offset_nsec for pcf8583 and armada38x,
+> export controls for adjusting that value, and for disabling the NTP
+> update.
+> 
+> The idea behind the patches that export those controls is to allow
+> set_offset_nsec to be finely adjusted - in order to do that:
+> 
+> 1. you need to synchronise the machine's time keeping to a stable
+>    reference, let ntp settle.
+> 
+> 2. disable NTP updates of the RTC, measure the RTC drift over a long
+>    period (eg, a day) and trim the RTC for minimal drift.
+> 
+> 3. enable NTP updates, wait for an update, and measure the offset
+>    between real time and RTC time, and use that to adjust
+>    set_offset_nsec.
+> 
+> You only need to do the full procedure if you really care about
+> accurate time keeping (eg, you're trying to do something that
+> requires stable time.)  The point is, these patches _allow_ you to
+> do this if you wish.  Without them, it's completely impossible to
+> use Linux for accurately timestamped monitoring allocations - the
+> answer is not "just run ntpd" because if the system time is out,
+> it takes ntpd several *hours* to stabilise the systems timekeeping.
+> 
+
+I really don't think you currently need help from the kernel to do any
+of it (apart from adjusting the oscillator obviously). Nothing currently
+prevents you to keep a set_offset_nsec in userspace so you can actually
+set the time as close as possible to the current time.
+
+I didn't have time to draft a PoC and that is why I didn't reply on the
+patch yet.
+
+What I think is needed is a better tool, maybe a daemon, that would
+handle both keeping tabs on the needed offset and handle the oscillator
+trimming as it may need to get back and forth between two close values.
+
+I still think we need to drop the SYSTOHC and HCTOSYS stuff. I agree it
+can't happen overnight as some people are currently relying on it and
+they need to migrate.
+
+But having users wondering whether they should keep hwclock or use
+SYSTOHC/HCTOSYS is fucked up as SYSTOHC probably doesn't do what they
+want if they don't use NTP (and so they still need to be able to set
+time from userspace).
 
 -- 
 Alexandre Belloni, Free Electrons
