@@ -1,41 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46723 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752258AbdK2VR3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 29 Nov 2017 16:17:29 -0500
-Date: Wed, 29 Nov 2017 22:17:18 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Cole Robinson <crobinso@redhat.com>
-Cc: linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: Remove unused RTC_DEVICE_NAME_SIZE
-Message-ID: <20171129211718.GT21126@piout.net>
-References: <2cb5fda40f5ac0a6cc0ab59914c98062741c2e8b.1511656401.git.crobinso@redhat.com>
+Received: from mga09.intel.com ([134.134.136.24]:64899 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752785AbdKWN4N (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 23 Nov 2017 08:56:13 -0500
+Date: Thu, 23 Nov 2017 15:56:06 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: sathyanarayanan.kuppuswamy@linux.intel.com
+Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, sathyaosid@gmail.com
+Subject: Re: [RFC v8 0/7] SCU/PMC/PUNIT Inter-Processor Communication(IPC)
+ driver cleanup
+Message-ID: <20171123135606.GF17418@kuha.fi.intel.com>
+References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2cb5fda40f5ac0a6cc0ab59914c98062741c2e8b.1511656401.git.crobinso@redhat.com>
+In-Reply-To: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 Hi,
 
-On 25/11/2017 at 19:41:32 -0500, Cole Robinson wrote:
-> The last usage was removed in 5c82a6ae0 when rtc_device.name
-> was removed
+On Sun, Oct 29, 2017 at 02:49:53AM -0700, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
+> Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers
+> implements the same IPC features. This code duplication could be avoided if we
+> implement the IPC driver as a generic library and let custom device drivers
+> use API provided by generic driver. This patchset mainly addresses this issue.
 > 
-> Signed-off-by: Cole Robinson <crobinso@redhat.com>
-> ---
-> Just noticed this when looking at commits a few months back...
+> Along with above code duplication issue, This patchset also addresses
+> following issues in intel_pmc_ipc and intel_punit_ipc drivers.
 > 
->  include/linux/rtc.h | 1 -
->  1 file changed, 1 deletion(-)
-> 
+> 1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+> 2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO
+> are created manually and uses lot of redundant buffer code.
+> 3. Global variable is used to store the IPC device structure and it is used
+> across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
 
-I completely forgot it there...
+I think those changes are definitely welcome. On top of those, I want
+to have regmap for using the IPC. It does not make any sense that the
+drivers for the devices attached to for example the PMC, like the
+WhiskeyCove PMIC, have to implement their own regmaps.
 
-Applied, thanks.
+But a class for the IPC library does feel like overkill to me.
+
+
+Thanks,
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+heikki
