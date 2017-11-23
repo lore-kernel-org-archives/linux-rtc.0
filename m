@@ -1,51 +1,151 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from esa4.microchip.iphmx.com ([68.232.154.123]:33452 "EHLO
-        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751664AbdKJNlu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 08:41:50 -0500
-Subject: Re: [PATCH 1/2] rtc: at91rm9200: stop calculating yday in
- at91_rtc_readalarm
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-References: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
-Message-ID: <a00561dd-fb84-55d4-c819-12dd9d2bace7@microchip.com>
-Date: Fri, 10 Nov 2017 14:41:38 +0100
+Received: from mga05.intel.com ([192.55.52.43]:14989 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752893AbdKWNfy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 23 Nov 2017 08:35:54 -0500
+Date: Thu, 23 Nov 2017 15:29:16 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: sathyanarayanan.kuppuswamy@linux.intel.com
+Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, sathyaosid@gmail.com
+Subject: Re: [RFC v8 4/7] platform: x86: Add generic Intel IPC driver
+Message-ID: <20171123132916.GE17418@kuha.fi.intel.com>
+References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <5c66498c110e52343d810db9c281fe72d0d299cc.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5c66498c110e52343d810db9c281fe72d0d299cc.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 10/11/2017 at 09:59, Alexandre Belloni wrote:
-> Calculating yday in the read_alarm callback is useless as this value is
-> never used later. Also, it was buggy anyway because at the time this is
-> done, tm_year is always 0 as the alarm register doesn't hold the year.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Hi,
 
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+On Sun, Oct 29, 2017 at 02:49:57AM -0700, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
+> +/**
+> + * devm_intel_ipc_dev_create() - Create IPC device
+> + * @dev		: IPC parent device.
+> + * @devname	: Name of the IPC device.
+> + * @cfg		: IPC device configuration.
+> + * @ops		: IPC device ops.
+> + *
+> + * Resource managed API to create IPC device with
+> + * given configuration.
+> + *
+> + * Return	: IPC device pointer or ERR_PTR(error code).
+> + */
+> +struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
+> +		const char *devname,
+> +		struct intel_ipc_dev_cfg *cfg,
+> +		struct intel_ipc_dev_ops *ops)
+> +{
+> +	struct intel_ipc_dev **ptr, *ipc_dev;
+> +	int ret;
+> +
+> +	if (!dev && !devname && !cfg)
+> +		return ERR_PTR(-EINVAL);
+> +
+> +	if (intel_ipc_dev_get(devname)) {
+> +		dev_err(dev, "IPC device %s already exist\n", devname);
+> +		return ERR_PTR(-EINVAL);
+> +	}
+> +
+> +	ptr = devres_alloc(devm_intel_ipc_dev_release, sizeof(*ptr),
+> +			GFP_KERNEL);
+> +	if (!ptr)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	ipc_dev = kzalloc(sizeof(*ipc_dev), GFP_KERNEL);
+> +	if (!ipc_dev) {
+> +		ret = -ENOMEM;
+> +		goto err_dev_create;
+> +	}
+> +
+> +	ipc_dev->dev.class = &intel_ipc_class;
+> +	ipc_dev->dev.parent = dev;
+> +	ipc_dev->dev.groups = ipc_dev_groups;
+> +	ipc_dev->cfg = cfg;
+> +	ipc_dev->ops = ops;
+> +
+> +	mutex_init(&ipc_dev->lock);
+> +	init_completion(&ipc_dev->cmd_complete);
+> +	dev_set_drvdata(&ipc_dev->dev, ipc_dev);
+> +	dev_set_name(&ipc_dev->dev, devname);
+> +	device_initialize(&ipc_dev->dev);
+> +
+> +	ret = device_add(&ipc_dev->dev);
+> +	if (ret < 0) {
+> +		dev_err(&ipc_dev->dev, "%s device create failed\n",
+> +				__func__);
+> +		ret = -ENODEV;
+> +		goto err_dev_add;
+> +	}
+> +
+> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
+> +		if (devm_request_irq(&ipc_dev->dev,
+> +				ipc_dev->cfg->irq,
+> +				ipc_dev_irq_handler,
+> +				ipc_dev->cfg->irqflags,
+> +				dev_name(&ipc_dev->dev),
+> +				ipc_dev)) {
+> +			dev_err(&ipc_dev->dev,
+> +					"Failed to request irq\n");
+> +			goto err_irq_request;
+> +		}
+> +	}
 
-> ---
->  drivers/rtc/rtc-at91rm9200.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-> index e221b78b6f10..e84f5ec4faf6 100644
-> --- a/drivers/rtc/rtc-at91rm9200.c
-> +++ b/drivers/rtc/rtc-at91rm9200.c
-> @@ -208,7 +208,6 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct rtc_time *tm = &alrm->time;
->  
->  	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
-> -	tm->tm_yday = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
->  	tm->tm_year = at91_alarm_year - 1900;
->  
->  	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
-> 
+That looks really wrong to me. This is the class driver, so why are
+you handling the interrupts of the devices in it? You are clearly
+making assumption that the interrupt will always be used only for
+command completion, but that may not be the case. No assumptions.
 
+Just define completion callbacks, and let the drivers handle the
+actual interrupts.
+
+> +	*ptr = ipc_dev;
+> +
+> +	devres_add(dev, ptr);
+> +	return ipc_dev;
+> +
+> +err_irq_request:
+> +	device_del(&ipc_dev->dev);
+> +err_dev_add:
+> +	kfree(ipc_dev);
+> +err_dev_create:
+> +	devres_free(ptr);
+> +	return ERR_PTR(ret);
+> +}
+> +EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_create);
+> +
+> +static int __init intel_ipc_init(void)
+> +{
+> +	ipc_channel_lock_init();
+> +	return class_register(&intel_ipc_class);
+> +}
+> +
+> +static void __exit intel_ipc_exit(void)
+> +{
+> +	class_unregister(&intel_ipc_class);
+> +}
+> +subsys_initcall(intel_ipc_init);
+> +module_exit(intel_ipc_exit);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Kuppuswamy Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>");
+> +MODULE_DESCRIPTION("Intel IPC device class driver");
+
+To be honest, creating an extra logical device for the IPC hosts, and
+the entire class, all feel unnecessarily complex to me.
+
+The goal of this patch should be possible to achieve in a much simpler
+and flexible way. IMO this patch needs to be redesigned.
+
+
+Thanks,
 
 -- 
-Nicolas Ferre
+heikki
