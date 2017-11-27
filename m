@@ -1,23 +1,22 @@
-Return-Path: <rtc-linux+bncBCO7J6GN7ELBBSM77LIAKGQEBID77HI@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO7J6GN7ELBBUPK53IAKGQERX6UQBY@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
-        by gmr-mx.google.com with ESMTPS id o16si81183ywm.4.2017.11.29.02.45.29
+Received: from mail-pf0-x236.google.com (mail-pf0-x236.google.com. [2607:f8b0:400e:c00::236])
+        by gmr-mx.google.com with ESMTPS id j129si91433oib.5.2017.11.26.22.48.49
         for <rtc-linux@googlegroups.com>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 29 Nov 2017 02:45:29 -0800 (PST)
-Received: by mail-pf0-x244.google.com with SMTP id d23so1369156pfe.9
-        for <rtc-linux@googlegroups.com>; Wed, 29 Nov 2017 02:45:29 -0800 (PST)
+        Sun, 26 Nov 2017 22:48:49 -0800 (PST)
+Received: by mail-pf0-x236.google.com with SMTP id q63so5648731pfd.7
+        for <rtc-linux@googlegroups.com>; Sun, 26 Nov 2017 22:48:49 -0800 (PST)
 From: venkat.prashanth2498@gmail.com
-To: a.zummo@towertech.it,
-	alexandre.belloni@free-electrons.com
+To: alexandre.belloni@free-electrons.com
 Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	kumba@gentoo.org,
+	a.zummo@towertech.it,
 	Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
-Subject: [rtc-linux] [PATCH] rtc: rtc-ds1683 Maxim/Dallas I2C compatible
-Date: Wed, 29 Nov 2017 16:15:22 +0530
-Message-Id: <1511952322-5609-1-git-send-email-venkat.prashanth2498@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: add support for maxim dallas ds1682
+Date: Mon, 27 Nov 2017 12:18:44 +0530
+Message-Id: <1511765324-3645-1-git-send-email-venkat.prashanth2498@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,57 +29,21 @@ List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegro
 
 From: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 
-This is a patch to add support for
-maxim/dallas I2C rtc ds1683 chip.
+Add supporting driver for Dallas Semiconductor
+DS1682 2 wire total elapsed time recorder.
 
 Signed-off-by: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 ---
- drivers/rtc/Kconfig      |   9 +++
- drivers/rtc/Makefile     |   1 +
- drivers/rtc/rtc-ds1683.c | 203 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 213 insertions(+)
+ drivers/rtc/rtc-ds1682.c | 284 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 284 insertions(+)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e0e58f3..2528b79 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -294,6 +294,15 @@ config RTC_DRV_DS1672
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ds1672.
-
-+config RTC_DRV_DS1683
-+	tristate "Dallas/Maxim DS1683"
-+	help
-+	  If you say yes here you get support for the
-+	  Dallas/Maxim DS1683 I2C timekeeping chip.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-ds1683.
-+
- config RTC_DRV_HYM8563
- 	tristate "Haoyu Microelectronics HYM8563"
- 	depends on OF
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 0bf1fc0..a6f4419 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -62,6 +62,7 @@ obj-$(CONFIG_RTC_DRV_DS1390)	+= rtc-ds1390.o
- obj-$(CONFIG_RTC_DRV_DS1511)	+= rtc-ds1511.o
- obj-$(CONFIG_RTC_DRV_DS1553)	+= rtc-ds1553.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
-+obj-$(CONFIG_RTC_DRV_DS1683)	+= rtc-ds1683.o
- obj-$(CONFIG_RTC_DRV_DS1685_FAMILY)	+= rtc-ds1685.o
- obj-$(CONFIG_RTC_DRV_DS1742)	+= rtc-ds1742.o
- obj-$(CONFIG_RTC_DRV_DS2404)	+= rtc-ds2404.o
-diff --git a/drivers/rtc/rtc-ds1683.c b/drivers/rtc/rtc-ds1683.c
-index e69de29..7b6dac3 100644
---- a/drivers/rtc/rtc-ds1683.c
-+++ b/drivers/rtc/rtc-ds1683.c
-@@ -0,0 +1,203 @@
-+/* rtc-ds1683.c
-+ *
-+ * Driver for Maxim/Dallas ds1683, I2C Compatible
-+ * Real Time Clock
+diff --git a/drivers/rtc/rtc-ds1682.c b/drivers/rtc/rtc-ds1682.c
+index e69de29..a21c94d 100644
+--- a/drivers/rtc/rtc-ds1682.c
++++ b/drivers/rtc/rtc-ds1682.c
+@@ -0,0 +1,284 @@
++/* Driver for Dallas Semiconductor DS1682 2 wire total elapsed
++ * time recorder
 + *
 + * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 + *
@@ -90,196 +53,279 @@ index e69de29..7b6dac3 100644
 + *
 + */
 +
-+#include <linux/i2c.h>
-+#include <linux/rtc.h>
++#include <linux/platform_device.h>
 +#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/rtc.h>
++#include <linux/types.h>
++#include <linux/bcd.h>
++#include <linux/delay.h>
++#include <linux/gpio.h>
++#include <linux/slab.h>
++#include <linux/io.h>
 +
-+/* Registers */
++#define DS1682_READ_MEMORY_CMD 0x1D
 +
-+#define ds1683_REG_CNT_BASE	0
-+#define ds1683_REG_EVENT	4
++#ifndef __LINUX_DS1682_H
++#define __LINUX_DS1682_H
 +
-+#define ds1683_REG_CONTROL_EOSC	0x80
++const struct ds1682_platform_data {
 +
-+static struct i2c_driver ds1683_driver;
++	unsigned int gpio_rst;
++	unsigned int gpio_clk;
++	unsigned int gpio_dq;
++};
++#endif
 +
-+static int ds1683_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	unsigned long time;
-+	unsigned char addr = ds1683_REG_CNT_BASE;
-+	unsigned char buf[4];
++const struct ds1682;
 +
-+	struct i2c_msg msgs[] = {
-+		{	/* setup read pointer */
-+			.addr = client->addr,
-+			.len = 1,
-+			.buf = &addr
-+		},
-+		{/* read date */
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = 4,
-+			.buf = buf
-+		},
-+	};
-+
-+	/* read date registers */
-+	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __func__);
-+		return -EIO;
-+	}
-+
-+	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+
-+	rtc_time_to_tm(time, tm);
-+
-+	return 0;
-+}
-+
-+static int ds1683_set_mmss(struct i2c_client *client, unsigned long secs)
-+{
-+	int xfer;
-+	unsigned char buf[6];
-+
-+	buf[0] = ds1683_REG_CNT_BASE;
-+	buf[1] = secs & 0x000000FF;
-+	buf[2] = (secs & 0x0000FF00) >> 8;
-+	buf[3] = (secs & 0x00FF0000) >> 16;
-+	buf[4] = (secs & 0xFF000000) >> 24;
-+	buf[5] = 0;		/* set control reg to enable counting */
-+
-+	xfer = i2c_master_send(client, buf, 6);
-+	if (xfer != 6) {
-+		dev_err(&client->dev, "%s: send: %d\n", __func__, xfer);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int ds1683_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return ds1683_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int ds1683_rtc_set_mmss(struct device *dev, unsigned long secs)
-+{
-+	return ds1683_set_mmss(to_i2c_client(dev), secs);
-+}
-+
-+static int ds1683_get_control(struct i2c_client *client, u8 *status)
-+{
-+	unsigned char addr = ds1683_REG_CONTROL;
-+
-+	struct i2c_msg msgs[] = {
-+		{/* setup read pointer */
-+			.addr = client->addr,
-+			.len = 1,
-+			.buf = &addr
-+		},
-+		{/* read control */
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = 1,
-+			.buf = status
-+		},
-+	};
-+
-+	/* read control register */
-+	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/* sysfs callback functions */
-+static ssize_t show_control(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	u8 control;
-+	int err;
-+
-+	err = ds1683_get_control(client, &control);
-+	if (err)
-+		return err;
-+
-+	return sprintf(buf, "%s\n", (control & ds1683_REG_CONTROL_EOSC)
-+		       ? "disabled" : "enabled");
-+}
-+
-+static DEVICE_ATTR(control, 0444, show_control, NULL);
-+
-+static const struct rtc_class_ops ds1683_rtc_ops = {
-+	.read_time = ds1683_rtc_read_time,
-+	.set_mmss = ds1683_rtc_set_mmss,
++const struct ds1682_chip_ops {
++	int (*map_io)(const struct ds1682 *chip, struct platform_device *pdev,
++		  const struct ds1682_platform_data *pdata);
++	void (*unmap_io)(const struct ds1682 *chip);
 +};
 +
-+static int ds1683_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
++#define DS1682_RST	0
++#define DS1682_CLK	1
++#define DS1682_DQ	2
++
++const struct ds1682_gpio {
++	const char *name;
++	unsigned int gpio;
++};
++
++const struct ds1682 {
++	const struct ds1682_gpio *gpio;
++	const struct ds1682_chip_ops *ops;
++	const struct rtc_device *rtc;
++};
++
++const struct ds1682_gpio ds1682_gpio[] = {
++	{ "RTC RST", 0 },
++	{ "RTC CLK", 0 },
++	{ "RTC DQ", 0 },
++};
++
++int ds1682_gpio_map(const struct ds1682 *chip, struct platform_device *pdev,
++			  const struct ds1682_platform_data *pdata)
 +{
-+	int err = 0;
-+	u8 control;
-+	struct rtc_device *rtc;
++	int i, err;
 +
-+	dev_dbg(&client->dev, "%s\n", __func__);
++	ds1682_gpio[DS1682_RST].gpio = pdata->gpio_rst;
++	ds1682_gpio[DS1682_CLK].gpio = pdata->gpio_clk;
++	ds1682_gpio[DS1682_DQ].gpio = pdata->gpio_dq;
 +
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+		return -ENODEV;
++	for (i = 0; i < ARRAY_SIZE(ds1682_gpio); i++) {
++		err = gpio_request(ds1682_gpio[i].gpio, ds1682_gpio[i].name);
++		if (err) {
++			dev_err(&pdev->dev, "error mapping gpio %s: %d\n",
++				ds1682_gpio[i].name, err);
++			goto err_request;
++		}
++		if (i != DS1682_DQ)
++			gpio_direction_output(ds1682_gpio[i].gpio, 1);
++	}
 +
-+	rtc = devm_rtc_device_register(&client->dev, ds1683_driver.driver.name,
-+			&ds1683_rtc_ops, THIS_MODULE);
++	chip->gpio = ds1682_gpio;
++	return 0;
 +
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
++err_request:
++	while (--i >= 0)
++		gpio_free(ds1682_gpio[i].gpio);
++	return err;
++}
 +
-+	i2c_set_clientdata(client, rtc);
++static void ds1682_gpio_unmap(const struct ds1682 *chip)
++{
++	int i;
 +
-+	/* read control register */
-+	err = ds1683_get_control(client, &control);
-+	if (err)
-+		dev_warn(&client->dev, "Unable to read the control register\n");
++	for (i = 0; i < ARRAY_SIZE(ds1682_gpio); i++)
++		gpio_free(ds1682_gpio[i].gpio);
++}
 +
-+	if (control & ds1683_REG_CONTROL_EOSC)
-+		dev_warn(&client->dev, "Oscillator not enabled Set time to enable.\n");
++static const struct ds1682_chip_ops ds1682_gpio_ops = {
++	.map_io		= ds1682_gpio_map,
++	.unmap_io	= ds1682_gpio_unmap,
++};
 +
-+	/* Register sysfs hooks */
-+	err = device_create_file(&client->dev, &dev_attr_control);
-+	if (err)
-+		dev_err(&client->dev, "Unable to create sysfs entry: %s\n",
-+			dev_attr_control.attr.name);
++static void ds1682_reset(const struct device *dev)
++{
++	gpio_set_value(ds1682_gpio[DS1682_RST].gpio, 0);
++	udelay(1000);
++	gpio_set_value(ds1682_gpio[DS1682_RST].gpio, 1);
++	gpio_set_value(ds1682_gpio[DS1682_CLK].gpio, 0);
++	gpio_direction_output(ds1682_gpio[DS1682_DQ].gpio, 0);
++	udelay(10);
++}
++
++static void ds1682_write_byte(const struct device *dev, u8 byte)
++{
++	int i;
++
++	gpio_direction_output(ds1682_gpio[DS1682_DQ].gpio, 1);
++	for (i = 0; i < 8; i++) {
++		gpio_set_value(ds1682_gpio[DS1682_DQ].gpio, byte & (1 << i));
++		udelay(10);
++		gpio_set_value(ds1682_gpio[DS1682_CLK].gpio, 1);
++		udelay(10);
++		gpio_set_value(ds1682_gpio[DS1682_CLK].gpio, 0);
++		udelay(10);
++	}
++}
++
++static u8 ds1682_read_byte(const struct device *dev)
++{
++	int i;
++	u8 ret = 0;
++
++	gpio_direction_input(ds1682_gpio[DS1682_DQ].gpio);
++
++	for (i = 0; i < 8; i++) {
++		gpio_set_value(ds1682_gpio[DS1682_CLK].gpio, 0);
++		udelay(10);
++		if (gpio_get_value(ds1682_gpio[DS1682_DQ].gpio))
++			ret |= 1 << i;
++		gpio_set_value(ds1682_gpio[DS1682_CLK].gpio, 1);
++		udelay(10);
++	}
++	return ret;
++}
++
++static void ds1682_read_memory(const struct device *dev, u16 offset,
++			       int length, u8 *out)
++{
++	ds1682_reset(dev);
++	ds1682_write_byte(dev, DS1682_READ_MEMORY_CMD);
++	ds1682_write_byte(dev, offset & 0xff);
++	ds1682_write_byte(dev, (offset >> 8) & 0xff);
++	while (length--)
++		*out++ = ds1682_read_byte(dev);
++}
++
++static void ds1682_write_memory(const struct device *dev, u16 offset,
++				int length, u8 *out)
++{
++	int i;
++	u8 ta01, ta02, es;
++
++	ds1682_reset(dev);
++	ds1682_write_byte(dev, offset & 0xff);
++	ds1682_write_byte(dev, (offset >> 8) & 0xff);
++
++	for (i = 0; i < length; i++)
++		ds1682_write_byte(dev, out[i]);
++
++	ds1682_reset(dev);
++	ta01 = ds1682_read_byte(dev);
++	ta02 = ds1682_read_byte(dev);
++	es = ds1682_read_byte(dev);
++
++	for (i = 0; i < length; i++) {
++		if (out[i] != ds1682_read_byte(dev)) {
++			dev_err(dev, "read invalid data\n");
++			return;
++		}
++	}
++
++	ds1682_reset(dev);
++	ds1682_write_byte(dev, ta01);
++	ds1682_write_byte(dev, ta02);
++	ds1682_write_byte(dev, es);
++	gpio_direction_input(ds1682_gpio[DS1682_DQ].gpio);
++while (gpio_get_value(ds1682_gpio[DS1682_DQ].gpio))
++}
++
++static void ds1682_enable_osc(const struct device *dev)
++{
++	u8 in[1] = { 0x10 }; /* enable oscillator */
++
++	ds1682_write_memory(dev, 0x201, 1, in);
++}
++
++static int ds1682_read_time(const struct device *dev, struct rtc_time *dt)
++{
++	unsigned long time = 0;
++
++	ds1682_read_memory(dev, 0x203, 4, (u8 *)&time);
++	time = le32_to_cpu(time);
++	rtc_time_to_tm(time, dt);
++	return rtc_valid_tm(dt);
++}
++
++static int ds1682_set_mmss(const struct device *dev, unsigned long secs)
++{
++	u32 time = cpu_to_le32(secs);
++
++	ds1682_write_memory(dev, 0x203, 4, (u8 *)&time);
++	return 0;
++}
++
++static const struct rtc_class_ops ds1682_rtc_ops = {
++	.read_time	= ds1682_read_time,
++	.set_mmss	= ds1682_set_mmss,
++};
++
++static int rtc_probe(const struct platform_device *pdev)
++{
++const struct ds1682_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	const struct ds1682 *chip;
++	int retval = -EBUSY;
++
++chip = devm_kzalloc(&pdev->dev, sizeof(const struct ds1682), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
++
++	chip->ops = &ds1682_gpio_ops;
++
++	retval = chip->ops->map_io(chip, pdev, pdata);
++	if (retval)
++		goto err_chip;
++
++	dev_info(&pdev->dev, "using GPIOs RST:%d, CLK:%d, DQ:%d\n",
++		 chip->gpio[DS1682_RST].gpio, chip->gpio[DS1682_CLK].gpio,
++		 chip->gpio[DS1682_DQ].gpio);
++
++	platform_set_drvdata(pdev, chip);
++
++	chip->rtc = devm_rtc_device_register(&pdev->dev, "ds1682",
++					&ds1682_rtc_ops, THIS_MODULE);
++	if (IS_ERR(chip->rtc)) {
++		retval = PTR_ERR(chip->rtc);
++		goto err_io;
++	}
++
++	ds1682_enable_osc(&pdev->dev);
++	return 0;
++
++err_io:
++	chip->ops->unmap_io(chip);
++err_chip:
++	return retval;
++}
++
++static int rtc_remove(const struct platform_device *dev)
++{
++const struct ds1682 *chip = platform_get_drvdata(dev);
++
++	chip->ops->unmap_io(chip);
 +
 +	return 0;
 +}
 +
-+static const struct i2c_device_id ds1683_id[] = {
-+	{ "ds1683", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ds1683_id);
-+
-+static const struct of_device_id ds1683_of_match[] = {
-+	{ "dallas,ds1683", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ds1683_of_match);
-+
-+static struct i2c_driver ds1683_driver = {
++const struct platform_driver rtc_device_driver = {
++	.probe	= rtc_probe,
++	.remove = rtc_remove,
 +	.driver = {
-+		   .name = "rtc-ds1683",
-+		   .of_match_table = of_match_ptr(ds1683_of_match),
++		.name	= "ds1682",
 +	},
-+	.probe = &ds1683_probe,
-+	.id_table = ds1683_id,
 +};
++module_platform_driver(rtc_device_driver);
 +
-+module_i2c_driver(ds1683_driver);
-+
++MODULE_DESCRIPTION("DS1682 Total Elapsed Time Recorder");
 +MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
-+MODULE_DESCRIPTION("Dallas/Maxim ds1683 I2C driver");
 +MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:ds1682");
+
 --
 1.9.1
 
