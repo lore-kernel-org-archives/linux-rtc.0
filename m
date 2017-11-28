@@ -1,70 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:57586 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752519AbdKIDDe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Nov 2017 22:03:34 -0500
-Date: Thu, 9 Nov 2017 04:03:27 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
-Cc: "Vellemans, Noel" <Noel.Vellemans@visionBMS.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: DryIce , RTC not working on imx53.
-Message-ID: <20171109030327.anzo47xayxckn47r@piout.net>
-References: <D24E577EA1E37B4788A3BFBC418F14A70760C04A@wetsrvex01.loepfe.com>
- <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:47024 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751650AbdK1KD3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Nov 2017 05:03:29 -0500
+Date: Tue, 28 Nov 2017 10:03:10 +0000
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>,
+        John Stultz <john.stultz@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: Allow rtc drivers to specify the tv_nsec value for
+ ntp
+Message-ID: <20171128100309.GS31757@n2100.armlinux.org.uk>
+References: <20171013175433.GA22062@obsidianresearch.com>
+ <20171123095456.lkc4nkuzsd2q26mm@piout.net>
+ <20171123112338.GN31757@n2100.armlinux.org.uk>
+ <20171123120451.v74j3z2c5oodxlud@piout.net>
+ <20171123125300.GO31757@n2100.armlinux.org.uk>
+ <20171127201812.GB21126@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01B8E754AA@NT-Mail07.beckhoff.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171127201812.GB21126@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 12/10/2017 at 07:50:41 +0000, Patrick Brünn wrote:
-> I am seeing a lot of interrupts with kernel 4.14-rc4 (jessie and stretch), but they seem to be unhandled:
-> root@CX9020:~# uname -a
-> Linux CX9020 4.14.0-rc4+ #151 PREEMPT Wed Oct 11 10:40:34 CEST 2017 armv7l GNU/Linux
-> root@CX9020:~# hwclock -D -r
-> hwclock from util-linux 2.29.2
-> Using the /dev interface to the clock.
-> Last drift adjustment done at 1490885082 seconds after 1969
-> Last calibration done at 1490885082 seconds after 1969
-> Hardware clock is on UTC time
-> Assuming hardware clock is kept in UTC time.
-> Waiting for clock tick...
-> [   26.795437] irq 40: nobody cared (try booting with the "irqpoll" option)
-> [   26.802696] handlers:
-> [   26.805031] [<c06029e8>] dryice_irq
-> [   26.808584] Disabling IRQ #40
-> select() to /dev/rtc to wait for clock tick timed out...synchronization failed
-> root@CX9020:~# cat /proc/interrupts
->            CPU0
->  17:       4276      tzic   1 Edge      mmc0
->  18:         52      tzic   2 Edge      mmc1
->  22:          0      tzic   6 Edge      sdma
->  30:        176      tzic  14 Edge      53f80200.usb
->  40:     100000      tzic  24 Edge      53fa4000.srtc
->  48:        268      tzic  32 Edge      53fc0000.serial
->  55:       2288      tzic  39 Edge      i.MX Timer Tick
->  74:          0      tzic  58 Edge      53f98000.wdog
->  79:        278      tzic  63 Edge      63fc4000.i2c
->  93:          0      tzic  77 Edge      arm-pmu
-> 103:        662      tzic  87 Edge      63fec000.ethernet
-> 145:          0  gpio-mxc   1 Edge      50004000.esdhc cd
-> 148:          0  gpio-mxc   4 Edge      50008000.esdhc cd
-> 368:        674       IPU  23 Edge      imx_drm
-> 369:          0       IPU  28 Edge      imx_drm
-> Err:          0
+On Mon, Nov 27, 2017 at 09:18:12PM +0100, Alexandre Belloni wrote:
+> On 23/11/2017 at 12:53:00 +0000, Russell King - ARM Linux wrote:
+> > systohc is more questionable, and always has been.  The "push it out
+> > to userspace" approach has been tried in the past, yet we seem to
+> > have it back in the kernel.  IIRC, it was originally decided that
+> > rtclib would not support it, and that it was going to be done in
+> > userspace.
+> > 
+> > However, the userspace part never appeared, and instead rtclib
+> > eventually gained support for it, because it's what people want to
+> > see.
+> > 
+> > I'm not yet convinced by the "lets push it all into userspace" argument
+> > because that's vapourware - and we've been there before.  It's "nice"
+> > to state but if no one steps up and does it, it's of no benefit and
+> > just results in people carrying local hacks (eg in vendor kernels), or
+> > working around those who state it.
+> > 
 > 
-> I added some tracing to dryice_irq() and saw that most of the time (if not all the time) dsr == DSR_MCO /* monotonic clock overflow */ with dier vary between 0x110, 0x10 and even 0x0.
-> I don't know what's the right thing to do, to recover from DSR_MCO. " return IRQ_HANDLED" will stop the nobody cared message but hwclock still times out.
+> What I see is that people that care about precisely setting the RTC are
+> not using systohc because of the 0.5s offset issue or because it doesn't
+> do what they want and instead are using their own userspace tool to set
+> the RTC time.
+
+If that is the case, where are these tools?
+
+> They have the right to keep those tools closed if they desire so.
 > 
+> The necessary ABI for userspace to do the right thing is already there
+> and you are going to add a new one.
 
-hwclock times out because the alarm is not working properly. Can you
-check whether rtctest is working?
+Sorry, I don't think userspace has the information to do a good job.
+The idea of setting the RTC to measure the offset is a hack - it's
+something that is going to have to be measured each and every time
+that the RTC is set, and would need to be done by a real-time process
+to ensure that other system noise does not affect it.
 
+> Also, fixing systohc will not fix the offset for people using hwclock or
+> any other tools (e.g. systemd).
+
+As has already been said, Jason's suggestion is to export this
+information to userspace so that hwclock can be fixed in a similar
+way.  hwclock isn't too relevant to the NTP question though, because
+it isn't used while ntpd is running.
+
+> I pretty much prefer trying to fix existing userspace tools or if this
+> is not possible have a new tool to handle reading/setting the RTC time.
+
+I suspect that won't happen, because there won't be enough interest
+in fixing it.  As I've said, this issue had come up years ago, and
+the same suggestions were made at that time.  Here we are today,
+still without a userspace tool to do it.  What's different this
+time around?
+
+Are you going to put the effort in yourself to solve this problem,
+or are you going to leave it to some ghostly apperition to do,
+resulting in yet another vapourware tool that never actually
+materialises?
+
+I'll repeat that I have no interest in creating such a tool as I
+already have a working in-kernel solution that doesn't need me to
+create any userspace tooling, and I don't care that it isn't in
+mainline.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
+According to speedtest.net: 8.21Mbps down 510kbps up
