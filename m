@@ -1,25 +1,23 @@
-Return-Path: <rtc-linux+bncBC2IF264UIPRB76ATDIAKGQEOHAYTXQ@googlegroups.com>
+Return-Path: <rtc-linux+bncBCO7J6GN7ELBBSM77LIAKGQEBID77HI@googlegroups.com>
 Sender: rtc-linux@googlegroups.com
 MIME-Version: 1.0
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk. [46.235.227.227])
-        by gmr-mx.google.com with ESMTPS id p4si811986wrh.2.2017.11.10.13.56.14
+Received: from mail-pf0-x244.google.com (mail-pf0-x244.google.com. [2607:f8b0:400e:c00::244])
+        by gmr-mx.google.com with ESMTPS id o16si81183ywm.4.2017.11.29.02.45.29
         for <rtc-linux@googlegroups.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 10 Nov 2017 13:56:14 -0800 (PST)
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: Lee Jones <lee.jones@linaro.org>,
-	bleung@chromium.org
-Cc: Guenter Roeck <groeck@chromium.org>,
-	Gwendal Grignou <gwendal@chromium.org>,
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Nov 2017 02:45:29 -0800 (PST)
+Received: by mail-pf0-x244.google.com with SMTP id d23so1369156pfe.9
+        for <rtc-linux@googlegroups.com>; Wed, 29 Nov 2017 02:45:29 -0800 (PST)
+From: venkat.prashanth2498@gmail.com
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: rtc-linux@googlegroups.com,
 	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	Stephen Barber <smbarber@chromium.org>
-Subject: [rtc-linux] [PATCH v4 2/2] rtc: cros-ec: add cros-ec-rtc driver.
-Date: Fri, 10 Nov 2017 22:55:53 +0100
-Message-Id: <20171110215553.20696-3-enric.balletbo@collabora.com>
-In-Reply-To: <20171110215553.20696-1-enric.balletbo@collabora.com>
-References: <20171110215553.20696-1-enric.balletbo@collabora.com>
+	kumba@gentoo.org,
+	Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
+Subject: [rtc-linux] [PATCH] rtc: rtc-ds1683 Maxim/Dallas I2C compatible
+Date: Wed, 29 Nov 2017 16:15:22 +0530
+Message-Id: <1511952322-5609-1-git-send-email-venkat.prashanth2498@gmail.com>
 Reply-To: rtc-linux@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <rtc-linux.googlegroups.com>
@@ -30,476 +28,260 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe@googlegroups.com>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 
-From: Stephen Barber <smbarber@chromium.org>
+From: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 
-On platforms with a Chrome OS EC, the EC can function as a simple RTC.
-Add a basic driver with this functionality.
+This is a patch to add support for
+maxim/dallas I2C rtc ds1683 chip.
 
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Benson Leung <bleung@chromium.org>
+Signed-off-by: Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 ---
- drivers/rtc/Kconfig       |  10 ++
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-cros-ec.c | 413 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 424 insertions(+)
- create mode 100644 drivers/rtc/rtc-cros-ec.c
+ drivers/rtc/Kconfig      |   9 +++
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-ds1683.c | 203 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 213 insertions(+)
 
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e0e58f3..f157288 100644
+index e0e58f3..2528b79 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -1231,6 +1231,16 @@ config RTC_DRV_ZYNQMP
- 	  If you say yes here you get support for the RTC controller found on
- 	  Xilinx Zynq Ultrascale+ MPSoC.
- 
-+config RTC_DRV_CROS_EC
-+	tristate "Chrome OS EC RTC driver"
-+	depends on MFD_CROS_EC
+@@ -294,6 +294,15 @@ config RTC_DRV_DS1672
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-ds1672.
+
++config RTC_DRV_DS1683
++	tristate "Dallas/Maxim DS1683"
 +	help
-+	  If you say yes here you will get support for the
-+	  Chrome OS Embedded Controller's RTC.
++	  If you say yes here you get support for the
++	  Dallas/Maxim DS1683 I2C timekeeping chip.
 +
 +	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-cros-ec.
++	  will be called rtc-ds1683.
 +
- comment "on-CPU RTC drivers"
- 
- config RTC_DRV_ASM9260
+ config RTC_DRV_HYM8563
+ 	tristate "Haoyu Microelectronics HYM8563"
+ 	depends on OF
 diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 0bf1fc0..08789d7 100644
+index 0bf1fc0..a6f4419 100644
 --- a/drivers/rtc/Makefile
 +++ b/drivers/rtc/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
- obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
- obj-$(CONFIG_RTC_DRV_COH901331)	+= rtc-coh901331.o
- obj-$(CONFIG_RTC_DRV_CPCAP)	+= rtc-cpcap.o
-+obj-$(CONFIG_RTC_DRV_CROS_EC)	+= rtc-cros-ec.o
- obj-$(CONFIG_RTC_DRV_DA9052)	+= rtc-da9052.o
- obj-$(CONFIG_RTC_DRV_DA9055)	+= rtc-da9055.o
- obj-$(CONFIG_RTC_DRV_DA9063)	+= rtc-da9063.o
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-new file mode 100644
-index 0000000..f0ea689
---- /dev/null
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -0,0 +1,413 @@
-+/*
-+ * RTC driver for Chrome OS Embedded Controller
+@@ -62,6 +62,7 @@ obj-$(CONFIG_RTC_DRV_DS1390)	+= rtc-ds1390.o
+ obj-$(CONFIG_RTC_DRV_DS1511)	+= rtc-ds1511.o
+ obj-$(CONFIG_RTC_DRV_DS1553)	+= rtc-ds1553.o
+ obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
++obj-$(CONFIG_RTC_DRV_DS1683)	+= rtc-ds1683.o
+ obj-$(CONFIG_RTC_DRV_DS1685_FAMILY)	+= rtc-ds1685.o
+ obj-$(CONFIG_RTC_DRV_DS1742)	+= rtc-ds1742.o
+ obj-$(CONFIG_RTC_DRV_DS2404)	+= rtc-ds2404.o
+diff --git a/drivers/rtc/rtc-ds1683.c b/drivers/rtc/rtc-ds1683.c
+index e69de29..7b6dac3 100644
+--- a/drivers/rtc/rtc-ds1683.c
++++ b/drivers/rtc/rtc-ds1683.c
+@@ -0,0 +1,203 @@
++/* rtc-ds1683.c
 + *
-+ * Copyright (c) 2017, Google, Inc
++ * Driver for Maxim/Dallas ds1683, I2C Compatible
++ * Real Time Clock
 + *
-+ * Author: Stephen Barber <smbarber@chromium.org>
++ * Author : Venkat Prashanth B U <venkat.prashanth2498@gmail.com>
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/mfd/cros_ec.h>
-+#include <linux/mfd/cros_ec_commands.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
++#include <linux/i2c.h>
 +#include <linux/rtc.h>
-+#include <linux/slab.h>
++#include <linux/module.h>
 +
-+#define DRV_NAME	"cros-ec-rtc"
++/* Registers */
 +
-+/**
-+ * struct cros_ec_rtc - Driver data for EC RTC
-+ *
-+ * @cros_ec: Pointer to EC device
-+ * @rtc: Pointer to RTC device
-+ * @notifier: Notifier info for responding to EC events
-+ * @saved_alarm: Alarm to restore when interrupts are reenabled
-+ */
-+struct cros_ec_rtc {
-+	struct cros_ec_device *cros_ec;
-+	struct rtc_device *rtc;
-+	struct notifier_block notifier;
-+	u32 saved_alarm;
++#define ds1683_REG_CNT_BASE	0
++#define ds1683_REG_EVENT	4
++
++#define ds1683_REG_CONTROL_EOSC	0x80
++
++static struct i2c_driver ds1683_driver;
++
++static int ds1683_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long time;
++	unsigned char addr = ds1683_REG_CNT_BASE;
++	unsigned char buf[4];
++
++	struct i2c_msg msgs[] = {
++		{	/* setup read pointer */
++			.addr = client->addr,
++			.len = 1,
++			.buf = &addr
++		},
++		{/* read date */
++			.addr = client->addr,
++			.flags = I2C_M_RD,
++			.len = 4,
++			.buf = buf
++		},
++	};
++
++	/* read date registers */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __func__);
++		return -EIO;
++	}
++
++	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++
++	rtc_time_to_tm(time, tm);
++
++	return 0;
++}
++
++static int ds1683_set_mmss(struct i2c_client *client, unsigned long secs)
++{
++	int xfer;
++	unsigned char buf[6];
++
++	buf[0] = ds1683_REG_CNT_BASE;
++	buf[1] = secs & 0x000000FF;
++	buf[2] = (secs & 0x0000FF00) >> 8;
++	buf[3] = (secs & 0x00FF0000) >> 16;
++	buf[4] = (secs & 0xFF000000) >> 24;
++	buf[5] = 0;		/* set control reg to enable counting */
++
++	xfer = i2c_master_send(client, buf, 6);
++	if (xfer != 6) {
++		dev_err(&client->dev, "%s: send: %d\n", __func__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int ds1683_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1683_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1683_rtc_set_mmss(struct device *dev, unsigned long secs)
++{
++	return ds1683_set_mmss(to_i2c_client(dev), secs);
++}
++
++static int ds1683_get_control(struct i2c_client *client, u8 *status)
++{
++	unsigned char addr = ds1683_REG_CONTROL;
++
++	struct i2c_msg msgs[] = {
++		{/* setup read pointer */
++			.addr = client->addr,
++			.len = 1,
++			.buf = &addr
++		},
++		{/* read control */
++			.addr = client->addr,
++			.flags = I2C_M_RD,
++			.len = 1,
++			.buf = status
++		},
++	};
++
++	/* read control register */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __func__);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/* sysfs callback functions */
++static ssize_t show_control(struct device *dev, struct device_attribute *attr,
++			    char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	u8 control;
++	int err;
++
++	err = ds1683_get_control(client, &control);
++	if (err)
++		return err;
++
++	return sprintf(buf, "%s\n", (control & ds1683_REG_CONTROL_EOSC)
++		       ? "disabled" : "enabled");
++}
++
++static DEVICE_ATTR(control, 0444, show_control, NULL);
++
++static const struct rtc_class_ops ds1683_rtc_ops = {
++	.read_time = ds1683_rtc_read_time,
++	.set_mmss = ds1683_rtc_set_mmss,
 +};
 +
-+static int cros_ec_rtc_get(struct cros_ec_device *cros_ec, u32 command,
-+			   u32 *response)
++static int ds1683_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
 +{
-+	int ret;
-+	struct {
-+		struct cros_ec_command msg;
-+		struct ec_response_rtc data;
-+	} __packed msg;
-+
-+	memset(&msg, 0, sizeof(msg));
-+	msg.msg.command = command;
-+	msg.msg.insize = sizeof(msg.data);
-+
-+	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
-+	if (ret < 0) {
-+		dev_err(cros_ec->dev,
-+			"error getting %s from EC: %d\n",
-+			command == EC_CMD_RTC_GET_VALUE ? "time" : "alarm",
-+			ret);
-+		return ret;
-+	}
-+
-+	*response = msg.data.time;
-+
-+	return 0;
-+}
-+
-+static int cros_ec_rtc_set(struct cros_ec_device *cros_ec, u32 command,
-+			   u32 param)
-+{
-+	int ret = 0;
-+	struct {
-+		struct cros_ec_command msg;
-+		struct ec_response_rtc data;
-+	} __packed msg;
-+
-+	memset(&msg, 0, sizeof(msg));
-+	msg.msg.command = command;
-+	msg.msg.outsize = sizeof(msg.data);
-+	msg.data.time = param;
-+
-+	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
-+	if (ret < 0) {
-+		dev_err(cros_ec->dev, "error setting %s on EC: %d\n",
-+			command == EC_CMD_RTC_SET_VALUE ? "time" : "alarm",
-+			ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Read the current time from the EC. */
-+static int cros_ec_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
-+	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
-+	int ret;
-+	u32 time;
-+
-+	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &time);
-+	if (ret) {
-+		dev_err(dev, "error getting time: %d\n", ret);
-+		return ret;
-+	}
-+
-+	rtc_time64_to_tm(time, tm);
-+
-+	return 0;
-+}
-+
-+/* Set the current EC time. */
-+static int cros_ec_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
-+	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
-+	int ret;
-+	time64_t time;
-+
-+	time = rtc_tm_to_time64(tm);
-+	if (time < 0 || time > U32_MAX)
-+		return -EINVAL;
-+
-+	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_VALUE, (u32)time);
-+	if (ret < 0) {
-+		dev_err(dev, "error setting time: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Read alarm time from RTC. */
-+static int cros_ec_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
-+	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
-+	int ret;
-+	u32 current_time, alarm_offset;
-+
-+	/*
-+	 * The EC host command for getting the alarm is relative (i.e. 5
-+	 * seconds from now) whereas rtc_wkalrm is absolute. Get the current
-+	 * RTC time first so we can calculate the relative time.
-+	 */
-+	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
-+	if (ret < 0) {
-+		dev_err(dev, "error getting time: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_ALARM, &alarm_offset);
-+	if (ret < 0) {
-+		dev_err(dev, "error getting alarm: %d\n", ret);
-+		return ret;
-+	}
-+
-+	rtc_time64_to_tm(current_time + alarm_offset, &alrm->time);
-+
-+	return 0;
-+}
-+
-+/* Set the EC's RTC alarm. */
-+static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
-+	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
-+	int ret;
-+	time64_t alarm_time;
-+	u32 current_time, alarm_offset;
-+
-+	/*
-+	 * The EC host command for setting the alarm is relative
-+	 * (i.e. 5 seconds from now) whereas rtc_wkalrm is absolute.
-+	 * Get the current RTC time first so we can calculate the
-+	 * relative time.
-+	 */
-+	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
-+	if (ret < 0) {
-+		dev_err(dev, "error getting time: %d\n", ret);
-+		return ret;
-+	}
-+
-+	alarm_time = rtc_tm_to_time64(&alrm->time);
-+
-+	if (alarm_time < 0 || alarm_time > U32_MAX)
-+		return -EINVAL;
-+
-+	if (!alrm->enabled) {
-+		/*
-+		 * If the alarm is being disabled, send an alarm
-+		 * clear command.
-+		 */
-+		alarm_offset = EC_RTC_ALARM_CLEAR;
-+		cros_ec_rtc->saved_alarm = (u32)alarm_time;
-+	} else {
-+		/* Don't set an alarm in the past. */
-+		if ((u32)alarm_time < current_time)
-+			alarm_offset = EC_RTC_ALARM_CLEAR;
-+		else
-+			alarm_offset = (u32)alarm_time - current_time;
-+	}
-+
-+	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
-+	if (ret < 0) {
-+		dev_err(dev, "error setting alarm: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int cros_ec_rtc_alarm_irq_enable(struct device *dev,
-+					unsigned int enabled)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
-+	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
-+	int ret;
-+	u32 current_time, alarm_offset, alarm_value;
-+
-+	ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_VALUE, &current_time);
-+	if (ret < 0) {
-+		dev_err(dev, "error getting time: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (enabled) {
-+		/* Restore saved alarm if it's still in the future. */
-+		if (cros_ec_rtc->saved_alarm < current_time)
-+			alarm_offset = EC_RTC_ALARM_CLEAR;
-+		else
-+			alarm_offset = cros_ec_rtc->saved_alarm - current_time;
-+
-+		ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM,
-+				      alarm_offset);
-+		if (ret < 0) {
-+			dev_err(dev, "error restoring alarm: %d\n", ret);
-+			return ret;
-+		}
-+	} else {
-+		/* Disable alarm, saving the old alarm value. */
-+		ret = cros_ec_rtc_get(cros_ec, EC_CMD_RTC_GET_ALARM,
-+				      &alarm_offset);
-+		if (ret < 0) {
-+			dev_err(dev, "error saving alarm: %d\n", ret);
-+			return ret;
-+		}
-+
-+		alarm_value = current_time + alarm_offset;
-+
-+		/*
-+		 * If the current EC alarm is already past, we don't want
-+		 * to set an alarm when we go through the alarm irq enable
-+		 * path.
-+		 */
-+		if (alarm_value < current_time)
-+			cros_ec_rtc->saved_alarm = EC_RTC_ALARM_CLEAR;
-+		else
-+			cros_ec_rtc->saved_alarm = alarm_value;
-+
-+		alarm_offset = EC_RTC_ALARM_CLEAR;
-+		ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM,
-+				      alarm_offset);
-+		if (ret < 0) {
-+			dev_err(dev, "error disabling alarm: %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int cros_ec_rtc_event(struct notifier_block *nb,
-+			     unsigned long queued_during_suspend,
-+			     void *_notify)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc;
++	int err = 0;
++	u8 control;
 +	struct rtc_device *rtc;
-+	struct cros_ec_device *cros_ec;
-+	u32 host_event;
 +
-+	cros_ec_rtc = container_of(nb, struct cros_ec_rtc, notifier);
-+	rtc = cros_ec_rtc->rtc;
-+	cros_ec = cros_ec_rtc->cros_ec;
++	dev_dbg(&client->dev, "%s\n", __func__);
 +
-+	host_event = cros_ec_get_host_event(cros_ec);
-+	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_RTC)) {
-+		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
-+		return NOTIFY_OK;
-+	} else {
-+		return NOTIFY_DONE;
-+	}
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	rtc = devm_rtc_device_register(&client->dev, ds1683_driver.driver.name,
++			&ds1683_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	i2c_set_clientdata(client, rtc);
++
++	/* read control register */
++	err = ds1683_get_control(client, &control);
++	if (err)
++		dev_warn(&client->dev, "Unable to read the control register\n");
++
++	if (control & ds1683_REG_CONTROL_EOSC)
++		dev_warn(&client->dev, "Oscillator not enabled Set time to enable.\n");
++
++	/* Register sysfs hooks */
++	err = device_create_file(&client->dev, &dev_attr_control);
++	if (err)
++		dev_err(&client->dev, "Unable to create sysfs entry: %s\n",
++			dev_attr_control.attr.name);
++
++	return 0;
 +}
 +
-+static const struct rtc_class_ops cros_ec_rtc_ops = {
-+	.read_time = cros_ec_rtc_read_time,
-+	.set_time = cros_ec_rtc_set_time,
-+	.read_alarm = cros_ec_rtc_read_alarm,
-+	.set_alarm = cros_ec_rtc_set_alarm,
-+	.alarm_irq_enable = cros_ec_rtc_alarm_irq_enable,
++static const struct i2c_device_id ds1683_id[] = {
++	{ "ds1683", 0 },
++	{ }
 +};
++MODULE_DEVICE_TABLE(i2c, ds1683_id);
 +
-+#ifdef CONFIG_PM_SLEEP
-+static int cros_ec_rtc_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
++static const struct of_device_id ds1683_of_match[] = {
++	{ "dallas,ds1683", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ds1683_of_match);
 +
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+
-+	return 0;
-+}
-+
-+static int cros_ec_rtc_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(cros_ec_rtc_pm_ops, cros_ec_rtc_suspend,
-+			 cros_ec_rtc_resume);
-+
-+static int cros_ec_rtc_probe(struct platform_device *pdev)
-+{
-+	struct cros_ec_dev *ec_dev = dev_get_drvdata(pdev->dev.parent);
-+	struct cros_ec_device *cros_ec = ec_dev->ec_dev;
-+	struct cros_ec_rtc *cros_ec_rtc;
-+	struct rtc_time tm;
-+	int ret;
-+
-+	cros_ec_rtc = devm_kzalloc(&pdev->dev, sizeof(*cros_ec_rtc),
-+				   GFP_KERNEL);
-+	if (!cros_ec_rtc)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, cros_ec_rtc);
-+	cros_ec_rtc->cros_ec = cros_ec;
-+
-+	/* Get initial time */
-+	ret = cros_ec_rtc_read_time(&pdev->dev, &tm);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to read RTC time\n");
-+		return ret;
-+	}
-+
-+	ret = device_init_wakeup(&pdev->dev, 1);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to initialize wakeup\n");
-+		return ret;
-+	}
-+
-+	cros_ec_rtc->rtc = devm_rtc_device_register(&pdev->dev, DRV_NAME,
-+						    &cros_ec_rtc_ops,
-+						    THIS_MODULE);
-+	if (IS_ERR(cros_ec_rtc->rtc)) {
-+		ret = PTR_ERR(cros_ec_rtc->rtc);
-+		dev_err(&pdev->dev, "failed to register rtc device\n");
-+		return ret;
-+	}
-+
-+	/* Get RTC events from the EC. */
-+	cros_ec_rtc->notifier.notifier_call = cros_ec_rtc_event;
-+	ret = blocking_notifier_chain_register(&cros_ec->event_notifier,
-+					       &cros_ec_rtc->notifier);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register notifier\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int cros_ec_rtc_remove(struct platform_device *pdev)
-+{
-+	struct cros_ec_rtc *cros_ec_rtc = platform_get_drvdata(pdev);
-+	struct device *dev = &pdev->dev;
-+	int ret;
-+
-+	ret = blocking_notifier_chain_unregister(
-+				&cros_ec_rtc->cros_ec->event_notifier,
-+				&cros_ec_rtc->notifier);
-+	if (ret) {
-+		dev_err(dev, "failed to unregister notifier\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver cros_ec_rtc_driver = {
-+	.probe = cros_ec_rtc_probe,
-+	.remove = cros_ec_rtc_remove,
++static struct i2c_driver ds1683_driver = {
 +	.driver = {
-+		.name = DRV_NAME,
-+		.pm = &cros_ec_rtc_pm_ops,
++		   .name = "rtc-ds1683",
++		   .of_match_table = of_match_ptr(ds1683_of_match),
 +	},
++	.probe = &ds1683_probe,
++	.id_table = ds1683_id,
 +};
 +
-+module_platform_driver(cros_ec_rtc_driver);
++module_i2c_driver(ds1683_driver);
 +
-+MODULE_DESCRIPTION("RTC driver for Chrome OS ECs");
-+MODULE_AUTHOR("Stephen Barber <smbarber@chromium.org>");
++MODULE_AUTHOR("Venkat Prashanth B U <venkat.prashanth2498@gmail.com>");
++MODULE_DESCRIPTION("Dallas/Maxim ds1683 I2C driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DRV_NAME);
--- 
-2.9.3
+--
+1.9.1
 
 -- 
 You received this message because you are subscribed to "rtc-linux".
