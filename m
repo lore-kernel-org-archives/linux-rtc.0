@@ -1,114 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from esa5.microchip.iphmx.com ([216.71.150.166]:14233 "EHLO
-        esa5.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751455AbdKJOzR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Nov 2017 09:55:17 -0500
-Subject: Re: [PATCH 2/2] rtc: at91rm9200: fix reading alarm value
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-References: <20171110085931.32347-1-alexandre.belloni@free-electrons.com>
- <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
-Message-ID: <31cc33d1-1953-f02b-c8fc-3b3ee2b4a123@microchip.com>
-Date: Fri, 10 Nov 2017 15:55:06 +0100
-MIME-Version: 1.0
-In-Reply-To: <20171110085931.32347-2-alexandre.belloni@free-electrons.com>
+Received: from internet2.beckhoff.com ([194.25.186.210]:65168 "EHLO
+        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751757AbdK3OY0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 30 Nov 2017 09:24:26 -0500
+From: =?utf-8?B?UGF0cmljayBCcsO8bm4=?= <P.Bruenn@beckhoff.com>
+To: Philippe Ombredanne <pombredanne@nexb.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>
+Subject: RE: [PATCH] rtc: add mxc driver for i.MX53
+Date: Thu, 30 Nov 2017 14:24:22 +0000
+Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB531375@NT-Mail07.beckhoff.com>
+References: <20171128073927.12035-1-linux-kernel-dev@beckhoff.com>
+ <20171129221114.GV21126@piout.net>
+ <CAOFm3uFb8Jo9detD2CziuYt_DH_ohYD9P=uvqHugKDxpN+xvAQ@mail.gmail.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB531330@NT-Mail07.beckhoff.com>
+ <CAOFm3uHAXKr7KiFeyvYb77jot8M_4rH-cqt2Ze3AbnOiZ_wiwg@mail.gmail.com>
+In-Reply-To: <CAOFm3uHAXKr7KiFeyvYb77jot8M_4rH-cqt2Ze3AbnOiZ_wiwg@mail.gmail.com>
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 10/11/2017 at 09:59, Alexandre Belloni wrote:
-> When alarm value is read at boot time, at91_alarm_year is not yet set to
-> the proper value so the year is always set to 1900.
-> 
-> This results in that kind of message at boot:
-> rtc rtc0: invalid alarm value: 1900-1-14 2:11:39
-> 
-> There is no way to recover from that as the alarm is now only read when
-> booting.
-> 
-> Instead, rely on the rtc core to figure out the proper year.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-
-> ---
->  drivers/rtc/rtc-at91rm9200.c | 18 ++++++------------
->  1 file changed, 6 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-> index e84f5ec4faf6..de81ecedd571 100644
-> --- a/drivers/rtc/rtc-at91rm9200.c
-> +++ b/drivers/rtc/rtc-at91rm9200.c
-> @@ -42,8 +42,6 @@
->  #define at91_rtc_write(field, val) \
->  	writel_relaxed((val), at91_rtc_regs + field)
->  
-> -#define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
-> -
->  struct at91_rtc_config {
->  	bool use_shadow_imr;
->  };
-> @@ -51,7 +49,6 @@ struct at91_rtc_config {
->  static const struct at91_rtc_config *at91_rtc_config;
->  static DECLARE_COMPLETION(at91_rtc_updated);
->  static DECLARE_COMPLETION(at91_rtc_upd_rdy);
-> -static unsigned int at91_alarm_year = AT91_RTC_EPOCH;
->  static void __iomem *at91_rtc_regs;
->  static int irq;
->  static DEFINE_SPINLOCK(at91_rtc_lock);
-> @@ -131,8 +128,7 @@ static void at91_rtc_decodetime(unsigned int timereg, unsigned int calreg,
->  
->  	/*
->  	 * The Calendar Alarm register does not have a field for
-> -	 * the year - so these will return an invalid value.  When an
-> -	 * alarm is set, at91_alarm_year will store the current year.
-> +	 * the year - so these will return an invalid value.
->  	 */
->  	tm->tm_year  = bcd2bin(date & AT91_RTC_CENT) * 100;	/* century */
->  	tm->tm_year += bcd2bin((date & AT91_RTC_YEAR) >> 8);	/* year */
-> @@ -208,14 +204,14 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct rtc_time *tm = &alrm->time;
->  
->  	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
-> -	tm->tm_year = at91_alarm_year - 1900;
-> +	tm->tm_year = -1;
->  
->  	alrm->enabled = (at91_rtc_read_imr() & AT91_RTC_ALARM)
->  			? 1 : 0;
->  
-> -	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
-> -		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
-> -		tm->tm_hour, tm->tm_min, tm->tm_sec);
-> +	dev_dbg(dev, "%s(): %02d-%02d %02d:%02d:%02d %sabled\n", __func__,
-> +		tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-> +		alrm->enabled ? "en" : "dis");
->  
->  	return 0;
->  }
-> @@ -229,8 +225,6 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  
->  	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, &tm);
->  
-> -	at91_alarm_year = tm.tm_year;
-> -
->  	tm.tm_mon = alrm->time.tm_mon;
->  	tm.tm_mday = alrm->time.tm_mday;
->  	tm.tm_hour = alrm->time.tm_hour;
-> @@ -254,7 +248,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	}
->  
->  	dev_dbg(dev, "%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __func__,
-> -		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
-> +		tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour,
->  		tm.tm_min, tm.tm_sec);
->  
->  	return 0;
-> 
-
-
--- 
-Nicolas Ferre
+PkZyb206IFBoaWxpcHBlIE9tYnJlZGFubmUgW21haWx0bzpwb21icmVkYW5uZUBuZXhiLmNvbV0N
+Cj5TZW50OiBEb25uZXJzdGFnLCAzMC4gTm92ZW1iZXIgMjAxNyAxNTowMA0KPk9uIFRodSwgTm92
+IDMwLCAyMDE3IGF0IDI6MzYgUE0sIFBhdHJpY2sgQnLDvG5uIDxQLkJydWVubkBiZWNraG9mZi5j
+b20+DQo+d3JvdGU6DQo+DQo+VGhvbWFzOg0KPkkgdGVuZCB0byBwcmVmZXIgYXMgTGludXMgcG9p
+bnRlZCB0aGUgLy8gc3R5bGUgdGhyb3VnaG91dCB3aGVuIHRoZXJlDQo+aXMgb25seSBhIGxpY2Vu
+c2UgYW5kIGNvcHlyaWdodCBpbnZvbHZlZC4gSGVyZSB0aGlzIHdvdWxkIG1lYW46DQo+DQo+PiAr
+Ly8gU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IEdQTC0yLjANCj4+ICsvLyBDb3B5cmlnaHQgKGMp
+IDIwMDQtMjAxMSBGcmVlc2NhbGUgU2VtaWNvbmR1Y3RvciwgSW5jLiBBbGwgUmlnaHRzDQo+UmVz
+ZXJ2ZWQuDQo+DQo+V2hhdCdzIHlvdSB0YWtlIHNpbmNlIHlvdSB3cm90ZSB0aGUgZG9jIGZvciB0
+aGlzPyBBbmQgaXMgdGhlcmUgc3RpbGwNCj5zb21lIHVwZGF0ZXMgbmVlZGVkIGZvciB0aGlzIHNp
+bmNlIHlvdXIgbGFzdCBwYXRjaCBzZXQ/DQo+DQpXaGlsZSBsb29raW5nIGNsb3NlciBpbnRvIGRp
+ZmZlcmVudCBmaWxlcyBJIHRoaW5rIGl0IHdvdWxkIGJlY29tZSBtdWx0aWxpbmUgYWdhaW46DQor
+Ly8gU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IEdQTC0yLjANCisvKg0KKyAqIFJlYWwgVGltZSBD
+bG9jayAoUlRDKSBEcml2ZXIgZm9yIGkuTVg1Mw0KKyAqIENvcHlyaWdodCAoYykgMjAwNC0yMDEx
+IEZyZWVzY2FsZSBTZW1pY29uZHVjdG9yLCBJbmMuDQorICogQ29weXJpZ2h0IChjKSAyMDE3IEJl
+Y2tob2ZmIEF1dG9tYXRpb24gR21iSCAmIENvLiBLRw0KKyAqLw0KDQo+DQo+UGF0cmljazoNCj5T
+aWRlIG5vdGUgYSB0cmFpbGluZyAgIkFsbCBSaWdodHMgUmVzZXJ2ZWQuIiBpbiBhIGNvcHlyaWdo
+dCBzdGF0ZW1lbnQNCj5pcyBuZXZlciBuZWVkZWQsIGV2ZW4gdGhvdWdoIGN1c3RvbWFyaWx5IGNh
+cmdvIGN1bHRlZCBieSBldmVyeW9uZSwNCj5pbmNsdWRpbmcgbWUuDQo+U3RhcnRlZCBpbiAxOTEw
+LCBpdCBiZWNvbWUgZnVsbHkgb2Jzb2xldGUgaW4gMjAwMCB0aGFua3MgdG8gTmljYXJhZ3VhDQo+
+WzFdIHNpZ25pbmcgdGhlIEJlcm5lIGNvbnZlbnRpb24uDQo+DQo+WzFdIGh0dHBzOi8vZW4ud2lr
+aXBlZGlhLm9yZy93aWtpL0FsbF9yaWdodHNfcmVzZXJ2ZWQNCkludGVyZXNzdGluZy4gSSBqdXN0
+IGtlcHQgaXQgYmVjYXVzZSBpdCB3YXMgaW4gdGhlIG9yaWdpbmFsIGZpbGUgZnJvbSBmcmVlc2Nh
+bGUuDQpCdXQgd2l0aCB0aGlzIGJhY2tncm91bmQsIEkgdGhpbmsgaXQncyBmaW5lIHRvIGRyb3Ag
+aXQsIG5vdy4NCg0KVGhhbmtzLA0KUGF0cmljaw0KQmVja2hvZmYgQXV0b21hdGlvbiBHbWJIICYg
+Q28uIEtHIHwgTWFuYWdpbmcgRGlyZWN0b3I6IERpcGwuIFBoeXMuIEhhbnMgQmVja2hvZmYNClJl
+Z2lzdGVyZWQgb2ZmaWNlOiBWZXJsLCBHZXJtYW55IHwgUmVnaXN0ZXIgY291cnQ6IEd1ZXRlcnNs
+b2ggSFJBIDcwNzUNCg0KDQo=
