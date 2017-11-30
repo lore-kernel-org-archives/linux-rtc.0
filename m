@@ -1,117 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from wsip-98-189-142-135.oc.oc.cox.net ([98.189.142.135]:11476 "EHLO
-        office-server2" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S934715AbdKCCTM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Nov 2017 22:19:12 -0400
-From: Troy Kisky <troy.kisky@boundarydevices.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: gary.bisson@boundarydevices.com, linux-rtc@vger.kernel.org,
-        Troy Kisky <troy.kisky@boundarydevices.com>
-Subject: [PATCH v1 3/5] rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
-Date: Thu,  2 Nov 2017 18:58:14 -0700
-Message-Id: <20171103015816.16972-3-troy.kisky@boundarydevices.com>
-In-Reply-To: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
-References: <20171103015816.16972-1-troy.kisky@boundarydevices.com>
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:48246 "EHLO
+        smtprelay02.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750943AbdK3L4H (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 30 Nov 2017 06:56:07 -0500
+Date: Thu, 30 Nov 2017 11:53:16 +0100
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-kernel-dev@beckhoff.com, Mark Rutland <mark.rutland@arm.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:REAL TIME CLOCK \(RTC\) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>
+Subject: Re: [PATCH] rtc: add mxc driver for i.MX53
+Message-ID: <20171130115316.1dcd86d8@karo-electronics.de>
+In-Reply-To: <20171130095047.4sl7rfa5cc6rtmig@pengutronix.de>
+References: <20171128073927.12035-1-linux-kernel-dev@beckhoff.com>
+        <20171130095047.4sl7rfa5cc6rtmig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This is a little more efficient, and avoids the warning
+Hi,
 
- WARNING: possible circular locking dependency detected
- 4.14.0-rc7-00007 #14 Not tainted
- ------------------------------------------------------
- alsactl/330 is trying to acquire lock:
- (prepare_lock){+.+.}, at: [<c049300c>] clk_prepare_lock+0x80/0xf4
+On Thu, 30 Nov 2017 10:50:47 +0100 Sascha Hauer wrote:
+> On Tue, Nov 28, 2017 at 08:39:27AM +0100, linux-kernel-dev@beckhoff.com wrote:
+[...]
+> > +/*! MXC RTC Power management control */
+> > +static int mxc_rtc_probe(struct platform_device *pdev)
+> > +{
+> > +	struct timespec tv;
+> > +	struct resource *res;
+> > +	struct rtc_drv_data *pdata = NULL;
+> 
+> No need to initialize.
+> 
+> > +	void __iomem *ioaddr;
+> > +	int ret = 0;
+>
+Same here.
 
- but task is already holding lock:
- (i2c_register_adapter){+.+.}, at: [<c0690ae0>]
-		i2c_adapter_lock_bus+0x14/0x18
 
- which lock already depends on the new lock.
-
- the existing dependency chain (in reverse order) is:
-
- -> #1 (i2c_register_adapter){+.+.}:
-        rt_mutex_lock+0x44/0x5c
-        i2c_adapter_lock_bus+0x14/0x18
-        i2c_transfer+0xa8/0xbc
-        i2c_smbus_xfer+0x20c/0x5d8
-        i2c_smbus_read_byte_data+0x38/0x48
-        m41t80_sqw_recalc_rate+0x24/0x58
-
-Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
----
- drivers/rtc/rtc-m41t80.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 42fc735a5446..f44dcf628c87 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -154,6 +154,7 @@ struct m41t80_data {
- 	struct rtc_device *rtc;
- #ifdef CONFIG_COMMON_CLK
- 	struct clk_hw sqw;
-+	unsigned long freq;
- #endif
- };
- 
-@@ -443,26 +444,28 @@ static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t80_suspend, m41t80_resume);
- #ifdef CONFIG_COMMON_CLK
- #define sqw_to_m41t80_data(_hw) container_of(_hw, struct m41t80_data, sqw)
- 
--static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
--					    unsigned long parent_rate)
-+static unsigned long m41t80_decode_freq(int setting)
-+{
-+	return (setting == 0) ? 0 : (setting == 1) ? M41T80_SQW_MAX_FREQ :
-+		M41T80_SQW_MAX_FREQ >> setting;
-+}
-+
-+static unsigned long m41t80_get_freq(struct m41t80_data *m41t80)
- {
--	struct m41t80_data *m41t80 = sqw_to_m41t80_data(hw);
- 	struct i2c_client *client = m41t80->client;
- 	int reg_sqw = (m41t80->features & M41T80_FEATURE_SQ_ALT) ?
- 		M41T80_REG_WDAY : M41T80_REG_SQW;
- 	int ret = i2c_smbus_read_byte_data(client, reg_sqw);
--	unsigned long val = M41T80_SQW_MAX_FREQ;
- 
- 	if (ret < 0)
- 		return 0;
-+	return m41t80_decode_freq(ret >> 4);
-+}
- 
--	ret >>= 4;
--	if (ret == 0)
--		val = 0;
--	else if (ret > 1)
--		val = val / (1 << ret);
--
--	return val;
-+static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
-+					    unsigned long parent_rate)
-+{
-+	return sqw_to_m41t80_data(hw)->freq;
- }
- 
- static long m41t80_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
-@@ -505,6 +508,8 @@ static int m41t80_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
- 	reg = (reg & 0x0f) | (val << 4);
- 
- 	ret = i2c_smbus_write_byte_data(client, reg_sqw, reg);
-+	if (!ret)
-+		m41t80->freq = m41t80_decode_freq(val);
- 	return ret;
- }
- 
-@@ -579,6 +584,7 @@ static struct clk *m41t80_sqw_register_clk(struct m41t80_data *m41t80)
- 	init.parent_names = NULL;
- 	init.num_parents = 0;
- 	m41t80->sqw.init = &init;
-+	m41t80->freq = m41t80_get_freq(m41t80);
- 
- 	/* optional override of the clockname */
- 	of_property_read_string(node, "clock-output-names", &init.name);
--- 
-2.11.0
+Lothar Waßmann
