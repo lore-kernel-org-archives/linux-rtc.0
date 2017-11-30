@@ -1,39 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56828 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751793AbdKZAlf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 25 Nov 2017 19:41:35 -0500
-From: Cole Robinson <crobinso@redhat.com>
-To: linux-rtc@vger.kernel.org
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-kernel@vger.kernel.org, Cole Robinson <crobinso@redhat.com>
-Subject: [PATCH] rtc: Remove unused RTC_DEVICE_NAME_SIZE
-Date: Sat, 25 Nov 2017 19:41:32 -0500
-Message-Id: <2cb5fda40f5ac0a6cc0ab59914c98062741c2e8b.1511656401.git.crobinso@redhat.com>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:37920 "EHLO
+        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750890AbdK3ISx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 30 Nov 2017 03:18:53 -0500
+Received: by mail-wm0-f49.google.com with SMTP id 64so10639744wme.3
+        for <linux-rtc@vger.kernel.org>; Thu, 30 Nov 2017 00:18:52 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20171129221114.GV21126@piout.net>
+References: <20171128073927.12035-1-linux-kernel-dev@beckhoff.com> <20171129221114.GV21126@piout.net>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Date: Thu, 30 Nov 2017 09:18:11 +0100
+Message-ID: <CAOFm3uFb8Jo9detD2CziuYt_DH_ohYD9P=uvqHugKDxpN+xvAQ@mail.gmail.com>
+Subject: Re: [PATCH] rtc: add mxc driver for i.MX53
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-kernel-dev@beckhoff.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The last usage was removed in 5c82a6ae0 when rtc_device.name
-was removed
+On Wed, Nov 29, 2017 at 11:11 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 28/11/2017 at 08:39:27 +0100, linux-kernel-dev@beckhoff.com wrote:
+>> From: Patrick Bruenn <p.bruenn@beckhoff.com>
+[]
+>> diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+>> new file mode 100644
+>> index 000000000000..5049b521b38e
+>> --- /dev/null
+>> +++ b/drivers/rtc/rtc-mxc_v2.c
+>> @@ -0,0 +1,531 @@
+>
+> I think SPDX identifier will soon be required on new files, please add
+> one.
+>
+>> +/*
+>> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights Reserved.
+>> + */
+>> +
+>> +/*
+>> + * The code contained herein is licensed under the GNU General Public
+>> + * License. You may obtain a copy of the GNU General Public License
+>> + * Version 2 or later at the following locations:
+>> + *
+>> + * http://www.opensource.org/licenses/gpl-license.html
+>> + * http://www.gnu.org/copyleft/gpl.html
+>> + */
 
-Signed-off-by: Cole Robinson <crobinso@redhat.com>
----
-Just noticed this when looking at commits a few months back...
-
- include/linux/rtc.h | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 41319a2e409b..fc6c90b57be0 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -87,7 +87,6 @@ struct rtc_class_ops {
- 	int (*set_offset)(struct device *, long offset);
- };
- 
--#define RTC_DEVICE_NAME_SIZE 20
- typedef struct rtc_task {
- 	void (*func)(void *private_data);
- 	void *private_data;
+Exactly!
+And while you are it , you could replace the boilerplate license text
+with the SPDX id.
 -- 
-2.14.3
+Cordially
+Philippe Ombredanne
