@@ -1,125 +1,129 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:45539 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757205AbdKOIfJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Nov 2017 03:35:09 -0500
-Date: Wed, 15 Nov 2017 09:35:05 +0100
-From: Ingo Molnar <mingo@kernel.org>
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        rostedt@goodmis.org, mingo@redhat.com, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, arnd@arndb.de, broonie@kernel.org
-Subject: Re: [PATCH] rtc: Add tracepoints for RTC system
-Message-ID: <20171115083505.kderwwdigcq7e674@gmail.com>
-References: <354301cc7c61ba39021bb56e7ede5ba959e9dbb2.1510730564.git.baolin.wang@linaro.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:36346 "EHLO
+        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751065AbdK3OAv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 30 Nov 2017 09:00:51 -0500
+Received: by mail-wm0-f52.google.com with SMTP id b76so12650779wmg.1
+        for <linux-rtc@vger.kernel.org>; Thu, 30 Nov 2017 06:00:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <354301cc7c61ba39021bb56e7ede5ba959e9dbb2.1510730564.git.baolin.wang@linaro.org>
+In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB531330@NT-Mail07.beckhoff.com>
+References: <20171128073927.12035-1-linux-kernel-dev@beckhoff.com>
+ <20171129221114.GV21126@piout.net> <CAOFm3uFb8Jo9detD2CziuYt_DH_ohYD9P=uvqHugKDxpN+xvAQ@mail.gmail.com>
+ <3BB206AB2B1BD448954845CE6FF69A8E01CB531330@NT-Mail07.beckhoff.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Date: Thu, 30 Nov 2017 15:00:09 +0100
+Message-ID: <CAOFm3uHAXKr7KiFeyvYb77jot8M_4rH-cqt2Ze3AbnOiZ_wiwg@mail.gmail.com>
+Subject: Re: [PATCH] rtc: add mxc driver for i.MX53
+To: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On Thu, Nov 30, 2017 at 2:36 PM, Patrick Br=C3=BCnn <P.Bruenn@beckhoff.com>=
+ wrote:
+>>From: Philippe Ombredanne [mailto:pombredanne@nexb.com]
+>>Sent: Donnerstag, 30. November 2017 09:18
+>>>
+>>>> +/*
+>>>> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
+>>Reserved.
+>>>> + */
+>>>> +
+>>>> +/*
+>>>> + * The code contained herein is licensed under the GNU General Public
+>>>> + * License. You may obtain a copy of the GNU General Public License
+>>>> + * Version 2 or later at the following locations:
+>>>> + *
+>>>> + * http://www.opensource.org/licenses/gpl-license.html
+>>>> + * http://www.gnu.org/copyleft/gpl.html
+>>>> + */
+>>
+>>Exactly!
+>>And while you are it , you could replace the boilerplate license text
+>>with the SPDX id.
+>>--
+>
+> How would a perfect header look like?
+> Looking at :
+> git show b24413180f5600bcb3bb70fbed5cf186b60864bd -- drivers/
+> and:
+> git grep SPDX -- Documentation/
+>
+> it could be:
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
+> + */
+> or:
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
+> + */
+>
+> Personally I would prefer:
+> +/*
+> + * Copyright (C) 2004-2011 Freescale Semiconductor, Inc. All Rights
+> + *
+> + * SPDX-License-Identifier: GPL-2.0
+> + */
+>
+> So, is there any guideline?
+>
+> To be clear: I don't want to waste anyone's time on this. But as SPDX
+> was intended for automation, I think it might be good to try having
+> some common pattern here.
+> I don't want to start a discussion, so in case there is no guideline I wi=
+ll
+> just take the /* SPDX */ in firstline version.
 
-* Baolin Wang <baolin.wang@linaro.org> wrote:
+Patrick:
 
-> It will be more helpful to add some tracepoints to track RTC actions when
-> debugging RTC driver. Below sample is that we set/read the RTC time, then
-> set 2 alarms, so we can see the trace logs:
-> 
-> set/read RTC time:
-> kworker/1:1-586   [001] .... 21.826112: rtc_set_time: 2017-11-10 08:13:00 UTC (1510301580)
-> kworker/1:1-586   [001] .... 21.826174: rtc_read_time: 2017-11-10 08:13:00 UTC (1510301580)
-> 
-> set the first alarm timer:
-> kworker/1:1-586   [001] .... 21.841098: rtc_timer_enqueue: RTC timer:(ffffffc15ad913c8) 2017-11-10 08:15:00 UTC (1510301700)
-> kworker/1:1-586   [001] .... 22.009424: rtc_set_alarm: 2017-11-10 08:15:00 UTC (1510301700)
-> 
-> set the second alarm timer:
-> kworker/1:1-586   [001] .... 22.181304: rtc_timer_enqueue: RTC timer:(ffffff80088e6430) 2017-11-10 08:17:00 UTC (1510301820)
-> 
-> the first alarm timer was expired:
-> kworker/0:1-67    [000] .... 145.156226: rtc_timer_dequeue: RTC timer:(ffffffc15ad913c8) 2017-11-10 08:15:00 UTC (1510301700)
-> kworker/0:1-67    [000] .... 145.156235: rtc_timer_fired: RTC timer:(ffffffc15ad913c8) 2017-11-10 08:15:00 UTC (1510301700)
-> kworker/0:1-67    [000] .... 145.173137: rtc_set_alarm: 2017-11-10 08:17:00 UTC (1510301820)
-> 
-> the second alarm timer was expired:
-> kworker/0:1-67    [000] .... 269.102985: rtc_timer_dequeue: RTC timer:(ffffff80088e6430) 2017-11-10 08:17:00 UTC (1510301820)
-> kworker/0:1-67    [000] .... 269.102992: rtc_timer_fired: RTC timer:(ffffff80088e6430) 2017-11-10 08:17:00 UTC (1510301820)
-> 
-> disable alarm irq:
-> kworker/0:1-67    [000] .... 269.103098: rtc_alarm_irq_enable: disable RTC alarm IRQ
-> 
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
->  drivers/rtc/interface.c    |   46 ++++++++++
->  include/trace/events/rtc.h |  215 ++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 261 insertions(+)
->  create mode 100644 include/trace/events/rtc.h
-> 
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 8cec9a0..cdd3ac8 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -17,6 +17,9 @@
->  #include <linux/log2.h>
->  #include <linux/workqueue.h>
->  
-> +#define CREATE_TRACE_POINTS
-> +#include <trace/events/rtc.h>
-> +
->  static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer);
->  static void rtc_timer_remove(struct rtc_device *rtc, struct rtc_timer *timer);
->  
-> @@ -53,6 +56,9 @@ int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
->  
->  	err = __rtc_read_time(rtc, tm);
->  	mutex_unlock(&rtc->ops_lock);
-> +
-> +	if (!err)
-> +		trace_rtc_read_time(tm);
+There are several threads on the topic explaining why: Linus made it
+clear that he wants this, and on the first line:
 
-It's better to just add unconditional tracepoints and trace the failures as well - 
-this makes things faster for the non-traced case, plus it's much easier to read as 
-well.
+> +// SPDX-License-Identifier: GPL-2.0
 
-I.e. something like:
 
-	trace_rtc_read_time(tm, err);
+Thomas:
+I tend to prefer as Linus pointed the // style throughout when there
+is only a license and copyright involved. Here this would mean:
 
-etc.
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (c) 2004-2011 Freescale Semiconductor, Inc. All Rights Rese=
+rved.
 
-> @@ -790,6 +818,8 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
->  			schedule_work(&rtc->irqwork);
->  		} else if (err) {
->  			timerqueue_del(&rtc->timerqueue, &timer->node);
-> +			trace_rtc_timer_dequeue(timer,
-> +					rtc_ktime_to_tm(timer->node.expires));
+What's you take since you wrote the doc for this? And is there still
+some updates needed for this since your last patch set?
 
-Please don't break the line in such an ugly fashion.
 
-> @@ -803,6 +833,7 @@ static void rtc_alarm_disable(struct rtc_device *rtc)
->  		return;
->  
->  	rtc->ops->alarm_irq_enable(rtc->dev.parent, false);
-> +	trace_rtc_alarm_irq_enable(0);
+Patrick:
+Side note a trailing  "All Rights Reserved." in a copyright statement
+is never needed, even though customarily cargo culted by everyone,
+including me.
+Started in 1910, it become fully obsolete in 2000 thanks to Nicaragua
+[1] signing the Berne convention.
 
-Since there's so many new events already, why not add an enable/disable variant 
-instead of parameterizing the 'enable' event?
-
->  	timerqueue_del(&rtc->timerqueue, &timer->node);
-> +	trace_rtc_timer_dequeue(timer, rtc_ktime_to_tm(timer->node.expires));
-
-> +		trace_rtc_timer_dequeue(timer,
-> +				rtc_ktime_to_tm(timer->node.expires));
-
-> +		trace_rtc_timer_fired(timer,
-> +				rtc_ktime_to_tm(timer->node.expires));
-
-> +			trace_rtc_timer_enqueue(timer,
-> +					rtc_ktime_to_tm(timer->node.expires));
-
-All the decoding of expiry time should be done in the trace handler, don't bloat 
-the call site with it.
-
-Thanks,
-
-	Ingo
+[1] https://en.wikipedia.org/wiki/All_rights_reserved
+--=20
+Cordially
+Philippe Ombredanne
