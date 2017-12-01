@@ -1,46 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f170.google.com ([74.125.82.170]:33932 "EHLO
-        mail-ot0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756790AbdLVSgW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Dec 2017 13:36:22 -0500
-MIME-Version: 1.0
-In-Reply-To: <20171218115133.16371-3-linux-kernel-dev@beckhoff.com>
-References: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com> <20171218115133.16371-3-linux-kernel-dev@beckhoff.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Fri, 22 Dec 2017 16:36:21 -0200
-Message-ID: <CAOMZO5BUeeRVeOq8k=ykNC1KqoFGLZp-Rf=6_npSGgYd_KwxyA@mail.gmail.com>
-Subject: Re: [PATCH v4 2/4] ARM: dts: imx53: add srtc node
-To: linux-kernel-dev <linux-kernel-dev@beckhoff.com>
-Cc: Mark Rutland <mark.rutland@arm.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Patrick Bruenn <p.bruenn@beckhoff.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Rob Herring <robh+dt@kernel.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:41522 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750782AbdLARKp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 1 Dec 2017 12:10:45 -0500
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+To: Baruch Siach <baruch@tkos.co.il>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, Rabeeh Khoury <rabeeh@solid-run.com>
+Subject: Re: Armada RTC power up reset
+References: <20171130094049.fg3zoxgvhlb7jqw3@tarshish>
+Date: Fri, 01 Dec 2017 18:10:34 +0100
+In-Reply-To: <20171130094049.fg3zoxgvhlb7jqw3@tarshish> (Baruch Siach's
+        message of "Thu, 30 Nov 2017 11:40:49 +0200")
+Message-ID: <871skewf05.fsf@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Dec 18, 2017 at 9:51 AM,  <linux-kernel-dev@beckhoff.com> wrote:
-> From: Patrick Bruenn <p.bruenn@beckhoff.com>
->
-> rtc-mxc_v2 driver will add support for the i.MX53 SRTC
->
-> Note: we keep the 'srtc' label to avoid duplicate with imx53-m53.dtsi
->
-> Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+Hi Baruch,
+ 
+ On jeu., nov. 30 2017, Baruch Siach <baruch@tkos.co.il> wrote:
 
-Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+> Hi Thomas,
+>
+> As you know, the Armada 38x/8k RTC needs a reset sequence to be operational 
+> when first powered up. This reset code is currently in the vendor provided 
+> U-Boot RTC driver. But having to run 'date reset' from the U-Boot prompt every 
+> first boot (happens quite a lot when dealing with SOMs) is not nice. An 
+> automatic reset in the kernel driver would be much better.
+>
+> Rabeeh has mentioned to me that you had an idea how to detect at run time that 
+> the RTC is in first power up state. Do you recall the details?
+
+Actually it was me who worked on the RTC but I didn't remember having a
+way to detect that the RTC is in first power up state. I dig in the
+datasheet, errata sheet and alos on varisou branches of the vendor tree
+and didn't find anything.
+
+Maybe a solution could be to reset the RTC when we set the time.
+
+Gregory
+
+
+>
+> Thanks,
+> baruch
+>
+> -- 
+>      http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+> =}------------------------------------------------ooO--U--Ooo------------{=
+>    - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
