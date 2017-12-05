@@ -1,44 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:34762 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752732AbdLEOKm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:10:42 -0500
-MIME-Version: 1.0
-In-Reply-To: <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com> <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Tue, 5 Dec 2017 12:10:40 -0200
-Message-ID: <CAOMZO5BxAFbk4GOvSpMJ5KK=Y-9fTR3j4sbGLSDx-LnjLdf+NA@mail.gmail.com>
-Subject: Re: [PATCH v2 4/5] ARM: imx_v4_v5_defconfig: enable RTC_DRV_MXC_V2
-To: linux-kernel-dev@beckhoff.com
-Cc: Shawn Guo <shawnguo@kernel.org>,
+Received: from internet2.beckhoff.com ([194.25.186.210]:53135 "EHLO
+        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753361AbdLEOH0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:26 -0500
+From: <linux-kernel-dev@beckhoff.com>
+To: Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <kernel@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
         <linux-rtc@vger.kernel.org>,
-        Patrick Bruenn <p.bruenn@beckhoff.com>,
         "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
         <devicetree@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
         Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Russell King <linux@armlinux.org.uk>,
         "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
         <linux-arm-kernel@lists.infradead.org>,
-        =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH v2 4/5] ARM: imx_v4_v5_defconfig: enable RTC_DRV_MXC_V2
+Date: Tue, 5 Dec 2017 15:06:45 +0100
+Message-ID: <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Patrick,
+From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
+Enable SRTC driver for i.MX53 in default config
 
-On Tue, Dec 5, 2017 at 12:06 PM,  <linux-kernel-dev@beckhoff.com> wrote:
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
 
->  arch/arm/configs/imx_v4_v5_defconfig | 1 +
+---
 
-i.mx53 uses imx_v6_v7_defconfig, not imx_v4_v5_defconfig.
+To: Shawn Guo <shawnguo@kernel.org>
+To: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Lothar Waßmann <LW@KARO-electronics.de>
+---
+ arch/arm/configs/imx_v4_v5_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/configs/imx_v4_v5_defconfig b/arch/arm/configs/imx_v4_v5_defconfig
+index ca0f13cafe38..b48efd5ff8a7 100644
+--- a/arch/arm/configs/imx_v4_v5_defconfig
++++ b/arch/arm/configs/imx_v4_v5_defconfig
+@@ -167,6 +167,7 @@ CONFIG_RTC_DRV_PCF8563=y
+ CONFIG_RTC_DRV_IMXDI=y
+ CONFIG_RTC_DRV_MC13XXX=y
+ CONFIG_RTC_DRV_MXC=y
++CONFIG_RTC_DRV_MXC_V2=y
+ CONFIG_DMADEVICES=y
+ CONFIG_IMX_DMA=y
+ CONFIG_IMX_SDMA=y
+-- 
+2.11.0
