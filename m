@@ -1,51 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:32868 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750945AbdLaNkM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 31 Dec 2017 08:40:12 -0500
-Received: by mail-wm0-f68.google.com with SMTP id g130so10859962wme.0
-        for <linux-rtc@vger.kernel.org>; Sun, 31 Dec 2017 05:40:11 -0800 (PST)
-Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
- long
-To: Mikko Perttunen <cyndis@kapsi.fi>, mturquette@baylibre.com,
-        sboyd@codeaurora.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mips@linux-mips.org, linux-rpi-kernel@lists.infradead.org,
-        patches@opensource.cirrus.com,
-        uclinux-h8-devel@lists.sourceforge.jp,
-        linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-soc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-rockchip@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org,
-        freedreno@lists.freedesktop.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-References: <1514596392-22270-1-git-send-email-pure.logic@nexus-software.ie>
- <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
- <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
-From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Message-ID: <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
-Date: Sun, 31 Dec 2017 13:40:07 +0000
+Received: from internet2.beckhoff.com ([194.25.186.210]:53121 "EHLO
+        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752464AbdLEOHZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:25 -0500
+From: <linux-kernel-dev@beckhoff.com>
+To: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH v2 2/5] ARM: dts: imx53: add srtc node
+Date: Tue, 5 Dec 2017 15:06:43 +0100
+Message-ID: <20171205140646.30367-3-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
 MIME-Version: 1.0
-In-Reply-To: <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 30/12/17 16:36, Mikko Perttunen wrote:
-> FWIW, we had this problem some years ago with the Tegra CPU clock - then 
-> it was determined that a simpler solution was to have the determine_rate 
-> callback support unsigned long rates - so clock drivers that need to 
-> return rates higher than 2^31 can instead implement the determine_rate 
-> callback. That is what's currently implemented.
-> 
-> Mikko
+From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
-Granted we could work around it but, having both zero and less than zero 
-indicate error means you can't support larger than LONG_MAX which is I 
-think worth fixing.
+rtc-mxc_v2 driver will add support for the i.MX53 SRTC
+
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
 
 ---
-bod
+
+To: Shawn Guo <shawnguo@kernel.org>
+To: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Lothar Waßmann <LW@KARO-electronics.de>
+---
+ arch/arm/boot/dts/imx53.dtsi | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 589a67c5f796..e4ca9d9ba2fe 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -434,12 +434,10 @@
+ 			};
+ 
+ 			srtc: srtc@53fa4000 {
+-				compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
++				compatible = "fsl,imx53-rtc";
+ 				reg = <0x53fa4000 0x4000>;
+ 				interrupts = <24>;
+-				interrupt-parent = <&tzic>;
+ 				clocks = <&clks IMX5_CLK_SRTC_GATE>;
+-				clock-names = "ipg";
+ 			};
+ 
+ 			iomuxc: iomuxc@53fa8000 {
+-- 
+2.11.0
