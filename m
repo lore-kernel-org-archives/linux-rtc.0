@@ -1,81 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:34997 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935705AbdLRWEQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 17:04:16 -0500
-Received: by mail-lf0-f67.google.com with SMTP id j124so19463260lfg.2
-        for <linux-rtc@vger.kernel.org>; Mon, 18 Dec 2017 14:04:16 -0800 (PST)
+Received: from mail-ot0-f176.google.com ([74.125.82.176]:44073 "EHLO
+        mail-ot0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751062AbdLEONh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:13:37 -0500
 MIME-Version: 1.0
-In-Reply-To: <1513556924.31581.51.camel@perches.com>
-References: <1513556924.31581.51.camel@perches.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 18 Dec 2017 17:04:14 -0500
-Message-ID: <CAHC9VhTEcj5o1789dZ2CR9W=buPGNa6gSJRc0m8GpUSpn1-xRA@mail.gmail.com>
-Subject: Re: [trivial PATCH] treewide: Align function definition open/close braces
-To: Joe Perches <joe@perches.com>
-Cc: Jiri Kosina <trivial@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-rtc@vger.kernel.org, alsa-devel@alsa-project.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
-        acpi4asus-user@lists.sourceforge.net,
-        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        platform-driver-x86@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linux-audit@redhat.com,
-        amd-gfx@lists.freedesktop.org, linux-fsdevel@vger.kernel.org,
-        MPT-FusionLinux.pdl@broadcom.com, ocfs2-devel@oss.oracle.com,
-        linux-media@vger.kernel.org
+In-Reply-To: <20171205140646.30367-3-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com> <20171205140646.30367-3-linux-kernel-dev@beckhoff.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Tue, 5 Dec 2017 12:13:36 -0200
+Message-ID: <CAOMZO5DiRa1aLFHiFv_-_3J9LLuq-J06FHLQ4o7=r8hrftEpqQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/5] ARM: dts: imx53: add srtc node
+To: linux-kernel-dev@beckhoff.com
+Cc: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sun, Dec 17, 2017 at 7:28 PM, Joe Perches <joe@perches.com> wrote:
-> Some functions definitions have either the initial open brace and/or
-> the closing brace outside of column 1.
->
-> Move those braces to column 1.
->
-> This allows various function analyzers like gnu complexity to work
-> properly for these modified functions.
->
-> Miscellanea:
->
-> o Remove extra trailing ; and blank line from xfs_agf_verify
->
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> git diff -w shows no difference other than the above 'Miscellanea'
->
-> (this is against -next, but it applies against Linus' tree
->  with a couple offsets)
->
->  arch/x86/include/asm/atomic64_32.h                   |  2 +-
->  drivers/acpi/custom_method.c                         |  2 +-
->  drivers/acpi/fan.c                                   |  2 +-
->  drivers/gpu/drm/amd/display/dc/core/dc.c             |  2 +-
->  drivers/media/i2c/msp3400-kthreads.c                 |  2 +-
->  drivers/message/fusion/mptsas.c                      |  2 +-
->  drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c |  2 +-
->  drivers/net/wireless/ath/ath9k/xmit.c                |  2 +-
->  drivers/platform/x86/eeepc-laptop.c                  |  2 +-
->  drivers/rtc/rtc-ab-b5ze-s3.c                         |  2 +-
->  drivers/scsi/dpt_i2o.c                               |  2 +-
->  drivers/scsi/sym53c8xx_2/sym_glue.c                  |  2 +-
->  fs/locks.c                                           |  2 +-
->  fs/ocfs2/stack_user.c                                |  2 +-
->  fs/xfs/libxfs/xfs_alloc.c                            |  5 ++---
->  fs/xfs/xfs_export.c                                  |  2 +-
->  kernel/audit.c                                       |  6 +++---
->  kernel/trace/trace_printk.c                          |  4 ++--
->  lib/raid6/sse2.c                                     | 14 +++++++-------
->  sound/soc/fsl/fsl_dma.c                              |  2 +-
->  20 files changed, 30 insertions(+), 31 deletions(-)
+On Tue, Dec 5, 2017 at 12:06 PM,  <linux-kernel-dev@beckhoff.com> wrote:
 
-For the audit bits ...
+>                         srtc: srtc@53fa4000 {
+> -                               compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
+> +                               compatible = "fsl,imx53-rtc";
+>                                 reg = <0x53fa4000 0x4000>;
+>                                 interrupts = <24>;
+> -                               interrupt-parent = <&tzic>;
+>                                 clocks = <&clks IMX5_CLK_SRTC_GATE>;
+> -                               clock-names = "ipg";
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+srtc node has been removed in linux-next.
 
--- 
-paul moore
-www.paul-moore.com
+You need to re-add it.
