@@ -1,81 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pl0-f65.google.com ([209.85.160.65]:47030 "EHLO
-        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751279AbdLWP5q (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 23 Dec 2017 10:57:46 -0500
-Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
-To: Greg KH <gregkh@linuxfoundation.org>,
-        Yisheng Xie <xieyisheng1@huawei.com>
-Cc: linux-kernel@vger.kernel.org, ysxie@foxmail.com,
-        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
-        boris.brezillon@free-electrons.com, richard@nod.at,
-        marek.vasut@gmail.com, cyrille.pitchen@wedev4u.fr,
-        linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org,
-        wim@iguana.be, linux-watchdog@vger.kernel.org,
-        b.zolnierkie@samsung.com, linux-fbdev@vger.kernel.org,
-        linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
-        ralf@linux-mips.org, linux-mips@linux-mips.org,
-        lgirdwood@gmail.com, broonie@kernel.org, tglx@linutronix.de,
-        jason@lakedaemon.net, marc.zyngier@arm.com, arnd@arndb.de,
-        andriy.shevchenko@linux.intel.com,
-        industrypack-devel@lists.sourceforge.net, wg@grandegger.com,
-        mkl@pengutronix.de, linux-can@vger.kernel.org, mchehab@kernel.org,
-        linux-media@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
-        daniel.vetter@intel.com, jani.nikula@linux.intel.com,
-        seanpaul@chromium.org, airlied@linux.ie,
-        dri-devel@lists.freedesktop.org, kvalo@codeaurora.org,
-        linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
-        tj@kernel.org, linux-ide@vger.kernel.org, bhelgaas@google.com,
-        linux-pci@vger.kernel.org, devel@driverdev.osuosl.org,
-        dvhart@infradead.org, andy@infradead.org,
-        platform-driver-x86@vger.kernel.org, jakub.kicinski@netronome.com,
-        davem@davemloft.net, nios2-dev@lists.rocketboards.org,
-        netdev@vger.kernel.org, vinod.koul@intel.com,
-        dan.j.williams@intel.com, dmaengine@vger.kernel.org,
-        jslaby@suse.com
-References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134831.GB10103@kroah.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
-Date: Sat, 23 Dec 2017 07:57:40 -0800
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:62123 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753358AbdLEOH0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:26 -0500
+From: <linux-kernel-dev@beckhoff.com>
+To: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH v2 3/5] rtc: mxc_v2: add driver for i.MX53 SRTC
+Date: Tue, 5 Dec 2017 15:06:44 +0100
+Message-ID: <20171205140646.30367-4-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
 MIME-Version: 1.0
-In-Reply-To: <20171223134831.GB10103@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 12/23/2017 05:48 AM, Greg KH wrote:
-> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
->> Hi all,
->>
->> When I tried to use devm_ioremap function and review related code, I found
->> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
->> except one use ioremap while the other use ioremap_nocache.
-> 
-> For all arches?  Really?  Look at MIPS, and x86, they have different
-> functions.
-> 
+From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
-Both mips and x86 end up mapping the same function, but other arches don't.
-mn10300 is one where ioremap and ioremap_nocache are definitely different.
+Add RTC_DRV_MXC_V2 config option
 
-Guenter
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
 
->> While ioremap's
->> default function is ioremap_nocache, so devm_ioremap_nocache also have the
->> same function with devm_ioremap, which can just be killed to reduce the size
->> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
->>
->> I have posted two versions, which use macro instead of function for
->> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
->> devm_ioremap_nocache for no need to keep a macro around for the duplicate
->> thing. So here comes v3 and please help to review.
-> 
-> I don't think this can be done, what am I missing?  These functions are
-> not identical, sorry for missing that before.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+---
+
+To: Alessandro Zummo <a.zummo@towertech.it>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Lothar Waßmann <LW@KARO-electronics.de>
+---
+ drivers/rtc/Kconfig | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index b59a31b079a5..440edebf5c71 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1689,6 +1689,16 @@ config RTC_DRV_MXC
+ 	   This driver can also be built as a module, if so, the module
+ 	   will be called "rtc-mxc".
+ 
++config RTC_DRV_MXC_V2
++	tristate "Freescale MXC Real Time Clock for i.MX53"
++	depends on ARCH_MXC
++	help
++	   If you say yes here you get support for the Freescale MXC
++	   SRTC module in i.MX53 processor.
++
++	   This driver can also be built as a module, if so, the module
++	   will be called "rtc-mxc_v2".
++
+ config RTC_DRV_SNVS
+ 	tristate "Freescale SNVS RTC support"
+ 	select REGMAP_MMIO
+-- 
+2.11.0
