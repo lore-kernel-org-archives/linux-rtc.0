@@ -1,12 +1,15 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:57301 "EHLO
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:62106 "EHLO
         Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750830AbdLRLw0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 06:52:26 -0500
+        with ESMTP id S1752609AbdLEOHY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:24 -0500
 From: <linux-kernel-dev@beckhoff.com>
-CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+To: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Patrick Bruenn <p.bruenn@beckhoff.comPaste>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
@@ -17,21 +20,18 @@ CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
         Fabio Estevam <fabio.estevam@nxp.com>,
         Juergen Borleis <jbe@pengutronix.de>,
         Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
         Russell King <linux@armlinux.org.uk>,
         "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
         <linux-arm-kernel@lists.infradead.org>,
         Philippe Ombredanne <pombredanne@nexb.com>,
         =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCH v4 1/4] dt-bindings: rtc: add bindings for i.MX53 SRTC
-Date: Mon, 18 Dec 2017 12:51:30 +0100
-Message-ID: <20171218115133.16371-2-linux-kernel-dev@beckhoff.com>
-In-Reply-To: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
-References: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+Subject: [PATCH v2 1/5] dt-bindings: rtc: add bindings for i.MX53 SRTC
+Date: Tue, 5 Dec 2017 15:06:42 +0100
+Message-ID: <20171205140646.30367-2-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -39,18 +39,12 @@ From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
 Document the binding for i.MX53 SRTC implemented by rtc-mxc_v2
 
-Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com><Paste>
 
 ---
 
-v4:
-- replace "srtc" node name with generic "rtc"
-
-v2:
-- added "Secure" and (SRTC) to the description
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alessandro Zummo <a.zummo@towertech.it>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
@@ -74,11 +68,11 @@ Cc: Lothar Waßmann <LW@KARO-electronics.de>
 
 diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
 new file mode 100644
-index 000000000000..79d7e87b0d91
+index 000000000000..796e7f4995db
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
 @@ -0,0 +1,17 @@
-+* i.MX53 Secure Real Time Clock (SRTC)
++* i.MX53 Real Time Clock controller
 +
 +Required properties:
 +- compatible: should be: "fsl,imx53-rtc"
@@ -89,7 +83,7 @@ index 000000000000..79d7e87b0d91
 +
 +Example:
 +
-+rtc@53fa4000 {
++srtc@53fa4000 {
 +	compatible = "fsl,imx53-rtc";
 +	reg = <0x53fa4000 0x4000>;
 +	interrupts = <24>;
