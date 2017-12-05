@@ -1,42 +1,44 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46965 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752320AbdLLWYB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Dec 2017 17:24:01 -0500
-Date: Tue, 12 Dec 2017 23:23:59 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Colin King <colin.king@canonical.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: sun6i: ensure rtc is kfree'd on error
-Message-ID: <20171212222359.GM8318@piout.net>
-References: <20171122171618.2460-1-colin.king@canonical.com>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:34762 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752732AbdLEOKm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:10:42 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171122171618.2460-1-colin.king@canonical.com>
+In-Reply-To: <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com> <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Tue, 5 Dec 2017 12:10:40 -0200
+Message-ID: <CAOMZO5BxAFbk4GOvSpMJ5KK=Y-9fTR3j4sbGLSDx-LnjLdf+NA@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] ARM: imx_v4_v5_defconfig: enable RTC_DRV_MXC_V2
+To: linux-kernel-dev@beckhoff.com
+Cc: Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 22/11/2017 at 17:16:18 +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The error return path on clk_data allocation failure does not kfree
-> the allocated rtc object. Fix this with a kfree of rtc on the error
-> exit path.
-> 
-> Detected by CoverityScan, CID#1452264 ("Resource Leak")
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/rtc/rtc-sun6i.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-Applied, thanks.
+Hi Patrick,
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+
+On Tue, Dec 5, 2017 at 12:06 PM,  <linux-kernel-dev@beckhoff.com> wrote:
+
+>  arch/arm/configs/imx_v4_v5_defconfig | 1 +
+
+i.mx53 uses imx_v6_v7_defconfig, not imx_v4_v5_defconfig.
