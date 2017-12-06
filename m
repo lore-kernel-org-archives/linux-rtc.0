@@ -1,80 +1,103 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from internet2.beckhoff.com ([194.25.186.210]:53135 "EHLO
-        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753361AbdLEOH0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:26 -0500
-From: <linux-kernel-dev@beckhoff.com>
-To: Shawn Guo <shawnguo@kernel.org>,
+Received: from mail.free-electrons.com ([62.4.15.54]:45754 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753356AbdLFI6h (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 03:58:37 -0500
+Date: Wed, 6 Dec 2017 09:58:25 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-kernel-dev@beckhoff.com, Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <kernel@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
-        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
         <linux-rtc@vger.kernel.org>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>,
         "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, Juergen Borleis <jbe@pengutronix.de>,
         open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
         Russell King <linux@armlinux.org.uk>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
         "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
         <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCH v2 4/5] ARM: imx_v4_v5_defconfig: enable RTC_DRV_MXC_V2
-Date: Tue, 5 Dec 2017 15:06:45 +0100
-Message-ID: <20171205140646.30367-5-linux-kernel-dev@beckhoff.com>
-In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+        Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
+Subject: Re: [PATCH v2 5/5] rtc: add mxc driver for i.MX53 SRTC
+Message-ID: <20171206085825.GM21780@piout.net>
 References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+ <20171205140646.30367-6-linux-kernel-dev@beckhoff.com>
+ <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Patrick Bruenn <p.bruenn@beckhoff.com>
+On 06/12/2017 at 09:36:18 +0100, Sascha Hauer wrote:
+> > +/*
+> > + * This function updates the RTC alarm registers and then clears all the
+> > + * interrupt status bits.
+> > + * The caller should hold the pdata->lock
+> > + *
+> > + * @param  alrm         the new alarm value to be updated in the RTC
+> > + *
+> > + * @return  0 if successful; non-zero otherwise.
+> > + */
+> > +static int mxc_rtc_write_alarm_locked(struct mxc_rtc_data *const pdata,
+> > +				      struct rtc_time *alarm_tm)
+> > +{
+> > +	void __iomem *const ioaddr = pdata->ioaddr;
+> > +	unsigned long time;
+> > +
+> > +	rtc_tm_to_time(alarm_tm, &time);
+> > +
+> > +	if (time > U32_MAX) {
+> > +		pr_err("Hopefully I am out of service by then :-(\n");
+> > +		return -EINVAL;
+> > +	}
+> 
+> This will never happen as on your target hardware unsigned long is a
+> 32bit type. Not sure what is best to do here. Maybe you should test
+> the return value of rtc_tm_to_time. ATM it returns 0 unconditionally,
+> but rtc_tm_to_time could detect when the input time doesn't fit into
+> its return type and return an error in this case.
+> Also I just realized that it's unsigned and only overflows in the year
+> 2106. I'm most likely dead then so I don't care that much ;)
+> 
 
-Enable SRTC driver for i.MX53 in default config
+One solution is to use the 64bit version instead so it doesn't overflow.
+This makes the time > U32_MAX work.
+Also, I'll send (hopefully soon) a series adding proper range checking
+for the whole RTC subsystem. And yes, it not urgent as I don't think I
+will care so much in 2106 too ;)
 
-Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+> > +/*
+> > + * This function reads the current RTC time into tm in Gregorian date.
+> > + *
+> > + * @param  tm           contains the RTC time value upon return
+> > + *
+> > + * @return  0 if successful; non-zero otherwise.
+> > + */
+> > +static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> > +{
+> > +	struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
+> > +	time_t now;
+> > +	int ret = mxc_rtc_lock(pdata);
+> > +
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	now = readl(pdata->ioaddr + SRTC_LPSCMR);
+> > +	rtc_time_to_tm(now, tm);
+> > +	ret = rtc_valid_tm(tm);
 
----
+This check is useless for two reasons: you know that rtc_time_to_tm will
+generate a valid tm and the core always checks the tm anyway.
 
-To: Shawn Guo <shawnguo@kernel.org>
-To: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Juergen Borleis <jbe@pengutronix.de>
-Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
-Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
-Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Lothar Waßmann <LW@KARO-electronics.de>
----
- arch/arm/configs/imx_v4_v5_defconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/arm/configs/imx_v4_v5_defconfig b/arch/arm/configs/imx_v4_v5_defconfig
-index ca0f13cafe38..b48efd5ff8a7 100644
---- a/arch/arm/configs/imx_v4_v5_defconfig
-+++ b/arch/arm/configs/imx_v4_v5_defconfig
-@@ -167,6 +167,7 @@ CONFIG_RTC_DRV_PCF8563=y
- CONFIG_RTC_DRV_IMXDI=y
- CONFIG_RTC_DRV_MC13XXX=y
- CONFIG_RTC_DRV_MXC=y
-+CONFIG_RTC_DRV_MXC_V2=y
- CONFIG_DMADEVICES=y
- CONFIG_IMX_DMA=y
- CONFIG_IMX_SDMA=y
 -- 
-2.11.0
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
