@@ -1,115 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:38436 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755268AbdLONcw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Dec 2017 08:32:52 -0500
-MIME-Version: 1.0
-In-Reply-To: <20171215130425.GA7022@piout.net>
-References: <20170824103026.18231-1-enric.balletbo@collabora.com>
- <CAFqH_52KKH3r+TzgvP3NvPjuFpQJwCZAmj2ZVkcYLdy9qaXLuQ@mail.gmail.com> <20171215130425.GA7022@piout.net>
-From: Enric Balletbo Serra <eballetbo@gmail.com>
-Date: Fri, 15 Dec 2017 14:32:50 +0100
-Message-ID: <CAFqH_50V8yMtocv485oviMFKUfB4W2ZWbbh9oZLbTeNxjFAQvw@mail.gmail.com>
-Subject: Re: [PATCH] rtc: ds1307: call the platform's logic for handle IRQs.
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:58811 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754239AbdLFJ2N (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 04:28:13 -0500
+From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>
+CC: linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>, Juergen Borleis <jbe@pengutronix.de>,
+        open list <linux-kernel@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "Noel Vellemans" <Noel.Vellemans@visionbms.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        =?iso-8859-1?Q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
+Subject: RE: [PATCH v2 5/5] rtc: add mxc driver for i.MX53 SRTC
+Date: Wed, 6 Dec 2017 09:28:09 +0000
+Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB531D7C@NT-Mail07.beckhoff.com>
+References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+ <20171205140646.30367-6-linux-kernel-dev@beckhoff.com>
+ <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
+ <20171206085825.GM21780@piout.net>
+In-Reply-To: <20171206085825.GM21780@piout.net>
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
-
-2017-12-15 14:04 GMT+01:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> Hi,
->
-> On 15/12/2017 at 12:44:49 +0100, Enric Balletbo Serra wrote:
->> Hi,
->>
->> 2017-08-24 12:30 GMT+02:00 Enric Balletbo i Serra
->> <enric.balletbo@collabora.com>:
->> > On some systems the nIRQ pin is often connect to a GPIO, then, if a given
->> > interrupt line is supposed to wake up the system, the corresponding input
->> > of that interrupt controller need to be enabled to receive signal from the
->> > line in question. Before this commit such systems would not wake up
->> > because are not marked as wakeup IRQs in the IRQ subsystem.
->> >
->> > This commit calls enable_irq_wake() on suspend and disables that input to
->> > prevent the dedicated controller from triggering interrupts unnecessarily
->> > after wakeup.
->> >
->> > After this commit a system composed by a RTC DS1339 chip connected to a
->> > GPIO line on a AM335x SoC is able to wakeup from suspend-to-RAM, otherwise
->> > the line is ignored.
->> >
->> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
->> > ---
->> >  drivers/rtc/rtc-ds1307.c | 25 +++++++++++++++++++++++++
->> >  1 file changed, 25 insertions(+)
->> >
->> > diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
->> > index 4b43aa6..c4b0f6a 100644
->> > --- a/drivers/rtc/rtc-ds1307.c
->> > +++ b/drivers/rtc/rtc-ds1307.c
->> > @@ -1711,11 +1711,36 @@ static int ds1307_probe(struct i2c_client *client,
->> >         return err;
->> >  }
->> >
->> > +#ifdef CONFIG_PM_SLEEP
->> > +static int ds1307_suspend(struct device *dev)
+>From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
+>Sent: Mittwoch, 6. Dezember 2017 09:58
+>On 06/12/2017 at 09:36:18 +0100, Sascha Hauer wrote:
+>> > +/*
+>> > + * This function updates the RTC alarm registers and then clears all the
+>> > + * interrupt status bits.
+>> > + * The caller should hold the pdata->lock
+>> > + *
+>> > + * @param  alrm         the new alarm value to be updated in the RTC
+>> > + *
+>> > + * @return  0 if successful; non-zero otherwise.
+>> > + */
+>> > +static int mxc_rtc_write_alarm_locked(struct mxc_rtc_data *const pdata,
+>> > +                                struct rtc_time *alarm_tm)
 >> > +{
->> > +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+>> > +  void __iomem *const ioaddr = pdata->ioaddr;
+>> > +  unsigned long time;
 >> > +
->> > +       if (device_may_wakeup(dev))
->> > +               enable_irq_wake(ds1307->irq);
+>> > +  rtc_tm_to_time(alarm_tm, &time);
 >> > +
->> > +       return 0;
->> > +}
->> > +
->> > +static int ds1307_resume(struct device *dev)
+>> > +  if (time > U32_MAX) {
+>> > +          pr_err("Hopefully I am out of service by then :-(\n");
+>> > +          return -EINVAL;
+>> > +  }
+>>
+>> This will never happen as on your target hardware unsigned long is a
+>> 32bit type. Not sure what is best to do here. Maybe you should test
+>> the return value of rtc_tm_to_time. ATM it returns 0 unconditionally,
+>> but rtc_tm_to_time could detect when the input time doesn't fit into
+>> its return type and return an error in this case.
+>> Also I just realized that it's unsigned and only overflows in the year
+>> 2106. I'm most likely dead then so I don't care that much ;)
+>>
+>
+>One solution is to use the 64bit version instead so it doesn't overflow.
+>This makes the time > U32_MAX work.
+>Also, I'll send (hopefully soon) a series adding proper range checking
+>for the whole RTC subsystem. And yes, it not urgent as I don't think I
+>will care so much in 2106 too ;)
+>
+I just noticed that in mxc_rtc_set_time() I am using the 64bit version.
+After thinking a while about this issue, I think the 64bit version is better
+suited for my use case. It makes explicitly clear that I need to push the
+time into a 32bit hw register and "unsigned long" is just by accident the
+correct size for me.
+
+>> > +/*
+>> > + * This function reads the current RTC time into tm in Gregorian date.
+>> > + *
+>> > + * @param  tm           contains the RTC time value upon return
+>> > + *
+>> > + * @return  0 if successful; non-zero otherwise.
+>> > + */
+>> > +static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
 >> > +{
->> > +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+>> > +  struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
+>> > +  time_t now;
+>> > +  int ret = mxc_rtc_lock(pdata);
 >> > +
->> > +       if (device_may_wakeup(dev))
->> > +               disable_irq_wake(ds1307->irq);
+>> > +  if (ret)
+>> > +          return ret;
 >> > +
->> > +       return 0;
->> > +}
->> > +#endif
->> > +
->> > +static SIMPLE_DEV_PM_OPS(ds1307_pm_ops, ds1307_suspend, ds1307_resume);
->> > +
->> >  static struct i2c_driver ds1307_driver = {
->> >         .driver = {
->> >                 .name   = "rtc-ds1307",
->> >                 .of_match_table = of_match_ptr(ds1307_of_match),
->> >                 .acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
->> > +               .pm     = &ds1307_pm_ops,
->> >         },
->> >         .probe          = ds1307_probe,
->> >         .id_table       = ds1307_id,
->> > --
->> > 2.9.3
->> >
->>
->> A gentle ping, any comments on this?
->>
+>> > +  now = readl(pdata->ioaddr + SRTC_LPSCMR);
+>> > +  rtc_time_to_tm(now, tm);
+>> > +  ret = rtc_valid_tm(tm);
 >
-> It was rejected following the discussion you had with Heiner and your
-> email of the 25/08.
->
+>This check is useless for two reasons: you know that rtc_time_to_tm will
+>generate a valid tm and the core always checks the tm anyway.
+I will remove this with the next version
 
-Oops, right, very sorry to take your time, for some reason I had this
-patch tagged as 'waiting for an answer' but this was already
-discussed, so my bad.
+Thanks for your time and help,
+Patrick
 
-Thanks,
- Enric
-
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
+Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
