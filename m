@@ -1,95 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:55263 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751558AbdLDO0X (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Dec 2017 09:26:23 -0500
-Subject: Re: [PATCH] rtc: ac100: Fix multiple race conditions
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-References: <20171204140541.30351-1-alexandre.belloni@free-electrons.com>
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Message-ID: <6885137b-a3c0-928f-4678-8603065b0397@free-electrons.com>
-Date: Mon, 4 Dec 2017 15:26:10 +0100
-MIME-Version: 1.0
-In-Reply-To: <20171204140541.30351-1-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=utf-8
+Received: from 178.115.242.59.static.drei.at ([178.115.242.59]:54096 "EHLO
+        mail.osadl.at" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1751208AbdLFTtl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 14:49:41 -0500
+From: Andreas Platschek <andreas.platschek@opentech.at>
+To: linux-kernel@vger.kernel.org
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org,
+        Andreas Platschek <andreas.platschek@opentech.at>
+Subject: [PATCH 2/2] rtc: omap: fix unbalanced clk_prepare_enable/clk_disable_unprepare
+Date: Wed,  6 Dec 2017 20:42:38 +0100
+Message-Id: <20171206194238.12824-3-andreas.platschek@opentech.at>
+In-Reply-To: <20171206194238.12824-1-andreas.platschek@opentech.at>
+References: <20171206194238.12824-1-andreas.platschek@opentech.at>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+There are 2 error paths after clk_prepare_enable() was called, where
+clk_disable_unprepare() is missing.
 
-On 04/12/2017 15:05, Alexandre Belloni wrote:
-> The probe function is not allowed to fail after registering the RTC because
-> the following may happen:
-> 
-> CPU0:                                CPU1:
-> sys_load_module()
->  do_init_module()
->   do_one_initcall()
->    cmos_do_probe()
->     rtc_device_register()
->      __register_chrdev()
->      cdev->owner = struct module*
->                                      open("/dev/rtc0")
->     rtc_device_unregister()
->   module_put()
->   free_module()
->    module_free(mod->module_core)
->    /* struct module *module is now
->       freed */
->                                       chrdev_open()
->                                        spin_lock(cdev_lock)
->                                        cdev_get()
->                                         try_module_get()
->                                          module_is_live()
->                                          /* dereferences already
->                                             freed struct module* */
-> 
-> Also, the interrupt handler: ac100_rtc_irq() is dereferencing chip->rtc but
-> this may still be NULL when it is called, resulting in:
-> Unable to handle kernel NULL pointer dereference at virtual address 00000194
-> pgd = (ptrval)
-> [00000194] *pgd=00000000
-> Internal error: Oops: 5 [#1] SMP ARM
-> Modules linked in:
-> CPU: 0 PID: 72 Comm: irq/71-ac100-rt Not tainted 4.15.0-rc1-next-20171201-dirty #120
-> Hardware name: Allwinner sun8i Family
-> task: (ptrval) task.stack: (ptrval)
-> PC is at mutex_lock+0x14/0x3c
-> LR is at ac100_rtc_irq+0x38/0xc8
-> pc : [<c06543a4>]    lr : [<c04d9a2c>]    psr: 60000053
-> sp : ee9c9f28  ip : 00000000  fp : ee9adfdc
-> r10: 00000000  r9 : c0a04c48  r8 : c015ed18
-> r7 : ee9bd600  r6 : ee9c9f28  r5 : ee9af590  r4 : c0a04c48
-> r3 : ef3cb3c0  r2 : 00000000  r1 : ee9af590  r0 : 00000194
-> Flags: nZCv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-> Control: 10c5387d  Table: 4000406a  DAC: 00000051
-> Process irq/71-ac100-rt (pid: 72, stack limit = 0x(ptrval))
-> Stack: (0xee9c9f28 to 0xee9ca000)
-> 9f20:                   00000000 7c2fd1be c015ed18 ee9adf40 ee9c0400 ee9c0400
-> 9f40: ee9adf40 c015ed34 ee9c8000 ee9adf64 ee9c0400 c015f040 ee9adf80 00000000
-> 9f60: c015ee24 7c2fd1be ee9adfc0 ee9adf80 00000000 ee9c8000 ee9adf40 c015eef4
-> 9f80: ef1eba34 c0138f14 ee9c8000 ee9adf80 c0138df4 00000000 00000000 00000000
-> 9fa0: 00000000 00000000 00000000 c01010e8 00000000 00000000 00000000 00000000
-> 9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-> 9fe0: 00000000 00000000 00000000 00000000 00000013 00000000 ffffffff ffffffff
-> [<c06543a4>] (mutex_lock) from [<c04d9a2c>] (ac100_rtc_irq+0x38/0xc8)
-> [<c04d9a2c>] (ac100_rtc_irq) from [<c015ed34>] (irq_thread_fn+0x1c/0x54)
-> [<c015ed34>] (irq_thread_fn) from [<c015f040>] (irq_thread+0x14c/0x214)
-> [<c015f040>] (irq_thread) from [<c0138f14>] (kthread+0x120/0x150)
-> [<c0138f14>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-> 
-> Solve both issues by moving to
-> devm_rtc_allocate_device()/rtc_register_device()
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Tested-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+Signed-off-by: Andreas Platschek <andreas.platschek@opentech.at>
+---
+ drivers/rtc/rtc-omap.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Thanks,
-Quentin
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index ad309feb7d11..c6aa8f94bb3c 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -760,8 +760,10 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(rtc->base))
++	if (IS_ERR(rtc->base)) {
++		clk_disable_unprepare(rtc->clk);
+ 		return PTR_ERR(rtc->base);
++	}
+ 
+ 	platform_set_drvdata(pdev, rtc);
+ 
+@@ -894,6 +896,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err:
++	clk_disable_unprepare(rtc->clk);
+ 	device_init_wakeup(&pdev->dev, false);
+ 	rtc->type->lock(rtc);
+ 	pm_runtime_put_sync(&pdev->dev);
 -- 
-Quentin Schulz, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
