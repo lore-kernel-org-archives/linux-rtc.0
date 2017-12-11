@@ -1,49 +1,125 @@
-Return-Path: <okaratas@yandex.com>
-From: Ozgur <okaratas@yandex.com>
-To: Aishwarya Pant <aishpant@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Julia Lawall <julia.lawall@lip6.fr>,
-	Jonathan Corbet <corbet@lwn.net>
-In-Reply-To: <20171228133132.GA3927@mordor.localdomain>
-References: <20171228133132.GA3927@mordor.localdomain>
-Subject: Re: rtc: sysfs: move sysfs interface to Documentation/ABI
+Return-Path: <rabeeh@solid-run.com>
 MIME-Version: 1.0
-Message-Id: <434381514470951@web50o.yandex.ru>
-Date: Thu, 28 Dec 2017 17:22:31 +0300
-Content-Type: text/plain
+In-Reply-To: <871skewf05.fsf@free-electrons.com>
+References: <20171130094049.fg3zoxgvhlb7jqw3@tarshish> <871skewf05.fsf@free-electrons.com>
+From: Rabeeh Khoury <rabeeh@solid-run.com>
+Date: Mon, 11 Dec 2017 14:46:41 +0200
+Message-ID: <CA+j0ot=PqFYwN=+zUc5F1uyXQoB9dX1gmwxTbXP-QdzQU+zspQ@mail.gmail.com>
+Subject: Re: Armada RTC power up reset
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Baruch Siach <baruch@tkos.co.il>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-rtc@vger.kernel.org,
+	"nadavh@marvell.com" <nadavh@marvell.com>
+Content-Type: multipart/alternative; boundary="089e08211e902024cd05600fed56"
 List-ID: <linux-rtc.vger.kernel.org>
 
+--089e08211e902024cd05600fed56
+Content-Type: text/plain; charset="UTF-8"
 
+Hi Gregory,
 
-28.12.2017, 16:31, "Aishwarya Pant" <aishpant@gmail.com>:
-> Hi
+On Fri, Dec 1, 2017 at 7:10 PM, Gregory CLEMENT <
+gregory.clement@free-electrons.com> wrote:
 
-Hello,
-
-> In Documentation/rtc.txt, there is a description of the sysfs
-> interface which could be moved to Documentation/ABI.
+> Hi Baruch,
 >
-> Would such a change be useful?
+>  On jeu., nov. 30 2017, Baruch Siach <baruch@tkos.co.il> wrote:
 >
-> The ABI documentation format looks like the following:
+> > Hi Thomas,
+> >
+> > As you know, the Armada 38x/8k RTC needs a reset sequence to be
+> operational
+> > when first powered up. This reset code is currently in the vendor
+> provided
+> > U-Boot RTC driver. But having to run 'date reset' from the U-Boot prompt
+> every
+> > first boot (happens quite a lot when dealing with SOMs) is not nice. An
+> > automatic reset in the kernel driver would be much better.
+> >
+> > Rabeeh has mentioned to me that you had an idea how to detect at run
+> time that
+> > the RTC is in first power up state. Do you recall the details?
 >
-> What: (the full sysfs path of the attribute)
-> Date: (date of creation)
-> KernelVersion: (kernel version it first showed up in)
-> Contact: (primary contact)
-> Description: (long description on usage)
+> Actually it was me who worked on the RTC but I didn't remember having a
+> way to detect that the RTC is in first power up state. I dig in the
+> datasheet, errata sheet and alos on varisou branches of the vendor tree
+> and didn't find anything.
 >
-> I am doing this in an exercise to move sysfs ABI interfaces (which are
-> documented) to their right place i.e. in Documentation/ABI along with the rest.
+> Maybe a solution could be to reset the RTC when we set the time.
+>
 
-Do I understand right? Are you want to make the rtc.txt part the same format as ABI folder?
-for example create to RTC folder and add /dev/rtc what, date, kernelversion, contact right?
 
-This can be a good idea and I can help.
+This is one way to do it; but then on first boot you might get real awkward
+time; like year 2035 which can seriously confuse the boot process.
+Detecting an uninitialized RTC and forcing it to tick with time = 0 (i.e.
+1970) is better way since boot failures can be reproduced in an orderly
+manner (and the developer would know what was really wrong).
 
-> Aishwarya
+Now for the point; I was reviewing all the bits in the RTC unit when it's
+stuck; there are few bits that can indicate an uninitialized state; for
+instance - RTC test configuration register (0xa381c).
+I'm getting random values in bits [7:0] where it should be 0x0; we can this
+as an indication; but the tip I got from Nadavh (CCed) is that Thomas (and
+probably you) have found a bit that we can rely on to detect a stuck state
+that can trigger a reset of the RTC on device probe.
 
-Ozgur
+Any ideas?
+
+Regards,
+Rabeeh
+
+--089e08211e902024cd05600fed56
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Gregory,<br><div class=3D"gmail_extra"><br><div class=
+=3D"gmail_quote">On Fri, Dec 1, 2017 at 7:10 PM, Gregory CLEMENT <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:gregory.clement@free-electrons.com" target=
+=3D"_blank">gregory.clement@free-electron<wbr>s.com</a>&gt;</span> wrote:<b=
+r><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:=
+1px #ccc solid;padding-left:1ex">Hi Baruch,<br>
+<span><br>
+=C2=A0On jeu., nov. 30 2017, Baruch Siach &lt;<a href=3D"mailto:baruch@tkos=
+.co.il" target=3D"_blank">baruch@tkos.co.il</a>&gt; wrote:<br>
+<br>
+&gt; Hi Thomas,<br>
+&gt;<br>
+&gt; As you know, the Armada 38x/8k RTC needs a reset sequence to be operat=
+ional<br>
+&gt; when first powered up. This reset code is currently in the vendor prov=
+ided<br>
+&gt; U-Boot RTC driver. But having to run &#39;date reset&#39; from the U-B=
+oot prompt every<br>
+&gt; first boot (happens quite a lot when dealing with SOMs) is not nice. A=
+n<br>
+&gt; automatic reset in the kernel driver would be much better.<br>
+&gt;<br>
+&gt; Rabeeh has mentioned to me that you had an idea how to detect at run t=
+ime that<br>
+&gt; the RTC is in first power up state. Do you recall the details?<br>
+<br>
+</span>Actually it was me who worked on the RTC but I didn&#39;t remember h=
+aving a<br>
+way to detect that the RTC is in first power up state. I dig in the<br>
+datasheet, errata sheet and alos on varisou branches of the vendor tree<br>
+and didn&#39;t find anything.<br>
+<br>
+Maybe a solution could be to reset the RTC when we set the time.<br></block=
+quote><div><br></div><div><br></div><div>This is one way to do it; but then=
+ on first boot you might get real awkward time; like year 2035 which can se=
+riously confuse the boot process.</div><div>Detecting an uninitialized RTC =
+and forcing it to tick with time =3D 0 (i.e. 1970) is better way since boot=
+ failures can be reproduced in an orderly manner (and the developer would k=
+now what was really wrong).</div><div><br></div><div>Now for the point; I w=
+as reviewing all the bits in the RTC unit when it&#39;s stuck; there are fe=
+w bits that can indicate an uninitialized state; for instance - RTC test co=
+nfiguration register (0xa381c).<br></div><div>I&#39;m getting random values=
+ in bits [7:0] where it should be 0x0; we can this as an indication; but th=
+e tip I got from Nadavh (CCed) is that Thomas (and probably you) have found=
+ a bit that we can rely on to detect a stuck state that can trigger a reset=
+ of the RTC on device probe.</div><div><br></div><div>Any ideas?</div><div>=
+<br></div><div>Regards,</div><div>Rabeeh</div><div><br></div></div></div></=
+div>
+
+--089e08211e902024cd05600fed56--
