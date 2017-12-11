@@ -1,97 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:2726 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751112AbdLYBoG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 24 Dec 2017 20:44:06 -0500
-Subject: Re: [PATCH v3 27/27] devres: kill devm_ioremap_nocache
-To: Greg KH <gregkh@linuxfoundation.org>
-References: <1514026979-33838-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134532.GA10103@kroah.com>
-CC: <linux-kernel@vger.kernel.org>, <linux-mips@linux-mips.org>,
-        <ulf.hansson@linaro.org>, <jakub.kicinski@netronome.com>,
-        <airlied@linux.ie>, <linux-wireless@vger.kernel.org>,
-        <linus.walleij@linaro.org>, <alsa-devel@alsa-project.org>,
-        <dri-devel@lists.freedesktop.org>,
-        <platform-driver-x86@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-        <linux-mtd@lists.infradead.org>, <daniel.vetter@intel.com>,
-        <dan.j.williams@intel.com>, <jason@lakedaemon.net>,
-        <linux-rtc@vger.kernel.org>, <boris.brezillon@free-electrons.com>,
-        <mchehab@kernel.org>, <dmaengine@vger.kernel.org>,
-        <vinod.koul@intel.com>, <richard@nod.at>, <marek.vasut@gmail.com>,
-        <industrypack-devel@lists.sourceforge.net>,
-        <linux-pci@vger.kernel.org>, <dvhart@infradead.org>,
-        <linux@roeck-us.net>, <linux-media@vger.kernel.org>,
-        <seanpaul@chromium.org>, <devel@driverdev.osuosl.org>,
-        <linux-watchdog@vger.kernel.org>, <arnd@arndb.de>,
-        <b.zolnierkie@samsung.com>, <marc.zyngier@arm.com>,
-        <jslaby@suse.com>, <jani.nikula@linux.intel.com>,
-        <linux-can@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <broonie@kernel.org>, <mkl@pengutronix.de>,
-        <linux-fbdev@vger.kernel.org>, <nios2-dev@lists.rocketboards.org>,
-        <bhelgaas@google.com>, <tglx@linutronix.de>,
-        <andriy.shevchenko@linux.intel.com>, <kvalo@codeaurora.org>,
-        <a.zummo@towertech.it>, <netdev@vger.kernel.org>,
-        <linux-mmc@vger.kernel.org>, <lgirdwood@gmail.com>,
-        <ralf@linux-mips.org>, <linux-spi@vger.kernel.org>,
-        <ysxie@foxmail.com>, <wg@grandegger.com>,
-        <cyrille.pitchen@wedev4u.fr>, <tj@kernel.org>,
-        <alexandre.belloni@free-electrons.com>, <davem@davemloft.net>,
-        <andy@infradead.org>
-From: Yisheng Xie <xieyisheng1@huawei.com>
-Message-ID: <4d0991ec-9cd4-0c33-5560-ae9c2c762765@huawei.com>
-Date: Mon, 25 Dec 2017 09:43:40 +0800
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:52629 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752208AbdLKK5M (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Dec 2017 05:57:12 -0500
+From: <linux-kernel-dev@beckhoff.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH v3 2/4] ARM: dts: imx53: add srtc node
+Date: Mon, 11 Dec 2017 11:56:55 +0100
+Message-ID: <20171211105657.20251-3-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171211105657.20251-1-linux-kernel-dev@beckhoff.com>
+References: <20171211105657.20251-1-linux-kernel-dev@beckhoff.com>
 MIME-Version: 1.0
-In-Reply-To: <20171223134532.GA10103@kroah.com>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset="UTF-8"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
+rtc-mxc_v2 driver will add support for the i.MX53 SRTC
 
-On 2017/12/23 21:45, Greg KH wrote:
-> On Sat, Dec 23, 2017 at 07:02:59PM +0800, Yisheng Xie wrote:
->> --- a/lib/devres.c
->> +++ b/lib/devres.c
->> @@ -44,35 +44,6 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->>  EXPORT_SYMBOL(devm_ioremap);
->>  
->>  /**
->> - * devm_ioremap_nocache - Managed ioremap_nocache()
->> - * @dev: Generic device to remap IO address for
->> - * @offset: Resource address to map
->> - * @size: Size of map
->> - *
->> - * Managed ioremap_nocache().  Map is automatically unmapped on driver
->> - * detach.
->> - */
->> -void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
->> -				   resource_size_t size)
->> -{
->> -	void __iomem **ptr, *addr;
->> -
->> -	ptr = devres_alloc(devm_ioremap_release, sizeof(*ptr), GFP_KERNEL);
->> -	if (!ptr)
->> -		return NULL;
->> -
->> -	addr = ioremap_nocache(offset, size);
-> 
-> Wait, devm_ioremap() calls ioremap(), not ioremap_nocache(), are you
-> _SURE_ that these are all identical?  For all arches?  If so, then
-> ioremap_nocache() can also be removed, right?
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
 
-Yeah, As Christophe pointed out, that 4 archs do not have the same function.
-But I do not why they do not want do the same thing. Driver may no know about
-this? right?
+---
 
-> 
-> In my quick glance, I don't think you can do this series at all :(
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
 
-Yes, maybe should take Christophe suggestion and use a bool or enum to distinguish them?
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
 
-Thanks
-Yisheng
-> 
-> greg k-h
-> 
-> .
-> 
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Lothar Waßmann <LW@KARO-electronics.de>
+---
+ arch/arm/boot/dts/imx53.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 84f17f7abb71..e4ca9d9ba2fe 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -433,6 +433,13 @@
+ 				clock-names = "ipg", "per";
+ 			};
+ 
++			srtc: srtc@53fa4000 {
++				compatible = "fsl,imx53-rtc";
++				reg = <0x53fa4000 0x4000>;
++				interrupts = <24>;
++				clocks = <&clks IMX5_CLK_SRTC_GATE>;
++			};
++
+ 			iomuxc: iomuxc@53fa8000 {
+ 				compatible = "fsl,imx53-iomuxc";
+ 				reg = <0x53fa8000 0x4000>;
+-- 
+2.11.0
