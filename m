@@ -1,46 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33977 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:39836 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752509AbdLMMXb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Dec 2017 07:23:31 -0500
-Date: Wed, 13 Dec 2017 13:23:29 +0100
+        with ESMTP id S1751584AbdLKQIh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Dec 2017 11:08:37 -0500
+Date: Mon, 11 Dec 2017 17:08:35 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mark Brown <broonie@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
-Message-ID: <20171213122329.GU8318@piout.net>
-References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
- <20171212221643.GL8318@piout.net>
- <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
- <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
- <20171213110426.GQ8318@piout.net>
- <20171213121603.GF6416@sirena.org.uk>
+To: Rabeeh Khoury <rabeeh@solid-run.com>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        "nadavh@marvell.com" <nadavh@marvell.com>
+Subject: Re: Armada RTC power up reset
+Message-ID: <20171211160835.GC32306@piout.net>
+References: <20171130094049.fg3zoxgvhlb7jqw3@tarshish>
+ <871skewf05.fsf@free-electrons.com>
+ <CA+j0ot=PqFYwN=+zUc5F1uyXQoB9dX1gmwxTbXP-QdzQU+zspQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171213121603.GF6416@sirena.org.uk>
+In-Reply-To: <CA+j0ot=PqFYwN=+zUc5F1uyXQoB9dX1gmwxTbXP-QdzQU+zspQ@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/12/2017 at 12:16:03 +0000, Mark Brown wrote:
-> On Wed, Dec 13, 2017 at 12:04:26PM +0100, Alexandre Belloni wrote:
+On 11/12/2017 at 14:46:41 +0200, Rabeeh Khoury wrote:
+> On Fri, Dec 1, 2017 at 7:10 PM, Gregory CLEMENT <
+> gregory.clement@free-electrons.com> wrote:
 > 
-> > Also, I think we could try having only the time64_t in the ring buffer.
-> > Maybe I'm wrong but I think tools reading that buffer can do the
-> > conversion themselves. Maybe I don't understand correctly how
-> > tracepoints work and this doesn't make sense, tell me.
+> > Hi Baruch,
+> >
+> >  On jeu., nov. 30 2017, Baruch Siach <baruch@tkos.co.il> wrote:
+> >
+> > > Hi Thomas,
+> > >
+> > > As you know, the Armada 38x/8k RTC needs a reset sequence to be
+> > operational
+> > > when first powered up. This reset code is currently in the vendor
+> > provided
+> > > U-Boot RTC driver. But having to run 'date reset' from the U-Boot prompt
+> > every
+> > > first boot (happens quite a lot when dealing with SOMs) is not nice. An
+> > > automatic reset in the kernel driver would be much better.
+> > >
+> > > Rabeeh has mentioned to me that you had an idea how to detect at run
+> > time that
+> > > the RTC is in first power up state. Do you recall the details?
+> >
+> > Actually it was me who worked on the RTC but I didn't remember having a
+> > way to detect that the RTC is in first power up state. I dig in the
+> > datasheet, errata sheet and alos on varisou branches of the vendor tree
+> > and didn't find anything.
+> >
+> > Maybe a solution could be to reset the RTC when we set the time.
+> >
 > 
-> Tools reading the buffer can do the conversion themselves but it's also
-> useful for users to just view the log directly via tracing/trace
-> sometimes.  OTOH the whole point is to be low overhead so...
+> 
+> This is one way to do it; but then on first boot you might get real awkward
+> time; like year 2035 which can seriously confuse the boot process.
+> Detecting an uninitialized RTC and forcing it to tick with time = 0 (i.e.
+> 1970) is better way since boot failures can be reproduced in an orderly
+> manner (and the developer would know what was really wrong).
 
-Yes, that is why I suggest keeping both representation in the printk
-but only time64_t in the buffer. And this would be more convenient if we
-add a way to pretty print a time64_t in vsprintf.
+Certainly not. If you know the time is invalid, then just return an
+error. Else, userspace has no way to know whether it can rely on the
+time from the RTC and act accordingly.
+
 
 -- 
 Alexandre Belloni, Free Electrons
