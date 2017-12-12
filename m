@@ -1,134 +1,101 @@
-Return-Path: <sathyaosid@gmail.com>
-Subject: Re: [RFC v8 1/7] platform/x86: intel_punit_ipc: Fix resource ioremap
- warning
-To: Andy Shevchenko <andy.shevchenko@gmail.com>,
- Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, "x86@kernel.org"
- <x86@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
- Ingo Molnar <mingo@redhat.com>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Zha Qipeng <qipeng.zha@intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- "dvhart@infradead.org" <dvhart@infradead.org>,
- Thomas Gleixner <tglx@linutronix.de>, Lee Jones <lee.jones@linaro.org>,
- Andy Shevchenko <andy@infradead.org>,
- Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
- linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Platform Driver <platform-driver-x86@vger.kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <0ed06c9aabd0f6d707f3ab8024282a764ffe0318.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75VffZCTgsbgm3RU-vAL4Xf1A60NtDaFwaLQRp5UqtztfuQ@mail.gmail.com>
-From: "Kuppuswamy, Sathyanarayanan" <sathyaosid@gmail.com>
-Message-ID: <1279ceb8-0e32-afa8-5544-2b7c92586a93@gmail.com>
-Date: Fri, 3 Nov 2017 08:31:49 -0700
+Date: Tue, 12 Dec 2017 18:05:25 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Lee Jones <lee.jones@linaro.org>,
+	Benson Leung <bleung@chromium.org>,
+	Guenter Roeck <groeck@chromium.org>,
+	Gwendal Grignou <gwendal@chromium.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-iio@vger.kernel.org, rtc-linux@googlegroups.com
+Subject: Re: [rtc-linux] Re: [PATCH v4 0/2] Add support for cros-ec-rtc
+ driver.
+Message-ID: <20171212170525.GG8318@piout.net>
+References: <20171110215553.20696-1-enric.balletbo@collabora.com>
+ <CAFqH_53pDkcXXpzvPqF9OS0ahmhHCV87925E82d0p7ym5gq=VQ@mail.gmail.com>
+ <20171212160537.GF8318@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VffZCTgsbgm3RU-vAL4Xf1A60NtDaFwaLQRp5UqtztfuQ@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------6E5C238BD1F3158DE4949113"
-List-ID: <linux-rtc.vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171212160537.GF8318@piout.net>
+List-ID: <rtc-linux.googlegroups.com>
 
-This is a multi-part message in MIME format.
---------------6E5C238BD1F3158DE4949113
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On 12/12/2017 at 17:05:37 +0100, Alexandre Belloni wrote:
+> On 12/12/2017 at 16:41:39 +0100, Enric Balletbo Serra wrote:
+> > +   Alessandro Zummo
+> > +   Alexandre Belloni
+> > 
+> > 2017-11-10 22:55 GMT+01:00 Enric Balletbo i Serra
+> > <enric.balletbo@collabora.com>:
+> > > Dear all,
+> > >
+> > > This is an attempt to revive some patches from that [1] patchset, some
+> > > of them are still under discussion but I think there is no reason to not
+> > > have the other two in this fourth version to land upstream meanwhile we
+> > > discuss about the others.
+> > >
+> > > [1] https://lkml.org/lkml/2017/7/12/182
+> > >
+> > > Changes since v3:
+> > > * Rebased an retested with current mainline using a Samsung Chromebook Plus
+> > > * Removed from patchset
+> > >   * 1/4 mfd: cros_ec: Get rid of cros_ec_check_features from cros_ec_dev.
+> > >   * 4/4 mfd: cros_ec: add RTC as mfd subdevice.
+> > >
+> > > Changes since v2:
+> > > - Rebase on top of mainline.
+> > > - Removed patch 'mfd: cros-ec: Fix host command buffer size' from series
+> > > as was already picked.
+> > >
+> > > Changes since v1:
+> > > - Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
+> > > calibbias data' from series as was already picked.
+> > > - Removed patch 'iio: cros_ec_sensors: Fix return value to get raw and
+> > > calibbias data' from series as was already picked.
+> > > - Patch 2/5: Acked-by: Jonathan Cameron <***@kernel.org>
+> > >
+> > > Best regards,
+> > >
+> > >  Enric
+> > >
+> > > Stephen Barber (2):
+> > >   mfd: cros_ec: Introduce RTC commands and events definitions.
+> > >   rtc: cros-ec: add cros-ec-rtc driver.
+> > >
+> > >  drivers/rtc/Kconfig                  |  10 +
+> > >  drivers/rtc/Makefile                 |   1 +
+> > >  drivers/rtc/rtc-cros-ec.c            | 413 +++++++++++++++++++++++++++++++++++
+> > >  include/linux/mfd/cros_ec_commands.h |   8 +
+> > >  4 files changed, 432 insertions(+)
+> > >  create mode 100644 drivers/rtc/rtc-cros-ec.c
+> > >
+> > > --
+> > > 2.9.3
+> > >
+> > 
+> > Sorry, I just noticed that my script to add the email recipients
+> > failed and I did not add the RTC maintainers :( So this is a gentle
+> > ping cc'ing the maintainers to take in consideration these patches. If
+> > you want I resend or something else just let me know please.
+> > 
+> 
+> I don't remember the specifics but I think the patches have the
+> necessary acks from me to go through the mfd tree (didn't we agree on
+> that ?)
+> 
 
-Hi Andy,
+This was the reply from Lee a while ago:
 
+> On Wed, 18 Jan 2017, Alexandre Belloni wrote:
+> > I don't think that one has your ack, is it ok for me to take it?
+> 
+> This set looks MFD heavy, so it's probably best that the set goes
+> through MFD.  Once the RTC patch has been fixed of course.
 
-On 11/3/2017 5:13 AM, Andy Shevchenko wrote:
-> I think I already told that this one had been pushed to my review and
-> testing queue, thanks!
-I thought you specifically asked me to include this patch in next set. 
-Following is your previous comment. Patch 3 in your reply points to this 
-patch.
-
->> I have applied this patch with  some modifications to my review-andy branch.
->> Please, take it from there (and  probably patch 3) and resend new
->> version of the series based on  our testing branch.
+The series doesn't look MFD heavy anymore so it can also go through my
+tree. I'll let Lee decide.
 
 -- 
--
-Sathyanarayan Kuppuswamy
-Linux kernel developer
-
-
---------------6E5C238BD1F3158DE4949113
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
-  <body text="#000000" bgcolor="#FFFFFF">
-    <p>Hi Andy,<br>
-    </p>
-    <br>
-    <div class="moz-cite-prefix">On 11/3/2017 5:13 AM, Andy Shevchenko
-      wrote:<br>
-    </div>
-    <blockquote type="cite"
-cite="mid:CAHp75VffZCTgsbgm3RU-vAL4Xf1A60NtDaFwaLQRp5UqtztfuQ@mail.gmail.com">
-      <pre wrap="">I think I already told that this one had been pushed to my review and
-testing queue, thanks!</pre>
-    </blockquote>
-    I thought you specifically asked me to include this patch in next
-    set. Following is your previous comment. Patch 3 in your reply
-    points to this patch.<br>
-    <br>
-    <span style="color: rgb(34, 34, 34); font-family: arial, sans-serif;
-      font-size: 12.8px; font-style: normal; font-variant-ligatures:
-      normal; font-variant-caps: normal; font-weight: 400;
-      letter-spacing: normal; orphans: 2; text-align: start;
-      text-indent: 0px; text-transform: none; white-space: normal;
-      widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px;
-      background-color: rgb(255, 255, 255); text-decoration-style:
-      initial; text-decoration-color: initial; display: inline
-      !important; float: none;">&gt;&gt; I have applied this patch with
-      some modifications to my review-andy branch.</span><br
-      style="color: rgb(34, 34, 34); font-family: arial, sans-serif;
-      font-size: 12.8px; font-style: normal; font-variant-ligatures:
-      normal; font-variant-caps: normal; font-weight: 400;
-      letter-spacing: normal; orphans: 2; text-align: start;
-      text-indent: 0px; text-transform: none; white-space: normal;
-      widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px;
-      background-color: rgb(255, 255, 255); text-decoration-style:
-      initial; text-decoration-color: initial;">
-    <span style="color: rgb(34, 34, 34); font-family: arial, sans-serif;
-      font-size: 12.8px; font-style: normal; font-variant-ligatures:
-      normal; font-variant-caps: normal; font-weight: 400;
-      letter-spacing: normal; orphans: 2; text-align: start;
-      text-indent: 0px; text-transform: none; white-space: normal;
-      widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px;
-      background-color: rgb(255, 255, 255); text-decoration-style:
-      initial; text-decoration-color: initial; display: inline
-      !important; float: none;">&gt;&gt; Please, take it from there (and
-      probably patch 3) and resend new</span><br style="color: rgb(34,
-      34, 34); font-family: arial, sans-serif; font-size: 12.8px;
-      font-style: normal; font-variant-ligatures: normal;
-      font-variant-caps: normal; font-weight: 400; letter-spacing:
-      normal; orphans: 2; text-align: start; text-indent: 0px;
-      text-transform: none; white-space: normal; widows: 2;
-      word-spacing: 0px; -webkit-text-stroke-width: 0px;
-      background-color: rgb(255, 255, 255); text-decoration-style:
-      initial; text-decoration-color: initial;">
-    <span style="color: rgb(34, 34, 34); font-family: arial, sans-serif;
-      font-size: 12.8px; font-style: normal; font-variant-ligatures:
-      normal; font-variant-caps: normal; font-weight: 400;
-      letter-spacing: normal; orphans: 2; text-align: start;
-      text-indent: 0px; text-transform: none; white-space: normal;
-      widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px;
-      background-color: rgb(255, 255, 255); text-decoration-style:
-      initial; text-decoration-color: initial; display: inline
-      !important; float: none;">&gt;&gt; version of the series based on
-      our testing branch.</span><br>
-    <br>
-    <pre class="moz-signature" cols="72">-- 
--
-Sathyanarayan Kuppuswamy
-Linux kernel developer</pre>
-  </body>
-</html>
-
---------------6E5C238BD1F3158DE4949113--
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
