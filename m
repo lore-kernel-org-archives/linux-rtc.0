@@ -1,181 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:49628 "EHLO
-        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754468AbdLFKRJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 05:17:09 -0500
-From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
-To: Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-kernel-dev <linux-kernel-dev@beckhoff.com>
-CC: Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.kernel.org ([198.145.29.99]:55546 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750916AbdLMQpN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 13 Dec 2017 11:45:13 -0500
+Date: Wed, 13 Dec 2017 11:45:09 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Baolin Wang <baolin.wang@linaro.org>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>, Juergen Borleis <jbe@pengutronix.de>,
-        open list <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        "Noel Vellemans" <Noel.Vellemans@visionbms.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        =?iso-8859-1?Q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
-Subject: RE: [PATCH v2 5/5] rtc: add mxc driver for i.MX53 SRTC
-Date: Wed, 6 Dec 2017 10:17:06 +0000
-Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB531D9C@NT-Mail07.beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
- <20171205140646.30367-6-linux-kernel-dev@beckhoff.com>
- <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
-In-Reply-To: <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
-Content-Type: text/plain; charset="iso-8859-1"
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
+Message-ID: <20171213114509.33006be6@gandalf.local.home>
+In-Reply-To: <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
+References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
+        <20171212221643.GL8318@piout.net>
+        <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
+        <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
->From: Sascha Hauer [mailto:s.hauer@pengutronix.de]
->Sent: Mittwoch, 6. Dezember 2017 09:36
->On Tue, Dec 05, 2017 at 03:06:46PM +0100, linux-kernel-dev@beckhoff.com
->wrote:
->> +static int mxc_rtc_write_alarm_locked(struct mxc_rtc_data *const pdata,
->> +                                  struct rtc_time *alarm_tm)
->> +{
->> +    void __iomem *const ioaddr = pdata->ioaddr;
->> +    unsigned long time;
->> +
->> +    rtc_tm_to_time(alarm_tm, &time);
->> +
->> +    if (time > U32_MAX) {
->> +            pr_err("Hopefully I am out of service by then :-(\n");
->> +            return -EINVAL;
->> +    }
->
->This will never happen as on your target hardware unsigned long is a
->32bit type. Not sure what is best to do here. Maybe you should test
->the return value of rtc_tm_to_time. ATM it returns 0 unconditionally,
->but rtc_tm_to_time could detect when the input time doesn't fit into
->its return type and return an error in this case.
->Also I just realized that it's unsigned and only overflows in the year
->2106. I'm most likely dead then so I don't care that much ;)
->
-please see my response to Alexandre's follow up
+On Wed, 13 Dec 2017 09:33:23 +0100
+Arnd Bergmann <arnd@arndb.de> wrote:
 
->> +/* This function is the RTC interrupt service routine. */
->> +static irqreturn_t mxc_rtc_interrupt(int irq, void *dev_id)
->> +{
->> +    struct platform_device *pdev = dev_id;
->> +    struct mxc_rtc_data *pdata = platform_get_drvdata(pdev);
->> +    void __iomem *ioaddr = pdata->ioaddr;
->> +    unsigned long flags;
->> +    u32 events = 0;
->> +    u32 lp_status;
->> +    u32 lp_cr;
->> +
->> +    spin_lock_irqsave(&pdata->lock, flags);
->> +    if (clk_prepare_enable(pdata->clk)) {
->> +            spin_unlock_irqrestore(&pdata->lock, flags);
->> +            return IRQ_NONE;
->> +    }
->
->You are not allowed to do a clk_prepare under a spinlock. That was the
->original reason to split enabling a clk into clk_prepare and clk_enable.
->Everything that can block is done in clk_prepare and only non blocking
->things are done in clk_enable.
->If you want to enable/disable the clock on demand you can clk_prepare()
->in probe and clk_enable when you actually need it.
->
-Thanks for clarification. To be honest when I read Lothar's suggestion it was
-the first time I thought about the idea of keeping the clk disabled most of
-the time. I am not very experienced with this. But a rtctest loop run for
-hours so I assume it would be okay to keep the clk disabled until hw access.
-If there is no objection from somebody who knows the i.MX53 SRTC HW
-better, I will stick to the clock on demand model and make sure I avoid
-blocking.
->> +
->> +static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
->> +{
->> +    struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
->> +    time_t now;
->> +    int ret = mxc_rtc_lock(pdata);
->> +
->> +    if (ret)
->> +            return ret;
->> +
->> +    now = readl(pdata->ioaddr + SRTC_LPSCMR);
->> +    rtc_time_to_tm(now, tm);
->> +    ret = rtc_valid_tm(tm);
->> +    mxc_rtc_unlock(pdata);
->
->I don't think this needs to be locked.
-I will change this to only enable the clock for the readl()
 
->> +static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->> +{
->> +    struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
->> +    int ret = mxc_rtc_lock(pdata);
->> +
->> +    if (ret)
->> +            return ret;
->> +
->> +    ret = mxc_rtc_write_alarm_locked(pdata, &alrm->time);
->
->Is it worth it to make this a separate function?
-Maybe not, I think it is an artifact from a refactoring. I will reconsider this
-for the next version.
->
->> +    if (!ret) {
->> +            mxc_rtc_alarm_irq_enable_locked(pdata, alrm->enabled);
->> +            mxc_rtc_sync_lp_locked(pdata->ioaddr);
->> +    }
->> +    mxc_rtc_unlock(pdata);
->> +    return ret;
->> +}
->> +
->> +static const struct rtc_class_ops mxc_rtc_ops = {
->> +    .read_time = mxc_rtc_read_time,
->> +    .set_time = mxc_rtc_set_time,
->> +    .read_alarm = mxc_rtc_read_alarm,
->> +    .set_alarm = mxc_rtc_set_alarm,
->> +    .alarm_irq_enable = mxc_rtc_alarm_irq_enable,
->> +};
->> +
->> +static int mxc_rtc_wait_for_flag(void *__iomem ioaddr, int flag)
->> +{
->> +    unsigned int timeout = REG_READ_TIMEOUT;
->> +
->> +    while (!(readl(ioaddr) & flag)) {
->> +            if (!--timeout) {
->> +                    pr_err("Wait timeout for 0x%x@%p!\n", flag, ioaddr);
->
->Please use dev_* functions for printing. In this case the message should
->probably be printed from the caller.
-Do you have a link at hand about dev_* vs. pr_*? I just choose pr_err here,
-because I would have to change the functions signature to get a device.
-However, I will drop the message and move it to the caller.
+> >> How bad would that be to change it later? I didn't follow the whole
+> >> tracepoint ABI issue closely.  
+> 
+> There is no general rule here other than "if it breaks for existing
+> users, we have to fix it". Anyone who uses the tracepoints correctly
+> would end up showing zero-date if we change all the fields, but
+> it should not crash here.
 
->> +    /* clear lp interrupt status */
->> +    writel(0xFFFFFFFF, ioaddr + SRTC_LPSR);
->> +
->> +    /* move out of init state */
->> +    writel((SRTC_LPCR_IE | SRTC_LPCR_NSA), ioaddr + SRTC_LPCR);
->> +    xc_rtc_wait_for_flag(ioaddr + SRTC_LPSR, SRTC_LPSR_IES);
->
->If this can fail, shouldn't you test for an error?
-very probably
->> +
->> +    /* move out of non-valid state */
->> +    writel((SRTC_LPCR_IE | SRTC_LPCR_NVE | SRTC_LPCR_NSA |
->> +            SRTC_LPCR_EN_LP), ioaddr + SRTC_LPCR);
->> +    mxc_rtc_wait_for_flag(ioaddr + SRTC_LPSR, SRTC_LPSR_NVES);
->
->dito
-sure
+But if a tool depends on that value correct, that still is a user space
+breakage, even though it was using tracepoints correctly.
 
-Thanks,
-Patrick
----
-Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
-Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
+> 
+> Printing a time64_t instead of rtc_time may be better here, as it's
+> cheaper to convert rtc_time to time64_t that vice versa. User space
+> looking at the trace data can then do the conversion back to struct tm
+> for printing in a C program or using /bin/date from a shell
+> script, but I agree it's an extra step.
+> 
+> It's also possible that we don't care about the overhead of doing
+> a time64_to_tm() or rtc_time64_to_tm() in the trace function, as long
+> as that only needs to be done if the tracepoint is active. I find trace
+> points a bit confusing, so I don't know if that is the case or not when
+> the tracepoint is compiled into the kernel but disabled at run time.
+
+Everything that is done in TP_fast_assign() is only performed when the
+tracepoint is active. It adds no more overhead when tracing is
+disabled, as tracepoints incorporate jump labels, and the call itself
+is a nop. As long as the parameters to the trace_*() functions don't do
+logic, all should be fine: like if you had:
+
+  trace_rtc_set_alarm(call_some_function_to_return_tm(), err);
+
+gcc could make that call_some_function_to_return_tm() happen even when
+the tracepoint is not enabled. But that's not the case with this patch.
+
+-- Steve
