@@ -1,164 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:2777 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751097AbdLYBew (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 24 Dec 2017 20:34:52 -0500
-Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
-To: christophe leroy <christophe.leroy@c-s.fr>,
-        Greg KH <gregkh@linuxfoundation.org>
-References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134831.GB10103@kroah.com>
- <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
-CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
-        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
-        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
-        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
-        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
-        <wim@iguana.be>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <b.zolnierkie@samsung.com>,
-        <linux-fbdev@vger.kernel.org>, <linus.walleij@linaro.org>,
-        <linux-gpio@vger.kernel.org>, <ralf@linux-mips.org>,
-        <linux-mips@linux-mips.org>, <lgirdwood@gmail.com>,
-        <broonie@kernel.org>, <tglx@linutronix.de>, <jason@lakedaemon.net>,
-        <marc.zyngier@arm.com>, <arnd@arndb.de>,
-        <andriy.shevchenko@linux.intel.com>,
-        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
-        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
-        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
-        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
-        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
-        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
-        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
-        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
-        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
-        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
-        <dvhart@infradead.org>, <andy@infradead.org>,
-        <platform-driver-x86@vger.kernel.org>,
-        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
-        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
-        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
-        <dmaengine@vger.kernel.org>, <jslaby@suse.com>
-From: Yisheng Xie <xieyisheng1@huawei.com>
-Message-ID: <8dd19411-5b06-0aa4-fd0e-e5b112c25dcb@huawei.com>
-Date: Mon, 25 Dec 2017 09:34:25 +0800
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:60398 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752509AbdLMMQM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Dec 2017 07:16:12 -0500
+Date: Wed, 13 Dec 2017 12:16:03 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
+Message-ID: <20171213121603.GF6416@sirena.org.uk>
+References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
+ <20171212221643.GL8318@piout.net>
+ <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
+ <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
+ <20171213110426.GQ8318@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="JSkcQAAxhB1h8DcT"
+In-Reply-To: <20171213110426.GQ8318@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 
+--JSkcQAAxhB1h8DcT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2017/12/24 17:05, christophe leroy wrote:
-> 
-> 
-> Le 23/12/2017 à 14:48, Greg KH a écrit :
->> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
->>> Hi all,
->>>
->>> When I tried to use devm_ioremap function and review related code, I found
->>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
->>> except one use ioremap while the other use ioremap_nocache.
->>
->> For all arches?  Really?  Look at MIPS, and x86, they have different
->> functions.
->>
->>> While ioremap's
->>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
->>> same function with devm_ioremap, which can just be killed to reduce the size
->>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
->>>
->>> I have posted two versions, which use macro instead of function for
->>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
->>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
->>> thing. So here comes v3 and please help to review.
->>
->> I don't think this can be done, what am I missing?  These functions are
->> not identical, sorry for missing that before.
-> 
-> devm_ioremap() and devm_ioremap_nocache() are quite similar, both use devm_ioremap_release() for the release, why not just defining:
-> 
-> static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
->                resource_size_t size, bool nocache)
-> {
-> [...]
->     if (nocache)
->         addr = ioremap_nocache(offset, size);
->     else
->         addr = ioremap(offset, size);
-> [...]
-> }
-> 
-> then in include/linux/io.h
-> 
-> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->                resource_size_t size)
-> {return __devm_ioremap(dev, offset, size, false);}
-> 
-> static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
->                    resource_size_t size);
-> {return __devm_ioremap(dev, offset, size, true);}
+On Wed, Dec 13, 2017 at 12:04:26PM +0100, Alexandre Belloni wrote:
 
-Yeah, this seems good to me, right now we have devm_ioremap, devm_ioremap_wc, devm_ioremap_nocache
-May be we can use an enum like:
-typedef enum {
-	DEVM_IOREMAP = 0,
-	DEVM_IOREMAP_NOCACHE,
-	DEVM_IOREMAP_WC,
-} devm_ioremap_type;
+> Also, I think we could try having only the time64_t in the ring buffer.
+> Maybe I'm wrong but I think tools reading that buffer can do the
+> conversion themselves. Maybe I don't understand correctly how
+> tracepoints work and this doesn't make sense, tell me.
 
-static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
-                resource_size_t size)
- {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP);}
+Tools reading the buffer can do the conversion themselves but it's also
+useful for users to just view the log directly via tracing/trace
+sometimes.  OTOH the whole point is to be low overhead so...
 
- static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
-                    resource_size_t size);
- {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_NOCACHE);}
+--JSkcQAAxhB1h8DcT
+Content-Type: application/pgp-signature; name="signature.asc"
 
- static inline void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
-                    resource_size_t size);
- {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_WC);}
+-----BEGIN PGP SIGNATURE-----
 
- static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
-                resource_size_t size, devm_ioremap_type type)
- {
-     void __iomem **ptr, *addr = NULL;
- [...]
-     switch (type){
-     case DEVM_IOREMAP:
-         addr = ioremap(offset, size);
-         break;
-     case DEVM_IOREMAP_NOCACHE:
-         addr = ioremap_nocache(offset, size);
-         break;
-     case DEVM_IOREMAP_WC:
-         addr = ioremap_wc(offset, size);
-         break;
-     }
- [...]
- }
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAloxGgIACgkQJNaLcl1U
+h9B17Qf/Y3Hhk7S3MvQugCMGEQCfP4171P6OxC1GEDNQKWvrfMvKJjPCQQr44eqC
+yWLIOVgMb5CrBLoIlcngGkhKV4oKAPWjljFogIIJQtL4AsHvD3IlKGzvmViHTA64
+2UmFDyLh0yDgyHDibn6R53e9RuTcGDvA4W1cweqU3wfzm5rO8E1SgJrZwMHauUqf
+xf2IehGA2EOzKtaoq1goVuKqWPDR6S7hvcd9cVSuVl5yKlR4gzGFcx+2dUtT0u1l
+EfO4exsi2juEna8c/pAQ34XydtTdSJJfaspmGSEpfNXTnRrbe0zXUWQ4e/Xj9bm7
+aC5sawvUVM2Kg4urwoVP6IrQ1OwaoQ==
+=Tvdy
+-----END PGP SIGNATURE-----
 
-Thanks
-Yisheng
-
-> 
-> Christophe
-> 
->>
->> thanks,
->>
->> greg k-h
->> -- 
->> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
-> 
-> ---
-> L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
-> https://www.avast.com/antivirus
-> 
-> 
-> .
-> 
+--JSkcQAAxhB1h8DcT--
