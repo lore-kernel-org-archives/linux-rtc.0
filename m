@@ -1,89 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:62123 "EHLO
-        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753358AbdLEOH0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:07:26 -0500
-From: <linux-kernel-dev@beckhoff.com>
-To: Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCH v2 3/5] rtc: mxc_v2: add driver for i.MX53 SRTC
-Date: Tue, 5 Dec 2017 15:06:44 +0100
-Message-ID: <20171205140646.30367-4-linux-kernel-dev@beckhoff.com>
-In-Reply-To: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
+Received: from mail-ot0-f193.google.com ([74.125.82.193]:35187 "EHLO
+        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750785AbdLMIdY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Dec 2017 03:33:24 -0500
 MIME-Version: 1.0
+In-Reply-To: <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
+References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
+ <20171212221643.GL8318@piout.net> <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 13 Dec 2017 09:33:23 +0100
+Message-ID: <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Patrick Bruenn <p.bruenn@beckhoff.com>
+On Wed, Dec 13, 2017 at 6:47 AM, Baolin Wang <baolin.wang@linaro.org> wrote:
+>
+>>> diff --git a/include/trace/events/rtc.h b/include/trace/events/rtc.h
+>>> new file mode 100644
+>>> index 0000000..b5a4add
+>>> --- /dev/null
+>>> +++ b/include/trace/events/rtc.h
+>>> +
+>>
+>> Also, I'm a bit concerned about having a struct rtc_time here. I think
+>> its goal is mainly to have a nice representation on the time but maybe
+>
+> Yes.
+>
+>> the best would be to make printk able to pretty print the time (some
+>> patches were proposed).
+>
+> If I understood your point correctly, you did not like the format of
+> TP_printk() here, right? So how about if I remove the 'struct
+> rtc_time' and just pass one 'ktime_t' parameter? But it will be not
+> readable for user to trace the RTC time/alarm.
+>
+>>
+>> How bad would that be to change it later? I didn't follow the whole
+>> tracepoint ABI issue closely.
 
-Add RTC_DRV_MXC_V2 config option
+There is no general rule here other than "if it breaks for existing
+users, we have to fix it". Anyone who uses the tracepoints correctly
+would end up showing zero-date if we change all the fields, but
+it should not crash here.
 
-Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+Printing a time64_t instead of rtc_time may be better here, as it's
+cheaper to convert rtc_time to time64_t that vice versa. User space
+looking at the trace data can then do the conversion back to struct tm
+for printing in a C program or using /bin/date from a shell
+script, but I agree it's an extra step.
 
----
+It's also possible that we don't care about the overhead of doing
+a time64_to_tm() or rtc_time64_to_tm() in the trace function, as long
+as that only needs to be done if the tracepoint is active. I find trace
+points a bit confusing, so I don't know if that is the case or not when
+the tracepoint is compiled into the kernel but disabled at run time.
 
-To: Alessandro Zummo <a.zummo@towertech.it>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Juergen Borleis <jbe@pengutronix.de>
-Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
-Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Lothar Waßmann <LW@KARO-electronics.de>
----
- drivers/rtc/Kconfig | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b59a31b079a5..440edebf5c71 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1689,6 +1689,16 @@ config RTC_DRV_MXC
- 	   This driver can also be built as a module, if so, the module
- 	   will be called "rtc-mxc".
- 
-+config RTC_DRV_MXC_V2
-+	tristate "Freescale MXC Real Time Clock for i.MX53"
-+	depends on ARCH_MXC
-+	help
-+	   If you say yes here you get support for the Freescale MXC
-+	   SRTC module in i.MX53 processor.
-+
-+	   This driver can also be built as a module, if so, the module
-+	   will be called "rtc-mxc_v2".
-+
- config RTC_DRV_SNVS
- 	tristate "Freescale SNVS RTC support"
- 	select REGMAP_MMIO
--- 
-2.11.0
+        Arnd
