@@ -1,87 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:52629 "EHLO
-        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752208AbdLKK5M (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Dec 2017 05:57:12 -0500
-From: <linux-kernel-dev@beckhoff.com>
-CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCH v3 2/4] ARM: dts: imx53: add srtc node
-Date: Mon, 11 Dec 2017 11:56:55 +0100
-Message-ID: <20171211105657.20251-3-linux-kernel-dev@beckhoff.com>
-In-Reply-To: <20171211105657.20251-1-linux-kernel-dev@beckhoff.com>
-References: <20171211105657.20251-1-linux-kernel-dev@beckhoff.com>
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:32836 "EHLO
+        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751803AbdLNDHz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Dec 2017 22:07:55 -0500
+Received: by mail-oi0-f42.google.com with SMTP id w131so3029014oiw.0
+        for <linux-rtc@vger.kernel.org>; Wed, 13 Dec 2017 19:07:55 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20171213122329.GU8318@piout.net>
+References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
+ <20171212221643.GL8318@piout.net> <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
+ <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
+ <20171213110426.GQ8318@piout.net> <20171213121603.GF6416@sirena.org.uk> <20171213122329.GU8318@piout.net>
+From: Baolin Wang <baolin.wang@linaro.org>
+Date: Thu, 14 Dec 2017 11:07:54 +0800
+Message-ID: <CAMz4kuLZ6yAR+UeZ8qtPLuRoSBg7eqTYvyQYez1qEgeY29=5jA@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Mark Brown <broonie@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Patrick Bruenn <p.bruenn@beckhoff.com>
+On 13 December 2017 at 20:23, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 13/12/2017 at 12:16:03 +0000, Mark Brown wrote:
+>> On Wed, Dec 13, 2017 at 12:04:26PM +0100, Alexandre Belloni wrote:
+>>
+>> > Also, I think we could try having only the time64_t in the ring buffer.
+>> > Maybe I'm wrong but I think tools reading that buffer can do the
+>> > conversion themselves. Maybe I don't understand correctly how
+>> > tracepoints work and this doesn't make sense, tell me.
+>>
+>> Tools reading the buffer can do the conversion themselves but it's also
+>> useful for users to just view the log directly via tracing/trace
+>> sometimes.  OTOH the whole point is to be low overhead so...
+>
+> Yes, that is why I suggest keeping both representation in the printk
+> but only time64_t in the buffer. And this would be more convenient if we
+> add a way to pretty print a time64_t in vsprintf.
 
-rtc-mxc_v2 driver will add support for the i.MX53 SRTC
+OK. I will only keep time64_t in the buffer. Thanks for all your comments.
 
-Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
-
----
-
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Juergen Borleis <jbe@pengutronix.de>
-Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
-Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
-Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Lothar Waßmann <LW@KARO-electronics.de>
----
- arch/arm/boot/dts/imx53.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
-index 84f17f7abb71..e4ca9d9ba2fe 100644
---- a/arch/arm/boot/dts/imx53.dtsi
-+++ b/arch/arm/boot/dts/imx53.dtsi
-@@ -433,6 +433,13 @@
- 				clock-names = "ipg", "per";
- 			};
- 
-+			srtc: srtc@53fa4000 {
-+				compatible = "fsl,imx53-rtc";
-+				reg = <0x53fa4000 0x4000>;
-+				interrupts = <24>;
-+				clocks = <&clks IMX5_CLK_SRTC_GATE>;
-+			};
-+
- 			iomuxc: iomuxc@53fa8000 {
- 				compatible = "fsl,imx53-iomuxc";
- 				reg = <0x53fa8000 0x4000>;
 -- 
-2.11.0
+Baolin.wang
+Best Regards
