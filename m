@@ -1,126 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from internet2.beckhoff.com ([194.25.186.210]:50337 "EHLO
-        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755725AbdLRLvo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 06:51:44 -0500
-From: <linux-kernel-dev@beckhoff.com>
-CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCH v4 0/4] rtc: add mxc driver for i.MX53 SRTC
-Date: Mon, 18 Dec 2017 12:51:29 +0100
-Message-ID: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:35285 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755268AbdLOLou (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Dec 2017 06:44:50 -0500
 MIME-Version: 1.0
+In-Reply-To: <20170824103026.18231-1-enric.balletbo@collabora.com>
+References: <20170824103026.18231-1-enric.balletbo@collabora.com>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Date: Fri, 15 Dec 2017 12:44:49 +0100
+Message-ID: <CAFqH_52KKH3r+TzgvP3NvPjuFpQJwCZAmj2ZVkcYLdy9qaXLuQ@mail.gmail.com>
+Subject: Re: [PATCH] rtc: ds1307: call the platform's logic for handle IRQs.
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Patrick Bruenn <p.bruenn@beckhoff.com>
+Hi,
 
-Neither rtc-imxdi, rtc-mxc nor rtc-snvs are compatible with i.MX53.
+2017-08-24 12:30 GMT+02:00 Enric Balletbo i Serra
+<enric.balletbo@collabora.com>:
+> On some systems the nIRQ pin is often connect to a GPIO, then, if a given
+> interrupt line is supposed to wake up the system, the corresponding input
+> of that interrupt controller need to be enabled to receive signal from the
+> line in question. Before this commit such systems would not wake up
+> because are not marked as wakeup IRQs in the IRQ subsystem.
+>
+> This commit calls enable_irq_wake() on suspend and disables that input to
+> prevent the dedicated controller from triggering interrupts unnecessarily
+> after wakeup.
+>
+> After this commit a system composed by a RTC DS1339 chip connected to a
+> GPIO line on a AM335x SoC is able to wakeup from suspend-to-RAM, otherwise
+> the line is ignored.
+>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 4b43aa6..c4b0f6a 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -1711,11 +1711,36 @@ static int ds1307_probe(struct i2c_client *client,
+>         return err;
+>  }
+>
+> +#ifdef CONFIG_PM_SLEEP
+> +static int ds1307_suspend(struct device *dev)
+> +{
+> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +
+> +       if (device_may_wakeup(dev))
+> +               enable_irq_wake(ds1307->irq);
+> +
+> +       return 0;
+> +}
+> +
+> +static int ds1307_resume(struct device *dev)
+> +{
+> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +
+> +       if (device_may_wakeup(dev))
+> +               disable_irq_wake(ds1307->irq);
+> +
+> +       return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(ds1307_pm_ops, ds1307_suspend, ds1307_resume);
+> +
+>  static struct i2c_driver ds1307_driver = {
+>         .driver = {
+>                 .name   = "rtc-ds1307",
+>                 .of_match_table = of_match_ptr(ds1307_of_match),
+>                 .acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
+> +               .pm     = &ds1307_pm_ops,
+>         },
+>         .probe          = ds1307_probe,
+>         .id_table       = ds1307_id,
+> --
+> 2.9.3
+>
 
-This is driver enables support for the low power domain SRTC features:
-- 32-bit MSB of non-rollover time counter
-- 32-bit alarm register
+A gentle ping, any comments on this?
 
-Select the new config option RTC_DRV_MXC_V2 to build this driver
-
-Based on:
-http://git.freescale.com/git/cgit.cgi/imx/linux-2.6-imx.git/tree/drivers/rtc/rtc-mxc_v2.c?h=imx_2.6.35_11.09.01
-
-Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
-
----
-
-v4:
-- rename "srtc" node into generic "rtc" keep the label as "srtc" to avoid
-  duplication with imx53-m53.dtsi
-- fix Signed-off-by: in bindings-patch
-
-v3:
-- introduce new config option with the same patch, which adds the driver
-- call rtc_update_irq() only if necessary
-- merge mxc_rtc_write_alarm_locked() with mxc_rtc_set_alarm()
-- only use clk_enable/disable (without "prepare") during operation
-- rebase on v4.15-rc3
-- consistently use rtc_tm_to_time64() and time64_t
-- refactor mxc_rtc_read_time(): don't lock for readl() only;
-  don't rtc_valid_tm(); use time64_t
-- check returncode of mxc_rtc_wait_for_flag()
-- restructure mxc_rtc_sync_lp_locked() to replace pr_err() with
-  dev_err_once(); remove explicit 'inline'
-- don't touch imx_v4_v5_defconfig, instead add to imx_v6_v7_defconfig
-
-v2:
-- have seperate patches for dt-binding, CONFIG option, imx53.dtsi and driver
-- add SPDX-License-Identifier and cleanup copyright notice
-- replace __raw_readl/writel() with readl/writel()
-- fix PM_SLEEP callbacks
-- add CONFIG_RTC_DRV_MXC_V2 to build rtc-mxc_v2.c
-- remove misleading or obvious comments and fix style of the remaining
-- avoid endless loop while waiting for hw
-- implement consistent locking; make spinlock a member of dev struct
-- enable clk only for register accesses
-- remove all udelay() calls since they are obsolete or redundant
-  (we are already waiting for register flags to change)
-- init platform_data before registering irq callback
-- let set_time() fail, when 32 bit rtc counter exceeded
-- make names more consistent
-- cleanup and reorder includes
-- cleanup and remove unused defines
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
-Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Juergen Borleis <jbe@pengutronix.de>
-Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
-Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
-
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Lothar Waßmann <LW@KARO-electronics.de>
----
-
-Patrick Bruenn (4):
-  dt-bindings: rtc: add bindings for i.MX53 SRTC
-  ARM: dts: imx53: add srtc node
-  rtc: add mxc driver for i.MX53 SRTC
-  ARM: imx_v6_v7_defconfig: enable RTC_DRV_MXC_V2
-
- .../devicetree/bindings/rtc/rtc-mxc_v2.txt         |  17 +
- arch/arm/boot/dts/imx53.dtsi                       |   7 +
- arch/arm/configs/imx_v6_v7_defconfig               |   1 +
- drivers/rtc/Kconfig                                |  10 +
- drivers/rtc/Makefile                               |   1 +
- drivers/rtc/rtc-mxc_v2.c                           | 422 +++++++++++++++++++++
- 6 files changed, 458 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
- create mode 100644 drivers/rtc/rtc-mxc_v2.c
-
--- 
-2.11.0
+Thanks,
+ Enric
