@@ -1,46 +1,103 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.hostpark.net ([212.243.197.30]:49538 "EHLO
-        mail.hostpark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751465AbdLVNTc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Dec 2017 08:19:32 -0500
-Subject: Re: rtc-pcf8563: circular locking dependency
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-rtc@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org
-References: <c8d6a60f-c574-9883-53ea-3b1c55275057@elsoft.ch>
- <20171206101906.GN21780@piout.net>
-From: =?UTF-8?Q?David_M=c3=bcller_=28ELSOFT_AG=29?= <d.mueller@elsoft.ch>
-Message-ID: <a4d1f4f1-37e9-dbc8-72bf-024c1e4e70df@elsoft.ch>
-Date: Fri, 22 Dec 2017 14:19:47 +0100
+Received: from mail.free-electrons.com ([62.4.15.54]:33934 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755551AbdLONE1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Dec 2017 08:04:27 -0500
+Date: Fri, 15 Dec 2017 14:04:25 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rtc: ds1307: call the platform's logic for handle IRQs.
+Message-ID: <20171215130425.GA7022@piout.net>
+References: <20170824103026.18231-1-enric.balletbo@collabora.com>
+ <CAFqH_52KKH3r+TzgvP3NvPjuFpQJwCZAmj2ZVkcYLdy9qaXLuQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20171206101906.GN21780@piout.net>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAFqH_52KKH3r+TzgvP3NvPjuFpQJwCZAmj2ZVkcYLdy9qaXLuQ@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi
+Hi,
 
-Alexandre Belloni wrote:
-> Thanks for the report. This is actually a known issue (at least, I know
-> about it).
+On 15/12/2017 at 12:44:49 +0100, Enric Balletbo Serra wrote:
+> Hi,
 > 
-> I'm adding the clock framework maintainers as this is actually an issue
-> that affects any device exposing clocks that are on a bus using clock
-> operations in its transfer operations. Here, an i2c RTC, exposing clocks
-> and connected on an imx6.
+> 2017-08-24 12:30 GMT+02:00 Enric Balletbo i Serra
+> <enric.balletbo@collabora.com>:
+> > On some systems the nIRQ pin is often connect to a GPIO, then, if a given
+> > interrupt line is supposed to wake up the system, the corresponding input
+> > of that interrupt controller need to be enabled to receive signal from the
+> > line in question. Before this commit such systems would not wake up
+> > because are not marked as wakeup IRQs in the IRQ subsystem.
+> >
+> > This commit calls enable_irq_wake() on suspend and disables that input to
+> > prevent the dedicated controller from triggering interrupts unnecessarily
+> > after wakeup.
+> >
+> > After this commit a system composed by a RTC DS1339 chip connected to a
+> > GPIO line on a AM335x SoC is able to wakeup from suspend-to-RAM, otherwise
+> > the line is ignored.
+> >
+> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > ---
+> >  drivers/rtc/rtc-ds1307.c | 25 +++++++++++++++++++++++++
+> >  1 file changed, 25 insertions(+)
+> >
+> > diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> > index 4b43aa6..c4b0f6a 100644
+> > --- a/drivers/rtc/rtc-ds1307.c
+> > +++ b/drivers/rtc/rtc-ds1307.c
+> > @@ -1711,11 +1711,36 @@ static int ds1307_probe(struct i2c_client *client,
+> >         return err;
+> >  }
+> >
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int ds1307_suspend(struct device *dev)
+> > +{
+> > +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> > +
+> > +       if (device_may_wakeup(dev))
+> > +               enable_irq_wake(ds1307->irq);
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static int ds1307_resume(struct device *dev)
+> > +{
+> > +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> > +
+> > +       if (device_may_wakeup(dev))
+> > +               disable_irq_wake(ds1307->irq);
+> > +
+> > +       return 0;
+> > +}
+> > +#endif
+> > +
+> > +static SIMPLE_DEV_PM_OPS(ds1307_pm_ops, ds1307_suspend, ds1307_resume);
+> > +
+> >  static struct i2c_driver ds1307_driver = {
+> >         .driver = {
+> >                 .name   = "rtc-ds1307",
+> >                 .of_match_table = of_match_ptr(ds1307_of_match),
+> >                 .acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
+> > +               .pm     = &ds1307_pm_ops,
+> >         },
+> >         .probe          = ds1307_probe,
+> >         .id_table       = ds1307_id,
+> > --
+> > 2.9.3
+> >
 > 
-> This has been solved by caching the registers for the m41t80 RTC, see:
+> A gentle ping, any comments on this?
 > 
-> http://patchwork.ozlabs.org/project/rtc-linux/list/?series=11636&state=*
-> 
-> But, I find that cumbersome and maybe something can be done in the clk
-> framework. I didn't check what the prepare_lock protects yet. But maybe
-> we can have another lock for get_rate and the like?
-> 
-> Stephen, Mike, any input?
 
-Any update regarding this issue?
+It was rejected following the discussion you had with Heiner and your
+email of the 25/08.
 
-
-Dave
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
