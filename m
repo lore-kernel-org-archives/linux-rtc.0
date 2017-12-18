@@ -1,60 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:60398 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752509AbdLMMQM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Dec 2017 07:16:12 -0500
-Date: Wed, 13 Dec 2017 12:16:03 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
-Message-ID: <20171213121603.GF6416@sirena.org.uk>
-References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
- <20171212221643.GL8318@piout.net>
- <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
- <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
- <20171213110426.GQ8318@piout.net>
+Received: from mail.free-electrons.com ([62.4.15.54]:37135 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933147AbdLRWPX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 17:15:23 -0500
+Date: Mon, 18 Dec 2017 23:15:11 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <trivial@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-media@vger.kernel.org, MPT-FusionLinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+        linux-wireless@vger.kernel.org,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+        linux-xfs@vger.kernel.org, linux-audit@redhat.com,
+        alsa-devel@alsa-project.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [trivial PATCH] treewide: Align function definition open/close
+ braces
+Message-ID: <20171218221511.GH15162@piout.net>
+References: <1513556924.31581.51.camel@perches.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="JSkcQAAxhB1h8DcT"
-In-Reply-To: <20171213110426.GQ8318@piout.net>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1513556924.31581.51.camel@perches.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On 17/12/2017 at 16:28:44 -0800, Joe Perches wrote:
+> Some functions definitions have either the initial open brace and/or
+> the closing brace outside of column 1.
+> 
+> Move those braces to column 1.
+> 
+> This allows various function analyzers like gnu complexity to work
+> properly for these modified functions.
+> 
+> Miscellanea:
+> 
+> o Remove extra trailing ; and blank line from xfs_agf_verify
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
 
---JSkcQAAxhB1h8DcT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+For RTC:
 
-On Wed, Dec 13, 2017 at 12:04:26PM +0100, Alexandre Belloni wrote:
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-> Also, I think we could try having only the time64_t in the ring buffer.
-> Maybe I'm wrong but I think tools reading that buffer can do the
-> conversion themselves. Maybe I don't understand correctly how
-> tracepoints work and this doesn't make sense, tell me.
 
-Tools reading the buffer can do the conversion themselves but it's also
-useful for users to just view the log directly via tracing/trace
-sometimes.  OTOH the whole point is to be low overhead so...
-
---JSkcQAAxhB1h8DcT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAloxGgIACgkQJNaLcl1U
-h9B17Qf/Y3Hhk7S3MvQugCMGEQCfP4171P6OxC1GEDNQKWvrfMvKJjPCQQr44eqC
-yWLIOVgMb5CrBLoIlcngGkhKV4oKAPWjljFogIIJQtL4AsHvD3IlKGzvmViHTA64
-2UmFDyLh0yDgyHDibn6R53e9RuTcGDvA4W1cweqU3wfzm5rO8E1SgJrZwMHauUqf
-xf2IehGA2EOzKtaoq1goVuKqWPDR6S7hvcd9cVSuVl5yKlR4gzGFcx+2dUtT0u1l
-EfO4exsi2juEna8c/pAQ34XydtTdSJJfaspmGSEpfNXTnRrbe0zXUWQ4e/Xj9bm7
-aC5sawvUVM2Kg4urwoVP6IrQ1OwaoQ==
-=Tvdy
------END PGP SIGNATURE-----
-
---JSkcQAAxhB1h8DcT--
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
