@@ -1,45 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33967 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37322 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751672AbdLTRCL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Dec 2017 12:02:11 -0500
-Date: Wed, 20 Dec 2017 18:02:00 +0100
+        with ESMTP id S938216AbdLRWYu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 17:24:50 -0500
+Date: Mon, 18 Dec 2017 23:24:48 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Rabeeh Khoury <rabeeh@solid-run.com>
-Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>,
-        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-        Baruch Siach <baruch@tkos.co.il>, linux-rtc@vger.kernel.org,
-        "nadavh@marvell.com" <nadavh@marvell.com>
-Subject: Re: Armada RTC power up reset
-Message-ID: <20171220170200.GA15162@piout.net>
-References: <20171130094049.fg3zoxgvhlb7jqw3@tarshish>
- <871skewf05.fsf@free-electrons.com>
- <CA+j0ot=PqFYwN=+zUc5F1uyXQoB9dX1gmwxTbXP-QdzQU+zspQ@mail.gmail.com>
- <20171211160835.GC32306@piout.net>
- <CA+j0otm7EeY034nXj8ESYwSaP3JPuV7OoUS+1+GkQ7eOEAOCuw@mail.gmail.com>
+To: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: akinobu.mita@gmail.com, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] rtc-r7301: Fix a possible sleep-in-atomic bug in
+ rtc7301_set_time
+Message-ID: <20171218222448.GJ15162@piout.net>
+References: <1513173364-18424-1-git-send-email-baijiaju1990@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CA+j0otm7EeY034nXj8ESYwSaP3JPuV7OoUS+1+GkQ7eOEAOCuw@mail.gmail.com>
+In-Reply-To: <1513173364-18424-1-git-send-email-baijiaju1990@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 11/12/2017 at 20:14:00 +0200, Rabeeh Khoury wrote:
-> The first; sets the values to a know good state (including time=0) on it's
-> probe() -
-> https://pastebin.com/ubqwEBBM
+On 13/12/2017 at 21:56:04 +0800, Jia-Ju Bai wrote:
+> The driver may sleep under a spinlock.
+> The function call path is:
+> rtc7301_set_time (acquire the spinlock)
+>   usleep_range --> may sleep
 > 
-
-No, as explained that would be bad for userspace as it will have now way
-to know whether the time is correct or not (you may as well not have any
-RTC at all).
-
-> Second return -EPERM on an uninitialized RTC until first write resets it's
-> values to a known condition on first write (as Gregory suggest) -
-> https://pastebin.com/r7sydF8G
+> To fix it, usleep_range is replaced with udelay.
 > 
-
--EINVAL is the proper error code for an uninitialized RTC but yes, that
-would be the idea.
+> This bug is found by my static analysis tool(DSAC) and checked by my code review.
+> 
+> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> ---
+>  drivers/rtc/rtc-r7301.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Free Electrons
