@@ -1,94 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from internet2.beckhoff.com ([194.25.186.210]:53272 "EHLO
-        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750707AbdLKHIe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Dec 2017 02:08:34 -0500
-From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
-To: Rob Herring <robh@kernel.org>,
-        linux-kernel-dev <linux-kernel-dev@beckhoff.com>
-CC: Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Patrick Bruenn <p.bruenn@beckhoff.comPaste>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "Fabio Estevam" <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        "Noel Vellemans" <Noel.Vellemans@visionbms.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?iso-8859-1?Q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
-Subject: RE: [PATCH v2 1/5] dt-bindings: rtc: add bindings for i.MX53 SRTC
-Date: Mon, 11 Dec 2017 07:08:30 +0000
-Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB53233C@NT-Mail07.beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
- <20171205140646.30367-2-linux-kernel-dev@beckhoff.com>
- <20171206215436.lwttn445wjilh3wo@rob-hp-laptop>
-In-Reply-To: <20171206215436.lwttn445wjilh3wo@rob-hp-laptop>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from mail.free-electrons.com ([62.4.15.54]:36045 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933574AbdLRVmu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 16:42:50 -0500
+Date: Mon, 18 Dec 2017 22:42:49 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andreas Platschek <andreas.platschek@opentech.at>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 1/2] rtc: omap: check for clk_prepare_enable() error
+Message-ID: <20171218214249.GA15162@piout.net>
+References: <20171206194238.12824-1-andreas.platschek@opentech.at>
+ <20171206194238.12824-2-andreas.platschek@opentech.at>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171206194238.12824-2-andreas.platschek@opentech.at>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
->From: Rob Herring [mailto:robh@kernel.org]
->Sent: Mittwoch, 6. Dezember 2017 22:55
->On Tue, Dec 05, 2017 at 03:06:42PM +0100, linux-kernel-dev@beckhoff.com
->wrote:
->> From: Patrick Bruenn <p.bruenn@beckhoff.com>
->>
->> +++ b/Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
->> @@ -0,0 +1,17 @@
->> +* i.MX53 Real Time Clock controller
->> +
->> +Required properties:
->> +- compatible: should be: "fsl,imx53-rtc"
->> +- reg: physical base address of the controller and length of memory
->mapped
->> +  region.
->> +- clocks: should contain the phandle for the rtc clock
->
->Shouldn't there be more than 1 here. From what I remember, the ipg clock
->and the 32k clock?
-Yes, you are right. But if I am reading the original  Freescale driver and the
-reference manual correctly, the second clock is always active.
-Section "72.3.1.1 Clocks" from the reference manual [1] reads:
-"SRTC runs on two clock sources, high frequency peripherals clock and low frequency
-timers clock. The high frequency peripheral IP clock is used by the SRTC peripheral bus
-interface, control and status registers. The low frequency 32.768 kHz clock is the
-always-active clock used by the SRTC timers..."
+On 06/12/2017 at 20:42:37 +0100, Andreas Platschek wrote:
+> clk_prepare_enable() returns an error -> check it.
+> 
+> Signed-off-by: Andreas Platschek <andreas.platschek@opentech.at>
+> ---
+>  drivers/rtc/rtc-omap.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 1d666ac9ef70..ad309feb7d11 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -748,8 +748,15 @@ static int omap_rtc_probe(struct platform_device *pdev)
+>  	else
+>  		rtc->clk = devm_clk_get(&pdev->dev, "int-clk");
+>  
+> -	if (!IS_ERR(rtc->clk))
+> -		clk_prepare_enable(rtc->clk);
+> +	if (!IS_ERR(rtc->clk)) {
+> +		ret = clk_prepare_enable(rtc->clk);
+> +		if (ret) {
+> +			dev_err(&pdev->dev,
+> +				"Failed to enable rtc clk (%u)\n", ret);
 
-That's why I would only include one clock . Should I change this?
+As this will never fail, can we avoid having a useless string?
 
->
->> +- interrupts: rtc alarm interrupt
->> +
->> +Example:
->> +
->> +srtc@53fa4000 {
->
->rtc@...
->
-The rtc for which this series adds support is embedded within a function block called
-"Secure Real Time Clock". This driver doesn't utilize all of the hardware features by
-now. But maybe someone else wants to extend the functionalities, later.
-For that possibility I wanted to name the node "srtc". Should I still change this?
-
-I believe you have a much better understanding of what should be done here. I don't
-want to argue with you, just thought you might not had that information. So if I am
-wrong just tell me and I will change it without further "complaining".
-
-Thank you for taking the time,
-Patrick
-
-[1] https://cache.freescale.com/files/32bit/doc/ref_manual/iMX53RM.pdf
-
----
-Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
-Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
