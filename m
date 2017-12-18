@@ -1,215 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:38097 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751770AbdLVNv1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Dec 2017 08:51:27 -0500
-MIME-Version: 1.0
-In-Reply-To: <20171222103419.GB18255@piout.net>
-References: <20171221163054.13600-1-jbrunet@baylibre.com> <20171222103419.GB18255@piout.net>
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
-Date: Fri, 22 Dec 2017 08:51:25 -0500
-Message-ID: <CA+rxa6o0Caswf6+MvMfQqsO-U6asf2B-=vuqizVxM58krxiRCg@mail.gmail.com>
-Subject: Re: [PATCH] clk: divider: fix incorrect usage of container_of
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Jerome Brunet <jbrunet@baylibre.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        David Brown <david.brown@linaro.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>, Rob Clark <robdclark@gmail.com>,
+Received: from netsrv01.beckhoff.com ([62.159.14.10]:57307 "EHLO
+        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755725AbdLRLw1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 06:52:27 -0500
+From: <linux-kernel-dev@beckhoff.com>
+CC: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.or,
-        linux-rtc@vger.kernel.org
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH v4 2/4] ARM: dts: imx53: add srtc node
+Date: Mon, 18 Dec 2017 12:51:31 +0100
+Message-ID: <20171218115133.16371-3-linux-kernel-dev@beckhoff.com>
+In-Reply-To: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+References: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-For lpc32xx:
-Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
+From: Patrick Bruenn <p.bruenn@beckhoff.com>
 
-On Fri, Dec 22, 2017 at 5:34 AM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> On 21/12/2017 at 17:30:54 +0100, Jerome Brunet wrote:
->> divider_recalc_rate() is an helper function used by clock divider of
->> different types, so the structure containing the 'hw' pointer is not
->> always a 'struct clk_divider'
->>
->> At the following line:
->> > div = _get_div(table, val, flags, divider->width);
->>
->> in several cases, the value of 'divider->width' is garbage as the actual
->> structure behind this memory is not a 'struct clk_divider'
->>
->> Fortunately, this width value is used by _get_val() only when
->> CLK_DIVIDER_MAX_AT_ZERO flag is set. This has never been the case so
->> far when the structure is not a 'struct clk_divider'. This is probably
->> why we did not notice this bug before
->>
->> Fixes: afe76c8fd030 ("clk: allow a clk divider with max divisor when zero")
->> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
->
-> For RTC:
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->
->> ---
->> Hi Stephen, Mike,
->>
->> In addition to clock, this patch also touch the rtc and drm directories.
->> As it is changing the API of the helper function, I have this fix in a
->> single commit to avoid breaking bisect.
->>
->> Please let me know if you prefer to do differently.
->>
->> Cheers
->> Jerome
->>
->> drivers/clk/clk-divider.c                  | 7 +++----
->>  drivers/clk/hisilicon/clkdivider-hi6220.c  | 2 +-
->>  drivers/clk/nxp/clk-lpc32xx.c              | 2 +-
->>  drivers/clk/qcom/clk-regmap-divider.c      | 2 +-
->>  drivers/clk/sunxi-ng/ccu_div.c             | 2 +-
->>  drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c | 2 +-
->>  drivers/rtc/rtc-ac100.c                    | 6 ++++--
->>  include/linux/clk-provider.h               | 2 +-
->>  8 files changed, 13 insertions(+), 12 deletions(-)
->>
->> diff --git a/drivers/clk/clk-divider.c b/drivers/clk/clk-divider.c
->> index 4ed516cb7276..b49942b9fe50 100644
->> --- a/drivers/clk/clk-divider.c
->> +++ b/drivers/clk/clk-divider.c
->> @@ -118,12 +118,11 @@ static unsigned int _get_val(const struct clk_div_table *table,
->>  unsigned long divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate,
->>                                 unsigned int val,
->>                                 const struct clk_div_table *table,
->> -                               unsigned long flags)
->> +                               unsigned long flags, unsigned long width)
->>  {
->> -     struct clk_divider *divider = to_clk_divider(hw);
->>       unsigned int div;
->>
->> -     div = _get_div(table, val, flags, divider->width);
->> +     div = _get_div(table, val, flags, width);
->>       if (!div) {
->>               WARN(!(flags & CLK_DIVIDER_ALLOW_ZERO),
->>                       "%s: Zero divisor and CLK_DIVIDER_ALLOW_ZERO not set\n",
->> @@ -145,7 +144,7 @@ static unsigned long clk_divider_recalc_rate(struct clk_hw *hw,
->>       val &= div_mask(divider->width);
->>
->>       return divider_recalc_rate(hw, parent_rate, val, divider->table,
->> -                                divider->flags);
->> +                                divider->flags, divider->width);
->>  }
->>
->>  static bool _is_valid_table_div(const struct clk_div_table *table,
->> diff --git a/drivers/clk/hisilicon/clkdivider-hi6220.c b/drivers/clk/hisilicon/clkdivider-hi6220.c
->> index a1c1f684ad58..9f46cf9dcc65 100644
->> --- a/drivers/clk/hisilicon/clkdivider-hi6220.c
->> +++ b/drivers/clk/hisilicon/clkdivider-hi6220.c
->> @@ -56,7 +56,7 @@ static unsigned long hi6220_clkdiv_recalc_rate(struct clk_hw *hw,
->>       val &= div_mask(dclk->width);
->>
->>       return divider_recalc_rate(hw, parent_rate, val, dclk->table,
->> -                                CLK_DIVIDER_ROUND_CLOSEST);
->> +                                CLK_DIVIDER_ROUND_CLOSEST, dclk->width);
->>  }
->>
->>  static long hi6220_clkdiv_round_rate(struct clk_hw *hw, unsigned long rate,
->> diff --git a/drivers/clk/nxp/clk-lpc32xx.c b/drivers/clk/nxp/clk-lpc32xx.c
->> index b669a5c10fee..f5d815f577e0 100644
->> --- a/drivers/clk/nxp/clk-lpc32xx.c
->> +++ b/drivers/clk/nxp/clk-lpc32xx.c
->> @@ -956,7 +956,7 @@ static unsigned long clk_divider_recalc_rate(struct clk_hw *hw,
->>       val &= div_mask(divider->width);
->>
->>       return divider_recalc_rate(hw, parent_rate, val, divider->table,
->> -                                divider->flags);
->> +                                divider->flags, divider->width);
->>  }
->>
->>  static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
->> diff --git a/drivers/clk/qcom/clk-regmap-divider.c b/drivers/clk/qcom/clk-regmap-divider.c
->> index 53484912301e..928fcc16ee27 100644
->> --- a/drivers/clk/qcom/clk-regmap-divider.c
->> +++ b/drivers/clk/qcom/clk-regmap-divider.c
->> @@ -59,7 +59,7 @@ static unsigned long div_recalc_rate(struct clk_hw *hw,
->>       div &= BIT(divider->width) - 1;
->>
->>       return divider_recalc_rate(hw, parent_rate, div, NULL,
->> -                                CLK_DIVIDER_ROUND_CLOSEST);
->> +                                CLK_DIVIDER_ROUND_CLOSEST, divider->width);
->>  }
->>
->>  const struct clk_ops clk_regmap_div_ops = {
->> diff --git a/drivers/clk/sunxi-ng/ccu_div.c b/drivers/clk/sunxi-ng/ccu_div.c
->> index baa3cf96507b..302a18efd39f 100644
->> --- a/drivers/clk/sunxi-ng/ccu_div.c
->> +++ b/drivers/clk/sunxi-ng/ccu_div.c
->> @@ -71,7 +71,7 @@ static unsigned long ccu_div_recalc_rate(struct clk_hw *hw,
->>                                                 parent_rate);
->>
->>       val = divider_recalc_rate(hw, parent_rate, val, cd->div.table,
->> -                               cd->div.flags);
->> +                               cd->div.flags, cd->div.width);
->>
->>       if (cd->common.features & CCU_FEATURE_FIXED_POSTDIV)
->>               val /= cd->fixed_post_div;
->> diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
->> index fe15aa64086f..71fe60e5f01f 100644
->> --- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
->> +++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
->> @@ -698,7 +698,7 @@ static unsigned long dsi_pll_14nm_postdiv_recalc_rate(struct clk_hw *hw,
->>       val &= div_mask(width);
->>
->>       return divider_recalc_rate(hw, parent_rate, val, NULL,
->> -                                postdiv->flags);
->> +                                postdiv->flags, width);
->>  }
->>
->>  static long dsi_pll_14nm_postdiv_round_rate(struct clk_hw *hw,
->> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
->> index 9e336184491c..0282ccc6181c 100644
->> --- a/drivers/rtc/rtc-ac100.c
->> +++ b/drivers/rtc/rtc-ac100.c
->> @@ -137,13 +137,15 @@ static unsigned long ac100_clkout_recalc_rate(struct clk_hw *hw,
->>               div = (reg >> AC100_CLKOUT_PRE_DIV_SHIFT) &
->>                       ((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1);
->>               prate = divider_recalc_rate(hw, prate, div,
->> -                                         ac100_clkout_prediv, 0);
->> +                                         ac100_clkout_prediv, 0,
->> +                                         AC100_CLKOUT_PRE_DIV_WIDTH);
->>       }
->>
->>       div = (reg >> AC100_CLKOUT_DIV_SHIFT) &
->>               (BIT(AC100_CLKOUT_DIV_WIDTH) - 1);
->>       return divider_recalc_rate(hw, prate, div, NULL,
->> -                                CLK_DIVIDER_POWER_OF_TWO);
->> +                                CLK_DIVIDER_POWER_OF_TWO,
->> +                                AC100_CLKOUT_DIV_WIDTH);
->>  }
->>
->>  static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
->> diff --git a/include/linux/clk-provider.h b/include/linux/clk-provider.h
->> index 73ac87f34df9..4c4001086447 100644
->> --- a/include/linux/clk-provider.h
->> +++ b/include/linux/clk-provider.h
->> @@ -412,7 +412,7 @@ extern const struct clk_ops clk_divider_ro_ops;
->>
->>  unsigned long divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate,
->>               unsigned int val, const struct clk_div_table *table,
->> -             unsigned long flags);
->> +             unsigned long flags, unsigned long width);
->>  long divider_round_rate_parent(struct clk_hw *hw, struct clk_hw *parent,
->>                              unsigned long rate, unsigned long *prate,
->>                              const struct clk_div_table *table,
->> --
->> 2.14.3
->>
->
-> --
-> Alexandre Belloni, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+rtc-mxc_v2 driver will add support for the i.MX53 SRTC
+
+Note: we keep the 'srtc' label to avoid duplicate with imx53-m53.dtsi
+
+Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+
+---
+
+v4:
+- replace "srtc" node name with generic "rtc"
+
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE)
+
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Lothar Waßmann <LW@KARO-electronics.de>
+---
+ arch/arm/boot/dts/imx53.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 84f17f7abb71..beca1c830623 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -433,6 +433,13 @@
+ 				clock-names = "ipg", "per";
+ 			};
+ 
++			srtc: rtc@53fa4000 {
++				compatible = "fsl,imx53-rtc";
++				reg = <0x53fa4000 0x4000>;
++				interrupts = <24>;
++				clocks = <&clks IMX5_CLK_SRTC_GATE>;
++			};
++
+ 			iomuxc: iomuxc@53fa8000 {
+ 				compatible = "fsl,imx53-iomuxc";
+ 				reg = <0x53fa8000 0x4000>;
+-- 
+2.11.0
