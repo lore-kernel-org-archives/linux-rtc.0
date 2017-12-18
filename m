@@ -1,42 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-sn1nam01on0070.outbound.protection.outlook.com ([104.47.32.70]:51040
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752700AbdLULnK (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 21 Dec 2017 06:43:10 -0500
-From: Fabio Estevam <fabio.estevam@nxp.com>
-To: <alexandre.belloni@free-electrons.com>
-CC: <p.bruenn@beckhoff.com>, <linux-rtc@vger.kernel.org>,
-        <festevam@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH] rtc: mxc_v2: Remove unnecessary platform_get_resource() error check
-Date: Thu, 21 Dec 2017 09:43:24 -0200
-Message-ID: <20171221114324.6935-1-fabio.estevam@nxp.com>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:36012 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933207AbdLRMbO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 07:31:14 -0500
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1513556924.31581.51.camel@perches.com>
+References: <1513556924.31581.51.camel@perches.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Mon, 18 Dec 2017 14:31:12 +0200
+Message-ID: <CAHp75Vfw=AQHkiC7WhUkuytxG_reO8rmEfpA7z-2yAekFQ4AYQ@mail.gmail.com>
+Subject: Re: [trivial PATCH] treewide: Align function definition open/close braces
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <trivial@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>,
+        acpi4asus-user <acpi4asus-user@lists.sourceforge.net>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        linux-rtc@vger.kernel.org,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        ocfs2-devel@oss.oracle.com, linux-xfs@vger.kernel.org,
+        linux-audit@redhat.com,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-devm_ioremap_resource() already checks if the resource is NULL, so
-remove the unnecessary platform_get_resource() error check.
+On Mon, Dec 18, 2017 at 2:28 AM, Joe Perches <joe@perches.com> wrote:
+> Some functions definitions have either the initial open brace and/or
+> the closing brace outside of column 1.
+>
+> Move those braces to column 1.
+>
+> This allows various function analyzers like gnu complexity to work
+> properly for these modified functions.
+>
+> Miscellanea:
+>
+> o Remove extra trailing ; and blank line from xfs_agf_verify
+>
+> Signed-off-by: Joe Perches <joe@perches.com>
 
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
----
- drivers/rtc/rtc-mxc_v2.c | 3 ---
- 1 file changed, 3 deletions(-)
+>  drivers/platform/x86/eeepc-laptop.c                  |  2 +-
 
-diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-index b637095b0716..eecc0cf9ee95 100644
---- a/drivers/rtc/rtc-mxc_v2.c
-+++ b/drivers/rtc/rtc-mxc_v2.c
-@@ -296,9 +296,6 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res)
--		return -ENODEV;
--
- 	pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(pdata->ioaddr))
- 		return PTR_ERR(pdata->ioaddr);
+> diff --git a/drivers/platform/x86/eeepc-laptop.c b/drivers/platform/x86/eeepc-laptop.c
+> index 5a681962899c..4c38904a8a32 100644
+> --- a/drivers/platform/x86/eeepc-laptop.c
+> +++ b/drivers/platform/x86/eeepc-laptop.c
+> @@ -492,7 +492,7 @@ static void eeepc_platform_exit(struct eeepc_laptop *eeepc)
+>   * potentially bad time, such as a timer interrupt.
+>   */
+>  static void tpd_led_update(struct work_struct *work)
+> - {
+> +{
+>         struct eeepc_laptop *eeepc;
+>
+>         eeepc = container_of(work, struct eeepc_laptop, tpd_led_work);
+> diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+> index a319bf1e49de..ef5c16dfabfa 100644
+
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+for PDx86 changes.
+
+
 -- 
-2.14.1
+With Best Regards,
+Andy Shevchenko
