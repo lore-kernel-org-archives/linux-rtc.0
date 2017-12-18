@@ -1,74 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:37834 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750759AbdLKXIC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Dec 2017 18:08:02 -0500
+Received: from mail.free-electrons.com ([62.4.15.54]:36211 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933574AbdLRVtv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 16:49:51 -0500
+Date: Mon, 18 Dec 2017 22:49:49 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Andreas Platschek <andreas.platschek@opentech.at>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 2/2] rtc: omap: fix unbalanced
+ clk_prepare_enable/clk_disable_unprepare
+Message-ID: <20171218214949.GB15162@piout.net>
+References: <20171206194238.12824-1-andreas.platschek@opentech.at>
+ <20171206194238.12824-3-andreas.platschek@opentech.at>
 MIME-Version: 1.0
-In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01CB53233C@NT-Mail07.beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
- <20171205140646.30367-2-linux-kernel-dev@beckhoff.com> <20171206215436.lwttn445wjilh3wo@rob-hp-laptop>
- <3BB206AB2B1BD448954845CE6FF69A8E01CB53233C@NT-Mail07.beckhoff.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Mon, 11 Dec 2017 21:08:00 -0200
-Message-ID: <CAOMZO5DoiLW3DxLF=agHua9jO-+LgWA3xw6h7kyj_uot47pkjw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] dt-bindings: rtc: add bindings for i.MX53 SRTC
-To: =?UTF-8?Q?Patrick_Br=C3=BCnn?= <P.Bruenn@beckhoff.com>
-Cc: Rob Herring <robh@kernel.org>,
-        linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Patrick Bruenn <p.bruenn@beckhoff.compaste>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171206194238.12824-3-andreas.platschek@opentech.at>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Patrick,
+On 06/12/2017 at 20:42:38 +0100, Andreas Platschek wrote:
+> There are 2 error paths after clk_prepare_enable() was called, where
+> clk_disable_unprepare() is missing.
+> 
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+> Signed-off-by: Andreas Platschek <andreas.platschek@opentech.at>
+> ---
+>  drivers/rtc/rtc-omap.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-On Mon, Dec 11, 2017 at 5:08 AM, Patrick Br=C3=BCnn <P.Bruenn@beckhoff.com>=
- wrote:
-
->>rtc@...
->>
-> The rtc for which this series adds support is embedded within a function =
-block called
-> "Secure Real Time Clock". This driver doesn't utilize all of the hardware=
- features by
-> now. But maybe someone else wants to extend the functionalities, later.
-> For that possibility I wanted to name the node "srtc". Should I still cha=
-nge this?
->
-> I believe you have a much better understanding of what should be done her=
-e. I don't
-> want to argue with you, just thought you might not had that information. =
-So if I am
-> wrong just tell me and I will change it without further "complaining".
-
->From the Devicetree Specification document:
-
-"Generic Names Recommendation
-
-The name of a node should be somewhat generic, reflecting the function
-of the device and not its precise program-
-ming model. If appropriate, the name should be one of the following choices=
-:
-...
-rtc
-"
-
-So better use 'rtc' as suggested by Rob.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
