@@ -1,127 +1,400 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53258 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752488AbdLDOF6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Dec 2017 09:05:58 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>,
-        linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] rtc: ac100: Fix multiple race conditions
-Date: Mon,  4 Dec 2017 15:05:41 +0100
-Message-Id: <20171204140541.30351-1-alexandre.belloni@free-electrons.com>
+Received: from smtprelay0023.hostedemail.com ([216.40.44.23]:36717 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932098AbdLRAeP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 17 Dec 2017 19:34:15 -0500
+Message-ID: <1513556924.31581.51.camel@perches.com>
+Subject: [trivial PATCH] treewide: Align function definition open/close
+ braces
+From: Joe Perches <joe@perches.com>
+To: Jiri Kosina <trivial@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-media@vger.kernel.org, MPT-FusionLinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+        linux-wireless@vger.kernel.org,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+        linux-xfs@vger.kernel.org, linux-audit@redhat.com,
+        alsa-devel@alsa-project.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Date: Sun, 17 Dec 2017 16:28:44 -0800
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The probe function is not allowed to fail after registering the RTC because
-the following may happen:
+Some functions definitions have either the initial open brace and/or
+the closing brace outside of column 1.
 
-CPU0:                                CPU1:
-sys_load_module()
- do_init_module()
-  do_one_initcall()
-   cmos_do_probe()
-    rtc_device_register()
-     __register_chrdev()
-     cdev->owner = struct module*
-                                     open("/dev/rtc0")
-    rtc_device_unregister()
-  module_put()
-  free_module()
-   module_free(mod->module_core)
-   /* struct module *module is now
-      freed */
-                                      chrdev_open()
-                                       spin_lock(cdev_lock)
-                                       cdev_get()
-                                        try_module_get()
-                                         module_is_live()
-                                         /* dereferences already
-                                            freed struct module* */
+Move those braces to column 1.
 
-Also, the interrupt handler: ac100_rtc_irq() is dereferencing chip->rtc but
-this may still be NULL when it is called, resulting in:
-Unable to handle kernel NULL pointer dereference at virtual address 00000194
-pgd = (ptrval)
-[00000194] *pgd=00000000
-Internal error: Oops: 5 [#1] SMP ARM
-Modules linked in:
-CPU: 0 PID: 72 Comm: irq/71-ac100-rt Not tainted 4.15.0-rc1-next-20171201-dirty #120
-Hardware name: Allwinner sun8i Family
-task: (ptrval) task.stack: (ptrval)
-PC is at mutex_lock+0x14/0x3c
-LR is at ac100_rtc_irq+0x38/0xc8
-pc : [<c06543a4>]    lr : [<c04d9a2c>]    psr: 60000053
-sp : ee9c9f28  ip : 00000000  fp : ee9adfdc
-r10: 00000000  r9 : c0a04c48  r8 : c015ed18
-r7 : ee9bd600  r6 : ee9c9f28  r5 : ee9af590  r4 : c0a04c48
-r3 : ef3cb3c0  r2 : 00000000  r1 : ee9af590  r0 : 00000194
-Flags: nZCv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-Control: 10c5387d  Table: 4000406a  DAC: 00000051
-Process irq/71-ac100-rt (pid: 72, stack limit = 0x(ptrval))
-Stack: (0xee9c9f28 to 0xee9ca000)
-9f20:                   00000000 7c2fd1be c015ed18 ee9adf40 ee9c0400 ee9c0400
-9f40: ee9adf40 c015ed34 ee9c8000 ee9adf64 ee9c0400 c015f040 ee9adf80 00000000
-9f60: c015ee24 7c2fd1be ee9adfc0 ee9adf80 00000000 ee9c8000 ee9adf40 c015eef4
-9f80: ef1eba34 c0138f14 ee9c8000 ee9adf80 c0138df4 00000000 00000000 00000000
-9fa0: 00000000 00000000 00000000 c01010e8 00000000 00000000 00000000 00000000
-9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-9fe0: 00000000 00000000 00000000 00000000 00000013 00000000 ffffffff ffffffff
-[<c06543a4>] (mutex_lock) from [<c04d9a2c>] (ac100_rtc_irq+0x38/0xc8)
-[<c04d9a2c>] (ac100_rtc_irq) from [<c015ed34>] (irq_thread_fn+0x1c/0x54)
-[<c015ed34>] (irq_thread_fn) from [<c015f040>] (irq_thread+0x14c/0x214)
-[<c015f040>] (irq_thread) from [<c0138f14>] (kthread+0x120/0x150)
-[<c0138f14>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+This allows various function analyzers like gnu complexity to work
+properly for these modified functions.
 
-Solve both issues by moving to
-devm_rtc_allocate_device()/rtc_register_device()
+Miscellanea:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+o Remove extra trailing ; and blank line from xfs_agf_verify
+
+Signed-off-by: Joe Perches <joe@perches.com>
 ---
- drivers/rtc/rtc-ac100.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+git diff -w shows no difference other than the above 'Miscellanea'
 
-diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
-index 9e336184491c..0e358d4b6738 100644
---- a/drivers/rtc/rtc-ac100.c
-+++ b/drivers/rtc/rtc-ac100.c
-@@ -567,6 +567,12 @@ static int ac100_rtc_probe(struct platform_device *pdev)
- 		return chip->irq;
+(this is against -next, but it applies against Linus' tree
+ with a couple offsets)
+
+ arch/x86/include/asm/atomic64_32.h                   |  2 +-
+ drivers/acpi/custom_method.c                         |  2 +-
+ drivers/acpi/fan.c                                   |  2 +-
+ drivers/gpu/drm/amd/display/dc/core/dc.c             |  2 +-
+ drivers/media/i2c/msp3400-kthreads.c                 |  2 +-
+ drivers/message/fusion/mptsas.c                      |  2 +-
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c |  2 +-
+ drivers/net/wireless/ath/ath9k/xmit.c                |  2 +-
+ drivers/platform/x86/eeepc-laptop.c                  |  2 +-
+ drivers/rtc/rtc-ab-b5ze-s3.c                         |  2 +-
+ drivers/scsi/dpt_i2o.c                               |  2 +-
+ drivers/scsi/sym53c8xx_2/sym_glue.c                  |  2 +-
+ fs/locks.c                                           |  2 +-
+ fs/ocfs2/stack_user.c                                |  2 +-
+ fs/xfs/libxfs/xfs_alloc.c                            |  5 ++---
+ fs/xfs/xfs_export.c                                  |  2 +-
+ kernel/audit.c                                       |  6 +++---
+ kernel/trace/trace_printk.c                          |  4 ++--
+ lib/raid6/sse2.c                                     | 14 +++++++-------
+ sound/soc/fsl/fsl_dma.c                              |  2 +-
+ 20 files changed, 30 insertions(+), 31 deletions(-)
+
+diff --git a/arch/x86/include/asm/atomic64_32.h b/arch/x86/include/asm/atomic64_32.h
+index 97c46b8169b7..d4d4883080fa 100644
+--- a/arch/x86/include/asm/atomic64_32.h
++++ b/arch/x86/include/asm/atomic64_32.h
+@@ -122,7 +122,7 @@ static inline long long atomic64_read(const atomic64_t *v)
+ 	long long r;
+ 	alternative_atomic64(read, "=&A" (r), "c" (v) : "memory");
+ 	return r;
+- }
++}
+ 
+ /**
+  * atomic64_add_return - add and return
+diff --git a/drivers/acpi/custom_method.c b/drivers/acpi/custom_method.c
+index c68e72414a67..e967c1173ba3 100644
+--- a/drivers/acpi/custom_method.c
++++ b/drivers/acpi/custom_method.c
+@@ -94,7 +94,7 @@ static void __exit acpi_custom_method_exit(void)
+ {
+ 	if (cm_dentry)
+ 		debugfs_remove(cm_dentry);
+- }
++}
+ 
+ module_init(acpi_custom_method_init);
+ module_exit(acpi_custom_method_exit);
+diff --git a/drivers/acpi/fan.c b/drivers/acpi/fan.c
+index 6cf4988206f2..3563103590c6 100644
+--- a/drivers/acpi/fan.c
++++ b/drivers/acpi/fan.c
+@@ -219,7 +219,7 @@ fan_set_cur_state(struct thermal_cooling_device *cdev, unsigned long state)
+ 		return fan_set_state_acpi4(device, state);
+ 	else
+ 		return fan_set_state(device, state);
+- }
++}
+ 
+ static const struct thermal_cooling_device_ops fan_cooling_ops = {
+ 	.get_max_state = fan_get_max_state,
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index d1488d5ee028..1e0d1e7c5324 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -461,7 +461,7 @@ static void disable_dangling_plane(struct dc *dc, struct dc_state *context)
+  ******************************************************************************/
+ 
+ struct dc *dc_create(const struct dc_init_data *init_params)
+- {
++{
+ 	struct dc *dc = kzalloc(sizeof(*dc), GFP_KERNEL);
+ 	unsigned int full_pipe_count;
+ 
+diff --git a/drivers/media/i2c/msp3400-kthreads.c b/drivers/media/i2c/msp3400-kthreads.c
+index 4dd01e9f553b..dc6cb8d475b3 100644
+--- a/drivers/media/i2c/msp3400-kthreads.c
++++ b/drivers/media/i2c/msp3400-kthreads.c
+@@ -885,7 +885,7 @@ static int msp34xxg_modus(struct i2c_client *client)
+ }
+ 
+ static void msp34xxg_set_source(struct i2c_client *client, u16 reg, int in)
+- {
++{
+ 	struct msp_state *state = to_state(i2c_get_clientdata(client));
+ 	int source, matrix;
+ 
+diff --git a/drivers/message/fusion/mptsas.c b/drivers/message/fusion/mptsas.c
+index 345f6035599e..69a62d23514b 100644
+--- a/drivers/message/fusion/mptsas.c
++++ b/drivers/message/fusion/mptsas.c
+@@ -2968,7 +2968,7 @@ mptsas_exp_repmanufacture_info(MPT_ADAPTER *ioc,
+ 	mutex_unlock(&ioc->sas_mgmt.mutex);
+ out:
+ 	return ret;
+- }
++}
+ 
+ static void
+ mptsas_parse_device_info(struct sas_identify *identify,
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c
+index 3dd973475125..0ea141ece19e 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_init.c
+@@ -603,7 +603,7 @@ static struct uni_table_desc *nx_get_table_desc(const u8 *unirom, int section)
+ 
+ static int
+ netxen_nic_validate_header(struct netxen_adapter *adapter)
+- {
++{
+ 	const u8 *unirom = adapter->fw->data;
+ 	struct uni_table_desc *directory = (struct uni_table_desc *) &unirom[0];
+ 	u32 fw_file_size = adapter->fw->size;
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index bd438062a6db..baedc7186b10 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -196,7 +196,7 @@ ath_tid_pull(struct ath_atx_tid *tid)
  	}
  
-+	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(chip->rtc))
-+		return PTR_ERR(chip->rtc);
-+
-+	chip->rtc->ops = &ac100_rtc_ops;
-+
- 	ret = devm_request_threaded_irq(&pdev->dev, chip->irq, NULL,
- 					ac100_rtc_irq,
- 					IRQF_SHARED | IRQF_ONESHOT,
-@@ -586,17 +592,16 @@ static int ac100_rtc_probe(struct platform_device *pdev)
- 	/* clear counter alarm pending interrupts */
- 	regmap_write(chip->regmap, AC100_ALM_INT_STA, AC100_ALM_INT_ENABLE);
+ 	return skb;
+- }
++}
  
--	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-ac100",
--					     &ac100_rtc_ops, THIS_MODULE);
--	if (IS_ERR(chip->rtc)) {
--		dev_err(&pdev->dev, "unable to register device\n");
--		return PTR_ERR(chip->rtc);
--	}
+ static struct sk_buff *ath_tid_dequeue(struct ath_atx_tid *tid)
+ {
+diff --git a/drivers/platform/x86/eeepc-laptop.c b/drivers/platform/x86/eeepc-laptop.c
+index 5a681962899c..4c38904a8a32 100644
+--- a/drivers/platform/x86/eeepc-laptop.c
++++ b/drivers/platform/x86/eeepc-laptop.c
+@@ -492,7 +492,7 @@ static void eeepc_platform_exit(struct eeepc_laptop *eeepc)
+  * potentially bad time, such as a timer interrupt.
+  */
+ static void tpd_led_update(struct work_struct *work)
+- {
++{
+ 	struct eeepc_laptop *eeepc;
+ 
+ 	eeepc = container_of(work, struct eeepc_laptop, tpd_led_work);
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index a319bf1e49de..ef5c16dfabfa 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -648,7 +648,7 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 			ret);
+ 
+ 	return ret;
+- }
++}
+ 
+ /* Enable or disable battery low irq generation */
+ static inline int _abb5zes3_rtc_battery_low_irq_enable(struct regmap *regmap,
+diff --git a/drivers/scsi/dpt_i2o.c b/drivers/scsi/dpt_i2o.c
+index fd172b0890d3..a00d822e3142 100644
+--- a/drivers/scsi/dpt_i2o.c
++++ b/drivers/scsi/dpt_i2o.c
+@@ -3524,7 +3524,7 @@ static int adpt_i2o_systab_send(adpt_hba* pHba)
+ #endif
+ 
+ 	return ret;	
+- }
++}
+ 
+ 
+ /*============================================================================
+diff --git a/drivers/scsi/sym53c8xx_2/sym_glue.c b/drivers/scsi/sym53c8xx_2/sym_glue.c
+index 791a2182de53..7320d5fe4cbc 100644
+--- a/drivers/scsi/sym53c8xx_2/sym_glue.c
++++ b/drivers/scsi/sym53c8xx_2/sym_glue.c
+@@ -1393,7 +1393,7 @@ static struct Scsi_Host *sym_attach(struct scsi_host_template *tpnt, int unit,
+ 		scsi_host_put(shost);
+ 
+ 	return NULL;
+- }
++}
+ 
+ 
+ /*
+diff --git a/fs/locks.c b/fs/locks.c
+index 21b4dfa289ee..d2399d001afe 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -559,7 +559,7 @@ static const struct lock_manager_operations lease_manager_ops = {
+  * Initialize a lease, use the default lock manager operations
+  */
+ static int lease_init(struct file *filp, long type, struct file_lock *fl)
+- {
++{
+ 	if (assign_type(fl, type) != 0)
+ 		return -EINVAL;
+ 
+diff --git a/fs/ocfs2/stack_user.c b/fs/ocfs2/stack_user.c
+index dae9eb7c441e..d2fb97b173da 100644
+--- a/fs/ocfs2/stack_user.c
++++ b/fs/ocfs2/stack_user.c
+@@ -398,7 +398,7 @@ static int ocfs2_control_do_setnode_msg(struct file *file,
+ 
+ static int ocfs2_control_do_setversion_msg(struct file *file,
+ 					   struct ocfs2_control_message_setv *msg)
+- {
++{
+ 	long major, minor;
+ 	char *ptr = NULL;
+ 	struct ocfs2_control_private *p = file->private_data;
+diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
+index 0da80019a917..217108f765d5 100644
+--- a/fs/xfs/libxfs/xfs_alloc.c
++++ b/fs/xfs/libxfs/xfs_alloc.c
+@@ -2401,7 +2401,7 @@ static bool
+ xfs_agf_verify(
+ 	struct xfs_mount *mp,
+ 	struct xfs_buf	*bp)
+- {
++{
+ 	struct xfs_agf	*agf = XFS_BUF_TO_AGF(bp);
+ 
+ 	if (xfs_sb_version_hascrc(&mp->m_sb)) {
+@@ -2449,8 +2449,7 @@ xfs_agf_verify(
+ 	     be32_to_cpu(agf->agf_refcount_level) > XFS_BTREE_MAXLEVELS))
+ 		return false;
+ 
+-	return true;;
 -
- 	ret = ac100_rtc_register_clks(chip);
- 	if (ret)
- 		return ret;
++	return true;
+ }
  
-+	ret = rtc_register_device(chip->rtc);
-+	if (ret) {
-+		dev_err(&pdev->dev, "unable to register device\n");
-+		return ret;
-+	}
-+
- 	dev_info(&pdev->dev, "RTC enabled\n");
+ static void
+diff --git a/fs/xfs/xfs_export.c b/fs/xfs/xfs_export.c
+index fe1bfee35898..7d5c355d78b5 100644
+--- a/fs/xfs/xfs_export.c
++++ b/fs/xfs/xfs_export.c
+@@ -122,7 +122,7 @@ xfs_nfs_get_inode(
+ 	struct super_block	*sb,
+ 	u64			ino,
+ 	u32			generation)
+- {
++{
+  	xfs_mount_t		*mp = XFS_M(sb);
+ 	xfs_inode_t		*ip;
+ 	int			error;
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 227db99b0f19..d97e8f0f73ca 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -443,15 +443,15 @@ static int audit_set_failure(u32 state)
+  * Drop any references inside the auditd connection tracking struct and free
+  * the memory.
+  */
+- static void auditd_conn_free(struct rcu_head *rcu)
+- {
++static void auditd_conn_free(struct rcu_head *rcu)
++{
+ 	struct auditd_connection *ac;
  
- 	return 0;
--- 
-2.15.0
+ 	ac = container_of(rcu, struct auditd_connection, rcu);
+ 	put_pid(ac->pid);
+ 	put_net(ac->net);
+ 	kfree(ac);
+- }
++}
+ 
+ /**
+  * auditd_set - Set/Reset the auditd connection state
+diff --git a/kernel/trace/trace_printk.c b/kernel/trace/trace_printk.c
+index ad1d6164e946..50f44b7b2b32 100644
+--- a/kernel/trace/trace_printk.c
++++ b/kernel/trace/trace_printk.c
+@@ -196,7 +196,7 @@ struct notifier_block module_trace_bprintk_format_nb = {
+ };
+ 
+ int __trace_bprintk(unsigned long ip, const char *fmt, ...)
+- {
++{
+ 	int ret;
+ 	va_list ap;
+ 
+@@ -214,7 +214,7 @@ int __trace_bprintk(unsigned long ip, const char *fmt, ...)
+ EXPORT_SYMBOL_GPL(__trace_bprintk);
+ 
+ int __ftrace_vbprintk(unsigned long ip, const char *fmt, va_list ap)
+- {
++{
+ 	if (unlikely(!fmt))
+ 		return 0;
+ 
+diff --git a/lib/raid6/sse2.c b/lib/raid6/sse2.c
+index 1d2276b007ee..8191e1d0d2fb 100644
+--- a/lib/raid6/sse2.c
++++ b/lib/raid6/sse2.c
+@@ -91,7 +91,7 @@ static void raid6_sse21_gen_syndrome(int disks, size_t bytes, void **ptrs)
+ 
+ static void raid6_sse21_xor_syndrome(int disks, int start, int stop,
+ 				     size_t bytes, void **ptrs)
+- {
++{
+ 	u8 **dptr = (u8 **)ptrs;
+ 	u8 *p, *q;
+ 	int d, z, z0;
+@@ -200,9 +200,9 @@ static void raid6_sse22_gen_syndrome(int disks, size_t bytes, void **ptrs)
+ 	kernel_fpu_end();
+ }
+ 
+- static void raid6_sse22_xor_syndrome(int disks, int start, int stop,
++static void raid6_sse22_xor_syndrome(int disks, int start, int stop,
+ 				     size_t bytes, void **ptrs)
+- {
++{
+ 	u8 **dptr = (u8 **)ptrs;
+ 	u8 *p, *q;
+ 	int d, z, z0;
+@@ -265,7 +265,7 @@ static void raid6_sse22_gen_syndrome(int disks, size_t bytes, void **ptrs)
+ 
+ 	asm volatile("sfence" : : : "memory");
+ 	kernel_fpu_end();
+- }
++}
+ 
+ const struct raid6_calls raid6_sse2x2 = {
+ 	raid6_sse22_gen_syndrome,
+@@ -366,9 +366,9 @@ static void raid6_sse24_gen_syndrome(int disks, size_t bytes, void **ptrs)
+ 	kernel_fpu_end();
+ }
+ 
+- static void raid6_sse24_xor_syndrome(int disks, int start, int stop,
++static void raid6_sse24_xor_syndrome(int disks, int start, int stop,
+ 				     size_t bytes, void **ptrs)
+- {
++{
+ 	u8 **dptr = (u8 **)ptrs;
+ 	u8 *p, *q;
+ 	int d, z, z0;
+@@ -471,7 +471,7 @@ static void raid6_sse24_gen_syndrome(int disks, size_t bytes, void **ptrs)
+ 	}
+ 	asm volatile("sfence" : : : "memory");
+ 	kernel_fpu_end();
+- }
++}
+ 
+ 
+ const struct raid6_calls raid6_sse2x4 = {
+diff --git a/sound/soc/fsl/fsl_dma.c b/sound/soc/fsl/fsl_dma.c
+index 0c11f434a374..ec619f51d336 100644
+--- a/sound/soc/fsl/fsl_dma.c
++++ b/sound/soc/fsl/fsl_dma.c
+@@ -879,7 +879,7 @@ static const struct snd_pcm_ops fsl_dma_ops = {
+ };
+ 
+ static int fsl_soc_dma_probe(struct platform_device *pdev)
+- {
++{
+ 	struct dma_object *dma;
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct device_node *ssi_np;
