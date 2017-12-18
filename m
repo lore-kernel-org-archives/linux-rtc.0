@@ -1,32 +1,34 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f176.google.com ([74.125.82.176]:44073 "EHLO
-        mail-ot0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751062AbdLEONh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Dec 2017 09:13:37 -0500
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:39583 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758057AbdLROSJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 09:18:09 -0500
+Received: by mail-wr0-f196.google.com with SMTP id a41so14164200wra.6
+        for <linux-rtc@vger.kernel.org>; Mon, 18 Dec 2017 06:18:08 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20171205140646.30367-3-linux-kernel-dev@beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com> <20171205140646.30367-3-linux-kernel-dev@beckhoff.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Tue, 5 Dec 2017 12:13:36 -0200
-Message-ID: <CAOMZO5DiRa1aLFHiFv_-_3J9LLuq-J06FHLQ4o7=r8hrftEpqQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/5] ARM: dts: imx53: add srtc node
-To: linux-kernel-dev@beckhoff.com
-Cc: Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
+In-Reply-To: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+References: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Date: Mon, 18 Dec 2017 15:17:27 +0100
+Message-ID: <CAOFm3uHBMLmJd2Na7XjGMMKBBvot4htJ_YDh+F407wtwfmaG4w@mail.gmail.com>
+Subject: Re: [PATCH v4 0/4] rtc: add mxc driver for i.MX53 SRTC
+To: linux-kernel-dev <linux-kernel-dev@beckhoff.com>
+Cc: Patrick Bruenn <p.bruenn@beckhoff.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
         <linux-rtc@vger.kernel.org>,
-        Patrick Bruenn <p.bruenn@beckhoff.com>,
         "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
         <devicetree@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Noel Vellemans <Noel.Vellemans@visionbms.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
         Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
         "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
         <linux-arm-kernel@lists.infradead.org>,
         =?UTF-8?Q?Lothar_Wa=C3=9Fmann?= <LW@karo-electronics.de>
@@ -34,17 +36,106 @@ Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Dec 5, 2017 at 12:06 PM,  <linux-kernel-dev@beckhoff.com> wrote:
+On Mon, Dec 18, 2017 at 12:51 PM,  <linux-kernel-dev@beckhoff.com> wrote:
+> From: Patrick Bruenn <p.bruenn@beckhoff.com>
+>
+> Neither rtc-imxdi, rtc-mxc nor rtc-snvs are compatible with i.MX53.
+>
+> This is driver enables support for the low power domain SRTC features:
+> - 32-bit MSB of non-rollover time counter
+> - 32-bit alarm register
+>
+> Select the new config option RTC_DRV_MXC_V2 to build this driver
+>
+> Based on:
+> http://git.freescale.com/git/cgit.cgi/imx/linux-2.6-imx.git/tree/drivers/=
+rtc/rtc-mxc_v2.c?h=3Dimx_2.6.35_11.09.01
+>
+> Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
+>
+> ---
+>
+> v4:
+> - rename "srtc" node into generic "rtc" keep the label as "srtc" to avoid
+>   duplication with imx53-m53.dtsi
+> - fix Signed-off-by: in bindings-patch
+>
+> v3:
+> - introduce new config option with the same patch, which adds the driver
+> - call rtc_update_irq() only if necessary
+> - merge mxc_rtc_write_alarm_locked() with mxc_rtc_set_alarm()
+> - only use clk_enable/disable (without "prepare") during operation
+> - rebase on v4.15-rc3
+> - consistently use rtc_tm_to_time64() and time64_t
+> - refactor mxc_rtc_read_time(): don't lock for readl() only;
+>   don't rtc_valid_tm(); use time64_t
+> - check returncode of mxc_rtc_wait_for_flag()
+> - restructure mxc_rtc_sync_lp_locked() to replace pr_err() with
+>   dev_err_once(); remove explicit 'inline'
+> - don't touch imx_v4_v5_defconfig, instead add to imx_v6_v7_defconfig
+>
+> v2:
+> - have seperate patches for dt-binding, CONFIG option, imx53.dtsi and dri=
+ver
+> - add SPDX-License-Identifier and cleanup copyright notice
+> - replace __raw_readl/writel() with readl/writel()
+> - fix PM_SLEEP callbacks
+> - add CONFIG_RTC_DRV_MXC_V2 to build rtc-mxc_v2.c
+> - remove misleading or obvious comments and fix style of the remaining
+> - avoid endless loop while waiting for hw
+> - implement consistent locking; make spinlock a member of dev struct
+> - enable clk only for register accesses
+> - remove all udelay() calls since they are obsolete or redundant
+>   (we are already waiting for register flags to change)
+> - init platform_data before registering irq callback
+> - let set_time() fail, when 32 bit rtc counter exceeded
+> - make names more consistent
+> - cleanup and reorder includes
+> - cleanup and remove unused defines
+>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLA=
+TTENED DEVICE TREE BINDINGS)
+> Cc: linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM)
+> Cc: devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEV=
+ICE TREE BINDINGS)
+> Cc: linux-kernel@vger.kernel.org (open list)
+> Cc: Fabio Estevam <fabio.estevam@nxp.com>
+> Cc: Juergen Borleis <jbe@pengutronix.de>
+> Cc: Noel Vellemans <Noel.Vellemans@visionbms.com>
+> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: Sascha Hauer <kernel@pengutronix.de> (maintainer:ARM/FREESCALE IMX / =
+MXC ARM ARCHITECTURE)
+> Cc: Russell King <linux@armlinux.org.uk> (maintainer:ARM PORT)
+> Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IM=
+X / MXC ARM ARCHITECTURE)
+>
+> Cc: Philippe Ombredanne <pombredanne@nexb.com>
+> Cc: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+> ---
+>
+> Patrick Bruenn (4):
+>   dt-bindings: rtc: add bindings for i.MX53 SRTC
+>   ARM: dts: imx53: add srtc node
+>   rtc: add mxc driver for i.MX53 SRTC
+>   ARM: imx_v6_v7_defconfig: enable RTC_DRV_MXC_V2
+>
+>  .../devicetree/bindings/rtc/rtc-mxc_v2.txt         |  17 +
+>  arch/arm/boot/dts/imx53.dtsi                       |   7 +
+>  arch/arm/configs/imx_v6_v7_defconfig               |   1 +
+>  drivers/rtc/Kconfig                                |  10 +
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-mxc_v2.c                           | 422 +++++++++++++++=
+++++++
+>  6 files changed, 458 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
+>  create mode 100644 drivers/rtc/rtc-mxc_v2.c
+>
+> --
+> 2.11.0
 
->                         srtc: srtc@53fa4000 {
-> -                               compatible = "fsl,imx53-rtc", "fsl,imx25-rtc";
-> +                               compatible = "fsl,imx53-rtc";
->                                 reg = <0x53fa4000 0x4000>;
->                                 interrupts = <24>;
-> -                               interrupt-parent = <&tzic>;
->                                 clocks = <&clks IMX5_CLK_SRTC_GATE>;
-> -                               clock-names = "ipg";
+For the use of SPDX license tags in this patch set:
 
-srtc node has been removed in linux-next.
-
-You need to re-add it.
+Acked-by: Philippe Ombredanne <pombredanne@nexb.com>
