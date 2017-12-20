@@ -1,54 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from 178.115.242.59.static.drei.at ([178.115.242.59]:54096 "EHLO
-        mail.osadl.at" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1751208AbdLFTtl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 14:49:41 -0500
-From: Andreas Platschek <andreas.platschek@opentech.at>
-To: linux-kernel@vger.kernel.org
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux-rtc@vger.kernel.org,
-        Andreas Platschek <andreas.platschek@opentech.at>
-Subject: [PATCH 2/2] rtc: omap: fix unbalanced clk_prepare_enable/clk_disable_unprepare
-Date: Wed,  6 Dec 2017 20:42:38 +0100
-Message-Id: <20171206194238.12824-3-andreas.platschek@opentech.at>
-In-Reply-To: <20171206194238.12824-1-andreas.platschek@opentech.at>
-References: <20171206194238.12824-1-andreas.platschek@opentech.at>
+Received: from mail-ot0-f172.google.com ([74.125.82.172]:38650 "EHLO
+        mail-ot0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755699AbdLTSNr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Dec 2017 13:13:47 -0500
+Date: Wed, 20 Dec 2017 12:13:44 -0600
+From: Rob Herring <robh@kernel.org>
+To: linux-kernel-dev@beckhoff.com
+Cc: Patrick Bruenn <p.bruenn@beckhoff.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Noel Vellemans <Noel.Vellemans@visionbms.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+        <linux-arm-kernel@lists.infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
+Subject: Re: [PATCH v4 1/4] dt-bindings: rtc: add bindings for i.MX53 SRTC
+Message-ID: <20171220181344.rdaeaiqnoyzgsvxk@rob-hp-laptop>
+References: <20171218115133.16371-1-linux-kernel-dev@beckhoff.com>
+ <20171218115133.16371-2-linux-kernel-dev@beckhoff.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171218115133.16371-2-linux-kernel-dev@beckhoff.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There are 2 error paths after clk_prepare_enable() was called, where
-clk_disable_unprepare() is missing.
+On Mon, Dec 18, 2017 at 12:51:30PM +0100, linux-kernel-dev@beckhoff.com wrote:
+> From: Patrick Bruenn <p.bruenn@beckhoff.com>
+> 
+> Document the binding for i.MX53 SRTC implemented by rtc-mxc_v2
+> 
+> Signed-off-by: Patrick Bruenn <p.bruenn@beckhoff.com>
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Andreas Platschek <andreas.platschek@opentech.at>
----
- drivers/rtc/rtc-omap.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index ad309feb7d11..c6aa8f94bb3c 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -760,8 +760,10 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(rtc->base))
-+	if (IS_ERR(rtc->base)) {
-+		clk_disable_unprepare(rtc->clk);
- 		return PTR_ERR(rtc->base);
-+	}
- 
- 	platform_set_drvdata(pdev, rtc);
- 
-@@ -894,6 +896,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	return 0;
- 
- err:
-+	clk_disable_unprepare(rtc->clk);
- 	device_init_wakeup(&pdev->dev, false);
- 	rtc->type->lock(rtc);
- 	pm_runtime_put_sync(&pdev->dev);
--- 
-2.11.0
+Reviewed-by: Rob Herring <robh@kernel.org>
