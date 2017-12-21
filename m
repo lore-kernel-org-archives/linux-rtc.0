@@ -1,66 +1,198 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55546 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750916AbdLMQpN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 13 Dec 2017 11:45:13 -0500
-Date: Wed, 13 Dec 2017 11:45:09 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Baolin Wang <baolin.wang@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:45858 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753351AbdLUQbI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Dec 2017 11:31:08 -0500
+Received: by mail-wr0-f194.google.com with SMTP id h1so25614157wre.12
+        for <linux-rtc@vger.kernel.org>; Thu, 21 Dec 2017 08:31:07 -0800 (PST)
+From: Jerome Brunet <jbrunet@baylibre.com>
+To: Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>
+Cc: Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        David Brown <david.brown@linaro.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Clark <robdclark@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Ingo Molnar <mingo@redhat.com>, linux-rtc@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2] rtc: Add tracepoints for RTC system
-Message-ID: <20171213114509.33006be6@gandalf.local.home>
-In-Reply-To: <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
-References: <64a38f4a15a2f8dae4a9fd0a3fc2a312e86c733d.1510749847.git.baolin.wang@linaro.org>
-        <20171212221643.GL8318@piout.net>
-        <CAMz4ku+Hpbb+4Wj2auFFf7NGdd95VN6L8y5ONEqt3utndzUjVQ@mail.gmail.com>
-        <CAK8P3a06svzg8mG1Gw9n9tqsr6rNmkzLLvirWP6wZdnCm=5_CA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.or,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH] clk: divider: fix incorrect usage of container_of
+Date: Thu, 21 Dec 2017 17:30:54 +0100
+Message-Id: <20171221163054.13600-1-jbrunet@baylibre.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 13 Dec 2017 09:33:23 +0100
-Arnd Bergmann <arnd@arndb.de> wrote:
+divider_recalc_rate() is an helper function used by clock divider of
+different types, so the structure containing the 'hw' pointer is not
+always a 'struct clk_divider'
 
+At the following line:
+> div = _get_div(table, val, flags, divider->width);
 
-> >> How bad would that be to change it later? I didn't follow the whole
-> >> tracepoint ABI issue closely.  
-> 
-> There is no general rule here other than "if it breaks for existing
-> users, we have to fix it". Anyone who uses the tracepoints correctly
-> would end up showing zero-date if we change all the fields, but
-> it should not crash here.
+in several cases, the value of 'divider->width' is garbage as the actual
+structure behind this memory is not a 'struct clk_divider'
 
-But if a tool depends on that value correct, that still is a user space
-breakage, even though it was using tracepoints correctly.
+Fortunately, this width value is used by _get_val() only when
+CLK_DIVIDER_MAX_AT_ZERO flag is set. This has never been the case so
+far when the structure is not a 'struct clk_divider'. This is probably
+why we did not notice this bug before
 
-> 
-> Printing a time64_t instead of rtc_time may be better here, as it's
-> cheaper to convert rtc_time to time64_t that vice versa. User space
-> looking at the trace data can then do the conversion back to struct tm
-> for printing in a C program or using /bin/date from a shell
-> script, but I agree it's an extra step.
-> 
-> It's also possible that we don't care about the overhead of doing
-> a time64_to_tm() or rtc_time64_to_tm() in the trace function, as long
-> as that only needs to be done if the tracepoint is active. I find trace
-> points a bit confusing, so I don't know if that is the case or not when
-> the tracepoint is compiled into the kernel but disabled at run time.
+Fixes: afe76c8fd030 ("clk: allow a clk divider with max divisor when zero")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+---
+Hi Stephen, Mike,
 
-Everything that is done in TP_fast_assign() is only performed when the
-tracepoint is active. It adds no more overhead when tracing is
-disabled, as tracepoints incorporate jump labels, and the call itself
-is a nop. As long as the parameters to the trace_*() functions don't do
-logic, all should be fine: like if you had:
+In addition to clock, this patch also touch the rtc and drm directories.
+As it is changing the API of the helper function, I have this fix in a
+single commit to avoid breaking bisect.
 
-  trace_rtc_set_alarm(call_some_function_to_return_tm(), err);
+Please let me know if you prefer to do differently.
 
-gcc could make that call_some_function_to_return_tm() happen even when
-the tracepoint is not enabled. But that's not the case with this patch.
+Cheers
+Jerome
 
--- Steve
+drivers/clk/clk-divider.c                  | 7 +++----
+ drivers/clk/hisilicon/clkdivider-hi6220.c  | 2 +-
+ drivers/clk/nxp/clk-lpc32xx.c              | 2 +-
+ drivers/clk/qcom/clk-regmap-divider.c      | 2 +-
+ drivers/clk/sunxi-ng/ccu_div.c             | 2 +-
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c | 2 +-
+ drivers/rtc/rtc-ac100.c                    | 6 ++++--
+ include/linux/clk-provider.h               | 2 +-
+ 8 files changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/clk/clk-divider.c b/drivers/clk/clk-divider.c
+index 4ed516cb7276..b49942b9fe50 100644
+--- a/drivers/clk/clk-divider.c
++++ b/drivers/clk/clk-divider.c
+@@ -118,12 +118,11 @@ static unsigned int _get_val(const struct clk_div_table *table,
+ unsigned long divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate,
+ 				  unsigned int val,
+ 				  const struct clk_div_table *table,
+-				  unsigned long flags)
++				  unsigned long flags, unsigned long width)
+ {
+-	struct clk_divider *divider = to_clk_divider(hw);
+ 	unsigned int div;
+ 
+-	div = _get_div(table, val, flags, divider->width);
++	div = _get_div(table, val, flags, width);
+ 	if (!div) {
+ 		WARN(!(flags & CLK_DIVIDER_ALLOW_ZERO),
+ 			"%s: Zero divisor and CLK_DIVIDER_ALLOW_ZERO not set\n",
+@@ -145,7 +144,7 @@ static unsigned long clk_divider_recalc_rate(struct clk_hw *hw,
+ 	val &= div_mask(divider->width);
+ 
+ 	return divider_recalc_rate(hw, parent_rate, val, divider->table,
+-				   divider->flags);
++				   divider->flags, divider->width);
+ }
+ 
+ static bool _is_valid_table_div(const struct clk_div_table *table,
+diff --git a/drivers/clk/hisilicon/clkdivider-hi6220.c b/drivers/clk/hisilicon/clkdivider-hi6220.c
+index a1c1f684ad58..9f46cf9dcc65 100644
+--- a/drivers/clk/hisilicon/clkdivider-hi6220.c
++++ b/drivers/clk/hisilicon/clkdivider-hi6220.c
+@@ -56,7 +56,7 @@ static unsigned long hi6220_clkdiv_recalc_rate(struct clk_hw *hw,
+ 	val &= div_mask(dclk->width);
+ 
+ 	return divider_recalc_rate(hw, parent_rate, val, dclk->table,
+-				   CLK_DIVIDER_ROUND_CLOSEST);
++				   CLK_DIVIDER_ROUND_CLOSEST, dclk->width);
+ }
+ 
+ static long hi6220_clkdiv_round_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/nxp/clk-lpc32xx.c b/drivers/clk/nxp/clk-lpc32xx.c
+index b669a5c10fee..f5d815f577e0 100644
+--- a/drivers/clk/nxp/clk-lpc32xx.c
++++ b/drivers/clk/nxp/clk-lpc32xx.c
+@@ -956,7 +956,7 @@ static unsigned long clk_divider_recalc_rate(struct clk_hw *hw,
+ 	val &= div_mask(divider->width);
+ 
+ 	return divider_recalc_rate(hw, parent_rate, val, divider->table,
+-				   divider->flags);
++				   divider->flags, divider->width);
+ }
+ 
+ static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/drivers/clk/qcom/clk-regmap-divider.c b/drivers/clk/qcom/clk-regmap-divider.c
+index 53484912301e..928fcc16ee27 100644
+--- a/drivers/clk/qcom/clk-regmap-divider.c
++++ b/drivers/clk/qcom/clk-regmap-divider.c
+@@ -59,7 +59,7 @@ static unsigned long div_recalc_rate(struct clk_hw *hw,
+ 	div &= BIT(divider->width) - 1;
+ 
+ 	return divider_recalc_rate(hw, parent_rate, div, NULL,
+-				   CLK_DIVIDER_ROUND_CLOSEST);
++				   CLK_DIVIDER_ROUND_CLOSEST, divider->width);
+ }
+ 
+ const struct clk_ops clk_regmap_div_ops = {
+diff --git a/drivers/clk/sunxi-ng/ccu_div.c b/drivers/clk/sunxi-ng/ccu_div.c
+index baa3cf96507b..302a18efd39f 100644
+--- a/drivers/clk/sunxi-ng/ccu_div.c
++++ b/drivers/clk/sunxi-ng/ccu_div.c
+@@ -71,7 +71,7 @@ static unsigned long ccu_div_recalc_rate(struct clk_hw *hw,
+ 						  parent_rate);
+ 
+ 	val = divider_recalc_rate(hw, parent_rate, val, cd->div.table,
+-				  cd->div.flags);
++				  cd->div.flags, cd->div.width);
+ 
+ 	if (cd->common.features & CCU_FEATURE_FIXED_POSTDIV)
+ 		val /= cd->fixed_post_div;
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
+index fe15aa64086f..71fe60e5f01f 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_14nm.c
+@@ -698,7 +698,7 @@ static unsigned long dsi_pll_14nm_postdiv_recalc_rate(struct clk_hw *hw,
+ 	val &= div_mask(width);
+ 
+ 	return divider_recalc_rate(hw, parent_rate, val, NULL,
+-				   postdiv->flags);
++				   postdiv->flags, width);
+ }
+ 
+ static long dsi_pll_14nm_postdiv_round_rate(struct clk_hw *hw,
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 9e336184491c..0282ccc6181c 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -137,13 +137,15 @@ static unsigned long ac100_clkout_recalc_rate(struct clk_hw *hw,
+ 		div = (reg >> AC100_CLKOUT_PRE_DIV_SHIFT) &
+ 			((1 << AC100_CLKOUT_PRE_DIV_WIDTH) - 1);
+ 		prate = divider_recalc_rate(hw, prate, div,
+-					    ac100_clkout_prediv, 0);
++					    ac100_clkout_prediv, 0,
++					    AC100_CLKOUT_PRE_DIV_WIDTH);
+ 	}
+ 
+ 	div = (reg >> AC100_CLKOUT_DIV_SHIFT) &
+ 		(BIT(AC100_CLKOUT_DIV_WIDTH) - 1);
+ 	return divider_recalc_rate(hw, prate, div, NULL,
+-				   CLK_DIVIDER_POWER_OF_TWO);
++				   CLK_DIVIDER_POWER_OF_TWO,
++				   AC100_CLKOUT_DIV_WIDTH);
+ }
+ 
+ static long ac100_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/include/linux/clk-provider.h b/include/linux/clk-provider.h
+index 73ac87f34df9..4c4001086447 100644
+--- a/include/linux/clk-provider.h
++++ b/include/linux/clk-provider.h
+@@ -412,7 +412,7 @@ extern const struct clk_ops clk_divider_ro_ops;
+ 
+ unsigned long divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate,
+ 		unsigned int val, const struct clk_div_table *table,
+-		unsigned long flags);
++		unsigned long flags, unsigned long width);
+ long divider_round_rate_parent(struct clk_hw *hw, struct clk_hw *parent,
+ 			       unsigned long rate, unsigned long *prate,
+ 			       const struct clk_div_table *table,
+-- 
+2.14.3
