@@ -1,41 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37322 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S938216AbdLRWYu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Dec 2017 17:24:50 -0500
-Date: Mon, 18 Dec 2017 23:24:48 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: akinobu.mita@gmail.com, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc-r7301: Fix a possible sleep-in-atomic bug in
- rtc7301_set_time
-Message-ID: <20171218222448.GJ15162@piout.net>
-References: <1513173364-18424-1-git-send-email-baijiaju1990@gmail.com>
+Received: from smtp.codeaurora.org ([198.145.29.96]:59582 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752433AbdLUSii (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Dec 2017 13:38:38 -0500
+Date: Thu, 21 Dec 2017 10:38:36 -0800
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Michael Turquette <mturquette@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        David Brown <david.brown@linaro.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Clark <robdclark@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.or,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] clk: divider: fix incorrect usage of container_of
+Message-ID: <20171221183836.GL7997@codeaurora.org>
+References: <20171221163054.13600-1-jbrunet@baylibre.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1513173364-18424-1-git-send-email-baijiaju1990@gmail.com>
+In-Reply-To: <20171221163054.13600-1-jbrunet@baylibre.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/12/2017 at 21:56:04 +0800, Jia-Ju Bai wrote:
-> The driver may sleep under a spinlock.
-> The function call path is:
-> rtc7301_set_time (acquire the spinlock)
->   usleep_range --> may sleep
+On 12/21, Jerome Brunet wrote:
+> divider_recalc_rate() is an helper function used by clock divider of
+> different types, so the structure containing the 'hw' pointer is not
+> always a 'struct clk_divider'
 > 
-> To fix it, usleep_range is replaced with udelay.
+> At the following line:
+> > div = _get_div(table, val, flags, divider->width);
 > 
-> This bug is found by my static analysis tool(DSAC) and checked by my code review.
+> in several cases, the value of 'divider->width' is garbage as the actual
+> structure behind this memory is not a 'struct clk_divider'
 > 
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> Fortunately, this width value is used by _get_val() only when
+> CLK_DIVIDER_MAX_AT_ZERO flag is set. This has never been the case so
+> far when the structure is not a 'struct clk_divider'. This is probably
+> why we did not notice this bug before
+> 
+> Fixes: afe76c8fd030 ("clk: allow a clk divider with max divisor when zero")
+> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 > ---
->  drivers/rtc/rtc-r7301.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Hi Stephen, Mike,
 > 
-Applied, thanks.
+> In addition to clock, this patch also touch the rtc and drm directories.
+> As it is changing the API of the helper function, I have this fix in a
+> single commit to avoid breaking bisect.
+> 
+> Please let me know if you prefer to do differently.
+> 
+
+Looks good. Thanks for catching this before it became a real
+problem. It would be good to get acks from DRM and RTC
+maintainers.
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
