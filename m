@@ -1,114 +1,138 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from netsrv01.beckhoff.com ([62.159.14.10]:58811 "EHLO
-        Netsrv01.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754239AbdLFJ2N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Dec 2017 04:28:13 -0500
-From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>
-CC: linux-kernel-dev <linux-kernel-dev@beckhoff.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>, Juergen Borleis <jbe@pengutronix.de>,
-        open list <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        "Noel Vellemans" <Noel.Vellemans@visionbms.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
-        <linux-arm-kernel@lists.infradead.org>,
-        =?iso-8859-1?Q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
-Subject: RE: [PATCH v2 5/5] rtc: add mxc driver for i.MX53 SRTC
-Date: Wed, 6 Dec 2017 09:28:09 +0000
-Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01CB531D7C@NT-Mail07.beckhoff.com>
-References: <20171205140646.30367-1-linux-kernel-dev@beckhoff.com>
- <20171205140646.30367-6-linux-kernel-dev@beckhoff.com>
- <20171206083618.eea63zqmpgaaazwl@pengutronix.de>
- <20171206085825.GM21780@piout.net>
-In-Reply-To: <20171206085825.GM21780@piout.net>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from pegase1.c-s.fr ([93.17.236.30]:44230 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750860AbdLXIzZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 24 Dec 2017 03:55:25 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: Guenter Roeck <linux@roeck-us.net>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Yisheng Xie <xieyisheng1@huawei.com>
+Cc: linux-kernel@vger.kernel.org, ysxie@foxmail.com,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        boris.brezillon@free-electrons.com, richard@nod.at,
+        marek.vasut@gmail.com, cyrille.pitchen@wedev4u.fr,
+        linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org,
+        wim@iguana.be, linux-watchdog@vger.kernel.org,
+        b.zolnierkie@samsung.com, linux-fbdev@vger.kernel.org,
+        linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
+        ralf@linux-mips.org, linux-mips@linux-mips.org,
+        lgirdwood@gmail.com, broonie@kernel.org, tglx@linutronix.de,
+        jason@lakedaemon.net, marc.zyngier@arm.com, arnd@arndb.de,
+        andriy.shevchenko@linux.intel.com,
+        industrypack-devel@lists.sourceforge.net, wg@grandegger.com,
+        mkl@pengutronix.de, linux-can@vger.kernel.org, mchehab@kernel.org,
+        linux-media@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        daniel.vetter@intel.com, jani.nikula@linux.intel.com,
+        seanpaul@chromium.org, airlied@linux.ie,
+        dri-devel@lists.freedesktop.org, kvalo@codeaurora.org,
+        linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
+        tj@kernel.org, linux-ide@vger.kernel.org, bhelgaas@google.com,
+        linux-pci@vger.kernel.org, devel@driverdev.osuosl.org,
+        dvhart@infradead.org, andy@infradead.org,
+        platform-driver-x86@vger.kernel.org, jakub.kicinski@netronome.com,
+        davem@davemloft.net, nios2-dev@lists.rocketboards.org,
+        netdev@vger.kernel.org, vinod.koul@intel.com,
+        dan.j.williams@intel.com, dmaengine@vger.kernel.org,
+        jslaby@suse.com
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+ <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
+From: christophe leroy <christophe.leroy@c-s.fr>
+Message-ID: <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
+Date: Sun, 24 Dec 2017 09:55:18 +0100
 MIME-Version: 1.0
+In-Reply-To: <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
->From: Alexandre Belloni [mailto:alexandre.belloni@free-electrons.com]
->Sent: Mittwoch, 6. Dezember 2017 09:58
->On 06/12/2017 at 09:36:18 +0100, Sascha Hauer wrote:
->> > +/*
->> > + * This function updates the RTC alarm registers and then clears all the
->> > + * interrupt status bits.
->> > + * The caller should hold the pdata->lock
->> > + *
->> > + * @param  alrm         the new alarm value to be updated in the RTC
->> > + *
->> > + * @return  0 if successful; non-zero otherwise.
->> > + */
->> > +static int mxc_rtc_write_alarm_locked(struct mxc_rtc_data *const pdata,
->> > +                                struct rtc_time *alarm_tm)
->> > +{
->> > +  void __iomem *const ioaddr = pdata->ioaddr;
->> > +  unsigned long time;
->> > +
->> > +  rtc_tm_to_time(alarm_tm, &time);
->> > +
->> > +  if (time > U32_MAX) {
->> > +          pr_err("Hopefully I am out of service by then :-(\n");
->> > +          return -EINVAL;
->> > +  }
+
+
+Le 23/12/2017 à 16:57, Guenter Roeck a écrit :
+> On 12/23/2017 05:48 AM, Greg KH wrote:
+>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>>> Hi all,
+>>>
+>>> When I tried to use devm_ioremap function and review related code, I 
+>>> found
+>>> devm_ioremap and devm_ioremap_nocache is almost the same with each 
+>>> other,
+>>> except one use ioremap while the other use ioremap_nocache.
 >>
->> This will never happen as on your target hardware unsigned long is a
->> 32bit type. Not sure what is best to do here. Maybe you should test
->> the return value of rtc_tm_to_time. ATM it returns 0 unconditionally,
->> but rtc_tm_to_time could detect when the input time doesn't fit into
->> its return type and return an error in this case.
->> Also I just realized that it's unsigned and only overflows in the year
->> 2106. I'm most likely dead then so I don't care that much ;)
+>> For all arches?  Really?  Look at MIPS, and x86, they have different
+>> functions.
 >>
->
->One solution is to use the 64bit version instead so it doesn't overflow.
->This makes the time > U32_MAX work.
->Also, I'll send (hopefully soon) a series adding proper range checking
->for the whole RTC subsystem. And yes, it not urgent as I don't think I
->will care so much in 2106 too ;)
->
-I just noticed that in mxc_rtc_set_time() I am using the 64bit version.
-After thinking a while about this issue, I think the 64bit version is better
-suited for my use case. It makes explicitly clear that I need to push the
-time into a 32bit hw register and "unsigned long" is just by accident the
-correct size for me.
+> 
+> Both mips and x86 end up mapping the same function, but other arches don't.
+> mn10300 is one where ioremap and ioremap_nocache are definitely different.
 
->> > +/*
->> > + * This function reads the current RTC time into tm in Gregorian date.
->> > + *
->> > + * @param  tm           contains the RTC time value upon return
->> > + *
->> > + * @return  0 if successful; non-zero otherwise.
->> > + */
->> > +static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
->> > +{
->> > +  struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
->> > +  time_t now;
->> > +  int ret = mxc_rtc_lock(pdata);
->> > +
->> > +  if (ret)
->> > +          return ret;
->> > +
->> > +  now = readl(pdata->ioaddr + SRTC_LPSCMR);
->> > +  rtc_time_to_tm(now, tm);
->> > +  ret = rtc_valid_tm(tm);
->
->This check is useless for two reasons: you know that rtc_time_to_tm will
->generate a valid tm and the core always checks the tm anyway.
-I will remove this with the next version
+alpha: identical
+arc: identical
+arm: identical
+arm64: identical
+cris: different        <==
+frv: identical
+hexagone: identical
+ia64: different        <==
+m32r: identical
+m68k: identical
+metag: identical
+microblaze: identical
+mips: identical
+mn10300: different     <==
+nios: identical
+openrisc: different    <==
+parisc: identical
+riscv: identical
+s390: identical
+sh: identical
+sparc: identical
+tile: identical
+um: rely on asm/generic
+unicore32: identical
+x86: identical
+asm/generic (no mmu): identical
 
-Thanks for your time and help,
-Patrick
+So 4 among all arches seems to have ioremap() and ioremap_nocache() 
+being different.
 
-Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
-Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
+Could we have a define set by the 4 arches on which ioremap() and 
+ioremap_nocache() are different, something like 
+HAVE_DIFFERENT_IOREMAP_NOCACHE ?
+
+Christophe
+
+> 
+> Guenter
+> 
+>>> While ioremap's
+>>> default function is ioremap_nocache, so devm_ioremap_nocache also 
+>>> have the
+>>> same function with devm_ioremap, which can just be killed to reduce 
+>>> the size
+>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>>
+>>> I have posted two versions, which use macro instead of function for
+>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>>> devm_ioremap_nocache for no need to keep a macro around for the 
+>>> duplicate
+>>> thing. So here comes v3 and please help to review.
+>>
+>> I don't think this can be done, what am I missing?  These functions are
+>> not identical, sorry for missing that before.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+> 
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+---
+L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
+https://www.avast.com/antivirus
