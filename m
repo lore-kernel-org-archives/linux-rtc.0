@@ -1,76 +1,115 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from forward5o.cmail.yandex.net ([37.9.109.249]:48205 "EHLO
-        forward5o.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754019AbdL1SlR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Dec 2017 13:41:17 -0500
-From: Ozgur <ozgur@goosey.org>
-To: Aishwarya Pant <aishpant@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org
-In-Reply-To: <20171228150027.GA11300@mordor.localdomain>
-References: <20171228133132.GA3927@mordor.localdomain>
-         <434381514470951@web50o.yandex.ru>
-         <480511514471013@web35j.yandex.ru> <20171228150027.GA11300@mordor.localdomain>
-Subject: Re: rtc: sysfs: move sysfs interface to Documentation/ABI
+Received: from pegase1.c-s.fr ([93.17.236.30]:11200 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750860AbdLXJFR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 24 Dec 2017 04:05:17 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: Greg KH <gregkh@linuxfoundation.org>,
+        Yisheng Xie <xieyisheng1@huawei.com>
+Cc: linux-kernel@vger.kernel.org, ysxie@foxmail.com,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        boris.brezillon@free-electrons.com, richard@nod.at,
+        marek.vasut@gmail.com, cyrille.pitchen@wedev4u.fr,
+        linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org,
+        wim@iguana.be, linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        b.zolnierkie@samsung.com, linux-fbdev@vger.kernel.org,
+        linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
+        ralf@linux-mips.org, linux-mips@linux-mips.org,
+        lgirdwood@gmail.com, broonie@kernel.org, tglx@linutronix.de,
+        jason@lakedaemon.net, marc.zyngier@arm.com, arnd@arndb.de,
+        andriy.shevchenko@linux.intel.com,
+        industrypack-devel@lists.sourceforge.net, wg@grandegger.com,
+        mkl@pengutronix.de, linux-can@vger.kernel.org, mchehab@kernel.org,
+        linux-media@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        daniel.vetter@intel.com, jani.nikula@linux.intel.com,
+        seanpaul@chromium.org, airlied@linux.ie,
+        dri-devel@lists.freedesktop.org, kvalo@codeaurora.org,
+        linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
+        tj@kernel.org, linux-ide@vger.kernel.org, bhelgaas@google.com,
+        linux-pci@vger.kernel.org, devel@driverdev.osuosl.org,
+        dvhart@infradead.org, andy@infradead.org,
+        platform-driver-x86@vger.kernel.org, jakub.kicinski@netronome.com,
+        davem@davemloft.net, nios2-dev@lists.rocketboards.org,
+        netdev@vger.kernel.org, vinod.koul@intel.com,
+        dan.j.williams@intel.com, dmaengine@vger.kernel.org,
+        jslaby@suse.com
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+From: christophe leroy <christophe.leroy@c-s.fr>
+Message-ID: <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
+Date: Sun, 24 Dec 2017 10:05:08 +0100
 MIME-Version: 1.0
-Message-Id: <4310831514485814@web18g.yandex.ru>
-Date: Thu, 28 Dec 2017 21:30:14 +0300
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171223134831.GB10103@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 
 
-28.12.2017, 18:00, "Aishwarya Pant" <aishpant@gmail.com>:
-> On Thu, Dec 28, 2017 at 05:23:33PM +0300, Ozgur wrote:
->>  28.12.2017, 17:22, "Ozgur" <okaratas@yandex.com>:
->>  > 28.12.2017, 16:31, "Aishwarya Pant" <aishpant@gmail.com>:
->>  >>  Hi
+Le 23/12/2017 à 14:48, Greg KH a écrit :
+> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>> Hi all,
 >>
->>   Hello,
+>> When I tried to use devm_ioremap function and review related code, I found
+>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>> except one use ioremap while the other use ioremap_nocache.
+> 
+> For all arches?  Really?  Look at MIPS, and x86, they have different
+> functions.
+> 
+>> While ioremap's
+>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>> same function with devm_ioremap, which can just be killed to reduce the size
+>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
 >>
->>  >>  In Documentation/rtc.txt, there is a description of the sysfs
->>  >>  interface which could be moved to Documentation/ABI.
->>  >>
->>  >>  Would such a change be useful?
->>  >>
->>  >>  The ABI documentation format looks like the following:
->>  >>
->>  >>  What: (the full sysfs path of the attribute)
->>  >>  Date: (date of creation)
->>  >>  KernelVersion: (kernel version it first showed up in)
->>  >>  Contact: (primary contact)
->>  >>  Description: (long description on usage)
->>  >>
->>  >>  I am doing this in an exercise to move sysfs ABI interfaces (which are
->>  >>  documented) to their right place i.e. in Documentation/ABI along with the rest.
->>
->>   Do I understand right? Are you want to make the rtc.txt part the same format as ABI folder?
->>   for example create to RTC folder and add /dev/rtc what, date, kernelversion, contact right?
->
-> Yes I mentioned just the sysfs interface. But both ioctl and sysfs interface
-> should be there in Documentation/ABI. There could a new file called sysfs-rtc in
-> Documentation/ABI/stable with both these interfaces.
+>> I have posted two versions, which use macro instead of function for
+>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>> thing. So here comes v3 and please help to review.
+> 
+> I don't think this can be done, what am I missing?  These functions are
+> not identical, sorry for missing that before.
 
-Hello,
+devm_ioremap() and devm_ioremap_nocache() are quite similar, both use 
+devm_ioremap_release() for the release, why not just defining:
 
-I think the ABI maintainer is API group but I think you have contact to linux documentation team. 
-maybe, Greg provide a  give information:
+static void __iomem *__devm_ioremap(struct device *dev, resource_size_t 
+offset,
+			   resource_size_t size, bool nocache)
+{
+[...]
+	if (nocache)
+		addr = ioremap_nocache(offset, size);
+	else
+		addr = ioremap(offset, size);
+[...]
+}
 
->>   This can be a good idea and I can help.
->
-> Sure thanks. I can maybe send a patch with these changes.
->
-> One question: who should be the primary contact for this ABI?
+then in include/linux/io.h
 
-I add linux-api mailing lists. So, please send a your patch linux-kernel and linux-api mailing lists.
+static inline void __iomem *devm_ioremap(struct device *dev, 
+resource_size_t offset,
+			   resource_size_t size)
+{return __devm_ioremap(dev, offset, size, false);}
 
-Ozgur
+static inline void __iomem *devm_ioremap_nocache(struct device *dev, 
+resource_size_t offset,
+				   resource_size_t size);
+{return __devm_ioremap(dev, offset, size, true);}
 
->>  >>  Aishwarya
->>
->>  Ozgur
+Christophe
+
+> 
+> thanks,
+> 
+> greg k-h
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
+---
+L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
+https://www.avast.com/antivirus
