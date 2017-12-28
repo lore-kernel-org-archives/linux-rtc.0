@@ -1,88 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753734AbdLNSej (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 14 Dec 2017 13:34:39 -0500
-Date: Thu, 14 Dec 2017 19:34:34 +0100
-From: Alexandre Belloni <abelloni@kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Baolin Wang <baolin.wang@linaro.org>, a.zummo@towertech.it,
-        mingo@redhat.com, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, arnd@arndb.de, broonie@kernel.org
-Subject: Re: [PATCH v3] rtc: Add tracepoints for RTC system
-Message-ID: <20171214183434.GE2559@piout.net>
-References: <f819febcf2104918bfda1eadba021f9cc08ed866.1513221837.git.baolin.wang@linaro.org>
- <20171214124912.3171dafd@gandalf.local.home>
+Received: from forward5o.cmail.yandex.net ([37.9.109.249]:48205 "EHLO
+        forward5o.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754019AbdL1SlR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Dec 2017 13:41:17 -0500
+From: Ozgur <ozgur@goosey.org>
+To: Aishwarya Pant <aishpant@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org
+In-Reply-To: <20171228150027.GA11300@mordor.localdomain>
+References: <20171228133132.GA3927@mordor.localdomain>
+         <434381514470951@web50o.yandex.ru>
+         <480511514471013@web35j.yandex.ru> <20171228150027.GA11300@mordor.localdomain>
+Subject: Re: rtc: sysfs: move sysfs interface to Documentation/ABI
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171214124912.3171dafd@gandalf.local.home>
+Message-Id: <4310831514485814@web18g.yandex.ru>
+Date: Thu, 28 Dec 2017 21:30:14 +0300
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Steve,
 
-(Writing from my @kernel.org email to ensure you receive it)
 
-On 14/12/2017 at 12:49:12 -0500, Steven Rostedt wrote:
-> On Thu, 14 Dec 2017 13:31:43 +0800
-> Baolin Wang <baolin.wang@linaro.org> wrote:
-> 
-> 
-> > @@ -53,6 +56,8 @@ int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
-> >  
-> >  	err = __rtc_read_time(rtc, tm);
-> >  	mutex_unlock(&rtc->ops_lock);
-> > +
-> > +	trace_rtc_read_time(rtc_tm_to_time64(tm), err);
-> 
-> There's a possibility that gcc may put the call to rt_tm_to_time64()
-> outside the tracepoint area that gets nop'd out. Could you just pass in
-> the tm to the tracepoint, and have the call to rtc_tm_to_time64() done
-> within the TP_fast_assign? This would guarantee that we don't incur
-> overhead when tracing is off.
-> 
+28.12.2017, 18:00, "Aishwarya Pant" <aishpant@gmail.com>:
+> On Thu, Dec 28, 2017 at 05:23:33PM +0300, Ozgur wrote:
+>>  28.12.2017, 17:22, "Ozgur" <okaratas@yandex.com>:
+>>  > 28.12.2017, 16:31, "Aishwarya Pant" <aishpant@gmail.com>:
+>>  >>  Hi
+>>
+>>   Hello,
+>>
+>>  >>  In Documentation/rtc.txt, there is a description of the sysfs
+>>  >>  interface which could be moved to Documentation/ABI.
+>>  >>
+>>  >>  Would such a change be useful?
+>>  >>
+>>  >>  The ABI documentation format looks like the following:
+>>  >>
+>>  >>  What: (the full sysfs path of the attribute)
+>>  >>  Date: (date of creation)
+>>  >>  KernelVersion: (kernel version it first showed up in)
+>>  >>  Contact: (primary contact)
+>>  >>  Description: (long description on usage)
+>>  >>
+>>  >>  I am doing this in an exercise to move sysfs ABI interfaces (which are
+>>  >>  documented) to their right place i.e. in Documentation/ABI along with the rest.
+>>
+>>   Do I understand right? Are you want to make the rtc.txt part the same format as ABI folder?
+>>   for example create to RTC folder and add /dev/rtc what, date, kernelversion, contact right?
+>
+> Yes I mentioned just the sysfs interface. But both ioctl and sysfs interface
+> should be there in Documentation/ABI. There could a new file called sysfs-rtc in
+> Documentation/ABI/stable with both these interfaces.
 
-Actually, I've asked for that as rtc_time64_to_tm is really heavier than
-rtc_tm_to_time64 and both set_time and set_alarm will soon have a call
-to rtc_tm_to_time64 anyway. read_time and read_alarm will probably end
-up having one in the long term too.
+Hello,
 
-> > diff --git a/include/trace/events/rtc.h b/include/trace/events/rtc.h
-> > new file mode 100644
-> > index 0000000..621333f
-> > --- /dev/null
-> > +++ b/include/trace/events/rtc.h
-> > @@ -0,0 +1,206 @@
-> > +#undef TRACE_SYSTEM
-> > +#define TRACE_SYSTEM rtc
-> > +
-> > +#if !defined(_TRACE_RTC_H) || defined(TRACE_HEADER_MULTI_READ)
-> > +#define _TRACE_RTC_H
-> > +
-> > +#include <linux/rtc.h>
-> > +#include <linux/tracepoint.h>
-> > +
-> > +DECLARE_EVENT_CLASS(rtc_time_alarm_class,
-> > +
-> > +	TP_PROTO(time64_t secs, int err),
-> > +
-> > +	TP_ARGS(secs, err),
-> > +
-> > +	TP_STRUCT__entry(
-> > +		__field(time64_t, secs)
-> > +		__field(int, err)
-> > +	),
-> > +
-> > +	TP_fast_assign(
-> > +		__entry->secs = secs;
-> > +		__entry->err = err;
-> > +	),
-> > +
-> > +	TP_printk("UTC (%lld) (%d)",
-> > +		  __entry->secs, __entry->err
+I think the ABI maintainer is API group but I think you have contact to linux documentation team. 
+maybe, Greg provide a  give information:
 
-Can't TP_printk do the rtc_time64_to_tm conversion to pretty print the
-date? Or do we have to implement it in vsprintf?
+>>   This can be a good idea and I can help.
+>
+> Sure thanks. I can maybe send a patch with these changes.
+>
+> One question: who should be the primary contact for this ABI?
 
--- 
-Alexandre Belloni
+I add linux-api mailing lists. So, please send a your patch linux-kernel and linux-api mailing lists.
+
+Ozgur
+
+>>  >>  Aishwarya
+>>
+>>  Ozgur
