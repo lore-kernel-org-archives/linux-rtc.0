@@ -1,78 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:60060 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750810AbdLWNpe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 23 Dec 2017 08:45:34 -0500
-Date: Sat, 23 Dec 2017 14:45:32 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Yisheng Xie <xieyisheng1@huawei.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-        ulf.hansson@linaro.org, jakub.kicinski@netronome.com,
-        airlied@linux.ie, linux-wireless@vger.kernel.org,
-        linus.walleij@linaro.org, alsa-devel@alsa-project.org,
-        dri-devel@lists.freedesktop.org,
-        platform-driver-x86@vger.kernel.org, linux-ide@vger.kernel.org,
-        linux-mtd@lists.infradead.org, daniel.vetter@intel.com,
-        dan.j.williams@intel.com, jason@lakedaemon.net,
-        linux-rtc@vger.kernel.org, boris.brezillon@free-electrons.com,
-        mchehab@kernel.org, dmaengine@vger.kernel.org,
-        vinod.koul@intel.com, richard@nod.at, marek.vasut@gmail.com,
-        industrypack-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org, dvhart@infradead.org,
-        linux@roeck-us.net, linux-media@vger.kernel.org,
-        seanpaul@chromium.org, devel@driverdev.osuosl.org,
-        linux-watchdog@vger.kernel.org, arnd@arndb.de,
-        b.zolnierkie@samsung.com, marc.zyngier@arm.com, jslaby@suse.com,
-        jani.nikula@linux.intel.com, linux-can@vger.kernel.org,
-        linux-gpio@vger.kernel.org, broonie@kernel.org, mkl@pengutronix.de,
-        linux-fbdev@vger.kernel.org, nios2-dev@lists.rocketboards.org,
-        bhelgaas@google.com, tglx@linutronix.de,
-        andriy.shevchenko@linux.intel.com, kvalo@codeaurora.org,
-        a.zummo@towertech.it, netdev@vger.kernel.org,
-        linux-mmc@vger.kernel.org, lgirdwood@gmail.com,
-        ralf@linux-mips.org, linux-spi@vger.kernel.org, ysxie@foxmail.com,
-        wg@grandegger.com, cyrille.pitchen@wedev4u.fr, tj@kernel.org,
-        alexandre.belloni@free-electrons.com, davem@davemloft.net,
-        andy@infradead.org
-Subject: Re: [PATCH v3 27/27] devres: kill devm_ioremap_nocache
-Message-ID: <20171223134532.GA10103@kroah.com>
-References: <1514026979-33838-1-git-send-email-xieyisheng1@huawei.com>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:42542 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753293AbdL1PAe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Dec 2017 10:00:34 -0500
+Date: Thu, 28 Dec 2017 20:30:27 +0530
+From: Aishwarya Pant <aishpant@gmail.com>
+To: Ozgur <ozgur@goosey.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: rtc: sysfs: move sysfs interface to Documentation/ABI
+Message-ID: <20171228150027.GA11300@mordor.localdomain>
+References: <20171228133132.GA3927@mordor.localdomain>
+ <434381514470951@web50o.yandex.ru>
+ <480511514471013@web35j.yandex.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1514026979-33838-1-git-send-email-xieyisheng1@huawei.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <480511514471013@web35j.yandex.ru>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sat, Dec 23, 2017 at 07:02:59PM +0800, Yisheng Xie wrote:
-> --- a/lib/devres.c
-> +++ b/lib/devres.c
-> @@ -44,35 +44,6 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->  EXPORT_SYMBOL(devm_ioremap);
->  
->  /**
-> - * devm_ioremap_nocache - Managed ioremap_nocache()
-> - * @dev: Generic device to remap IO address for
-> - * @offset: Resource address to map
-> - * @size: Size of map
-> - *
-> - * Managed ioremap_nocache().  Map is automatically unmapped on driver
-> - * detach.
-> - */
-> -void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
-> -				   resource_size_t size)
-> -{
-> -	void __iomem **ptr, *addr;
-> -
-> -	ptr = devres_alloc(devm_ioremap_release, sizeof(*ptr), GFP_KERNEL);
-> -	if (!ptr)
-> -		return NULL;
-> -
-> -	addr = ioremap_nocache(offset, size);
+On Thu, Dec 28, 2017 at 05:23:33PM +0300, Ozgur wrote:
+> 
+> 
+> 28.12.2017, 17:22, "Ozgur" <okaratas@yandex.com>:
+> > 28.12.2017, 16:31, "Aishwarya Pant" <aishpant@gmail.com>:
+> >>  Hi
+> 
+>  Hello,
+> 
+> >>  In Documentation/rtc.txt, there is a description of the sysfs
+> >>  interface which could be moved to Documentation/ABI.
+> >>
+> >>  Would such a change be useful?
+> >>
+> >>  The ABI documentation format looks like the following:
+> >>
+> >>  What: (the full sysfs path of the attribute)
+> >>  Date: (date of creation)
+> >>  KernelVersion: (kernel version it first showed up in)
+> >>  Contact: (primary contact)
+> >>  Description: (long description on usage)
+> >>
+> >>  I am doing this in an exercise to move sysfs ABI interfaces (which are
+> >>  documented) to their right place i.e. in Documentation/ABI along with the rest.
+> 
+>  Do I understand right? Are you want to make the rtc.txt part the same format as ABI folder?
+>  for example create to RTC folder and add /dev/rtc what, date, kernelversion, contact right?
 
-Wait, devm_ioremap() calls ioremap(), not ioremap_nocache(), are you
-_SURE_ that these are all identical?  For all arches?  If so, then
-ioremap_nocache() can also be removed, right?
+Yes I mentioned just the sysfs interface. But both ioctl and sysfs interface
+should be there in Documentation/ABI. There could a new file called sysfs-rtc in
+Documentation/ABI/stable with both these interfaces.
 
-In my quick glance, I don't think you can do this series at all :(
+> 
+>  This can be a good idea and I can help.
 
-greg k-h
+Sure thanks. I can maybe send a patch with these changes.
+
+One question: who should be the primary contact for this ABI?
+
+> 
+> >>  Aishwarya
+> 
+> Ozgur
