@@ -1,56 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:36499 "EHLO
-        mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752594AbdLVOrG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Dec 2017 09:47:06 -0500
-Message-ID: <1513954023.1940.16.camel@googlemail.com>
-Subject: Re: rtc: m41t80rtc: recent v4.15 changes ready for stable branch
- 4.14
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Reply-To: chf.fritz@googlemail.com
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Troy Kisky <troy.kisky@boundarydevices.com>,
-        linux-rtc@vger.kernel.org, stable@vger.kernel.org,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Date: Fri, 22 Dec 2017 15:47:03 +0100
-In-Reply-To: <20171222130533.GE18255@piout.net>
-References: <1513947027.1940.13.camel@googlemail.com>
-         <20171222130533.GE18255@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:32868 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750945AbdLaNkM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 31 Dec 2017 08:40:12 -0500
+Received: by mail-wm0-f68.google.com with SMTP id g130so10859962wme.0
+        for <linux-rtc@vger.kernel.org>; Sun, 31 Dec 2017 05:40:11 -0800 (PST)
+Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
+ long
+To: Mikko Perttunen <cyndis@kapsi.fi>, mturquette@baylibre.com,
+        sboyd@codeaurora.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mips@linux-mips.org, linux-rpi-kernel@lists.infradead.org,
+        patches@opensource.cirrus.com,
+        uclinux-h8-devel@lists.sourceforge.jp,
+        linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        linux-soc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-rockchip@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org,
+        freedreno@lists.freedesktop.org, linux-media@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+References: <1514596392-22270-1-git-send-email-pure.logic@nexus-software.ie>
+ <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
+ <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
+From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Message-ID: <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
+Date: Sun, 31 Dec 2017 13:40:07 +0000
+MIME-Version: 1.0
+In-Reply-To: <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Greg
-
-On Fri, 2017-12-22 at 14:05 +0100, Alexandre Belloni wrote:
-> On 22/12/2017 at 13:50:27 +0100, Christoph Fritz wrote:
-> > Hey Troy and Alexandre,
-> > 
-> >  any objections asking Greg to add following recent v4.15 changes into
-> > stable branch 4.14?
-> > 
+On 30/12/17 16:36, Mikko Perttunen wrote:
+> FWIW, we had this problem some years ago with the Tegra CPU clock - then 
+> it was determined that a simpler solution was to have the determine_rate 
+> callback support unsigned long rates - so clock drivers that need to 
+> return rates higher than 2^31 can instead implement the determine_rate 
+> callback. That is what's currently implemented.
 > 
-> No objection, they can be safely backported.
+> Mikko
 
-@Greg: Could you queue the following commits for 4.14.9 ?
+Granted we could work around it but, having both zero and less than zero 
+indicate error means you can't support larger than LONG_MAX which is I 
+think worth fixing.
 
-> > 05a03bf rtc: m41t80: remove unneeded checks from m41t80_sqw_set_rate
-> > 13bb1d7 rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
-> > 2cb90ed rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
-> > c8384bb rtc: m41t80: fix m41t80_sqw_round_rate return value
-> > de6042d rtc: m41t80: m41t80_sqw_set_rate should return 0 on success
-> > 
-> > Without these patches, deadlock warnings showing up in 4.14:
-> > 
-> > ======================================================
-> > WARNING: possible circular locking dependency detected
-> > 4.14.8-00011-gd203938 #11 Not tainted
-> > ------------------------------------------------------
-
-<snip>
-
-Thanks
- -- Christoph
+---
+bod
