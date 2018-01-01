@@ -1,139 +1,285 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:55345 "EHLO
-        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751360AbeA3JGX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Jan 2018 04:06:23 -0500
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "robh@kernel.org" <robh@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH 4/4] rtc: isl1208: add support for isl1219 with hwmon for
- tamper detection
-Date: Tue, 30 Jan 2018 08:56:23 +0000
-Message-ID: <1517302582.5307.16.camel@diehl.com>
-References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
-         <20180123121801.4214-5-m.grzeschik@pengutronix.de>
-         <20180129234146.73hvclxohhme5i2w@rob-hp-laptop>
-In-Reply-To: <20180129234146.73hvclxohhme5i2w@rob-hp-laptop>
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:20327
+        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751231AbeAAMN3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jan 2018 07:13:29 -0500
+Date: Mon, 1 Jan 2018 13:13:25 +0100 (CET)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: Aishwarya Pant <aishpant@gmail.com>
+cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-rtc@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>,
+        gregkh@linuxfoundation.org
+Subject: Re: [PATCH] rtc: sysfs: move sysfs & ioctl interface to
+ Documentation/ABI
+In-Reply-To: <20180101115726.GA4519@mordor.localdomain>
+Message-ID: <alpine.DEB.2.20.1801011310020.2700@hadrien>
+References: <20180101115726.GA4519@mordor.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-QW0gTW9udGFnLCBkZW4gMjkuMDEuMjAxOCwgMTc6NDEgLTA2MDAgc2NocmllYiBSb2IgSGVy
-cmluZzoNCj4gT24gVHVlLCBKYW4gMjMsIDIwMTggYXQgMDE6MTg6MDFQTSArMDEwMCwgTWlj
-aGFlbCBHcnplc2NoaWsgd3JvdGU6DQo+ID4gDQo+ID4gV2UgYWRkIHN1cHBvcnQgZm9yIHRo
-ZSBJU0wxMjE5IGNoaXAgdGhhdCBnb3QgYW4gaW50ZWdyYXRlZCB0YW1wZXINCj4gPiBkZXRl
-Y3Rpb24gZnVuY3Rpb24uIFRoaXMgcGF0Y2ggaW1wbGVtZW50cyB0aGUgZmVhdHVyZSBieSB1
-c2luZyBhbiBod21vbg0KPiA+IGludGVyZmFjZS4NCj4gPiANCj4gPiBUaGUgSVNMMTIxOSBj
-YW4gYWxzbyBkZXNjcmliZSB0aGUgdGltZXN0YW1wIG9mIHRoZSBpbnRydXNpb24NCj4gPiBl
-dmVudC4gRm9yIHRoaXMgd2UgYWRkIHRoZSBkb2N1bWVudGF0aW9uIG9mIHRoZSBuZXcgaW50
-ZXJmYWNlDQo+ID4gaW50cnVzaW9uWzAtKl1fdGltZXN0YW1wLg0KPiA+IA0KPiA+IFRoZSBk
-ZXZpY2V0cmVlIGRvY3VtZW50YXRpb24gZm9yIHRoZSBJU0wxMjE5IGRldmljZSB0cmVlDQo+
-ID4gYmluZGluZyBpcyBhZGRlZCB3aXRoIGFuIHNob3J0IGV4YW1wbGUuDQo+ID4gDQo+ID4g
-U2lnbmVkLW9mZi1ieTogTWljaGFlbCBHcnplc2NoaWsgPG0uZ3J6ZXNjaGlrQHBlbmd1dHJv
-bml4LmRlPg0KPiA+IFNpZ25lZC1vZmYtYnk6IERlbmlzIE9zdGVybGFuZCA8RGVuaXMuT3N0
-ZXJsYW5kQGRpZWhsLmNvbT4NCj4gPiAtLS0NCj4gPiDCoC4uLi9ydGMve2ludGVyc2lsLGlz
-bDEyMDgudHh0ID0+IGlzaWwsaXNsMTIwOC50eHR9IHzCoMKgMTggKy0NCj4gPiDCoERvY3Vt
-ZW50YXRpb24vaHdtb24vc3lzZnMtaW50ZXJmYWNlwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqB8wqDCoMKgNyArDQo+ID4gwqBkcml2ZXJzL3J0Yy9ydGMtaXNsMTIwOC5jwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHwgMTkw
-ICsrKysrKysrKysrKysrKysrKystLQ0KPiA+IMKgMyBmaWxlcyBjaGFuZ2VkLCAyMDEgaW5z
-ZXJ0aW9ucygrKSwgMTQgZGVsZXRpb25zKC0pDQo+ID4gwqByZW5hbWUgRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0Yy97aW50ZXJzaWwsaXNsMTIwOC50eHQgPT4gaXNp
-bCxpc2wxMjA4LnR4dH0gKDU3JSkNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRh
-dGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0Yy9pbnRlcnNpbCxpc2wxMjA4LnR4dCBiL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvaXNpbCxpc2wxMjA4LnR4dA0K
-PiA+IHNpbWlsYXJpdHkgaW5kZXggNTclDQo+ID4gcmVuYW1lIGZyb20gRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0Yy9pbnRlcnNpbCxpc2wxMjA4LnR4dA0KPiA+IHJl
-bmFtZSB0byBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvcnRjL2lzaWwsaXNs
-MTIwOC50eHQNCj4gPiBpbmRleCBhNTRlOTlmZWFlMWNhLi5kNTQ5Njk5ZTFjZmM0IDEwMDY0
-NA0KPiA+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvaW50
-ZXJzaWwsaXNsMTIwOC50eHQNCj4gPiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
-YmluZGluZ3MvcnRjL2lzaWwsaXNsMTIwOC50eHQNCj4gPiBAQCAtMSwxNCArMSwyMSBAQA0K
-PiA+IC1JbnRlcnNpbCBJU0wxMjA4LCBJU0wxMjE4IEkyQyBSVEMvQWxhcm0gY2hpcA0KPiA+
-ICtJbnRlcnNpbCBJU0wxMjA4LCBJU0wxMjE4LCBJU0wxMjE5IEkyQyBSVEMvQWxhcm0gY2hp
-cA0KPiA+IMKgDQo+ID4gwqBJU0wxMjA4IGlzIGEgdHJpdmlhbCBJMkMgZGV2aWNlIChpdCBo
-YXMgc2ltcGxlIGRldmljZSB0cmVlIGJpbmRpbmdzLA0KPiA+IMKgY29uc2lzdGluZyBvZiBh
-IGNvbXBhdGlibGUgZmllbGQsIGFuIGFkZHJlc3MgYW5kIHBvc3NpYmx5IGFuIGludGVycnVw
-dA0KPiA+IMKgbGluZSkuDQo+ID4gwqANCj4gPiArSVNMMTIxOSBzdXBwb3J0cyB0YW1wZXIg
-ZGV0ZWN0aW9uIHVzZXIgc3BhY2UgcmVwcmVzZW50YXRpb24gdGhyb3VnaA0KPiA+ICtjYXNl
-IGludHJ1c2lvbiBod21vbiBzZW5zb3IuDQo+IFVzZXIgc3BhY2UgYW5kIGh3bW9uIGFyZSBM
-aW51eCBkZXRhaWxzIG5vdCByZWxldmFudCB0byB0aGUgYmluZGluZy4gSnVzdMKgDQo+IGRl
-c2NyaWJlIHRoZSBoL3cuDQpPSy4NCj4gDQo+ID4gDQo+ID4gK0lTTDEyMTkgaGFzIGFkZGl0
-aW9uYWwgcGlucyBFVklOIGFuZCAjRVZERVQgZm9yIHRhbXBlciBkZXRlY3Rpb24uDQo+ID4g
-K0kyQyBkZXZpY2VzIHN1cHBvcnQgb25seSBvbmUgaXJxLiAjSVJRIGFuZCAjRVZERVQgYXJl
-IG9wZW4tZHJhaW4gYWN0aXZlIGxvdywNCj4gPiArc28gaXQgaXMgcG9zc2libGUgbGF5b3V0
-IHRoZW0gdG8gb25lIFNvQyBwaW4gd2l0aCBwdWxsLXVwLg0KPiA+ICsNCj4gPiDCoFJlcXVp
-cmVkIHByb3BlcnRpZXMgc3VwcG9ydGVkIGJ5IHRoZSBkZXZpY2U6DQo+ID4gwqANCj4gPiDC
-oCAtICJjb21wYXRpYmxlIjogbXVzdCBiZSBvbmUgb2YNCj4gPiDCoAkiaXNpbCxpc2wxMjA4
-Ig0KPiA+IMKgCSJpc2lsLGlzbDEyMTgiDQo+ID4gKwkiaXNpbCxpc2wxMjE5Ig0KPiA+IMKg
-IC0gInJlZyI6IEkyQyBidXMgYWRkcmVzcyBvZiB0aGUgZGV2aWNlDQo+ID4gwqANCj4gPiDC
-oE9wdGlvbmFsIHByb3BlcnRpZXM6DQo+ID4gQEAgLTMzLDMgKzQwLDEyIEBAIEV4YW1wbGUg
-aXNsMTIwOCBub2RlIHdpdGggI0lSUSBwaW4gY29ubmVjdGVkIHRvIFNvQyBncGlvMSBwaW4g
-MTI6DQo+ID4gwqAJCWludGVycnVwdC1wYXJlbnQgPSA8JmdwaW8xPjsNCj4gPiDCoAkJaW50
-ZXJydXB0cyA9IDwxMiBJUlFfVFlQRV9FREdFX0ZBTExJTkc+Ow0KPiA+IMKgCX07DQo+ID4g
-Kw0KPiA+ICtFeGFtcGxlIGlzbDEyMTkgbm9kZSB3aXRoICNJUlEgcGluIGFuZCAjRVZERVQg
-cGluIGNvbm5lY3RlZCB0byBTb0MgZ3BpbzEgcGluIDEyOg0KPiA+ICsNCj4gPiArCWlzbDEy
-MTk6IGlzbDEyMTlANjggew0KPiA+ICsJCWNvbXBhdGlibGUgPSAiaW50ZXJzaWwsaXNsMTIx
-OSI7DQo+ID4gKwkJcmVnID0gPDB4Njg+Ow0KPiA+ICsJCWludGVycnVwdHMtZXh0ZW5kZWQg
-PSA8JmdwaW8xIDEyIElSUV9UWVBFX0VER0VfRkFMTElORz47DQo+IFdpdGggMiBpbnRlcnJ1
-cHRzLCB5b3Ugc2hvdWxkIGhhdmUgMiB2YWx1ZXMuIElmIHRoZXkgYXJlIGNvbm5lY3RlZMKg
-DQo+IHRvZ2V0aGVyLCBqdXN0IHJlcGVhdCB0aGUgY29ubmVjdGlvbi4gT3RoZXJ3aXNlLCB5
-b3UgY2FuJ3QgdGVsbCBpZiBFVkRFVMKgDQo+IGlzIGEgbm8gY29ubmVjdC4NCklmIEkgZ290
-IHlvdSByaWdodCwgeW91IHN1Z2dlc3QgYW4gYWRkaXRpb25hbCBJUlEgZW50cnkgdG8gcGFy
-c2UuDQpBIHNob3J0IGV4YW1wbGUsICNJUlEgcGluIGNvbm5lY3RlZCB0byBncGlvMSBwaW4g
-MTIgYW5kDQojRVZERVQgcGluIGNvbm5lY3RlZCB0byBncGlvMiBwaW4gMjQ6DQoNCmlzbDEy
-MTk6IHJ0Y0A2OMKgew0KCWNvbXBhdGlibGUgPSAiaW50ZXJzaWwsaXNsMTIxOSI7DQoJcmVn
-ID0gPDB4Njg+Ow0KCWludGVycnVwdC1uYW1lcyA9ICJpcnEiLCAiZXZkZXQiOw0KCWludGVy
-cnVwdHMtZXh0ZW5kZWQgPSA8JmdwaW8xIDEyIElSUV9UWVBFX0VER0VfRkFMTElORz4sDQoJ
-CTwmZ3BpbzIgMjQgSVJRX1RZUEVfRURHRV9GQUxMSU5HPjsNCn07DQoNCkluIGRyaXZlciBp
-bXBsZW1lbnRhdGlvbiB3ZSBuZWVkIG9ubHkgb25lIGludGVycnVwdCwgYmVjYXVzZSB3ZSBj
-YW4NCmRldGVybWluYXRlIGFjdGlvbiB0byB0YWtlIGJhc2VkIG9uIHZhbHVlIG9mIHN0YXR1
-cyByZWdpc3Rlci4NCkluIGN1cnJlbnQgaW1wbGVtZW50YXRpb24gdGhlcmUgd2FzIG5vIG5l
-ZWQgdG8gZG8gc29tZSBhZGRpdGlvbmFsDQpPRiBwYXJzaW5nLCBldmVyeXRoaW5nIGlzIGRv
-bmUgYnkgSTJDIGdlbmVyaWMgY29kZS4NCkkgZ3Vlc3MsIGl0IGlzIG5vdCBtdWNoIGFkZGl0
-aW9uYWwgd29yayB0byBkbyBzbywgYnV0IEkgYW0gbm90IHN1cmUNCmlmIGl0wrRzIHdvcnRo
-d2hpbGUuDQo+IA0KPiBUaGVyZSdzIG5vdCBtdWNoIHBvaW50IGluIGhhdmluZyBhbiBleGFt
-cGxlIGZvciBldmVyeSBjb21wYXRpYmxlLiBUaGlzwqANCj4gYmluZGluZyBpcyBzaW1wbGUg
-ZW5vdWdoLCBvbmUgc2hvdWxkIGJlIGVub3VnaC4NClNoZWxsIHdlIHJlbW92ZSB0aGUgZXhh
-bXBsZSB3aXRob3V0IGFuIGludGVycnVwdD8NCj4gDQo+ID4gDQo+ID4gKwl9Ow0KPiA+ICsN
-CkRpZWhsIEFLTyBTdGlmdHVuZyAmIENvLiBLRywgUGZhbm5lcnN0cmHDn2UgNzUtODMsIDg4
-MjM5IFdhbmdlbiBpbSBBbGxnw6R1DQpCZXJlaWNoc3ZvcnN0YW5kOiBEci4tSW5nLiBNaWNo
-YWVsIFNpZWRlbnRvcCAoU3ByZWNoZXIpLCBKb3NlZiBGZWxsbmVyIChNaXRnbGllZCkNClNp
-dHogZGVyIEdlc2VsbHNjaGFmdDogV2FuZ2VuIGkuQS4g4oCTIFJlZ2lzdGVyZ2VyaWNodDog
-QW10c2dlcmljaHQgVWxtIEhSQSA2MjA2MDkg4oCTIFBlcnPDtm5saWNoIGhhZnRlbmRlIEdl
-c2VsbHNjaGFmdGVyaW46IERpZWhsIFZlcndhbHR1bmdzLVN0aWZ0dW5nIOKAkyBTaXR6OiBO
-w7xybmJlcmcg4oCTIFJlZ2lzdGVyZ2VyaWNodDogQW10c2dlcmljaHQgTsO8cm5iZXJnIEhS
-QSAxMTc1NiDigJMNClZvcnN0YW5kOiBEci4tSW5nLiBFLmguIFRob21hcyBEaWVobCAo4oCg
-KSAoVm9yc2l0emVuZGVyKSwgSGVyciBEaXBsLi1XaXJ0c2NoLi1JbmcuIFdvbGZnYW5nIFdl
-Z2dlbiAoc3RlbGx2ZXJ0cmV0ZW5kZXIgVm9yc2l0emVuZGVyKSwgRGlwbC4tS2ZtLiBDbGF1
-cyBHw7xudGhlciwgRGlwbC4tS2ZtLiBGcmFuayBHdXR6ZWl0LCBEci4tSW5nLiBIZWlucmlj
-aCBTY2h1bmssIERyLi1JbmcuIE1pY2hhZWwgU2llZGVudG9wICwgRGlwbC4tS2ZtLiBEci4t
-SW5nLiBNYXJ0aW4gU29tbWVyLCBEaXBsLi1JbmcuIChGSCkgUmFpbmVyIHZvbiBCb3JzdGVs
-LCBWb3JzaXR6ZW5kZXIgZGVzIEF1ZnNpY2h0c3JhdGVzOiBEci4gS2xhdXMgTWFpZXINCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KRGVyIEluaGFs
-dCBkZXIgdm9yc3RlaGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVjaHRsaWNoIGJpbmRlbmQu
-IERpZXNlIEUtTWFpbCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIgcmVjaHRsaWNo
-IGdlc2NodWV0enRlIEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJlbiBTaWUgdW5zIGJpdHRl
-LCB3ZW5uIFNpZSBkaWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndlaXNlIGVyaGFsdGVuIGhh
-YmVuLiBCaXR0ZSBsb2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwgZGllIE5hY2hyaWNodC4g
-SmVkZSB1bmVybGF1YnRlIEZvcm0gZGVyIFJlcHJvZHVrdGlvbiwgQmVrYW5udGdhYmUsIEFl
-bmRlcnVuZywgVmVydGVpbHVuZyB1bmQvb2RlciBQdWJsaWthdGlvbiBkaWVzZXIgRS1NYWls
-IGlzdCBzdHJlbmdzdGVucyB1bnRlcnNhZ3QuDQpUaGUgY29udGVudHMgb2YgdGhlIGFib3Zl
-IG1lbnRpb25lZCBlLW1haWwgaXMgbm90IGxlZ2FsbHkgYmluZGluZy4gVGhpcyBlLW1haWwg
-Y29udGFpbnMgY29uZmlkZW50aWFsIGFuZC9vciBsZWdhbGx5IHByb3RlY3RlZCBpbmZvcm1h
-dGlvbi4gUGxlYXNlIGluZm9ybSB1cyBpZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGUtbWFp
-bCBieSBtaXN0YWtlIGFuZCBkZWxldGUgaXQgaW4gc3VjaCBhIGNhc2UuIEVhY2ggdW5hdXRo
-b3JpemVkIHJlcHJvZHVjdGlvbiwgZGlzY2xvc3VyZSwgYWx0ZXJhdGlvbiwgZGlzdHJpYnV0
-aW9uIGFuZC9vciBwdWJsaWNhdGlvbiBvZiB0aGlzIGUtbWFpbCBpcyBzdHJpY3RseSBwcm9o
-aWJpdGVkLg==
+
+
+On Mon, 1 Jan 2018, Aishwarya Pant wrote:
+
+> Right now, the decription of the rtc and sysfs interfaces is in
+> Documentation/rtc.txt. Since these are a part of the ABI, they should be
+> in Documentation/ABI along with the rest.
+>
+> Signed-off-by: Aishwarya Pant <aishpant@gmail.com>
+> ---
+> Let me know if the contact information should be different. I picked up the
+> module author of drivers/rtc/rtc-sysfs.c as the primary contact of the
+> interfaces.
+>
+> Documentation/ABI/stable/rtc | 135 +++++++++++++++++++++++++++++++++++++++++++
+>  Documentation/rtc.txt        |  80 +------------------------
+>  2 files changed, 136 insertions(+), 79 deletions(-)
+>  create mode 100644 Documentation/ABI/stable/rtc
+>
+> diff --git a/Documentation/ABI/stable/rtc b/Documentation/ABI/stable/rtc
+> new file mode 100644
+> index 000000000000..799003dfb86e
+> --- /dev/null
+> +++ b/Documentation/ABI/stable/rtc
+> @@ -0,0 +1,135 @@
+> +SYSFS interface
+> +---------------
+> +
+> +The sysfs interface provides access to various
+> +rtc attributes without requiring the use of ioctls. All dates and times
+> +are in the RTC's timezone, rather than in system time.
+
+The above paragraph could be formatted with lines of more even length.
+
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/date
+> +Date:		March 2006
+> +KernelVersion:	2.6.17
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RO) RTC-provided date
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/name
+> +Date:		March 2006
+> +KernelVersion:	2.6.17
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RO) The name of the RTC corresponding to this sysfs directory.
+
+Things don't look quite aligned, which suggests that some things are done
+with spaces and some things with tabs.
+
+julia
+
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/time
+> +Date:		March 2006
+> +KernelVersion:	2.6.17
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RO) RTC-provided time
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/since_epoch
+> +Date:		March 2006
+> +KernelVersion:	2.6.17
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RO) The number of seconds since the epoch according to the RTC.
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/wakealarm
+> +Date:		February 2007
+> +KernelVersion:	2.6.21
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RW) The time at which the clock will generate a system wakeup
+> +		 event. This is a one shot wakeup event, so must be reset
+> +		 after wake if a daily wakeup is required. Format is seconds
+> +		 since the epoch by default, or if there's a leading +, seconds
+> +		 in the future, or if there is a leading +=, seconds ahead of
+> +		 the current alarm.
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/max_user_freq
+> +Date:		October 2007
+> +KernelVersion:	2.6.24
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RW) The maximum interrupt rate an unprivileged user may request
+> +		 from this RTC.
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/hctosys
+> +Date:		September 2009
+> +KernelVersion:	2.6.32
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RO) 1 if the RTC provided the system time at boot via the
+> +		 CONFIG_RTC_HCTOSYS kernel option, 0 otherwise.
+> +
+> +What:		/sys/class/rtc/rtc[0-*]/offset
+> +Date:		February 2016
+> +KernelVersion:	4.6
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RW) The amount which the rtc clock has been adjusted in firmware.
+> +		 Visible only if the driver supports clock offset adjustment.
+> +		 The unit is parts per billion, i.e. The number of clock ticks
+> +		 which are added to or removed from the rtc's base clock per
+> +		 billion ticks. A positive value makes a day pass more slowly,
+> +		 longer, and a negative value makes a day pass more quickly.
+> +
+> +What:		/sys/bus/nvmem/devices/dev-name/nvmem
+> +Date:		July 2017
+> +KernelVersion:	4.13
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	(RW) The non volatile storage exported as a raw file, as described
+> +		 in Documentation/nvmem/nvmem.txt. The previous ABI
+> +		 /sys/class/rtc/rtc[0-*]/device/nvram will be deprecated.
+> +
+> +IOCTL interface
+> +---------------
+> +
+> +What:		/dev/rtc[0-*]
+> +Date:		April 2005
+> +KernelVersion:	2.6.12
+> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> +Description:	The ioctl() calls supported by /dev/rtc are also supported by
+> +		the RTC class framework. However, because the chips and systems
+> +		are not standardized, some PC/AT functionality might not be
+> +		provided.  And in the same way, some newer features -- including
+> +		those enabled by ACPI -- are exposed by the RTC class framework,
+> +		but can't be supported by the older driver.
+> +
+> +		    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at
+> +			least reading time, returning the result as a Gregorian
+> +			calendar date and 24 hour wall clock time. To be most
+> +			useful, this time may also be updated.
+> +
+> +		    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ...
+> +			when the RTC is connected to an IRQ line, it can often
+> +			issue an alarm IRQ up to 24 hours in the future. (Use
+> +			RTC_WKALM_* by preference.)
+> +
+> +		    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue
+> +			alarms beyond the next 24 hours use a slightly more
+> +			powerful API, which supports setting the longer alarm
+> +			time and enabling its IRQ using a single request (using
+> +			the same model as EFI firmware).
+> +
+> +		    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, the
+> +			RTC framework will emulate this mechanism.
+> +
+> +		    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ...
+> +		    	these icotls are emulated via a kernel hrtimer.
+> +
+> +		In many cases, the RTC alarm can be a system wake event, used to
+> +		force Linux out of a low power sleep state (or hibernation) back
+> +		to a fully operational state. For example, a system could enter
+> +		a deep power saving state until it's time to execute some
+> +		scheduled tasks.
+> +
+> +		Note that many of these ioctls are handled by the common rtc-dev
+> +		interface. Some common examples:
+> +
+> +		    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time
+> +		    	functions will be called with appropriate values.
+> +
+> +		    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD:
+> +			gets or sets the alarm rtc_timer. May call the set_alarm
+> +			driver function.
+> +
+> +		    *	RTC_IRQP_SET, RTC_IRQP_READ: These are emulated by the
+> +		    	generic code.
+> +
+> +		    *	RTC_PIE_ON, RTC_PIE_OFF: These are also emulated by the
+> +		    	generic code.
+> +
+> +		If all else fails, check out the
+> +		tools/testing/selftests/timers/rtctest.c test!
+> diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+> index c0c977445fb9..a7890ca9a27e 100644
+> --- a/Documentation/rtc.txt
+> +++ b/Documentation/rtc.txt
+> @@ -136,82 +136,4 @@ a high functionality RTC is integrated into the SOC.  That system might read
+>  the system clock from the discrete RTC, but use the integrated one for all
+>  other tasks, because of its greater functionality.
+>
+> -SYSFS interface
+> ----------------
+> -
+> -The sysfs interface under /sys/class/rtc/rtcN provides access to various
+> -rtc attributes without requiring the use of ioctls. All dates and times
+> -are in the RTC's timezone, rather than in system time.
+> -
+> -================ ==============================================================
+> -date  	   	 RTC-provided date
+> -hctosys   	 1 if the RTC provided the system time at boot via the
+> -		 CONFIG_RTC_HCTOSYS kernel option, 0 otherwise
+> -max_user_freq	 The maximum interrupt rate an unprivileged user may request
+> -		 from this RTC.
+> -name		 The name of the RTC corresponding to this sysfs directory
+> -since_epoch	 The number of seconds since the epoch according to the RTC
+> -time		 RTC-provided time
+> -wakealarm	 The time at which the clock will generate a system wakeup
+> -		 event. This is a one shot wakeup event, so must be reset
+> -		 after wake if a daily wakeup is required. Format is seconds
+> -		 since the epoch by default, or if there's a leading +, seconds
+> -		 in the future, or if there is a leading +=, seconds ahead of
+> -		 the current alarm.
+> -offset		 The amount which the rtc clock has been adjusted in firmware.
+> -		 Visible only if the driver supports clock offset adjustment.
+> -		 The unit is parts per billion, i.e. The number of clock ticks
+> -		 which are added to or removed from the rtc's base clock per
+> -		 billion ticks. A positive value makes a day pass more slowly,
+> -		 longer, and a negative value makes a day pass more quickly.
+> -*/nvmem		 The non volatile storage exported as a raw file, as described
+> -		 in Documentation/nvmem/nvmem.txt
+> -================ ==============================================================
+> -
+> -IOCTL interface
+> ----------------
+> -
+> -The ioctl() calls supported by /dev/rtc are also supported by the RTC class
+> -framework.  However, because the chips and systems are not standardized,
+> -some PC/AT functionality might not be provided.  And in the same way, some
+> -newer features -- including those enabled by ACPI -- are exposed by the
+> -RTC class framework, but can't be supported by the older driver.
+> -
+> -    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at least reading
+> -	time, returning the result as a Gregorian calendar date and 24 hour
+> -	wall clock time.  To be most useful, this time may also be updated.
+> -
+> -    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ... when the RTC
+> -	is connected to an IRQ line, it can often issue an alarm IRQ up to
+> -	24 hours in the future.  (Use RTC_WKALM_* by preference.)
+> -
+> -    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue alarms beyond
+> -	the next 24 hours use a slightly more powerful API, which supports
+> -	setting the longer alarm time and enabling its IRQ using a single
+> -	request (using the same model as EFI firmware).
+> -
+> -    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, the RTC framework
+> -	will emulate this mechanism.
+> -
+> -    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ... these icotls
+> -	are emulated via a kernel hrtimer.
+> -
+> -In many cases, the RTC alarm can be a system wake event, used to force
+> -Linux out of a low power sleep state (or hibernation) back to a fully
+> -operational state.  For example, a system could enter a deep power saving
+> -state until it's time to execute some scheduled tasks.
+> -
+> -Note that many of these ioctls are handled by the common rtc-dev interface.
+> -Some common examples:
+> -
+> -    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time functions will be
+> -	called with appropriate values.
+> -
+> -    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD: gets or sets
+> -	the alarm rtc_timer. May call the set_alarm driver function.
+> -
+> -    *	RTC_IRQP_SET, RTC_IRQP_READ: These are emulated by the generic code.
+> -
+> -    *	RTC_PIE_ON, RTC_PIE_OFF: These are also emulated by the generic code.
+> -
+> -If all else fails, check out the tools/testing/selftests/timers/rtctest.c test!
+> +The sysfs and ioctl interfaces are described in Documentation/ABI/stable/rtc.
+> --
+> 2.15.1
+>
+>
