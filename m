@@ -1,45 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.135]:56439 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751666AbeABJpE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 04:45:04 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Patrick Bruenn <p.bruenn@beckhoff.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: mxc_v2: remove __exit annotation
-Date: Tue,  2 Jan 2018 10:43:33 +0100
-Message-Id: <20180102094443.3246258-1-arnd@arndb.de>
+Received: from mga02.intel.com ([134.134.136.20]:56869 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751315AbeAASBv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 1 Jan 2018 13:01:51 -0500
+Date: Tue, 2 Jan 2018 02:01:18 +0800
+From: kbuild test robot <lkp@intel.com>
+To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Cc: kbuild-all@01.org, mturquette@baylibre.com, sboyd@codeaurora.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        uclinux-h8-devel@lists.sourceforge.jp, linux-mips@linux-mips.org,
+        linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com,
+        linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
+        linux-rtc@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org,
+        linux-rockchip@lists.infradead.org,
+        linux-mediatek@lists.infradead.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-tegra@vger.kernel.org,
+        pure.logic@nexus-software.ie, linux-omap@vger.kernel.org,
+        linux-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
+ long
+Message-ID: <201801020112.PEMNifTo%fengguang.wu@intel.com>
+References: <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The mxc_rtc_remove is incorrectly annotated as __exit:
+Hi Bryan,
 
-`mxc_rtc_remove' referenced in section `.data' of drivers/rtc/rtc-mxc_v2.o: defined in discarded section `.exit.text' of drivers/rtc/rtc-mxc_v2.o
+I love your patch! Perhaps something to improve:
 
-This should not be done, as devices can be dynamically bound
-and unbound to a driver.
+[auto build test WARNING on tegra/for-next]
+[also build test WARNING on v4.15-rc6]
+[cannot apply to clk/clk-next next-20171222]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
-Fixes: 54c47014b474 ("rtc: add mxc driver for i.MX53 SRTC")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+url:    https://github.com/0day-ci/linux/commits/Bryan-O-Donoghue/change-clk_ops-round_rate-to-scale-past-LONG_MAX/20180101-212907
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git for-next
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
+
+
+sparse warnings: (new ones prefixed by >>)
+
+
+vim +321 drivers/clk/clk-versaclock5.c
+
+8c1ebe97 Marek Vasut 2017-07-09  318  
+8c1ebe97 Marek Vasut 2017-07-09  319  static const struct clk_ops vc5_dbl_ops = {
+8c1ebe97 Marek Vasut 2017-07-09  320  	.recalc_rate	= vc5_dbl_recalc_rate,
+8c1ebe97 Marek Vasut 2017-07-09 @321  	.round_rate	= vc5_dbl_round_rate,
+8c1ebe97 Marek Vasut 2017-07-09  322  	.set_rate	= vc5_dbl_set_rate,
+8c1ebe97 Marek Vasut 2017-07-09  323  };
+8c1ebe97 Marek Vasut 2017-07-09  324  
+
+:::::: The code at line 321 was first introduced by commit
+:::::: 8c1ebe9762670159ca982167131af63c94ff1571 clk: vc5: Add support for the input frequency doubler
+
+:::::: TO: Marek Vasut <marek.vasut@gmail.com>
+:::::: CC: Stephen Boyd <sboyd@codeaurora.org>
+
 ---
- drivers/rtc/rtc-mxc_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-index b637095b0716..77a065e23a84 100644
---- a/drivers/rtc/rtc-mxc_v2.c
-+++ b/drivers/rtc/rtc-mxc_v2.c
-@@ -368,7 +368,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int __exit mxc_rtc_remove(struct platform_device *pdev)
-+static int mxc_rtc_remove(struct platform_device *pdev)
- {
- 	struct mxc_rtc_data *pdata = platform_get_drvdata(pdev);
- 
--- 
-2.9.0
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
