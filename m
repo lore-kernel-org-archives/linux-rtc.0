@@ -1,81 +1,140 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34802 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754070AbeASI6w (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Jan 2018 03:58:52 -0500
-Date: Fri, 19 Jan 2018 09:58:35 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-Cc: Corentin Labbe <clabbe.montjoie@gmail.com>, a.zummo@towertech.it,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: remove rtc-at32ap700x
-Message-ID: <20180119085835.GW2678@piout.net>
-References: <20180118200846.14368-1-clabbe.montjoie@gmail.com>
- <20180119072733.dkswccdbnisbmqi6@samfundet.no>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35073 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751888AbeAARbb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jan 2018 12:31:31 -0500
+Date: Mon, 1 Jan 2018 23:01:24 +0530
+From: Aishwarya Pant <aishpant@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-rtc@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org
+Cc: Julia Lawall <julia.lawall@lip6.fr>, gregkh@linuxfoundation.org
+Subject: [PATCH 2/2] Documentation: rtc: move iotcl interface documentation
+ to ABI
+Message-ID: <e0ac8fceb93e2520244b302b1472e9dc66a376da.1514827586.git.aishpant@gmail.com>
+References: <cover.1514827586.git.aishpant@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180119072733.dkswccdbnisbmqi6@samfundet.no>
+In-Reply-To: <cover.1514827586.git.aishpant@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 19/01/2018 at 08:27:33 +0100, Hans-Christian Noren Egtvedt wrote:
-> Around Thu 18 Jan 2018 21:08:46 +0100 or thereabout, Corentin Labbe wrote:
-> > Since PLATFORM_AT32AP is an AVR32 platform which was removed, the
-> > rtc driver rtc-at32ap700x is useless.
-> > This patch remove it.
-> > 
-> > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> 
-> Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-> 
+The ioctl interface should be in Documentation/ABI along with the rest
+of the interfaces.
 
-Well, my plan was to keep it for a little while, but whatever :)
+Signed-off-by: Aishwarya Pant <aishpant@gmail.com>
+---
+ Documentation/ABI/testing/rtc-cdev | 42 ++++++++++++++++++++++++++++++++
+ Documentation/rtc.txt              | 49 ++------------------------------------
+ 2 files changed, 44 insertions(+), 47 deletions(-)
+ create mode 100644 Documentation/ABI/testing/rtc-cdev
 
-> > ---
-> >  drivers/rtc/Kconfig          |   7 --
-> >  drivers/rtc/Makefile         |   1 -
-> >  drivers/rtc/rtc-at32ap700x.c | 287 -------------------------------------------
-> >  3 files changed, 295 deletions(-)
-> >  delete mode 100644 drivers/rtc/rtc-at32ap700x.c
-> > 
-> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > index b71cc7b5fbc9..8ab5f0a5d323 100644
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -1402,13 +1402,6 @@ config RTC_DRV_PL031
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called rtc-pl031.
-> >  
-> > -config RTC_DRV_AT32AP700X
-> > -	tristate "AT32AP700X series RTC"
-> > -	depends on PLATFORM_AT32AP || COMPILE_TEST
-> > -	help
-> > -	  Driver for the internal RTC (Realtime Clock) on Atmel AVR32
-> > -	  AT32AP700x family processors.
-> > -
-> >  config RTC_DRV_AT91RM9200
-> >  	tristate "AT91RM9200 or some AT91SAM9 RTC"
-> >  	depends on ARCH_AT91 || COMPILE_TEST
-> > diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> > index 6dfbbe9cd8a2..4fbf87e45a7c 100644
-> > --- a/drivers/rtc/Makefile
-> > +++ b/drivers/rtc/Makefile
-> > @@ -33,7 +33,6 @@ obj-$(CONFIG_RTC_DRV_AC100)	+= rtc-ac100.o
-> >  obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
-> >  obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
-> >  obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
-> > -obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
-> >  obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
-> >  obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
-> >  obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
-> 
-> <snipp diff>
-> 
-> -- 
-> Best regards,
-> Hans-Christian Noren Egtvedt
-
+diff --git a/Documentation/ABI/testing/rtc-cdev b/Documentation/ABI/testing/rtc-cdev
+new file mode 100644
+index 000000000000..97447283f13b
+--- /dev/null
++++ b/Documentation/ABI/testing/rtc-cdev
+@@ -0,0 +1,42 @@
++What:		/dev/rtcX
++Date:		April 2005
++KernelVersion:	2.6.12
++Contact:	linux-rtc@vger.kernel.org
++Description:
++		The ioctl interface to drivers for real-time clocks (RTCs).
++		Following actions are supported:
++
++		* RTC_RD_TIME, RTC_SET_TIME: Read or set the RTC time. Time
++		  format is a Gregorian calendar date and 24 hour wall clock
++		  time.
++
++		* RTC_AIE_ON, RTC_AIE_OFF: Enable or disable the alarm interrupt
++		  for RTCs that support alarms
++
++		* RTC_ALM_READ, RTC_ALM_SET: Read or set the alarm time for
++		  RTCs that support alarms. Can be set upto 24 hours in the
++		  future. Requires a separate RTC_AIE_ON call to enable the
++		  alarm interrupt. (Prefer to use RTC_WKALM_*)
++
++		* RTC_WKALM_RD, RTC_WKALM_SET: For RTCs that support a more
++		  powerful interface, which can issue alarms beyond 24 hours and
++		  enable IRQs in the same request.
++
++		* RTC_PIE_ON, RTC_PIE_OFF: Enable or disable the periodic
++		  interrupt for RTCs that support periodic interrupts.
++
++		* RTC_UIE_ON, RTC_UIE_OFF: Enable or disable the update
++		  interrupt for RTCs that support it.
++
++		* RTC_IRQP_READ, RTC_IRQP_SET: Read or set the frequency for
++		  periodic interrupts for RTCs that support periodic interrupts.
++		  Requires a separate RTC_PIE_ON call to enable the periodic
++		  interrupts.
++
++		The ioctl() calls supported by the older /dev/rtc interface are
++		also supported by the newer RTC class framework. However,
++		because the chips and systems are not standardized, some PC/AT
++		functionality might not be provided. And in the same way, some
++		newer features -- including those enabled by ACPI -- are exposed
++		by the RTC class framework, but can't be supported by the older
++		driver.
+diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+index f521262cdc85..a129acf38537 100644
+--- a/Documentation/rtc.txt
++++ b/Documentation/rtc.txt
+@@ -136,50 +136,5 @@ a high functionality RTC is integrated into the SOC.  That system might read
+ the system clock from the discrete RTC, but use the integrated one for all
+ other tasks, because of its greater functionality.
+ 
+-IOCTL interface
+----------------
+-
+-The ioctl() calls supported by /dev/rtc are also supported by the RTC class
+-framework.  However, because the chips and systems are not standardized,
+-some PC/AT functionality might not be provided.  And in the same way, some
+-newer features -- including those enabled by ACPI -- are exposed by the
+-RTC class framework, but can't be supported by the older driver.
+-
+-    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at least reading
+-	time, returning the result as a Gregorian calendar date and 24 hour
+-	wall clock time.  To be most useful, this time may also be updated.
+-
+-    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ... when the RTC
+-	is connected to an IRQ line, it can often issue an alarm IRQ up to
+-	24 hours in the future.  (Use RTC_WKALM_* by preference.)
+-
+-    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue alarms beyond
+-	the next 24 hours use a slightly more powerful API, which supports
+-	setting the longer alarm time and enabling its IRQ using a single
+-	request (using the same model as EFI firmware).
+-
+-    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, the RTC framework
+-	will emulate this mechanism.
+-
+-    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ... these icotls
+-	are emulated via a kernel hrtimer.
+-
+-In many cases, the RTC alarm can be a system wake event, used to force
+-Linux out of a low power sleep state (or hibernation) back to a fully
+-operational state.  For example, a system could enter a deep power saving
+-state until it's time to execute some scheduled tasks.
+-
+-Note that many of these ioctls are handled by the common rtc-dev interface.
+-Some common examples:
+-
+-    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time functions will be
+-	called with appropriate values.
+-
+-    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD: gets or sets
+-	the alarm rtc_timer. May call the set_alarm driver function.
+-
+-    *	RTC_IRQP_SET, RTC_IRQP_READ: These are emulated by the generic code.
+-
+-    *	RTC_PIE_ON, RTC_PIE_OFF: These are also emulated by the generic code.
+-
+-If all else fails, check out the tools/testing/selftests/timers/rtctest.c test!
++Check out tools/testing/selftests/timers/rtctest.c for an example usage of the
++ioctl interface.
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.15.1
