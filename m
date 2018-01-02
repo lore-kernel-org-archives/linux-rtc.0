@@ -1,48 +1,105 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:51006 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752605AbeADLHK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Jan 2018 06:07:10 -0500
-Date: Thu, 4 Jan 2018 12:07:12 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: Troy Kisky <troy.kisky@boundarydevices.com>,
-        linux-rtc@vger.kernel.org, stable@vger.kernel.org,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: Re: rtc: m41t80rtc: recent v4.15 changes ready for stable branch 4.14
-Message-ID: <20180104110712.GA1507@kroah.com>
-References: <1513947027.1940.13.camel@googlemail.com>
- <20171222130533.GE18255@piout.net>
- <1513954023.1940.16.camel@googlemail.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:40776 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751074AbeABUnu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 15:43:50 -0500
+Received: by mail-wm0-f66.google.com with SMTP id f206so62690961wmf.5
+        for <linux-rtc@vger.kernel.org>; Tue, 02 Jan 2018 12:43:49 -0800 (PST)
+Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
+ long
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Mikko Perttunen <cyndis@kapsi.fi>, mturquette@baylibre.com,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mips@linux-mips.org, linux-rpi-kernel@lists.infradead.org,
+        patches@opensource.cirrus.com,
+        uclinux-h8-devel@lists.sourceforge.jp,
+        linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        linux-soc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-rockchip@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org,
+        freedreno@lists.freedesktop.org, linux-media@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+References: <1514596392-22270-1-git-send-email-pure.logic@nexus-software.ie>
+ <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
+ <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
+ <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
+ <20180102190159.GH7997@codeaurora.org>
+From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Message-ID: <c2212d56-a8b5-cba5-46a7-c2c7f66e752b@nexus-software.ie>
+Date: Tue, 2 Jan 2018 20:43:44 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1513954023.1940.16.camel@googlemail.com>
+In-Reply-To: <20180102190159.GH7997@codeaurora.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Dec 22, 2017 at 03:47:03PM +0100, Christoph Fritz wrote:
-> Hi Greg
+On 02/01/18 19:01, Stephen Boyd wrote:
+> On 12/31, Bryan O'Donoghue wrote:
+>> On 30/12/17 16:36, Mikko Perttunen wrote:
+>>> FWIW, we had this problem some years ago with the Tegra CPU clock
+>>> - then it was determined that a simpler solution was to have the
+>>> determine_rate callback support unsigned long rates - so clock
+>>> drivers that need to return rates higher than 2^31 can instead
+>>> implement the determine_rate callback. That is what's currently
+>>> implemented.
+>>>
+>>> Mikko
+>>
+>> Granted we could work around it but, having both zero and less than
+>> zero indicate error means you can't support larger than LONG_MAX
+>> which is I think worth fixing.
+>>
 > 
-> On Fri, 2017-12-22 at 14:05 +0100, Alexandre Belloni wrote:
-> > On 22/12/2017 at 13:50:27 +0100, Christoph Fritz wrote:
-> > > Hey Troy and Alexandre,
-> > > 
-> > >  any objections asking Greg to add following recent v4.15 changes into
-> > > stable branch 4.14?
-> > > 
-> > 
-> > No objection, they can be safely backported.
-> 
-> @Greg: Could you queue the following commits for 4.14.9 ?
-> 
-> > > 05a03bf rtc: m41t80: remove unneeded checks from m41t80_sqw_set_rate
-> > > 13bb1d7 rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
-> > > 2cb90ed rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
-> > > c8384bb rtc: m41t80: fix m41t80_sqw_round_rate return value
-> > > de6042d rtc: m41t80: m41t80_sqw_set_rate should return 0 on success
+> Ok. But can you implement the determine_rate op instead of the
+> round_rate op for your clk?
 
-All now queued up, sorry for the delay, been a bit busy lately :)
+Don't know .
 
-greg k-h
+> It's not a work-around, it's the
+> preferred solution. That would allow rates larger than 2^31 for
+> the clk without pushing through a change to all the drivers to
+> express zero as "error" and non-zero as the rounded rate.
+> 
+> I'm not entirely opposed to this approach, because we probably
+> don't care to pass the particular error value from a clk provider
+> to a clk consumer about what the error is.
+
+Which was my thought. The return value of clk_ops->round_rate() appears 
+not to get pushed up the stack, which is what the last patch in this 
+series deals with.
+
+[PATCH 33/33] clk: change handling of round_rate() such that only zero 
+is an error
+
+> It's actually what we
+> proposed as the solution for clk_round_rate() to return values
+> larger than LONG_MAX to consumers. But doing that consumer API
+> change or this provider side change is going to require us to
+> evaluate all the consumers of these clks to make sure they don't
+> check for some error value that's less than zero. This series
+> does half the work,
+
+Do you mean users of clk_rounda_rate() ? I have a set of patches for 
+that but wanted to separate that from clk_ops->round_rate() so as not to 
+send ~70 patches out to LKML at once - even if they are in two blocks.
+
+If so, I can publish that set too for reference.
+
+AFAICT on clk_ops->round_rate the last patch #33 ought to cover the 
+usage of the return value of clk_ops->round_rate().
+
+Have I missed something ?
+
+> by changing the provider side, while ignoring
+> the consumer side and any potential fallout of the less than zero
+> to zero return value change.
+> 
+
+Can you look at #33 ? I'm not sure if you saw that one.
+
+
+---
+bod
