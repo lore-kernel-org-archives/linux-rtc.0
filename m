@@ -1,36 +1,200 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33724 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:32907 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751757AbeAKXLi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Jan 2018 18:11:38 -0500
-Date: Fri, 12 Jan 2018 00:11:36 +0100
+        with ESMTP id S1750979AbeABHrP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 02:47:15 -0500
+Date: Tue, 2 Jan 2018 08:47:03 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aishwarya Pant <aishpant@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Jonathan Corbet <corbet@lwn.net>, linux-rtc@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>,
-        gregkh@linuxfoundation.org
-Subject: Re: [PATCH 0/2] Documentation: rtc: move ioctl to ABI
-Message-ID: <20180111231136.GA2678@piout.net>
-References: <cover.1514827586.git.aishpant@gmail.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: a.zummo@towertech.it, corbet@lwn.net, arnd@arndb.de,
+        broonie@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: Re: [RFC PATCH 1/4] rtc: Introduce one interface to save the RTC
+ hardware time range
+Message-ID: <20180102074703.GA3114@piout.net>
+References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1514827586.git.aishpant@gmail.com>
+In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 01/01/2018 at 23:00:02 +0530, Aishwarya Pant wrote:
-> Two documentation changes in rtc:
-> 1) Minor change to add file permissions to sysfs interface
-> 2) Move ioctl interface to Documentation/ABI
-> 
-> Aishwarya Pant (2):
->   Documentation: rtc: add sysfs file permissions
->   Documentation: rtc: move iotcl interface documentation to ABI
-> 
+Hi Baolin,
 
-Applied, thanks.
+Could you have a look at
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-ranges
+
+My approach has multiple advantages as it works for 64-bit counters and
+the range can be updated at runtime.
+
+On 02/01/2018 at 13:10:05 +0800, Baolin Wang wrote:
+> In order to the setting time values are not beyond the limitation
+> supported by RTC hardware, we introduce one interface to tell the
+> hardware range to the RTC core, which are used to valid if the
+> setting time values are in the RTC hardware range.
+> 
+> Moreover we also need the RTC hardware range to expand the RTC
+> range in next patches by adding one offset.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+>  drivers/rtc/class.c     |   13 ++++++++++
+>  drivers/rtc/interface.c |   62 +++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/rtc.h     |    9 +++++++
+>  3 files changed, 84 insertions(+)
+> 
+> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+> index 722d683..31fc0f1 100644
+> --- a/drivers/rtc/class.c
+> +++ b/drivers/rtc/class.c
+> @@ -247,6 +247,12 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
+>  
+>  	dev_set_name(&rtc->dev, "rtc%d", id);
+>  
+> +	err = rtc_read_range(rtc, &rtc->max_hw_secs, &rtc->min_hw_secs);
+> +	if (err) {
+> +		dev_err(&rtc->dev, "%s: failed to get RTC range\n", name);
+> +		goto exit_ida;
+> +	}
+> +
+>  	/* Check to see if there is an ALARM already set in hw */
+>  	err = __rtc_read_alarm(rtc, &alrm);
+>  
+> @@ -436,6 +442,13 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
+>  
+>  	rtc->owner = owner;
+>  
+> +	err = rtc_read_range(rtc, &rtc->max_hw_secs, &rtc->min_hw_secs);
+> +	if (err) {
+> +		dev_err(&rtc->dev, "%s: failed to get RTC range\n",
+> +			dev_name(&rtc->dev));
+> +		return err;
+> +	}
+> +
+>  	/* Check to see if there is an ALARM already set in hw */
+>  	err = __rtc_read_alarm(rtc, &alrm);
+>  	if (!err && !rtc_valid_tm(&alrm.time))
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 672b192..c8090e3 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -65,6 +65,10 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+>  	if (err != 0)
+>  		return err;
+>  
+> +	err = rtc_valid_range(rtc, tm);
+> +	if (err)
+> +		return err;
+> +
+>  	err = mutex_lock_interruptible(&rtc->ops_lock);
+>  	if (err)
+>  		return err;
+> @@ -329,6 +333,11 @@ static int __rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+>  	err = rtc_valid_tm(&alarm->time);
+>  	if (err)
+>  		return err;
+> +
+> +	err = rtc_valid_range(rtc, &alarm->time);
+> +	if (err)
+> +		return err;
+> +
+>  	scheduled = rtc_tm_to_time64(&alarm->time);
+>  
+>  	/* Make sure we're not setting alarms in the past */
+> @@ -1027,3 +1036,56 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+>  	mutex_unlock(&rtc->ops_lock);
+>  	return ret;
+>  }
+> +
+> +/* rtc_read_range - Read the max and min hardware count supported by RTC device
+> + * @ rtc: rtc device to be used.
+> + * @ max_hw_secs: maximum hardware count in seconds, which can represent
+> + * the maximum time values in RTC hardware.
+> + * @ min_hw_secs: minimum hardware count in seconds, which can represent
+> + * the minimum time values in RTC hardware.
+> + *
+> + * The max_hw_secs and min_hw_secs implemented by user must represent the
+> + * correct hardware start time and maximum time, which means the count
+> + * will wrap around to min_hw_secs after the maximum count.
+> + *
+> + * If user did not implement the read_range() interface, we can set max_hw_secs
+> + * and min_hw_secs to 0, which avoids validing the range.
+> + */
+> +int rtc_read_range(struct rtc_device *rtc, time64_t *max_hw_secs,
+> +		   time64_t *min_hw_secs)
+> +{
+> +	int ret;
+> +
+> +	if (!rtc->ops || !rtc->ops->read_range) {
+> +		*max_hw_secs = 0;
+> +		*min_hw_secs = 0;
+> +		return 0;
+> +	}
+> +
+> +	mutex_lock(&rtc->ops_lock);
+> +	ret = rtc->ops->read_range(rtc->dev.parent, max_hw_secs, min_hw_secs);
+> +	mutex_unlock(&rtc->ops_lock);
+> +
+> +	return ret;
+> +}
+> +
+> +/* rtc_valid_range - Valid if the setting time in the RTC range
+> + * @ rtc: rtc device to be used.
+> + * @ tm: time values need to valid.
+> + *
+> + * Only the rtc->max_hw_secs was set, then we can valid if the setting time
+> + * values are beyond the RTC range.
+> + */
+> +int rtc_valid_range(struct rtc_device *rtc, struct rtc_time *tm)
+> +{
+> +	time64_t secs;
+> +
+> +	if (!rtc->max_hw_secs)
+> +		return 0;
+> +
+> +	secs = rtc_tm_to_time64(tm);
+> +	if (secs < rtc->min_hw_secs || secs > rtc->max_hw_secs)
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> index 41319a2..19a8989 100644
+> --- a/include/linux/rtc.h
+> +++ b/include/linux/rtc.h
+> @@ -85,6 +85,8 @@ struct rtc_class_ops {
+>  	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
+>  	int (*read_offset)(struct device *, long *offset);
+>  	int (*set_offset)(struct device *, long offset);
+> +	int (*read_range)(struct device *, time64_t *max_hw_secs,
+> +			  time64_t *min_hw_secs);
+>  };
+>  
+>  #define RTC_DEVICE_NAME_SIZE 20
+> @@ -152,6 +154,9 @@ struct rtc_device {
+>  	bool nvram_old_abi;
+>  	struct bin_attribute *nvram;
+>  
+> +	time64_t max_hw_secs;
+> +	time64_t min_hw_secs;
+> +
+>  #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+>  	struct work_struct uie_task;
+>  	struct timer_list uie_timer;
+> @@ -225,6 +230,10 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+>  int rtc_set_offset(struct rtc_device *rtc, long offset);
+>  void rtc_timer_do_work(struct work_struct *work);
+>  
+> +int rtc_read_range(struct rtc_device *rtc, time64_t *max_hw_secs,
+> +		   time64_t *min_hw_secs);
+> +int rtc_valid_range(struct rtc_device *rtc, struct rtc_time *tm);
+> +
+>  static inline bool is_leap_year(unsigned int year)
+>  {
+>  	return (!(year % 4) && (year % 100)) || !(year % 400);
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Alexandre Belloni, Free Electrons
