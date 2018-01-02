@@ -1,113 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:54607 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751298AbeAAOXu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jan 2018 09:23:50 -0500
-Date: Mon, 1 Jan 2018 15:23:48 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Aishwarya Pant <aishpant@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Jonathan Corbet <corbet@lwn.net>, linux-rtc@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>,
-        gregkh@linuxfoundation.org
-Subject: Re: [PATCH] rtc: sysfs: move sysfs & ioctl interface to
- Documentation/ABI
-Message-ID: <20180101142348.GU18255@piout.net>
-References: <20180101115726.GA4519@mordor.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180101115726.GA4519@mordor.localdomain>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:35009 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751242AbeABFKb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 00:10:31 -0500
+Received: by mail-pg0-f67.google.com with SMTP id b70so625907pga.2
+        for <linux-rtc@vger.kernel.org>; Mon, 01 Jan 2018 21:10:31 -0800 (PST)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        corbet@lwn.net
+Cc: arnd@arndb.de, broonie@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+        baolin.wang@linaro.org
+Subject: [RFC PATCH 2/4] rtc: sysfs: Export the valid range supported by RTC hardware
+Date: Tue,  2 Jan 2018 13:10:06 +0800
+Message-Id: <2f0fb91c39534ecc2e94148a1a6998ba32ab90cf.1514869622.git.baolin.wang@linaro.org>
+In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
+References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
+In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
+References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+We have introduced one interface to get the RTC range, so this patch
+exports the valid range supported by RTC hardware to userspace.
 
-Well, I had that patch:
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-ranges&id=79729c30854986faf4d26b0303dba220f4ef89de
-part of a series I didn't send yet (it is still WIP and I just pushed
-it).
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+ Documentation/rtc.txt   |    2 ++
+ drivers/rtc/rtc-sysfs.c |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
-Can you rebase on top of that? The RO/RW annotation would be a nice
-addition.
-
-Please, move the ioctl documentation to its own file,
-Documentation/ABI/stable/rtc-cdev
-
-On 01/01/2018 at 17:27:26 +0530, Aishwarya Pant wrote:
-> +IOCTL interface
-> +---------------
-> +
-> +What:		/dev/rtc[0-*]
-
-The [0-*] range is not correct, it should be [0-9]+
-
-> +Date:		April 2005
-> +KernelVersion:	2.6.12
-> +Contact:	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-
-This must be the RTC mailing list.
-
-> +Description:	The ioctl() calls supported by /dev/rtc are also supported by
-> +		the RTC class framework. However, because the chips and systems
-> +		are not standardized, some PC/AT functionality might not be
-> +		provided.  And in the same way, some newer features -- including
-> +		those enabled by ACPI -- are exposed by the RTC class framework,
-> +		but can't be supported by the older driver.
-> +
-
-Out of context, this paragraph is weird.
-
-> +		    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at
-> +			least reading time, returning the result as a Gregorian
-> +			calendar date and 24 hour wall clock time. To be most
-> +			useful, this time may also be updated.
-> +
-> +		    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ...
-> +			when the RTC is connected to an IRQ line, it can often
-> +			issue an alarm IRQ up to 24 hours in the future. (Use
-> +			RTC_WKALM_* by preference.)
-> +
-> +		    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue
-> +			alarms beyond the next 24 hours use a slightly more
-> +			powerful API, which supports setting the longer alarm
-> +			time and enabling its IRQ using a single request (using
-> +			the same model as EFI firmware).
-> +
-> +		    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, the
-> +			RTC framework will emulate this mechanism.
-> +
-> +		    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ...
-> +		    	these icotls are emulated via a kernel hrtimer.
-> +
-> +		In many cases, the RTC alarm can be a system wake event, used to
-> +		force Linux out of a low power sleep state (or hibernation) back
-> +		to a fully operational state. For example, a system could enter
-> +		a deep power saving state until it's time to execute some
-> +		scheduled tasks.
-> +
-> +		Note that many of these ioctls are handled by the common rtc-dev
-> +		interface. Some common examples:
-> +
-> +		    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time
-> +		    	functions will be called with appropriate values.
-> +
-> +		    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD:
-> +			gets or sets the alarm rtc_timer. May call the set_alarm
-> +			driver function.
-> +
-> +		    *	RTC_IRQP_SET, RTC_IRQP_READ: These are emulated by the
-> +		    	generic code.
-> +
-> +		    *	RTC_PIE_ON, RTC_PIE_OFF: These are also emulated by the
-> +		    	generic code.
-> +
-> +		If all else fails, check out the
-> +		tools/testing/selftests/timers/rtctest.c test!
-
-The reference to this test should probably stay in rtc.txt
-
+diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
+index c0c9774..4fe437b 100644
+--- a/Documentation/rtc.txt
++++ b/Documentation/rtc.txt
+@@ -164,6 +164,8 @@ offset		 The amount which the rtc clock has been adjusted in firmware.
+ 		 which are added to or removed from the rtc's base clock per
+ 		 billion ticks. A positive value makes a day pass more slowly,
+ 		 longer, and a negative value makes a day pass more quickly.
++range_max	 The maximum time values in seconds supported by RTC hardware.
++range_min	 The minimum time values in seconds supported by RTC hardware.
+ */nvmem		 The non volatile storage exported as a raw file, as described
+ 		 in Documentation/nvmem/nvmem.txt
+ ================ ==============================================================
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 92ff2ed..60e1f6c 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -248,6 +248,34 @@
+ }
+ static DEVICE_ATTR_RW(offset);
+ 
++static ssize_t
++range_max_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	ssize_t retval;
++	time64_t max_hw_secs, min_hw_secs;
++
++	retval = rtc_read_range(to_rtc_device(dev), &max_hw_secs, &min_hw_secs);
++	if (retval == 0)
++		retval = sprintf(buf, "%lld\n", max_hw_secs);
++
++	return retval;
++}
++static DEVICE_ATTR_RO(range_max);
++
++static ssize_t
++range_min_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	ssize_t retval;
++	time64_t max_hw_secs, min_hw_secs;
++
++	retval = rtc_read_range(to_rtc_device(dev), &max_hw_secs, &min_hw_secs);
++	if (retval == 0)
++		retval = sprintf(buf, "%lld\n", min_hw_secs);
++
++	return retval;
++}
++static DEVICE_ATTR_RO(range_min);
++
+ static struct attribute *rtc_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_date.attr,
+@@ -257,6 +285,8 @@
+ 	&dev_attr_hctosys.attr,
+ 	&dev_attr_wakealarm.attr,
+ 	&dev_attr_offset.attr,
++	&dev_attr_range_max.attr,
++	&dev_attr_range_min.attr,
+ 	NULL,
+ };
+ 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+1.7.9.5
