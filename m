@@ -1,68 +1,173 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:44601 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755406AbeAHGA5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Jan 2018 01:00:57 -0500
-Received: by mail-ot0-f194.google.com with SMTP id g59so8409161otg.11
-        for <linux-rtc@vger.kernel.org>; Sun, 07 Jan 2018 22:00:57 -0800 (PST)
+Received: from szxga07-in.huawei.com ([45.249.212.35]:53363 "EHLO huawei.com"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750907AbeACGmb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 3 Jan 2018 01:42:31 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: christophe leroy <christophe.leroy@c-s.fr>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg KH <gregkh@linuxfoundation.org>, <starvik@axis.com>,
+        <jesper.nilsson@axis.com>, <tony.luck@intel.com>,
+        <fenghua.yu@intel.com>, <jonas@southpole.se>, <shorne@gmail.com>,
+        <dhowells@redhat.com>
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+ <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
+ <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
+ <6c0ade63-f4d3-d44d-c622-b091eb2ba902@huawei.com>
+CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
+        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
+        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
+        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
+        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
+        <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+        <b.zolnierkie@samsung.com>, <linux-fbdev@vger.kernel.org>,
+        <linus.walleij@linaro.org>, <linux-gpio@vger.kernel.org>,
+        <ralf@linux-mips.org>, <linux-mips@linux-mips.org>,
+        <lgirdwood@gmail.com>, <broonie@kernel.org>, <tglx@linutronix.de>,
+        <jason@lakedaemon.net>, <marc.zyngier@arm.com>, <arnd@arndb.de>,
+        <andriy.shevchenko@linux.intel.com>,
+        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
+        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
+        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
+        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
+        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
+        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
+        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+        <dvhart@infradead.org>, <andy@infradead.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
+        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
+        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
+        <dmaengine@vger.kernel.org>, <jslaby@suse.com>,
+        <linux-cris-kernel@axis.com>, <linux-ia64@vger.kernel.org>,
+        <openrisc@lists.librecores.org>, <linux-am33-list@redhat.com>
+From: Yisheng Xie <xieyisheng1@huawei.com>
+Message-ID: <e9f6805c-2dd7-f9c6-d615-5e25cff241a3@huawei.com>
+Date: Wed, 3 Jan 2018 14:42:14 +0800
 MIME-Version: 1.0
-In-Reply-To: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
-References: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Mon, 8 Jan 2018 14:00:56 +0800
-Message-ID: <CAMz4kuL5TLMS7cKWcbmJ_0qNgiijNTxzuG4vzk=4DqyEvFKPYw@mail.gmail.com>
-Subject: Re: [PATCH] rtc: Fix overflow when converting time64_t to rtc_time
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
-        linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Baolin Wang <baolin.wang@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <6c0ade63-f4d3-d44d-c622-b091eb2ba902@huawei.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
++ cris/ia64/mn10300/openrisc maintainers
 
-On 25 December 2017 at 19:10, Baolin Wang <baolin.wang@linaro.org> wrote:
-> If we convert one large time values to rtc_time, in the original formula
-> 'days * 86400' can be overflowed in 'unsigned int' type to make the formula
-> get one incorrect remain seconds value. Thus we can use div_s64_rem()
-> function to avoid this situation.
->
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+On 2017/12/25 9:09, Yisheng Xie wrote:
+> hi Christophe and Greg,
+> 
+> On 2017/12/24 16:55, christophe leroy wrote:
+>>
+>>
+>> Le 23/12/2017 à 16:57, Guenter Roeck a écrit :
+>>> On 12/23/2017 05:48 AM, Greg KH wrote:
+>>>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>>>>> Hi all,
+>>>>>
+>>>>> When I tried to use devm_ioremap function and review related code, I found
+>>>>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>>>>> except one use ioremap while the other use ioremap_nocache.
+>>>>
+>>>> For all arches?  Really?  Look at MIPS, and x86, they have different
+>>>> functions.
+>>>>
+>>>
+>>> Both mips and x86 end up mapping the same function, but other arches don't.
+>>> mn10300 is one where ioremap and ioremap_nocache are definitely different.
+>>
+>> alpha: identical
+>> arc: identical
+>> arm: identical
+>> arm64: identical
+>> cris: different        <==
+>> frv: identical
+>> hexagone: identical
+>> ia64: different        <==
+>> m32r: identical
+>> m68k: identical
+>> metag: identical
+>> microblaze: identical
+>> mips: identical
+>> mn10300: different     <==
+>> nios: identical
+>> openrisc: different    <==
+>> parisc: identical
+>> riscv: identical
+>> s390: identical
+>> sh: identical
+>> sparc: identical
+>> tile: identical
+>> um: rely on asm/generic
+>> unicore32: identical
+>> x86: identical
+>> asm/generic (no mmu): identical
+> 
+> Wow, that's correct, sorry for I have just checked the main archs, I means
+> x86,arm, arm64, mips.
+> 
+> However, I stall have no idea about why these 4 archs want different ioremap
+> function with others. Drivers seems cannot aware this? If driver call ioremap
+> want he really want for there 4 archs, cache or nocache?
 
-Could you apply this patch if there are no other comments? Thanks.
+Could you please help about this? it is out of my knowledge.
 
-> ---
->  drivers/rtc/rtc-lib.c |    6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
-> index 1ae7da5..ad5bb21 100644
-> --- a/drivers/rtc/rtc-lib.c
-> +++ b/drivers/rtc/rtc-lib.c
-> @@ -52,13 +52,11 @@ int rtc_year_days(unsigned int day, unsigned int month, unsigned int year)
->   */
->  void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
->  {
-> -       unsigned int month, year;
-> -       unsigned long secs;
-> +       unsigned int month, year, secs;
->         int days;
->
->         /* time must be positive */
-> -       days = div_s64(time, 86400);
-> -       secs = time - (unsigned int) days * 86400;
-> +       days = div_s64_rem(time, 86400, &secs);
->
->         /* day of the week, 1970-01-01 was a Thursday */
->         tm->tm_wday = (days + 4) % 7;
-> --
-> 1.7.9.5
->
+Thanks
+Yisheng
 
-
-
--- 
-Baolin.wang
-Best Regards
+> 
+>>
+>> So 4 among all arches seems to have ioremap() and ioremap_nocache() being different.
+>>
+>> Could we have a define set by the 4 arches on which ioremap() and ioremap_nocache() are different, something like HAVE_DIFFERENT_IOREMAP_NOCACHE ?
+> 
+> Then, what the HAVE_DIFFERENT_IOREMAP_NOCACHE is uesed for ?
+> 
+> Thanks
+> Yisheng
+>>
+>> Christophe
+>>
+>>>
+>>> Guenter
+>>>
+>>>>> While ioremap's
+>>>>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>>>>> same function with devm_ioremap, which can just be killed to reduce the size
+>>>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>>>>
+>>>>> I have posted two versions, which use macro instead of function for
+>>>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>>>>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>>>>> thing. So here comes v3 and please help to review.
+>>>>
+>>>> I don't think this can be done, what am I missing?  These functions are
+>>>> not identical, sorry for missing that before.
+> 
+> Never mind, I should checked all the arches, sorry about that.
+> 
+>>>>
+>>>> thanks,
+>>>>
+>>>> greg k-h
+>>>>
+>>>
+>>> -- 
+>>> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+>> ---
+>> L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
+>> https://www.avast.com/antivirus
+>>
+>>
+>> .
+>>
+> 
+> 
+> .
+> 
