@@ -1,60 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:55122 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751233AbeAWKRa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Jan 2018 05:17:30 -0500
-From: Colin King <colin.king@canonical.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: ds1302: remove redundant initializations of pointer bp
-Date: Tue, 23 Jan 2018 10:17:27 +0000
-Message-Id: <20180123101727.31028-1-colin.king@canonical.com>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:51006 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752605AbeADLHK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Jan 2018 06:07:10 -0500
+Date: Thu, 4 Jan 2018 12:07:12 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Troy Kisky <troy.kisky@boundarydevices.com>,
+        linux-rtc@vger.kernel.org, stable@vger.kernel.org,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: Re: rtc: m41t80rtc: recent v4.15 changes ready for stable branch 4.14
+Message-ID: <20180104110712.GA1507@kroah.com>
+References: <1513947027.1940.13.camel@googlemail.com>
+ <20171222130533.GE18255@piout.net>
+ <1513954023.1940.16.camel@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1513954023.1940.16.camel@googlemail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Fri, Dec 22, 2017 at 03:47:03PM +0100, Christoph Fritz wrote:
+> Hi Greg
+> 
+> On Fri, 2017-12-22 at 14:05 +0100, Alexandre Belloni wrote:
+> > On 22/12/2017 at 13:50:27 +0100, Christoph Fritz wrote:
+> > > Hey Troy and Alexandre,
+> > > 
+> > >  any objections asking Greg to add following recent v4.15 changes into
+> > > stable branch 4.14?
+> > > 
+> > 
+> > No objection, they can be safely backported.
+> 
+> @Greg: Could you queue the following commits for 4.14.9 ?
+> 
+> > > 05a03bf rtc: m41t80: remove unneeded checks from m41t80_sqw_set_rate
+> > > 13bb1d7 rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
+> > > 2cb90ed rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
+> > > c8384bb rtc: m41t80: fix m41t80_sqw_round_rate return value
+> > > de6042d rtc: m41t80: m41t80_sqw_set_rate should return 0 on success
 
-Pointe bp is being initialized and this value is never read, it
-is being updated to the same value later just before it is going to
-be used. Remove the initialization as it is never read and keep
-the setting of bp closer to the use of bp.
+All now queued up, sorry for the delay, been a bit busy lately :)
 
-Cleans up clang warnings:
-drivers/rtc/rtc-ds1302.c:115:7: warning: Value stored to 'bp' during
-its initialization is never read
-drivers/rtc/rtc-ds1302.c:46:7: warning: Value stored to 'bp' during
-its initialization is never read
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/rtc/rtc-ds1302.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 0ec4be62322b..43bcb17c922e 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -43,7 +43,7 @@ static int ds1302_rtc_set_time(struct device *dev, struct rtc_time *time)
- {
- 	struct spi_device	*spi = dev_get_drvdata(dev);
- 	u8		buf[1 + RTC_CLCK_LEN];
--	u8		*bp = buf;
-+	u8		*bp;
- 	int		status;
- 
- 	/* Enable writing */
-@@ -112,7 +112,7 @@ static int ds1302_probe(struct spi_device *spi)
- 	struct rtc_device	*rtc;
- 	u8		addr;
- 	u8		buf[4];
--	u8		*bp = buf;
-+	u8		*bp;
- 	int		status;
- 
- 	/* Sanity check board setup data.  This may be hooked up
--- 
-2.15.1
+greg k-h
