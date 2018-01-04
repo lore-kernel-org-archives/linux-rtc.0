@@ -1,161 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3779 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754345AbeALJMj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 12 Jan 2018 04:12:39 -0500
-Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
-To: Christophe LEROY <christophe.leroy@c-s.fr>,
-        Greg KH <gregkh@linuxfoundation.org>
-References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134831.GB10103@kroah.com>
- <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
- <8dd19411-5b06-0aa4-fd0e-e5b112c25dcb@huawei.com>
- <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
-CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
-        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
-        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
-        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
-        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
-        <wim@iguana.be>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <b.zolnierkie@samsung.com>,
-        <linux-fbdev@vger.kernel.org>, <linus.walleij@linaro.org>,
-        <linux-gpio@vger.kernel.org>, <ralf@linux-mips.org>,
-        <linux-mips@linux-mips.org>, <lgirdwood@gmail.com>,
-        <broonie@kernel.org>, <tglx@linutronix.de>, <jason@lakedaemon.net>,
-        <marc.zyngier@arm.com>, <arnd@arndb.de>,
-        <andriy.shevchenko@linux.intel.com>,
-        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
-        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
-        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
-        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
-        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
-        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
-        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
-        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
-        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
-        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
-        <dvhart@infradead.org>, <andy@infradead.org>,
-        <platform-driver-x86@vger.kernel.org>,
-        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
-        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
-        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
-        <dmaengine@vger.kernel.org>, <jslaby@suse.com>
-From: Yisheng Xie <xieyisheng1@huawei.com>
-Message-ID: <ff498c83-d1ee-7553-e20c-a07369f8dad6@huawei.com>
-Date: Fri, 12 Jan 2018 17:12:12 +0800
-MIME-Version: 1.0
-In-Reply-To: <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
-Content-Type: text/plain; charset="utf-8"
+Received: from mga03.intel.com ([134.134.136.65]:43009 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751294AbeADI73 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 4 Jan 2018 03:59:29 -0500
+From: Zhang Rui <rui.zhang@intel.com>
+To: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
+Cc: gabriele.mzt@gmail.com, rui.zhang@intel.com
+Subject: [RFC 3/3] rtc: cmos: introduce quirks to enable use_acpi_alarm mode
+Date: Thu,  4 Jan 2018 16:59:26 +0800
+Message-Id: <1515056366-14850-1-git-send-email-rui.zhang@intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Christophe ，
+Use ACPI for RTC Alarm only for Intel platforms
+1. with Low Power S0 support
+2. with HPET RTC emulation enabled
+3. no earlier than 2015
 
-On 2018/1/4 16:05, Christophe LEROY wrote:
-> 
-> 
-> Le 25/12/2017 à 02:34, Yisheng Xie a écrit :
->>
->>
->> On 2017/12/24 17:05, christophe leroy wrote:
->>>
->>>
->>> Le 23/12/2017 à 14:48, Greg KH a écrit :
->>>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
->>>>> Hi all,
->>>>>
->>>>> When I tried to use devm_ioremap function and review related code, I found
->>>>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
->>>>> except one use ioremap while the other use ioremap_nocache.
->>>>
->>>> For all arches?  Really?  Look at MIPS, and x86, they have different
->>>> functions.
->>>>
->>>>> While ioremap's
->>>>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
->>>>> same function with devm_ioremap, which can just be killed to reduce the size
->>>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
->>>>>
->>>>> I have posted two versions, which use macro instead of function for
->>>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
->>>>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
->>>>> thing. So here comes v3 and please help to review.
->>>>
->>>> I don't think this can be done, what am I missing?  These functions are
->>>> not identical, sorry for missing that before.
->>>
->>> devm_ioremap() and devm_ioremap_nocache() are quite similar, both use devm_ioremap_release() for the release, why not just defining:
->>>
->>> static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
->>>                 resource_size_t size, bool nocache)
->>> {
->>> [...]
->>>      if (nocache)
->>>          addr = ioremap_nocache(offset, size);
->>>      else
->>>          addr = ioremap(offset, size);
->>> [...]
->>> }
->>>
->>> then in include/linux/io.h
->>>
->>> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->>>                 resource_size_t size)
->>> {return __devm_ioremap(dev, offset, size, false);}
->>>
->>> static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
->>>                     resource_size_t size);
->>> {return __devm_ioremap(dev, offset, size, true);}
->>
->> Yeah, this seems good to me, right now we have devm_ioremap, devm_ioremap_wc, devm_ioremap_nocache
->> May be we can use an enum like:
->> typedef enum {
->>     DEVM_IOREMAP = 0,
->>     DEVM_IOREMAP_NOCACHE,
->>     DEVM_IOREMAP_WC,
->> } devm_ioremap_type;
->>
->> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->>                  resource_size_t size)
->>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP);}
->>
->>   static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
->>                      resource_size_t size);
->>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_NOCACHE);}
->>
->>   static inline void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
->>                      resource_size_t size);
->>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_WC);}
->>
->>   static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
->>                  resource_size_t size, devm_ioremap_type type)
->>   {
->>       void __iomem **ptr, *addr = NULL;
->>   [...]
->>       switch (type){
->>       case DEVM_IOREMAP:
->>           addr = ioremap(offset, size);
->>           break;
->>       case DEVM_IOREMAP_NOCACHE:
->>           addr = ioremap_nocache(offset, size);
->>           break;
->>       case DEVM_IOREMAP_WC:
->>           addr = ioremap_wc(offset, size);
->>           break;
->>       }
->>   [...]
->>   }
-> 
-> 
-> That looks good to me, will you submit a v4 ?
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ drivers/rtc/rtc-cmos.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-Sorry for late response. And I will submit the v4 as your suggestion.
-
-Thanks
-Yisheng
-
-> 
-> Christophe
-> 
->>
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index bcf86e1..414b450 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -43,6 +43,8 @@
+ #include <linux/of_platform.h>
+ #ifdef CONFIG_X86
+ #include <asm/i8259.h>
++#include <asm/cpu_device_id.h>
++#include <linux/dmi.h>
+ #endif
+ 
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+@@ -1183,6 +1185,33 @@ static void rtc_wake_off(struct device *dev)
+ 	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ }
+ 
++#ifdef CONFIG_X86
++static const struct x86_cpu_id use_acpi_alarm_ids[] = {
++	{ X86_VENDOR_INTEL, X86_FAMILY_ANY, X86_MODEL_ANY, X86_FEATURE_ANY },
++	{}
++};
++
++/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
++static void use_acpi_alarm_quirks(void)
++{
++	int year;
++
++	if (!(acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0))
++		return;
++
++	if (!is_hpet_enabled())
++		return;
++
++	if (!x86_match_cpu(use_acpi_alarm_ids))
++		return;
++
++	if (dmi_get_date(DMI_BIOS_DATE, &year, NULL, NULL) && year >= 2015)
++		use_acpi_alarm = true;
++}
++#else
++static inline void use_acpi_alarm_quirks(void) { }
++#endif
++
+ /* Every ACPI platform has a mc146818 compatible "cmos rtc".  Here we find
+  * its device node and pass extra config data.  This helps its driver use
+  * capabilities that the now-obsolete mc146818 didn't have, and informs it
+@@ -1195,6 +1224,8 @@ static void cmos_wake_setup(struct device *dev)
+ 	if (acpi_disabled)
+ 		return;
+ 
++	use_acpi_alarm_quirks();
++
+ 	rtc_wake_setup(dev);
+ 	acpi_rtc_info.wake_on = rtc_wake_on;
+ 	acpi_rtc_info.wake_off = rtc_wake_off;
+-- 
+2.7.4
