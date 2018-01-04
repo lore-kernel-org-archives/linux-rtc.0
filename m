@@ -1,165 +1,304 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:33600 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752747AbeAKXA1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Jan 2018 18:00:27 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH] Documentation: rtc: move sysfs documentation to ABI
-Date: Fri, 12 Jan 2018 00:00:21 +0100
-Message-Id: <20180111230021.11470-1-alexandre.belloni@free-electrons.com>
+Received: from mga01.intel.com ([192.55.52.88]:44368 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751378AbeADI7N (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 4 Jan 2018 03:59:13 -0500
+From: Zhang Rui <rui.zhang@intel.com>
+To: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
+Cc: gabriele.mzt@gmail.com, rui.zhang@intel.com
+Subject: [RFC 1/3] rtc: cmos: allow using ACPI for RTC alarm instead of HPET
+Date: Thu,  4 Jan 2018 16:58:58 +0800
+Message-Id: <1515056338-14658-1-git-send-email-rui.zhang@intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The sysfs documentation should be located under Documentation/ABI.
+It's found that the HPET timer prevents the platform from entering
+Low Power S0 on some new Intel platforms.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+This means that
+1. users can still use RTC wake Alarm for suspend-to-idle, but the system
+   never enters Low Power S0, which is a waste of power.
+or
+2. if users want to put the system into Low Power S0, they can not use
+   RTC as the wakeup source.
+
+To fix this, we need to stop using the HPET timer for wake alarm.
+But disabling CONFIG_HPET_EMULATE_RTC is not an option because HPET
+emulates PIT at the same time, and this is needed on some of these
+platforms.
+
+Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos driver,
+so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still possible to
+use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead of HPET.
+
+Only necessary changes are made for the "use_acpi_alarm" mode, including
+1. drop all the calls to HPET emulation code, including the HPET irq
+   handler for rtc interrupt.
+2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE request.
+3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
+
+There is no functional change made in this patch if the new mode is not
+enabled.
+
+Note: this "use_acpi_alarm" mode is made based on the assumption that
+ACPI RTC Fixed event is reliable both at runtime and during system wakeup.
+And this has been verified on a couple of platforms I have, including
+a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP 9360 (KBL).
+
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
 ---
- Documentation/ABI/testing/sysfs-class-rtc | 90 +++++++++++++++++++++++++++++++
- Documentation/rtc.txt                     | 32 -----------
- 2 files changed, 90 insertions(+), 32 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-rtc
+ drivers/rtc/rtc-cmos.c | 111 +++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 80 insertions(+), 31 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-rtc b/Documentation/ABI/testing/sysfs-class-rtc
-new file mode 100644
-index 000000000000..7bbfa59a1a7e
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-rtc
-@@ -0,0 +1,90 @@
-+What:		/sys/class/rtc/
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The rtc/ class subdirectory belongs to the RTC subsystem.
-+
-+What:		/sys/class/rtc/rtcX/
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The /sys/class/rtc/rtc{0,1,2,3,...} directories correspond
-+		to each RTC device.
-+
-+What:		/sys/class/rtc/rtcX/date
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		RTC-provided date in YYYY-MM-DD format
-+
-+What:		/sys/class/rtc/rtcX/hctosys
-+Date:		September 2009
-+KernelVersion:	2.6.32
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		1 if the RTC provided the system time at boot via the
-+		CONFIG_RTC_HCTOSYS kernel option, 0 otherwise
-+
-+What:		/sys/class/rtc/rtcX/max_user_freq
-+Date:		October 2007
-+KernelVersion:	2.6.24
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The maximum interrupt rate an unprivileged user may request
-+		from this RTC.
-+
-+What:		/sys/class/rtc/rtcX/name
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The name of the RTC corresponding to this sysfs directory
-+
-+What:		/sys/class/rtc/rtcX/since_epoch
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		RTC-provided time as the number of seconds since the epoch
-+
-+What:		/sys/class/rtc/rtcX/time
-+Date:		March 2006
-+KernelVersion:	2.6.17
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		RTC-provided time in 24-hour notation (hh:mm:ss)
-+
-+What:		/sys/class/rtc/rtcX/*/nvmem
-+Date:		February 2016
-+KernelVersion:	4.6
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The non volatile storage exported as a raw file, as described in
-+		Documentation/nvmem/nvmem.txt
-+
-+What:		/sys/class/rtc/rtcX/offset
-+Date:		February 2016
-+KernelVersion:	4.6
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The amount which the rtc clock has been adjusted in firmware.
-+		Visible only if the driver supports clock offset adjustment.
-+		The unit is parts per billion, i.e. The number of clock ticks
-+		which are added to or removed from the rtc's base clock per
-+		billion ticks. A positive value makes a day pass more slowly,
-+		longer, and a negative value makes a day pass more quickly.
-+
-+What:		/sys/class/rtc/rtcX/wakealarm
-+Date:		February 2007
-+KernelVersion:	2.6.20
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The time at which the clock will generate a system wakeup event.
-+		This is a one shot wakeup event, so must be reset after wake if
-+		a daily wakeup is required. Format is seconds since the epoch by
-+		default, or if there's a leading +, seconds in the future, or if
-+		there is a leading +=, seconds ahead of the current alarm.
-+
-diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
-index c0c977445fb9..f521262cdc85 100644
---- a/Documentation/rtc.txt
-+++ b/Documentation/rtc.txt
-@@ -136,38 +136,6 @@ a high functionality RTC is integrated into the SOC.  That system might read
- the system clock from the discrete RTC, but use the integrated one for all
- other tasks, because of its greater functionality.
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 9dca53d..9665a72 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -48,6 +48,17 @@
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <linux/mc146818rtc.h>
  
--SYSFS interface
-----------------
--
--The sysfs interface under /sys/class/rtc/rtcN provides access to various
--rtc attributes without requiring the use of ioctls. All dates and times
--are in the RTC's timezone, rather than in system time.
--
--================ ==============================================================
--date  	   	 RTC-provided date
--hctosys   	 1 if the RTC provided the system time at boot via the
--		 CONFIG_RTC_HCTOSYS kernel option, 0 otherwise
--max_user_freq	 The maximum interrupt rate an unprivileged user may request
--		 from this RTC.
--name		 The name of the RTC corresponding to this sysfs directory
--since_epoch	 The number of seconds since the epoch according to the RTC
--time		 RTC-provided time
--wakealarm	 The time at which the clock will generate a system wakeup
--		 event. This is a one shot wakeup event, so must be reset
--		 after wake if a daily wakeup is required. Format is seconds
--		 since the epoch by default, or if there's a leading +, seconds
--		 in the future, or if there is a leading +=, seconds ahead of
--		 the current alarm.
--offset		 The amount which the rtc clock has been adjusted in firmware.
--		 Visible only if the driver supports clock offset adjustment.
--		 The unit is parts per billion, i.e. The number of clock ticks
--		 which are added to or removed from the rtc's base clock per
--		 billion ticks. A positive value makes a day pass more slowly,
--		 longer, and a negative value makes a day pass more quickly.
--*/nvmem		 The non volatile storage exported as a raw file, as described
--		 in Documentation/nvmem/nvmem.txt
--================ ==============================================================
--
- IOCTL interface
- ---------------
++/*
++ * Use ACPI SCI to replace HPET interrupt for RTC Alarm event
++ *
++ * If cleared, ACPI SCI is only used to wake up the system from suspend
++ *
++ * If set, ACPI SCI is used to handle UIE/AIE and system wakeup
++ */
++
++static bool use_acpi_alarm;
++module_param(use_acpi_alarm, bool, 0444);
++
+ struct cmos_rtc {
+ 	struct rtc_device	*rtc;
+ 	struct device		*dev;
+@@ -153,6 +164,12 @@ static inline int hpet_unregister_irq_handler(irq_handler_t handler)
  
+ #endif
+ 
++/* Don't use HPET for RTC Alarm event if ACPI Fixed event is used */
++static int use_hpet_alarm(void)
++{
++	return is_hpet_enabled() && !use_acpi_alarm;
++}
++
+ /*----------------------------------------------------------------*/
+ 
+ #ifdef RTC_PORT
+@@ -298,7 +315,7 @@ static void cmos_checkintr(struct cmos_rtc *cmos, unsigned char rtc_control)
+ 	 */
+ 	rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+ 
+-	if (is_hpet_enabled())
++	if (use_hpet_alarm())
+ 		return;
+ 
+ 	rtc_intr &= (rtc_control & RTC_IRQMASK) | RTC_IRQF;
+@@ -318,7 +335,13 @@ static void cmos_irq_enable(struct cmos_rtc *cmos, unsigned char mask)
+ 
+ 	rtc_control |= mask;
+ 	CMOS_WRITE(rtc_control, RTC_CONTROL);
+-	hpet_set_rtc_irq_bit(mask);
++	if (use_hpet_alarm())
++		hpet_set_rtc_irq_bit(mask);
++
++	if ((mask & RTC_AIE) && use_acpi_alarm) {
++		if (cmos->wake_on)
++			cmos->wake_on(cmos->dev);
++	}
+ 
+ 	cmos_checkintr(cmos, rtc_control);
+ }
+@@ -330,7 +353,13 @@ static void cmos_irq_disable(struct cmos_rtc *cmos, unsigned char mask)
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+ 	rtc_control &= ~mask;
+ 	CMOS_WRITE(rtc_control, RTC_CONTROL);
+-	hpet_mask_rtc_irq_bit(mask);
++	if (use_hpet_alarm())
++		hpet_mask_rtc_irq_bit(mask);
++
++	if ((mask & RTC_AIE) && use_acpi_alarm) {
++		if (cmos->wake_off)
++			cmos->wake_off(cmos->dev);
++	}
+ 
+ 	cmos_checkintr(cmos, rtc_control);
+ }
+@@ -448,10 +477,14 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 			CMOS_WRITE(mon, cmos->mon_alrm);
+ 	}
+ 
+-	/* FIXME the HPET alarm glue currently ignores day_alrm
+-	 * and mon_alrm ...
+-	 */
+-	hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min, t->time.tm_sec);
++	if (use_hpet_alarm()) {
++		/*
++		 * FIXME the HPET alarm glue currently ignores day_alrm
++		 * and mon_alrm ...
++		 */
++		hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min,
++				    t->time.tm_sec);
++	}
+ 
+ 	if (t->enabled)
+ 		cmos_irq_enable(cmos, RTC_AIE);
+@@ -508,7 +541,7 @@ static int cmos_procfs(struct device *dev, struct seq_file *seq)
+ 		   "batt_status\t: %s\n",
+ 		   (rtc_control & RTC_PIE) ? "yes" : "no",
+ 		   (rtc_control & RTC_UIE) ? "yes" : "no",
+-		   is_hpet_enabled() ? "yes" : "no",
++		   use_hpet_alarm() ? "yes" : "no",
+ 		   // (rtc_control & RTC_SQWE) ? "yes" : "no",
+ 		   (rtc_control & RTC_DM_BINARY) ? "no" : "yes",
+ 		   (rtc_control & RTC_DST_EN) ? "yes" : "no",
+@@ -629,7 +662,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 	 */
+ 	irqstat = CMOS_READ(RTC_INTR_FLAGS);
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+-	if (is_hpet_enabled())
++	if (use_hpet_alarm())
+ 		irqstat = (unsigned long)irq & 0xF0;
+ 
+ 	/* If we were suspended, RTC_CONTROL may not be accurate since the
+@@ -648,7 +681,8 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 		cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+ 		rtc_control &= ~RTC_AIE;
+ 		CMOS_WRITE(rtc_control, RTC_CONTROL);
+-		hpet_mask_rtc_irq_bit(RTC_AIE);
++		if (use_hpet_alarm())
++			hpet_mask_rtc_irq_bit(RTC_AIE);
+ 		CMOS_READ(RTC_INTR_FLAGS);
+ 	}
+ 	spin_unlock(&rtc_lock);
+@@ -770,7 +804,8 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		 * need to do something about other clock frequencies.
+ 		 */
+ 		cmos_rtc.rtc->irq_freq = 1024;
+-		hpet_set_periodic_freq(cmos_rtc.rtc->irq_freq);
++		if (use_hpet_alarm())
++			hpet_set_periodic_freq(cmos_rtc.rtc->irq_freq);
+ 		CMOS_WRITE(RTC_REF_CLCK_32KHZ | 0x06, RTC_FREQ_SELECT);
+ 	}
+ 
+@@ -788,12 +823,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup1;
+ 	}
+ 
+-	hpet_rtc_timer_init();
++	if (use_hpet_alarm())
++		hpet_rtc_timer_init();
+ 
+ 	if (is_valid_irq(rtc_irq)) {
+ 		irq_handler_t rtc_cmos_int_handler;
+ 
+-		if (is_hpet_enabled()) {
++		if (use_hpet_alarm()) {
+ 			rtc_cmos_int_handler = hpet_rtc_interrupt;
+ 			retval = hpet_register_irq_handler(cmos_interrupt);
+ 			if (retval) {
+@@ -829,7 +865,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			"alarms up to one day",
+ 		cmos_rtc.century ? ", y3k" : "",
+ 		nvram.size,
+-		is_hpet_enabled() ? ", hpet irqs" : "");
++		use_hpet_alarm() ? ", hpet irqs" : "");
+ 
+ 	return 0;
+ 
+@@ -866,7 +902,8 @@ static void cmos_do_remove(struct device *dev)
+ 
+ 	if (is_valid_irq(cmos->irq)) {
+ 		free_irq(cmos->irq, cmos->rtc);
+-		hpet_unregister_irq_handler(cmos_interrupt);
++		if (use_hpet_alarm())
++			hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
+ 
+ 	rtc_device_unregister(cmos->rtc);
+@@ -944,13 +981,13 @@ static int cmos_suspend(struct device *dev)
+ 			mask = RTC_IRQMASK;
+ 		tmp &= ~mask;
+ 		CMOS_WRITE(tmp, RTC_CONTROL);
+-		hpet_mask_rtc_irq_bit(mask);
+-
++		if (use_hpet_alarm())
++			hpet_mask_rtc_irq_bit(mask);
+ 		cmos_checkintr(cmos, tmp);
+ 	}
+ 	spin_unlock_irq(&rtc_lock);
+ 
+-	if (tmp & RTC_AIE) {
++	if ((tmp & RTC_AIE) && !use_acpi_alarm) {
+ 		cmos->enabled_wake = 1;
+ 		if (cmos->wake_on)
+ 			cmos->wake_on(dev);
+@@ -1005,7 +1042,7 @@ static int __maybe_unused cmos_resume(struct device *dev)
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned char tmp;
+ 
+-	if (cmos->enabled_wake) {
++	if (cmos->enabled_wake && !use_acpi_alarm) {
+ 		if (cmos->wake_off)
+ 			cmos->wake_off(dev);
+ 		else
+@@ -1023,16 +1060,17 @@ static int __maybe_unused cmos_resume(struct device *dev)
+ 	if (tmp & RTC_IRQMASK) {
+ 		unsigned char	mask;
+ 
+-		if (device_may_wakeup(dev))
++		if (device_may_wakeup(dev) && use_hpet_alarm())
+ 			hpet_rtc_timer_init();
+ 
+ 		do {
+ 			CMOS_WRITE(tmp, RTC_CONTROL);
+-			hpet_set_rtc_irq_bit(tmp & RTC_IRQMASK);
++			if (use_hpet_alarm())
++				hpet_set_rtc_irq_bit(tmp & RTC_IRQMASK);
+ 
+ 			mask = CMOS_READ(RTC_INTR_FLAGS);
+ 			mask &= (tmp & RTC_IRQMASK) | RTC_IRQF;
+-			if (!is_hpet_enabled() || !is_intr(mask))
++			if (!use_hpet_alarm() || !is_intr(mask))
+ 				break;
+ 
+ 			/* force one-shot behavior if HPET blocked
+@@ -1077,16 +1115,27 @@ static u32 rtc_handler(void *context)
+ 	unsigned char rtc_intr;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&rtc_lock, flags);
+-	if (cmos_rtc.suspend_ctrl)
+-		rtc_control = CMOS_READ(RTC_CONTROL);
+-	if (rtc_control & RTC_AIE) {
+-		cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+-		CMOS_WRITE(rtc_control, RTC_CONTROL);
+-		rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+-		rtc_update_irq(cmos->rtc, 1, rtc_intr);
++
++	/*
++	 * Always update rtc irq when ACPI is used as RTC Alarm.
++	 * Or else, ACPI SCI is enabled during suspend/resume only,
++	 * update rtc irq in that case.
++	 */
++	if (use_acpi_alarm)
++		cmos_interrupt(0, (void *)cmos->rtc);
++	else {
++		/* Fix me: can we use cmos_interrupt() here as well? */
++		spin_lock_irqsave(&rtc_lock, flags);
++		if (cmos_rtc.suspend_ctrl)
++			rtc_control = CMOS_READ(RTC_CONTROL);
++		if (rtc_control & RTC_AIE) {
++			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
++			CMOS_WRITE(rtc_control, RTC_CONTROL);
++			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
++			rtc_update_irq(cmos->rtc, 1, rtc_intr);
++		}
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 	}
+-	spin_unlock_irqrestore(&rtc_lock, flags);
+ 
+ 	pm_wakeup_hard_event(dev);
+ 	acpi_clear_event(ACPI_EVENT_RTC);
 -- 
-2.15.1
+2.7.4
