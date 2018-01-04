@@ -1,82 +1,92 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:43009 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751294AbeADI73 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 4 Jan 2018 03:59:29 -0500
-From: Zhang Rui <rui.zhang@intel.com>
-To: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
-Cc: gabriele.mzt@gmail.com, rui.zhang@intel.com
-Subject: [RFC 3/3] rtc: cmos: introduce quirks to enable use_acpi_alarm mode
-Date: Thu,  4 Jan 2018 16:59:26 +0800
-Message-Id: <1515056366-14850-1-git-send-email-rui.zhang@intel.com>
-Sender: linux-rtc-owner@vger.kernel.org
+Return-Path: <dhowells@redhat.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <CAK8P3a3i0bKvG56ha9_hzO=z80sVxCQhaeFn6QW3AwbwZs3HPg@mail.gmail.com>
+References: <CAK8P3a3i0bKvG56ha9_hzO=z80sVxCQhaeFn6QW3AwbwZs3HPg@mail.gmail.com> <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com> <20171223134831.GB10103@kroah.com> <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net> <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: dhowells@redhat.com, christophe.leroy@c-s.fr,
+    Guenter Roeck <linux@roeck-us.net>,
+    Greg KH <gregkh@linuxfoundation.org>,
+    Yisheng Xie <xieyisheng1@huawei.com>,
+    Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+    ysxie@foxmail.com, Ulf Hansson <ulf.hansson@linaro.org>,
+    linux-mmc <linux-mmc@vger.kernel.org>,
+    Boris Brezillon <boris.brezillon@free-electrons.com>,
+    Richard Weinberger <richard@nod.at>,
+    Marek Vasut <marek.vasut@gmail.com>,
+    Cyrille Pitchen <cyrille.pitchen@wedev4u.fr>,
+    linux-mtd <linux-mtd@lists.infradead.org>,
+    alsa-devel@alsa-project.org, Wim Van Sebroeck <wim@iguana.be>,
+    linux-watchdog@vger.kernel.org,
+    Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+    linux-fbdev@vger.kernel.org,
+    Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org,
+    Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+    Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+    Thomas Gleixner <tglx@linutronix.de>,
+    Jason Cooper <jason@lakedaemon.net>,
+    Marc Zyngier <marc.zyngier@arm.com>,
+    Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+    industrypack-devel@lists.sourceforge.net, wg@grandegger.com,
+    mkl@pengutronix.de, linux-can@vger.kernel.org,
+    Mauro Carvalho Chehab <mchehab@kernel.org>,
+    Linux Media Mailing List <linux-media@vger.kernel.org>,
+    Alessandro Zummo <a.zummo@towertech.it>,
+    Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+    linux-rtc@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
+    Jani Nikula <jani.nikula@linux.intel.com>,
+    Sean Paul <seanpaul@chromium.org>, David Airlie <airlied@linux.ie>,
+    dri-devel <dri-devel@lists.freedesktop.org>,
+    Kalle Valo <kvalo@codeaurora.org>,
+    linux-wireless <linux-wireless@vger.kernel.org>,
+    linux-spi <linux-spi@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
+    IDE-ML <linux-ide@vger.kernel.org>,
+    Bjorn Helgaas <bhelgaas@google.com>,
+    linux-pci <linux-pci@vger.kernel.org>, devel@driverdev.osuosl.org,
+    Darren Hart <dvhart@infradead.org>,
+    Andy Shevchenko <andy@infradead.org>,
+    Platform Driver <platform-driver-x86@vger.kernel.org>,
+    Jakub Kicinski <jakub.kicinski@netronome.com>,
+    David Miller <davem@davemloft.net>, nios2-dev@lists.rocketboards.org,
+    Networking <netdev@vger.kernel.org>,
+    Vinod Koul <vinod.koul@intel.com>,
+    Dan Williams <dan.j.williams@intel.com>, dmaengine@vger.kernel.org,
+    Jiri Slaby <jslaby@suse.com>
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 04 Jan 2018 14:52:54 +0000
+Message-ID: <20289.1515077574@warthog.procyon.org.uk>
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use ACPI for RTC Alarm only for Intel platforms
-1. with Low Power S0 support
-2. with HPET RTC emulation enabled
-3. no earlier than 2015
+Arnd Bergmann <arnd@arndb.de> wrote:
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
----
- drivers/rtc/rtc-cmos.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+> - mn10300 appears to be wrong, broken by David Howells in
+>   commit 83c2dc15ce82 ("MN10300: Handle cacheable PCI regions
+>   in pci_iomap()") for any driver calling ioremap() by to get uncached
+>   memory,
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index bcf86e1..414b450 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -43,6 +43,8 @@
- #include <linux/of_platform.h>
- #ifdef CONFIG_X86
- #include <asm/i8259.h>
-+#include <asm/cpu_device_id.h>
-+#include <linux/dmi.h>
- #endif
- 
- /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
-@@ -1183,6 +1185,33 @@ static void rtc_wake_off(struct device *dev)
- 	acpi_disable_event(ACPI_EVENT_RTC, 0);
- }
- 
-+#ifdef CONFIG_X86
-+static const struct x86_cpu_id use_acpi_alarm_ids[] = {
-+	{ X86_VENDOR_INTEL, X86_FAMILY_ANY, X86_MODEL_ANY, X86_FEATURE_ANY },
-+	{}
-+};
-+
-+/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
-+static void use_acpi_alarm_quirks(void)
-+{
-+	int year;
-+
-+	if (!(acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0))
-+		return;
-+
-+	if (!is_hpet_enabled())
-+		return;
-+
-+	if (!x86_match_cpu(use_acpi_alarm_ids))
-+		return;
-+
-+	if (dmi_get_date(DMI_BIOS_DATE, &year, NULL, NULL) && year >= 2015)
-+		use_acpi_alarm = true;
-+}
-+#else
-+static inline void use_acpi_alarm_quirks(void) { }
-+#endif
-+
- /* Every ACPI platform has a mc146818 compatible "cmos rtc".  Here we find
-  * its device node and pass extra config data.  This helps its driver use
-  * capabilities that the now-obsolete mc146818 didn't have, and informs it
-@@ -1195,6 +1224,8 @@ static void cmos_wake_setup(struct device *dev)
- 	if (acpi_disabled)
- 		return;
- 
-+	use_acpi_alarm_quirks();
-+
- 	rtc_wake_setup(dev);
- 	acpi_rtc_info.wake_on = rtc_wake_on;
- 	acpi_rtc_info.wake_off = rtc_wake_off;
--- 
-2.7.4
+It's not clear what the right thing to do was, given that there's an ioremap()
+and an ioremap_uncached().
+
+But the asb2305's pci_iomap() will use ioremap() (the cacheable window) if
+IORESOURCE_CACHEABLE is set, but IORESOURCE_IO is not and ioremap_uncached()
+otherwise.
+
+The other supported units don't have PCI buses.
+
+> if I understand the comment for commit 34f1bdee1910 ("mn10300: switch to
+> GENERIC_PCI_IOMAP") correctly: it seems that PCI addresses include the
+> 'uncached' bit by default to get the right behavior, but dropping that bit
+> breaks it.
+
+Not exactly.  The CPU has a window in the range 0xa0000000-0xbfffffff which is
+an uncached view of its hardware buses.  It has another window in the range
+0x80000000-0x9fffffff which is a cached view of that region.  These windows
+cannot be changed and addresses above 0x80000000 are statically mapped and are
+only accessible by the kernel (this is hardwired in the MMU).
+
+So the arch has two subwindows to the PCI bus, one cached and one uncached.
+These subwindows are further subdivided into ioport and iomem spaces, an SRAM
+and some control registers for the CPU-PCI bridge.
+
+David
