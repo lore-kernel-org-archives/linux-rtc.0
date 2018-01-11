@@ -1,56 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:40407 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753376AbeAQPcc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 17 Jan 2018 10:32:32 -0500
-From: =?UTF-8?q?SZ=20Lin=20=28=E6=9E=97=E4=B8=8A=E6=99=BA=29?=
-        <sz.lin@moxa.com>
-Cc: =?UTF-8?q?SZ=20Lin=20=28=E6=9E=97=E4=B8=8A=E6=99=BA=29?=
-        <sz.lin@moxa.com>, Taiyi Wu <taiyity.wu@moxa.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: tps65910: add bounds checking
-Date: Wed, 17 Jan 2018 23:30:47 +0800
-Message-Id: <20180117153048.17727-1-sz.lin@moxa.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:33744 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751968AbeAKXMh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Jan 2018 18:12:37 -0500
+Date: Fri, 12 Jan 2018 00:12:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: p.bruenn@beckhoff.com, linux-rtc@vger.kernel.org,
+        festevam@gmail.com
+Subject: Re: [PATCH] rtc: mxc_v2: Remove unnecessary platform_get_resource()
+ error check
+Message-ID: <20180111231236.GB2678@piout.net>
+References: <20171221114324.6935-1-fabio.estevam@nxp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171221114324.6935-1-fabio.estevam@nxp.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Since tm->tm_year is the offset relative to 1900, it needs to check for
-positive value to avoid overflow in YEARS_REG register.
+On 21/12/2017 at 09:43:24 -0200, Fabio Estevam wrote:
+> devm_ioremap_resource() already checks if the resource is NULL, so
+> remove the unnecessary platform_get_resource() error check.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+> ---
+>  drivers/rtc/rtc-mxc_v2.c | 3 ---
+>  1 file changed, 3 deletions(-)
+> 
+Applied, thanks.
 
-The system will hang at the following stage on the next boot when overflow
-has occurred.
-
-[    2.221192] systemd[1]: Time has been changed
-
-This patch fixes the above hanging issue by adding bounds checking.
-
-Signed-off-by: Taiyi Wu <taiyity.wu@moxa.com>
-Signed-off-by: SZ Lin (林上智) <sz.lin@moxa.com>
----
- drivers/rtc/rtc-tps65910.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-index d0244d7979fc..6be9f7bb0f1b 100644
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -105,6 +105,12 @@ static int tps65910_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct tps65910 *tps = dev_get_drvdata(dev->parent);
- 	int ret;
- 
-+	if ((tm->tm_year - 100) < 0) {
-+		dev_err(dev, "the requested year %d is unsupported\n",
-+			1900 + tm->tm_year);
-+		return -EINVAL;
-+	}
-+
- 	rtc_data[0] = bin2bcd(tm->tm_sec);
- 	rtc_data[1] = bin2bcd(tm->tm_min);
- 	rtc_data[2] = bin2bcd(tm->tm_hour);
 -- 
-2.15.1
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
