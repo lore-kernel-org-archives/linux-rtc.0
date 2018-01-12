@@ -1,140 +1,161 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:35073 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751888AbeAARbb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jan 2018 12:31:31 -0500
-Date: Mon, 1 Jan 2018 23:01:24 +0530
-From: Aishwarya Pant <aishpant@gmail.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-rtc@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>, gregkh@linuxfoundation.org
-Subject: [PATCH 2/2] Documentation: rtc: move iotcl interface documentation
- to ABI
-Message-ID: <e0ac8fceb93e2520244b302b1472e9dc66a376da.1514827586.git.aishpant@gmail.com>
-References: <cover.1514827586.git.aishpant@gmail.com>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:3779 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754345AbeALJMj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 12 Jan 2018 04:12:39 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: Christophe LEROY <christophe.leroy@c-s.fr>,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+ <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
+ <8dd19411-5b06-0aa4-fd0e-e5b112c25dcb@huawei.com>
+ <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
+CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
+        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
+        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
+        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
+        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
+        <wim@iguana.be>, <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <b.zolnierkie@samsung.com>,
+        <linux-fbdev@vger.kernel.org>, <linus.walleij@linaro.org>,
+        <linux-gpio@vger.kernel.org>, <ralf@linux-mips.org>,
+        <linux-mips@linux-mips.org>, <lgirdwood@gmail.com>,
+        <broonie@kernel.org>, <tglx@linutronix.de>, <jason@lakedaemon.net>,
+        <marc.zyngier@arm.com>, <arnd@arndb.de>,
+        <andriy.shevchenko@linux.intel.com>,
+        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
+        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
+        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
+        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
+        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
+        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
+        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+        <dvhart@infradead.org>, <andy@infradead.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
+        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
+        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
+        <dmaengine@vger.kernel.org>, <jslaby@suse.com>
+From: Yisheng Xie <xieyisheng1@huawei.com>
+Message-ID: <ff498c83-d1ee-7553-e20c-a07369f8dad6@huawei.com>
+Date: Fri, 12 Jan 2018 17:12:12 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1514827586.git.aishpant@gmail.com>
+In-Reply-To: <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The ioctl interface should be in Documentation/ABI along with the rest
-of the interfaces.
+Hi Christophe ，
 
-Signed-off-by: Aishwarya Pant <aishpant@gmail.com>
----
- Documentation/ABI/testing/rtc-cdev | 42 ++++++++++++++++++++++++++++++++
- Documentation/rtc.txt              | 49 ++------------------------------------
- 2 files changed, 44 insertions(+), 47 deletions(-)
- create mode 100644 Documentation/ABI/testing/rtc-cdev
+On 2018/1/4 16:05, Christophe LEROY wrote:
+> 
+> 
+> Le 25/12/2017 à 02:34, Yisheng Xie a écrit :
+>>
+>>
+>> On 2017/12/24 17:05, christophe leroy wrote:
+>>>
+>>>
+>>> Le 23/12/2017 à 14:48, Greg KH a écrit :
+>>>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>>>>> Hi all,
+>>>>>
+>>>>> When I tried to use devm_ioremap function and review related code, I found
+>>>>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>>>>> except one use ioremap while the other use ioremap_nocache.
+>>>>
+>>>> For all arches?  Really?  Look at MIPS, and x86, they have different
+>>>> functions.
+>>>>
+>>>>> While ioremap's
+>>>>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>>>>> same function with devm_ioremap, which can just be killed to reduce the size
+>>>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>>>>
+>>>>> I have posted two versions, which use macro instead of function for
+>>>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>>>>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>>>>> thing. So here comes v3 and please help to review.
+>>>>
+>>>> I don't think this can be done, what am I missing?  These functions are
+>>>> not identical, sorry for missing that before.
+>>>
+>>> devm_ioremap() and devm_ioremap_nocache() are quite similar, both use devm_ioremap_release() for the release, why not just defining:
+>>>
+>>> static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
+>>>                 resource_size_t size, bool nocache)
+>>> {
+>>> [...]
+>>>      if (nocache)
+>>>          addr = ioremap_nocache(offset, size);
+>>>      else
+>>>          addr = ioremap(offset, size);
+>>> [...]
+>>> }
+>>>
+>>> then in include/linux/io.h
+>>>
+>>> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+>>>                 resource_size_t size)
+>>> {return __devm_ioremap(dev, offset, size, false);}
+>>>
+>>> static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
+>>>                     resource_size_t size);
+>>> {return __devm_ioremap(dev, offset, size, true);}
+>>
+>> Yeah, this seems good to me, right now we have devm_ioremap, devm_ioremap_wc, devm_ioremap_nocache
+>> May be we can use an enum like:
+>> typedef enum {
+>>     DEVM_IOREMAP = 0,
+>>     DEVM_IOREMAP_NOCACHE,
+>>     DEVM_IOREMAP_WC,
+>> } devm_ioremap_type;
+>>
+>> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+>>                  resource_size_t size)
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP);}
+>>
+>>   static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
+>>                      resource_size_t size);
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_NOCACHE);}
+>>
+>>   static inline void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
+>>                      resource_size_t size);
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_WC);}
+>>
+>>   static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
+>>                  resource_size_t size, devm_ioremap_type type)
+>>   {
+>>       void __iomem **ptr, *addr = NULL;
+>>   [...]
+>>       switch (type){
+>>       case DEVM_IOREMAP:
+>>           addr = ioremap(offset, size);
+>>           break;
+>>       case DEVM_IOREMAP_NOCACHE:
+>>           addr = ioremap_nocache(offset, size);
+>>           break;
+>>       case DEVM_IOREMAP_WC:
+>>           addr = ioremap_wc(offset, size);
+>>           break;
+>>       }
+>>   [...]
+>>   }
+> 
+> 
+> That looks good to me, will you submit a v4 ?
 
-diff --git a/Documentation/ABI/testing/rtc-cdev b/Documentation/ABI/testing/rtc-cdev
-new file mode 100644
-index 000000000000..97447283f13b
---- /dev/null
-+++ b/Documentation/ABI/testing/rtc-cdev
-@@ -0,0 +1,42 @@
-+What:		/dev/rtcX
-+Date:		April 2005
-+KernelVersion:	2.6.12
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		The ioctl interface to drivers for real-time clocks (RTCs).
-+		Following actions are supported:
-+
-+		* RTC_RD_TIME, RTC_SET_TIME: Read or set the RTC time. Time
-+		  format is a Gregorian calendar date and 24 hour wall clock
-+		  time.
-+
-+		* RTC_AIE_ON, RTC_AIE_OFF: Enable or disable the alarm interrupt
-+		  for RTCs that support alarms
-+
-+		* RTC_ALM_READ, RTC_ALM_SET: Read or set the alarm time for
-+		  RTCs that support alarms. Can be set upto 24 hours in the
-+		  future. Requires a separate RTC_AIE_ON call to enable the
-+		  alarm interrupt. (Prefer to use RTC_WKALM_*)
-+
-+		* RTC_WKALM_RD, RTC_WKALM_SET: For RTCs that support a more
-+		  powerful interface, which can issue alarms beyond 24 hours and
-+		  enable IRQs in the same request.
-+
-+		* RTC_PIE_ON, RTC_PIE_OFF: Enable or disable the periodic
-+		  interrupt for RTCs that support periodic interrupts.
-+
-+		* RTC_UIE_ON, RTC_UIE_OFF: Enable or disable the update
-+		  interrupt for RTCs that support it.
-+
-+		* RTC_IRQP_READ, RTC_IRQP_SET: Read or set the frequency for
-+		  periodic interrupts for RTCs that support periodic interrupts.
-+		  Requires a separate RTC_PIE_ON call to enable the periodic
-+		  interrupts.
-+
-+		The ioctl() calls supported by the older /dev/rtc interface are
-+		also supported by the newer RTC class framework. However,
-+		because the chips and systems are not standardized, some PC/AT
-+		functionality might not be provided. And in the same way, some
-+		newer features -- including those enabled by ACPI -- are exposed
-+		by the RTC class framework, but can't be supported by the older
-+		driver.
-diff --git a/Documentation/rtc.txt b/Documentation/rtc.txt
-index f521262cdc85..a129acf38537 100644
---- a/Documentation/rtc.txt
-+++ b/Documentation/rtc.txt
-@@ -136,50 +136,5 @@ a high functionality RTC is integrated into the SOC.  That system might read
- the system clock from the discrete RTC, but use the integrated one for all
- other tasks, because of its greater functionality.
- 
--IOCTL interface
-----------------
--
--The ioctl() calls supported by /dev/rtc are also supported by the RTC class
--framework.  However, because the chips and systems are not standardized,
--some PC/AT functionality might not be provided.  And in the same way, some
--newer features -- including those enabled by ACPI -- are exposed by the
--RTC class framework, but can't be supported by the older driver.
--
--    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at least reading
--	time, returning the result as a Gregorian calendar date and 24 hour
--	wall clock time.  To be most useful, this time may also be updated.
--
--    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ... when the RTC
--	is connected to an IRQ line, it can often issue an alarm IRQ up to
--	24 hours in the future.  (Use RTC_WKALM_* by preference.)
--
--    *	RTC_WKALM_SET, RTC_WKALM_RD ... RTCs that can issue alarms beyond
--	the next 24 hours use a slightly more powerful API, which supports
--	setting the longer alarm time and enabling its IRQ using a single
--	request (using the same model as EFI firmware).
--
--    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, the RTC framework
--	will emulate this mechanism.
--
--    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ... these icotls
--	are emulated via a kernel hrtimer.
--
--In many cases, the RTC alarm can be a system wake event, used to force
--Linux out of a low power sleep state (or hibernation) back to a fully
--operational state.  For example, a system could enter a deep power saving
--state until it's time to execute some scheduled tasks.
--
--Note that many of these ioctls are handled by the common rtc-dev interface.
--Some common examples:
--
--    *	RTC_RD_TIME, RTC_SET_TIME: the read_time/set_time functions will be
--	called with appropriate values.
--
--    *	RTC_ALM_SET, RTC_ALM_READ, RTC_WKALM_SET, RTC_WKALM_RD: gets or sets
--	the alarm rtc_timer. May call the set_alarm driver function.
--
--    *	RTC_IRQP_SET, RTC_IRQP_READ: These are emulated by the generic code.
--
--    *	RTC_PIE_ON, RTC_PIE_OFF: These are also emulated by the generic code.
--
--If all else fails, check out the tools/testing/selftests/timers/rtctest.c test!
-+Check out tools/testing/selftests/timers/rtctest.c for an example usage of the
-+ioctl interface.
--- 
-2.15.1
+Sorry for late response. And I will submit the v4 as your suggestion.
+
+Thanks
+Yisheng
+
+> 
+> Christophe
+> 
+>>
