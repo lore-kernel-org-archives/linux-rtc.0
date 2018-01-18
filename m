@@ -1,202 +1,353 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:32907 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750979AbeABHrP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 02:47:15 -0500
-Date: Tue, 2 Jan 2018 08:47:03 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: a.zummo@towertech.it, corbet@lwn.net, arnd@arndb.de,
-        broonie@kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [RFC PATCH 1/4] rtc: Introduce one interface to save the RTC
- hardware time range
-Message-ID: <20180102074703.GA3114@piout.net>
-References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:33256 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750951AbeARUK4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Jan 2018 15:10:56 -0500
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
+To: alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
+        egtvedt@samfundet.no
+Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Corentin Labbe <clabbe.montjoie@gmail.com>
+Subject: [PATCH] rtc: remove rtc-at32ap700x
+Date: Thu, 18 Jan 2018 21:08:46 +0100
+Message-Id: <20180118200846.14368-1-clabbe.montjoie@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Baolin,
+Since PLATFORM_AT32AP is an AVR32 platform which was removed, the
+rtc driver rtc-at32ap700x is useless.
+This patch remove it.
 
-Could you have a look at
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-ranges
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+---
+ drivers/rtc/Kconfig          |   7 --
+ drivers/rtc/Makefile         |   1 -
+ drivers/rtc/rtc-at32ap700x.c | 287 -------------------------------------------
+ 3 files changed, 295 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-at32ap700x.c
 
-My approach has multiple advantages as it works for 64-bit counters and
-the range can be updated at runtime.
-
-On 02/01/2018 at 13:10:05 +0800, Baolin Wang wrote:
-> In order to the setting time values are not beyond the limitation
-> supported by RTC hardware, we introduce one interface to tell the
-> hardware range to the RTC core, which are used to valid if the
-> setting time values are in the RTC hardware range.
-> 
-> Moreover we also need the RTC hardware range to expand the RTC
-> range in next patches by adding one offset.
-> 
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
->  drivers/rtc/class.c     |   13 ++++++++++
->  drivers/rtc/interface.c |   62 +++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/rtc.h     |    9 +++++++
->  3 files changed, 84 insertions(+)
-> 
-> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-> index 722d683..31fc0f1 100644
-> --- a/drivers/rtc/class.c
-> +++ b/drivers/rtc/class.c
-> @@ -247,6 +247,12 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
->  
->  	dev_set_name(&rtc->dev, "rtc%d", id);
->  
-> +	err = rtc_read_range(rtc, &rtc->max_hw_secs, &rtc->min_hw_secs);
-> +	if (err) {
-> +		dev_err(&rtc->dev, "%s: failed to get RTC range\n", name);
-> +		goto exit_ida;
-> +	}
-> +
->  	/* Check to see if there is an ALARM already set in hw */
->  	err = __rtc_read_alarm(rtc, &alrm);
->  
-> @@ -436,6 +442,13 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
->  
->  	rtc->owner = owner;
->  
-> +	err = rtc_read_range(rtc, &rtc->max_hw_secs, &rtc->min_hw_secs);
-> +	if (err) {
-> +		dev_err(&rtc->dev, "%s: failed to get RTC range\n",
-> +			dev_name(&rtc->dev));
-> +		return err;
-> +	}
-> +
->  	/* Check to see if there is an ALARM already set in hw */
->  	err = __rtc_read_alarm(rtc, &alrm);
->  	if (!err && !rtc_valid_tm(&alrm.time))
-> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-> index 672b192..c8090e3 100644
-> --- a/drivers/rtc/interface.c
-> +++ b/drivers/rtc/interface.c
-> @@ -65,6 +65,10 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
->  	if (err != 0)
->  		return err;
->  
-> +	err = rtc_valid_range(rtc, tm);
-> +	if (err)
-> +		return err;
-> +
->  	err = mutex_lock_interruptible(&rtc->ops_lock);
->  	if (err)
->  		return err;
-> @@ -329,6 +333,11 @@ static int __rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
->  	err = rtc_valid_tm(&alarm->time);
->  	if (err)
->  		return err;
-> +
-> +	err = rtc_valid_range(rtc, &alarm->time);
-> +	if (err)
-> +		return err;
-> +
->  	scheduled = rtc_tm_to_time64(&alarm->time);
->  
->  	/* Make sure we're not setting alarms in the past */
-> @@ -1027,3 +1036,56 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
->  	mutex_unlock(&rtc->ops_lock);
->  	return ret;
->  }
-> +
-> +/* rtc_read_range - Read the max and min hardware count supported by RTC device
-> + * @ rtc: rtc device to be used.
-> + * @ max_hw_secs: maximum hardware count in seconds, which can represent
-> + * the maximum time values in RTC hardware.
-> + * @ min_hw_secs: minimum hardware count in seconds, which can represent
-> + * the minimum time values in RTC hardware.
-> + *
-> + * The max_hw_secs and min_hw_secs implemented by user must represent the
-> + * correct hardware start time and maximum time, which means the count
-> + * will wrap around to min_hw_secs after the maximum count.
-> + *
-> + * If user did not implement the read_range() interface, we can set max_hw_secs
-> + * and min_hw_secs to 0, which avoids validing the range.
-> + */
-> +int rtc_read_range(struct rtc_device *rtc, time64_t *max_hw_secs,
-> +		   time64_t *min_hw_secs)
-> +{
-> +	int ret;
-> +
-> +	if (!rtc->ops || !rtc->ops->read_range) {
-> +		*max_hw_secs = 0;
-> +		*min_hw_secs = 0;
-> +		return 0;
-> +	}
-> +
-> +	mutex_lock(&rtc->ops_lock);
-> +	ret = rtc->ops->read_range(rtc->dev.parent, max_hw_secs, min_hw_secs);
-> +	mutex_unlock(&rtc->ops_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +/* rtc_valid_range - Valid if the setting time in the RTC range
-> + * @ rtc: rtc device to be used.
-> + * @ tm: time values need to valid.
-> + *
-> + * Only the rtc->max_hw_secs was set, then we can valid if the setting time
-> + * values are beyond the RTC range.
-> + */
-> +int rtc_valid_range(struct rtc_device *rtc, struct rtc_time *tm)
-> +{
-> +	time64_t secs;
-> +
-> +	if (!rtc->max_hw_secs)
-> +		return 0;
-> +
-> +	secs = rtc_tm_to_time64(tm);
-> +	if (secs < rtc->min_hw_secs || secs > rtc->max_hw_secs)
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index 41319a2..19a8989 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -85,6 +85,8 @@ struct rtc_class_ops {
->  	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
->  	int (*read_offset)(struct device *, long *offset);
->  	int (*set_offset)(struct device *, long offset);
-> +	int (*read_range)(struct device *, time64_t *max_hw_secs,
-> +			  time64_t *min_hw_secs);
->  };
->  
->  #define RTC_DEVICE_NAME_SIZE 20
-> @@ -152,6 +154,9 @@ struct rtc_device {
->  	bool nvram_old_abi;
->  	struct bin_attribute *nvram;
->  
-> +	time64_t max_hw_secs;
-> +	time64_t min_hw_secs;
-> +
->  #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
->  	struct work_struct uie_task;
->  	struct timer_list uie_timer;
-> @@ -225,6 +230,10 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
->  int rtc_set_offset(struct rtc_device *rtc, long offset);
->  void rtc_timer_do_work(struct work_struct *work);
->  
-> +int rtc_read_range(struct rtc_device *rtc, time64_t *max_hw_secs,
-> +		   time64_t *min_hw_secs);
-> +int rtc_valid_range(struct rtc_device *rtc, struct rtc_time *tm);
-> +
->  static inline bool is_leap_year(unsigned int year)
->  {
->  	return (!(year % 4) && (year % 100)) || !(year % 400);
-> -- 
-> 1.7.9.5
-> 
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index b71cc7b5fbc9..8ab5f0a5d323 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1402,13 +1402,6 @@ config RTC_DRV_PL031
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rtc-pl031.
+ 
+-config RTC_DRV_AT32AP700X
+-	tristate "AT32AP700X series RTC"
+-	depends on PLATFORM_AT32AP || COMPILE_TEST
+-	help
+-	  Driver for the internal RTC (Realtime Clock) on Atmel AVR32
+-	  AT32AP700x family processors.
+-
+ config RTC_DRV_AT91RM9200
+ 	tristate "AT91RM9200 or some AT91SAM9 RTC"
+ 	depends on ARCH_AT91 || COMPILE_TEST
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 6dfbbe9cd8a2..4fbf87e45a7c 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -33,7 +33,6 @@ obj-$(CONFIG_RTC_DRV_AC100)	+= rtc-ac100.o
+ obj-$(CONFIG_RTC_DRV_ARMADA38X)	+= rtc-armada38x.o
+ obj-$(CONFIG_RTC_DRV_AS3722)	+= rtc-as3722.o
+ obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
+-obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
+ obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
+ obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
+ obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
+diff --git a/drivers/rtc/rtc-at32ap700x.c b/drivers/rtc/rtc-at32ap700x.c
+deleted file mode 100644
+index de8bf56a41e7..000000000000
+--- a/drivers/rtc/rtc-at32ap700x.c
++++ /dev/null
+@@ -1,287 +0,0 @@
+-/*
+- * An RTC driver for the AVR32 AT32AP700x processor series.
+- *
+- * Copyright (C) 2007 Atmel Corporation
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2 as published
+- * by the Free Software Foundation.
+- */
+-
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/platform_device.h>
+-#include <linux/slab.h>
+-#include <linux/rtc.h>
+-#include <linux/io.h>
+-
+-/*
+- * This is a bare-bones RTC. It runs during most system sleep states, but has
+- * no battery backup and gets reset during system restart.  It must be
+- * initialized from an external clock (network, I2C, etc) before it can be of
+- * much use.
+- *
+- * The alarm functionality is limited by the hardware, not supporting
+- * periodic interrupts.
+- */
+-
+-#define RTC_CTRL		0x00
+-#define RTC_CTRL_EN		   0
+-#define RTC_CTRL_PCLR		   1
+-#define RTC_CTRL_TOPEN		   2
+-#define RTC_CTRL_PSEL		   8
+-
+-#define RTC_VAL			0x04
+-
+-#define RTC_TOP			0x08
+-
+-#define RTC_IER			0x10
+-#define RTC_IER_TOPI		   0
+-
+-#define RTC_IDR			0x14
+-#define RTC_IDR_TOPI		   0
+-
+-#define RTC_IMR			0x18
+-#define RTC_IMR_TOPI		   0
+-
+-#define RTC_ISR			0x1c
+-#define RTC_ISR_TOPI		   0
+-
+-#define RTC_ICR			0x20
+-#define RTC_ICR_TOPI		   0
+-
+-#define RTC_BIT(name)		(1 << RTC_##name)
+-#define RTC_BF(name, value)	((value) << RTC_##name)
+-
+-#define rtc_readl(dev, reg)				\
+-	__raw_readl((dev)->regs + RTC_##reg)
+-#define rtc_writel(dev, reg, value)			\
+-	__raw_writel((value), (dev)->regs + RTC_##reg)
+-
+-struct rtc_at32ap700x {
+-	struct rtc_device	*rtc;
+-	void __iomem		*regs;
+-	unsigned long		alarm_time;
+-	unsigned long		irq;
+-	/* Protect against concurrent register access. */
+-	spinlock_t		lock;
+-};
+-
+-static int at32_rtc_readtime(struct device *dev, struct rtc_time *tm)
+-{
+-	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long now;
+-
+-	now = rtc_readl(rtc, VAL);
+-	rtc_time_to_tm(now, tm);
+-
+-	return 0;
+-}
+-
+-static int at32_rtc_settime(struct device *dev, struct rtc_time *tm)
+-{
+-	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long now;
+-	int ret;
+-
+-	ret = rtc_tm_to_time(tm, &now);
+-	if (ret == 0)
+-		rtc_writel(rtc, VAL, now);
+-
+-	return ret;
+-}
+-
+-static int at32_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+-{
+-	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-
+-	spin_lock_irq(&rtc->lock);
+-	rtc_time_to_tm(rtc->alarm_time, &alrm->time);
+-	alrm->enabled = rtc_readl(rtc, IMR) & RTC_BIT(IMR_TOPI) ? 1 : 0;
+-	alrm->pending = rtc_readl(rtc, ISR) & RTC_BIT(ISR_TOPI) ? 1 : 0;
+-	spin_unlock_irq(&rtc->lock);
+-
+-	return 0;
+-}
+-
+-static int at32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+-{
+-	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	unsigned long rtc_unix_time;
+-	unsigned long alarm_unix_time;
+-	int ret;
+-
+-	rtc_unix_time = rtc_readl(rtc, VAL);
+-
+-	ret = rtc_tm_to_time(&alrm->time, &alarm_unix_time);
+-	if (ret)
+-		return ret;
+-
+-	if (alarm_unix_time < rtc_unix_time)
+-		return -EINVAL;
+-
+-	spin_lock_irq(&rtc->lock);
+-	rtc->alarm_time = alarm_unix_time;
+-	rtc_writel(rtc, TOP, rtc->alarm_time);
+-	if (alrm->enabled)
+-		rtc_writel(rtc, CTRL, rtc_readl(rtc, CTRL)
+-				| RTC_BIT(CTRL_TOPEN));
+-	else
+-		rtc_writel(rtc, CTRL, rtc_readl(rtc, CTRL)
+-				& ~RTC_BIT(CTRL_TOPEN));
+-	spin_unlock_irq(&rtc->lock);
+-
+-	return ret;
+-}
+-
+-static int at32_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+-{
+-	struct rtc_at32ap700x *rtc = dev_get_drvdata(dev);
+-	int ret = 0;
+-
+-	spin_lock_irq(&rtc->lock);
+-
+-	if (enabled) {
+-		if (rtc_readl(rtc, VAL) > rtc->alarm_time) {
+-			ret = -EINVAL;
+-			goto out;
+-		}
+-		rtc_writel(rtc, CTRL, rtc_readl(rtc, CTRL)
+-				| RTC_BIT(CTRL_TOPEN));
+-		rtc_writel(rtc, ICR, RTC_BIT(ICR_TOPI));
+-		rtc_writel(rtc, IER, RTC_BIT(IER_TOPI));
+-	} else {
+-		rtc_writel(rtc, CTRL, rtc_readl(rtc, CTRL)
+-				& ~RTC_BIT(CTRL_TOPEN));
+-		rtc_writel(rtc, IDR, RTC_BIT(IDR_TOPI));
+-		rtc_writel(rtc, ICR, RTC_BIT(ICR_TOPI));
+-	}
+-out:
+-	spin_unlock_irq(&rtc->lock);
+-
+-	return ret;
+-}
+-
+-static irqreturn_t at32_rtc_interrupt(int irq, void *dev_id)
+-{
+-	struct rtc_at32ap700x *rtc = (struct rtc_at32ap700x *)dev_id;
+-	unsigned long isr = rtc_readl(rtc, ISR);
+-	unsigned long events = 0;
+-	int ret = IRQ_NONE;
+-
+-	spin_lock(&rtc->lock);
+-
+-	if (isr & RTC_BIT(ISR_TOPI)) {
+-		rtc_writel(rtc, ICR, RTC_BIT(ICR_TOPI));
+-		rtc_writel(rtc, IDR, RTC_BIT(IDR_TOPI));
+-		rtc_writel(rtc, CTRL, rtc_readl(rtc, CTRL)
+-				& ~RTC_BIT(CTRL_TOPEN));
+-		rtc_writel(rtc, VAL, rtc->alarm_time);
+-		events = RTC_AF | RTC_IRQF;
+-		rtc_update_irq(rtc->rtc, 1, events);
+-		ret = IRQ_HANDLED;
+-	}
+-
+-	spin_unlock(&rtc->lock);
+-
+-	return ret;
+-}
+-
+-static const struct rtc_class_ops at32_rtc_ops = {
+-	.read_time	= at32_rtc_readtime,
+-	.set_time	= at32_rtc_settime,
+-	.read_alarm	= at32_rtc_readalarm,
+-	.set_alarm	= at32_rtc_setalarm,
+-	.alarm_irq_enable = at32_rtc_alarm_irq_enable,
+-};
+-
+-static int __init at32_rtc_probe(struct platform_device *pdev)
+-{
+-	struct resource	*regs;
+-	struct rtc_at32ap700x *rtc;
+-	int irq;
+-	int ret;
+-
+-	rtc = devm_kzalloc(&pdev->dev, sizeof(struct rtc_at32ap700x),
+-			   GFP_KERNEL);
+-	if (!rtc)
+-		return -ENOMEM;
+-
+-	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!regs) {
+-		dev_dbg(&pdev->dev, "no mmio resource defined\n");
+-		return -ENXIO;
+-	}
+-
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0) {
+-		dev_dbg(&pdev->dev, "could not get irq\n");
+-		return -ENXIO;
+-	}
+-
+-	rtc->irq = irq;
+-	rtc->regs = devm_ioremap(&pdev->dev, regs->start, resource_size(regs));
+-	if (!rtc->regs) {
+-		dev_dbg(&pdev->dev, "could not map I/O memory\n");
+-		return -ENOMEM;
+-	}
+-	spin_lock_init(&rtc->lock);
+-
+-	/*
+-	 * Maybe init RTC: count from zero at 1 Hz, disable wrap irq.
+-	 *
+-	 * Do not reset VAL register, as it can hold an old time
+-	 * from last JTAG reset.
+-	 */
+-	if (!(rtc_readl(rtc, CTRL) & RTC_BIT(CTRL_EN))) {
+-		rtc_writel(rtc, CTRL, RTC_BIT(CTRL_PCLR));
+-		rtc_writel(rtc, IDR, RTC_BIT(IDR_TOPI));
+-		rtc_writel(rtc, CTRL, RTC_BF(CTRL_PSEL, 0xe)
+-				| RTC_BIT(CTRL_EN));
+-	}
+-
+-	ret = devm_request_irq(&pdev->dev, irq, at32_rtc_interrupt, IRQF_SHARED,
+-				"rtc", rtc);
+-	if (ret) {
+-		dev_dbg(&pdev->dev, "could not request irq %d\n", irq);
+-		return ret;
+-	}
+-
+-	platform_set_drvdata(pdev, rtc);
+-
+-	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-				&at32_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc)) {
+-		dev_dbg(&pdev->dev, "could not register rtc device\n");
+-		return PTR_ERR(rtc->rtc);
+-	}
+-
+-	device_init_wakeup(&pdev->dev, 1);
+-
+-	dev_info(&pdev->dev, "Atmel RTC for AT32AP700x at %08lx irq %ld\n",
+-			(unsigned long)rtc->regs, rtc->irq);
+-
+-	return 0;
+-}
+-
+-static int __exit at32_rtc_remove(struct platform_device *pdev)
+-{
+-	device_init_wakeup(&pdev->dev, 0);
+-
+-	return 0;
+-}
+-
+-MODULE_ALIAS("platform:at32ap700x_rtc");
+-
+-static struct platform_driver at32_rtc_driver = {
+-	.remove		= __exit_p(at32_rtc_remove),
+-	.driver		= {
+-		.name	= "at32ap700x_rtc",
+-	},
+-};
+-
+-module_platform_driver_probe(at32_rtc_driver, at32_rtc_probe);
+-
+-MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
+-MODULE_DESCRIPTION("Real time clock for AVR32 AT32AP700x");
+-MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.13.6
