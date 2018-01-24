@@ -1,111 +1,499 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:62383 "EHLO
-        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751378AbeA3LkP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Jan 2018 06:40:15 -0500
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "linux@roeck-us.net" <linux@roeck-us.net>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>
-CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:57329 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933300AbeAXMKS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 24 Jan 2018 07:10:18 -0500
+Date: Wed, 24 Jan 2018 13:10:01 +0100
+From: Michael Grzeschik <mgr@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-rtc@vger.kernel.org, a.zummo@towertech.it, jdelvare@suse.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Denis.Osterland@diehl.com, alexandre.belloni@free-electrons.com,
+        kernel@pengutronix.de
 Subject: Re: [PATCH 4/4] rtc: isl1208: add support for isl1219 with hwmon for
  tamper detection
-Date: Tue, 30 Jan 2018 11:40:10 +0000
-Message-ID: <1517312409.5307.22.camel@diehl.com>
+Message-ID: <20180124121001.n477l35sugixvffq@pengutronix.de>
 References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
-         <20180123121801.4214-5-m.grzeschik@pengutronix.de>
-         <20180123182254.GA27379@roeck-us.net>
-         <20180124090333.r5o2mzpm4q536w4r@pengutronix.de>
-         <20180129215919.GA17988@roeck-us.net> <20180130102740.GD2809@piout.net>
-In-Reply-To: <20180130102740.GD2809@piout.net>
+ <20180123121801.4214-5-m.grzeschik@pengutronix.de>
+ <20180123182254.GA27379@roeck-us.net>
+ <20180124090333.r5o2mzpm4q536w4r@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="nsd6et7i2p43twdo"
+In-Reply-To: <20180124090333.r5o2mzpm4q536w4r@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-QW0gRGllbnN0YWcsIGRlbiAzMC4wMS4yMDE4LCAxMToyNyArMDEwMCBzY2hyaWViIEFsZXhh
-bmRyZSBCZWxsb25pOg0KPiBPbiAyOS8wMS8yMDE4IGF0IDEzOjU5OjE5IC0wODAwLCBHdWVu
-dGVyIFJvZWNrIHdyb3RlOg0KPiA+IA0KPiA+IE9uIFdlZCwgSmFuIDI0LCAyMDE4IGF0IDEw
-OjAzOjMzQU0gKzAxMDAsIE1pY2hhZWwgR3J6ZXNjaGlrIHdyb3RlOg0KPiA+IFsgLi4uIF0N
-Cj4gPiA+IA0KPiA+ID4gPiANCj4gPiA+ID4gPiANCj4gPiA+ID4gPiArDQo+ID4gPiA+ID4g
-ZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vaHdtb24vc3lzZnMtaW50ZXJmYWNlIGIvRG9j
-dW1lbnRhdGlvbi9od21vbi9zeXNmcy1pbnRlcmZhY2UNCj4gPiA+ID4gPiBpbmRleCBmYzMz
-N2MzMTdjNjczLi5hMTJiM2MyYjJhMThjIDEwMDY0NA0KPiA+ID4gPiA+IC0tLSBhL0RvY3Vt
-ZW50YXRpb24vaHdtb24vc3lzZnMtaW50ZXJmYWNlDQo+ID4gPiA+ID4gKysrIGIvRG9jdW1l
-bnRhdGlvbi9od21vbi9zeXNmcy1pbnRlcmZhY2UNCj4gPiA+ID4gPiBAQCAtNzAyLDYgKzcw
-MiwxMyBAQCBpbnRydXNpb25bMC0qXV9hbGFybQ0KPiA+ID4gPiA+IMKgCQl0aGUgdXNlci4g
-VGhpcyBpcyBkb25lIGJ5IHdyaXRpbmcgMCB0byB0aGUgZmlsZS4gV3JpdGluZw0KPiA+ID4g
-PiA+IMKgCQlvdGhlciB2YWx1ZXMgaXMgdW5zdXBwb3J0ZWQuDQo+ID4gPiA+ID4gwqANCj4g
-PiA+ID4gPiAraW50cnVzaW9uWzAtKl1fdGltZXN0YW1wDQo+ID4gPiA+ID4gKwkJQ2hhc3Np
-cyBpbnRydXNpb24gZGV0ZWN0aW9uDQo+ID4gPiA+ID4gKwkJWVlZWS1NTS1ERCBISDpNTTpT
-UyBVVEMgKHRzLnNlYyk6IGludHJ1c2lvbiBkZXRlY3RlZA0KPiA+ID4gPiA+ICsJCVJPDQo+
-ID4gPiA+ID4gKwkJVGhlIGNvcnJlc3BvbmRpbmcgdGltZXN0YW1wIG9uIHdoaWNoIHRoZSBp
-bnRydXN0aW9uDQo+ID4gPiA+ID4gKwkJd2FzIGRldGVjdGVkLg0KPiA+ID4gPiA+ICsNCj4g
-PiA+ID4gU25lYWt5LiBOYWNrLiBZb3UgZG9uJ3QganVzdCBhZGQgYXR0cmlidXRlcyB0byB0
-aGUgQUJJIGJlY2F1c2UgeW91IHdhbnQgaXQsDQo+ID4gPiA+IHdpdGhvdXQgc2VyaW91cyBk
-aXNjdXNzaW9uLCBhbmQgbXVjaCBsZXNzIHNvIGhpZGRlbiBpbiBhbiBSVEMgZHJpdmVyDQo+
-ID4gPiA+IChhbmQgZXZlbiBsZXNzIGFzIHVucGFyc2VhYmxlIGF0dHJpYnV0ZSkuDQo+ID4g
-PiBSaWdodDsgYnV0IGl0IHdhcyBub3QgbWVhbnQgdG8gYmUgc25lYWt5LiBJIHNob3VsZCBo
-YXZlIHN0aWNrIHRvIG15IGZpcnN0DQo+ID4gPiB0aG91Z2h0IGFuZCBsYWJlbCB0aGlzIHBh
-dGNoIFJGQy4gU29ycnkgZm9yIHRoYXQuDQo+ID4gPiANCj4gPiA+ID4gDQo+ID4gPiA+IElu
-IGFkZGl0aW9uIHRvIHRoYXQsIEkgY29uc2lkZXIgdGhlIGF0dHJpYnV0ZSB1bm5lY2Vzc2Fy
-eS4gVGhlIGludHJ1c2lvbg0KPiA+ID4gPiBhbHJlYWR5IGdlbmVyYXRlcyBhbiBldmVudCB3
-aGljaCBzaG91bGQgYmUgc3VmZmljaWVudCBmb3IgYWxsIHByYWN0aWNhbA0KPiA+ID4gPiBw
-dXJwb3Nlcy4NCj4gPiA+IFdvdWxkIGl0IG1ha2Ugc2Vuc2UgaW4gYmV0d2VlbiB0aGUgb3Ro
-ZXIgc3lzZnMgYXR0cmlidXRlcyBvZiB0aGlzIGRyaXZlcj8NCj4gPiA+IA0KPiA+IEkgZG9u
-J3QgdW5kZXJzdGFuZCB3aGF0IHlvdSBtZWFuIHdpdGggdGhhdCwgc29ycnkuDQo+ID4gDQo+
-ID4gRnJvbSBhbiBBQkkgcGVyc3BlY3RpdmUsIHRoZSBhdHRpYnV0ZSBkb2Vzbid0IGFkZCB2
-YWx1ZSBzaW5jZSBpdCBpcw0KPiA+IGhpZ2hseSBkZXZpY2Ugc3BlY2lmaWMgKG9yIGF0IGxl
-YXN0IGl0IGlzIHRoZSBvbmx5IGNoaXAgSSBhbSBhd2FyZSBvZg0KPiA+IHdoaWNoIHJlcG9y
-dHMgc3VjaCBhIHRpbWUgc3RhbXApLiBGZWVsIGZyZWUgdG8gYWRkIHRoZSBhdHRyaWJ1dGUg
-dG8gdGhlDQo+ID4gZHJpdmVyIGFuZCBkb2N1bWVudCBpdCwgYnV0IG5vdCBhcyBwYXJ0IG9m
-IHRoZSBod21vbiBBQkkuIEluIHRoYXQNCj4gPiBjYXNlIEkgd291bGQgYmUgaW5jbGluZWQg
-dG8gYWNjZXB0IGl0LiBIb3dldmVyLCBrZWVwIGluIG1pbmQgdGhhdA0KPiA+IHlvdXIgdmVy
-c2lvbiwgcmVwb3J0aW5nIGEgaHVtYW4gcmVhZGFibGUgZGF0ZS90aW1lLCB3b3VsZCBlZmZl
-Y3RpdmVseQ0KPiA+IHByZWNsdWRlIGl0IGZyb20gZXZlciBtYWtpbmcgaXQgaW50byB0aGUg
-QUJJLg0KPiA+IA0KPiBBY3R1YWxseSwgdGhlcmUgYXJlIG1hbnkgUlRDcyB0aGF0IGFyZSBh
-YmxlIHRvIHJlZ2lzdGVyIG9uZSBvciBtb3JlDQo+IHRpbWVzdGFtcHMuIE15IHBsYW4gd2Fz
-IHRvIGFkZCBzdXBwb3J0IGZvciB0aGF0IHNvb24gYnV0IEkgd2FzIG5vdA0KPiBwbGFubmlu
-ZyB0byBkbyBzbyBpbiB0aGUgaHdtb24gQUJJIGFzIHRoaXMgbWF5IGJlIHVzZWQgZm9yIHNv
-bWV0aGluZw0KPiB0aGF0IGlzIG5vdCBpbnRydXNpb24gZGV0ZWN0aW9uIChpbnRlcnZhbCB0
-aW1lcnMgZm9yIGV4YW1wbGUpLg0KV2hhdCB3b3VsZCB5b3Ugc3VnZ2VzdD8NCkkgdGhpbmsg
-YWJvdXQgc29tZXRoaW5nIGxpa2UgdGhpczoNCmV2ZW50WzAtKl1fdGltZXN0YW1wOiB0aW1l
-c3RhbXAgaW4gc2Vjb25kcyBzaW5jZSBlcG9jaCBvciBlbXB0eSBpZiBub3QgdHJpZ2dlcmVk
-DQpldmVudFswLSpdX2FsYXJtOiAxIGlmIGV2ZW50IHdhcyB0cmlnZ2VyZWQsIGVsc2UgMDsg
-d3JpdGUgMCB0byBjbGVhciBldmVudA0KPiANCj4gDQpEaWVobCBBS08gU3RpZnR1bmcgJiBD
-by4gS0csIFBmYW5uZXJzdHJhw59lIDc1LTgzLCA4ODIzOSBXYW5nZW4gaW0gQWxsZ8OkdQ0K
-QmVyZWljaHN2b3JzdGFuZDogRHIuLUluZy4gTWljaGFlbCBTaWVkZW50b3AgKFNwcmVjaGVy
-KSwgSm9zZWYgRmVsbG5lciAoTWl0Z2xpZWQpDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IFdh
-bmdlbiBpLkEuIOKAkyBSZWdpc3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0IFVsbSBIUkEgNjIw
-NjA5IOKAkyBQZXJzw7ZubGljaCBoYWZ0ZW5kZSBHZXNlbGxzY2hhZnRlcmluOiBEaWVobCBW
-ZXJ3YWx0dW5ncy1TdGlmdHVuZyDigJMgU2l0ejogTsO8cm5iZXJnIOKAkyBSZWdpc3Rlcmdl
-cmljaHQ6IEFtdHNnZXJpY2h0IE7DvHJuYmVyZyBIUkEgMTE3NTYg4oCTDQpWb3JzdGFuZDog
-RHIuLUluZy4gRS5oLiBUaG9tYXMgRGllaGwgKOKAoCkgKFZvcnNpdHplbmRlciksIEhlcnIg
-RGlwbC4tV2lydHNjaC4tSW5nLiBXb2xmZ2FuZyBXZWdnZW4gKHN0ZWxsdmVydHJldGVuZGVy
-IFZvcnNpdHplbmRlciksIERpcGwuLUtmbS4gQ2xhdXMgR8O8bnRoZXIsIERpcGwuLUtmbS4g
-RnJhbmsgR3V0emVpdCwgRHIuLUluZy4gSGVpbnJpY2ggU2NodW5rLCBEci4tSW5nLiBNaWNo
-YWVsIFNpZWRlbnRvcCAsIERpcGwuLUtmbS4gRHIuLUluZy4gTWFydGluIFNvbW1lciwgRGlw
-bC4tSW5nLiAoRkgpIFJhaW5lciB2b24gQm9yc3RlbCwgVm9yc2l0emVuZGVyIGRlcyBBdWZz
-aWNodHNyYXRlczogRHIuIEtsYXVzIE1haWVyDQpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18NCkRlciBJbmhhbHQgZGVyIHZvcnN0ZWhlbmRlbiBFLU1h
-aWwgaXN0IG5pY2h0IHJlY2h0bGljaCBiaW5kZW5kLiBEaWVzZSBFLU1haWwgZW50aGFlbHQg
-dmVydHJhdWxpY2hlIHVuZC9vZGVyIHJlY2h0bGljaCBnZXNjaHVldHp0ZSBJbmZvcm1hdGlv
-bmVuLg0KSW5mb3JtaWVyZW4gU2llIHVucyBiaXR0ZSwgd2VubiBTaWUgZGllc2UgRS1NYWls
-IGZhZWxzY2hsaWNoZXJ3ZWlzZSBlcmhhbHRlbiBoYWJlbi4gQml0dGUgbG9lc2NoZW4gU2ll
-IGluIGRpZXNlbSBGYWxsIGRpZSBOYWNocmljaHQuIEplZGUgdW5lcmxhdWJ0ZSBGb3JtIGRl
-ciBSZXByb2R1a3Rpb24sIEJla2FubnRnYWJlLCBBZW5kZXJ1bmcsIFZlcnRlaWx1bmcgdW5k
-L29kZXIgUHVibGlrYXRpb24gZGllc2VyIEUtTWFpbCBpc3Qgc3RyZW5nc3RlbnMgdW50ZXJz
-YWd0Lg0KVGhlIGNvbnRlbnRzIG9mIHRoZSBhYm92ZSBtZW50aW9uZWQgZS1tYWlsIGlzIG5v
-dCBsZWdhbGx5IGJpbmRpbmcuIFRoaXMgZS1tYWlsIGNvbnRhaW5zIGNvbmZpZGVudGlhbCBh
-bmQvb3IgbGVnYWxseSBwcm90ZWN0ZWQgaW5mb3JtYXRpb24uIFBsZWFzZSBpbmZvcm0gdXMg
-aWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgYnkgbWlzdGFrZSBhbmQgZGVsZXRl
-IGl0IGluIHN1Y2ggYSBjYXNlLiBFYWNoIHVuYXV0aG9yaXplZCByZXByb2R1Y3Rpb24sIGRp
-c2Nsb3N1cmUsIGFsdGVyYXRpb24sIGRpc3RyaWJ1dGlvbiBhbmQvb3IgcHVibGljYXRpb24g
-b2YgdGhpcyBlLW1haWwgaXMgc3RyaWN0bHkgcHJvaGliaXRlZC4=
+
+--nsd6et7i2p43twdo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 24, 2018 at 10:03:33AM +0100, Michael Grzeschik wrote:
+> On Tue, Jan 23, 2018 at 10:22:54AM -0800, Guenter Roeck wrote:
+> > On Tue, Jan 23, 2018 at 01:18:01PM +0100, Michael Grzeschik wrote:
+> > > We add support for the ISL1219 chip that got an integrated tamper
+> > > detection function. This patch implements the feature by using an hwm=
+on
+> > > interface.
+> > >=20
+> > > The ISL1219 can also describe the timestamp of the intrusion
+> > > event. For this we add the documentation of the new interface
+> > > intrusion[0-*]_timestamp.
+> > >=20
+> > > The devicetree documentation for the ISL1219 device tree
+> > > binding is added with an short example.
+> > >=20
+> > > Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> > > Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> > > ---
+> > >  .../rtc/{intersil,isl1208.txt =3D> isil,isl1208.txt} |  18 +-
+> > >  Documentation/hwmon/sysfs-interface                |   7 +
+> > >  drivers/rtc/rtc-isl1208.c                          | 190 +++++++++++=
+++++++++--
+> > >  3 files changed, 201 insertions(+), 14 deletions(-)
+> > >  rename Documentation/devicetree/bindings/rtc/{intersil,isl1208.txt =
+=3D> isil,isl1208.txt} (57%)
+> > >=20
+> > > diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl1208.t=
+xt b/Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> > > similarity index 57%
+> > > rename from Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> > > rename to Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> > > index a54e99feae1ca..d549699e1cfc4 100644
+> > > --- a/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> > > +++ b/Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> > > @@ -1,14 +1,21 @@
+> > > -Intersil ISL1208, ISL1218 I2C RTC/Alarm chip
+> > > +Intersil ISL1208, ISL1218, ISL1219 I2C RTC/Alarm chip
+> > > =20
+> > >  ISL1208 is a trivial I2C device (it has simple device tree bindings,
+> > >  consisting of a compatible field, an address and possibly an interru=
+pt
+> > >  line).
+> > > =20
+> > > +ISL1219 supports tamper detection user space representation through
+> > > +case intrusion hwmon sensor.
+> > > +ISL1219 has additional pins EVIN and #EVDET for tamper detection.
+> > > +I2C devices support only one irq. #IRQ and #EVDET are open-drain act=
+ive low,
+> > > +so it is possible layout them to one SoC pin with pull-up.
+> > > +
+> > >  Required properties supported by the device:
+> > > =20
+> > >   - "compatible": must be one of
+> > >  	"isil,isl1208"
+> > >  	"isil,isl1218"
+> > > +	"isil,isl1219"
+> > >   - "reg": I2C bus address of the device
+> > > =20
+> > >  Optional properties:
+> > > @@ -33,3 +40,12 @@ Example isl1208 node with #IRQ pin connected to So=
+C gpio1 pin 12:
+> > >  		interrupt-parent =3D <&gpio1>;
+> > >  		interrupts =3D <12 IRQ_TYPE_EDGE_FALLING>;
+> > >  	};
+> > > +
+> > > +Example isl1219 node with #IRQ pin and #EVDET pin connected to SoC g=
+pio1 pin 12:
+> > > +
+> > > +	isl1219: isl1219@68 {
+> > > +		compatible =3D "intersil,isl1219";
+> > > +		reg =3D <0x68>;
+> > > +		interrupts-extended =3D <&gpio1 12 IRQ_TYPE_EDGE_FALLING>;
+> > > +	};
+> > > +
+> > > diff --git a/Documentation/hwmon/sysfs-interface b/Documentation/hwmo=
+n/sysfs-interface
+> > > index fc337c317c673..a12b3c2b2a18c 100644
+> > > --- a/Documentation/hwmon/sysfs-interface
+> > > +++ b/Documentation/hwmon/sysfs-interface
+> > > @@ -702,6 +702,13 @@ intrusion[0-*]_alarm
+> > >  		the user. This is done by writing 0 to the file. Writing
+> > >  		other values is unsupported.
+> > > =20
+> > > +intrusion[0-*]_timestamp
+> > > +		Chassis intrusion detection
+> > > +		YYYY-MM-DD HH:MM:SS UTC (ts.sec): intrusion detected
+> > > +		RO
+> > > +		The corresponding timestamp on which the intrustion
+> > > +		was detected.
+> > > +
+> >=20
+> > Sneaky. Nack. You don't just add attributes to the ABI because you want=
+ it,
+> > without serious discussion, and much less so hidden in an RTC driver
+> > (and even less as unparseable attribute).
+>=20
+> Right; but it was not meant to be sneaky. I should have stick to my first
+> thought and label this patch RFC. Sorry for that.
+>=20
+> > In addition to that, I consider the attribute unnecessary. The intrusion
+> > already generates an event which should be sufficient for all practical
+> > purposes.
+>=20
+> Would it make sense in between the other sysfs attributes of this driver?
+
+I rethought that case and can tell that this timestamp has more value
+here. The rtc is able to generate the timestamp even when the hardware
+is not running and the rtc is still powered by battery. In that case it
+would trigger an interrupt as soon the driver is running. For that
+situation the intrusion timestamp does not correlate with the interrupt
+event.
+
+Michael
+
+> > >  intrusion[0-*]_beep
+> > >  		Chassis intrusion beep
+> > >  		0: disable
+> > > diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+> > > index a13a4ba79004d..6e4d24614d98b 100644
+> > > --- a/drivers/rtc/rtc-isl1208.c
+> > > +++ b/drivers/rtc/rtc-isl1208.c
+> > > @@ -14,6 +14,8 @@
+> > >  #include <linux/i2c.h>
+> > >  #include <linux/bcd.h>
+> > >  #include <linux/rtc.h>
+> > > +#include <linux/hwmon.h>
+> > > +#include <linux/hwmon-sysfs.h>
+> > > =20
+> > >  /* Register map */
+> > >  /* rtc section */
+> > > @@ -33,6 +35,7 @@
+> > >  #define ISL1208_REG_SR_ARST    (1<<7)	/* auto reset */
+> > >  #define ISL1208_REG_SR_XTOSCB  (1<<6)	/* crystal oscillator */
+> > >  #define ISL1208_REG_SR_WRTC    (1<<4)	/* write rtc */
+> > > +#define ISL1208_REG_SR_EVT     (1<<3)	/* event */
+> > >  #define ISL1208_REG_SR_ALM     (1<<2)	/* alarm */
+> > >  #define ISL1208_REG_SR_BAT     (1<<1)	/* battery */
+> > >  #define ISL1208_REG_SR_RTCF    (1<<0)	/* rtc fail */
+> > > @@ -57,8 +60,29 @@
+> > >  #define ISL1208_REG_USR2 0x13
+> > >  #define ISL1208_USR_SECTION_LEN 2
+> > > =20
+> > > +/* event section */
+> > > +#define ISL1208_REG_SCT 0x14
+> > > +#define ISL1208_REG_MNT 0x15
+> > > +#define ISL1208_REG_HRT 0x16
+> > > +#define ISL1208_REG_DTT 0x17
+> > > +#define ISL1208_REG_MOT 0x18
+> > > +#define ISL1208_REG_YRT 0x19
+> > > +#define ISL1208_EVT_SECTION_LEN 6
+> > > +
+> > >  static struct i2c_driver isl1208_driver;
+> > > =20
+> > > +/* ISL1208 various variants */
+> > > +enum {
+> > > +	TYPE_ISL1208 =3D 0,
+> > > +	TYPE_ISL1218,
+> > > +	TYPE_ISL1219,
+> > > +};
+> > > +
+> > > +struct isl1208 {
+> > > +	struct rtc_device *rtc;
+> > > +	struct device *hwmon;
+> > > +};
+> > > +
+> > >  /* block read */
+> > >  static int
+> > >  isl1208_i2c_read_regs(struct i2c_client *client, u8 reg, u8 buf[],
+> > > @@ -80,8 +104,8 @@ isl1208_i2c_read_regs(struct i2c_client *client, u=
+8 reg, u8 buf[],
+> > >  	};
+> > >  	int ret;
+> > > =20
+> > > -	BUG_ON(reg > ISL1208_REG_USR2);
+> > > -	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
+> > > +	WARN_ON(reg > ISL1208_REG_YRT);
+> > > +	WARN_ON(reg + len > ISL1208_REG_YRT + 1);
+> > > =20
+> > >  	ret =3D i2c_transfer(client->adapter, msgs, 2);
+> > >  	if (ret > 0)
+> > > @@ -104,8 +128,8 @@ isl1208_i2c_set_regs(struct i2c_client *client, u=
+8 reg, u8 const buf[],
+> > >  	};
+> > >  	int ret;
+> > > =20
+> > > -	BUG_ON(reg > ISL1208_REG_USR2);
+> > > -	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
+> > > +	WARN_ON(reg > ISL1208_REG_YRT);
+> > > +	WARN_ON(reg + len > ISL1208_REG_YRT + 1);
+> > > =20
+> > >  	i2c_buf[0] =3D reg;
+> > >  	memcpy(&i2c_buf[1], &buf[0], len);
+> > > @@ -493,12 +517,128 @@ isl1208_rtc_set_alarm(struct device *dev, stru=
+ct rtc_wkalrm *alarm)
+> > >  	return isl1208_i2c_set_alarm(to_i2c_client(dev), alarm);
+> > >  }
+> > > =20
+> > > +static ssize_t isl1208_hwmon_show_tamper(struct device *dev,
+> > > +				struct device_attribute *attr, char *buf)
+> > > +{
+> > > +	struct i2c_client *client =3D dev_get_drvdata(dev);
+> > > +	int sr;
+> > > +
+> > > +	sr =3D isl1208_i2c_get_sr(client);
+> > > +	if (sr < 0) {
+> > > +		dev_err(dev, "%s: reading SR failed\n", __func__);
+> > > +		return sr;
+> > > +	}
+> > > +
+> > > +	if (sr & ISL1208_REG_SR_EVT)
+> > > +		return sprintf(buf, "1\n");
+> > > +
+> > > +	return sprintf(buf, "0\n");
+> > > +};
+> > > +
+> > > +static ssize_t isl1208_hwmon_clear_caseopen(struct device *dev,
+> > > +		struct device_attribute *attr,
+> > > +		const char *buf, size_t count)
+> > > +{
+> > > +	struct i2c_client *client =3D dev_get_drvdata(dev);
+> > > +	unsigned long val;
+> > > +	int sr;
+> > > +
+> > > +	if (kstrtoul(buf, 10, &val) || val !=3D 0)
+> > > +		return -EINVAL;
+> > > +
+> > > +	sr =3D isl1208_i2c_get_sr(client);
+> > > +	if (sr < 0) {
+> > > +		dev_err(dev, "%s: reading SR failed\n", __func__);
+> > > +		return sr;
+> > > +	}
+> > > +
+> > > +	sr &=3D ~ISL1208_REG_SR_EVT;
+> > > +
+> > > +	sr =3D i2c_smbus_write_byte_data(client, ISL1208_REG_SR, sr);
+> > > +	if (sr < 0)
+> > > +		dev_err(dev, "%s: writing SR failed\n",
+> > > +			__func__);
+> > > +
+> > > +	return count;
+> > > +};
+> > > +
+> > > +static ssize_t isl1208_hwmon_show_tamper_timestamp(struct device *de=
+v,
+> > > +				struct device_attribute *attr, char *buf)
+> > > +{
+> > > +	struct i2c_client *client =3D dev_get_drvdata(dev);
+> > > +	u8 regs[ISL1208_EVT_SECTION_LEN] =3D { 0, };
+> > > +	struct timespec64 tv64;
+> > > +	struct rtc_time tm;
+> > > +	int sr;
+> > > +
+> > > +	sr =3D isl1208_i2c_get_sr(client);
+> > > +	if (sr < 0) {
+> > > +		dev_err(dev, "%s: reading SR failed\n", __func__);
+> > > +		return sr;
+> > > +	}
+> > > +
+> > > +	if (!(sr & ISL1208_REG_SR_EVT))
+> > > +		return 0;
+> > > +
+> > > +	sr =3D isl1208_i2c_read_regs(client, ISL1208_REG_SCT, regs,
+> > > +				   ISL1208_EVT_SECTION_LEN);
+> > > +	if (sr < 0) {
+> > > +		dev_err(dev, "%s: reading event section failed\n",
+> > > +			__func__);
+> > > +		return 0;
+> > > +	}
+> > > +
+> > > +	/* MSB of each alarm register is an enable bit */
+> > > +	tm.tm_sec =3D bcd2bin(regs[ISL1208_REG_SCT - ISL1208_REG_SCT] & 0x7=
+f);
+> > > +	tm.tm_min =3D bcd2bin(regs[ISL1208_REG_MNT - ISL1208_REG_SCT] & 0x7=
+f);
+> > > +	tm.tm_hour =3D bcd2bin(regs[ISL1208_REG_HRT - ISL1208_REG_SCT] & 0x=
+3f);
+> > > +	tm.tm_mday =3D bcd2bin(regs[ISL1208_REG_DTT - ISL1208_REG_SCT] & 0x=
+3f);
+> > > +	tm.tm_mon =3D
+> > > +		bcd2bin(regs[ISL1208_REG_MOT - ISL1208_REG_SCT] & 0x1f) - 1;
+> > > +	tm.tm_year =3D bcd2bin(regs[ISL1208_REG_YRT - ISL1208_REG_SCT]) + 1=
+00;
+> > > +
+> > > +	tv64.tv_sec =3D rtc_tm_to_time64(&tm);
+> > > +
+> > > +	return sprintf(buf,
+> > > +		"%d-%02d-%02d %02d:%02d:%02d UTC (%lld)\n",
+> > > +		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+> > > +		tm.tm_hour, tm.tm_min, tm.tm_sec,
+> > > +		(long long) tv64.tv_sec);
+> > > +};
+> > > +
+> > > +static SENSOR_DEVICE_ATTR(intrusion0_alarm, 0644, isl1208_hwmon_show=
+_tamper,
+> > > +			isl1208_hwmon_clear_caseopen, 0);
+> > > +
+> > > +static SENSOR_DEVICE_ATTR(intrusion0_timestamp, 0444,
+> > > +		isl1208_hwmon_show_tamper_timestamp, NULL, 0);
+> > > +
+> > > +static struct attribute *isl1208_hwmon_attrs[] =3D {
+> > > +	&sensor_dev_attr_intrusion0_alarm.dev_attr.attr,
+> > > +	&sensor_dev_attr_intrusion0_timestamp.dev_attr.attr,
+> > > +	NULL,
+> > > +};
+> > > +ATTRIBUTE_GROUPS(isl1208_hwmon);
+> > > +
+> > > +static void isl1208_hwmon_register(struct i2c_client *client)
+> > > +{
+> > > +	struct isl1208 *isl1208 =3D i2c_get_clientdata(client);
+> > > +
+> > > +	isl1208->hwmon =3D devm_hwmon_device_register_with_groups(&client->=
+dev,
+> > > +						client->name,
+> > > +						client, isl1208_hwmon_groups);
+> > > +	if (IS_ERR(isl1208->hwmon)) {
+> > > +		dev_warn(&client->dev,
+> > > +			"unable to register hwmon device %ld\n",
+> > > +			PTR_ERR(isl1208->hwmon));
+> > > +	}
+> > > +}
+> > > +
+> > >  static irqreturn_t
+> > >  isl1208_rtc_interrupt(int irq, void *data)
+> > >  {
+> > >  	unsigned long timeout =3D jiffies + msecs_to_jiffies(1000);
+> > >  	struct i2c_client *client =3D data;
+> > > -	struct rtc_device *rtc =3D i2c_get_clientdata(client);
+> > > +	struct isl1208 *isl1208 =3D i2c_get_clientdata(client);
+> > >  	int handled =3D 0, sr, err;
+> > > =20
+> > >  	/*
+> > > @@ -521,7 +661,7 @@ isl1208_rtc_interrupt(int irq, void *data)
+> > >  	if (sr & ISL1208_REG_SR_ALM) {
+> > >  		dev_dbg(&client->dev, "alarm!\n");
+> > > =20
+> > > -		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
+> > > +		rtc_update_irq(isl1208->rtc, 1, RTC_IRQF | RTC_AF);
+> > > =20
+> > >  		/* Clear the alarm */
+> > >  		sr &=3D ~ISL1208_REG_SR_ALM;
+> > > @@ -538,6 +678,13 @@ isl1208_rtc_interrupt(int irq, void *data)
+> > >  			return err;
+> > >  	}
+> > > =20
+> > > +	if (isl1208->hwmon && (sr & ISL1208_REG_SR_EVT)) {
+> > > +		sysfs_notify(&isl1208->hwmon->kobj, NULL,
+> > > +			sensor_dev_attr_intrusion0_alarm.dev_attr.attr.name);
+> > > +		dev_warn(&client->dev, "event detected");
+> > > +		handled =3D 1;
+> > > +	}
+> > > +
+> > >  	return handled ? IRQ_HANDLED : IRQ_NONE;
+> > >  }
+> > > =20
+> > > @@ -627,7 +774,7 @@ static int
+> > >  isl1208_probe(struct i2c_client *client, const struct i2c_device_id =
+*id)
+> > >  {
+> > >  	int rc =3D 0;
+> > > -	struct rtc_device *rtc;
+> > > +	struct isl1208 *isl1208;
+> > > =20
+> > >  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+> > >  		return -ENODEV;
+> > > @@ -635,13 +782,19 @@ isl1208_probe(struct i2c_client *client, const =
+struct i2c_device_id *id)
+> > >  	if (isl1208_i2c_validate_client(client) < 0)
+> > >  		return -ENODEV;
+> > > =20
+> > > -	rtc =3D devm_rtc_device_register(&client->dev, isl1208_driver.drive=
+r.name,
+> > > +	isl1208 =3D devm_kzalloc(&client->dev, sizeof(struct isl1208),
+> > > +				GFP_KERNEL);
+> > > +	if (!isl1208)
+> > > +		return -ENOMEM;
+> > > +
+> > > +	isl1208->rtc =3D devm_rtc_device_register(&client->dev,
+> > > +				  isl1208_driver.driver.name,
+> > >  				  &isl1208_rtc_ops,
+> > >  				  THIS_MODULE);
+> > > -	if (IS_ERR(rtc))
+> > > -		return PTR_ERR(rtc);
+> > > +	if (IS_ERR(isl1208->rtc))
+> > > +		return PTR_ERR(isl1208->rtc);
+> > > =20
+> > > -	i2c_set_clientdata(client, rtc);
+> > > +	i2c_set_clientdata(client, isl1208);
+> > > =20
+> > >  	rc =3D isl1208_i2c_get_sr(client);
+> > >  	if (rc < 0) {
+> > > @@ -657,6 +810,15 @@ isl1208_probe(struct i2c_client *client, const s=
+truct i2c_device_id *id)
+> > >  	if (rc)
+> > >  		return rc;
+> > > =20
+> > > +	if (id->driver_data =3D=3D TYPE_ISL1219) {
+> > > +		rc =3D i2c_smbus_write_byte_data(client, ISL1208_REG_09, 0x10);
+> > > +		if (rc < 0) {
+> > > +			dev_err(&client->dev, "could not enable tamper detection\n");
+> > > +			return rc;
+> > > +		}
+> > > +		isl1208_hwmon_register(client);
+> > > +	}
+> > > +
+> > >  	if (client->irq > 0) {
+> > >  		rc =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> > >  					       isl1208_rtc_interrupt,
+> > > @@ -686,8 +848,9 @@ isl1208_remove(struct i2c_client *client)
+> > >  }
+> > > =20
+> > >  static const struct i2c_device_id isl1208_id[] =3D {
+> > > -	{ "isl1208", 0 },
+> > > -	{ "isl1218", 0 },
+> > > +	{ "isl1208", TYPE_ISL1208 },
+> > > +	{ "isl1218", TYPE_ISL1218 },
+> > > +	{ "isl1219", TYPE_ISL1219 },
+> > >  	{ }
+> > >  };
+> > >  MODULE_DEVICE_TABLE(i2c, isl1208_id);
+> > > @@ -695,6 +858,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+> > >  static const struct of_device_id isl1208_of_match[] =3D {
+> > >  	{ .compatible =3D "isil,isl1208" },
+> > >  	{ .compatible =3D "isil,isl1218" },
+> > > +	{ .compatible =3D "isil,isl1219" },
+> > >  	{ }
+> > >  };
+> > >  MODULE_DEVICE_TABLE(of, isl1208_of_match);
+> > > --=20
+> > > 2.11.0
+> > >=20
+> >=20
+>=20
+> --=20
+> Pengutronix e.K.                           |                             |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+
+
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--nsd6et7i2p43twdo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEElXvEUs6VPX6mDPT8C+njFXoeLGQFAlpod5YACgkQC+njFXoe
+LGTc6BAAx0XGThYoHQ+3JIOaRwE5+p8m2I84237t5BqJMcc0tXFRcz7joAMW5G7V
+FHLUpKOzdNvxKG2crorur5/i4F2I+QmvhO8AGxvDqZOV9OXopWEEdEXdh+w5x93z
+smQ4u+PbIGesIGgrNq6G0hYJHCI7TZPJGWlaSZ7i4vn++zCMgRphS2k1J82Sa0lc
+mH9qcRp/oVPyhvHLZcCBbMX1Lif1Y6odfu2020L3VcztkFKma4PRRCxO0VQ+2bUY
+ZiyKulL7vq1ldi0OOn4fyPK9J7dxK2anjNxXk23zVodDmcD/5iFcrPWEfdBFnQm0
+uWZO1XOGrFlpftX4egMb+PUd0c4Fj2ynP/cnCUhWocdVdCBgJv8HO9/8kSGS8MsC
+3tmtYSS0pHLLoFZ1TzOvoK5eJ+eE+j1CRTbapkXrZK4hXxItRHgMRtzCZJWwCQj0
+qTCJ1QeMuIIXPbXQLSZO8JYyXYJxCNWwIqidyuksvM+fucg42hCM4iQZeqJI7IYz
+fGyMaBxnLp9O+R8RL0ElhLKk+iBToTOt4Ynk4/prsfN7K/dXFtI/sGr3cQG4Q1BD
+2XwVMqN7kQ8Oz47Qak51XK2VCHJVGDrSLscFOAutBhzbGw+y2RaAvIHAH5sYu7ej
+GIryl1ZTEV/kAisC9akVxoOKCmoqmx0v3Ln85yKlWVkpUetpXoQ=
+=pFja
+-----END PGP SIGNATURE-----
+
+--nsd6et7i2p43twdo--
