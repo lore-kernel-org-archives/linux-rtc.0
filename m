@@ -1,72 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:60360 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750715AbeABTCC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 14:02:02 -0500
-Date: Tue, 2 Jan 2018 11:01:59 -0800
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: Mikko Perttunen <cyndis@kapsi.fi>, mturquette@baylibre.com,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mips@linux-mips.org, linux-rpi-kernel@lists.infradead.org,
-        patches@opensource.cirrus.com,
-        uclinux-h8-devel@lists.sourceforge.jp,
-        linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-soc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-rockchip@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org,
-        freedreno@lists.freedesktop.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
- long
-Message-ID: <20180102190159.GH7997@codeaurora.org>
-References: <1514596392-22270-1-git-send-email-pure.logic@nexus-software.ie>
- <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
- <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
- <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:39638 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751485AbeAZFHG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Jan 2018 00:07:06 -0500
+Received: by mail-pf0-f196.google.com with SMTP id e11so7513283pff.6
+        for <linux-rtc@vger.kernel.org>; Thu, 25 Jan 2018 21:07:06 -0800 (PST)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
+Cc: arnd@arndb.de, broonie@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, baolin.wang@linaro.org
+Subject: [RESEND PATCH] rtc: Fix overflow when converting time64_t to rtc_time
+Date: Fri, 26 Jan 2018 13:06:01 +0800
+Message-Id: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 12/31, Bryan O'Donoghue wrote:
-> On 30/12/17 16:36, Mikko Perttunen wrote:
-> >FWIW, we had this problem some years ago with the Tegra CPU clock
-> >- then it was determined that a simpler solution was to have the
-> >determine_rate callback support unsigned long rates - so clock
-> >drivers that need to return rates higher than 2^31 can instead
-> >implement the determine_rate callback. That is what's currently
-> >implemented.
-> >
-> >Mikko
-> 
-> Granted we could work around it but, having both zero and less than
-> zero indicate error means you can't support larger than LONG_MAX
-> which is I think worth fixing.
-> 
+If we convert one large time values to rtc_time, in the original formula
+'days * 86400' can be overflowed in 'unsigned int' type to make the formula
+get one incorrect remain seconds value. Thus we can use div_s64_rem()
+function to avoid this situation.
 
-Ok. But can you implement the determine_rate op instead of the
-round_rate op for your clk? It's not a work-around, it's the
-preferred solution. That would allow rates larger than 2^31 for
-the clk without pushing through a change to all the drivers to
-express zero as "error" and non-zero as the rounded rate.
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+ drivers/rtc/rtc-lib.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-I'm not entirely opposed to this approach, because we probably
-don't care to pass the particular error value from a clk provider
-to a clk consumer about what the error is. It's actually what we
-proposed as the solution for clk_round_rate() to return values
-larger than LONG_MAX to consumers. But doing that consumer API
-change or this provider side change is going to require us to
-evaluate all the consumers of these clks to make sure they don't
-check for some error value that's less than zero. This series
-does half the work, by changing the provider side, while ignoring
-the consumer side and any potential fallout of the less than zero
-to zero return value change.
-
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index 1ae7da5..ad5bb21 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -52,13 +52,11 @@ int rtc_year_days(unsigned int day, unsigned int month, unsigned int year)
+  */
+ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
+ {
+-	unsigned int month, year;
+-	unsigned long secs;
++	unsigned int month, year, secs;
+ 	int days;
+ 
+ 	/* time must be positive */
+-	days = div_s64(time, 86400);
+-	secs = time - (unsigned int) days * 86400;
++	days = div_s64_rem(time, 86400, &secs);
+ 
+ 	/* day of the week, 1970-01-01 was a Thursday */
+ 	tm->tm_wday = (days + 4) % 7;
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+1.7.9.5
