@@ -1,60 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:44798 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751514AbeABFKi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 00:10:38 -0500
-Received: by mail-pg0-f68.google.com with SMTP id i5so7965389pgq.11
-        for <linux-rtc@vger.kernel.org>; Mon, 01 Jan 2018 21:10:37 -0800 (PST)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        corbet@lwn.net
-Cc: arnd@arndb.de, broonie@kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        baolin.wang@linaro.org
-Subject: [RFC PATCH 4/4] rtc: sc27xx: Add the get_range interface
-Date: Tue,  2 Jan 2018 13:10:08 +0800
-Message-Id: <2240e08e757926ff01d3b73596b0a8c9e29f2530.1514869622.git.baolin.wang@linaro.org>
-In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
-References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
-In-Reply-To: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
-References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:44853 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751816AbeA2XeM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jan 2018 18:34:12 -0500
+Date: Mon, 29 Jan 2018 17:34:10 -0600
+From: Rob Herring <robh@kernel.org>
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux@roeck-us.net, jdelvare@suse.com,
+        kernel@pengutronix.de, Denis.Osterland@diehl.com
+Subject: Re: [PATCH 2/4] rtc: isl1208: Add device tree binding documentation
+Message-ID: <20180129233410.y2g27rawmoh5phvr@rob-hp-laptop>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+ <20180123121801.4214-3-m.grzeschik@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180123121801.4214-3-m.grzeschik@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add the get_range interface for sc27xx RTC driver to tell the RTC
-core what is the valid range for RTC hardware device.
+On Tue, Jan 23, 2018 at 01:17:59PM +0100, Michael Grzeschik wrote:
+> From: Denis Osterland <Denis.Osterland@diehl.com>
+> 
+> Wrote documentation for ISL1208, ISL1218 device tree
+> binding with short examples.
+> 
+> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> ---
+>  .../devicetree/bindings/rtc/intersil,isl1208.txt   | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- drivers/rtc/rtc-sc27xx.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+A couple of nits, otherwise:
 
-diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index d544d52..97b1120 100644
---- a/drivers/rtc/rtc-sc27xx.c
-+++ b/drivers/rtc/rtc-sc27xx.c
-@@ -536,12 +536,22 @@ static int sprd_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	return ret;
- }
- 
-+static int sprd_rtc_read_range(struct device *dev, time64_t *max_hw_secs,
-+			       time64_t *min_hw_secs)
-+{
-+	*min_hw_secs = 0;
-+	*max_hw_secs = (((time64_t)(SPRD_RTC_DAY_MASK * 24) + 23) * 60 + 59) * 60 + 59;
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops sprd_rtc_ops = {
- 	.read_time = sprd_rtc_read_time,
- 	.set_time = sprd_rtc_set_time,
- 	.read_alarm = sprd_rtc_read_alarm,
- 	.set_alarm = sprd_rtc_set_alarm,
- 	.alarm_irq_enable = sprd_rtc_alarm_irq_enable,
-+	.read_range = sprd_rtc_read_range,
- };
- 
- static irqreturn_t sprd_rtc_handler(int irq, void *dev_id)
--- 
-1.7.9.5
+Reviewed-by: Rob Herring <robh@kernel.org>
+
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt b/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> new file mode 100644
+> index 0000000000000..a54e99feae1ca
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> @@ -0,0 +1,35 @@
+> +Intersil ISL1208, ISL1218 I2C RTC/Alarm chip
+> +
+> +ISL1208 is a trivial I2C device (it has simple device tree bindings,
+> +consisting of a compatible field, an address and possibly an interrupt
+> +line).
+> +
+> +Required properties supported by the device:
+> +
+> + - "compatible": must be one of
+> +	"isil,isl1208"
+> +	"isil,isl1218"
+> + - "reg": I2C bus address of the device
+> +
+> +Optional properties:
+> +
+> + - "interrupt-parent", "interrupts", "interrupts-extended":
+> +   for passing the interrupt line of the SoC connected to #IRQ pin
+> +   of the RTC chip.
+> +
+> +
+> +Example isl1208 node without #IRQ pin connected:
+> +
+> +	isl1208: isl1208@68 {
+
+rtc@68
+
+> +		compatible = "isil,isl1208";
+> +		reg = <0x68>;
+> +	};
+> +
+> +Example isl1208 node with #IRQ pin connected to SoC gpio1 pin 12:
+> +
+> +	isl1208: isl1208@68 {
+
+rtc@68
+
+> +		compatible = "isil,isl1208";
+> +		reg = <0x68>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+> +	};
+> -- 
+> 2.11.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
