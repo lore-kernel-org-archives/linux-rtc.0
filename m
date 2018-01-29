@@ -1,30 +1,306 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:36909 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752242AbeAZJYr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Jan 2018 04:24:47 -0500
-MIME-Version: 1.0
-In-Reply-To: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
-References: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 26 Jan 2018 10:24:46 +0100
-Message-ID: <CAK8P3a0HBYckf4eQUONg6yzai3emGYODAu6mTFpY+s6RUJ2NbA@mail.gmail.com>
-Subject: Re: [RESEND PATCH] rtc: Fix overflow when converting time64_t to rtc_time
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Brown <broonie@kernel.org>, linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mga07.intel.com ([134.134.136.100]:58588 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751032AbeA2CtN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 28 Jan 2018 21:49:13 -0500
+From: Zhang Rui <rui.zhang@intel.com>
+To: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
+Cc: gabriele.mzt@gmail.com, rui.zhang@intel.com
+Subject: [PATCH 2/4] rtc: cmos: allow using ACPI for RTC alarm instead of HPET
+Date: Mon, 29 Jan 2018 10:48:46 +0800
+Message-Id: <1517194128-5326-2-git-send-email-rui.zhang@intel.com>
+In-Reply-To: <1517194128-5326-1-git-send-email-rui.zhang@intel.com>
+References: <1517194128-5326-1-git-send-email-rui.zhang@intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jan 26, 2018 at 6:06 AM, Baolin Wang <baolin.wang@linaro.org> wrote:
-> If we convert one large time values to rtc_time, in the original formula
-> 'days * 86400' can be overflowed in 'unsigned int' type to make the formula
-> get one incorrect remain seconds value. Thus we can use div_s64_rem()
-> function to avoid this situation.
->
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+It's found that the HPET timer prevents the platform from entering
+Low Power S0 on some new Intel platforms.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+This means that
+1. users can still use RTC wake Alarm for suspend-to-idle, but the system
+   never enters Low Power S0, which is a waste of power.
+or
+2. if users want to put the system into Low Power S0, they can not use
+   RTC as the wakeup source.
+
+To fix this, we need to stop using the HPET timer for wake alarm.
+But disabling CONFIG_HPET_EMULATE_RTC is not an option because HPET
+emulates PIT at the same time, and this is needed on some of these
+platforms.
+
+Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos driver,
+so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still possible to
+use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead of HPET.
+
+Only necessary changes are made for the new "use_acpi_alarm" mode, including
+1. drop all the calls to HPET emulation code, including the HPET irq
+   handler for rtc interrupt.
+2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE request.
+3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
+
+There is no functional change made in this patch if the new mode is not
+enabled.
+
+Note: this "use_acpi_alarm" mode is made based on the assumption that
+ACPI RTC Fixed event is reliable both at runtime and during system wakeup.
+And this has been verified on a couple of platforms I have, including
+a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP 9360 (KBL).
+
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ drivers/rtc/rtc-cmos.c | 111 +++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 80 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 9dca53d..9665a72 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -48,6 +48,17 @@
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <linux/mc146818rtc.h>
+ 
++/*
++ * Use ACPI SCI to replace HPET interrupt for RTC Alarm event
++ *
++ * If cleared, ACPI SCI is only used to wake up the system from suspend
++ *
++ * If set, ACPI SCI is used to handle UIE/AIE and system wakeup
++ */
++
++static bool use_acpi_alarm;
++module_param(use_acpi_alarm, bool, 0444);
++
+ struct cmos_rtc {
+ 	struct rtc_device	*rtc;
+ 	struct device		*dev;
+@@ -153,6 +164,12 @@ static inline int hpet_unregister_irq_handler(irq_handler_t handler)
+ 
+ #endif
+ 
++/* Don't use HPET for RTC Alarm event if ACPI Fixed event is used */
++static int use_hpet_alarm(void)
++{
++	return is_hpet_enabled() && !use_acpi_alarm;
++}
++
+ /*----------------------------------------------------------------*/
+ 
+ #ifdef RTC_PORT
+@@ -298,7 +315,7 @@ static void cmos_checkintr(struct cmos_rtc *cmos, unsigned char rtc_control)
+ 	 */
+ 	rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+ 
+-	if (is_hpet_enabled())
++	if (use_hpet_alarm())
+ 		return;
+ 
+ 	rtc_intr &= (rtc_control & RTC_IRQMASK) | RTC_IRQF;
+@@ -318,7 +335,13 @@ static void cmos_irq_enable(struct cmos_rtc *cmos, unsigned char mask)
+ 
+ 	rtc_control |= mask;
+ 	CMOS_WRITE(rtc_control, RTC_CONTROL);
+-	hpet_set_rtc_irq_bit(mask);
++	if (use_hpet_alarm())
++		hpet_set_rtc_irq_bit(mask);
++
++	if ((mask & RTC_AIE) && use_acpi_alarm) {
++		if (cmos->wake_on)
++			cmos->wake_on(cmos->dev);
++	}
+ 
+ 	cmos_checkintr(cmos, rtc_control);
+ }
+@@ -330,7 +353,13 @@ static void cmos_irq_disable(struct cmos_rtc *cmos, unsigned char mask)
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+ 	rtc_control &= ~mask;
+ 	CMOS_WRITE(rtc_control, RTC_CONTROL);
+-	hpet_mask_rtc_irq_bit(mask);
++	if (use_hpet_alarm())
++		hpet_mask_rtc_irq_bit(mask);
++
++	if ((mask & RTC_AIE) && use_acpi_alarm) {
++		if (cmos->wake_off)
++			cmos->wake_off(cmos->dev);
++	}
+ 
+ 	cmos_checkintr(cmos, rtc_control);
+ }
+@@ -448,10 +477,14 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 			CMOS_WRITE(mon, cmos->mon_alrm);
+ 	}
+ 
+-	/* FIXME the HPET alarm glue currently ignores day_alrm
+-	 * and mon_alrm ...
+-	 */
+-	hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min, t->time.tm_sec);
++	if (use_hpet_alarm()) {
++		/*
++		 * FIXME the HPET alarm glue currently ignores day_alrm
++		 * and mon_alrm ...
++		 */
++		hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min,
++				    t->time.tm_sec);
++	}
+ 
+ 	if (t->enabled)
+ 		cmos_irq_enable(cmos, RTC_AIE);
+@@ -508,7 +541,7 @@ static int cmos_procfs(struct device *dev, struct seq_file *seq)
+ 		   "batt_status\t: %s\n",
+ 		   (rtc_control & RTC_PIE) ? "yes" : "no",
+ 		   (rtc_control & RTC_UIE) ? "yes" : "no",
+-		   is_hpet_enabled() ? "yes" : "no",
++		   use_hpet_alarm() ? "yes" : "no",
+ 		   // (rtc_control & RTC_SQWE) ? "yes" : "no",
+ 		   (rtc_control & RTC_DM_BINARY) ? "no" : "yes",
+ 		   (rtc_control & RTC_DST_EN) ? "yes" : "no",
+@@ -629,7 +662,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 	 */
+ 	irqstat = CMOS_READ(RTC_INTR_FLAGS);
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+-	if (is_hpet_enabled())
++	if (use_hpet_alarm())
+ 		irqstat = (unsigned long)irq & 0xF0;
+ 
+ 	/* If we were suspended, RTC_CONTROL may not be accurate since the
+@@ -648,7 +681,8 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 		cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+ 		rtc_control &= ~RTC_AIE;
+ 		CMOS_WRITE(rtc_control, RTC_CONTROL);
+-		hpet_mask_rtc_irq_bit(RTC_AIE);
++		if (use_hpet_alarm())
++			hpet_mask_rtc_irq_bit(RTC_AIE);
+ 		CMOS_READ(RTC_INTR_FLAGS);
+ 	}
+ 	spin_unlock(&rtc_lock);
+@@ -770,7 +804,8 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		 * need to do something about other clock frequencies.
+ 		 */
+ 		cmos_rtc.rtc->irq_freq = 1024;
+-		hpet_set_periodic_freq(cmos_rtc.rtc->irq_freq);
++		if (use_hpet_alarm())
++			hpet_set_periodic_freq(cmos_rtc.rtc->irq_freq);
+ 		CMOS_WRITE(RTC_REF_CLCK_32KHZ | 0x06, RTC_FREQ_SELECT);
+ 	}
+ 
+@@ -788,12 +823,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup1;
+ 	}
+ 
+-	hpet_rtc_timer_init();
++	if (use_hpet_alarm())
++		hpet_rtc_timer_init();
+ 
+ 	if (is_valid_irq(rtc_irq)) {
+ 		irq_handler_t rtc_cmos_int_handler;
+ 
+-		if (is_hpet_enabled()) {
++		if (use_hpet_alarm()) {
+ 			rtc_cmos_int_handler = hpet_rtc_interrupt;
+ 			retval = hpet_register_irq_handler(cmos_interrupt);
+ 			if (retval) {
+@@ -829,7 +865,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			"alarms up to one day",
+ 		cmos_rtc.century ? ", y3k" : "",
+ 		nvram.size,
+-		is_hpet_enabled() ? ", hpet irqs" : "");
++		use_hpet_alarm() ? ", hpet irqs" : "");
+ 
+ 	return 0;
+ 
+@@ -866,7 +902,8 @@ static void cmos_do_remove(struct device *dev)
+ 
+ 	if (is_valid_irq(cmos->irq)) {
+ 		free_irq(cmos->irq, cmos->rtc);
+-		hpet_unregister_irq_handler(cmos_interrupt);
++		if (use_hpet_alarm())
++			hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
+ 
+ 	rtc_device_unregister(cmos->rtc);
+@@ -944,13 +981,13 @@ static int cmos_suspend(struct device *dev)
+ 			mask = RTC_IRQMASK;
+ 		tmp &= ~mask;
+ 		CMOS_WRITE(tmp, RTC_CONTROL);
+-		hpet_mask_rtc_irq_bit(mask);
+-
++		if (use_hpet_alarm())
++			hpet_mask_rtc_irq_bit(mask);
+ 		cmos_checkintr(cmos, tmp);
+ 	}
+ 	spin_unlock_irq(&rtc_lock);
+ 
+-	if (tmp & RTC_AIE) {
++	if ((tmp & RTC_AIE) && !use_acpi_alarm) {
+ 		cmos->enabled_wake = 1;
+ 		if (cmos->wake_on)
+ 			cmos->wake_on(dev);
+@@ -1005,7 +1042,7 @@ static int __maybe_unused cmos_resume(struct device *dev)
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned char tmp;
+ 
+-	if (cmos->enabled_wake) {
++	if (cmos->enabled_wake && !use_acpi_alarm) {
+ 		if (cmos->wake_off)
+ 			cmos->wake_off(dev);
+ 		else
+@@ -1023,16 +1060,17 @@ static int __maybe_unused cmos_resume(struct device *dev)
+ 	if (tmp & RTC_IRQMASK) {
+ 		unsigned char	mask;
+ 
+-		if (device_may_wakeup(dev))
++		if (device_may_wakeup(dev) && use_hpet_alarm())
+ 			hpet_rtc_timer_init();
+ 
+ 		do {
+ 			CMOS_WRITE(tmp, RTC_CONTROL);
+-			hpet_set_rtc_irq_bit(tmp & RTC_IRQMASK);
++			if (use_hpet_alarm())
++				hpet_set_rtc_irq_bit(tmp & RTC_IRQMASK);
+ 
+ 			mask = CMOS_READ(RTC_INTR_FLAGS);
+ 			mask &= (tmp & RTC_IRQMASK) | RTC_IRQF;
+-			if (!is_hpet_enabled() || !is_intr(mask))
++			if (!use_hpet_alarm() || !is_intr(mask))
+ 				break;
+ 
+ 			/* force one-shot behavior if HPET blocked
+@@ -1077,16 +1115,27 @@ static u32 rtc_handler(void *context)
+ 	unsigned char rtc_intr;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&rtc_lock, flags);
+-	if (cmos_rtc.suspend_ctrl)
+-		rtc_control = CMOS_READ(RTC_CONTROL);
+-	if (rtc_control & RTC_AIE) {
+-		cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+-		CMOS_WRITE(rtc_control, RTC_CONTROL);
+-		rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+-		rtc_update_irq(cmos->rtc, 1, rtc_intr);
++
++	/*
++	 * Always update rtc irq when ACPI is used as RTC Alarm.
++	 * Or else, ACPI SCI is enabled during suspend/resume only,
++	 * update rtc irq in that case.
++	 */
++	if (use_acpi_alarm)
++		cmos_interrupt(0, (void *)cmos->rtc);
++	else {
++		/* Fix me: can we use cmos_interrupt() here as well? */
++		spin_lock_irqsave(&rtc_lock, flags);
++		if (cmos_rtc.suspend_ctrl)
++			rtc_control = CMOS_READ(RTC_CONTROL);
++		if (rtc_control & RTC_AIE) {
++			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
++			CMOS_WRITE(rtc_control, RTC_CONTROL);
++			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
++			rtc_update_irq(cmos->rtc, 1, rtc_intr);
++		}
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 	}
+-	spin_unlock_irqrestore(&rtc_lock, flags);
+ 
+ 	pm_wakeup_hard_event(dev);
+ 	acpi_clear_event(ACPI_EVENT_RTC);
+-- 
+2.7.4
