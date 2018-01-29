@@ -1,81 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46353 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752659AbeAQWOQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 17 Jan 2018 17:14:16 -0500
-Date: Wed, 17 Jan 2018 23:14:15 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 0/5] rtc: ds1307: factor out more stuff from ds1307_probe
- and improve ds1307_set_time
-Message-ID: <20180117221415.GO2678@piout.net>
-References: <cb381496-4d55-996d-e2ae-18880330e386@gmail.com>
- <20170826081904.ibsxi7crvi7qop3m@piout.net>
- <9ae42f67-9562-16c4-252d-9f629a31b69e@gmail.com>
- <20170826104457.sdeeacwgboeectpw@piout.net>
- <6e668a34-1211-f828-9e79-ab91338a3b14@gmail.com>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:39645 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751417AbeA2Xls (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jan 2018 18:41:48 -0500
+Date: Mon, 29 Jan 2018 17:41:46 -0600
+From: Rob Herring <robh@kernel.org>
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux@roeck-us.net, jdelvare@suse.com,
+        kernel@pengutronix.de, Denis.Osterland@diehl.com
+Subject: Re: [PATCH 4/4] rtc: isl1208: add support for isl1219 with hwmon for
+ tamper detection
+Message-ID: <20180129234146.73hvclxohhme5i2w@rob-hp-laptop>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+ <20180123121801.4214-5-m.grzeschik@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <6e668a34-1211-f828-9e79-ab91338a3b14@gmail.com>
+In-Reply-To: <20180123121801.4214-5-m.grzeschik@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Tue, Jan 23, 2018 at 01:18:01PM +0100, Michael Grzeschik wrote:
+> We add support for the ISL1219 chip that got an integrated tamper
+> detection function. This patch implements the feature by using an hwmon
+> interface.
+> 
+> The ISL1219 can also describe the timestamp of the intrusion
+> event. For this we add the documentation of the new interface
+> intrusion[0-*]_timestamp.
+> 
+> The devicetree documentation for the ISL1219 device tree
+> binding is added with an short example.
+> 
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> ---
+>  .../rtc/{intersil,isl1208.txt => isil,isl1208.txt} |  18 +-
+>  Documentation/hwmon/sysfs-interface                |   7 +
+>  drivers/rtc/rtc-isl1208.c                          | 190 +++++++++++++++++++--
+>  3 files changed, 201 insertions(+), 14 deletions(-)
+>  rename Documentation/devicetree/bindings/rtc/{intersil,isl1208.txt => isil,isl1208.txt} (57%)
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt b/Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> similarity index 57%
+> rename from Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> rename to Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> index a54e99feae1ca..d549699e1cfc4 100644
+> --- a/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> +++ b/Documentation/devicetree/bindings/rtc/isil,isl1208.txt
+> @@ -1,14 +1,21 @@
+> -Intersil ISL1208, ISL1218 I2C RTC/Alarm chip
+> +Intersil ISL1208, ISL1218, ISL1219 I2C RTC/Alarm chip
+>  
+>  ISL1208 is a trivial I2C device (it has simple device tree bindings,
+>  consisting of a compatible field, an address and possibly an interrupt
+>  line).
+>  
+> +ISL1219 supports tamper detection user space representation through
+> +case intrusion hwmon sensor.
 
-On 05/09/2017 at 07:27:08 +0200, Heiner Kallweit wrote:
-> Most code went into a new rtc-ds1307-lib library in a generic form, the driver
-> contains mainly chip configuration info now plus chip-specific routines for
-> reading / setting alarm.
-> Now it would require very little effort to e.g. make ds3231 a separate driver
-> because the hwmon code is needed for this chip only.
+User space and hwmon are Linux details not relevant to the binding. Just 
+describe the h/w.
 
-So I had a closer look (very late, sorry...)
+> +ISL1219 has additional pins EVIN and #EVDET for tamper detection.
+> +I2C devices support only one irq. #IRQ and #EVDET are open-drain active low,
+> +so it is possible layout them to one SoC pin with pull-up.
+> +
+>  Required properties supported by the device:
+>  
+>   - "compatible": must be one of
+>  	"isil,isl1208"
+>  	"isil,isl1218"
+> +	"isil,isl1219"
+>   - "reg": I2C bus address of the device
+>  
+>  Optional properties:
+> @@ -33,3 +40,12 @@ Example isl1208 node with #IRQ pin connected to SoC gpio1 pin 12:
+>  		interrupt-parent = <&gpio1>;
+>  		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+>  	};
+> +
+> +Example isl1219 node with #IRQ pin and #EVDET pin connected to SoC gpio1 pin 12:
+> +
+> +	isl1219: isl1219@68 {
+> +		compatible = "intersil,isl1219";
+> +		reg = <0x68>;
+> +		interrupts-extended = <&gpio1 12 IRQ_TYPE_EDGE_FALLING>;
 
-I think too much went in the lib and it is not generic enough.
+With 2 interrupts, you should have 2 values. If they are connected 
+together, just repeat the connection. Otherwise, you can't tell if EVDET 
+is a no connect.
 
-What I'd like are functions that could be used from every driver
-handling RTC in [centisec] sec min hour day month year format, not just
-ds1307. The ds1307 driver has been abused because it handles that
-format. Maybe, we could call that rtc_bcd_* or something similar.
+There's not much point in having an example for every compatible. This 
+binding is simple enough, one should be enough.
 
-For example, there is nothing ds1307 specific in ds1307_regs_to_tm apart
-from the century handling. The same for the function reading or writing
-the registers. A function taking a regmap and an offset will be generic
-enough for most drivers.
-
-So, the first step would be to make functions to handle that generically
-and call them from the driver. It would be good to also have the
-conversion of other drivers as a PoC but I can take care of that.
-
-Then, regarding the individual bits, they would be better handled using
-regmap_fields instead of rolling our own implementation. Those will have
-to be ds1307 specific. I wouldn't bother with their polarity as if it is
-different, it probably means a different driver is needed instead.
-
-Have read_time/set_time functions handling the osc bit the century
-bit(s) will make them reusable for around 40 drivers. (BTW, it seems
-ds1307_set_time() never resets the osc bit).
-I'm not sure about the alarm ops yet but they can probably be made
-generic enough.
-
-Also, the buffer update optimization instead of updating bits in the
-registers makes the code quite complicated. I'm not sure it is worth it.
-Also, it doesn't work well with the regmap_field idea.
-
-rtc_ops, irq handling, nvram handling, clock handling, trickle charger
-handling and probe should probably stay in the driver for now and will
-need to be separated in their own drivers later.
-
-So, let's start small and introduce functions that will work for most
-current drivers, handling bcd time. regmap can be used to abstract
-register accesses. A struct to pass register offsets and other data
-(like presence of wday or number of century bits) will probably be
-needed.
-
-I hope this is clear enough.
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> +	};
+> +
