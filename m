@@ -1,42 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:38995 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751795AbeABI04 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 03:26:56 -0500
-Received: by mail-oi0-f65.google.com with SMTP id r63so32893349oia.6
-        for <linux-rtc@vger.kernel.org>; Tue, 02 Jan 2018 00:26:55 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180102074703.GA3114@piout.net>
-References: <9ab56bdcaeb52241e22b738d6babe7b01728f64c.1514869621.git.baolin.wang@linaro.org>
- <20180102074703.GA3114@piout.net>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Tue, 2 Jan 2018 16:26:54 +0800
-Message-ID: <CAMz4kuL3xX5v4aYOLY0Fx=U5jny4B2+Fgbv_iJUs5iKrZtR5pw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] rtc: Introduce one interface to save the RTC
- hardware time range
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Jon Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>, linux-rtc@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Received: from mga07.intel.com ([134.134.136.100]:58588 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751032AbeA2CtM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 28 Jan 2018 21:49:12 -0500
+From: Zhang Rui <rui.zhang@intel.com>
+To: alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org
+Cc: gabriele.mzt@gmail.com, rui.zhang@intel.com, x86@kernel.org,
+        tglx@linutronix.de
+Subject: [PATCH 1/4] X86: check X86_VENDOR_ANY correctly
+Date: Mon, 29 Jan 2018 10:48:45 +0800
+Message-Id: <1517194128-5326-1-git-send-email-rui.zhang@intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+static const struct x86_cpu_id foo[] = {
+	{ X86_VENDOR_INTEL, X86_FAMILY_ANY, X86_MODEL_ANY, X86_FEATURE_ANY },
+	{}
+};
 
-On 2 January 2018 at 15:47, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> Hi Baolin,
->
-> Could you have a look at
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-ranges
->
-> My approach has multiple advantages as it works for 64-bit counters and
-> the range can be updated at runtime.
+x86_match_cpu(foo) returns NULL with Intel processors.
 
-Ah, I missed your approach. I will look at it. Thanks.
+This is wrong because,
+unlike X86_FAMILY_ANY/X86_MODEL_ANY/X86_FEATURE_ANY, X86_VENDOR_ANY is
+0xffff, rather than 0.
 
+Fix x86_match_cpu() by checking X86_VENDOR_ANY explicitly.
+
+cc: x86@kernel.org
+cc: tglx@linutronix.de
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ arch/x86/kernel/cpu/match.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/cpu/match.c b/arch/x86/kernel/cpu/match.c
+index 3fed388..72f363e 100644
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -34,7 +34,7 @@ const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match)
+ 	const struct x86_cpu_id *m;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+-	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
++	for (m = match; (m->vendor != X86_VENDOR_ANY) | m->family | m->model | m->feature; m++) {
+ 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
+ 			continue;
+ 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
 -- 
-Baolin.wang
-Best Regards
+2.7.4
