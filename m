@@ -1,101 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:36971 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751366AbeA3Ked (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Jan 2018 05:34:33 -0500
-Date: Tue, 30 Jan 2018 11:34:21 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux@roeck-us.net, jdelvare@suse.com, kernel@pengutronix.de,
-        Denis.Osterland@diehl.com
-Subject: Re: [PATCH 3/4] rtc: isl1208: enable interrupt after context
- preparation
-Message-ID: <20180130103421.GE2809@piout.net>
-References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
- <20180123121801.4214-4-m.grzeschik@pengutronix.de>
+Received: from mail.kernel.org ([198.145.29.99]:40616 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751360AbeA3Oou (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 30 Jan 2018 09:44:50 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180123121801.4214-4-m.grzeschik@pengutronix.de>
+In-Reply-To: <CAL_JsqKEXtL0hvEgFALKaCgW2Go==wj14_dDomdK_hPU23oXLQ@mail.gmail.com>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+ <20180123121801.4214-5-m.grzeschik@pengutronix.de> <20180129234146.73hvclxohhme5i2w@rob-hp-laptop>
+ <1517302582.5307.16.camel@diehl.com> <CAL_JsqKEXtL0hvEgFALKaCgW2Go==wj14_dDomdK_hPU23oXLQ@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Date: Tue, 30 Jan 2018 08:44:28 -0600
+Message-ID: <CAL_JsqLqDGeY6o4wJV6wkr+=W0_cMf5motA1RWwDtCKjYJ51CQ@mail.gmail.com>
+Subject: Re: [PATCH 4/4] rtc: isl1208: add support for isl1219 with hwmon for
+ tamper detection
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Tue, Jan 30, 2018 at 8:41 AM, Rob Herring <robh@kernel.org> wrote:
+> On Tue, Jan 30, 2018 at 2:56 AM, Denis OSTERLAND
+> <denis.osterland@diehl.com> wrote:
+>> Am Montag, den 29.01.2018, 17:41 -0600 schrieb Rob Herring:
+>>> On Tue, Jan 23, 2018 at 01:18:01PM +0100, Michael Grzeschik wrote:
+>>> >
+>>> > We add support for the ISL1219 chip that got an integrated tamper
+>>> > detection function. This patch implements the feature by using an hwmon
+>>> > interface.
 
-On 23/01/2018 at 13:18:00 +0100, Michael Grzeschik wrote:
-> The interrupt handler got enabled very early. If the interrupt cause is
-> triggering immediately before the context is fully prepared. This can
-> lead to undefined behaviour. Therefor we move the interrupt enable code
-> to the end of the probe function.
-> 
+[...]
 
-Can you fix it using devm_rtc_allocate_device()/rtc_register_device() as
-done in https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=994ec64c0a193940be7a6fd074668b9446d3b6c3
+>>> There's not much point in having an example for every compatible. This
+>>> binding is simple enough, one should be enough.
+>> Shell we remove the example without an interrupt?
+>
+> The existing example has a single interrupt, right? That should be
+> enough. You just need to document for the interrupts property which
+> devices have 2 interrupts and what the order is.
 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  drivers/rtc/rtc-isl1208.c | 34 +++++++++++++++++-----------------
->  1 file changed, 17 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-> index c8b4953482296..a13a4ba79004d 100644
-> --- a/drivers/rtc/rtc-isl1208.c
-> +++ b/drivers/rtc/rtc-isl1208.c
-> @@ -635,23 +635,6 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	if (isl1208_i2c_validate_client(client) < 0)
->  		return -ENODEV;
->  
-> -	if (client->irq > 0) {
-> -		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> -					       isl1208_rtc_interrupt,
-> -					       IRQF_SHARED | IRQF_ONESHOT,
-> -					       isl1208_driver.driver.name,
-> -					       client);
-> -		if (!rc) {
-> -			device_init_wakeup(&client->dev, 1);
-> -			enable_irq_wake(client->irq);
-> -		} else {
-> -			dev_err(&client->dev,
-> -				"Unable to request irq %d, no alarm support\n",
-> -				client->irq);
-> -			client->irq = 0;
-> -		}
-> -	}
-> -
->  	rtc = devm_rtc_device_register(&client->dev, isl1208_driver.driver.name,
->  				  &isl1208_rtc_ops,
->  				  THIS_MODULE);
-> @@ -674,6 +657,23 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	if (rc)
->  		return rc;
->  
-> +	if (client->irq > 0) {
-> +		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +					       isl1208_rtc_interrupt,
-> +					       IRQF_SHARED | IRQF_ONESHOT,
-> +					       isl1208_driver.driver.name,
-> +					       client);
-> +		if (!rc) {
-> +			device_init_wakeup(&client->dev, 1);
-> +			enable_irq_wake(client->irq);
-> +		} else {
-> +			dev_err(&client->dev,
-> +				"Unable to request irq %d, no alarm support\n",
-> +				client->irq);
-> +			client->irq = 0;
-> +		}
-> +	}
-> +
->  	return 0;
->  }
->  
-> -- 
-> 2.11.0
-> 
+Looking at the first patch now, yes you can drop the 1st example and
+just keep the 2nd example.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Rob
