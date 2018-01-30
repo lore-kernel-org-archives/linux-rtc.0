@@ -1,41 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:33499 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755386AbeAHGFU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Jan 2018 01:05:20 -0500
-Received: by mail-pg0-f68.google.com with SMTP id i196so4915877pgd.0
-        for <linux-rtc@vger.kernel.org>; Sun, 07 Jan 2018 22:05:20 -0800 (PST)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com
-Cc: arnd@arndb.de, broonie@kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, baolin.wang@linaro.org
-Subject: [PATCH 1/3] rtc: Use time64_t to save range_max of RTC
-Date: Mon,  8 Jan 2018 14:04:48 +0800
-Message-Id: <f64a09a864c00955eb994a0c03c503795adb0eee.1515390560.git.baolin.wang@linaro.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:36173 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751925AbeA3KGe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Jan 2018 05:06:34 -0500
+Date: Tue, 30 Jan 2018 11:06:21 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux@roeck-us.net, jdelvare@suse.com, kernel@pengutronix.de,
+        Denis.Osterland@diehl.com
+Subject: Re: [PATCH 2/4] rtc: isl1208: Add device tree binding documentation
+Message-ID: <20180130100621.GC2809@piout.net>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+ <20180123121801.4214-3-m.grzeschik@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180123121801.4214-3-m.grzeschik@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We need use rtc->range_max to valid if the time values are valid,
-and the time values are saved by time64_t type. So change the
-rtc->range_max to time64_t type for comparison correctly.
+Hi,
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- include/linux/rtc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 23/01/2018 at 13:17:59 +0100, Michael Grzeschik wrote:
+> From: Denis Osterland <Denis.Osterland@diehl.com>
+> 
+> Wrote documentation for ISL1208, ISL1218 device tree
+> binding with short examples.
+> 
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 69e358c..4ac60af 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -153,7 +153,7 @@ struct rtc_device {
- 	struct bin_attribute *nvram;
- 
- 	time64_t range_min;
--	timeu64_t range_max;
-+	time64_t range_max;
- 
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
- 	struct work_struct uie_task;
+This binding is already in
+Documentation/devicetree/bindings/trivial-devices.txt, no need to
+duplicate.
+
+> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> ---
+>  .../devicetree/bindings/rtc/intersil,isl1208.txt   | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt b/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> new file mode 100644
+> index 0000000000000..a54e99feae1ca
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/intersil,isl1208.txt
+> @@ -0,0 +1,35 @@
+> +Intersil ISL1208, ISL1218 I2C RTC/Alarm chip
+> +
+> +ISL1208 is a trivial I2C device (it has simple device tree bindings,
+> +consisting of a compatible field, an address and possibly an interrupt
+> +line).
+> +
+> +Required properties supported by the device:
+> +
+> + - "compatible": must be one of
+> +	"isil,isl1208"
+> +	"isil,isl1218"
+> + - "reg": I2C bus address of the device
+> +
+> +Optional properties:
+> +
+> + - "interrupt-parent", "interrupts", "interrupts-extended":
+> +   for passing the interrupt line of the SoC connected to #IRQ pin
+> +   of the RTC chip.
+> +
+> +
+> +Example isl1208 node without #IRQ pin connected:
+> +
+> +	isl1208: isl1208@68 {
+> +		compatible = "isil,isl1208";
+> +		reg = <0x68>;
+> +	};
+> +
+> +Example isl1208 node with #IRQ pin connected to SoC gpio1 pin 12:
+> +
+> +	isl1208: isl1208@68 {
+> +		compatible = "isil,isl1208";
+> +		reg = <0x68>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+> +	};
+> -- 
+> 2.11.0
+> 
+
 -- 
-1.7.9.5
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
