@@ -1,133 +1,103 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:60580 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750787AbeABX2N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Jan 2018 18:28:13 -0500
-Date: Tue, 2 Jan 2018 15:28:11 -0800
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: Mikko Perttunen <cyndis@kapsi.fi>, mturquette@baylibre.com,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mips@linux-mips.org, linux-rpi-kernel@lists.infradead.org,
-        patches@opensource.cirrus.com,
-        uclinux-h8-devel@lists.sourceforge.jp,
-        linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-soc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-rockchip@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org,
-        freedreno@lists.freedesktop.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 01/33] clk_ops: change round_rate() to return unsigned
- long
-Message-ID: <20180102232811.GN7997@codeaurora.org>
-References: <1514596392-22270-1-git-send-email-pure.logic@nexus-software.ie>
- <1514596392-22270-2-git-send-email-pure.logic@nexus-software.ie>
- <9f4bef5a-8a71-6f30-5cfb-5e8fe133e3d3@kapsi.fi>
- <6d83a5c3-6589-24bc-4ca5-4d1bbca47432@nexus-software.ie>
- <20180102190159.GH7997@codeaurora.org>
- <c2212d56-a8b5-cba5-46a7-c2c7f66e752b@nexus-software.ie>
+Received: from mail.free-electrons.com ([62.4.15.54]:42117 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751816AbeAaKyU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 31 Jan 2018 05:54:20 -0500
+Date: Wed, 31 Jan 2018 11:54:18 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Denis OSTERLAND <denis.osterland@diehl.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] rtc: isl1208: add support for isl1219 with hwmon for
+ tamper detection
+Message-ID: <20180131105418.GP2809@piout.net>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+ <20180123121801.4214-5-m.grzeschik@pengutronix.de>
+ <20180123182254.GA27379@roeck-us.net>
+ <20180124090333.r5o2mzpm4q536w4r@pengutronix.de>
+ <20180129215919.GA17988@roeck-us.net>
+ <20180130102740.GD2809@piout.net>
+ <1517312409.5307.22.camel@diehl.com>
+ <d2b91530-90ae-2d4f-8940-9d88b68caf2c@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c2212d56-a8b5-cba5-46a7-c2c7f66e752b@nexus-software.ie>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <d2b91530-90ae-2d4f-8940-9d88b68caf2c@roeck-us.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 01/02, Bryan O'Donoghue wrote:
-> On 02/01/18 19:01, Stephen Boyd wrote:
-> >On 12/31, Bryan O'Donoghue wrote:
-> >>On 30/12/17 16:36, Mikko Perttunen wrote:
-> >>>FWIW, we had this problem some years ago with the Tegra CPU clock
-> >>>- then it was determined that a simpler solution was to have the
-> >>>determine_rate callback support unsigned long rates - so clock
-> >>>drivers that need to return rates higher than 2^31 can instead
-> >>>implement the determine_rate callback. That is what's currently
-> >>>implemented.
-> >>>
-> >>>Mikko
-> >>
-> >>Granted we could work around it but, having both zero and less than
-> >>zero indicate error means you can't support larger than LONG_MAX
-> >>which is I think worth fixing.
-> >>
-> >
-> >Ok. But can you implement the determine_rate op instead of the
-> >round_rate op for your clk?
+On 30/01/2018 at 06:15:18 -0800, Guenter Roeck wrote:
+> On 01/30/2018 03:40 AM, Denis OSTERLAND wrote:
+> > Am Dienstag, den 30.01.2018, 11:27 +0100 schrieb Alexandre Belloni:
+> > > On 29/01/2018 at 13:59:19 -0800, Guenter Roeck wrote:
+> > > > 
+> > > > On Wed, Jan 24, 2018 at 10:03:33AM +0100, Michael Grzeschik wrote:
+> > > > [ ... ]
+> > > > > 
+> > > > > > 
+> > > > > > > 
+> > > > > > > +
+> > > > > > > diff --git a/Documentation/hwmon/sysfs-interface b/Documentation/hwmon/sysfs-interface
+> > > > > > > index fc337c317c673..a12b3c2b2a18c 100644
+> > > > > > > --- a/Documentation/hwmon/sysfs-interface
+> > > > > > > +++ b/Documentation/hwmon/sysfs-interface
+> > > > > > > @@ -702,6 +702,13 @@ intrusion[0-*]_alarm
+> > > > > > >   		the user. This is done by writing 0 to the file. Writing
+> > > > > > >   		other values is unsupported.
+> > > > > > > +intrusion[0-*]_timestamp
+> > > > > > > +		Chassis intrusion detection
+> > > > > > > +		YYYY-MM-DD HH:MM:SS UTC (ts.sec): intrusion detected
+> > > > > > > +		RO
+> > > > > > > +		The corresponding timestamp on which the intrustion
+> > > > > > > +		was detected.
+> > > > > > > +
+> > > > > > Sneaky. Nack. You don't just add attributes to the ABI because you want it,
+> > > > > > without serious discussion, and much less so hidden in an RTC driver
+> > > > > > (and even less as unparseable attribute).
+> > > > > Right; but it was not meant to be sneaky. I should have stick to my first
+> > > > > thought and label this patch RFC. Sorry for that.
+> > > > > 
+> > > > > > 
+> > > > > > In addition to that, I consider the attribute unnecessary. The intrusion
+> > > > > > already generates an event which should be sufficient for all practical
+> > > > > > purposes.
+> > > > > Would it make sense in between the other sysfs attributes of this driver?
+> > > > > 
+> > > > I don't understand what you mean with that, sorry.
+> > > > 
+> > > >  From an ABI perspective, the attibute doesn't add value since it is
+> > > > highly device specific (or at least it is the only chip I am aware of
+> > > > which reports such a time stamp). Feel free to add the attribute to the
+> > > > driver and document it, but not as part of the hwmon ABI. In that
+> > > > case I would be inclined to accept it. However, keep in mind that
+> > > > your version, reporting a human readable date/time, would effectively
+> > > > preclude it from ever making it into the ABI.
+> > > > 
+> > > Actually, there are many RTCs that are able to register one or more
+> > > timestamps. My plan was to add support for that soon but I was not
+> > > planning to do so in the hwmon ABI as this may be used for something
+> > > that is not intrusion detection (interval timers for example).
+> > What would you suggest?
+> > I think about something like this:
+> > event[0-*]_timestamp: timestamp in seconds since epoch or empty if not triggered
+> > event[0-*]_alarm: 1 if event was triggered, else 0; write 0 to clear event
 > 
-> Don't know .
-
-Please try.
-
-> 
-> >It's not a work-around, it's the
-> >preferred solution. That would allow rates larger than 2^31 for
-> >the clk without pushing through a change to all the drivers to
-> >express zero as "error" and non-zero as the rounded rate.
-> >
-> >I'm not entirely opposed to this approach, because we probably
-> >don't care to pass the particular error value from a clk provider
-> >to a clk consumer about what the error is.
-> 
-> Which was my thought. The return value of clk_ops->round_rate()
-> appears not to get pushed up the stack, which is what the last patch
-> in this series deals with.
-> 
-> [PATCH 33/33] clk: change handling of round_rate() such that only
-> zero is an error
-
-Hmm? clk_core_determine_round_nolock() returns 'rate' if rate < 0
-from the round_rate op. clk_core_round_rate_nolock() returns that
-value to clk_round_rate() which returns it to the consumer.
-
-> 
-> >It's actually what we
-> >proposed as the solution for clk_round_rate() to return values
-> >larger than LONG_MAX to consumers. But doing that consumer API
-> >change or this provider side change is going to require us to
-> >evaluate all the consumers of these clks to make sure they don't
-> >check for some error value that's less than zero. This series
-> >does half the work,
-> 
-> Do you mean users of clk_rounda_rate() ? I have a set of patches for
-> that but wanted to separate that from clk_ops->round_rate() so as
-> not to send ~70 patches out to LKML at once - even if they are in
-> two blocks.
-
-Ok. What have you done to the consumers of clk_round_rate()?
-Made them treat 0 as an error instead of less than zero? The
-documentation in clk.h needs to be updated. See this patch from
-Paul Wamsley[1] for one proposed patch that went nowhere. Also
-include Russell King please. It was also proposed to change the
-function signature of clk_round_rate() to return unsigned long,
-but that didn't go anywhere either.
-
-> 
-> If so, I can publish that set too for reference.
-> 
-> AFAICT on clk_ops->round_rate the last patch #33 ought to cover the
-> usage of the return value of clk_ops->round_rate().
-> 
-> Have I missed something ?
-
-Hopefully not!
-
-> 
-> >by changing the provider side, while ignoring
-> >the consumer side and any potential fallout of the less than zero
-> >to zero return value change.
-> >
-> 
-> Can you look at #33 ? I'm not sure if you saw that one.
+> Sure, that makes sense if the events are not specifically related
+> to intrusion detection. Question is if there would ever be more than one
+> or if event_timestamp and event_alarm would be sufficient.
 > 
 
-Yeah I looked at it. From what I can tell it makes
-clk_round_rate() return 0 now instead of whatever negative value
-the clk_ops::round_rate function returns.
-
-[1] https://lkml.kernel.org/r/alpine.DEB.2.02.1311251603310.23090@tamien
+My target is a PCF85363A which supports up to 3 timestamps. SO I'd go
+for timestamp[0-*]. This would be empty if it never triggered (or the
+timestamp is invalid) writing anything to that file resets the event. I
+don't think we need more than one file per timestamp.
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
