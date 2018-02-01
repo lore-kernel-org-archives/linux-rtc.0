@@ -1,139 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37596 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933070AbeBLWss (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:48 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 40/45] rtc: stk17ta8: use generic nvmem
-Date: Mon, 12 Feb 2018 23:47:54 +0100
-Message-Id: <20180212224759.15999-41-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:39313 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752542AbeBAQr2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Feb 2018 11:47:28 -0500
+From: Mathieu Malaterre <malat@debian.org>
+Cc: Mathieu Malaterre <malat@debian.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] driver/rtc: remove a warning during scripts/kernel-doc step
+Date: Thu,  1 Feb 2018 17:47:14 +0100
+Message-Id: <20180201164714.25709-1-malat@debian.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Instead of adding a binary sysfs attribute from the driver, use the core to
-register an nvmem device.
+During compilation using W=1 one would get:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+drivers/rtc/systohc.c:11: info: Scanning doc for rtc_set_ntp_time
+drivers/rtc/systohc.c:23: warning: bad line:  (
+
+Signed-off-by: Mathieu Malaterre <malat@debian.org>
 ---
- drivers/rtc/rtc-stk17ta8.c | 62 ++++++++++++++++++----------------------------
- 1 file changed, 24 insertions(+), 38 deletions(-)
+ drivers/rtc/systohc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
-index 1d6febbe7d39..b670e44306a8 100644
---- a/drivers/rtc/rtc-stk17ta8.c
-+++ b/drivers/rtc/rtc-stk17ta8.c
-@@ -242,46 +242,30 @@ static const struct rtc_class_ops stk17ta8_rtc_ops = {
- 	.alarm_irq_enable	= stk17ta8_rtc_alarm_irq_enable,
- };
- 
--static ssize_t stk17ta8_nvram_read(struct file *filp, struct kobject *kobj,
--				 struct bin_attribute *attr, char *buf,
--				 loff_t pos, size_t size)
-+static int stk17ta8_nvram_read(void *priv, unsigned int pos, void *val,
-+			       size_t bytes)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct platform_device *pdev = to_platform_device(dev);
--	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
-+	struct rtc_plat_data *pdata = priv;
- 	void __iomem *ioaddr = pdata->ioaddr;
--	ssize_t count;
-+	u8 *buf = val;
- 
--	for (count = 0; count < size; count++)
-+	for (; bytes; bytes--)
- 		*buf++ = readb(ioaddr + pos++);
--	return count;
-+	return 0;
- }
- 
--static ssize_t stk17ta8_nvram_write(struct file *filp, struct kobject *kobj,
--				  struct bin_attribute *attr, char *buf,
--				  loff_t pos, size_t size)
-+static int stk17ta8_nvram_write(void *priv, unsigned int pos, void *val,
-+				size_t bytes)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct platform_device *pdev = to_platform_device(dev);
--	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
-+	struct rtc_plat_data *pdata = priv;
- 	void __iomem *ioaddr = pdata->ioaddr;
--	ssize_t count;
-+	u8 *buf = val;
- 
--	for (count = 0; count < size; count++)
-+	for (; bytes; bytes--)
- 		writeb(*buf++, ioaddr + pos++);
--	return count;
-+	return 0;
- }
- 
--static struct bin_attribute stk17ta8_nvram_attr = {
--	.attr = {
--		.name = "nvram",
--		.mode = S_IRUGO | S_IWUSR,
--	},
--	.size = RTC_OFFSET,
--	.read = stk17ta8_nvram_read,
--	.write = stk17ta8_nvram_write,
--};
--
- static int stk17ta8_rtc_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
-@@ -290,6 +274,14 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
- 	struct rtc_plat_data *pdata;
- 	void __iomem *ioaddr;
- 	int ret = 0;
-+	struct nvmem_config nvmem_cfg = {
-+		.name = "stk17ta8_nvram",
-+		.word_size = 1,
-+		.stride = 1,
-+		.size = RTC_OFFSET,
-+		.reg_read = stk17ta8_nvram_read,
-+		.reg_write = stk17ta8_nvram_write,
-+	};
- 
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
-@@ -333,29 +325,23 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
- 		return PTR_ERR(pdata->rtc);
- 
- 	pdata->rtc->ops = &stk17ta8_rtc_ops;
-+	pdata->rtc->nvram_old_abi = true;
- 
--	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
-+	ret = rtc_register_device(pdata->rtc);
- 	if (ret)
- 		return ret;
- 
--	ret = rtc_register_device(pdata->rtc);
-+	nvmem_cfg.priv = pdata;
-+	rtc_nvmem_register(pdata->rtc, &nvmem_cfg);
- 
- 	return ret;
- }
- 
--static int stk17ta8_rtc_remove(struct platform_device *pdev)
--{
--	sysfs_remove_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
--
--	return 0;
--}
--
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:stk17ta8");
- 
- static struct platform_driver stk17ta8_rtc_driver = {
- 	.probe		= stk17ta8_rtc_probe,
--	.remove		= stk17ta8_rtc_remove,
- 	.driver		= {
- 		.name	= "stk17ta8",
- 	},
+diff --git a/drivers/rtc/systohc.c b/drivers/rtc/systohc.c
+index 0c177647ea6c..718293d72426 100644
+--- a/drivers/rtc/systohc.c
++++ b/drivers/rtc/systohc.c
+@@ -20,7 +20,7 @@
+  * cases.
+  *
+  * -EPROTO is returned if now.tv_nsec is not close enough to *target_nsec.
+- (
++ *
+  * If temporary failure is indicated the caller should try again 'soon'
+  */
+ int rtc_set_ntp_time(struct timespec64 now, unsigned long *target_nsec)
 -- 
-2.16.1
+2.11.0
