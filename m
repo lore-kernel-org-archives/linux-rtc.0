@@ -1,59 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:44667 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751659AbeBVBxa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 20:53:30 -0500
-Received: by mail-oi0-f67.google.com with SMTP id b8so2615175oib.11
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Feb 2018 17:53:29 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180221205635.31314-67-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com> <20180221205635.31314-67-alexandre.belloni@bootlin.com>
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Thu, 22 Feb 2018 09:53:29 +0800
-Message-ID: <CAMz4kuL755sihR_GcNOYBweogXxFAFkNHDmuk6UBV4_5K-cFqA@mail.gmail.com>
-Subject: Re: [PATCH 066/100] rtc: sc27xx: stop validating rtc_time in .read_time
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:46449 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752408AbeBEBXt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 4 Feb 2018 20:23:49 -0500
+From: Ulf Magnusson <ulfalizer@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org, tfiga@chromium.org,
+        paul.burton@mips.com, m.szyprowski@samsung.com,
+        egtvedt@samfundet.no, linus.walleij@linaro.org,
+        vgupta@synopsys.com, mgorman@techsingularity.net, hch@lst.de,
+        mina86@mina86.com, robh@kernel.org, sboyd@codeaurora.org,
+        paulus@ozlabs.org, will.deacon@arm.com, tony@atomide.com,
+        npiggin@gmail.com, yamada.masahiro@socionext.com,
+        Ulf Magnusson <ulfalizer@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH 05/20] rtc: at32ap700x: Remove PLATFORM_AT32AP dependency
+Date: Mon,  5 Feb 2018 02:21:17 +0100
+Message-Id: <20180205012146.23981-6-ulfalizer@gmail.com>
+In-Reply-To: <20180205012146.23981-1-ulfalizer@gmail.com>
+References: <20180205012146.23981-1-ulfalizer@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+The PLATFORM_AT32AP symbol went away when AVR32 was removed in
+commit 26202873bb51 ("avr32: remove support for AVR32 architecture").
 
-On 22 February 2018 at 04:56, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> rtc_time64_to_tm never generates an invalid tm. It is not necessary to
-> validate it. Also, the RTC core is always calling rtc_valid_tm after the
-> read_time callback.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Remove the RTC_DRV_AT32AP700X dependency from RTC_DRV_AT32AP700X.
 
-Thanks for fixing this, and please add my tag if it helps.
-Reviewed-by: Baolin Wang <baolin.wang@linaro.org>
+Discovered with the
+https://github.com/ulfalizer/Kconfiglib/blob/master/examples/list_undefined.py
+script.
 
-> ---
->  drivers/rtc/rtc-sc27xx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-> index d544d5268757..00d87d138984 100644
-> --- a/drivers/rtc/rtc-sc27xx.c
-> +++ b/drivers/rtc/rtc-sc27xx.c
-> @@ -376,7 +376,7 @@ static int sprd_rtc_read_time(struct device *dev, struct rtc_time *tm)
->                 return ret;
->
->         rtc_time64_to_tm(secs, tm);
-> -       return rtc_valid_tm(tm);
-> +       return 0;
->  }
->
->  static int sprd_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> --
-> 2.16.1
->
+Signed-off-by: Ulf Magnusson <ulfalizer@gmail.com>
+---
+ drivers/rtc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index b71cc7b5fbc9..1f5f3bd82ab6 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1404,7 +1404,7 @@ config RTC_DRV_PL031
+ 
+ config RTC_DRV_AT32AP700X
+ 	tristate "AT32AP700X series RTC"
+-	depends on PLATFORM_AT32AP || COMPILE_TEST
++	depends on COMPILE_TEST
+ 	help
+ 	  Driver for the internal RTC (Realtime Clock) on Atmel AVR32
+ 	  AT32AP700x family processors.
 -- 
-Baolin.wang
-Best Regards
+2.14.1
