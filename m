@@ -1,139 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36579 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750762AbeBZSY2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:24:28 -0500
-Received: by mail-pf0-f196.google.com with SMTP id 68so6857096pfx.3
-        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:24:28 -0800 (PST)
-Date: Mon, 26 Feb 2018 10:24:25 -0800
-From: Brian Norris <briannorris@chromium.org>
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
-        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
- in the past
-Message-ID: <20180226182424.GB225858@rodete-desktop-imager.corp.google.com>
-References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
- <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:33666 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752180AbeBEBmk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 4 Feb 2018 20:42:40 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
+In-Reply-To: <20180205012146.23981-6-ulfalizer@gmail.com>
+References: <20180205012146.23981-1-ulfalizer@gmail.com> <20180205012146.23981-6-ulfalizer@gmail.com>
+From: Ulf Magnusson <ulfalizer@gmail.com>
+Date: Mon, 5 Feb 2018 02:42:38 +0100
+Message-ID: <CAFkk2KRmK=fw=WYwr3eC8RJh7nxsUvC=uUnz7UCni72H9sHv4g@mail.gmail.com>
+Subject: Re: [PATCH 05/20] rtc: at32ap700x: Remove PLATFORM_AT32AP dependency
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        tfiga@chromium.org, paul.burton@mips.com,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>,
+        Linus Walleij <linus.walleij@linaro.org>, vgupta@synopsys.com,
+        mgorman@techsingularity.net, hch@lst.de, mina86@mina86.com,
+        robh@kernel.org, sboyd@codeaurora.org, paulus@ozlabs.org,
+        will.deacon@arm.com, Tony Lindgren <tony@atomide.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Ulf Magnusson <ulfalizer@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Jeffy,
+On Mon, Feb 5, 2018 at 2:21 AM, Ulf Magnusson <ulfalizer@gmail.com> wrote:
+> The PLATFORM_AT32AP symbol went away when AVR32 was removed in
+> commit 26202873bb51 ("avr32: remove support for AVR32 architecture").
+>
+> Remove the RTC_DRV_AT32AP700X dependency from RTC_DRV_AT32AP700X.
+>
+> Discovered with the
+> https://github.com/ulfalizer/Kconfiglib/blob/master/examples/list_undefined.py
+> script.
+>
+> Signed-off-by: Ulf Magnusson <ulfalizer@gmail.com>
+> ---
+>  drivers/rtc/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index b71cc7b5fbc9..1f5f3bd82ab6 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1404,7 +1404,7 @@ config RTC_DRV_PL031
+>
+>  config RTC_DRV_AT32AP700X
+>         tristate "AT32AP700X series RTC"
+> -       depends on PLATFORM_AT32AP || COMPILE_TEST
+> +       depends on COMPILE_TEST
+>         help
+>           Driver for the internal RTC (Realtime Clock) on Atmel AVR32
+>           AT32AP700x family processors.
+> --
+> 2.14.1
+>
 
-A few corrections here. (Sorry, I didn't completely reread the driver
-here before sending.)
+RTC_DRV_AT32AP700X could probably be removed along with
+./drivers/rtc/rtc-at32ap700x.c as well.
 
-On Mon, Feb 26, 2018 at 10:01:15AM -0800, Brian Norris wrote:
-> On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
-> > We have a check in __rtc_set_alarm() to return -ETIME when the alarm
-> > is in the past.
-> > 
-> > Since accessing a Chrome OS EC based rtc is a slow operation, we should
-> > do that check again inside of the EC rtc driver's .set_alarm() callback.
-> 
-> Thanks for the patch. I'd note that this is related to the race
-> documented in __rtc_set_alarm() (drivers/rtc/interface.c):
-> 
->         /*
->          * XXX - We just checked to make sure the alarm time is not
->          * in the past, but there is still a race window where if
->          * the is alarm set for the next second and the second ticks
->          * over right here, before we set the alarm.
->          */
-> 
-> It feels like we should put this comment somewhere more prominent;
-> perhaps some kerneldoc for the .set_alarm() callback? Because I suspect
-> that nearly every RTC driver is susceptible to this problem.
-> 
-> Anyway, I think this patch is helpful, because as you note the EC
-> protocol is relatively slow (it's much more than just a register write),
-> but your patch still doesn't really cover the whole problem. Even if you
-> compare the current time here, time marches on between here and
-> EC_CMD_RTC_SET_ALARM. So you can still have the same race, where the RTC
-> makes another tick before we set the alarm? Just think: what if we slept
-> for a second right after that -ETIME check?
-> 
-> What happens next...depends on the implementation I suppose. It's
-> possible that an alarm could still immediately fire for a "past" event.
-> But it's also possible the alarm will get dropped [1].
-
-In the particular case of this driver...we're actually OK because the
-alarm time is programmed via an offset. So as long as we give it a
-postive number, we're in the clear. We might set a longer than-expected
-alarm I suppose, but that's not the end of the world...
-
-> I wonder if a better solution would be to re-check the clock right after
-> setting the alarm. If the alarm is already past, then we should return
-> -ETIME? Is there any harm in double-reporting an alarm? (If so, we could
-> try to add accounting information somehow...)
-> 
-> I also wonder if that check should be done in the generic code (perhaps
-> with a flag to opt-in or opt-out?), since this really seems like a
-> fundamental problem of the interface.
-
-Given we actually don't need this approach for the CrOS EC code, it
-definitely would need to be possible to disable such code ;) But that
-still doesn't mean other RTC drivers are safe.
-
-One more note below:
-
-> Brian
-> 
-> [1] And lest we think that dropping it is fine: this breaks, e.g.,
-> hwclock which relies on RTC_UIE_ON -> rtc_update_irq_enable(), which
-> sets a 1-second alarm and expects it to fire an interrupt.
-
-> > Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> > ---
-> > 
-> >  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-> > index f0ea6899c731..ee0062e2d222 100644
-> > --- a/drivers/rtc/rtc-cros-ec.c
-> > +++ b/drivers/rtc/rtc-cros-ec.c
-> > @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >  	if (alarm_time < 0 || alarm_time > U32_MAX)
-> >  		return -EINVAL;
-> >  
-> > +	/* Don't set an alarm in the past. */
-> > +	if ((u32)alarm_time <= current_time)
-> > +		return -ETIME;
-
-I don't think we want this check on the 'disabled' case. Perhaps just
-keep this under the 'else' below still?
-
-In fact, there are *no* callers of __rtc_set_alarm() with
-!alrm->enabled, but still, since this driver is *trying* to account for
-that, it seems wise to retain that attempt (or else remove it entirely).
-
-Brian
-
-> > +
-> >  	if (!alrm->enabled) {
-> >  		/*
-> >  		 * If the alarm is being disabled, send an alarm
-> > @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >  		alarm_offset = EC_RTC_ALARM_CLEAR;
-> >  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
-> >  	} else {
-> > -		/* Don't set an alarm in the past. */
-> > -		if ((u32)alarm_time < current_time)
-> > -			alarm_offset = EC_RTC_ALARM_CLEAR;
-> > -		else
-> > -			alarm_offset = (u32)alarm_time - current_time;
-> > +		alarm_offset = (u32)alarm_time - current_time;
-> >  	}
-> >  
-> >  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
-> > -- 
-> > 2.11.0
-> > 
-> > 
+Cheers,
+Ulf
