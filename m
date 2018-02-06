@@ -1,58 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:46241 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750730AbeBPVYz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 16:24:55 -0500
+Received: from mail.free-electrons.com ([62.4.15.54]:40150 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752069AbeBFCN3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Feb 2018 21:13:29 -0500
+Date: Tue, 6 Feb 2018 03:13:13 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Brandon Martin <martinbv@mothictech.com>
+Cc: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: remove rtc-at32ap700x
+Message-ID: <20180206021313.GO3404@piout.net>
+References: <20180118200846.14368-1-clabbe.montjoie@gmail.com>
+ <20180119072733.dkswccdbnisbmqi6@samfundet.no>
+ <20180119085835.GW2678@piout.net>
+ <b1ad9b75-5a1f-f84c-da49-917f491325d5@mothictech.com>
 MIME-Version: 1.0
-In-Reply-To: <55b1edec-f93d-a25b-1736-d08783576424@caviumnetworks.com>
-References: <20180216194415.6103-1-david.daney@cavium.com> <CAHp75VfRDWC1DAhHK-B_2rGLdLGG_FjHmYAmRS5ucspaUoJygA@mail.gmail.com>
- <55b1edec-f93d-a25b-1736-d08783576424@caviumnetworks.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 16 Feb 2018 23:24:53 +0200
-Message-ID: <CAHp75Ve=yBCk3MTXUbGKU7L-67MXisLLg0OywL9iXX3jRX8HHA@mail.gmail.com>
-Subject: Re: [PATCH v4] rtc: isl12026: Add driver.
-To: David Daney <ddaney@caviumnetworks.com>
-Cc: David Daney <david.daney@cavium.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <b1ad9b75-5a1f-f84c-da49-917f491325d5@mothictech.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Feb 16, 2018 at 11:19 PM, David Daney <ddaney@caviumnetworks.com> wrote:
-> On 02/16/2018 12:13 PM, Andy Shevchenko wrote:
->> On Fri, Feb 16, 2018 at 9:44 PM, David Daney <david.daney@cavium.com>
->> wrote:
+On 05/02/2018 at 20:09:32 -0500, Brandon Martin wrote:
+> On 01/19/2018 03:58 AM, Alexandre Belloni wrote:
+> > Well, my plan was to keep it for a little while, but whatever :)
+> 
+> As far as I know, the AVR32 AP7x architecture has been commercially dead for far longer than it was ever active.  I'd agree - axe it if support for the overall architecture is on its way out, too.
 
->>> +config RTC_DRV_ISL12026
->>> +       tristate "Intersil ISL12026"
-
->> depends on OF
-
-> It doesn't depend on CONFIG_OF, it builds just fine without it.
-
-OK.
-But then it's useless.
-
-depends on OF || COMPILE_TEST
-
->>> +static struct i2c_driver isl12026_driver = {
->>> +       .driver         = {
->>> +               .name   = "rtc-isl12026",
->>> +               .of_match_table = of_match_ptr(isl12026_dt_match),
-
->> /of_match_ptr//
-
-> of_match_ptr() needed if we build without CONFIG_OF
-
-OK.
-Have you tried to enable warnings?
-You must get `defined but not used` one.
+If you had a look at Linus' tree, you'd have seen that the driver is
+already removed.
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+http://bootlin.com
