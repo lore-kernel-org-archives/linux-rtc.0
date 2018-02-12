@@ -1,45 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35732 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37583 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750832AbeBPXn1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 18:43:27 -0500
+        with ESMTP id S932954AbeBLWsi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:38 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linuxppc-dev@lists.ozlabs.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH RESEND] powerpc/5200: dts: digsy_mtc.dts: fix rv3029 compatible
-Date: Sat, 17 Feb 2018 00:43:23 +0100
-Message-Id: <20180216234323.27601-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 28/45] rtc: ds1553: switch to rtc_register_device
+Date: Mon, 12 Feb 2018 23:47:42 +0100
+Message-Id: <20180212224759.15999-29-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The proper compatible for rv3029 is microcrystal,rv3029.
+This allows for future improvement of the driver.
 
-Acked-by: Anatolij Gustschin <agust@denx.de>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
+ drivers/rtc/rtc-ds1553.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-Hi,
-
-I'm resending that one because I prefer not taking DT patches through the RTC
-tree.
-
- arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
-index c280e75c86bf..c3922fc03e0b 100644
---- a/arch/powerpc/boot/dts/digsy_mtc.dts
-+++ b/arch/powerpc/boot/dts/digsy_mtc.dts
-@@ -78,7 +78,7 @@
- 			};
+diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
+index 9961ec646fd2..59eab5eceafa 100644
+--- a/drivers/rtc/rtc-ds1553.c
++++ b/drivers/rtc/rtc-ds1553.c
+@@ -308,11 +308,16 @@ static int ds1553_rtc_probe(struct platform_device *pdev)
+ 	pdata->last_jiffies = jiffies;
+ 	platform_set_drvdata(pdev, pdata);
  
- 			rtc@56 {
--				compatible = "mc,rv3029c2";
-+				compatible = "microcrystal,rv3029";
- 				reg = <0x56>;
- 			};
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-				  &ds1553_rtc_ops, THIS_MODULE);
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(pdata->rtc))
+ 		return PTR_ERR(pdata->rtc);
  
++	pdata->rtc->ops = &ds1553_rtc_ops;
++
++	ret = rtc_register_device(pdata->rtc);
++	if (ret)
++		return ret;
++
+ 	if (pdata->irq > 0) {
+ 		writeb(0, ioaddr + RTC_INTERRUPTS);
+ 		if (devm_request_irq(&pdev->dev, pdata->irq,
 -- 
 2.16.1
