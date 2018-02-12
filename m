@@ -1,78 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:47646 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933532AbeBUNTl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 21 Feb 2018 08:19:41 -0500
-Message-ID: <1519219174.10722.21.camel@linux.intel.com>
-Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
- readable format via %pt
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Joe Perches <joe@perches.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Date: Wed, 21 Feb 2018 15:19:34 +0200
-In-Reply-To: <1519170907.4326.17.camel@perches.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
-         <1519170907.4326.17.camel@perches.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mail.free-electrons.com ([62.4.15.54]:37549 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932693AbeBLWs1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:27 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 11/45] rtc: ds1511: put ds1511_nvmem_cfg on the stack
+Date: Mon, 12 Feb 2018 23:47:25 +0100
+Message-Id: <20180212224759.15999-12-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2018-02-20 at 15:55 -0800, Joe Perches wrote:
-> On Tue, 2018-02-20 at 23:43 +0200, Andy Shevchenko wrote:
-> > There are users which print time and date represented by content of
-> > struct rtc_time in human readable format.
-> > 
-> > Instead of open coding that each time introduce %ptR[dt][rv]
-> > specifier.
-> > 
-> > Note, users have to select PRINTK_PEXT_TIMEDATE option in a Kconfig.
-> 
-> Not sure this is a great option.
-> Not just the name, the need to select it.
+Move ds1511_nvmem_cfg to the stack of ds1511_rtc_probe. This results in a
+very small code size reduction and make it safer on systems with two
+similar RTCs:
 
-kbuildbot and some people complained about + text size.
-https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
+   text	   data	    bss	    dec	    hex	filename
+   2128	    164	      4	   2296	    8f8	drivers/rtc/rtc-ds1511.o.before
+   2175	    100	      4	   2279	    8e7	drivers/rtc/rtc-ds1511.o.after
 
-I would really like to compile it always.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1511.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-> > +	int year = tm->tm_year + (r ? 0 : 1900);
-> > +	int mon = tm->tm_mon + (r ? 0 : 1);
-> 
-> What happens with negative values?
-
-Same as before.
-
-> Perhaps these temporaries should be unsigned int.
-
-No, the type of them is int, so, I'll keep it int.
-
-> > +	if (unlikely(v && (unsigned int)tm->tm_min > 59))
-> 
-> leap seconds are allowed in the struct
-
-Alexandre answered already, but I would add that this is part of
-existing ABI, so, I wouldn't go to change this.
-
+diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
+index b1e51a4c2908..5f55214db9f8 100644
+--- a/drivers/rtc/rtc-ds1511.c
++++ b/drivers/rtc/rtc-ds1511.c
+@@ -422,20 +422,20 @@ static int ds1511_nvram_write(void *priv, unsigned int pos, void *buf,
+ 	return 0;
+ }
+ 
+-static struct nvmem_config ds1511_nvmem_cfg = {
+-	.name = "ds1511_nvram",
+-	.word_size = 1,
+-	.stride = 1,
+-	.size = DS1511_RAM_MAX,
+-	.reg_read = ds1511_nvram_read,
+-	.reg_write = ds1511_nvram_write,
+-};
+-
+ static int ds1511_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+ 	struct rtc_plat_data *pdata;
+ 	int ret = 0;
++	struct nvmem_config ds1511_nvmem_cfg = {
++		.name = "ds1511_nvram",
++		.word_size = 1,
++		.stride = 1,
++		.size = DS1511_RAM_MAX,
++		.reg_read = ds1511_nvram_read,
++		.reg_write = ds1511_nvram_write,
++		.priv = &pdev->dev,
++	};
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -478,7 +478,6 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
+ 
+ 	pdata->rtc->ops = &ds1511_rtc_ops;
+ 
+-	ds1511_nvmem_cfg.priv = &pdev->dev;
+ 	pdata->rtc->nvram_old_abi = true;
+ 
+ 	ret = rtc_register_device(pdata->rtc);
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.16.1
