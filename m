@@ -1,79 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60876 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751680AbeBYWPE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 25 Feb 2018 17:15:04 -0500
+Received: from mail.free-electrons.com ([62.4.15.54]:37557 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932930AbeBLWsg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:36 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: m41t80: remove useless indirection
-Date: Sun, 25 Feb 2018 23:15:00 +0100
-Message-Id: <20180225221500.28242-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 16/45] rtc: pcf85363: put struct nvmem_config on the stack
+Date: Mon, 12 Feb 2018 23:47:30 +0100
+Message-Id: <20180212224759.15999-17-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41t80_get_datetime and m41t80_set_datetime are only used after casting dev
-to an i2c_client. Remove that useless indirection.
+Avoid allocating memory for struct nvmem_config.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-m41t80.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index f77320948fc4..ad03e2f12f5d 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -198,9 +198,9 @@ static irqreturn_t m41t80_handle_irq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index a1fe833d2431..64573cccf7fe 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -80,7 +80,6 @@ static struct i2c_driver pcf85363_driver;
+ struct pcf85363 {
+ 	struct device		*dev;
+ 	struct rtc_device	*rtc;
+-	struct nvmem_config	nvmem_cfg;
+ 	struct regmap		*regmap;
+ };
  
--static int m41t80_get_datetime(struct i2c_client *client,
--			       struct rtc_time *tm)
-+static int m41t80_rtc_read_time(struct device *dev, struct rtc_time *tm)
+@@ -164,6 +163,14 @@ static int pcf85363_probe(struct i2c_client *client,
+ 			  const struct i2c_device_id *id)
  {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	unsigned char buf[8];
- 	int err, flags;
+ 	struct pcf85363 *pcf85363;
++	struct nvmem_config nvmem_cfg = {
++		.name = "pcf85363-",
++		.word_size = 1,
++		.stride = 1,
++		.size = NVRAM_SIZE,
++		.reg_read = pcf85363_nvram_read,
++		.reg_write = pcf85363_nvram_write,
++	};
+ 	int ret;
  
-@@ -232,9 +232,9 @@ static int m41t80_get_datetime(struct i2c_client *client,
- 	return 0;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+@@ -187,18 +194,12 @@ static int pcf85363_probe(struct i2c_client *client,
+ 	if (IS_ERR(pcf85363->rtc))
+ 		return PTR_ERR(pcf85363->rtc);
+ 
+-	pcf85363->nvmem_cfg.name = "pcf85363-";
+-	pcf85363->nvmem_cfg.word_size = 1;
+-	pcf85363->nvmem_cfg.stride = 1;
+-	pcf85363->nvmem_cfg.size = NVRAM_SIZE;
+-	pcf85363->nvmem_cfg.reg_read = pcf85363_nvram_read;
+-	pcf85363->nvmem_cfg.reg_write = pcf85363_nvram_write;
+-	pcf85363->nvmem_cfg.priv = pcf85363;
+ 	pcf85363->rtc->ops = &rtc_ops;
+ 
+ 	ret = rtc_register_device(pcf85363->rtc);
+ 
+-	rtc_nvmem_register(pcf85363->rtc, &pcf85363->nvmem_cfg);
++	nvmem_cfg.priv = pcf85363;
++	rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg);
+ 
+ 	return ret;
  }
- 
--/* Sets the given date and time to the real time clock. */
--static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int m41t80_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct m41t80_data *clientdata = i2c_get_clientdata(client);
- 	unsigned char buf[8];
- 	int err, flags;
-@@ -297,16 +297,6 @@ static int m41t80_rtc_proc(struct device *dev, struct seq_file *seq)
- 	return 0;
- }
- 
--static int m41t80_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	return m41t80_get_datetime(to_i2c_client(dev), tm);
--}
--
--static int m41t80_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	return m41t80_set_datetime(to_i2c_client(dev), tm);
--}
--
- static int m41t80_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -947,7 +937,7 @@ static int m41t80_probe(struct i2c_client *client,
- 
- 	if (rc >= 0 && rc & M41T80_ALHOUR_HT) {
- 		if (m41t80_data->features & M41T80_FEATURE_HT) {
--			m41t80_get_datetime(client, &tm);
-+			m41t80_rtc_read_time(&client->dev, &tm);
- 			dev_info(&client->dev, "HT bit was set!\n");
- 			dev_info(&client->dev,
- 				 "Power Down at %04i-%02i-%02i %02i:%02i:%02i\n",
 -- 
-2.16.2
+2.16.1
