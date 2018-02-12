@@ -1,85 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41702 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37553 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752172AbeBXAI4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Feb 2018 19:08:56 -0500
+        with ESMTP id S932691AbeBLWsg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:36 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: pcf85363: set time accurately
-Date: Sat, 24 Feb 2018 01:08:51 +0100
-Message-Id: <20180224000853.29365-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180224000853.29365-1-alexandre.belloni@bootlin.com>
-References: <20180224000853.29365-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 15/45] rtc: pcf85363: call rtc_nvmem_register()
+Date: Mon, 12 Feb 2018 23:47:29 +0100
+Message-Id: <20180212224759.15999-16-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-As per 8.2.6 Setting and reading the time in RTC mode, first stop the clok,
-then reset it before setting the date and time registers. Finally, start
-the clock.
-
-This uses register address wrap around from 0x2f to 0x00 for efficiency.
-
-This allows to set the clock with a millisecond accuracy (drift is not
-corrected in this example):
-
-RTC        System
-1325388767 1325388767.000029180
-1325388768 1325388768.000018362
-1325388769 1325388769.000006544
-1325388770 1325388769.999992725
-1325388771 1325388770.999974544
+Call rtc_nvmem_register instead of letting the core do it and stop using
+the nvmem_config member of struct rtc_device.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85363.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 3fa5bda59987..c04a1edcd571 100644
+index ea04e9f0930b..a1fe833d2431 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -106,6 +106,10 @@
- #define PIN_IO_INTA_OUT	2
- #define PIN_IO_INTA_HIZ	3
- 
-+#define STOP_EN_STOP	BIT(0)
-+
-+#define RESET_CPR	0xa4
-+
- #define NVRAM_SIZE	0x40
- 
- static struct i2c_driver pcf85363_driver;
-@@ -148,8 +152,12 @@ static int pcf85363_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -164,6 +164,7 @@ static int pcf85363_probe(struct i2c_client *client,
+ 			  const struct i2c_device_id *id)
  {
- 	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
--	unsigned char buf[DT_YEARS + 1];
--	int len = sizeof(buf);
-+	unsigned char tmp[11];
-+	unsigned char *buf = &tmp[2];
+ 	struct pcf85363 *pcf85363;
 +	int ret;
-+
-+	tmp[0] = STOP_EN_STOP;
-+	tmp[1] = RESET_CPR;
  
- 	buf[DT_100THS] = 0;
- 	buf[DT_SECS] = bin2bcd(tm->tm_sec);
-@@ -160,8 +168,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	buf[DT_MONTHS] = bin2bcd(tm->tm_mon + 1);
- 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -ENODEV;
+@@ -193,10 +194,13 @@ static int pcf85363_probe(struct i2c_client *client,
+ 	pcf85363->nvmem_cfg.reg_read = pcf85363_nvram_read;
+ 	pcf85363->nvmem_cfg.reg_write = pcf85363_nvram_write;
+ 	pcf85363->nvmem_cfg.priv = pcf85363;
+-	pcf85363->rtc->nvmem_config = &pcf85363->nvmem_cfg;
+ 	pcf85363->rtc->ops = &rtc_ops;
  
--	return regmap_bulk_write(pcf85363->regmap, DT_100THS,
--				 buf, len);
-+	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
-+				tmp, sizeof(tmp));
-+	if (ret)
-+		return ret;
+-	return rtc_register_device(pcf85363->rtc);
++	ret = rtc_register_device(pcf85363->rtc);
 +
-+	return regmap_write(pcf85363->regmap, CTRL_STOP_EN, 0);
++	rtc_nvmem_register(pcf85363->rtc, &pcf85363->nvmem_cfg);
++
++	return ret;
  }
  
- static int pcf85363_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static const struct of_device_id dev_ids[] = {
 -- 
 2.16.1
