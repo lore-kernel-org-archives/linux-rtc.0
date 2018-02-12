@@ -1,50 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37586 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37594 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932965AbeBLWsj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:39 -0500
+        with ESMTP id S933050AbeBLWsq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:46 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 33/45] rtc: ds1742: switch to rtc_register_device
-Date: Mon, 12 Feb 2018 23:47:47 +0100
-Message-Id: <20180212224759.15999-34-alexandre.belloni@bootlin.com>
+Subject: [PATCH 39/45] rtc: stk17ta8: fix possible race condition
+Date: Mon, 12 Feb 2018 23:47:53 +0100
+Message-Id: <20180212224759.15999-40-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This allows for future improvement of the driver.
+The probe function is not allowed to fail after registering the RTC. Call
+rtc_register_device() at the end.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1742.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-stk17ta8.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1742.c b/drivers/rtc/rtc-ds1742.c
-index 3abf1cbfb8ce..84e19fe2ca3b 100644
---- a/drivers/rtc/rtc-ds1742.c
-+++ b/drivers/rtc/rtc-ds1742.c
-@@ -196,11 +196,17 @@ static int ds1742_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
+index f936accf622f..1d6febbe7d39 100644
+--- a/drivers/rtc/rtc-stk17ta8.c
++++ b/drivers/rtc/rtc-stk17ta8.c
+@@ -334,11 +334,11 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
  
- 	pdata->last_jiffies = jiffies;
- 	platform_set_drvdata(pdev, pdata);
--	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--				  &ds1742_rtc_ops, THIS_MODULE);
-+
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
+ 	pdata->rtc->ops = &stk17ta8_rtc_ops;
  
-+	rtc->ops = &ds1742_rtc_ops;
-+
-+	ret = rtc_register_device(rtc);
-+	if (ret)
-+		return ret;
-+
- 	ret = sysfs_create_bin_file(&pdev->dev.kobj, &pdata->nvram_attr);
+-	ret = rtc_register_device(pdata->rtc);
++	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
  	if (ret)
- 		dev_err(&pdev->dev, "Unable to create sysfs entry: %s\n",
+ 		return ret;
+ 
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
++	ret = rtc_register_device(pdata->rtc);
+ 
+ 	return ret;
+ }
 -- 
 2.16.1
