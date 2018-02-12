@@ -1,40 +1,139 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47057 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37596 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751710AbeBUU5x (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:53 -0500
+        with ESMTP id S933070AbeBLWss (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:48 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 076/100] rtc: isl12022: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:56:11 +0100
-Message-Id: <20180221205635.31314-77-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 40/45] rtc: stk17ta8: use generic nvmem
+Date: Mon, 12 Feb 2018 23:47:54 +0100
+Message-Id: <20180212224759.15999-41-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Instead of adding a binary sysfs attribute from the driver, use the core to
+register an nvmem device.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-isl12022.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-stk17ta8.c | 62 ++++++++++++++++++----------------------------
+ 1 file changed, 24 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index 38586a024ee8..46093cd13d5e 100644
---- a/drivers/rtc/rtc-isl12022.c
-+++ b/drivers/rtc/rtc-isl12022.c
-@@ -149,7 +149,7 @@ static int isl12022_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
+index 1d6febbe7d39..b670e44306a8 100644
+--- a/drivers/rtc/rtc-stk17ta8.c
++++ b/drivers/rtc/rtc-stk17ta8.c
+@@ -242,46 +242,30 @@ static const struct rtc_class_ops stk17ta8_rtc_ops = {
+ 	.alarm_irq_enable	= stk17ta8_rtc_alarm_irq_enable,
+ };
  
--	return rtc_valid_tm(tm);
+-static ssize_t stk17ta8_nvram_read(struct file *filp, struct kobject *kobj,
+-				 struct bin_attribute *attr, char *buf,
+-				 loff_t pos, size_t size)
++static int stk17ta8_nvram_read(void *priv, unsigned int pos, void *val,
++			       size_t bytes)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
++	struct rtc_plat_data *pdata = priv;
+ 	void __iomem *ioaddr = pdata->ioaddr;
+-	ssize_t count;
++	u8 *buf = val;
+ 
+-	for (count = 0; count < size; count++)
++	for (; bytes; bytes--)
+ 		*buf++ = readb(ioaddr + pos++);
+-	return count;
 +	return 0;
  }
  
- static int isl12022_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+-static ssize_t stk17ta8_nvram_write(struct file *filp, struct kobject *kobj,
+-				  struct bin_attribute *attr, char *buf,
+-				  loff_t pos, size_t size)
++static int stk17ta8_nvram_write(void *priv, unsigned int pos, void *val,
++				size_t bytes)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
++	struct rtc_plat_data *pdata = priv;
+ 	void __iomem *ioaddr = pdata->ioaddr;
+-	ssize_t count;
++	u8 *buf = val;
+ 
+-	for (count = 0; count < size; count++)
++	for (; bytes; bytes--)
+ 		writeb(*buf++, ioaddr + pos++);
+-	return count;
++	return 0;
+ }
+ 
+-static struct bin_attribute stk17ta8_nvram_attr = {
+-	.attr = {
+-		.name = "nvram",
+-		.mode = S_IRUGO | S_IWUSR,
+-	},
+-	.size = RTC_OFFSET,
+-	.read = stk17ta8_nvram_read,
+-	.write = stk17ta8_nvram_write,
+-};
+-
+ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+@@ -290,6 +274,14 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ 	struct rtc_plat_data *pdata;
+ 	void __iomem *ioaddr;
+ 	int ret = 0;
++	struct nvmem_config nvmem_cfg = {
++		.name = "stk17ta8_nvram",
++		.word_size = 1,
++		.stride = 1,
++		.size = RTC_OFFSET,
++		.reg_read = stk17ta8_nvram_read,
++		.reg_write = stk17ta8_nvram_write,
++	};
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -333,29 +325,23 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(pdata->rtc);
+ 
+ 	pdata->rtc->ops = &stk17ta8_rtc_ops;
++	pdata->rtc->nvram_old_abi = true;
+ 
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
++	ret = rtc_register_device(pdata->rtc);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = rtc_register_device(pdata->rtc);
++	nvmem_cfg.priv = pdata;
++	rtc_nvmem_register(pdata->rtc, &nvmem_cfg);
+ 
+ 	return ret;
+ }
+ 
+-static int stk17ta8_rtc_remove(struct platform_device *pdev)
+-{
+-	sysfs_remove_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
+-
+-	return 0;
+-}
+-
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:stk17ta8");
+ 
+ static struct platform_driver stk17ta8_rtc_driver = {
+ 	.probe		= stk17ta8_rtc_probe,
+-	.remove		= stk17ta8_rtc_remove,
+ 	.driver		= {
+ 		.name	= "stk17ta8",
+ 	},
 -- 
 2.16.1
