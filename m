@@ -1,40 +1,52 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47019 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751756AbeBUU5i (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:38 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 054/100] rtc: pcf50633: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:49 +0100
-Message-Id: <20180221205635.31314-55-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:37850 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932243AbeBLCi4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 11 Feb 2018 21:38:56 -0500
+Received: by mail-qt0-f195.google.com with SMTP id w1so2111279qti.4
+        for <linux-rtc@vger.kernel.org>; Sun, 11 Feb 2018 18:38:56 -0800 (PST)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@free-electrons.com
+Cc: p.bruenn@beckhoff.com, linux-rtc@vger.kernel.org,
+        Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH] rtc: mxc_v2: Fix _iomem pointer notation
+Date: Mon, 12 Feb 2018 00:38:46 -0200
+Message-Id: <1518403126-28456-1-git-send-email-festevam@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fix the iomem pointer notation in order to fix the following sparse
+warnings:
+
+drivers/rtc/rtc-mxc_v2.c:280:18: warning: incorrect type in argument 1 (different address spaces)
+drivers/rtc/rtc-mxc_v2.c:280:18:    expected void const volatile [noderef] <asn:2>*addr
+drivers/rtc/rtc-mxc_v2.c:280:18:    got void *[noderef] <asn:2>ioaddr
+drivers/rtc/rtc-mxc_v2.c:329:44: warning: incorrect type in argument 1 (different address spaces)
+drivers/rtc/rtc-mxc_v2.c:329:44:    expected void *[noderef] <asn:2>ioaddr
+drivers/rtc/rtc-mxc_v2.c:329:44:    got void [noderef] <asn:2>*
+drivers/rtc/rtc-mxc_v2.c:339:44: warning: incorrect type in argument 1 (different address spaces)
+drivers/rtc/rtc-mxc_v2.c:339:44:    expected void *[noderef] <asn:2>ioaddr
+drivers/rtc/rtc-mxc_v2.c:339:44:    got void [noderef] <asn:2>*
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 ---
- drivers/rtc/rtc-pcf50633.c | 2 +-
+ drivers/rtc/rtc-mxc_v2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf50633.c b/drivers/rtc/rtc-pcf50633.c
-index 00c31c91b245..ef72b0c389d7 100644
---- a/drivers/rtc/rtc-pcf50633.c
-+++ b/drivers/rtc/rtc-pcf50633.c
-@@ -135,7 +135,7 @@ static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		tm->tm_mday, tm->tm_mon, tm->tm_year,
- 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 784221d..9e14efb 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -273,7 +273,7 @@ static const struct rtc_class_ops mxc_rtc_ops = {
+ 	.alarm_irq_enable = mxc_rtc_alarm_irq_enable,
+ };
  
--	return rtc_valid_tm(tm);
-+	return 0;
- }
+-static int mxc_rtc_wait_for_flag(void *__iomem ioaddr, int flag)
++static int mxc_rtc_wait_for_flag(void __iomem *ioaddr, int flag)
+ {
+ 	unsigned int timeout = REG_READ_TIMEOUT;
  
- static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
-2.16.1
+2.7.4
