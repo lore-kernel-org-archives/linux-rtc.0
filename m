@@ -1,41 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47049 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37518 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751895AbeBUU5p (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:45 -0500
+        with ESMTP id S932252AbeBLWsQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:16 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 068/100] rtc: starfire: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:56:03 +0100
-Message-Id: <20180221205635.31314-69-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 03/45] rtc: nvmem: return error values
+Date: Mon, 12 Feb 2018 23:47:17 +0100
+Message-Id: <20180212224759.15999-4-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-rtc_time_to_tm never generates an invalid tm. It is not necessary to
-validate it. Also, the RTC core is always calling rtc_valid_tm after the
-read_time callback.
+In case of error, make rtc_nvmem_register() able to return an error value
+to its caller.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-starfire.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/nvmem.c    | 10 ++++++----
+ drivers/rtc/rtc-core.h | 11 +++++++----
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-starfire.c b/drivers/rtc/rtc-starfire.c
-index 7fc36973fa33..a7d49329d626 100644
---- a/drivers/rtc/rtc-starfire.c
-+++ b/drivers/rtc/rtc-starfire.c
-@@ -28,7 +28,7 @@ static u32 starfire_get_time(void)
- static int starfire_read_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
+index 0a3522bcdd25..293df6db7c42 100644
+--- a/drivers/rtc/nvmem.c
++++ b/drivers/rtc/nvmem.c
+@@ -84,21 +84,23 @@ static void rtc_nvram_unregister(struct rtc_device *rtc)
+ /*
+  * New ABI, uses nvmem
+  */
+-void rtc_nvmem_register(struct rtc_device *rtc,
+-			struct nvmem_config *nvmem_config)
++int rtc_nvmem_register(struct rtc_device *rtc,
++		       struct nvmem_config *nvmem_config)
  {
- 	rtc_time_to_tm(starfire_get_time(), tm);
--	return rtc_valid_tm(tm);
+ 	if (!nvmem_config)
+-		return;
++		return -ENODEV;
+ 
+ 	nvmem_config->dev = &rtc->dev;
+ 	nvmem_config->owner = rtc->owner;
+ 	rtc->nvmem = nvmem_register(nvmem_config);
+ 	if (IS_ERR_OR_NULL(rtc->nvmem))
+-		return;
++		return PTR_ERR(rtc->nvmem);
+ 
+ 	/* Register the old ABI */
+ 	if (rtc->nvram_old_abi)
+ 		rtc_nvram_register(rtc, nvmem_config->size);
++
 +	return 0;
  }
  
- static const struct rtc_class_ops starfire_rtc_ops = {
+ void rtc_nvmem_unregister(struct rtc_device *rtc)
+diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
+index 5f60e3b11cde..05a67837fd76 100644
+--- a/drivers/rtc/rtc-core.h
++++ b/drivers/rtc/rtc-core.h
+@@ -48,11 +48,14 @@ static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
+ #endif
+ 
+ #ifdef CONFIG_RTC_NVMEM
+-void rtc_nvmem_register(struct rtc_device *rtc,
+-			struct nvmem_config *nvmem_config);
++int rtc_nvmem_register(struct rtc_device *rtc,
++		       struct nvmem_config *nvmem_config);
+ void rtc_nvmem_unregister(struct rtc_device *rtc);
+ #else
+-static inline void rtc_nvmem_register(struct rtc_device *rtc,
+-				      struct nvmem_config *nvmem_config) {}
++static inline int rtc_nvmem_register(struct rtc_device *rtc,
++				     struct nvmem_config *nvmem_config)
++{
++	return -ENODEV;
++}
+ static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
+ #endif
 -- 
 2.16.1
