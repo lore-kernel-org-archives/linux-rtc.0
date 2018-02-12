@@ -1,86 +1,139 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:45739 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751274AbeBTVoJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:09 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>
-Subject: [PATCH v2 11/21] rtc: puv3: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:50 +0200
-Message-Id: <20180220214400.66749-12-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:37601 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932963AbeBLWss (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:48 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 45/45] rtc: tx4939: use generic nvmem
+Date: Mon, 12 Feb 2018 23:47:59 +0100
+Message-Id: <20180212224759.15999-46-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+Instead of adding a binary sysfs attribute from the driver, use the core to
+register an nvmem device.
 
-Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-puv3.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-tx4939.c | 57 ++++++++++++++++++++++--------------------------
+ 1 file changed, 26 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/rtc/rtc-puv3.c b/drivers/rtc/rtc-puv3.c
-index 9e83be32ff43..f77ef282f013 100644
---- a/drivers/rtc/rtc-puv3.c
-+++ b/drivers/rtc/rtc-puv3.c
-@@ -90,9 +90,7 @@ static int puv3_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
+index 5a3a6b457b8f..feededce3ded 100644
+--- a/drivers/rtc/rtc-tx4939.c
++++ b/drivers/rtc/rtc-tx4939.c
+@@ -212,58 +212,52 @@ static const struct rtc_class_ops tx4939_rtc_ops = {
+ 	.alarm_irq_enable	= tx4939_rtc_alarm_irq_enable,
+ };
+ 
+-static ssize_t tx4939_rtc_nvram_read(struct file *filp, struct kobject *kobj,
+-				     struct bin_attribute *bin_attr,
+-				     char *buf, loff_t pos, size_t size)
++static int tx4939_nvram_read(void *priv, unsigned int pos, void *val,
++			     size_t bytes)
  {
- 	rtc_time_to_tm(readl(RTC_RCNR), rtc_tm);
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct tx4939rtc_plat_data *pdata = get_tx4939rtc_plat_data(dev);
++	struct tx4939rtc_plat_data *pdata = priv;
+ 	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	ssize_t count;
++	u8 *buf = val;
  
--	dev_dbg(dev, "read time %02x.%02x.%02x %02x/%02x/%02x\n",
--		 rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
--		 rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
-+	dev_dbg(dev, "read time %ptRr\n", rtc_tm);
- 
- 	return 0;
+ 	spin_lock_irq(&pdata->lock);
+-	for (count = 0; count < size; count++) {
++	for (; bytes; bytes--) {
+ 		__raw_writel(pos++, &rtcreg->adr);
+ 		*buf++ = __raw_readl(&rtcreg->dat);
+ 	}
+ 	spin_unlock_irq(&pdata->lock);
+-	return count;
++	return 0;
  }
-@@ -101,9 +99,7 @@ static int puv3_rtc_settime(struct device *dev, struct rtc_time *tm)
+ 
+-static ssize_t tx4939_rtc_nvram_write(struct file *filp, struct kobject *kobj,
+-				      struct bin_attribute *bin_attr,
+-				      char *buf, loff_t pos, size_t size)
++static int tx4939_nvram_write(void *priv, unsigned int pos, void *val,
++			      size_t bytes)
  {
- 	unsigned long rtc_count = 0;
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct tx4939rtc_plat_data *pdata = get_tx4939rtc_plat_data(dev);
++	struct tx4939rtc_plat_data *pdata = priv;
+ 	struct tx4939_rtc_reg __iomem *rtcreg = pdata->rtcreg;
+-	ssize_t count;
++	u8 *buf = val;
  
--	dev_dbg(dev, "set time %02d.%02d.%02d %02d/%02d/%02d\n",
--		 tm->tm_year, tm->tm_mon, tm->tm_mday,
--		 tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set time %ptRr\n", tm);
- 
- 	rtc_tm_to_time(tm, &rtc_count);
- 	writel(rtc_count, RTC_RCNR);
-@@ -119,10 +115,7 @@ static int puv3_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = readl(RTC_RTSR) & RTC_RTSR_ALE;
- 
--	dev_dbg(dev, "read alarm %02x %02x.%02x.%02x %02x/%02x/%02x\n",
--		 alrm->enabled,
--		 alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
--		 alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+	dev_dbg(dev, "read alarm: %d, %ptRr\n", alrm->enabled, alm_tm);
- 
- 	return 0;
+ 	spin_lock_irq(&pdata->lock);
+-	for (count = 0; count < size; count++) {
++	for (; bytes; bytes--) {
+ 		__raw_writel(pos++, &rtcreg->adr);
+ 		__raw_writel(*buf++, &rtcreg->dat);
+ 	}
+ 	spin_unlock_irq(&pdata->lock);
+-	return count;
++	return 0;
  }
-@@ -132,10 +125,7 @@ static int puv3_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	struct rtc_time *tm = &alrm->time;
- 	unsigned long rtcalarm_count = 0;
  
--	dev_dbg(dev, "puv3_rtc_setalarm: %d, %02x/%02x/%02x %02x.%02x.%02x\n",
--		 alrm->enabled,
--		 tm->tm_mday & 0xff, tm->tm_mon & 0xff, tm->tm_year & 0xff,
--		 tm->tm_hour & 0xff, tm->tm_min & 0xff, tm->tm_sec);
-+	dev_dbg(dev, "set alarm: %d, %ptRr\n", alrm->enabled, tm);
+-static struct bin_attribute tx4939_rtc_nvram_attr = {
+-	.attr = {
+-		.name = "nvram",
+-		.mode = S_IRUGO | S_IWUSR,
+-	},
+-	.size = TX4939_RTC_REG_RAMSIZE,
+-	.read = tx4939_rtc_nvram_read,
+-	.write = tx4939_rtc_nvram_write,
+-};
+-
+ static int __init tx4939_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct rtc_device *rtc;
+ 	struct tx4939rtc_plat_data *pdata;
+ 	struct resource *res;
+ 	int irq, ret;
++	struct nvmem_config nvmem_cfg = {
++		.name = "rv8803_nvram",
++		.word_size = 4,
++		.stride = 4,
++		.size = TX4939_RTC_REG_RAMSIZE,
++		.reg_read = tx4939_nvram_read,
++		.reg_write = tx4939_nvram_write,
++	};
  
- 	rtc_tm_to_time(tm, &rtcalarm_count);
- 	writel(rtcalarm_count, RTC_RTAR);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
+@@ -288,14 +282,16 @@ static int __init tx4939_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(rtc);
+ 
+ 	rtc->ops = &tx4939_rtc_ops;
+-
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &tx4939_rtc_nvram_attr);
+-	if (ret)
+-		return ret;
++	rtc->nvram_old_abi = true;
+ 
+ 	pdata->rtc = rtc;
+ 
+ 	ret = rtc_register_device(rtc);
++	if (ret)
++		return ret;
++
++	nvmem_cfg.priv = pdata;
++	ret = rtc_nvmem_register(rtc, &nvmem_cfg);
+ 
+ 	return ret;
+ }
+@@ -304,7 +300,6 @@ static int __exit tx4939_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct tx4939rtc_plat_data *pdata = platform_get_drvdata(pdev);
+ 
+-	sysfs_remove_bin_file(&pdev->dev.kobj, &tx4939_rtc_nvram_attr);
+ 	spin_lock_irq(&pdata->lock);
+ 	tx4939_rtc_cmd(pdata->rtcreg, TX4939_RTCCTL_COMMAND_NOP);
+ 	spin_unlock_irq(&pdata->lock);
 -- 
-2.15.1
+2.16.1
