@@ -1,45 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:44363 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754489AbeBNHwo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Feb 2018 02:52:44 -0500
-Date: Wed, 14 Feb 2018 08:52:42 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Colin King <colin.king@canonical.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1302: remove redundant initializations of pointer
- bp
-Message-ID: <20180214075242.GA8219@piout.net>
-References: <20180123101727.31028-1-colin.king@canonical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180123101727.31028-1-colin.king@canonical.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:34283 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753908AbeBLVH1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 16:07:27 -0500
+From: Philipp Rossak <embed3d@gmail.com>
+To: wens@csie.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com
+Cc: linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: ac100: Fix ac100 determine rate bug
+Date: Mon, 12 Feb 2018 22:07:23 +0100
+Message-Id: <20180212210723.20919-1-embed3d@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 23/01/2018 at 10:17:27 +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> Pointe bp is being initialized and this value is never read, it
-> is being updated to the same value later just before it is going to
-> be used. Remove the initialization as it is never read and keep
-> the setting of bp closer to the use of bp.
-> 
-> Cleans up clang warnings:
-> drivers/rtc/rtc-ds1302.c:115:7: warning: Value stored to 'bp' during
-> its initialization is never read
-> drivers/rtc/rtc-ds1302.c:46:7: warning: Value stored to 'bp' during
-> its initialization is never read
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/rtc/rtc-ds1302.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
+This patch fixes a bug, that prevents the Allwinner A83T and the A80
+from a successful boot. You can find the shortend trace below:
 
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+pgd = (ptrval)
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in:
+CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
+Hardware name: Allwinner sun8i Family
+Workqueue: events deferred_probe_work_func
+PC is at clk_hw_get_rate+0x0/0x34
+LR is at ac100_clkout_determine_rate+0x48/0x19c
+
+[ ... ]
+
+(clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
+(ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
+(clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
+(clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
+(of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
+
+To fix that bug, we first check if the return of the 
+clk_hw_get_parent_by_index is non zero. If it is zero we skip that
+clock parent.
+
+The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
+
+Signed-off-by: Philipp Rossak <embed3d@gmail.com>
+---
+ drivers/rtc/rtc-ac100.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 8ff9dc3fe5bf..820ce6fb9d34 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -183,7 +183,12 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
+ 
+ 	for (i = 0; i < num_parents; i++) {
+ 		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
+-		unsigned long tmp, prate = clk_hw_get_rate(parent);
++		unsigned long tmp, prate;
++
++		if (!parent)
++			continue;
++
++		prate = clk_hw_get_rate(parent);
+ 
+ 		tmp = ac100_clkout_round_rate(hw, req->rate, prate);
+ 
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+2.11.0
