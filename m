@@ -1,93 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37527 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37585 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932673AbeBLWs0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:26 -0500
+        with ESMTP id S932963AbeBLWsj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:39 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 05/45] rtc: export rtc_nvmem_register() to drivers
-Date: Mon, 12 Feb 2018 23:47:19 +0100
-Message-Id: <20180212224759.15999-6-alexandre.belloni@bootlin.com>
+Subject: [PATCH 31/45] rtc: cmos: fix possible race condition
+Date: Mon, 12 Feb 2018 23:47:45 +0100
+Message-Id: <20180212224759.15999-32-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Export rtc_nvmem_register() so it can be called from drivers instead of
-only the core.
+The probe function is not allowed to fail after registering the RTC because
+the following may happen:
+
+CPU0:                                CPU1:
+sys_load_module()
+ do_init_module()
+  do_one_initcall()
+   cmos_do_probe()
+    rtc_device_register()
+     __register_chrdev()
+     cdev->owner = struct module*
+                                     open("/dev/rtc0")
+    rtc_device_unregister()
+  module_put()
+  free_module()
+   module_free(mod->module_core)
+   /* struct module *module is now
+      freed */
+                                      chrdev_open()
+                                       spin_lock(cdev_lock)
+                                       cdev_get()
+                                        try_module_get()
+                                         module_is_live()
+                                         /* dereferences already
+                                            freed struct module* */
+
+Switch to devm_rtc_allocate_device/rtc_register_device to register the rtc
+as late as possible.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/nvmem.c    |  3 +--
- drivers/rtc/rtc-core.h | 13 -------------
- include/linux/rtc.h    | 13 +++++++++++++
- 3 files changed, 14 insertions(+), 15 deletions(-)
+ drivers/rtc/rtc-cmos.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
-index fd1c39a5ade5..3a02357eb783 100644
---- a/drivers/rtc/nvmem.c
-+++ b/drivers/rtc/nvmem.c
-@@ -14,8 +14,6 @@
- #include <linux/rtc.h>
- #include <linux/sysfs.h>
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 9dca53df3584..e6393e784d0c 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -751,8 +751,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 	cmos_rtc.dev = dev;
+ 	dev_set_drvdata(dev, &cmos_rtc);
  
--#include "rtc-core.h"
--
- /*
-  * Deprecated ABI compatibility, this should be removed at some point
-  */
-@@ -105,6 +103,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,
+-	cmos_rtc.rtc = rtc_device_register(driver_name, dev,
+-				&cmos_rtc_ops, THIS_MODULE);
++	cmos_rtc.rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(cmos_rtc.rtc)) {
+ 		retval = PTR_ERR(cmos_rtc.rtc);
+ 		goto cleanup0;
+@@ -822,6 +821,11 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup2;
+ 	}
+ 
++	cmos_rtc.rtc->ops = &cmos_rtc_ops;
++	retval = rtc_register_device(cmos_rtc.rtc);
++	if (retval)
++		goto cleanup3;
++
+ 	dev_info(dev, "%s%s, %zd bytes nvram%s\n",
+ 		!is_valid_irq(rtc_irq) ? "no alarms" :
+ 			cmos_rtc.mon_alrm ? "alarms up to one year" :
+@@ -833,12 +837,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
  
  	return 0;
- }
-+EXPORT_SYMBOL_GPL(rtc_nvmem_register);
  
- void rtc_nvmem_unregister(struct rtc_device *rtc)
- {
-diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
-index 05a67837fd76..0abf98983e13 100644
---- a/drivers/rtc/rtc-core.h
-+++ b/drivers/rtc/rtc-core.h
-@@ -46,16 +46,3 @@ static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
- 	return NULL;
- }
- #endif
--
--#ifdef CONFIG_RTC_NVMEM
--int rtc_nvmem_register(struct rtc_device *rtc,
--		       struct nvmem_config *nvmem_config);
--void rtc_nvmem_unregister(struct rtc_device *rtc);
--#else
--static inline int rtc_nvmem_register(struct rtc_device *rtc,
--				     struct nvmem_config *nvmem_config)
--{
--	return -ENODEV;
--}
--static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
--#endif
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index fc6c90b57be0..fbc92fff7c2e 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -271,4 +271,17 @@ extern int rtc_hctosys_ret;
- #define rtc_hctosys_ret -ENODEV
- #endif
++cleanup3:
++	sysfs_remove_bin_file(&dev->kobj, &nvram);
+ cleanup2:
+ 	if (is_valid_irq(rtc_irq))
+ 		free_irq(rtc_irq, cmos_rtc.rtc);
+ cleanup1:
+ 	cmos_rtc.dev = NULL;
+-	rtc_device_unregister(cmos_rtc.rtc);
+ cleanup0:
+ 	if (RTC_IOMAPPED)
+ 		release_region(ports->start, resource_size(ports));
+@@ -869,7 +874,6 @@ static void cmos_do_remove(struct device *dev)
+ 		hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
  
-+#ifdef CONFIG_RTC_NVMEM
-+int rtc_nvmem_register(struct rtc_device *rtc,
-+		       struct nvmem_config *nvmem_config);
-+void rtc_nvmem_unregister(struct rtc_device *rtc);
-+#else
-+static inline int rtc_nvmem_register(struct rtc_device *rtc,
-+				     struct nvmem_config *nvmem_config)
-+{
-+	return -ENODEV;
-+}
-+static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
-+#endif
-+
- #endif /* _LINUX_RTC_H_ */
+-	rtc_device_unregister(cmos->rtc);
+ 	cmos->rtc = NULL;
+ 
+ 	ports = cmos->iomem;
 -- 
 2.16.1
