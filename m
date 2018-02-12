@@ -1,43 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37173 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37555 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965676AbeBMUsZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 15:48:25 -0500
-Date: Tue, 13 Feb 2018 21:48:14 +0100
+        with ESMTP id S932928AbeBLWsg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:36 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: James Hogan <jhogan@kernel.org>
-Cc: Miodrag Dinic <miodrag.dinic@mips.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: goldfish: Add missing MODULE_LICENSE
-Message-ID: <20180213204814.GE30929@piout.net>
-References: <20180116144521.392-1-jhogan@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180116144521.392-1-jhogan@kernel.org>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 17/45] rtc: rv8803: call rtc_nvmem_register()
+Date: Mon, 12 Feb 2018 23:47:31 +0100
+Message-Id: <20180212224759.15999-18-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 16/01/2018 at 14:45:21 +0000, James Hogan wrote:
-> Fix the following warning in MIPS allmodconfig by adding a
-> MODULE_LICENSE() at the end of rtc-goldfish.c, based on the file header
-> comment which says GNU General Public License version 2:
-> 
-> WARNING: modpost: missing MODULE_LICENSE() in drivers/rtc/rtc-goldfish.o
-> 
-> Fixes: f22d9cdcb5eb ("rtc: goldfish: Add RTC driver for Android emulator")
-> Signed-off-by: James Hogan <jhogan@kernel.org>
-> Cc: Miodrag Dinic <miodrag.dinic@mips.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Cc: linux-rtc@vger.kernel.org
-> ---
->  drivers/rtc/rtc-goldfish.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-Applied, thanks.
+Call rtc_nvmem_register instead of letting the core do it and stop using
+the nvmem_config member of struct rtc_device.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-rv8803.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index aae2576741a6..c10132d8cf2e 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -591,12 +591,13 @@ static int rv8803_probe(struct i2c_client *client,
+ 	rv8803->nvmem_cfg.priv = client;
+ 
+ 	rv8803->rtc->ops = &rv8803_rtc_ops;
+-	rv8803->rtc->nvmem_config = &rv8803->nvmem_cfg;
+ 	rv8803->rtc->nvram_old_abi = true;
+ 	err = rtc_register_device(rv8803->rtc);
+ 	if (err)
+ 		return err;
+ 
++	rtc_nvmem_register(rv8803->rtc, &rv8803->nvmem_cfg);
++
+ 	err = rv8803_write_reg(rv8803->client, RV8803_EXT, RV8803_EXT_WADA);
+ 	if (err)
+ 		return err;
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+2.16.1
