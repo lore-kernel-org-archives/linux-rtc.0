@@ -1,48 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37552 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37535 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932701AbeBLWs2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:28 -0500
+        with ESMTP id S932690AbeBLWs0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:26 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 14/45] rtc: omap: call rtc_nvmem_register()
-Date: Mon, 12 Feb 2018 23:47:28 +0100
-Message-Id: <20180212224759.15999-15-alexandre.belloni@bootlin.com>
+Subject: [PATCH 09/45] rtc: ds1307: put struct nvmem_config on the stack
+Date: Mon, 12 Feb 2018 23:47:23 +0100
+Message-Id: <20180212224759.15999-10-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Call rtc_nvmem_register instead of letting the core do it and stop using
-the nvmem_config member of struct rtc_device.
+Avoid allocating memory for struct nvmem_config as it is only necessary at
+the nvmem registration.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-omap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-ds1307.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 09ef802d6e54..e53cb27f4118 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -850,7 +850,6 @@ static int omap_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index c146411a2099..4021d478b9f3 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,7 +114,6 @@ enum ds_type {
+ #	define RX8025_BIT_XST		0x20
  
- 	rtc->rtc->ops = &omap_rtc_ops;
- 	omap_rtc_nvmem_config.priv = rtc;
--	rtc->rtc->nvmem_config = &omap_rtc_nvmem_config;
+ struct ds1307 {
+-	struct nvmem_config	nvmem_cfg;
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+ #define HAS_NVRAM	0		/* bit 0 == sysfs file active */
+@@ -1702,16 +1701,18 @@ static int ds1307_probe(struct i2c_client *client,
+ 		return err;
  
- 	/* handle periodic and alarm irqs */
- 	ret = devm_request_irq(&pdev->dev, rtc->irq_timer, rtc_irq, 0,
-@@ -886,6 +885,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err;
+ 	if (chip->nvram_size) {
+-		ds1307->nvmem_cfg.name = "ds1307_nvram";
+-		ds1307->nvmem_cfg.word_size = 1;
+-		ds1307->nvmem_cfg.stride = 1;
+-		ds1307->nvmem_cfg.size = chip->nvram_size;
+-		ds1307->nvmem_cfg.reg_read = ds1307_nvram_read;
+-		ds1307->nvmem_cfg.reg_write = ds1307_nvram_write;
+-		ds1307->nvmem_cfg.priv = ds1307;
++		struct nvmem_config nvmem_cfg = {
++			.name = "ds1307_nvram",
++			.word_size = 1,
++			.stride = 1,
++			.size = chip->nvram_size,
++			.reg_read = ds1307_nvram_read,
++			.reg_write = ds1307_nvram_write,
++			.priv = ds1307,
++		};
  
-+	rtc_nvmem_register(rtc->rtc, &omap_rtc_nvmem_config);
-+
- 	return 0;
+ 		ds1307->rtc->nvram_old_abi = true;
+-		rtc_nvmem_register(ds1307->rtc, &ds1307->nvmem_cfg);
++		rtc_nvmem_register(ds1307->rtc, &nvmem_cfg);
+ 	}
  
- err:
+ 	ds1307_hwmon_register(ds1307);
 -- 
 2.16.1
