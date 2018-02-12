@@ -1,61 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37561 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37550 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932935AbeBLWsg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:36 -0500
+        with ESMTP id S932695AbeBLWs1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:27 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 19/45] rtc: rv8803: fix possible race condition
-Date: Mon, 12 Feb 2018 23:47:33 +0100
-Message-Id: <20180212224759.15999-20-alexandre.belloni@bootlin.com>
+Subject: [PATCH 12/45] rtc: m48t86: call rtc_nvmem_register()
+Date: Mon, 12 Feb 2018 23:47:26 +0100
+Message-Id: <20180212224759.15999-13-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The probe function is not allowed to fail after registering the RTC. Call
-rtc_register_device() at the end.
+Call rtc_nvmem_register instead of letting the core do it and stop using
+the nvmem_config member of struct rtc_device.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv8803.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-m48t86.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 6fb5041f750b..29fc3d210392 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -590,14 +590,6 @@ static int rv8803_probe(struct i2c_client *client,
- 		}
- 	}
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index d9aea9b6d9cd..3a48a7eb3e9c 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -266,13 +266,14 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+ 	info->rtc->ops = &m48t86_rtc_ops;
  
--	rv8803->rtc->ops = &rv8803_rtc_ops;
--	rv8803->rtc->nvram_old_abi = true;
--	err = rtc_register_device(rv8803->rtc);
--	if (err)
--		return err;
--
--	rtc_nvmem_register(rv8803->rtc, &nvmem_cfg);
--
- 	err = rv8803_write_reg(rv8803->client, RV8803_EXT, RV8803_EXT_WADA);
+ 	m48t86_nvmem_cfg.priv = &pdev->dev;
+-	info->rtc->nvmem_config = &m48t86_nvmem_cfg;
+ 	info->rtc->nvram_old_abi = true;
+ 
+ 	err = rtc_register_device(info->rtc);
  	if (err)
  		return err;
-@@ -608,6 +600,14 @@ static int rv8803_probe(struct i2c_client *client,
- 		return err;
- 	}
  
-+	rv8803->rtc->ops = &rv8803_rtc_ops;
-+	rv8803->rtc->nvram_old_abi = true;
-+	err = rtc_register_device(rv8803->rtc);
-+	if (err)
-+		return err;
++	rtc_nvmem_register(info->rtc, &m48t86_nvmem_cfg);
 +
-+	rtc_nvmem_register(rv8803->rtc, &nvmem_cfg);
-+
- 	rv8803->rtc->max_user_freq = 1;
- 
- 	return 0;
+ 	/* read battery status */
+ 	reg = m48t86_readb(&pdev->dev, M48T86_D);
+ 	dev_info(&pdev->dev, "battery %s\n",
 -- 
 2.16.1
