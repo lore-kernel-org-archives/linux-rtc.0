@@ -1,103 +1,160 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47078 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37577 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752024AbeBUU54 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:56 -0500
+        with ESMTP id S932940AbeBLWsh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:37 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 093/100] rtc: s35390a: remove useless indirection
-Date: Wed, 21 Feb 2018 21:56:28 +0100
-Message-Id: <20180221205635.31314-94-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 23/45] rtc: ds1343: remove undocumented and useless sysfs files
+Date: Mon, 12 Feb 2018 23:47:37 +0100
+Message-Id: <20180212224759.15999-24-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-s35390a_set_datetime, s35390a_get_datetime, s35390a_set_alarm and
-s35390a_read_alarm are only used after casting dev to an i2c_client. Remove
-that useless indirection.
+A documented ABI already exists to get information about the alarm. It is
+the only one that is used.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-s35390a.c | 32 ++++++++------------------------
- 1 file changed, 8 insertions(+), 24 deletions(-)
+ drivers/rtc/rtc-ds1343.c | 96 +-----------------------------------------------
+ 1 file changed, 1 insertion(+), 95 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 18c1d8a9f447..77feb603cd4c 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -210,8 +210,9 @@ static int s35390a_reg2hr(struct s35390a *s35390a, char reg)
- 	return hour;
- }
+diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
+index a5a5a363c6e1..67cae0dd8154 100644
+--- a/drivers/rtc/rtc-ds1343.c
++++ b/drivers/rtc/rtc-ds1343.c
+@@ -199,74 +199,6 @@ static struct bin_attribute nvram_attr = {
+ 	.size		= DS1343_NVRAM_LEN,
+ };
  
--static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct s35390a	*s35390a = i2c_get_clientdata(client);
- 	int i, err;
- 	char buf[7], status;
-@@ -241,8 +242,9 @@ static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return err;
- }
- 
--static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct s35390a *s35390a = i2c_get_clientdata(client);
- 	char buf[7], status;
- 	int i, err;
-@@ -274,8 +276,9 @@ static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int s35390a_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alm)
-+static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct s35390a *s35390a = i2c_get_clientdata(client);
- 	char buf[3], sts = 0;
- 	int err, i;
-@@ -329,8 +332,9 @@ static int s35390a_set_alarm(struct i2c_client *client, struct rtc_wkalrm *alm)
- 	return err;
- }
- 
--static int s35390a_read_alarm(struct i2c_client *client, struct rtc_wkalrm *alm)
-+static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct s35390a *s35390a = i2c_get_clientdata(client);
- 	char buf[3], sts;
- 	int i, err;
-@@ -384,26 +388,6 @@ static int s35390a_read_alarm(struct i2c_client *client, struct rtc_wkalrm *alm)
- 	return 0;
- }
- 
--static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+-static ssize_t ds1343_show_alarmstatus(struct device *dev,
+-				struct device_attribute *attr, char *buf)
 -{
--	return s35390a_read_alarm(to_i2c_client(dev), alm);
+-	struct ds1343_priv *priv = dev_get_drvdata(dev);
+-	int alarmstatus, data;
+-
+-	regmap_read(priv->map, DS1343_CONTROL_REG, &data);
+-
+-	alarmstatus = !!(data & DS1343_A0IE);
+-
+-	if (alarmstatus)
+-		return sprintf(buf, "enabled\n");
+-	else
+-		return sprintf(buf, "disabled\n");
 -}
 -
--static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+-static DEVICE_ATTR(alarm_status, S_IRUGO, ds1343_show_alarmstatus, NULL);
+-
+-static ssize_t ds1343_show_alarmmode(struct device *dev,
+-				struct device_attribute *attr, char *buf)
 -{
--	return s35390a_set_alarm(to_i2c_client(dev), alm);
+-	struct ds1343_priv *priv = dev_get_drvdata(dev);
+-	int alarm_mode, data;
+-	char *alarm_str;
+-
+-	regmap_read(priv->map, DS1343_ALM0_SEC_REG, &data);
+-	alarm_mode = (data & 0x80) >> 4;
+-
+-	regmap_read(priv->map, DS1343_ALM0_MIN_REG, &data);
+-	alarm_mode |= (data & 0x80) >> 5;
+-
+-	regmap_read(priv->map, DS1343_ALM0_HOUR_REG, &data);
+-	alarm_mode |= (data & 0x80) >> 6;
+-
+-	regmap_read(priv->map, DS1343_ALM0_DAY_REG, &data);
+-	alarm_mode |= (data & 0x80) >> 7;
+-
+-	switch (alarm_mode) {
+-	case 15:
+-		alarm_str = "each second";
+-		break;
+-
+-	case 7:
+-		alarm_str = "seconds match";
+-		break;
+-
+-	case 3:
+-		alarm_str = "minutes and seconds match";
+-		break;
+-
+-	case 1:
+-		alarm_str = "hours, minutes and seconds match";
+-		break;
+-
+-	case 0:
+-		alarm_str = "day, hours, minutes and seconds match";
+-		break;
+-
+-	default:
+-		alarm_str = "invalid";
+-		break;
+-	}
+-
+-	return sprintf(buf, "%s\n", alarm_str);
 -}
 -
--static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	return s35390a_get_datetime(to_i2c_client(dev), tm);
--}
+-static DEVICE_ATTR(alarm_mode, S_IRUGO, ds1343_show_alarmmode, NULL);
 -
--static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	return s35390a_set_datetime(to_i2c_client(dev), tm);
--}
--
- static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
- 			     unsigned long arg)
+ static ssize_t ds1343_show_tricklecharger(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
  {
+@@ -313,7 +245,6 @@ static DEVICE_ATTR(trickle_charger, S_IRUGO, ds1343_show_tricklecharger, NULL);
+ 
+ static int ds1343_sysfs_register(struct device *dev)
+ {
+-	struct ds1343_priv *priv = dev_get_drvdata(dev);
+ 	int err;
+ 
+ 	err = device_create_file(dev, &dev_attr_glitch_filter);
+@@ -325,26 +256,9 @@ static int ds1343_sysfs_register(struct device *dev)
+ 		goto error1;
+ 
+ 	err = device_create_bin_file(dev, &nvram_attr);
+-	if (err)
+-		goto error2;
+-
+-	if (priv->irq <= 0)
+-		return err;
+-
+-	err = device_create_file(dev, &dev_attr_alarm_mode);
+-	if (err)
+-		goto error3;
+-
+-	err = device_create_file(dev, &dev_attr_alarm_status);
+ 	if (!err)
+-		return err;
+-
+-	device_remove_file(dev, &dev_attr_alarm_mode);
+-
+-error3:
+-	device_remove_bin_file(dev, &nvram_attr);
++		return 0;
+ 
+-error2:
+ 	device_remove_file(dev, &dev_attr_trickle_charger);
+ 
+ error1:
+@@ -355,17 +269,9 @@ static int ds1343_sysfs_register(struct device *dev)
+ 
+ static void ds1343_sysfs_unregister(struct device *dev)
+ {
+-	struct ds1343_priv *priv = dev_get_drvdata(dev);
+-
+ 	device_remove_file(dev, &dev_attr_glitch_filter);
+ 	device_remove_file(dev, &dev_attr_trickle_charger);
+ 	device_remove_bin_file(dev, &nvram_attr);
+-
+-	if (priv->irq <= 0)
+-		return;
+-
+-	device_remove_file(dev, &dev_attr_alarm_status);
+-	device_remove_file(dev, &dev_attr_alarm_mode);
+ }
+ 
+ static int ds1343_read_time(struct device *dev, struct rtc_time *dt)
 -- 
 2.16.1
