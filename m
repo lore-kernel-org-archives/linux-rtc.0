@@ -1,225 +1,151 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46888 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37581 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751131AbeBUU5D (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:03 -0500
+        with ESMTP id S932949AbeBLWsi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:38 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 000/100] rtc: remove cargo culted code
-Date: Wed, 21 Feb 2018 21:54:55 +0100
-Message-Id: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 26/45] rtc: m48t59: use generic nvmem
+Date: Mon, 12 Feb 2018 23:47:40 +0100
+Message-Id: <20180212224759.15999-27-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hello,
+Instead of adding a binary sysfs attribute from the driver (which suffers
+from a race condition as the attribute appears after the device), use the
+core to register an nvmem device.
 
-This series:
- - removes useless calls to rtc_valid_tm in .read_time, .set_time and
-   .set_alarm
- - removes code setting default values for RTCs (and lets the core
-   handle it)
- - removes useless "time is invalid" messages at probe time
- - removes useless indirect calls
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-m48t59.c | 56 ++++++++++++++++++++----------------------------
+ 1 file changed, 23 insertions(+), 33 deletions(-)
 
-Those were mostly copy pasted from other drivers
-
-Alexandre Belloni (100):
-  rtc: ds1511: let the core handle invalid time
-  rtc: ds1553: let the core handle invalid time
-  rtc: cmos: let the core handle invalid time
-  rtc: rs5c348: let the core handle invalid time
-  rtc: stk17ta8: let the core handle invalid time
-  rtc: ab-b5ze-s3: stop validating rtc_time in .read_time
-  rtc: ab3100: stop validating rtc_time in .read_time
-  rtc: ab8500: stop validating rtc_time in .read_time
-  rtc: ac100: stop validating rtc_time in .read_time
-  rtc: au1xxx: stop validating rtc_time in .read_time
-  rtc: bq32k: stop validating rtc_time in .read_time
-  rtc: coh901331: stop validating rtc_time in .read_time
-  rtc: cpcap: stop validating rtc_time in .read_time
-  rtc: da9052: stop validating rtc_time in .read_time
-  rtc: da9055: stop validating rtc_time in .read_time
-  rtc: da9063: stop validating rtc_time in .read_time
-  rtc: ds1216: stop validating rtc_time in .read_time
-  rtc: ds1286: stop validating rtc_time in .read_time
-  rtc: ds1302: stop validating rtc_time in .read_time
-  rtc: ds1305: stop validating rtc_time in .read_time
-  rtc: ds1307: stop validating rtc_time in .read_time
-  rtc: ds1343: stop validating rtc_time in .read_time
-  rtc: ds1347: stop validating rtc_time in .read_time
-  rtc: ds1390: stop validating rtc_time in .read_time
-  rtc: ds1685: stop validating rtc_time in .read_time
-  rtc: ds1742: stop validating rtc_time in .read_time
-  rtc: ds2404: stop validating rtc_time in .read_time
-  rtc: ds3232: stop validating rtc_time in .read_time
-  rtc: efi: stop validating rtc_time in .read_time
-  rtc: fm3130: stop validating rtc_time in .read_time
-  rtc: jz4740: stop validating rtc_time in .read_time
-  rtc: lpc24xx: stop validating rtc_time in .read_time
-  rtc: lpc32xx: stop validating rtc_time in .read_time
-  rtc: ls1x: stop validating rtc_time in .read_time
-  rtc: m41t94: stop validating rtc_time in .read_time
-  rtc: m48t35: stop validating rtc_time in .read_time
-  rtc: m48t59: stop validating rtc_time in .read_time
-  rtc: m48t86: stop validating rtc_time in .read_time
-  rtc: max6902: stop validating rtc_time in .read_time
-  rtc: max6916: stop validating rtc_time in .read_time
-  rtc: max8997: stop validating rtc_time in .read_time
-  rtc: max8998: stop validating rtc_time in .read_time
-  rtc: mc13xxx: stop validating rtc_time in .read_time
-  rtc: mcp795: stop validating rtc_time in .read_time
-  rtc: mpc5121: stop validating rtc_time in .read_time
-  rtc: mrst: stop validating rtc_time in .read_time
-  rtc: msm6242: stop validating rtc_time in .read_time
-  rtc: mt7622: stop validating rtc_time in .read_time
-  rtc: mv: stop validating rtc_time in .read_time
-  rtc: nuc900: stop validating rtc_time in .read_time
-  rtc: pcap: stop validating rtc_time in .read_time
-  rtc: pcf2123: stop validating rtc_time in .read_time
-  rtc: pcf2127: stop validating rtc_time in .read_time
-  rtc: pcf50633: stop validating rtc_time in .read_time
-  rtc: pcf8523: stop validating rtc_time in .read_time
-  rtc: pic32: stop validating rtc_time in .read_time
-  rtc: ps3: stop validating rtc_time in .read_time
-  rtc: r7301: stop validating rtc_time in .read_time
-  rtc: r9701: stop validating rtc_time in .read_time
-  rtc: rp5c01: stop validating rtc_time in .read_time
-  rtc: rx6110: stop validating rtc_time in .read_time
-  rtc: rx8010: stop validating rtc_time in .read_time
-  rtc: rx8025: stop validating rtc_time in .read_time
-  rtc: s3c: stop validating rtc_time in .read_time
-  rtc: s5m: stop validating rtc_time in .read_time
-  rtc: sc27xx: stop validating rtc_time in .read_time
-  rtc: sh: stop validating rtc_time in .read_time
-  rtc: starfire: stop validating rtc_time in .read_time
-  rtc: sun6i: stop validating rtc_time in .read_time
-  rtc: sunxi: stop validating rtc_time in .read_time
-  rtc: tps6586x: stop validating rtc_time in .read_time
-  rtc: tx4939: stop validating rtc_time in .read_time
-  rtc: wm831x: stop validating rtc_time in .read_time
-  rtc: xgene: stop validating rtc_time in .read_time
-  rtc: zynqmp: stop validating rtc_time in .read_time
-  rtc: isl12022: stop validating rtc_time in .read_time
-  rtc: isl12022: remove useless indirection
-  rtc: m41t80: stop validating rtc_time in .read_time
-  rtc: m41t93: stop validating rtc_time in .read_time
-  rtc: max77686: stop validating rtc_time in .read_time
-  rtc: omap: stop validating rtc_time in .set_time and .set_alarm
-  rtc: spear: stop validating rtc_time in .set_time and .set_alarm
-  rtc: tegra: stop validating rtc_time in .set_time
-  rtc: abx80x: remove useless message
-  rtc: pm8xxx: remove useless message
-  rtc: rx4581: remove useless message
-  rtc: rx8581: remove useless message
-  rtc: tile: remove useless message
-  rtc: rk808: remove useless debug message
-  rtc: rk808: fix possible race condition
-  rtc: s35390a: remove useless message
-  rtc: s35390a: stop validating rtc_time in .read_time
-  rtc: s35390a: remove useless indirection
-  rtc: rs5c372:  remove useless message
-  rtc: rs5c372: stop validating rtc_time in .read_time
-  rtc: rs5c372: remove useless indirection
-  rtc: max6900: stop validating rtc_time in .read_time
-  rtc: max6900: remove useless indirection
-  rtc: pcf85063: stop validating rtc_time in .read_time
-  rtc: pcf85063: remove useless indirection
-
- drivers/rtc/rtc-ab-b5ze-s3.c |  4 +---
- drivers/rtc/rtc-ab3100.c     |  2 +-
- drivers/rtc/rtc-ab8500.c     |  2 +-
- drivers/rtc/rtc-abx80x.c     |  6 +-----
- drivers/rtc/rtc-ac100.c      |  2 +-
- drivers/rtc/rtc-au1xxx.c     |  2 +-
- drivers/rtc/rtc-bq32k.c      |  2 +-
- drivers/rtc/rtc-cmos.c       | 12 ------------
- drivers/rtc/rtc-coh901331.c  |  2 +-
- drivers/rtc/rtc-cpcap.c      |  2 +-
- drivers/rtc/rtc-da9052.c     |  3 +--
- drivers/rtc/rtc-da9055.c     |  2 +-
- drivers/rtc/rtc-da9063.c     |  2 +-
- drivers/rtc/rtc-ds1216.c     |  2 +-
- drivers/rtc/rtc-ds1286.c     |  2 +-
- drivers/rtc/rtc-ds1302.c     |  3 +--
- drivers/rtc/rtc-ds1305.c     |  3 +--
- drivers/rtc/rtc-ds1307.c     |  3 +--
- drivers/rtc/rtc-ds1343.c     |  2 +-
- drivers/rtc/rtc-ds1347.c     |  2 +-
- drivers/rtc/rtc-ds1390.c     |  2 +-
- drivers/rtc/rtc-ds1511.c     |  4 ----
- drivers/rtc/rtc-ds1553.c     |  4 ----
- drivers/rtc/rtc-ds1685.c     |  2 +-
- drivers/rtc/rtc-ds1742.c     |  2 +-
- drivers/rtc/rtc-ds2404.c     |  2 +-
- drivers/rtc/rtc-ds3232.c     |  2 +-
- drivers/rtc/rtc-efi.c        |  2 +-
- drivers/rtc/rtc-fm3130.c     |  3 +--
- drivers/rtc/rtc-isl12022.c   | 18 +++++-------------
- drivers/rtc/rtc-jz4740.c     |  2 +-
- drivers/rtc/rtc-lpc24xx.c    |  2 +-
- drivers/rtc/rtc-lpc32xx.c    |  2 +-
- drivers/rtc/rtc-ls1x.c       |  2 +-
- drivers/rtc/rtc-m41t80.c     |  2 +-
- drivers/rtc/rtc-m41t93.c     |  2 +-
- drivers/rtc/rtc-m41t94.c     |  3 +--
- drivers/rtc/rtc-m48t35.c     |  2 +-
- drivers/rtc/rtc-m48t59.c     |  2 +-
- drivers/rtc/rtc-m48t86.c     |  2 +-
- drivers/rtc/rtc-max6900.c    | 19 +++++--------------
- drivers/rtc/rtc-max6902.c    |  2 +-
- drivers/rtc/rtc-max6916.c    |  2 +-
- drivers/rtc/rtc-max77686.c   |  4 +---
- drivers/rtc/rtc-max8997.c    |  2 +-
- drivers/rtc/rtc-max8998.c    |  2 +-
- drivers/rtc/rtc-mc13xxx.c    |  2 +-
- drivers/rtc/rtc-mcp795.c     |  2 +-
- drivers/rtc/rtc-mpc5121.c    |  2 +-
- drivers/rtc/rtc-mrst.c       |  2 +-
- drivers/rtc/rtc-msm6242.c    |  2 +-
- drivers/rtc/rtc-mt7622.c     |  2 +-
- drivers/rtc/rtc-mv.c         |  2 +-
- drivers/rtc/rtc-nuc900.c     | 14 ++++++++------
- drivers/rtc/rtc-omap.c       |  3 ---
- drivers/rtc/rtc-pcap.c       |  2 +-
- drivers/rtc/rtc-pcf2123.c    |  2 +-
- drivers/rtc/rtc-pcf2127.c    |  2 +-
- drivers/rtc/rtc-pcf50633.c   |  2 +-
- drivers/rtc/rtc-pcf85063.c   | 18 +++++-------------
- drivers/rtc/rtc-pcf8523.c    |  2 +-
- drivers/rtc/rtc-pic32.c      |  2 +-
- drivers/rtc/rtc-pm8xxx.c     |  6 ------
- drivers/rtc/rtc-ps3.c        |  2 +-
- drivers/rtc/rtc-r7301.c      |  2 +-
- drivers/rtc/rtc-r9701.c      |  2 +-
- drivers/rtc/rtc-rk808.c      | 25 +++++++------------------
- drivers/rtc/rtc-rp5c01.c     |  2 +-
- drivers/rtc/rtc-rs5c348.c    |  5 -----
- drivers/rtc/rtc-rs5c372.c    | 24 +++++-------------------
- drivers/rtc/rtc-rx4581.c     |  6 +-----
- drivers/rtc/rtc-rx6110.c     |  2 +-
- drivers/rtc/rtc-rx8010.c     |  2 +-
- drivers/rtc/rtc-rx8025.c     |  2 +-
- drivers/rtc/rtc-rx8581.c     |  6 +-----
- drivers/rtc/rtc-s35390a.c    | 38 +++++++++-----------------------------
- drivers/rtc/rtc-s3c.c        |  2 +-
- drivers/rtc/rtc-s5m.c        |  2 +-
- drivers/rtc/rtc-sc27xx.c     |  2 +-
- drivers/rtc/rtc-sh.c         |  2 +-
- drivers/rtc/rtc-spear.c      | 12 +++---------
- drivers/rtc/rtc-starfire.c   |  2 +-
- drivers/rtc/rtc-stk17ta8.c   |  4 ----
- drivers/rtc/rtc-sun6i.c      |  2 +-
- drivers/rtc/rtc-sunxi.c      |  2 +-
- drivers/rtc/rtc-tegra.c      |  4 ----
- drivers/rtc/rtc-tile.c       |  3 ---
- drivers/rtc/rtc-tps6586x.c   |  2 +-
- drivers/rtc/rtc-tx4939.c     |  2 +-
- drivers/rtc/rtc-wm831x.c     |  2 +-
- drivers/rtc/rtc-xgene.c      |  2 +-
- drivers/rtc/rtc-zynqmp.c     |  2 +-
- 92 files changed, 122 insertions(+), 263 deletions(-)
-
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index e248e56ff8a1..399fc4255d54 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -334,16 +334,16 @@ static const struct rtc_class_ops m48t02_rtc_ops = {
+ 	.set_time	= m48t59_rtc_set_time,
+ };
+ 
+-static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *bin_attr,
+-				char *buf, loff_t pos, size_t size)
++static int m48t59_nvram_read(void *priv, unsigned int offset, void *val,
++			     size_t size)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
++	struct platform_device *pdev = priv;
++	struct device *dev = &pdev->dev;
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
++	u8 *buf = val;
+ 
+ 	spin_lock_irqsave(&m48t59->lock, flags);
+ 
+@@ -352,19 +352,19 @@ static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+-	return cnt;
++	return 0;
+ }
+ 
+-static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *bin_attr,
+-				char *buf, loff_t pos, size_t size)
++static int m48t59_nvram_write(void *priv, unsigned int offset, void *val,
++			      size_t size)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
++	struct platform_device *pdev = priv;
++	struct device *dev = &pdev->dev;
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
++	u8 *buf = val;
+ 
+ 	spin_lock_irqsave(&m48t59->lock, flags);
+ 
+@@ -373,18 +373,9 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+-	return cnt;
++	return 0;
+ }
+ 
+-static struct bin_attribute m48t59_nvram_attr = {
+-	.attr = {
+-		.name = "nvram",
+-		.mode = S_IRUGO | S_IWUSR,
+-	},
+-	.read = m48t59_nvram_read,
+-	.write = m48t59_nvram_write,
+-};
+-
+ static int m48t59_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+@@ -393,6 +384,15 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	int ret = -ENOMEM;
+ 	char *name;
+ 	const struct rtc_class_ops *ops;
++	struct nvmem_config nvmem_cfg = {
++		.name = "m48t59-",
++		.word_size = 1,
++		.stride = 1,
++		.size = pdata->offset,
++		.reg_read = m48t59_nvram_read,
++		.reg_write = m48t59_nvram_write,
++		.priv = pdev,
++	};
+ 
+ 	/* This chip could be memory-mapped or I/O-mapped */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -484,24 +484,15 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(m48t59->rtc))
+ 		return PTR_ERR(m48t59->rtc);
+ 
++	m48t59->rtc->nvram_old_abi = true;
+ 	m48t59->rtc->ops = ops;
+ 
+ 	ret = rtc_register_device(m48t59->rtc);
+ 	if (ret)
+ 		return ret;
+ 
+-	m48t59_nvram_attr.size = pdata->offset;
++	rtc_nvmem_register(m48t59->rtc, &nvmem_cfg);
+ 
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
+-	if (ret)
+-		return ret;
+-
+-	return 0;
+-}
+-
+-static int m48t59_rtc_remove(struct platform_device *pdev)
+-{
+-	sysfs_remove_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
+ 	return 0;
+ }
+ 
+@@ -513,7 +504,6 @@ static struct platform_driver m48t59_rtc_driver = {
+ 		.name	= "rtc-m48t59",
+ 	},
+ 	.probe		= m48t59_rtc_probe,
+-	.remove		= m48t59_rtc_remove,
+ };
+ 
+ module_platform_driver(m48t59_rtc_driver);
 -- 
 2.16.1
