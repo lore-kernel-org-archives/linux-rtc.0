@@ -1,120 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:53888 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964792AbeBMNpI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 08:45:08 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180213133201.kwq4aatpts7nerc2@flea.lan>
-References: <20180213121414.7000-1-embed3d@gmail.com> <20180213133201.kwq4aatpts7nerc2@flea.lan>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Tue, 13 Feb 2018 21:44:44 +0800
-Message-ID: <CAGb2v64tOCeD38gGR_fboC6PJCCD8L-EPu196MGrGgHLenkQXw@mail.gmail.com>
-Subject: Re: [linux-sunxi] [PATCH v2] rtc: ac100: Fix ac100 determine rate bug
-To: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Philipp Rossak <embed3d@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.free-electrons.com ([62.4.15.54]:37561 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932935AbeBLWsg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:36 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 19/45] rtc: rv8803: fix possible race condition
+Date: Mon, 12 Feb 2018 23:47:33 +0100
+Message-Id: <20180212224759.15999-20-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Feb 13, 2018 at 9:32 PM, Maxime Ripard
-<maxime.ripard@bootlin.com> wrote:
-> On Tue, Feb 13, 2018 at 01:14:14PM +0100, Philipp Rossak wrote:
->> This patch fixes a bug, that prevents the Allwinner A83T and the A80
->> from a successful boot. You can find the shortend trace below:
->
-> Since when is it there?
->
->> Unable to handle kernel NULL pointer dereference at virtual address
->> 00000000
->> pgd = (ptrval)
->> [00000000] *pgd=00000000
->> Internal error: Oops: 5 [#1] SMP ARM
->> Modules linked in:
->> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
->> Hardware name: Allwinner sun8i Family
->> Workqueue: events deferred_probe_work_func
->> PC is at clk_hw_get_rate+0x0/0x34
->> LR is at ac100_clkout_determine_rate+0x48/0x19c
->>
->> [ ... ]
->>
->> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
->> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
->> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
->> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
->> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
->>
->> To fix that bug, we first check if the return of the
->> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
->> clock parent.
->>
->> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
->>
->> Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
->
-> Should it be sent to stable?
->
->> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
->> ---
->>
->> Changes in v2:
->>       * add tag Fixes: ... to commit message
->>       * add comment to if statement why we are doing this check
->>
->>  drivers/rtc/rtc-ac100.c | 12 +++++++++++-
->>  1 file changed, 11 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
->> index 8ff9dc3fe5bf..ba73201d8cc1 100644
->> --- a/drivers/rtc/rtc-ac100.c
->> +++ b/drivers/rtc/rtc-ac100.c
->> @@ -183,7 +183,17 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
->>
->>       for (i = 0; i < num_parents; i++) {
->>               struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
->> -             unsigned long tmp, prate = clk_hw_get_rate(parent);
->> +             unsigned long tmp, prate;
->> +
->> +             /*
->> +              * We purposefully left open the possibility to use the clock
->> +              * from the codec side but it is not implemented right now.
->> +              * Thus we need to check if the parent exists.
->> +              */
->> +             if (!parent)
->> +                     continue;
->> +
->> +             prate = clk_hw_get_rate(parent);
->
-> clk_hw_get_num_parents should return the exact number of parents,
-> which is going to be 1 if you only have one parent, like all DTS seems
-> to have.
->
-> If not, then it should be explained in the comment and / or fixed
-> properly.
+The probe function is not allowed to fail after registering the RTC. Call
+rtc_register_device() at the end.
 
-The clock has two parents. One is a fixed clock internally registered
-by the driver. This is actually an external crystal, and we should
-probably add a device node and the works for it. The other parent
-is a clock from the codec side, which we properly declare and
-reference in the device tree. This clock, though defined, is not
-implemented in any driver (because we don't have any ATM).
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-rv8803.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-This second missing clock is what's causing issues here. The clk core
-looks for the parent by name, can't find one that is registered, and
-returns NULL.
-
-I guess the comment above is still not clear enough?
-
-ChenYu
-
-> Maxime
->
-> --
-> Maxime Ripard, Bootlin (formerly Free Electrons)
-> Embedded Linux and Kernel engineering
-> http://bootlin.com
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 6fb5041f750b..29fc3d210392 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -590,14 +590,6 @@ static int rv8803_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	rv8803->rtc->ops = &rv8803_rtc_ops;
+-	rv8803->rtc->nvram_old_abi = true;
+-	err = rtc_register_device(rv8803->rtc);
+-	if (err)
+-		return err;
+-
+-	rtc_nvmem_register(rv8803->rtc, &nvmem_cfg);
+-
+ 	err = rv8803_write_reg(rv8803->client, RV8803_EXT, RV8803_EXT_WADA);
+ 	if (err)
+ 		return err;
+@@ -608,6 +600,14 @@ static int rv8803_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
++	rv8803->rtc->ops = &rv8803_rtc_ops;
++	rv8803->rtc->nvram_old_abi = true;
++	err = rtc_register_device(rv8803->rtc);
++	if (err)
++		return err;
++
++	rtc_nvmem_register(rv8803->rtc, &nvmem_cfg);
++
+ 	rv8803->rtc->max_user_freq = 1;
+ 
+ 	return 0;
+-- 
+2.16.1
