@@ -1,40 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46938 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:37579 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751417AbeBUU5O (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:14 -0500
+        with ESMTP id S932942AbeBLWsh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:37 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 011/100] rtc: bq32k: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:06 +0100
-Message-Id: <20180221205635.31314-12-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 25/45] rtc: m48t59: switch to rtc_register_device
+Date: Mon, 12 Feb 2018 23:47:39 +0100
+Message-Id: <20180212224759.15999-26-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+This allows for future improvement of the driver.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-bq32k.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-m48t59.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-index 98ac8d5c7901..e8698e9870fe 100644
---- a/drivers/rtc/rtc-bq32k.c
-+++ b/drivers/rtc/rtc-bq32k.c
-@@ -110,7 +110,7 @@ static int bq32k_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_year = bcd2bin(regs.years) +
- 				((regs.cent_hours & BQ32K_CENT) ? 100 : 0);
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index d99a705bec07..e248e56ff8a1 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -480,11 +480,16 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&m48t59->lock);
+ 	platform_set_drvdata(pdev, m48t59);
  
--	return rtc_valid_tm(tm);
-+	return 0;
- }
+-	m48t59->rtc = devm_rtc_device_register(&pdev->dev, name, ops,
+-						THIS_MODULE);
++	m48t59->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(m48t59->rtc))
+ 		return PTR_ERR(m48t59->rtc);
  
- static int bq32k_rtc_set_time(struct device *dev, struct rtc_time *tm)
++	m48t59->rtc->ops = ops;
++
++	ret = rtc_register_device(m48t59->rtc);
++	if (ret)
++		return ret;
++
+ 	m48t59_nvram_attr.size = pdata->offset;
+ 
+ 	ret = sysfs_create_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
 -- 
 2.16.1
