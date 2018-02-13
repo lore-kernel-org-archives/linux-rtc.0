@@ -1,41 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:48029 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:36909 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750716AbeBUVg3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 16:36:29 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Matt Turner <mattst88@gmail.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] alpha: rtc: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 22:36:16 +0100
-Message-Id: <20180221213616.591-1-alexandre.belloni@bootlin.com>
+        with ESMTP id S965611AbeBMUc2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 15:32:28 -0500
+Date: Tue, 13 Feb 2018 21:32:16 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: a.zummo@towertech.it, arnd@arndb.de, broonie@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RESEND PATCH] rtc: Fix overflow when converting time64_t to
+ rtc_time
+Message-ID: <20180213203216.GC30929@piout.net>
+References: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+On 26/01/2018 at 13:06:01 +0800, Baolin Wang wrote:
+> If we convert one large time values to rtc_time, in the original formula
+> 'days * 86400' can be overflowed in 'unsigned int' type to make the formula
+> get one incorrect remain seconds value. Thus we can use div_s64_rem()
+> function to avoid this situation.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+>  drivers/rtc/rtc-lib.c |    6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- arch/alpha/kernel/rtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/alpha/kernel/rtc.c b/arch/alpha/kernel/rtc.c
-index b3da0dcda47d..ed72a017d42a 100644
---- a/arch/alpha/kernel/rtc.c
-+++ b/arch/alpha/kernel/rtc.c
-@@ -97,7 +97,7 @@ alpha_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		tm->tm_year = year;
- 	}
- 
--	return rtc_valid_tm(tm);
-+	return 0;
- }
- 
- static int
 -- 
-2.16.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+http://bootlin.com
