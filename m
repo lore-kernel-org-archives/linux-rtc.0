@@ -1,71 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:32059 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751369AbeBTVoL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:11 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 13/21] rtc: rx6110: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:52 +0200
-Message-Id: <20180220214400.66749-14-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:41667 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934938AbeBMMOS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 07:14:18 -0500
+From: Philipp Rossak <embed3d@gmail.com>
+To: wens@csie.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com
+Cc: linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v2] rtc: ac100: Fix ac100 determine rate bug
+Date: Tue, 13 Feb 2018 13:14:14 +0100
+Message-Id: <20180213121414.7000-1-embed3d@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+This patch fixes a bug, that prevents the Allwinner A83T and the A80
+from a successful boot. You can find the shortend trace below:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+pgd = (ptrval)
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in:
+CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
+Hardware name: Allwinner sun8i Family
+Workqueue: events deferred_probe_work_func
+PC is at clk_hw_get_rate+0x0/0x34
+LR is at ac100_clkout_determine_rate+0x48/0x19c
+
+[ ... ]
+
+(clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
+(ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
+(clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
+(clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
+(of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
+
+To fix that bug, we first check if the return of the
+clk_hw_get_parent_by_index is non zero. If it is zero we skip that
+clock parent.
+
+The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
+
+Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
+
+Signed-off-by: Philipp Rossak <embed3d@gmail.com>
 ---
- drivers/rtc/rtc-rx6110.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-index 7c9c08eab5e5..1705358fc706 100644
---- a/drivers/rtc/rtc-rx6110.c
-+++ b/drivers/rtc/rtc-rx6110.c
-@@ -114,9 +114,7 @@ struct rx6110_data {
-  */
- static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
- {
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
+Changes in v2:
+	* add tag Fixes: ... to commit message
+	* add comment to if statement why we are doing this check
+
+ drivers/rtc/rtc-ac100.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 8ff9dc3fe5bf..ba73201d8cc1 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -183,7 +183,17 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
  
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -154,9 +152,7 @@ static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
- 	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
- 	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
+ 	for (i = 0; i < num_parents; i++) {
+ 		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
+-		unsigned long tmp, prate = clk_hw_get_rate(parent);
++		unsigned long tmp, prate;
++
++		/*
++		 * We purposefully left open the possibility to use the clock
++		 * from the codec side but it is not implemented right now.
++		 * Thus we need to check if the parent exists.
++		 */
++		if (!parent)
++			continue;
++
++		prate = clk_hw_get_rate(parent);
  
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
+ 		tmp = ac100_clkout_round_rate(hw, req->rate, prate);
  
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -248,9 +244,7 @@ static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
- 	if (ret)
- 		return ret;
- 
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		tm->tm_sec, tm->tm_min, tm->tm_hour,
--		tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	dev_dbg(dev, "%s: date %ptRr\n", __func__, tm);
- 
- 	return rtc_valid_tm(tm);
- }
 -- 
-2.15.1
+2.11.0
