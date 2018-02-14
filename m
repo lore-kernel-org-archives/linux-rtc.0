@@ -1,100 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:32962 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S937530AbeBUOTO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 09:19:14 -0500
+Received: from mail.free-electrons.com ([62.4.15.54]:41409 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966364AbeBNBp2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 20:45:28 -0500
+Date: Wed, 14 Feb 2018 02:45:16 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Peter Milley <pbmilley@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [BUG]: Error accessing realtime clock
+Message-ID: <20180214014516.GB3354@piout.net>
+References: <1516839170.2319.35.camel@gmail.com>
+ <1518537392.3719.1.camel@gmail.com>
+ <20180213202532.GA30929@piout.net>
+ <1518554755.2607.4.camel@gmail.com>
+ <20180213205802.GF30929@piout.net>
+ <20180213222025.GA3354@piout.net>
+ <1518566194.3441.3.camel@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1519219410.10722.25.camel@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
- <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
- <1519170907.4326.17.camel@perches.com> <1eac0dc6-93b0-2e01-075f-cf62c85318c5@prevas.dk>
- <1519219410.10722.25.camel@linux.intel.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 21 Feb 2018 15:19:13 +0100
-Message-ID: <CAMuHMdX6HeqB6wUSUCT4L9S2G6YCB9-r6Q4B3dojEUv0iY+duw@mail.gmail.com>
-Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
- readable format via %pt
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Joe Perches <joe@perches.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1518566194.3441.3.camel@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Feb 21, 2018 at 2:23 PM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Wed, 2018-02-21 at 08:38 +0100, Rasmus Villemoes wrote:
->> On 2018-02-21 00:55, Joe Perches wrote:
->> > On Tue, 2018-02-20 at 23:43 +0200, Andy Shevchenko wrote:
->> > > There are users which print time and date represented by content
->> > > of
->> > > struct rtc_time in human readable format.
->> > >
->> > > Instead of open coding that each time introduce %ptR[dt][rv]
->> > > specifier.
->> > >
->> > > Note, users have to select PRINTK_PEXT_TIMEDATE option in a
->> > > Kconfig.
->> >
->> > Not sure this is a great option.
->> > Not just the name, the need to select it.
->>
->> Bikeshedding first: If you do keep the config option, please use
->> PRINTF,
->> not PRINTK - vsprintf can be and is used by lots of code other than
->> printk.
->
-> OK.
->
->> Well, on the one hand, I like to reduce the size of the kernel when
->> possible and ideally make all new functionality guarded by config
->> options, but OTOH, how much does compiling out the datetime formatters
->> really save?
->
-> https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
->
-> I understand that half a year time allows us to increase kernel text
-> size by 750+ bytes unconditionally.
->
-> I would really like to not use any option.
+On 13/02/2018 at 18:56:34 -0500, Peter Milley wrote:
+> Okay, I've booted the new kernel.
+> 
+> peter@haven:~$ uname -a
+> Linux haven 4.16.0-rc1+ #32 SMP Tue Feb 13 22:11:39 CET 2018 x86_64
+> x86_64 x86_64 GNU/Linux
+> peter@haven:~$ dmesg | grep -i rtc
+> [    0.045403] RTC time: 23:46:52, date: 02/13/18
+> [    1.368198] rtc_cmos 00:01: RTC can wake from S4
+> [    1.368205] rtc_cmos: drivers/rtc/rtc-cmos.c +679 cmos_do_probe
+> [    1.368235] rtc_cmos: drivers/rtc/rtc-cmos.c +684 cmos_do_probe
+> [    1.368260] rtc_cmos: drivers/rtc/rtc-cmos.c +688 cmos_do_probe
+> [    1.368285] rtc_cmos: 1: 70 8
+> [    1.368302] rtc_cmos: probe of 00:01 failed with error -16
+> [    1.408861] hctosys: unable to open rtc device (rtc0)
+> 
 
-Agreed.
+[...]
 
-FTR, growth of my atari_defconfig kernel between v4.7 and v4.15:
+> And /proc/ioports:
+> peter@haven:~$ sudo cat /proc/ioports
+> 0000-0cf7 : PCI Bus 0000:00
+>   0000-001f : dma1
+>   0020-0021 : pic1
+>   0040-0043 : timer0
+>   0050-0053 : timer1
+>   0060-0060 : keyboard
+>   0062-0062 : PNP0C09:00
+>     0062-0062 : EC data
+>   0064-0064 : keyboard
+>   0066-0066 : PNP0C09:00
+>     0066-0066 : EC cmd
+>   0070-0072 : wdat_wdt
 
-add/remove: 351/155 grow/shrink: 691/429 up/down: 63095/-38665 (24430)
-add/remove: 394/156 grow/shrink: 595/709 up/down: 61173/-31092 (30081)
-add/remove: 1315/711 grow/shrink: 1269/442 up/down: 172871/-92075 (80796)
-add/remove: 525/266 grow/shrink: 914/510 up/down: 116115/-46240 (69875)
-add/remove: 443/222 grow/shrink: 906/456 up/down: 77807/-40657 (37150)
-add/remove: 536/296 grow/shrink: 1043/652 up/down: 97366/-65459 (31907)
-add/remove: 413/176 grow/shrink: 711/479 up/down: 75678/-41356 (34322)
-add/remove: 311/145 grow/shrink: 898/438 up/down: 51655/-26851 (24804)
+So I can tell you what is happening but I can't tell you why. You have a
+watchdog at 0x70 (size 2) and the RTC at 0x70 (size 8).
 
-Gr{oetje,eeting}s,
+Because the watchdog driver is probed first and it requests the io
+region, when the RTC driver is probed, it fails to request the same
+region.
 
-                        Geert
+Maybe your 4.10 kernel didn't have CONFIG_WDAT_WDT (this appeared in
+4.9).
+I'm afraid, that is as far as I can help, you'd have to ask someone that
+is more knowledgeable about x86 to go further (I've added the wdat_wdt
+driver author in Cc).
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+http://bootlin.com
