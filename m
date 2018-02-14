@@ -1,106 +1,97 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:35782 "EHLO
-        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752622AbeB1Mzu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Feb 2018 07:55:50 -0500
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v2 1/4] rtc: isl1208: enable interrupt after context
- preparation
-Date: Wed, 28 Feb 2018 12:45:47 +0000
-Message-ID: <1519821214-22379-2-git-send-email-Denis.Osterland@diehl.com>
-References: <1519821214-22379-1-git-send-email-Denis.Osterland@diehl.com>
-In-Reply-To: <1519821214-22379-1-git-send-email-Denis.Osterland@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:52397 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1030422AbeBNN4Q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Feb 2018 08:56:16 -0500
+From: Philipp Rossak <embed3d@gmail.com>
+To: wens@csie.org, a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        maxime.ripard@bootlin.com
+Cc: linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v3] rtc: ac100: Fix ac100 determine rate bug
+Date: Wed, 14 Feb 2018 14:56:12 +0100
+Message-Id: <20180214135612.21356-1-embed3d@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+This patch fixes a bug, that prevents the Allwinner A83T and the A80
+from a successful boot.
 
-The interrupt handler got enabled very early. If the interrupt cause is
-triggering immediately before the context is fully prepared. This can
-lead to undefined behaviour. Therefor we move the interrupt enable code
-to the end of the probe function.
+The bug is there since v4.16-rc1 and appeared after the clk branch was
+merged.
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+You can find the shortend trace below:
+
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+pgd = (ptrval)
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in:
+CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
+Hardware name: Allwinner sun8i Family
+Workqueue: events deferred_probe_work_func
+PC is at clk_hw_get_rate+0x0/0x34
+LR is at ac100_clkout_determine_rate+0x48/0x19c
+
+[ ... ]
+
+(clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
+(ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
+(clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
+(clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
+(of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
+
+To fix that bug, we first check if the return of the
+clk_hw_get_parent_by_index is non zero. If it is zero we skip that
+clock parent.
+
+The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
+
+Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
+
+Signed-off-by: Philipp Rossak <embed3d@gmail.com>
 ---
- drivers/rtc/rtc-isl1208.c | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index c8b4953..a13a4ba 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -635,23 +635,6 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (isl1208_i2c_validate_client(client) < 0)
- 		return -ENODEV;
+Changes in v3:
+	* add information when the bug appeared 
+	* make the comment more clear
+Changes in v2:
+	* add tag Fixes: ... to commit message
+	* add comment to if statement why we are doing this check
+
+ drivers/rtc/rtc-ac100.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 8ff9dc3fe5bf..2412aa2e8399 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -183,7 +183,24 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
  
--	if (client->irq > 0) {
--		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
--					       isl1208_rtc_interrupt,
--					       IRQF_SHARED | IRQF_ONESHOT,
--					       isl1208_driver.driver.name,
--					       client);
--		if (!rc) {
--			device_init_wakeup(&client->dev, 1);
--			enable_irq_wake(client->irq);
--		} else {
--			dev_err(&client->dev,
--				"Unable to request irq %d, no alarm support\n",
--				client->irq);
--			client->irq = 0;
--		}
--	}
--
- 	rtc = devm_rtc_device_register(&client->dev, isl1208_driver.driver.name,
- 				  &isl1208_rtc_ops,
- 				  THIS_MODULE);
-@@ -674,6 +657,23 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (rc)
- 		return rc;
- 
-+	if (client->irq > 0) {
-+		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					       isl1208_rtc_interrupt,
-+					       IRQF_SHARED | IRQF_ONESHOT,
-+					       isl1208_driver.driver.name,
-+					       client);
-+		if (!rc) {
-+			device_init_wakeup(&client->dev, 1);
-+			enable_irq_wake(client->irq);
-+		} else {
-+			dev_err(&client->dev,
-+				"Unable to request irq %d, no alarm support\n",
-+				client->irq);
-+			client->irq = 0;
-+		}
-+	}
+ 	for (i = 0; i < num_parents; i++) {
+ 		struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
+-		unsigned long tmp, prate = clk_hw_get_rate(parent);
++		unsigned long tmp, prate;
 +
- 	return 0;
- }
++		/*
++		 * The clock has two parents, one is a fixed clock which is
++		 * internally registered by the ac100 driver. The other parent
++		 * is a clock from the codec side of the chip, which we
++		 * properly declare and reference in the devicetree and is
++		 * not implemented in any driver right now.
++		 * If the clock core looks for the parent of that second
++		 * missing clock, it can't one that is registered and
++		 * returns NULL.
++		 * Thus we need to check if the parent exists before
++		 * we get the parent rate.
++		 */
++		if (!parent)
++			continue;
++
++		prate = clk_hw_get_rate(parent);
+ 
+ 		tmp = ac100_clkout_round_rate(hw, req->rate, prate);
  
 -- 
-2.7.4
-
-
-Diehl AKO Stiftung & Co. KG, Pfannerstraße 75-83, 88239 Wangen im Allgäu
-Bereichsvorstand: Dr.-Ing. Michael Siedentop (Sprecher), Josef Fellner (Mitglied)
-Sitz der Gesellschaft: Wangen i.A. – Registergericht: Amtsgericht Ulm HRA 620609 – Persönlich haftende Gesellschafterin: Diehl Verwaltungs-Stiftung – Sitz: Nürnberg – Registergericht: Amtsgericht Nürnberg HRA 11756 –
-Vorstand: Dr.-Ing. E.h. Thomas Diehl (†) (Vorsitzender), Herr Dipl.-Wirtsch.-Ing. Wolfgang Weggen (stellvertretender Vorsitzender), Dipl.-Kfm. Claus Günther, Dipl.-Kfm. Frank Gutzeit, Dr.-Ing. Heinrich Schunk, Dr.-Ing. Michael Siedentop , Dipl.-Kfm. Dr.-Ing. Martin Sommer, Dipl.-Ing. (FH) Rainer von Borstel, Vorsitzender des Aufsichtsrates: Dr. Klaus Maier
-___________________________________________________________________________________________________
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht. Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
+2.11.0
