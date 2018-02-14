@@ -1,41 +1,114 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46950 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:38475 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751539AbeBUU5X (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:23 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 019/100] rtc: ds1302: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:14 +0100
-Message-Id: <20180221205635.31314-20-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+        with ESMTP id S934933AbeBNUmi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Feb 2018 15:42:38 -0500
+Date: Wed, 14 Feb 2018 21:42:26 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+Subject: Re: [PATCH] rtc: gemini/ftrtc010: disable clk on error paths in
+ ftrtc010_rtc_probe()
+Message-ID: <20180214204226.GE8219@piout.net>
+References: <1517607957-5664-1-git-send-email-khoroshilov@ispras.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1517607957-5664-1-git-send-email-khoroshilov@ispras.ru>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Hi Alexey,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1302.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On 03/02/2018 at 00:45:57 +0300, Alexey Khoroshilov wrote:
+> ftrtc010_rtc_probe() leaves clks enabled in case of errors.
+> The patch adds proper disabling code.
+> 
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> ---
+>  drivers/rtc/rtc-ftrtc010.c | 37 ++++++++++++++++++++++++++++---------
+>  1 file changed, 28 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+> index af8d6beae20c..67a0aadf488c 100644
+> --- a/drivers/rtc/rtc-ftrtc010.c
+> +++ b/drivers/rtc/rtc-ftrtc010.c
+> @@ -147,33 +147,52 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
+>  		ret = clk_prepare_enable(rtc->extclk);
+>  		if (ret) {
+>  			dev_err(dev, "failed to enable EXTCLK\n");
+> -			return ret;
+> +			goto err_pclk;
+>  		}
+>  	}
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	if (!res)
+> -		return -ENODEV;
+> +	if (!res) {
+> +		ret = -ENODEV;
+> +		goto err_extclk;
+> +	}
+>  
+>  	rtc->rtc_irq = res->start;
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	if (!res)
+> -		return -ENODEV;
+> +	if (!res) {
+> +		ret = -ENODEV;
+> +		goto err_extclk;
+> +	}
+>  
+>  	rtc->rtc_base = devm_ioremap(dev, res->start,
+>  				     resource_size(res));
+> -	if (!rtc->rtc_base)
+> -		return -ENOMEM;
+> +	if (!rtc->rtc_base) {
+> +		ret = -ENOMEM;
+> +		goto err_extclk;
+> +	}
+>  
+>  	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+>  			       IRQF_SHARED, pdev->name, dev);
+>  	if (unlikely(ret))
+> -		return ret;
+> +		goto err_extclk;
+> 
 
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index 43bcb17c922e..2a881150d51c 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -98,8 +98,7 @@ static int ds1302_rtc_get_time(struct device *dev, struct rtc_time *time)
- 	time->tm_mon = bcd2bin(buf[RTC_ADDR_MON]) - 1;
- 	time->tm_year = bcd2bin(buf[RTC_ADDR_YEAR]) + 100;
+To simplify the error handling, it is probably simpler to move the
+clk_prepare_enable here.
  
--	/* Time may not be set */
--	return rtc_valid_tm(time);
-+	return 0;
- }
- 
- static const struct rtc_class_ops ds1302_rtc_ops = {
+>  	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+>  					   &ftrtc010_rtc_ops, THIS_MODULE);
+> -	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+> +	if (IS_ERR(rtc->rtc_dev)) {
+> +		ret = PTR_ERR(rtc->rtc_dev);
+> +		goto err_extclk;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_extclk:
+> +	if (!IS_ERR(rtc->extclk))
+> +		clk_disable_unprepare(rtc->extclk);
+> +err_pclk:
+> +	if (!IS_ERR(rtc->pclk))
+> +		clk_disable_unprepare(rtc->pclk);
+> +	return ret;
+>  }
+>  
+>  static int ftrtc010_rtc_remove(struct platform_device *pdev)
+> -- 
+> 2.7.4
+> 
+
 -- 
-2.16.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+http://bootlin.com
