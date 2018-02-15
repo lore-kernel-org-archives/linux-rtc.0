@@ -1,84 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:8055 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752195AbeB1MDL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Feb 2018 07:03:11 -0500
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from youngberry.canonical.com ([91.189.89.112]:39086 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751157AbeBOTgQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 14:36:16 -0500
+From: Colin King <colin.king@canonical.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: HRTimer causing rtctest to fail
-In-Reply-To: <alpine.DEB.2.21.1802281246420.1886@nanos.tec.linutronix.de>
-References: <87vaei601x.fsf@linux.intel.com> <alpine.DEB.2.21.1802271640010.1886@nanos.tec.linutronix.de> <87muzt5usg.fsf@linux.intel.com> <alpine.DEB.2.21.1802281043050.1886@nanos.tec.linutronix.de> <87k1ux5qpf.fsf@linux.intel.com> <alpine.DEB.2.21.1802281246420.1886@nanos.tec.linutronix.de>
-Date: Wed, 28 Feb 2018 14:02:20 +0200
-Message-ID: <87h8q15nlf.fsf@linux.intel.com>
+        linux-rtc@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][V2] rtc: tx4939: avoid unintended sign extension on a 24 bit shift
+Date: Thu, 15 Feb 2018 19:36:14 +0000
+Message-Id: <20180215193614.28684-1-colin.king@canonical.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+From: Colin Ian King <colin.king@canonical.com>
 
+The shifting of buf[5] by 24 bits to the left will be promoted to
+a 32 bit signed int and then sign-extended to an unsigned long. If
+the top bit of buf[5] is set then all then all the upper bits sec
+end up as also being set because of the sign-extension. Fix this by
+casting buf[5] to an unsigned long before the shift.
 
-Hi,
+Detected by CoverityScan, CID#1465292 ("Unintended sign extension")
 
-Thomas Gleixner <tglx@linutronix.de> writes:
-> On Wed, 28 Feb 2018, Felipe Balbi wrote:
->> Thomas Gleixner <tglx@linutronix.de> writes:
->> > All numbers in micro seconds! What happens if you load the system or
->> > restrict C-States?
->>=20
->> added intel_idle.max_cstate=3D0 to cmdline. Still see some failures,
->> albeit a lot more rare, for example, caught one on iteration 8 of
->> 8192Hz:
->>=20
->> 8192Hz:	 1 2 3 4 5 6 7
->> PIE delta error: 0.000135 should be close to 0.000122
->>=20
->> That is, however, only 13 uS late. Is that within the limits of "we
->> don't quite care"?
->
-> I think so. 13us (depending on the machine) can easily happen if multiple
-> interrupts/timers happen at the same time or if something keeps interrupts
-> disabled for a few microseconds which is certainly possible.
->
-> What kind of system is this?
+Fixes: 0e1492330cd2 ("rtc: add rtc-tx4939 driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/rtc/rtc-tx4939.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-4 core Kabylake.
-
->> BTW, it took some effort to get that one failure. I'll leave rtctest
->> running in a long loop and try to figure out approximately how frequently
->> it fails, but it seems like it's within the realm of "don't care", would
->> you agree?
->
-> Yes.
-
-cool, thanks
-
-=2D-=20
-balbi
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAlqWmkwACgkQzL64meEa
-mQb/ew/9Gnyi62Ax+VhMMlisM+4JJVP2AqY+MM9c7KMs/TwdNEaUwBhdkIE2gd4L
-jb+x9RdKRL8cpx3dZkzrhXSRvOfOfL7EXNjL2rUJkX/R+PUSkP1yMH0P90CqmMmD
-awGBxmveQ6/Dwg+jcSR0nRhbShLfY8Q36nRESHUQtTCBDweNcQTB7qFyDsF3/KHY
-476+lpNVWc8thm7yxATZN8epGU9SbhI39pmnzyrPnEOPCOi7Gf+qit/AHOtYB7x2
-kUZRVqHeOdnBAFMwTxV+syWKNsIE/lA5Km3wf+d0bubDhAHsBZvLj1JBslkxY5lf
-in0yrsFLmKHJYJBvctRbGQuRwf1yY7LWFFD07spjIIDHCK8dBn1wdC2jq0a90tM6
-a+SIjL+YryOKF0kPR85y4JJYKUq4XcIw9VXqkcFaYt4fgQ9TCwpI7hZfv+5Vys3W
-QegfxWWIqaMpnAIwnJEf63+4qj2pzlX2n7fMK/ZlU/pOVmFXvYEJSLbuUFcdgcIK
-7WznEQgbCW8lfzhScjqswvWPSrf1R6KuYo8vRAYFMxccCKSiRfbC84Te6xqcq8WQ
-Bu/UL+v/f97jV0vpnv7dqv07Di+C48PWY9aUoImV6EvNI+X0g/sKQEhaxBR4I5Ab
-up8RR+W0kOEB9sN3KN4CyIOmCioLZ6oVFTW7QzyM7QLZzq2K/4s=
-=dEkH
------END PGP SIGNATURE-----
---=-=-=--
+diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
+index feededce3ded..1f351308afdc 100644
+--- a/drivers/rtc/rtc-tx4939.c
++++ b/drivers/rtc/rtc-tx4939.c
+@@ -109,7 +109,8 @@ static int tx4939_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	for (i = 2; i < 6; i++)
+ 		buf[i] = __raw_readl(&rtcreg->dat);
+ 	spin_unlock_irq(&pdata->lock);
+-	sec = (buf[5] << 24) | (buf[4] << 16) | (buf[3] << 8) | buf[2];
++	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
++		(buf[3] << 8) | buf[2];
+ 	rtc_time_to_tm(sec, tm);
+ 	return rtc_valid_tm(tm);
+ }
+@@ -170,7 +171,8 @@ static int tx4939_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->enabled = (ctl & TX4939_RTCCTL_ALME) ? 1 : 0;
+ 	alrm->pending = (ctl & TX4939_RTCCTL_ALMD) ? 1 : 0;
+ 	spin_unlock_irq(&pdata->lock);
+-	sec = (buf[5] << 24) | (buf[4] << 16) | (buf[3] << 8) | buf[2];
++	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
++		(buf[3] << 8) | buf[2];
+ 	rtc_time_to_tm(sec, &alrm->time);
+ 	return rtc_valid_tm(&alrm->time);
+ }
+-- 
+2.15.1
