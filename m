@@ -1,51 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:37776 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932159AbeBWTBO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Feb 2018 14:01:14 -0500
-Subject: Re: [PATCH] rtc: brcmstb-waketimer: Set wktmr prescaler
-To: Justin Chen <justin.chen@broadcom.com>, linux-rtc@vger.kernel.org
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        computersforpeace@gmail.com, gregory.0xf0@gmail.com,
-        f.fainelli@gmail.com, bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Justin Chen <justinpopo6@gmail.com>
-References: <1519262155-15580-1-git-send-email-justin.chen@broadcom.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <e991b6b5-3f3d-f9da-2655-008921eee2a7@gmail.com>
-Date: Fri, 23 Feb 2018 11:01:04 -0800
+Received: from mail-qk0-f180.google.com ([209.85.220.180]:37894 "EHLO
+        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1033263AbeBOOfj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 09:35:39 -0500
 MIME-Version: 1.0
-In-Reply-To: <1519262155-15580-1-git-send-email-justin.chen@broadcom.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180215131533.GL8219@piout.net>
+References: <20180214005536.22739-1-david.daney@cavium.com>
+ <CAHp75VcQm-gr0GRszBSRJSZOpdSutRyhVkw-BN_YAwhjaPM4yg@mail.gmail.com> <20180215131533.GL8219@piout.net>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 15 Feb 2018 16:35:38 +0200
+Message-ID: <CAHp75VcnR2U3DgSCv5Lpj=UBQnzX7YCbvbxzv__cZmW_+VcidQ@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: isl12026: Add driver.
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: David Daney <david.daney@cavium.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 02/21/2018 05:15 PM, Justin Chen wrote:
-> The HW default is one tick per second, however instead of assuming this,
-> lets make sure the waketimer is actually one tick per second before
-> arming the alarm.
-> 
-> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-> ---
->  drivers/rtc/rtc-brcmstb-waketimer.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-> index 796ac79..46116b7 100644
-> --- a/drivers/rtc/rtc-brcmstb-waketimer.c
-> +++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-> @@ -60,6 +60,10 @@ static void brcmstb_waketmr_set_alarm(struct brcmstb_waketmr *timer,
->  {
->  	brcmstb_waketmr_clear_alarm(timer);
->  
-> +	/* Make sure we are actually counting in seconds */
-> +	writel_relaxed(BRCMSTB_WKTMR_DEFAULT_FREQ,
-> +			timer->base + BRCMSTB_WKTMR_PRESCALER);
+On Thu, Feb 15, 2018 at 3:15 PM, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> On 15/02/2018 at 14:45:11 +0200, Andy Shevchenko wrote:
+>> On Wed, Feb 14, 2018 at 2:55 AM, David Daney <david.daney@cavium.com> wrote:
 
-The change is correct, however you would likely want to use timer->rate
-which makes sure that we either got the clock rate information from the
-LCCF, or we got the correct fixed rate frequency. With that fixed:
+>> > +#ifdef CONFIG_OF
+>>
+>> Remove this ugly #ifdef. Your driver OF only one.
+>>
+>
+> Well, it is DT only because you asked for that on v1.
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Yes, and I asked to remove these #ifdef:s there as well.
+
 -- 
-Florian
+With Best Regards,
+Andy Shevchenko
