@@ -1,47 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53941 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752408AbeBPPYm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 10:24:42 -0500
-Date: Fri, 16 Feb 2018 16:24:40 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Colin King <colin.king@canonical.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][V2] rtc: tx4939: avoid unintended sign extension on a 24
- bit shift
-Message-ID: <20180216152440.GH14177@piout.net>
-References: <20180215193614.28684-1-colin.king@canonical.com>
- <20180215204453.GE14177@piout.net>
+Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:43826 "EHLO
+        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754890AbeBOHhu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 02:37:50 -0500
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>
+CC: "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH 1/4] rtc: isl1208: Fix unintended clear of SR bits
+Date: Thu, 15 Feb 2018 07:27:47 +0000
+Message-ID: <1518679666.5448.4.camel@diehl.com>
+References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
+         <20180123121801.4214-2-m.grzeschik@pengutronix.de>
+         <20180214202610.GD8219@piout.net>
+In-Reply-To: <20180214202610.GD8219@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180215204453.GE14177@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 15/02/2018 at 21:44:53 +0100, Alexandre Belloni wrote:
-> On 15/02/2018 at 19:36:14 +0000, Colin King wrote:
-> > From: Colin Ian King <colin.king@canonical.com>
-> > 
-> > The shifting of buf[5] by 24 bits to the left will be promoted to
-> > a 32 bit signed int and then sign-extended to an unsigned long. If
-> > the top bit of buf[5] is set then all then all the upper bits sec
-> > end up as also being set because of the sign-extension. Fix this by
-> > casting buf[5] to an unsigned long before the shift.
-> > 
-> 
-> The timing of the discovery of this issue is suspicious. I believe it is
-> because I just enabled COMPILE_TEST on that driver and now this gets
-> compiled on a 64bit architecture.
-> 
-> Can I ask on which architecture this is an issue? I don't think (and a
-> small test program confirms) x86 does the sign extension because both
-> sec and buf are unsigned.
-> 
-
-Actually, my test program was wrong and you are right.
-
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+QW0gTWl0dHdvY2gsIGRlbiAxNC4wMi4yMDE4LCAyMToyNiArMDEwMCBzY2hyaWViIEFsZXhh
+bmRyZSBCZWxsb25pOg0KPiBPbiAyMy8wMS8yMDE4IGF0IDEzOjE3OjU4ICswMTAwLCBNaWNo
+YWVsIEdyemVzY2hpayB3cm90ZToNCj4gPiANCj4gPiBGcm9tOiBEZW5pcyBPc3RlcmxhbmQg
+PERlbmlzLk9zdGVybGFuZEBkaWVobC5jb20+DQo+ID4gDQo+ID4gQWZ0ZXIgc3VjY2Vzc2Z1
+bA0KPiA+IHNyID0gaXNsMTIwOF9pMmNfc2V0X3JlZ3MoY2xpZW50LCAwLCByZWdzLCBJU0wx
+MjA4X1JUQ19TRUNUSU9OX0xFTik7DQo+ID4gc3Igd2lsbCBiZSAwLg0KPiA+IEFzIGEgcmVz
+dWx0DQo+ID4gc3IgPSBpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKGNsaWVudCwgSVNMMTIw
+OF9SRUdfU1IsDQo+ID4gCQkJc3IgJiB+SVNMMTIwOF9SRUdfU1JfV1JUQyk7DQo+ID4gaXMg
+ZXF1YWwgdG8NCj4gPiBzciA9IGkyY19zbWJ1c193cml0ZV9ieXRlX2RhdGEoY2xpZW50LCBJ
+U0wxMjA4X1JFR19TUiwgMCk7DQo+ID4gd2hpY2ggY2xlYXJzIGFsbCBmbGFncyBpbiBTUi4N
+Cj4gPiANCj4gPiBBZGQgYW4gYWRkaXRpb25hbCByZWFkIG9mIFNSLCB0byBoYXZlIHZhbHVl
+IG9mIFNSIGluIHNyIGFnYWluLg0KPiA+IA0KPiA+IFNpZ25lZC1vZmYtYnk6IERlbmlzIE9z
+dGVybGFuZCA8RGVuaXMuT3N0ZXJsYW5kQGRpZWhsLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5
+OiBNaWNoYWVsIEdyemVzY2hpayA8bS5ncnplc2NoaWtAcGVuZ3V0cm9uaXguZGU+DQo+ID4g
+LS0tDQo+ID4gwqBkcml2ZXJzL3J0Yy9ydGMtaXNsMTIwOC5jIHwgNSArKysrKw0KPiA+IMKg
+MSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKQ0KPiA+IA0KPiBBcHBsaWVkLCB0aGFu
+a3MuDQo+IA0KWW91IGFyZSB3ZWxjb21lLg0KDQpPbmUgcXVlc3Rpb24sIHNoYWxsIHdlIGF2
+b2lkIHJlc2VudCB0aGlzIHBhdGNoIGluIHYyIG9mIHRoaXMgc2VyaWVzPw0KSSBhc2sgYmVj
+YXVzZSB3ZSBhcmUgcHJldHR5IGZhciB3aXRoIHRoZSBzdWdnZXN0ZWQgY2hhbmdlcy4NCg0K
+UmVnYXJkcyBEZW5pcy4NCkRpZWhsIEFLTyBTdGlmdHVuZyAmIENvLiBLRywgUGZhbm5lcnN0
+cmHDn2UgNzUtODMsIDg4MjM5IFdhbmdlbiBpbSBBbGxnw6R1DQpCZXJlaWNoc3ZvcnN0YW5k
+OiBEci4tSW5nLiBNaWNoYWVsIFNpZWRlbnRvcCAoU3ByZWNoZXIpLCBKb3NlZiBGZWxsbmVy
+IChNaXRnbGllZCkNClNpdHogZGVyIEdlc2VsbHNjaGFmdDogV2FuZ2VuIGkuQS4g4oCTIFJl
+Z2lzdGVyZ2VyaWNodDogQW10c2dlcmljaHQgVWxtIEhSQSA2MjA2MDkg4oCTIFBlcnPDtm5s
+aWNoIGhhZnRlbmRlIEdlc2VsbHNjaGFmdGVyaW46IERpZWhsIFZlcndhbHR1bmdzLVN0aWZ0
+dW5nIOKAkyBTaXR6OiBOw7xybmJlcmcg4oCTIFJlZ2lzdGVyZ2VyaWNodDogQW10c2dlcmlj
+aHQgTsO8cm5iZXJnIEhSQSAxMTc1NiDigJMNClZvcnN0YW5kOiBEci4tSW5nLiBFLmguIFRo
+b21hcyBEaWVobCAo4oCgKSAoVm9yc2l0emVuZGVyKSwgSGVyciBEaXBsLi1XaXJ0c2NoLi1J
+bmcuIFdvbGZnYW5nIFdlZ2dlbiAoc3RlbGx2ZXJ0cmV0ZW5kZXIgVm9yc2l0emVuZGVyKSwg
+RGlwbC4tS2ZtLiBDbGF1cyBHw7xudGhlciwgRGlwbC4tS2ZtLiBGcmFuayBHdXR6ZWl0LCBE
+ci4tSW5nLiBIZWlucmljaCBTY2h1bmssIERyLi1JbmcuIE1pY2hhZWwgU2llZGVudG9wICwg
+RGlwbC4tS2ZtLiBEci4tSW5nLiBNYXJ0aW4gU29tbWVyLCBEaXBsLi1JbmcuIChGSCkgUmFp
+bmVyIHZvbiBCb3JzdGVsLCBWb3JzaXR6ZW5kZXIgZGVzIEF1ZnNpY2h0c3JhdGVzOiBEci4g
+S2xhdXMgTWFpZXINCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXw0KRGVyIEluaGFsdCBkZXIgdm9yc3RlaGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVj
+aHRsaWNoIGJpbmRlbmQuIERpZXNlIEUtTWFpbCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5k
+L29kZXIgcmVjaHRsaWNoIGdlc2NodWV0enRlIEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJl
+biBTaWUgdW5zIGJpdHRlLCB3ZW5uIFNpZSBkaWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndl
+aXNlIGVyaGFsdGVuIGhhYmVuLiBCaXR0ZSBsb2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwg
+ZGllIE5hY2hyaWNodC4gSmVkZSB1bmVybGF1YnRlIEZvcm0gZGVyIFJlcHJvZHVrdGlvbiwg
+QmVrYW5udGdhYmUsIEFlbmRlcnVuZywgVmVydGVpbHVuZyB1bmQvb2RlciBQdWJsaWthdGlv
+biBkaWVzZXIgRS1NYWlsIGlzdCBzdHJlbmdzdGVucyB1bnRlcnNhZ3QuDQpUaGUgY29udGVu
+dHMgb2YgdGhlIGFib3ZlIG1lbnRpb25lZCBlLW1haWwgaXMgbm90IGxlZ2FsbHkgYmluZGlu
+Zy4gVGhpcyBlLW1haWwgY29udGFpbnMgY29uZmlkZW50aWFsIGFuZC9vciBsZWdhbGx5IHBy
+b3RlY3RlZCBpbmZvcm1hdGlvbi4gUGxlYXNlIGluZm9ybSB1cyBpZiB5b3UgaGF2ZSByZWNl
+aXZlZCB0aGlzIGUtbWFpbCBieSBtaXN0YWtlIGFuZCBkZWxldGUgaXQgaW4gc3VjaCBhIGNh
+c2UuIEVhY2ggdW5hdXRob3JpemVkIHJlcHJvZHVjdGlvbiwgZGlzY2xvc3VyZSwgYWx0ZXJh
+dGlvbiwgZGlzdHJpYnV0aW9uIGFuZC9vciBwdWJsaWNhdGlvbiBvZiB0aGlzIGUtbWFpbCBp
+cyBzdHJpY3RseSBwcm9oaWJpdGVkLg==
