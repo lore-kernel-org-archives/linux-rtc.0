@@ -1,89 +1,201 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7632 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751387AbeBTVoM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:12 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:55907 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751401AbeBPEKm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 23:10:42 -0500
+MIME-Version: 1.0
+In-Reply-To: <00ece3d8-52ac-c51d-1867-97f7fd84dadf@gmail.com>
+References: <20180214135612.21356-1-embed3d@gmail.com> <20180215141154.monvwx25awwetqrc@flea.lan>
+ <00ece3d8-52ac-c51d-1867-97f7fd84dadf@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Fri, 16 Feb 2018 12:10:18 +0800
+Message-ID: <CAGb2v67fP4-xxAAPWAa0+YtWY3xvQX=5XX7koq-h8USvT+YA-A@mail.gmail.com>
+Subject: Re: [PATCH v3] rtc: ac100: Fix ac100 determine rate bug
+To: Philipp Rossak <embed3d@gmail.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 15/21] rtc: s3c: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:54 +0200
-Message-Id: <20180220214400.66749-16-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+        alexandre.belloni@bootlin.com,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On Fri, Feb 16, 2018 at 1:53 AM, Philipp Rossak <embed3d@gmail.com> wrote:
+>
+>
+> On 15.02.2018 15:11, Maxime Ripard wrote:
+>>
+>> On Wed, Feb 14, 2018 at 02:56:12PM +0100, Philipp Rossak wrote:
+>>>
+>>> This patch fixes a bug, that prevents the Allwinner A83T and the A80
+>>> from a successful boot.
+>>>
+>>> The bug is there since v4.16-rc1 and appeared after the clk branch was
+>>> merged.
+>>
+>>
+>> Out of curiosity, which patch has introduced this? I couldn't find any
+>> obvious match.
+>>
+>
+> I wasn't also n
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-s3c.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+To be honest, I'm not sure why this is hitting you and not me.
+I have both A83T boards that have assigned-clock-rates set for
+the ac100 clock outputs for WiFi. I have them running 4.16-rc1
+and have not seen this. The device tree patches that add these
+are in 4.15.
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index a8992c227f61..4a18824a39b1 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -225,13 +225,10 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 	s3c_rtc_disable_clk(info);
- 
- 	rtc_tm->tm_year += 100;
--
--	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
--		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
--		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
--
- 	rtc_tm->tm_mon -= 1;
- 
-+	dev_dbg(dev, "read time %ptR\n", rtc_tm);
-+
- 	return rtc_valid_tm(rtc_tm);
- }
- 
-@@ -241,9 +238,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- 	int year = tm->tm_year - 100;
- 	int ret;
- 
--	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set time %ptR\n", tm);
- 
- 	/* we get around y2k by simply not supporting it */
- 
-@@ -292,10 +287,7 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = (alm_en & S3C2410_RTCALM_ALMEN) ? 1 : 0;
- 
--	dev_dbg(dev, "read alarm %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		alm_en,
--		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
--		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+	dev_dbg(dev, "read alarm %d, %ptR\n", alm_en, alm_tm);
- 
- 	/* decode the alarm enable field */
- 	if (alm_en & S3C2410_RTCALM_SECEN)
-@@ -329,10 +321,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	int ret;
- 	int year = tm->tm_year - 100;
- 
--	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		alrm->enabled,
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "s3c_rtc_setalarm: %d, %ptR\n", alrm->enabled, tm);
- 
- 	ret = s3c_rtc_enable_clk(info);
- 	if (ret)
--- 
-2.15.1
+>
+>>> You can find the shortend trace below:
+>>>
+>>> Unable to handle kernel NULL pointer dereference at virtual address
+>>> 00000000
+>>> pgd = (ptrval)
+>>> [00000000] *pgd=00000000
+>>> Internal error: Oops: 5 [#1] SMP ARM
+>>> Modules linked in:
+>>> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be
+>>> #2
+>>> Hardware name: Allwinner sun8i Family
+>>> Workqueue: events deferred_probe_work_func
+>>> PC is at clk_hw_get_rate+0x0/0x34
+>>> LR is at ac100_clkout_determine_rate+0x48/0x19c
+>>>
+>>> [ ... ]
+>>>
+>>> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
+>>> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
+>>> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
+>>> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
+>>> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
+>>>
+>>> To fix that bug, we first check if the return of the
+>>> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
+>>> clock parent.
+>>>
+>>> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
+>>>
+>>> Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
+>>>
+>>> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
+>>> ---
+>>>
+>>> Changes in v3:
+>>>         * add information when the bug appeared
+>>>         * make the comment more clear
+>>> Changes in v2:
+>>>         * add tag Fixes: ... to commit message
+>>>         * add comment to if statement why we are doing this check
+>>>
+>>>   drivers/rtc/rtc-ac100.c | 19 ++++++++++++++++++-
+>>>   1 file changed, 18 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+>>> index 8ff9dc3fe5bf..2412aa2e8399 100644
+>>> --- a/drivers/rtc/rtc-ac100.c
+>>> +++ b/drivers/rtc/rtc-ac100.c
+>>> @@ -183,7 +183,24 @@ static int ac100_clkout_determine_rate(struct clk_hw
+>>> *hw,
+>>>         for (i = 0; i < num_parents; i++) {
+>>>                 struct clk_hw *parent = clk_hw_get_parent_by_index(hw,
+>>> i);
+>>> -               unsigned long tmp, prate = clk_hw_get_rate(parent);
+>>> +               unsigned long tmp, prate;
+>>> +
+>>> +               /*
+>>> +                * The clock has two parents, one is a fixed clock which
+>>> is
+>>> +                * internally registered by the ac100 driver. The other
+>>> parent
+>>> +                * is a clock from the codec side of the chip, which we
+>>> +                * properly declare and reference in the devicetree and
+>>> is
+>>> +                * not implemented in any driver right now.
+>>> +                * If the clock core looks for the parent of that second
+>>> +                * missing clock, it can't one that is registered and
+>>> +                * returns NULL.
+>>> +                * Thus we need to check if the parent exists before
+>>> +                * we get the parent rate.
+>>> +                */
+>>> +               if (!parent)
+>>> +                       continue;
+>>
+>>
+>> I'm sorry, but I still don't get it. When you register that clock, you
+>> will give it two parents. Why would that change during the life of the
+>> clock?
+>>
+>> This really looks like a workaround rather than an actual fix.
+>>
+>> Maxime
+>>
+> I agree this is more a workaround!
+> A proper solution/fix would be to define the devicetree correct like this:
+>
+> diff --git a/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+> b/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+> index 6550bf0e594b..6f56d429f17e 100644
+> --- a/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+> +++ b/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+> @@ -175,11 +175,18 @@
+>                         compatible = "x-powers,ac100-rtc";
+>                         interrupt-parent = <&r_intc>;
+>                         interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+> -                       clocks = <&ac100_codec>;
+> +                       clocks = <&ac100_rtc_32k>;
+>                         #clock-cells = <1>;
+>                         clock-output-names = "cko1_rtc",
+>                                              "cko2_rtc",
+>                                              "cko3_rtc";
+> +
+> +                       ac100_rtc_32k: rtc-32k-oscillator {
+> +                               compatible = "fixed-clock";
+> +                               #clock-cells = <0>;
+> +                               clock-frequency  = <32768>;
+> +                               clock-output-names = "ac100-rtc-32k";
+> +                       };
+>                 };
+>         };
+>  };
+>
+> What do you think about that solution?
+
+That's not quite right either. As I mentioned before, the
+RTC block has two clock inputs, one 4MHz signal from the
+codec block, and one 32.768 kHz signal from an external
+crystal. The original device tree binding describes the
+first one, and the 32.768 kHz clock was registered by
+the RTC driver internally.
+
+If you're going to add the crystal clock, you still need
+to keep the codec one. Note that this does not fix what
+Maxime is asking you. I've already provided an explanation:
+
+The clock core allows registering clocks with not-yet-existing
+clock parents. Parents are matches by string names. If no
+clock by that name is registered yet, the clock core simply
+orphans the new clock if the unregistered parent is its
+current parent or simply ignores that parent if its not the
+current parent. This is entirely valid and is what we are
+counting on here, as we haven't implemented the codec-side
+driver.
+
+Note we also sort of depend on this behavior for sunxi-ng
+clocks, where in some cases we get circular dependencies
+between clock blocks.
+
+BTW, since this is mostly related to the clk subsystem,
+please CC the clk maintainers as well.
+
+>
+> I already tested it and it looks like it is working.
+
+There is no point in testing things if it doesn't match
+the hardware. Yes your code works and doesn't crash. No
+it does not represent what the hardware is actually doing.
+
+Regards
+ChenYu
