@@ -1,40 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46968 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751567AbeBUU5Y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:24 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 023/100] rtc: ds1347: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:18 +0100
-Message-Id: <20180221205635.31314-24-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail-co1nam03on0056.outbound.protection.outlook.com ([104.47.40.56]:30592
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750730AbeBPVT1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 16 Feb 2018 16:19:27 -0500
+Subject: Re: [PATCH v4] rtc: isl12026: Add driver.
+To: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        David Daney <david.daney@cavium.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20180216194415.6103-1-david.daney@cavium.com>
+ <CAHp75VfRDWC1DAhHK-B_2rGLdLGG_FjHmYAmRS5ucspaUoJygA@mail.gmail.com>
+From: David Daney <ddaney@caviumnetworks.com>
+Message-ID: <55b1edec-f93d-a25b-1736-d08783576424@caviumnetworks.com>
+Date: Fri, 16 Feb 2018 13:19:22 -0800
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VfRDWC1DAhHK-B_2rGLdLGG_FjHmYAmRS5ucspaUoJygA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+On 02/16/2018 12:13 PM, Andy Shevchenko wrote:
+> On Fri, Feb 16, 2018 at 9:44 PM, David Daney <david.daney@cavium.com> wrote:
+>> The ISL12026 is a combination RTC and EEPROM device with I2C
+>> interface.  The standard RTC driver interface is provided.  The EEPROM
+>> is accessed via the NVMEM interface via the "eeprom0" directory in the
+>> sysfs entry for the device.
+> 
+>> +config RTC_DRV_ISL12026
+>> +       tristate "Intersil ISL12026"
+> 
+> depends on OF
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1347.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It doesn't depend on CONFIG_OF, it builds just fine without it.
 
-diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
-index ccfc9d43eb1e..938512c676ee 100644
---- a/drivers/rtc/rtc-ds1347.c
-+++ b/drivers/rtc/rtc-ds1347.c
-@@ -66,7 +66,7 @@ static int ds1347_read_time(struct device *dev, struct rtc_time *dt)
- 	dt->tm_wday = bcd2bin(buf[5]) - 1;
- 	dt->tm_year = bcd2bin(buf[6]) + 100;
- 
--	return rtc_valid_tm(dt);
-+	return 0;
- }
- 
- static int ds1347_set_time(struct device *dev, struct rtc_time *dt)
--- 
-2.16.1
+> 
+>> +static struct i2c_driver isl12026_driver = {
+>> +       .driver         = {
+>> +               .name   = "rtc-isl12026",
+>> +               .of_match_table = of_match_ptr(isl12026_dt_match),
+> 
+> /of_match_ptr//
+
+
+of_match_ptr() needed if we build without CONFIG_OF
+
+> 
+>> +       },
+>> +       .probe_new      = isl12026_probe_new,
+>> +       .remove         = isl12026_remove,
+>> +};
+> 
