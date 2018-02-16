@@ -1,60 +1,165 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7625 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751252AbeBTVoI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:08 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 06/21] rtc: m48t59: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:45 +0200
-Message-Id: <20180220214400.66749-7-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:35669 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750787AbeBPXe7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 18:34:59 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Matt Turner <mattst88@gmail.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] alpha: rtc: remove unused set_mmss ops
+Date: Sat, 17 Feb 2018 00:34:46 +0100
+Message-Id: <20180216233446.26818-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+The .set_mmss and .setmmss64 ops are only called when the RTC is not
+providing an implementation for the .set_time callback.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On alpha, .set_time is provided so .set_mmss64 is never called. Remove the
+unused code.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-m48t59.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/alpha/kernel/rtc.c | 99 -------------------------------------------------
+ 1 file changed, 99 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
-index 399fc4255d54..67ba7cb2bbe4 100644
---- a/drivers/rtc/rtc-m48t59.c
-+++ b/drivers/rtc/rtc-m48t59.c
-@@ -102,9 +102,7 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
- 
--	dev_dbg(dev, "RTC read time %04d-%02d-%02d %02d/%02d/%02d\n",
--		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC read time %ptR\n", tm);
- 	return rtc_valid_tm(tm);
+diff --git a/arch/alpha/kernel/rtc.c b/arch/alpha/kernel/rtc.c
+index b3da0dcda47d..0816e6c747e8 100644
+--- a/arch/alpha/kernel/rtc.c
++++ b/arch/alpha/kernel/rtc.c
+@@ -114,83 +114,6 @@ alpha_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	return mc146818_set_time(tm);
  }
  
-@@ -193,9 +191,7 @@ static int m48t59_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
+-static int
+-alpha_rtc_set_mmss(struct device *dev, time64_t nowtime)
+-{
+-	int retval = 0;
+-	int real_seconds, real_minutes, cmos_minutes;
+-	unsigned char save_control, save_freq_select;
+-
+-	/* Note: This code only updates minutes and seconds.  Comments
+-	   indicate this was to avoid messing with unknown time zones,
+-	   and with the epoch nonsense described above.  In order for
+-	   this to work, the existing clock cannot be off by more than
+-	   15 minutes.
+-
+-	   ??? This choice is may be out of date.  The x86 port does
+-	   not have problems with timezones, and the epoch processing has
+-	   now been fixed in alpha_set_rtc_time.
+-
+-	   In either case, one can always force a full rtc update with
+-	   the userland hwclock program, so surely 15 minute accuracy
+-	   is no real burden.  */
+-
+-	/* In order to set the CMOS clock precisely, we have to be called
+-	   500 ms after the second nowtime has started, because when
+-	   nowtime is written into the registers of the CMOS clock, it will
+-	   jump to the next second precisely 500 ms later. Check the Motorola
+-	   MC146818A or Dallas DS12887 data sheet for details.  */
+-
+-	/* irq are locally disabled here */
+-	spin_lock(&rtc_lock);
+-	/* Tell the clock it's being set */
+-	save_control = CMOS_READ(RTC_CONTROL);
+-	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+-
+-	/* Stop and reset prescaler */
+-	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
+-	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+-
+-	cmos_minutes = CMOS_READ(RTC_MINUTES);
+-	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+-		cmos_minutes = bcd2bin(cmos_minutes);
+-
+-	real_seconds = nowtime % 60;
+-	real_minutes = nowtime / 60;
+-	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1) {
+-		/* correct for half hour time zone */
+-		real_minutes += 30;
+-	}
+-	real_minutes %= 60;
+-
+-	if (abs(real_minutes - cmos_minutes) < 30) {
+-		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+-			real_seconds = bin2bcd(real_seconds);
+-			real_minutes = bin2bcd(real_minutes);
+-		}
+-		CMOS_WRITE(real_seconds,RTC_SECONDS);
+-		CMOS_WRITE(real_minutes,RTC_MINUTES);
+-	} else {
+-		printk_once(KERN_NOTICE
+-			    "set_rtc_mmss: can't update from %d to %d\n",
+-			    cmos_minutes, real_minutes);
+-		retval = -1;
+-	}
+-
+-	/* The following flags have to be released exactly in this order,
+-	 * otherwise the DS12887 (popular MC146818A clone with integrated
+-	 * battery and quartz) will not reset the oscillator and will not
+-	 * update precisely 500 ms later. You won't find this mentioned in
+-	 * the Dallas Semiconductor data sheets, but who believes data
+-	 * sheets anyway ...                           -- Markus Kuhn
+-	 */
+-	CMOS_WRITE(save_control, RTC_CONTROL);
+-	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
+-	spin_unlock(&rtc_lock);
+-
+-	return retval;
+-}
+-
+ static int
+ alpha_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ {
+@@ -210,7 +133,6 @@ alpha_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ static const struct rtc_class_ops alpha_rtc_ops = {
+ 	.read_time = alpha_rtc_read_time,
+ 	.set_time = alpha_rtc_set_time,
+-	.set_mmss64 = alpha_rtc_set_mmss,
+ 	.ioctl = alpha_rtc_ioctl,
+ };
  
--	dev_dbg(dev, "RTC read alarm time %04d-%02d-%02d %02d/%02d/%02d\n",
--		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC read alarm time %ptR\n", tm);
- 	return rtc_valid_tm(tm);
+@@ -225,7 +147,6 @@ static const struct rtc_class_ops alpha_rtc_ops = {
+ 
+ union remote_data {
+ 	struct rtc_time *tm;
+-	unsigned long now;
+ 	long retval;
+ };
+ 
+@@ -267,29 +188,9 @@ remote_set_time(struct device *dev, struct rtc_time *tm)
+ 	return alpha_rtc_set_time(NULL, tm);
  }
  
+-static void
+-do_remote_mmss(void *data)
+-{
+-	union remote_data *x = data;
+-	x->retval = alpha_rtc_set_mmss(NULL, x->now);
+-}
+-
+-static int
+-remote_set_mmss(struct device *dev, time64_t now)
+-{
+-	union remote_data x;
+-	if (smp_processor_id() != boot_cpuid) {
+-		x.now = now;
+-		smp_call_function_single(boot_cpuid, do_remote_mmss, &x, 1);
+-		return x.retval;
+-	}
+-	return alpha_rtc_set_mmss(NULL, now);
+-}
+-
+ static const struct rtc_class_ops remote_rtc_ops = {
+ 	.read_time = remote_read_time,
+ 	.set_time = remote_set_time,
+-	.set_mmss64 = remote_set_mmss,
+ 	.ioctl = alpha_rtc_ioctl,
+ };
+ #endif
 -- 
-2.15.1
+2.16.1
