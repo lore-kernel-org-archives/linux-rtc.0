@@ -1,110 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37516 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:35775 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932247AbeBLWsQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:16 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 02/45] rtc: nvmem: pass nvmem_config to rtc_nvmem_register()
-Date: Mon, 12 Feb 2018 23:47:16 +0100
-Message-Id: <20180212224759.15999-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+        with ESMTP id S1750934AbeBPXwe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 18:52:34 -0500
+Date: Sat, 17 Feb 2018 00:52:32 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Colin King <colin.king@canonical.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][V2] rtc: tx4939: avoid unintended sign extension on a 24
+ bit shift
+Message-ID: <20180216235232.GI14177@piout.net>
+References: <20180215193614.28684-1-colin.king@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180215193614.28684-1-colin.king@canonical.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-To be able to remove nvmem_config from struct rtc_device, pass it as a
-parameter to rtc_nvmem_register.
+On 15/02/2018 at 19:36:14 +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> The shifting of buf[5] by 24 bits to the left will be promoted to
+> a 32 bit signed int and then sign-extended to an unsigned long. If
+> the top bit of buf[5] is set then all then all the upper bits sec
+> end up as also being set because of the sign-extension. Fix this by
+> casting buf[5] to an unsigned long before the shift.
+> 
+> Detected by CoverityScan, CID#1465292 ("Unintended sign extension")
+> 
+> Fixes: 0e1492330cd2 ("rtc: add rtc-tx4939 driver")
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/rtc/rtc-tx4939.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/class.c    |  2 +-
- drivers/rtc/nvmem.c    | 17 +++++++++--------
- drivers/rtc/rtc-core.h |  6 ++++--
- 3 files changed, 14 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 722d683e0b0f..47c4aeed5106 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -453,7 +453,7 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
- 
- 	rtc_proc_add_device(rtc);
- 
--	rtc_nvmem_register(rtc);
-+	rtc_nvmem_register(rtc, rtc->nvmem_config);
- 
- 	rtc->registered = true;
- 	dev_info(rtc->dev.parent, "registered as %s\n",
-diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
-index 8567b4ed9ac6..0a3522bcdd25 100644
---- a/drivers/rtc/nvmem.c
-+++ b/drivers/rtc/nvmem.c
-@@ -46,7 +46,7 @@ rtc_nvram_write(struct file *filp, struct kobject *kobj,
- 	return nvmem_device_write(rtc->nvmem, off, count, buf);
- }
- 
--static int rtc_nvram_register(struct rtc_device *rtc)
-+static int rtc_nvram_register(struct rtc_device *rtc, size_t size)
- {
- 	int err;
- 
-@@ -64,7 +64,7 @@ static int rtc_nvram_register(struct rtc_device *rtc)
- 
- 	rtc->nvram->read = rtc_nvram_read;
- 	rtc->nvram->write = rtc_nvram_write;
--	rtc->nvram->size = rtc->nvmem_config->size;
-+	rtc->nvram->size = size;
- 
- 	err = sysfs_create_bin_file(&rtc->dev.parent->kobj,
- 				    rtc->nvram);
-@@ -84,20 +84,21 @@ static void rtc_nvram_unregister(struct rtc_device *rtc)
- /*
-  * New ABI, uses nvmem
-  */
--void rtc_nvmem_register(struct rtc_device *rtc)
-+void rtc_nvmem_register(struct rtc_device *rtc,
-+			struct nvmem_config *nvmem_config)
- {
--	if (!rtc->nvmem_config)
-+	if (!nvmem_config)
- 		return;
- 
--	rtc->nvmem_config->dev = &rtc->dev;
--	rtc->nvmem_config->owner = rtc->owner;
--	rtc->nvmem = nvmem_register(rtc->nvmem_config);
-+	nvmem_config->dev = &rtc->dev;
-+	nvmem_config->owner = rtc->owner;
-+	rtc->nvmem = nvmem_register(nvmem_config);
- 	if (IS_ERR_OR_NULL(rtc->nvmem))
- 		return;
- 
- 	/* Register the old ABI */
- 	if (rtc->nvram_old_abi)
--		rtc_nvram_register(rtc);
-+		rtc_nvram_register(rtc, nvmem_config->size);
- }
- 
- void rtc_nvmem_unregister(struct rtc_device *rtc)
-diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
-index 513b9bedd2c8..5f60e3b11cde 100644
---- a/drivers/rtc/rtc-core.h
-+++ b/drivers/rtc/rtc-core.h
-@@ -48,9 +48,11 @@ static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
- #endif
- 
- #ifdef CONFIG_RTC_NVMEM
--void rtc_nvmem_register(struct rtc_device *rtc);
-+void rtc_nvmem_register(struct rtc_device *rtc,
-+			struct nvmem_config *nvmem_config);
- void rtc_nvmem_unregister(struct rtc_device *rtc);
- #else
--static inline void rtc_nvmem_register(struct rtc_device *rtc) {}
-+static inline void rtc_nvmem_register(struct rtc_device *rtc,
-+				      struct nvmem_config *nvmem_config) {}
- static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
- #endif
 -- 
-2.16.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+http://bootlin.com
