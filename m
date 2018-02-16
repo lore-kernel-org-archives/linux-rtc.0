@@ -1,49 +1,31 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:58873 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935920AbeBUOF7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 21 Feb 2018 09:05:59 -0500
-Message-ID: <1519221953.10722.38.camel@linux.intel.com>
-Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
- readable format via %pt
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from smtp-out4.electric.net ([192.162.216.194]:64059 "EHLO
+        smtp-out4.electric.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754522AbeBPPWN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 10:22:13 -0500
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Andy Shevchenko' <andy.shevchenko@gmail.com>,
+        Colin King <colin.king@canonical.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Date: Wed, 21 Feb 2018 16:05:53 +0200
-In-Reply-To: <1519221748.10722.34.camel@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
-         <CAMuHMdVwjP6cWM=Ku6KRVz9F8_n4OsgeK42UZa6BenKij4iu4Q@mail.gmail.com>
-         <1519221748.10722.34.camel@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] rtc: tx4939: avoid unintended sign extension on a 24 bit
+ shift
+Date: Fri, 16 Feb 2018 15:14:51 +0000
+Message-ID: <d943a549d051472c98e3c163dc4245ac@AcuMS.aculab.com>
+References: <20180215185941.27547-1-colin.king@canonical.com>
+ <CAHp75Vf+ky3Ma1b20x57i9z+ykS1j8k1LTuOT3f=Jbu5kCeeAQ@mail.gmail.com>
+In-Reply-To: <CAHp75Vf+ky3Ma1b20x57i9z+ykS1j8k1LTuOT3f=Jbu5kCeeAQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-> TBH, I don't see much consensus among developers on this topic.
-> I wouldn't like to send a new version until it would be a consensus.
-
-I would love to see the comments followed by an agreement from majority
-of people who are in Cc list here.
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+RnJvbTogQW5keSBTaGV2Y2hlbmtvDQo+IFNlbnQ6IDE2IEZlYnJ1YXJ5IDIwMTggMTQ6MjMNCi4u
+Lg0KPiBXb3VsZG4ndCBiZSBiZXR0ZXIgdG8gdXNlIGxlMzJfdG9fY3B1KCkgb3IgZ2V0X3VuYWxp
+Z25lZCgpPw0KDQpPciBzaG9vdCB0aGUgbWVtYmVycyBvZiB0aGUgQU5TSSBDIGNvbW1pdHRlZSB3
+aG8gaW5zaXN0ZWQgb24NCnByb21vdGlvbiBvZiB1bnNpZ25lZCBjaGFyL3Nob3J0IHRvIGludCBh
+bmQgc2lnbiBwcmVzZXJ2aW5nDQpwcm9tb3Rpb24gb2YgaW50IHRvIHVuc2lnbmVkIGxvbmcgOi0p
+DQoNCglEYXZpZA0KDQo=
