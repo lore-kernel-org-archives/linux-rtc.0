@@ -1,167 +1,121 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37591 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933044AbeBLWsq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:46 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 36/45] rtc: rp5c01: use generic nvmem
-Date: Mon, 12 Feb 2018 23:47:50 +0100
-Message-Id: <20180212224759.15999-37-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:63966
+        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751292AbeBRNAW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Feb 2018 08:00:22 -0500
+Date: Sun, 18 Feb 2018 14:00:18 +0100 (CET)
+From: Julia Lawall <julia.lawall@lip6.fr>
+To: David Daney <david.daney@cavium.com>
+cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        David Daney <david.daney@cavium.com>, kbuild-all@01.org
+Subject: Re: [PATCH v3] rtc: isl12026: Add driver. (fwd)
+Message-ID: <alpine.DEB.2.20.1802181357370.2777@hadrien>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Instead of adding a binary sysfs attribute from the driver, use the core to
-register an nvmem device.
+The concern is about the code on line 400.  I'm not seeing where
+num_written could go below 0, in any case.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+julia
+
+---------- Forwarded message ----------
+Date: Sun, 18 Feb 2018 20:54:49 +0800
+From: kbuild test robot <fengguang.wu@intel.com>
+To: kbuild@01.org
+Cc: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH v3] rtc: isl12026: Add driver.
+
+CC: kbuild-all@01.org
+In-Reply-To: <20180215195437.29207-1-david.daney@cavium.com>
+References: <20180215195437.29207-1-david.daney@cavium.com>
+TO: David Daney <david.daney@cavium.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
+CC: linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
+
+Hi David,
+
+I love your patch! Perhaps something to improve:
+
+[auto build test WARNING on abelloni/rtc-next]
+[also build test WARNING on v4.16-rc1 next-20180216]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/David-Daney/rtc-isl12026-Add-driver/20180218-072946
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
+:::::: branch date: 13 hours ago
+:::::: commit date: 13 hours ago
+
+>> drivers/rtc/rtc-isl12026.c:400:8-19: WARNING: Unsigned expression compared with zero: num_written >= 0
+
+# https://github.com/0day-ci/linux/commit/a0c9ca2899586c1317ebcb2ba5d31edde176a58a
+git remote add linux-review https://github.com/0day-ci/linux
+git remote update linux-review
+git checkout a0c9ca2899586c1317ebcb2ba5d31edde176a58a
+vim +400 drivers/rtc/rtc-isl12026.c
+
+a0c9ca28 David Daney 2018-02-15  347
+a0c9ca28 David Daney 2018-02-15  348  static int isl12026_nvm_write(void *p, unsigned int offset,
+a0c9ca28 David Daney 2018-02-15  349  			      void *val, size_t bytes)
+a0c9ca28 David Daney 2018-02-15  350  {
+a0c9ca28 David Daney 2018-02-15  351  	struct isl12026 *priv = p;
+a0c9ca28 David Daney 2018-02-15  352  	int ret = -EIO;
+a0c9ca28 David Daney 2018-02-15  353  	u8 *v = val;
+a0c9ca28 David Daney 2018-02-15  354  	size_t chunk_size, num_written;
+a0c9ca28 David Daney 2018-02-15  355  	u8 payload[ISL12026_PAGESIZE + 2]; /* page + 2 address bytes */
+a0c9ca28 David Daney 2018-02-15  356  	struct i2c_msg msgs[] = {
+a0c9ca28 David Daney 2018-02-15  357  		{
+a0c9ca28 David Daney 2018-02-15  358  			.addr	= priv->nvm_client->addr,
+a0c9ca28 David Daney 2018-02-15  359  			.flags	= 0,
+a0c9ca28 David Daney 2018-02-15  360  			.buf	= payload
+a0c9ca28 David Daney 2018-02-15  361  		}
+a0c9ca28 David Daney 2018-02-15  362  	};
+a0c9ca28 David Daney 2018-02-15  363
+a0c9ca28 David Daney 2018-02-15  364  	if (offset >= priv->nvm_cfg.size)
+a0c9ca28 David Daney 2018-02-15  365  		return 0; /* End-of-file */
+a0c9ca28 David Daney 2018-02-15  366  	if (offset + bytes > priv->nvm_cfg.size)
+a0c9ca28 David Daney 2018-02-15  367  		bytes = priv->nvm_cfg.size - offset;
+a0c9ca28 David Daney 2018-02-15  368
+a0c9ca28 David Daney 2018-02-15  369  	mutex_lock(&priv->lock);
+a0c9ca28 David Daney 2018-02-15  370
+a0c9ca28 David Daney 2018-02-15  371  	num_written = 0;
+a0c9ca28 David Daney 2018-02-15  372  	while (bytes) {
+a0c9ca28 David Daney 2018-02-15  373  		chunk_size = round_down(offset, ISL12026_PAGESIZE) +
+a0c9ca28 David Daney 2018-02-15  374  			ISL12026_PAGESIZE - offset;
+a0c9ca28 David Daney 2018-02-15  375  		chunk_size = min(bytes, chunk_size);
+a0c9ca28 David Daney 2018-02-15  376  		/*
+a0c9ca28 David Daney 2018-02-15  377  		 * 2 bytes of address, most significant first, followed
+a0c9ca28 David Daney 2018-02-15  378  		 * by page data bytes
+a0c9ca28 David Daney 2018-02-15  379  		 */
+a0c9ca28 David Daney 2018-02-15  380  		memcpy(payload + 2, v + num_written, chunk_size);
+a0c9ca28 David Daney 2018-02-15  381  		payload[0] = offset >> 8;
+a0c9ca28 David Daney 2018-02-15  382  		payload[1] = offset;
+a0c9ca28 David Daney 2018-02-15  383  		msgs[0].len = chunk_size + 2;
+a0c9ca28 David Daney 2018-02-15  384  		ret = i2c_transfer(priv->nvm_client->adapter,
+a0c9ca28 David Daney 2018-02-15  385  				   msgs, ARRAY_SIZE(msgs));
+a0c9ca28 David Daney 2018-02-15  386  		if (ret != ARRAY_SIZE(msgs)) {
+a0c9ca28 David Daney 2018-02-15  387  			dev_err(priv->nvm_cfg.dev,
+a0c9ca28 David Daney 2018-02-15  388  				"nvmem write error, ret=%d\n", ret);
+a0c9ca28 David Daney 2018-02-15  389  			ret = ret < 0 ? ret : -EIO;
+a0c9ca28 David Daney 2018-02-15  390  			break;
+a0c9ca28 David Daney 2018-02-15  391  		}
+a0c9ca28 David Daney 2018-02-15  392  		bytes -= chunk_size;
+a0c9ca28 David Daney 2018-02-15  393  		offset += chunk_size;
+a0c9ca28 David Daney 2018-02-15  394  		num_written += chunk_size;
+a0c9ca28 David Daney 2018-02-15  395  		msleep(ISL12026_NVMEM_WRITE_TIME);
+a0c9ca28 David Daney 2018-02-15  396  	}
+a0c9ca28 David Daney 2018-02-15  397
+a0c9ca28 David Daney 2018-02-15  398  	mutex_unlock(&priv->lock);
+a0c9ca28 David Daney 2018-02-15  399
+a0c9ca28 David Daney 2018-02-15 @400  	return num_written >= 0 ? num_written : ret;
+a0c9ca28 David Daney 2018-02-15  401  }
+a0c9ca28 David Daney 2018-02-15  402
+
 ---
- drivers/rtc/rtc-rp5c01.c | 63 ++++++++++++++++++------------------------------
- 1 file changed, 24 insertions(+), 39 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rp5c01.c b/drivers/rtc/rtc-rp5c01.c
-index 38a12435b5a0..2c0605132ac0 100644
---- a/drivers/rtc/rtc-rp5c01.c
-+++ b/drivers/rtc/rtc-rp5c01.c
-@@ -64,7 +64,6 @@ struct rp5c01_priv {
- 	u32 __iomem *regs;
- 	struct rtc_device *rtc;
- 	spinlock_t lock;	/* against concurrent RTC/NVRAM access */
--	struct bin_attribute nvram_attr;
- };
- 
- static inline unsigned int rp5c01_read(struct rp5c01_priv *priv,
-@@ -160,17 +159,15 @@ static const struct rtc_class_ops rp5c01_rtc_ops = {
-  * byte is stored in BLOCK10, the low nibble in BLOCK11.
-  */
- 
--static ssize_t rp5c01_nvram_read(struct file *filp, struct kobject *kobj,
--				 struct bin_attribute *bin_attr,
--				 char *buf, loff_t pos, size_t size)
-+static int rp5c01_nvram_read(void *_priv, unsigned int pos, void *val,
-+			     size_t bytes)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct rp5c01_priv *priv = dev_get_drvdata(dev);
--	ssize_t count;
-+	struct rp5c01_priv *priv = _priv;
-+	u8 *buf = val;
- 
- 	spin_lock_irq(&priv->lock);
- 
--	for (count = 0; count < size; count++) {
-+	for (; bytes; bytes--) {
- 		u8 data;
- 
- 		rp5c01_write(priv,
-@@ -187,20 +184,18 @@ static ssize_t rp5c01_nvram_read(struct file *filp, struct kobject *kobj,
- 	}
- 
- 	spin_unlock_irq(&priv->lock);
--	return count;
-+	return 0;
- }
- 
--static ssize_t rp5c01_nvram_write(struct file *filp, struct kobject *kobj,
--				  struct bin_attribute *bin_attr,
--				  char *buf, loff_t pos, size_t size)
-+static int rp5c01_nvram_write(void *_priv, unsigned int pos, void *val,
-+			      size_t bytes)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct rp5c01_priv *priv = dev_get_drvdata(dev);
--	ssize_t count;
-+	struct rp5c01_priv *priv = _priv;
-+	u8 *buf = val;
- 
- 	spin_lock_irq(&priv->lock);
- 
--	for (count = 0; count < size; count++) {
-+	for (; bytes; bytes--) {
- 		u8 data = *buf++;
- 
- 		rp5c01_write(priv,
-@@ -216,7 +211,7 @@ static ssize_t rp5c01_nvram_write(struct file *filp, struct kobject *kobj,
- 	}
- 
- 	spin_unlock_irq(&priv->lock);
--	return count;
-+	return 0;
- }
- 
- static int __init rp5c01_rtc_probe(struct platform_device *dev)
-@@ -225,6 +220,14 @@ static int __init rp5c01_rtc_probe(struct platform_device *dev)
- 	struct rp5c01_priv *priv;
- 	struct rtc_device *rtc;
- 	int error;
-+	struct nvmem_config nvmem_cfg = {
-+		.name = "rp5c01_nvram",
-+		.word_size = 1,
-+		.stride = 1,
-+		.size = RP5C01_MODE,
-+		.reg_read = rp5c01_nvram_read,
-+		.reg_write = rp5c01_nvram_write,
-+	};
- 
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 	if (!res)
-@@ -238,13 +241,6 @@ static int __init rp5c01_rtc_probe(struct platform_device *dev)
- 	if (!priv->regs)
- 		return -ENOMEM;
- 
--	sysfs_bin_attr_init(&priv->nvram_attr);
--	priv->nvram_attr.attr.name = "nvram";
--	priv->nvram_attr.attr.mode = S_IRUGO | S_IWUSR;
--	priv->nvram_attr.read = rp5c01_nvram_read;
--	priv->nvram_attr.write = rp5c01_nvram_write;
--	priv->nvram_attr.size = RP5C01_MODE;
--
- 	spin_lock_init(&priv->lock);
- 
- 	platform_set_drvdata(dev, priv);
-@@ -254,27 +250,17 @@ static int __init rp5c01_rtc_probe(struct platform_device *dev)
- 		return PTR_ERR(rtc);
- 
- 	rtc->ops = &rp5c01_rtc_ops;
-+	rtc->nvram_old_abi = true;
- 
- 	priv->rtc = rtc;
- 
--	error = sysfs_create_bin_file(&dev->dev.kobj, &priv->nvram_attr);
--	if (error)
--		return error;
--
- 	error = rtc_register_device(rtc);
--	if (error) {
--		sysfs_remove_bin_file(&dev->dev.kobj, &priv->nvram_attr);
-+	if (error)
- 		return error;
--	}
- 
--	return 0;
--}
--
--static int __exit rp5c01_rtc_remove(struct platform_device *dev)
--{
--	struct rp5c01_priv *priv = platform_get_drvdata(dev);
-+	nvmem_cfg.priv = priv;
-+	rtc_nvmem_register(rtc, &nvmem_cfg);
- 
--	sysfs_remove_bin_file(&dev->dev.kobj, &priv->nvram_attr);
- 	return 0;
- }
- 
-@@ -282,7 +268,6 @@ static struct platform_driver rp5c01_rtc_driver = {
- 	.driver	= {
- 		.name	= "rtc-rp5c01",
- 	},
--	.remove	= __exit_p(rp5c01_rtc_remove),
- };
- 
- module_platform_driver_probe(rp5c01_rtc_driver, rp5c01_rtc_probe);
--- 
-2.16.1
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
