@@ -1,45 +1,117 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:37032 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1034176AbeBPOWv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 09:22:51 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180215185941.27547-1-colin.king@canonical.com>
-References: <20180215185941.27547-1-colin.king@canonical.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 16 Feb 2018 16:22:50 +0200
-Message-ID: <CAHp75Vf+ky3Ma1b20x57i9z+ykS1j8k1LTuOT3f=Jbu5kCeeAQ@mail.gmail.com>
-Subject: Re: [PATCH] rtc: tx4939: avoid unintended sign extension on a 24 bit shift
-To: Colin King <colin.king@canonical.com>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:45002 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751442AbeBRR4G (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Feb 2018 12:56:06 -0500
+Subject: Re: [PATCH v3] rtc: ac100: Fix ac100 determine rate bug
+To: Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        alexandre.belloni@bootlin.com,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        linux-rtc@vger.kernel.org,
+        Mike Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>
+References: <20180214135612.21356-1-embed3d@gmail.com>
+ <20180215141154.monvwx25awwetqrc@flea.lan>
+ <00ece3d8-52ac-c51d-1867-97f7fd84dadf@gmail.com>
+ <CAGb2v67fP4-xxAAPWAa0+YtWY3xvQX=5XX7koq-h8USvT+YA-A@mail.gmail.com>
+ <20180216130741.jjtjwbnjcmsnz3ds@flea.lan>
+ <CAGb2v64xzVO0n8vTx9TfaoPPXv-85OoDk9y4k5KgLfkz70w2FA@mail.gmail.com>
+From: Philipp Rossak <embed3d@gmail.com>
+Message-ID: <aae613df-f7d8-d9dd-306b-fcda2bbb770f@gmail.com>
+Date: Sun, 18 Feb 2018 18:55:58 +0100
+MIME-Version: 1.0
+In-Reply-To: <CAGb2v64xzVO0n8vTx9TfaoPPXv-85OoDk9y4k5KgLfkz70w2FA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Feb 15, 2018 at 8:59 PM, Colin King <colin.king@canonical.com> wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->
-> The shifting of buf[5] by 24 bits to the left will be promoted to
-> a 32 bit signed int and then sign-extended to an unsigned long. If
-> the top bit of buf[5] is set then all then all the upper bits sec
-> end up as also being set because of the sign-extension. Fix this by
-> casting buf[5] to an unsigned long before the shift.
->
-> Detected by CoverityScan, CID#1465292 ("Unintended sign extension")
->
-> Fixes: 0e1492330cd2 ("rtc: add rtc-tx4939 driver")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
->         spin_unlock_irq(&pdata->lock);
-> -       sec = (buf[5] << 24) | (buf[4] << 16) | (buf[3] << 8) | buf[2];
-> +       sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
-> +               (buf[3] << 8) | buf[2];
 
-Wouldn't be better to use le32_to_cpu() or get_unaligned()?
+On 16.02.2018 14:15, Chen-Yu Tsai wrote:
+> On Fri, Feb 16, 2018 at 9:07 PM, Maxime Ripard
+> <maxime.ripard@bootlin.com> wrote:
+>> On Fri, Feb 16, 2018 at 12:10:18PM +0800, Chen-Yu Tsai wrote:
+>>>> diff --git a/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+>>>> b/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+>>>> index 6550bf0e594b..6f56d429f17e 100644
+>>>> --- a/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+>>>> +++ b/arch/arm/boot/dts/sun8i-a83t-bananapi-m3.dts
+>>>> @@ -175,11 +175,18 @@
+>>>>                          compatible = "x-powers,ac100-rtc";
+>>>>                          interrupt-parent = <&r_intc>;
+>>>>                          interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+>>>> -                       clocks = <&ac100_codec>;
+>>>> +                       clocks = <&ac100_rtc_32k>;
+>>>>                          #clock-cells = <1>;
+>>>>                          clock-output-names = "cko1_rtc",
+>>>>                                               "cko2_rtc",
+>>>>                                               "cko3_rtc";
+>>>> +
+>>>> +                       ac100_rtc_32k: rtc-32k-oscillator {
+>>>> +                               compatible = "fixed-clock";
+>>>> +                               #clock-cells = <0>;
+>>>> +                               clock-frequency  = <32768>;
+>>>> +                               clock-output-names = "ac100-rtc-32k";
+>>>> +                       };
+>>>>                  };
+>>>>          };
+>>>>   };
+>>>>
+>>>> What do you think about that solution?
+>>>
+>>> That's not quite right either. As I mentioned before, the
+>>> RTC block has two clock inputs, one 4MHz signal from the
+>>> codec block, and one 32.768 kHz signal from an external
+>>> crystal. The original device tree binding describes the
+>>> first one, and the 32.768 kHz clock was registered by
+>>> the RTC driver internally.
+>>>
+>>> If you're going to add the crystal clock, you still need
+>>> to keep the codec one. Note that this does not fix what
+>>> Maxime is asking you. I've already provided an explanation:
+>>>
+>>> The clock core allows registering clocks with not-yet-existing
+>>> clock parents. Parents are matches by string names. If no
+>>> clock by that name is registered yet, the clock core simply
+>>> orphans the new clock if the unregistered parent is its
+>>> current parent or simply ignores that parent if its not the
+>>> current parent. This is entirely valid and is what we are
+>>> counting on here, as we haven't implemented the codec-side
+>>> driver.
+>>
+>> So, we end up in a situation where clk_hw_get_num_parents returns the
+>> amount of clocks we can be parented to (orphans or not), but
+>> clk_hw_get_parent_by_index will not return the orphan clocks?
+> 
+> There is no placeholder for missing parents, unlike the regulator
+> subsystem that has a dummy regulator for this purpose.
+> 
+>> That's pretty bad :/
+> 
+> Yeah. I didn't expect this to happen. But to be fair, I should
+> have done the check on clk_hw_get_parent_by_index.
+> 
+>> Is there a way to test before registering that all our parents are
+>> actually there? clk_get?
+> 
+> That's probably the way to do it. However in the AC100 RTC case,
+> I left it open to be missing on purpose, so we could use the RTC
+> without waiting for the codec to be supported.
+> 
+> ChenYu
+> 
 
--- 
-With Best Regards,
-Andy Shevchenko
+So how should we proceed with this issue?
+
+Should I send a new version with a fixed comment or should I implement 
+the check in clk_get function?
+
+For the second option I will need about 3 weeks to submit a proper patch 
+since I have the next two weeks some other stuff to do.
+If a proper fix is required earlier, it might be better if someone else 
+is taking care about a fix.
+
+Philipp
