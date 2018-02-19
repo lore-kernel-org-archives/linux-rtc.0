@@ -1,49 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47077 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751360AbeBUU54 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:56 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 091/100] rtc: s35390a: remove useless message
-Date: Wed, 21 Feb 2018 21:56:26 +0100
-Message-Id: <20180221205635.31314-92-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:34814 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753562AbeBSUS6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Feb 2018 15:18:58 -0500
+Date: Mon, 19 Feb 2018 14:18:56 -0600
+From: Rob Herring <robh@kernel.org>
+To: David Daney <david.daney@cavium.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4] rtc: isl12026: Add driver.
+Message-ID: <20180219201856.47v33fxvbz6sgxfm@rob-hp-laptop>
+References: <20180216194415.6103-1-david.daney@cavium.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180216194415.6103-1-david.daney@cavium.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-It is not necessary to print a message when the time is invalid as
-userspace will already get an error (and an optional dev_dbg message).
+On Fri, Feb 16, 2018 at 11:44:15AM -0800, David Daney wrote:
+> The ISL12026 is a combination RTC and EEPROM device with I2C
+> interface.  The standard RTC driver interface is provided.  The EEPROM
+> is accessed via the NVMEM interface via the "eeprom0" directory in the
+> sysfs entry for the device.
+> 
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Signed-off-by: David Daney <david.daney@cavium.com>
+> ---
+> Changes from v3:
+> 
+> o Add Reviewed-by
+> 
+> o s/dev_err/dev_warn/ in one place
+> 
+> o Remove redundant ','
+> 
+> Changes from v2:
+> 
+> o More code cleanups suggested by reviewers.
+> 
+> Changes from v1:
+> 
+> o Fixed device tree bindings document example.
+> 
+> o Use RTC_NVMEM facility for eeprom support.
+> 
+> o Small code cleanups suggested by reviewers.
+> 
+>  .../devicetree/bindings/rtc/isil,isl12026.txt      |  28 ++
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-s35390a.c | 4 ----
- 1 file changed, 4 deletions(-)
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 7067bca5c20d..604f527a1235 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -450,7 +450,6 @@ static int s35390a_probe(struct i2c_client *client,
- 	int err, err_read;
- 	unsigned int i;
- 	struct s35390a *s35390a;
--	struct rtc_time tm;
- 	char buf, status1;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-@@ -508,9 +507,6 @@ static int s35390a_probe(struct i2c_client *client,
- 		}
- 	}
- 
--	if (err_read > 0 || s35390a_get_datetime(client, &tm) < 0)
--		dev_warn(&client->dev, "clock needs to be set\n");
--
- 	device_set_wakeup_capable(&client->dev, 1);
- 
- 	s35390a->rtc = devm_rtc_device_register(&client->dev,
--- 
-2.16.1
+>  drivers/rtc/Kconfig                                |   9 +
+>  drivers/rtc/Makefile                               |   1 +
+>  drivers/rtc/rtc-isl12026.c                         | 529 +++++++++++++++++++++
+>  4 files changed, 567 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl12026.txt
+>  create mode 100644 drivers/rtc/rtc-isl12026.c
