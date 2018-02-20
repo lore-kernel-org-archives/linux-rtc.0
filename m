@@ -1,52 +1,125 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:37850 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932243AbeBLCi4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 11 Feb 2018 21:38:56 -0500
-Received: by mail-qt0-f195.google.com with SMTP id w1so2111279qti.4
-        for <linux-rtc@vger.kernel.org>; Sun, 11 Feb 2018 18:38:56 -0800 (PST)
-From: Fabio Estevam <festevam@gmail.com>
-To: alexandre.belloni@free-electrons.com
-Cc: p.bruenn@beckhoff.com, linux-rtc@vger.kernel.org,
-        Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH] rtc: mxc_v2: Fix _iomem pointer notation
-Date: Mon, 12 Feb 2018 00:38:46 -0200
-Message-Id: <1518403126-28456-1-git-send-email-festevam@gmail.com>
+Received: from smtprelay0026.hostedemail.com ([216.40.44.26]:36732 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751312AbeBUAAU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Feb 2018 19:00:20 -0500
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave02.hostedemail.com (Postfix) with ESMTP id 68A6018004A27
+        for <linux-rtc@vger.kernel.org>; Tue, 20 Feb 2018 23:55:16 +0000 (UTC)
+Message-ID: <1519170907.4326.17.camel@perches.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Joe Perches <joe@perches.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Date: Tue, 20 Feb 2018 15:55:07 -0800
+In-Reply-To: <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
+On Tue, 2018-02-20 at 23:43 +0200, Andy Shevchenko wrote:
+> There are users which print time and date represented by content of
+> struct rtc_time in human readable format.
+> 
+> Instead of open coding that each time introduce %ptR[dt][rv] specifier.
+> 
+> Note, users have to select PRINTK_PEXT_TIMEDATE option in a Kconfig.
 
-Fix the iomem pointer notation in order to fix the following sparse
-warnings:
+Not sure this is a great option.
+Not just the name, the need to select it.
 
-drivers/rtc/rtc-mxc_v2.c:280:18: warning: incorrect type in argument 1 (different address spaces)
-drivers/rtc/rtc-mxc_v2.c:280:18:    expected void const volatile [noderef] <asn:2>*addr
-drivers/rtc/rtc-mxc_v2.c:280:18:    got void *[noderef] <asn:2>ioaddr
-drivers/rtc/rtc-mxc_v2.c:329:44: warning: incorrect type in argument 1 (different address spaces)
-drivers/rtc/rtc-mxc_v2.c:329:44:    expected void *[noderef] <asn:2>ioaddr
-drivers/rtc/rtc-mxc_v2.c:329:44:    got void [noderef] <asn:2>*
-drivers/rtc/rtc-mxc_v2.c:339:44: warning: incorrect type in argument 1 (different address spaces)
-drivers/rtc/rtc-mxc_v2.c:339:44:    expected void *[noderef] <asn:2>ioaddr
-drivers/rtc/rtc-mxc_v2.c:339:44:    got void [noderef] <asn:2>*
+> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+[]
+> +static noinline_for_stack
+> +char *date_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
+> +{
+> +	int year = tm->tm_year + (r ? 0 : 1900);
+> +	int mon = tm->tm_mon + (r ? 0 : 1);
 
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
----
- drivers/rtc/rtc-mxc_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+What happens with negative values?
+Perhaps these temporaries should be unsigned int.
 
-diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-index 784221d..9e14efb 100644
---- a/drivers/rtc/rtc-mxc_v2.c
-+++ b/drivers/rtc/rtc-mxc_v2.c
-@@ -273,7 +273,7 @@ static const struct rtc_class_ops mxc_rtc_ops = {
- 	.alarm_irq_enable = mxc_rtc_alarm_irq_enable,
- };
- 
--static int mxc_rtc_wait_for_flag(void *__iomem ioaddr, int flag)
-+static int mxc_rtc_wait_for_flag(void __iomem *ioaddr, int flag)
- {
- 	unsigned int timeout = REG_READ_TIMEOUT;
- 
--- 
-2.7.4
+> +
+> +	if (unlikely(v && (unsigned int)tm->tm_year > 200))
+> +		buf = string(buf, end, "****", default_str_spec);
+> +	else
+> +		buf = number(buf, end, year, default_dec04_spec);
+> +
+> +	if (buf < end)
+> +		*buf = '-';
+> +	buf++;
+> +
+> +	if (unlikely(v && (unsigned int)tm->tm_mon > 11))
+> +		buf = string(buf, end, "**", default_str_spec);
+> +	else
+> +		buf = number(buf, end, mon, default_dec02_spec);
+> +
+> +	if (buf < end)
+> +		*buf = '-';
+> +	buf++;
+> +
+> +	if (unlikely(v && (unsigned int)tm->tm_mday > 31))
+> +		buf = string(buf, end, "**", default_str_spec);
+> +	else
+> +		buf = number(buf, end, tm->tm_mday, default_dec02_spec);
+> +
+> +	return buf;
+> +}
+> +
+> +static noinline_for_stack
+> +char *time_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
+> +{
+
+Maybe use unsigned int temporaries here too for hour, min, sec
+
+> +	if (unlikely(v && (unsigned int)tm->tm_hour > 24))
+> +		buf = string(buf, end, "**", default_str_spec);
+> +	else
+> +		buf = number(buf, end, tm->tm_hour, default_dec02_spec);
+> +
+> +	if (buf < end)
+> +		*buf = ':';
+> +	buf++;
+> +
+> +	if (unlikely(v && (unsigned int)tm->tm_min > 59))
+
+leap seconds are allowed in the struct
+
+> +		buf = string(buf, end, "**", default_str_spec);
+> +	else
+> +		buf = number(buf, end, tm->tm_min, default_dec02_spec);
+> +
+> +	if (buf < end)
+> +		*buf = ':';
+> +	buf++;
+> +
+> +	if (unlikely(v && (unsigned int)tm->tm_sec > 59))
+> +		buf = string(buf, end, "**", default_str_spec);
+> +	else
+> +		buf = number(buf, end, tm->tm_sec, default_dec02_spec);
+> +
+> +	return buf;
+> +}
+> 
