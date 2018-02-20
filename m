@@ -1,57 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:40139 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751259AbeBRRb4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Feb 2018 12:31:56 -0500
-Received: by mail-wm0-f67.google.com with SMTP id v10so11144949wmh.5
-        for <linux-rtc@vger.kernel.org>; Sun, 18 Feb 2018 09:31:55 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180216194415.6103-1-david.daney@cavium.com>
-References: <20180216194415.6103-1-david.daney@cavium.com>
-From: Philippe Ombredanne <pombredanne@nexb.com>
-Date: Sun, 18 Feb 2018 18:31:14 +0100
-Message-ID: <CAOFm3uGGRopoD-wsX51Duh5vnS5SmK7Qd_uGF=8c6_fYmWPJXw@mail.gmail.com>
-Subject: Re: [PATCH v4] rtc: isl12026: Add driver.
-To: David Daney <david.daney@cavium.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mga04.intel.com ([192.55.52.120]:7625 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751300AbeBTVoJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 16:44:09 -0500
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 07/21] rtc: mcp795: Switch to use %ptR
+Date: Tue, 20 Feb 2018 23:43:46 +0200
+Message-Id: <20180220214400.66749-8-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi David,
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-On Fri, Feb 16, 2018 at 8:44 PM, David Daney <david.daney@cavium.com> wrote:
-> The ISL12026 is a combination RTC and EEPROM device with I2C
-> interface.  The standard RTC driver interface is provided.  The EEPROM
-> is accessed via the NVMEM interface via the "eeprom0" directory in the
-> sysfs entry for the device.
->
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Signed-off-by: David Daney <david.daney@cavium.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/rtc/rtc-mcp795.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-<snip>
-
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-isl12026.c
-> @@ -0,0 +1,529 @@
-> +// SPDX-License-Identifier: GPL-2.0
-
-<snip>
-
-> +MODULE_LICENSE("GPL");
-
-Your MODULE_LICENSE does not match your SPDX tag.
-Per module.h, GPL would mean GPL-2.0+ not GPL-2.0
-It would be best if you can sync the two.
-
+diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+index 77f21331ae21..fad71527e417 100644
+--- a/drivers/rtc/rtc-mcp795.c
++++ b/drivers/rtc/rtc-mcp795.c
+@@ -233,9 +233,7 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
+ 	if (ret)
+ 		return ret;
+ 
+-	dev_dbg(dev, "Set mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
+-			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
+-			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
++	dev_dbg(dev, "Set mcp795: %ptR\n", tim);
+ 
+ 	return 0;
+ }
+@@ -258,9 +256,7 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
+ 	tim->tm_mon	= bcd2bin(data[5] & 0x1F) - 1;
+ 	tim->tm_year	= bcd2bin(data[6]) + 100; /* Assume we are in 20xx */
+ 
+-	dev_dbg(dev, "Read from mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
+-			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
+-			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
++	dev_dbg(dev, "Read from mcp795: %ptR\n", tim);
+ 
+ 	return rtc_valid_tm(tim);
+ }
+@@ -319,9 +315,8 @@ static int mcp795_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 			return ret;
+ 		dev_dbg(dev, "Alarm IRQ armed\n");
+ 	}
+-	dev_dbg(dev, "Set alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
+-			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
+-			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
++	dev_dbg(dev, "Set alarm: %ptRdr(%d) %ptRt\n",
++		&alm->time, alm->time.tm_wday, &alm->time);
+ 	return 0;
+ }
+ 
+@@ -345,9 +340,8 @@ static int mcp795_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	alm->time.tm_isdst	= -1;
+ 	alm->time.tm_yday	= -1;
+ 
+-	dev_dbg(dev, "Read alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
+-			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
+-			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
++	dev_dbg(dev, "Read alarm: %ptRdr(%d) %ptRt\n",
++		&alm->time, alm->time.tm_wday, &alm->time);
+ 	return 0;
+ }
+ 
 -- 
-Cordially
-Philippe Ombredanne
+2.15.1
