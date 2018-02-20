@@ -1,71 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47092 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752139AbeBUU6D (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:58:03 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 096/100] rtc: rs5c372: remove useless indirection
-Date: Wed, 21 Feb 2018 21:56:31 +0100
-Message-Id: <20180221205635.31314-97-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mga14.intel.com ([192.55.52.115]:57443 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750710AbeBTVoO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 16:44:14 -0500
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH v2 20/21] mk68/mac: Switch to use %ptR
+Date: Tue, 20 Feb 2018 23:43:59 +0200
+Message-Id: <20180220214400.66749-21-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-rs5c372_get_datetime and rs5c372_set_datetime are only used after casting
-dev to an i2c_client. Remove that useless indirection.
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-rs5c372.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ arch/m68k/Kconfig.machine | 1 +
+ arch/m68k/mac/misc.c      | 8 ++------
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index ae7fa4324b0a..c5038329058c 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -207,8 +207,9 @@ static unsigned rs5c_hr2reg(struct rs5c372 *rs5c, unsigned hour)
- 	return bin2bcd(hour);
- }
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index 64a641467736..620a55da648e 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -26,6 +26,7 @@ config MAC
+ 	bool "Macintosh support"
+ 	depends on MMU
+ 	select MMU_MOTOROLA if MMU
++	select PRINTK_PEXT_TIMEDATE
+ 	help
+ 	  This option enables support for the Apple Macintosh series of
+ 	  computers (yes, there is experimental support now, at least for part
+diff --git a/arch/m68k/mac/misc.c b/arch/m68k/mac/misc.c
+index 4956edaac926..0002bb0ebbfc 100644
+--- a/arch/m68k/mac/misc.c
++++ b/arch/m68k/mac/misc.c
+@@ -673,13 +673,9 @@ int mac_hwclk(int op, struct rtc_time *t)
+ 		unmktime(now, 0,
+ 			 &t->tm_year, &t->tm_mon, &t->tm_mday,
+ 			 &t->tm_hour, &t->tm_min, &t->tm_sec);
+-		pr_debug("%s: read %04d-%02d-%-2d %02d:%02d:%02d\n",
+-		         __func__, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+-		         t->tm_hour, t->tm_min, t->tm_sec);
++		pr_debug("%s: read %ptR\n", __func__, t);
+ 	} else { /* write */
+-		pr_debug("%s: tried to write %04d-%02d-%-2d %02d:%02d:%02d\n",
+-		         __func__, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+-		         t->tm_hour, t->tm_min, t->tm_sec);
++		pr_debug("%s: tried to write %ptR\n", __func__, t);
  
--static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
- 	int		status = rs5c_get_regs(rs5c);
- 
-@@ -237,8 +238,9 @@ static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
- 	unsigned char	buf[7];
- 	int		addr;
-@@ -304,17 +306,6 @@ static int rs5c372_get_trim(struct i2c_client *client, int *osc, int *trim)
- }
- #endif
- 
--static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	return rs5c372_get_datetime(to_i2c_client(dev), tm);
--}
--
--static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	return rs5c372_set_datetime(to_i2c_client(dev), tm);
--}
--
--
- static int rs5c_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
+ 		now = mktime(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+ 			     t->tm_hour, t->tm_min, t->tm_sec);
 -- 
-2.16.1
+2.15.1
