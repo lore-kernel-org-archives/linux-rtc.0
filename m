@@ -1,37 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58872 "EHLO mail.bootlin.com"
+Received: from mga04.intel.com ([192.55.52.120]:7632 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751699AbeBYULw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 25 Feb 2018 15:11:52 -0500
-Date: Sun, 25 Feb 2018 21:11:51 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH] rtc: m41t80: move m41t80_rtc_mutex to the block where it
- is used
-Message-ID: <20180225201151.GD19904@piout.net>
-References: <20180209180534.28925-1-bigeasy@linutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180209180534.28925-1-bigeasy@linutronix.de>
+        id S1751368AbeBTVoL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 16:44:11 -0500
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 09/21] rtc: pic32: Switch to use %ptR
+Date: Tue, 20 Feb 2018 23:43:48 +0200
+Message-Id: <20180220214400.66749-10-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 09/02/2018 at 19:05:34 +0100, Sebastian Andrzej Siewior wrote:
-> Without CONFIG_RTC_DRV_M41T80_WDT the compiler complains:
-> 
-> |drivers/rtc/rtc-m41t80.c:76 ‘m41t80_rtc_mutex’ defined but not used [-Wunused-variable]
-> 
-> Move the variable to the block where it is used.
-> 
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> ---
->  drivers/rtc/rtc-m41t80.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/rtc/rtc-pic32.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
+index 5cfb6df5c430..c35b62564d3d 100644
+--- a/drivers/rtc/rtc-pic32.c
++++ b/drivers/rtc/rtc-pic32.c
+@@ -170,9 +170,7 @@ static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+ 
+ 	rtc_tm->tm_year += 100;
+ 
+-	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
+-		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
+-		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
++	dev_dbg(dev, "read time %ptR\n", rtc_tm);
+ 
+ 	clk_disable(pdata->clk);
+ 	return rtc_valid_tm(rtc_tm);
+@@ -184,9 +182,7 @@ static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
+ 	void __iomem *base = pdata->reg_base;
+ 	int year = tm->tm_year - 100;
+ 
+-	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "set time %ptR\n", tm);
+ 
+ 	if (year < 0 || year >= 100) {
+ 		dev_err(dev, "rtc only supports 100 years\n");
+@@ -224,10 +220,7 @@ static int pic32_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	alrm->enabled = (alm_en & PIC32_RTCALRM_ALRMEN) ? 1 : 0;
+ 
+-	dev_dbg(dev, "getalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+-		alm_en,
+-		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
+-		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
++	dev_dbg(dev, "getalarm: %d, %ptR\n", alm_en, alm_tm);
+ 
+ 	alm_tm->tm_sec = bcd2bin(alm_tm->tm_sec);
+ 	alm_tm->tm_min = bcd2bin(alm_tm->tm_min);
+@@ -247,10 +240,7 @@ static int pic32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	void __iomem *base = pdata->reg_base;
+ 
+ 	clk_enable(pdata->clk);
+-	dev_dbg(dev, "setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+-		alrm->enabled,
+-		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "setalarm: %d, %ptR\n", alrm->enabled, tm);
+ 
+ 	writel(0x00, base + PIC32_ALRMTIME);
+ 	writel(0x00, base + PIC32_ALRMDATE);
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.15.1
