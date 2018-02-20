@@ -1,113 +1,524 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:37759 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753081AbeB0NVx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 27 Feb 2018 08:21:53 -0500
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: HRTimer causing rtctest to fail
-Date: Tue, 27 Feb 2018 15:20:58 +0200
-Message-ID: <87vaei601x.fsf@linux.intel.com>
+Received: from mail-by2nam03on0060.outbound.protection.outlook.com ([104.47.42.60]:1231
+        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751053AbeBTTn6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 14:43:58 -0500
+Subject: Re: [PATCH v4] rtc: isl12026: Add driver.
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        David Daney <david.daney@cavium.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+References: <20180216194415.6103-1-david.daney@cavium.com>
+ <20180220110344.GE18058@piout.net>
+From: David Daney <ddaney@caviumnetworks.com>
+Message-ID: <4dfd0a27-7c03-13a0-acdb-890817e47bfc@caviumnetworks.com>
+Date: Tue, 20 Feb 2018 11:43:47 -0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+In-Reply-To: <20180220110344.GE18058@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 02/20/2018 03:03 AM, Alexandre Belloni wrote:
+[...]
 
 
-Hi folks,
+>> diff --git a/drivers/rtc/rtc-isl12026.c b/drivers/rtc/rtc-isl12026.c
+>> new file mode 100644
+>> index 000000000000..29e5bdf96c67
+>> --- /dev/null
+>> +++ b/drivers/rtc/rtc-isl12026.c
+>> @@ -0,0 +1,529 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/*
+>> + * An I2C driver for the Intersil ISL 12026
+>> + *
+>> + * Copyright (c) 2018 Cavium, Inc.
+>> + */
+>> +#include <linux/bcd.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/module.h>
+>> +#include <linux/mutex.h>
+>> +#include <linux/nvmem-provider.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
+>> +#include <linux/rtc.h>
+>> +#include <linux/slab.h>
+>> +
+>> +/* register offsets */
+>> +#define ISL12026_REG_PWR	0x14
+>> +# define ISL12026_REG_PWR_BSW	BIT(6)
+>> +# define ISL12026_REG_PWR_SBIB	BIT(7)
+>> +#define ISL12026_REG_SC		0x30
+>> +#define ISL12026_REG_HR		0x32
+>> +# define ISL12026_REG_HR_MIL	BIT(7)	/* military or 24 hour time */
+>> +#define ISL12026_REG_SR		0x3f
+>> +# define ISL12026_REG_SR_RTCF	BIT(0)
+>> +# define ISL12026_REG_SR_WEL	BIT(1)
+>> +# define ISL12026_REG_SR_RWEL	BIT(2)
+>> +# define ISL12026_REG_SR_MBZ	BIT(3)
+>> +# define ISL12026_REG_SR_OSCF	BIT(4)
+>> +
+>> +/* The EEPROM array responds at i2c address 0x57 */
+>> +#define ISL12026_EEPROM_ADDR	0x57
+>> +
+>> +#define ISL12026_PAGESIZE 16
+>> +#define ISL12026_NVMEM_WRITE_TIME 20
+>> +
+>> +struct isl12026 {
+>> +	struct rtc_device *rtc;
+>> +	struct i2c_client *nvm_client;
+>> +	struct nvmem_config nvm_cfg;
+>> +	/*
+>> +	 * RTC write operations require that multiple messages be
+>> +	 * transmitted, we hold the lock for all accesses to the
+>> +	 * device so that these sequences cannot be disrupted.  Also,
+>> +	 * the write cycle to the nvmem takes many ms during which the
+>> +	 * device does not respond to commands, so holding the lock
+>> +	 * also prevents access during these times.
+>> +	 */
+>> +	struct mutex lock;
+>> +};
+>> +
+>> +static int isl12026_read_reg(struct i2c_client *client, int reg)
+>> +{
+>> +	struct isl12026 *priv = i2c_get_clientdata(client);
+>> +	u8 addr[] = {0, reg};
+>> +	u8 val;
+>> +	int ret;
+>> +
+>> +	struct i2c_msg msgs[] = {
+>> +		{
+>> +			.addr	= client->addr,
+>> +			.flags	= 0,
+>> +			.len	= sizeof(addr),
+>> +			.buf	= addr
+>> +		}, {
+>> +			.addr	= client->addr,
+>> +			.flags	= I2C_M_RD,
+>> +			.len	= 1,
+>> +			.buf	= &val
+>> +		}
+>> +	};
+> 
+> I'm pretty sure you can use regmap instead of open coding all the i2c
+> transfers, did you try?
 
-I'm facing an odd problem with v4.16-rc2 (also reproducible on v4.15
-final) where rtctest fails sometimes which PIE coming too late with
-frequencies >=3D 1024 Hz.
+I couldn't figure out how to make it do the device-atomic stores to 
+SR.RWEL and SR.WEL that must precede certain register store operations. 
+Also, dealing with locking across multiple i2c target addresses seems 
+problematical with the regmap helpers.
 
-I've modified rtctest.c a bit so that it continues running even after
-first failure just so I could get a glimpse of how many times it fails.
+The open coding doesn't clutter things up too much, and allows us to 
+follow the isl12026 protocol without having to jump through too many hoops.
 
-Here are the results:
+> 
+>> +
+>> +	mutex_lock(&priv->lock);
+>> +
+> 
+> Also, regmap will remove the need for that lock.
 
-Error 1024Hz i 17/20 diff 1089/976
-
-Error 2048Hz i 2/20 diff 538/488
-Error 2048Hz i 9/20 diff 558/488
-Error 2048Hz i 16/20 diff 560/488
-
-Error 4096Hz i 2/20 diff 305/244
-Error 4096Hz i 7/20 diff 288/244
-Error 4096Hz i 9/20 diff 285/244
-Error 4096Hz i 11/20 diff 310/244
-Error 4096Hz i 16/20 diff 284/244
-Error 4096Hz i 20/20 diff 317/244
+Since
 
 
-I added a few trace_printk() calls around rtc_dev_read() (and some other
-functions) and captured the time for entry and exit of that function. I
-noticed that HRTimer fires way too late and also way too early
-sometimes. On the order of 100+ us.
+> 
+>> +	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+>> +	if (ret != ARRAY_SIZE(msgs)) {
+>> +		dev_err(&client->dev, "read reg error, ret=%d\n", ret);
+>> +		ret = ret < 0 ? ret : -EIO;
+>> +	} else {
+>> +		ret = val;
+>> +	}
+>> +
+>> +	mutex_unlock(&priv->lock);
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static int isl12026_write_reg(struct i2c_client *client, int reg, u8 val)
+>> +{
+>> +	struct isl12026 *priv = i2c_get_clientdata(client);
+>> +	int ret;
+>> +	u8 op[3];
+>> +	struct i2c_msg msg = {
+>> +		.addr	= client->addr,
+>> +		.flags	= 0,
+>> +		.len	= 1,
+>> +		.buf	= op
+>> +	};
+>> +
+>> +	mutex_lock(&priv->lock);
+>> +
+>> +	/* Set SR.WEL */
+>> +	op[0] = 0;
+>> +	op[1] = ISL12026_REG_SR;
+>> +	op[2] = ISL12026_REG_SR_WEL;
+>> +	msg.len = 3;
+>> +	ret = i2c_transfer(client->adapter, &msg, 1);
+>> +	if (ret != 1) {
+>> +		dev_err(&client->dev, "write error SR.WEL, ret=%d\n", ret);
+>> +		ret = ret < 0 ? ret : -EIO;
+>> +		goto out;
+>> +	}
+> 
+> If you don't clear SR.WEL, I don't think you need to set it each time
+> you write to the RTC. I would just set SR.WEL at probe time and let it
+> there. That removes two i2c writes for each write operation.
 
-For example with iterations 17 of 1024 Hz (seen above) and 18 (also of
-1024 Hz) I captured the following time stamps (all in uS):
+I don't like the idea of leaving the thing partially armed when write 
+operations should be rare.
 
-|    Start |      End | Expected End | Diff |
-|----------+----------+--------------+------|
-| 35900626 | 35901711 |     35901603 | -108 | (too late)
-| 35901826 | 35902628 |     35902803 |  174 | (too early)
 
-I can't come up with a proper explanation as to why HRTimer is firing at
-such wildly odd extremes. On most of the measurements, HRTimer executes
-within 5 uS of scheduled time and I can't convince myself that
-scheduling latency would get so high all of a sudden. Specially
-considering I'm testing with a 4 core machine and there's nothing else
-running on it. It's mostly idle.
+[...]
+>> +static int isl12026_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>> +{
+>> +	struct i2c_client *client = to_i2c_client(dev);
+>> +	struct isl12026 *priv = i2c_get_clientdata(client);
+>> +	u8 ccr[8];
+>> +	u8 addr[2];
+>> +	u8 sr;
+>> +	int ret;
+>> +	struct i2c_msg msgs[] = {
+>> +		{
+>> +			.addr	= client->addr,
+>> +			.flags	= 0,
+>> +			.len	= sizeof(addr),
+>> +			.buf	= addr
+>> +		}, {
+>> +			.addr	= client->addr,
+>> +			.flags	= I2C_M_RD,
+>> +		}
+>> +	};
+>> +
+>> +	mutex_lock(&priv->lock);
+>> +
+>> +	/* First, read SR */
+>> +	addr[0] = 0;
+>> +	addr[1] = ISL12026_REG_SR;
+>> +	msgs[1].len = 1;
+>> +	msgs[1].buf = &sr;
+>> +
+>> +	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+>> +	if (ret != ARRAY_SIZE(msgs)) {
+>> +		dev_err(&client->dev, "read error, ret=%d\n", ret);
+>> +		ret = ret < 0 ? ret : -EIO;
+>> +		goto out;
+>> +	}
+>> +
+>> +	if (sr & ISL12026_REG_SR_RTCF)
+>> +		dev_warn(&client->dev, "Real-Time Clock Failure on read\n");
+>> +	if (sr & ISL12026_REG_SR_OSCF)
+>> +		dev_warn(&client->dev, "Oscillator Failure on read\n");
+>> +
+>> +	/* Second, CCR regs */
+>> +	addr[0] = 0;
+>> +	addr[1] = ISL12026_REG_SC;
+>> +	msgs[1].len = sizeof(ccr);
+>> +	msgs[1].buf = ccr;
+>> +
+>> +	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+>> +	if (ret != ARRAY_SIZE(msgs)) {
+>> +		dev_err(&client->dev, "read error, ret=%d\n", ret);
+>> +		ret = ret < 0 ? ret : -EIO;
+>> +		goto out;
+>> +	}
+>> +
+>> +	tm->tm_sec = bcd2bin(ccr[0] & 0x7F);
+>> +	tm->tm_min = bcd2bin(ccr[1] & 0x7F);
+>> +	if (ccr[2] & ISL12026_REG_HR_MIL)
+>> +		tm->tm_hour = bcd2bin(ccr[2] & 0x3F);
+>> +	else
+>> +		tm->tm_hour = bcd2bin(ccr[2] & 0x1F) +
+>> +			((ccr[2] & 0x20) ? 12 : 0);
+>> +	tm->tm_mday = bcd2bin(ccr[3] & 0x3F);
+>> +	tm->tm_mon = bcd2bin(ccr[4] & 0x1F) - 1;
+>> +	tm->tm_year = bcd2bin(ccr[5]);
+>> +	if (bcd2bin(ccr[7]) == 20)
+>> +		tm->tm_year += 100;
+>> +	tm->tm_wday = ccr[6] & 0x07;
+>> +
+>> +	ret = rtc_valid_tm(tm);
+> 
+> This rtc_valid_tm is unnecessary, you can simply return 0.
 
-Any hints as to how to track down this problem further? Also, do folks
-agree that rtctest's 10% slack should also be considered for too early
-firing times? I mean:
+It may be possible for invalid values to be programmed into the RTC, 
+this would catch that case.
 
-diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selft=
-ests/timers/rtctest.c
-index 411eff625e66..99aa46fc556c 100644
-=2D-- a/tools/testing/selftests/timers/rtctest.c
-+++ b/tools/testing/selftests/timers/rtctest.c
-@@ -317,7 +317,8 @@ int main(int argc, char **argv)
-                        gettimeofday(&end, NULL);
-                        timersub(&end, &start, &diff);
-                        if (diff.tv_sec > 0 ||
-=2D                           diff.tv_usec > ((1000000L / tmp) * 1.10)) {
-+                           diff.tv_usec > ((1000000L / tmp) * 1.10) ||
-+                           diff.tv_usec < ((1000000L / tmp) * 0.9)) {
-                                fprintf(stderr, "\nPIE delta error: %ld.%06=
-ld should be close to 0.%06ld\n",
-                                       diff.tv_sec, diff.tv_usec,
-                                       (1000000L / tmp));
 
-=2D-=20
-balbi
+> 
+>> +out:
+>> +	mutex_unlock(&priv->lock);
+>> +	return ret;
+>> +}
+>> +
+>> +static const struct rtc_class_ops isl12026_rtc_ops = {
+>> +	.read_time	= isl12026_rtc_read_time,
+>> +	.set_time	= isl12026_rtc_set_time,
+>> +};
+>> +
+>> +static int isl12026_nvm_read(void *p, unsigned int offset,
+>> +			     void *val, size_t bytes)
+>> +{
+>> +	struct isl12026 *priv = p;
+>> +	int ret;
+>> +	u8 addr[2];
+>> +	struct i2c_msg msgs[] = {
+>> +		{
+>> +			.addr	= priv->nvm_client->addr,
+>> +			.flags	= 0,
+>> +			.len	= sizeof(addr),
+>> +			.buf	= addr
+>> +		}, {
+>> +			.addr	= priv->nvm_client->addr,
+>> +			.flags	= I2C_M_RD,
+>> +			.buf	= val
+>> +		}
+>> +	};
+>> +
+>> +	if (offset >= priv->nvm_cfg.size)
+>> +		return 0; /* End-of-file */
+>> +	if (offset + bytes > priv->nvm_cfg.size)
+>> +		bytes = priv->nvm_cfg.size - offset;
+>> +
+>> +	mutex_lock(&priv->lock);
+> 
+> You can completely remove the need for that lock by taking
+> priv->rtc->ops_lock here.
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+Good point.  I will try doing that.
 
------BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAlqVWzwACgkQzL64meEa
-mQazKw/+NoEqe2xY6+Cs21C5icYpntTss2D5HP0WE1YPKeU5EjuHQBlzISY8OLc9
-7lByfyqdoghbtLRzU8DzC23ZWzow06TQf1sDd4BRm0RkYIWC634yXiYpAi9nQ9Bf
-4pfHnCYzjEZDEWwBsYi0ieZxfZZuCpn1hoog45WDx/b7BDeD37yiFFk37D4kqb1E
-/q1YfnCLjD//C8iwSsneS537dR63QZ4O3TEIk5zEorwfS05VqqrRg9fp2icqwktW
-JCD42hXRHszCSB24TnwGu2kHHvR8obyQRMNxNFdDtFbeN4YBJRYyciTMUgNVnjsn
-oedVddN+gn4g9nSqqhQJ13zfe4IuPz9FMar9Q7qP0DDSB7hA9GRF59ozo/cqXLUr
-inOrAfT+cGOXKd9YIgllFf6Vi9/0XzSAT0g1ITIDQmszmgagZ+NCEFCuURey9D8L
-ES5l/JDX34NR7NuhQidGLKPxCGgOdmDkad0FtXIz4MlNbuAenBWoWUwOcwKuBgCs
-doorihntGElgijWAW4KI2v/9w0u9wilNOmrCsdOQggzq1wWUBMLRL3qVc5taLENl
-CLzjfmynC7Ph8KxXbye5J7XxNBEsZiIu6+fOa6f6EpjLL06mAhno3DoaCePdP4JF
-6tplIf04myrL2JVeA2tZOxC2vniPyH82MpJGYYhwmYyqVhJqFs8=
-=vem4
------END PGP SIGNATURE-----
---=-=-=--
+> 
+>> +
+>> +	/* 2 bytes of address, most significant first */
+>> +	addr[0] = offset >> 8;
+>> +	addr[1] = offset;
+>> +	msgs[1].len = bytes;
+>> +	ret = i2c_transfer(priv->nvm_client->adapter, msgs, ARRAY_SIZE(msgs));
+>> +
+>> +	mutex_unlock(&priv->lock);
+>> +
+>> +	if (ret != ARRAY_SIZE(msgs)) {
+>> +		dev_err(priv->nvm_cfg.dev, "nvmem read error, ret=%d\n", ret);
+>> +		return ret < 0 ? ret : -EIO;
+>> +	}
+>> +
+>> +	return bytes;
+>> +}
+>> +
+>> +static int isl12026_nvm_write(void *p, unsigned int offset,
+>> +			      void *val, size_t bytes)
+>> +{
+>> +	struct isl12026 *priv = p;
+>> +	int ret = -EIO;
+>> +	u8 *v = val;
+>> +	size_t chunk_size, num_written;
+>> +	u8 payload[ISL12026_PAGESIZE + 2]; /* page + 2 address bytes */
+>> +	struct i2c_msg msgs[] = {
+>> +		{
+>> +			.addr	= priv->nvm_client->addr,
+>> +			.flags	= 0,
+>> +			.buf	= payload
+>> +		}
+>> +	};
+>> +
+>> +	if (offset >= priv->nvm_cfg.size)
+>> +		return 0; /* End-of-file */
+>> +	if (offset + bytes > priv->nvm_cfg.size)
+>> +		bytes = priv->nvm_cfg.size - offset;
+>> +
+>> +	mutex_lock(&priv->lock);
+>> +
+>> +	num_written = 0;
+>> +	while (bytes) {
+>> +		chunk_size = round_down(offset, ISL12026_PAGESIZE) +
+>> +			ISL12026_PAGESIZE - offset;
+>> +		chunk_size = min(bytes, chunk_size);
+>> +		/*
+>> +		 * 2 bytes of address, most significant first, followed
+>> +		 * by page data bytes
+>> +		 */
+>> +		memcpy(payload + 2, v + num_written, chunk_size);
+>> +		payload[0] = offset >> 8;
+>> +		payload[1] = offset;
+>> +		msgs[0].len = chunk_size + 2;
+>> +		ret = i2c_transfer(priv->nvm_client->adapter,
+>> +				   msgs, ARRAY_SIZE(msgs));
+>> +		if (ret != ARRAY_SIZE(msgs)) {
+>> +			dev_err(priv->nvm_cfg.dev,
+>> +				"nvmem write error, ret=%d\n", ret);
+>> +			ret = ret < 0 ? ret : -EIO;
+>> +			break;
+>> +		}
+>> +		bytes -= chunk_size;
+>> +		offset += chunk_size;
+>> +		num_written += chunk_size;
+>> +		msleep(ISL12026_NVMEM_WRITE_TIME);
+>> +	}
+>> +
+>> +	mutex_unlock(&priv->lock);
+>> +
+>> +	return num_written >= 0 ? num_written : ret;
+> 
+> nvmem requires that you return 0 or an error, not the number of bytes
+> written. Also, in that case num_written >= 0 will always be true (size_t
+> is unsigned).
+
+
+Yes, the 0-day bot found these problems too.
+
+I will fix this.
+
+
+> 
+>> +}
+>> +
+>> +static void isl12026_force_power_modes(struct i2c_client *client)
+>> +{
+>> +	int ret;
+>> +	int pwr, requested_pwr;
+>> +	u32 bsw_val, sbib_val;
+>> +	bool set_bsw, set_sbib;
+>> +
+>> +	/*
+>> +	 * If we can read the of_property, set the specified value.
+>> +	 * If there is an error reading the of_property (likely
+>> +	 * because it does not exist), keep the current value.
+>> +	 */
+>> +	ret = of_property_read_u32(client->dev.of_node,
+>> +				   "isil,pwr-bsw", &bsw_val);
+>> +	set_bsw = (ret == 0);
+>> +
+>> +	ret = of_property_read_u32(client->dev.of_node,
+>> +				   "isil,pwr-sbib", &sbib_val);
+>> +	set_sbib = (ret == 0);
+>> +
+>> +	/* Check if PWR.BSW and/or PWR.SBIB need specified values */
+>> +	if (!set_bsw && !set_sbib)
+>> +		return;
+>> +
+>> +	pwr = isl12026_read_reg(client, ISL12026_REG_PWR);
+>> +	if (pwr < 0) {
+>> +		dev_warn(&client->dev, "Error: Failed to read PWR %d\n", pwr);
+>> +		return;
+>> +	}
+>> +
+>> +	requested_pwr = pwr;
+>> +
+>> +	if (set_bsw) {
+>> +		if (bsw_val)
+>> +			requested_pwr |= ISL12026_REG_PWR_BSW;
+>> +		else
+>> +			requested_pwr &= ~ISL12026_REG_PWR_BSW;
+>> +	} /* else keep current BSW */
+>> +
+>> +	if (set_sbib) {
+>> +		if (sbib_val)
+>> +			requested_pwr |= ISL12026_REG_PWR_SBIB;
+>> +		else
+>> +			requested_pwr &= ~ISL12026_REG_PWR_SBIB;
+>> +	} /* else keep current SBIB */
+>> +
+>> +	if (pwr >= 0 && pwr != requested_pwr) {
+>> +		dev_info(&client->dev, "PWR: %02x\n", pwr);
+>> +		dev_info(&client->dev,
+>> +			 "Updating PWR to: %02x\n", requested_pwr);
+> 
+> I would use dev_dbg instead of dev_info.
+> 
+>> +		isl12026_write_reg(client, ISL12026_REG_PWR, requested_pwr);
+>> +	}
+>> +}
+>> +
+>> +static int isl12026_probe_new(struct i2c_client *client)
+>> +{
+>> +	struct isl12026 *priv;
+>> +	int ret;
+>> +
+>> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+>> +		return -ENODEV;
+>> +
+>> +	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
+>> +	if (!priv)
+>> +		return -ENOMEM;
+>> +
+>> +	mutex_init(&priv->lock);
+>> +
+>> +	i2c_set_clientdata(client, priv);
+>> +
+>> +	isl12026_force_power_modes(client);
+>> +
+>> +	priv->nvm_client = i2c_new_dummy(client->adapter, ISL12026_EEPROM_ADDR);
+>> +	if (!priv->nvm_client)
+>> +		return -ENOMEM;
+>> +
+>> +	priv->rtc = devm_rtc_allocate_device(&client->dev);
+>> +	ret = PTR_ERR_OR_ZERO(priv->rtc);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	priv->rtc->ops = &isl12026_rtc_ops;
+>> +
+>> +	priv->nvm_cfg.name = "eeprom";
+>> +	priv->nvm_cfg.read_only = false;
+>> +	priv->nvm_cfg.root_only = true;
+>> +	priv->nvm_cfg.base_dev = &client->dev;
+>> +	priv->nvm_cfg.priv = priv;
+>> +	priv->nvm_cfg.stride = 1;
+>> +	priv->nvm_cfg.word_size = 1;
+>> +	priv->nvm_cfg.size = 512;
+>> +	priv->nvm_cfg.reg_read = isl12026_nvm_read;
+>> +	priv->nvm_cfg.reg_write = isl12026_nvm_write;
+>> +
+>> +	priv->rtc->nvmem_config = &priv->nvm_cfg;
+>> +	priv->rtc->nvram_old_abi = false;
+> 
+> If you have a look at rtc-next, I've just changed the API so you don't
+> need to keep a copy of nvm_cfg. You will need to switch to that (at
+> least call rtc_nvmem_register from the driver).
+
+
+OK
+
+> 
+>> +
+>> +	return rtc_register_device(priv->rtc);
+>> +}
+>> +
+>> +static int isl12026_remove(struct i2c_client *client)
+>> +{
+>> +	struct isl12026 *priv = i2c_get_clientdata(client);
+>> +
+>> +	i2c_unregister_device(priv->nvm_client);
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct of_device_id isl12026_dt_match[] = {
+>> +	{ .compatible = "isil,isl12026" },
+>> +	{ }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, isl12026_dt_match);
+>> +
+>> +static struct i2c_driver isl12026_driver = {
+>> +	.driver		= {
+>> +		.name	= "rtc-isl12026",
+>> +		.of_match_table = of_match_ptr(isl12026_dt_match),
+>> +	},
+>> +	.probe_new	= isl12026_probe_new,
+>> +	.remove		= isl12026_remove,
+>> +};
+>> +
+>> +module_i2c_driver(isl12026_driver);
+>> +
+>> +MODULE_DESCRIPTION("ISL 12026 RTC driver");
+>> +MODULE_LICENSE("GPL");
+>> -- 
+>> 2.14.3
+>>
+> 
