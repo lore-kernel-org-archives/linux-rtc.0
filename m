@@ -1,60 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.141]:53128 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751634AbeBYIYI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 25 Feb 2018 03:24:08 -0500
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-To: linux-kernel@vger.kernel.org
-Cc: zyw@rock-chips.com, briannorris@google.com, dianders@google.com,
-        jwerner@chromium.org, Jeffy Chen <jeffy.chen@rock-chips.com>,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms in the past
-Date: Sun, 25 Feb 2018 16:18:02 +0800
-Message-Id: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
+Received: from mga14.intel.com ([192.55.52.115]:57443 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751365AbeBTVoL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 16:44:11 -0500
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 05/21] rtc: m41t80: Switch to use %ptR
+Date: Tue, 20 Feb 2018 23:43:44 +0200
+Message-Id: <20180220214400.66749-6-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We have a check in __rtc_set_alarm() to return -ETIME when the alarm
-is in the past.
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-Since accessing a Chrome OS EC based rtc is a slow operation, we should
-do that check again inside of the EC rtc driver's .set_alarm() callback.
-
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
+ drivers/rtc/rtc-m41t80.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
- drivers/rtc/rtc-cros-ec.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index f0ea6899c731..ee0062e2d222 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (alarm_time < 0 || alarm_time > U32_MAX)
- 		return -EINVAL;
- 
-+	/* Don't set an alarm in the past. */
-+	if ((u32)alarm_time <= current_time)
-+		return -ETIME;
-+
- 	if (!alrm->enabled) {
- 		/*
- 		 * If the alarm is being disabled, send an alarm
-@@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		alarm_offset = EC_RTC_ALARM_CLEAR;
- 		cros_ec_rtc->saved_alarm = (u32)alarm_time;
- 	} else {
--		/* Don't set an alarm in the past. */
--		if ((u32)alarm_time < current_time)
--			alarm_offset = EC_RTC_ALARM_CLEAR;
--		else
--			alarm_offset = (u32)alarm_time - current_time;
-+		alarm_offset = (u32)alarm_time - current_time;
- 	}
- 
- 	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index c90fba3ed861..0ffc03826efb 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -950,11 +950,7 @@ static int m41t80_probe(struct i2c_client *client,
+ 		if (m41t80_data->features & M41T80_FEATURE_HT) {
+ 			m41t80_get_datetime(client, &tm);
+ 			dev_info(&client->dev, "HT bit was set!\n");
+-			dev_info(&client->dev,
+-				 "Power Down at %04i-%02i-%02i %02i:%02i:%02i\n",
+-				 tm.tm_year + 1900,
+-				 tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
+-				 tm.tm_min, tm.tm_sec);
++			dev_info(&client->dev, "Power Down at %ptR\n", &tm);
+ 		}
+ 		rc = i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_HOUR,
+ 					       rc & ~M41T80_ALHOUR_HT);
 -- 
-2.11.0
+2.15.1
