@@ -1,41 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46976 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751578AbeBUU5Y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:24 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 030/100] rtc: fm3130: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:25 +0100
-Message-Id: <20180221205635.31314-31-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mga06.intel.com ([134.134.136.31]:32059 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751369AbeBTVoL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 16:44:11 -0500
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 13/21] rtc: rx6110: Switch to use %ptR
+Date: Tue, 20 Feb 2018 23:43:52 +0200
+Message-Id: <20180220214400.66749-14-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-fm3130.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/rtc/rtc-rx6110.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-fm3130.c b/drivers/rtc/rtc-fm3130.c
-index 576eadbba296..e1137670d4d2 100644
---- a/drivers/rtc/rtc-fm3130.c
-+++ b/drivers/rtc/rtc-fm3130.c
-@@ -136,8 +136,7 @@ static int fm3130_get_time(struct device *dev, struct rtc_time *t)
- 		t->tm_hour, t->tm_mday,
- 		t->tm_mon, t->tm_year, t->tm_wday);
+diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+index 7c9c08eab5e5..1705358fc706 100644
+--- a/drivers/rtc/rtc-rx6110.c
++++ b/drivers/rtc/rtc-rx6110.c
+@@ -114,9 +114,7 @@ struct rx6110_data {
+  */
+ static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
+ {
+-	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
+-		 tm->tm_sec, tm->tm_min, tm->tm_hour,
+-		 tm->tm_mday, tm->tm_mon, tm->tm_year);
++	pr_debug("%s: date %ptRr\n", __func__, tm);
  
--	/* initial clock setting can be undefined */
--	return rtc_valid_tm(t);
-+	return 0;
+ 	/*
+ 	 * The year in the RTC is a value between 0 and 99.
+@@ -154,9 +152,7 @@ static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
+ 	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
+ 	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
+ 
+-	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
+-		 tm->tm_sec, tm->tm_min, tm->tm_hour,
+-		 tm->tm_mday, tm->tm_mon, tm->tm_year);
++	pr_debug("%s: date %ptRr\n", __func__, tm);
+ 
+ 	/*
+ 	 * The year in the RTC is a value between 0 and 99.
+@@ -248,9 +244,7 @@ static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
+ 	if (ret)
+ 		return ret;
+ 
+-	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
+-		tm->tm_sec, tm->tm_min, tm->tm_hour,
+-		tm->tm_mday, tm->tm_mon, tm->tm_year);
++	dev_dbg(dev, "%s: date %ptRr\n", __func__, tm);
+ 
+ 	return rtc_valid_tm(tm);
  }
- 
- 
 -- 
-2.16.1
+2.15.1
