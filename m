@@ -1,45 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37594 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46952 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933050AbeBLWsq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:46 -0500
+        with ESMTP id S1751535AbeBUU5X (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:23 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 39/45] rtc: stk17ta8: fix possible race condition
-Date: Mon, 12 Feb 2018 23:47:53 +0100
-Message-Id: <20180212224759.15999-40-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 020/100] rtc: ds1305: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:15 +0100
+Message-Id: <20180221205635.31314-21-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The probe function is not allowed to fail after registering the RTC. Call
-rtc_register_device() at the end.
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-stk17ta8.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-ds1305.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
-index f936accf622f..1d6febbe7d39 100644
---- a/drivers/rtc/rtc-stk17ta8.c
-+++ b/drivers/rtc/rtc-stk17ta8.c
-@@ -334,11 +334,11 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
+index 3d2400a39da9..2d502fc85698 100644
+--- a/drivers/rtc/rtc-ds1305.c
++++ b/drivers/rtc/rtc-ds1305.c
+@@ -203,8 +203,7 @@ static int ds1305_get_time(struct device *dev, struct rtc_time *time)
+ 		time->tm_hour, time->tm_mday,
+ 		time->tm_mon, time->tm_year, time->tm_wday);
  
- 	pdata->rtc->ops = &stk17ta8_rtc_ops;
- 
--	ret = rtc_register_device(pdata->rtc);
-+	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
- 	if (ret)
- 		return ret;
- 
--	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
-+	ret = rtc_register_device(pdata->rtc);
- 
- 	return ret;
+-	/* Time may not be set */
+-	return rtc_valid_tm(time);
++	return 0;
  }
+ 
+ static int ds1305_set_time(struct device *dev, struct rtc_time *time)
 -- 
 2.16.1
