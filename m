@@ -1,37 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:36909 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47094 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965611AbeBMUc2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 15:32:28 -0500
-Date: Tue, 13 Feb 2018 21:32:16 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: a.zummo@towertech.it, arnd@arndb.de, broonie@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RESEND PATCH] rtc: Fix overflow when converting time64_t to
- rtc_time
-Message-ID: <20180213203216.GC30929@piout.net>
-References: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <a63f2b482281004df854d8345cb18368224880b6.1514200190.git.baolin.wang@linaro.org>
+        with ESMTP id S1752167AbeBUU6F (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:58:05 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 100/100] rtc: pcf85063: remove useless indirection
+Date: Wed, 21 Feb 2018 21:56:35 +0100
+Message-Id: <20180221205635.31314-101-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 26/01/2018 at 13:06:01 +0800, Baolin Wang wrote:
-> If we convert one large time values to rtc_time, in the original formula
-> 'days * 86400' can be overflowed in 'unsigned int' type to make the formula
-> get one incorrect remain seconds value. Thus we can use div_s64_rem()
-> function to avoid this situation.
-> 
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
->  drivers/rtc/rtc-lib.c |    6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-Applied, thanks.
+pcf85063_get_datetime and pcf85063_set_datetime are only used after casting
+dev to an i2c_client. Remove that useless indirection.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 6ad4511d7ee1..3558433e8787 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -81,8 +81,9 @@ static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
+ 	return 0;
+ }
+ 
+-static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	int rc;
+ 	u8 regs[7];
+ 
+@@ -117,8 +118,9 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
+-static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	int rc;
+ 	u8 regs[7];
+ 	u8 ctrl1;
+@@ -172,16 +174,6 @@ static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
+-static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return pcf85063_get_datetime(to_i2c_client(dev), tm);
+-}
+-
+-static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return pcf85063_set_datetime(to_i2c_client(dev), tm);
+-}
+-
+ static const struct rtc_class_ops pcf85063_rtc_ops = {
+ 	.read_time	= pcf85063_rtc_read_time,
+ 	.set_time	= pcf85063_rtc_set_time
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+2.16.1
