@@ -1,46 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from rnd-relay.smtp.broadcom.com ([192.19.229.170]:41248 "EHLO
-        rnd-relay.smtp.broadcom.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750814AbeBZULQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 15:11:16 -0500
-From: Justin Chen <justin.chen@broadcom.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:47090 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752137AbeBUU6D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:58:03 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
-Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        computersforpeace@gmail.com, gregory.0xf0@gmail.com,
-        f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org,
-        Justin Chen <justin.chen@broadcom.com>,
-        Justin Chen <justinpopo6@gmail.com>
-Subject: [PATCH v2] rtc: brcmstb-waketimer: Set wktmr prescaler
-Date: Mon, 26 Feb 2018 12:09:58 -0800
-Message-Id: <1519675798-26720-1-git-send-email-justin.chen@broadcom.com>
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 095/100] rtc: rs5c372: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:30 +0100
+Message-Id: <20180221205635.31314-96-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The HW default is one tick per second, however instead of assuming this,
-lets make sure the waketimer is actually one tick per second before
-arming the alarm.
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it before returning from the callback.
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-brcmstb-waketimer.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/rtc/rtc-rs5c372.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-index 796ac79..231b2f7 100644
---- a/drivers/rtc/rtc-brcmstb-waketimer.c
-+++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-@@ -60,6 +60,9 @@ static void brcmstb_waketmr_set_alarm(struct brcmstb_waketmr *timer,
- {
- 	brcmstb_waketmr_clear_alarm(timer);
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 37aa78fd2c4d..ae7fa4324b0a 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -234,8 +234,7 @@ static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		tm->tm_sec, tm->tm_min, tm->tm_hour,
+ 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
  
-+	/* Make sure we are actually counting in seconds */
-+	writel_relaxed(timer->rate, timer->base + BRCMSTB_WKTMR_PRESCALER);
-+
- 	writel_relaxed(secs + 1, timer->base + BRCMSTB_WKTMR_ALARM);
+-	/* rtc might need initialization */
+-	return rtc_valid_tm(tm);
++	return 0;
  }
  
+ static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
 -- 
-2.7.4
+2.16.1
