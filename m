@@ -1,49 +1,100 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46904 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751379AbeBUU5M (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:12 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 006/100] rtc: ab-b5ze-s3: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:01 +0100
-Message-Id: <20180221205635.31314-7-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:32962 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S937530AbeBUOTO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 09:19:14 -0500
+MIME-Version: 1.0
+In-Reply-To: <1519219410.10722.25.camel@linux.intel.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+ <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+ <1519170907.4326.17.camel@perches.com> <1eac0dc6-93b0-2e01-075f-cf62c85318c5@prevas.dk>
+ <1519219410.10722.25.camel@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 21 Feb 2018 15:19:13 +0100
+Message-ID: <CAMuHMdX6HeqB6wUSUCT4L9S2G6YCB9-r6Q4B3dojEUv0iY+duw@mail.gmail.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Joe Perches <joe@perches.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+On Wed, Feb 21, 2018 at 2:23 PM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Wed, 2018-02-21 at 08:38 +0100, Rasmus Villemoes wrote:
+>> On 2018-02-21 00:55, Joe Perches wrote:
+>> > On Tue, 2018-02-20 at 23:43 +0200, Andy Shevchenko wrote:
+>> > > There are users which print time and date represented by content
+>> > > of
+>> > > struct rtc_time in human readable format.
+>> > >
+>> > > Instead of open coding that each time introduce %ptR[dt][rv]
+>> > > specifier.
+>> > >
+>> > > Note, users have to select PRINTK_PEXT_TIMEDATE option in a
+>> > > Kconfig.
+>> >
+>> > Not sure this is a great option.
+>> > Not just the name, the need to select it.
+>>
+>> Bikeshedding first: If you do keep the config option, please use
+>> PRINTF,
+>> not PRINTK - vsprintf can be and is used by lots of code other than
+>> printk.
+>
+> OK.
+>
+>> Well, on the one hand, I like to reduce the size of the kernel when
+>> possible and ideally make all new functionality guarded by config
+>> options, but OTOH, how much does compiling out the datetime formatters
+>> really save?
+>
+> https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
+>
+> I understand that half a year time allows us to increase kernel text
+> size by 750+ bytes unconditionally.
+>
+> I would really like to not use any option.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ab-b5ze-s3.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Agreed.
 
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index a319bf1e49de..e55f35fa0b58 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -217,7 +217,7 @@ static int _abb5zes3_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	u8 regs[ABB5ZES3_REG_RTC_SC + ABB5ZES3_RTC_SEC_LEN];
--	int ret;
-+	int ret = 0;
- 
- 	/*
- 	 * As we need to read CTRL1 register anyway to access 24/12h
-@@ -255,8 +255,6 @@ static int _abb5zes3_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_mon  = bcd2bin(regs[ABB5ZES3_REG_RTC_MO]) - 1; /* starts at 1 */
- 	tm->tm_year = bcd2bin(regs[ABB5ZES3_REG_RTC_YR]) + 100;
- 
--	ret = rtc_valid_tm(tm);
--
- err:
- 	return ret;
- }
--- 
-2.16.1
+FTR, growth of my atari_defconfig kernel between v4.7 and v4.15:
+
+add/remove: 351/155 grow/shrink: 691/429 up/down: 63095/-38665 (24430)
+add/remove: 394/156 grow/shrink: 595/709 up/down: 61173/-31092 (30081)
+add/remove: 1315/711 grow/shrink: 1269/442 up/down: 172871/-92075 (80796)
+add/remove: 525/266 grow/shrink: 914/510 up/down: 116115/-46240 (69875)
+add/remove: 443/222 grow/shrink: 906/456 up/down: 77807/-40657 (37150)
+add/remove: 536/296 grow/shrink: 1043/652 up/down: 97366/-65459 (31907)
+add/remove: 413/176 grow/shrink: 711/479 up/down: 75678/-41356 (34322)
+add/remove: 311/145 grow/shrink: 898/438 up/down: 51655/-26851 (24804)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
