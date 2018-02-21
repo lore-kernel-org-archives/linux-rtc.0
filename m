@@ -1,45 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37592 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47092 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933047AbeBLWsq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:46 -0500
+        with ESMTP id S1752139AbeBUU6D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:58:03 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 37/45] rtc: stk17ta8: make alarms useful
-Date: Mon, 12 Feb 2018 23:47:51 +0100
-Message-Id: <20180212224759.15999-38-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 096/100] rtc: rs5c372: remove useless indirection
+Date: Wed, 21 Feb 2018 21:56:31 +0100
+Message-Id: <20180221205635.31314-97-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Currently, the IRQs are disabled when the rtc driver is removed (e.g. when
-shutting down the platform).
-This means that the RTC will be unable to wakeup the platform.
+rs5c372_get_datetime and rs5c372_set_datetime are only used after casting
+dev to an i2c_client. Remove that useless indirection.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-stk17ta8.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/rtc/rtc-rs5c372.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
-index a456cb6177ea..39a80491e567 100644
---- a/drivers/rtc/rtc-stk17ta8.c
-+++ b/drivers/rtc/rtc-stk17ta8.c
-@@ -340,11 +340,8 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index ae7fa4324b0a..c5038329058c 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -207,8 +207,9 @@ static unsigned rs5c_hr2reg(struct rs5c372 *rs5c, unsigned hour)
+ 	return bin2bcd(hour);
+ }
  
- static int stk17ta8_rtc_remove(struct platform_device *pdev)
+-static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
--	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
--
- 	sysfs_remove_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
--	if (pdata->irq > 0)
--		writeb(0, pdata->ioaddr + RTC_INTERRUPTS);
-+
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
+ 	int		status = rs5c_get_regs(rs5c);
+ 
+@@ -237,8 +238,9 @@ static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
  	return 0;
  }
  
+-static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
+ 	unsigned char	buf[7];
+ 	int		addr;
+@@ -304,17 +306,6 @@ static int rs5c372_get_trim(struct i2c_client *client, int *osc, int *trim)
+ }
+ #endif
+ 
+-static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return rs5c372_get_datetime(to_i2c_client(dev), tm);
+-}
+-
+-static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return rs5c372_set_datetime(to_i2c_client(dev), tm);
+-}
+-
+-
+ static int rs5c_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct i2c_client	*client = to_i2c_client(dev);
 -- 
 2.16.1
