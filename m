@@ -1,60 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37532 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47053 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932687AbeBLWs0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:26 -0500
+        with ESMTP id S1751897AbeBUU5p (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:45 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 08/45] rtc: ds1307: call rtc_nvmem_register()
-Date: Mon, 12 Feb 2018 23:47:22 +0100
-Message-Id: <20180212224759.15999-9-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 071/100] rtc: tps6586x: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:06 +0100
+Message-Id: <20180221205635.31314-72-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Call rtc_nvmem_register instead of letting the core do it and stop using
-the nvmem_config member of struct rtc_device.
+rtc_time_to_tm never generates an invalid tm. It is not necessary to
+validate it. Also, the RTC core is always calling rtc_valid_tm after the
+read_time callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1307.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-tps6586x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 923dde912f60..c146411a2099 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1696,6 +1696,11 @@ static int ds1307_probe(struct i2c_client *client,
- 		}
- 	}
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index a3418a8a3796..d7785ae0a2b4 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -90,7 +90,7 @@ static int tps6586x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	seconds = ticks >> 10;
+ 	seconds += rtc->epoch_start;
+ 	rtc_time_to_tm(seconds, tm);
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
  
-+	ds1307->rtc->ops = chip->rtc_ops ?: &ds13xx_rtc_ops;
-+	err = rtc_register_device(ds1307->rtc);
-+	if (err)
-+		return err;
-+
- 	if (chip->nvram_size) {
- 		ds1307->nvmem_cfg.name = "ds1307_nvram";
- 		ds1307->nvmem_cfg.word_size = 1;
-@@ -1705,15 +1710,10 @@ static int ds1307_probe(struct i2c_client *client,
- 		ds1307->nvmem_cfg.reg_write = ds1307_nvram_write;
- 		ds1307->nvmem_cfg.priv = ds1307;
- 
--		ds1307->rtc->nvmem_config = &ds1307->nvmem_cfg;
- 		ds1307->rtc->nvram_old_abi = true;
-+		rtc_nvmem_register(ds1307->rtc, &ds1307->nvmem_cfg);
- 	}
- 
--	ds1307->rtc->ops = chip->rtc_ops ?: &ds13xx_rtc_ops;
--	err = rtc_register_device(ds1307->rtc);
--	if (err)
--		return err;
--
- 	ds1307_hwmon_register(ds1307);
- 	ds1307_clks_register(ds1307);
- 
+ static int tps6586x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
