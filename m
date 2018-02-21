@@ -1,15 +1,15 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47010 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47014 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751747AbeBUU5h (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:37 -0500
+        with ESMTP id S1751733AbeBUU5g (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:36 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 053/100] rtc: pcf2127: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:48 +0100
-Message-Id: <20180221205635.31314-54-alexandre.belloni@bootlin.com>
+Subject: [PATCH 046/100] rtc: mrst: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:41 +0100
+Message-Id: <20180221205635.31314-47-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
@@ -20,21 +20,21 @@ It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 2 +-
+ drivers/rtc/rtc-mrst.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index f33447c5db85..e83be1852c2f 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -111,7 +111,7 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
- 
--	return rtc_valid_tm(tm);
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index 7334c44fa7c3..901a8d170f68 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -105,7 +105,7 @@ static int mrst_read_time(struct device *dev, struct rtc_time *time)
+ 	/* Adjust for the 1972/1900 */
+ 	time->tm_year += 72;
+ 	time->tm_mon--;
+-	return rtc_valid_tm(time);
 +	return 0;
  }
  
- static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int mrst_set_time(struct device *dev, struct rtc_time *time)
 -- 
 2.16.1
