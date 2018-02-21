@@ -1,40 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37597 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46973 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933076AbeBLWss (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:48 -0500
+        with ESMTP id S1751598AbeBUU5Z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:25 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 42/45] rtc: tx4939: extend test coverage
-Date: Mon, 12 Feb 2018 23:47:56 +0100
-Message-Id: <20180212224759.15999-43-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 037/100] rtc: m48t59: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:32 +0100
+Message-Id: <20180221205635.31314-38-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The rtc-tx4939 driver now compiles correctly on other architectures, add
-COMPILE_TEST to improve code coverage.
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/Kconfig | 2 +-
+ drivers/rtc/rtc-m48t59.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8ab5f0a5d323..f6d7e490e714 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1512,7 +1512,7 @@ config RTC_DRV_STARFIRE
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index c6af83505448..52c7e35a5860 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -105,7 +105,7 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	dev_dbg(dev, "RTC read time %04d-%02d-%02d %02d/%02d/%02d\n",
+ 		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
+ 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
  
- config RTC_DRV_TX4939
- 	tristate "TX4939 SoC"
--	depends on SOC_TX4939
-+	depends on SOC_TX4939 || COMPILE_TEST
- 	help
- 	  Driver for the internal RTC (Realtime Clock) module found on
- 	  Toshiba TX4939 SoC.
+ static int m48t59_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
