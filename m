@@ -1,146 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58882 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751699AbeBYUOi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 25 Feb 2018 15:14:38 -0500
+Received: from mail.free-electrons.com ([62.4.15.54]:46975 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751573AbeBUU5Y (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:24 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: m41t80: fix race conditions
-Date: Sun, 25 Feb 2018 21:14:31 +0100
-Message-Id: <20180225201431.9775-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 028/100] rtc: ds3232: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:23 +0100
+Message-Id: <20180221205635.31314-29-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler, leading to:
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000017c
-pgd = a38a2f9b
-[0000017c] *pgd=00000000
-Internal error: Oops: 5 [#1] ARM
-Modules linked in:
-CPU: 0 PID: 613 Comm: irq/48-m41t80 Not tainted 4.16.0-rc1+ #42
-Hardware name: Atmel SAMA5
-PC is at mutex_lock+0x14/0x38
-LR is at m41t80_handle_irq+0x1c/0x9c
-pc : [<c06e864c>]    lr : [<c04b70f0>]    psr: 20000013
-sp : dec73f30  ip : 00000000  fp : dec56d98
-r10: df437cf0  r9 : c0a03008  r8 : c0145ffc
-r7 : df5c4300  r6 : dec568d0  r5 : df593000  r4 : 0000017c
-r3 : df592800  r2 : 60000013  r1 : df593000  r0 : 0000017c
-Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c53c7d  Table: 20004059  DAC: 00000051
-Process irq/48-m41t80 (pid: 613, stack limit = 0xb52d091e)
-Stack: (0xdec73f30 to 0xdec74000)
-3f20:                                     dec56840 df5c4300 00000001 df5c4300
-3f40: c0145ffc c0146018 dec56840 ffffe000 00000001 c0146290 dec567c0 00000000
-3f60: c0146084 ed7c9a62 c014615c dec56d80 dec567c0 00000000 dec72000 dec56840
-3f80: c014615c c012ffc0 dec72000 dec567c0 c012fe80 00000000 00000000 00000000
-3fa0: 00000000 00000000 00000000 c01010e8 00000000 00000000 00000000 00000000
-3fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-3fe0: 00000000 00000000 00000000 00000000 00000013 00000000 29282726 2d2c2b2a
-[<c06e864c>] (mutex_lock) from [<c04b70f0>] (m41t80_handle_irq+0x1c/0x9c)
-[<c04b70f0>] (m41t80_handle_irq) from [<c0146018>] (irq_thread_fn+0x1c/0x54)
-[<c0146018>] (irq_thread_fn) from [<c0146290>] (irq_thread+0x134/0x1c0)
-[<c0146290>] (irq_thread) from [<c012ffc0>] (kthread+0x140/0x148)
-[<c012ffc0>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-Exception stack(0xdec73fb0 to 0xdec73ff8)
-3fa0:                                     00000000 00000000 00000000 00000000
-3fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-3fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-Code: e3c33d7f e3c3303f f5d0f000 e593300c (e1901f9f)
----[ end trace 22b027302eb7c604 ]---
-genirq: exiting task "irq/48-m41t80" (613) is an active IRQ thread (irq 48)
-
-Also, there is another possible race condition. The probe function is not
-allowed to fail after the RTC is registered because the following may
-happen:
-
-CPU0:                                CPU1:
-sys_load_module()
- do_init_module()
-  do_one_initcall()
-   cmos_do_probe()
-    rtc_device_register()
-     __register_chrdev()
-     cdev->owner = struct module*
-                                     open("/dev/rtc0")
-    rtc_device_unregister()
-  module_put()
-  free_module()
-   module_free(mod->module_core)
-   /* struct module *module is now
-      freed */
-                                      chrdev_open()
-                                       spin_lock(cdev_lock)
-                                       cdev_get()
-                                        try_module_get()
-                                         module_is_live()
-                                         /* dereferences already
-                                            freed struct module* */
-
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ and register the it as late as possible.
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-m41t80.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-ds3232.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index b3e33320c0bf..f77320948fc4 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -885,7 +885,6 @@ static int m41t80_probe(struct i2c_client *client,
- {
- 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
- 	int rc = 0;
--	struct rtc_device *rtc = NULL;
- 	struct rtc_time tm;
- 	struct m41t80_data *m41t80_data = NULL;
- 	bool wakeup_source = false;
-@@ -909,6 +908,10 @@ static int m41t80_probe(struct i2c_client *client,
- 		m41t80_data->features = id->driver_data;
- 	i2c_set_clientdata(client, m41t80_data);
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 0550f7ba464f..7184e5145f12 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -145,7 +145,7 @@ static int ds3232_read_time(struct device *dev, struct rtc_time *time)
  
-+	m41t80_data->rtc =  devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(m41t80_data->rtc))
-+		return PTR_ERR(m41t80_data->rtc);
-+
- #ifdef CONFIG_OF
- 	wakeup_source = of_property_read_bool(client->dev.of_node,
- 					      "wakeup-source");
-@@ -932,15 +935,11 @@ static int m41t80_probe(struct i2c_client *client,
- 		device_init_wakeup(&client->dev, true);
- 	}
+ 	time->tm_year = bcd2bin(year) + add_century;
  
--	rtc = devm_rtc_device_register(&client->dev, client->name,
--				       &m41t80_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	m41t80_data->rtc->ops = &m41t80_rtc_ops;
- 
--	m41t80_data->rtc = rtc;
- 	if (client->irq <= 0) {
- 		/* We cannot support UIE mode if we do not have an IRQ line */
--		rtc->uie_unsupported = 1;
-+		m41t80_data->rtc->uie_unsupported = 1;
- 	}
- 
- 	/* Make sure HT (Halt Update) bit is cleared */
-@@ -993,6 +992,11 @@ static int m41t80_probe(struct i2c_client *client,
- 	if (m41t80_data->features & M41T80_FEATURE_SQ)
- 		m41t80_sqw_register_clk(m41t80_data);
- #endif
-+
-+	rc = rtc_register_device(m41t80_data->rtc);
-+	if (rc)
-+		return rc;
-+
- 	return 0;
+-	return rtc_valid_tm(time);
++	return 0;
  }
  
+ static int ds3232_set_time(struct device *dev, struct rtc_time *time)
 -- 
-2.16.2
+2.16.1
