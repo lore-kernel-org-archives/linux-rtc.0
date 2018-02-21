@@ -1,42 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-sy3aus01on0124.outbound.protection.outlook.com ([104.47.117.124]:17248
-        "EHLO AUS01-SY3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751425AbeBUW3h (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 21 Feb 2018 17:29:37 -0500
-Date: Thu, 22 Feb 2018 11:29:24 +1300
-From: Michael McCormick <michael.mccormick@enatel.net>
-To: <a.zummo@towertech.it>
-CC: <alexandre.belloni@free-electrons.com>,
-        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <michael.mccormick@enatel.net>
-Subject: [PATCH] pcf85063 was not clearing bits correctly in
- pcf85063_start_clock
-Message-ID: <20180221222924.GA11756@michael-virtual-machine>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Received: from mail.free-electrons.com ([62.4.15.54]:47052 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751896AbeBUU5p (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:45 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 069/100] rtc: sun6i: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:04 +0100
+Message-Id: <20180221205635.31314-70-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Bit clear operation was missing ~
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-Signed-off-by: Michael McCormick <michael.mccormick@enatel.net>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 2 +-
+ drivers/rtc/rtc-sun6i.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index a06dff9..67bc763 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -70,7 +70,7 @@ static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
- 	s32 ret;
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 5bc28eed1adf..2e6fb275acc8 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -349,7 +349,7 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+ 	 */
+ 	rtc_tm->tm_year += SUN6I_YEAR_OFF;
  
- 	/* start the clock */
--	ctrl1 &= PCF85063_REG_CTRL1_STOP;
-+	ctrl1 &= ~PCF85063_REG_CTRL1_STOP;
+-	return rtc_valid_tm(rtc_tm);
++	return 0;
+ }
  
- 	ret = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
- 	if (ret < 0) {
+ static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
 -- 
-2.7.4
+2.16.1
