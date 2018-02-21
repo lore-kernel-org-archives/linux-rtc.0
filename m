@@ -1,81 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pl0-f65.google.com ([209.85.160.65]:36281 "EHLO
-        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751022AbeBZShb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:37:31 -0500
-Received: by mail-pl0-f65.google.com with SMTP id v3so9774125plg.3
-        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:37:31 -0800 (PST)
-Date: Mon, 26 Feb 2018 10:37:28 -0800
-From: Brian Norris <briannorris@chromium.org>
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
-        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
- in the past
-Message-ID: <20180226183727.GC225858@rodete-desktop-imager.corp.google.com>
-References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:47059 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751711AbeBUU5x (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:53 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 078/100] rtc: m41t80: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:13 +0100
+Message-Id: <20180221205635.31314-79-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-One last note:
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
-> We have a check in __rtc_set_alarm() to return -ETIME when the alarm
-> is in the past.
-> 
-> Since accessing a Chrome OS EC based rtc is a slow operation, we should
-> do that check again inside of the EC rtc driver's .set_alarm() callback.
-> 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
-> 
->  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-> index f0ea6899c731..ee0062e2d222 100644
-> --- a/drivers/rtc/rtc-cros-ec.c
-> +++ b/drivers/rtc/rtc-cros-ec.c
-> @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	if (alarm_time < 0 || alarm_time > U32_MAX)
->  		return -EINVAL;
->  
-> +	/* Don't set an alarm in the past. */
-> +	if ((u32)alarm_time <= current_time)
-> +		return -ETIME;
-> +
->  	if (!alrm->enabled) {
->  		/*
->  		 * If the alarm is being disabled, send an alarm
-> @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		alarm_offset = EC_RTC_ALARM_CLEAR;
->  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
->  	} else {
-> -		/* Don't set an alarm in the past. */
-> -		if ((u32)alarm_time < current_time)
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-m41t80.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-It's probably worth noting in the commit message that you're also fixing
-the case where 'alarm_time == current_time'; in the current driver
-source, it *looks* like you're setting a 0-second alarm. But in fact, 0
-means EC_RTC_ALARM_CLEAR, which would disable the alarm. So you are
-(correctly) returning -ETIME in that case.
-
-Brian
-
-> -			alarm_offset = EC_RTC_ALARM_CLEAR;
-> -		else
-> -			alarm_offset = (u32)alarm_time - current_time;
-> +		alarm_offset = (u32)alarm_time - current_time;
->  	}
->  
->  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
-> -- 
-> 2.11.0
-> 
-> 
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index c90fba3ed861..1103cdc33bfa 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -230,7 +230,7 @@ static int m41t80_get_datetime(struct i2c_client *client,
+ 
+ 	/* assume 20YY not 19YY, and ignore the Century Bit */
+ 	tm->tm_year = bcd2bin(buf[M41T80_REG_YEAR]) + 100;
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
+ 
+ /* Sets the given date and time to the real time clock. */
+-- 
+2.16.1
