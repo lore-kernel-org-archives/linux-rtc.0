@@ -1,70 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47094 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46894 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752167AbeBUU6F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:58:05 -0500
+        with ESMTP id S1751180AbeBUU5D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:03 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 100/100] rtc: pcf85063: remove useless indirection
-Date: Wed, 21 Feb 2018 21:56:35 +0100
-Message-Id: <20180221205635.31314-101-alexandre.belloni@bootlin.com>
+Subject: [PATCH 002/100] rtc: ds1553: let the core handle invalid time
+Date: Wed, 21 Feb 2018 21:54:57 +0100
+Message-Id: <20180221205635.31314-3-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-pcf85063_get_datetime and pcf85063_set_datetime are only used after casting
-dev to an i2c_client. Remove that useless indirection.
+Returning a valid time when the time is invalid is a bad practice, because
+then userspace is not able to react on the information. Also, it doesn't
+make sense to return epoch because it is already the default time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-ds1553.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 6ad4511d7ee1..3558433e8787 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -81,8 +81,9 @@ static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
+diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
+index 7334c824371a..2441b9a2b366 100644
+--- a/drivers/rtc/rtc-ds1553.c
++++ b/drivers/rtc/rtc-ds1553.c
+@@ -127,10 +127,6 @@ static int ds1553_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	/* year is 1900 + tm->tm_year */
+ 	tm->tm_year = bcd2bin(year) + bcd2bin(century) * 100 - 1900;
+ 
+-	if (rtc_valid_tm(tm) < 0) {
+-		dev_err(dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, tm);
+-	}
  	return 0;
  }
  
--static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	int rc;
- 	u8 regs[7];
- 
-@@ -117,8 +118,9 @@ static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
-+	struct i2c_client *client = to_i2c_client(dev);
- 	int rc;
- 	u8 regs[7];
- 	u8 ctrl1;
-@@ -172,16 +174,6 @@ static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
--{
--	return pcf85063_get_datetime(to_i2c_client(dev), tm);
--}
--
--static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
--{
--	return pcf85063_set_datetime(to_i2c_client(dev), tm);
--}
--
- static const struct rtc_class_ops pcf85063_rtc_ops = {
- 	.read_time	= pcf85063_rtc_read_time,
- 	.set_time	= pcf85063_rtc_set_time
 -- 
 2.16.1
