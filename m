@@ -1,91 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34157 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933199AbeBMCep (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 21:34:45 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180212210723.20919-1-embed3d@gmail.com>
-References: <20180212210723.20919-1-embed3d@gmail.com>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Tue, 13 Feb 2018 10:34:22 +0800
-Message-ID: <CAGb2v64L_xsU4US-Pi3cNPyfeADfhpXfPo=OcZ_x9F=5GehjCQ@mail.gmail.com>
-Subject: Re: [PATCH] rtc: ac100: Fix ac100 determine rate bug
-To: Philipp Rossak <embed3d@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mga03.intel.com ([134.134.136.65]:24927 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754225AbeBUNXk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 21 Feb 2018 08:23:40 -0500
+Message-ID: <1519219410.10722.25.camel@linux.intel.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Joe Perches <joe@perches.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        linux-rtc@vger.kernel.org
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Salyzyn <salyzyn@android.com>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Date: Wed, 21 Feb 2018 15:23:30 +0200
+In-Reply-To: <1eac0dc6-93b0-2e01-075f-cf62c85318c5@prevas.dk>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+         <1519170907.4326.17.camel@perches.com>
+         <1eac0dc6-93b0-2e01-075f-cf62c85318c5@prevas.dk>
 Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Feb 13, 2018 at 5:07 AM, Philipp Rossak <embed3d@gmail.com> wrote:
-> This patch fixes a bug, that prevents the Allwinner A83T and the A80
-> from a successful boot. You can find the shortend trace below:
->
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000000
-> pgd = (ptrval)
-> [00000000] *pgd=00000000
-> Internal error: Oops: 5 [#1] SMP ARM
-> Modules linked in:
-> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
-> Hardware name: Allwinner sun8i Family
-> Workqueue: events deferred_probe_work_func
-> PC is at clk_hw_get_rate+0x0/0x34
-> LR is at ac100_clkout_determine_rate+0x48/0x19c
->
-> [ ... ]
->
-> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
-> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
-> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
-> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
-> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
->
-> To fix that bug, we first check if the return of the
-> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
-> clock parent.
->
-> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
->
+On Wed, 2018-02-21 at 08:38 +0100, Rasmus Villemoes wrote:
+> On 2018-02-21 00:55, Joe Perches wrote:
+> > On Tue, 2018-02-20 at 23:43 +0200, Andy Shevchenko wrote:
+> > > There are users which print time and date represented by content
+> > > of
+> > > struct rtc_time in human readable format.
+> > > 
+> > > Instead of open coding that each time introduce %ptR[dt][rv]
+> > > specifier.
+> > > 
+> > > Note, users have to select PRINTK_PEXT_TIMEDATE option in a
+> > > Kconfig.
+> > 
+> > Not sure this is a great option.
+> > Not just the name, the need to select it.
+> 
+> Bikeshedding first: If you do keep the config option, please use
+> PRINTF,
+> not PRINTK - vsprintf can be and is used by lots of code other than
+> printk.
 
-Please add the tag:
+OK.
 
-Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
+> Well, on the one hand, I like to reduce the size of the kernel when
+> possible and ideally make all new functionality guarded by config
+> options, but OTOH, how much does compiling out the datetime formatters
+> really save?
 
-> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
-> ---
->  drivers/rtc/rtc-ac100.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
-> index 8ff9dc3fe5bf..820ce6fb9d34 100644
-> --- a/drivers/rtc/rtc-ac100.c
-> +++ b/drivers/rtc/rtc-ac100.c
-> @@ -183,7 +183,12 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
->
->         for (i = 0; i < num_parents; i++) {
->                 struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
-> -               unsigned long tmp, prate = clk_hw_get_rate(parent);
-> +               unsigned long tmp, prate;
-> +
-> +               if (!parent)
-> +                       continue;
+https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
 
-There should be a comment on why this is happening, i.e. we purposefully
-left open the possibility of the clock from the codec side missing.
-Otherwise I think the clk subsystem doesn't expect this to happen,
-which is why there are no checks like this anywhere.
+I understand that half a year time allows us to increase kernel text
+size by 750+ bytes unconditionally.
 
-ChenYu
+I would really like to not use any option.
 
-> +
-> +               prate = clk_hw_get_rate(parent);
->
->                 tmp = ac100_clkout_round_rate(hw, req->rate, prate);
->
-> --
-> 2.11.0
->
+>  Also, I agree with Joe's concern about the need to select
+> it.
+
+So, what exactly you are proposing?
+
+>  Maybe if we had a gcc plugin that did %pFOO validation it could also
+> warn about %pBAR being used without a corresponding config option
+> being
+> set. But we don't have that currently...
+
+We have not, so, it's out of scope. If it's a big impediment, then I'm
+not the guy who will do the job.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
