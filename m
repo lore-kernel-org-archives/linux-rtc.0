@@ -1,47 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37548 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47056 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932691AbeBLWs1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:27 -0500
+        with ESMTP id S1751901AbeBUU5q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:46 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 10/45] rtc: ds1511: call rtc_nvmem_register()
-Date: Mon, 12 Feb 2018 23:47:24 +0100
-Message-Id: <20180212224759.15999-11-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 075/100] rtc: zynqmp: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:10 +0100
+Message-Id: <20180221205635.31314-76-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Call rtc_nvmem_register instead of letting the core do it and stop using
-the nvmem_config member of struct rtc_device.
+rtc_time64_to_tm never generates an invalid tm. It is not necessary to
+validate it. Also, the RTC core is always calling rtc_valid_tm after the
+read_time callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1511.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-zynqmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
-index 1e95312a6f2e..b1e51a4c2908 100644
---- a/drivers/rtc/rtc-ds1511.c
-+++ b/drivers/rtc/rtc-ds1511.c
-@@ -479,13 +479,14 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
- 	pdata->rtc->ops = &ds1511_rtc_ops;
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index da18a8ae3c1d..fba994dc31eb 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -122,7 +122,7 @@ static int xlnx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		rtc_time64_to_tm(read_time, tm);
+ 	}
  
- 	ds1511_nvmem_cfg.priv = &pdev->dev;
--	pdata->rtc->nvmem_config = &ds1511_nvmem_cfg;
- 	pdata->rtc->nvram_old_abi = true;
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
  
- 	ret = rtc_register_device(pdata->rtc);
- 	if (ret)
- 		return ret;
- 
-+	rtc_nvmem_register(pdata->rtc, &ds1511_nvmem_cfg);
-+
- 	/*
- 	 * if the platform has an interrupt in mind for this device,
- 	 * then by all means, set it
+ static int xlnx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 -- 
 2.16.1
