@@ -1,41 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47047 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47021 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751893AbeBUU5o (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:44 -0500
+        with ESMTP id S1751718AbeBUU5n (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:43 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 066/100] rtc: sc27xx: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:56:01 +0100
-Message-Id: <20180221205635.31314-67-alexandre.belloni@bootlin.com>
+Subject: [PATCH 057/100] rtc: ps3: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:52 +0100
+Message-Id: <20180221205635.31314-58-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-rtc_time64_to_tm never generates an invalid tm. It is not necessary to
+rtc_time_to_tm never generates an invalid tm. It is not necessary to
 validate it. Also, the RTC core is always calling rtc_valid_tm after the
 read_time callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-sc27xx.c | 2 +-
+ drivers/rtc/rtc-ps3.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index d544d5268757..00d87d138984 100644
---- a/drivers/rtc/rtc-sc27xx.c
-+++ b/drivers/rtc/rtc-sc27xx.c
-@@ -376,7 +376,7 @@ static int sprd_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		return ret;
- 
- 	rtc_time64_to_tm(secs, tm);
+diff --git a/drivers/rtc/rtc-ps3.c b/drivers/rtc/rtc-ps3.c
+index 6a8f5d758eac..347288bff438 100644
+--- a/drivers/rtc/rtc-ps3.c
++++ b/drivers/rtc/rtc-ps3.c
+@@ -41,7 +41,7 @@ static u64 read_rtc(void)
+ static int ps3_get_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	rtc_time_to_tm(read_rtc() + ps3_os_area_get_rtc_diff(), tm);
 -	return rtc_valid_tm(tm);
 +	return 0;
  }
  
- static int sprd_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int ps3_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
