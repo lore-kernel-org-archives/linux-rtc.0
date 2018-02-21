@@ -1,73 +1,44 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47018 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46899 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751737AbeBUU5g (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:36 -0500
+        with ESMTP id S1751252AbeBUU5D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:03 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 050/100] rtc: nuc900: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:45 +0100
-Message-Id: <20180221205635.31314-51-alexandre.belloni@bootlin.com>
+Subject: [PATCH 004/100] rtc: rs5c348: let the core handle invalid time
+Date: Wed, 21 Feb 2018 21:54:59 +0100
+Message-Id: <20180221205635.31314-5-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it before returning from the callback.
+Returning a valid time when the time is invalid is a bad practice, because
+then userspace is not able to react on the information. Also, it doesn't
+make sense to return epoch because it is already the default time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-nuc900.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-rs5c348.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-nuc900.c b/drivers/rtc/rtc-nuc900.c
-index 4ed81117cf5f..7da664a77181 100644
---- a/drivers/rtc/rtc-nuc900.c
-+++ b/drivers/rtc/rtc-nuc900.c
-@@ -102,8 +102,8 @@ static int *check_rtc_access_enable(struct nuc900_rtc *nuc900_rtc)
- 	return NULL;
- }
+diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
+index 9a306983aaba..f2de8b17e7e3 100644
+--- a/drivers/rtc/rtc-rs5c348.c
++++ b/drivers/rtc/rtc-rs5c348.c
+@@ -135,11 +135,6 @@ rs5c348_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	tm->tm_year = bcd2bin(rxbuf[RS5C348_REG_YEAR]) +
+ 		((rxbuf[RS5C348_REG_MONTH] & RS5C348_BIT_Y2K) ? 100 : 0);
  
--static int nuc900_rtc_bcd2bin(unsigned int timereg,
--				unsigned int calreg, struct rtc_time *tm)
-+static void nuc900_rtc_bcd2bin(unsigned int timereg,
-+			       unsigned int calreg, struct rtc_time *tm)
- {
- 	tm->tm_mday	= bcd2bin(calreg >> 0);
- 	tm->tm_mon	= bcd2bin(calreg >> 8);
-@@ -112,8 +112,6 @@ static int nuc900_rtc_bcd2bin(unsigned int timereg,
- 	tm->tm_sec	= bcd2bin(timereg >> 0);
- 	tm->tm_min	= bcd2bin(timereg >> 8);
- 	tm->tm_hour	= bcd2bin(timereg >> 16);
+-	if (rtc_valid_tm(tm) < 0) {
+-		dev_err(&spi->dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, tm);
+-	}
 -
--	return rtc_valid_tm(tm);
+ 	return 0;
  }
  
- static void nuc900_rtc_bin2bcd(struct device *dev, struct rtc_time *settm,
-@@ -156,7 +154,9 @@ static int nuc900_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	timeval = __raw_readl(rtc->rtc_reg + REG_RTC_TLR);
- 	clrval	= __raw_readl(rtc->rtc_reg + REG_RTC_CLR);
- 
--	return nuc900_rtc_bcd2bin(timeval, clrval, tm);
-+	nuc900_rtc_bcd2bin(timeval, clrval, tm);
-+
-+	return 0;
- }
- 
- static int nuc900_rtc_set_time(struct device *dev, struct rtc_time *tm)
-@@ -189,7 +189,9 @@ static int nuc900_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	timeval = __raw_readl(rtc->rtc_reg + REG_RTC_TAR);
- 	carval	= __raw_readl(rtc->rtc_reg + REG_RTC_CAR);
- 
--	return nuc900_rtc_bcd2bin(timeval, carval, &alrm->time);
-+	nuc900_rtc_bcd2bin(timeval, carval, &alrm->time);
-+
-+	return rtc_valid_tm(&alrm->time);
- }
- 
- static int nuc900_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 -- 
 2.16.1
