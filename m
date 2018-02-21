@@ -1,71 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35627 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46956 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932696AbeBUOax (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 09:30:53 -0500
-Date: Wed, 21 Feb 2018 15:30:42 +0100
+        with ESMTP id S1751542AbeBUU5X (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:23 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [bug report] rtc: m48t59: use generic nvmem
-Message-ID: <20180221143042.GA31244@piout.net>
-References: <20180220090025.GA20051@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180220090025.GA20051@mwanda>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 022/100] rtc: ds1343: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:17 +0100
+Message-Id: <20180221205635.31314-23-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Dan,
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-Thanks for the report, I'm fixing up the patch (it uncovered another
-issue).
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1343.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 20/02/2018 at 12:00:25 +0300, Dan Carpenter wrote:
-> Hello Alexandre Belloni,
-> 
-> This is a semi-automatic email about new static checker warnings.
-> 
-> The patch ce0e0076da3e: "rtc: m48t59: use generic nvmem" from Feb 12, 
-> 2018, leads to the following Smatch complaint:
-> 
->     drivers/rtc/rtc-m48t59.c:409 m48t59_rtc_probe()
->     warn: variable dereferenced before check 'pdata' (see line 391)
-> 
-> drivers/rtc/rtc-m48t59.c
->    390			.stride = 1,
->    391			.size = pdata->offset,
->                                 ^^^^^^^^^^^^^
-> New dereference.
-> 
->    392			.reg_read = m48t59_nvram_read,
->    393			.reg_write = m48t59_nvram_write,
->    394			.priv = pdev,
->    395		};
->    396	
->    397		/* This chip could be memory-mapped or I/O-mapped */
->    398		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->    399		if (!res) {
->    400			res = platform_get_resource(pdev, IORESOURCE_IO, 0);
->    401			if (!res)
->    402				return -EINVAL;
->    403		}
->    404	
->    405		if (res->flags & IORESOURCE_IO) {
->    406			/* If we are I/O-mapped, the platform should provide
->    407			 * the operations accessing chip registers.
->    408			 */
->    409			if (!pdata || !pdata->write_byte || !pdata->read_byte)
->                              ^^^^^
-> The existing code assumed "pdata" could be NULL.
-> 
->    410				return -EINVAL;
->    411		} else if (res->flags & IORESOURCE_MEM) {
-> 
-> regards,
-> dan carpenter
-
+diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
+index 59d27db2fd37..5208da4cf94a 100644
+--- a/drivers/rtc/rtc-ds1343.c
++++ b/drivers/rtc/rtc-ds1343.c
+@@ -254,7 +254,7 @@ static int ds1343_read_time(struct device *dev, struct rtc_time *dt)
+ 	dt->tm_mon	= bcd2bin(buf[5] & 0x1F) - 1;
+ 	dt->tm_year	= bcd2bin(buf[6]) + 100; /* year offset from 1900 */
+ 
+-	return rtc_valid_tm(dt);
++	return 0;
+ }
+ 
+ static int ds1343_set_time(struct device *dev, struct rtc_time *dt)
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.16.1
