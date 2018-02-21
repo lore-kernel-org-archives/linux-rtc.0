@@ -1,55 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:46449 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752408AbeBEBXt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 4 Feb 2018 20:23:49 -0500
-From: Ulf Magnusson <ulfalizer@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org, tfiga@chromium.org,
-        paul.burton@mips.com, m.szyprowski@samsung.com,
-        egtvedt@samfundet.no, linus.walleij@linaro.org,
-        vgupta@synopsys.com, mgorman@techsingularity.net, hch@lst.de,
-        mina86@mina86.com, robh@kernel.org, sboyd@codeaurora.org,
-        paulus@ozlabs.org, will.deacon@arm.com, tony@atomide.com,
-        npiggin@gmail.com, yamada.masahiro@socionext.com,
-        Ulf Magnusson <ulfalizer@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH 05/20] rtc: at32ap700x: Remove PLATFORM_AT32AP dependency
-Date: Mon,  5 Feb 2018 02:21:17 +0100
-Message-Id: <20180205012146.23981-6-ulfalizer@gmail.com>
-In-Reply-To: <20180205012146.23981-1-ulfalizer@gmail.com>
-References: <20180205012146.23981-1-ulfalizer@gmail.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:46988 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751717AbeBUU5d (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:33 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 041/100] rtc: max8997: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:36 +0100
+Message-Id: <20180221205635.31314-42-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The PLATFORM_AT32AP symbol went away when AVR32 was removed in
-commit 26202873bb51 ("avr32: remove support for AVR32 architecture").
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-Remove the RTC_DRV_AT32AP700X dependency from RTC_DRV_AT32AP700X.
-
-Discovered with the
-https://github.com/ulfalizer/Kconfiglib/blob/master/examples/list_undefined.py
-script.
-
-Signed-off-by: Ulf Magnusson <ulfalizer@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/Kconfig | 2 +-
+ drivers/rtc/rtc-max8997.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b71cc7b5fbc9..1f5f3bd82ab6 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1404,7 +1404,7 @@ config RTC_DRV_PL031
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index db984d4bf952..e8cee123e8aa 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -153,7 +153,7 @@ static int max8997_rtc_read_time(struct device *dev, struct rtc_time *tm)
  
- config RTC_DRV_AT32AP700X
- 	tristate "AT32AP700X series RTC"
--	depends on PLATFORM_AT32AP || COMPILE_TEST
-+	depends on COMPILE_TEST
- 	help
- 	  Driver for the internal RTC (Realtime Clock) on Atmel AVR32
- 	  AT32AP700x family processors.
+ 	max8997_rtc_data_to_tm(data, tm, info->rtc_24hr_mode);
+ 
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
+ 
+ static int max8997_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
-2.14.1
+2.16.1
