@@ -1,16 +1,17 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:48058 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46968 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751119AbeBUVhm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 16:37:42 -0500
+        with ESMTP id S1751567AbeBUU5Y (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:24 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-m68k@lists.linux-m68k.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] m68k: time: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 22:37:24 +0100
-Message-Id: <20180221213724.810-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 023/100] rtc: ds1347: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:18 +0100
+Message-Id: <20180221205635.31314-24-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -19,21 +20,21 @@ It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- arch/m68k/kernel/time.c | 2 +-
+ drivers/rtc/rtc-ds1347.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
-index 87160b4415fb..97dd4e26f234 100644
---- a/arch/m68k/kernel/time.c
-+++ b/arch/m68k/kernel/time.c
-@@ -91,7 +91,7 @@ void read_persistent_clock(struct timespec *ts)
- static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
- {
- 	mach_hwclk(0, tm);
--	return rtc_valid_tm(tm);
+diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+index ccfc9d43eb1e..938512c676ee 100644
+--- a/drivers/rtc/rtc-ds1347.c
++++ b/drivers/rtc/rtc-ds1347.c
+@@ -66,7 +66,7 @@ static int ds1347_read_time(struct device *dev, struct rtc_time *dt)
+ 	dt->tm_wday = bcd2bin(buf[5]) - 1;
+ 	dt->tm_year = bcd2bin(buf[6]) + 100;
+ 
+-	return rtc_valid_tm(dt);
 +	return 0;
  }
  
- static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
+ static int ds1347_set_time(struct device *dev, struct rtc_time *dt)
 -- 
 2.16.1
