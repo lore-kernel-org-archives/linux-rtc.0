@@ -1,42 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:39313 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752542AbeBAQr2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Feb 2018 11:47:28 -0500
-From: Mathieu Malaterre <malat@debian.org>
-Cc: Mathieu Malaterre <malat@debian.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] driver/rtc: remove a warning during scripts/kernel-doc step
-Date: Thu,  1 Feb 2018 17:47:14 +0100
-Message-Id: <20180201164714.25709-1-malat@debian.org>
-To: unlisted-recipients:; (no To-header on input)
+Received: from mail.free-electrons.com ([62.4.15.54]:46942 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751302AbeBUU5O (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:14 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 015/100] rtc: da9055: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:10 +0100
+Message-Id: <20180221205635.31314-16-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-During compilation using W=1 one would get:
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-drivers/rtc/systohc.c:11: info: Scanning doc for rtc_set_ntp_time
-drivers/rtc/systohc.c:23: warning: bad line:  (
-
-Signed-off-by: Mathieu Malaterre <malat@debian.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/systohc.c | 2 +-
+ drivers/rtc/rtc-da9055.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/systohc.c b/drivers/rtc/systohc.c
-index 0c177647ea6c..718293d72426 100644
---- a/drivers/rtc/systohc.c
-+++ b/drivers/rtc/systohc.c
-@@ -20,7 +20,7 @@
-  * cases.
-  *
-  * -EPROTO is returned if now.tv_nsec is not close enough to *target_nsec.
-- (
-+ *
-  * If temporary failure is indicated the caller should try again 'soon'
-  */
- int rtc_set_ntp_time(struct timespec64 now, unsigned long *target_nsec)
+diff --git a/drivers/rtc/rtc-da9055.c b/drivers/rtc/rtc-da9055.c
+index 678af8648c45..e08cd8130c23 100644
+--- a/drivers/rtc/rtc-da9055.c
++++ b/drivers/rtc/rtc-da9055.c
+@@ -158,7 +158,7 @@ static int da9055_rtc_read_time(struct device *dev, struct rtc_time *rtc_tm)
+ 	rtc_tm->tm_min  = v[1] & DA9055_RTC_MIN;
+ 	rtc_tm->tm_sec  = v[0] & DA9055_RTC_SEC;
+ 
+-	return rtc_valid_tm(rtc_tm);
++	return 0;
+ }
+ 
+ static int da9055_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
-2.11.0
+2.16.1
