@@ -1,67 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:44941 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47041 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755112AbeBOIal (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 03:30:41 -0500
-Date: Thu, 15 Feb 2018 09:30:28 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH 1/4] rtc: isl1208: Fix unintended clear of SR bits
-Message-ID: <20180215083028.GH8219@piout.net>
-References: <20180123121801.4214-1-m.grzeschik@pengutronix.de>
- <20180123121801.4214-2-m.grzeschik@pengutronix.de>
- <20180214202610.GD8219@piout.net>
- <1518679666.5448.4.camel@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1518679666.5448.4.camel@diehl.com>
+        with ESMTP id S1751888AbeBUU5o (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:44 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 063/100] rtc: rx8025: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:58 +0100
+Message-Id: <20180221205635.31314-64-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 15/02/2018 at 07:27:47 +0000, Denis OSTERLAND wrote:
-> Am Mittwoch, den 14.02.2018, 21:26 +0100 schrieb Alexandre Belloni:
-> > On 23/01/2018 at 13:17:58 +0100, Michael Grzeschik wrote:
-> > > 
-> > > From: Denis Osterland <Denis.Osterland@diehl.com>
-> > > 
-> > > After successful
-> > > sr = isl1208_i2c_set_regs(client, 0, regs, ISL1208_RTC_SECTION_LEN);
-> > > sr will be 0.
-> > > As a result
-> > > sr = i2c_smbus_write_byte_data(client, ISL1208_REG_SR,
-> > > 			sr & ~ISL1208_REG_SR_WRTC);
-> > > is equal to
-> > > sr = i2c_smbus_write_byte_data(client, ISL1208_REG_SR, 0);
-> > > which clears all flags in SR.
-> > > 
-> > > Add an additional read of SR, to have value of SR in sr again.
-> > > 
-> > > Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> > > Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> > > ---
-> > >  drivers/rtc/rtc-isl1208.c | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > > 
-> > Applied, thanks.
-> > 
-> You are welcome.
-> 
-> One question, shall we avoid resent this patch in v2 of this series?
-> I ask because we are pretty far with the suggested changes.
-> 
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
-No need to resend. If necessary, you can base v2 on top of rtc-next.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-rx8025.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 91857d8d2df8..41127adf5765 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -214,7 +214,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
+ 		dt->tm_sec, dt->tm_min, dt->tm_hour,
+ 		dt->tm_mday, dt->tm_mon, dt->tm_year);
+ 
+-	return rtc_valid_tm(dt);
++	return 0;
+ }
+ 
+ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+2.16.1
