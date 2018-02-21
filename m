@@ -1,40 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46993 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:46903 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751721AbeBUU5d (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:33 -0500
+        with ESMTP id S1751302AbeBUU5E (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:04 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 042/100] rtc: max8998: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:37 +0100
-Message-Id: <20180221205635.31314-43-alexandre.belloni@bootlin.com>
+Subject: [PATCH 005/100] rtc: stk17ta8: let the core handle invalid time
+Date: Wed, 21 Feb 2018 21:55:00 +0100
+Message-Id: <20180221205635.31314-6-alexandre.belloni@bootlin.com>
 In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Returning a valid time when the time is invalid is a bad practice, because
+then userspace is not able to react on the information. Also, it doesn't
+make sense to return epoch because it is already the default time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-max8998.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-stk17ta8.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-max8998.c b/drivers/rtc/rtc-max8998.c
-index 30804b00985e..d8c0f9b3f87d 100644
---- a/drivers/rtc/rtc-max8998.c
-+++ b/drivers/rtc/rtc-max8998.c
-@@ -120,7 +120,7 @@ static int max8998_rtc_read_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
+index b670e44306a8..c66ec6ae233c 100644
+--- a/drivers/rtc/rtc-stk17ta8.c
++++ b/drivers/rtc/rtc-stk17ta8.c
+@@ -129,10 +129,6 @@ static int stk17ta8_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	/* year is 1900 + tm->tm_year */
+ 	tm->tm_year = bcd2bin(year) + bcd2bin(century) * 100 - 1900;
  
- 	max8998_data_to_tm(data, tm);
- 
--	return rtc_valid_tm(tm);
-+	return 0;
+-	if (rtc_valid_tm(tm) < 0) {
+-		dev_err(dev, "retrieved date/time is not valid.\n");
+-		rtc_time_to_tm(0, tm);
+-	}
+ 	return 0;
  }
  
- static int max8998_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
