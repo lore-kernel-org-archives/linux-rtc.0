@@ -1,65 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7634 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751401AbeBTVoN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:13 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-pm@vger.kernel.org
-Subject: [PATCH v2 21/21] PM: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:44:00 +0200
-Message-Id: <20180220214400.66749-22-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:47047 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751893AbeBUU5o (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:44 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 066/100] rtc: sc27xx: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:56:01 +0100
+Message-Id: <20180221205635.31314-67-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+rtc_time64_to_tm never generates an invalid tm. It is not necessary to
+validate it. Also, the RTC core is always calling rtc_valid_tm after the
+read_time callback.
 
-Cc: linux-pm@vger.kernel.org
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/base/power/trace.c | 4 +---
- kernel/power/Kconfig       | 1 +
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-sc27xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
-index 1cda505d6a85..b11f47a1e819 100644
---- a/drivers/base/power/trace.c
-+++ b/drivers/base/power/trace.c
-@@ -118,9 +118,7 @@ static unsigned int read_magic_time(void)
- 	unsigned int val;
+diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
+index d544d5268757..00d87d138984 100644
+--- a/drivers/rtc/rtc-sc27xx.c
++++ b/drivers/rtc/rtc-sc27xx.c
+@@ -376,7 +376,7 @@ static int sprd_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		return ret;
  
- 	mc146818_get_time(&time);
--	pr_info("RTC time: %2d:%02d:%02d, date: %02d/%02d/%02d\n",
--		time.tm_hour, time.tm_min, time.tm_sec,
--		time.tm_mon + 1, time.tm_mday, time.tm_year % 100);
-+	pr_info("RTC time: %ptRt, date: %ptRd\n", &time, &time);
- 	val = time.tm_year;				/* 100 years */
- 	if (val > 100)
- 		val -= 100;
-diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
-index e880ca22c5a5..f73cecd3b75f 100644
---- a/kernel/power/Kconfig
-+++ b/kernel/power/Kconfig
-@@ -220,6 +220,7 @@ config PM_TRACE_RTC
- 	depends on PM_SLEEP_DEBUG
- 	depends on X86
- 	select PM_TRACE
-+	select PRINTK_PEXT_TIMEDATE
- 	---help---
- 	This enables some cheesy code to save the last PM event point in the
- 	RTC across reboots, so that you can debug a machine that just hangs
+ 	rtc_time64_to_tm(secs, tm);
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
+ 
+ static int sprd_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
-2.15.1
+2.16.1
