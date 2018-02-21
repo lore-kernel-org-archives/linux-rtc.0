@@ -1,87 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:37643 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932153AbeB1PRD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Feb 2018 10:17:03 -0500
-Date: Wed, 28 Feb 2018 16:17:01 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: David Daney <david.daney@cavium.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v6] rtc: isl12026: Add driver.
-Message-ID: <20180228151701.GM1479@piout.net>
-References: <20180222200432.22003-1-david.daney@cavium.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:35627 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932696AbeBUOax (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 09:30:53 -0500
+Date: Wed, 21 Feb 2018 15:30:42 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: [bug report] rtc: m48t59: use generic nvmem
+Message-ID: <20180221143042.GA31244@piout.net>
+References: <20180220090025.GA20051@mwanda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180222200432.22003-1-david.daney@cavium.com>
+In-Reply-To: <20180220090025.GA20051@mwanda>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Hi Dan,
 
-That's mostly good
+Thanks for the report, I'm fixing up the patch (it uncovered another
+issue).
 
-On 22/02/2018 at 12:04:32 -0800, David Daney wrote:
-> +	priv->rtc->ops = &isl12026_rtc_ops;
-> +	priv->rtc->nvram_old_abi = false;
-
-This allocation is not necessary and I would refer not having t so when
-the ABI goes away, it is not necessary to change this driver.
-
-> +	ret = rtc_register_device(priv->rtc);
-> +	if (ret)
-> +		return ret;
-> +
-> +	memset(&nvm_cfg, 0, sizeof(nvm_cfg));
-> +	nvm_cfg.name = "eeprom";
-
-You probably need something more descriptive, usually the rtc model name
-else, it is difficult (but not impossible) to find where this nvmem is
-actually located when using /sys/bus/nvmem/devices
-isl12026- would be a good choice.
-
-> +	nvm_cfg.read_only = false;
-> +	nvm_cfg.root_only = true;
-
-any reason to have it root only?
-
-> +	nvm_cfg.base_dev = &client->dev;
-> +	nvm_cfg.priv = priv;
-> +	nvm_cfg.stride = 1;
-> +	nvm_cfg.word_size = 1;
-> +	nvm_cfg.size = 512;
-> +	nvm_cfg.reg_read = isl12026_nvm_read;
-> +	nvm_cfg.reg_write = isl12026_nvm_write;
-> +
-> +	return rtc_nvmem_register(priv->rtc, &nvm_cfg);
-
-The probe function must not fail after rtc_register_device has been
-called so you must return 0 here.
-
-It is not currently possible to call rtc_nvmem_register before
-rtc_register_device unless we move the nvmem to the parent device:
-
-diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
-index 3a02357eb783..17ec4c8d0fad 100644
---- a/drivers/rtc/nvmem.c
-+++ b/drivers/rtc/nvmem.c
-@@ -91,7 +91,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,
-        if (!nvmem_config)
-                return -ENODEV;
- 
--       nvmem_config->dev = &rtc->dev;
-+       nvmem_config->dev = rtc->dev.parent;
-        nvmem_config->owner = rtc->owner;
-        rtc->nvmem = nvmem_register(nvmem_config);
-        if (IS_ERR_OR_NULL(rtc->nvmem))
-
-I'll submit this patch for this cycle before there are many users of the
-interface (converted drivers are still exposing the old ABI).
-
-If you prefer, you can depend on it.
+On 20/02/2018 at 12:00:25 +0300, Dan Carpenter wrote:
+> Hello Alexandre Belloni,
+> 
+> This is a semi-automatic email about new static checker warnings.
+> 
+> The patch ce0e0076da3e: "rtc: m48t59: use generic nvmem" from Feb 12, 
+> 2018, leads to the following Smatch complaint:
+> 
+>     drivers/rtc/rtc-m48t59.c:409 m48t59_rtc_probe()
+>     warn: variable dereferenced before check 'pdata' (see line 391)
+> 
+> drivers/rtc/rtc-m48t59.c
+>    390			.stride = 1,
+>    391			.size = pdata->offset,
+>                                 ^^^^^^^^^^^^^
+> New dereference.
+> 
+>    392			.reg_read = m48t59_nvram_read,
+>    393			.reg_write = m48t59_nvram_write,
+>    394			.priv = pdev,
+>    395		};
+>    396	
+>    397		/* This chip could be memory-mapped or I/O-mapped */
+>    398		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>    399		if (!res) {
+>    400			res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+>    401			if (!res)
+>    402				return -EINVAL;
+>    403		}
+>    404	
+>    405		if (res->flags & IORESOURCE_IO) {
+>    406			/* If we are I/O-mapped, the platform should provide
+>    407			 * the operations accessing chip registers.
+>    408			 */
+>    409			if (!pdata || !pdata->write_byte || !pdata->read_byte)
+>                              ^^^^^
+> The existing code assumed "pdata" could be NULL.
+> 
+>    410				return -EINVAL;
+>    411		} else if (res->flags & IORESOURCE_MEM) {
+> 
+> regards,
+> dan carpenter
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
