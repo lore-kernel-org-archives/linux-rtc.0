@@ -1,17 +1,18 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47052 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:48233 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751896AbeBUU5p (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:45 -0500
+        with ESMTP id S1750716AbeBUVqg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 16:46:36 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 069/100] rtc: sun6i: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:56:04 +0100
-Message-Id: <20180221205635.31314-70-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH] powerpc/time: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 22:46:33 +0100
+Message-Id: <20180221214633.2012-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -20,21 +21,21 @@ It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-sun6i.c | 2 +-
+ arch/powerpc/kernel/time.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 5bc28eed1adf..2e6fb275acc8 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -349,7 +349,7 @@ static int sun6i_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 	 */
- 	rtc_tm->tm_year += SUN6I_YEAR_OFF;
- 
--	return rtc_valid_tm(rtc_tm);
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index a32823dcd9a4..f7d96a68ecaa 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -1234,7 +1234,7 @@ void calibrate_delay(void)
+ static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	ppc_md.get_rtc_time(tm);
+-	return rtc_valid_tm(tm);
 +	return 0;
  }
  
- static int sun6i_rtc_getalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
