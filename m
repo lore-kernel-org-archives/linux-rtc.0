@@ -1,76 +1,648 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41409 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966364AbeBNBp2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 20:45:28 -0500
-Date: Wed, 14 Feb 2018 02:45:16 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Peter Milley <pbmilley@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [BUG]: Error accessing realtime clock
-Message-ID: <20180214014516.GB3354@piout.net>
-References: <1516839170.2319.35.camel@gmail.com>
- <1518537392.3719.1.camel@gmail.com>
- <20180213202532.GA30929@piout.net>
- <1518554755.2607.4.camel@gmail.com>
- <20180213205802.GF30929@piout.net>
- <20180213222025.GA3354@piout.net>
- <1518566194.3441.3.camel@gmail.com>
+Received: from mail-by2nam01on0056.outbound.protection.outlook.com ([104.47.34.56]:6976
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750732AbeBUAd2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Feb 2018 19:33:28 -0500
+From: David Daney <david.daney@cavium.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        David Daney <david.daney@cavium.com>
+Subject: [PATCH v5] rtc: isl12026: Add driver.
+Date: Tue, 20 Feb 2018 16:33:16 -0800
+Message-Id: <20180221003316.13007-1-david.daney@cavium.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1518566194.3441.3.camel@gmail.com>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/02/2018 at 18:56:34 -0500, Peter Milley wrote:
-> Okay, I've booted the new kernel.
-> 
-> peter@haven:~$ uname -a
-> Linux haven 4.16.0-rc1+ #32 SMP Tue Feb 13 22:11:39 CET 2018 x86_64
-> x86_64 x86_64 GNU/Linux
-> peter@haven:~$ dmesg | grep -i rtc
-> [    0.045403] RTC time: 23:46:52, date: 02/13/18
-> [    1.368198] rtc_cmos 00:01: RTC can wake from S4
-> [    1.368205] rtc_cmos: drivers/rtc/rtc-cmos.c +679 cmos_do_probe
-> [    1.368235] rtc_cmos: drivers/rtc/rtc-cmos.c +684 cmos_do_probe
-> [    1.368260] rtc_cmos: drivers/rtc/rtc-cmos.c +688 cmos_do_probe
-> [    1.368285] rtc_cmos: 1: 70 8
-> [    1.368302] rtc_cmos: probe of 00:01 failed with error -16
-> [    1.408861] hctosys: unable to open rtc device (rtc0)
-> 
+The ISL12026 is a combination RTC and EEPROM device with I2C
+interface.  The standard RTC driver interface is provided.  The EEPROM
+is accessed via the NVMEM interface via the "eeprom0" directory in the
+sysfs entry for the device.
 
-[...]
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: David Daney <david.daney@cavium.com>
+---
+Changes from v4:
 
-> And /proc/ioports:
-> peter@haven:~$ sudo cat /proc/ioports
-> 0000-0cf7 : PCI Bus 0000:00
->   0000-001f : dma1
->   0020-0021 : pic1
->   0040-0043 : timer0
->   0050-0053 : timer1
->   0060-0060 : keyboard
->   0062-0062 : PNP0C09:00
->     0062-0062 : EC data
->   0064-0064 : keyboard
->   0066-0066 : PNP0C09:00
->     0066-0066 : EC cmd
->   0070-0072 : wdat_wdt
+o Rebased to rtc-next
 
-So I can tell you what is happening but I can't tell you why. You have a
-watchdog at 0x70 (size 2) and the RTC at 0x70 (size 8).
+o Improvements suggested by Alexandre Belloni
 
-Because the watchdog driver is probed first and it requests the io
-region, when the RTC driver is probed, it fails to request the same
-region.
+o Added Reviewed-by Rob Herring
 
-Maybe your 4.10 kernel didn't have CONFIG_WDAT_WDT (this appeared in
-4.9).
-I'm afraid, that is as far as I can help, you'd have to ask someone that
-is more knowledgeable about x86 to go further (I've added the wdat_wdt
-driver author in Cc).
+Changes from v3:
 
+o Add Reviewed-by
+
+o s/dev_err/dev_warn/ in one place
+
+o Remove redundant ','
+
+Changes from v2:
+
+o More code cleanups suggested by reviewers.
+
+Changes from v1:
+
+o Fixed device tree bindings document example.
+
+o Use RTC_NVMEM facility for eeprom support.
+
+o Small code cleanups suggested by reviewers.
+
+.../devicetree/bindings/rtc/isil,isl12026.txt      |  28 ++
+ drivers/rtc/Kconfig                                |  10 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-isl12026.c                         | 505 +++++++++++++++++++++
+ 4 files changed, 544 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl12026.txt
+ create mode 100644 drivers/rtc/rtc-isl12026.c
+
+diff --git a/Documentation/devicetree/bindings/rtc/isil,isl12026.txt b/Documentation/devicetree/bindings/rtc/isil,isl12026.txt
+new file mode 100644
+index 000000000000..2e0be45193bb
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/isil,isl12026.txt
+@@ -0,0 +1,28 @@
++ISL12026 I2C RTC/EEPROM
++
++ISL12026 is an I2C RTC/EEPROM combination device.  The RTC and control
++registers respond at bus address 0x6f, and the EEPROM array responds
++at bus address 0x57.  The canonical "reg" value will be for the RTC portion.
++
++Required properties supported by the device:
++
++ - "compatible": must be "isil,isl12026"
++ - "reg": I2C bus address of the device (always 0x6f)
++
++Optional properties:
++
++ - "isil,pwr-bsw": If present PWR.BSW bit must be set to the specified
++                   value for proper operation.
++
++ - "isil,pwr-sbib": If present PWR.SBIB bit must be set to the specified
++                    value for proper operation.
++
++
++Example:
++
++	rtc@6f {
++		compatible = "isil,isl12026";
++		reg = <0x6f>;
++		isil,pwr-bsw = <0>;
++		isil,pwr-sbib = <1>;
++	}
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index f6d7e490e714..3bf649cd7b83 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -407,6 +407,16 @@ config RTC_DRV_ISL12022
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-isl12022.
+ 
++config RTC_DRV_ISL12026
++	tristate "Intersil ISL12026"
++	depends on OF || COMPILE_TEST
++	help
++	  If you say yes here you get support for the
++	  Intersil ISL12026 RTC chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-isl12026.
++
+ config RTC_DRV_X1205
+ 	tristate "Xicor/Intersil X1205"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 4fbf87e45a7c..f481661a6eae 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -76,6 +76,7 @@ obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
+ obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
+ obj-$(CONFIG_RTC_DRV_IMXDI)	+= rtc-imxdi.o
+ obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
++obj-$(CONFIG_RTC_DRV_ISL12026)	+= rtc-isl12026.o
+ obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
+ obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
+ obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
+diff --git a/drivers/rtc/rtc-isl12026.c b/drivers/rtc/rtc-isl12026.c
+new file mode 100644
+index 000000000000..521511d1cc2d
+--- /dev/null
++++ b/drivers/rtc/rtc-isl12026.c
+@@ -0,0 +1,505 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * An I2C driver for the Intersil ISL 12026
++ *
++ * Copyright (c) 2018 Cavium, Inc.
++ */
++#include <linux/bcd.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/nvmem-provider.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/rtc.h>
++#include <linux/slab.h>
++
++/* register offsets */
++#define ISL12026_REG_PWR	0x14
++# define ISL12026_REG_PWR_BSW	BIT(6)
++# define ISL12026_REG_PWR_SBIB	BIT(7)
++#define ISL12026_REG_SC		0x30
++#define ISL12026_REG_HR		0x32
++# define ISL12026_REG_HR_MIL	BIT(7)	/* military or 24 hour time */
++#define ISL12026_REG_SR		0x3f
++# define ISL12026_REG_SR_RTCF	BIT(0)
++# define ISL12026_REG_SR_WEL	BIT(1)
++# define ISL12026_REG_SR_RWEL	BIT(2)
++# define ISL12026_REG_SR_MBZ	BIT(3)
++# define ISL12026_REG_SR_OSCF	BIT(4)
++
++/* The EEPROM array responds at i2c address 0x57 */
++#define ISL12026_EEPROM_ADDR	0x57
++
++#define ISL12026_PAGESIZE 16
++#define ISL12026_NVMEM_WRITE_TIME 20
++
++struct isl12026 {
++	struct rtc_device *rtc;
++	struct i2c_client *nvm_client;
++};
++
++static int isl12026_read_reg(struct i2c_client *client, int reg)
++{
++	u8 addr[] = {0, reg};
++	u8 val;
++	int ret;
++
++	struct i2c_msg msgs[] = {
++		{
++			.addr	= client->addr,
++			.flags	= 0,
++			.len	= sizeof(addr),
++			.buf	= addr
++		}, {
++			.addr	= client->addr,
++			.flags	= I2C_M_RD,
++			.len	= 1,
++			.buf	= &val
++		}
++	};
++
++	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
++	if (ret != ARRAY_SIZE(msgs)) {
++		dev_err(&client->dev, "read reg error, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++	} else {
++		ret = val;
++	}
++
++	return ret;
++}
++
++static int isl12026_arm_write(struct i2c_client *client)
++{
++	int ret;
++	u8 op[3];
++	struct i2c_msg msg = {
++		.addr	= client->addr,
++		.flags	= 0,
++		.len	= 1,
++		.buf	= op
++	};
++
++	/* Set SR.WEL */
++	op[0] = 0;
++	op[1] = ISL12026_REG_SR;
++	op[2] = ISL12026_REG_SR_WEL;
++	msg.len = 3;
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	if (ret != 1) {
++		dev_err(&client->dev, "write error SR.WEL, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	}
++
++	/* Set SR.WEL and SR.RWEL */
++	op[2] = ISL12026_REG_SR_WEL | ISL12026_REG_SR_RWEL;
++	msg.len = 3;
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	if (ret != 1) {
++		dev_err(&client->dev,
++			"write error SR.WEL|SR.RWEL, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	} else {
++		ret = 0;
++	}
++out:
++	return ret;
++}
++
++static int isl12026_disarm_write(struct i2c_client *client)
++{
++	int ret;
++	u8 op[3] = {0, ISL12026_REG_SR, 0};
++	struct i2c_msg msg = {
++		.addr	= client->addr,
++		.flags	= 0,
++		.len	= sizeof(op),
++		.buf	= op
++	};
++
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	if (ret != 1) {
++		dev_err(&client->dev,
++			"write error SR, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++	} else {
++		ret = 0;
++	}
++
++	return ret;
++}
++
++static int isl12026_write_reg(struct i2c_client *client, int reg, u8 val)
++{
++	int ret;
++	u8 op[3] = {0, reg, val};
++	struct i2c_msg msg = {
++		.addr	= client->addr,
++		.flags	= 0,
++		.len	= sizeof(op),
++		.buf	= op
++	};
++
++	ret = isl12026_arm_write(client);
++	if (ret)
++		return ret;
++
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	if (ret != 1) {
++		dev_err(&client->dev, "write error CCR, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	}
++
++	msleep(ISL12026_NVMEM_WRITE_TIME);
++
++	ret = isl12026_disarm_write(client);
++out:
++	return ret;
++}
++
++static int isl12026_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++	u8 op[10];
++	struct i2c_msg msg = {
++		.addr	= client->addr,
++		.flags	= 0,
++		.len	= sizeof(op),
++		.buf	= op
++	};
++
++	ret = isl12026_arm_write(client);
++	if (ret)
++		return ret;
++
++	/* Set the CCR registers */
++	op[0] = 0;
++	op[1] = ISL12026_REG_SC;
++	op[2] = bin2bcd(tm->tm_sec); /* SC */
++	op[3] = bin2bcd(tm->tm_min); /* MN */
++	op[4] = bin2bcd(tm->tm_hour) | ISL12026_REG_HR_MIL; /* HR */
++	op[5] = bin2bcd(tm->tm_mday); /* DT */
++	op[6] = bin2bcd(tm->tm_mon + 1); /* MO */
++	op[7] = bin2bcd(tm->tm_year % 100); /* YR */
++	op[8] = bin2bcd(tm->tm_wday & 7); /* DW */
++	op[9] = bin2bcd(tm->tm_year >= 100 ? 20 : 19); /* Y2K */
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	if (ret != 1) {
++		dev_err(&client->dev, "write error CCR, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	}
++
++	ret = isl12026_disarm_write(client);
++out:
++	return ret;
++}
++
++static int isl12026_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	u8 ccr[8];
++	u8 addr[2];
++	u8 sr;
++	int ret;
++	struct i2c_msg msgs[] = {
++		{
++			.addr	= client->addr,
++			.flags	= 0,
++			.len	= sizeof(addr),
++			.buf	= addr
++		}, {
++			.addr	= client->addr,
++			.flags	= I2C_M_RD,
++		}
++	};
++
++	/* First, read SR */
++	addr[0] = 0;
++	addr[1] = ISL12026_REG_SR;
++	msgs[1].len = 1;
++	msgs[1].buf = &sr;
++
++	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
++	if (ret != ARRAY_SIZE(msgs)) {
++		dev_err(&client->dev, "read error, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	}
++
++	if (sr & ISL12026_REG_SR_RTCF)
++		dev_warn(&client->dev, "Real-Time Clock Failure on read\n");
++	if (sr & ISL12026_REG_SR_OSCF)
++		dev_warn(&client->dev, "Oscillator Failure on read\n");
++
++	/* Second, CCR regs */
++	addr[0] = 0;
++	addr[1] = ISL12026_REG_SC;
++	msgs[1].len = sizeof(ccr);
++	msgs[1].buf = ccr;
++
++	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
++	if (ret != ARRAY_SIZE(msgs)) {
++		dev_err(&client->dev, "read error, ret=%d\n", ret);
++		ret = ret < 0 ? ret : -EIO;
++		goto out;
++	}
++
++	tm->tm_sec = bcd2bin(ccr[0] & 0x7F);
++	tm->tm_min = bcd2bin(ccr[1] & 0x7F);
++	if (ccr[2] & ISL12026_REG_HR_MIL)
++		tm->tm_hour = bcd2bin(ccr[2] & 0x3F);
++	else
++		tm->tm_hour = bcd2bin(ccr[2] & 0x1F) +
++			((ccr[2] & 0x20) ? 12 : 0);
++	tm->tm_mday = bcd2bin(ccr[3] & 0x3F);
++	tm->tm_mon = bcd2bin(ccr[4] & 0x1F) - 1;
++	tm->tm_year = bcd2bin(ccr[5]);
++	if (bcd2bin(ccr[7]) == 20)
++		tm->tm_year += 100;
++	tm->tm_wday = ccr[6] & 0x07;
++
++	ret = rtc_valid_tm(tm);
++out:
++	return ret;
++}
++
++static const struct rtc_class_ops isl12026_rtc_ops = {
++	.read_time	= isl12026_rtc_read_time,
++	.set_time	= isl12026_rtc_set_time,
++};
++
++static int isl12026_nvm_read(void *p, unsigned int offset,
++			     void *val, size_t bytes)
++{
++	struct isl12026 *priv = p;
++	int ret;
++	u8 addr[2];
++	struct i2c_msg msgs[] = {
++		{
++			.addr	= priv->nvm_client->addr,
++			.flags	= 0,
++			.len	= sizeof(addr),
++			.buf	= addr
++		}, {
++			.addr	= priv->nvm_client->addr,
++			.flags	= I2C_M_RD,
++			.buf	= val
++		}
++	};
++
++	/*
++	 * offset and bytes checked and limited by nvmem core, so
++	 * proceed without further checks.
++	 */
++	ret = mutex_lock_interruptible(&priv->rtc->ops_lock);
++	if (ret)
++		return ret;
++
++	/* 2 bytes of address, most significant first */
++	addr[0] = offset >> 8;
++	addr[1] = offset;
++	msgs[1].len = bytes;
++	ret = i2c_transfer(priv->nvm_client->adapter, msgs, ARRAY_SIZE(msgs));
++
++	mutex_unlock(&priv->rtc->ops_lock);
++
++	if (ret != ARRAY_SIZE(msgs)) {
++		dev_err(&priv->nvm_client->dev,
++			"nvmem read error, ret=%d\n", ret);
++		return ret < 0 ? ret : -EIO;
++	}
++
++	return 0;
++}
++
++static int isl12026_nvm_write(void *p, unsigned int offset,
++			      void *val, size_t bytes)
++{
++	struct isl12026 *priv = p;
++	int ret;
++	u8 *v = val;
++	size_t chunk_size, num_written;
++	u8 payload[ISL12026_PAGESIZE + 2]; /* page + 2 address bytes */
++	struct i2c_msg msgs[] = {
++		{
++			.addr	= priv->nvm_client->addr,
++			.flags	= 0,
++			.buf	= payload
++		}
++	};
++
++	/*
++	 * offset and bytes checked and limited by nvmem core, so
++	 * proceed without further checks.
++	 */
++	ret = mutex_lock_interruptible(&priv->rtc->ops_lock);
++	if (ret)
++		return ret;
++
++	num_written = 0;
++	while (bytes) {
++		chunk_size = round_down(offset, ISL12026_PAGESIZE) +
++			ISL12026_PAGESIZE - offset;
++		chunk_size = min(bytes, chunk_size);
++		/*
++		 * 2 bytes of address, most significant first, followed
++		 * by page data bytes
++		 */
++		memcpy(payload + 2, v + num_written, chunk_size);
++		payload[0] = offset >> 8;
++		payload[1] = offset;
++		msgs[0].len = chunk_size + 2;
++		ret = i2c_transfer(priv->nvm_client->adapter,
++				   msgs, ARRAY_SIZE(msgs));
++		if (ret != ARRAY_SIZE(msgs)) {
++			dev_err(&priv->nvm_client->dev,
++				"nvmem write error, ret=%d\n", ret);
++			ret = ret < 0 ? ret : -EIO;
++			break;
++		}
++		ret = 0;
++		bytes -= chunk_size;
++		offset += chunk_size;
++		num_written += chunk_size;
++		msleep(ISL12026_NVMEM_WRITE_TIME);
++	}
++
++	mutex_unlock(&priv->rtc->ops_lock);
++
++	return ret;
++}
++
++static void isl12026_force_power_modes(struct i2c_client *client)
++{
++	int ret;
++	int pwr, requested_pwr;
++	u32 bsw_val, sbib_val;
++	bool set_bsw, set_sbib;
++
++	/*
++	 * If we can read the of_property, set the specified value.
++	 * If there is an error reading the of_property (likely
++	 * because it does not exist), keep the current value.
++	 */
++	ret = of_property_read_u32(client->dev.of_node,
++				   "isil,pwr-bsw", &bsw_val);
++	set_bsw = (ret == 0);
++
++	ret = of_property_read_u32(client->dev.of_node,
++				   "isil,pwr-sbib", &sbib_val);
++	set_sbib = (ret == 0);
++
++	/* Check if PWR.BSW and/or PWR.SBIB need specified values */
++	if (!set_bsw && !set_sbib)
++		return;
++
++	pwr = isl12026_read_reg(client, ISL12026_REG_PWR);
++	if (pwr < 0) {
++		dev_warn(&client->dev, "Error: Failed to read PWR %d\n", pwr);
++		return;
++	}
++
++	requested_pwr = pwr;
++
++	if (set_bsw) {
++		if (bsw_val)
++			requested_pwr |= ISL12026_REG_PWR_BSW;
++		else
++			requested_pwr &= ~ISL12026_REG_PWR_BSW;
++	} /* else keep current BSW */
++
++	if (set_sbib) {
++		if (sbib_val)
++			requested_pwr |= ISL12026_REG_PWR_SBIB;
++		else
++			requested_pwr &= ~ISL12026_REG_PWR_SBIB;
++	} /* else keep current SBIB */
++
++	if (pwr >= 0 && pwr != requested_pwr) {
++		dev_dbg(&client->dev, "PWR: %02x\n", pwr);
++		dev_dbg(&client->dev, "Updating PWR to: %02x\n", requested_pwr);
++		isl12026_write_reg(client, ISL12026_REG_PWR, requested_pwr);
++	}
++}
++
++static int isl12026_probe_new(struct i2c_client *client)
++{
++	struct isl12026 *priv;
++	int ret;
++	struct nvmem_config nvm_cfg;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, priv);
++
++	isl12026_force_power_modes(client);
++
++	priv->nvm_client = i2c_new_dummy(client->adapter, ISL12026_EEPROM_ADDR);
++	if (!priv->nvm_client)
++		return -ENOMEM;
++
++	priv->rtc = devm_rtc_allocate_device(&client->dev);
++	ret = PTR_ERR_OR_ZERO(priv->rtc);
++	if (ret)
++		return ret;
++
++	priv->rtc->ops = &isl12026_rtc_ops;
++	priv->rtc->nvram_old_abi = false;
++	ret = rtc_register_device(priv->rtc);
++	if (ret)
++		return ret;
++
++	memset(&nvm_cfg, 0, sizeof(nvm_cfg));
++	nvm_cfg.name = "eeprom";
++	nvm_cfg.read_only = false;
++	nvm_cfg.root_only = true;
++	nvm_cfg.base_dev = &client->dev;
++	nvm_cfg.priv = priv;
++	nvm_cfg.stride = 1;
++	nvm_cfg.word_size = 1;
++	nvm_cfg.size = 512;
++	nvm_cfg.reg_read = isl12026_nvm_read;
++	nvm_cfg.reg_write = isl12026_nvm_write;
++
++	return rtc_nvmem_register(priv->rtc, &nvm_cfg);
++}
++
++static int isl12026_remove(struct i2c_client *client)
++{
++	struct isl12026 *priv = i2c_get_clientdata(client);
++
++	i2c_unregister_device(priv->nvm_client);
++	return 0;
++}
++
++static const struct of_device_id isl12026_dt_match[] = {
++	{ .compatible = "isil,isl12026" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, isl12026_dt_match);
++
++static struct i2c_driver isl12026_driver = {
++	.driver		= {
++		.name	= "rtc-isl12026",
++		.of_match_table = isl12026_dt_match,
++	},
++	.probe_new	= isl12026_probe_new,
++	.remove		= isl12026_remove,
++};
++
++module_i2c_driver(isl12026_driver);
++
++MODULE_DESCRIPTION("ISL 12026 RTC driver");
++MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+2.14.3
