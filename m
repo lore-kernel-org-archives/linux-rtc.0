@@ -1,102 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37585 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:47019 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932963AbeBLWsj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:39 -0500
+        with ESMTP id S1751756AbeBUU5i (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:38 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 31/45] rtc: cmos: fix possible race condition
-Date: Mon, 12 Feb 2018 23:47:45 +0100
-Message-Id: <20180212224759.15999-32-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 054/100] rtc: pcf50633: stop validating rtc_time in .read_time
+Date: Wed, 21 Feb 2018 21:55:49 +0100
+Message-Id: <20180221205635.31314-55-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The probe function is not allowed to fail after registering the RTC because
-the following may happen:
-
-CPU0:                                CPU1:
-sys_load_module()
- do_init_module()
-  do_one_initcall()
-   cmos_do_probe()
-    rtc_device_register()
-     __register_chrdev()
-     cdev->owner = struct module*
-                                     open("/dev/rtc0")
-    rtc_device_unregister()
-  module_put()
-  free_module()
-   module_free(mod->module_core)
-   /* struct module *module is now
-      freed */
-                                      chrdev_open()
-                                       spin_lock(cdev_lock)
-                                       cdev_get()
-                                        try_module_get()
-                                         module_is_live()
-                                         /* dereferences already
-                                            freed struct module* */
-
-Switch to devm_rtc_allocate_device/rtc_register_device to register the rtc
-as late as possible.
+The RTC core is always calling rtc_valid_tm after the read_time callback.
+It is not necessary to call it just before returning from the callback.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-cmos.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf50633.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 9dca53df3584..e6393e784d0c 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -751,8 +751,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 	cmos_rtc.dev = dev;
- 	dev_set_drvdata(dev, &cmos_rtc);
+diff --git a/drivers/rtc/rtc-pcf50633.c b/drivers/rtc/rtc-pcf50633.c
+index 00c31c91b245..ef72b0c389d7 100644
+--- a/drivers/rtc/rtc-pcf50633.c
++++ b/drivers/rtc/rtc-pcf50633.c
+@@ -135,7 +135,7 @@ static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		tm->tm_mday, tm->tm_mon, tm->tm_year,
+ 		tm->tm_hour, tm->tm_min, tm->tm_sec);
  
--	cmos_rtc.rtc = rtc_device_register(driver_name, dev,
--				&cmos_rtc_ops, THIS_MODULE);
-+	cmos_rtc.rtc = devm_rtc_allocate_device(dev);
- 	if (IS_ERR(cmos_rtc.rtc)) {
- 		retval = PTR_ERR(cmos_rtc.rtc);
- 		goto cleanup0;
-@@ -822,6 +821,11 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		goto cleanup2;
- 	}
+-	return rtc_valid_tm(tm);
++	return 0;
+ }
  
-+	cmos_rtc.rtc->ops = &cmos_rtc_ops;
-+	retval = rtc_register_device(cmos_rtc.rtc);
-+	if (retval)
-+		goto cleanup3;
-+
- 	dev_info(dev, "%s%s, %zd bytes nvram%s\n",
- 		!is_valid_irq(rtc_irq) ? "no alarms" :
- 			cmos_rtc.mon_alrm ? "alarms up to one year" :
-@@ -833,12 +837,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 
- 	return 0;
- 
-+cleanup3:
-+	sysfs_remove_bin_file(&dev->kobj, &nvram);
- cleanup2:
- 	if (is_valid_irq(rtc_irq))
- 		free_irq(rtc_irq, cmos_rtc.rtc);
- cleanup1:
- 	cmos_rtc.dev = NULL;
--	rtc_device_unregister(cmos_rtc.rtc);
- cleanup0:
- 	if (RTC_IOMAPPED)
- 		release_region(ports->start, resource_size(ports));
-@@ -869,7 +874,6 @@ static void cmos_do_remove(struct device *dev)
- 		hpet_unregister_irq_handler(cmos_interrupt);
- 	}
- 
--	rtc_device_unregister(cmos->rtc);
- 	cmos->rtc = NULL;
- 
- 	ports = cmos->iomem;
+ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
 -- 
 2.16.1
