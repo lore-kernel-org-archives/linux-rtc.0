@@ -1,113 +1,187 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36298 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751728AbeBZSBS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:01:18 -0500
-Received: by mail-pg0-f68.google.com with SMTP id i14so1556269pgv.3
-        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:01:18 -0800 (PST)
-Date: Mon, 26 Feb 2018 10:01:15 -0800
-From: Brian Norris <briannorris@chromium.org>
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
-        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
- in the past
-Message-ID: <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
-References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
+Received: from mga18.intel.com ([134.134.136.126]:56847 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933186AbeBUOCf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 21 Feb 2018 09:02:35 -0500
+Message-ID: <1519221748.10722.34.camel@linux.intel.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Date: Wed, 21 Feb 2018 16:02:28 +0200
+In-Reply-To: <CAMuHMdVwjP6cWM=Ku6KRVz9F8_n4OsgeK42UZa6BenKij4iu4Q@mail.gmail.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+         <CAMuHMdVwjP6cWM=Ku6KRVz9F8_n4OsgeK42UZa6BenKij4iu4Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Jeffy,
-
-On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
-> We have a check in __rtc_set_alarm() to return -ETIME when the alarm
-> is in the past.
+On Wed, 2018-02-21 at 10:33 +0100, Geert Uytterhoeven wrote:
+> Hi Andy,
 > 
-> Since accessing a Chrome OS EC based rtc is a slow operation, we should
-> do that check again inside of the EC rtc driver's .set_alarm() callback.
-
-Thanks for the patch. I'd note that this is related to the race
-documented in __rtc_set_alarm() (drivers/rtc/interface.c):
-
-        /*
-         * XXX - We just checked to make sure the alarm time is not
-         * in the past, but there is still a race window where if
-         * the is alarm set for the next second and the second ticks
-         * over right here, before we set the alarm.
-         */
-
-It feels like we should put this comment somewhere more prominent;
-perhaps some kerneldoc for the .set_alarm() callback? Because I suspect
-that nearly every RTC driver is susceptible to this problem.
-
-Anyway, I think this patch is helpful, because as you note the EC
-protocol is relatively slow (it's much more than just a register write),
-but your patch still doesn't really cover the whole problem. Even if you
-compare the current time here, time marches on between here and
-EC_CMD_RTC_SET_ALARM. So you can still have the same race, where the RTC
-makes another tick before we set the alarm? Just think: what if we slept
-for a second right after that -ETIME check?
-
-What happens next...depends on the implementation I suppose. It's
-possible that an alarm could still immediately fire for a "past" event.
-But it's also possible the alarm will get dropped [1].
-
-I wonder if a better solution would be to re-check the clock right after
-setting the alarm. If the alarm is already past, then we should return
--ETIME? Is there any harm in double-reporting an alarm? (If so, we could
-try to add accounting information somehow...)
-
-I also wonder if that check should be done in the generic code (perhaps
-with a flag to opt-in or opt-out?), since this really seems like a
-fundamental problem of the interface.
-
-Brian
-
-[1] And lest we think that dropping it is fine: this breaks, e.g.,
-hwclock which relies on RTC_UIE_ON -> rtc_update_irq_enable(), which
-sets a 1-second alarm and expects it to fire an interrupt.
-
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
+> On Tue, Feb 20, 2018 at 10:43 PM, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > There are users which print time and date represented by content of
+> > struct rtc_time in human readable format.
+> > 
+> > Instead of open coding that each time introduce %ptR[dt][rv]
+> > specifier.
 > 
->  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+> Thanks for your patch!
 > 
-> diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-> index f0ea6899c731..ee0062e2d222 100644
-> --- a/drivers/rtc/rtc-cros-ec.c
-> +++ b/drivers/rtc/rtc-cros-ec.c
-> @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	if (alarm_time < 0 || alarm_time > U32_MAX)
->  		return -EINVAL;
->  
-> +	/* Don't set an alarm in the past. */
-> +	if ((u32)alarm_time <= current_time)
-> +		return -ETIME;
-> +
->  	if (!alrm->enabled) {
->  		/*
->  		 * If the alarm is being disabled, send an alarm
-> @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  		alarm_offset = EC_RTC_ALARM_CLEAR;
->  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
->  	} else {
-> -		/* Don't set an alarm in the past. */
-> -		if ((u32)alarm_time < current_time)
-> -			alarm_offset = EC_RTC_ALARM_CLEAR;
-> -		else
-> -			alarm_offset = (u32)alarm_time - current_time;
-> +		alarm_offset = (u32)alarm_time - current_time;
->  	}
->  
->  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
-> -- 
-> 2.11.0
+> > Note, users have to select PRINTK_PEXT_TIMEDATE option in a Kconfig.
 > 
+> Is it worthwhile making this an option?
+
+People were complaining before
+
+https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
+
+> > --- a/Documentation/core-api/printk-formats.rst
+> > +++ b/Documentation/core-api/printk-formats.rst
+> > @@ -412,6 +412,37 @@ Examples::
+> > 
+> >  Passed by reference.
+> > 
+> > +Time and date
+> > +-------------
+> > +
+> > +::
+> > +
+> > +       %pt[R]          YYYY-mm-dd HH:MM:SS
+> > +       %pt[R]d         YYYY-mm-dd
+> > +       %pt[R]t         HH:MM:SS
 > 
+> [R] suggests the "R" is optional?
+> But if it's missing, it prints the hex pointer value?
+
+Yes.
+
+> > +       %pt[R][dt]
+> 
+> What's the purpose of this?
+
+A place holder to extend.
+
+> > +
+> > +  R for struct rtc_time
+> > +
+> > +Note, users have to select PRINTK_PEXT_TIMEDATE option in a
+> > Kconfig.
+> > +
+> > +struct rtc_time
+> > +~~~~~~~~~~~~~~~
+> > +
+> > +::
+> > +
+> > +       %ptR[dt][rv]
+> 
+> What's the purpose of this paragraph, compared to the previous one?
+
+This is first batch to make it working for struct rtc_time. We have
+several users (and I have some local patches WIP) to print time64_t /
+timespec64 which would use different letters and paragraphs to explain.
+
+I could remove it and return like it was in v1 (with the exception for
+new R letter added).
+
+TBH, I don't see much consensus among developers on this topic.
+I wouldn't like to send a new version until it would be a consensus.
+
+> > +static noinline_for_stack
+> > +char *date_str(char *buf, char *end, const struct rtc_time *tm,
+> > bool v, bool r)
+> > +{
+> > +       int year = tm->tm_year + (r ? 0 : 1900);
+> > +       int mon = tm->tm_mon + (r ? 0 : 1);
+> > +
+> > +       if (unlikely(v && (unsigned int)tm->tm_year > 200))
+> > +               buf = string(buf, end, "****", default_str_spec);
+> > +       else
+> > +               buf = number(buf, end, year, default_dec04_spec);
+> > +
+> > +       if (buf < end)
+> > +               *buf = '-';
+> 
+> Instead of all these checks to avoid overflowing the passed buffer, it
+> may be simpler to format everything in a fixed-size buffer on the
+> stack,
+> and copy whatever will fit in the target buffer at the end.
+
+I dropped that idea since the most heavier call is number().
+We still need to do several of them one way or the other.
+
+So, I really don't see much benefit of doing your way.
+
+> > +static noinline_for_stack
+> > +char *rtc_str(char *buf, char *end, const struct rtc_time *tm,
+> > const char *fmt)
+> > +{
+> > +       bool have_t = true, have_d = true;
+> > +       bool validate = false;
+> > +       bool raw = false;
+> > +       int count = 1;
+> > +       bool found;
+> > +
+> > +       switch (fmt[++count]) {
+> > +       case 'd':
+> > +               have_t = false;
+> > +               break;
+> > +       case 't':
+> > +               have_d = false;
+> > +               break;
+> > +       }
+> > +
+> > +       /* No %pt[dt] supplied */
+> > +       if (have_d && have_t)
+> > +               --count;
+> 
+> First increment count, then rollback.
+> What about:
+> 
+>     switch (fmt[count]) {
+>     case 'd':
+>             have_t = false;
+>             count++;
+>             break;
+>     case 't':
+>             have_d = false;
+>             count++;
+>             break;
+>     }
+
+Or simple:
+
+ default:
+  --count;
+  break;
+
+?
+
+I really need to come up with the next pile for time64_t which I suppose
+will require rethinking of format parsing and printing functions here.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
