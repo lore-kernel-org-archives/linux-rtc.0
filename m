@@ -1,160 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37577 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932940AbeBLWsh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Feb 2018 17:48:37 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 23/45] rtc: ds1343: remove undocumented and useless sysfs files
-Date: Mon, 12 Feb 2018 23:47:37 +0100
-Message-Id: <20180212224759.15999-24-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
-References: <20180212224759.15999-1-alexandre.belloni@bootlin.com>
+Received: from mga12.intel.com ([192.55.52.136]:56965 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932329AbeBVMqu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 22 Feb 2018 07:46:50 -0500
+Message-ID: <1519303604.10722.80.camel@linux.intel.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Joe Perches <joe@perches.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Date: Thu, 22 Feb 2018 14:46:44 +0200
+In-Reply-To: <CAMuHMdX6HeqB6wUSUCT4L9S2G6YCB9-r6Q4B3dojEUv0iY+duw@mail.gmail.com>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+         <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+         <1519170907.4326.17.camel@perches.com>
+         <1eac0dc6-93b0-2e01-075f-cf62c85318c5@prevas.dk>
+         <1519219410.10722.25.camel@linux.intel.com>
+         <CAMuHMdX6HeqB6wUSUCT4L9S2G6YCB9-r6Q4B3dojEUv0iY+duw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-A documented ABI already exists to get information about the alarm. It is
-the only one that is used.
+On Wed, 2018-02-21 at 15:19 +0100, Geert Uytterhoeven wrote:
+> On Wed, Feb 21, 2018 at 2:23 PM, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Wed, 2018-02-21 at 08:38 +0100, Rasmus Villemoes wrote:
+> > > On 2018-02-21 00:55, Joe Perches wrote:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1343.c | 96 +-----------------------------------------------
- 1 file changed, 1 insertion(+), 95 deletions(-)
+> > > Well, on the one hand, I like to reduce the size of the kernel
+> > > when
+> > > possible and ideally make all new functionality guarded by config
+> > > options, but OTOH, how much does compiling out the datetime
+> > > formatters
+> > > really save?
+> > 
+> > https://lists.01.org/pipermail/kbuild-all/2017-June/034950.html
+> > 
+> > I understand that half a year time allows us to increase kernel text
+> > size by 750+ bytes unconditionally.
+> > 
+> > I would really like to not use any option.
+> 
+> Agreed.
+> 
+> FTR, growth of my atari_defconfig kernel between v4.7 and v4.15:
+> 
+> add/remove: 351/155 grow/shrink: 691/429 up/down: 63095/-38665 (24430)
+> add/remove: 394/156 grow/shrink: 595/709 up/down: 61173/-31092 (30081)
+> add/remove: 1315/711 grow/shrink: 1269/442 up/down: 172871/-92075
+> (80796)
+> add/remove: 525/266 grow/shrink: 914/510 up/down: 116115/-46240
+> (69875)
+> add/remove: 443/222 grow/shrink: 906/456 up/down: 77807/-40657 (37150)
+> add/remove: 536/296 grow/shrink: 1043/652 up/down: 97366/-65459
+> (31907)
+> add/remove: 413/176 grow/shrink: 711/479 up/down: 75678/-41356 (34322)
+> add/remove: 311/145 grow/shrink: 898/438 up/down: 51655/-26851 (24804)
 
-diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
-index a5a5a363c6e1..67cae0dd8154 100644
---- a/drivers/rtc/rtc-ds1343.c
-+++ b/drivers/rtc/rtc-ds1343.c
-@@ -199,74 +199,6 @@ static struct bin_attribute nvram_attr = {
- 	.size		= DS1343_NVRAM_LEN,
- };
- 
--static ssize_t ds1343_show_alarmstatus(struct device *dev,
--				struct device_attribute *attr, char *buf)
--{
--	struct ds1343_priv *priv = dev_get_drvdata(dev);
--	int alarmstatus, data;
--
--	regmap_read(priv->map, DS1343_CONTROL_REG, &data);
--
--	alarmstatus = !!(data & DS1343_A0IE);
--
--	if (alarmstatus)
--		return sprintf(buf, "enabled\n");
--	else
--		return sprintf(buf, "disabled\n");
--}
--
--static DEVICE_ATTR(alarm_status, S_IRUGO, ds1343_show_alarmstatus, NULL);
--
--static ssize_t ds1343_show_alarmmode(struct device *dev,
--				struct device_attribute *attr, char *buf)
--{
--	struct ds1343_priv *priv = dev_get_drvdata(dev);
--	int alarm_mode, data;
--	char *alarm_str;
--
--	regmap_read(priv->map, DS1343_ALM0_SEC_REG, &data);
--	alarm_mode = (data & 0x80) >> 4;
--
--	regmap_read(priv->map, DS1343_ALM0_MIN_REG, &data);
--	alarm_mode |= (data & 0x80) >> 5;
--
--	regmap_read(priv->map, DS1343_ALM0_HOUR_REG, &data);
--	alarm_mode |= (data & 0x80) >> 6;
--
--	regmap_read(priv->map, DS1343_ALM0_DAY_REG, &data);
--	alarm_mode |= (data & 0x80) >> 7;
--
--	switch (alarm_mode) {
--	case 15:
--		alarm_str = "each second";
--		break;
--
--	case 7:
--		alarm_str = "seconds match";
--		break;
--
--	case 3:
--		alarm_str = "minutes and seconds match";
--		break;
--
--	case 1:
--		alarm_str = "hours, minutes and seconds match";
--		break;
--
--	case 0:
--		alarm_str = "day, hours, minutes and seconds match";
--		break;
--
--	default:
--		alarm_str = "invalid";
--		break;
--	}
--
--	return sprintf(buf, "%s\n", alarm_str);
--}
--
--static DEVICE_ATTR(alarm_mode, S_IRUGO, ds1343_show_alarmmode, NULL);
--
- static ssize_t ds1343_show_tricklecharger(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
-@@ -313,7 +245,6 @@ static DEVICE_ATTR(trickle_charger, S_IRUGO, ds1343_show_tricklecharger, NULL);
- 
- static int ds1343_sysfs_register(struct device *dev)
- {
--	struct ds1343_priv *priv = dev_get_drvdata(dev);
- 	int err;
- 
- 	err = device_create_file(dev, &dev_attr_glitch_filter);
-@@ -325,26 +256,9 @@ static int ds1343_sysfs_register(struct device *dev)
- 		goto error1;
- 
- 	err = device_create_bin_file(dev, &nvram_attr);
--	if (err)
--		goto error2;
--
--	if (priv->irq <= 0)
--		return err;
--
--	err = device_create_file(dev, &dev_attr_alarm_mode);
--	if (err)
--		goto error3;
--
--	err = device_create_file(dev, &dev_attr_alarm_status);
- 	if (!err)
--		return err;
--
--	device_remove_file(dev, &dev_attr_alarm_mode);
--
--error3:
--	device_remove_bin_file(dev, &nvram_attr);
-+		return 0;
- 
--error2:
- 	device_remove_file(dev, &dev_attr_trickle_charger);
- 
- error1:
-@@ -355,17 +269,9 @@ static int ds1343_sysfs_register(struct device *dev)
- 
- static void ds1343_sysfs_unregister(struct device *dev)
- {
--	struct ds1343_priv *priv = dev_get_drvdata(dev);
--
- 	device_remove_file(dev, &dev_attr_glitch_filter);
- 	device_remove_file(dev, &dev_attr_trickle_charger);
- 	device_remove_bin_file(dev, &nvram_attr);
--
--	if (priv->irq <= 0)
--		return;
--
--	device_remove_file(dev, &dev_attr_alarm_status);
--	device_remove_file(dev, &dev_attr_alarm_mode);
- }
- 
- static int ds1343_read_time(struct device *dev, struct rtc_time *dt)
+The concern was emitted from one who cares about tiny config, i.e.
+i386_tiny_defconfig.
+
 -- 
-2.16.1
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
