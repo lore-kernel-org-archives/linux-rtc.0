@@ -1,36 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:40150 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752069AbeBFCN3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Feb 2018 21:13:29 -0500
-Date: Tue, 6 Feb 2018 03:13:13 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Brandon Martin <martinbv@mothictech.com>
-Cc: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        a.zummo@towertech.it, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: remove rtc-at32ap700x
-Message-ID: <20180206021313.GO3404@piout.net>
-References: <20180118200846.14368-1-clabbe.montjoie@gmail.com>
- <20180119072733.dkswccdbnisbmqi6@samfundet.no>
- <20180119085835.GW2678@piout.net>
- <b1ad9b75-5a1f-f84c-da49-917f491325d5@mothictech.com>
+Received: from mail.kernel.org ([198.145.29.99]:33736 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753747AbeBVLkq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 22 Feb 2018 06:40:46 -0500
+Date: Thu, 22 Feb 2018 12:40:42 +0100
+From: Sebastian Reichel <sre@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 013/100] rtc: cpcap: stop validating rtc_time in
+ .read_time
+Message-ID: <20180222114042.7kpgq67raje7wbyz@earth.universe>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+ <20180221205635.31314-14-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <b1ad9b75-5a1f-f84c-da49-917f491325d5@mothictech.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3cxjms7q5mhycwfo"
+In-Reply-To: <20180221205635.31314-14-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 05/02/2018 at 20:09:32 -0500, Brandon Martin wrote:
-> On 01/19/2018 03:58 AM, Alexandre Belloni wrote:
-> > Well, my plan was to keep it for a little while, but whatever :)
-> 
-> As far as I know, the AVR32 AP7x architecture has been commercially dead for far longer than it was ever active.  I'd agree - axe it if support for the overall architecture is on its way out, too.
 
-If you had a look at Linus' tree, you'd have seen that the driver is
-already removed.
+--3cxjms7q5mhycwfo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+Hi,
+
+On Wed, Feb 21, 2018 at 09:55:08PM +0100, Alexandre Belloni wrote:
+> The RTC core is always calling rtc_valid_tm after the read_time callback.
+> It is not necessary to call it just before returning from the callback.
+>=20
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  drivers/rtc/rtc-cpcap.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
+> index 3a0333e1f21a..a8856f2b9bc2 100644
+> --- a/drivers/rtc/rtc-cpcap.c
+> +++ b/drivers/rtc/rtc-cpcap.c
+> @@ -119,7 +119,7 @@ static int cpcap_rtc_read_time(struct device *dev, st=
+ruct rtc_time *tm)
+> =20
+>  	cpcap2rtc_time(tm, &cpcap_tm);
+> =20
+> -	return rtc_valid_tm(tm);
+> +	return 0;
+>  }
+> =20
+>  static int cpcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
+
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+
+-- Sebastian
+
+--3cxjms7q5mhycwfo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlqOrDcACgkQ2O7X88g7
++ppjzw//UebQxXzcI0HNj3maCsHnQTMQ7v5OjaqgrFkMuARmRFN8QLQAu3vqROfH
+GJ9IJ/yyzvx9oMuJ3YBlLVz4fQcru/IVEgkBk1kmk2vt5wadRMcWvs0hAFhvmKNZ
+zBhONVPqanI12/3YbYlBAIAPONyiULUZ3BfXyz5PeXj5KellD69Tdg1UMrHFDiT5
+y86TPx/WHmRvJP2F63b3JznpX9brvnKSMWbp27C/aGNWi1aJbf9NCQTImlxlxeSX
+uxyxjy13jvAShc/46jQfRSt8tFdmcAgU1dUJfHbHG/QkqN6giKEh6fBl8vhWRTb6
+5JnlTh1moKzfZDjfFefOSOE61URtqAtXV/2a/8dPS7srAYsjv7SUA4Iizfch+8ll
+ZIlzvM3UxwKvy8cxmhZhp82RfVEr2+5/Z+q8SSpfaWwbg0FVhQfmoGp7UK9XfRPD
+1mvS6VQnv8oJGbSF9Zc3dgDcuLKcor1dCcgg/hKNbf3W9qIxnJIoEAoE+23lzh3u
+cb+SyQQGY0hQECQ5Z+jNo12JTZ3uVEwCv9RRfbDWU21joENZHSNz3GGa/mO9eENX
+oCoC8Q3YdZA/ZIFKVvl5MRZS/EJu2yNuP3srzmszBUHLoDIpG2rLxKfmOPWqWCNm
+UVABV/52UMY5BQNrC3DwV1v/+eUBuWMVdyLQGNUZvtBazJergX8=
+=y3bA
+-----END PGP SIGNATURE-----
+
+--3cxjms7q5mhycwfo--
