@@ -1,46 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:39416 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030501AbeBNVbY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Feb 2018 16:31:24 -0500
-Date: Wed, 14 Feb 2018 22:31:23 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: p.bruenn@beckhoff.com, linux-rtc@vger.kernel.org,
-        Fabio Estevam <fabio.estevam@nxp.com>
-Subject: Re: [PATCH] rtc: mxc_v2: Fix _iomem pointer notation
-Message-ID: <20180214213123.GF8219@piout.net>
-References: <1518403126-28456-1-git-send-email-festevam@gmail.com>
+Received: from mail.kernel.org ([198.145.29.99]:49580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933085AbeBVQCW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 22 Feb 2018 11:02:22 -0500
+Date: Thu, 22 Feb 2018 17:02:20 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000/100] rtc: remove cargo culted code
+Message-ID: <20180222160220.GL31244@piout.net>
+References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+ <20180222154802.GA2114@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1518403126-28456-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <20180222154802.GA2114@infradead.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 12/02/2018 at 00:38:46 -0200, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@nxp.com>
+On 22/02/2018 at 07:48:03 -0800, Christoph Hellwig wrote:
+> On Wed, Feb 21, 2018 at 09:54:55PM +0100, Alexandre Belloni wrote:
+> > Hello,
+> > 
+> > This series:
+> >  - removes useless calls to rtc_valid_tm in .read_time, .set_time and
+> >    .set_alarm
+> >  - removes code setting default values for RTCs (and lets the core
+> >    handle it)
+> >  - removes useless "time is invalid" messages at probe time
+> >  - removes useless indirect calls
 > 
-> Fix the iomem pointer notation in order to fix the following sparse
-> warnings:
-> 
-> drivers/rtc/rtc-mxc_v2.c:280:18: warning: incorrect type in argument 1 (different address spaces)
-> drivers/rtc/rtc-mxc_v2.c:280:18:    expected void const volatile [noderef] <asn:2>*addr
-> drivers/rtc/rtc-mxc_v2.c:280:18:    got void *[noderef] <asn:2>ioaddr
-> drivers/rtc/rtc-mxc_v2.c:329:44: warning: incorrect type in argument 1 (different address spaces)
-> drivers/rtc/rtc-mxc_v2.c:329:44:    expected void *[noderef] <asn:2>ioaddr
-> drivers/rtc/rtc-mxc_v2.c:329:44:    got void [noderef] <asn:2>*
-> drivers/rtc/rtc-mxc_v2.c:339:44: warning: incorrect type in argument 1 (different address spaces)
-> drivers/rtc/rtc-mxc_v2.c:339:44:    expected void *[noderef] <asn:2>ioaddr
-> drivers/rtc/rtc-mxc_v2.c:339:44:    got void [noderef] <asn:2>*
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
-> ---
->  drivers/rtc/rtc-mxc_v2.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
+> Seems like this could be just one patch for each of the issues..
+
+I'll probably squash the simpler ones before sending to Linus.
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
 Embedded Linux and Kernel engineering
-http://bootlin.com
+https://bootlin.com
