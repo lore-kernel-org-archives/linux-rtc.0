@@ -1,84 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7632 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751368AbeBTVoL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:11 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 09/21] rtc: pic32: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:48 +0200
-Message-Id: <20180220214400.66749-10-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:37776 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932159AbeBWTBO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Feb 2018 14:01:14 -0500
+Subject: Re: [PATCH] rtc: brcmstb-waketimer: Set wktmr prescaler
+To: Justin Chen <justin.chen@broadcom.com>, linux-rtc@vger.kernel.org
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        computersforpeace@gmail.com, gregory.0xf0@gmail.com,
+        f.fainelli@gmail.com, bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Justin Chen <justinpopo6@gmail.com>
+References: <1519262155-15580-1-git-send-email-justin.chen@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <e991b6b5-3f3d-f9da-2655-008921eee2a7@gmail.com>
+Date: Fri, 23 Feb 2018 11:01:04 -0800
+MIME-Version: 1.0
+In-Reply-To: <1519262155-15580-1-git-send-email-justin.chen@broadcom.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On 02/21/2018 05:15 PM, Justin Chen wrote:
+> The HW default is one tick per second, however instead of assuming this,
+> lets make sure the waketimer is actually one tick per second before
+> arming the alarm.
+> 
+> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+> ---
+>  drivers/rtc/rtc-brcmstb-waketimer.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+> index 796ac79..46116b7 100644
+> --- a/drivers/rtc/rtc-brcmstb-waketimer.c
+> +++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+> @@ -60,6 +60,10 @@ static void brcmstb_waketmr_set_alarm(struct brcmstb_waketmr *timer,
+>  {
+>  	brcmstb_waketmr_clear_alarm(timer);
+>  
+> +	/* Make sure we are actually counting in seconds */
+> +	writel_relaxed(BRCMSTB_WKTMR_DEFAULT_FREQ,
+> +			timer->base + BRCMSTB_WKTMR_PRESCALER);
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-pic32.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+The change is correct, however you would likely want to use timer->rate
+which makes sure that we either got the clock rate information from the
+LCCF, or we got the correct fixed rate frequency. With that fixed:
 
-diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
-index 5cfb6df5c430..c35b62564d3d 100644
---- a/drivers/rtc/rtc-pic32.c
-+++ b/drivers/rtc/rtc-pic32.c
-@@ -170,9 +170,7 @@ static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 
- 	rtc_tm->tm_year += 100;
- 
--	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
--		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
--		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
-+	dev_dbg(dev, "read time %ptR\n", rtc_tm);
- 
- 	clk_disable(pdata->clk);
- 	return rtc_valid_tm(rtc_tm);
-@@ -184,9 +182,7 @@ static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
- 	void __iomem *base = pdata->reg_base;
- 	int year = tm->tm_year - 100;
- 
--	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set time %ptR\n", tm);
- 
- 	if (year < 0 || year >= 100) {
- 		dev_err(dev, "rtc only supports 100 years\n");
-@@ -224,10 +220,7 @@ static int pic32_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	alrm->enabled = (alm_en & PIC32_RTCALRM_ALRMEN) ? 1 : 0;
- 
--	dev_dbg(dev, "getalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		alm_en,
--		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
--		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
-+	dev_dbg(dev, "getalarm: %d, %ptR\n", alm_en, alm_tm);
- 
- 	alm_tm->tm_sec = bcd2bin(alm_tm->tm_sec);
- 	alm_tm->tm_min = bcd2bin(alm_tm->tm_min);
-@@ -247,10 +240,7 @@ static int pic32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	void __iomem *base = pdata->reg_base;
- 
- 	clk_enable(pdata->clk);
--	dev_dbg(dev, "setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
--		alrm->enabled,
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "setalarm: %d, %ptR\n", alrm->enabled, tm);
- 
- 	writel(0x00, base + PIC32_ALRMTIME);
- 	writel(0x00, base + PIC32_ALRMDATE);
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.15.1
+Florian
