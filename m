@@ -1,86 +1,79 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7628 "EHLO mga04.intel.com"
+Received: from mail.bootlin.com ([62.4.15.54]:60876 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751273AbeBTVoJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:09 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 12/21] rtc: rk808: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:51 +0200
-Message-Id: <20180220214400.66749-13-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+        id S1751680AbeBYWPE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 25 Feb 2018 17:15:04 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: m41t80: remove useless indirection
+Date: Sun, 25 Feb 2018 23:15:00 +0100
+Message-Id: <20180225221500.28242-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+m41t80_get_datetime and m41t80_set_datetime are only used after casting dev
+to an i2c_client. Remove that useless indirection.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rk808.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-m41t80.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
-index 35c9aada07c8..09d6653bc0de 100644
---- a/drivers/rtc/rtc-rk808.c
-+++ b/drivers/rtc/rtc-rk808.c
-@@ -138,9 +138,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 	tm->tm_year = (bcd2bin(rtc_data[5] & YEARS_REG_MSK)) + 100;
- 	tm->tm_wday = bcd2bin(rtc_data[6] & WEEKS_REG_MSK);
- 	rockchip_to_gregorian(tm);
--	dev_dbg(dev, "RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "RTC date/time %ptRd(%d) %ptRt\n", tm, tm->tm_wday, tm);
- 
- 	return ret;
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index f77320948fc4..ad03e2f12f5d 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -198,9 +198,9 @@ static irqreturn_t m41t80_handle_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
  }
-@@ -153,9 +151,7 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	u8 rtc_data[NUM_TIME_REGS];
- 	int ret;
  
--	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
--		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	dev_dbg(dev, "set RTC date/time %ptRd(%d) %ptRt\n", tm, tm->tm_wday, tm);
- 	gregorian_to_rockchip(tm);
- 	rtc_data[0] = bin2bcd(tm->tm_sec);
- 	rtc_data[1] = bin2bcd(tm->tm_min);
-@@ -216,10 +212,8 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		return ret;
- 	}
+-static int m41t80_get_datetime(struct i2c_client *client,
+-			       struct rtc_time *tm)
++static int m41t80_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	unsigned char buf[8];
+ 	int err, flags;
  
--	dev_dbg(dev, "alrm read RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + alrm->time.tm_year, alrm->time.tm_mon + 1,
--		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
--		alrm->time.tm_min, alrm->time.tm_sec);
-+	dev_dbg(dev, "alrm read RTC date/time %ptRd(%d) %ptRt\n",
-+		&alrm->time, alrm->time.tm_wday, &alrm->time);
+@@ -232,9 +232,9 @@ static int m41t80_get_datetime(struct i2c_client *client,
+ 	return 0;
+ }
  
- 	alrm->enabled = (int_reg & BIT_RTC_INTERRUPTS_REG_IT_ALARM_M) ? 1 : 0;
+-/* Sets the given date and time to the real time clock. */
+-static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int m41t80_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct m41t80_data *clientdata = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int err, flags;
+@@ -297,16 +297,6 @@ static int m41t80_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	return 0;
+ }
  
-@@ -261,10 +255,8 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		dev_err(dev, "Failed to stop alarm: %d\n", ret);
- 		return ret;
- 	}
--	dev_dbg(dev, "alrm set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
--		1900 + alrm->time.tm_year, alrm->time.tm_mon + 1,
--		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
--		alrm->time.tm_min, alrm->time.tm_sec);
-+	dev_dbg(dev, "alrm set RTC date/time %ptRd(%d) %ptRt\n",
-+		&alrm->time, alrm->time.tm_wday, &alrm->time);
+-static int m41t80_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return m41t80_get_datetime(to_i2c_client(dev), tm);
+-}
+-
+-static int m41t80_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	return m41t80_set_datetime(to_i2c_client(dev), tm);
+-}
+-
+ static int m41t80_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+@@ -947,7 +937,7 @@ static int m41t80_probe(struct i2c_client *client,
  
- 	gregorian_to_rockchip(&alrm->time);
- 	alrm_data[0] = bin2bcd(alrm->time.tm_sec);
+ 	if (rc >= 0 && rc & M41T80_ALHOUR_HT) {
+ 		if (m41t80_data->features & M41T80_FEATURE_HT) {
+-			m41t80_get_datetime(client, &tm);
++			m41t80_rtc_read_time(&client->dev, &tm);
+ 			dev_info(&client->dev, "HT bit was set!\n");
+ 			dev_info(&client->dev,
+ 				 "Power Down at %04i-%02i-%02i %02i:%02i:%02i\n",
 -- 
-2.15.1
+2.16.2
