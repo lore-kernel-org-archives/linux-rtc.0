@@ -1,45 +1,71 @@
-Return-Path: <plyatov@gmail.com>
+Date: Sun, 25 Feb 2018 01:34:58 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+	Igor Plyatov <plyatov@gmail.com>, linux-kernel@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
+	util-linux@vger.kernel.org, J William Piggott <elseifthen@gmx.com>
 Subject: Re: 500 ms delay in time saved into RTC
-To: Karel Zak <kzak@redhat.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com, util-linux@vger.kernel.org,
- J William Piggott <elseifthen@gmx.com>
+Message-ID: <20180225003458.GB19904@piout.net>
 References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
  <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
  <20180219110328.n7yjorinjm3xxckr@ws.net.home>
-From: Igor Plyatov <plyatov@gmail.com>
-Message-ID: <0ce68f3f-fec7-1f1c-e70b-331c0752f6d6@gmail.com>
-Date: Mon, 19 Feb 2018 14:31:23 +0300
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 In-Reply-To: <20180219110328.n7yjorinjm3xxckr@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
 List-ID: <rtc-linux.googlegroups.com>
 
-Dear Karel,
+Hi,
 
-
+On 19/02/2018 at 12:03:28 +0100, Karel Zak wrote:
+> On Mon, Feb 19, 2018 at 08:11:05AM +0100, Rasmus Villemoes wrote:
+> > It's because util-linux's hwclock still assumes the world is x86. See
+> > this comment in the util-linux source code:
+> > 
+> >         /*
+> >          * The Hardware Clock can only be set to any integer time plus one
+> >          * half second.  The integer time is required because there is no
+> >          * interface to set or get a fractional second.  The additional half
+> >          * second is because the Hardware Clock updates to the following
+> >          * second precisely 500 ms (not 1 second!) after you release the
+> >          * divider reset (after setting the new time) - see description of
+> >          * DV2, DV1, DV0 in Register A in the MC146818A data sheet (and note
+> > 
+> > So if hwclock is asked to --systohc at time 01:02:03.x, it waits until
+> > the time is 01:02:03.5 to set the rtc to 01:02:03, or if that has
+> > already passed, waits until  01:02:04.5 and sets it to 01:02:04.
+> > 
+> > On our ARM BSP we patch util-linux to have the "implicit fractional
+> > part" configurable, and trying to upstream something like that has been
+> > on my todo-list for quite a while. See
+> > 
+> > https://raw.githubusercontent.com/oe-lite/base/master/recipes/util-linux/util-linux-2.29/hwclock-tweak-delay.patch
+> > 
+> > for the patch we currently use (on top of that, we change the 0.5
+> > initializer to 0.0 to avoid having to always pass the --delay argument).
+> > Incidentally, it seems we're on the same util-linux version, so you
+> > should be able to try out that patch and see if it works for you.
+> 
 > Would be possible to somehow detect what is the right default setting for
 > --delay? I mean for example detect architecture / clock HW, etc.
->
+> 
 > I have no problem with --delay, but it's tuning for advanced users and
 > HW specific stuff. It would be nice to have something more portable.
->
->      Karel
->
+> 
 
-As I understood, issue exists only at x86 platform, where 
-MC146818-compatible RTC used.
+This is what I'm using to synchronize the RTC to the system time:
 
-But even if you will correctly detect platform, there is no guaranty to 
-get exactly MC146818 RTC. RTC can be other type. It even can be not 
-single in the system.
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/rtc-tools.git/tree/rtc-sync.c
 
-What is more or less usable is "/sys/class/rtc/rtcX/name" file, which 
-contains driver name.
-For x86 and MC146818-compatible RTC its name is "rtc_cmos". And it can 
-be used to distinguish RTC type by hwclock utility.
+With sane RTCs, it manages to do so with a good precision, 10µs on a
+pcf85363 connected to a sama5d4 xplained, 96µs on my PC.
 
-Best wishes.
---
-Igor Plyatov
+It can still be improved and doesn't handle RTCs in localtime.
+
+I'm planning to integrate that in hwclock at some point i(hopefully
+soon) but I didn't have the time to dive too much in the code yet.
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
