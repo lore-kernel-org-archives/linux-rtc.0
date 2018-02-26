@@ -1,78 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:37775 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1161844AbeBOUpN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Feb 2018 15:45:13 -0500
-Date: Thu, 15 Feb 2018 21:44:53 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Colin King <colin.king@canonical.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][V2] rtc: tx4939: avoid unintended sign extension on a 24
- bit shift
-Message-ID: <20180215204453.GE14177@piout.net>
-References: <20180215193614.28684-1-colin.king@canonical.com>
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:36281 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751022AbeBZShb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:37:31 -0500
+Received: by mail-pl0-f65.google.com with SMTP id v3so9774125plg.3
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:37:31 -0800 (PST)
+Date: Mon, 26 Feb 2018 10:37:28 -0800
+From: Brian Norris <briannorris@chromium.org>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
+        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
+ in the past
+Message-ID: <20180226183727.GC225858@rodete-desktop-imager.corp.google.com>
+References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180215193614.28684-1-colin.king@canonical.com>
+In-Reply-To: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 15/02/2018 at 19:36:14 +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The shifting of buf[5] by 24 bits to the left will be promoted to
-> a 32 bit signed int and then sign-extended to an unsigned long. If
-> the top bit of buf[5] is set then all then all the upper bits sec
-> end up as also being set because of the sign-extension. Fix this by
-> casting buf[5] to an unsigned long before the shift.
-> 
+One last note:
 
-The timing of the discovery of this issue is suspicious. I believe it is
-because I just enabled COMPILE_TEST on that driver and now this gets
-compiled on a 64bit architecture.
-
-Can I ask on which architecture this is an issue? I don't think (and a
-small test program confirms) x86 does the sign extension because both
-sec and buf are unsigned.
-
-> Detected by CoverityScan, CID#1465292 ("Unintended sign extension")
+On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
+> We have a check in __rtc_set_alarm() to return -ETIME when the alarm
+> is in the past.
 > 
-> Fixes: 0e1492330cd2 ("rtc: add rtc-tx4939 driver")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Since accessing a Chrome OS EC based rtc is a slow operation, we should
+> do that check again inside of the EC rtc driver's .set_alarm() callback.
+> 
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 > ---
->  drivers/rtc/rtc-tx4939.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-tx4939.c b/drivers/rtc/rtc-tx4939.c
-> index feededce3ded..1f351308afdc 100644
-> --- a/drivers/rtc/rtc-tx4939.c
-> +++ b/drivers/rtc/rtc-tx4939.c
-> @@ -109,7 +109,8 @@ static int tx4939_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  	for (i = 2; i < 6; i++)
->  		buf[i] = __raw_readl(&rtcreg->dat);
->  	spin_unlock_irq(&pdata->lock);
-> -	sec = (buf[5] << 24) | (buf[4] << 16) | (buf[3] << 8) | buf[2];
-> +	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
-> +		(buf[3] << 8) | buf[2];
->  	rtc_time_to_tm(sec, tm);
->  	return rtc_valid_tm(tm);
->  }
-> @@ -170,7 +171,8 @@ static int tx4939_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	alrm->enabled = (ctl & TX4939_RTCCTL_ALME) ? 1 : 0;
->  	alrm->pending = (ctl & TX4939_RTCCTL_ALMD) ? 1 : 0;
->  	spin_unlock_irq(&pdata->lock);
-> -	sec = (buf[5] << 24) | (buf[4] << 16) | (buf[3] << 8) | buf[2];
-> +	sec = ((unsigned long)buf[5] << 24) | (buf[4] << 16) |
-> +		(buf[3] << 8) | buf[2];
->  	rtc_time_to_tm(sec, &alrm->time);
->  	return rtc_valid_tm(&alrm->time);
->  }
-> -- 
-> 2.15.1
+>  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
+> diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+> index f0ea6899c731..ee0062e2d222 100644
+> --- a/drivers/rtc/rtc-cros-ec.c
+> +++ b/drivers/rtc/rtc-cros-ec.c
+> @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	if (alarm_time < 0 || alarm_time > U32_MAX)
+>  		return -EINVAL;
+>  
+> +	/* Don't set an alarm in the past. */
+> +	if ((u32)alarm_time <= current_time)
+> +		return -ETIME;
+> +
+>  	if (!alrm->enabled) {
+>  		/*
+>  		 * If the alarm is being disabled, send an alarm
+> @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  		alarm_offset = EC_RTC_ALARM_CLEAR;
+>  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
+>  	} else {
+> -		/* Don't set an alarm in the past. */
+> -		if ((u32)alarm_time < current_time)
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+It's probably worth noting in the commit message that you're also fixing
+the case where 'alarm_time == current_time'; in the current driver
+source, it *looks* like you're setting a 0-second alarm. But in fact, 0
+means EC_RTC_ALARM_CLEAR, which would disable the alarm. So you are
+(correctly) returning -ETIME in that case.
+
+Brian
+
+> -			alarm_offset = EC_RTC_ALARM_CLEAR;
+> -		else
+> -			alarm_offset = (u32)alarm_time - current_time;
+> +		alarm_offset = (u32)alarm_time - current_time;
+>  	}
+>  
+>  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
+> -- 
+> 2.11.0
+> 
+> 
