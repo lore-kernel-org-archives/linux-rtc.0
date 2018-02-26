@@ -1,40 +1,113 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:46956 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751542AbeBUU5X (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:23 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 022/100] rtc: ds1343: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 21:55:17 +0100
-Message-Id: <20180221205635.31314-23-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:36298 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751728AbeBZSBS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:01:18 -0500
+Received: by mail-pg0-f68.google.com with SMTP id i14so1556269pgv.3
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:01:18 -0800 (PST)
+Date: Mon, 26 Feb 2018 10:01:15 -0800
+From: Brian Norris <briannorris@chromium.org>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
+        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
+ in the past
+Message-ID: <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
+References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Hi Jeffy,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1343.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
+> We have a check in __rtc_set_alarm() to return -ETIME when the alarm
+> is in the past.
+> 
+> Since accessing a Chrome OS EC based rtc is a slow operation, we should
+> do that check again inside of the EC rtc driver's .set_alarm() callback.
 
-diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
-index 59d27db2fd37..5208da4cf94a 100644
---- a/drivers/rtc/rtc-ds1343.c
-+++ b/drivers/rtc/rtc-ds1343.c
-@@ -254,7 +254,7 @@ static int ds1343_read_time(struct device *dev, struct rtc_time *dt)
- 	dt->tm_mon	= bcd2bin(buf[5] & 0x1F) - 1;
- 	dt->tm_year	= bcd2bin(buf[6]) + 100; /* year offset from 1900 */
- 
--	return rtc_valid_tm(dt);
-+	return 0;
- }
- 
- static int ds1343_set_time(struct device *dev, struct rtc_time *dt)
--- 
-2.16.1
+Thanks for the patch. I'd note that this is related to the race
+documented in __rtc_set_alarm() (drivers/rtc/interface.c):
+
+        /*
+         * XXX - We just checked to make sure the alarm time is not
+         * in the past, but there is still a race window where if
+         * the is alarm set for the next second and the second ticks
+         * over right here, before we set the alarm.
+         */
+
+It feels like we should put this comment somewhere more prominent;
+perhaps some kerneldoc for the .set_alarm() callback? Because I suspect
+that nearly every RTC driver is susceptible to this problem.
+
+Anyway, I think this patch is helpful, because as you note the EC
+protocol is relatively slow (it's much more than just a register write),
+but your patch still doesn't really cover the whole problem. Even if you
+compare the current time here, time marches on between here and
+EC_CMD_RTC_SET_ALARM. So you can still have the same race, where the RTC
+makes another tick before we set the alarm? Just think: what if we slept
+for a second right after that -ETIME check?
+
+What happens next...depends on the implementation I suppose. It's
+possible that an alarm could still immediately fire for a "past" event.
+But it's also possible the alarm will get dropped [1].
+
+I wonder if a better solution would be to re-check the clock right after
+setting the alarm. If the alarm is already past, then we should return
+-ETIME? Is there any harm in double-reporting an alarm? (If so, we could
+try to add accounting information somehow...)
+
+I also wonder if that check should be done in the generic code (perhaps
+with a flag to opt-in or opt-out?), since this really seems like a
+fundamental problem of the interface.
+
+Brian
+
+[1] And lest we think that dropping it is fine: this breaks, e.g.,
+hwclock which relies on RTC_UIE_ON -> rtc_update_irq_enable(), which
+sets a 1-second alarm and expects it to fire an interrupt.
+
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> ---
+> 
+>  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+> index f0ea6899c731..ee0062e2d222 100644
+> --- a/drivers/rtc/rtc-cros-ec.c
+> +++ b/drivers/rtc/rtc-cros-ec.c
+> @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  	if (alarm_time < 0 || alarm_time > U32_MAX)
+>  		return -EINVAL;
+>  
+> +	/* Don't set an alarm in the past. */
+> +	if ((u32)alarm_time <= current_time)
+> +		return -ETIME;
+> +
+>  	if (!alrm->enabled) {
+>  		/*
+>  		 * If the alarm is being disabled, send an alarm
+> @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  		alarm_offset = EC_RTC_ALARM_CLEAR;
+>  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
+>  	} else {
+> -		/* Don't set an alarm in the past. */
+> -		if ((u32)alarm_time < current_time)
+> -			alarm_offset = EC_RTC_ALARM_CLEAR;
+> -		else
+> -			alarm_offset = (u32)alarm_time - current_time;
+> +		alarm_offset = (u32)alarm_time - current_time;
+>  	}
+>  
+>  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
+> -- 
+> 2.11.0
+> 
+> 
