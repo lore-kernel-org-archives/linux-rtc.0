@@ -1,153 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35632 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934310AbeBUObI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 09:31:08 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v2] rtc: m48t59: use generic nvmem
-Date: Wed, 21 Feb 2018 15:30:55 +0100
-Message-Id: <20180221143055.22960-1-alexandre.belloni@bootlin.com>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:40577 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751064AbeBZIed (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 03:34:33 -0500
+Received: by mail-pf0-f194.google.com with SMTP id m5so6225046pff.7
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 00:34:33 -0800 (PST)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: arnd@arndb.de, broonie@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, baolin.wang@linaro.org,
+        alexandre.belloni@free-electrons.com
+Subject: [RESEND PATCH 1/3] rtc: Use time64_t to save range_max of RTC
+Date: Mon, 26 Feb 2018 16:33:56 +0800
+Message-Id: <b8a475beaa4739032e3346572af2e412ebccb787.1519633350.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Instead of adding a binary sysfs attribute from the driver (which suffers
-from a race condition as the attribute appears after the device), use the
-core to register an nvmem device.
+We need use rtc->range_max to valid if the time values are valid,
+and the time values are saved by time64_t type. So change the
+rtc->range_max to time64_t type for comparison correctly.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
+ include/linux/rtc.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in v2:
- - set nvmem_cfg.size once pdata->offset is defined
-
- drivers/rtc/rtc-m48t59.c | 56 ++++++++++++++++++++----------------------------
- 1 file changed, 23 insertions(+), 33 deletions(-)
-
-diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
-index e248e56ff8a1..c6af83505448 100644
---- a/drivers/rtc/rtc-m48t59.c
-+++ b/drivers/rtc/rtc-m48t59.c
-@@ -334,16 +334,16 @@ static const struct rtc_class_ops m48t02_rtc_ops = {
- 	.set_time	= m48t59_rtc_set_time,
- };
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index bdfc0c4..8560282 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -152,7 +152,7 @@ struct rtc_device {
+ 	struct bin_attribute *nvram;
  
--static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
--				struct bin_attribute *bin_attr,
--				char *buf, loff_t pos, size_t size)
-+static int m48t59_nvram_read(void *priv, unsigned int offset, void *val,
-+			     size_t size)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct platform_device *pdev = to_platform_device(dev);
-+	struct platform_device *pdev = priv;
-+	struct device *dev = &pdev->dev;
- 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
- 	ssize_t cnt = 0;
- 	unsigned long flags;
-+	u8 *buf = val;
+ 	time64_t range_min;
+-	timeu64_t range_max;
++	time64_t range_max;
  
- 	spin_lock_irqsave(&m48t59->lock, flags);
- 
-@@ -352,19 +352,19 @@ static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
- 
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
- 
--	return cnt;
-+	return 0;
- }
- 
--static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
--				struct bin_attribute *bin_attr,
--				char *buf, loff_t pos, size_t size)
-+static int m48t59_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t size)
- {
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct platform_device *pdev = to_platform_device(dev);
-+	struct platform_device *pdev = priv;
-+	struct device *dev = &pdev->dev;
- 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
- 	ssize_t cnt = 0;
- 	unsigned long flags;
-+	u8 *buf = val;
- 
- 	spin_lock_irqsave(&m48t59->lock, flags);
- 
-@@ -373,18 +373,9 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
- 
- 	spin_unlock_irqrestore(&m48t59->lock, flags);
- 
--	return cnt;
-+	return 0;
- }
- 
--static struct bin_attribute m48t59_nvram_attr = {
--	.attr = {
--		.name = "nvram",
--		.mode = S_IRUGO | S_IWUSR,
--	},
--	.read = m48t59_nvram_read,
--	.write = m48t59_nvram_write,
--};
--
- static int m48t59_rtc_probe(struct platform_device *pdev)
- {
- 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
-@@ -393,6 +384,14 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
- 	int ret = -ENOMEM;
- 	char *name;
- 	const struct rtc_class_ops *ops;
-+	struct nvmem_config nvmem_cfg = {
-+		.name = "m48t59-",
-+		.word_size = 1,
-+		.stride = 1,
-+		.reg_read = m48t59_nvram_read,
-+		.reg_write = m48t59_nvram_write,
-+		.priv = pdev,
-+	};
- 
- 	/* This chip could be memory-mapped or I/O-mapped */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -484,24 +483,16 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(m48t59->rtc))
- 		return PTR_ERR(m48t59->rtc);
- 
-+	m48t59->rtc->nvram_old_abi = true;
- 	m48t59->rtc->ops = ops;
- 
- 	ret = rtc_register_device(m48t59->rtc);
- 	if (ret)
- 		return ret;
- 
--	m48t59_nvram_attr.size = pdata->offset;
-+	nvmem_cfg.size = pdata->offset;
-+	rtc_nvmem_register(m48t59->rtc, &nvmem_cfg);
- 
--	ret = sysfs_create_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
--	if (ret)
--		return ret;
--
--	return 0;
--}
--
--static int m48t59_rtc_remove(struct platform_device *pdev)
--{
--	sysfs_remove_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
- 	return 0;
- }
- 
-@@ -513,7 +504,6 @@ static struct platform_driver m48t59_rtc_driver = {
- 		.name	= "rtc-m48t59",
- 	},
- 	.probe		= m48t59_rtc_probe,
--	.remove		= m48t59_rtc_remove,
- };
- 
- module_platform_driver(m48t59_rtc_driver);
+ #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+ 	struct work_struct uie_task;
 -- 
-2.16.1
+1.7.9.5
