@@ -1,41 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47083 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752014AbeBUU5z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:55 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Received: from rnd-relay.smtp.broadcom.com ([192.19.229.170]:41248 "EHLO
+        rnd-relay.smtp.broadcom.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750814AbeBZULQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 15:11:16 -0500
+From: Justin Chen <justin.chen@broadcom.com>
 To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 088/100] rtc: tile: remove useless message
-Date: Wed, 21 Feb 2018 21:56:23 +0100
-Message-Id: <20180221205635.31314-89-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        computersforpeace@gmail.com, gregory.0xf0@gmail.com,
+        f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org,
+        Justin Chen <justin.chen@broadcom.com>,
+        Justin Chen <justinpopo6@gmail.com>
+Subject: [PATCH v2] rtc: brcmstb-waketimer: Set wktmr prescaler
+Date: Mon, 26 Feb 2018 12:09:58 -0800
+Message-Id: <1519675798-26720-1-git-send-email-justin.chen@broadcom.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-It is not necessary to print a message when the time is invalid as
-userspace will already get an error (and an optional dev_dbg message).
+The HW default is one tick per second, however instead of assuming this,
+lets make sure the waketimer is actually one tick per second before
+arming the alarm.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
 ---
- drivers/rtc/rtc-tile.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/rtc/rtc-brcmstb-waketimer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/rtc/rtc-tile.c b/drivers/rtc/rtc-tile.c
-index 0b60867d8390..ef1cdabf05b4 100644
---- a/drivers/rtc/rtc-tile.c
-+++ b/drivers/rtc/rtc-tile.c
-@@ -39,9 +39,6 @@ static int read_rtc_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_yday = 0;
- 	tm->tm_isdst = 0;
+diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+index 796ac79..231b2f7 100644
+--- a/drivers/rtc/rtc-brcmstb-waketimer.c
++++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+@@ -60,6 +60,9 @@ static void brcmstb_waketmr_set_alarm(struct brcmstb_waketmr *timer,
+ {
+ 	brcmstb_waketmr_clear_alarm(timer);
  
--	if (rtc_valid_tm(tm) < 0)
--		dev_warn(dev, "Read invalid date/time from RTC\n");
--
- 	return 0;
++	/* Make sure we are actually counting in seconds */
++	writel_relaxed(timer->rate, timer->base + BRCMSTB_WKTMR_PRESCALER);
++
+ 	writel_relaxed(secs + 1, timer->base + BRCMSTB_WKTMR_ALARM);
  }
  
 -- 
-2.16.1
+2.7.4
