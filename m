@@ -1,204 +1,139 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:4747 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750799AbeBTVoG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:06 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 02/21] rtc: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:41 +0200
-Message-Id: <20180220214400.66749-3-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36579 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750762AbeBZSY2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 13:24:28 -0500
+Received: by mail-pf0-f196.google.com with SMTP id 68so6857096pfx.3
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Feb 2018 10:24:28 -0800 (PST)
+Date: Mon, 26 Feb 2018 10:24:25 -0800
+From: Brian Norris <briannorris@chromium.org>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
+        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
+ in the past
+Message-ID: <20180226182424.GB225858@rodete-desktop-imager.corp.google.com>
+References: <20180225081802.8965-1-jeffy.chen@rock-chips.com>
+ <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180226180112.GA225858@rodete-desktop-imager.corp.google.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+Hi Jeffy,
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/char/Kconfig    |  1 +
- drivers/char/rtc.c      |  7 +++----
- drivers/rtc/Kconfig     |  1 +
- drivers/rtc/hctosys.c   |  8 ++------
- drivers/rtc/interface.c |  8 ++------
- drivers/rtc/rtc-proc.c  | 36 +++++-------------------------------
- drivers/rtc/rtc-sysfs.c | 12 ++++--------
- 7 files changed, 18 insertions(+), 55 deletions(-)
+A few corrections here. (Sorry, I didn't completely reread the driver
+here before sending.)
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index c28dca0c613d..c96e00ebeae9 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -297,6 +297,7 @@ if RTC_LIB=n
- config RTC
- 	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
- 	depends on ALPHA || (MIPS && MACH_LOONGSON64)
-+	select PRINTK_PEXT_TIMEDATE
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
-index 57dc546628b5..379023328a6f 100644
---- a/drivers/char/rtc.c
-+++ b/drivers/char/rtc.c
-@@ -1148,11 +1148,10 @@ static int rtc_proc_show(struct seq_file *seq, void *v)
- 	 * time or for Universal Standard Time (GMT). Probably local though.
- 	 */
- 	seq_printf(seq,
--		   "rtc_time\t: %02d:%02d:%02d\n"
--		   "rtc_date\t: %04d-%02d-%02d\n"
-+		   "rtc_time\t: %ptRt\n"
-+		   "rtc_date\t: %ptRd\n"
- 		   "rtc_epoch\t: %04lu\n",
--		   tm.tm_hour, tm.tm_min, tm.tm_sec,
--		   tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, epoch);
-+		   &tm, &tm, epoch);
- 
- 	get_rtc_alm_time(&tm);
- 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index f6d7e490e714..da9e49e7c30e 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -4,6 +4,7 @@
- 
- config RTC_LIB
- 	bool
-+	select PRINTK_PEXT_TIMEDATE
- 
- config RTC_MC146818_LIB
- 	bool
-diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
-index e1cfa06810ef..9989109781b8 100644
---- a/drivers/rtc/hctosys.c
-+++ b/drivers/rtc/hctosys.c
-@@ -51,12 +51,8 @@ static int __init rtc_hctosys(void)
- 
- 	err = do_settimeofday64(&tv64);
- 
--	dev_info(rtc->dev.parent,
--		"setting system clock to "
--		"%d-%02d-%02d %02d:%02d:%02d UTC (%lld)\n",
--		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
--		tm.tm_hour, tm.tm_min, tm.tm_sec,
--		(long long) tv64.tv_sec);
-+	dev_info(rtc->dev.parent, "setting system clock to %ptR UTC (%lld)\n",
-+		 &tm, (long long)tv64.tv_sec);
- 
- err_read:
- 	rtc_class_close(rtc);
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 7e253be19ba7..ea4afe3893f2 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -297,12 +297,8 @@ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- 	err = rtc_valid_tm(&alarm->time);
- 
- done:
--	if (err) {
--		dev_warn(&rtc->dev, "invalid alarm value: %d-%d-%d %d:%d:%d\n",
--			alarm->time.tm_year + 1900, alarm->time.tm_mon + 1,
--			alarm->time.tm_mday, alarm->time.tm_hour, alarm->time.tm_min,
--			alarm->time.tm_sec);
--	}
-+	if (err)
-+		dev_warn(&rtc->dev, "invalid alarm value: %ptR\n", &alarm->time);
- 
- 	return err;
- }
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index 31e7e23cc5be..2aed9a0042d8 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -50,41 +50,15 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
- 	err = rtc_read_time(rtc, &tm);
- 	if (err == 0) {
- 		seq_printf(seq,
--			"rtc_time\t: %02d:%02d:%02d\n"
--			"rtc_date\t: %04d-%02d-%02d\n",
--			tm.tm_hour, tm.tm_min, tm.tm_sec,
--			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-+				"rtc_time\t: %ptRt\n"
-+				"rtc_date\t: %ptRd\n",
-+				&tm, &tm);
- 	}
- 
- 	err = rtc_read_alarm(rtc, &alrm);
- 	if (err == 0) {
--		seq_printf(seq, "alrm_time\t: ");
--		if ((unsigned int)alrm.time.tm_hour <= 24)
--			seq_printf(seq, "%02d:", alrm.time.tm_hour);
--		else
--			seq_printf(seq, "**:");
--		if ((unsigned int)alrm.time.tm_min <= 59)
--			seq_printf(seq, "%02d:", alrm.time.tm_min);
--		else
--			seq_printf(seq, "**:");
--		if ((unsigned int)alrm.time.tm_sec <= 59)
--			seq_printf(seq, "%02d\n", alrm.time.tm_sec);
--		else
--			seq_printf(seq, "**\n");
--
--		seq_printf(seq, "alrm_date\t: ");
--		if ((unsigned int)alrm.time.tm_year <= 200)
--			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
--		else
--			seq_printf(seq, "****-");
--		if ((unsigned int)alrm.time.tm_mon <= 11)
--			seq_printf(seq, "%02d-", alrm.time.tm_mon + 1);
--		else
--			seq_printf(seq, "**-");
--		if (alrm.time.tm_mday && (unsigned int)alrm.time.tm_mday <= 31)
--			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
--		else
--			seq_printf(seq, "**\n");
-+		seq_printf(seq, "alrm_time\t: %ptRtv\n", &alrm.time);
-+		seq_printf(seq, "alrm_date\t: %ptRdv\n", &alrm.time);
- 		seq_printf(seq, "alarm_IRQ\t: %s\n",
- 				alrm.enabled ? "yes" : "no");
- 		seq_printf(seq, "alrm_pending\t: %s\n",
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 92ff2edb86a6..0b96926a98e4 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -39,10 +39,8 @@ date_show(struct device *dev, struct device_attribute *attr, char *buf)
- 	struct rtc_time tm;
- 
- 	retval = rtc_read_time(to_rtc_device(dev), &tm);
--	if (retval == 0) {
--		retval = sprintf(buf, "%04d-%02d-%02d\n",
--			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
--	}
-+	if (retval == 0)
-+		retval = sprintf(buf, "%ptRd\n", &tm);
- 
- 	return retval;
- }
-@@ -55,10 +53,8 @@ time_show(struct device *dev, struct device_attribute *attr, char *buf)
- 	struct rtc_time tm;
- 
- 	retval = rtc_read_time(to_rtc_device(dev), &tm);
--	if (retval == 0) {
--		retval = sprintf(buf, "%02d:%02d:%02d\n",
--			tm.tm_hour, tm.tm_min, tm.tm_sec);
--	}
-+	if (retval == 0)
-+		retval = sprintf(buf, "%ptRt\n", &tm);
- 
- 	return retval;
- }
--- 
-2.15.1
+On Mon, Feb 26, 2018 at 10:01:15AM -0800, Brian Norris wrote:
+> On Sun, Feb 25, 2018 at 04:18:02PM +0800, Jeffy Chen wrote:
+> > We have a check in __rtc_set_alarm() to return -ETIME when the alarm
+> > is in the past.
+> > 
+> > Since accessing a Chrome OS EC based rtc is a slow operation, we should
+> > do that check again inside of the EC rtc driver's .set_alarm() callback.
+> 
+> Thanks for the patch. I'd note that this is related to the race
+> documented in __rtc_set_alarm() (drivers/rtc/interface.c):
+> 
+>         /*
+>          * XXX - We just checked to make sure the alarm time is not
+>          * in the past, but there is still a race window where if
+>          * the is alarm set for the next second and the second ticks
+>          * over right here, before we set the alarm.
+>          */
+> 
+> It feels like we should put this comment somewhere more prominent;
+> perhaps some kerneldoc for the .set_alarm() callback? Because I suspect
+> that nearly every RTC driver is susceptible to this problem.
+> 
+> Anyway, I think this patch is helpful, because as you note the EC
+> protocol is relatively slow (it's much more than just a register write),
+> but your patch still doesn't really cover the whole problem. Even if you
+> compare the current time here, time marches on between here and
+> EC_CMD_RTC_SET_ALARM. So you can still have the same race, where the RTC
+> makes another tick before we set the alarm? Just think: what if we slept
+> for a second right after that -ETIME check?
+> 
+> What happens next...depends on the implementation I suppose. It's
+> possible that an alarm could still immediately fire for a "past" event.
+> But it's also possible the alarm will get dropped [1].
+
+In the particular case of this driver...we're actually OK because the
+alarm time is programmed via an offset. So as long as we give it a
+postive number, we're in the clear. We might set a longer than-expected
+alarm I suppose, but that's not the end of the world...
+
+> I wonder if a better solution would be to re-check the clock right after
+> setting the alarm. If the alarm is already past, then we should return
+> -ETIME? Is there any harm in double-reporting an alarm? (If so, we could
+> try to add accounting information somehow...)
+> 
+> I also wonder if that check should be done in the generic code (perhaps
+> with a flag to opt-in or opt-out?), since this really seems like a
+> fundamental problem of the interface.
+
+Given we actually don't need this approach for the CrOS EC code, it
+definitely would need to be possible to disable such code ;) But that
+still doesn't mean other RTC drivers are safe.
+
+One more note below:
+
+> Brian
+> 
+> [1] And lest we think that dropping it is fine: this breaks, e.g.,
+> hwclock which relies on RTC_UIE_ON -> rtc_update_irq_enable(), which
+> sets a 1-second alarm and expects it to fire an interrupt.
+
+> > Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> > ---
+> > 
+> >  drivers/rtc/rtc-cros-ec.c | 10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+> > index f0ea6899c731..ee0062e2d222 100644
+> > --- a/drivers/rtc/rtc-cros-ec.c
+> > +++ b/drivers/rtc/rtc-cros-ec.c
+> > @@ -188,6 +188,10 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> >  	if (alarm_time < 0 || alarm_time > U32_MAX)
+> >  		return -EINVAL;
+> >  
+> > +	/* Don't set an alarm in the past. */
+> > +	if ((u32)alarm_time <= current_time)
+> > +		return -ETIME;
+
+I don't think we want this check on the 'disabled' case. Perhaps just
+keep this under the 'else' below still?
+
+In fact, there are *no* callers of __rtc_set_alarm() with
+!alrm->enabled, but still, since this driver is *trying* to account for
+that, it seems wise to retain that attempt (or else remove it entirely).
+
+Brian
+
+> > +
+> >  	if (!alrm->enabled) {
+> >  		/*
+> >  		 * If the alarm is being disabled, send an alarm
+> > @@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> >  		alarm_offset = EC_RTC_ALARM_CLEAR;
+> >  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
+> >  	} else {
+> > -		/* Don't set an alarm in the past. */
+> > -		if ((u32)alarm_time < current_time)
+> > -			alarm_offset = EC_RTC_ALARM_CLEAR;
+> > -		else
+> > -			alarm_offset = (u32)alarm_time - current_time;
+> > +		alarm_offset = (u32)alarm_time - current_time;
+> >  	}
+> >  
+> >  	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
+> > -- 
+> > 2.11.0
+> > 
+> > 
