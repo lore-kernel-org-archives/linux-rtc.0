@@ -1,127 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:39428 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750795AbeBBK7Q (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Feb 2018 05:59:16 -0500
-Date: Fri, 2 Feb 2018 11:59:02 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC for 4.16
-Message-ID: <20180202105902.GA9418@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from regular1.263xmail.com ([211.150.99.136]:52162 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751505AbeB0Crm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 21:47:42 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org
+Cc: zyw@rock-chips.com, briannorris@google.com, dianders@google.com,
+        jwerner@chromium.org, Jeffy Chen <jeffy.chen@rock-chips.com>,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: [PATCH v3] rtc: cros-ec: return -ETIME when refused to set alarms in the past
+Date: Tue, 27 Feb 2018 10:47:34 +0800
+Message-Id: <20180227024734.7591-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Linus,
+Since accessing a Chrome OS EC based rtc is a slow operation, there is a
+race window where if the alarm is set for the next second and the second
+ticks over right before calculating the alarm offset.
 
-Here is the pull-request for the RTC subsystem for 4.16.
+In this case the current driver is setting a 0-second alarm, which would
+be considered as disabling alarms by the EC(EC_RTC_ALARM_CLEAR).
 
-Not much this cycle. I've pushed the at32ap700x removal late but it is
-unlikely to cause any issue.
+This breaks, e.g., hwclock which relies on RTC_UIE_ON ->
+rtc_update_irq_enable(), which sets a 1-second alarm and expects it to
+fire an interrupt.
 
-The following changes since commit 4fbd8d194f06c8a3fd2af1ce560ddb31f7ec8323:
+So return -ETIME when the alarm is in the past, follow __rtc_set_alarm().
 
-  Linux 4.15-rc1 (2017-11-26 16:01:47 -0800)
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-are available in the Git repository at:
+Changes in v3:
+Fix alarm time comparing.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.16
+Changes in v2:
+Rewrite commit message as Brian suggested.
+Check alarm time only when that alarm is enabled.
 
-for you to fetch changes up to 4402be2b4ca7f53b6213a9e6b3abe9cdcc683e9b:
+ drivers/rtc/rtc-cros-ec.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-  rtc: remove rtc-at32ap700x (2018-01-19 09:59:32 +0100)
-
-----------------------------------------------------------------
-RTC for 4.16
-
-Subsystem:
- - Move ABI documentation to Documentation/ABI
-
-New driver:
- - NXP i.MX53 SRTC
- - Chrome OS EC RTC
-
-Drivers:
- - Remove at32ap700x
- - Many fixes in various error paths
-
-----------------------------------------------------------------
-Aishwarya Pant (2):
-      Documentation: rtc: add sysfs file permissions
-      Documentation: rtc: move iotcl interface documentation to ABI
-
-Alexandre Belloni (2):
-      rtc: ac100: Fix multiple race conditions
-      Documentation: rtc: move sysfs documentation to ABI
-
-Alexey Khoroshilov (1):
-      rtc: brcmstb-waketimer: fix error handling in brcmstb_waketmr_probe()
-
-Andreas Platschek (1):
-      rtc: omap: fix unbalanced clk_prepare_enable/clk_disable_unprepare
-
-Arnd Bergmann (1):
-      rtc: mxc_v2: remove __exit annotation
-
-Benjamin Gaignard (1):
-      rtc: stm32: Fix copyright
-
-Cole Robinson (1):
-      rtc: Remove unused RTC_DEVICE_NAME_SIZE
-
-Colin Ian King (1):
-      rtc: sun6i: ensure rtc is kfree'd on error
-
-Corentin Labbe (1):
-      rtc: remove rtc-at32ap700x
-
-Fabio Estevam (1):
-      rtc: mxc_v2: Remove unnecessary platform_get_resource() error check
-
-Jia-Ju Bai (2):
-      rtc: r7301: Fix a possible sleep-in-atomic bug in rtc7301_read_time
-      rtc: r7301: Fix a possible sleep-in-atomic bug in rtc7301_set_time
-
-Nobuhiro Iwamatsu (1):
-      rtc: r9701: Remove r9701_remove function
-
-Patrick Bruenn (2):
-      dt-bindings: rtc: add bindings for i.MX53 SRTC
-      rtc: add mxc driver for i.MX53 SRTC
-
-Stephen Barber (2):
-      mfd: cros_ec: Introduce RTC commands and events definitions.
-      rtc: cros-ec: add cros-ec-rtc driver.
-
- Documentation/ABI/testing/rtc-cdev                 |  42 +++
- Documentation/ABI/testing/sysfs-class-rtc          |  91 +++++
- .../devicetree/bindings/rtc/rtc-mxc_v2.txt         |  17 +
- Documentation/rtc.txt                              |  81 +---
- drivers/rtc/Kconfig                                |  27 +-
- drivers/rtc/Makefile                               |   3 +-
- drivers/rtc/rtc-ac100.c                            |  19 +-
- drivers/rtc/rtc-at32ap700x.c                       | 287 --------------
- drivers/rtc/rtc-brcmstb-waketimer.c                |  15 +-
- drivers/rtc/rtc-cros-ec.c                          | 413 ++++++++++++++++++++
- drivers/rtc/rtc-mxc_v2.c                           | 419 +++++++++++++++++++++
- drivers/rtc/rtc-omap.c                             |   5 +-
- drivers/rtc/rtc-r7301.c                            |   4 +-
- drivers/rtc/rtc-r9701.c                            |   6 -
- drivers/rtc/rtc-stm32.c                            |   4 +-
- drivers/rtc/rtc-sun6i.c                            |   4 +-
- include/linux/mfd/cros_ec_commands.h               |   8 +
- include/linux/rtc.h                                |   1 -
- 18 files changed, 1049 insertions(+), 397 deletions(-)
- create mode 100644 Documentation/ABI/testing/rtc-cdev
- create mode 100644 Documentation/ABI/testing/sysfs-class-rtc
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc_v2.txt
- delete mode 100644 drivers/rtc/rtc-at32ap700x.c
- create mode 100644 drivers/rtc/rtc-cros-ec.c
- create mode 100644 drivers/rtc/rtc-mxc_v2.c
-
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index f0ea6899c731..510a4ced2edf 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -198,9 +198,9 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	} else {
+ 		/* Don't set an alarm in the past. */
+ 		if ((u32)alarm_time < current_time)
+-			alarm_offset = EC_RTC_ALARM_CLEAR;
+-		else
+-			alarm_offset = (u32)alarm_time - current_time;
++			return -ETIME;
++
++		alarm_offset = (u32)alarm_time - current_time;
+ 	}
+ 
+ 	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_ALARM, alarm_offset);
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
