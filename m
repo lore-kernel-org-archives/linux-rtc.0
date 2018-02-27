@@ -1,41 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:48233 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750716AbeBUVqg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 16:46:36 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] powerpc/time: stop validating rtc_time in .read_time
-Date: Wed, 21 Feb 2018 22:46:33 +0100
-Message-Id: <20180221214633.2012-1-alexandre.belloni@bootlin.com>
+Received: from regular1.263xmail.com ([211.150.99.136]:57300 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751505AbeB0Cys (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Feb 2018 21:54:48 -0500
+Message-ID: <5A94C863.5060504@rock-chips.com>
+Date: Tue, 27 Feb 2018 10:54:27 +0800
+From: JeffyChen <jeffy.chen@rock-chips.com>
+MIME-Version: 1.0
+To: Brian Norris <briannorris@chromium.org>
+CC: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
+        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH] rtc: cros-ec: return -ETIME when refused to set alarms
+ in the past
+References: <20180225081802.8965-1-jeffy.chen@rock-chips.com> <20180226183727.GC225858@rodete-desktop-imager.corp.google.com>
+In-Reply-To: <20180226183727.GC225858@rodete-desktop-imager.corp.google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always calling rtc_valid_tm after the read_time callback.
-It is not necessary to call it just before returning from the callback.
+Hi Brian,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- arch/powerpc/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for your reply.
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index a32823dcd9a4..f7d96a68ecaa 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -1234,7 +1234,7 @@ void calibrate_delay(void)
- static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
- {
- 	ppc_md.get_rtc_time(tm);
--	return rtc_valid_tm(tm);
-+	return 0;
- }
- 
- static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
--- 
-2.16.1
+On 02/27/2018 02:37 AM, Brian Norris wrote:
+>> >+	/* Don't set an alarm in the past. */
+>> >+	if ((u32)alarm_time <= current_time)
+>> >+		return -ETIME;
+>> >+
+>> >  	if (!alrm->enabled) {
+>> >  		/*
+>> >  		 * If the alarm is being disabled, send an alarm
+>> >@@ -196,11 +200,7 @@ static int cros_ec_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>> >  		alarm_offset = EC_RTC_ALARM_CLEAR;
+>> >  		cros_ec_rtc->saved_alarm = (u32)alarm_time;
+>> >  	} else {
+>> >-		/* Don't set an alarm in the past. */
+>> >-		if ((u32)alarm_time < current_time)
+> It's probably worth noting in the commit message that you're also fixing
+> the case where 'alarm_time == current_time'; in the current driver
+> source, it*looks*  like you're setting a 0-second alarm. But in fact, 0
+> means EC_RTC_ALARM_CLEAR, which would disable the alarm. So you are
+> (correctly) returning -ETIME in that case.
+Right, i'll rewrite the commit message, and move the check back here:)
+
+>
+> Brian
+>
