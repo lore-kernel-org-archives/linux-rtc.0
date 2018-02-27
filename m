@@ -1,165 +1,106 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:35669 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750787AbeBPXe7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Feb 2018 18:34:59 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Matt Turner <mattst88@gmail.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] alpha: rtc: remove unused set_mmss ops
-Date: Sat, 17 Feb 2018 00:34:46 +0100
-Message-Id: <20180216233446.26818-1-alexandre.belloni@bootlin.com>
+Received: from Galois.linutronix.de ([146.0.238.70]:46597 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752284AbeB0QK7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Feb 2018 11:10:59 -0500
+Date: Tue, 27 Feb 2018 17:11:11 +0100 (CET)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Felipe Balbi <felipe.balbi@linux.intel.com>
+cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: HRTimer causing rtctest to fail
+In-Reply-To: <87vaei601x.fsf@linux.intel.com>
+Message-ID: <alpine.DEB.2.21.1802271640010.1886@nanos.tec.linutronix.de>
+References: <87vaei601x.fsf@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The .set_mmss and .setmmss64 ops are only called when the RTC is not
-providing an implementation for the .set_time callback.
+On Tue, 27 Feb 2018, Felipe Balbi wrote:
+> I'm facing an odd problem with v4.16-rc2 (also reproducible on v4.15
+> final) where rtctest fails sometimes which PIE coming too late with
+> frequencies >= 1024 Hz.
+> 
+> I've modified rtctest.c a bit so that it continues running even after
+> first failure just so I could get a glimpse of how many times it fails.
+> 
+> Here are the results:
+> 
+> Error 1024Hz i 17/20 diff 1089/976
+> 
+> Error 2048Hz i 2/20 diff 538/488
+> Error 2048Hz i 9/20 diff 558/488
+> Error 2048Hz i 16/20 diff 560/488
+> 
+> Error 4096Hz i 2/20 diff 305/244
+> Error 4096Hz i 7/20 diff 288/244
+> Error 4096Hz i 9/20 diff 285/244
+> Error 4096Hz i 11/20 diff 310/244
+> Error 4096Hz i 16/20 diff 284/244
+> Error 4096Hz i 20/20 diff 317/244
+> 
+> 
+> I added a few trace_printk() calls around rtc_dev_read() (and some other
+> functions) and captured the time for entry and exit of that function. I
+> noticed that HRTimer fires way too late and also way too early
+> sometimes. On the order of 100+ us.
 
-On alpha, .set_time is provided so .set_mmss64 is never called. Remove the
-unused code.
+Power management, deep idle states?
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- arch/alpha/kernel/rtc.c | 99 -------------------------------------------------
- 1 file changed, 99 deletions(-)
+> For example with iterations 17 of 1024 Hz (seen above) and 18 (also of
+> 1024 Hz) I captured the following time stamps (all in uS):
+> 
+> |    Start |      End | Expected End | Diff |
+> |----------+----------+--------------+------|
+> | 35900626 | 35901711 |     35901603 | -108 | (too late)
+> | 35901826 | 35902628 |     35902803 |  174 | (too early)
 
-diff --git a/arch/alpha/kernel/rtc.c b/arch/alpha/kernel/rtc.c
-index b3da0dcda47d..0816e6c747e8 100644
---- a/arch/alpha/kernel/rtc.c
-+++ b/arch/alpha/kernel/rtc.c
-@@ -114,83 +114,6 @@ alpha_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return mc146818_set_time(tm);
- }
- 
--static int
--alpha_rtc_set_mmss(struct device *dev, time64_t nowtime)
--{
--	int retval = 0;
--	int real_seconds, real_minutes, cmos_minutes;
--	unsigned char save_control, save_freq_select;
--
--	/* Note: This code only updates minutes and seconds.  Comments
--	   indicate this was to avoid messing with unknown time zones,
--	   and with the epoch nonsense described above.  In order for
--	   this to work, the existing clock cannot be off by more than
--	   15 minutes.
--
--	   ??? This choice is may be out of date.  The x86 port does
--	   not have problems with timezones, and the epoch processing has
--	   now been fixed in alpha_set_rtc_time.
--
--	   In either case, one can always force a full rtc update with
--	   the userland hwclock program, so surely 15 minute accuracy
--	   is no real burden.  */
--
--	/* In order to set the CMOS clock precisely, we have to be called
--	   500 ms after the second nowtime has started, because when
--	   nowtime is written into the registers of the CMOS clock, it will
--	   jump to the next second precisely 500 ms later. Check the Motorola
--	   MC146818A or Dallas DS12887 data sheet for details.  */
--
--	/* irq are locally disabled here */
--	spin_lock(&rtc_lock);
--	/* Tell the clock it's being set */
--	save_control = CMOS_READ(RTC_CONTROL);
--	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
--
--	/* Stop and reset prescaler */
--	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
--
--	cmos_minutes = CMOS_READ(RTC_MINUTES);
--	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--		cmos_minutes = bcd2bin(cmos_minutes);
--
--	real_seconds = nowtime % 60;
--	real_minutes = nowtime / 60;
--	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1) {
--		/* correct for half hour time zone */
--		real_minutes += 30;
--	}
--	real_minutes %= 60;
--
--	if (abs(real_minutes - cmos_minutes) < 30) {
--		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
--			real_seconds = bin2bcd(real_seconds);
--			real_minutes = bin2bcd(real_minutes);
--		}
--		CMOS_WRITE(real_seconds,RTC_SECONDS);
--		CMOS_WRITE(real_minutes,RTC_MINUTES);
--	} else {
--		printk_once(KERN_NOTICE
--			    "set_rtc_mmss: can't update from %d to %d\n",
--			    cmos_minutes, real_minutes);
--		retval = -1;
--	}
--
--	/* The following flags have to be released exactly in this order,
--	 * otherwise the DS12887 (popular MC146818A clone with integrated
--	 * battery and quartz) will not reset the oscillator and will not
--	 * update precisely 500 ms later. You won't find this mentioned in
--	 * the Dallas Semiconductor data sheets, but who believes data
--	 * sheets anyway ...                           -- Markus Kuhn
--	 */
--	CMOS_WRITE(save_control, RTC_CONTROL);
--	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
--	spin_unlock(&rtc_lock);
--
--	return retval;
--}
--
- static int
- alpha_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- {
-@@ -210,7 +133,6 @@ alpha_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- static const struct rtc_class_ops alpha_rtc_ops = {
- 	.read_time = alpha_rtc_read_time,
- 	.set_time = alpha_rtc_set_time,
--	.set_mmss64 = alpha_rtc_set_mmss,
- 	.ioctl = alpha_rtc_ioctl,
- };
- 
-@@ -225,7 +147,6 @@ static const struct rtc_class_ops alpha_rtc_ops = {
- 
- union remote_data {
- 	struct rtc_time *tm;
--	unsigned long now;
- 	long retval;
- };
- 
-@@ -267,29 +188,9 @@ remote_set_time(struct device *dev, struct rtc_time *tm)
- 	return alpha_rtc_set_time(NULL, tm);
- }
- 
--static void
--do_remote_mmss(void *data)
--{
--	union remote_data *x = data;
--	x->retval = alpha_rtc_set_mmss(NULL, x->now);
--}
--
--static int
--remote_set_mmss(struct device *dev, time64_t now)
--{
--	union remote_data x;
--	if (smp_processor_id() != boot_cpuid) {
--		x.now = now;
--		smp_call_function_single(boot_cpuid, do_remote_mmss, &x, 1);
--		return x.retval;
--	}
--	return alpha_rtc_set_mmss(NULL, now);
--}
--
- static const struct rtc_class_ops remote_rtc_ops = {
- 	.read_time = remote_read_time,
- 	.set_time = remote_set_time,
--	.set_mmss64 = remote_set_mmss,
- 	.ioctl = alpha_rtc_ioctl,
- };
- #endif
--- 
-2.16.1
+Too early? hrtimers never fire too early. The measurement in that test is
+bogus:
+
+                        gettimeofday(&start, NULL);
+                        /* This blocks */
+                        retval = read(fd, &data, sizeof(unsigned long));
+                        if (retval == -1) {
+                                perror("read");
+                                exit(errno);
+                        }
+                        gettimeofday(&end, NULL);
+
+It's measuring relative time between going to sleep and wakeup, so if an
+event comes late, then the next one will claim to be early which is
+nonsense because periodic mode runs on an absolute time line. 
+
+		1	2       3       4	5	6	7
+Expected:	|	|	|	|	|	|	|
+Real:		 |	 |	   |	 |	 |	 |	 |
+
+		 	           ^ late event
+So 2->3 would give you (period + latency) and 3->4 (period - latency) ....
+
+And if the task gets scheduled out before the taking the start time stamp
+then this is also giving bogus results.
+
+What the test really should figure out is the deviation of the absolute
+time line. That's hard because the RTC code starts the hrtimer with:
+
+     hrtimer_start(&rtc->pie_timer, period, HRTIMER_MODE_REL);
+
+which means relative to 'now'. So there is no good way for user space to
+determine the expected timeline.
+
+> I can't come up with a proper explanation as to why HRTimer is firing at
+> such wildly odd extremes. On most of the measurements, HRTimer executes
+> within 5 uS of scheduled time and I can't convince myself that
+> scheduling latency would get so high all of a sudden. Specially
+> considering I'm testing with a 4 core machine and there's nothing else
+> running on it. It's mostly idle.
+
+Enable the hrtimer and scheduling tracepoints. That should give you a hint
+what's going on.
+
+Thanks,
+
+	tglx
