@@ -1,42 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47079 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752012AbeBUU5z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:55 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 083/100] rtc: tegra: stop validating rtc_time in .set_time
-Date: Wed, 21 Feb 2018 21:56:18 +0100
-Message-Id: <20180221205635.31314-84-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mail.bootlin.com ([62.4.15.54]:37643 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932153AbeB1PRD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Feb 2018 10:17:03 -0500
+Date: Wed, 28 Feb 2018 16:17:01 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: David Daney <david.daney@cavium.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v6] rtc: isl12026: Add driver.
+Message-ID: <20180228151701.GM1479@piout.net>
+References: <20180222200432.22003-1-david.daney@cavium.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180222200432.22003-1-david.daney@cavium.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always validating the rtc_time struct before calling
-.set_time. It is not necessary to do it again in .set_time.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-tegra.c | 4 ----
- 1 file changed, 4 deletions(-)
+That's mostly good
 
-diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
-index d30d57b048d3..66efff60c4d5 100644
---- a/drivers/rtc/rtc-tegra.c
-+++ b/drivers/rtc/rtc-tegra.c
-@@ -144,10 +144,6 @@ static int tegra_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	int ret;
+On 22/02/2018 at 12:04:32 -0800, David Daney wrote:
+> +	priv->rtc->ops = &isl12026_rtc_ops;
+> +	priv->rtc->nvram_old_abi = false;
+
+This allocation is not necessary and I would refer not having t so when
+the ABI goes away, it is not necessary to change this driver.
+
+> +	ret = rtc_register_device(priv->rtc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	memset(&nvm_cfg, 0, sizeof(nvm_cfg));
+> +	nvm_cfg.name = "eeprom";
+
+You probably need something more descriptive, usually the rtc model name
+else, it is difficult (but not impossible) to find where this nvmem is
+actually located when using /sys/bus/nvmem/devices
+isl12026- would be a good choice.
+
+> +	nvm_cfg.read_only = false;
+> +	nvm_cfg.root_only = true;
+
+any reason to have it root only?
+
+> +	nvm_cfg.base_dev = &client->dev;
+> +	nvm_cfg.priv = priv;
+> +	nvm_cfg.stride = 1;
+> +	nvm_cfg.word_size = 1;
+> +	nvm_cfg.size = 512;
+> +	nvm_cfg.reg_read = isl12026_nvm_read;
+> +	nvm_cfg.reg_write = isl12026_nvm_write;
+> +
+> +	return rtc_nvmem_register(priv->rtc, &nvm_cfg);
+
+The probe function must not fail after rtc_register_device has been
+called so you must return 0 here.
+
+It is not currently possible to call rtc_nvmem_register before
+rtc_register_device unless we move the nvmem to the parent device:
+
+diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
+index 3a02357eb783..17ec4c8d0fad 100644
+--- a/drivers/rtc/nvmem.c
++++ b/drivers/rtc/nvmem.c
+@@ -91,7 +91,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,
+        if (!nvmem_config)
+                return -ENODEV;
  
- 	/* convert tm to seconds. */
--	ret = rtc_valid_tm(tm);
--	if (ret)
--		return ret;
--
- 	rtc_tm_to_time(tm, &sec);
- 
- 	dev_vdbg(dev, "time set to %lu. %d/%d/%d %d:%02u:%02u\n",
+-       nvmem_config->dev = &rtc->dev;
++       nvmem_config->dev = rtc->dev.parent;
+        nvmem_config->owner = rtc->owner;
+        rtc->nvmem = nvmem_register(nvmem_config);
+        if (IS_ERR_OR_NULL(rtc->nvmem))
+
+I'll submit this patch for this cycle before there are many users of the
+interface (converted drivers are still exposing the old ABI).
+
+If you prefer, you can depend on it.
+
 -- 
-2.16.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
