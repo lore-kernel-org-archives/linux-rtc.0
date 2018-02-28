@@ -1,57 +1,122 @@
-Return-Path: <kzak@redhat.com>
-Date: Mon, 19 Feb 2018 12:03:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: Igor Plyatov <plyatov@gmail.com>, linux-kernel@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	rtc-linux@googlegroups.com, util-linux@vger.kernel.org,
-	J William Piggott <elseifthen@gmx.com>
-Subject: Re: 500 ms delay in time saved into RTC
-Message-ID: <20180219110328.n7yjorinjm3xxckr@ws.net.home>
-References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
- <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
+Return-Path: <maggarwa@codeaurora.org>
+From: Mohit Aggarwal <maggarwa@codeaurora.org>
+To: a.zummo@towertech.it,
+	alexandre.belloni@free-electrons.com
+Cc: Mohit Aggarwal <maggarwa@codeaurora.org>,
+	rtc-linux@googlegroups.com,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc-pm8xxx: Fix issue in RTC write path
+Date: Wed, 28 Feb 2018 14:21:18 +0530
+Message-Id: <1519807878-14842-1-git-send-email-maggarwa@codeaurora.org>
 List-ID: <rtc-linux.googlegroups.com>
 
-On Mon, Feb 19, 2018 at 08:11:05AM +0100, Rasmus Villemoes wrote:
-> It's because util-linux's hwclock still assumes the world is x86. See
-> this comment in the util-linux source code:
-> 
->         /*
->          * The Hardware Clock can only be set to any integer time plus one
->          * half second.  The integer time is required because there is no
->          * interface to set or get a fractional second.  The additional half
->          * second is because the Hardware Clock updates to the following
->          * second precisely 500 ms (not 1 second!) after you release the
->          * divider reset (after setting the new time) - see description of
->          * DV2, DV1, DV0 in Register A in the MC146818A data sheet (and note
-> 
-> So if hwclock is asked to --systohc at time 01:02:03.x, it waits until
-> the time is 01:02:03.5 to set the rtc to 01:02:03, or if that has
-> already passed, waits until  01:02:04.5 and sets it to 01:02:04.
-> 
-> On our ARM BSP we patch util-linux to have the "implicit fractional
-> part" configurable, and trying to upstream something like that has been
-> on my todo-list for quite a while. See
-> 
-> https://raw.githubusercontent.com/oe-lite/base/master/recipes/util-linux/util-linux-2.29/hwclock-tweak-delay.patch
-> 
-> for the patch we currently use (on top of that, we change the 0.5
-> initializer to 0.0 to avoid having to always pass the --delay argument).
-> Incidentally, it seems we're on the same util-linux version, so you
-> should be able to try out that patch and see if it works for you.
+In order to set time in rtc, need to disable
+rtc hw before writing into rtc registers.
 
-Would be possible to somehow detect what is the right default setting for
---delay? I mean for example detect architecture / clock HW, etc.
+Also fixes disabling of alarm while setting
+rtc time.
 
-I have no problem with --delay, but it's tuning for advanced users and
-HW specific stuff. It would be nice to have something more portable.
+Change-Id: Ia2c9c922dd78e2ecb92554d5722c894706d83ac0
+Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
+---
+ drivers/rtc/rtc-pm8xxx.c | 49 +++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 38 insertions(+), 11 deletions(-)
 
-    Karel
-
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index fac8355..5309edc 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -74,16 +74,18 @@ struct pm8xxx_rtc {
+ /*
+  * Steps to write the RTC registers.
+  * 1. Disable alarm if enabled.
+- * 2. Write 0x00 to LSB.
+- * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
+- * 4. Enable alarm if disabled in step 1.
++ * 2. Disable rtc if enabled.
++ * 3. Write 0x00 to LSB.
++ * 4. Write Byte[1], Byte[2], Byte[3] then Byte[0].
++ * 5. Enable rtc if disabled in step 2.
++ * 6. Enable alarm if disabled in step 1.
+  */
+ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	int rc, i;
+ 	unsigned long secs, irq_flags;
+-	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0;
+-	unsigned int ctrl_reg;
++	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
++	unsigned int ctrl_reg, rtc_ctrl_reg;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 
+@@ -92,23 +94,38 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_tm_to_time(tm, &secs);
+ 
++	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
++
+ 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
+ 		value[i] = secs & 0xFF;
+ 		secs >>= 8;
+ 	}
+ 
+-	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
+-
+ 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 
+-	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
++	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+ 	if (rc)
+ 		goto rtc_rw_fail;
+ 
+ 	if (ctrl_reg & regs->alarm_en) {
+ 		alarm_enabled = 1;
+ 		ctrl_reg &= ~regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
++	/* Disable RTC H/w before writing on RTC register */
++	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
++	if (rc)
++		goto rtc_rw_fail;
++
++	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
++		rtc_disabled = 1;
++		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
+ 		if (rc) {
+ 			dev_err(dev, "Write to RTC control register failed\n");
+ 			goto rtc_rw_fail;
+@@ -137,11 +154,21 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		goto rtc_rw_fail;
+ 	}
+ 
++	/* Enable RTC H/w after writing on RTC register */
++	if (rtc_disabled) {
++		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
+ 	if (alarm_enabled) {
+ 		ctrl_reg |= regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
+ 		if (rc) {
+-			dev_err(dev, "Write to RTC control register failed\n");
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
+ 			goto rtc_rw_fail;
+ 		}
+ 	}
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
