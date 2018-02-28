@@ -1,145 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:43500 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964913AbeBMPXE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Feb 2018 10:23:04 -0500
-Subject: Re: [linux-sunxi] [PATCH v2] rtc: ac100: Fix ac100 determine rate bug
-To: Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        linux-rtc@vger.kernel.org
-References: <20180213121414.7000-1-embed3d@gmail.com>
- <20180213133201.kwq4aatpts7nerc2@flea.lan>
- <CAGb2v64tOCeD38gGR_fboC6PJCCD8L-EPu196MGrGgHLenkQXw@mail.gmail.com>
-From: Philipp Rossak <embed3d@gmail.com>
-Message-ID: <8142b42d-bf8d-0903-e26e-1499f95e51d5@gmail.com>
-Date: Tue, 13 Feb 2018 16:23:00 +0100
+Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:35782 "EHLO
+        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752428AbeB1Mzq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Feb 2018 07:55:46 -0500
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v2 0/4] rtc: isl1208: fixes, documentation and isl1219 support
+Date: Wed, 28 Feb 2018 12:45:47 +0000
+Message-ID: <1519821214-22379-1-git-send-email-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
-In-Reply-To: <CAGb2v64tOCeD38gGR_fboC6PJCCD8L-EPu196MGrGgHLenkQXw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+changes since v1:
+Represent isl1219 tamper detection as RTC timestamp event,
+instead of hwmon intrusion sensor.
+Switch to rtc_register_device, to fix possible race conditions in probe.
+Add documentation of the two possible interrupt sources for isl1219.
+Support "evdet" named interrupt souce.
+
+Michael Grzeschik (2):
+  rtc: isl1208: enable interrupt after context preparation
+  rtc: isl1208: add support for isl1219 with tamper detection
+
+Denis Osterland (2):
+  rtc: isl1208: switch to rtc_register_device
+  rtc: isl1208: Add "evdet" interrupt source for isl1219.
+
+ .../devicetree/bindings/rtc/isil,isl1219.txt       |  28 +++
+ drivers/rtc/rtc-isl1208.c                          | 209 +++++++++++++++++----
+ 2 files changed, 203 insertions(+), 34 deletions(-)
+
+Message-Id: 20180123121801.4214-1-m.grzeschik@pengutronix.de
 
 
-On 13.02.2018 14:44, Chen-Yu Tsai wrote:
-> On Tue, Feb 13, 2018 at 9:32 PM, Maxime Ripard
-> <maxime.ripard@bootlin.com> wrote:
->> On Tue, Feb 13, 2018 at 01:14:14PM +0100, Philipp Rossak wrote:
->>> This patch fixes a bug, that prevents the Allwinner A83T and the A80
->>> from a successful boot. You can find the shortend trace below:
->>
->> Since when is it there?
->>
-The bug is there since v4.16-rc1 and appeared after the clk branch was 
-merged.
-
-^^ Should I add this info also in the commit message?
-
->>> Unable to handle kernel NULL pointer dereference at virtual address
->>> 00000000
->>> pgd = (ptrval)
->>> [00000000] *pgd=00000000
->>> Internal error: Oops: 5 [#1] SMP ARM
->>> Modules linked in:
->>> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
->>> Hardware name: Allwinner sun8i Family
->>> Workqueue: events deferred_probe_work_func
->>> PC is at clk_hw_get_rate+0x0/0x34
->>> LR is at ac100_clkout_determine_rate+0x48/0x19c
->>>
->>> [ ... ]
->>>
->>> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
->>> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
->>> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
->>> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
->>> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
->>>
->>> To fix that bug, we first check if the return of the
->>> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
->>> clock parent.
->>>
->>> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
->>>
->>> Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
->>
->> Should it be sent to stable?
->>
->>> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
->>> ---
->>>
->>> Changes in v2:
->>>        * add tag Fixes: ... to commit message
->>>        * add comment to if statement why we are doing this check
->>>
->>>   drivers/rtc/rtc-ac100.c | 12 +++++++++++-
->>>   1 file changed, 11 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
->>> index 8ff9dc3fe5bf..ba73201d8cc1 100644
->>> --- a/drivers/rtc/rtc-ac100.c
->>> +++ b/drivers/rtc/rtc-ac100.c
->>> @@ -183,7 +183,17 @@ static int ac100_clkout_determine_rate(struct clk_hw *hw,
->>>
->>>        for (i = 0; i < num_parents; i++) {
->>>                struct clk_hw *parent = clk_hw_get_parent_by_index(hw, i);
->>> -             unsigned long tmp, prate = clk_hw_get_rate(parent);
->>> +             unsigned long tmp, prate;
->>> +
->>> +             /*
->>> +              * We purposefully left open the possibility to use the clock
->>> +              * from the codec side but it is not implemented right now.
->>> +              * Thus we need to check if the parent exists.
->>> +              */
->>> +             if (!parent)
->>> +                     continue;
->>> +
->>> +             prate = clk_hw_get_rate(parent);
->>
->> clk_hw_get_num_parents should return the exact number of parents,
->> which is going to be 1 if you only have one parent, like all DTS seems
->> to have.
->>
->> If not, then it should be explained in the comment and / or fixed
->> properly.
-> 
-> The clock has two parents. One is a fixed clock internally registered
-> by the driver. This is actually an external crystal, and we should
-> probably add a device node and the works for it. The other parent
-> is a clock from the codec side, which we properly declare and
-> reference in the device tree. This clock, though defined, is not
-> implemented in any driver (because we don't have any ATM).
-> 
-> This second missing clock is what's causing issues here. The clk core
-> looks for the parent by name, can't find one that is registered, and
-> returns NULL.
-> 
-> I guess the comment above is still not clear enough?
-
-I can get more detailed in the comment. I thought about this:
-
-The clock has two parents, one is a fixed clock which is internally 
-registered by the ac100 driver. The other parent is a clock from the 
-codec side of the chip, which we properly declare and reference in the 
-devicetree and is not implemented in any driver right now.
-If the clock core looks for the parent of that second missing clock, it 
-can't one that is registered and returns NULL.
-Thus we need to check if the parent exists before we get the parent rate.
-
-Is that ok for you?
-
-Philipp
-
-> 
-> ChenYu
-> 
->> Maxime
->>
->> --
->> Maxime Ripard, Bootlin (formerly Free Electrons)
->> Embedded Linux and Kernel engineering
->> http://bootlin.com
+Diehl AKO Stiftung & Co. KG, Pfannerstraße 75-83, 88239 Wangen im Allgäu
+Bereichsvorstand: Dr.-Ing. Michael Siedentop (Sprecher), Josef Fellner (Mitglied)
+Sitz der Gesellschaft: Wangen i.A. – Registergericht: Amtsgericht Ulm HRA 620609 – Persönlich haftende Gesellschafterin: Diehl Verwaltungs-Stiftung – Sitz: Nürnberg – Registergericht: Amtsgericht Nürnberg HRA 11756 –
+Vorstand: Dr.-Ing. E.h. Thomas Diehl (†) (Vorsitzender), Herr Dipl.-Wirtsch.-Ing. Wolfgang Weggen (stellvertretender Vorsitzender), Dipl.-Kfm. Claus Günther, Dipl.-Kfm. Frank Gutzeit, Dr.-Ing. Heinrich Schunk, Dr.-Ing. Michael Siedentop , Dipl.-Kfm. Dr.-Ing. Martin Sommer, Dipl.-Ing. (FH) Rainer von Borstel, Vorsitzender des Aufsichtsrates: Dr. Klaus Maier
+___________________________________________________________________________________________________
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht. Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
