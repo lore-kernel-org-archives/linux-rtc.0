@@ -1,71 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:47077 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752006AbeBUU5y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Feb 2018 15:57:54 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 082/100] rtc: spear: stop validating rtc_time in .set_time and .set_alarm
-Date: Wed, 21 Feb 2018 21:56:17 +0100
-Message-Id: <20180221205635.31314-83-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
-References: <20180221205635.31314-1-alexandre.belloni@bootlin.com>
+Received: from mga14.intel.com ([192.55.52.115]:8055 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752195AbeB1MDL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Feb 2018 07:03:11 -0500
+From: Felipe Balbi <felipe.balbi@linux.intel.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: HRTimer causing rtctest to fail
+In-Reply-To: <alpine.DEB.2.21.1802281246420.1886@nanos.tec.linutronix.de>
+References: <87vaei601x.fsf@linux.intel.com> <alpine.DEB.2.21.1802271640010.1886@nanos.tec.linutronix.de> <87muzt5usg.fsf@linux.intel.com> <alpine.DEB.2.21.1802281043050.1886@nanos.tec.linutronix.de> <87k1ux5qpf.fsf@linux.intel.com> <alpine.DEB.2.21.1802281246420.1886@nanos.tec.linutronix.de>
+Date: Wed, 28 Feb 2018 14:02:20 +0200
+Message-ID: <87h8q15nlf.fsf@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC core is always validating the rtc_time struct before calling
-.set_time or .set_alarm. It is not necessary to do it again.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-spear.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-spear.c b/drivers/rtc/rtc-spear.c
-index e377f42abae7..0567944fd4f8 100644
---- a/drivers/rtc/rtc-spear.c
-+++ b/drivers/rtc/rtc-spear.c
-@@ -170,18 +170,14 @@ static irqreturn_t spear_rtc_irq(int irq, void *dev_id)
- 
- }
- 
--static int tm2bcd(struct rtc_time *tm)
-+static void tm2bcd(struct rtc_time *tm)
- {
--	if (rtc_valid_tm(tm) != 0)
--		return -EINVAL;
- 	tm->tm_sec = bin2bcd(tm->tm_sec);
- 	tm->tm_min = bin2bcd(tm->tm_min);
- 	tm->tm_hour = bin2bcd(tm->tm_hour);
- 	tm->tm_mday = bin2bcd(tm->tm_mday);
- 	tm->tm_mon = bin2bcd(tm->tm_mon + 1);
- 	tm->tm_year = bin2bcd(tm->tm_year);
--
--	return 0;
- }
- 
- static void bcd2tm(struct rtc_time *tm)
-@@ -237,8 +233,7 @@ static int spear_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct spear_rtc_config *config = dev_get_drvdata(dev);
- 	unsigned int time, date;
- 
--	if (tm2bcd(tm) < 0)
--		return -EINVAL;
-+	tm2bcd(tm);
- 
- 	rtc_wait_not_busy(config);
- 	time = (tm->tm_sec << SECOND_SHIFT) | (tm->tm_min << MINUTE_SHIFT) |
-@@ -295,8 +290,7 @@ static int spear_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	unsigned int time, date;
- 	int err;
- 
--	if (tm2bcd(&alm->time) < 0)
--		return -EINVAL;
-+	tm2bcd(&alm->time);
- 
- 	rtc_wait_not_busy(config);
- 
--- 
-2.16.1
+Hi,
+
+Thomas Gleixner <tglx@linutronix.de> writes:
+> On Wed, 28 Feb 2018, Felipe Balbi wrote:
+>> Thomas Gleixner <tglx@linutronix.de> writes:
+>> > All numbers in micro seconds! What happens if you load the system or
+>> > restrict C-States?
+>>=20
+>> added intel_idle.max_cstate=3D0 to cmdline. Still see some failures,
+>> albeit a lot more rare, for example, caught one on iteration 8 of
+>> 8192Hz:
+>>=20
+>> 8192Hz:	 1 2 3 4 5 6 7
+>> PIE delta error: 0.000135 should be close to 0.000122
+>>=20
+>> That is, however, only 13 uS late. Is that within the limits of "we
+>> don't quite care"?
+>
+> I think so. 13us (depending on the machine) can easily happen if multiple
+> interrupts/timers happen at the same time or if something keeps interrupts
+> disabled for a few microseconds which is certainly possible.
+>
+> What kind of system is this?
+
+4 core Kabylake.
+
+>> BTW, it took some effort to get that one failure. I'll leave rtctest
+>> running in a long loop and try to figure out approximately how frequently
+>> it fails, but it seems like it's within the realm of "don't care", would
+>> you agree?
+>
+> Yes.
+
+cool, thanks
+
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAlqWmkwACgkQzL64meEa
+mQb/ew/9Gnyi62Ax+VhMMlisM+4JJVP2AqY+MM9c7KMs/TwdNEaUwBhdkIE2gd4L
+jb+x9RdKRL8cpx3dZkzrhXSRvOfOfL7EXNjL2rUJkX/R+PUSkP1yMH0P90CqmMmD
+awGBxmveQ6/Dwg+jcSR0nRhbShLfY8Q36nRESHUQtTCBDweNcQTB7qFyDsF3/KHY
+476+lpNVWc8thm7yxATZN8epGU9SbhI39pmnzyrPnEOPCOi7Gf+qit/AHOtYB7x2
+kUZRVqHeOdnBAFMwTxV+syWKNsIE/lA5Km3wf+d0bubDhAHsBZvLj1JBslkxY5lf
+in0yrsFLmKHJYJBvctRbGQuRwf1yY7LWFFD07spjIIDHCK8dBn1wdC2jq0a90tM6
+a+SIjL+YryOKF0kPR85y4JJYKUq4XcIw9VXqkcFaYt4fgQ9TCwpI7hZfv+5Vys3W
+QegfxWWIqaMpnAIwnJEf63+4qj2pzlX2n7fMK/ZlU/pOVmFXvYEJSLbuUFcdgcIK
+7WznEQgbCW8lfzhScjqswvWPSrf1R6KuYo8vRAYFMxccCKSiRfbC84Te6xqcq8WQ
+Bu/UL+v/f97jV0vpnv7dqv07Di+C48PWY9aUoImV6EvNI+X0g/sKQEhaxBR4I5Ab
+up8RR+W0kOEB9sN3KN4CyIOmCioLZ6oVFTW7QzyM7QLZzq2K/4s=
+=dEkH
+-----END PGP SIGNATURE-----
+--=-=-=--
