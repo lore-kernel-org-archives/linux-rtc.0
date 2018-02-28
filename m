@@ -1,84 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:7625 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751300AbeBTVoJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Feb 2018 16:44:09 -0500
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from Galois.linutronix.de ([146.0.238.70]:48503 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752247AbeB1Lum (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Feb 2018 06:50:42 -0500
+Date: Wed, 28 Feb 2018 12:50:48 +0100 (CET)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Felipe Balbi <felipe.balbi@linux.intel.com>
+cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 07/21] rtc: mcp795: Switch to use %ptR
-Date: Tue, 20 Feb 2018 23:43:46 +0200
-Message-Id: <20180220214400.66749-8-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
-References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: HRTimer causing rtctest to fail
+In-Reply-To: <87k1ux5qpf.fsf@linux.intel.com>
+Message-ID: <alpine.DEB.2.21.1802281246420.1886@nanos.tec.linutronix.de>
+References: <87vaei601x.fsf@linux.intel.com> <alpine.DEB.2.21.1802271640010.1886@nanos.tec.linutronix.de> <87muzt5usg.fsf@linux.intel.com> <alpine.DEB.2.21.1802281043050.1886@nanos.tec.linutronix.de> <87k1ux5qpf.fsf@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use %ptR instead of open coded variant to print content of
-struct rtc_time in human readable format.
+On Wed, 28 Feb 2018, Felipe Balbi wrote:
+> Thomas Gleixner <tglx@linutronix.de> writes:
+> > All numbers in micro seconds! What happens if you load the system or
+> > restrict C-States?
+> 
+> added intel_idle.max_cstate=0 to cmdline. Still see some failures,
+> albeit a lot more rare, for example, caught one on iteration 8 of
+> 8192Hz:
+> 
+> 8192Hz:	 1 2 3 4 5 6 7
+> PIE delta error: 0.000135 should be close to 0.000122
+> 
+> That is, however, only 13 uS late. Is that within the limits of "we
+> don't quite care"?
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/rtc/rtc-mcp795.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+I think so. 13us (depending on the machine) can easily happen if multiple
+interrupts/timers happen at the same time or if something keeps interrupts
+disabled for a few microseconds which is certainly possible.
 
-diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-index 77f21331ae21..fad71527e417 100644
---- a/drivers/rtc/rtc-mcp795.c
-+++ b/drivers/rtc/rtc-mcp795.c
-@@ -233,9 +233,7 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
- 	if (ret)
- 		return ret;
- 
--	dev_dbg(dev, "Set mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
--			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
--			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
-+	dev_dbg(dev, "Set mcp795: %ptR\n", tim);
- 
- 	return 0;
- }
-@@ -258,9 +256,7 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
- 	tim->tm_mon	= bcd2bin(data[5] & 0x1F) - 1;
- 	tim->tm_year	= bcd2bin(data[6]) + 100; /* Assume we are in 20xx */
- 
--	dev_dbg(dev, "Read from mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
--			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
--			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
-+	dev_dbg(dev, "Read from mcp795: %ptR\n", tim);
- 
- 	return rtc_valid_tm(tim);
- }
-@@ -319,9 +315,8 @@ static int mcp795_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 			return ret;
- 		dev_dbg(dev, "Alarm IRQ armed\n");
- 	}
--	dev_dbg(dev, "Set alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
--			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
--			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
-+	dev_dbg(dev, "Set alarm: %ptRdr(%d) %ptRt\n",
-+		&alm->time, alm->time.tm_wday, &alm->time);
- 	return 0;
- }
- 
-@@ -345,9 +340,8 @@ static int mcp795_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	alm->time.tm_isdst	= -1;
- 	alm->time.tm_yday	= -1;
- 
--	dev_dbg(dev, "Read alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
--			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
--			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
-+	dev_dbg(dev, "Read alarm: %ptRdr(%d) %ptRt\n",
-+		&alm->time, alm->time.tm_wday, &alm->time);
- 	return 0;
- }
- 
--- 
-2.15.1
+What kind of system is this?
+
+> BTW, it took some effort to get that one failure. I'll leave rtctest
+> running in a long loop and try to figure out approximately how frequently
+> it fails, but it seems like it's within the realm of "don't care", would
+> you agree?
+
+Yes.
+
+Thanks,
+
+	tglx
