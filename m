@@ -1,84 +1,137 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:52835 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:38005 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933615AbeCMQ3F (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 13 Mar 2018 12:29:05 -0400
-Date: Tue, 13 Mar 2018 17:28:50 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stefano Manni <stefano.manni@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: mcp795: remove VLA usage
-Message-ID: <20180313162850.GK3795@piout.net>
-References: <20180312231338.3756-1-stefano.manni@gmail.com>
- <20180312233102.GE3795@piout.net>
- <CANn9nbhM7LaqKg5pbVMYygAANFhWu3N77BUD6QTaVRngOhz3fg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CANn9nbhM7LaqKg5pbVMYygAANFhWu3N77BUD6QTaVRngOhz3fg@mail.gmail.com>
+        id S966238AbeCAKZ4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 1 Mar 2018 05:25:56 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v2] rtc: stk17ta8: use generic nvmem
+Date: Thu,  1 Mar 2018 11:25:54 +0100
+Message-Id: <20180301102554.6687-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/03/2018 at 09:29:33 +0100, Stefano Manni wrote:
-> Hi,
-> 
-> 2018-03-13 0:31 GMT+01:00 Alexandre Belloni
-> <alexandre.belloni@free-electrons.com>:
-> > Hi,
-> >
-> > On 13/03/2018 at 00:13:38 +0100, Stefano Manni wrote:
-> >> In preparation to enabling -Wvla, remove VLAs and replace them with
-> >> fixed-length arrays instead.
-> >>
-> >> rtc-mcp795.c uses a variable-length array declaration to contain
-> >> the command to write the rtcc; this can be replaced by a fixed-
-> >> size array of length 2 (instruction, address) + 32 (data out),
-> >> assuming a maximum data length of 32 bytes before wrap up.
-> >>
-> >> This was prompted by https://lkml.org/lkml/2018/3/7/621
-> >>
-> >> Signed-off-by: Stefano Manni <stefano.manni@gmail.com>
-> >> ---
-> >>  drivers/rtc/rtc-mcp795.c | 8 +++++++-
-> >>  1 file changed, 7 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-> >> index 77f21331ae21..a5f504e2364c 100644
-> >> --- a/drivers/rtc/rtc-mcp795.c
-> >> +++ b/drivers/rtc/rtc-mcp795.c
-> >> @@ -61,6 +61,9 @@
-> >>
-> >>  #define SEC_PER_DAY          (24 * 60 * 60)
-> >>
-> >> +/* Maximum length for data out in write operation to RTCC */
-> >> +#define MCP795_MAX_DATAOUT_LEN       32
-> >> +
-> >
-> > This is wrong, see https://marc.info/?l=linux-kernel&m=152046370320811&w=2
-> >
-> > Also, https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=74ce1a932504da166cfbccf5567aa3751b6aa599
-> >
-> 
-> You sure that the right value to use is 255 + 2? mcp795_rtcc_write() just writes
-> into the RTCC that contains only 32 registers (table 4-1 of
-> datasheet). I assumed
-> 32 as the maximum length of data to write before wrapping up (start
-> from reg 0x0).
-> Probably 32 is just a wrong assumption but why did you choose 255?
-> 
+Instead of adding a binary sysfs attribute from the driver, use the core to
+register an nvmem device.
 
-It is not so wrong but the plan is to be able to support reading/writing
-the EEPROM later but I agree it will need to be changed anyway.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-stk17ta8.c | 64 +++++++++++++++++-----------------------------
+ 1 file changed, 24 insertions(+), 40 deletions(-)
 
-> Another thing: don't we need also to check count against the array length?
-> 
-> if (count > MCP795_MAX_DATAOUT_LEN)
->     return -EINVAL;
-
-u8 count will never be greater than 255.
-
-
+diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
+index 1d6febbe7d39..01a3bef77aa5 100644
+--- a/drivers/rtc/rtc-stk17ta8.c
++++ b/drivers/rtc/rtc-stk17ta8.c
+@@ -242,46 +242,30 @@ static const struct rtc_class_ops stk17ta8_rtc_ops = {
+ 	.alarm_irq_enable	= stk17ta8_rtc_alarm_irq_enable,
+ };
+ 
+-static ssize_t stk17ta8_nvram_read(struct file *filp, struct kobject *kobj,
+-				 struct bin_attribute *attr, char *buf,
+-				 loff_t pos, size_t size)
++static int stk17ta8_nvram_read(void *priv, unsigned int pos, void *val,
++			       size_t bytes)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
++	struct rtc_plat_data *pdata = priv;
+ 	void __iomem *ioaddr = pdata->ioaddr;
+-	ssize_t count;
++	u8 *buf = val;
+ 
+-	for (count = 0; count < size; count++)
++	for (; bytes; bytes--)
+ 		*buf++ = readb(ioaddr + pos++);
+-	return count;
++	return 0;
+ }
+ 
+-static ssize_t stk17ta8_nvram_write(struct file *filp, struct kobject *kobj,
+-				  struct bin_attribute *attr, char *buf,
+-				  loff_t pos, size_t size)
++static int stk17ta8_nvram_write(void *priv, unsigned int pos, void *val,
++				size_t bytes)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
++	struct rtc_plat_data *pdata = priv;
+ 	void __iomem *ioaddr = pdata->ioaddr;
+-	ssize_t count;
++	u8 *buf = val;
+ 
+-	for (count = 0; count < size; count++)
++	for (; bytes; bytes--)
+ 		writeb(*buf++, ioaddr + pos++);
+-	return count;
++	return 0;
+ }
+ 
+-static struct bin_attribute stk17ta8_nvram_attr = {
+-	.attr = {
+-		.name = "nvram",
+-		.mode = S_IRUGO | S_IWUSR,
+-	},
+-	.size = RTC_OFFSET,
+-	.read = stk17ta8_nvram_read,
+-	.write = stk17ta8_nvram_write,
+-};
+-
+ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+@@ -290,6 +274,14 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ 	struct rtc_plat_data *pdata;
+ 	void __iomem *ioaddr;
+ 	int ret = 0;
++	struct nvmem_config nvmem_cfg = {
++		.name = "stk17ta8_nvram",
++		.word_size = 1,
++		.stride = 1,
++		.size = RTC_OFFSET,
++		.reg_read = stk17ta8_nvram_read,
++		.reg_write = stk17ta8_nvram_write,
++	};
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -333,21 +325,14 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(pdata->rtc);
+ 
+ 	pdata->rtc->ops = &stk17ta8_rtc_ops;
++	pdata->rtc->nvram_old_abi = true;
+ 
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
++	nvmem_cfg.priv = pdata;
++	ret = rtc_nvmem_register(pdata->rtc, &nvmem_cfg);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = rtc_register_device(pdata->rtc);
+-
+-	return ret;
+-}
+-
+-static int stk17ta8_rtc_remove(struct platform_device *pdev)
+-{
+-	sysfs_remove_bin_file(&pdev->dev.kobj, &stk17ta8_nvram_attr);
+-
+-	return 0;
++	return rtc_register_device(pdata->rtc);
+ }
+ 
+ /* work with hotplug and coldplug */
+@@ -355,7 +340,6 @@ MODULE_ALIAS("platform:stk17ta8");
+ 
+ static struct platform_driver stk17ta8_rtc_driver = {
+ 	.probe		= stk17ta8_rtc_probe,
+-	.remove		= stk17ta8_rtc_remove,
+ 	.driver		= {
+ 		.name	= "stk17ta8",
+ 	},
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.16.2
