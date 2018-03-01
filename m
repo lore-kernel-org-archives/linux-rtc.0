@@ -1,71 +1,153 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:53837 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:37981 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754497AbeCGVZS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Mar 2018 16:25:18 -0500
-Date: Wed, 7 Mar 2018 22:25:06 +0100
+        id S965971AbeCAKZm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 1 Mar 2018 05:25:42 -0500
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: Re: [PATCH] rtc: remove VLA usage
-Message-ID: <20180307212506.GO3035@piout.net>
-References: <20180307201133.GA5860@embeddedgus>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180307201133.GA5860@embeddedgus>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v2] rtc: m48t59: use generic nvmem
+Date: Thu,  1 Mar 2018 11:25:38 +0100
+Message-Id: <20180301102538.6515-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
-> In preparation to enabling -Wvla, remove VLA and replace it
-> with a fixed-length array instead.
-> 
+Instead of adding a binary sysfs attribute from the driver (which suffers
+from a race condition as the attribute appears after the device), use the
+core to register an nvmem device.
 
-You should probably explain what VLA is and why this is important to do.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-m48t59.c | 56 +++++++++++++++++++++---------------------------
+ 1 file changed, 24 insertions(+), 32 deletions(-)
 
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> ---
->  drivers/rtc/rtc-bq32k.c  | 2 +-
->  drivers/rtc/rtc-mcp795.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
-> index e8698e9..e4b234a 100644
-> --- a/drivers/rtc/rtc-bq32k.c
-> +++ b/drivers/rtc/rtc-bq32k.c
-> @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
->  static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> -	uint8_t buffer[len + 1];
-> +	uint8_t buffer[256];
->  
-
-You chose to change len to 255, probably because this is a uint8_t but
-this is way too much for this rtc, it only has 10 consecutive registers.
-
->  	buffer[0] = off;
->  	memcpy(&buffer[1], data, len);
-> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-> index 79e24ea..00e11c1 100644
-> --- a/drivers/rtc/rtc-mcp795.c
-> +++ b/drivers/rtc/rtc-mcp795.c
-> @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
->  {
->  	struct spi_device *spi = to_spi_device(dev);
->  	int ret;
-> -	u8 tx[2 + count];
-> +	u8 tx[257];
->  
->  	tx[0] = MCP795_WRITE;
->  	tx[1] = addr;
-> -- 
-> 2.7.4
-> 
-
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index e248e56ff8a1..d2ba7d76dbb9 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -334,16 +334,16 @@ static const struct rtc_class_ops m48t02_rtc_ops = {
+ 	.set_time	= m48t59_rtc_set_time,
+ };
+ 
+-static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *bin_attr,
+-				char *buf, loff_t pos, size_t size)
++static int m48t59_nvram_read(void *priv, unsigned int offset, void *val,
++			     size_t size)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
++	struct platform_device *pdev = priv;
++	struct device *dev = &pdev->dev;
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
++	u8 *buf = val;
+ 
+ 	spin_lock_irqsave(&m48t59->lock, flags);
+ 
+@@ -352,19 +352,19 @@ static ssize_t m48t59_nvram_read(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+-	return cnt;
++	return 0;
+ }
+ 
+-static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
+-				struct bin_attribute *bin_attr,
+-				char *buf, loff_t pos, size_t size)
++static int m48t59_nvram_write(void *priv, unsigned int offset, void *val,
++			      size_t size)
+ {
+-	struct device *dev = container_of(kobj, struct device, kobj);
+-	struct platform_device *pdev = to_platform_device(dev);
++	struct platform_device *pdev = priv;
++	struct device *dev = &pdev->dev;
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
+ 	ssize_t cnt = 0;
+ 	unsigned long flags;
++	u8 *buf = val;
+ 
+ 	spin_lock_irqsave(&m48t59->lock, flags);
+ 
+@@ -373,18 +373,9 @@ static ssize_t m48t59_nvram_write(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+-	return cnt;
++	return 0;
+ }
+ 
+-static struct bin_attribute m48t59_nvram_attr = {
+-	.attr = {
+-		.name = "nvram",
+-		.mode = S_IRUGO | S_IWUSR,
+-	},
+-	.read = m48t59_nvram_read,
+-	.write = m48t59_nvram_write,
+-};
+-
+ static int m48t59_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct m48t59_plat_data *pdata = dev_get_platdata(&pdev->dev);
+@@ -393,6 +384,14 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	int ret = -ENOMEM;
+ 	char *name;
+ 	const struct rtc_class_ops *ops;
++	struct nvmem_config nvmem_cfg = {
++		.name = "m48t59-",
++		.word_size = 1,
++		.stride = 1,
++		.reg_read = m48t59_nvram_read,
++		.reg_write = m48t59_nvram_write,
++		.priv = pdev,
++	};
+ 
+ 	/* This chip could be memory-mapped or I/O-mapped */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -484,27 +483,21 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(m48t59->rtc))
+ 		return PTR_ERR(m48t59->rtc);
+ 
++	m48t59->rtc->nvram_old_abi = true;
+ 	m48t59->rtc->ops = ops;
+ 
+-	ret = rtc_register_device(m48t59->rtc);
++	nvmem_cfg.size = pdata->offset;
++	ret = rtc_nvmem_register(m48t59->rtc, &nvmem_cfg);
+ 	if (ret)
+ 		return ret;
+ 
+-	m48t59_nvram_attr.size = pdata->offset;
+-
+-	ret = sysfs_create_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
++	ret = rtc_register_device(m48t59->rtc);
+ 	if (ret)
+ 		return ret;
+ 
+ 	return 0;
+ }
+ 
+-static int m48t59_rtc_remove(struct platform_device *pdev)
+-{
+-	sysfs_remove_bin_file(&pdev->dev.kobj, &m48t59_nvram_attr);
+-	return 0;
+-}
+-
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:rtc-m48t59");
+ 
+@@ -513,7 +506,6 @@ static struct platform_driver m48t59_rtc_driver = {
+ 		.name	= "rtc-m48t59",
+ 	},
+ 	.probe		= m48t59_rtc_probe,
+-	.remove		= m48t59_rtc_remove,
+ };
+ 
+ module_platform_driver(m48t59_rtc_driver);
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.16.2
