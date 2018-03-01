@@ -1,86 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:43440 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:36489 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751841AbeCWKuT (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 23 Mar 2018 06:50:19 -0400
-Date: Fri, 23 Mar 2018 11:50:17 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: sean.wang@mediatek.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 09/16] rtc: mediatek: convert to use device managed
- functions
-Message-ID: <20180323105017.GI3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
- <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
+        id S967231AbeCAJ74 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 1 Mar 2018 04:59:56 -0500
+Date: Thu, 1 Mar 2018 10:59:44 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Philipp Rossak <embed3d@gmail.com>
+Cc: wens@csie.org, a.zummo@towertech.it, maxime.ripard@bootlin.com,
+        mturquette@baylibre.com, sboyd@codeaurora.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4] rtc: ac100: Fix ac100 determine rate bug
+Message-ID: <20180301095944.GT1479@piout.net>
+References: <20180226211901.9805-1-embed3d@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <20180226211901.9805-1-embed3d@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 23/03/2018 at 17:15:06 +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
+On 26/02/2018 at 22:19:01 +0100, Philipp Rossak wrote:
+> This patch fixes a bug, that prevents the Allwinner A83T and the A80
+> from a successful boot.
 > 
-> Use device managed operation to simplify error handling, reduce source
-> code size, and reduce the likelyhood of bugs, and remove our removal
-> callback which contains anything already done by device managed functions.
+> The bug is there since v4.16-rc1 and appeared after the clk branch was
+> merged.
 > 
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> You can find the shortend trace below:
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+> pgd = (ptrval)
+> [00000000] *pgd=00000000
+> Internal error: Oops: 5 [#1] SMP ARM
+> Modules linked in:
+> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
+> Hardware name: Allwinner sun8i Family
+> Workqueue: events deferred_probe_work_func
+> PC is at clk_hw_get_rate+0x0/0x34
+> LR is at ac100_clkout_determine_rate+0x48/0x19c
+> 
+> [ ... ]
+> 
+> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
+> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
+> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
+> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
+> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
+> 
+> To fix that bug, we first check if the return of the
+> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
+> clock parent.
+> 
+> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
+> 
+> Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
+> 
+> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
 > ---
->  drivers/rtc/rtc-mt6397.c | 31 ++++++++-----------------------
->  1 file changed, 8 insertions(+), 23 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index cefb83b..bfc5d6f 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -14,6 +14,7 @@
->  
->  #include <linux/delay.h>
->  #include <linux/init.h>
-> +#include <linux/interrupt.h>
->  #include <linux/module.h>
->  #include <linux/regmap.h>
->  #include <linux/rtc.h>
-> @@ -328,10 +329,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, rtc);
->  
-> -	ret = request_threaded_irq(rtc->irq, NULL,
-> -				   mtk_rtc_irq_handler_thread,
-> -				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> -				   "mt6397-rtc", rtc);
-> +	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
-> +					mtk_rtc_irq_handler_thread,
-> +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> +					"mt6397-rtc", rtc);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
->  			rtc->irq, ret);
-> @@ -340,30 +341,15 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, 1);
->  
-> -	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
-> -					   &mtk_rtc_ops, THIS_MODULE);
-> +	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "mt6397-rtc",
-> +						&mtk_rtc_ops, THIS_MODULE);
-
-You should probably switch to devm_rtc_allocate_device() and
-rtc_register_device instead of devm_rtc_device_register.
-
->  	if (IS_ERR(rtc->rtc_dev)) {
->  		dev_err(&pdev->dev, "register rtc device failed\n");
->  		ret = PTR_ERR(rtc->rtc_dev);
-> -		goto out_free_irq;
-> +		return ret;
-
-ret doesn't seem necessary anymore here.
-
+> Changes in v4:
+> 	* add more information to the comment
+> Changes in v3:
+> 	* add information when the bug appeared 
+> 	* make the comment more clear
+> Changes in v2:
+> 	* add tag Fixes: ... to commit message
+> 	* add comment to if statement why we are doing this check
+> 
+>  drivers/rtc/rtc-ac100.c | 24 +++++++++++++++++++++++-
+>  1 file changed, 23 insertions(+), 1 deletion(-)
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
