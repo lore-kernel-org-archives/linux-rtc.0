@@ -1,146 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:53206 "EHLO
-        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751498AbeCEHya (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Mar 2018 02:54:30 -0500
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "lkp@intel.com" <lkp@intel.com>
+Received: from mail1.bemta26.messagelabs.com ([85.158.142.4]:25366 "EHLO
+        mail1.bemta26.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1423071AbeCBIqw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Mar 2018 03:46:52 -0500
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>,
-        "kbuild-all@01.org" <kbuild-all@01.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v2 2/4] rtc: isl1208: switch to rtc_register_device
-Date: Mon, 5 Mar 2018 07:44:21 +0000
-Message-ID: <1520235861.5012.2.camel@diehl.com>
-References: <1519821214-22379-3-git-send-email-Denis.Osterland@diehl.com>
-         <201803031057.mSGucTXN%fengguang.wu@intel.com>
-In-Reply-To: <201803031057.mSGucTXN%fengguang.wu@intel.com>
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: [PATCH 000/100] rtc: remove cargo culted code
+Date: Fri, 2 Mar 2018 08:46:48 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGksDQoNCmFuIG9idmlvdXMgbWlzdGFrZSBieSBtZS4NCmlzbDEyMDggaXMgaW50cm9kdWNl
-ZCBpbiBwYXRjaCAzLzQuDQpJIHdpbGwgc2VuZCB2My4NClNvcnJ5IGZvciB0aGF0Lg0KDQpS
-ZWdhcmRzIERlbmlzDQoNCkFtIFNhbXN0YWcsIGRlbiAwMy4wMy4yMDE4LCAxMDozNSArMDgw
-MCBzY2hyaWViIGtidWlsZCB0ZXN0IHJvYm90Og0KPiBIaSBEZW5pcywNCj4gDQo+IFRoYW5r
-IHlvdSBmb3IgdGhlIHBhdGNoISBZZXQgc29tZXRoaW5nIHRvIGltcHJvdmU6DQo+IA0KPiBb
-YXV0byBidWlsZCB0ZXN0IEVSUk9SIG9uIGFiZWxsb25pL3J0Yy1uZXh0XQ0KPiBbYWxzbyBi
-dWlsZCB0ZXN0IEVSUk9SIG9uIHY0LjE2LXJjMyBuZXh0LTIwMTgwMzAyXQ0KPiBbaWYgeW91
-ciBwYXRjaCBpcyBhcHBsaWVkIHRvIHRoZSB3cm9uZyBnaXQgdHJlZSwgcGxlYXNlIGRyb3Ag
-dXMgYSBub3RlIHRvIGhlbHAgaW1wcm92ZSB0aGUgc3lzdGVtXQ0KPiANCj4gdXJsOsKgwqDC
-oMKgaHR0cHM6Ly9naXRodWIuY29tLzBkYXktY2kvbGludXgvY29tbWl0cy9EZW5pcy1PU1RF
-UkxBTkQvcnRjLWlzbDEyMDgtZml4ZXMtZG9jdW1lbnRhdGlvbi1hbmQtaXNsMTIxOS1zdXBw
-b3J0LzIwMTgwMzAzLTA5MzQwNQ0KPiBiYXNlOsKgwqDCoGh0dHBzOi8vZ2l0Lmtlcm5lbC5v
-cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2FiZWxsb25pL2xpbnV4LmdpdCBydGMtbmV4
-dA0KPiBjb25maWc6IHg4Nl82NC1yYW5kY29uZmlnLXgwMTctMjAxODA4IChhdHRhY2hlZCBh
-cyAuY29uZmlnKQ0KPiBjb21waWxlcjogZ2NjLTcgKERlYmlhbiA3LjMuMC0xKSA3LjMuMA0K
-PiByZXByb2R1Y2U6DQo+IMKgwqDCoMKgwqDCoMKgwqAjIHNhdmUgdGhlIGF0dGFjaGVkIC5j
-b25maWcgdG8gbGludXggYnVpbGQgdHJlZQ0KPiDCoMKgwqDCoMKgwqDCoMKgbWFrZSBBUkNI
-PXg4Nl82NMKgDQo+IA0KPiBOb3RlOiB0aGUgbGludXgtcmV2aWV3L0RlbmlzLU9TVEVSTEFO
-RC9ydGMtaXNsMTIwOC1maXhlcy1kb2N1bWVudGF0aW9uLWFuZC1pc2wxMjE5LXN1cHBvcnQv
-MjAxODAzMDMtMDkzNDA1IEhFQUQgMWQzY2Y4ODJlY2QwNjE4NDc5NjhkYTE1MTFlYzk1NmI5
-YmY3MGQzMyBidWlsZHMgZmluZS4NCj4gwqDCoMKgwqDCoMKgSXQgb25seSBodXJ0cyBiaXNl
-Y3RpYmlsaXR5Lg0KPiANCj4gQWxsIGVycm9yL3dhcm5pbmdzIChuZXcgb25lcyBwcmVmaXhl
-ZCBieSA+Pik6DQo+IA0KPiDCoMKgwqBJbiBmaWxlIGluY2x1ZGVkIGZyb20gZHJpdmVycy9y
-dGMvcnRjLWlzbDEyMDguYzoxNjowOg0KPiDCoMKgwqBkcml2ZXJzL3J0Yy9ydGMtaXNsMTIw
-OC5jOiBJbiBmdW5jdGlvbiAnaXNsMTIwOF9wcm9iZSc6DQo+ID4gDQo+ID4gPiANCj4gPiA+
-IGRyaXZlcnMvcnRjL3J0Yy1pc2wxMjA4LmM6Njc3OjI5OiBlcnJvcjogJ2lzbDEyMDgnIHVu
-ZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQ0KPiDCoMKgwqDCoMKgcmV0
-dXJuIHJ0Y19yZWdpc3Rlcl9kZXZpY2UoaXNsMTIwOC0+cnRjKTsNCj4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoF4N
-Cj4gwqDCoMKgaW5jbHVkZS9saW51eC9ydGMuaDoyNjE6Mzc6IG5vdGU6IGluIGRlZmluaXRp
-b24gb2YgbWFjcm8gJ3J0Y19yZWdpc3Rlcl9kZXZpY2UnDQo+IMKgwqDCoMKgwqBfX3J0Y19y
-ZWdpc3Rlcl9kZXZpY2UoVEhJU19NT0RVTEUsIGRldmljZSkNCj4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqBefn5+fn4NCj4gwqDCoMKgZHJpdmVycy9ydGMvcnRjLWlzbDEyMDguYzo2
-Nzc6Mjk6IG5vdGU6IGVhY2ggdW5kZWNsYXJlZCBpZGVudGlmaWVyIGlzIHJlcG9ydGVkIG9u
-bHkgb25jZSBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBlYXJzIGluDQo+IMKgwqDCoMKgwqBy
-ZXR1cm4gcnRjX3JlZ2lzdGVyX2RldmljZShpc2wxMjA4LT5ydGMpOw0KPiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-Xg0KPiDCoMKgwqBpbmNsdWRlL2xpbnV4L3J0Yy5oOjI2MTozNzogbm90ZTogaW4gZGVmaW5p
-dGlvbiBvZiBtYWNybyAncnRjX3JlZ2lzdGVyX2RldmljZScNCj4gwqDCoMKgwqDCoF9fcnRj
-X3JlZ2lzdGVyX2RldmljZShUSElTX01PRFVMRSwgZGV2aWNlKQ0KPiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoF5+fn5+fg0KPiA+IA0KPiA+ID4gDQo+ID4gPiBkcml2ZXJzL3J0Yy9y
-dGMtaXNsMTIwOC5jOjY3ODoxOiB3YXJuaW5nOiBjb250cm9sIHJlYWNoZXMgZW5kIG9mIG5v
-bi12b2lkIGZ1bmN0aW9uIFstV3JldHVybi10eXBlXQ0KPiDCoMKgwqDCoH0NCj4gwqDCoMKg
-wqBeDQo+IA0KPiB2aW0gKy9pc2wxMjA4ICs2NzcgZHJpdmVycy9ydGMvcnRjLWlzbDEyMDgu
-Yw0KPiANCj4gwqDCoMKgNjI1CQ0KPiDCoMKgwqA2MjYJc3RhdGljIGludA0KPiDCoMKgwqA2
-MjcJaXNsMTIwOF9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LCBjb25zdCBzdHJ1
-Y3QgaTJjX2RldmljZV9pZCAqaWQpDQo+IMKgwqDCoDYyOAl7DQo+IMKgwqDCoDYyOQkJaW50
-IHJjID0gMDsNCj4gwqDCoMKgNjMwCQlzdHJ1Y3QgcnRjX2RldmljZSAqcnRjOw0KPiDCoMKg
-wqA2MzEJDQo+IMKgwqDCoDYzMgkJaWYgKCFpMmNfY2hlY2tfZnVuY3Rpb25hbGl0eShjbGll
-bnQtPmFkYXB0ZXIsIEkyQ19GVU5DX0kyQykpDQo+IMKgwqDCoDYzMwkJCXJldHVybiAtRU5P
-REVWOw0KPiDCoMKgwqA2MzQJDQo+IMKgwqDCoDYzNQkJaWYgKGlzbDEyMDhfaTJjX3ZhbGlk
-YXRlX2NsaWVudChjbGllbnQpIDwgMCkNCj4gwqDCoMKgNjM2CQkJcmV0dXJuIC1FTk9ERVY7
-DQo+IMKgwqDCoDYzNwkNCj4gwqDCoMKgNjM4CQlydGMgPSBkZXZtX3J0Y19hbGxvY2F0ZV9k
-ZXZpY2UoJmNsaWVudC0+ZGV2KTsNCj4gwqDCoMKgNjM5CQlpZiAoSVNfRVJSKHJ0YykpDQo+
-IMKgwqDCoDY0MAkJCXJldHVybiBQVFJfRVJSKHJ0Yyk7DQo+IMKgwqDCoDY0MQkNCj4gwqDC
-oMKgNjQyCQlydGMtPm9wcyA9ICZpc2wxMjA4X3J0Y19vcHM7DQo+IMKgwqDCoDY0MwkNCj4g
-wqDCoMKgNjQ0CQlpMmNfc2V0X2NsaWVudGRhdGEoY2xpZW50LCBydGMpOw0KPiDCoMKgwqA2
-NDUJDQo+IMKgwqDCoDY0NgkJcmMgPSBpc2wxMjA4X2kyY19nZXRfc3IoY2xpZW50KTsNCj4g
-wqDCoMKgNjQ3CQlpZiAocmMgPCAwKSB7DQo+IMKgwqDCoDY0OAkJCWRldl9lcnIoJmNsaWVu
-dC0+ZGV2LCAicmVhZGluZyBzdGF0dXMgZmFpbGVkXG4iKTsNCj4gwqDCoMKgNjQ5CQkJcmV0
-dXJuIHJjOw0KPiDCoMKgwqA2NTAJCX0NCj4gwqDCoMKgNjUxCQ0KPiDCoMKgwqA2NTIJCWlm
-IChyYyAmIElTTDEyMDhfUkVHX1NSX1JUQ0YpDQo+IMKgwqDCoDY1MwkJCWRldl93YXJuKCZj
-bGllbnQtPmRldiwgInJ0YyBwb3dlciBmYWlsdXJlIGRldGVjdGVkLCAiDQo+IMKgwqDCoDY1
-NAkJCQnCoCJwbGVhc2Ugc2V0IGNsb2NrLlxuIik7DQo+IMKgwqDCoDY1NQkNCj4gwqDCoMKg
-NjU2CQlyYyA9IHN5c2ZzX2NyZWF0ZV9ncm91cCgmY2xpZW50LT5kZXYua29iaiwgJmlzbDEy
-MDhfcnRjX3N5c2ZzX2ZpbGVzKTsNCj4gwqDCoMKgNjU3CQlpZiAocmMpDQo+IMKgwqDCoDY1
-OAkJCXJldHVybiByYzsNCj4gwqDCoMKgNjU5CQ0KPiDCoMKgwqA2NjAJCWlmIChjbGllbnQt
-PmlycSA+IDApIHsNCj4gwqDCoMKgNjYxCQkJcmMgPSBkZXZtX3JlcXVlc3RfdGhyZWFkZWRf
-aXJxKCZjbGllbnQtPmRldiwgY2xpZW50LT5pcnEsIE5VTEwsDQo+IMKgwqDCoDY2MgkJCQkJ
-CcKgwqDCoMKgwqDCoMKgaXNsMTIwOF9ydGNfaW50ZXJydXB0LA0KPiDCoMKgwqA2NjMJCQkJ
-CQnCoMKgwqDCoMKgwqDCoElSUUZfU0hBUkVEIHwgSVJRRl9PTkVTSE9ULA0KPiDCoMKgwqA2
-NjQJCQkJCQnCoMKgwqDCoMKgwqDCoGlzbDEyMDhfZHJpdmVyLmRyaXZlci5uYW1lLA0KPiDC
-oMKgwqA2NjUJCQkJCQnCoMKgwqDCoMKgwqDCoGNsaWVudCk7DQo+IMKgwqDCoDY2NgkJCWlm
-ICghcmMpIHsNCj4gwqDCoMKgNjY3CQkJCWRldmljZV9pbml0X3dha2V1cCgmY2xpZW50LT5k
-ZXYsIDEpOw0KPiDCoMKgwqA2NjgJCQkJZW5hYmxlX2lycV93YWtlKGNsaWVudC0+aXJxKTsN
-Cj4gwqDCoMKgNjY5CQkJfSBlbHNlIHsNCj4gwqDCoMKgNjcwCQkJCWRldl9lcnIoJmNsaWVu
-dC0+ZGV2LA0KPiDCoMKgwqA2NzEJCQkJCSJVbmFibGUgdG8gcmVxdWVzdCBpcnEgJWQsIG5v
-IGFsYXJtIHN1cHBvcnRcbiIsDQo+IMKgwqDCoDY3MgkJCQkJY2xpZW50LT5pcnEpOw0KPiDC
-oMKgwqA2NzMJCQkJY2xpZW50LT5pcnEgPSAwOw0KPiDCoMKgwqA2NzQJCQl9DQo+IMKgwqDC
-oDY3NQkJfQ0KPiDCoMKgwqA2NzYJDQo+IMKgPiA2NzcJCXJldHVybiBydGNfcmVnaXN0ZXJf
-ZGV2aWNlKGlzbDEyMDgtPnJ0Yyk7DQo+IMKgPiA2NzgJfQ0KPiDCoMKgwqA2NzkJDQo+IA0K
-PiAtLS0NCj4gMC1EQVkga2VybmVsIHRlc3QgaW5mcmFzdHJ1Y3R1cmXCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoE9wZW4gU291cmNlIFRlY2hub2xvZ3kgQ2VudGVyDQo+IGh0
-dHBzOi8vbGlzdHMuMDEub3JnL3BpcGVybWFpbC9rYnVpbGQtYWxswqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBJbnRlbCBDb3Jwb3JhdGlvbg0KRGllaGwgQUtPIFN0
-aWZ0dW5nICYgQ28uIEtHLCBQZmFubmVyc3RyYcOfZSA3NS04MywgODgyMzkgV2FuZ2VuIGlt
-IEFsbGfDpHUNCkJlcmVpY2hzdm9yc3RhbmQ6IERyLi1JbmcuIE1pY2hhZWwgU2llZGVudG9w
-IChTcHJlY2hlciksIEpvc2VmIEZlbGxuZXIgKE1pdGdsaWVkKQ0KU2l0eiBkZXIgR2VzZWxs
-c2NoYWZ0OiBXYW5nZW4gaS5BLiDigJMgUmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBV
-bG0gSFJBIDYyMDYwOSDigJMgUGVyc8O2bmxpY2ggaGFmdGVuZGUgR2VzZWxsc2NoYWZ0ZXJp
-bjogRGllaGwgVmVyd2FsdHVuZ3MtU3RpZnR1bmcg4oCTIFNpdHo6IE7DvHJuYmVyZyDigJMg
-UmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBOw7xybmJlcmcgSFJBIDExNzU2IOKAkw0K
-Vm9yc3RhbmQ6IERyLi1JbmcuIEUuaC4gVGhvbWFzIERpZWhsICjigKApIChWb3JzaXR6ZW5k
-ZXIpLCBIZXJyIERpcGwuLVdpcnRzY2guLUluZy4gV29sZmdhbmcgV2VnZ2VuIChzdGVsbHZl
-cnRyZXRlbmRlciBWb3JzaXR6ZW5kZXIpLCBEaXBsLi1LZm0uIENsYXVzIEfDvG50aGVyLCBE
-aXBsLi1LZm0uIEZyYW5rIEd1dHplaXQsIERyLi1JbmcuIEhlaW5yaWNoIFNjaHVuaywgRHIu
-LUluZy4gTWljaGFlbCBTaWVkZW50b3AgLCBEaXBsLi1LZm0uIERyLi1JbmcuIE1hcnRpbiBT
-b21tZXIsIERpcGwuLUluZy4gKEZIKSBSYWluZXIgdm9uIEJvcnN0ZWwsIFZvcnNpdHplbmRl
-ciBkZXMgQXVmc2ljaHRzcmF0ZXM6IERyLiBLbGF1cyBNYWllcg0KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQpEZXIgSW5oYWx0IGRlciB2b3JzdGVo
-ZW5kZW4gRS1NYWlsIGlzdCBuaWNodCByZWNodGxpY2ggYmluZGVuZC4gRGllc2UgRS1NYWls
-IGVudGhhZWx0IHZlcnRyYXVsaWNoZSB1bmQvb2RlciByZWNodGxpY2ggZ2VzY2h1ZXR6dGUg
-SW5mb3JtYXRpb25lbi4NCkluZm9ybWllcmVuIFNpZSB1bnMgYml0dGUsIHdlbm4gU2llIGRp
-ZXNlIEUtTWFpbCBmYWVsc2NobGljaGVyd2Vpc2UgZXJoYWx0ZW4gaGFiZW4uIEJpdHRlIGxv
-ZXNjaGVuIFNpZSBpbiBkaWVzZW0gRmFsbCBkaWUgTmFjaHJpY2h0LiBKZWRlIHVuZXJsYXVi
-dGUgRm9ybSBkZXIgUmVwcm9kdWt0aW9uLCBCZWthbm50Z2FiZSwgQWVuZGVydW5nLCBWZXJ0
-ZWlsdW5nIHVuZC9vZGVyIFB1Ymxpa2F0aW9uIGRpZXNlciBFLU1haWwgaXN0IHN0cmVuZ3N0
-ZW5zIHVudGVyc2FndC4NClRoZSBjb250ZW50cyBvZiB0aGUgYWJvdmUgbWVudGlvbmVkIGUt
-bWFpbCBpcyBub3QgbGVnYWxseSBiaW5kaW5nLiBUaGlzIGUtbWFpbCBjb250YWlucyBjb25m
-aWRlbnRpYWwgYW5kL29yIGxlZ2FsbHkgcHJvdGVjdGVkIGluZm9ybWF0aW9uLiBQbGVhc2Ug
-aW5mb3JtIHVzIGlmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGJ5IG1pc3Rha2Ug
-YW5kIGRlbGV0ZSBpdCBpbiBzdWNoIGEgY2FzZS4gRWFjaCB1bmF1dGhvcml6ZWQgcmVwcm9k
-dWN0aW9uLCBkaXNjbG9zdXJlLCBhbHRlcmF0aW9uLCBkaXN0cmlidXRpb24gYW5kL29yIHB1
-YmxpY2F0aW9uIG9mIHRoaXMgZS1tYWlsIGlzIHN0cmljdGx5IHByb2hpYml0ZWQu
+On Wed, Feb 21, 2018 at 8:54 PM, Alexandre Belloni wrote:
+ 
+> subject:	[PATCH 000/100] rtc: remove cargo culted code
+> mailing list:	linux-kernel@vger.kernel.org Filter messages from this mailing list
+>
+> Hello,
+>
+> This series:
+>  - removes useless calls to rtc_valid_tm in .read_time, .set_time and
+>    .set_alarm
+>  - removes code setting default values for RTCs (and lets the core
+>    handle it)
+>  - removes useless "time is invalid" messages at probe time
+>  - removes useless indirect calls
+>
+> Those were mostly copy pasted from other drivers
+
+Hi Alexandre,
+
+Acked for:
+  rtc: da9063: stop validating rtc_time in .read_time
+  rtc: da9052: stop validating rtc_time in .read_time
+  rtc: da9055: stop validating rtc_time in .read_time
+
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+Agreed -- rtc_valid_tm() call is cargo cult for the above.
+
+(By definition) for DA9063 I was trying to be rigorous.
+The .read_time function is slightly different here because I can make a copy the alarm time into the RTC time
+structure to solve an RTC synchronisation problem internally to the DA9063.
+https://elixir.bootlin.com/linux/v4.5.6/source/drivers/rtc/rtc-da9063.c#L253
+
+But after some further looking, I have not got any explicit case of how the time read directly from the DA9063
+registers can be incorrectly represented. So there should be no need to check this.
+
+Regards,
+Steve
