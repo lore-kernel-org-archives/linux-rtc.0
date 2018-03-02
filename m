@@ -1,68 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.140]:43008 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752362AbeCLJwe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 05:52:34 -0400
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-To: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-        Joseph Lo <josephl@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        lee.jones@linaro.org, Emil Renner Berthing <kernel@esmil.dk>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        linux-rockchip@lists.infradead.org,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Jeffy Chen <jeffy.chen@rock-chips.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH v5 2/4] rtc: at91sam9: Set name of regmap_config
-Date: Mon, 12 Mar 2018 17:51:40 +0800
-Message-Id: <20180312095142.30854-3-jeffy.chen@rock-chips.com>
-In-Reply-To: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
-References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
+Received: from mail.bootlin.com ([62.4.15.54]:49424 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1423929AbeCBI44 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 2 Mar 2018 03:56:56 -0500
+Date: Fri, 2 Mar 2018 09:56:54 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: Re: [PATCH 000/100] rtc: remove cargo culted code
+Message-ID: <20180302085654.GA1479@piout.net>
+References: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We are now allowing to register debugfs without a valid device, and not
-having a valid name will end up using "dummy*" to create debugfs dir.
+On 02/03/2018 at 08:46:48 +0000, Steve Twiss wrote:
+> On Wed, Feb 21, 2018 at 8:54 PM, Alexandre Belloni wrote:
+>  
+> > subject:	[PATCH 000/100] rtc: remove cargo culted code
+> > mailing list:	linux-kernel@vger.kernel.org Filter messages from this mailing list
+> >
+> > Hello,
+> >
+> > This series:
+> >  - removes useless calls to rtc_valid_tm in .read_time, .set_time and
+> >    .set_alarm
+> >  - removes code setting default values for RTCs (and lets the core
+> >    handle it)
+> >  - removes useless "time is invalid" messages at probe time
+> >  - removes useless indirect calls
+> >
+> > Those were mostly copy pasted from other drivers
+> 
+> Hi Alexandre,
+> 
+> Acked for:
+>   rtc: da9063: stop validating rtc_time in .read_time
+>   rtc: da9052: stop validating rtc_time in .read_time
+>   rtc: da9055: stop validating rtc_time in .read_time
+> 
+> Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> Agreed -- rtc_valid_tm() call is cargo cult for the above.
+> 
+> (By definition) for DA9063 I was trying to be rigorous.
+> The .read_time function is slightly different here because I can make a copy the alarm time into the RTC time
+> structure to solve an RTC synchronisation problem internally to the DA9063.
+> https://elixir.bootlin.com/linux/v4.5.6/source/drivers/rtc/rtc-da9063.c#L253
+> 
+> But after some further looking, I have not got any explicit case of how the time read directly from the DA9063
+> registers can be incorrectly represented. So there should be no need to check this.
+> 
 
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
----
+My point is that it is checked later in the core anyway so you end up
+doing:
 
-Changes in v5: None
-Changes in v4:
-Not to use rtc dev to init regmap, the gpbr is not directly related to
-the rtc.
+da9063_rtc_read_time()
+	return rtc_valid_tm(tm);
 
-Changes in v3: None
+__rtc_read_time()
+	if (err < 0)
+		return err;
+	err = rtc_valid_tm(tm);
 
- drivers/rtc/rtc-at91sam9.c | 1 +
- 1 file changed, 1 insertion(+)
+	return err;
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 7418a763ce52..ee71e647fd43 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
- };
- 
- static const struct regmap_config gpbr_regmap_config = {
-+	.name = "gpbr",
- 	.reg_bits = 32,
- 	.val_bits = 32,
- 	.reg_stride = 4,
+So the check in da9063_rtc_read_time is always pointless.
+
+
 -- 
-2.11.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
