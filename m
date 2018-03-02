@@ -1,87 +1,118 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:46348 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752003AbeCWJPa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:30 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 04/16] mfd: mt6397: add MT6323 RTC support into MT6397 driver
-Date: Fri, 23 Mar 2018 17:15:01 +0800
-Message-ID: <90320622cb491b9d3251e2ce9d0501422f47660f.1521794177.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
+Received: from mail.bootlin.com ([62.4.15.54]:52974 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934783AbeCBXnh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 2 Mar 2018 18:43:37 -0500
+Date: Sat, 3 Mar 2018 00:43:11 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: David Daney <ddaney.cavm@gmail.com>
+Cc: David Daney <david.daney@cavium.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v6] rtc: isl12026: Add driver.
+Message-ID: <20180302234311.GE1479@piout.net>
+References: <20180222200432.22003-1-david.daney@cavium.com>
+ <20180228151701.GM1479@piout.net>
+ <CAKjEs9FbNDKNs5j-aZAmHCYO1YE5g70vLyuk1hGDNvvRWj977w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAKjEs9FbNDKNs5j-aZAmHCYO1YE5g70vLyuk1hGDNvvRWj977w@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On 02/03/2018 at 08:22:22 -0800, David Daney wrote:
+> I am no longer able to test this patch as I lost access to the hardware.
+> 
 
-Add compatible string as "mt6323-rtc" that will make the OF core spawn
-child devices for the RTC subnode of that MT6323 MFD node.
+Ah, too bad. I will take your patch as-is and then add a small patch to
+fixup the nvmem registration.
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- drivers/mfd/mt6397-core.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+> If someone else wants to take charge of the patch, that would be great.
+> 
+> Sorry I couldn't drive this to completion,
+> David Daney
+> 
+> On Wed, Feb 28, 2018 at 7:17 AM, Alexandre Belloni <
+> alexandre.belloni@free-electrons.com> wrote:
+> 
+> > Hi,
+> >
+> > That's mostly good
+> >
+> > On 22/02/2018 at 12:04:32 -0800, David Daney wrote:
+> > > +     priv->rtc->ops = &isl12026_rtc_ops;
+> > > +     priv->rtc->nvram_old_abi = false;
+> >
+> > This allocation is not necessary and I would refer not having t so when
+> > the ABI goes away, it is not necessary to change this driver.
+> >
+> > > +     ret = rtc_register_device(priv->rtc);
+> > > +     if (ret)
+> > > +             return ret;
+> > > +
+> > > +     memset(&nvm_cfg, 0, sizeof(nvm_cfg));
+> > > +     nvm_cfg.name = "eeprom";
+> >
+> > You probably need something more descriptive, usually the rtc model name
+> > else, it is difficult (but not impossible) to find where this nvmem is
+> > actually located when using /sys/bus/nvmem/devices
+> > isl12026- would be a good choice.
+> >
+> > > +     nvm_cfg.read_only = false;
+> > > +     nvm_cfg.root_only = true;
+> >
+> > any reason to have it root only?
+> >
+> > > +     nvm_cfg.base_dev = &client->dev;
+> > > +     nvm_cfg.priv = priv;
+> > > +     nvm_cfg.stride = 1;
+> > > +     nvm_cfg.word_size = 1;
+> > > +     nvm_cfg.size = 512;
+> > > +     nvm_cfg.reg_read = isl12026_nvm_read;
+> > > +     nvm_cfg.reg_write = isl12026_nvm_write;
+> > > +
+> > > +     return rtc_nvmem_register(priv->rtc, &nvm_cfg);
+> >
+> > The probe function must not fail after rtc_register_device has been
+> > called so you must return 0 here.
+> >
+> > It is not currently possible to call rtc_nvmem_register before
+> > rtc_register_device unless we move the nvmem to the parent device:
+> >
+> > diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
+> > index 3a02357eb783..17ec4c8d0fad 100644
+> > --- a/drivers/rtc/nvmem.c
+> > +++ b/drivers/rtc/nvmem.c
+> > @@ -91,7 +91,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,
+> >         if (!nvmem_config)
+> >                 return -ENODEV;
+> >
+> > -       nvmem_config->dev = &rtc->dev;
+> > +       nvmem_config->dev = rtc->dev.parent;
+> >         nvmem_config->owner = rtc->owner;
+> >         rtc->nvmem = nvmem_register(nvmem_config);
+> >         if (IS_ERR_OR_NULL(rtc->nvmem))
+> >
+> > I'll submit this patch for this cycle before there are many users of the
+> > interface (converted drivers are still exposing the old ABI).
+> >
+> > If you prefer, you can depend on it.
+> >
+> > --
+> > Alexandre Belloni, Bootlin (formerly Free Electrons)
+> > Embedded Linux and Kernel engineering
+> > https://bootlin.com
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 77b64bd..f71874a 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2014 MediaTek Inc.
-+ * Copyright (c) 2014-2018 MediaTek Inc.
-  * Author: Flora Fu, MediaTek
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -23,6 +23,9 @@
- #include <linux/mfd/mt6397/registers.h>
- #include <linux/mfd/mt6323/registers.h>
- 
-+#define MT6323_RTC_BASE		0x8000
-+#define MT6323_RTC_SIZE		0x3e
-+
- #define MT6397_RTC_BASE		0xe000
- #define MT6397_RTC_SIZE		0x3e
- 
-@@ -30,6 +33,19 @@
- #define MT6391_CID_CODE		0x91
- #define MT6397_CID_CODE		0x97
- 
-+static const struct resource mt6323_rtc_resources[] = {
-+	{
-+		.start = MT6323_RTC_BASE,
-+		.end   = MT6323_RTC_BASE + MT6323_RTC_SIZE,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
-+		.start = MT6323_IRQ_STATUS_RTC,
-+		.end   = MT6323_IRQ_STATUS_RTC,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
- static const struct resource mt6397_rtc_resources[] = {
- 	{
- 		.start = MT6397_RTC_BASE,
-@@ -55,6 +71,11 @@ static const struct resource mt6397_keys_resources[] = {
- 
- static const struct mfd_cell mt6323_devs[] = {
- 	{
-+		.name = "mt6323-rtc",
-+		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
-+		.resources = mt6323_rtc_resources,
-+		.of_compatible = "mediatek,mt6323-rtc",
-+	}, {
- 		.name = "mt6323-regulator",
- 		.of_compatible = "mediatek,mt6323-regulator"
- 	}, {
 -- 
-2.7.4
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
