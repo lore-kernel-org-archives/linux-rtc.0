@@ -1,79 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:37100 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752313AbeCNSOX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 14 Mar 2018 14:14:23 -0400
-Date: Wed, 14 Mar 2018 19:14:16 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 09/47] rtc: remove bfin driver
-Message-ID: <20180314181416.GB5899@piout.net>
-References: <20180314153603.3127932-1-arnd@arndb.de>
- <20180314153603.3127932-10-arnd@arndb.de>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.147]:29418 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1424685AbeCBJGb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Mar 2018 04:06:31 -0500
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: RE: [PATCH 000/100] rtc: remove cargo culted code
+Date: Fri, 2 Mar 2018 09:06:28 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB70194158130@SW-EX-MBX01.diasemi.com>
+References: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
+ <20180302085654.GA1479@piout.net>
+In-Reply-To: <20180302085654.GA1479@piout.net>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180314153603.3127932-10-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 14/03/2018 at 16:35:22 +0100, Arnd Bergmann wrote:
-> The blackfin architecture is getting removed, so this one is
-> now obsolete.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+On 02 March 2018 08:57, Alexandre Belloni wrote:
 
-> ---
->  drivers/rtc/Kconfig    |  10 --
->  drivers/rtc/Makefile   |   1 -
->  drivers/rtc/rtc-bfin.c | 448 -------------------------------------------------
->  3 files changed, 459 deletions(-)
->  delete mode 100644 drivers/rtc/rtc-bfin.c
+> To: Steve Twiss
+> Cc: linux-kernel@vger.kernel.org; linux-rtc@vger.kernel.org
+> Subject: Re: [PATCH 000/100] rtc: remove cargo culted code
 > 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 0e1413a5ba3a..0ab8946f69b7 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1445,16 +1445,6 @@ config RTC_DRV_AU1XXX
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rtc-au1xxx.
->  
-> -config RTC_DRV_BFIN
-> -	tristate "Blackfin On-Chip RTC"
-> -	depends on BLACKFIN && !BF561
-> -	help
-> -	  If you say yes here you will get support for the
-> -	  Blackfin On-Chip Real Time Clock.
-> -
-> -	  This driver can also be built as a module. If so, the module
-> -	  will be called rtc-bfin.
-> -
->  config RTC_DRV_RS5C313
->  	tristate "Ricoh RS5C313"
->  	depends on SH_LANDISK
-> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> index f7a4b09557a0..5ff2fc0c361a 100644
-> --- a/drivers/rtc/Makefile
-> +++ b/drivers/rtc/Makefile
-> @@ -36,7 +36,6 @@ obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
->  obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
->  obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
->  obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
-> -obj-$(CONFIG_RTC_DRV_BFIN)	+= rtc-bfin.o
->  obj-$(CONFIG_RTC_DRV_BRCMSTB)	+= rtc-brcmstb-waketimer.o
->  obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
->  obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
-> diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-> deleted file mode 100644
-> index 15344b7c07c5..000000000000
-> -- 
-> 2.9.0
-> 
+> On 02/03/2018 at 08:46:48 +0000, Steve Twiss wrote:
+> > Hi Alexandre,
+> >
+> > Acked for:
+> >   rtc: da9063: stop validating rtc_time in .read_time
+> >   rtc: da9052: stop validating rtc_time in .read_time
+> >   rtc: da9055: stop validating rtc_time in .read_time
+> >
+> > Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> >
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+[...]
+
+> > But after some further looking, I have not got any explicit case of how the
+> > time read directly from the DA9063
+> > registers can be incorrectly represented. So there should be no need to
+> > check this.
+> 
+> My point is that it is checked later in the core anyway so you end up
+> doing:
+> 
+> da9063_rtc_read_time()
+> 	return rtc_valid_tm(tm);
+> 
+> __rtc_read_time()
+> 	if (err < 0)
+> 		return err;
+> 	err = rtc_valid_tm(tm);
+> 
+> 	return err;
+> 
+> So the check in da9063_rtc_read_time is always pointless.
+
+Ahh. I see. Thanks!
+Regards,
+Steve
