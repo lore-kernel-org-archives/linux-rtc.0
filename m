@@ -1,132 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:56430 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:40036 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933743AbeCGWoS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Mar 2018 17:44:18 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: Add RTC range
-Date: Wed,  7 Mar 2018 23:44:02 +0100
-Message-Id: <20180307224403.18315-1-alexandre.belloni@bootlin.com>
+        id S932418AbeCFPnr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 6 Mar 2018 10:43:47 -0500
+Received: from localhost (unknown [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 4F816203A2
+        for <linux-rtc@vger.kernel.org>; Tue,  6 Mar 2018 16:43:42 +0100 (CET)
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v3 2/4] rtc: isl1208: switch to rtc_register_device
+Date: Mon, 5 Mar 2018 10:43:53 +0000
+Message-ID: <1520246373-19023-3-git-send-email-Denis.Osterland@diehl.com>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+In-Reply-To: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add a way for drivers to inform the core of the supported date/time range.
-The core can then check whether the date/time or alarm is in the range
-before calling ->set_time, ->set_mmss or ->set_alarm. It returns -ERANGE
-when the time is out of range.
+From: Denis Osterland <Denis.Osterland@diehl.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fix possible race condition.
+It is not allowed to return with an error code after RTC is registered.
+
+Suggested-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 ---
- Documentation/ABI/testing/sysfs-class-rtc |  8 ++++++++
- drivers/rtc/interface.c                   | 14 ++++++++++++++
- drivers/rtc/rtc-sysfs.c                   | 12 ++++++++++++
- include/linux/rtc.h                       |  3 +++
- 4 files changed, 37 insertions(+)
+ drivers/rtc/rtc-isl1208.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-rtc b/Documentation/ABI/testing/sysfs-class-rtc
-index 792a38300336..95984289a4ee 100644
---- a/Documentation/ABI/testing/sysfs-class-rtc
-+++ b/Documentation/ABI/testing/sysfs-class-rtc
-@@ -43,6 +43,14 @@ Contact:	linux-rtc@vger.kernel.org
- Description:
- 		(RO) The name of the RTC corresponding to this sysfs directory
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index a13a4ba..1a2c38c 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -635,12 +635,12 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (isl1208_i2c_validate_client(client) < 0)
+ 		return -ENODEV;
  
-+What:		/sys/class/rtc/rtcX/range
-+Date:		January 2018
-+KernelVersion:	4.16
-+Contact:	linux-rtc@vger.kernel.org
-+Description:
-+		Valid time range for the RTC, as seconds from epoch, formatted
-+		as [min, max]
-+
- What:		/sys/class/rtc/rtcX/since_epoch
- Date:		March 2006
- KernelVersion:	2.6.17
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 7e253be19ba7..c068daebeec2 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -70,6 +70,13 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- 	if (err != 0)
- 		return err;
+-	rtc = devm_rtc_device_register(&client->dev, isl1208_driver.driver.name,
+-				  &isl1208_rtc_ops,
+-				  THIS_MODULE);
++	rtc = devm_rtc_allocate_device(&client->dev);
+ 	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
  
-+	if (rtc->range_min != rtc->range_max) {
-+		time64_t time = rtc_tm_to_time64(tm);
++	rtc->ops = &isl1208_rtc_ops;
 +
-+		if (time < rtc->range_min || time > rtc->range_max)
-+			return -ERANGE;
-+	}
-+
- 	err = mutex_lock_interruptible(&rtc->ops_lock);
- 	if (err)
- 		return err;
-@@ -374,6 +381,13 @@ int rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- 	if (err != 0)
- 		return err;
+ 	i2c_set_clientdata(client, rtc);
  
-+	if (rtc->range_min != rtc->range_max) {
-+		time64_t time = rtc_tm_to_time64(&alarm->time);
-+
-+		if (time < rtc->range_min || time > rtc->range_max)
-+			return -ERANGE;
-+	}
-+
- 	err = mutex_lock_interruptible(&rtc->ops_lock);
- 	if (err)
- 		return err;
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 92ff2edb86a6..454da38c6012 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -248,6 +248,14 @@ offset_store(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RW(offset);
- 
-+static ssize_t
-+range_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return sprintf(buf, "[%lld,%llu]\n", to_rtc_device(dev)->range_min,
-+		       to_rtc_device(dev)->range_max);
-+}
-+static DEVICE_ATTR_RO(range);
-+
- static struct attribute *rtc_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_date.attr,
-@@ -257,6 +265,7 @@ static struct attribute *rtc_attrs[] = {
- 	&dev_attr_hctosys.attr,
- 	&dev_attr_wakealarm.attr,
- 	&dev_attr_offset.attr,
-+	&dev_attr_range.attr,
- 	NULL,
- };
- 
-@@ -286,6 +295,9 @@ static umode_t rtc_attr_is_visible(struct kobject *kobj,
- 	} else if (attr == &dev_attr_offset.attr) {
- 		if (!rtc->ops->set_offset)
- 			mode = 0;
-+	} else if (attr == &dev_attr_range.attr) {
-+		if (!(rtc->range_max - rtc->range_min))
-+			mode = 0;
+ 	rc = isl1208_i2c_get_sr(client);
+@@ -674,7 +674,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		}
  	}
  
- 	return mode;
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 3b65b201169c..c78528c394e5 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -150,6 +150,9 @@ struct rtc_device {
- 	bool nvram_old_abi;
- 	struct bin_attribute *nvram;
+-	return 0;
++	return rtc_register_device(rtc);
+ }
  
-+	time64_t range_min;
-+	timeu64_t range_max;
-+
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
- 	struct work_struct uie_task;
- 	struct timer_list uie_timer;
+ static int
 -- 
-2.16.2
+2.7.4
+
+
+Diehl AKO Stiftung & Co. KG, Pfannerstraße 75-83, 88239 Wangen im Allgäu
+Bereichsvorstand: Dr.-Ing. Michael Siedentop (Sprecher), Josef Fellner (Mitglied)
+Sitz der Gesellschaft: Wangen i.A. – Registergericht: Amtsgericht Ulm HRA 620609 – Persönlich haftende Gesellschafterin: Diehl Verwaltungs-Stiftung – Sitz: Nürnberg – Registergericht: Amtsgericht Nürnberg HRA 11756 –
+Vorstand: Dr.-Ing. E.h. Thomas Diehl (†) (Vorsitzender), Herr Dipl.-Wirtsch.-Ing. Wolfgang Weggen (stellvertretender Vorsitzender), Dipl.-Kfm. Claus Günther, Dipl.-Kfm. Frank Gutzeit, Dr.-Ing. Heinrich Schunk, Dr.-Ing. Michael Siedentop , Dipl.-Kfm. Dr.-Ing. Martin Sommer, Dipl.-Ing. (FH) Rainer von Borstel, Vorsitzender des Aufsichtsrates: Dr. Klaus Maier
+___________________________________________________________________________________________________
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht. Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
