@@ -1,74 +1,124 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:35585 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751207AbeC1K0o (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Mar 2018 06:26:44 -0400
-Received: by mail-wr0-f194.google.com with SMTP id 80so1740617wrb.2
-        for <linux-rtc@vger.kernel.org>; Wed, 28 Mar 2018 03:26:44 -0700 (PDT)
-Date: Wed, 28 Mar 2018 11:26:40 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it,
-        devicetree@vger.kernel.org, linus.walleij@linaro.org,
-        jcsing.lee@samsung.com, linux-kernel@vger.kernel.org,
-        krzk@kernel.org, javier@osg.samsung.com,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-        eddie.huang@mediatek.com, Chen.Zhong@mediatek.com,
-        beomho.seo@samsung.com, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Message-ID: <20180328102640.yx6nv5abfexmouuf@dell>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
- <1521685073.28226.10.camel@mtkswgap22>
- <20180323185418.GD255819@dtor-ws>
- <20180327080507.pgil6pw2mn4y2f4d@dell>
- <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
+Received: from smtp.codeaurora.org ([198.145.29.96]:35476 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932868AbeCEJGn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Mar 2018 04:06:43 -0500
+From: Mohit Aggarwal <maggarwa@codeaurora.org>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: Mohit Aggarwal <maggarwa@codeaurora.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] rtc-pm8xxx: Fix issue in RTC write path
+Date: Mon,  5 Mar 2018 14:35:58 +0530
+Message-Id: <1520240758-9837-1-git-send-email-maggarwa@codeaurora.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 27 Mar 2018, Matthias Brugger wrote:
+In order to set time in rtc, need to disable
+rtc hw before writing into rtc registers.
 
-> 
-> 
-> On 03/27/2018 10:05 AM, Lee Jones wrote:
-> > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
-> >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
-> >>> Hi, Dmitry and Lee
-> >>>
-> >>> The series seems not being got merged. Are they good enough to be ready
-> >>> into the your tree?
-> >>>
-> >>> Recently I've tested the series with focusing on pwrkey event generated
-> >>> through interrupt when push and release the key on bpi-r2 board and then
-> >>> finally it's working fine. but for homekey it cannot be found on the
-> >>> board and thus I cannot have more tests more about it.
-> >>>
-> >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
-> >>
-> >> You have my Ack on the input patch; I expect it go through Lee's tree as
-> >> there are some dependencies on mfd core piece.
-> > 
-> > Are you happy for me to merge the Input dt-bindings without your Ack?
-> > 
-> 
-> They got both Acked in v5, but the commit message was not updated:
-> https://patchwork.kernel.org/patch/9973721/
-> https://patchwork.kernel.org/patch/9973723/
+Also fixes disabling of alarm while setting
+rtc time.
 
-Thanks Matthias.
+Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
+---
+ drivers/rtc/rtc-pm8xxx.c | 49 +++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 38 insertions(+), 11 deletions(-)
 
-Chen, can you collect all the Acks and repost as a RESEND please?
-
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 8e01287..29358a0 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -74,16 +74,18 @@ struct pm8xxx_rtc {
+ /*
+  * Steps to write the RTC registers.
+  * 1. Disable alarm if enabled.
+- * 2. Write 0x00 to LSB.
+- * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
+- * 4. Enable alarm if disabled in step 1.
++ * 2. Disable rtc if enabled.
++ * 3. Write 0x00 to LSB.
++ * 4. Write Byte[1], Byte[2], Byte[3] then Byte[0].
++ * 5. Enable rtc if disabled in step 2.
++ * 6. Enable alarm if disabled in step 1.
+  */
+ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	int rc, i;
+ 	unsigned long secs, irq_flags;
+-	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0;
+-	unsigned int ctrl_reg;
++	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
++	unsigned int ctrl_reg, rtc_ctrl_reg;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 
+@@ -92,23 +94,38 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_tm_to_time(tm, &secs);
+ 
++	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
++
+ 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
+ 		value[i] = secs & 0xFF;
+ 		secs >>= 8;
+ 	}
+ 
+-	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
+-
+ 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 
+-	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
++	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+ 	if (rc)
+ 		goto rtc_rw_fail;
+ 
+ 	if (ctrl_reg & regs->alarm_en) {
+ 		alarm_enabled = 1;
+ 		ctrl_reg &= ~regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
++	/* Disable RTC H/w before writing on RTC register */
++	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
++	if (rc)
++		goto rtc_rw_fail;
++
++	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
++		rtc_disabled = 1;
++		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
+ 		if (rc) {
+ 			dev_err(dev, "Write to RTC control register failed\n");
+ 			goto rtc_rw_fail;
+@@ -137,11 +154,21 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		goto rtc_rw_fail;
+ 	}
+ 
++	/* Enable RTC H/w after writing on RTC register */
++	if (rtc_disabled) {
++		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
+ 	if (alarm_enabled) {
+ 		ctrl_reg |= regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
+ 		if (rc) {
+-			dev_err(dev, "Write to RTC control register failed\n");
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
+ 			goto rtc_rw_fail;
+ 		}
+ 	}
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
