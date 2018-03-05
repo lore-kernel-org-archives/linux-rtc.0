@@ -1,54 +1,141 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.132]:37645 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752201AbeCIIqu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:46:50 -0500
-Message-ID: <5AA249BC.6020705@rock-chips.com>
-Date: Fri, 09 Mar 2018 16:45:48 +0800
-From: JeffyChen <jeffy.chen@rock-chips.com>
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:7526 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934392AbeCEKoE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Mar 2018 05:44:04 -0500
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v3 4/4] rtc: isl1208: Add "evdet" interrupt source for
+ isl1219.
+Date: Mon, 5 Mar 2018 10:43:52 +0000
+Message-ID: <1520246373-19023-5-git-send-email-Denis.Osterland@diehl.com>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+In-Reply-To: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        linux-clk@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 0/4] Set name of regmap_config
-References: <20180309015146.8297-1-jeffy.chen@rock-chips.com> <20180309081603.4u5pgwwsfxernodm@dell>
-In-Reply-To: <20180309081603.4u5pgwwsfxernodm@dell>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Lee,
+From: Denis Osterland <Denis.Osterland@diehl.com>
 
-Thanks for your reply.
+Add support for "evdet" named interrupt source.
 
-On 03/09/2018 04:16 PM, Lee Jones wrote:
->> >
->> >Jeffy Chen (4):
->> >   mfd: syscon: Set name of regmap_config
->> >   rtc: at91sam9: Set name of regmap_config
->> >   clk: lpc32xx: Set name of regmap_config
->> >   ARM: rockchip: Set name of regmap_config
->> >
->> >  arch/arm/mach-rockchip/platsmp.c | 1 +
->> >  drivers/clk/nxp/clk-lpc32xx.c    | 1 +
->> >  drivers/mfd/syscon.c             | 1 +
-> It's difficult to review, since we cannot see what's happening with
-> the rest of the patch set.  Would you mind re-sending the whole set to
-> all parties please?
-sure, i can do that :)
+The check if i2c client irq matches evdet irq is needed
+for the case that there is only one interrupt named "evdet".
+In this case i2c client code handles this like an unnamed
+interrupt souce and assigns the value.
 
->
+Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+---
+ drivers/rtc/rtc-isl1208.c | 47 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index 164371b..f2f148b 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -14,6 +14,7 @@
+ #include <linux/i2c.h>
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
++#include <linux/of_irq.h>
+ 
+ /* Register map */
+ /* rtc section */
+@@ -79,6 +80,7 @@ enum {
+ struct isl1208 {
+ 	struct rtc_device *rtc;
+ 	const struct attribute_group *sysfs_files;
++	int evdet_irq;
+ };
+ 
+ /* block read */
+@@ -730,6 +732,24 @@ static const struct attribute_group isl1219_rtc_sysfs_files = {
+ 	.attrs	= isl1219_rtc_attrs,
+ };
+ 
++static int isl1208_setup_irq(struct i2c_client *client, int irq)
++{
++	int rc = devm_request_threaded_irq(&client->dev, irq, NULL,
++					isl1208_rtc_interrupt,
++					IRQF_SHARED | IRQF_ONESHOT,
++					isl1208_driver.driver.name,
++					client);
++	if (!rc) {
++		device_init_wakeup(&client->dev, 1);
++		enable_irq_wake(irq);
++	} else {
++		dev_err(&client->dev,
++			"Unable to request irq %d, no alarm support\n",
++			irq);
++	}
++	return rc;
++}
++
+ static int
+ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ {
+@@ -772,6 +792,8 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			return rc;
+ 		}
+ 		isl1208->sysfs_files = &isl1219_rtc_sysfs_files;
++		isl1208->evdet_irq = of_irq_get_byname(client->dev.of_node,
++								"evdet");
+ 	} else {
+ 		isl1208->sysfs_files = &isl1208_rtc_sysfs_files;
+ 	}
+@@ -780,22 +802,15 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (rc)
+ 		return rc;
+ 
+-	if (client->irq > 0) {
+-		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-					       isl1208_rtc_interrupt,
+-					       IRQF_SHARED | IRQF_ONESHOT,
+-					       isl1208_driver.driver.name,
+-					       client);
+-		if (!rc) {
+-			device_init_wakeup(&client->dev, 1);
+-			enable_irq_wake(client->irq);
+-		} else {
+-			dev_err(&client->dev,
+-				"Unable to request irq %d, no alarm support\n",
+-				client->irq);
+-			client->irq = 0;
+-		}
+-	}
++	if (client->irq > 0)
++		rc = isl1208_setup_irq(client, client->irq);
++	if (rc)
++		return rc;
++
++	if (isl1208->evdet_irq > 0 && isl1208->evdet_irq != client->irq)
++		rc = isl1208_setup_irq(client, isl1208->evdet_irq);
++	if (rc)
++		return rc;
+ 
+ 	return rtc_register_device(isl1208->rtc);
+ }
+-- 
+2.7.4
+
+
+Diehl AKO Stiftung & Co. KG, Pfannerstraße 75-83, 88239 Wangen im Allgäu
+Bereichsvorstand: Dr.-Ing. Michael Siedentop (Sprecher), Josef Fellner (Mitglied)
+Sitz der Gesellschaft: Wangen i.A. – Registergericht: Amtsgericht Ulm HRA 620609 – Persönlich haftende Gesellschafterin: Diehl Verwaltungs-Stiftung – Sitz: Nürnberg – Registergericht: Amtsgericht Nürnberg HRA 11756 –
+Vorstand: Dr.-Ing. E.h. Thomas Diehl (†) (Vorsitzender), Herr Dipl.-Wirtsch.-Ing. Wolfgang Weggen (stellvertretender Vorsitzender), Dipl.-Kfm. Claus Günther, Dipl.-Kfm. Frank Gutzeit, Dr.-Ing. Heinrich Schunk, Dr.-Ing. Michael Siedentop , Dipl.-Kfm. Dr.-Ing. Martin Sommer, Dipl.-Ing. (FH) Rainer von Borstel, Vorsitzender des Aufsichtsrates: Dr. Klaus Maier
+___________________________________________________________________________________________________
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht. Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
