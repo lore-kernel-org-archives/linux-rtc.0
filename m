@@ -1,124 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:35476 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932868AbeCEJGn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Mar 2018 04:06:43 -0500
-From: Mohit Aggarwal <maggarwa@codeaurora.org>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: Mohit Aggarwal <maggarwa@codeaurora.org>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] rtc-pm8xxx: Fix issue in RTC write path
-Date: Mon,  5 Mar 2018 14:35:58 +0530
-Message-Id: <1520240758-9837-1-git-send-email-maggarwa@codeaurora.org>
+Received: from mail.bootlin.com ([62.4.15.54]:48333 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750797AbeCFUUi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 6 Mar 2018 15:20:38 -0500
+Date: Tue, 6 Mar 2018 21:20:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v3 2/4] rtc: isl1208: switch to rtc_register_device
+Message-ID: <20180306202036.GH3035@piout.net>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+ <1520246373-19023-3-git-send-email-Denis.Osterland@diehl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1520246373-19023-3-git-send-email-Denis.Osterland@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-In order to set time in rtc, need to disable
-rtc hw before writing into rtc registers.
+On 05/03/2018 at 10:43:53 +0000, Denis OSTERLAND wrote:
+> From: Denis Osterland <Denis.Osterland@diehl.com>
+> 
+> Fix possible race condition.
+> It is not allowed to return with an error code after RTC is registered.
+> 
+> Suggested-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> ---
+>  drivers/rtc/rtc-isl1208.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+Applied, thanks.
 
-Also fixes disabling of alarm while setting
-rtc time.
-
-Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
----
- drivers/rtc/rtc-pm8xxx.c | 49 +++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 38 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 8e01287..29358a0 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -74,16 +74,18 @@ struct pm8xxx_rtc {
- /*
-  * Steps to write the RTC registers.
-  * 1. Disable alarm if enabled.
-- * 2. Write 0x00 to LSB.
-- * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-- * 4. Enable alarm if disabled in step 1.
-+ * 2. Disable rtc if enabled.
-+ * 3. Write 0x00 to LSB.
-+ * 4. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-+ * 5. Enable rtc if disabled in step 2.
-+ * 6. Enable alarm if disabled in step 1.
-  */
- static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	int rc, i;
- 	unsigned long secs, irq_flags;
--	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0;
--	unsigned int ctrl_reg;
-+	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
-+	unsigned int ctrl_reg, rtc_ctrl_reg;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 
-@@ -92,23 +94,38 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc_tm_to_time(tm, &secs);
- 
-+	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
-+
- 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
- 		value[i] = secs & 0xFF;
- 		secs >>= 8;
- 	}
- 
--	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
--
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
--	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
-+	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
- 	if (rc)
- 		goto rtc_rw_fail;
- 
- 	if (ctrl_reg & regs->alarm_en) {
- 		alarm_enabled = 1;
- 		ctrl_reg &= ~regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
-+		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+		if (rc) {
-+			dev_err(dev, "Write to RTC Alarm control register failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	}
-+
-+	/* Disable RTC H/w before writing on RTC register */
-+	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
-+	if (rc)
-+		goto rtc_rw_fail;
-+
-+	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
-+		rtc_disabled = 1;
-+		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
-+		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
- 		if (rc) {
- 			dev_err(dev, "Write to RTC control register failed\n");
- 			goto rtc_rw_fail;
-@@ -137,11 +154,21 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		goto rtc_rw_fail;
- 	}
- 
-+	/* Enable RTC H/w after writing on RTC register */
-+	if (rtc_disabled) {
-+		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
-+		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
-+		if (rc) {
-+			dev_err(dev, "Write to RTC control register failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	}
-+
- 	if (alarm_enabled) {
- 		ctrl_reg |= regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
-+		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
- 		if (rc) {
--			dev_err(dev, "Write to RTC control register failed\n");
-+			dev_err(dev, "Write to RTC Alarm control register failed\n");
- 			goto rtc_rw_fail;
- 		}
- 	}
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
