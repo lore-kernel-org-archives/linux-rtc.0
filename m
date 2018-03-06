@@ -1,77 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:49424 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1423929AbeCBI44 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 2 Mar 2018 03:56:56 -0500
-Date: Fri, 2 Mar 2018 09:56:54 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH 000/100] rtc: remove cargo culted code
-Message-ID: <20180302085654.GA1479@piout.net>
-References: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB701941570C7@SW-EX-MBX01.diasemi.com>
+Received: from condef-09.nifty.com ([202.248.20.74]:36978 "EHLO
+        condef-09.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750865AbeCFLV7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Mar 2018 06:21:59 -0500
+Received: from conuserg-10.nifty.com ([10.126.8.73])by condef-09.nifty.com with ESMTP id w26B8n4e001923
+        for <linux-rtc@vger.kernel.org>; Tue, 6 Mar 2018 20:08:51 +0900
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: at91sam: add 'depends on HAS_IOMEM' to fix unmet dependency
+Date: Tue,  6 Mar 2018 20:08:11 +0900
+Message-Id: <1520334491-7078-1-git-send-email-yamada.masahiro@socionext.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 02/03/2018 at 08:46:48 +0000, Steve Twiss wrote:
-> On Wed, Feb 21, 2018 at 8:54 PM, Alexandre Belloni wrote:
->  
-> > subject:	[PATCH 000/100] rtc: remove cargo culted code
-> > mailing list:	linux-kernel@vger.kernel.org Filter messages from this mailing list
-> >
-> > Hello,
-> >
-> > This series:
-> >  - removes useless calls to rtc_valid_tm in .read_time, .set_time and
-> >    .set_alarm
-> >  - removes code setting default values for RTCs (and lets the core
-> >    handle it)
-> >  - removes useless "time is invalid" messages at probe time
-> >  - removes useless indirect calls
-> >
-> > Those were mostly copy pasted from other drivers
-> 
-> Hi Alexandre,
-> 
-> Acked for:
->   rtc: da9063: stop validating rtc_time in .read_time
->   rtc: da9052: stop validating rtc_time in .read_time
->   rtc: da9055: stop validating rtc_time in .read_time
-> 
-> Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> Agreed -- rtc_valid_tm() call is cargo cult for the above.
-> 
-> (By definition) for DA9063 I was trying to be rigorous.
-> The .read_time function is slightly different here because I can make a copy the alarm time into the RTC time
-> structure to solve an RTC synchronisation problem internally to the DA9063.
-> https://elixir.bootlin.com/linux/v4.5.6/source/drivers/rtc/rtc-da9063.c#L253
-> 
-> But after some further looking, I have not got any explicit case of how the time read directly from the DA9063
-> registers can be incorrectly represented. So there should be no need to check this.
-> 
+This config select's MFD_SYSCON, but does not depend on HAS_IOMEM.
 
-My point is that it is checked later in the core anyway so you end up
-doing:
+Compile testing on architecture without HAS_IOMEM causes "unmet
+direct dependencies" in Kconfig phase.
 
-da9063_rtc_read_time()
-	return rtc_valid_tm(tm);
+Detected by "make ARCH=score allyesconfig".
 
-__rtc_read_time()
-	if (err < 0)
-		return err;
-	err = rtc_valid_tm(tm);
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
 
-	return err;
+Arnd Bergmann and I discussed how to fix unmet dependency of MFD_SYSCON.
+https://lkml.org/lkml/2018/2/27/284
 
-So the check in da9063_rtc_read_time is always pointless.
+We agreed to add 'depends on HAS_IOMEM' to drivers causing
+unmet dependency.
 
 
+ drivers/rtc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 8ab5f0a5..d826e5d 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1413,6 +1413,7 @@ config RTC_DRV_AT91RM9200
+ config RTC_DRV_AT91SAM9
+ 	tristate "AT91SAM9 RTT as RTC"
+ 	depends on ARCH_AT91 || COMPILE_TEST
++	depends on HAS_IOMEM
+ 	select MFD_SYSCON
+ 	help
+ 	  Some AT91SAM9 SoCs provide an RTT (Real Time Timer) block which
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
