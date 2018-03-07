@@ -1,49 +1,119 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:57826 "EHLO mail.kernel.org"
+Received: from mail.bootlin.com ([62.4.15.54]:57149 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751229AbeCLLOH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Mar 2018 07:14:07 -0400
-MIME-Version: 1.0
-In-Reply-To: <543a0a74122172acae549329b35964f402da8b77.1520660422.git.gustavo@embeddedor.com>
-References: <cover.1520660422.git.gustavo@embeddedor.com> <543a0a74122172acae549329b35964f402da8b77.1520660422.git.gustavo@embeddedor.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Mon, 12 Mar 2018 12:14:04 +0100
-Message-ID: <CAJKOXPc3ELO9sX0Xp391D2_3uDHK91snzHDn6FmDrJ6dt3E_Zg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] rtc: s5m: Remove VLA usage
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        id S1754052AbeCGXNA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 7 Mar 2018 18:13:00 -0500
+Date: Thu, 8 Mar 2018 00:12:58 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: remove VLA usage
+Message-ID: <20180307231258.GC20370@piout.net>
+References: <20180307201133.GA5860@embeddedgus>
+ <20180307212506.GO3035@piout.net>
+ <3e8e1515-0f0e-73d4-72eb-3a2a2fbf04e9@embeddedor.com>
+ <20180307230136.GB20370@piout.net>
+ <b41ed6bc-7f8b-031c-84a8-ec857b165ca0@embeddedor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <b41ed6bc-7f8b-031c-84a8-ec857b165ca0@embeddedor.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sat, Mar 10, 2018 at 7:27 AM, Gustavo A. R. Silva
-<gustavo@embeddedor.com> wrote:
-> In preparation to enabling -Wvla, remove VLAs and replace them
-> with fixed-length arrays instead.
->
-> From a security viewpoint, the use of Variable Length Arrays can be
-> a vector for stack overflow attacks. Also, in general, as the code
-> evolves it is easy to lose track of how big a VLA can get. Thus, we
-> can end up having segfaults that are hard to debug.
->
-> Also, fixed as part of the directive to remove all VLAs from
-> the kernel: https://lkml.org/lkml/2018/3/7/621
->
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> ---
->  drivers/rtc/rtc-s5m.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
+On 07/03/2018 at 17:09:22 -0600, Gustavo A. R. Silva wrote:
+> 
+> 
+> On 03/07/2018 05:01 PM, Alexandre Belloni wrote:
+> > On 07/03/2018 at 16:39:51 -0600, Gustavo A. R. Silva wrote:
+> > > Hi Alexandre,
+> > > 
+> > > On 03/07/2018 03:25 PM, Alexandre Belloni wrote:
+> > > > On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
+> > > > > In preparation to enabling -Wvla, remove VLA and replace it
+> > > > > with a fixed-length array instead.
+> > > > > 
+> > > > You should probably explain what VLA is and why this is important to do.
+> > > Sure. I can elaborate a little bit more.
+> > > 
+> > > > > Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> > > > > ---
+> > > > >    drivers/rtc/rtc-bq32k.c  | 2 +-
+> > > > >    drivers/rtc/rtc-mcp795.c | 2 +-
+> > > > >    2 files changed, 2 insertions(+), 2 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+> > > > > index e8698e9..e4b234a 100644
+> > > > > --- a/drivers/rtc/rtc-bq32k.c
+> > > > > +++ b/drivers/rtc/rtc-bq32k.c
+> > > > > @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
+> > > > >    static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
+> > > > >    {
+> > > > >    	struct i2c_client *client = to_i2c_client(dev);
+> > > > > -	uint8_t buffer[len + 1];
+> > > > > +	uint8_t buffer[256];
+> > > > You chose to change len to 255, probably because this is a uint8_t but
+> > > Correct.
+> > > 
+> > > > this is way too much for this rtc, it only has 10 consecutive registers.
+> > > In that case probably the best solution is to add the following line to the
+> > > module:
+> > > 
+> > > #define MAX_LEN 10
+> > > 
+> > > and update the rest of the code as follows:
+> > > 
+> > > uint8_t buffer[MAX_LEN + 1];
+> > > 
+> > Seems better, yes.
+> > 
+> > > > >    	buffer[0] = off;
+> > > > >    	memcpy(&buffer[1], data, len);
+> > > > > diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+> > > > > index 79e24ea..00e11c1 100644
+> > > > > --- a/drivers/rtc/rtc-mcp795.c
+> > > > > +++ b/drivers/rtc/rtc-mcp795.c
+> > > > > @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
+> > > > >    {
+> > > > >    	struct spi_device *spi = to_spi_device(dev);
+> > > > >    	int ret;
+> > > > > -	u8 tx[2 + count];
+> > > > > +	u8 tx[257];
+> > > For this particular case it seems to me that the following works just fine:
+> > > 
+> > > #define MAX_COUNT 7
+> > > 
+> > > u8 tx[MAX_COUNT + 2];
+> > > 
+> > > What do you think?
+> > > 
+> > Nope, that RTC has a section of 255 bytes that could be read at once so
+> > 257 is the correct value.
+> > 
+> 
+> I see...
+> 
+> I was looking into this piece of code drivers/rtc/rtc-mcp795.c:302:
+> 
+>         tmp[0] = (tmp[0] & 0x80) | bin2bcd(alm->time.tm_sec);
+>         tmp[1] = (tmp[1] & 0x80) | bin2bcd(alm->time.tm_min);
+>         tmp[2] = (tmp[2] & 0xE0) | bin2bcd(alm->time.tm_hour);
+>         tmp[3] = (tmp[3] & 0x80) | bin2bcd(alm->time.tm_wday + 1);
+>         /* set alarm match: seconds, minutes, hour, day, date and month */
+>         tmp[3] |= (MCP795_ALM0C2_BIT | MCP795_ALM0C1_BIT |
+> MCP795_ALM0C0_BIT);
+>         tmp[4] = (tmp[4] & 0xC0) | bin2bcd(alm->time.tm_mday);
+>         tmp[5] = (tmp[5] & 0xE0) | bin2bcd(alm->time.tm_mon + 1);
+> 
+>         ret = mcp795_rtcc_write(dev, MCP795_REG_ALM0_SECONDS, tmp,
+> sizeof(tmp));
+> 
 
+Yeah, the 128 or 255 bytes NVRAM is not yet supported but this is on my
+todo list
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-
-Best regards,
-Krzysztof
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
