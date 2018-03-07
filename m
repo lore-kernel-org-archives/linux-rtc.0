@@ -1,67 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.130]:41624 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750930AbeCIIpb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:45:31 -0500
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-To: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-        Joseph Lo <josephl@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        linux-rockchip@lists.infradead.org,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Jeffy Chen <jeffy.chen@rock-chips.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [RESEND PATCH v4 2/4] rtc: at91sam9: Set name of regmap_config
-Date: Fri,  9 Mar 2018 16:43:49 +0800
-Message-Id: <20180309084351.32009-3-jeffy.chen@rock-chips.com>
-In-Reply-To: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
-References: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
+Received: from mail.bootlin.com ([62.4.15.54]:57173 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754706AbeCGXNz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 7 Mar 2018 18:13:55 -0500
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: Add useful timestamp definitions
+Date: Thu,  8 Mar 2018 00:13:52 +0100
+Message-Id: <20180307231352.21840-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We are now allowing to register debugfs without a valid device, and not
-having a valid name will end up using "dummy*" to create debugfs dir.
+Add commonly used timestamps for range definition.
 
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
+ include/linux/rtc.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Changes in v4:
-Not to use rtc dev to init regmap, the gpbr is not directly related to
-the rtc.
-
-Changes in v3: None
-
- drivers/rtc/rtc-at91sam9.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 7418a763ce52..ee71e647fd43 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 82a3038f16ab..4c007f69082f 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -169,6 +169,11 @@ struct rtc_device {
  };
+ #define to_rtc_device(d) container_of(d, struct rtc_device, dev)
  
- static const struct regmap_config gpbr_regmap_config = {
-+	.name = "gpbr",
- 	.reg_bits = 32,
- 	.val_bits = 32,
- 	.reg_stride = 4,
++/* useful timestamps */
++#define RTC_TIMESTAMP_BEGIN_1900	-2208989361LL /* 1900-01-01 00:00:00 */
++#define RTC_TIMESTAMP_BEGIN_2000	946684800LL /* 2000-01-01 00:00:00 */
++#define RTC_TIMESTAMP_END_2099		4102444799LL /* 2099-12-31 23:59:59 */
++
+ extern struct rtc_device *rtc_device_register(const char *name,
+ 					struct device *dev,
+ 					const struct rtc_class_ops *ops,
 -- 
-2.11.0
+2.16.2
