@@ -1,84 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway21.websitewelcome.com ([192.185.45.191]:20404 "EHLO
-        gateway21.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750735AbeCJGwK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 10 Mar 2018 01:52:10 -0500
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway21.websitewelcome.com (Postfix) with ESMTP id 287A3400CECCF
-        for <linux-rtc@vger.kernel.org>; Sat, 10 Mar 2018 00:27:16 -0600 (CST)
-Date: Sat, 10 Mar 2018 00:27:15 -0600
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To: Sangbeom Kim <sbkim73@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Lee Jones <lee.jones@linaro.org>
-Cc: linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH 1/2] rtc: s5m: Move enum from rtc.h to rtc-s5m.c
-Message-ID: <44ee5bd5053d579dc6c46b21e2ef8f6acf70e4ce.1520660422.git.gustavo@embeddedor.com>
-References: <cover.1520660422.git.gustavo@embeddedor.com>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:38286 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754039AbeCGWCw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 17:02:52 -0500
+Date: Wed, 7 Mar 2018 16:02:50 -0600
+From: Rob Herring <robh@kernel.org>
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v3 3/4] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Message-ID: <20180307220250.pfaboby7ax7baxp2@rob-hp-laptop>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+ <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1520660422.git.gustavo@embeddedor.com>
+In-Reply-To: <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Move this enum to rtc-s5m.c once it is meaningless to others drivers [1].
+On Mon, Mar 05, 2018 at 10:43:52AM +0000, Denis OSTERLAND wrote:
+> From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> 
+> We add support for the ISL1219 chip that got an integrated tamper
+> detection function. This patch implements the feature by adding
+> an additional timestamp0 file to sysfs device path.
+> This file contains seconds since epoch, if an event occurred,
+> or is empty, if none occurred.
+> 
+> The devicetree documentation for the ISL1219 device tree
+> binding is added with an short example. It is not a trivial
+> device, because it supports two interrupt souces.
+> 
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+> ---
+>  .../devicetree/bindings/rtc/isil,isl1219.txt       |  28 ++++
 
-[1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+While preferred to separate, I'm not going to ask for that if there are 
+no other changes on the binding.
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/rtc/rtc-s5m.c           | 11 +++++++++++
- include/linux/mfd/samsung/rtc.h | 11 -----------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 6deae10..4c363de 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -38,6 +38,17 @@
-  */
- #define UDR_READ_RETRY_CNT	5
- 
-+enum {
-+	RTC_SEC = 0,
-+	RTC_MIN,
-+	RTC_HOUR,
-+	RTC_WEEKDAY,
-+	RTC_DATE,
-+	RTC_MONTH,
-+	RTC_YEAR1,
-+	RTC_YEAR2,
-+};
-+
- /*
-  * Registers used by the driver which are different between chipsets.
-  *
-diff --git a/include/linux/mfd/samsung/rtc.h b/include/linux/mfd/samsung/rtc.h
-index 48c3c5b..9ed2871 100644
---- a/include/linux/mfd/samsung/rtc.h
-+++ b/include/linux/mfd/samsung/rtc.h
-@@ -141,15 +141,4 @@ enum s2mps_rtc_reg {
- #define WTSR_ENABLE_SHIFT	6
- #define WTSR_ENABLE_MASK	(1 << WTSR_ENABLE_SHIFT)
- 
--enum {
--	RTC_SEC = 0,
--	RTC_MIN,
--	RTC_HOUR,
--	RTC_WEEKDAY,
--	RTC_DATE,
--	RTC_MONTH,
--	RTC_YEAR1,
--	RTC_YEAR2,
--};
--
- #endif /*  __LINUX_MFD_SEC_RTC_H */
--- 
-2.7.4
+>  drivers/rtc/rtc-isl1208.c                          | 160 ++++++++++++++++++---
+>  2 files changed, 171 insertions(+), 17 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
