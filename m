@@ -1,51 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway20.websitewelcome.com ([192.185.48.38]:39095 "EHLO
-        gateway20.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750735AbeCJGsH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 10 Mar 2018 01:48:07 -0500
-Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
-        by gateway20.websitewelcome.com (Postfix) with ESMTP id 00661400CF728
-        for <linux-rtc@vger.kernel.org>; Sat, 10 Mar 2018 00:27:04 -0600 (CST)
-Date: Sat, 10 Mar 2018 00:27:02 -0600
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To: Sangbeom Kim <sbkim73@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Lee Jones <lee.jones@linaro.org>
-Cc: linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH 0/2] Remove VLA usage in rtc-s5m
-Message-ID: <cover.1520660422.git.gustavo@embeddedor.com>
+Received: from gateway33.websitewelcome.com ([192.185.145.82]:49006 "EHLO
+        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934059AbeCGXEo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 18:04:44 -0500
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway33.websitewelcome.com (Postfix) with ESMTP id EB71A20C906
+        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 16:39:53 -0600 (CST)
+Subject: Re: [PATCH] rtc: remove VLA usage
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20180307201133.GA5860@embeddedgus>
+ <20180307212506.GO3035@piout.net>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Message-ID: <3e8e1515-0f0e-73d4-72eb-3a2a2fbf04e9@embeddedor.com>
+Date: Wed, 7 Mar 2018 16:39:51 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180307212506.GO3035@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patchset aims to remove VLA usage from rtc-s5m.
+Hi Alexandre,
 
-The first patch moves an enum from rtc.h to rtc-s5m.c, as this is the
-only driver in which such enum is actually being used [1].
+On 03/07/2018 03:25 PM, Alexandre Belloni wrote:
+> On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
+>> In preparation to enabling -Wvla, remove VLA and replace it
+>> with a fixed-length array instead.
+>>
+> You should probably explain what VLA is and why this is important to do.
 
-The second patch adds the enum name RTC_MAX_NUM_TIME_REGS, which will
-be used as a maximum length to the current VLAs, hence turning them
-into fixed-length arrays instead.
+Sure. I can elaborate a little bit more.
 
-[1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+>> ---
+>>   drivers/rtc/rtc-bq32k.c  | 2 +-
+>>   drivers/rtc/rtc-mcp795.c | 2 +-
+>>   2 files changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+>> index e8698e9..e4b234a 100644
+>> --- a/drivers/rtc/rtc-bq32k.c
+>> +++ b/drivers/rtc/rtc-bq32k.c
+>> @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
+>>   static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
+>>   {
+>>   	struct i2c_client *client = to_i2c_client(dev);
+>> -	uint8_t buffer[len + 1];
+>> +	uint8_t buffer[256];
+>>   
+> You chose to change len to 255, probably because this is a uint8_t but
 
-Thanks
+Correct.
 
-Gustavo A. R. Silva (2):
-  rtc: s5m: move enum from rtc.h to rtc-s5m.c
-  rtc: s5m: Remove VLA usage
+> this is way too much for this rtc, it only has 10 consecutive registers.
 
- drivers/rtc/rtc-s5m.c           | 25 +++++++++++++++++++------
- include/linux/mfd/samsung/rtc.h | 11 -----------
- 2 files changed, 19 insertions(+), 17 deletions(-)
+In that case probably the best solution is to add the following line to 
+the module:
 
--- 
-2.7.4
+#define MAX_LEN 10
+
+and update the rest of the code as follows:
+
+uint8_t buffer[MAX_LEN + 1];
+
+
+>>   	buffer[0] = off;
+>>   	memcpy(&buffer[1], data, len);
+>> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+>> index 79e24ea..00e11c1 100644
+>> --- a/drivers/rtc/rtc-mcp795.c
+>> +++ b/drivers/rtc/rtc-mcp795.c
+>> @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
+>>   {
+>>   	struct spi_device *spi = to_spi_device(dev);
+>>   	int ret;
+>> -	u8 tx[2 + count];
+>> +	u8 tx[257];
+
+For this particular case it seems to me that the following works just fine:
+
+#define MAX_COUNT 7
+
+u8 tx[MAX_COUNT + 2];
+
+What do you think?
+
+Thanks for your feedback.
+--
+Gustavo
+
+>>   
+>>   	tx[0] = MCP795_WRITE;
+>>   	tx[1] = addr;
+>> -- 
+>> 2.7.4
+>>
