@@ -1,29 +1,57 @@
-Date: Thu, 22 Mar 2018 16:21:26 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com,
-	Loic Pallardy <loic.pallardy@st.com>
-Subject: Re: [PATCH] rtc: ab8500: Drop AB8540 support
-Message-ID: <20180322152126.GU3417@piout.net>
-References: <20180322101830.9851-1-linus.walleij@linaro.org>
+Return-Path: <Alexander.Levin@microsoft.com>
+From: Sasha Levin <Alexander.Levin@microsoft.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+CC: Hans de Goede <hdegoede@redhat.com>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, "alexandre.belloni@free-electrons.com"
+	<alexandre.belloni@free-electrons.com>, Sasha Levin
+	<Alexander.Levin@microsoft.com>
+Subject: [PATCH AUTOSEL for 4.4 013/101] x86: i8259: export legacy_pic symbol
+Date: Thu, 8 Mar 2018 05:01:18 +0000
+Message-ID: <20180308050023.8548-13-alexander.levin@microsoft.com>
+References: <20180308050023.8548-1-alexander.levin@microsoft.com>
+In-Reply-To: <20180308050023.8548-1-alexander.levin@microsoft.com>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180322101830.9851-1-linus.walleij@linaro.org>
 List-ID: <rtc-linux.googlegroups.com>
 
-On 22/03/2018 at 11:18:30 +0100, Linus Walleij wrote:
-> The AB8540 was an evolved version of the AB8500, but it was never
-> mass produced or put into products, only reference designs exist.
-> The upstream support was never completed and it is unlikely that
-> this will happen so drop the support for now to simplify
-> maintenance of the AB8500.
-> 
-> Cc: Loic Pallardy <loic.pallardy@st.com>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-Applied, thanks.
+From: Hans de Goede <hdegoede@redhat.com>
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+[ Upstream commit 7ee06cb2f840a96be46233181ed4557901a74385 ]
+
+The classic PC rtc-coms driver has a workaround for broken ACPI device
+nodes for it which lack an irq resource. This workaround used to
+unconditionally hardcode the irq to 8 in these cases.
+
+This was causing irq conflict problems on systems without a legacy-pic
+so a recent patch added an if (nr_legacy_irqs()) guard to the
+workaround to avoid this irq conflict.
+
+nr_legacy_irqs() uses the legacy_pic symbol under the hood causing
+an undefined symbol error if the rtc-cmos code is build as a module.
+
+This commit exports the legacy_pic symbol to fix this.
+
+Cc: rtc-linux@googlegroups.com
+Cc: alexandre.belloni@free-electrons.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+---
+ arch/x86/kernel/i8259.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
+index be22f5a2192e..4e3b8a587c88 100644
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic =3D {
+ };
+=20
+ struct legacy_pic *legacy_pic =3D &default_legacy_pic;
++EXPORT_SYMBOL(legacy_pic);
+=20
+ static int __init i8259A_init_ops(void)
+ {
+--=20
+2.14.1
