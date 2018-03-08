@@ -1,80 +1,81 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:48398 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751668AbeCWJPZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:25 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 00/16] Add support to MT6323 RTC and its power device
-Date: Fri, 23 Mar 2018 17:14:57 +0800
-Message-ID: <cover.1521794176.git.sean.wang@mediatek.com>
+Received: from gateway20.websitewelcome.com ([192.185.47.18]:11349 "EHLO
+        gateway20.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934149AbeCHCu1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 21:50:27 -0500
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway20.websitewelcome.com (Postfix) with ESMTP id D3E4F400D433E
+        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 20:27:58 -0600 (CST)
+Date: Wed, 7 Mar 2018 20:27:56 -0600
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH v2] rtc: remove VLA usage
+Message-ID: <20180308022756.GA28733@embeddedor.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+In preparation to enabling -Wvla, remove VLA and replace it
+with a fixed-length array instead.
 
-Hi,
+>From a security viewpoint, the use of Variable Length Arrays can be
+a vector for stack overflow attacks. Also, in general, as the code
+evolves it is easy to lose track of how big a VLA can get. Thus, we
+can end up having segfaults that are hard to debug.
 
-The series keeps to extend the capability of BPI-R2 board with MT7623 and
-the result can as well bring benefits into the other MediaTek PMICs such
-as MT6397 or SoCs.
+Also, fixed as part of the directive to remove all VLAs from
+the kernel: https://lkml.org/lkml/2018/3/7/621
 
-The series sent across mfd, rtc, pm, dt-binding sub-system is for hoping
-to let people have a simple cross-reference to know the exact dependency
-and why those patches are being split in that way between each one.
+Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+---
+Changes in v2:
+ - Update changelog as per Alexandre Belloni request.
+ - Update the code for rtc-bq32k driver based on Alexandre's feedback.
 
-Patch 1-3: Add dt-binding to the related devices newly or already
-	   supported.
-Patch 4-5: Extend driver with the functionality of MT6323 RTC device.
-Patch 6-9 and 12-13: Add a few of trivial fixups, cleanups and
-	  improvements.
-Patch 10-11: It's a preparation for Patch 14 adding a new driver.
-Patch 14: Add a new driver for a power-off driver.
-Patch 15-16: Update MAINTAINERS with these new files being added.
+ drivers/rtc/rtc-bq32k.c  | 6 +++++-
+ drivers/rtc/rtc-mcp795.c | 2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-	Sean
-
-Sean Wang (16):
-  dt-bindings: power: reset: mediatek: add bindings for power device
-  dt-bindings: rtc: mediatek: add bindings for PMIC RTC
-  dt-bindings: mfd: mediatek: add a description for MT6323 RTC
-  mfd: mt6397: add MT6323 RTC support into MT6397 driver
-  rtc: mediatek: add MT6323 support to RTC driver
-  rtc: mediatek: remove unnecessary parentheses
-  rtc: mediatek: replace a poll with regmap_read_poll_timeout
-  rtc: mediatek: remove unnecessary irq_dispose_mapping
-  rtc: mediatek: convert to use device managed functions
-  rtc: mediatek: add devm_of_platform_populate
-  rtc: mediatek: move the declaration into a globally visible header
-    file
-  rtc: mediatek: cleanup header files to include
-  rtc: mediatek: update license converting to using SPDX identifiers
-  power: reset: mediatek: add a power-off driver using PMIC RTC device
-  MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
-  MAINTAINERS: add an entry for MediaTek board level shutdown driver
-
- Documentation/devicetree/bindings/mfd/mt6397.txt   |   4 +-
- .../bindings/power/reset/mt6397-rtc-poweroff.txt   |  24 ++++
- .../devicetree/bindings/rtc/rtc-mt6397.txt         |  39 ++++++
- MAINTAINERS                                        |   9 ++
- drivers/mfd/mt6397-core.c                          |  23 +++-
- drivers/power/reset/Kconfig                        |   9 ++
- drivers/power/reset/Makefile                       |   1 +
- drivers/power/reset/mt6397-rtc-poweroff.c          | 100 ++++++++++++++
- drivers/rtc/rtc-mt6397.c                           | 145 +++++----------------
- include/linux/rtc/mt6397.h                         |  73 +++++++++++
- 10 files changed, 314 insertions(+), 113 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- create mode 100644 drivers/power/reset/mt6397-rtc-poweroff.c
- create mode 100644 include/linux/rtc/mt6397.h
-
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index e8698e9..ef52741 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -36,6 +36,10 @@
+ #define BQ32K_CFG2		0x09	/* Trickle charger control */
+ #define BQ32K_TCFE		BIT(6)	/* Trickle charge FET bypass */
+ 
++#define MAX_LEN			10	/* Maximum number of consecutive
++					 * register for this particular RTC.
++					 */
++
+ struct bq32k_regs {
+ 	uint8_t		seconds;
+ 	uint8_t		minutes;
+@@ -74,7 +78,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
+ static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	uint8_t buffer[len + 1];
++	uint8_t buffer[MAX_LEN + 1];
+ 
+ 	buffer[0] = off;
+ 	memcpy(&buffer[1], data, len);
+diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+index 79e24ea..00e11c1 100644
+--- a/drivers/rtc/rtc-mcp795.c
++++ b/drivers/rtc/rtc-mcp795.c
+@@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	int ret;
+-	u8 tx[2 + count];
++	u8 tx[257];
+ 
+ 	tx[0] = MCP795_WRITE;
+ 	tx[1] = addr;
 -- 
 2.7.4
