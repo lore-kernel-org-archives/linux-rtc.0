@@ -1,43 +1,118 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:54266 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S964858AbeCSXse (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 19 Mar 2018 19:48:34 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/6] rtc: 88pm80x: remove artificial limitation
-Date: Tue, 20 Mar 2018 00:48:16 +0100
-Message-Id: <20180319234817.16199-5-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
-References: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:4014 "EHLO
+        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1755460AbeCHMDJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 07:03:09 -0500
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v3 3/4] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Date: Thu, 8 Mar 2018 11:53:09 +0000
+Message-ID: <1520509988.5415.17.camel@diehl.com>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+         <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
+         <20180306204255.GI3035@piout.net> <1520410754.5976.27.camel@diehl.com>
+         <20180307104714.GL3035@piout.net>
+In-Reply-To: <20180307104714.GL3035@piout.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The 88pm80x supports time up to 2106 (it is a 32 bit counter). Also, the
-year will never be before 1970 as the RTC core forbids that.
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-88pm80x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 466bf7f9a285..6cbafefa80a2 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -134,9 +134,9 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
- 	unsigned char buf[4];
- 	unsigned long ticks, base, data;
--	if ((tm->tm_year < 70) || (tm->tm_year > 138)) {
-+	if (tm->tm_year > 206) {
- 		dev_dbg(info->dev,
--			"Set time %d out of range. Please set time between 1970 to 2038.\n",
-+			"Set time %d out of range. Please set time between 1970 to 2106.\n",
- 			1900 + tm->tm_year);
- 		return -EINVAL;
- 	}
--- 
-2.16.2
+QW0gTWl0dHdvY2gsIGRlbiAwNy4wMy4yMDE4LCAxMTo0NyArMDEwMCBzY2hyaWViIEFsZXhh
+bmRyZSBCZWxsb25pOg0KPiA+ID4gPiArDQo+ID4gPiA+ICsJdHY2NC50dl9zZWMgPSBydGNf
+dG1fdG9fdGltZTY0KCZ0bSk7DQo+ID4gPiBXaHkgbm90IHVzaW5nIGFuIHVuc2lnbmVkIGxv
+bmcgbG9uZyBkaXJlY3RseSBoZXJlPyB0aW1lNjRfdCBpcyBub3QgdGhlDQo+ID4gPiBjb3Jy
+ZWN0IHR5cGUuDQo+ID4gRG8geW91IG1lYW4gdGltZXNwZWM2NCBpcyBub3QgdGhlIGNvcnJl
+Y3QgdHlwZSBoZXJlPw0KPiA+IFRoZW4geWVzLCBzb3VsZCBiZSB0aW1lNjRfdC4NCj4gPiBJ
+ZiB5b3UgbWVhbiB0aW1lNjRfdCBpcyBub3QgdGhlIGNvcnJlY3QgdHlwZSBoZXJlLA0KPiA+
+IHRoZW4gY2FuIHlvdSBnaXZlIG1lIHNvbWUgZGV0YWlsIHdoeSB0aGVyZSBpcyBubyBydGNf
+dG1fdG9fdTY0LA0KPiA+IG9yIHNvbWV0aGluZyBsaWtlIHRoYXQ/DQo+IFRoZSBydGMgc3Vi
+c3lzdGVtIGZvcmJpZHMgbmVnYXRpdmUgdGltZXMsIHRoZSBwcm9wZXIgdHlwZSBzaG91bGQg
+YmUNCj4gdW5zaWduZWQuDQpJIHdpbGwgYWRkIHJ0Y192YWlsZF90bSBjaGVjay4NCg0KV2hp
+Y2ggc2VxdWVuY2UgZm9yIHRpbWUgY29udmVyc2lvbiB3b3VsZCB5b3UgZXhwZWN0Pw0KDQp0
+aW1lNjRfdCBzZWNzID0gcnRjX3RtX3RvX3RpbWU2NCgmdG0pOw0KQlVHX09OKHNlY3MgPCAw
+KTsNCnJldHVybiBzcHJpbnRmKGJ1ZiwgIiVsbHVcbiIsICh1bnNpZ25lZCBsb25nIGxvbmcp
+c2Vjcyk7DQoNCm9yDQoNCnJldHVybiBzcHJpbnRmKGJ1ZiwgIiVsbHVcbiIsICh1bnNpZ25l
+ZCBsb25nIGxvbmcpcnRjX3RtX3RvX3RpbWU2NCgmdG0pKTsNCj4gDQo+ID4gDQo+ID4gc3By
+aW50ZihidWYsICIlbGxkXG4iLMKgcnRjX3RtX3RvX3RpbWU2NCgmdG0pKSBzZWVtcyBjb3Jy
+ZWN0IHRvIG1lLg0KPiA+IEJ5IHRoZSB3YXksIGlzIGl0IG5lZWRlZCB0byBjaGVjayBmb3Ig
+c2Vjb25kcyA8IDAgYW5kIHJldHVybiBlcnJvcj8NCj4gSW5kZWVkLCB5b3Ugc2hvdWQgY2hl
+Y2sgdGhlIHRtIHdpdGggcnRjX3ZhbGlkX3RtIGJlZm9yZSBjYWxsaW5nDQo+IHJ0Y190bV90
+b190aW1lNjQuDQo+IA0KPiA+IA0KPiA+ID4gDQo+ID4gPiA+IA0KPiA+ID4gPiAtCXJjID0g
+c3lzZnNfY3JlYXRlX2dyb3VwKCZjbGllbnQtPmRldi5rb2JqLCAmaXNsMTIwOF9ydGNfc3lz
+ZnNfZmlsZXMpOw0KPiA+ID4gPiArCWlmIChpZC0+ZHJpdmVyX2RhdGEgPT0gVFlQRV9JU0wx
+MjE5KSB7DQo+ID4gPiA+ICsJCXJjID0gaTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShjbGll
+bnQsIElTTDEyMDhfUkVHXzA5LCAweDEwKTsNCj4gPiA+ID4gKwkJaWYgKHJjIDwgMCkgew0K
+PiA+ID4gPiArCQkJZGV2X2VycigmY2xpZW50LT5kZXYsICJjb3VsZCBub3QgZW5hYmxlIHRh
+bXBlciBkZXRlY3Rpb25cbiIpOw0KPiA+ID4gPiArCQkJcmV0dXJuIHJjOw0KPiA+ID4gPiAr
+CQl9DQo+ID4gPiA+ICsJCWlzbDEyMDgtPnN5c2ZzX2ZpbGVzID0gJmlzbDEyMTlfcnRjX3N5
+c2ZzX2ZpbGVzOw0KPiA+ID4gPiArCX0gZWxzZSB7DQo+ID4gPiA+ICsJCWlzbDEyMDgtPnN5
+c2ZzX2ZpbGVzID0gJmlzbDEyMDhfcnRjX3N5c2ZzX2ZpbGVzOw0KPiA+ID4gPiArCX0NCj4g
+PiA+ID4gKw0KPiA+ID4gSSBkb24ndCB0aGluayB0aGUgd2hvbGUgaXNsMTIwOCBpcyBuZWNl
+c3NhcnkuIFlvdSBzaG91bGQgcHJvYmFibHkgdXNlDQo+ID4gPiB0aGUgLmlzX3Zpc2libGUg
+Y2FsbGJhY2sgb2YgaXNsMTIxOV9ydGNfc3lzZnNfZmlsZXMuIFRoaXMgd2lsbCBtYWtlIHRo
+ZQ0KPiA+ID4gY2hhbmdlbG9nIHF1aXRlIHNtYWxsZXIuDQo+ID4gPiANCj4gPiBXZWxsLCBJ
+IGRvbsK0dCBrbm93IGhvdyB0byBhY2Nlc3MgaTJjX2RldmljZV9pZCBmcm9tIGtvYmplY3Qu
+DQo+ID4gcnRjX2F0dHJfaXNfdmlzaWJsZSBzaG93cyBob3cgdG8gY29udmVydCBrb2JqZWN0
+IHRvIGRldmljZSBhbmQgcnRjX2RldmljZSwNCj4gPiBidXQgaG93IHRvIGRvwqAoaWQtPmRy
+aXZlcl9kYXRhID09IFRZUEVfSVNMMTIxOSkgaGVyZT8NCj4gSSdkIHVzZSBpMmNfc2V0X2Ns
+aWVudGRhdGEvaTJjX2dldF9jbGllbnRkYXRhIGJ1dCBJIGFncmVlIHRoYXQgdGhlbiBpdA0K
+PiBpcyBiYXNpY2FsbHkgdGhlIHNhbWUgYXMgaGF2aW5nIGlzbDEyMDgtPnN5c2ZzX2ZpbGVz
+Lg0KPiANCj4gYnV0IHRoaXMgbWFrZXMgbWUgcmVhbGl6ZSB0aGF0IHRoZSB0aW1lc3RhbXAg
+ZmlsZSBkb2Vzbid0IGVuZCB1cCBhdCB0aGUNCj4gY29ycmVjdCBsb2NhdGlvbi4gV2hhdCB5
+b3UgZG8gbm93IGlzIHBsYWNpbmcgaXQgdW5kZXIgdGhlIGkyYyBkZXZpY2UNCj4gd2hpbGUg
+aXQgc2hvdWxkIGJlIHBsYWNlZCB1bmRlciB0aGUgcnRjIGRldmljZSAoaS5lLiBpbg0KPiAv
+c3lzL2NsYXNzL3J0Yy9ydGNYLykuIFRoaXMgd2FzIGEgbWlzdGFrZSBtYWRlIGJhY2sgaW4g
+MjAwNi4NCj4gDQo+IEkgZ3Vlc3MgeW91J2xsIGhhdmUgdG8gYWRkIGEgbmV3IGdyb3VwIGlu
+c3RlYWQgb2YgYWRkaW5nIHRvIHRoZSBjdXJyZW50DQo+IG9uZS4NCkkgZ3Vlc3MgSSBmb3Vu
+ZCBhIHdheSB0byBkbyBpdC4NCg0Kc3RhdGljIHN0cnVjdCBhdHRyaWJ1dGUgKmlzbDEyMTlf
+cnRjX2F0dHJzW10gPSB7DQoJJmRldl9hdHRyX3RpbWVzdGFtcDAuYXR0ciwNCglOVUxMDQp9
+Ow0KDQppbiBwcm9iZQ0KCWlmIChpZC0+ZHJpdmVyX2RhdGEgPT0gVFlQRV9JU0wxMjE5KSB7
+DQoJCXN5c2ZzX21lcmdlX2dyb3VwKCZydGMtPmtvYmosICZpc2wxMjE5X3J0Y19zeXNmc19m
+aWxlcyk7DQoNCmluIHJlbW92ZQ0KCXN0cnVjdCBydGNfZGV2aWNlICpydGMgPcKgaTJjX2dl
+dF9jbGllbnRkYXRhKGNsaWVudCk7DQoJc3lzZnNfdW5tZXJnZV9ncm91cCgmcnRjLT5rb2Jq
+LCAmaXNsMTIxOV9ydGNfc3lzZnNfZmlsZXMpOw0KDQpBcyBmYXIgYXMgSSBnb3QgaXQsIEkg
+Y2FuIGNhbGwgdW5tZXJnZSBldmVuIGlmIGdyb3VwIHdhcyBub3QgbWVyZ2VkIGJlZm9yZS4N
+CklmIGl0IHdvcmtzIEkgZG9uwrR0IG5lZWQgc3RydWN0IGlzbDEyMDggYXQgYWxsLg0KPiAN
+CkRpZWhsIEFLTyBTdGlmdHVuZyAmIENvLiBLRywgUGZhbm5lcnN0cmHDn2UgNzUtODMsIDg4
+MjM5IFdhbmdlbiBpbSBBbGxnw6R1DQpCZXJlaWNoc3ZvcnN0YW5kOiBEci4tSW5nLiBNaWNo
+YWVsIFNpZWRlbnRvcCAoU3ByZWNoZXIpLCBKb3NlZiBGZWxsbmVyIChNaXRnbGllZCkNClNp
+dHogZGVyIEdlc2VsbHNjaGFmdDogV2FuZ2VuIGkuQS4g4oCTIFJlZ2lzdGVyZ2VyaWNodDog
+QW10c2dlcmljaHQgVWxtIEhSQSA2MjA2MDkg4oCTIFBlcnPDtm5saWNoIGhhZnRlbmRlIEdl
+c2VsbHNjaGFmdGVyaW46IERpZWhsIFZlcndhbHR1bmdzLVN0aWZ0dW5nIOKAkyBTaXR6OiBO
+w7xybmJlcmcg4oCTIFJlZ2lzdGVyZ2VyaWNodDogQW10c2dlcmljaHQgTsO8cm5iZXJnIEhS
+QSAxMTc1NiDigJMNClZvcnN0YW5kOiBEci4tSW5nLiBFLmguIFRob21hcyBEaWVobCAo4oCg
+KSAoVm9yc2l0emVuZGVyKSwgSGVyciBEaXBsLi1XaXJ0c2NoLi1JbmcuIFdvbGZnYW5nIFdl
+Z2dlbiAoc3RlbGx2ZXJ0cmV0ZW5kZXIgVm9yc2l0emVuZGVyKSwgRGlwbC4tS2ZtLiBDbGF1
+cyBHw7xudGhlciwgRGlwbC4tS2ZtLiBGcmFuayBHdXR6ZWl0LCBEci4tSW5nLiBIZWlucmlj
+aCBTY2h1bmssIERyLi1JbmcuIE1pY2hhZWwgU2llZGVudG9wICwgRGlwbC4tS2ZtLiBEci4t
+SW5nLiBNYXJ0aW4gU29tbWVyLCBEaXBsLi1JbmcuIChGSCkgUmFpbmVyIHZvbiBCb3JzdGVs
+LCBWb3JzaXR6ZW5kZXIgZGVzIEF1ZnNpY2h0c3JhdGVzOiBEci4gS2xhdXMgTWFpZXINCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KRGVyIEluaGFs
+dCBkZXIgdm9yc3RlaGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVjaHRsaWNoIGJpbmRlbmQu
+IERpZXNlIEUtTWFpbCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIgcmVjaHRsaWNo
+IGdlc2NodWV0enRlIEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJlbiBTaWUgdW5zIGJpdHRl
+LCB3ZW5uIFNpZSBkaWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndlaXNlIGVyaGFsdGVuIGhh
+YmVuLiBCaXR0ZSBsb2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwgZGllIE5hY2hyaWNodC4g
+SmVkZSB1bmVybGF1YnRlIEZvcm0gZGVyIFJlcHJvZHVrdGlvbiwgQmVrYW5udGdhYmUsIEFl
+bmRlcnVuZywgVmVydGVpbHVuZyB1bmQvb2RlciBQdWJsaWthdGlvbiBkaWVzZXIgRS1NYWls
+IGlzdCBzdHJlbmdzdGVucyB1bnRlcnNhZ3QuDQpUaGUgY29udGVudHMgb2YgdGhlIGFib3Zl
+IG1lbnRpb25lZCBlLW1haWwgaXMgbm90IGxlZ2FsbHkgYmluZGluZy4gVGhpcyBlLW1haWwg
+Y29udGFpbnMgY29uZmlkZW50aWFsIGFuZC9vciBsZWdhbGx5IHByb3RlY3RlZCBpbmZvcm1h
+dGlvbi4gUGxlYXNlIGluZm9ybSB1cyBpZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGUtbWFp
+bCBieSBtaXN0YWtlIGFuZCBkZWxldGUgaXQgaW4gc3VjaCBhIGNhc2UuIEVhY2ggdW5hdXRo
+b3JpemVkIHJlcHJvZHVjdGlvbiwgZGlzY2xvc3VyZSwgYWx0ZXJhdGlvbiwgZGlzdHJpYnV0
+aW9uIGFuZC9vciBwdWJsaWNhdGlvbiBvZiB0aGlzIGUtbWFpbCBpcyBzdHJpY3RseSBwcm9o
+aWJpdGVkLg==
