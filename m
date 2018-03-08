@@ -1,60 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:50831 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750797AbeCXHGV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Mar 2018 03:06:21 -0400
-Message-ID: <1521875176.28226.25.camel@mtkswgap22>
-Subject: Re: [PATCH v1 05/16] rtc: mediatek: add MT6323 support to RTC driver
-From: Sean Wang <sean.wang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Sat, 24 Mar 2018 15:06:16 +0800
-In-Reply-To: <20180323100156.GE3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-         <c49898db977a0b37363a35d3e3b297af891d7219.1521794177.git.sean.wang@mediatek.com>
-         <20180323100156.GE3417@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:33993 "EHLO
+        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934554AbeCHCrX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 21:47:23 -0500
+Received: by mail-oi0-f42.google.com with SMTP id c83so3338856oib.1
+        for <linux-rtc@vger.kernel.org>; Wed, 07 Mar 2018 18:47:23 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20180307225411.GA20370@piout.net>
+References: <b8a475beaa4739032e3346572af2e412ebccb787.1519633350.git.baolin.wang@linaro.org>
+ <20180307225411.GA20370@piout.net>
+From: Baolin Wang <baolin.wang@linaro.org>
+Date: Thu, 8 Mar 2018 10:47:22 +0800
+Message-ID: <CAMz4kuKcLif02j6VwfAgQ1=4orhydboj9yXgvau=KQofkuosLA@mail.gmail.com>
+Subject: Re: [RESEND PATCH 1/3] rtc: Use time64_t to save range_max of RTC
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
+        linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 2018-03-23 at 11:01 +0100, Alexandre Belloni wrote:
+Hi Alexandre,
+
+On 8 March 2018 at 06:54, Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 > Hi,
-> 
-> The subject line should be rtc: mt6397: (to differentiate with rtc-mt7622)
-> 
+>
+> On 26/02/2018 at 16:33:56 +0800, Baolin Wang wrote:
+>> We need use rtc->range_max to valid if the time values are valid,
+>> and the time values are saved by time64_t type. So change the
+>> rtc->range_max to time64_t type for comparison correctly.
+>>
+>
+> I'm not applying this one because the described issue will never happen
+> as negative times are forbidden by the rtc subsystem.
 
-Sure, I will change subject line into rtc: mt6397: along with the other
-related patches.
+OK.
 
-> On 23/03/2018 at 17:15:02 +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > Just to add MT6323 support to the existent RTC driver.
-> > 
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > ---
-> >  drivers/rtc/rtc-mt6397.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> > index 385f830..0df7ccd 100644
-> > --- a/drivers/rtc/rtc-mt6397.c
-> > +++ b/drivers/rtc/rtc-mt6397.c
-> > @@ -398,6 +398,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
-> >  			mt6397_rtc_resume);
-> >  
-> >  static const struct of_device_id mt6397_rtc_of_match[] = {
-> > +	{ .compatible = "mediatek,mt6323-rtc", },
-> >  	{ .compatible = "mediatek,mt6397-rtc", },
-> >  	{ }
-> >  };
-> > -- 
-> > 2.7.4
-> > 
-> 
+>
+> I've applied the two following patches
+>
+
+Thanks.
+
+
+-- 
+Baolin.wang
+Best Regards
