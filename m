@@ -1,57 +1,112 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:59950 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751362AbeCLXbI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Mar 2018 19:31:08 -0400
-Date: Tue, 13 Mar 2018 00:31:02 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Stefano Manni <stefano.manni@gmail.com>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: mcp795: remove VLA usage
-Message-ID: <20180312233102.GE3795@piout.net>
-References: <20180312231338.3756-1-stefano.manni@gmail.com>
+Received: from gateway33.websitewelcome.com ([192.185.146.82]:29799 "EHLO
+        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932087AbeCHRk6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 12:40:58 -0500
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway33.websitewelcome.com (Postfix) with ESMTP id EE38A214BE9
+        for <linux-rtc@vger.kernel.org>; Thu,  8 Mar 2018 11:20:32 -0600 (CST)
+Date: Thu, 8 Mar 2018 11:20:31 -0600
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Sangbeom Kim <sbkim73@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+        linux-rtc@vger.kernel.org, kernel-hardening@lists.openwall.com,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] rtc: s5m: Remove VLA usage
+Message-ID: <20180308172031.GA14541@embeddedgus>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180312231338.3756-1-stefano.manni@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+In preparation to enabling -Wvla, remove VLAs and replace them
+with fixed-length arrays instead.
 
-On 13/03/2018 at 00:13:38 +0100, Stefano Manni wrote:
-> In preparation to enabling -Wvla, remove VLAs and replace them with
-> fixed-length arrays instead.
-> 
-> rtc-mcp795.c uses a variable-length array declaration to contain
-> the command to write the rtcc; this can be replaced by a fixed-
-> size array of length 2 (instruction, address) + 32 (data out),
-> assuming a maximum data length of 32 bytes before wrap up.
-> 
-> This was prompted by https://lkml.org/lkml/2018/3/7/621
-> 
-> Signed-off-by: Stefano Manni <stefano.manni@gmail.com>
-> ---
->  drivers/rtc/rtc-mcp795.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-> index 77f21331ae21..a5f504e2364c 100644
-> --- a/drivers/rtc/rtc-mcp795.c
-> +++ b/drivers/rtc/rtc-mcp795.c
-> @@ -61,6 +61,9 @@
->  
->  #define SEC_PER_DAY		(24 * 60 * 60)
->  
-> +/* Maximum length for data out in write operation to RTCC */
-> +#define MCP795_MAX_DATAOUT_LEN	32
-> +
+>From a security viewpoint, the use of Variable Length Arrays can be
+a vector for stack overflow attacks. Also, in general, as the code
+evolves it is easy to lose track of how big a VLA can get. Thus, we
+can end up having segfaults that are hard to debug.
 
-This is wrong, see https://marc.info/?l=linux-kernel&m=152046370320811&w=2
+Also, fixed as part of the directive to remove all VLAs from
+the kernel: https://lkml.org/lkml/2018/3/7/621
 
-Also, https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=74ce1a932504da166cfbccf5567aa3751b6aa599
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/rtc/rtc-s5m.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+index 6deae10..2b5f4f7 100644
+--- a/drivers/rtc/rtc-s5m.c
++++ b/drivers/rtc/rtc-s5m.c
+@@ -38,6 +38,9 @@
+  */
+ #define UDR_READ_RETRY_CNT	5
+ 
++/* Maximum number of registers for setting time/alarm0/alarm1 */
++#define MAX_NUM_TIME_REGS	8
++
+ /*
+  * Registers used by the driver which are different between chipsets.
+  *
+@@ -367,7 +370,7 @@ static void s5m8763_tm_to_data(struct rtc_time *tm, u8 *data)
+ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct s5m_rtc_info *info = dev_get_drvdata(dev);
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	int ret;
+ 
+ 	if (info->regs->read_time_udr_mask) {
+@@ -413,7 +416,7 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int s5m_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct s5m_rtc_info *info = dev_get_drvdata(dev);
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	int ret = 0;
+ 
+ 	switch (info->device_type) {
+@@ -450,7 +453,7 @@ static int s5m_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int s5m_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct s5m_rtc_info *info = dev_get_drvdata(dev);
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	unsigned int val;
+ 	int ret, i;
+ 
+@@ -500,7 +503,7 @@ static int s5m_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ static int s5m_rtc_stop_alarm(struct s5m_rtc_info *info)
+ {
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	int ret, i;
+ 	struct rtc_time tm;
+ 
+@@ -545,7 +548,7 @@ static int s5m_rtc_stop_alarm(struct s5m_rtc_info *info)
+ static int s5m_rtc_start_alarm(struct s5m_rtc_info *info)
+ {
+ 	int ret;
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	u8 alarm0_conf;
+ 	struct rtc_time tm;
+ 
+@@ -598,7 +601,7 @@ static int s5m_rtc_start_alarm(struct s5m_rtc_info *info)
+ static int s5m_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct s5m_rtc_info *info = dev_get_drvdata(dev);
+-	u8 data[info->regs->regs_count];
++	u8 data[MAX_NUM_TIME_REGS];
+ 	int ret;
+ 
+ 	switch (info->device_type) {
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
