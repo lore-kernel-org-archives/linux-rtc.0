@@ -6,11 +6,11 @@ CC: Hans de Goede <hdegoede@redhat.com>, "rtc-linux@googlegroups.com"
 	<rtc-linux@googlegroups.com>, "alexandre.belloni@free-electrons.com"
 	<alexandre.belloni@free-electrons.com>, Sasha Levin
 	<Alexander.Levin@microsoft.com>
-Subject: [PATCH AUTOSEL for 4.9 029/190] x86: i8259: export legacy_pic symbol
-Date: Thu, 8 Mar 2018 04:59:03 +0000
-Message-ID: <20180308045810.8041-29-alexander.levin@microsoft.com>
-References: <20180308045810.8041-1-alexander.levin@microsoft.com>
-In-Reply-To: <20180308045810.8041-1-alexander.levin@microsoft.com>
+Subject: [PATCH AUTOSEL for 3.18 09/53] x86: i8259: export legacy_pic symbol
+Date: Thu, 8 Mar 2018 05:03:09 +0000
+Message-ID: <20180308050230.8876-9-alexander.levin@microsoft.com>
+References: <20180308050230.8876-1-alexander.levin@microsoft.com>
+In-Reply-To: <20180308050230.8876-1-alexander.levin@microsoft.com>
 Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
 List-ID: <rtc-linux.googlegroups.com>
@@ -42,10 +42,10 @@ Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
-index be22f5a2192e..4e3b8a587c88 100644
+index e7cc5370cd2f..6c7e7986939a 100644
 --- a/arch/x86/kernel/i8259.c
 +++ b/arch/x86/kernel/i8259.c
-@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic =3D {
+@@ -405,6 +405,7 @@ struct legacy_pic default_legacy_pic =3D {
  };
 =20
  struct legacy_pic *legacy_pic =3D &default_legacy_pic;
