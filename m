@@ -1,45 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:30758 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752015AbeCWJPc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:32 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 05/16] rtc: mediatek: add MT6323 support to RTC driver
-Date: Fri, 23 Mar 2018 17:15:02 +0800
-Message-ID: <c49898db977a0b37363a35d3e3b297af891d7219.1521794177.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
+Received: from mail.bootlin.com ([62.4.15.54]:41553 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S935676AbeCHJtV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Mar 2018 04:49:21 -0500
+Date: Thu, 8 Mar 2018 10:49:19 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] rtc: remove VLA usage
+Message-ID: <20180308094919.GD20370@piout.net>
+References: <20180308022756.GA28733@embeddedor.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180308022756.GA28733@embeddedor.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On 07/03/2018 at 20:27:56 -0600, Gustavo A. R. Silva wrote:
+> In preparation to enabling -Wvla, remove VLA and replace it
+> with a fixed-length array instead.
+> 
+> From a security viewpoint, the use of Variable Length Arrays can be
+> a vector for stack overflow attacks. Also, in general, as the code
+> evolves it is easy to lose track of how big a VLA can get. Thus, we
+> can end up having segfaults that are hard to debug.
+> 
+> Also, fixed as part of the directive to remove all VLAs from
+> the kernel: https://lkml.org/lkml/2018/3/7/621
+> 
 
-Just to add MT6323 support to the existent RTC driver.
+That is a good description, thanks
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- drivers/rtc/rtc-mt6397.c | 1 +
- 1 file changed, 1 insertion(+)
+> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+> ---
+> Changes in v2:
+>  - Update changelog as per Alexandre Belloni request.
+>  - Update the code for rtc-bq32k driver based on Alexandre's feedback.
+> 
+>  drivers/rtc/rtc-bq32k.c  | 6 +++++-
+>  drivers/rtc/rtc-mcp795.c | 2 +-
+>  2 files changed, 6 insertions(+), 2 deletions(-)
+> 
+Applied.
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 385f830..0df7ccd 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -398,6 +398,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
- 			mt6397_rtc_resume);
- 
- static const struct of_device_id mt6397_rtc_of_match[] = {
-+	{ .compatible = "mediatek,mt6323-rtc", },
- 	{ .compatible = "mediatek,mt6397-rtc", },
- 	{ }
- };
 -- 
-2.7.4
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
