@@ -1,27 +1,21 @@
-Return-Path: <gregkh@linuxfoundation.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	stable@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	alexandre.belloni@free-electrons.com,
-	Hans de Goede <hdegoede@redhat.com>,
-	Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.4 08/97] x86: i8259: export legacy_pic symbol
-Date: Fri, 23 Mar 2018 10:53:55 +0100
-Message-Id: <20180323094157.982180842@linuxfoundation.org>
-In-Reply-To: <20180323094157.535925724@linuxfoundation.org>
-References: <20180323094157.535925724@linuxfoundation.org>
+Return-Path: <Alexander.Levin@microsoft.com>
+From: Sasha Levin <Alexander.Levin@microsoft.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+CC: Hans de Goede <hdegoede@redhat.com>, "rtc-linux@googlegroups.com"
+	<rtc-linux@googlegroups.com>, "alexandre.belloni@free-electrons.com"
+	<alexandre.belloni@free-electrons.com>, Sasha Levin
+	<Alexander.Levin@microsoft.com>
+Subject: [PATCH AUTOSEL for 4.9 029/190] x86: i8259: export legacy_pic symbol
+Date: Thu, 8 Mar 2018 04:59:03 +0000
+Message-ID: <20180308045810.8041-29-alexander.levin@microsoft.com>
+References: <20180308045810.8041-1-alexander.levin@microsoft.com>
+In-Reply-To: <20180308045810.8041-1-alexander.levin@microsoft.com>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
 From: Hans de Goede <hdegoede@redhat.com>
-
 
 [ Upstream commit 7ee06cb2f840a96be46233181ed4557901a74385 ]
 
@@ -43,18 +37,21 @@ Cc: alexandre.belloni@free-electrons.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/i8259.c |    1 +
+ arch/x86/kernel/i8259.c | 1 +
  1 file changed, 1 insertion(+)
 
+diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
+index be22f5a2192e..4e3b8a587c88 100644
 --- a/arch/x86/kernel/i8259.c
 +++ b/arch/x86/kernel/i8259.c
-@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
+@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic =3D {
  };
- 
- struct legacy_pic *legacy_pic = &default_legacy_pic;
+=20
+ struct legacy_pic *legacy_pic =3D &default_legacy_pic;
 +EXPORT_SYMBOL(legacy_pic);
- 
+=20
  static int __init i8259A_init_ops(void)
  {
+--=20
+2.14.1
