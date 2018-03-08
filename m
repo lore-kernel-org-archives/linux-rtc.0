@@ -1,32 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60459 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:35616 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751390AbeCMAlP (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Mar 2018 20:41:15 -0400
-Date: Tue, 13 Mar 2018 01:41:01 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Michael McCormick <michael.mccormick@enatel.net>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcf85063 was not clearing bits correctly in
- pcf85063_start_clock
-Message-ID: <20180313004101.GH3795@piout.net>
-References: <20180221222924.GA11756@michael-virtual-machine>
+        id S1750761AbeCHUtn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Mar 2018 15:49:43 -0500
+Date: Thu, 8 Mar 2018 21:49:41 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 2/4] rtc: at91sam9: Pass pdev->dev to
+ regmap_init_mmio()
+Message-ID: <20180308204941.GK20370@piout.net>
+References: <20180308102154.25686-1-jeffy.chen@rock-chips.com>
+ <20180308102154.25686-3-jeffy.chen@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180221222924.GA11756@michael-virtual-machine>
+In-Reply-To: <20180308102154.25686-3-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 22/02/2018 at 11:29:24 +1300, Michael McCormick wrote:
-> Bit clear operation was missing ~
+On 08/03/2018 at 18:21:52 +0800, Jeffy Chen wrote:
+> Otherwise it would use "dummy*" to create regmap debugfs dir.
 > 
-> Signed-off-by: Michael McCormick <michael.mccormick@enatel.net>
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 > ---
->  drivers/rtc/rtc-pcf85063.c | 2 +-
+> 
+> Changes in v3: None
+> 
+>  drivers/rtc/rtc-at91sam9.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-Applied, thanks.
+> diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+> index 7418a763ce52..0d6a17a77841 100644
+> --- a/drivers/rtc/rtc-at91sam9.c
+> +++ b/drivers/rtc/rtc-at91sam9.c
+> @@ -402,7 +402,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+>  		if (IS_ERR(gpbr))
+>  			return PTR_ERR(gpbr);
+>  
+> -		rtc->gpbr = regmap_init_mmio(NULL, gpbr,
+> +		rtc->gpbr = regmap_init_mmio(&pdev->dev, gpbr,
+>  					     &gpbr_regmap_config);
+
+This would be misleading as the gpbr is not directly related to the rtc.
+
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
