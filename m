@@ -1,125 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway24.websitewelcome.com ([192.185.51.209]:40476 "EHLO
-        gateway24.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754771AbeCGXeN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 18:34:13 -0500
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway24.websitewelcome.com (Postfix) with ESMTP id 5D0A51C6D7
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 17:14:04 -0600 (CST)
-Subject: Re: [PATCH] rtc: remove VLA usage
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180307201133.GA5860@embeddedgus>
- <20180307212506.GO3035@piout.net>
- <3e8e1515-0f0e-73d4-72eb-3a2a2fbf04e9@embeddedor.com>
- <20180307230136.GB20370@piout.net>
- <b41ed6bc-7f8b-031c-84a8-ec857b165ca0@embeddedor.com>
- <20180307231258.GC20370@piout.net>
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Message-ID: <fa585928-dd12-2dda-1d2e-69cd4de6e82a@embeddedor.com>
-Date: Wed, 7 Mar 2018 17:14:02 -0600
+Received: from mail.bootlin.com ([62.4.15.54]:46811 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750705AbeCHMFv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 8 Mar 2018 07:05:51 -0500
+Date: Thu, 8 Mar 2018 13:05:49 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mgr@pengutronix.de" <mgr@pengutronix.de>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v3 3/4] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Message-ID: <20180308120549.GG20370@piout.net>
+References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+ <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
+ <20180306204255.GI3035@piout.net>
+ <1520410754.5976.27.camel@diehl.com>
+ <20180307104714.GL3035@piout.net>
+ <1520509988.5415.17.camel@diehl.com>
 MIME-Version: 1.0
-In-Reply-To: <20180307231258.GC20370@piout.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1520509988.5415.17.camel@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On 08/03/2018 at 11:53:09 +0000, Denis OSTERLAND wrote:
+> Am Mittwoch, den 07.03.2018, 11:47 +0100 schrieb Alexandre Belloni:
+> > > > > +
+> > > > > +	tv64.tv_sec = rtc_tm_to_time64(&tm);
+> > > > Why not using an unsigned long long directly here? time64_t is not the
+> > > > correct type.
+> > > Do you mean timespec64 is not the correct type here?
+> > > Then yes, sould be time64_t.
+> > > If you mean time64_t is not the correct type here,
+> > > then can you give me some detail why there is no rtc_tm_to_u64,
+> > > or something like that?
+> > The rtc subsystem forbids negative times, the proper type should be
+> > unsigned.
+> I will add rtc_vaild_tm check.
+> 
+> Which sequence for time conversion would you expect?
+> 
+> time64_t secs = rtc_tm_to_time64(&tm);
+> BUG_ON(secs < 0);
+> return sprintf(buf, "%llu\n", (unsigned long long)secs);
+> 
+> or
+> 
+> return sprintf(buf, "%llu\n", (unsigned long long)rtc_tm_to_time64(&tm));
 
+rtc_vaild_tm will already return EINVAL in case of negative time so this
+is the one you should use.
 
-On 03/07/2018 05:12 PM, Alexandre Belloni wrote:
-> On 07/03/2018 at 17:09:22 -0600, Gustavo A. R. Silva wrote:
->>
->> On 03/07/2018 05:01 PM, Alexandre Belloni wrote:
->>> On 07/03/2018 at 16:39:51 -0600, Gustavo A. R. Silva wrote:
->>>> Hi Alexandre,
->>>>
->>>> On 03/07/2018 03:25 PM, Alexandre Belloni wrote:
->>>>> On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
->>>>>> In preparation to enabling -Wvla, remove VLA and replace it
->>>>>> with a fixed-length array instead.
->>>>>>
->>>>> You should probably explain what VLA is and why this is important to do.
->>>> Sure. I can elaborate a little bit more.
->>>>
->>>>>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->>>>>> ---
->>>>>>     drivers/rtc/rtc-bq32k.c  | 2 +-
->>>>>>     drivers/rtc/rtc-mcp795.c | 2 +-
->>>>>>     2 files changed, 2 insertions(+), 2 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
->>>>>> index e8698e9..e4b234a 100644
->>>>>> --- a/drivers/rtc/rtc-bq32k.c
->>>>>> +++ b/drivers/rtc/rtc-bq32k.c
->>>>>> @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
->>>>>>     static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
->>>>>>     {
->>>>>>     	struct i2c_client *client = to_i2c_client(dev);
->>>>>> -	uint8_t buffer[len + 1];
->>>>>> +	uint8_t buffer[256];
->>>>> You chose to change len to 255, probably because this is a uint8_t but
->>>> Correct.
->>>>
->>>>> this is way too much for this rtc, it only has 10 consecutive registers.
->>>> In that case probably the best solution is to add the following line to the
->>>> module:
->>>>
->>>> #define MAX_LEN 10
->>>>
->>>> and update the rest of the code as follows:
->>>>
->>>> uint8_t buffer[MAX_LEN + 1];
->>>>
->>> Seems better, yes.
->>>
->>>>>>     	buffer[0] = off;
->>>>>>     	memcpy(&buffer[1], data, len);
->>>>>> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
->>>>>> index 79e24ea..00e11c1 100644
->>>>>> --- a/drivers/rtc/rtc-mcp795.c
->>>>>> +++ b/drivers/rtc/rtc-mcp795.c
->>>>>> @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
->>>>>>     {
->>>>>>     	struct spi_device *spi = to_spi_device(dev);
->>>>>>     	int ret;
->>>>>> -	u8 tx[2 + count];
->>>>>> +	u8 tx[257];
->>>> For this particular case it seems to me that the following works just fine:
->>>>
->>>> #define MAX_COUNT 7
->>>>
->>>> u8 tx[MAX_COUNT + 2];
->>>>
->>>> What do you think?
->>>>
->>> Nope, that RTC has a section of 255 bytes that could be read at once so
->>> 257 is the correct value.
->>>
->> I see...
->>
->> I was looking into this piece of code drivers/rtc/rtc-mcp795.c:302:
->>
->>          tmp[0] = (tmp[0] & 0x80) | bin2bcd(alm->time.tm_sec);
->>          tmp[1] = (tmp[1] & 0x80) | bin2bcd(alm->time.tm_min);
->>          tmp[2] = (tmp[2] & 0xE0) | bin2bcd(alm->time.tm_hour);
->>          tmp[3] = (tmp[3] & 0x80) | bin2bcd(alm->time.tm_wday + 1);
->>          /* set alarm match: seconds, minutes, hour, day, date and month */
->>          tmp[3] |= (MCP795_ALM0C2_BIT | MCP795_ALM0C1_BIT |
->> MCP795_ALM0C0_BIT);
->>          tmp[4] = (tmp[4] & 0xC0) | bin2bcd(alm->time.tm_mday);
->>          tmp[5] = (tmp[5] & 0xE0) | bin2bcd(alm->time.tm_mon + 1);
->>
->>          ret = mcp795_rtcc_write(dev, MCP795_REG_ALM0_SECONDS, tmp,
->> sizeof(tmp));
->>
-> Yeah, the 128 or 255 bytes NVRAM is not yet supported but this is on my
-> todo list
->
-
-I got it.
-
-Thanks
---
-Gustavo
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
