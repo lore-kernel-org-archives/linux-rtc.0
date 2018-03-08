@@ -1,74 +1,123 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:46562 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752349AbeCZWY5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Mar 2018 18:24:57 -0400
-Date: Mon, 26 Mar 2018 17:24:55 -0500
-From: Rob Herring <robh@kernel.org>
-To: sean.wang@mediatek.com
-Cc: mark.rutland@arm.com, sre@kernel.org, lee.jones@linaro.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 01/16] dt-bindings: power: reset: mediatek: add
- bindings for power device
-Message-ID: <20180326222455.6kou2rdn76k6p6ct@rob-hp-laptop>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
- <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
+Received: from gateway23.websitewelcome.com ([192.185.48.84]:47484 "EHLO
+        gateway23.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932091AbeCHRdC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 12:33:02 -0500
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway23.websitewelcome.com (Postfix) with ESMTP id 719CD2E099
+        for <linux-rtc@vger.kernel.org>; Thu,  8 Mar 2018 11:09:00 -0600 (CST)
+Subject: Re: [RFC] Removing VLAs in rtc-s5m
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sangbeom Kim <sbkim73@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org
+References: <82561e18-2283-897a-49b9-9606e3b7e1b2@embeddedor.com>
+ <CAJKOXPfx2__Luw9LGevVdBaGL7C3Ldd9uCnBPpUnwgA6U25pKw@mail.gmail.com>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Message-ID: <ad29f355-a07b-e1b7-8d4a-6884dcbe3fd4@embeddedor.com>
+Date: Thu, 8 Mar 2018 11:08:59 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
+In-Reply-To: <CAJKOXPfx2__Luw9LGevVdBaGL7C3Ldd9uCnBPpUnwgA6U25pKw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Mar 23, 2018 at 05:14:58PM +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> Add device-tree binding for the power device responsible for shutdown a
-> remote SoC, which is a tiny circuit block present on MediaTek PMIC based
-> RTC.
-> 
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> ---
->  .../bindings/power/reset/mt6397-rtc-poweroff.txt   | 24 ++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> new file mode 100644
-> index 0000000..75a9d7d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> @@ -0,0 +1,24 @@
-> +Device-Tree bindings for Power Device on MediaTek PMIC RTC
-> +
-> +The power device is responsible for externally power off or on the remote
-> +MediaTek SoC through the a tiny circuit block BBPU inside PMIC RTC.
-> +
-> +Required parent node:
-> +- rtc
-> +	For MediaTek PMIC RTC bindings, see:
-> +	Documentation/devicetree/bindings/mfd/mt6397.txt
-> +
-> +Required properties:
-> +- compatible: Should be one of follows
-> +	"mediatek,mt6323-rtc-poweroff": for MT6323 PMIC
-> +	"mediatek,mt6397-rtc-poweroff": for MT6397 PMIC
-> +
-> +Example:
-> +
-> +	rtc {
-> +		compatible = "mediatek,mt6323-rtc";
-> +
-> +		power-off {
-> +			compatible = "mediatek,mt6323-rtc-poweroff";
-> +		};
+Hi Krzysztof,
 
-There's no need for this node. The OS can register a device in the rtc 
-driver.
-
-> +	};
-> -- 
-> 2.7.4
+On 03/08/2018 02:37 AM, Krzysztof Kozlowski wrote:
+> On Thu, Mar 8, 2018 at 4:18 AM, Gustavo A. R. Silva
+> <garsilva@embeddedor.com> wrote:
+>> Hi Alexandre,
+>>
+>> I'm trying to figure out the best way to fix the following VLA warnings:
+>>
+>> drivers/rtc/rtc-s5m.c:370:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>> drivers/rtc/rtc-s5m.c:416:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>> drivers/rtc/rtc-s5m.c:453:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>> drivers/rtc/rtc-s5m.c:503:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>> drivers/rtc/rtc-s5m.c:548:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>> drivers/rtc/rtc-s5m.c:601:2: warning: ISO C90 forbids variable length array
+>> ‘data’ [-Wvla]
+>>
+>>
+>> So I took a look into the following piece of code at
+>> drivers/rtc/rtc-s5m.c:31, please see my comments below.
+>>
+>> /*
+>>   * Registers used by the driver which are different between chipsets.
+>>   *
+>>   * Operations like read time and write alarm/time require updating
+>>   * specific fields in UDR register. These fields usually are auto-cleared
+>>   * (with some exceptions).
+>>   *
+>>   * Table of operations per device:
+>>   *
+>>   * Device     | Write time | Read time | Write alarm
+>>   * =================================================
+>>   * S5M8767    | UDR + TIME |           | UDR
+>>   * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
+>>   * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
+>>   * S2MPS15    | WUDR       | RUDR      | AUDR
+>>   */
+>> struct s5m_rtc_reg_config {
+>>          /* Number of registers used for setting time/alarm0/alarm1 */
+>>          unsigned int regs_count;
+>>
+>>
+>> Once the maximum number of registers for devices S5M8767, S2MPS11/14 S2MPS13
+>> and S2MPS15 are 8, 7, 7 and 7 correspondingly, I think we can safely change
+>> the type of regs_count to u8/uint8_t.
 > 
+> There is no benefit of changing it to u8. You will not get smaller
+> struct and unsigned int is pretty obvious for counting elements.
+> Unlike u8.
+>
+
+I got it.
+
+>> And then define a macro like the
+>> following:
+>>
+>> #define MAX_NUM_REGS 8 or 10
+>>
+>> so we can replace this kind of code:
+>>
+>> u8 data[info->regs->regs_count];
+>>
+>> with this:
+>>
+>> u8 data[MAX_NUM_REGS];
+> 
+> Yes, 8 makes sense (but name like MAX_NUM_TIME_REGS). I think removing
+> the additional complexity (and error-prone solution) is worth of
+> living with wasted one-byte for some of devices. :)
+> 
+>>
+>> What do you think?
+>>
+>> Is there any chance a new device of this kind with more than 10 or 15
+>> registers can be added in the future?
+> 
+> I think not because Samsung is copying this RTC block from design to
+> design and just changes few things. More registers would mean that
+> time and alarms are provided with better precision (milli seconds?
+> more registers for years?) or with some different calendars. If such
+> device appears, we can extend the array and accept the waste of
+> additional bytes. Really, complexity of code is not worth these few
+> bytes.
+> 
+
+
+I got it. I'll send a patch for this shortly.
+
+Thanks for the feedback.
+I appreciate it.
+--
+Gustavo
