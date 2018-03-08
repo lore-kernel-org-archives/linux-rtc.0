@@ -1,41 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59556 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932161AbeCKQj1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 11 Mar 2018 12:39:27 -0400
-MIME-Version: 1.0
-In-Reply-To: <44ee5bd5053d579dc6c46b21e2ef8f6acf70e4ce.1520660422.git.gustavo@embeddedor.com>
-References: <cover.1520660422.git.gustavo@embeddedor.com> <44ee5bd5053d579dc6c46b21e2ef8f6acf70e4ce.1520660422.git.gustavo@embeddedor.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Sun, 11 Mar 2018 17:39:24 +0100
-Message-ID: <CAJKOXPdTgYRGvj99dYroY_6AvZD0KOV5yj+LUVNHWs7XUw8QsA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] rtc: s5m: Move enum from rtc.h to rtc-s5m.c
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+Received: from regular1.263xmail.com ([211.150.99.132]:44713 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934899AbeCHKWX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 05:22:23 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org
+Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-rtc@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Content-Type: text/plain; charset="UTF-8"
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v3 2/4] rtc: at91sam9: Pass pdev->dev to regmap_init_mmio()
+Date: Thu,  8 Mar 2018 18:21:52 +0800
+Message-Id: <20180308102154.25686-3-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180308102154.25686-1-jeffy.chen@rock-chips.com>
+References: <20180308102154.25686-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sat, Mar 10, 2018 at 7:27 AM, Gustavo A. R. Silva
-<gustavo@embeddedor.com> wrote:
-> Move this enum to rtc-s5m.c once it is meaningless to others drivers [1].
->
-> [1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+Otherwise it would use "dummy*" to create regmap debugfs dir.
 
-Instead of external link (which might or might not work soon) you can
-just put "Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>".
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-Anyway:
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Changes in v3: None
 
-Best regards,
-Krzysztof
+ drivers/rtc/rtc-at91sam9.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 7418a763ce52..0d6a17a77841 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -402,7 +402,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		if (IS_ERR(gpbr))
+ 			return PTR_ERR(gpbr);
+ 
+-		rtc->gpbr = regmap_init_mmio(NULL, gpbr,
++		rtc->gpbr = regmap_init_mmio(&pdev->dev, gpbr,
+ 					     &gpbr_regmap_config);
+ 	} else {
+ 		struct of_phandle_args args;
+-- 
+2.11.0
