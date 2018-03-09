@@ -1,54 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60346 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751352AbeCMAfz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Mar 2018 20:35:55 -0400
-Date: Tue, 13 Mar 2018 01:35:40 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+Received: from regular1.263xmail.com ([211.150.99.139]:34263 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751199AbeCIIoy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:44:54 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+        Joseph Lo <josephl@nvidia.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        linux-rockchip@lists.infradead.org,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Jeffy Chen <jeffy.chen@rock-chips.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Michael Turquette <mturquette@baylibre.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        linux-clk@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Russell King <linux@armlinux.org.uk>,
         Lee Jones <lee.jones@linaro.org>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: Re: [PATCH 0/2] Remove VLA usage in rtc-s5m
-Message-ID: <20180313003540.GF3795@piout.net>
-References: <cover.1520660422.git.gustavo@embeddedor.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1520660422.git.gustavo@embeddedor.com>
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>
+Subject: [RESEND PATCH v4 0/4] Set name of regmap_config
+Date: Fri,  9 Mar 2018 16:43:47 +0800
+Message-Id: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
 
-On 10/03/2018 at 00:27:02 -0600, Gustavo A. R. Silva wrote:
-> This patchset aims to remove VLA usage from rtc-s5m.
-> 
-> The first patch moves an enum from rtc.h to rtc-s5m.c, as this is the
-> only driver in which such enum is actually being used [1].
-> 
-> The second patch adds the enum name RTC_MAX_NUM_TIME_REGS, which will
-> be used as a maximum length to the current VLAs, hence turning them
-> into fixed-length arrays instead.
-> 
-> [1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
-> 
-> Thanks
-> 
-> Gustavo A. R. Silva (2):
->   rtc: s5m: move enum from rtc.h to rtc-s5m.c
->   rtc: s5m: Remove VLA usage
-> 
+After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
+allowing regmap to create debugfs without a valid device. Some of them
+would end up using "dummy*" as debugfs name.
 
-Both applied, thanks.
+This series try to set names in some regmap_config to avoid that.
+
+
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
+
+Changes in v3:
+Modify commit message.
+
+Jeffy Chen (4):
+  mfd: syscon: Set name of regmap_config
+  rtc: at91sam9: Set name of regmap_config
+  clk: lpc32xx: Set name of regmap_config
+  ARM: rockchip: Set name of regmap_config
+
+ arch/arm/mach-rockchip/platsmp.c | 1 +
+ drivers/clk/nxp/clk-lpc32xx.c    | 1 +
+ drivers/mfd/syscon.c             | 1 +
+ drivers/rtc/rtc-at91sam9.c       | 1 +
+ 4 files changed, 4 insertions(+)
 
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.11.0
