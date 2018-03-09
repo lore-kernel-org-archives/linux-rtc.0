@@ -1,49 +1,85 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from internet2.beckhoff.com ([194.25.186.210]:56033 "EHLO
-        Internet2.beckhoff.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751410AbeCOLRY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 07:17:24 -0400
-From: =?iso-8859-1?Q?Patrick_Br=FCnn?= <P.Bruenn@beckhoff.com>
-To: Dan Carpenter <dan.carpenter@oracle.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
-Subject: RE: [PATCH] rtc: mxc_v2: unlock on error in mxc_rtc_set_alarm()
-Date: Thu, 15 Mar 2018 11:12:04 +0000
-Message-ID: <3BB206AB2B1BD448954845CE6FF69A8E01F81FD198@nt-mail04>
-References: <20180314073719.GA2470@mwanda>
-In-Reply-To: <20180314073719.GA2470@mwanda>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from mail.kernel.org ([198.145.29.99]:55988 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751143AbeCINEr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 9 Mar 2018 08:04:47 -0500
 MIME-Version: 1.0
+In-Reply-To: <23757731-bfa5-cb4c-ddc0-04103f9a72e0@embeddedor.com>
+References: <20180308172031.GA14541@embeddedgus> <CAGXu5jLjKcYOPxQOV6GO1oaLj1M_K=cFu-kHLLEzP=ZOXaAtfA@mail.gmail.com>
+ <23757731-bfa5-cb4c-ddc0-04103f9a72e0@embeddedor.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Fri, 9 Mar 2018 14:04:44 +0100
+Message-ID: <CAJKOXPf+4tF4oq5ePsgcpUAQS_M2Vi6b1+J-8D9CVemO-6ve5g@mail.gmail.com>
+Subject: Re: [PATCH] rtc: s5m: Remove VLA usage
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Sangbeom Kim <sbkim73@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
->From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
->Sent: Mittwoch, 14. März 2018 08:37
+On Thu, Mar 8, 2018 at 7:03 PM, Gustavo A. R. Silva
+<garsilva@embeddedor.com> wrote:
 >
->We need to unlock if time is more than U32_MAX.
 >
-you are right, that's a bug.
-But I would move the mxc_rtc_lock() entirely behind the (time > U32_MAX) check. IMHO that would make the code even cleaner. sorry for broken patch:
+> On 03/08/2018 11:58 AM, Kees Cook wrote:
+>>
+>> On Thu, Mar 8, 2018 at 9:20 AM, Gustavo A. R. Silva
+>> <gustavo@embeddedor.com> wrote:
+>>>
+>>> In preparation to enabling -Wvla, remove VLAs and replace them
+>>> with fixed-length arrays instead.
+>>>
+>>>  From a security viewpoint, the use of Variable Length Arrays can be
+>>> a vector for stack overflow attacks. Also, in general, as the code
+>>> evolves it is easy to lose track of how big a VLA can get. Thus, we
+>>> can end up having segfaults that are hard to debug.
+>>>
+>>> Also, fixed as part of the directive to remove all VLAs from
+>>> the kernel: https://lkml.org/lkml/2018/3/7/621
+>>>
+>>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+>>> ---
+>>>   drivers/rtc/rtc-s5m.c | 15 +++++++++------
+>>>   1 file changed, 9 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+>>> index 6deae10..2b5f4f7 100644
+>>> --- a/drivers/rtc/rtc-s5m.c
+>>> +++ b/drivers/rtc/rtc-s5m.c
+>>> @@ -38,6 +38,9 @@
+>>>    */
+>>>   #define UDR_READ_RETRY_CNT     5
+>>>
+>>> +/* Maximum number of registers for setting time/alarm0/alarm1 */
+>>> +#define MAX_NUM_TIME_REGS      8
+>>
+>>
+>> I would adjust the various const struct s5m_rtc_reg_config's
+>> .regs_count to be represented by this new define, so the stack and the
+>> structures stay in sync. Something like:
+>>
+>> static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
+>>          .regs_count             = MAX_NUM_TIME_REGS - 1,
+>>
+>> ?
+>>
+>
+> Yep. I thought about that and decided to wait for some feedback first. But
+> yeah, I think is that'd be a good change.
 
->       const time64_t time = rtc_tm_to_time64(&alrm->time);
->       struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
->-      int ret = mxc_rtc_lock(pdata);
->+      int ret;
->-
->-      if (ret)
->-              return ret;
->
->       if (time > U32_MAX) {
->               dev_err(dev, "Hopefully I am out of service by then :-(\n");
->               return -EINVAL;
->       }
->+
->+      ret = mxc_rtc_lock(pdata);
->+      if (ret)
->+              return ret;
+Define and these assignments should be somehow connected with enum
+defining the offsets for data[] (from
+include/linux/mfd/samsung/rtc.h). Otherwise we define the same in two
+places. The enum could be itself (in separate patch) moved to the
+driver because it is meaningless for others.
 
----
-Beckhoff Automation GmbH & Co. KG | Managing Director: Dipl. Phys. Hans Beckhoff
-Registered office: Verl, Germany | Register court: Guetersloh HRA 7075
+Best regards,
+Krzysztof
