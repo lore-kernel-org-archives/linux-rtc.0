@@ -1,64 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:37477 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750748AbeCPEu3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Mar 2018 00:50:29 -0400
-Date: Fri, 16 Mar 2018 10:20:16 +0530
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>,
-        IDE-ML <linux-ide@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>, linux-usb@vger.kernel.org,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Subject: Re: [PATCH 00/16] remove eight obsolete architectures
-Message-ID: <20180316045016.GA7697@afzalpc>
-References: <20180314143529.1456168-1-arnd@arndb.de>
- <2929.1521106970@warthog.procyon.org.uk>
- <CAK8P3a10hBz7QYk5v5MfhVMPOwFnWYTn95WZp1HtHrd7-GQpRg@mail.gmail.com>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:54956 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751852AbeCIIQH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:16:07 -0500
+Received: by mail-wm0-f68.google.com with SMTP id z81so2307099wmb.4
+        for <linux-rtc@vger.kernel.org>; Fri, 09 Mar 2018 00:16:07 -0800 (PST)
+Date: Fri, 9 Mar 2018 08:16:03 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        linux-clk@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        Russell King <linux@armlinux.org.uk>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 0/4] Set name of regmap_config
+Message-ID: <20180309081603.4u5pgwwsfxernodm@dell>
+References: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAK8P3a10hBz7QYk5v5MfhVMPOwFnWYTn95WZp1HtHrd7-GQpRg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Fri, 09 Mar 2018, Jeffy Chen wrote:
 
-On Thu, Mar 15, 2018 at 10:56:48AM +0100, Arnd Bergmann wrote:
-> On Thu, Mar 15, 2018 at 10:42 AM, David Howells <dhowells@redhat.com> wrote:
-
-> > Do we have anything left that still implements NOMMU?
-
-Please don't kill !MMU.
-
-> Yes, plenty.
-
-> I've made an overview of the remaining architectures for my own reference[1].
-> The remaining NOMMU architectures are:
 > 
-> - arch/arm has ARMv7-M (Cortex-M microcontroller), which is actually
-> gaining traction
+> After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
+> allowing regmap to create debugfs without a valid device. Some of them
+> would end up using "dummy*" as debugfs name.
+> 
+> This series try to set names in some regmap_config to avoid that.
+> 
+> 
+> Changes in v4:
+> Not to use rtc dev to init regmap, the gpbr is not directly related to
+> the rtc.
+> 
+> Changes in v3:
+> Modify commit message.
+> 
+> Jeffy Chen (4):
+>   mfd: syscon: Set name of regmap_config
+>   rtc: at91sam9: Set name of regmap_config
+>   clk: lpc32xx: Set name of regmap_config
+>   ARM: rockchip: Set name of regmap_config
+> 
+>  arch/arm/mach-rockchip/platsmp.c | 1 +
+>  drivers/clk/nxp/clk-lpc32xx.c    | 1 +
+>  drivers/mfd/syscon.c             | 1 +
 
-ARMv7-R as well, also seems ARM is coming up with more !MMU's - v8-M,
-v8-R. In addition, though only of academic interest, ARM MMU capable
-platform's can run !MMU Linux.
+It's difficult to review, since we cannot see what's happening with
+the rest of the patch set.  Would you mind re-sending the whole set to
+all parties please?
 
-afzal
+>  drivers/rtc/rtc-at91sam9.c       | 1 +
+>  4 files changed, 4 insertions(+)
+> 
 
-> - arch/sh has an open-source J2 core that was added not that long ago,
-> it seems to
->   be the only SH compatible core that anyone is working on.
-> - arch/microblaze supports both MMU/NOMMU modes (most use an MMU)
-> - arch/m68k supports several NOMMU targets, both the coldfire SoCs and the
->   classic processors
-> - c6x has no MMU
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
