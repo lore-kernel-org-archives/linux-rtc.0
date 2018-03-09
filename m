@@ -1,43 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f169.google.com ([74.125.82.169]:38836 "EHLO
-        mail-ot0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752736AbeCXUAD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Mar 2018 16:00:03 -0400
-MIME-Version: 1.0
-In-Reply-To: <53afbe8172fb1afd809ce9ba1afeda924b9ea705.1521794177.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com> <53afbe8172fb1afd809ce9ba1afeda924b9ea705.1521794177.git.sean.wang@mediatek.com>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Sat, 24 Mar 2018 17:00:02 -0300
-Message-ID: <CAOMZO5DuVpcCrQYzoWfN=ZqXeTGC-U1FfwoDFxhQ8frno5-1GQ@mail.gmail.com>
-Subject: Re: [PATCH v1 11/16] rtc: mediatek: move the declaration into a
- globally visible header file
-To: sean.wang@mediatek.com
-Cc: Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Received: from regular1.263xmail.com ([211.150.99.130]:41624 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750930AbeCIIpb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:45:31 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+        Joseph Lo <josephl@nvidia.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        linux-rockchip@lists.infradead.org,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Jeffy Chen <jeffy.chen@rock-chips.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        eddie.huang@mediatek.com,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [RESEND PATCH v4 2/4] rtc: at91sam9: Set name of regmap_config
+Date: Fri,  9 Mar 2018 16:43:49 +0800
+Message-Id: <20180309084351.32009-3-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
+References: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Mar 23, 2018 at 6:15 AM,  <sean.wang@mediatek.com> wrote:
+We are now allowing to register debugfs without a valid device, and not
+having a valid name will end up using "dummy*" to create debugfs dir.
 
-> --- /dev/null
-> +++ b/include/linux/rtc/mt6397.h
-> @@ -0,0 +1,72 @@
-> +
-> +// SPDX-License-Identifier: GPL-2.0
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-According to Documentation/process/license-rules.rst the SPDX notation
-for C header file should be:
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
 
-/* SPDX-License-Identifier: GPL-2.0 */
+Changes in v3: None
+
+ drivers/rtc/rtc-at91sam9.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 7418a763ce52..ee71e647fd43 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
+ };
+ 
+ static const struct regmap_config gpbr_regmap_config = {
++	.name = "gpbr",
+ 	.reg_bits = 32,
+ 	.val_bits = 32,
+ 	.reg_stride = 4,
+-- 
+2.11.0
