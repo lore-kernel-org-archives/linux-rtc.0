@@ -1,111 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:37471 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752633AbeCXTgg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Mar 2018 15:36:36 -0400
-Message-ID: <1521920188.31197.13.camel@mtkswgap22>
-Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
- PMIC RTC
-From: Sean Wang <sean.wang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Sun, 25 Mar 2018 03:36:28 +0800
-In-Reply-To: <20180323101505.GF3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-         <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
-         <20180323094118.GC3417@piout.net> <20180323101505.GF3417@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+Received: from regular1.263xmail.com ([211.150.99.140]:47944 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751723AbeCIBwM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 20:52:12 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-rtc@vger.kernel.org,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        linux-clk@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        Russell King <linux@armlinux.org.uk>,
+        Lee Jones <lee.jones@linaro.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v4 0/4] Set name of regmap_config
+Date: Fri,  9 Mar 2018 09:51:42 +0800
+Message-Id: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 2018-03-23 at 11:15 +0100, Alexandre Belloni wrote:
-> On 23/03/2018 at 10:41:18 +0100, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 23/03/2018 at 17:14:59 +0800, sean.wang@mediatek.com wrote:
-> > > From: Sean Wang <sean.wang@mediatek.com>
-> > > 
-> > > Add device-tree binding for MediaTek PMIC based RTC.
-> > > 
-> > > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > > ---
-> > >  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 39 ++++++++++++++++++++++
-> > >  1 file changed, 39 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > > new file mode 100644
-> > > index 0000000..83ff6be
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > > @@ -0,0 +1,39 @@
-> > > +Device-Tree bindings for MediaTek PMIC based RTC
-> > > +
-> > > +MediaTek PMIC based RTC is an independent function of MediaTek PMIC which
-> > > +is working as a multi-function device (MFD). And the RTC can be configured and
-> > > +set up via PMIC wrapper bus. Which is also common resource shared among the
-> > > +other functions present on the PMIC.
-> > > +
-> > > +For MediaTek PMIC wrapper bus bindings, see:
-> > > +Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-> > > +
-> > > +Required parent node:
-> > > +- pmic
-> > > +  For MediaTek PMIC MFD bindings, see:
-> > > +  Documentation/devicetree/bindings/mfd/mt6397.txt
-> > > +
-> > > +Required properties:
-> > > +- compatible: Should be one of follows
-> > > +	"mediatek,mt6323-rtc": for MT6323 PMIC
-> > > +	"mediatek,mt6397-rtc": for MT6397 PMIC
-> > > +
-> > > +Optional child node:
-> > > +- power-off
-> > > +  For Power-Off Device for MediaTek PMIC RTC bindings, see:
-> > > +  Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> > > +
-> > > +Example:
-> > > +
-> > > +	pmic {
-> > > +		compatible = "mediatek,mt6323";
-> > > +
-> > > +		...
-> > > +		rtc {
-> > > +			compatible = "mediatek,mt6323-rtc";
-> > > +
-> > > +			power-off {
-> > > +				compatible = "mediatek,mt6323-rtc-poweroff";
-> > > +			};
-> > 
-> > I'm pretty sure the whole point of mfd is to avoid having the poweroff
-> > controller under the rtc
-> > 
-> 
-> BTW, I think it is enough to have that documented in only one file (the
-> MFD one is enough)
-> 
 
-just reply both replies in the same mail
+After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
+allowing regmap to create debugfs without a valid device. Some of them
+would end up using "dummy*" as debugfs name.
 
-1.) the power-off device is a part of rtc, use the same registers rtc
-has and thus it is put as child nodes under the node rtc to reflect the
-reality of characteristics the rtc has.
+This series try to set names in some regmap_config to avoid that.
 
-Or am I wrong for a certain aspect in these opinions?
 
-2) the other sub-functions for the same pmic already created its own
-dt-binding document belonged to its corresponding subsystem. Don't we
-really want to follow it them all?
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
 
-> > 
-> > -- 
-> > Alexandre Belloni, Bootlin (formerly Free Electrons)
-> > Embedded Linux and Kernel engineering
-> > https://bootlin.com
-> 
+Changes in v3:
+Modify commit message.
+
+Jeffy Chen (4):
+  mfd: syscon: Set name of regmap_config
+  rtc: at91sam9: Set name of regmap_config
+  clk: lpc32xx: Set name of regmap_config
+  ARM: rockchip: Set name of regmap_config
+
+ arch/arm/mach-rockchip/platsmp.c | 1 +
+ drivers/clk/nxp/clk-lpc32xx.c    | 1 +
+ drivers/mfd/syscon.c             | 1 +
+ drivers/rtc/rtc-at91sam9.c       | 1 +
+ 4 files changed, 4 insertions(+)
+
+-- 
+2.11.0
