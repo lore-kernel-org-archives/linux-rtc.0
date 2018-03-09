@@ -1,62 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:39333 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752014AbeCWJPb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:31 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 13/16] rtc: mediatek: update license converting to using SPDX identifiers
-Date: Fri, 23 Mar 2018 17:15:10 +0800
-Message-ID: <86450fc8dcc53c658e97ac739aac2bf7d1f94b64.1521794177.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from regular1.263xmail.com ([211.150.99.140]:48080 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751723AbeCIBwc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 20:52:32 -0500
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-rtc@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v4 2/4] rtc: at91sam9: Set name of regmap_config
+Date: Fri,  9 Mar 2018 09:51:44 +0800
+Message-Id: <20180309015146.8297-3-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
+References: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+We are now allowing to register debugfs without a valid device, and not
+having a valid name will end up using "dummy*" to create debugfs dir.
 
-Update the license and as well convert to using SPDX identifiers.
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 ---
- drivers/rtc/rtc-mt6397.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index f5dc70d..ad336a4 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -1,16 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
--* Copyright (c) 2014-2015 MediaTek Inc.
--* Author: Tianping.Fang <tianping.fang@mediatek.com>
--*
--* This program is free software; you can redistribute it and/or modify
--* it under the terms of the GNU General Public License version 2 as
--* published by the Free Software Foundation.
--*
--* This program is distributed in the hope that it will be useful,
--* but WITHOUT ANY WARRANTY; without even the implied warranty of
--* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--* GNU General Public License for more details.
--*/
-+ * MediaTek PMIC RTC driver
-+ *
-+ * Copyright (C) 2014-2018 MediaTek Inc.
-+ *
-+ * Author: Tianping.Fang <tianping.fang@mediatek.com>
-+ *	   Sean Wang <sean.wang@mediatek.com>
-+ */
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
+
+Changes in v3: None
+
+ drivers/rtc/rtc-at91sam9.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 7418a763ce52..ee71e647fd43 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
+ };
  
- #include <linux/err.h>
- #include <linux/interrupt.h>
+ static const struct regmap_config gpbr_regmap_config = {
++	.name = "gpbr",
+ 	.reg_bits = 32,
+ 	.val_bits = 32,
+ 	.reg_stride = 4,
 -- 
-2.7.4
+2.11.0
