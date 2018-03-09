@@ -1,66 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:25311 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751699AbeCXHOS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Mar 2018 03:14:18 -0400
-Message-ID: <1521875652.28226.29.camel@mtkswgap22>
-Subject: Re: [PATCH v1 06/16] rtc: mediatek: remove unnecessary parentheses
-From: Sean Wang <sean.wang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Sat, 24 Mar 2018 15:14:12 +0800
-In-Reply-To: <20180323102123.GG3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-         <92d07e90f43899981a82fbc684c3d15aaecaf591.1521794177.git.sean.wang@mediatek.com>
-         <20180323102123.GG3417@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from regular1.263xmail.com ([211.150.99.132]:37645 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752201AbeCIIqu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:46:50 -0500
+Message-ID: <5AA249BC.6020705@rock-chips.com>
+Date: Fri, 09 Mar 2018 16:45:48 +0800
+From: JeffyChen <jeffy.chen@rock-chips.com>
 MIME-Version: 1.0
+To: Lee Jones <lee.jones@linaro.org>
+CC: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        linux-clk@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        Russell King <linux@armlinux.org.uk>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 0/4] Set name of regmap_config
+References: <20180309015146.8297-1-jeffy.chen@rock-chips.com> <20180309081603.4u5pgwwsfxernodm@dell>
+In-Reply-To: <20180309081603.4u5pgwwsfxernodm@dell>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 2018-03-23 at 11:21 +0100, Alexandre Belloni wrote:
-> On 23/03/2018 at 17:15:03 +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > Remove unnecessary parentheses due to explicit C operator precedence.
-> > 
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > ---
-> >  drivers/rtc/rtc-mt6397.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> > index 0df7ccd..4411c08 100644
-> > --- a/drivers/rtc/rtc-mt6397.c
-> > +++ b/drivers/rtc/rtc-mt6397.c
-> > @@ -106,7 +106,7 @@ static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
-> >  	int ret;
-> >  
-> >  	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_STA, &irqsta);
-> > -	if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
-> > +	if (ret >= 0 && irqsta & RTC_IRQ_STA_AL) {
-> 
-> I don't think this makes the code particularly clearer.
-> 
+Hi Lee,
 
-But it is still a one of check items in checkpatch
+Thanks for your reply.
 
-CHECK:UNNECESSARY_PARENTHESES: Unnecessary parentheses around 'ret >= 0'
-#126: FILE: drivers/rtc/rtc-xxx.c:109:
-+       if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
+On 03/09/2018 04:16 PM, Lee Jones wrote:
+>> >
+>> >Jeffy Chen (4):
+>> >   mfd: syscon: Set name of regmap_config
+>> >   rtc: at91sam9: Set name of regmap_config
+>> >   clk: lpc32xx: Set name of regmap_config
+>> >   ARM: rockchip: Set name of regmap_config
+>> >
+>> >  arch/arm/mach-rockchip/platsmp.c | 1 +
+>> >  drivers/clk/nxp/clk-lpc32xx.c    | 1 +
+>> >  drivers/mfd/syscon.c             | 1 +
+> It's difficult to review, since we cannot see what's happening with
+> the rest of the patch set.  Would you mind re-sending the whole set to
+> all parties please?
+sure, i can do that :)
 
-
-or we still want to keep it in parentheses around here?
-
-> >  		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
-> >  		irqen = irqsta & ~RTC_IRQ_EN_AL;
-> >  		mutex_lock(&rtc->lock);
-> > -- 
-> > 2.7.4
-> > 
-> 
+>
