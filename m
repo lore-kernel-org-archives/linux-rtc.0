@@ -1,95 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:34109 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752221AbeC2NEG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Mar 2018 09:04:06 -0400
-Received: by mail-wr0-f195.google.com with SMTP id o8so5357355wra.1
-        for <linux-rtc@vger.kernel.org>; Thu, 29 Mar 2018 06:04:06 -0700 (PDT)
-Date: Thu, 29 Mar 2018 14:04:02 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it,
-        devicetree@vger.kernel.org, linus.walleij@linaro.org,
-        jcsing.lee@samsung.com, linux-kernel@vger.kernel.org,
-        krzk@kernel.org, javier@osg.samsung.com,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-        eddie.huang@mediatek.com, beomho.seo@samsung.com,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Message-ID: <20180329130402.6fp7nofyp6iesmbv@dell>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
- <1521685073.28226.10.camel@mtkswgap22>
- <20180323185418.GD255819@dtor-ws>
- <20180327080507.pgil6pw2mn4y2f4d@dell>
- <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
- <20180328102640.yx6nv5abfexmouuf@dell>
- <1522290675.17084.8.camel@mhfsdcap03>
+Received: from gateway20.websitewelcome.com ([192.185.48.38]:39095 "EHLO
+        gateway20.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750735AbeCJGsH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 10 Mar 2018 01:48:07 -0500
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway20.websitewelcome.com (Postfix) with ESMTP id 00661400CF728
+        for <linux-rtc@vger.kernel.org>; Sat, 10 Mar 2018 00:27:04 -0600 (CST)
+Date: Sat, 10 Mar 2018 00:27:02 -0600
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Sangbeom Kim <sbkim73@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Lee Jones <lee.jones@linaro.org>
+Cc: linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH 0/2] Remove VLA usage in rtc-s5m
+Message-ID: <cover.1520660422.git.gustavo@embeddedor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1522290675.17084.8.camel@mhfsdcap03>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 29 Mar 2018, Chen Zhong wrote:
+This patchset aims to remove VLA usage from rtc-s5m.
 
-> On Wed, 2018-03-28 at 11:26 +0100, Lee Jones wrote:
-> > On Tue, 27 Mar 2018, Matthias Brugger wrote:
-> > 
-> > > 
-> > > 
-> > > On 03/27/2018 10:05 AM, Lee Jones wrote:
-> > > > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
-> > > >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
-> > > >>> Hi, Dmitry and Lee
-> > > >>>
-> > > >>> The series seems not being got merged. Are they good enough to be ready
-> > > >>> into the your tree?
-> > > >>>
-> > > >>> Recently I've tested the series with focusing on pwrkey event generated
-> > > >>> through interrupt when push and release the key on bpi-r2 board and then
-> > > >>> finally it's working fine. but for homekey it cannot be found on the
-> > > >>> board and thus I cannot have more tests more about it.
-> > > >>>
-> > > >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
-> > > >>
-> > > >> You have my Ack on the input patch; I expect it go through Lee's tree as
-> > > >> there are some dependencies on mfd core piece.
-> > > > 
-> > > > Are you happy for me to merge the Input dt-bindings without your Ack?
-> > > > 
-> > > 
-> > > They got both Acked in v5, but the commit message was not updated:
-> > > https://patchwork.kernel.org/patch/9973721/
-> > > https://patchwork.kernel.org/patch/9973723/
-> > 
-> > Thanks Matthias.
-> > 
-> > Chen, can you collect all the Acks and repost as a RESEND please?
-> > 
-> 
-> Thanks Matthias, Lee, Dmitry and Sean for your comments.
-> 
-> Hi Lee,
-> 
-> I have collected the Acks by Rob and sent the v6:
-> https://patchwork.kernel.org/patch/10026705
-> https://patchwork.kernel.org/patch/10026707
-> 
-> Are they enough to be merged?
+The first patch moves an enum from rtc.h to rtc-s5m.c, as this is the
+only driver in which such enum is actually being used [1].
 
-Oh, I see.
+The second patch adds the enum name RTC_MAX_NUM_TIME_REGS, which will
+be used as a maximum length to the current VLAs, hence turning them
+into fixed-length arrays instead.
 
-I was asking about Dmitry's Ack.
+[1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+
+Thanks
+
+Gustavo A. R. Silva (2):
+  rtc: s5m: move enum from rtc.h to rtc-s5m.c
+  rtc: s5m: Remove VLA usage
+
+ drivers/rtc/rtc-s5m.c           | 25 +++++++++++++++++++------
+ include/linux/mfd/samsung/rtc.h | 11 -----------
+ 2 files changed, 19 insertions(+), 17 deletions(-)
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.7.4
