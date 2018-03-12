@@ -1,37 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38184 "EHLO mail.bootlin.com"
+Received: from mail.kernel.org ([198.145.29.99]:57826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753755AbeCFOuw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Mar 2018 09:50:52 -0500
-Date: Tue, 6 Mar 2018 15:50:50 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Mohit Aggarwal <maggarwa@codeaurora.org>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] rtc-pm8xxx: Fix issue in RTC write path
-Message-ID: <20180306145050.GV3035@piout.net>
-References: <1520240758-9837-1-git-send-email-maggarwa@codeaurora.org>
+        id S1751229AbeCLLOH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 12 Mar 2018 07:14:07 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1520240758-9837-1-git-send-email-maggarwa@codeaurora.org>
+In-Reply-To: <543a0a74122172acae549329b35964f402da8b77.1520660422.git.gustavo@embeddedor.com>
+References: <cover.1520660422.git.gustavo@embeddedor.com> <543a0a74122172acae549329b35964f402da8b77.1520660422.git.gustavo@embeddedor.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Mon, 12 Mar 2018 12:14:04 +0100
+Message-ID: <CAJKOXPc3ELO9sX0Xp391D2_3uDHK91snzHDn6FmDrJ6dt3E_Zg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] rtc: s5m: Remove VLA usage
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Sangbeom Kim <sbkim73@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 05/03/2018 at 14:35:58 +0530, Mohit Aggarwal wrote:
-> In order to set time in rtc, need to disable
-> rtc hw before writing into rtc registers.
-> 
-> Also fixes disabling of alarm while setting
-> rtc time.
-> 
-> Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
+On Sat, Mar 10, 2018 at 7:27 AM, Gustavo A. R. Silva
+<gustavo@embeddedor.com> wrote:
+> In preparation to enabling -Wvla, remove VLAs and replace them
+> with fixed-length arrays instead.
+>
+> From a security viewpoint, the use of Variable Length Arrays can be
+> a vector for stack overflow attacks. Also, in general, as the code
+> evolves it is easy to lose track of how big a VLA can get. Thus, we
+> can end up having segfaults that are hard to debug.
+>
+> Also, fixed as part of the directive to remove all VLAs from
+> the kernel: https://lkml.org/lkml/2018/3/7/621
+>
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 > ---
->  drivers/rtc/rtc-pm8xxx.c | 49 +++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 38 insertions(+), 11 deletions(-)
-> 
-Applied, thanks.
+>  drivers/rtc/rtc-s5m.c | 14 ++++++++------
+>  1 file changed, 8 insertions(+), 6 deletions(-)
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+
+Best regards,
+Krzysztof
