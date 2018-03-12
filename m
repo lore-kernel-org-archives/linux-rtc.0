@@ -1,53 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:54265 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S964848AbeCSXse (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 19 Mar 2018 19:48:34 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/6] rtc: st-lpc: remove artificial limitation
-Date: Tue, 20 Mar 2018 00:48:15 +0100
-Message-Id: <20180319234817.16199-4-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
-References: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+Received: from regular1.263xmail.com ([211.150.99.140]:43008 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752362AbeCLJwe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 05:52:34 -0400
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+        Joseph Lo <josephl@nvidia.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        lee.jones@linaro.org, Emil Renner Berthing <kernel@esmil.dk>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        linux-rockchip@lists.infradead.org,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Jeffy Chen <jeffy.chen@rock-chips.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH v5 2/4] rtc: at91sam9: Set name of regmap_config
+Date: Mon, 12 Mar 2018 17:51:40 +0800
+Message-Id: <20180312095142.30854-3-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
+References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The LPC RTC supports dates way beyond 2038, don't limit it artificially as
-the kernel handles dates after 2038 properly.
+We are now allowing to register debugfs without a valid device, and not
+having a valid name will end up using "dummy*" to create debugfs dir.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 ---
- drivers/rtc/rtc-st-lpc.c | 15 ---------------
- 1 file changed, 15 deletions(-)
 
-diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-index 82b0af159a28..dcdd2b0a58f7 100644
---- a/drivers/rtc/rtc-st-lpc.c
-+++ b/drivers/rtc/rtc-st-lpc.c
-@@ -254,21 +254,6 @@ static int st_rtc_probe(struct platform_device *pdev)
+Changes in v5: None
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
+
+Changes in v3: None
+
+ drivers/rtc/rtc-at91sam9.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 7418a763ce52..ee71e647fd43 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
+ };
  
- 	platform_set_drvdata(pdev, rtc);
- 
--	/*
--	 * The RTC-LPC is able to manage date.year > 2038
--	 * but currently the kernel can not manage this date!
--	 * If the RTC-LPC has a date.year > 2038 then
--	 * it's set to the epoch "Jan 1st 2000"
--	 */
--	st_rtc_read_time(&pdev->dev, &tm_check);
--
--	if (tm_check.tm_year >=  (2038 - 1900)) {
--		memset(&tm_check, 0, sizeof(tm_check));
--		tm_check.tm_year = 100;
--		tm_check.tm_mday = 1;
--		st_rtc_set_time(&pdev->dev, &tm_check);
--	}
--
- 	rtc->rtc_dev = rtc_device_register("st-lpc-rtc", &pdev->dev,
- 					   &st_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(rtc->rtc_dev)) {
+ static const struct regmap_config gpbr_regmap_config = {
++	.name = "gpbr",
+ 	.reg_bits = 32,
+ 	.val_bits = 32,
+ 	.reg_stride = 4,
 -- 
-2.16.2
+2.11.0
