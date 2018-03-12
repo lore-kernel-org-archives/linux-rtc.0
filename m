@@ -1,55 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:50718 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751213AbeC2Bxq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Mar 2018 21:53:46 -0400
-Received: by mail-wm0-f45.google.com with SMTP id l201so8020271wmg.0
-        for <linux-rtc@vger.kernel.org>; Wed, 28 Mar 2018 18:53:46 -0700 (PDT)
-Subject: Re: [RESEND] rtc: snvs: Fix usage of snvs_rtc_enable
-To: Trent Piepho <tpiepho@impinj.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>
-Cc: "shawn.guo@linaro.org" <shawn.guo@linaro.org>,
-        "stefan@agner.ch" <stefan@agner.ch>,
-        "bianpan2016@163.com" <bianpan2016@163.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "guy.shapiro@mobi-wize.com" <guy.shapiro@mobi-wize.com>,
-        "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
- <1522282337.10662.268.camel@impinj.com>
-From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Message-ID: <f380bc29-c8dd-5c20-efc4-ffc0ad69b8d6@nexus-software.ie>
-Date: Thu, 29 Mar 2018 02:53:44 +0100
-MIME-Version: 1.0
-In-Reply-To: <1522282337.10662.268.camel@impinj.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from regular1.263xmail.com ([211.150.99.133]:41730 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751277AbeCLJwM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 05:52:12 -0400
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+To: linux-kernel@vger.kernel.org, broonie@kernel.org,
+        alexandre.belloni@bootlin.com
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+        Joseph Lo <josephl@nvidia.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        lee.jones@linaro.org, Emil Renner Berthing <kernel@esmil.dk>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        linux-rockchip@lists.infradead.org,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Jeffy Chen <jeffy.chen@rock-chips.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arvind Yadav <arvind.yadav.cs@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Gabriel Fernandez <gabriel.fernandez@st.com>,
+        linux-clk@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Vladimir Zapolskiy <vz@mleia.com>
+Subject: [PATCH v5 0/4] Set name of regmap_config
+Date: Mon, 12 Mar 2018 17:51:38 +0800
+Message-Id: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 29/03/18 01:12, Trent Piepho wrote:
 
-> I sent a patch a couple weeks ago that addressed a similar issue, see
-> https://patchwork.ozlabs.org/patch/887090/
-> 
-> Does this also fix the problem you see?
+After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
+allowing regmap to create debugfs without a valid device. Some of them
+would end up using "dummy*" as debugfs name.
 
-It breaks the endless loop that happens later on in the RTC read path.
+This series try to set names in some regmap_config to avoid that.
 
-This patch though is about fixing the bug with not handling the enable 
-of the snvs_rtc_enable() correctly, which is why it should be applied.
 
-The right flow is to handle the error on snvs_rtc_enable() as soon as it 
-happens as opposed wait for read() to -ETIMEDOUT.
+Changes in v5:
+CC lee.jones@linaro.org
 
-> I think what you've done will prevent the driver from loading if the
-> clock is not working, but if the clock does not tick properly after
-> loading, there are still points (snvs_rtc_read_time for one) that will
-> lock up in the kernel.
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
 
-I'll dig out your patch and give it a review.
+Changes in v3:
+Modify commit message.
 
----
-bod
+Jeffy Chen (4):
+  mfd: syscon: Set name of regmap_config
+  rtc: at91sam9: Set name of regmap_config
+  clk: lpc32xx: Set name of regmap_config
+  ARM: rockchip: Set name of regmap_config
+
+ arch/arm/mach-rockchip/platsmp.c | 1 +
+ drivers/clk/nxp/clk-lpc32xx.c    | 1 +
+ drivers/mfd/syscon.c             | 1 +
+ drivers/rtc/rtc-at91sam9.c       | 1 +
+ 4 files changed, 4 insertions(+)
+
+-- 
+2.11.0
