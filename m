@@ -1,75 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:43227 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751182AbeC1DxX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Mar 2018 23:53:23 -0400
-Message-ID: <1522209197.18424.26.camel@mtkswgap22>
-Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
- PMIC RTC
-From: Sean Wang <sean.wang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Wed, 28 Mar 2018 11:53:17 +0800
-In-Reply-To: <20180327151848.GD22441@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-         <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
-         <20180323094118.GC3417@piout.net> <20180323101505.GF3417@piout.net>
-         <1521920188.31197.13.camel@mtkswgap22> <20180327151848.GD22441@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.bootlin.com ([62.4.15.54]:60346 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751352AbeCMAfz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 12 Mar 2018 20:35:55 -0400
+Date: Tue, 13 Mar 2018 01:35:40 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Sangbeom Kim <sbkim73@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: Re: [PATCH 0/2] Remove VLA usage in rtc-s5m
+Message-ID: <20180313003540.GF3795@piout.net>
+References: <cover.1520660422.git.gustavo@embeddedor.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <cover.1520660422.git.gustavo@embeddedor.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2018-03-27 at 17:18 +0200, Alexandre Belloni wrote:
-> On 25/03/2018 at 03:36:28 +0800, Sean Wang wrote:
-> > just reply both replies in the same mail
-> > 
-> > 1.) the power-off device is a part of rtc, use the same registers rtc
-> > has and thus it is put as child nodes under the node rtc to reflect the
-> > reality of characteristics the rtc has.
-> > 
-> > Or am I wrong for a certain aspect in these opinions?
-> > 
+Hi,
+
+On 10/03/2018 at 00:27:02 -0600, Gustavo A. R. Silva wrote:
+> This patchset aims to remove VLA usage from rtc-s5m.
 > 
-> My point is that it is also part of the PMIC so it may as well be
-> registers from the mfd driver which already registers a bunch of devices
-> instead of doing unusual stuff from the rtc driver.
+> The first patch moves an enum from rtc.h to rtc-s5m.c, as this is the
+> only driver in which such enum is actually being used [1].
 > 
-> mt6397_rtc->regmap is mt6397_chip->regmap anyway. You have the added
-> benefit that if the RTC driver probe fails for some reason, you may
-> still be able to probe the reset driver.
+> The second patch adds the enum name RTC_MAX_NUM_TIME_REGS, which will
+> be used as a maximum length to the current VLAs, hence turning them
+> into fixed-length arrays instead.
 > 
-> I don't tink there is any benefit having it as a child of the rtc
-> device.
+> [1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+> 
+> Thanks
+> 
+> Gustavo A. R. Silva (2):
+>   rtc: s5m: move enum from rtc.h to rtc-s5m.c
+>   rtc: s5m: Remove VLA usage
 > 
 
+Both applied, thanks.
 
-really thanks! it's an optional solution I thought it 's fine and worth
-doing
-
-but so far I cannot fully make sure of whether mfd can accept two
-devices holding overlay IORESOURCE_MEM.
-
-Or do you like Rob's suggestion in [1] ? By which, I tend to embed a
-sub-device with platform_device_register_data api in the rtc probe()
-instead of treating it as a dt node under rtc node, but which seems
-something a bit violates your preferences :(
-
-Just confirm to know which way I should step into before I produce next
-version.
-
-[1]
-http://lists.infradead.org/pipermail/linux-mediatek/2018-March/012576.html
-
-> > 2) the other sub-functions for the same pmic already created its own
-> > dt-binding document belonged to its corresponding subsystem. Don't we
-> > really want to follow it them all?
-> > 
-> 
-> Ok, that's fine.
-> 
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
