@@ -1,118 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway30.websitewelcome.com ([50.116.127.1]:45484 "EHLO
-        gateway30.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933415AbeCGX35 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 18:29:57 -0500
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
-        by gateway30.websitewelcome.com (Postfix) with ESMTP id 73703107BF
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 17:09:26 -0600 (CST)
-Subject: Re: [PATCH] rtc: remove VLA usage
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+Received: from gateway31.websitewelcome.com ([192.185.143.46]:32504 "EHLO
+        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932523AbeCMDmt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 23:42:49 -0400
+Received: from cm15.websitewelcome.com (cm15.websitewelcome.com [100.42.49.9])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 7568D36539
+        for <linux-rtc@vger.kernel.org>; Mon, 12 Mar 2018 22:22:13 -0500 (CDT)
+Subject: Re: [PATCH 1/2] rtc: s5m: Move enum from rtc.h to rtc-s5m.c
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Sangbeom Kim <sbkim73@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180307201133.GA5860@embeddedgus>
- <20180307212506.GO3035@piout.net>
- <3e8e1515-0f0e-73d4-72eb-3a2a2fbf04e9@embeddedor.com>
- <20180307230136.GB20370@piout.net>
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Message-ID: <b41ed6bc-7f8b-031c-84a8-ec857b165ca0@embeddedor.com>
-Date: Wed, 7 Mar 2018 17:09:22 -0600
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+References: <cover.1520660422.git.gustavo@embeddedor.com>
+ <44ee5bd5053d579dc6c46b21e2ef8f6acf70e4ce.1520660422.git.gustavo@embeddedor.com>
+ <CAJKOXPdTgYRGvj99dYroY_6AvZD0KOV5yj+LUVNHWs7XUw8QsA@mail.gmail.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Message-ID: <44a4a527-1756-e3de-92e4-c47a8a0c433b@embeddedor.com>
+Date: Mon, 12 Mar 2018 22:22:10 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180307230136.GB20370@piout.net>
+In-Reply-To: <CAJKOXPdTgYRGvj99dYroY_6AvZD0KOV5yj+LUVNHWs7XUw8QsA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 
 
-On 03/07/2018 05:01 PM, Alexandre Belloni wrote:
-> On 07/03/2018 at 16:39:51 -0600, Gustavo A. R. Silva wrote:
->> Hi Alexandre,
+On 03/11/2018 11:39 AM, Krzysztof Kozlowski wrote:
+> On Sat, Mar 10, 2018 at 7:27 AM, Gustavo A. R. Silva
+> <gustavo@embeddedor.com> wrote:
+>> Move this enum to rtc-s5m.c once it is meaningless to others drivers [1].
 >>
->> On 03/07/2018 03:25 PM, Alexandre Belloni wrote:
->>> On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
->>>> In preparation to enabling -Wvla, remove VLA and replace it
->>>> with a fixed-length array instead.
->>>>
->>> You should probably explain what VLA is and why this is important to do.
->> Sure. I can elaborate a little bit more.
->>
->>>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->>>> ---
->>>>    drivers/rtc/rtc-bq32k.c  | 2 +-
->>>>    drivers/rtc/rtc-mcp795.c | 2 +-
->>>>    2 files changed, 2 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
->>>> index e8698e9..e4b234a 100644
->>>> --- a/drivers/rtc/rtc-bq32k.c
->>>> +++ b/drivers/rtc/rtc-bq32k.c
->>>> @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
->>>>    static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
->>>>    {
->>>>    	struct i2c_client *client = to_i2c_client(dev);
->>>> -	uint8_t buffer[len + 1];
->>>> +	uint8_t buffer[256];
->>> You chose to change len to 255, probably because this is a uint8_t but
->> Correct.
->>
->>> this is way too much for this rtc, it only has 10 consecutive registers.
->> In that case probably the best solution is to add the following line to the
->> module:
->>
->> #define MAX_LEN 10
->>
->> and update the rest of the code as follows:
->>
->> uint8_t buffer[MAX_LEN + 1];
->>
-> Seems better, yes.
->
->>>>    	buffer[0] = off;
->>>>    	memcpy(&buffer[1], data, len);
->>>> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
->>>> index 79e24ea..00e11c1 100644
->>>> --- a/drivers/rtc/rtc-mcp795.c
->>>> +++ b/drivers/rtc/rtc-mcp795.c
->>>> @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
->>>>    {
->>>>    	struct spi_device *spi = to_spi_device(dev);
->>>>    	int ret;
->>>> -	u8 tx[2 + count];
->>>> +	u8 tx[257];
->> For this particular case it seems to me that the following works just fine:
->>
->> #define MAX_COUNT 7
->>
->> u8 tx[MAX_COUNT + 2];
->>
->> What do you think?
->>
-> Nope, that RTC has a section of 255 bytes that could be read at once so
-> 257 is the correct value.
->
+>> [1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+> 
+> Instead of external link (which might or might not work soon) you can
+> just put "Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>".
+> 
 
-I see...
+I got it.
+I'll do that next time.
 
-I was looking into this piece of code drivers/rtc/rtc-mcp795.c:302:
+> Anyway:
+> Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+> 
 
-         tmp[0] = (tmp[0] & 0x80) | bin2bcd(alm->time.tm_sec);
-         tmp[1] = (tmp[1] & 0x80) | bin2bcd(alm->time.tm_min);
-         tmp[2] = (tmp[2] & 0xE0) | bin2bcd(alm->time.tm_hour);
-         tmp[3] = (tmp[3] & 0x80) | bin2bcd(alm->time.tm_wday + 1);
-         /* set alarm match: seconds, minutes, hour, day, date and month */
-         tmp[3] |= (MCP795_ALM0C2_BIT | MCP795_ALM0C1_BIT | 
-MCP795_ALM0C0_BIT);
-         tmp[4] = (tmp[4] & 0xC0) | bin2bcd(alm->time.tm_mday);
-         tmp[5] = (tmp[5] & 0xE0) | bin2bcd(alm->time.tm_mon + 1);
-
-         ret = mcp795_rtcc_write(dev, MCP795_REG_ALM0_SECONDS, tmp, 
-sizeof(tmp));
-
-
-OK. I'll work on v2 of this patch. I'll send it shortly.
-
-Thanks
+Thanks for reviewing it.
 --
 Gustavo
