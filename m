@@ -1,98 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:41116 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:60459 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933440AbeCWKPS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 23 Mar 2018 06:15:18 -0400
-Date: Fri, 23 Mar 2018 11:15:05 +0100
+        id S1751390AbeCMAlP (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 12 Mar 2018 20:41:15 -0400
+Date: Tue, 13 Mar 2018 01:41:01 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: sean.wang@mediatek.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
- PMIC RTC
-Message-ID: <20180323101505.GF3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
- <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
- <20180323094118.GC3417@piout.net>
+To: Michael McCormick <michael.mccormick@enatel.net>
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcf85063 was not clearing bits correctly in
+ pcf85063_start_clock
+Message-ID: <20180313004101.GH3795@piout.net>
+References: <20180221222924.GA11756@michael-virtual-machine>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180323094118.GC3417@piout.net>
+In-Reply-To: <20180221222924.GA11756@michael-virtual-machine>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 23/03/2018 at 10:41:18 +0100, Alexandre Belloni wrote:
-> Hi,
+On 22/02/2018 at 11:29:24 +1300, Michael McCormick wrote:
+> Bit clear operation was missing ~
 > 
-> On 23/03/2018 at 17:14:59 +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > Add device-tree binding for MediaTek PMIC based RTC.
-> > 
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > ---
-> >  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 39 ++++++++++++++++++++++
-> >  1 file changed, 39 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > new file mode 100644
-> > index 0000000..83ff6be
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> > @@ -0,0 +1,39 @@
-> > +Device-Tree bindings for MediaTek PMIC based RTC
-> > +
-> > +MediaTek PMIC based RTC is an independent function of MediaTek PMIC which
-> > +is working as a multi-function device (MFD). And the RTC can be configured and
-> > +set up via PMIC wrapper bus. Which is also common resource shared among the
-> > +other functions present on the PMIC.
-> > +
-> > +For MediaTek PMIC wrapper bus bindings, see:
-> > +Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-> > +
-> > +Required parent node:
-> > +- pmic
-> > +  For MediaTek PMIC MFD bindings, see:
-> > +  Documentation/devicetree/bindings/mfd/mt6397.txt
-> > +
-> > +Required properties:
-> > +- compatible: Should be one of follows
-> > +	"mediatek,mt6323-rtc": for MT6323 PMIC
-> > +	"mediatek,mt6397-rtc": for MT6397 PMIC
-> > +
-> > +Optional child node:
-> > +- power-off
-> > +  For Power-Off Device for MediaTek PMIC RTC bindings, see:
-> > +  Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> > +
-> > +Example:
-> > +
-> > +	pmic {
-> > +		compatible = "mediatek,mt6323";
-> > +
-> > +		...
-> > +		rtc {
-> > +			compatible = "mediatek,mt6323-rtc";
-> > +
-> > +			power-off {
-> > +				compatible = "mediatek,mt6323-rtc-poweroff";
-> > +			};
+> Signed-off-by: Michael McCormick <michael.mccormick@enatel.net>
+> ---
+>  drivers/rtc/rtc-pcf85063.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> I'm pretty sure the whole point of mfd is to avoid having the poweroff
-> controller under the rtc
-> 
-
-BTW, I think it is enough to have that documented in only one file (the
-MFD one is enough)
-
-> 
-> -- 
-> Alexandre Belloni, Bootlin (formerly Free Electrons)
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
