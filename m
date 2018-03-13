@@ -1,53 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38578 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932448AbeCFO4E (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Mar 2018 09:56:04 -0500
-Date: Tue, 6 Mar 2018 15:56:02 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, zyw@rock-chips.com,
-        briannorris@google.com, dianders@google.com, jwerner@chromium.org,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [RESEND PATCH v3] rtc: cros-ec: return -ETIME when refused to
- set alarms in the past
-Message-ID: <20180306145602.GA3035@piout.net>
-References: <20180227025003.8823-1-jeffy.chen@rock-chips.com>
+Received: from gateway21.websitewelcome.com ([192.185.45.155]:36711 "EHLO
+        gateway21.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932331AbeCMBRm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 21:17:42 -0400
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway21.websitewelcome.com (Postfix) with ESMTP id A1B7C400D5AB3
+        for <linux-rtc@vger.kernel.org>; Mon, 12 Mar 2018 20:17:41 -0500 (CDT)
+Subject: Re: [PATCH 0/2] Remove VLA usage in rtc-s5m
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Sangbeom Kim <sbkim73@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+References: <cover.1520660422.git.gustavo@embeddedor.com>
+ <20180313003540.GF3795@piout.net>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Message-ID: <4323fb5d-0b26-441f-3d7b-3008108f20e0@embeddedor.com>
+Date: Mon, 12 Mar 2018 20:17:39 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180227025003.8823-1-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180313003540.GF3795@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 27/02/2018 at 10:50:03 +0800, Jeffy Chen wrote:
-> Since accessing a Chrome OS EC based rtc is a slow operation, there is a
-> race window where if the alarm is set for the next second and the second
-> ticks over right before calculating the alarm offset.
-> 
-> In this case the current driver is setting a 0-second alarm, which would
-> be considered as disabling alarms by the EC(EC_RTC_ALARM_CLEAR).
-> 
-> This breaks, e.g., hwclock which relies on RTC_UIE_ON ->
-> rtc_update_irq_enable(), which sets a 1-second alarm and expects it to
-> fire an interrupt.
-> 
-> So return -ETIME when the alarm is in the past, follow __rtc_set_alarm().
-> 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
-> 
-> Changes in v3:
-> Fix alarm time comparing.
-> 
-> Changes in v2:
-> Rewrite commit message as Brian suggested.
-> Check alarm time only when that alarm is enabled.
-> 
->  drivers/rtc/rtc-cros-ec.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-Applied, thanks.
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+
+On 03/12/2018 07:35 PM, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 10/03/2018 at 00:27:02 -0600, Gustavo A. R. Silva wrote:
+>> This patchset aims to remove VLA usage from rtc-s5m.
+>>
+>> The first patch moves an enum from rtc.h to rtc-s5m.c, as this is the
+>> only driver in which such enum is actually being used [1].
+>>
+>> The second patch adds the enum name RTC_MAX_NUM_TIME_REGS, which will
+>> be used as a maximum length to the current VLAs, hence turning them
+>> into fixed-length arrays instead.
+>>
+>> [1] https://marc.info/?l=linux-rtc&m=152060068925948&w=2
+>>
+>> Thanks
+>>
+>> Gustavo A. R. Silva (2):
+>>    rtc: s5m: move enum from rtc.h to rtc-s5m.c
+>>    rtc: s5m: Remove VLA usage
+>>
+> 
+> Both applied, thanks.
+> 
+
+Awesome.
+
+Thank you.
+--
+Gustavo
