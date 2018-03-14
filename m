@@ -1,77 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.133]:41730 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751277AbeCLJwM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Mar 2018 05:52:12 -0400
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-To: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-        Joseph Lo <josephl@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        lee.jones@linaro.org, Emil Renner Berthing <kernel@esmil.dk>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        linux-rockchip@lists.infradead.org,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Jeffy Chen <jeffy.chen@rock-chips.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        linux-clk@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Vladimir Zapolskiy <vz@mleia.com>
-Subject: [PATCH v5 0/4] Set name of regmap_config
-Date: Mon, 12 Mar 2018 17:51:38 +0800
-Message-Id: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
+Received: from userp2130.oracle.com ([156.151.31.86]:33730 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750934AbeCNHo1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Mar 2018 03:44:27 -0400
+Date: Wed, 14 Mar 2018 10:37:19 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Patrick Bruenn <p.bruenn@beckhoff.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [PATCH] rtc: mxc_v2: unlock on error in mxc_rtc_set_alarm()
+Message-ID: <20180314073719.GA2470@mwanda>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+We need to unlock if time is more than U32_MAX.
 
-After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
-allowing regmap to create debugfs without a valid device. Some of them
-would end up using "dummy*" as debugfs name.
+Fixes: 83c880f79e88 ("rtc: add mxc driver for i.MX53 SRTC")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-This series try to set names in some regmap_config to avoid that.
-
-
-Changes in v5:
-CC lee.jones@linaro.org
-
-Changes in v4:
-Not to use rtc dev to init regmap, the gpbr is not directly related to
-the rtc.
-
-Changes in v3:
-Modify commit message.
-
-Jeffy Chen (4):
-  mfd: syscon: Set name of regmap_config
-  rtc: at91sam9: Set name of regmap_config
-  clk: lpc32xx: Set name of regmap_config
-  ARM: rockchip: Set name of regmap_config
-
- arch/arm/mach-rockchip/platsmp.c | 1 +
- drivers/clk/nxp/clk-lpc32xx.c    | 1 +
- drivers/mfd/syscon.c             | 1 +
- drivers/rtc/rtc-at91sam9.c       | 1 +
- 4 files changed, 4 insertions(+)
-
--- 
-2.11.0
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 9e14efb990b2..90c9ab68688f 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -243,12 +243,14 @@ static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	const time64_t time = rtc_tm_to_time64(&alrm->time);
+ 	struct mxc_rtc_data *pdata = dev_get_drvdata(dev);
+-	int ret = mxc_rtc_lock(pdata);
++	int ret;
+ 
++	ret = mxc_rtc_lock(pdata);
+ 	if (ret)
+ 		return ret;
+ 
+ 	if (time > U32_MAX) {
++		mxc_rtc_unlock(pdata);
+ 		dev_err(dev, "Hopefully I am out of service by then :-(\n");
+ 		return -EINVAL;
+ 	}
