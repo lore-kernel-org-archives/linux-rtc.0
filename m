@@ -1,102 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:38693 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751968AbeC2QQF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Mar 2018 12:16:05 -0400
-Date: Thu, 29 Mar 2018 09:16:02 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
+Received: from mail.bootlin.com ([62.4.15.54]:37031 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751456AbeCNSOH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 14 Mar 2018 14:14:07 -0400
+Date: Wed, 14 Mar 2018 19:14:00 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v6 3/6] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-Message-ID: <20180329161602.GC107392@dtor-ws>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <1508937364-30054-4-git-send-email-chen.zhong@mediatek.com>
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 08/47] rtc: remove tile driver
+Message-ID: <20180314181400.GA5899@piout.net>
+References: <20180314153603.3127932-1-arnd@arndb.de>
+ <20180314153603.3127932-9-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1508937364-30054-4-git-send-email-chen.zhong@mediatek.com>
+In-Reply-To: <20180314153603.3127932-9-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Oct 25, 2017 at 09:16:01PM +0800, Chen Zhong wrote:
-> This patch adds the device tree binding documentation for the MediaTek
-> pmic keys found on PMIC MT6397/MT6323.
+On 14/03/2018 at 16:35:21 +0100, Arnd Bergmann wrote:
+> The tile architecture is getting removed, so this driver is
+> no longer needed.
 > 
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
 > ---
->  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   43 ++++++++++++++++++++
->  1 file changed, 43 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>  drivers/rtc/Kconfig    |   7 ---
+>  drivers/rtc/Makefile   |   1 -
+>  drivers/rtc/rtc-tile.c | 143 -------------------------------------------------
+>  3 files changed, 151 deletions(-)
+>  delete mode 100644 drivers/rtc/rtc-tile.c
 > 
-> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> new file mode 100644
-> index 0000000..2888d07
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> @@ -0,0 +1,43 @@
-> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> +
-> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> +and homekey. The key functions are defined as the subnode of the function
-> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> +of Muti-Function Device (MFD)
-> +
-> +For MT6397/MT6323 MFD bindings see:
-> +Documentation/devicetree/bindings/mfd/mt6397.txt
-> +
-> +Required properties:
-> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> +- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Optional Properties:
-> +- wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
-> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> +- power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Example:
-> +
-> +	pmic: mt6397 {
-> +		compatible = "mediatek,mt6397";
-> +
-> +		...
-> +
-> +		mt6397keys: mt6397keys {
-> +			compatible = "mediatek,mt6397-keys";
-> +			mediatek,long-press-mode = <1>;
-> +			power-off-time-sec = <0>;
-> +
-> +			power {
-> +				linux,keycodes = <116>;
-> +				wakeup-source;
-> +			};
-> +
-> +			home {
-> +				linux,keycodes = <114>;
-> +			};
-> +		};
-> +
-> +	};
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 5457d15bbcc0..0e1413a5ba3a 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1667,13 +1667,6 @@ config RTC_DRV_TEGRA
+>  	  This drive can also be built as a module. If so, the module
+>  	  will be called rtc-tegra.
+>  
+> -config RTC_DRV_TILE
+> -	tristate "Tilera hypervisor RTC support"
+> -	depends on TILE
+> -	help
+> -	  Enable support for the Linux driver side of the Tilera
+> -	  hypervisor's real-time clock interface.
+> -
+>  config RTC_DRV_PUV3
+>  	tristate "PKUnity v3 RTC support"
+>  	depends on ARCH_PUV3
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index f481661a6eae..f7a4b09557a0 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -163,7 +163,6 @@ obj-$(CONFIG_RTC_DRV_SUN6I)	+= rtc-sun6i.o
+>  obj-$(CONFIG_RTC_DRV_SUNXI)	+= rtc-sunxi.o
+>  obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
+>  obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
+> -obj-$(CONFIG_RTC_DRV_TILE)	+= rtc-tile.o
+>  obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
+>  obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
+>  obj-$(CONFIG_RTC_DRV_TPS80031)	+= rtc-tps80031.o
+> diff --git a/drivers/rtc/rtc-tile.c b/drivers/rtc/rtc-tile.c
+> deleted file mode 100644
+> index ef1cdabf05b4..000000000000
 > -- 
-> 1.7.9.5
+> 2.9.0
 > 
 
 -- 
-Dmitry
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
