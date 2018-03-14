@@ -1,40 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:56431 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934240AbeCGWoS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Mar 2018 17:44:18 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/2] rtc: at91rm9200: Add range
-Date: Wed,  7 Mar 2018 23:44:03 +0100
-Message-Id: <20180307224403.18315-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180307224403.18315-1-alexandre.belloni@bootlin.com>
-References: <20180307224403.18315-1-alexandre.belloni@bootlin.com>
+Received: from mout.kundenserver.de ([212.227.126.130]:45669 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751386AbeCNPjZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Mar 2018 11:39:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH 08/47] rtc: remove tile driver
+Date: Wed, 14 Mar 2018 16:35:21 +0100
+Message-Id: <20180314153603.3127932-9-arnd@arndb.de>
+In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
+References: <20180314153603.3127932-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The at91rm9200 RTC can support dates from 1900-01-01 00:00:00 to 2099-12-31
-23:59:59.
+The tile architecture is getting removed, so this driver is
+no longer needed.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-at91rm9200.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/Kconfig    |   7 ---
+ drivers/rtc/Makefile   |   1 -
+ drivers/rtc/rtc-tile.c | 143 -------------------------------------------------
+ 3 files changed, 151 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-tile.c
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index de81ecedd571..c4a00ce58ffc 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -440,6 +440,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
- 		device_init_wakeup(&pdev->dev, 1);
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 5457d15bbcc0..0e1413a5ba3a 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1667,13 +1667,6 @@ config RTC_DRV_TEGRA
+ 	  This drive can also be built as a module. If so, the module
+ 	  will be called rtc-tegra.
  
- 	rtc->ops = &at91_rtc_ops;
-+	rtc->range_min = -2208989361LL;
-+	rtc->range_max = 4102441199ULL;
- 	ret = rtc_register_device(rtc);
- 	if (ret)
- 		goto err_clk;
+-config RTC_DRV_TILE
+-	tristate "Tilera hypervisor RTC support"
+-	depends on TILE
+-	help
+-	  Enable support for the Linux driver side of the Tilera
+-	  hypervisor's real-time clock interface.
+-
+ config RTC_DRV_PUV3
+ 	tristate "PKUnity v3 RTC support"
+ 	depends on ARCH_PUV3
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index f481661a6eae..f7a4b09557a0 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -163,7 +163,6 @@ obj-$(CONFIG_RTC_DRV_SUN6I)	+= rtc-sun6i.o
+ obj-$(CONFIG_RTC_DRV_SUNXI)	+= rtc-sunxi.o
+ obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
+-obj-$(CONFIG_RTC_DRV_TILE)	+= rtc-tile.o
+ obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
+ obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
+ obj-$(CONFIG_RTC_DRV_TPS80031)	+= rtc-tps80031.o
+diff --git a/drivers/rtc/rtc-tile.c b/drivers/rtc/rtc-tile.c
+deleted file mode 100644
+index ef1cdabf05b4..000000000000
 -- 
-2.16.2
+2.9.0
