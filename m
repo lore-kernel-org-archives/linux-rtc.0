@@ -1,62 +1,154 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0093.outbound.protection.outlook.com ([104.47.37.93]:11168
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752357AbeC3W7C (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 30 Mar 2018 18:59:02 -0400
-From: Trent Piepho <tpiepho@impinj.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>,
-        "pure.logic@nexus-software.ie" <pure.logic@nexus-software.ie>
-CC: "shawn.guo@linaro.org" <shawn.guo@linaro.org>,
-        "stefan@agner.ch" <stefan@agner.ch>,
-        "bianpan2016@163.com" <bianpan2016@163.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "guy.shapiro@mobi-wize.com" <guy.shapiro@mobi-wize.com>,
-        "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [RESEND] rtc: snvs: Fix usage of snvs_rtc_enable
-Date: Fri, 30 Mar 2018 22:59:00 +0000
-Message-ID: <1522450739.10662.278.camel@impinj.com>
-References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
-         <1522282337.10662.268.camel@impinj.com>
-         <f380bc29-c8dd-5c20-efc4-ffc0ad69b8d6@nexus-software.ie>
-In-Reply-To: <f380bc29-c8dd-5c20-efc4-ffc0ad69b8d6@nexus-software.ie>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Received: from mout.kundenserver.de ([212.227.126.131]:44881 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750779AbeCNOfo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Mar 2018 10:35:44 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-doc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: [PATCH 00/16] remove eight obsolete architectures
+Date: Wed, 14 Mar 2018 15:34:59 +0100
+Message-Id: <20180314143529.1456168-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-T24gVGh1LCAyMDE4LTAzLTI5IGF0IDAyOjUzICswMTAwLCBCcnlhbiBPJ0Rvbm9naHVlIHdyb3Rl
-Og0KPiBPbiAyOS8wMy8xOCAwMToxMiwgVHJlbnQgUGllcGhvIHdyb3RlOg0KPiANCj4gPiBJIHNl
-bnQgYSBwYXRjaCBhIGNvdXBsZSB3ZWVrcyBhZ28gdGhhdCBhZGRyZXNzZWQgYSBzaW1pbGFyIGlz
-c3VlLCBzZWUNCj4gPiBodHRwczovL25hMDEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5j
-b20vP3VybD1odHRwcyUzQSUyRiUyRnBhdGNod29yay5vemxhYnMub3JnJTJGcGF0Y2glMkY4ODcw
-OTAlMkYmZGF0YT0wMiU3QzAxJTdDdHBpZXBobyU0MGltcGluai5jb20lN0NiNjIyOTQwODAyZGY0
-OWRlYWM0YzA4ZDU5NTE3ZThkOCU3QzZkZTcwZjBmNzM1NzQ1MjlhNDE1ZDhjYmI3ZTkzZTVlJTdD
-MCU3QzElN0M2MzY1Nzg4NTIyODMzOTA3NDUmc2RhdGE9ZHMwb2ZwYlRxckhCakdBMThOMzQzY0pK
-OXN5MlNUUTlaelN4SDJUVXl6RSUzRCZyZXNlcnZlZD0wDQo+ID4gDQo+ID4gRG9lcyB0aGlzIGFs
-c28gZml4IHRoZSBwcm9ibGVtIHlvdSBzZWU/DQo+IA0KPiBJdCBicmVha3MgdGhlIGVuZGxlc3Mg
-bG9vcCB0aGF0IGhhcHBlbnMgbGF0ZXIgb24gaW4gdGhlIFJUQyByZWFkIHBhdGguDQo+IA0KPiBU
-aGlzIHBhdGNoIHRob3VnaCBpcyBhYm91dCBmaXhpbmcgdGhlIGJ1ZyB3aXRoIG5vdCBoYW5kbGlu
-ZyB0aGUgZW5hYmxlIA0KPiBvZiB0aGUgc252c19ydGNfZW5hYmxlKCkgY29ycmVjdGx5LCB3aGlj
-aCBpcyB3aHkgaXQgc2hvdWxkIGJlIGFwcGxpZWQuDQo+IA0KPiBUaGUgcmlnaHQgZmxvdyBpcyB0
-byBoYW5kbGUgdGhlIGVycm9yIG9uIHNudnNfcnRjX2VuYWJsZSgpIGFzIHNvb24gYXMgaXQgDQo+
-IGhhcHBlbnMgYXMgb3Bwb3NlZCB3YWl0IGZvciByZWFkKCkgdG8gLUVUSU1FRE9VVC4NCg0KVW5s
-ZXNzIHRoZXJlIGFyZSBib2FyZHMgdGhhdCBkb24ndCBlbmFibGUgdGhlIDMya0h6IG9zY2lsbGF0
-b3IgdW50aWwNCmFmdGVyIHRoZSBrZXJuZWwgZHJpdmVyIGxvYWRzLiAgSSB3YXMgY29uY2VybmVk
-IGFib3V0IHRoYXQgc28gZGlkbid0DQphZGQgdGhlIGNoZWNrIGluIHByb2JlIHRvIHByZXZlbnQg
-dGhlIGRyaXZlciBmcm9tIGxvYWRpbmcuICBJZiB0aGUNCnBvc3NpYmxlIGRpc3J1cHRpb24gb2Yg
-dGhhdCBpcyBhY2NlcHRhYmxlLCB0aGVuIGl0IGRvZXMgc2VlbSBiZXR0ZXIgdG8NCmZhaWwgdG8g
-bG9hZC4NCg0KSG93ZXZlciwgSSB0aGluayB0aGF0IGV2ZW4gaWYgdGhlIGRyaXZlciBmYWlscyB0
-byBwcm9iZSBpZiB0aGVyZSBpcyBhDQp0aW1lb3V0IGF0IHByb2JlIHRpbWUsIGl0J3Mgc3RpbGwg
-cG9zc2libGUgdG8gaGFuZyBsYXRlciBpZiB0aGVyZSBhcmUNCm5vdCBsaW1pdHMgdG8gdGhlIGhh
-cmR3YXJlIHBvbGxpbmcgbG9vcHMsIHN1Y2ggYXMgdGhlIG9uZXMgSSBhZGRlZC4NCg0KPiA+IEkg
-dGhpbmsgd2hhdCB5b3UndmUgZG9uZSB3aWxsIHByZXZlbnQgdGhlIGRyaXZlciBmcm9tIGxvYWRp
-bmcgaWYgdGhlDQo+ID4gY2xvY2sgaXMgbm90IHdvcmtpbmcsIGJ1dCBpZiB0aGUgY2xvY2sgZG9l
-cyBub3QgdGljayBwcm9wZXJseSBhZnRlcg0KPiA+IGxvYWRpbmcsIHRoZXJlIGFyZSBzdGlsbCBw
-b2ludHMgKHNudnNfcnRjX3JlYWRfdGltZSBmb3Igb25lKSB0aGF0IHdpbGwNCj4gPiBsb2NrIHVw
-IGluIHRoZSBrZXJuZWwuDQo+IA0KPiBJJ2xsIGRpZyBvdXQgeW91ciBwYXRjaCBhbmQgZ2l2ZSBp
-dCBhIHJldmlldy4NCj4g
+Here is the collection of patches I have applied to my 'asm-generic' tree
+on top of the 'metag' removal. This does not include any of the device
+drivers, I'll send those separately to a someone different list of people.
+
+The removal came out of a discussion that is now documented at
+https://lwn.net/Articles/748074/
+
+Following up from the state described there, I ended up removing the
+mn10300, tile, blackfin and cris architectures directly, rather than
+waiting, after consulting with the respective maintainers.
+
+However, the unicore32 architecture is no longer part of the removal,
+after its maintainer Xuetao Guan said that the port is still actively
+being used and that he intends to keep working on it, and that he will
+try to provide updated toolchain sources.
+
+In the end, it seems that while the eight architectures are extremely
+different, they all suffered the same fate: There was one company in
+charge of an SoC line, a CPU microarchitecture and a software ecosystem,
+which was more costly than licensing newer off-the-shelf CPU cores from
+a third party (typically ARM, MIPS, or RISC-V). It seems that all the
+SoC product lines are still around, but have not used the custom CPU
+architectures for several years at this point.
+
+      Arnd
+
+Arnd Bergmann (14):
+  arch: remove frv port
+  arch: remove m32r port
+  arch: remove score port
+  arch: remove blackfin port
+  arch: remove tile port
+  procfs: remove CONFIG_HARDWALL dependency
+  mm: remove blackfin MPU support
+  mm: remove obsolete alloc_remap()
+  treewide: simplify Kconfig dependencies for removed archs
+  asm-generic: siginfo: remove obsolete #ifdefs
+  Documentation: arch-support: remove obsolete architectures
+  asm-generic: clean up asm/unistd.h
+  recordmcount.pl: drop blackin and tile support
+  ktest: remove obsolete architectures
+
+David Howells (1):
+  mn10300: Remove the architecture
+
+Jesper Nilsson (1):
+  CRIS: Drop support for the CRIS port
+
+Dirstat only (full diffstat is over 100KB):
+
+   6.3% arch/blackfin/mach-bf548/include/mach/
+   4.5% arch/blackfin/mach-bf609/include/mach/
+  26.3% arch/blackfin/
+   4.1% arch/cris/arch-v32/
+   5.6% arch/cris/include/arch-v32/arch/hwregs/iop/
+   4.1% arch/cris/include/arch-v32/mach-a3/mach/hwregs/
+   4.7% arch/cris/include/arch-v32/
+   7.8% arch/cris/
+   5.6% arch/frv/
+   5.5% arch/m32r/
+   7.0% arch/mn10300/
+   7.6% arch/tile/include/
+   6.4% arch/tile/kernel/
+   0.0% Documentation/admin-guide/
+   0.0% Documentation/blackfin/
+   0.0% Documentation/cris/
+   0.0% Documentation/devicetree/bindings/cris/
+   0.0% Documentation/devicetree/bindings/interrupt-controller/
+   2.8% Documentation/features/
+   0.5% Documentation/frv/
+   0.0% Documentation/ioctl/
+   0.0% Documentation/mn10300/
+   0.0% Documentation/
+   0.0% block/
+   0.0% crypto/
+   0.0% drivers/ide/
+   0.0% drivers/input/joystick/
+   0.0% drivers/isdn/hisax/
+   0.0% drivers/net/ethernet/davicom/
+   0.0% drivers/net/ethernet/smsc/
+   0.0% drivers/net/wireless/cisco/
+   0.0% drivers/pci/
+   0.0% drivers/pwm/
+   0.0% drivers/rtc/
+   0.0% drivers/spi/
+   0.0% drivers/staging/speakup/
+   0.0% drivers/usb/musb/
+   0.0% drivers/video/console/
+   0.0% drivers/watchdog/
+   0.0% fs/minix/
+   0.0% fs/proc/
+   0.0% fs/
+   0.0% include/asm-generic/
+   0.0% include/linux/
+   0.0% include/uapi/asm-generic/
+   0.0% init/
+   0.0% kernel/
+   0.0% lib/
+   0.0% mm/
+   0.0% samples/blackfin/
+   0.0% samples/kprobes/
+   0.0% samples/
+   0.0% scripts/mod/
+   0.0% scripts/
+   0.0% tools/arch/frv/include/uapi/asm/
+   0.0% tools/arch/m32r/include/uapi/asm/
+   0.0% tools/arch/mn10300/include/uapi/asm/
+   0.0% tools/arch/score/include/uapi/asm/
+   0.0% tools/arch/tile/include/asm/
+   0.0% tools/arch/tile/include/uapi/asm/
+   0.0% tools/include/asm-generic/
+   0.0% tools/scripts/
+   0.0% tools/testing/ktest/examples/
+   0.0% tools/testing/ktest/
+
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-block@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-wireless@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: linux-spi@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-fbdev@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
