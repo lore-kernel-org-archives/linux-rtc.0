@@ -1,75 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.139]:34263 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751199AbeCIIoy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:44:54 -0500
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-To: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-        Joseph Lo <josephl@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        linux-rockchip@lists.infradead.org,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Jeffy Chen <jeffy.chen@rock-chips.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>,
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35483 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750779AbeCNQyq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Mar 2018 12:54:46 -0400
+Date: Wed, 14 Mar 2018 09:54:42 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        linux-clk@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Lee Jones <lee.jones@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Vladimir Zapolskiy <vz@mleia.com>
-Subject: [RESEND PATCH v4 0/4] Set name of regmap_config
-Date: Fri,  9 Mar 2018 16:43:47 +0800
-Message-Id: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v2 01/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+Message-ID: <20180314165442.GB74407@dtor-ws>
+References: <20180220214400.66749-1-andriy.shevchenko@linux.intel.com>
+ <20180220214400.66749-2-andriy.shevchenko@linux.intel.com>
+ <CAMuHMdVwjP6cWM=Ku6KRVz9F8_n4OsgeK42UZa6BenKij4iu4Q@mail.gmail.com>
+ <1519221748.10722.34.camel@linux.intel.com>
+ <1519221953.10722.38.camel@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1519221953.10722.38.camel@linux.intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On Wed, Feb 21, 2018 at 04:05:53PM +0200, Andy Shevchenko wrote:
+> > TBH, I don't see much consensus among developers on this topic.
+> > I wouldn't like to send a new version until it would be a consensus.
+> 
+> I would love to see the comments followed by an agreement from majority
+> of people who are in Cc list here.
 
-After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
-allowing regmap to create debugfs without a valid device. Some of them
-would end up using "dummy*" as debugfs name.
+Not sure why I am on the CC list, but if we add it at all I do not think
+this should be guarded by a config option. Otherwise let's add options
+for %d and %s as well.
 
-This series try to set names in some regmap_config to avoid that.
-
-
-Changes in v4:
-Not to use rtc dev to init regmap, the gpbr is not directly related to
-the rtc.
-
-Changes in v3:
-Modify commit message.
-
-Jeffy Chen (4):
-  mfd: syscon: Set name of regmap_config
-  rtc: at91sam9: Set name of regmap_config
-  clk: lpc32xx: Set name of regmap_config
-  ARM: rockchip: Set name of regmap_config
-
- arch/arm/mach-rockchip/platsmp.c | 1 +
- drivers/clk/nxp/clk-lpc32xx.c    | 1 +
- drivers/mfd/syscon.c             | 1 +
- drivers/rtc/rtc-at91sam9.c       | 1 +
- 4 files changed, 4 insertions(+)
+Thanks.
 
 -- 
-2.11.0
+Dmitry
