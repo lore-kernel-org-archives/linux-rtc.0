@@ -1,203 +1,61 @@
-Return-Path: <ddaney.cavm@gmail.com>
+Return-Path: <rjwysocki@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20180228151701.GM1479@piout.net>
-References: <20180222200432.22003-1-david.daney@cavium.com> <20180228151701.GM1479@piout.net>
-From: David Daney <ddaney.cavm@gmail.com>
-Date: Fri, 2 Mar 2018 08:22:22 -0800
-Message-ID: <CAKjEs9FbNDKNs5j-aZAmHCYO1YE5g70vLyuk1hGDNvvRWj977w@mail.gmail.com>
-Subject: Re: [PATCH v6] rtc: isl12026: Add driver.
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: David Daney <david.daney@cavium.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>
-Content-Type: multipart/alternative; boundary="001a114b04a89b6f5d056670615e"
+Sender: rjwysocki@gmail.com
+In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
+References: <20180314153603.3127932-1-arnd@arndb.de>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 14 Mar 2018 23:45:54 +0100
+Message-ID: <CAJZ5v0jsoxWRiwPOCJH6AAz-MiccOuicD8peCevLRMbTfc7LEg@mail.gmail.com>
+Subject: Re: [PATCH 00/47] arch-removal: device drivers
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Viresh Kumar <viresh.kumar@linaro.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+	David Miller <davem@davemloft.net>, Borislav Petkov <bp@alien8.de>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
+	Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>, boris.brezillon@bootlin.com,
+	cyrille.pitchen@wedev4u.fr, wg@grandegger.com, mkl@pengutronix.de,
+	alexandre.belloni@bootlin.com, Mark Brown <broonie@kernel.org>, jic23@kernel.org,
+	Lars-Peter Clausen <lars@metafoo.de>, Jiri Slaby <jslaby@suse.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, shli@kernel.org, linux-watchdog@vger.kernel.org,
+	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, linux-ide@vger.kernel.org,
+	Linux PM <linux-pm@vger.kernel.org>, linux-crypto@vger.kernel.org,
+	"open list:EDAC-CORE" <linux-edac@vger.kernel.org>, linux-gpio@vger.kernel.org,
+	linux-i2c <linux-i2c@vger.kernel.org>, linux-input@vger.kernel.org,
+	linux-media@vger.kernel.org, linux-mmc <linux-mmc@vger.kernel.org>,
+	linux-mtd@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+	linux-can@vger.kernel.org, Linux PWM List <linux-pwm@vger.kernel.org>,
+	linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
+	linux-iio@vger.kernel.org, linux-serial@vger.kernel.org,
+	"open list:ULTRA-WIDEBAND (UWB) SUBSYSTEM:" <linux-usb@vger.kernel.org>,
+	"open list:FRAMEBUFFER LAYER" <linux-fbdev@vger.kernel.org>, linux-raid@vger.kernel.org,
+	"moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-rtc.vger.kernel.org>
 
---001a114b04a89b6f5d056670615e
-Content-Type: text/plain; charset="UTF-8"
+On Wed, Mar 14, 2018 at 4:35 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> Hi driver maintainers,
+>
+> I just posted one series with the removal of eight architectures,
+> see https://lkml.org/lkml/2018/3/14/505 for details, or
+> https://lwn.net/Articles/748074/ for more background.
+>
+> These are the device drivers that go along with them. I have already
+> picked up the drivers for arch/metag/ into my tree, they were reviewed
+> earlier.
+>
+> Please let me know if you have any concerns with the patch, or if you
+> prefer to pick up the patches in your respective trees.  I created
+> the patches with 'git format-patch -D', so they will not apply without
+> manually removing those files.
+>
+> For anything else, I'd keep the removal patches in my asm-generic tree
+> and will send a pull request for 4.17 along with the actual arch removal.
 
-I am no longer able to test this patch as I lost access to the hardware.
+Please include the cpufreq patches into that and you can add ACKs from
+me on them if that helps.
 
-If someone else wants to take charge of the patch, that would be great.
-
-Sorry I couldn't drive this to completion,
-David Daney
-
-On Wed, Feb 28, 2018 at 7:17 AM, Alexandre Belloni <
-alexandre.belloni@free-electrons.com> wrote:
-
-> Hi,
->
-> That's mostly good
->
-> On 22/02/2018 at 12:04:32 -0800, David Daney wrote:
-> > +     priv->rtc->ops = &isl12026_rtc_ops;
-> > +     priv->rtc->nvram_old_abi = false;
->
-> This allocation is not necessary and I would refer not having t so when
-> the ABI goes away, it is not necessary to change this driver.
->
-> > +     ret = rtc_register_device(priv->rtc);
-> > +     if (ret)
-> > +             return ret;
-> > +
-> > +     memset(&nvm_cfg, 0, sizeof(nvm_cfg));
-> > +     nvm_cfg.name = "eeprom";
->
-> You probably need something more descriptive, usually the rtc model name
-> else, it is difficult (but not impossible) to find where this nvmem is
-> actually located when using /sys/bus/nvmem/devices
-> isl12026- would be a good choice.
->
-> > +     nvm_cfg.read_only = false;
-> > +     nvm_cfg.root_only = true;
->
-> any reason to have it root only?
->
-> > +     nvm_cfg.base_dev = &client->dev;
-> > +     nvm_cfg.priv = priv;
-> > +     nvm_cfg.stride = 1;
-> > +     nvm_cfg.word_size = 1;
-> > +     nvm_cfg.size = 512;
-> > +     nvm_cfg.reg_read = isl12026_nvm_read;
-> > +     nvm_cfg.reg_write = isl12026_nvm_write;
-> > +
-> > +     return rtc_nvmem_register(priv->rtc, &nvm_cfg);
->
-> The probe function must not fail after rtc_register_device has been
-> called so you must return 0 here.
->
-> It is not currently possible to call rtc_nvmem_register before
-> rtc_register_device unless we move the nvmem to the parent device:
->
-> diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
-> index 3a02357eb783..17ec4c8d0fad 100644
-> --- a/drivers/rtc/nvmem.c
-> +++ b/drivers/rtc/nvmem.c
-> @@ -91,7 +91,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,
->         if (!nvmem_config)
->                 return -ENODEV;
->
-> -       nvmem_config->dev = &rtc->dev;
-> +       nvmem_config->dev = rtc->dev.parent;
->         nvmem_config->owner = rtc->owner;
->         rtc->nvmem = nvmem_register(nvmem_config);
->         if (IS_ERR_OR_NULL(rtc->nvmem))
->
-> I'll submit this patch for this cycle before there are many users of the
-> interface (converted drivers are still exposing the old ABI).
->
-> If you prefer, you can depend on it.
->
-> --
-> Alexandre Belloni, Bootlin (formerly Free Electrons)
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
---001a114b04a89b6f5d056670615e
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">I am no longer able to test this patch as I lost access to=
- the hardware.<div><br></div><div>If someone else wants to take charge of t=
-he patch, that would be great.</div><div><br></div><div>Sorry I couldn&#39;=
-t drive this to completion,</div><div>David Daney</div></div><div class=3D"=
-gmail_extra"><br><div class=3D"gmail_quote">On Wed, Feb 28, 2018 at 7:17 AM=
-, Alexandre Belloni <span dir=3D"ltr">&lt;<a href=3D"mailto:alexandre.bello=
-ni@free-electrons.com" target=3D"_blank">alexandre.belloni@free-electrons.c=
-om</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"marg=
-in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hi,<br>
-<br>
-That&#39;s mostly good<br>
-<span class=3D""><br>
-On 22/02/2018 at 12:04:32 -0800, David Daney wrote:<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0priv-&gt;rtc-&gt;ops =3D &amp;isl12026_rtc_ops;<b=
-r>
-&gt; +=C2=A0 =C2=A0 =C2=A0priv-&gt;rtc-&gt;nvram_old_abi =3D false;<br>
-<br>
-</span>This allocation is not necessary and I would refer not having t so w=
-hen<br>
-the ABI goes away, it is not necessary to change this driver.<br>
-<span class=3D""><br>
-&gt; +=C2=A0 =C2=A0 =C2=A0ret =3D rtc_register_device(priv-&gt;rtc)<wbr>;<b=
-r>
-&gt; +=C2=A0 =C2=A0 =C2=A0if (ret)<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return ret;<br>
-&gt; +<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0memset(&amp;nvm_cfg, 0, sizeof(nvm_cfg));<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0<a href=3D"http://nvm_cfg.name" rel=3D"noreferrer=
-" target=3D"_blank">nvm_cfg.name</a> =3D &quot;eeprom&quot;;<br>
-<br>
-</span>You probably need something more descriptive, usually the rtc model =
-name<br>
-else, it is difficult (but not impossible) to find where this nvmem is<br>
-actually located when using /sys/bus/nvmem/devices<br>
-isl12026- would be a good choice.<br>
-<span class=3D""><br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.read_only =3D false;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.root_only =3D true;<br>
-<br>
-</span>any reason to have it root only?<br>
-<span class=3D""><br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.base_dev =3D &amp;client-&gt;dev;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.priv =3D priv;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.stride =3D 1;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.word_size =3D 1;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.size =3D 512;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.reg_read =3D isl12026_nvm_read;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0nvm_cfg.reg_write =3D isl12026_nvm_write;<br>
-&gt; +<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0return rtc_nvmem_register(priv-&gt;rtc, &amp;nvm_=
-cfg);<br>
-<br>
-</span>The probe function must not fail after rtc_register_device has been<=
-br>
-called so you must return 0 here.<br>
-<br>
-It is not currently possible to call rtc_nvmem_register before<br>
-rtc_register_device unless we move the nvmem to the parent device:<br>
-<br>
-diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c<br>
-index 3a02357eb783..17ec4c8d0fad 100644<br>
---- a/drivers/rtc/nvmem.c<br>
-+++ b/drivers/rtc/nvmem.c<br>
-@@ -91,7 +91,7 @@ int rtc_nvmem_register(struct rtc_device *rtc,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!nvmem_config)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -ENODEV;<br>
-<br>
--=C2=A0 =C2=A0 =C2=A0 =C2=A0nvmem_config-&gt;dev =3D &amp;rtc-&gt;dev;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0nvmem_config-&gt;dev =3D rtc-&gt;dev.parent;<br=
->
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 nvmem_config-&gt;owner =3D rtc-&gt;owner;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 rtc-&gt;nvmem =3D nvmem_register(nvmem_config);=
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (IS_ERR_OR_NULL(rtc-&gt;nvmem))<br>
-<br>
-I&#39;ll submit this patch for this cycle before there are many users of th=
-e<br>
-interface (converted drivers are still exposing the old ABI).<br>
-<br>
-If you prefer, you can depend on it.<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Alexandre Belloni, Bootlin (formerly Free Electrons)<br>
-Embedded Linux and Kernel engineering<br>
-<a href=3D"https://bootlin.com" rel=3D"noreferrer" target=3D"_blank">https:=
-//bootlin.com</a><br>
-</font></span><div class=3D"HOEnZb"><div class=3D"h5">--<br>
-To unsubscribe from this list: send the line &quot;unsubscribe devicetree&q=
-uot; in<br>
-the body of a message to <a href=3D"mailto:majordomo@vger.kernel.org">major=
-domo@vger.kernel.org</a><br>
-More majordomo info at=C2=A0 <a href=3D"http://vger.kernel.org/majordomo-in=
-fo.html" rel=3D"noreferrer" target=3D"_blank">http://vger.kernel.org/<wbr>m=
-ajordomo-info.html</a><br>
-</div></div></blockquote></div><br></div>
-
---001a114b04a89b6f5d056670615e--
+Thanks!
