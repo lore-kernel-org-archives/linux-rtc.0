@@ -1,80 +1,77 @@
-Return-Path: <SRS0=hW9q=GM=goodmis.org=rostedt@kernel.org>
-Date: Thu, 22 Mar 2018 09:37:20 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Joe Perches <joe@perches.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Will Deacon
- <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng
- <boqun.feng@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown
- <lenb@kernel.org>, Zhang Rui <rui.zhang@intel.com>, Sathya Prakash
- <sathya.prakash@broadcom.com>, Chaitra P B <chaitra.basappa@broadcom.com>,
- Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>, Manish
- Chopra <manish.chopra@cavium.com>, Rahul Verma <rahul.verma@cavium.com>,
- Dept-GELinuxNICDev@cavium.com, QCA ath9k Development
- <ath9k-devel@qca.qualcomm.com>, Corentin Chary <corentin.chary@gmail.com>,
- Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>,
- Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>, Adaptec OEM Raid Solutions
- <aacraid@adaptec.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>, Matthew Wilcox
- <matthew@wil.cx>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields"
- <bfields@fieldses.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Mark
- Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, "Darrick J.
- Wong" <darrick.wong@oracle.com>, linux-xfs@vger.kernel.org, Paul Moore
- <paul@paul-moore.com>, Eric Paris <eparis@redhat.com>, Timur Tabi
- <timur@tabi.org>, Nicolin Chen <nicoleotsuka@gmail.com>, Xiubo Li
- <Xiubo.Lee@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>, Jiri Kosina
- <trivial@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter
- Anvin" <hpa@zytor.com>, x86@kernel.org, Alex Deucher
- <alexander.deucher@amd.com>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
- David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab
- <mchehab@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, Liam Girdwood
- <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Jaroslav Kysela
- <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- linux-media@vger.kernel.org, MPT-FusionLinux.pdl@broadcom.com,
- linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
- linux-wireless@vger.kernel.org, acpi4asus-user@lists.sourceforge.net,
- platform-driver-x86@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
- linux-audit@redhat.com, alsa-devel@alsa-project.org,
- linuxppc-dev@lists.ozlabs.org
-Subject: Re: [trivial PATCH V2] treewide: Align function definition
- open/close braces
-Message-ID: <20180322093720.2254cfbb@gandalf.local.home>
-In-Reply-To: <5ccbbf083e26bddfb4ea4f819ed62347ce266f39.1521669820.git.joe@perches.com>
-References: <5ccbbf083e26bddfb4ea4f819ed62347ce266f39.1521669820.git.joe@perches.com>
+Return-Path: <arndbergmann@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Sender: arndbergmann@gmail.com
+In-Reply-To: <20180315063238.3303b8d1@bbrezillon>
+References: <20180314153603.3127932-1-arnd@arndb.de> <20180315063238.3303b8d1@bbrezillon>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 15 Mar 2018 10:09:43 +0100
+Message-ID: <CAK8P3a151M35ywHyABt2KFypPaiZROYuL10ztChwjSwqS9haHg@mail.gmail.com>
+Subject: Re: [PATCH 00/47] arch-removal: device drivers
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>, gregkh <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>,
+	Herbert Xu <herbert@gondor.apana.org.au>, David Miller <davem@davemloft.net>,
+	Borislav Petkov <bp@alien8.de>, Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ulf Hansson <ulf.hansson@linaro.org>,
+	Cyrille Pitchen <cyrille.pitchen@wedev4u.fr>, wg@grandegger.com, mkl@pengutronix.de,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Mark Brown <broonie@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Jiri Slaby <jslaby@suse.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Shaohua Li <shli@kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, IDE-ML <linux-ide@vger.kernel.org>,
+	linux-pm@vger.kernel.org,
+	"open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, linux-edac@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	"open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+	Linux Media Mailing List <linux-media@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>,
+	linux-mtd <linux-mtd@lists.infradead.org>, Networking <netdev@vger.kernel.org>,
+	linux-can@vger.kernel.org, linux-pwm@vger.kernel.org,
+	linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
+	linux-iio@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+	"open list:SOFTWARE RAID (Multiple Disks) SUPPORT" <linux-raid@vger.kernel.org>, alsa-devel@alsa-project.org
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 21 Mar 2018 15:09:32 -0700
-Joe Perches <joe@perches.com> wrote:
+On Thu, Mar 15, 2018 at 6:32 AM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> Hi Arnd,
+>
+> On Wed, 14 Mar 2018 16:35:13 +0100
+> Arnd Bergmann <arnd@arndb.de> wrote:
+>
+>> Hi driver maintainers,
+>>
+>> I just posted one series with the removal of eight architectures,
+>> see https://lkml.org/lkml/2018/3/14/505 for details, or
+>> https://lwn.net/Articles/748074/ for more background.
+>>
+>> These are the device drivers that go along with them. I have already
+>> picked up the drivers for arch/metag/ into my tree, they were reviewed
+>> earlier.
+>>
+>> Please let me know if you have any concerns with the patch, or if you
+>> prefer to pick up the patches in your respective trees.  I created
+>> the patches with 'git format-patch -D', so they will not apply without
+>> manually removing those files.
+>>
+>> For anything else, I'd keep the removal patches in my asm-generic tree
+>> and will send a pull request for 4.17 along with the actual arch removal.
+>>
 
-> diff --git a/kernel/trace/trace_printk.c b/kernel/trace/trace_printk.c
-> index ad1d6164e946..50f44b7b2b32 100644
-> --- a/kernel/trace/trace_printk.c
-> +++ b/kernel/trace/trace_printk.c
-> @@ -196,7 +196,7 @@ struct notifier_block module_trace_bprintk_format_nb = {
->  };
->  
->  int __trace_bprintk(unsigned long ip, const char *fmt, ...)
-> - {
-> +{
->  	int ret;
->  	va_list ap;
->  
-> @@ -214,7 +214,7 @@ int __trace_bprintk(unsigned long ip, const char *fmt, ...)
->  EXPORT_SYMBOL_GPL(__trace_bprintk);
->  
->  int __ftrace_vbprintk(unsigned long ip, const char *fmt, va_list ap)
-> - {
-> +{
->  	if (unlikely(!fmt))
->  		return 0;
->  
+>
+> If you don't mind, I'd like to take the mtd patches through the MTD
+> tree. As you've probably noticed, nand code has been moved around and
+> it's easier for me to carry those 2 simple changes in my tree than
+> creating an immutable branch.
+>
+> Let me know if this is a problem.
 
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Sounds good, I've removed the two patches from my tree now.
+I've already sent a version of those that is based on your latest tree to
+you for inclusion.
 
--- Steve
+      Arnd
