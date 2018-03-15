@@ -1,48 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:48317 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751874AbeCFUU2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Mar 2018 15:20:28 -0500
-Date: Tue, 6 Mar 2018 21:20:26 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v3 1/4] rtc: isl1208: enable interrupt after context
- preparation
-Message-ID: <20180306202026.GG3035@piout.net>
-References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
- <1520246373-19023-2-git-send-email-Denis.Osterland@diehl.com>
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:43330 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751414AbeCOJsh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 05:48:37 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1520246373-19023-2-git-send-email-Denis.Osterland@diehl.com>
+In-Reply-To: <2929.1521106970@warthog.procyon.org.uk>
+References: <20180314143529.1456168-1-arnd@arndb.de> <2929.1521106970@warthog.procyon.org.uk>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 15 Mar 2018 10:48:35 +0100
+Message-ID: <CAMuHMdXcxuzCOnFCNm4NXDv-wfYJDO5GQpB_ECu7j=2BjMhNpA@mail.gmail.com>
+Subject: Re: [PATCH 00/16] remove eight obsolete architectures
+To: David Howells <dhowells@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-doc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Linux PWM List <linux-pwm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        Linux MM <linux-mm@kvack.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 05/03/2018 at 10:43:53 +0000, Denis OSTERLAND wrote:
-> From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> 
-> The interrupt handler got enabled very early. If the interrupt cause is
-> triggering immediately before the context is fully prepared. This can
-> lead to undefined behaviour. Therefor we move the interrupt enable code
-> to the end of the probe function.
-> 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  drivers/rtc/rtc-isl1208.c | 34 +++++++++++++++++-----------------
->  1 file changed, 17 insertions(+), 17 deletions(-)
-> 
-Applied, thanks.
+Hi David,
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+On Thu, Mar 15, 2018 at 10:42 AM, David Howells <dhowells@redhat.com> wrote:
+> Do we have anything left that still implements NOMMU?
+
+Sure: arm, c6x, m68k, microblaze, and  sh.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
