@@ -1,85 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55988 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751143AbeCINEr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 9 Mar 2018 08:04:47 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:53500 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751466AbeCORIg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 13:08:36 -0400
+Date: Thu, 15 Mar 2018 10:08:30 -0700
+From: Matthew Wilcox <willy@infradead.org>
+To: Joe Perches <joe@perches.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        David Howells <dhowells@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-doc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Linux PWM List <linux-pwm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        Linux MM <linux-mm@kvack.org>
+Subject: Re: rfc: remove print_vma_addr ? (was Re: [PATCH 00/16] remove eight
+ obsolete architectures)
+Message-ID: <20180315170830.GA17574@bombadil.infradead.org>
+References: <20180314143529.1456168-1-arnd@arndb.de>
+ <2929.1521106970@warthog.procyon.org.uk>
+ <CAMuHMdXcxuzCOnFCNm4NXDv-wfYJDO5GQpB_ECu7j=2BjMhNpA@mail.gmail.com>
+ <1521133006.22221.35.camel@perches.com>
 MIME-Version: 1.0
-In-Reply-To: <23757731-bfa5-cb4c-ddc0-04103f9a72e0@embeddedor.com>
-References: <20180308172031.GA14541@embeddedgus> <CAGXu5jLjKcYOPxQOV6GO1oaLj1M_K=cFu-kHLLEzP=ZOXaAtfA@mail.gmail.com>
- <23757731-bfa5-cb4c-ddc0-04103f9a72e0@embeddedor.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Fri, 9 Mar 2018 14:04:44 +0100
-Message-ID: <CAJKOXPf+4tF4oq5ePsgcpUAQS_M2Vi6b1+J-8D9CVemO-6ve5g@mail.gmail.com>
-Subject: Re: [PATCH] rtc: s5m: Remove VLA usage
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Cc: Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Sangbeom Kim <sbkim73@samsung.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1521133006.22221.35.camel@perches.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Mar 8, 2018 at 7:03 PM, Gustavo A. R. Silva
-<garsilva@embeddedor.com> wrote:
->
->
-> On 03/08/2018 11:58 AM, Kees Cook wrote:
->>
->> On Thu, Mar 8, 2018 at 9:20 AM, Gustavo A. R. Silva
->> <gustavo@embeddedor.com> wrote:
->>>
->>> In preparation to enabling -Wvla, remove VLAs and replace them
->>> with fixed-length arrays instead.
->>>
->>>  From a security viewpoint, the use of Variable Length Arrays can be
->>> a vector for stack overflow attacks. Also, in general, as the code
->>> evolves it is easy to lose track of how big a VLA can get. Thus, we
->>> can end up having segfaults that are hard to debug.
->>>
->>> Also, fixed as part of the directive to remove all VLAs from
->>> the kernel: https://lkml.org/lkml/2018/3/7/621
->>>
->>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->>> ---
->>>   drivers/rtc/rtc-s5m.c | 15 +++++++++------
->>>   1 file changed, 9 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
->>> index 6deae10..2b5f4f7 100644
->>> --- a/drivers/rtc/rtc-s5m.c
->>> +++ b/drivers/rtc/rtc-s5m.c
->>> @@ -38,6 +38,9 @@
->>>    */
->>>   #define UDR_READ_RETRY_CNT     5
->>>
->>> +/* Maximum number of registers for setting time/alarm0/alarm1 */
->>> +#define MAX_NUM_TIME_REGS      8
->>
->>
->> I would adjust the various const struct s5m_rtc_reg_config's
->> .regs_count to be represented by this new define, so the stack and the
->> structures stay in sync. Something like:
->>
->> static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
->>          .regs_count             = MAX_NUM_TIME_REGS - 1,
->>
->> ?
->>
->
-> Yep. I thought about that and decided to wait for some feedback first. But
-> yeah, I think is that'd be a good change.
+On Thu, Mar 15, 2018 at 09:56:46AM -0700, Joe Perches wrote:
+> I have a patchset that creates a vsprintf extension for
+> print_vma_addr and removes all the uses similar to the
+> print_symbol() removal.
+> 
+> This now avoids any possible printk interleaving.
+> 
+> Unfortunately, without some #ifdef in vsprintf, which
+> I would like to avoid, it increases the nommu kernel
+> size by ~500 bytes.
+> 
+> Anyone think this is acceptable?
+> 
+> Here's the overall patch, but I have it as a series
+> ---
+>  Documentation/core-api/printk-formats.rst |  9 +++++
+>  arch/arm64/kernel/traps.c                 | 13 +++----
+>  arch/mips/mm/fault.c                      | 16 ++++-----
+>  arch/parisc/mm/fault.c                    | 15 ++++----
+>  arch/riscv/kernel/traps.c                 | 11 +++---
+>  arch/s390/mm/fault.c                      |  7 ++--
+>  arch/sparc/mm/fault_32.c                  |  8 ++---
+>  arch/sparc/mm/fault_64.c                  |  8 ++---
+>  arch/tile/kernel/signal.c                 |  9 ++---
+>  arch/um/kernel/trap.c                     | 13 +++----
+>  arch/x86/kernel/signal.c                  | 10 ++----
+>  arch/x86/kernel/traps.c                   | 18 ++++------
+>  arch/x86/mm/fault.c                       | 12 +++----
+>  include/linux/mm.h                        |  1 -
+>  lib/vsprintf.c                            | 58 ++++++++++++++++++++++++++-----
+>  mm/memory.c                               | 33 ------------------
+>  16 files changed, 112 insertions(+), 129 deletions(-)
 
-Define and these assignments should be somehow connected with enum
-defining the offsets for data[] (from
-include/linux/mfd/samsung/rtc.h). Otherwise we define the same in two
-places. The enum could be itself (in separate patch) moved to the
-driver because it is meaningless for others.
-
-Best regards,
-Krzysztof
+This doesn't feel like a huge win since it's only called ~once per
+architecture.  I'd be more excited if it made the printing of the whole
+thing standardised; eg we have a print_fault() function in mm/memory.c
+which takes a suitable set of arguments.
