@@ -1,29 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:60718 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751480AbeCOJmz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 15 Mar 2018 05:42:55 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20180314143529.1456168-1-arnd@arndb.de>
-References: <20180314143529.1456168-1-arnd@arndb.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: dhowells@redhat.com, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-ide@vger.kernel.org,
-        linux-input@vger.kernel.org, netdev@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 00/16] remove eight obsolete architectures
+Received: from aserp2120.oracle.com ([141.146.126.78]:54164 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751512AbeCOL1D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 07:27:03 -0400
+Date: Thu, 15 Mar 2018 14:26:27 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Patrick =?iso-8859-1?Q?Br=FCnn?= <P.Bruenn@beckhoff.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
+Subject: Re: [PATCH] rtc: mxc_v2: unlock on error in mxc_rtc_set_alarm()
+Message-ID: <20180315112627.35f3gmvmho5mb2fb@mwanda>
+References: <20180314073719.GA2470@mwanda>
+ <3BB206AB2B1BD448954845CE6FF69A8E01F81FD198@nt-mail04>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 15 Mar 2018 09:42:50 +0000
-Message-ID: <2929.1521106970@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <3BB206AB2B1BD448954845CE6FF69A8E01F81FD198@nt-mail04>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Do we have anything left that still implements NOMMU?
+On Thu, Mar 15, 2018 at 11:12:04AM +0000, Patrick Brünn wrote:
+> >From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
+> >Sent: Mittwoch, 14. März 2018 08:37
+> >
+> >We need to unlock if time is more than U32_MAX.
+> >
+> you are right, that's a bug.
+> But I would move the mxc_rtc_lock() entirely behind the (time > U32_MAX) check.
 
-David
+Yes, of course.  I will resend.
+
+regards,
+dan carpenter
+ 
