@@ -1,40 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:45766 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:54266 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1030762AbeCANqW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 1 Mar 2018 08:46:22 -0500
-Date: Thu, 1 Mar 2018 14:46:20 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Justin Chen <justin.chen@broadcom.com>
-Cc: linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        computersforpeace@gmail.com, gregory.0xf0@gmail.com,
-        f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org,
-        Justin Chen <justinpopo6@gmail.com>
-Subject: Re: [PATCH v2] rtc: brcmstb-waketimer: Set wktmr prescaler
-Message-ID: <20180301134620.GX1479@piout.net>
-References: <1519675798-26720-1-git-send-email-justin.chen@broadcom.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1519675798-26720-1-git-send-email-justin.chen@broadcom.com>
+        id S964858AbeCSXse (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 19 Mar 2018 19:48:34 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/6] rtc: 88pm80x: remove artificial limitation
+Date: Tue, 20 Mar 2018 00:48:16 +0100
+Message-Id: <20180319234817.16199-5-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+References: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 26/02/2018 at 12:09:58 -0800, Justin Chen wrote:
-> The HW default is one tick per second, however instead of assuming this,
-> lets make sure the waketimer is actually one tick per second before
-> arming the alarm.
-> 
-> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-> ---
->  drivers/rtc/rtc-brcmstb-waketimer.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-Applied, thanks.
+The 88pm80x supports time up to 2106 (it is a 32 bit counter). Also, the
+year will never be before 1970 as the RTC core forbids that.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-88pm80x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index 466bf7f9a285..6cbafefa80a2 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -134,9 +134,9 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
+ 	unsigned char buf[4];
+ 	unsigned long ticks, base, data;
+-	if ((tm->tm_year < 70) || (tm->tm_year > 138)) {
++	if (tm->tm_year > 206) {
+ 		dev_dbg(info->dev,
+-			"Set time %d out of range. Please set time between 1970 to 2038.\n",
++			"Set time %d out of range. Please set time between 1970 to 2106.\n",
+ 			1900 + tm->tm_year);
+ 		return -EINVAL;
+ 	}
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.16.2
