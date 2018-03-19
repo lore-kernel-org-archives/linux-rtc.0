@@ -1,40 +1,29 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:57173 "EHLO mail.bootlin.com"
+Received: from ozlabs.org ([103.22.144.67]:42923 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754706AbeCGXNz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Mar 2018 18:13:55 -0500
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: Add useful timestamp definitions
-Date: Thu,  8 Mar 2018 00:13:52 +0100
-Message-Id: <20180307231352.21840-1-alexandre.belloni@bootlin.com>
+        id S1032544AbeCSWXC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 19 Mar 2018 18:23:02 -0400
+In-Reply-To: <20180221214633.2012-1-alexandre.belloni@bootlin.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Michael Ellerman <patch-notifications@ellerman.id.au>
+Cc: linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: powerpc/time: stop validating rtc_time in .read_time
+Message-Id: <404rDL3m5Dz9sVZ@ozlabs.org>
+Date: Tue, 20 Mar 2018 09:22:56 +1100 (AEDT)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add commonly used timestamps for range definition.
+On Wed, 2018-02-21 at 21:46:33 UTC, Alexandre Belloni wrote:
+> The RTC core is always calling rtc_valid_tm after the read_time callback.
+> It is not necessary to call it just before returning from the callback.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- include/linux/rtc.h | 5 +++++
- 1 file changed, 5 insertions(+)
+Applied to powerpc next, thanks.
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 82a3038f16ab..4c007f69082f 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -169,6 +169,11 @@ struct rtc_device {
- };
- #define to_rtc_device(d) container_of(d, struct rtc_device, dev)
- 
-+/* useful timestamps */
-+#define RTC_TIMESTAMP_BEGIN_1900	-2208989361LL /* 1900-01-01 00:00:00 */
-+#define RTC_TIMESTAMP_BEGIN_2000	946684800LL /* 2000-01-01 00:00:00 */
-+#define RTC_TIMESTAMP_END_2099		4102444799LL /* 2099-12-31 23:59:59 */
-+
- extern struct rtc_device *rtc_device_register(const char *name,
- 					struct device *dev,
- 					const struct rtc_class_ops *ops,
--- 
-2.16.2
+https://git.kernel.org/powerpc/c/890ae7979758568734881ad0f382c4
+
+cheers
