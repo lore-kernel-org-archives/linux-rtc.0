@@ -1,88 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:42754 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:54268 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756190AbeCWKiN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 23 Mar 2018 06:38:13 -0400
-Date: Fri, 23 Mar 2018 11:38:01 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: sean.wang@mediatek.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 08/16] rtc: mediatek: remove unnecessary
- irq_dispose_mapping
-Message-ID: <20180323103801.GH3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
- <96f39ce7f57a4dcd7653e049eebc87c83bcbdfc9.1521794177.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <96f39ce7f57a4dcd7653e049eebc87c83bcbdfc9.1521794177.git.sean.wang@mediatek.com>
+        id S964834AbeCSXsn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 19 Mar 2018 19:48:43 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/6] rtc: 88pm860x: remove artificial limitation
+Date: Tue, 20 Mar 2018 00:48:17 +0100
+Message-Id: <20180319234817.16199-6-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+References: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 23/03/2018 at 17:15:05 +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> It's unnecessary doing irq_dispose_mapping as a reverse operation for
-> platform_get_irq.
-> 
-> Ususally, irq_dispose_mapping should be called in error path or module
-> removal to release the resources for irq_of_parse_and_map requested.
-> 
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> ---
->  drivers/rtc/rtc-mt6397.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index b62eaa8..cefb83b 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -17,7 +17,6 @@
->  #include <linux/module.h>
->  #include <linux/regmap.h>
->  #include <linux/rtc.h>
-> -#include <linux/irqdomain.h>
->  #include <linux/jiffies.h>
->  #include <linux/platform_device.h>
->  #include <linux/of_address.h>
-> @@ -336,7 +335,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
->  			rtc->irq, ret);
-> -		goto out_dispose_irq;
-> +		return ret;
->  	}
->  
->  	device_init_wakeup(&pdev->dev, 1);
-> @@ -353,8 +352,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  
->  out_free_irq:
->  	free_irq(rtc->irq, rtc->rtc_dev);
-> -out_dispose_irq:
-> -	irq_dispose_mapping(rtc->irq);
-> +
+The 88pm860x supports time up to 2106 (it is a 32 bit counter). Also, the
+year will never be before 1970 as the RTC core forbids that.
 
-Don't you still have a irq_create_mapping?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-88pm860x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
->  	return ret;
->  }
->  
-> @@ -364,7 +362,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
->  
->  	rtc_device_unregister(rtc->rtc_dev);
->  	free_irq(rtc->irq, rtc->rtc_dev);
-> -	irq_dispose_mapping(rtc->irq);
->  
->  	return 0;
->  }
-> -- 
-> 2.7.4
-> 
-
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index 19e53b3b8e00..01ffc0ef8033 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -135,9 +135,9 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	unsigned char buf[4];
+ 	unsigned long ticks, base, data;
+ 
+-	if ((tm->tm_year < 70) || (tm->tm_year > 138)) {
++	if (tm->tm_year > 206) {
+ 		dev_dbg(info->dev, "Set time %d out of range. "
+-			"Please set time between 1970 to 2038.\n",
++			"Please set time between 1970 to 2106.\n",
+ 			1900 + tm->tm_year);
+ 		return -EINVAL;
+ 	}
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.16.2
