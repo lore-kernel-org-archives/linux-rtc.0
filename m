@@ -1,123 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway23.websitewelcome.com ([192.185.48.84]:47484 "EHLO
-        gateway23.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S932091AbeCHRdC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Mar 2018 12:33:02 -0500
-Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
-        by gateway23.websitewelcome.com (Postfix) with ESMTP id 719CD2E099
-        for <linux-rtc@vger.kernel.org>; Thu,  8 Mar 2018 11:09:00 -0600 (CST)
-Subject: Re: [RFC] Removing VLAs in rtc-s5m
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sangbeom Kim <sbkim73@samsung.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org
-References: <82561e18-2283-897a-49b9-9606e3b7e1b2@embeddedor.com>
- <CAJKOXPfx2__Luw9LGevVdBaGL7C3Ldd9uCnBPpUnwgA6U25pKw@mail.gmail.com>
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Message-ID: <ad29f355-a07b-e1b7-8d4a-6884dcbe3fd4@embeddedor.com>
-Date: Thu, 8 Mar 2018 11:08:59 -0600
-MIME-Version: 1.0
-In-Reply-To: <CAJKOXPfx2__Luw9LGevVdBaGL7C3Ldd9uCnBPpUnwgA6U25pKw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from mail.bootlin.com ([62.4.15.54]:54265 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S964848AbeCSXse (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 19 Mar 2018 19:48:34 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/6] rtc: st-lpc: remove artificial limitation
+Date: Tue, 20 Mar 2018 00:48:15 +0100
+Message-Id: <20180319234817.16199-4-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+References: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Krzysztof,
+The LPC RTC supports dates way beyond 2038, don't limit it artificially as
+the kernel handles dates after 2038 properly.
 
-On 03/08/2018 02:37 AM, Krzysztof Kozlowski wrote:
-> On Thu, Mar 8, 2018 at 4:18 AM, Gustavo A. R. Silva
-> <garsilva@embeddedor.com> wrote:
->> Hi Alexandre,
->>
->> I'm trying to figure out the best way to fix the following VLA warnings:
->>
->> drivers/rtc/rtc-s5m.c:370:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->> drivers/rtc/rtc-s5m.c:416:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->> drivers/rtc/rtc-s5m.c:453:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->> drivers/rtc/rtc-s5m.c:503:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->> drivers/rtc/rtc-s5m.c:548:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->> drivers/rtc/rtc-s5m.c:601:2: warning: ISO C90 forbids variable length array
->> ‘data’ [-Wvla]
->>
->>
->> So I took a look into the following piece of code at
->> drivers/rtc/rtc-s5m.c:31, please see my comments below.
->>
->> /*
->>   * Registers used by the driver which are different between chipsets.
->>   *
->>   * Operations like read time and write alarm/time require updating
->>   * specific fields in UDR register. These fields usually are auto-cleared
->>   * (with some exceptions).
->>   *
->>   * Table of operations per device:
->>   *
->>   * Device     | Write time | Read time | Write alarm
->>   * =================================================
->>   * S5M8767    | UDR + TIME |           | UDR
->>   * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
->>   * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
->>   * S2MPS15    | WUDR       | RUDR      | AUDR
->>   */
->> struct s5m_rtc_reg_config {
->>          /* Number of registers used for setting time/alarm0/alarm1 */
->>          unsigned int regs_count;
->>
->>
->> Once the maximum number of registers for devices S5M8767, S2MPS11/14 S2MPS13
->> and S2MPS15 are 8, 7, 7 and 7 correspondingly, I think we can safely change
->> the type of regs_count to u8/uint8_t.
-> 
-> There is no benefit of changing it to u8. You will not get smaller
-> struct and unsigned int is pretty obvious for counting elements.
-> Unlike u8.
->
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-st-lpc.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
-I got it.
-
->> And then define a macro like the
->> following:
->>
->> #define MAX_NUM_REGS 8 or 10
->>
->> so we can replace this kind of code:
->>
->> u8 data[info->regs->regs_count];
->>
->> with this:
->>
->> u8 data[MAX_NUM_REGS];
-> 
-> Yes, 8 makes sense (but name like MAX_NUM_TIME_REGS). I think removing
-> the additional complexity (and error-prone solution) is worth of
-> living with wasted one-byte for some of devices. :)
-> 
->>
->> What do you think?
->>
->> Is there any chance a new device of this kind with more than 10 or 15
->> registers can be added in the future?
-> 
-> I think not because Samsung is copying this RTC block from design to
-> design and just changes few things. More registers would mean that
-> time and alarms are provided with better precision (milli seconds?
-> more registers for years?) or with some different calendars. If such
-> device appears, we can extend the array and accept the waste of
-> additional bytes. Really, complexity of code is not worth these few
-> bytes.
-> 
-
-
-I got it. I'll send a patch for this shortly.
-
-Thanks for the feedback.
-I appreciate it.
---
-Gustavo
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index 82b0af159a28..dcdd2b0a58f7 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -254,21 +254,6 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, rtc);
+ 
+-	/*
+-	 * The RTC-LPC is able to manage date.year > 2038
+-	 * but currently the kernel can not manage this date!
+-	 * If the RTC-LPC has a date.year > 2038 then
+-	 * it's set to the epoch "Jan 1st 2000"
+-	 */
+-	st_rtc_read_time(&pdev->dev, &tm_check);
+-
+-	if (tm_check.tm_year >=  (2038 - 1900)) {
+-		memset(&tm_check, 0, sizeof(tm_check));
+-		tm_check.tm_year = 100;
+-		tm_check.tm_mday = 1;
+-		st_rtc_set_time(&pdev->dev, &tm_check);
+-	}
+-
+ 	rtc->rtc_dev = rtc_device_register("st-lpc-rtc", &pdev->dev,
+ 					   &st_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc->rtc_dev)) {
+-- 
+2.16.2
