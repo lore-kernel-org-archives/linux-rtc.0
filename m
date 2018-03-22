@@ -1,174 +1,80 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway34.websitewelcome.com ([192.185.149.101]:16655 "EHLO
-        gateway34.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754996AbeCHDnV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 22:43:21 -0500
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway34.websitewelcome.com (Postfix) with ESMTP id 7B678691106
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 21:18:42 -0600 (CST)
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Sangbeom Kim <sbkim73@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [RFC] Removing VLAs in rtc-s5m
-Message-ID: <82561e18-2283-897a-49b9-9606e3b7e1b2@embeddedor.com>
-Date: Wed, 7 Mar 2018 21:18:39 -0600
+Return-Path: <SRS0=hW9q=GM=goodmis.org=rostedt@kernel.org>
+Date: Thu, 22 Mar 2018 09:37:20 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Joe Perches <joe@perches.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Will Deacon
+ <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng
+ <boqun.feng@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown
+ <lenb@kernel.org>, Zhang Rui <rui.zhang@intel.com>, Sathya Prakash
+ <sathya.prakash@broadcom.com>, Chaitra P B <chaitra.basappa@broadcom.com>,
+ Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>, Manish
+ Chopra <manish.chopra@cavium.com>, Rahul Verma <rahul.verma@cavium.com>,
+ Dept-GELinuxNICDev@cavium.com, QCA ath9k Development
+ <ath9k-devel@qca.qualcomm.com>, Corentin Chary <corentin.chary@gmail.com>,
+ Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>,
+ Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni
+ <alexandre.belloni@bootlin.com>, Adaptec OEM Raid Solutions
+ <aacraid@adaptec.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, Matthew Wilcox
+ <matthew@wil.cx>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields"
+ <bfields@fieldses.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Mark
+ Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, "Darrick J.
+ Wong" <darrick.wong@oracle.com>, linux-xfs@vger.kernel.org, Paul Moore
+ <paul@paul-moore.com>, Eric Paris <eparis@redhat.com>, Timur Tabi
+ <timur@tabi.org>, Nicolin Chen <nicoleotsuka@gmail.com>, Xiubo Li
+ <Xiubo.Lee@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>, Jiri Kosina
+ <trivial@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter
+ Anvin" <hpa@zytor.com>, x86@kernel.org, Alex Deucher
+ <alexander.deucher@amd.com>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
+ David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, Liam Girdwood
+ <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Jaroslav Kysela
+ <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+ amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ linux-media@vger.kernel.org, MPT-FusionLinux.pdl@broadcom.com,
+ linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+ linux-wireless@vger.kernel.org, acpi4asus-user@lists.sourceforge.net,
+ platform-driver-x86@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+ linux-audit@redhat.com, alsa-devel@alsa-project.org,
+ linuxppc-dev@lists.ozlabs.org
+Subject: Re: [trivial PATCH V2] treewide: Align function definition
+ open/close braces
+Message-ID: <20180322093720.2254cfbb@gandalf.local.home>
+In-Reply-To: <5ccbbf083e26bddfb4ea4f819ed62347ce266f39.1521669820.git.joe@perches.com>
+References: <5ccbbf083e26bddfb4ea4f819ed62347ce266f39.1521669820.git.joe@perches.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Sender: linux-rtc-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+On Wed, 21 Mar 2018 15:09:32 -0700
+Joe Perches <joe@perches.com> wrote:
 
-I'm trying to figure out the best way to fix the following VLA warnings:
+> diff --git a/kernel/trace/trace_printk.c b/kernel/trace/trace_printk.c
+> index ad1d6164e946..50f44b7b2b32 100644
+> --- a/kernel/trace/trace_printk.c
+> +++ b/kernel/trace/trace_printk.c
+> @@ -196,7 +196,7 @@ struct notifier_block module_trace_bprintk_format_nb = {
+>  };
+>  
+>  int __trace_bprintk(unsigned long ip, const char *fmt, ...)
+> - {
+> +{
+>  	int ret;
+>  	va_list ap;
+>  
+> @@ -214,7 +214,7 @@ int __trace_bprintk(unsigned long ip, const char *fmt, ...)
+>  EXPORT_SYMBOL_GPL(__trace_bprintk);
+>  
+>  int __ftrace_vbprintk(unsigned long ip, const char *fmt, va_list ap)
+> - {
+> +{
+>  	if (unlikely(!fmt))
+>  		return 0;
+>  
 
-drivers/rtc/rtc-s5m.c:370:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
-drivers/rtc/rtc-s5m.c:416:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
-drivers/rtc/rtc-s5m.c:453:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
-drivers/rtc/rtc-s5m.c:503:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
-drivers/rtc/rtc-s5m.c:548:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
-drivers/rtc/rtc-s5m.c:601:2: warning: ISO C90 forbids variable length 
-array ‘data’ [-Wvla]
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-
-So I took a look into the following piece of code at 
-drivers/rtc/rtc-s5m.c:31, please see my comments below.
-
-/*
-  * Registers used by the driver which are different between chipsets.
-  *
-  * Operations like read time and write alarm/time require updating
-  * specific fields in UDR register. These fields usually are auto-cleared
-  * (with some exceptions).
-  *
-  * Table of operations per device:
-  *
-  * Device     | Write time | Read time | Write alarm
-  * =================================================
-  * S5M8767    | UDR + TIME |           | UDR
-  * S2MPS11/14 | WUDR       | RUDR      | WUDR + RUDR
-  * S2MPS13    | WUDR       | RUDR      | WUDR + AUDR
-  * S2MPS15    | WUDR       | RUDR      | AUDR
-  */
-struct s5m_rtc_reg_config {
-	/* Number of registers used for setting time/alarm0/alarm1 */
-	unsigned int regs_count;
-
-
-Once the maximum number of registers for devices S5M8767, S2MPS11/14 
-S2MPS13 and S2MPS15 are 8, 7, 7 and 7 correspondingly, I think we can 
-safely change the type of regs_count to u8/uint8_t. And then define a 
-macro like the following:
-
-#define MAX_NUM_REGS 8 or 10
-
-so we can replace this kind of code:
-
-u8 data[info->regs->regs_count];
-
-with this:
-
-u8 data[MAX_NUM_REGS];
-
-What do you think?
-
-Is there any chance a new device of this kind with more than 10 or 15 
-registers can be added in the future?
-
-
-	/* First register for time, seconds */
-	unsigned int time;
-	/* RTC control register */
-	unsigned int ctrl;
-	/* First register for alarm 0, seconds */
-	unsigned int alarm0;
-	/* First register for alarm 1, seconds */
-	unsigned int alarm1;
-	/*
-	 * Register for update flag (UDR). Typically setting UDR field to 1
-	 * will enable update of time or alarm register. Then it will be
-	 * auto-cleared after successful update.
-	 */
-	unsigned int udr_update;
-	/* Auto-cleared mask in UDR field for writing time and alarm */
-	unsigned int autoclear_udr_mask;
-	/*
-	 * Masks in UDR field for time and alarm operations.
-	 * The read time mask can be 0. Rest should not.
-	 */
-	unsigned int read_time_udr_mask;
-	unsigned int write_time_udr_mask;
-	unsigned int write_alarm_udr_mask;
-};
-
-/* Register map for S5M8763 and S5M8767 */
-static const struct s5m_rtc_reg_config s5m_rtc_regs = {
-	.regs_count		= 8,
-	.time			= S5M_RTC_SEC,
-	.ctrl			= S5M_ALARM1_CONF,
-	.alarm0			= S5M_ALARM0_SEC,
-	.alarm1			= S5M_ALARM1_SEC,
-	.udr_update		= S5M_RTC_UDR_CON,
-	.autoclear_udr_mask	= S5M_RTC_UDR_MASK,
-	.read_time_udr_mask	= 0, /* Not needed */
-	.write_time_udr_mask	= S5M_RTC_UDR_MASK | S5M_RTC_TIME_EN_MASK,
-	.write_alarm_udr_mask	= S5M_RTC_UDR_MASK,
-};
-
-/* Register map for S2MPS13 */
-static const struct s5m_rtc_reg_config s2mps13_rtc_regs = {
-	.regs_count		= 7,
-	.time			= S2MPS_RTC_SEC,
-	.ctrl			= S2MPS_RTC_CTRL,
-	.alarm0			= S2MPS_ALARM0_SEC,
-	.alarm1			= S2MPS_ALARM1_SEC,
-	.udr_update		= S2MPS_RTC_UDR_CON,
-	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
-	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
-	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
-	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS13_RTC_AUDR_MASK,
-};
-
-/* Register map for S2MPS11/14 */
-static const struct s5m_rtc_reg_config s2mps14_rtc_regs = {
-	.regs_count		= 7,
-	.time			= S2MPS_RTC_SEC,
-	.ctrl			= S2MPS_RTC_CTRL,
-	.alarm0			= S2MPS_ALARM0_SEC,
-	.alarm1			= S2MPS_ALARM1_SEC,
-	.udr_update		= S2MPS_RTC_UDR_CON,
-	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
-	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
-	.write_time_udr_mask	= S2MPS_RTC_WUDR_MASK,
-	.write_alarm_udr_mask	= S2MPS_RTC_WUDR_MASK | S2MPS_RTC_RUDR_MASK,
-};
-
-/*
-  * Register map for S2MPS15 - in comparison to S2MPS14 the WUDR and 
-AUDR bits
-  * are swapped.
-  */
-static const struct s5m_rtc_reg_config s2mps15_rtc_regs = {
-	.regs_count		= 7,
-	.time			= S2MPS_RTC_SEC,
-	.ctrl			= S2MPS_RTC_CTRL,
-	.alarm0			= S2MPS_ALARM0_SEC,
-	.alarm1			= S2MPS_ALARM1_SEC,
-	.udr_update		= S2MPS_RTC_UDR_CON,
-	.autoclear_udr_mask	= S2MPS_RTC_WUDR_MASK,
-	.read_time_udr_mask	= S2MPS_RTC_RUDR_MASK,
-	.write_time_udr_mask	= S2MPS15_RTC_WUDR_MASK,
-	.write_alarm_udr_mask	= S2MPS15_RTC_AUDR_MASK,
-};
-
-Thanks
---
-Gustavo
+-- Steve
