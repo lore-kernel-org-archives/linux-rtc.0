@@ -1,56 +1,45 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:38286 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754039AbeCGWCw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 17:02:52 -0500
-Date: Wed, 7 Mar 2018 16:02:50 -0600
-From: Rob Herring <robh@kernel.org>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v3 3/4] rtc: isl1208: add support for isl1219 with tamper
- detection
-Message-ID: <20180307220250.pfaboby7ax7baxp2@rob-hp-laptop>
-References: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
- <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
+Received: from gateway33.websitewelcome.com ([192.185.146.210]:33200 "EHLO
+        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751825AbeCVTxa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Mar 2018 15:53:30 -0400
+Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
+        by gateway33.websitewelcome.com (Postfix) with ESMTP id 061E74423
+        for <linux-rtc@vger.kernel.org>; Thu, 22 Mar 2018 14:53:30 -0500 (CDT)
+Date: Thu, 22 Mar 2018 14:53:28 -0500
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] rtc: isl12022: use true and false for boolean values
+Message-ID: <20180322195328.GA25733@embeddedgus>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1520246373-19023-4-git-send-email-Denis.Osterland@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Mar 05, 2018 at 10:43:52AM +0000, Denis OSTERLAND wrote:
-> From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> 
-> We add support for the ISL1219 chip that got an integrated tamper
-> detection function. This patch implements the feature by adding
-> an additional timestamp0 file to sysfs device path.
-> This file contains seconds since epoch, if an event occurred,
-> or is empty, if none occurred.
-> 
-> The devicetree documentation for the ISL1219 device tree
-> binding is added with an short example. It is not a trivial
-> device, because it supports two interrupt souces.
-> 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  .../devicetree/bindings/rtc/isil,isl1219.txt       |  28 ++++
+Assign true or false to boolean variables instead of an integer value.
 
-While preferred to separate, I'm not going to ask for that if there are 
-no other changes on the binding.
+This issue was detected with the help of Coccinelle.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/rtc/rtc-isl12022.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->  drivers/rtc/rtc-isl1208.c                          | 160 ++++++++++++++++++---
->  2 files changed, 171 insertions(+), 17 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index fa5c15d..890ccfc 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -201,7 +201,7 @@ static int isl12022_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 				return ret;
+ 		}
+ 
+-		isl12022->write_enabled = 1;
++		isl12022->write_enabled = true;
+ 	}
+ 
+ 	/* hours, minutes and seconds */
+-- 
+2.7.4
