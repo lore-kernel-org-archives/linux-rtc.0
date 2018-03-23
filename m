@@ -1,68 +1,88 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.130]:37731 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751470AbeCNPjz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Mar 2018 11:39:55 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH 09/47] rtc: remove bfin driver
-Date: Wed, 14 Mar 2018 16:35:22 +0100
-Message-Id: <20180314153603.3127932-10-arnd@arndb.de>
-In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
-References: <20180314153603.3127932-1-arnd@arndb.de>
+Received: from mail.bootlin.com ([62.4.15.54]:43440 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751841AbeCWKuT (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 23 Mar 2018 06:50:19 -0400
+Date: Fri, 23 Mar 2018 11:50:17 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: sean.wang@mediatek.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
+        lee.jones@linaro.org, a.zummo@towertech.it,
+        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 09/16] rtc: mediatek: convert to use device managed
+ functions
+Message-ID: <20180323105017.GI3417@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+ <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The blackfin architecture is getting removed, so this one is
-now obsolete.
+On 23/03/2018 at 17:15:06 +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Use device managed operation to simplify error handling, reduce source
+> code size, and reduce the likelyhood of bugs, and remove our removal
+> callback which contains anything already done by device managed functions.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 31 ++++++++-----------------------
+>  1 file changed, 8 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index cefb83b..bfc5d6f 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -14,6 +14,7 @@
+>  
+>  #include <linux/delay.h>
+>  #include <linux/init.h>
+> +#include <linux/interrupt.h>
+>  #include <linux/module.h>
+>  #include <linux/regmap.h>
+>  #include <linux/rtc.h>
+> @@ -328,10 +329,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, rtc);
+>  
+> -	ret = request_threaded_irq(rtc->irq, NULL,
+> -				   mtk_rtc_irq_handler_thread,
+> -				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> -				   "mt6397-rtc", rtc);
+> +	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+> +					mtk_rtc_irq_handler_thread,
+> +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> +					"mt6397-rtc", rtc);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+>  			rtc->irq, ret);
+> @@ -340,30 +341,15 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  
+>  	device_init_wakeup(&pdev->dev, 1);
+>  
+> -	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
+> -					   &mtk_rtc_ops, THIS_MODULE);
+> +	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "mt6397-rtc",
+> +						&mtk_rtc_ops, THIS_MODULE);
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/rtc/Kconfig    |  10 --
- drivers/rtc/Makefile   |   1 -
- drivers/rtc/rtc-bfin.c | 448 -------------------------------------------------
- 3 files changed, 459 deletions(-)
- delete mode 100644 drivers/rtc/rtc-bfin.c
+You should probably switch to devm_rtc_allocate_device() and
+rtc_register_device instead of devm_rtc_device_register.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 0e1413a5ba3a..0ab8946f69b7 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1445,16 +1445,6 @@ config RTC_DRV_AU1XXX
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-au1xxx.
- 
--config RTC_DRV_BFIN
--	tristate "Blackfin On-Chip RTC"
--	depends on BLACKFIN && !BF561
--	help
--	  If you say yes here you will get support for the
--	  Blackfin On-Chip Real Time Clock.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-bfin.
--
- config RTC_DRV_RS5C313
- 	tristate "Ricoh RS5C313"
- 	depends on SH_LANDISK
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index f7a4b09557a0..5ff2fc0c361a 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -36,7 +36,6 @@ obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
- obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
- obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
- obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
--obj-$(CONFIG_RTC_DRV_BFIN)	+= rtc-bfin.o
- obj-$(CONFIG_RTC_DRV_BRCMSTB)	+= rtc-brcmstb-waketimer.o
- obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
- obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
-diff --git a/drivers/rtc/rtc-bfin.c b/drivers/rtc/rtc-bfin.c
-deleted file mode 100644
-index 15344b7c07c5..000000000000
+>  	if (IS_ERR(rtc->rtc_dev)) {
+>  		dev_err(&pdev->dev, "register rtc device failed\n");
+>  		ret = PTR_ERR(rtc->rtc_dev);
+> -		goto out_free_irq;
+> +		return ret;
+
+ret doesn't seem necessary anymore here.
+
+
 -- 
-2.9.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
