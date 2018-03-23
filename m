@@ -1,49 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:43330 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751414AbeCOJsh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 05:48:37 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:46348 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752003AbeCWJPa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:30 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 04/16] mfd: mt6397: add MT6323 RTC support into MT6397 driver
+Date: Fri, 23 Mar 2018 17:15:01 +0800
+Message-ID: <90320622cb491b9d3251e2ce9d0501422f47660f.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <2929.1521106970@warthog.procyon.org.uk>
-References: <20180314143529.1456168-1-arnd@arndb.de> <2929.1521106970@warthog.procyon.org.uk>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 15 Mar 2018 10:48:35 +0100
-Message-ID: <CAMuHMdXcxuzCOnFCNm4NXDv-wfYJDO5GQpB_ECu7j=2BjMhNpA@mail.gmail.com>
-Subject: Re: [PATCH 00/16] remove eight obsolete architectures
-To: David Howells <dhowells@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-doc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Linux PWM List <linux-pwm@vger.kernel.org>,
-        linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi David,
+From: Sean Wang <sean.wang@mediatek.com>
 
-On Thu, Mar 15, 2018 at 10:42 AM, David Howells <dhowells@redhat.com> wrote:
-> Do we have anything left that still implements NOMMU?
+Add compatible string as "mt6323-rtc" that will make the OF core spawn
+child devices for the RTC subnode of that MT6323 MFD node.
 
-Sure: arm, c6x, m68k, microblaze, and  sh.
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 77b64bd..f71874a 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2014 MediaTek Inc.
++ * Copyright (c) 2014-2018 MediaTek Inc.
+  * Author: Flora Fu, MediaTek
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -23,6 +23,9 @@
+ #include <linux/mfd/mt6397/registers.h>
+ #include <linux/mfd/mt6323/registers.h>
+ 
++#define MT6323_RTC_BASE		0x8000
++#define MT6323_RTC_SIZE		0x3e
++
+ #define MT6397_RTC_BASE		0xe000
+ #define MT6397_RTC_SIZE		0x3e
+ 
+@@ -30,6 +33,19 @@
+ #define MT6391_CID_CODE		0x91
+ #define MT6397_CID_CODE		0x97
+ 
++static const struct resource mt6323_rtc_resources[] = {
++	{
++		.start = MT6323_RTC_BASE,
++		.end   = MT6323_RTC_BASE + MT6323_RTC_SIZE,
++		.flags = IORESOURCE_MEM,
++	},
++	{
++		.start = MT6323_IRQ_STATUS_RTC,
++		.end   = MT6323_IRQ_STATUS_RTC,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
+ static const struct resource mt6397_rtc_resources[] = {
+ 	{
+ 		.start = MT6397_RTC_BASE,
+@@ -55,6 +71,11 @@ static const struct resource mt6397_keys_resources[] = {
+ 
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
++		.name = "mt6323-rtc",
++		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
++		.resources = mt6323_rtc_resources,
++		.of_compatible = "mediatek,mt6323-rtc",
++	}, {
+ 		.name = "mt6323-regulator",
+ 		.of_compatible = "mediatek,mt6323-regulator"
+ 	}, {
+-- 
+2.7.4
