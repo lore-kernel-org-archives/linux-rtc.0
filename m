@@ -1,72 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:12948 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750983AbeCZN6R (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 26 Mar 2018 09:58:17 -0400
-From: Zhang Rui <rui.zhang@intel.com>
-To: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc: rjw@rjwysocki.net, alexandre.belloni@free-electrons.com,
-        gabriele.mzt@gmail.com, rui.zhang@intel.com
-Subject: [PATCH 2/3] rtc: cmos: acknowledge ACPI driven wake alarms upon resume
-Date: Mon, 26 Mar 2018 21:58:02 +0800
-Message-Id: <1522072683-3968-2-git-send-email-rui.zhang@intel.com>
-In-Reply-To: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
-References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:9578 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751675AbeCWJPa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:30 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 08/16] rtc: mediatek: remove unnecessary irq_dispose_mapping
+Date: Fri, 23 Mar 2018 17:15:05 +0800
+Message-ID: <96f39ce7f57a4dcd7653e049eebc87c83bcbdfc9.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Previously, the RTC alarm is acknowledged either by the cmos rtc irq
-handler, or by the hpet rtc irq handler.
+From: Sean Wang <sean.wang@mediatek.com>
 
-When using ACPI RTC Fixed event as the RTC alarm, the RTC alarm is
-acknowledged by the ACPI RTC event handler, as addressed in the previous
-patch.
-But, when resume from suspend-to-ram (ACPI S3), the ACPI SCI is cleared
-right after resume, thus the ACPI RTC event handler is not invoked at all,
-results in the RTC Alarm unacknowledged.
+It's unnecessary doing irq_dispose_mapping as a reverse operation for
+platform_get_irq.
 
-Handle this by comparing the current time and the RTC Alarm time in the
-rtc_cmos driver .resume() callback
-1. Assume the wakeup event has already been fired if the RTC Alarm time
-   is earlier than/equal to the current time, and ACK the RTC Alarm.
-2. Assume the wakeup event has not been fired if the RTC Alarm time
-   is later than current time, and re-arm it if needed.
+Ususally, irq_dispose_mapping should be called in error path or module
+removal to release the resources for irq_of_parse_and_map requested.
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- drivers/rtc/rtc-cmos.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/rtc/rtc-mt6397.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 9665a72..bcf86e1 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1022,8 +1022,26 @@ static void cmos_check_wkalrm(struct device *dev)
- {
- 	struct cmos_rtc *cmos = dev_get_drvdata(dev);
- 	struct rtc_wkalrm current_alarm;
-+	time64_t t_now;
- 	time64_t t_current_expires;
- 	time64_t t_saved_expires;
-+	struct rtc_time now;
-+
-+	/* Check if we have RTC Alarm armed */
-+	if (!(cmos->suspend_ctrl & RTC_AIE))
-+		return;
-+
-+	cmos_read_time(dev, &now);
-+	t_now = rtc_tm_to_time64(&now);
-+
-+	/*
-+	 * ACPI RTC wake event is cleared after resume from STR,
-+	 * ACK the rtc irq here
-+	 */
-+	if (t_now >= cmos->alarm_expires && use_acpi_alarm) {
-+		cmos_interrupt(0, (void *)cmos->rtc);
-+		return;
-+	}
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index b62eaa8..cefb83b 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -17,7 +17,6 @@
+ #include <linux/module.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+-#include <linux/irqdomain.h>
+ #include <linux/jiffies.h>
+ #include <linux/platform_device.h>
+ #include <linux/of_address.h>
+@@ -336,7 +335,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			rtc->irq, ret);
+-		goto out_dispose_irq;
++		return ret;
+ 	}
  
- 	cmos_read_alarm(dev, &current_alarm);
- 	t_current_expires = rtc_tm_to_time64(&current_alarm.time);
+ 	device_init_wakeup(&pdev->dev, 1);
+@@ -353,8 +352,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 
+ out_free_irq:
+ 	free_irq(rtc->irq, rtc->rtc_dev);
+-out_dispose_irq:
+-	irq_dispose_mapping(rtc->irq);
++
+ 	return ret;
+ }
+ 
+@@ -364,7 +362,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ 
+ 	rtc_device_unregister(rtc->rtc_dev);
+ 	free_irq(rtc->irq, rtc->rtc_dev);
+-	irq_dispose_mapping(rtc->irq);
+ 
+ 	return 0;
+ }
 -- 
 2.7.4
