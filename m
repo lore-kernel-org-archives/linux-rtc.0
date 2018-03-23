@@ -1,89 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39530 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751675AbeCWJlb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 23 Mar 2018 05:41:31 -0400
-Date: Fri, 23 Mar 2018 10:41:18 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: sean.wang@mediatek.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
- PMIC RTC
-Message-ID: <20180323094118.GC3417@piout.net>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:39333 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751668AbeCWJPf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:35 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 15/16] MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
+Date: Fri, 23 Mar 2018 17:15:12 +0800
+Message-ID: <abadf0686094826b241944ee5563996de9a0f41a.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
 References: <cover.1521794176.git.sean.wang@mediatek.com>
- <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+From: Sean Wang <sean.wang@mediatek.com>
 
-On 23/03/2018 at 17:14:59 +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> Add device-tree binding for MediaTek PMIC based RTC.
-> 
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> ---
->  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 39 ++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> new file mode 100644
-> index 0000000..83ff6be
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-> @@ -0,0 +1,39 @@
-> +Device-Tree bindings for MediaTek PMIC based RTC
-> +
-> +MediaTek PMIC based RTC is an independent function of MediaTek PMIC which
-> +is working as a multi-function device (MFD). And the RTC can be configured and
-> +set up via PMIC wrapper bus. Which is also common resource shared among the
-> +other functions present on the PMIC.
-> +
-> +For MediaTek PMIC wrapper bus bindings, see:
-> +Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-> +
-> +Required parent node:
-> +- pmic
-> +  For MediaTek PMIC MFD bindings, see:
-> +  Documentation/devicetree/bindings/mfd/mt6397.txt
-> +
-> +Required properties:
-> +- compatible: Should be one of follows
-> +	"mediatek,mt6323-rtc": for MT6323 PMIC
-> +	"mediatek,mt6397-rtc": for MT6397 PMIC
-> +
-> +Optional child node:
-> +- power-off
-> +  For Power-Off Device for MediaTek PMIC RTC bindings, see:
-> +  Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-> +
-> +Example:
-> +
-> +	pmic {
-> +		compatible = "mediatek,mt6323";
-> +
-> +		...
-> +		rtc {
-> +			compatible = "mediatek,mt6323-rtc";
-> +
-> +			power-off {
-> +				compatible = "mediatek,mt6323-rtc-poweroff";
-> +			};
+Add new files for new dt-bindings and a globally visible header file.
 
-I'm pretty sure the whole point of mfd is to avoid having the poweroff
-controller under the rtc
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d3c33d7..1c13f29 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1626,9 +1626,11 @@ M:	Sean Wang <sean.wang@mediatek.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
++F:	Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+ F:	Documentation/devicetree/bindings/rtc/rtc-mt7622.txt
+ F:	drivers/rtc/rtc-mt6397.c
+ F:	drivers/rtc/rtc-mt7622.c
++F:	include/linux/rtc/mt6397.h
+ 
+ ARM/Mediatek SoC support
+ M:	Matthias Brugger <matthias.bgg@gmail.com>
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
