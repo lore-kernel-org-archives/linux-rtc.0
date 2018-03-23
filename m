@@ -1,8 +1,8 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:39333 "EHLO
+Received: from mailgw01.mediatek.com ([210.61.82.183]:48398 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752027AbeCWJPd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:33 -0400
+        with ESMTP id S1751668AbeCWJPZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:25 -0400
 From: <sean.wang@mediatek.com>
 To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
         <lee.jones@linaro.org>, <a.zummo@towertech.it>,
@@ -10,11 +10,9 @@ To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
 CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 07/16] rtc: mediatek: replace a poll with regmap_read_poll_timeout
-Date: Fri, 23 Mar 2018 17:15:04 +0800
-Message-ID: <5e34fe67466d09ad5ce15e913dbe371eeb0a250f.1521794177.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
+Subject: [PATCH v1 00/16] Add support to MT6323 RTC and its power device
+Date: Fri, 23 Mar 2018 17:14:57 +0800
+Message-ID: <cover.1521794176.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
@@ -22,74 +20,61 @@ List-ID: <linux-rtc.vger.kernel.org>
 
 From: Sean Wang <sean.wang@mediatek.com>
 
-Reuse the helper regmap_read_poll_timeout instead to simpify the logic.
+Hi,
 
-Furthermore, the time for a wait in each iteration changed from cpu_relax
-to 20us is for matching the usage of the helper, but it wouldn't acctually
-break any the existent functionality according to a good test on MT6323
-PMIC.
+The series keeps to extend the capability of BPI-R2 board with MT7623 and
+the result can as well bring benefits into the other MediaTek PMICs such
+as MT6397 or SoCs.
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- drivers/rtc/rtc-mt6397.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+The series sent across mfd, rtc, pm, dt-binding sub-system is for hoping
+to let people have a simple cross-reference to know the exact dependency
+and why those patches are being split in that way between each one.
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 4411c08..b62eaa8 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -18,6 +18,7 @@
- #include <linux/regmap.h>
- #include <linux/rtc.h>
- #include <linux/irqdomain.h>
-+#include <linux/jiffies.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
- #include <linux/of_irq.h>
-@@ -63,6 +64,9 @@
- #define RTC_NUM_YEARS		128
- #define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
- 
-+#define MTK_RTC_POLL_DELAY_US	10
-+#define MTK_RTC_POLL_TIMEOUT	(jiffies_to_usecs(HZ))
-+
- struct mt6397_rtc {
- 	struct device		*dev;
- 	struct rtc_device	*rtc_dev;
-@@ -74,7 +78,6 @@ struct mt6397_rtc {
- 
- static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
- {
--	unsigned long timeout = jiffies + HZ;
- 	int ret;
- 	u32 data;
- 
-@@ -82,19 +85,13 @@ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
- 	if (ret < 0)
- 		return ret;
- 
--	while (1) {
--		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
--				  &data);
--		if (ret < 0)
--			break;
--		if (!(data & RTC_BBPU_CBUSY))
--			break;
--		if (time_after(jiffies, timeout)) {
--			ret = -ETIMEDOUT;
--			break;
--		}
--		cpu_relax();
--	}
-+	ret = regmap_read_poll_timeout(rtc->regmap,
-+				       rtc->addr_base + RTC_BBPU, data,
-+				       !(data & RTC_BBPU_CBUSY),
-+				       MTK_RTC_POLL_DELAY_US,
-+				       MTK_RTC_POLL_TIMEOUT);
-+	if (ret)
-+		dev_err(rtc->dev, "failed to write WRTGE: %d\n", ret);
- 
- 	return ret;
- }
+Patch 1-3: Add dt-binding to the related devices newly or already
+	   supported.
+Patch 4-5: Extend driver with the functionality of MT6323 RTC device.
+Patch 6-9 and 12-13: Add a few of trivial fixups, cleanups and
+	  improvements.
+Patch 10-11: It's a preparation for Patch 14 adding a new driver.
+Patch 14: Add a new driver for a power-off driver.
+Patch 15-16: Update MAINTAINERS with these new files being added.
+
+	Sean
+
+Sean Wang (16):
+  dt-bindings: power: reset: mediatek: add bindings for power device
+  dt-bindings: rtc: mediatek: add bindings for PMIC RTC
+  dt-bindings: mfd: mediatek: add a description for MT6323 RTC
+  mfd: mt6397: add MT6323 RTC support into MT6397 driver
+  rtc: mediatek: add MT6323 support to RTC driver
+  rtc: mediatek: remove unnecessary parentheses
+  rtc: mediatek: replace a poll with regmap_read_poll_timeout
+  rtc: mediatek: remove unnecessary irq_dispose_mapping
+  rtc: mediatek: convert to use device managed functions
+  rtc: mediatek: add devm_of_platform_populate
+  rtc: mediatek: move the declaration into a globally visible header
+    file
+  rtc: mediatek: cleanup header files to include
+  rtc: mediatek: update license converting to using SPDX identifiers
+  power: reset: mediatek: add a power-off driver using PMIC RTC device
+  MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
+  MAINTAINERS: add an entry for MediaTek board level shutdown driver
+
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |   4 +-
+ .../bindings/power/reset/mt6397-rtc-poweroff.txt   |  24 ++++
+ .../devicetree/bindings/rtc/rtc-mt6397.txt         |  39 ++++++
+ MAINTAINERS                                        |   9 ++
+ drivers/mfd/mt6397-core.c                          |  23 +++-
+ drivers/power/reset/Kconfig                        |   9 ++
+ drivers/power/reset/Makefile                       |   1 +
+ drivers/power/reset/mt6397-rtc-poweroff.c          | 100 ++++++++++++++
+ drivers/rtc/rtc-mt6397.c                           | 145 +++++----------------
+ include/linux/rtc/mt6397.h                         |  73 +++++++++++
+ 10 files changed, 314 insertions(+), 113 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+ create mode 100644 drivers/power/reset/mt6397-rtc-poweroff.c
+ create mode 100644 include/linux/rtc/mt6397.h
+
 -- 
 2.7.4
