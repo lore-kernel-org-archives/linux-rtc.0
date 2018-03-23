@@ -1,68 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:37846 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750735AbeC2CSX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Mar 2018 22:18:23 -0400
-Received: by mail-pg0-f65.google.com with SMTP id n11so2094324pgp.4
-        for <linux-rtc@vger.kernel.org>; Wed, 28 Mar 2018 19:18:23 -0700 (PDT)
-Date: Thu, 29 Mar 2018 10:18:06 +0800
-From: Shawn Guo <shawn.guo@linaro.org>
-To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org,
-        a.zummo@towertech.it, Pan Bian <bianpan2016@163.com>,
-        Guy Shapiro <guy.shapiro@mobi-wize.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Frank Li <Frank.Li@freescale.com>, linux-rtc@vger.kernel.org,
-        "# v3 . 16+" <stable@vger.kernel.org>
-Subject: Re: [RESEND] [PATCH] rtc: snvs: Fix usage of snvs_rtc_enable
-Message-ID: <20180329021803.GI27302@dragon>
-References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:39333 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752101AbeCWJPi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:38 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 01/16] dt-bindings: power: reset: mediatek: add bindings for power device
+Date: Fri, 23 Mar 2018 17:14:58 +0800
+Message-ID: <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Mar 28, 2018 at 08:14:05PM +0100, Bryan O'Donoghue wrote:
-> commit 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver") introduces
-> the SNVS RTC driver with a function snvs_rtc_enable().
-> 
-> snvs_rtc_enable() can return an error on the enable path however this
-> driver does not currently trap that failure on the probe() path and
-> consequently if enabling the RTC fails we encounter a later error spinning
-> forever in rtc_write_sync_lp().
-> 
-> [   36.093481] [<c010d630>] (__irq_svc) from [<c0c2e9ec>] (_raw_spin_unlock_irqrestore+0x34/0x44)
-> [   36.102122] [<c0c2e9ec>] (_raw_spin_unlock_irqrestore) from [<c072e32c>] (regmap_read+0x4c/0x5c)
-> [   36.110938] [<c072e32c>] (regmap_read) from [<c085d0f4>] (rtc_write_sync_lp+0x6c/0x98)
-> [   36.118881] [<c085d0f4>] (rtc_write_sync_lp) from [<c085d160>] (snvs_rtc_alarm_irq_enable+0x40/0x4c)
-> [   36.128041] [<c085d160>] (snvs_rtc_alarm_irq_enable) from [<c08567b4>] (rtc_timer_do_work+0xd8/0x1a8)
-> [   36.137291] [<c08567b4>] (rtc_timer_do_work) from [<c01441b8>] (process_one_work+0x28c/0x76c)
-> [   36.145840] [<c01441b8>] (process_one_work) from [<c01446cc>] (worker_thread+0x34/0x58c)
-> [   36.153961] [<c01446cc>] (worker_thread) from [<c014aee4>] (kthread+0x138/0x150)
-> [   36.161388] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-> [   36.168635] rcu_sched kthread starved for 2602 jiffies! g496 c495 f0x2 RCU_GP_WAIT_FQS(3) ->state=0x0 ->cpu=0
-> [   36.178564] rcu_sched       R  running task        0     8      2 0x00000000
-> [   36.185664] [<c0c288b0>] (__schedule) from [<c0c29134>] (schedule+0x3c/0xa0)
-> [   36.192739] [<c0c29134>] (schedule) from [<c0c2db80>] (schedule_timeout+0x78/0x4e0)
-> [   36.200422] [<c0c2db80>] (schedule_timeout) from [<c01a7ab0>] (rcu_gp_kthread+0x648/0x1864)
-> [   36.208800] [<c01a7ab0>] (rcu_gp_kthread) from [<c014aee4>] (kthread+0x138/0x150)
-> [   36.216309] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-> 
-> This patch fixes by parsing the result of rtc_write_sync_lp() and
-> propagating both in the probe and elsewhere. If the RTC doesn't start we
-> don't proceed loading the driver and don't get into this loop mess later
-> on.
-> 
-> Fixes: 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver")
-> 
-> Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-> Cc: a.zummo@towertech.it
-> Cc: alexandre.belloni@free-electrons.com
-> Cc: Pan Bian <bianpan2016@163.com>
-> Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>
-> Cc: Stefan Agner <stefan@agner.ch>
-> Cc: Frank Li <Frank.Li@freescale.com>
-> Cc: Shawn Guo <shawn.guo@linaro.org>
+From: Sean Wang <sean.wang@mediatek.com>
 
-Acked-by: Shawn Guo <shawn.guo@linaro.org>
+Add device-tree binding for the power device responsible for shutdown a
+remote SoC, which is a tiny circuit block present on MediaTek PMIC based
+RTC.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ .../bindings/power/reset/mt6397-rtc-poweroff.txt   | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+
+diff --git a/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+new file mode 100644
+index 0000000..75a9d7d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+@@ -0,0 +1,24 @@
++Device-Tree bindings for Power Device on MediaTek PMIC RTC
++
++The power device is responsible for externally power off or on the remote
++MediaTek SoC through the a tiny circuit block BBPU inside PMIC RTC.
++
++Required parent node:
++- rtc
++	For MediaTek PMIC RTC bindings, see:
++	Documentation/devicetree/bindings/mfd/mt6397.txt
++
++Required properties:
++- compatible: Should be one of follows
++	"mediatek,mt6323-rtc-poweroff": for MT6323 PMIC
++	"mediatek,mt6397-rtc-poweroff": for MT6397 PMIC
++
++Example:
++
++	rtc {
++		compatible = "mediatek,mt6323-rtc";
++
++		power-off {
++			compatible = "mediatek,mt6323-rtc-poweroff";
++		};
++	};
+-- 
+2.7.4
