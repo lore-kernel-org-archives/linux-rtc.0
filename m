@@ -1,47 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:42140 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751619AbeCOKm1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Mar 2018 06:42:27 -0400
+Received: from mail.bootlin.com ([62.4.15.54]:39530 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751675AbeCWJlb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 23 Mar 2018 05:41:31 -0400
+Date: Fri, 23 Mar 2018 10:41:18 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: sean.wang@mediatek.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
+        lee.jones@linaro.org, a.zummo@towertech.it,
+        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
+ PMIC RTC
+Message-ID: <20180323094118.GC3417@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+ <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <6c9d075c-d7a8-72a5-9b2d-af1feaa06c6c@suse.de>
-References: <20180314143529.1456168-1-arnd@arndb.de> <2929.1521106970@warthog.procyon.org.uk>
- <6c9d075c-d7a8-72a5-9b2d-af1feaa06c6c@suse.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 15 Mar 2018 11:42:25 +0100
-Message-ID: <CAK8P3a01pfvsdM1mR8raU9dA7p4H-jRJz2Y8-+KEY76W_Mukpg@mail.gmail.com>
-Subject: Re: [PATCH 00/16] remove eight obsolete architectures
-To: Hannes Reinecke <hare@suse.de>
-Cc: David Howells <dhowells@redhat.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>,
-        IDE-ML <linux-ide@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>, linux-usb@vger.kernel.org,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Mar 15, 2018 at 10:59 AM, Hannes Reinecke <hare@suse.de> wrote:
-> On 03/15/2018 10:42 AM, David Howells wrote:
->> Do we have anything left that still implements NOMMU?
->>
-> RISC-V ?
-> (evil grin :-)
+Hi,
 
-Is anyone producing a chip that includes enough of the Privileged ISA spec
-to have things like system calls, but not the MMU parts?
+On 23/03/2018 at 17:14:59 +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Add device-tree binding for MediaTek PMIC based RTC.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 39 ++++++++++++++++++++++
+>  1 file changed, 39 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+> new file mode 100644
+> index 0000000..83ff6be
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+> @@ -0,0 +1,39 @@
+> +Device-Tree bindings for MediaTek PMIC based RTC
+> +
+> +MediaTek PMIC based RTC is an independent function of MediaTek PMIC which
+> +is working as a multi-function device (MFD). And the RTC can be configured and
+> +set up via PMIC wrapper bus. Which is also common resource shared among the
+> +other functions present on the PMIC.
+> +
+> +For MediaTek PMIC wrapper bus bindings, see:
+> +Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
+> +
+> +Required parent node:
+> +- pmic
+> +  For MediaTek PMIC MFD bindings, see:
+> +  Documentation/devicetree/bindings/mfd/mt6397.txt
+> +
+> +Required properties:
+> +- compatible: Should be one of follows
+> +	"mediatek,mt6323-rtc": for MT6323 PMIC
+> +	"mediatek,mt6397-rtc": for MT6397 PMIC
+> +
+> +Optional child node:
+> +- power-off
+> +  For Power-Off Device for MediaTek PMIC RTC bindings, see:
+> +  Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> +
+> +Example:
+> +
+> +	pmic {
+> +		compatible = "mediatek,mt6323";
+> +
+> +		...
+> +		rtc {
+> +			compatible = "mediatek,mt6323-rtc";
+> +
+> +			power-off {
+> +				compatible = "mediatek,mt6323-rtc-poweroff";
+> +			};
 
-I thought at least initially the kernel only supports hardware that has a rather
-complete feature set.
+I'm pretty sure the whole point of mfd is to avoid having the poweroff
+controller under the rtc
 
-       Arnd
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
