@@ -1,52 +1,55 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:54262 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S964813AbeCSXsd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 19 Mar 2018 19:48:33 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/6] rtc: hctosys: Ensure system time doesn't overflow time_t
-Date: Tue, 20 Mar 2018 00:48:12 +0100
-Message-Id: <20180319234817.16199-1-alexandre.belloni@bootlin.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:8094 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752069AbeCWJPh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:37 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 10/16] rtc: mediatek: add devm_of_platform_populate
+Date: Fri, 23 Mar 2018 17:15:07 +0800
+Message-ID: <2bf23f9f05b747674419be6008822bef43085626.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 32bit platforms, time_t is still a signed 32bit long. If it is
-overflowed, userspace and the kernel cant agree on the current system time.
-This causes multiple issues, in particular with systemd:
-https://github.com/systemd/systemd/issues/1143
+From: Sean Wang <sean.wang@mediatek.com>
 
-A good workaround is to simply avoid using systohc which is something I
-greatly encourage as the time is better set by userspace.
+Add devm_of_platform_populate to populate all child nodes according to
+the dt-binding.
 
-However, many distribution enable it and use systemd which is rendering the
-system unusable in case the RTC holds a date after 2038 (and more so after
-2106). Many drivers have workaround for this case and they should be
-eliminated so there is only one place left to fix when userspace is able to
-cope with dates after the 31bit overflow.
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- drivers/rtc/hctosys.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-mt6397.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
-index e1cfa06810ef..e79f2a181ad2 100644
---- a/drivers/rtc/hctosys.c
-+++ b/drivers/rtc/hctosys.c
-@@ -49,6 +49,11 @@ static int __init rtc_hctosys(void)
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index bfc5d6f..d133d1f 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
++#include <linux/of_platform.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+ #include <linux/jiffies.h>
+@@ -349,7 +350,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- 	tv64.tv_sec = rtc_tm_to_time64(&tm);
+-	return 0;
++	return devm_of_platform_populate(&pdev->dev);
+ }
  
-+#if BITS_PER_LONG == 32
-+	if (tv64.tv_sec > INT_MAX)
-+		goto err_read;
-+#endif
-+
- 	err = do_settimeofday64(&tv64);
- 
- 	dev_info(rtc->dev.parent,
+ #ifdef CONFIG_PM_SLEEP
 -- 
-2.16.2
+2.7.4
