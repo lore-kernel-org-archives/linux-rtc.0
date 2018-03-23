@@ -7,16 +7,16 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	alexandre.belloni@free-electrons.com,
 	Hans de Goede <hdegoede@redhat.com>,
 	Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 3.18 02/47] x86: i8259: export legacy_pic symbol
-Date: Fri, 23 Mar 2018 10:54:53 +0100
-Message-Id: <20180323094248.227501251@linuxfoundation.org>
-In-Reply-To: <20180323094248.117679641@linuxfoundation.org>
-References: <20180323094248.117679641@linuxfoundation.org>
+Subject: [PATCH 4.4 08/97] x86: i8259: export legacy_pic symbol
+Date: Fri, 23 Mar 2018 10:53:55 +0100
+Message-Id: <20180323094157.982180842@linuxfoundation.org>
+In-Reply-To: <20180323094157.535925724@linuxfoundation.org>
+References: <20180323094157.535925724@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <rtc-linux.googlegroups.com>
 
-3.18-stable review patch.  If anyone has any objections, please let me know.
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -50,7 +50,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kernel/i8259.c
 +++ b/arch/x86/kernel/i8259.c
-@@ -405,6 +405,7 @@ struct legacy_pic default_legacy_pic = {
+@@ -418,6 +418,7 @@ struct legacy_pic default_legacy_pic = {
  };
  
  struct legacy_pic *legacy_pic = &default_legacy_pic;
