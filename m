@@ -1,68 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:47171 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752633AbeCXSxx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 24 Mar 2018 14:53:53 -0400
-Date: Sat, 24 Mar 2018 19:53:30 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Sean Wang <sean.wang@mediatek.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 06/16] rtc: mediatek: remove unnecessary parentheses
-Message-ID: <20180324185330.GO3417@piout.net>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:39333 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752014AbeCWJPb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:31 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v1 13/16] rtc: mediatek: update license converting to using SPDX identifiers
+Date: Fri, 23 Mar 2018 17:15:10 +0800
+Message-ID: <86450fc8dcc53c658e97ac739aac2bf7d1f94b64.1521794177.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
 References: <cover.1521794176.git.sean.wang@mediatek.com>
- <92d07e90f43899981a82fbc684c3d15aaecaf591.1521794177.git.sean.wang@mediatek.com>
- <20180323102123.GG3417@piout.net>
- <1521875652.28226.29.camel@mtkswgap22>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1521875652.28226.29.camel@mtkswgap22>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 24/03/2018 at 15:14:12 +0800, Sean Wang wrote:
-> On Fri, 2018-03-23 at 11:21 +0100, Alexandre Belloni wrote:
-> > On 23/03/2018 at 17:15:03 +0800, sean.wang@mediatek.com wrote:
-> > > From: Sean Wang <sean.wang@mediatek.com>
-> > > 
-> > > Remove unnecessary parentheses due to explicit C operator precedence.
-> > > 
-> > > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > > ---
-> > >  drivers/rtc/rtc-mt6397.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> > > index 0df7ccd..4411c08 100644
-> > > --- a/drivers/rtc/rtc-mt6397.c
-> > > +++ b/drivers/rtc/rtc-mt6397.c
-> > > @@ -106,7 +106,7 @@ static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
-> > >  	int ret;
-> > >  
-> > >  	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_STA, &irqsta);
-> > > -	if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
-> > > +	if (ret >= 0 && irqsta & RTC_IRQ_STA_AL) {
-> > 
-> > I don't think this makes the code particularly clearer.
-> > 
-> 
-> But it is still a one of check items in checkpatch
-> 
-> CHECK:UNNECESSARY_PARENTHESES: Unnecessary parentheses around 'ret >= 0'
-> #126: FILE: drivers/rtc/rtc-xxx.c:109:
-> +       if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
-> 
-> 
-> or we still want to keep it in parentheses around here?
-> 
+From: Sean Wang <sean.wang@mediatek.com>
 
-Yeah, this is a matter of taste, I would keep the parentheses.
+Update the license and as well convert to using SPDX identifiers.
 
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ drivers/rtc/rtc-mt6397.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index f5dc70d..ad336a4 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -1,16 +1,12 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+-* Copyright (c) 2014-2015 MediaTek Inc.
+-* Author: Tianping.Fang <tianping.fang@mediatek.com>
+-*
+-* This program is free software; you can redistribute it and/or modify
+-* it under the terms of the GNU General Public License version 2 as
+-* published by the Free Software Foundation.
+-*
+-* This program is distributed in the hope that it will be useful,
+-* but WITHOUT ANY WARRANTY; without even the implied warranty of
+-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-* GNU General Public License for more details.
+-*/
++ * MediaTek PMIC RTC driver
++ *
++ * Copyright (C) 2014-2018 MediaTek Inc.
++ *
++ * Author: Tianping.Fang <tianping.fang@mediatek.com>
++ *	   Sean Wang <sean.wang@mediatek.com>
++ */
+ 
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
