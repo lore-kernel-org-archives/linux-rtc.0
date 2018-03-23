@@ -1,69 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:41462 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752334AbeCMI3t (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Mar 2018 04:29:49 -0400
+Received: from mail.bootlin.com ([62.4.15.54]:40393 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753607AbeCWKCI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 23 Mar 2018 06:02:08 -0400
+Date: Fri, 23 Mar 2018 11:01:56 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: sean.wang@mediatek.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
+        lee.jones@linaro.org, a.zummo@towertech.it,
+        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 05/16] rtc: mediatek: add MT6323 support to RTC driver
+Message-ID: <20180323100156.GE3417@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+ <c49898db977a0b37363a35d3e3b297af891d7219.1521794177.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20180312233102.GE3795@piout.net>
-References: <20180312231338.3756-1-stefano.manni@gmail.com> <20180312233102.GE3795@piout.net>
-From: Stefano Manni <stefano.manni@gmail.com>
-Date: Tue, 13 Mar 2018 09:29:33 +0100
-Message-ID: <CANn9nbhM7LaqKg5pbVMYygAANFhWu3N77BUD6QTaVRngOhz3fg@mail.gmail.com>
-Subject: Re: [PATCH] rtc: mcp795: remove VLA usage
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <c49898db977a0b37363a35d3e3b297af891d7219.1521794177.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 Hi,
 
-2018-03-13 0:31 GMT+01:00 Alexandre Belloni
-<alexandre.belloni@free-electrons.com>:
-> Hi,
->
-> On 13/03/2018 at 00:13:38 +0100, Stefano Manni wrote:
->> In preparation to enabling -Wvla, remove VLAs and replace them with
->> fixed-length arrays instead.
->>
->> rtc-mcp795.c uses a variable-length array declaration to contain
->> the command to write the rtcc; this can be replaced by a fixed-
->> size array of length 2 (instruction, address) + 32 (data out),
->> assuming a maximum data length of 32 bytes before wrap up.
->>
->> This was prompted by https://lkml.org/lkml/2018/3/7/621
->>
->> Signed-off-by: Stefano Manni <stefano.manni@gmail.com>
->> ---
->>  drivers/rtc/rtc-mcp795.c | 8 +++++++-
->>  1 file changed, 7 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
->> index 77f21331ae21..a5f504e2364c 100644
->> --- a/drivers/rtc/rtc-mcp795.c
->> +++ b/drivers/rtc/rtc-mcp795.c
->> @@ -61,6 +61,9 @@
->>
->>  #define SEC_PER_DAY          (24 * 60 * 60)
->>
->> +/* Maximum length for data out in write operation to RTCC */
->> +#define MCP795_MAX_DATAOUT_LEN       32
->> +
->
-> This is wrong, see https://marc.info/?l=linux-kernel&m=152046370320811&w=2
->
-> Also, https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=74ce1a932504da166cfbccf5567aa3751b6aa599
->
+The subject line should be rtc: mt6397: (to differentiate with rtc-mt7622)
 
-You sure that the right value to use is 255 + 2? mcp795_rtcc_write() just writes
-into the RTCC that contains only 32 registers (table 4-1 of
-datasheet). I assumed
-32 as the maximum length of data to write before wrapping up (start
-from reg 0x0).
-Probably 32 is just a wrong assumption but why did you choose 255?
+On 23/03/2018 at 17:15:02 +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Just to add MT6323 support to the existent RTC driver.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index 385f830..0df7ccd 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -398,6 +398,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
+>  			mt6397_rtc_resume);
+>  
+>  static const struct of_device_id mt6397_rtc_of_match[] = {
+> +	{ .compatible = "mediatek,mt6323-rtc", },
+>  	{ .compatible = "mediatek,mt6397-rtc", },
+>  	{ }
+>  };
+> -- 
+> 2.7.4
+> 
 
-Another thing: don't we need also to check count against the array length?
-
-if (count > MCP795_MAX_DATAOUT_LEN)
-    return -EINVAL;
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
