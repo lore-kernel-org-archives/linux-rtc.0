@@ -1,37 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:47369 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752961AbeCVPWV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 22 Mar 2018 11:22:21 -0400
-Date: Thu, 22 Mar 2018 16:22:08 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Mathieu Malaterre <malat@debian.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver/rtc: remove a warning during scripts/kernel-doc
- step
-Message-ID: <20180322152208.GV3417@piout.net>
-References: <20180201164714.25709-1-malat@debian.org>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:50831 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750797AbeCXHGV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 24 Mar 2018 03:06:21 -0400
+Message-ID: <1521875176.28226.25.camel@mtkswgap22>
+Subject: Re: [PATCH v1 05/16] rtc: mediatek: add MT6323 support to RTC driver
+From: Sean Wang <sean.wang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Sat, 24 Mar 2018 15:06:16 +0800
+In-Reply-To: <20180323100156.GE3417@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+         <c49898db977a0b37363a35d3e3b297af891d7219.1521794177.git.sean.wang@mediatek.com>
+         <20180323100156.GE3417@piout.net>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180201164714.25709-1-malat@debian.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 01/02/2018 at 17:47:14 +0100, Mathieu Malaterre wrote:
-> During compilation using W=1 one would get:
+On Fri, 2018-03-23 at 11:01 +0100, Alexandre Belloni wrote:
+> Hi,
 > 
-> drivers/rtc/systohc.c:11: info: Scanning doc for rtc_set_ntp_time
-> drivers/rtc/systohc.c:23: warning: bad line:  (
+> The subject line should be rtc: mt6397: (to differentiate with rtc-mt7622)
 > 
-> Signed-off-by: Mathieu Malaterre <malat@debian.org>
-> ---
->  drivers/rtc/systohc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Applied, thanks.
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Sure, I will change subject line into rtc: mt6397: along with the other
+related patches.
+
+> On 23/03/2018 at 17:15:02 +0800, sean.wang@mediatek.com wrote:
+> > From: Sean Wang <sean.wang@mediatek.com>
+> > 
+> > Just to add MT6323 support to the existent RTC driver.
+> > 
+> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> > ---
+> >  drivers/rtc/rtc-mt6397.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> > index 385f830..0df7ccd 100644
+> > --- a/drivers/rtc/rtc-mt6397.c
+> > +++ b/drivers/rtc/rtc-mt6397.c
+> > @@ -398,6 +398,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
+> >  			mt6397_rtc_resume);
+> >  
+> >  static const struct of_device_id mt6397_rtc_of_match[] = {
+> > +	{ .compatible = "mediatek,mt6323-rtc", },
+> >  	{ .compatible = "mediatek,mt6397-rtc", },
+> >  	{ }
+> >  };
+> > -- 
+> > 2.7.4
+> > 
+> 
