@@ -1,50 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.15]:38807 "EHLO mout.gmx.net"
+Received: from mga04.intel.com ([192.55.52.120]:12948 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753656AbeCFVU3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Mar 2018 16:20:29 -0500
-Subject: Re: [PATCH] parisc: time: stop validating rtc_time in .read_time
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: "James E . J . Bottomley" <jejb@parisc-linux.org>,
-        linux-parisc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20180221214023.1045-1-alexandre.belloni@bootlin.com>
-From: Helge Deller <deller@gmx.de>
-Message-ID: <c80cb9e7-6a07-bc12-5758-d2b642a315dc@gmx.de>
-Date: Tue, 6 Mar 2018 22:20:26 +0100
-MIME-Version: 1.0
-In-Reply-To: <20180221214023.1045-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset=utf-8
+        id S1750983AbeCZN6R (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 26 Mar 2018 09:58:17 -0400
+From: Zhang Rui <rui.zhang@intel.com>
+To: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: rjw@rjwysocki.net, alexandre.belloni@free-electrons.com,
+        gabriele.mzt@gmail.com, rui.zhang@intel.com
+Subject: [PATCH 2/3] rtc: cmos: acknowledge ACPI driven wake alarms upon resume
+Date: Mon, 26 Mar 2018 21:58:02 +0800
+Message-Id: <1522072683-3968-2-git-send-email-rui.zhang@intel.com>
+In-Reply-To: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
+References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 21.02.2018 22:40, Alexandre Belloni wrote:
-> The RTC core is always calling rtc_valid_tm after the read_time callback.
-> It is not necessary to call it just before returning from the callback.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Previously, the RTC alarm is acknowledged either by the cmos rtc irq
+handler, or by the hpet rtc irq handler.
 
-Acked-by: Helge Deller <deller@gmx.de>
+When using ACPI RTC Fixed event as the RTC alarm, the RTC alarm is
+acknowledged by the ACPI RTC event handler, as addressed in the previous
+patch.
+But, when resume from suspend-to-ram (ACPI S3), the ACPI SCI is cleared
+right after resume, thus the ACPI RTC event handler is not invoked at all,
+results in the RTC Alarm unacknowledged.
 
-Thanks!
-Helge
+Handle this by comparing the current time and the RTC Alarm time in the
+rtc_cmos driver .resume() callback
+1. Assume the wakeup event has already been fired if the RTC Alarm time
+   is earlier than/equal to the current time, and ACK the RTC Alarm.
+2. Assume the wakeup event has not been fired if the RTC Alarm time
+   is later than current time, and re-arm it if needed.
 
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ drivers/rtc/rtc-cmos.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-> ---
->  arch/parisc/kernel/time.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/parisc/kernel/time.c b/arch/parisc/kernel/time.c
-> index 4b8fd6dc22da..f2890bd240f8 100644
-> --- a/arch/parisc/kernel/time.c
-> +++ b/arch/parisc/kernel/time.c
-> @@ -173,7 +173,7 @@ static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
->  
->  	/* we treat tod_sec as unsigned, so this can work until year 2106 */
->  	rtc_time64_to_tm(tod_data.tod_sec, tm);
-> -	return rtc_valid_tm(tm);
-> +	return 0;
->  }
->  
->  static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
-> 
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 9665a72..bcf86e1 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1022,8 +1022,26 @@ static void cmos_check_wkalrm(struct device *dev)
+ {
+ 	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+ 	struct rtc_wkalrm current_alarm;
++	time64_t t_now;
+ 	time64_t t_current_expires;
+ 	time64_t t_saved_expires;
++	struct rtc_time now;
++
++	/* Check if we have RTC Alarm armed */
++	if (!(cmos->suspend_ctrl & RTC_AIE))
++		return;
++
++	cmos_read_time(dev, &now);
++	t_now = rtc_tm_to_time64(&now);
++
++	/*
++	 * ACPI RTC wake event is cleared after resume from STR,
++	 * ACK the rtc irq here
++	 */
++	if (t_now >= cmos->alarm_expires && use_acpi_alarm) {
++		cmos_interrupt(0, (void *)cmos->rtc);
++		return;
++	}
+ 
+ 	cmos_read_alarm(dev, &current_alarm);
+ 	t_current_expires = rtc_tm_to_time64(&current_alarm.time);
+-- 
+2.7.4
