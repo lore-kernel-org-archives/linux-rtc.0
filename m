@@ -1,80 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:36489 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S967231AbeCAJ74 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 1 Mar 2018 04:59:56 -0500
-Date: Thu, 1 Mar 2018 10:59:44 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Philipp Rossak <embed3d@gmail.com>
-Cc: wens@csie.org, a.zummo@towertech.it, maxime.ripard@bootlin.com,
-        mturquette@baylibre.com, sboyd@codeaurora.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4] rtc: ac100: Fix ac100 determine rate bug
-Message-ID: <20180301095944.GT1479@piout.net>
-References: <20180226211901.9805-1-embed3d@gmail.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:6802 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750981AbeCZCWP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 25 Mar 2018 22:22:15 -0400
+Message-ID: <1522030927.18424.11.camel@mtkswgap22>
+Subject: Re: [PATCH v1 08/16] rtc: mediatek: remove unnecessary
+ irq_dispose_mapping
+From: Sean Wang <sean.wang@mediatek.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Mon, 26 Mar 2018 10:22:07 +0800
+In-Reply-To: <20180323103801.GH3417@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+         <96f39ce7f57a4dcd7653e049eebc87c83bcbdfc9.1521794177.git.sean.wang@mediatek.com>
+         <20180323103801.GH3417@piout.net>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180226211901.9805-1-embed3d@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 26/02/2018 at 22:19:01 +0100, Philipp Rossak wrote:
-> This patch fixes a bug, that prevents the Allwinner A83T and the A80
-> from a successful boot.
+On Fri, 2018-03-23 at 11:38 +0100, Alexandre Belloni wrote:
+> On 23/03/2018 at 17:15:05 +0800, sean.wang@mediatek.com wrote:
+> > From: Sean Wang <sean.wang@mediatek.com>
+> > 
+> > It's unnecessary doing irq_dispose_mapping as a reverse operation for
+> > platform_get_irq.
+> > 
+> > Ususally, irq_dispose_mapping should be called in error path or module
+> > removal to release the resources for irq_of_parse_and_map requested.
+> > 
+> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> > ---
+> >  drivers/rtc/rtc-mt6397.c | 7 ++-----
+> >  1 file changed, 2 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> > index b62eaa8..cefb83b 100644
+> > --- a/drivers/rtc/rtc-mt6397.c
+> > +++ b/drivers/rtc/rtc-mt6397.c
+> > @@ -17,7 +17,6 @@
+> >  #include <linux/module.h>
+> >  #include <linux/regmap.h>
+> >  #include <linux/rtc.h>
+> > -#include <linux/irqdomain.h>
+> >  #include <linux/jiffies.h>
+> >  #include <linux/platform_device.h>
+> >  #include <linux/of_address.h>
+> > @@ -336,7 +335,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+> >  	if (ret) {
+> >  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+> >  			rtc->irq, ret);
+> > -		goto out_dispose_irq;
+> > +		return ret;
+> >  	}
+> >  
+> >  	device_init_wakeup(&pdev->dev, 1);
+> > @@ -353,8 +352,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+> >  
+> >  out_free_irq:
+> >  	free_irq(rtc->irq, rtc->rtc_dev);
+> > -out_dispose_irq:
+> > -	irq_dispose_mapping(rtc->irq);
+> > +
 > 
-> The bug is there since v4.16-rc1 and appeared after the clk branch was
-> merged.
+> Don't you still have a irq_create_mapping?
 > 
-> You can find the shortend trace below:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000000
-> pgd = (ptrval)
-> [00000000] *pgd=00000000
-> Internal error: Oops: 5 [#1] SMP ARM
-> Modules linked in:
-> CPU: 0 PID: 49 Comm: kworker/0:1 Not tainted 4.15.0-10190-gb89e32ccd1be #2
-> Hardware name: Allwinner sun8i Family
-> Workqueue: events deferred_probe_work_func
-> PC is at clk_hw_get_rate+0x0/0x34
-> LR is at ac100_clkout_determine_rate+0x48/0x19c
-> 
-> [ ... ]
-> 
-> (clk_hw_get_rate) from (ac100_clkout_determine_rate+0x48/0x19c)
-> (ac100_clkout_determine_rate) from  (clk_core_set_rate_nolock+0x3c/0x1a0)
-> (clk_core_set_rate_nolock) from (clk_set_rate+0x30/0x88)
-> (clk_set_rate) from (of_clk_set_defaults+0x200/0x364)
-> (of_clk_set_defaults) from (platform_drv_probe+0x18/0xb0)
-> 
-> To fix that bug, we first check if the return of the
-> clk_hw_get_parent_by_index is non zero. If it is zero we skip that
-> clock parent.
-> 
-> The BUG report could be found here: https://lkml.org/lkml/2018/2/10/198
-> 
-> Fixes: 04940631b8d2 ("rtc: ac100: Add clk output support")
-> 
-> Signed-off-by: Philipp Rossak <embed3d@gmail.com>
-> ---
-> 
-> Changes in v4:
-> 	* add more information to the comment
-> Changes in v3:
-> 	* add information when the bug appeared 
-> 	* make the comment more clear
-> Changes in v2:
-> 	* add tag Fixes: ... to commit message
-> 	* add comment to if statement why we are doing this check
-> 
->  drivers/rtc/rtc-ac100.c | 24 +++++++++++++++++++++++-
->  1 file changed, 23 insertions(+), 1 deletion(-)
-> 
-Applied, thanks.
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Sorry for that I didn't mention in the beginning that the series must
+depend on another patch [1]. With the patch, the job irq_create_mapping
+had been moved from rtc to mfd, so here it should be better to cleanup
+up irq_dispose_mapping in all paths.
+
+[1] https://patchwork.kernel.org/patch/9954643/
+
+> >  	return ret;
+> >  }
+> >  
+> > @@ -364,7 +362,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+> >  
+> >  	rtc_device_unregister(rtc->rtc_dev);
+> >  	free_irq(rtc->irq, rtc->rtc_dev);
+> > -	irq_dispose_mapping(rtc->irq);
+> >  
+> >  	return 0;
+> >  }
+> > -- 
+> > 2.7.4
+> > 
+> 
