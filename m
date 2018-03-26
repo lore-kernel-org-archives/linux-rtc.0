@@ -1,115 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:54427 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753836AbeC1TOO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Mar 2018 15:14:14 -0400
-Received: by mail-wm0-f67.google.com with SMTP id h76so6836469wme.4
-        for <linux-rtc@vger.kernel.org>; Wed, 28 Mar 2018 12:14:13 -0700 (PDT)
-From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-To: alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org
-Cc: Bryan O'Donoghue <pure.logic@nexus-software.ie>,
-        a.zummo@towertech.it, Pan Bian <bianpan2016@163.com>,
-        Guy Shapiro <guy.shapiro@mobi-wize.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Frank Li <Frank.Li@freescale.com>,
-        Shawn Guo <shawn.guo@linaro.org>, linux-rtc@vger.kernel.org,
-        "# v3 . 16+" <stable@vger.kernel.org>
-Subject: [RESEND] [PATCH] rtc: snvs: Fix usage of snvs_rtc_enable
-Date: Wed, 28 Mar 2018 20:14:05 +0100
-Message-Id: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:46562 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752349AbeCZWY5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Mar 2018 18:24:57 -0400
+Date: Mon, 26 Mar 2018 17:24:55 -0500
+From: Rob Herring <robh@kernel.org>
+To: sean.wang@mediatek.com
+Cc: mark.rutland@arm.com, sre@kernel.org, lee.jones@linaro.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 01/16] dt-bindings: power: reset: mediatek: add
+ bindings for power device
+Message-ID: <20180326222455.6kou2rdn76k6p6ct@rob-hp-laptop>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+ <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-commit 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver") introduces
-the SNVS RTC driver with a function snvs_rtc_enable().
+On Fri, Mar 23, 2018 at 05:14:58PM +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Add device-tree binding for the power device responsible for shutdown a
+> remote SoC, which is a tiny circuit block present on MediaTek PMIC based
+> RTC.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  .../bindings/power/reset/mt6397-rtc-poweroff.txt   | 24 ++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> new file mode 100644
+> index 0000000..75a9d7d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> @@ -0,0 +1,24 @@
+> +Device-Tree bindings for Power Device on MediaTek PMIC RTC
+> +
+> +The power device is responsible for externally power off or on the remote
+> +MediaTek SoC through the a tiny circuit block BBPU inside PMIC RTC.
+> +
+> +Required parent node:
+> +- rtc
+> +	For MediaTek PMIC RTC bindings, see:
+> +	Documentation/devicetree/bindings/mfd/mt6397.txt
+> +
+> +Required properties:
+> +- compatible: Should be one of follows
+> +	"mediatek,mt6323-rtc-poweroff": for MT6323 PMIC
+> +	"mediatek,mt6397-rtc-poweroff": for MT6397 PMIC
+> +
+> +Example:
+> +
+> +	rtc {
+> +		compatible = "mediatek,mt6323-rtc";
+> +
+> +		power-off {
+> +			compatible = "mediatek,mt6323-rtc-poweroff";
+> +		};
 
-snvs_rtc_enable() can return an error on the enable path however this
-driver does not currently trap that failure on the probe() path and
-consequently if enabling the RTC fails we encounter a later error spinning
-forever in rtc_write_sync_lp().
+There's no need for this node. The OS can register a device in the rtc 
+driver.
 
-[   36.093481] [<c010d630>] (__irq_svc) from [<c0c2e9ec>] (_raw_spin_unlock_irqrestore+0x34/0x44)
-[   36.102122] [<c0c2e9ec>] (_raw_spin_unlock_irqrestore) from [<c072e32c>] (regmap_read+0x4c/0x5c)
-[   36.110938] [<c072e32c>] (regmap_read) from [<c085d0f4>] (rtc_write_sync_lp+0x6c/0x98)
-[   36.118881] [<c085d0f4>] (rtc_write_sync_lp) from [<c085d160>] (snvs_rtc_alarm_irq_enable+0x40/0x4c)
-[   36.128041] [<c085d160>] (snvs_rtc_alarm_irq_enable) from [<c08567b4>] (rtc_timer_do_work+0xd8/0x1a8)
-[   36.137291] [<c08567b4>] (rtc_timer_do_work) from [<c01441b8>] (process_one_work+0x28c/0x76c)
-[   36.145840] [<c01441b8>] (process_one_work) from [<c01446cc>] (worker_thread+0x34/0x58c)
-[   36.153961] [<c01446cc>] (worker_thread) from [<c014aee4>] (kthread+0x138/0x150)
-[   36.161388] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-[   36.168635] rcu_sched kthread starved for 2602 jiffies! g496 c495 f0x2 RCU_GP_WAIT_FQS(3) ->state=0x0 ->cpu=0
-[   36.178564] rcu_sched       R  running task        0     8      2 0x00000000
-[   36.185664] [<c0c288b0>] (__schedule) from [<c0c29134>] (schedule+0x3c/0xa0)
-[   36.192739] [<c0c29134>] (schedule) from [<c0c2db80>] (schedule_timeout+0x78/0x4e0)
-[   36.200422] [<c0c2db80>] (schedule_timeout) from [<c01a7ab0>] (rcu_gp_kthread+0x648/0x1864)
-[   36.208800] [<c01a7ab0>] (rcu_gp_kthread) from [<c014aee4>] (kthread+0x138/0x150)
-[   36.216309] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-
-This patch fixes by parsing the result of rtc_write_sync_lp() and
-propagating both in the probe and elsewhere. If the RTC doesn't start we
-don't proceed loading the driver and don't get into this loop mess later
-on.
-
-Fixes: 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver")
-
-Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com
-Cc: Pan Bian <bianpan2016@163.com>
-Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Frank Li <Frank.Li@freescale.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: <stable@vger.kernel.org> # v3.16+
----
- drivers/rtc/rtc-snvs.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index d8ef9e0..9af591d 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -132,20 +132,23 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	unsigned long time;
-+	int ret;
- 
- 	rtc_tm_to_time(tm, &time);
- 
- 	/* Disable RTC first */
--	snvs_rtc_enable(data, false);
-+	ret = snvs_rtc_enable(data, false);
-+	if (ret)
-+		return ret;
- 
- 	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
- 	regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
- 	regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
- 
- 	/* Enable RTC again */
--	snvs_rtc_enable(data, true);
-+	ret = snvs_rtc_enable(data, true);
- 
--	return 0;
-+	return ret;
- }
- 
- static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -288,7 +291,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
- 
- 	/* Enable RTC */
--	snvs_rtc_enable(data, true);
-+	ret = snvs_rtc_enable(data, true);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to enable rtc %d\n", ret);
-+		goto error_rtc_device_register;
-+	}
- 
- 	device_init_wakeup(&pdev->dev, true);
- 
--- 
-2.7.4
+> +	};
+> -- 
+> 2.7.4
+> 
