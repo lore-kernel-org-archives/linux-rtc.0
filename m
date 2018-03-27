@@ -1,59 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:12876 "EHLO
-        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S934396AbeCEKn7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Mar 2018 05:43:59 -0500
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mgr@pengutronix.de" <mgr@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v3 0/4] rtc: isl1208: fixes, documentation and isl1219 support
-Date: Mon, 5 Mar 2018 10:43:53 +0000
-Message-ID: <1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:56023 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752626AbeC0PHx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 27 Mar 2018 11:07:53 -0400
+Date: Tue, 27 Mar 2018 17:07:51 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Sean Wang <sean.wang@mediatek.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org,
+        lee.jones@linaro.org, a.zummo@towertech.it,
+        eddie.huang@mediatek.com, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 09/16] rtc: mediatek: convert to use device managed
+ functions
+Message-ID: <20180327150751.GC22441@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+ <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
+ <20180323105017.GI3417@piout.net>
+ <1522037265.18424.14.camel@mtkswgap22>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1522037265.18424.14.camel@mtkswgap22>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-changes since v2:
-Fix rebase issue in 2/4 and 3/4, where 2/4 uses a data type declared 3/4.
+On 26/03/2018 at 12:07:45 +0800, Sean Wang wrote:
+> > > -	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
+> > > -					   &mtk_rtc_ops, THIS_MODULE);
+> > > +	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "mt6397-rtc",
+> > > +						&mtk_rtc_ops, THIS_MODULE);
+> > 
+> > You should probably switch to devm_rtc_allocate_device() and
+> > rtc_register_device instead of devm_rtc_device_register.
+> > 
+> 
+> Just would like to know something details
+> 
+> It seems you just encourage me to switch into the new registration
+> method and currently devm_rtc_device_register I used for the driver
+> shouldn't cause any harm. right?
+> 
 
-changes since v1:
-Represent isl1219 tamper detection as RTC timestamp event,
-instead of hwmon intrusion sensor.
-Switch to rtc_register_device, to fix possible race conditions in probe.
-Add documentation of the two possible interrupt sources for isl1219.
-Support "evdet" named interrupt souce.
-
-Michael Grzeschik (2):
-  rtc: isl1208: enable interrupt after context preparation
-  rtc: isl1208: add support for isl1219 with tamper detection
-
-Denis Osterland (2):
-  rtc: isl1208: switch to rtc_register_device
-  rtc: isl1208: Add "evdet" interrupt source for isl1219.
-
- .../devicetree/bindings/rtc/isil,isl1219.txt       |  28 +++
- drivers/rtc/rtc-isl1208.c                          | 209 +++++++++++++++++----
- 2 files changed, 203 insertions(+), 34 deletions(-)
-
-Message-Id: 1519821214-22379-1-git-send-email-Denis.Osterland@diehl.com
-Message-Id: 20180123121801.4214-1-m.grzeschik@pengutronix.de
+It will work but it will have to be converted to rtc_register_device
+later anyway.
 
 
-Diehl AKO Stiftung & Co. KG, Pfannerstraße 75-83, 88239 Wangen im Allgäu
-Bereichsvorstand: Dr.-Ing. Michael Siedentop (Sprecher), Josef Fellner (Mitglied)
-Sitz der Gesellschaft: Wangen i.A. – Registergericht: Amtsgericht Ulm HRA 620609 – Persönlich haftende Gesellschafterin: Diehl Verwaltungs-Stiftung – Sitz: Nürnberg – Registergericht: Amtsgericht Nürnberg HRA 11756 –
-Vorstand: Dr.-Ing. E.h. Thomas Diehl (†) (Vorsitzender), Herr Dipl.-Wirtsch.-Ing. Wolfgang Weggen (stellvertretender Vorsitzender), Dipl.-Kfm. Claus Günther, Dipl.-Kfm. Frank Gutzeit, Dr.-Ing. Heinrich Schunk, Dr.-Ing. Michael Siedentop , Dipl.-Kfm. Dr.-Ing. Martin Sommer, Dipl.-Ing. (FH) Rainer von Borstel, Vorsitzender des Aufsichtsrates: Dr. Klaus Maier
-___________________________________________________________________________________________________
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht. Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
