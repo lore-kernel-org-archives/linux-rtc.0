@@ -1,99 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway33.websitewelcome.com ([192.185.145.82]:49006 "EHLO
-        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S934059AbeCGXEo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Mar 2018 18:04:44 -0500
-Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
-        by gateway33.websitewelcome.com (Postfix) with ESMTP id EB71A20C906
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Mar 2018 16:39:53 -0600 (CST)
-Subject: Re: [PATCH] rtc: remove VLA usage
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20180307201133.GA5860@embeddedgus>
- <20180307212506.GO3035@piout.net>
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Message-ID: <3e8e1515-0f0e-73d4-72eb-3a2a2fbf04e9@embeddedor.com>
-Date: Wed, 7 Mar 2018 16:39:51 -0600
+Received: from mailgw02.mediatek.com ([210.61.82.184]:11119 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752169AbeC0DVy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Mar 2018 23:21:54 -0400
+Message-ID: <1522120906.18424.21.camel@mtkswgap22>
+Subject: Re: [PATCH v1 01/16] dt-bindings: power: reset: mediatek: add
+ bindings for power device
+From: Sean Wang <sean.wang@mediatek.com>
+To: Rob Herring <robh@kernel.org>
+CC: <mark.rutland@arm.com>, <sre@kernel.org>, <lee.jones@linaro.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Date: Tue, 27 Mar 2018 11:21:46 +0800
+In-Reply-To: <20180326222455.6kou2rdn76k6p6ct@rob-hp-laptop>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+         <c5527464207b02d40f1c2682feb97ebf5dd443be.1521794176.git.sean.wang@mediatek.com>
+         <20180326222455.6kou2rdn76k6p6ct@rob-hp-laptop>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-In-Reply-To: <20180307212506.GO3035@piout.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+On Mon, 2018-03-26 at 17:24 -0500, Rob Herring wrote:
+> On Fri, Mar 23, 2018 at 05:14:58PM +0800, sean.wang@mediatek.com wrote:
+> > From: Sean Wang <sean.wang@mediatek.com>
+> > 
+> > Add device-tree binding for the power device responsible for shutdown a
+> > remote SoC, which is a tiny circuit block present on MediaTek PMIC based
+> > RTC.
+> > 
+> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> > ---
+> >  .../bindings/power/reset/mt6397-rtc-poweroff.txt   | 24 ++++++++++++++++++++++
+> >  1 file changed, 24 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> > new file mode 100644
+> > index 0000000..75a9d7d
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
+> > @@ -0,0 +1,24 @@
+> > +Device-Tree bindings for Power Device on MediaTek PMIC RTC
+> > +
+> > +The power device is responsible for externally power off or on the remote
+> > +MediaTek SoC through the a tiny circuit block BBPU inside PMIC RTC.
+> > +
+> > +Required parent node:
+> > +- rtc
+> > +	For MediaTek PMIC RTC bindings, see:
+> > +	Documentation/devicetree/bindings/mfd/mt6397.txt
+> > +
+> > +Required properties:
+> > +- compatible: Should be one of follows
+> > +	"mediatek,mt6323-rtc-poweroff": for MT6323 PMIC
+> > +	"mediatek,mt6397-rtc-poweroff": for MT6397 PMIC
+> > +
+> > +Example:
+> > +
+> > +	rtc {
+> > +		compatible = "mediatek,mt6323-rtc";
+> > +
+> > +		power-off {
+> > +			compatible = "mediatek,mt6323-rtc-poweroff";
+> > +		};
+> 
+> There's no need for this node. The OS can register a device in the rtc 
+> driver.
+> 
 
-On 03/07/2018 03:25 PM, Alexandre Belloni wrote:
-> On 07/03/2018 at 14:11:33 -0600, Gustavo A. R. Silva wrote:
->> In preparation to enabling -Wvla, remove VLA and replace it
->> with a fixed-length array instead.
->>
-> You should probably explain what VLA is and why this is important to do.
+It seems a good way.
 
-Sure. I can elaborate a little bit more.
+I will remove the really simple dt-binding and use a
+platform_device_register_simple api embedded in rtc driver to
+register the power-off device.
 
->> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->> ---
->>   drivers/rtc/rtc-bq32k.c  | 2 +-
->>   drivers/rtc/rtc-mcp795.c | 2 +-
->>   2 files changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
->> index e8698e9..e4b234a 100644
->> --- a/drivers/rtc/rtc-bq32k.c
->> +++ b/drivers/rtc/rtc-bq32k.c
->> @@ -74,7 +74,7 @@ static int bq32k_read(struct device *dev, void *data, uint8_t off, uint8_t len)
->>   static int bq32k_write(struct device *dev, void *data, uint8_t off, uint8_t len)
->>   {
->>   	struct i2c_client *client = to_i2c_client(dev);
->> -	uint8_t buffer[len + 1];
->> +	uint8_t buffer[256];
->>   
-> You chose to change len to 255, probably because this is a uint8_t but
+Hope I do not misconception your points addressed here.
 
-Correct.
-
-> this is way too much for this rtc, it only has 10 consecutive registers.
-
-In that case probably the best solution is to add the following line to 
-the module:
-
-#define MAX_LEN 10
-
-and update the rest of the code as follows:
-
-uint8_t buffer[MAX_LEN + 1];
-
-
->>   	buffer[0] = off;
->>   	memcpy(&buffer[1], data, len);
->> diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
->> index 79e24ea..00e11c1 100644
->> --- a/drivers/rtc/rtc-mcp795.c
->> +++ b/drivers/rtc/rtc-mcp795.c
->> @@ -82,7 +82,7 @@ static int mcp795_rtcc_write(struct device *dev, u8 addr, u8 *data, u8 count)
->>   {
->>   	struct spi_device *spi = to_spi_device(dev);
->>   	int ret;
->> -	u8 tx[2 + count];
->> +	u8 tx[257];
-
-For this particular case it seems to me that the following works just fine:
-
-#define MAX_COUNT 7
-
-u8 tx[MAX_COUNT + 2];
-
-What do you think?
-
-Thanks for your feedback.
---
-Gustavo
-
->>   
->>   	tx[0] = MCP795_WRITE;
->>   	tx[1] = addr;
->> -- 
->> 2.7.4
->>
+> > +	};
+> > -- 
+> > 2.7.4
+> > 
