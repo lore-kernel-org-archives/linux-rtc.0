@@ -1,128 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:4481 "EHLO
+Received: from mailgw02.mediatek.com ([210.61.82.184]:43227 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751608AbeCVCR7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Mar 2018 22:17:59 -0400
-Message-ID: <1521685073.28226.10.camel@mtkswgap22>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
+        with ESMTP id S1751182AbeC1DxX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Mar 2018 23:53:23 -0400
+Message-ID: <1522209197.18424.26.camel@mtkswgap22>
+Subject: Re: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for
+ PMIC RTC
 From: Sean Wang <sean.wang@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: Mark Rutland <mark.rutland@arm.com>, <a.zummo@towertech.it>,
-        <devicetree@vger.kernel.org>, <linus.walleij@linaro.org>,
-        <jcsing.lee@samsung.com>, <linux-kernel@vger.kernel.org>,
-        <krzk@kernel.org>, <javier@osg.samsung.com>,
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-input@vger.kernel.org>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>, <Chen.Zhong@mediatek.com>,
-        <beomho.seo@samsung.com>, <linux-rtc@vger.kernel.org>
-Date: Thu, 22 Mar 2018 10:17:53 +0800
-In-Reply-To: <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
-         <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
+        <linux-kernel@vger.kernel.org>
+Date: Wed, 28 Mar 2018 11:53:17 +0800
+In-Reply-To: <20180327151848.GD22441@piout.net>
+References: <cover.1521794176.git.sean.wang@mediatek.com>
+         <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
+         <20180323094118.GC3417@piout.net> <20180323101505.GF3417@piout.net>
+         <1521920188.31197.13.camel@mtkswgap22> <20180327151848.GD22441@piout.net>
 Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi, Dmitry and Lee
-
-The series seems not being got merged. Are they good enough to be ready
-into the your tree?
-
-Recently I've tested the series with focusing on pwrkey event generated
-through interrupt when push and release the key on bpi-r2 board and then
-finally it's working fine. but for homekey it cannot be found on the
-board and thus I cannot have more tests more about it.
-
-Tested-by: Sean Wang <sean.wang@mediatek.com>
-
-	Sean
-
-
-On Thu, 2018-03-22 at 10:03 +0800, Sean Wang (王志亘) wrote:
+On Tue, 2018-03-27 at 17:18 +0200, Alexandre Belloni wrote:
+> On 25/03/2018 at 03:36:28 +0800, Sean Wang wrote:
+> > just reply both replies in the same mail
+> > 
+> > 1.) the power-off device is a part of rtc, use the same registers rtc
+> > has and thus it is put as child nodes under the node rtc to reflect the
+> > reality of characteristics the rtc has.
+> > 
+> > Or am I wrong for a certain aspect in these opinions?
+> > 
 > 
-> > -----Original Message-----
-> > From: Linux-mediatek [mailto:linux-mediatek-bounces@lists.infradead.org] On
-> > Behalf Of Chen Zhong
-> > Sent: Wednesday, October 25, 2017 9:16 PM
-> > To: Dmitry Torokhov <dmitry.torokhov@gmail.com>; Rob Herring
-> > <robh+dt@kernel.org>; Lee Jones <lee.jones@linaro.org>; Alexandre Belloni
-> > <alexandre.belloni@free-electrons.com>
-> > Cc: Mark Rutland <mark.rutland@arm.com>; Alessandro Zummo
-> > <a.zummo@towertech.it>; devicetree@vger.kernel.org; Linus Walleij
-> > <linus.walleij@linaro.org>; Jaechul Lee <jcsing.lee@samsung.com>; linux-
-> > kernel@vger.kernel.org; Krzysztof Kozlowski <krzk@kernel.org>; Javier
-> > Martinez Canillas <javier@osg.samsung.com>; linux-
-> > mediatek@lists.infradead.org; linux-arm-kernel@lists.infradead.org; linux-
-> > input@vger.kernel.org; Matthias Brugger <matthias.bgg@gmail.com>; Eddie
-> > Huang (S智) <eddie.huang@mediatek.com>; Chen Zhong (钟辰)
-> > <Chen.Zhong@mediatek.com>; Beomho Seo <beomho.seo@samsung.com>;
-> > linux-rtc@vger.kernel.org
-> > Subject: [PATCH v6 0/6] Add MediaTek PMIC keys support
+> My point is that it is also part of the PMIC so it may as well be
+> registers from the mfd driver which already registers a bunch of devices
+> instead of doing unusual stuff from the rtc driver.
+> 
+> mt6397_rtc->regmap is mt6397_chip->regmap anyway. You have the added
+> benefit that if the RTC driver probe fails for some reason, you may
+> still be able to probe the reset driver.
+> 
+> I don't tink there is any benefit having it as a child of the rtc
+> device.
+> 
+
+
+really thanks! it's an optional solution I thought it 's fine and worth
+doing
+
+but so far I cannot fully make sure of whether mfd can accept two
+devices holding overlay IORESOURCE_MEM.
+
+Or do you like Rob's suggestion in [1] ? By which, I tend to embed a
+sub-device with platform_device_register_data api in the rtc probe()
+instead of treating it as a dt node under rtc node, but which seems
+something a bit violates your preferences :(
+
+Just confirm to know which way I should step into before I produce next
+version.
+
+[1]
+http://lists.infradead.org/pipermail/linux-mediatek/2018-March/012576.html
+
+> > 2) the other sub-functions for the same pmic already created its own
+> > dt-binding document belonged to its corresponding subsystem. Don't we
+> > really want to follow it them all?
 > > 
-> > MediaTek PMIC are multi-function devices that can handle key interrupts,
-> > typically there are two keys attached to PMIC, which called pwrkey and
-> > homekey. PWRKEY usually used to wake up system from sleep. Homekey can
-> > used as volume down key due to board design. Long press keys can shutdown
-> > PMIC, the mode can be choose to be one key only or two keys together.
-> > This series add support for key functions for MediaTek PMIC MT6397/MT6323.
-> > 
-> > Changes since v5:
-> > - use __maybe_unused annotation instead of #ifdef guard
-> > - use of_* API instead of device_* API
-> > 
-> > Changes since v4:
-> > - rebase to Linux 4.14-rc1
-> > - add a common keyboard binding document
-> > - use child device tree node to define each key
-> > 
-> > Changes since v3:
-> > - make the naming to be consistent as mtk_pmic or MTK_PMIC
-> > - add suspend/resume functions to enable/disable irq
-> > - change binding properties to define wakeup sources
-> > 
-> > Changes since v2:
-> > - use standard properties for keycodes and debounce time
-> > - change to use platform_get_irq in leaf drivers
-> > - use better ways to define IRQ resources
-> > 
-> > Changes since v1:
-> > - create irq mappings in mfd core driver instead of leaf drivers
-> > - remove some unused parts in mtk-pmic-keys driver
-> > 
-> > Chen Zhong (6):
-> >   mfd: mt6397: create irq mappings in mfd core driver
-> >   dt-bindings: input: Add common keyboard document bindings
-> >   dt-bindings: input: Add document bindings for mtk-pmic-keys
-> >   dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-> >   input: Add MediaTek PMIC keys support
-> >   mfd: mt6397: Add PMIC keys support to MT6397 driver
-> > 
-> >  Documentation/devicetree/bindings/input/keys.txt   |   8 +
-> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
-> >  Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
-> >  drivers/input/keyboard/Kconfig                     |   9 +
-> >  drivers/input/keyboard/Makefile                    |   1 +
-> >  drivers/input/keyboard/mtk-pmic-keys.c             | 339
-> > +++++++++++++++++++++
-> >  drivers/mfd/mt6397-core.c                          |  26 +-
-> >  drivers/rtc/rtc-mt6397.c                           |   7 +-
-> >  8 files changed, 432 insertions(+), 7 deletions(-)  create mode 100644
-> > Documentation/devicetree/bindings/input/keys.txt
-> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-
-> > keys.txt
-> >  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-> > 
-> > --
-> > 1.9.1
-> > 
-> > 
-> > 
-> > _______________________________________________
-> > Linux-mediatek mailing list
-> > Linux-mediatek@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/linux-mediatek
+> 
+> Ok, that's fine.
+> 
