@@ -1,79 +1,95 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:24959 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752009AbeCWJPb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Mar 2018 05:15:31 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v1 02/16] dt-bindings: rtc: mediatek: add bindings for PMIC RTC
-Date: Fri, 23 Mar 2018 17:14:59 +0800
-Message-ID: <5846e8be319c4836808c8127d5bb51b7e999e896.1521794177.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1521794176.git.sean.wang@mediatek.com>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:34109 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752221AbeC2NEG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Mar 2018 09:04:06 -0400
+Received: by mail-wr0-f195.google.com with SMTP id o8so5357355wra.1
+        for <linux-rtc@vger.kernel.org>; Thu, 29 Mar 2018 06:04:06 -0700 (PDT)
+Date: Thu, 29 Mar 2018 14:04:02 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it,
+        devicetree@vger.kernel.org, linus.walleij@linaro.org,
+        jcsing.lee@samsung.com, linux-kernel@vger.kernel.org,
+        krzk@kernel.org, javier@osg.samsung.com,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        eddie.huang@mediatek.com, beomho.seo@samsung.com,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
+Message-ID: <20180329130402.6fp7nofyp6iesmbv@dell>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+ <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
+ <1521685073.28226.10.camel@mtkswgap22>
+ <20180323185418.GD255819@dtor-ws>
+ <20180327080507.pgil6pw2mn4y2f4d@dell>
+ <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
+ <20180328102640.yx6nv5abfexmouuf@dell>
+ <1522290675.17084.8.camel@mhfsdcap03>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1522290675.17084.8.camel@mhfsdcap03>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On Thu, 29 Mar 2018, Chen Zhong wrote:
 
-Add device-tree binding for MediaTek PMIC based RTC.
+> On Wed, 2018-03-28 at 11:26 +0100, Lee Jones wrote:
+> > On Tue, 27 Mar 2018, Matthias Brugger wrote:
+> > 
+> > > 
+> > > 
+> > > On 03/27/2018 10:05 AM, Lee Jones wrote:
+> > > > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
+> > > >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
+> > > >>> Hi, Dmitry and Lee
+> > > >>>
+> > > >>> The series seems not being got merged. Are they good enough to be ready
+> > > >>> into the your tree?
+> > > >>>
+> > > >>> Recently I've tested the series with focusing on pwrkey event generated
+> > > >>> through interrupt when push and release the key on bpi-r2 board and then
+> > > >>> finally it's working fine. but for homekey it cannot be found on the
+> > > >>> board and thus I cannot have more tests more about it.
+> > > >>>
+> > > >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
+> > > >>
+> > > >> You have my Ack on the input patch; I expect it go through Lee's tree as
+> > > >> there are some dependencies on mfd core piece.
+> > > > 
+> > > > Are you happy for me to merge the Input dt-bindings without your Ack?
+> > > > 
+> > > 
+> > > They got both Acked in v5, but the commit message was not updated:
+> > > https://patchwork.kernel.org/patch/9973721/
+> > > https://patchwork.kernel.org/patch/9973723/
+> > 
+> > Thanks Matthias.
+> > 
+> > Chen, can you collect all the Acks and repost as a RESEND please?
+> > 
+> 
+> Thanks Matthias, Lee, Dmitry and Sean for your comments.
+> 
+> Hi Lee,
+> 
+> I have collected the Acks by Rob and sent the v6:
+> https://patchwork.kernel.org/patch/10026705
+> https://patchwork.kernel.org/patch/10026707
+> 
+> Are they enough to be merged?
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- .../devicetree/bindings/rtc/rtc-mt6397.txt         | 39 ++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+Oh, I see.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-new file mode 100644
-index 0000000..83ff6be
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-@@ -0,0 +1,39 @@
-+Device-Tree bindings for MediaTek PMIC based RTC
-+
-+MediaTek PMIC based RTC is an independent function of MediaTek PMIC which
-+is working as a multi-function device (MFD). And the RTC can be configured and
-+set up via PMIC wrapper bus. Which is also common resource shared among the
-+other functions present on the PMIC.
-+
-+For MediaTek PMIC wrapper bus bindings, see:
-+Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-+
-+Required parent node:
-+- pmic
-+  For MediaTek PMIC MFD bindings, see:
-+  Documentation/devicetree/bindings/mfd/mt6397.txt
-+
-+Required properties:
-+- compatible: Should be one of follows
-+	"mediatek,mt6323-rtc": for MT6323 PMIC
-+	"mediatek,mt6397-rtc": for MT6397 PMIC
-+
-+Optional child node:
-+- power-off
-+  For Power-Off Device for MediaTek PMIC RTC bindings, see:
-+  Documentation/devicetree/bindings/power/reset/mt6397-rtc-poweroff.txt
-+
-+Example:
-+
-+	pmic {
-+		compatible = "mediatek,mt6323";
-+
-+		...
-+		rtc {
-+			compatible = "mediatek,mt6323-rtc";
-+
-+			power-off {
-+				compatible = "mediatek,mt6323-rtc-poweroff";
-+			};
-+		};
-+};
+I was asking about Dmitry's Ack.
+
 -- 
-2.7.4
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
