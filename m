@@ -1,106 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34503 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932937AbeCNDZD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Mar 2018 23:25:03 -0400
-Received: by mail-wm0-f67.google.com with SMTP id a20so16486295wmd.1
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Mar 2018 20:25:02 -0700 (PDT)
-From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-To: alexandre.belloni@free-electrons.com
-Cc: Bryan O'Donoghue <pure.logic@nexus-software.ie>,
-        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, "# v3 . 16+" <stable@vger.kernel.org>
-Subject: [PATCH] rtc: snvs: Fix usage of snvs_rtc_enable
-Date: Wed, 14 Mar 2018 03:24:59 +0000
-Message-Id: <1520997899-18445-1-git-send-email-pure.logic@nexus-software.ie>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:33118 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751968AbeC2QPy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Mar 2018 12:15:54 -0400
+Date: Thu, 29 Mar 2018 09:15:51 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v6 2/6] dt-bindings: input: Add common keyboard document
+ bindings
+Message-ID: <20180329161551.GB107392@dtor-ws>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+ <1508937364-30054-3-git-send-email-chen.zhong@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1508937364-30054-3-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-commit 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver") introduces
-the SNVS RTC driver with a function snvs_rtc_enable().
+On Wed, Oct 25, 2017 at 09:16:00PM +0800, Chen Zhong wrote:
+> This patch adds the device tree binding documentation for common
+> keyboard.
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 
-snvs_rtc_enable() can return an error on the enable path however this
-driver does not currently trap that failure on the probe() path and
-consequently if enabling the RTC fails we encounter a later error spinning
-forever in rtc_write_sync_lp().
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[   36.093481] [<c010d630>] (__irq_svc) from [<c0c2e9ec>] (_raw_spin_unlock_irqrestore+0x34/0x44)
-[   36.102122] [<c0c2e9ec>] (_raw_spin_unlock_irqrestore) from [<c072e32c>] (regmap_read+0x4c/0x5c)
-[   36.110938] [<c072e32c>] (regmap_read) from [<c085d0f4>] (rtc_write_sync_lp+0x6c/0x98)
-[   36.118881] [<c085d0f4>] (rtc_write_sync_lp) from [<c085d160>] (snvs_rtc_alarm_irq_enable+0x40/0x4c)
-[   36.128041] [<c085d160>] (snvs_rtc_alarm_irq_enable) from [<c08567b4>] (rtc_timer_do_work+0xd8/0x1a8)
-[   36.137291] [<c08567b4>] (rtc_timer_do_work) from [<c01441b8>] (process_one_work+0x28c/0x76c)
-[   36.145840] [<c01441b8>] (process_one_work) from [<c01446cc>] (worker_thread+0x34/0x58c)
-[   36.153961] [<c01446cc>] (worker_thread) from [<c014aee4>] (kthread+0x138/0x150)
-[   36.161388] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-[   36.168635] rcu_sched kthread starved for 2602 jiffies! g496 c495 f0x2 RCU_GP_WAIT_FQS(3) ->state=0x0 ->cpu=0
-[   36.178564] rcu_sched       R  running task        0     8      2 0x00000000
-[   36.185664] [<c0c288b0>] (__schedule) from [<c0c29134>] (schedule+0x3c/0xa0)
-[   36.192739] [<c0c29134>] (schedule) from [<c0c2db80>] (schedule_timeout+0x78/0x4e0)
-[   36.200422] [<c0c2db80>] (schedule_timeout) from [<c01a7ab0>] (rcu_gp_kthread+0x648/0x1864)
-[   36.208800] [<c01a7ab0>] (rcu_gp_kthread) from [<c014aee4>] (kthread+0x138/0x150)
-[   36.216309] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
+> ---
+>  Documentation/devicetree/bindings/input/keys.txt |    8 ++++++++
+>  1 file changed, 8 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/keys.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/keys.txt b/Documentation/devicetree/bindings/input/keys.txt
+> new file mode 100644
+> index 0000000..a0ea7eb
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/keys.txt
+> @@ -0,0 +1,8 @@
+> +General Keys Properties:
+> +
+> +Optional properties for Keys:
+> +- power-off-time-sec: Duration in seconds which the key should be kept
+> + 	pressed for device to power off automatically. Device with key pressed
+> + 	shutdown feature can specify this property.
+> +- linux,keycodes: Specifies the numeric keycode values to be used for
+> +	reporting key presses.
+> \ No newline at end of file
+> -- 
+> 1.7.9.5
+> 
 
-This patch fixes by parsing the result of rtc_write_sync_lp() and
-propagating both in the probe and elsewhere. If the RTC doesn't start we
-don't proceed loading the driver and don't get into this loop mess later
-on.
-
-Fixes: 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver")
-
-Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: a.zummo@towertech.it
-Cc: alexandre.belloni@free-electrons.com
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: <stable@vger.kernel.org> # v3.16+
----
- drivers/rtc/rtc-snvs.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index d8ef9e0..9af591d 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -132,20 +132,23 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
- 	unsigned long time;
-+	int ret;
- 
- 	rtc_tm_to_time(tm, &time);
- 
- 	/* Disable RTC first */
--	snvs_rtc_enable(data, false);
-+	ret = snvs_rtc_enable(data, false);
-+	if (ret)
-+		return ret;
- 
- 	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
- 	regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
- 	regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
- 
- 	/* Enable RTC again */
--	snvs_rtc_enable(data, true);
-+	ret = snvs_rtc_enable(data, true);
- 
--	return 0;
-+	return ret;
- }
- 
- static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -288,7 +291,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
- 
- 	/* Enable RTC */
--	snvs_rtc_enable(data, true);
-+	ret = snvs_rtc_enable(data, true);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to enable rtc %d\n", ret);
-+		goto error_rtc_device_register;
-+	}
- 
- 	device_init_wakeup(&pdev->dev, true);
- 
 -- 
-2.7.4
+Dmitry
