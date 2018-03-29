@@ -1,98 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:38741 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750713AbeCZEHw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Mar 2018 00:07:52 -0400
-Message-ID: <1522037265.18424.14.camel@mtkswgap22>
-Subject: Re: [PATCH v1 09/16] rtc: mediatek: convert to use device managed
- functions
-From: Sean Wang <sean.wang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <eddie.huang@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Date: Mon, 26 Mar 2018 12:07:45 +0800
-In-Reply-To: <20180323105017.GI3417@piout.net>
-References: <cover.1521794176.git.sean.wang@mediatek.com>
-         <fbfb1852838820c198d55bc74940a74f1d0b53ed.1521794177.git.sean.wang@mediatek.com>
-         <20180323105017.GI3417@piout.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:38693 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751968AbeC2QQF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Mar 2018 12:16:05 -0400
+Date: Thu, 29 Mar 2018 09:16:02 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v6 3/6] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+Message-ID: <20180329161602.GC107392@dtor-ws>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+ <1508937364-30054-4-git-send-email-chen.zhong@mediatek.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1508937364-30054-4-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 2018-03-23 at 11:50 +0100, Alexandre Belloni wrote:
-> On 23/03/2018 at 17:15:06 +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > Use device managed operation to simplify error handling, reduce source
-> > code size, and reduce the likelyhood of bugs, and remove our removal
-> > callback which contains anything already done by device managed functions.
-> > 
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > ---
-> >  drivers/rtc/rtc-mt6397.c | 31 ++++++++-----------------------
-> >  1 file changed, 8 insertions(+), 23 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> > index cefb83b..bfc5d6f 100644
-> > --- a/drivers/rtc/rtc-mt6397.c
-> > +++ b/drivers/rtc/rtc-mt6397.c
-> > @@ -14,6 +14,7 @@
-> >  
-> >  #include <linux/delay.h>
-> >  #include <linux/init.h>
-> > +#include <linux/interrupt.h>
-> >  #include <linux/module.h>
-> >  #include <linux/regmap.h>
-> >  #include <linux/rtc.h>
-> > @@ -328,10 +329,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
-> >  
-> >  	platform_set_drvdata(pdev, rtc);
-> >  
-> > -	ret = request_threaded_irq(rtc->irq, NULL,
-> > -				   mtk_rtc_irq_handler_thread,
-> > -				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> > -				   "mt6397-rtc", rtc);
-> > +	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
-> > +					mtk_rtc_irq_handler_thread,
-> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> > +					"mt6397-rtc", rtc);
-> >  	if (ret) {
-> >  		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
-> >  			rtc->irq, ret);
-> > @@ -340,30 +341,15 @@ static int mtk_rtc_probe(struct platform_device *pdev)
-> >  
-> >  	device_init_wakeup(&pdev->dev, 1);
-> >  
-> > -	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
-> > -					   &mtk_rtc_ops, THIS_MODULE);
-> > +	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "mt6397-rtc",
-> > +						&mtk_rtc_ops, THIS_MODULE);
+On Wed, Oct 25, 2017 at 09:16:01PM +0800, Chen Zhong wrote:
+> This patch adds the device tree binding documentation for the MediaTek
+> pmic keys found on PMIC MT6397/MT6323.
 > 
-> You should probably switch to devm_rtc_allocate_device() and
-> rtc_register_device instead of devm_rtc_device_register.
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+> ---
+>  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   43 ++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> new file mode 100644
+> index 0000000..2888d07
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> @@ -0,0 +1,43 @@
+> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> +
+> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> +and homekey. The key functions are defined as the subnode of the function
+> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> +of Muti-Function Device (MFD)
+> +
+> +For MT6397/MT6323 MFD bindings see:
+> +Documentation/devicetree/bindings/mfd/mt6397.txt
+> +
+> +Required properties:
+> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> +- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
+> +
+> +Optional Properties:
+> +- wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
+> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> +- power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
+> +
+> +Example:
+> +
+> +	pmic: mt6397 {
+> +		compatible = "mediatek,mt6397";
+> +
+> +		...
+> +
+> +		mt6397keys: mt6397keys {
+> +			compatible = "mediatek,mt6397-keys";
+> +			mediatek,long-press-mode = <1>;
+> +			power-off-time-sec = <0>;
+> +
+> +			power {
+> +				linux,keycodes = <116>;
+> +				wakeup-source;
+> +			};
+> +
+> +			home {
+> +				linux,keycodes = <114>;
+> +			};
+> +		};
+> +
+> +	};
+> -- 
+> 1.7.9.5
 > 
 
-Just would like to know something details
-
-It seems you just encourage me to switch into the new registration
-method and currently devm_rtc_device_register I used for the driver
-shouldn't cause any harm. right?
-
-> >  	if (IS_ERR(rtc->rtc_dev)) {
-> >  		dev_err(&pdev->dev, "register rtc device failed\n");
-> >  		ret = PTR_ERR(rtc->rtc_dev);
-> > -		goto out_free_irq;
-> > +		return ret;
-> 
-> ret doesn't seem necessary anymore here.
-
-
-okay, it'll be removed
-
-> 
-> 
+-- 
+Dmitry
