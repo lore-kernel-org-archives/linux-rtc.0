@@ -1,75 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:54956 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751852AbeCIIQH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Mar 2018 03:16:07 -0500
-Received: by mail-wm0-f68.google.com with SMTP id z81so2307099wmb.4
-        for <linux-rtc@vger.kernel.org>; Fri, 09 Mar 2018 00:16:07 -0800 (PST)
-Date: Fri, 9 Mar 2018 08:16:03 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, broonie@kernel.org,
-        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Gabriel Fernandez <gabriel.fernandez@st.com>,
-        linux-clk@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 0/4] Set name of regmap_config
-Message-ID: <20180309081603.4u5pgwwsfxernodm@dell>
-References: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
+Received: from mail-cys01nam02on0093.outbound.protection.outlook.com ([104.47.37.93]:11168
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752357AbeC3W7C (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 30 Mar 2018 18:59:02 -0400
+From: Trent Piepho <tpiepho@impinj.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>,
+        "pure.logic@nexus-software.ie" <pure.logic@nexus-software.ie>
+CC: "shawn.guo@linaro.org" <shawn.guo@linaro.org>,
+        "stefan@agner.ch" <stefan@agner.ch>,
+        "bianpan2016@163.com" <bianpan2016@163.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "guy.shapiro@mobi-wize.com" <guy.shapiro@mobi-wize.com>,
+        "Frank.Li@freescale.com" <Frank.Li@freescale.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Subject: Re: [RESEND] rtc: snvs: Fix usage of snvs_rtc_enable
+Date: Fri, 30 Mar 2018 22:59:00 +0000
+Message-ID: <1522450739.10662.278.camel@impinj.com>
+References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+         <1522282337.10662.268.camel@impinj.com>
+         <f380bc29-c8dd-5c20-efc4-ffc0ad69b8d6@nexus-software.ie>
+In-Reply-To: <f380bc29-c8dd-5c20-efc4-ffc0ad69b8d6@nexus-software.ie>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180309015146.8297-1-jeffy.chen@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 09 Mar 2018, Jeffy Chen wrote:
-
-> 
-> After 9b947a13e7f6 ("regmap: use debugfs even when no device"), we are
-> allowing regmap to create debugfs without a valid device. Some of them
-> would end up using "dummy*" as debugfs name.
-> 
-> This series try to set names in some regmap_config to avoid that.
-> 
-> 
-> Changes in v4:
-> Not to use rtc dev to init regmap, the gpbr is not directly related to
-> the rtc.
-> 
-> Changes in v3:
-> Modify commit message.
-> 
-> Jeffy Chen (4):
->   mfd: syscon: Set name of regmap_config
->   rtc: at91sam9: Set name of regmap_config
->   clk: lpc32xx: Set name of regmap_config
->   ARM: rockchip: Set name of regmap_config
-> 
->  arch/arm/mach-rockchip/platsmp.c | 1 +
->  drivers/clk/nxp/clk-lpc32xx.c    | 1 +
->  drivers/mfd/syscon.c             | 1 +
-
-It's difficult to review, since we cannot see what's happening with
-the rest of the patch set.  Would you mind re-sending the whole set to
-all parties please?
-
->  drivers/rtc/rtc-at91sam9.c       | 1 +
->  4 files changed, 4 insertions(+)
-> 
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+T24gVGh1LCAyMDE4LTAzLTI5IGF0IDAyOjUzICswMTAwLCBCcnlhbiBPJ0Rvbm9naHVlIHdyb3Rl
+Og0KPiBPbiAyOS8wMy8xOCAwMToxMiwgVHJlbnQgUGllcGhvIHdyb3RlOg0KPiANCj4gPiBJIHNl
+bnQgYSBwYXRjaCBhIGNvdXBsZSB3ZWVrcyBhZ28gdGhhdCBhZGRyZXNzZWQgYSBzaW1pbGFyIGlz
+c3VlLCBzZWUNCj4gPiBodHRwczovL25hMDEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5j
+b20vP3VybD1odHRwcyUzQSUyRiUyRnBhdGNod29yay5vemxhYnMub3JnJTJGcGF0Y2glMkY4ODcw
+OTAlMkYmZGF0YT0wMiU3QzAxJTdDdHBpZXBobyU0MGltcGluai5jb20lN0NiNjIyOTQwODAyZGY0
+OWRlYWM0YzA4ZDU5NTE3ZThkOCU3QzZkZTcwZjBmNzM1NzQ1MjlhNDE1ZDhjYmI3ZTkzZTVlJTdD
+MCU3QzElN0M2MzY1Nzg4NTIyODMzOTA3NDUmc2RhdGE9ZHMwb2ZwYlRxckhCakdBMThOMzQzY0pK
+OXN5MlNUUTlaelN4SDJUVXl6RSUzRCZyZXNlcnZlZD0wDQo+ID4gDQo+ID4gRG9lcyB0aGlzIGFs
+c28gZml4IHRoZSBwcm9ibGVtIHlvdSBzZWU/DQo+IA0KPiBJdCBicmVha3MgdGhlIGVuZGxlc3Mg
+bG9vcCB0aGF0IGhhcHBlbnMgbGF0ZXIgb24gaW4gdGhlIFJUQyByZWFkIHBhdGguDQo+IA0KPiBU
+aGlzIHBhdGNoIHRob3VnaCBpcyBhYm91dCBmaXhpbmcgdGhlIGJ1ZyB3aXRoIG5vdCBoYW5kbGlu
+ZyB0aGUgZW5hYmxlIA0KPiBvZiB0aGUgc252c19ydGNfZW5hYmxlKCkgY29ycmVjdGx5LCB3aGlj
+aCBpcyB3aHkgaXQgc2hvdWxkIGJlIGFwcGxpZWQuDQo+IA0KPiBUaGUgcmlnaHQgZmxvdyBpcyB0
+byBoYW5kbGUgdGhlIGVycm9yIG9uIHNudnNfcnRjX2VuYWJsZSgpIGFzIHNvb24gYXMgaXQgDQo+
+IGhhcHBlbnMgYXMgb3Bwb3NlZCB3YWl0IGZvciByZWFkKCkgdG8gLUVUSU1FRE9VVC4NCg0KVW5s
+ZXNzIHRoZXJlIGFyZSBib2FyZHMgdGhhdCBkb24ndCBlbmFibGUgdGhlIDMya0h6IG9zY2lsbGF0
+b3IgdW50aWwNCmFmdGVyIHRoZSBrZXJuZWwgZHJpdmVyIGxvYWRzLiAgSSB3YXMgY29uY2VybmVk
+IGFib3V0IHRoYXQgc28gZGlkbid0DQphZGQgdGhlIGNoZWNrIGluIHByb2JlIHRvIHByZXZlbnQg
+dGhlIGRyaXZlciBmcm9tIGxvYWRpbmcuICBJZiB0aGUNCnBvc3NpYmxlIGRpc3J1cHRpb24gb2Yg
+dGhhdCBpcyBhY2NlcHRhYmxlLCB0aGVuIGl0IGRvZXMgc2VlbSBiZXR0ZXIgdG8NCmZhaWwgdG8g
+bG9hZC4NCg0KSG93ZXZlciwgSSB0aGluayB0aGF0IGV2ZW4gaWYgdGhlIGRyaXZlciBmYWlscyB0
+byBwcm9iZSBpZiB0aGVyZSBpcyBhDQp0aW1lb3V0IGF0IHByb2JlIHRpbWUsIGl0J3Mgc3RpbGwg
+cG9zc2libGUgdG8gaGFuZyBsYXRlciBpZiB0aGVyZSBhcmUNCm5vdCBsaW1pdHMgdG8gdGhlIGhh
+cmR3YXJlIHBvbGxpbmcgbG9vcHMsIHN1Y2ggYXMgdGhlIG9uZXMgSSBhZGRlZC4NCg0KPiA+IEkg
+dGhpbmsgd2hhdCB5b3UndmUgZG9uZSB3aWxsIHByZXZlbnQgdGhlIGRyaXZlciBmcm9tIGxvYWRp
+bmcgaWYgdGhlDQo+ID4gY2xvY2sgaXMgbm90IHdvcmtpbmcsIGJ1dCBpZiB0aGUgY2xvY2sgZG9l
+cyBub3QgdGljayBwcm9wZXJseSBhZnRlcg0KPiA+IGxvYWRpbmcsIHRoZXJlIGFyZSBzdGlsbCBw
+b2ludHMgKHNudnNfcnRjX3JlYWRfdGltZSBmb3Igb25lKSB0aGF0IHdpbGwNCj4gPiBsb2NrIHVw
+IGluIHRoZSBrZXJuZWwuDQo+IA0KPiBJJ2xsIGRpZyBvdXQgeW91ciBwYXRjaCBhbmQgZ2l2ZSBp
+dCBhIHJldmlldy4NCj4g
