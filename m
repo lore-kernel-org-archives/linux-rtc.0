@@ -1,48 +1,78 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33889 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754191AbeDTJe1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Apr 2018 05:34:27 -0400
-From: Andrea Greco <andrea.greco.gapmilano@gmail.com>
-Cc: andrea.greco.gapmilano@gmail.com, Andrea Greco <a.greco@4sigma.it>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] RTC: DS1340 Add support for trickle charger.
-Date: Fri, 20 Apr 2018 11:34:02 +0200
-Message-Id: <20180420093402.28758-1-andrea.greco.gapmilano@gmail.com>
-To: unlisted-recipients:; (no To-header on input)
+Received: from mail.bootlin.com ([62.4.15.54]:50576 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751095AbeDCO4y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 3 Apr 2018 10:56:54 -0400
+Date: Tue, 3 Apr 2018 16:56:42 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+        Pan Bian <bianpan2016@163.com>,
+        Guy Shapiro <guy.shapiro@mobi-wize.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Frank Li <Frank.Li@freescale.com>,
+        Shawn Guo <shawn.guo@linaro.org>, linux-rtc@vger.kernel.org,
+        "# v3 . 16+" <stable@vger.kernel.org>
+Subject: Re: [RESEND] [PATCH] rtc: snvs: Fix usage of snvs_rtc_enable
+Message-ID: <20180403145642.GA6444@piout.net>
+References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Andrea Greco <a.greco@4sigma.it>
+On 28/03/2018 20:14:05+0100, Bryan O'Donoghue wrote:
+> commit 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver") introduces
+> the SNVS RTC driver with a function snvs_rtc_enable().
+> 
+> snvs_rtc_enable() can return an error on the enable path however this
+> driver does not currently trap that failure on the probe() path and
+> consequently if enabling the RTC fails we encounter a later error spinning
+> forever in rtc_write_sync_lp().
+> 
+> [   36.093481] [<c010d630>] (__irq_svc) from [<c0c2e9ec>] (_raw_spin_unlock_irqrestore+0x34/0x44)
+> [   36.102122] [<c0c2e9ec>] (_raw_spin_unlock_irqrestore) from [<c072e32c>] (regmap_read+0x4c/0x5c)
+> [   36.110938] [<c072e32c>] (regmap_read) from [<c085d0f4>] (rtc_write_sync_lp+0x6c/0x98)
+> [   36.118881] [<c085d0f4>] (rtc_write_sync_lp) from [<c085d160>] (snvs_rtc_alarm_irq_enable+0x40/0x4c)
+> [   36.128041] [<c085d160>] (snvs_rtc_alarm_irq_enable) from [<c08567b4>] (rtc_timer_do_work+0xd8/0x1a8)
+> [   36.137291] [<c08567b4>] (rtc_timer_do_work) from [<c01441b8>] (process_one_work+0x28c/0x76c)
+> [   36.145840] [<c01441b8>] (process_one_work) from [<c01446cc>] (worker_thread+0x34/0x58c)
+> [   36.153961] [<c01446cc>] (worker_thread) from [<c014aee4>] (kthread+0x138/0x150)
+> [   36.161388] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
+> [   36.168635] rcu_sched kthread starved for 2602 jiffies! g496 c495 f0x2 RCU_GP_WAIT_FQS(3) ->state=0x0 ->cpu=0
+> [   36.178564] rcu_sched       R  running task        0     8      2 0x00000000
+> [   36.185664] [<c0c288b0>] (__schedule) from [<c0c29134>] (schedule+0x3c/0xa0)
+> [   36.192739] [<c0c29134>] (schedule) from [<c0c2db80>] (schedule_timeout+0x78/0x4e0)
+> [   36.200422] [<c0c2db80>] (schedule_timeout) from [<c01a7ab0>] (rcu_gp_kthread+0x648/0x1864)
+> [   36.208800] [<c01a7ab0>] (rcu_gp_kthread) from [<c014aee4>] (kthread+0x138/0x150)
+> [   36.216309] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
+> 
+> This patch fixes by parsing the result of rtc_write_sync_lp() and
+> propagating both in the probe and elsewhere. If the RTC doesn't start we
+> don't proceed loading the driver and don't get into this loop mess later
+> on.
+> 
+> Fixes: 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver")
+> 
+> Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+> Cc: a.zummo@towertech.it
+> Cc: alexandre.belloni@free-electrons.com
+> Cc: Pan Bian <bianpan2016@163.com>
+> Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>
+> Cc: Stefan Agner <stefan@agner.ch>
+> Cc: Frank Li <Frank.Li@freescale.com>
+> Cc: Shawn Guo <shawn.guo@linaro.org>
+> Cc: linux-rtc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: <stable@vger.kernel.org> # v3.16+
+> ---
+>  drivers/rtc/rtc-snvs.c | 15 +++++++++++----
+>  1 file changed, 11 insertions(+), 4 deletions(-)
+> 
+Applied, thanks.
 
-Add support Dallas DS1340 trickle charger function.
-
-Signed-off-by: Andrea Greco <a.greco@4sigma.it>
----
- drivers/rtc/rtc-ds1307.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a13e59edff53..e9ec4160d7f6 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -201,6 +201,7 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.century_reg	= DS1307_REG_HOUR,
- 		.century_enable_bit = DS1340_BIT_CENTURY_EN,
- 		.century_bit	= DS1340_BIT_CENTURY,
-+		.do_trickle_setup = &do_trickle_setup_ds1339,
- 		.trickle_charger_reg = 0x08,
- 	},
- 	[ds_1341] = {
-@@ -1371,6 +1372,7 @@ static void ds1307_clks_register(struct ds1307 *ds1307)
- static const struct regmap_config regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-+	.max_register = 0x9,
- };
- 
- static int ds1307_probe(struct i2c_client *client,
 -- 
-2.14.3
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
