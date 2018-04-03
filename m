@@ -1,68 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33438 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:50656 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753516AbeDSMuu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 19 Apr 2018 08:50:50 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Shuah Khan <shuah@kernel.org>
-Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/4] selftests: timers: rtcpie: restore previous PIE rate
-Date: Thu, 19 Apr 2018 14:50:28 +0200
-Message-Id: <20180419125030.5076-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
-References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+        id S1751414AbeDCO6L (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 3 Apr 2018 10:58:11 -0400
+Date: Tue, 3 Apr 2018 16:57:41 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: sean.wang@mediatek.com
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: mt7622: fix module autoloading for OF platform
+ drivers
+Message-ID: <20180403145741.GB6444@piout.net>
+References: <4231c0b6038764f68324297a40b18b15ecda5a92.1522055289.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4231c0b6038764f68324297a40b18b15ecda5a92.1522055289.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-After the test ends, restore the PIE rate to its previous value to be less
-disruptive.
+On 26/03/2018 18:05:52+0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> It's required to create a modules.alias via MODULE_DEVICE_TABLE helper
+> for the OF platform driver. Otherwise, module autoloading cannot work.
+> 
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  drivers/rtc/rtc-mt7622.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- tools/testing/selftests/timers/rtcpie.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
-index ea98b1f6ac17..47b5bad1b393 100644
---- a/tools/testing/selftests/timers/rtcpie.c
-+++ b/tools/testing/selftests/timers/rtcpie.c
-@@ -28,7 +28,7 @@ static const char default_rtc[] = "/dev/rtc0";
- int main(int argc, char **argv)
- {
- 	int i, fd, retval, irqcount = 0;
--	unsigned long tmp, data;
-+	unsigned long tmp, data, old_pie_rate;
- 	const char *rtc = default_rtc;
- 	struct timeval start, end, diff;
- 
-@@ -51,7 +51,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	/* Read periodic IRQ rate */
--	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
-+	retval = ioctl(fd, RTC_IRQP_READ, &old_pie_rate);
- 	if (retval == -1) {
- 		/* not all RTCs support periodic IRQs */
- 		if (errno == EINVAL) {
-@@ -61,7 +61,7 @@ int main(int argc, char **argv)
- 		perror("RTC_IRQP_READ ioctl");
- 		exit(errno);
- 	}
--	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
-+	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", old_pie_rate);
- 
- 	fprintf(stderr, "Counting 20 interrupts at:");
- 	fflush(stderr);
-@@ -124,6 +124,8 @@ int main(int argc, char **argv)
- 	}
- 
- done:
-+	ioctl(fd, RTC_IRQP_SET, old_pie_rate);
-+
- 	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
- 
- 	close(fd);
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
