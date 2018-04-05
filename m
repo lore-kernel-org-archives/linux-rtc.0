@@ -1,226 +1,126 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38410 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752096AbeDSMnC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:02 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 15/39] acpi/battery: simplify procfs code
-Date: Thu, 19 Apr 2018 14:41:16 +0200
-Message-Id: <20180419124140.9309-16-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:40550 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751344AbeDEIQD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Apr 2018 04:16:03 -0400
+Received: by mail-pl0-f67.google.com with SMTP id x4-v6so18081759pln.7
+        for <linux-rtc@vger.kernel.org>; Thu, 05 Apr 2018 01:16:03 -0700 (PDT)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: linuxppc-dev@lists.ozlabs.org
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Stewart Smith <stewart@linux.ibm.com>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH 2/6] powerpc/powernv: OPAL RTC driver standardise OPAL_BUSY loops
+Date: Thu,  5 Apr 2018 18:15:43 +1000
+Message-Id: <20180405081547.13266-3-npiggin@gmail.com>
+In-Reply-To: <20180405081547.13266-1-npiggin@gmail.com>
+References: <20180405081547.13266-1-npiggin@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+Convert to using the standard delay poll/delay form.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The OPAL RTC driver:
+
+- Did not previously delay or sleep in the OPAL_BUSY_EVENT case.
+  There have been scheduling delays of up to 50 seconds observed here
+  (BMC reboot can do it), which this should fix.
+
+Cc: linux-rtc@vger.kernel.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 ---
- drivers/acpi/battery.c | 121 +++++++++--------------------------------
- 1 file changed, 26 insertions(+), 95 deletions(-)
+ arch/powerpc/platforms/powernv/opal-rtc.c |  6 ++++--
+ drivers/rtc/rtc-opal.c                    | 33 ++++++++++++++++++++-----------
+ 2 files changed, 25 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index bdb24d636d9a..76550689ce10 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -81,14 +81,6 @@ MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
- #ifdef CONFIG_ACPI_PROCFS_POWER
- extern struct proc_dir_entry *acpi_lock_battery_dir(void);
- extern void *acpi_unlock_battery_dir(struct proc_dir_entry *acpi_battery_dir);
--
--enum acpi_battery_files {
--	info_tag = 0,
--	state_tag,
--	alarm_tag,
--	ACPI_BATTERY_NUMFILES,
--};
--
- #endif
+diff --git a/arch/powerpc/platforms/powernv/opal-rtc.c b/arch/powerpc/platforms/powernv/opal-rtc.c
+index f8868864f373..f530cf62594d 100644
+--- a/arch/powerpc/platforms/powernv/opal-rtc.c
++++ b/arch/powerpc/platforms/powernv/opal-rtc.c
+@@ -48,10 +48,12 @@ unsigned long __init opal_get_boot_time(void)
  
- static const struct acpi_device_id battery_device_ids[] = {
-@@ -985,9 +977,10 @@ static const char *acpi_battery_units(const struct acpi_battery *battery)
- 		"mA" : "mW";
- }
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			mdelay(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (rc == OPAL_BUSY)
++		} else if (rc == OPAL_BUSY) {
+ 			mdelay(10);
++		}
+ 	}
+ 	if (rc != OPAL_SUCCESS)
+ 		return 0;
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 304e891e35fc..cddcc4749d39 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -57,7 +57,7 @@ static void tm_to_opal(struct rtc_time *tm, u32 *y_m_d, u64 *h_m_s_ms)
  
--static int acpi_battery_print_info(struct seq_file *seq, int result)
-+static int acpi_battery_info_proc_show(struct seq_file *seq, void *offset)
+ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct acpi_battery *battery = seq->private;
-+	int result = acpi_battery_update(battery, false);
+-	long rc = OPAL_BUSY;
++	s64 rc = OPAL_BUSY;
+ 	int retries = 10;
+ 	u32 y_m_d;
+ 	u64 h_m_s_ms;
+@@ -66,13 +66,17 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
  
- 	if (result)
- 		goto end;
-@@ -1041,9 +1034,10 @@ static int acpi_battery_print_info(struct seq_file *seq, int result)
- 	return result;
- }
- 
--static int acpi_battery_print_state(struct seq_file *seq, int result)
-+static int acpi_battery_state_proc_show(struct seq_file *seq, void *offset)
- {
- 	struct acpi_battery *battery = seq->private;
-+	int result = acpi_battery_update(battery, false);
- 
- 	if (result)
- 		goto end;
-@@ -1088,9 +1082,10 @@ static int acpi_battery_print_state(struct seq_file *seq, int result)
- 	return result;
- }
- 
--static int acpi_battery_print_alarm(struct seq_file *seq, int result)
-+static int acpi_battery_alarm_proc_show(struct seq_file *seq, void *offset)
- {
- 	struct acpi_battery *battery = seq->private;
-+	int result = acpi_battery_update(battery, false);
- 
- 	if (result)
- 		goto end;
-@@ -1142,82 +1137,22 @@ static ssize_t acpi_battery_write_alarm(struct file *file,
- 	return result;
- }
- 
--typedef int(*print_func)(struct seq_file *seq, int result);
--
--static print_func acpi_print_funcs[ACPI_BATTERY_NUMFILES] = {
--	acpi_battery_print_info,
--	acpi_battery_print_state,
--	acpi_battery_print_alarm,
--};
--
--static int acpi_battery_read(int fid, struct seq_file *seq)
-+static int acpi_battery_alarm_proc_open(struct inode *inode, struct file *file)
- {
--	struct acpi_battery *battery = seq->private;
--	int result = acpi_battery_update(battery, false);
--	return acpi_print_funcs[fid](seq, result);
-+	return single_open(file, acpi_battery_alarm_proc_show, PDE_DATA(inode));
- }
- 
--#define DECLARE_FILE_FUNCTIONS(_name) \
--static int acpi_battery_read_##_name(struct seq_file *seq, void *offset) \
--{ \
--	return acpi_battery_read(_name##_tag, seq); \
--} \
--static int acpi_battery_##_name##_open_fs(struct inode *inode, struct file *file) \
--{ \
--	return single_open(file, acpi_battery_read_##_name, PDE_DATA(inode)); \
--}
--
--DECLARE_FILE_FUNCTIONS(info);
--DECLARE_FILE_FUNCTIONS(state);
--DECLARE_FILE_FUNCTIONS(alarm);
--
--#undef DECLARE_FILE_FUNCTIONS
--
--#define FILE_DESCRIPTION_RO(_name) \
--	{ \
--	.name = __stringify(_name), \
--	.mode = S_IRUGO, \
--	.ops = { \
--		.open = acpi_battery_##_name##_open_fs, \
--		.read = seq_read, \
--		.llseek = seq_lseek, \
--		.release = single_release, \
--		.owner = THIS_MODULE, \
--		}, \
--	}
--
--#define FILE_DESCRIPTION_RW(_name) \
--	{ \
--	.name = __stringify(_name), \
--	.mode = S_IFREG | S_IRUGO | S_IWUSR, \
--	.ops = { \
--		.open = acpi_battery_##_name##_open_fs, \
--		.read = seq_read, \
--		.llseek = seq_lseek, \
--		.write = acpi_battery_write_##_name, \
--		.release = single_release, \
--		.owner = THIS_MODULE, \
--		}, \
--	}
--
--static const struct battery_file {
--	struct file_operations ops;
--	umode_t mode;
--	const char *name;
--} acpi_battery_file[] = {
--	FILE_DESCRIPTION_RO(info),
--	FILE_DESCRIPTION_RO(state),
--	FILE_DESCRIPTION_RW(alarm),
-+static const struct file_operations acpi_battery_alarm_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= acpi_battery_alarm_proc_open,
-+	.read		= seq_read,
-+	.write		= acpi_battery_write_alarm,
-+	.llseek		= seq_lseek,
-+	.release	= single_release,
- };
- 
--#undef FILE_DESCRIPTION_RO
--#undef FILE_DESCRIPTION_RW
--
- static int acpi_battery_add_fs(struct acpi_device *device)
- {
--	struct proc_dir_entry *entry = NULL;
--	int i;
--
- 	printk(KERN_WARNING PREFIX "Deprecated procfs I/F for battery is loaded,"
- 			" please retry with CONFIG_ACPI_PROCFS_POWER cleared\n");
- 	if (!acpi_device_dir(device)) {
-@@ -1227,28 +1162,24 @@ static int acpi_battery_add_fs(struct acpi_device *device)
- 			return -ENODEV;
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			msleep(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (retries-- && (rc == OPAL_HARDWARE
+-				       || rc == OPAL_INTERNAL_ERROR))
++		} else if (rc == OPAL_BUSY) {
+ 			msleep(10);
+-		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
+-			break;
++		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
++			if (retries--) {
++				msleep(10); /* Wait 10ms before retry */
++				rc = OPAL_BUSY; /* go around again */
++			}
++		}
  	}
  
--	for (i = 0; i < ACPI_BATTERY_NUMFILES; ++i) {
--		entry = proc_create_data(acpi_battery_file[i].name,
--					 acpi_battery_file[i].mode,
--					 acpi_device_dir(device),
--					 &acpi_battery_file[i].ops,
--					 acpi_driver_data(device));
--		if (!entry)
--			return -ENODEV;
--	}
-+	if (!proc_create_single_data("info", S_IRUGO, acpi_device_dir(device),
-+			acpi_battery_info_proc_show, acpi_driver_data(device)))
-+		return -ENODEV;
-+	if (!proc_create_single_data("state", S_IRUGO, acpi_device_dir(device),
-+			acpi_battery_state_proc_show, acpi_driver_data(device)))
-+		return -ENODEV;
-+	if (!proc_create_data("alarm", S_IFREG | S_IRUGO | S_IWUSR,
-+			acpi_device_dir(device), &acpi_battery_alarm_fops,
-+			acpi_driver_data(device)))
-+		return -ENODEV;
- 	return 0;
- }
+ 	if (rc != OPAL_SUCCESS)
+@@ -87,21 +91,26 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
  
- static void acpi_battery_remove_fs(struct acpi_device *device)
+ static int opal_set_rtc_time(struct device *dev, struct rtc_time *tm)
  {
--	int i;
- 	if (!acpi_device_dir(device))
- 		return;
--	for (i = 0; i < ACPI_BATTERY_NUMFILES; ++i)
--		remove_proc_entry(acpi_battery_file[i].name,
--				  acpi_device_dir(device));
--
--	remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
-+	remove_proc_subtree(acpi_device_bid(device), acpi_battery_dir);
- 	acpi_device_dir(device) = NULL;
- }
+-	long rc = OPAL_BUSY;
++	s64 rc = OPAL_BUSY;
+ 	int retries = 10;
+ 	u32 y_m_d = 0;
+ 	u64 h_m_s_ms = 0;
  
+ 	tm_to_opal(tm, &y_m_d, &h_m_s_ms);
++
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_write(y_m_d, h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			msleep(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (retries-- && (rc == OPAL_HARDWARE
+-				       || rc == OPAL_INTERNAL_ERROR))
++		} else if (rc == OPAL_BUSY) {
+ 			msleep(10);
+-		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
+-			break;
++		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
++			if (retries--) {
++				msleep(10); /* Wait 10ms before retry */
++				rc = OPAL_BUSY; /* go around again */
++			}
++		}
+ 	}
+ 
+ 	return rc == OPAL_SUCCESS ? 0 : -EIO;
 -- 
-2.17.0
+2.16.3
