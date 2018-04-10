@@ -1,107 +1,130 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:37352 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757046AbeD0DBm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Apr 2018 23:01:42 -0400
-Date: Thu, 26 Apr 2018 22:01:40 -0500
-From: Rob Herring <robh@kernel.org>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] dt-bindings: rtc: update stm32-rtc documentation for
- stm32mp1 rtc
-Message-ID: <20180427030140.nmlqmpewqatabnmt@rob-hp-laptop>
-References: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
- <1524144845-23016-3-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1524144845-23016-3-git-send-email-amelie.delaunay@st.com>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36280 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752373AbeDJLtt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Apr 2018 07:49:49 -0400
+Received: by mail-pf0-f196.google.com with SMTP id g14so8077414pfh.3
+        for <linux-rtc@vger.kernel.org>; Tue, 10 Apr 2018 04:49:49 -0700 (PDT)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: linuxppc-dev@lists.ozlabs.org
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH 2/3] powerpc/powernv: Fix OPAL RTC driver OPAL_BUSY loops
+Date: Tue, 10 Apr 2018 21:49:32 +1000
+Message-Id: <20180410114933.24581-3-npiggin@gmail.com>
+In-Reply-To: <20180410114933.24581-1-npiggin@gmail.com>
+References: <20180410114933.24581-1-npiggin@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 03:34:04PM +0200, Amelie Delaunay wrote:
-> RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
-> doesn't require to disable backup domain write protection, and rtc_ck
-> parent clock assignment isn't allowed.
-> To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
-> alarm interrupt.
-> 
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> ---
->  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 +++++++++++++++++-----
->  1 file changed, 21 insertions(+), 6 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> index 00f8b5d..f1c2080 100644
-> --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> @@ -1,25 +1,31 @@
->  STM32 Real Time Clock
->  
->  Required properties:
-> -- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
-> -  the device is compatible with stm32(f4/f7) or stm32h7.
-> +- compatible: can be "st,stm32-rtc", "st,stm32h7-rtc" or "st,stm32mp1-rtc",
-> +	      depending on the device is compatible with stm32(f4/f7), stm32h7
-> +	      or stm32mp1.
+The OPAL RTC driver does not sleep in case it gets OPAL_BUSY or
+OPAL_BUSY_EVENT from firmware, which causes large scheduling
+latencies, up to 50 seconds have been observed here when RTC stops
+responding (BMC reboot can do it).
 
-One compatible per line please.
+Fix this by converting it to the standard form OPAL_BUSY loop that
+sleeps.
 
->  - reg: address range of rtc register set.
->  - clocks: can use up to two clocks, depending on part used:
->    - "rtc_ck": RTC clock source.
-> -    It is required on stm32(f4/f7) and stm32h7.
-> +    It is required on stm32(f4/f7/h7/mp1).
+Fixes 628daa8d5abfd ("powerpc/powernv: Add RTC and NVRAM support plus RTAS fallbacks"
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-rtc@vger.kernel.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+ arch/powerpc/platforms/powernv/opal-rtc.c |  8 +++--
+ drivers/rtc/rtc-opal.c                    | 37 ++++++++++++++---------
+ 2 files changed, 28 insertions(+), 17 deletions(-)
 
-IOW, required for all?
-
->    - "pclk": RTC APB interface clock.
->      It is not present on stm32(f4/f7).
-> -    It is required on stm32h7.
-> +    It is required on stm32(h7/mp1).
->  - clock-names: must be "rtc_ck" and "pclk".
-> -    It is required only on stm32h7.
-> +    It is required on stm32(h7/mp1).
->  - interrupt-parent: phandle for the interrupt controller.
-> +    It is required on stm32(f4/f7/h7).
->  - interrupts: rtc alarm interrupt.
-> +- interrupts-extended: replace interrupts property on stm32mp1, to specify rtc
-> +  alarm wakeup interrupt, which is on exti interrupt controller instead of gic.
-> +    It is required on stm32mp1.
-
-Just document 'interrupts'. interrupts-extended is implicitly supported 
-and what the interrupts are connected to is outside the scope of this 
-binding.
-
->  - st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
->    access control register at offset, and change the dbp (Disable Backup
->    Protection) bit represented by the mask, mandatory to disable/enable backup
->    domain (RTC registers) write protection.
-> +    It is required on stm32(f4/f7/h7).
->  
-> -Optional properties (to override default rtc_ck parent clock):
-> +Optional properties (to override default rtc_ck parent clock on stm32(f4/f7/h7):
->  - assigned-clocks: reference to the rtc_ck clock entry.
->  - assigned-clock-parents: phandle of the new parent clock of rtc_ck.
->  
-> @@ -48,3 +54,12 @@ Example:
->  		interrupt-names = "alarm";
->  		st,syscfg = <&pwrcfg 0x00 0x100>;
->  	};
-> +
-> +	rtc: rtc@5c004000 {
-> +		compatible = "st,stm32mp1-rtc";
-> +		reg = <0x5c004000 0x400>;
-> +		clocks = <&rcc RTCAPB>, <&rcc RTC>;
-> +		clock-names = "pclk", "rtc_ck";
-> +		interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_NONE>,
-> +				      <&exti 19 1>;
-> +	};
-> -- 
-> 2.7.4
-> 
+diff --git a/arch/powerpc/platforms/powernv/opal-rtc.c b/arch/powerpc/platforms/powernv/opal-rtc.c
+index f8868864f373..aa2a5139462e 100644
+--- a/arch/powerpc/platforms/powernv/opal-rtc.c
++++ b/arch/powerpc/platforms/powernv/opal-rtc.c
+@@ -48,10 +48,12 @@ unsigned long __init opal_get_boot_time(void)
+ 
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			mdelay(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (rc == OPAL_BUSY)
+-			mdelay(10);
++		} else if (rc == OPAL_BUSY) {
++			mdelay(OPAL_BUSY_DELAY_MS);
++		}
+ 	}
+ 	if (rc != OPAL_SUCCESS)
+ 		return 0;
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 304e891e35fc..60f2250fd96b 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -57,7 +57,7 @@ static void tm_to_opal(struct rtc_time *tm, u32 *y_m_d, u64 *h_m_s_ms)
+ 
+ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
+ {
+-	long rc = OPAL_BUSY;
++	s64 rc = OPAL_BUSY;
+ 	int retries = 10;
+ 	u32 y_m_d;
+ 	u64 h_m_s_ms;
+@@ -66,13 +66,17 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			msleep(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (retries-- && (rc == OPAL_HARDWARE
+-				       || rc == OPAL_INTERNAL_ERROR))
+-			msleep(10);
+-		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
+-			break;
++		} else if (rc == OPAL_BUSY) {
++			msleep(OPAL_BUSY_DELAY_MS);
++		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
++			if (retries--) {
++				msleep(10); /* Wait 10ms before retry */
++				rc = OPAL_BUSY; /* go around again */
++			}
++		}
+ 	}
+ 
+ 	if (rc != OPAL_SUCCESS)
+@@ -87,21 +91,26 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
+ 
+ static int opal_set_rtc_time(struct device *dev, struct rtc_time *tm)
+ {
+-	long rc = OPAL_BUSY;
++	s64 rc = OPAL_BUSY;
+ 	int retries = 10;
+ 	u32 y_m_d = 0;
+ 	u64 h_m_s_ms = 0;
+ 
+ 	tm_to_opal(tm, &y_m_d, &h_m_s_ms);
++
+ 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
+ 		rc = opal_rtc_write(y_m_d, h_m_s_ms);
+-		if (rc == OPAL_BUSY_EVENT)
++		if (rc == OPAL_BUSY_EVENT) {
++			msleep(OPAL_BUSY_DELAY_MS);
+ 			opal_poll_events(NULL);
+-		else if (retries-- && (rc == OPAL_HARDWARE
+-				       || rc == OPAL_INTERNAL_ERROR))
+-			msleep(10);
+-		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
+-			break;
++		} else if (rc == OPAL_BUSY) {
++			msleep(OPAL_BUSY_DELAY_MS);
++		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
++			if (retries--) {
++				msleep(10); /* Wait 10ms before retry */
++				rc = OPAL_BUSY; /* go around again */
++			}
++		}
+ 	}
+ 
+ 	return rc == OPAL_SUCCESS ? 0 : -EIO;
+-- 
+2.17.0
