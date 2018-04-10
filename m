@@ -1,164 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38254 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753008AbeDSMmr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:47 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+Received: from mail.bootlin.com ([62.4.15.54]:38338 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752417AbeDJH4W (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 10 Apr 2018 03:56:22 -0400
+Date: Tue, 10 Apr 2018 09:56:11 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: SZ Lin =?utf-8?B?KOael+S4iuaZuik=?= <sz.lin@moxa.com>
+Cc: Taiyi Wu <taiyity.wu@moxa.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 11/39] =?UTF-8?q?netfilter/x=5Ftables:=20simplify=20=D1=95?= =?UTF-8?q?eq=5Ffile=20code?=
-Date: Thu, 19 Apr 2018 14:41:12 +0200
-Message-Id: <20180419124140.9309-12-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RESEND PATCH] rtc: tps65910: add bounds checking
+Message-ID: <20180410075610.GA24625@piout.net>
+References: <20180410072417.7078-1-sz.lin@moxa.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180410072417.7078-1-sz.lin@moxa.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Just use the address family from the proc private data instead of copying
-it into per-file data.
+Hi,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- net/netfilter/x_tables.c | 39 +++++++++++----------------------------
- 1 file changed, 11 insertions(+), 28 deletions(-)
+On 10/04/2018 15:24:17+0800, SZ Lin (林上智) wrote:
+> Since tm->tm_year is the offset relative to 1900, it needs to check for
+> positive value to avoid overflow in YEARS_REG register.
+> 
+> The system will hang at the following stage on the next boot when overflow
+> has occurred.
+> 
+> [    2.221192] systemd[1]: Time has been changed
+> 
+> This patch fixes the above hanging issue by adding bounds checking.
+> 
 
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 71325fef647d..3704101af27f 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1489,15 +1489,10 @@ void *xt_unregister_table(struct xt_table *table)
- EXPORT_SYMBOL_GPL(xt_unregister_table);
- 
- #ifdef CONFIG_PROC_FS
--struct xt_names_priv {
--	struct seq_net_private p;
--	u_int8_t af;
--};
- static void *xt_table_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	struct xt_names_priv *priv = seq->private;
- 	struct net *net = seq_file_net(seq);
--	u_int8_t af = priv->af;
-+	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
- 
- 	mutex_lock(&xt[af].mutex);
- 	return seq_list_start(&net->xt.tables[af], *pos);
-@@ -1505,17 +1500,15 @@ static void *xt_table_seq_start(struct seq_file *seq, loff_t *pos)
- 
- static void *xt_table_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	struct xt_names_priv *priv = seq->private;
- 	struct net *net = seq_file_net(seq);
--	u_int8_t af = priv->af;
-+	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
- 
- 	return seq_list_next(v, &net->xt.tables[af], pos);
- }
- 
- static void xt_table_seq_stop(struct seq_file *seq, void *v)
- {
--	struct xt_names_priv *priv = seq->private;
--	u_int8_t af = priv->af;
-+	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
- 
- 	mutex_unlock(&xt[af].mutex);
- }
-@@ -1538,16 +1531,8 @@ static const struct seq_operations xt_table_seq_ops = {
- 
- static int xt_table_open(struct inode *inode, struct file *file)
- {
--	int ret;
--	struct xt_names_priv *priv;
--
--	ret = seq_open_net(inode, file, &xt_table_seq_ops,
--			   sizeof(struct xt_names_priv));
--	if (!ret) {
--		priv = ((struct seq_file *)file->private_data)->private;
--		priv->af = (unsigned long)PDE_DATA(inode);
--	}
--	return ret;
-+	return seq_open_net(inode, file, &xt_table_seq_ops,
-+			sizeof(struct seq_net_private));
- }
- 
- static const struct file_operations xt_table_ops = {
-@@ -1563,7 +1548,7 @@ static const struct file_operations xt_table_ops = {
-  */
- struct nf_mttg_trav {
- 	struct list_head *head, *curr;
--	uint8_t class, nfproto;
-+	uint8_t class;
- };
- 
- enum {
-@@ -1580,6 +1565,7 @@ static void *xt_mttg_seq_next(struct seq_file *seq, void *v, loff_t *ppos,
- 		[MTTG_TRAV_NFP_UNSPEC] = MTTG_TRAV_NFP_SPEC,
- 		[MTTG_TRAV_NFP_SPEC]   = MTTG_TRAV_DONE,
- 	};
-+	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
- 	struct nf_mttg_trav *trav = seq->private;
- 
- 	switch (trav->class) {
-@@ -1594,9 +1580,9 @@ static void *xt_mttg_seq_next(struct seq_file *seq, void *v, loff_t *ppos,
- 		if (trav->curr != trav->head)
- 			break;
- 		mutex_unlock(&xt[NFPROTO_UNSPEC].mutex);
--		mutex_lock(&xt[trav->nfproto].mutex);
-+		mutex_lock(&xt[nfproto].mutex);
- 		trav->head = trav->curr = is_target ?
--			&xt[trav->nfproto].target : &xt[trav->nfproto].match;
-+			&xt[nfproto].target : &xt[nfproto].match;
- 		trav->class = next_class[trav->class];
- 		break;
- 	case MTTG_TRAV_NFP_SPEC:
-@@ -1628,6 +1614,7 @@ static void *xt_mttg_seq_start(struct seq_file *seq, loff_t *pos,
- 
- static void xt_mttg_seq_stop(struct seq_file *seq, void *v)
- {
-+	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
- 	struct nf_mttg_trav *trav = seq->private;
- 
- 	switch (trav->class) {
-@@ -1635,7 +1622,7 @@ static void xt_mttg_seq_stop(struct seq_file *seq, void *v)
- 		mutex_unlock(&xt[NFPROTO_UNSPEC].mutex);
- 		break;
- 	case MTTG_TRAV_NFP_SPEC:
--		mutex_unlock(&xt[trav->nfproto].mutex);
-+		mutex_unlock(&xt[nfproto].mutex);
- 		break;
- 	}
- }
-@@ -1680,8 +1667,6 @@ static int xt_match_open(struct inode *inode, struct file *file)
- 	trav = __seq_open_private(file, &xt_match_seq_ops, sizeof(*trav));
- 	if (!trav)
- 		return -ENOMEM;
--
--	trav->nfproto = (unsigned long)PDE_DATA(inode);
- 	return 0;
- }
- 
-@@ -1732,8 +1717,6 @@ static int xt_target_open(struct inode *inode, struct file *file)
- 	trav = __seq_open_private(file, &xt_target_seq_ops, sizeof(*trav));
- 	if (!trav)
- 		return -ENOMEM;
--
--	trav->nfproto = (unsigned long)PDE_DATA(inode);
- 	return 0;
- }
- 
+Did you test linux-next, this should not happen anymore after
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=b3a5ac42ab18b7d1a8f2f072ca0ee76a3b754a43
+
+> Signed-off-by: Taiyi Wu <taiyity.wu@moxa.com>
+> Signed-off-by: SZ Lin (林上智) <sz.lin@moxa.com>
+> ---
+>  drivers/rtc/rtc-tps65910.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
+> index d0244d7979fc..6be9f7bb0f1b 100644
+> --- a/drivers/rtc/rtc-tps65910.c
+> +++ b/drivers/rtc/rtc-tps65910.c
+> @@ -105,6 +105,12 @@ static int tps65910_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	struct tps65910 *tps = dev_get_drvdata(dev->parent);
+>  	int ret;
+>  
+> +	if ((tm->tm_year - 100) < 0) {
+> +		dev_err(dev, "the requested year %d is unsupported\n",
+> +			1900 + tm->tm_year);
+> +		return -EINVAL;
+> +	}
+> +
+>  	rtc_data[0] = bin2bcd(tm->tm_sec);
+>  	rtc_data[1] = bin2bcd(tm->tm_min);
+>  	rtc_data[2] = bin2bcd(tm->tm_hour);
+> -- 
+> 2.17.0
+> 
+
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
