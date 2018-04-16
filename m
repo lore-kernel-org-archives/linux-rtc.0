@@ -1,185 +1,209 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38026 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752640AbeDSMmc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:32 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 08/39] =?UTF-8?q?ipv{4,6}/raw:=20simplify=20=D1=95eq=5Ffil?= =?UTF-8?q?e=20code?=
-Date: Thu, 19 Apr 2018 14:41:09 +0200
-Message-Id: <20180419124140.9309-9-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mail1.windriver.com ([147.11.146.13]:47129 "EHLO
+        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750716AbeDPJxC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 16 Apr 2018 05:53:02 -0400
+From: Jiwei Sun <jiwei.sun@windriver.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>, <jiwei.sun@windriver.com>
+Subject: [PATCH] rtc: adjust the next alarm expiring time to avoid a softlockups.
+Date: Mon, 16 Apr 2018 17:53:35 +0800
+Message-ID: <1523872415-326-1-git-send-email-jiwei.sun@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Pass the hashtable to the proc private data instead of copying
-it into the per-file private data.
+When run the following test case,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+/*
+ * This expects the new RTC class driver framework, working with
+ * clocks that will often not be clones of what the PC-AT had.
+ * Use the command line to specify another RTC if you need one.
+ */
+static const char default_rtc[] = "/dev/rtc0";
+int main(int argc, char **argv)
+{
+	int i, fd, retval;
+	unsigned long data;
+	struct rtc_time rtc_tm;
+	const char *rtc = default_rtc;
+
+	fd = open(rtc, O_RDONLY);
+	if (fd == -1) {
+		perror(rtc);
+		exit(errno);
+	}
+
+	retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
+	if (retval == -1) {
+		perror("RTC_RD_TIME ioctl");
+		exit(errno);
+	}
+
+	// Setting time 1970
+	rtc_tm.tm_year = 70;
+	retval = ioctl(fd, RTC_SET_TIME, &rtc_tm);
+	if (retval == -1) {
+		perror("RTC_SET_TIME ioctl");
+		exit(errno);
+	}
+
+	/* Turn on update interrupts (one per second) */
+	retval = ioctl(fd, RTC_UIE_ON, 0);
+	if (retval == -1) {
+		if (errno == ENOTTY) {
+			fprintf(stderr,
+				"\n...Update IRQs not supported.\n");
+			goto done;
+		}
+		perror("RTC_UIE_ON ioctl");
+		exit(errno);
+	}
+
+	fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading %s:",
+			rtc);
+	fflush(stderr);
+
+	for (i=1; i<6; i++) {
+		if (i == 3) {
+			// Setting new time 2030
+			rtc_tm.tm_year = 130;
+			retval = ioctl(fd, RTC_SET_TIME, &rtc_tm);
+			if (retval == -1) {
+				perror("RTC_SET_TIME ioctl");
+				exit(errno);
+			}
+		}
+
+		/* This read will block */
+		retval = read(fd, &data, sizeof(unsigned long));
+		if (retval == -1) {
+			perror("read");
+			exit(errno);
+		}
+		fprintf(stderr, " %d, 0x%lx",i, data);
+		fflush(stderr);
+	}
+
+	/* Turn off update interrupts */
+	retval = ioctl(fd, RTC_UIE_OFF, 0);
+	if (retval == -1) {
+		perror("RTC_UIE_OFF ioctl");
+		exit(errno);
+	}
+
+done:
+	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+
+	close(fd);
+
+	return 0;
+}
+
+there will be the following call trace in the preempt kernel.
+If the kernel is non-preempt, the softlockups will happen.
+
+[   29.928336] INFO: rcu_sched self-detected stall on CPU
+[   29.928336] 	2-....: (20934 ticks this GP) idle=f4a/1/4611686018427387906 softirq=754/754 fqs=4704
+[   29.928336] 	 (t=21000 jiffies g=55 c=54 q=42)
+[   29.928336] NMI backtrace for cpu 2
+[   29.928336] CPU: 2 PID: 49 Comm: kworker/2:1 Not tainted 4.16.0 #5
+[   29.928336] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+[   29.928336] Workqueue: events rtc_timer_do_work
+[   29.928336] Call Trace:
+[   29.928336]  <IRQ>
+[   29.928336]  dump_stack+0x46/0x64
+[   29.928336]  nmi_cpu_backtrace+0xba/0xc0
+[   29.928336]  ? lapic_can_unplug_cpu+0x90/0x90
+[   29.928336]  nmi_trigger_cpumask_backtrace+0x95/0xd0
+[   29.928336]  rcu_dump_cpu_stacks+0x84/0xb4
+[   29.928336]  rcu_check_callbacks+0x6b5/0x800
+[   29.928336]  ? tick_sched_do_timer+0x40/0x40
+[   29.928336]  update_process_times+0x23/0x50
+[   29.928336]  tick_sched_handle+0x21/0x50
+[   29.928336]  tick_sched_timer+0x2f/0x60
+[   29.928336]  __hrtimer_run_queues+0xe4/0x240
+[   29.928336]  hrtimer_interrupt+0x11d/0x270
+[   29.928336]  smp_apic_timer_interrupt+0x51/0x120
+[   29.928336]  apic_timer_interrupt+0xf/0x20
+[   29.928336]  </IRQ>
+[   29.928336] RIP: 0010:_raw_spin_unlock_irqrestore+0x5/0x10
+[   29.928336] RSP: 0018:ffff9db0801abd50 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff12
+[   29.928336] RAX: 0000000000000286 RBX: ffff8dfb869fe800 RCX: 00000000cbfa5590
+[   29.928336] RDX: 0000000000000000 RSI: 0000000000000286 RDI: ffff8dfb869febb0
+[   29.928336] RBP: ffff8dfb869febb0 R08: 0000000000000000 R09: ffff9db0801abcf8
+[   29.928336] R10: 0000000000000010 R11: 0000000000000001 R12: 0000000000000286
+[   29.928336] R13: 0000000000000001 R14: ffff8dfb869fe800 R15: ffff8dfb869fec20
+[   29.928336]  rtc_handle_legacy_irq+0x79/0xb0
+[   29.928336]  rtc_timer_do_work+0xcc/0x200
+[   29.928336]  process_one_work+0x136/0x330
+[   29.928336]  worker_thread+0x3f/0x3b0
+[   29.928336]  kthread+0xf0/0x130
+[   29.928336]  ? process_one_work+0x330/0x330
+[   29.928336]  ? kthread_bind+0x10/0x10
+[   29.928336]  ? call_usermodehelper_exec_async+0x10f/0x110
+[   29.928336]  ret_from_fork+0x35/0x40
+[   29.934096] INFO: rcu_sched detected stalls on CPUs/tasks:
+[   29.934096] 	2-....: (20935 ticks this GP) idle=f4a/1/4611686018427387904 softirq=754/754 fqs=4704
+[   29.934096] 	(detected by 3, t=21019 jiffies, g=55, c=54, q=42)
+[   29.934096] Sending NMI from CPU 3 to CPUs 2:
+[   29.948423] NMI backtrace for cpu 2
+[   29.948423] CPU: 2 PID: 49 Comm: kworker/2:1 Not tainted 4.16.0 #5
+[   29.948423] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+[   29.952553] Workqueue: events rtc_timer_do_work
+[   29.952553] RIP: 0010:__wake_up_common+0x0/0x120
+[   29.952553] RSP: 0018:ffff9db0801abcf0 EFLAGS: 00000046
+[   29.952553] RAX: 0000000000000292 RBX: ffff8dfb869feb88 RCX: 0000000000000000
+[   29.952553] RDX: 0000000000000001 RSI: 0000000000000001 RDI: ffff8dfb869feb88
+[   29.952553] RBP: 0000000000000001 R08: 0000000000000000 R09: ffff9db0801abcf8
+[   29.952553] R10: 0000000000000010 R11: 0000000000000001 R12: 0000000000000292
+[   29.952553] R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000000
+[   29.952553] FS:  0000000000000000(0000) GS:ffff8dfb87d00000(0000) knlGS:0000000000000000
+[   29.952553] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.952553] CR2: 00007fff0ee7a9f0 CR3: 00000000062b2000 CR4: 00000000000006e0
+[   29.952553] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   29.952553] DR3: 0000000000000000 DR6: 0000000000000000 DR7: 0000000000000000
+[   29.952553] Call Trace:
+[   29.952553]  __wake_up_common_lock+0x65/0x90
+[   29.952553]  rtc_handle_legacy_irq+0x91/0xb0
+[   29.952553]  rtc_timer_do_work+0xcc/0x200
+[   29.952553]  process_one_work+0x136/0x330
+[   29.952553]  worker_thread+0x3f/0x3b0
+[   29.952553]  kthread+0xf0/0x130
+[   29.952553]  ? process_one_work+0x330/0x330
+[   29.952553]  ? kthread_bind+0x10/0x10
+[   29.952553]  ? call_usermodehelper_exec_async+0x10f/0x110
+[   29.952553]  ret_from_fork+0x35/0x40
+[   29.952553] Code: 90 90 90 90 90 90 90 90 90 90 90 48 8d 47 08 c7 07 00 00 00 00 48 89 47 08 48 89 47 10 c3 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 <41> 57 41 56 4d 89 c6 41 55 41 54 55 4c 89 cd 53 48 83 ec 10 4d
+[   29.952553] INFO: NMI handler (nmi_cpu_backtrace_handler) took too long to run: 6.037 msecs
+
+The root cause is as following.
+When the hardware clock's time is modified later than the periodic
+alarm clock's expire time, the rtc_timer_do_work's loop may spend
+a long time to process.
+In order to avoid the case, we can adjust the next expire time to
+equating to "now + period".
+
+Signed-off-by: Jiwei Sun <jiwei.sun@windriver.com>
 ---
- include/net/raw.h |  4 ----
- net/ipv4/raw.c    | 36 ++++++++++++------------------------
- net/ipv6/raw.c    |  6 ++++--
- 3 files changed, 16 insertions(+), 30 deletions(-)
+ drivers/rtc/interface.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/raw.h b/include/net/raw.h
-index 99d26d0c4a19..9c9fa98a91a4 100644
---- a/include/net/raw.h
-+++ b/include/net/raw.h
-@@ -48,7 +48,6 @@ void raw_proc_exit(void);
- struct raw_iter_state {
- 	struct seq_net_private p;
- 	int bucket;
--	struct raw_hashinfo *h;
- };
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 672b192..d76eceb 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -877,6 +877,9 @@ void rtc_timer_do_work(struct work_struct *work)
  
- static inline struct raw_iter_state *raw_seq_private(struct seq_file *seq)
-@@ -58,9 +57,6 @@ static inline struct raw_iter_state *raw_seq_private(struct seq_file *seq)
- void *raw_seq_start(struct seq_file *seq, loff_t *pos);
- void *raw_seq_next(struct seq_file *seq, void *v, loff_t *pos);
- void raw_seq_stop(struct seq_file *seq, void *v);
--int raw_seq_open(struct inode *ino, struct file *file,
--		 struct raw_hashinfo *h, const struct seq_operations *ops);
--
- #endif
- 
- int raw_hash_sk(struct sock *sk);
-diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
-index 1b4d3355624a..ae57962b31e3 100644
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -1003,11 +1003,12 @@ struct proto raw_prot = {
- static struct sock *raw_get_first(struct seq_file *seq)
- {
- 	struct sock *sk;
-+	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
- 	struct raw_iter_state *state = raw_seq_private(seq);
- 
- 	for (state->bucket = 0; state->bucket < RAW_HTABLE_SIZE;
- 			++state->bucket) {
--		sk_for_each(sk, &state->h->ht[state->bucket])
-+		sk_for_each(sk, &h->ht[state->bucket])
- 			if (sock_net(sk) == seq_file_net(seq))
- 				goto found;
- 	}
-@@ -1018,6 +1019,7 @@ static struct sock *raw_get_first(struct seq_file *seq)
- 
- static struct sock *raw_get_next(struct seq_file *seq, struct sock *sk)
- {
-+	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
- 	struct raw_iter_state *state = raw_seq_private(seq);
- 
- 	do {
-@@ -1027,7 +1029,7 @@ static struct sock *raw_get_next(struct seq_file *seq, struct sock *sk)
- 	} while (sk && sock_net(sk) != seq_file_net(seq));
- 
- 	if (!sk && ++state->bucket < RAW_HTABLE_SIZE) {
--		sk = sk_head(&state->h->ht[state->bucket]);
-+		sk = sk_head(&h->ht[state->bucket]);
- 		goto try_again;
- 	}
- 	return sk;
-@@ -1045,9 +1047,9 @@ static struct sock *raw_get_idx(struct seq_file *seq, loff_t pos)
- 
- void *raw_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	struct raw_iter_state *state = raw_seq_private(seq);
-+	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
- 
--	read_lock(&state->h->lock);
-+	read_lock(&h->lock);
- 	return *pos ? raw_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
- }
- EXPORT_SYMBOL_GPL(raw_seq_start);
-@@ -1067,9 +1069,9 @@ EXPORT_SYMBOL_GPL(raw_seq_next);
- 
- void raw_seq_stop(struct seq_file *seq, void *v)
- {
--	struct raw_iter_state *state = raw_seq_private(seq);
-+	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
- 
--	read_unlock(&state->h->lock);
-+	read_unlock(&h->lock);
- }
- EXPORT_SYMBOL_GPL(raw_seq_stop);
- 
-@@ -1110,25 +1112,10 @@ static const struct seq_operations raw_seq_ops = {
- 	.show  = raw_seq_show,
- };
- 
--int raw_seq_open(struct inode *ino, struct file *file,
--		 struct raw_hashinfo *h, const struct seq_operations *ops)
--{
--	int err;
--	struct raw_iter_state *i;
--
--	err = seq_open_net(ino, file, ops, sizeof(struct raw_iter_state));
--	if (err < 0)
--		return err;
--
--	i = raw_seq_private((struct seq_file *)file->private_data);
--	i->h = h;
--	return 0;
--}
--EXPORT_SYMBOL_GPL(raw_seq_open);
--
- static int raw_v4_seq_open(struct inode *inode, struct file *file)
- {
--	return raw_seq_open(inode, file, &raw_v4_hashinfo, &raw_seq_ops);
-+	return seq_open_net(inode, file, &raw_seq_ops,
-+			sizeof(struct raw_iter_state));
- }
- 
- static const struct file_operations raw_seq_fops = {
-@@ -1140,7 +1127,8 @@ static const struct file_operations raw_seq_fops = {
- 
- static __net_init int raw_init_net(struct net *net)
- {
--	if (!proc_create("raw", 0444, net->proc_net, &raw_seq_fops))
-+	if (!proc_create_data("raw", 0444, net->proc_net, &raw_seq_fops,
-+			&raw_v4_hashinfo))
- 		return -ENOMEM;
- 
- 	return 0;
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index 5eb9b08947ed..dade69bf61e6 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -1306,7 +1306,8 @@ static const struct seq_operations raw6_seq_ops = {
- 
- static int raw6_seq_open(struct inode *inode, struct file *file)
- {
--	return raw_seq_open(inode, file, &raw_v6_hashinfo, &raw6_seq_ops);
-+	return seq_open_net(inode, file, &raw6_seq_ops,
-+			sizeof(struct raw_iter_state));
- }
- 
- static const struct file_operations raw6_seq_fops = {
-@@ -1318,7 +1319,8 @@ static const struct file_operations raw6_seq_fops = {
- 
- static int __net_init raw6_init_net(struct net *net)
- {
--	if (!proc_create("raw6", 0444, net->proc_net, &raw6_seq_fops))
-+	if (!proc_create_data("raw6", 0444, net->proc_net, &raw6_seq_fops,
-+			&raw_v6_hashinfo))
- 		return -ENOMEM;
- 
- 	return 0;
+ 		/* Re-add/fwd periodic timers */
+ 		if (ktime_to_ns(timer->period)) {
++			if (now - next->expires > timer->period)
++				timer->node.expires = now;
++
+ 			timer->node.expires = ktime_add(timer->node.expires,
+ 							timer->period);
+ 			timer->enabled = 1;
 -- 
-2.17.0
+1.9.1
