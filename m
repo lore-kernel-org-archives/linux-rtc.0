@@ -1,149 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36382 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754845AbeDYPtA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:49:00 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 02/40] proc: simplify proc_register calling conventions
-Date: Wed, 25 Apr 2018 17:47:49 +0200
-Message-Id: <20180425154827.32251-3-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752981AbeDRP6a (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 18 Apr 2018 11:58:30 -0400
+Received: from mail-qt0-f175.google.com (mail-qt0-f175.google.com [209.85.216.175])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C17602170D
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Apr 2018 15:58:29 +0000 (UTC)
+Received: by mail-qt0-f175.google.com with SMTP id f20-v6so2309334qtp.7
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Apr 2018 08:58:29 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20180418142308.GA13543@mwanda>
+References: <20180418142308.GA13543@mwanda>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 18 Apr 2018 10:58:08 -0500
+Message-ID: <CAL_JsqJTstU6wkdXyvfga24oefRasL9MZig_ctdWMK49+55csg@mail.gmail.com>
+Subject: Re: [bug report] rtc: pxa: convert to use shared sa1100 functions
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Return registered entry on success, return NULL on failure and free the
-passed in entry.  Also expose it in internal.h as we'll start using it
-in proc_net.c soon.
+On Wed, Apr 18, 2018 at 9:23 AM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> [ This code is several years old now.  - dan ]
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/generic.c  | 44 ++++++++++++++++++--------------------------
- fs/proc/internal.h |  2 ++
- 2 files changed, 20 insertions(+), 26 deletions(-)
+Did I miss an earlier bug report?
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 2078e70e1595..bd8480ff0d35 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -346,13 +346,12 @@ static const struct inode_operations proc_dir_inode_operations = {
- 	.setattr	= proc_notify_change,
- };
- 
--static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp)
-+/* returns the registered entry, or frees dp and returns NULL on failure */
-+struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
-+		struct proc_dir_entry *dp)
- {
--	int ret;
--
--	ret = proc_alloc_inum(&dp->low_ino);
--	if (ret)
--		return ret;
-+	if (proc_alloc_inum(&dp->low_ino))
-+		goto out_free_entry;
- 
- 	write_lock(&proc_subdir_lock);
- 	dp->parent = dir;
-@@ -360,12 +359,16 @@ static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp
- 		WARN(1, "proc_dir_entry '%s/%s' already registered\n",
- 		     dir->name, dp->name);
- 		write_unlock(&proc_subdir_lock);
--		proc_free_inum(dp->low_ino);
--		return -EEXIST;
-+		goto out_free_inum;
- 	}
- 	write_unlock(&proc_subdir_lock);
- 
--	return 0;
-+	return dp;
-+out_free_inum:
-+	proc_free_inum(dp->low_ino);
-+out_free_entry:
-+	pde_free(dp);
-+	return NULL;
- }
- 
- static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
-@@ -443,10 +446,7 @@ struct proc_dir_entry *proc_symlink(const char *name,
- 		if (ent->data) {
- 			strcpy((char*)ent->data,dest);
- 			ent->proc_iops = &proc_link_inode_operations;
--			if (proc_register(parent, ent) < 0) {
--				pde_free(ent);
--				ent = NULL;
--			}
-+			ent = proc_register(parent, ent);
- 		} else {
- 			pde_free(ent);
- 			ent = NULL;
-@@ -470,11 +470,9 @@ struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
- 		ent->proc_fops = &proc_dir_operations;
- 		ent->proc_iops = &proc_dir_inode_operations;
- 		parent->nlink++;
--		if (proc_register(parent, ent) < 0) {
--			pde_free(ent);
-+		ent = proc_register(parent, ent);
-+		if (!ent)
- 			parent->nlink--;
--			ent = NULL;
--		}
- 	}
- 	return ent;
- }
-@@ -505,11 +503,9 @@ struct proc_dir_entry *proc_create_mount_point(const char *name)
- 		ent->proc_fops = NULL;
- 		ent->proc_iops = NULL;
- 		parent->nlink++;
--		if (proc_register(parent, ent) < 0) {
--			pde_free(ent);
-+		ent = proc_register(parent, ent);
-+		if (!ent)
- 			parent->nlink--;
--			ent = NULL;
--		}
- 	}
- 	return ent;
- }
-@@ -539,11 +535,7 @@ struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
- 	pde->proc_fops = proc_fops;
- 	pde->data = data;
- 	pde->proc_iops = &proc_file_inode_operations;
--	if (proc_register(parent, pde) < 0)
--		goto out_free;
--	return pde;
--out_free:
--	pde_free(pde);
-+	return proc_register(parent, pde);
- out:
- 	return NULL;
- }
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 0f1692e63cb6..488e67490312 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -162,6 +162,8 @@ extern bool proc_fill_cache(struct file *, struct dir_context *, const char *, i
- /*
-  * generic.c
-  */
-+struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
-+		struct proc_dir_entry *dp);
- extern struct dentry *proc_lookup(struct inode *, struct dentry *, unsigned int);
- struct dentry *proc_lookup_de(struct inode *, struct dentry *, struct proc_dir_entry *);
- extern int proc_readdir(struct file *, struct dir_context *);
--- 
-2.17.0
+> Hello Rob Herring,
+>
+> The patch 3cdf4ad9633e: "rtc: pxa: convert to use shared sa1100
+> functions" from May 13, 2015, leads to the following static checker
+> warning:
+>
+>         drivers/rtc/rtc-pxa.c:368 pxa_rtc_probe()
+>         info: return a literal instead of 'ret'
+>
+> drivers/rtc/rtc-pxa.c
+>    352          pxa_rtc->base = devm_ioremap(dev, pxa_rtc->ress->start,
+>    353                                  resource_size(pxa_rtc->ress));
+>    354          if (!pxa_rtc->base) {
+>    355                  dev_err(dev, "Unable to map pxa RTC I/O memory\n");
+>    356                  return -ENOMEM;
+>    357          }
+>    358
+>    359          pxa_rtc_open(dev);
+>    360
+>    361          sa1100_rtc->rcnr = pxa_rtc->base + 0x0;
+>    362          sa1100_rtc->rtsr = pxa_rtc->base + 0x8;
+>    363          sa1100_rtc->rtar = pxa_rtc->base + 0x4;
+>    364          sa1100_rtc->rttr = pxa_rtc->base + 0xc;
+>    365          ret = sa1100_rtc_init(pdev, sa1100_rtc);
+>    366          if (!ret) {
+>                     ^^^^
+> This test really looks like it's inverted to me.
+
+Indeed. Nice to see no one seems to have noticed or care.
+
+Rob
