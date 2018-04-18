@@ -1,76 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:45952 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752670AbeDPOSO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 16 Apr 2018 10:18:14 -0400
-Received: by mail-wr0-f195.google.com with SMTP id u11so26521143wri.12
-        for <linux-rtc@vger.kernel.org>; Mon, 16 Apr 2018 07:18:14 -0700 (PDT)
-Date: Mon, 16 Apr 2018 15:18:09 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [GIT PULL] Immutable branch between MFD, Input and RTC due for the
- v4.18 merge window
-Message-ID: <20180416141809.34l2ofmeljqvyicm@dell>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+Received: from aserp2120.oracle.com ([141.146.126.78]:45630 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752077AbeDRQM1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Apr 2018 12:12:27 -0400
+Date: Wed, 18 Apr 2018 19:12:18 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Rob Herring <robh@kernel.org>
+Cc: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>
+Subject: Re: [bug report] rtc: pxa: convert to use shared sa1100 functions
+Message-ID: <20180418161218.intsnuj7l2a4b4k3@mwanda>
+References: <20180418142308.GA13543@mwanda>
+ <CAL_JsqJTstU6wkdXyvfga24oefRasL9MZig_ctdWMK49+55csg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAL_JsqJTstU6wkdXyvfga24oefRasL9MZig_ctdWMK49+55csg@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Enjoy!
+On Wed, Apr 18, 2018 at 10:58:08AM -0500, Rob Herring wrote:
+> On Wed, Apr 18, 2018 at 9:23 AM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> > [ This code is several years old now.  - dan ]
+> 
+> Did I miss an earlier bug report?
+> 
 
-The following changes since commit 60cc43fc888428bb2f18f08997432d426a243338:
+No.  It's a new-ish check and I hadn't reviewed all the non-x86 warnings
+yet.  I was just thinking that it's weird to see such an old warning.
 
-  Linux 4.17-rc1 (2018-04-15 18:24:20 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-rtc-v4.18
-
-for you to fetch changes up to 55d1d1547ab5e52269988af5e7c553796ff68e97:
-
-  mfd: mt6397: Add PMIC keys support to MT6397 driver (2018-04-16 15:16:11 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Input and RTC due for the v4.18 merge window
-
-----------------------------------------------------------------
-Chen Zhong (5):
-      mfd: mt6397: Create irq mappings in mfd core driver
-      dt-bindings: input: Add document bindings for mtk-pmic-keys
-      dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-      input: Add MediaTek PMIC keys support
-      mfd: mt6397: Add PMIC keys support to MT6397 driver
-
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
- Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
- drivers/input/keyboard/Kconfig                     |   9 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/mtk-pmic-keys.c             | 339 +++++++++++++++++++++
- drivers/mfd/mt6397-core.c                          |  26 +-
- drivers/rtc/rtc-mt6397.c                           |   7 +-
- 7 files changed, 424 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+regards,
+dan carpenter
