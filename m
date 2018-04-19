@@ -1,261 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38914 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754320AbeDYPub (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:31 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 20/40] sg: simplify procfs code
-Date: Wed, 25 Apr 2018 17:48:07 +0200
-Message-Id: <20180425154827.32251-21-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:36367 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751293AbeDSNWk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:40 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 1/4] rtc: stm32: fix copyright and adopt SPDX identifier
+Date: Thu, 19 Apr 2018 15:21:40 +0200
+Message-ID: <1524144103-21432-2-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+Fix copyright by removing "SA" and "for STMicroelectronics", not required.
+Adopt SPDX identifier.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- drivers/scsi/sg.c | 124 +++++-----------------------------------------
- 1 file changed, 12 insertions(+), 112 deletions(-)
+ drivers/rtc/rtc-stm32.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index c198b96368dd..8ff687158704 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -66,7 +66,6 @@ static int sg_version_num = 30536;	/* 2 digits for each component */
- static char *sg_version_date = "20140603";
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index f25dabe..79d9e86 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -1,7 +1,7 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (C) STMicroelectronics SA 2017
+- * Author:  Amelie Delaunay <amelie.delaunay@st.com> for STMicroelectronics.
+- * License terms:  GNU General Public License (GPL), version 2
++ * Copyright (C) STMicroelectronics 2017
++ * Author:  Amelie Delaunay <amelie.delaunay@st.com>
+  */
  
- static int sg_proc_init(void);
--static void sg_proc_cleanup(void);
- #endif
- 
- #define SG_ALLOW_DIO_DEF 0
-@@ -1661,7 +1660,7 @@ static void __exit
- exit_sg(void)
- {
- #ifdef CONFIG_SCSI_PROC_FS
--	sg_proc_cleanup();
-+	remove_proc_subtree("scsi/sg", NULL);
- #endif				/* CONFIG_SCSI_PROC_FS */
- 	scsi_unregister_interface(&sg_interface);
- 	class_destroy(sg_sysfs_class);
-@@ -2274,11 +2273,6 @@ sg_get_dev(int dev)
- }
- 
- #ifdef CONFIG_SCSI_PROC_FS
--
--static struct proc_dir_entry *sg_proc_sgp = NULL;
--
--static char sg_proc_sg_dirname[] = "scsi/sg";
--
- static int sg_proc_seq_show_int(struct seq_file *s, void *v);
- 
- static int sg_proc_single_open_adio(struct inode *inode, struct file *file);
-@@ -2306,37 +2300,11 @@ static const struct file_operations dressz_fops = {
- };
- 
- static int sg_proc_seq_show_version(struct seq_file *s, void *v);
--static int sg_proc_single_open_version(struct inode *inode, struct file *file);
--static const struct file_operations version_fops = {
--	.owner = THIS_MODULE,
--	.open = sg_proc_single_open_version,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = single_release,
--};
--
- static int sg_proc_seq_show_devhdr(struct seq_file *s, void *v);
--static int sg_proc_single_open_devhdr(struct inode *inode, struct file *file);
--static const struct file_operations devhdr_fops = {
--	.owner = THIS_MODULE,
--	.open = sg_proc_single_open_devhdr,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = single_release,
--};
--
- static int sg_proc_seq_show_dev(struct seq_file *s, void *v);
--static int sg_proc_open_dev(struct inode *inode, struct file *file);
- static void * dev_seq_start(struct seq_file *s, loff_t *pos);
- static void * dev_seq_next(struct seq_file *s, void *v, loff_t *pos);
- static void dev_seq_stop(struct seq_file *s, void *v);
--static const struct file_operations dev_fops = {
--	.owner = THIS_MODULE,
--	.open = sg_proc_open_dev,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = seq_release,
--};
- static const struct seq_operations dev_seq_ops = {
- 	.start = dev_seq_start,
- 	.next  = dev_seq_next,
-@@ -2345,14 +2313,6 @@ static const struct seq_operations dev_seq_ops = {
- };
- 
- static int sg_proc_seq_show_devstrs(struct seq_file *s, void *v);
--static int sg_proc_open_devstrs(struct inode *inode, struct file *file);
--static const struct file_operations devstrs_fops = {
--	.owner = THIS_MODULE,
--	.open = sg_proc_open_devstrs,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = seq_release,
--};
- static const struct seq_operations devstrs_seq_ops = {
- 	.start = dev_seq_start,
- 	.next  = dev_seq_next,
-@@ -2361,14 +2321,6 @@ static const struct seq_operations devstrs_seq_ops = {
- };
- 
- static int sg_proc_seq_show_debug(struct seq_file *s, void *v);
--static int sg_proc_open_debug(struct inode *inode, struct file *file);
--static const struct file_operations debug_fops = {
--	.owner = THIS_MODULE,
--	.open = sg_proc_open_debug,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = seq_release,
--};
- static const struct seq_operations debug_seq_ops = {
- 	.start = dev_seq_start,
- 	.next  = dev_seq_next,
-@@ -2376,50 +2328,23 @@ static const struct seq_operations debug_seq_ops = {
- 	.show  = sg_proc_seq_show_debug,
- };
- 
--
--struct sg_proc_leaf {
--	const char * name;
--	const struct file_operations * fops;
--};
--
--static const struct sg_proc_leaf sg_proc_leaf_arr[] = {
--	{"allow_dio", &adio_fops},
--	{"debug", &debug_fops},
--	{"def_reserved_size", &dressz_fops},
--	{"device_hdr", &devhdr_fops},
--	{"devices", &dev_fops},
--	{"device_strs", &devstrs_fops},
--	{"version", &version_fops}
--};
--
- static int
- sg_proc_init(void)
- {
--	int num_leaves = ARRAY_SIZE(sg_proc_leaf_arr);
--	int k;
-+	struct proc_dir_entry *p;
- 
--	sg_proc_sgp = proc_mkdir(sg_proc_sg_dirname, NULL);
--	if (!sg_proc_sgp)
-+	p = proc_mkdir("scsi/sg", NULL);
-+	if (!p)
- 		return 1;
--	for (k = 0; k < num_leaves; ++k) {
--		const struct sg_proc_leaf *leaf = &sg_proc_leaf_arr[k];
--		umode_t mask = leaf->fops->write ? S_IRUGO | S_IWUSR : S_IRUGO;
--		proc_create(leaf->name, mask, sg_proc_sgp, leaf->fops);
--	}
--	return 0;
--}
- 
--static void
--sg_proc_cleanup(void)
--{
--	int k;
--	int num_leaves = ARRAY_SIZE(sg_proc_leaf_arr);
--
--	if (!sg_proc_sgp)
--		return;
--	for (k = 0; k < num_leaves; ++k)
--		remove_proc_entry(sg_proc_leaf_arr[k].name, sg_proc_sgp);
--	remove_proc_entry(sg_proc_sg_dirname, NULL);
-+	proc_create("allow_dio", S_IRUGO | S_IWUSR, p, &adio_fops);
-+	proc_create_seq("debug", S_IRUGO, p, &debug_seq_ops);
-+	proc_create("def_reserved_size", S_IRUGO | S_IWUSR, p, &dressz_fops);
-+	proc_create_single("device_hdr", S_IRUGO, p, sg_proc_seq_show_devhdr);
-+	proc_create_seq("devices", S_IRUGO, p, &dev_seq_ops);
-+	proc_create_seq("device_strs", S_IRUGO, p, &devstrs_seq_ops);
-+	proc_create_single("version", S_IRUGO, p, sg_proc_seq_show_version);
-+	return 0;
- }
- 
- 
-@@ -2482,22 +2407,12 @@ static int sg_proc_seq_show_version(struct seq_file *s, void *v)
- 	return 0;
- }
- 
--static int sg_proc_single_open_version(struct inode *inode, struct file *file)
--{
--	return single_open(file, sg_proc_seq_show_version, NULL);
--}
--
- static int sg_proc_seq_show_devhdr(struct seq_file *s, void *v)
- {
- 	seq_puts(s, "host\tchan\tid\tlun\ttype\topens\tqdepth\tbusy\tonline\n");
- 	return 0;
- }
- 
--static int sg_proc_single_open_devhdr(struct inode *inode, struct file *file)
--{
--	return single_open(file, sg_proc_seq_show_devhdr, NULL);
--}
--
- struct sg_proc_deviter {
- 	loff_t	index;
- 	size_t	max;
-@@ -2531,11 +2446,6 @@ static void dev_seq_stop(struct seq_file *s, void *v)
- 	kfree(s->private);
- }
- 
--static int sg_proc_open_dev(struct inode *inode, struct file *file)
--{
--        return seq_open(file, &dev_seq_ops);
--}
--
- static int sg_proc_seq_show_dev(struct seq_file *s, void *v)
- {
- 	struct sg_proc_deviter * it = (struct sg_proc_deviter *) v;
-@@ -2562,11 +2472,6 @@ static int sg_proc_seq_show_dev(struct seq_file *s, void *v)
- 	return 0;
- }
- 
--static int sg_proc_open_devstrs(struct inode *inode, struct file *file)
--{
--        return seq_open(file, &devstrs_seq_ops);
--}
--
- static int sg_proc_seq_show_devstrs(struct seq_file *s, void *v)
- {
- 	struct sg_proc_deviter * it = (struct sg_proc_deviter *) v;
-@@ -2650,11 +2555,6 @@ static void sg_proc_debug_helper(struct seq_file *s, Sg_device * sdp)
- 	}
- }
- 
--static int sg_proc_open_debug(struct inode *inode, struct file *file)
--{
--        return seq_open(file, &debug_seq_ops);
--}
--
- static int sg_proc_seq_show_debug(struct seq_file *s, void *v)
- {
- 	struct sg_proc_deviter * it = (struct sg_proc_deviter *) v;
+ #include <linux/bcd.h>
 -- 
-2.17.0
+2.7.4
