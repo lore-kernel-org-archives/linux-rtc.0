@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39026 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:37886 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755365AbeDYPul (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:41 -0400
+        with ESMTP id S1752743AbeDSMmY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:24 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,104 +18,65 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 24/40] staging/rtl8192u: simplify procfs code
-Date: Wed, 25 Apr 2018 17:48:11 +0200
-Message-Id: <20180425154827.32251-25-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Subject: [PATCH 01/39] net/can: single_open_net needs to be paired with single_release_net
+Date: Thu, 19 Apr 2018 14:41:02 +0200
+Message-Id: <20180419124140.9309-2-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Unwind the registration loop into individual calls.  Switch to use
-proc_create_single where applicable.
+Otherwise we will leak a reference to the network namespace.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/staging/rtl8192u/r8192U_core.c | 67 ++++++--------------------
- 1 file changed, 14 insertions(+), 53 deletions(-)
+ net/can/bcm.c  | 2 +-
+ net/can/proc.c | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index d607c59761cf..7a0dbc0fa18e 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -646,64 +646,25 @@ static void rtl8192_proc_module_init(void)
- 	rtl8192_proc = proc_mkdir(RTL819xU_MODULE_NAME, init_net.proc_net);
- }
- 
--/*
-- * seq_file wrappers for procfile show routines.
-- */
--static int rtl8192_proc_open(struct inode *inode, struct file *file)
--{
--	struct net_device *dev = proc_get_parent_data(inode);
--	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
--
--	return single_open(file, show, dev);
--}
--
--static const struct file_operations rtl8192_proc_fops = {
--	.open		= rtl8192_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index ac5e5e34fee3..8073fa14e143 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -249,7 +249,7 @@ static const struct file_operations bcm_proc_fops = {
+ 	.open		= bcm_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
 -	.release	= single_release,
--};
--
--/*
-- * Table of proc files we need to create.
-- */
--struct rtl8192_proc_file {
--	char name[12];
--	int (*show)(struct seq_file *, void *);
--};
--
--static const struct rtl8192_proc_file rtl8192_proc_files[] = {
--	{ "stats-rx",	&proc_get_stats_rx },
--	{ "stats-tx",	&proc_get_stats_tx },
--	{ "stats-ap",	&proc_get_stats_ap },
--	{ "registers",	&proc_get_registers },
--	{ "" }
--};
--
- static void rtl8192_proc_init_one(struct net_device *dev)
- {
--	const struct rtl8192_proc_file *f;
- 	struct proc_dir_entry *dir;
++	.release	= single_release_net,
+ };
+ #endif /* CONFIG_PROC_FS */
  
--	if (rtl8192_proc) {
--		dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
--		if (!dir) {
--			RT_TRACE(COMP_ERR,
--				 "Unable to initialize /proc/net/rtl8192/%s\n",
--				 dev->name);
--			return;
--		}
-+	if (!rtl8192_proc)
-+		return;
+diff --git a/net/can/proc.c b/net/can/proc.c
+index fdf704e9bb8c..fde2fd55b826 100644
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -279,7 +279,7 @@ static const struct file_operations can_stats_proc_fops = {
+ 	.open		= can_stats_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
  
--		for (f = rtl8192_proc_files; f->name[0]; f++) {
--			if (!proc_create_data(f->name, S_IFREG | S_IRUGO, dir,
--					      &rtl8192_proc_fops, f->show)) {
--				RT_TRACE(COMP_ERR,
--					 "Unable to initialize /proc/net/rtl8192/%s/%s\n",
--					 dev->name, f->name);
--				return;
--			}
--		}
--	}
-+	dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
-+	if (!dir)
-+		return;
-+
-+	proc_create_single("stats-rx", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_rx);
-+	proc_create_single("stats-tx", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_tx);
-+	proc_create_single("stats-ap", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_ap);
-+	proc_create_single("registers", S_IFREG | S_IRUGO, dir,
-+			proc_get_registers);
- }
+ static int can_reset_stats_proc_show(struct seq_file *m, void *v)
+@@ -449,7 +449,7 @@ static const struct file_operations can_rcvlist_sff_proc_fops = {
+ 	.open		= can_rcvlist_sff_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
  
- static void rtl8192_proc_remove_one(struct net_device *dev)
+ 
+@@ -492,7 +492,7 @@ static const struct file_operations can_rcvlist_eff_proc_fops = {
+ 	.open		= can_rcvlist_eff_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
+ 
+ /*
 -- 
 2.17.0
