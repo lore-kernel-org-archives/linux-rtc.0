@@ -1,51 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:36367 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751293AbeDSNWk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:40 -0400
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH 1/4] rtc: stm32: fix copyright and adopt SPDX identifier
-Date: Thu, 19 Apr 2018 15:21:40 +0200
-Message-ID: <1524144103-21432-2-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
-References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from bombadil.infradead.org ([198.137.202.133]:41204 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751537AbeDSMoa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:44:30 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 37/39] ide: remove ide_driver_proc_write
+Date: Thu, 19 Apr 2018 14:41:38 +0200
+Message-Id: <20180419124140.9309-38-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Fix copyright by removing "SA" and "for STMicroelectronics", not required.
-Adopt SPDX identifier.
+The driver proc file hasn't been writeable for a long time, so this is
+just dead code.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-stm32.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ide/ide-proc.c | 46 ------------------------------------------
+ 1 file changed, 46 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index f25dabe..79d9e86 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -1,7 +1,7 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-- * Copyright (C) STMicroelectronics SA 2017
-- * Author:  Amelie Delaunay <amelie.delaunay@st.com> for STMicroelectronics.
-- * License terms:  GNU General Public License (GPL), version 2
-+ * Copyright (C) STMicroelectronics 2017
-+ * Author:  Amelie Delaunay <amelie.delaunay@st.com>
-  */
+diff --git a/drivers/ide/ide-proc.c b/drivers/ide/ide-proc.c
+index 863db44c7916..b3b8b8822d6a 100644
+--- a/drivers/ide/ide-proc.c
++++ b/drivers/ide/ide-proc.c
+@@ -528,58 +528,12 @@ static int ide_driver_proc_open(struct inode *inode, struct file *file)
+ 	return single_open(file, ide_driver_proc_show, PDE_DATA(inode));
+ }
  
- #include <linux/bcd.h>
+-static int ide_replace_subdriver(ide_drive_t *drive, const char *driver)
+-{
+-	struct device *dev = &drive->gendev;
+-	int ret = 1;
+-	int err;
+-
+-	device_release_driver(dev);
+-	/* FIXME: device can still be in use by previous driver */
+-	strlcpy(drive->driver_req, driver, sizeof(drive->driver_req));
+-	err = device_attach(dev);
+-	if (err < 0)
+-		printk(KERN_WARNING "IDE: %s: device_attach error: %d\n",
+-			__func__, err);
+-	drive->driver_req[0] = 0;
+-	if (dev->driver == NULL) {
+-		err = device_attach(dev);
+-		if (err < 0)
+-			printk(KERN_WARNING
+-				"IDE: %s: device_attach(2) error: %d\n",
+-				__func__, err);
+-	}
+-	if (dev->driver && !strcmp(dev->driver->name, driver))
+-		ret = 0;
+-
+-	return ret;
+-}
+-
+-static ssize_t ide_driver_proc_write(struct file *file, const char __user *buffer,
+-				     size_t count, loff_t *pos)
+-{
+-	ide_drive_t	*drive = PDE_DATA(file_inode(file));
+-	char name[32];
+-
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-	if (count > 31)
+-		count = 31;
+-	if (copy_from_user(name, buffer, count))
+-		return -EFAULT;
+-	name[count] = '\0';
+-	if (ide_replace_subdriver(drive, name))
+-		return -EINVAL;
+-	return count;
+-}
+-
+ static const struct file_operations ide_driver_proc_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= ide_driver_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+-	.write		= ide_driver_proc_write,
+ };
+ 
+ static int ide_media_proc_show(struct seq_file *m, void *v)
 -- 
-2.7.4
+2.17.0
