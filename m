@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39016 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:38176 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755355AbeDYPuj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:39 -0400
+        with ESMTP id S1752455AbeDSMmn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:43 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,269 +18,145 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 23/40] jfs: simplify procfs code
-Date: Wed, 25 Apr 2018 17:48:10 +0200
-Message-Id: <20180425154827.32251-24-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Subject: [PATCH 10/39] net/kcm: simplify proc registration
+Date: Thu, 19 Apr 2018 14:41:11 +0200
+Message-Id: <20180419124140.9309-11-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+Remove a couple indirections to make the code look like most other
+protocols.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/jfs/jfs_debug.c    | 43 ++++++++++++++-----------------------------
- fs/jfs/jfs_debug.h    | 10 +++++-----
- fs/jfs/jfs_logmgr.c   | 14 +-------------
- fs/jfs/jfs_metapage.c | 14 +-------------
- fs/jfs/jfs_txnmgr.c   | 28 ++--------------------------
- fs/jfs/jfs_xtree.c    | 14 +-------------
- 6 files changed, 24 insertions(+), 99 deletions(-)
+ net/kcm/kcmproc.c | 71 ++++++++++++-----------------------------------
+ 1 file changed, 17 insertions(+), 54 deletions(-)
 
-diff --git a/fs/jfs/jfs_debug.c b/fs/jfs/jfs_debug.c
-index a70907606025..35a5b2a81ae0 100644
---- a/fs/jfs/jfs_debug.c
-+++ b/fs/jfs/jfs_debug.c
-@@ -29,7 +29,6 @@
+diff --git a/net/kcm/kcmproc.c b/net/kcm/kcmproc.c
+index 1fac92543094..6d0667e62baf 100644
+--- a/net/kcm/kcmproc.c
++++ b/net/kcm/kcmproc.c
+@@ -15,12 +15,6 @@
+ #include <net/tcp.h>
  
- #ifdef PROC_FS_JFS /* see jfs_debug.h */
- 
--static struct proc_dir_entry *base;
- #ifdef CONFIG_JFS_DEBUG
- static int jfs_loglevel_proc_show(struct seq_file *m, void *v)
+ #ifdef CONFIG_PROC_FS
+-struct kcm_seq_muxinfo {
+-	char				*name;
+-	const struct file_operations	*seq_fops;
+-	const struct seq_operations	seq_ops;
+-};
+-
+ static struct kcm_mux *kcm_get_first(struct seq_file *seq)
  {
-@@ -66,43 +65,29 @@ static const struct file_operations jfs_loglevel_proc_fops = {
+ 	struct net *net = seq_file_net(seq);
+@@ -86,14 +80,6 @@ struct kcm_proc_mux_state {
+ 	int idx;
  };
- #endif
  
--static struct {
--	const char	*name;
--	const struct file_operations *proc_fops;
--} Entries[] = {
--#ifdef CONFIG_JFS_STATISTICS
--	{ "lmstats",	&jfs_lmstats_proc_fops, },
--	{ "txstats",	&jfs_txstats_proc_fops, },
--	{ "xtstat",	&jfs_xtstat_proc_fops, },
--	{ "mpstat",	&jfs_mpstat_proc_fops, },
--#endif
--#ifdef CONFIG_JFS_DEBUG
--	{ "TxAnchor",	&jfs_txanchor_proc_fops, },
--	{ "loglevel",	&jfs_loglevel_proc_fops }
--#endif
--};
--#define NPROCENT	ARRAY_SIZE(Entries)
+-static int kcm_seq_open(struct inode *inode, struct file *file)
+-{
+-	struct kcm_seq_muxinfo *muxinfo = PDE_DATA(inode);
 -
- void jfs_proc_init(void)
+-	return seq_open_net(inode, file, &muxinfo->seq_ops,
+-			   sizeof(struct kcm_proc_mux_state));
+-}
+-
+ static void kcm_format_mux_header(struct seq_file *seq)
  {
--	int i;
-+	struct proc_dir_entry *base;
- 
--	if (!(base = proc_mkdir("fs/jfs", NULL)))
-+	base = proc_mkdir("fs/jfs", NULL);
-+	if (!base)
- 		return;
- 
--	for (i = 0; i < NPROCENT; i++)
--		proc_create(Entries[i].name, 0, base, Entries[i].proc_fops);
-+#ifdef CONFIG_JFS_STATISTICS
-+	proc_create_single("lmstats", 0, base, jfs_lmstats_proc_show);
-+	proc_create_single("txstats", 0, base, jfs_txstats_proc_show);
-+	proc_create_single("xtstat", 0, base, jfs_xtstat_proc_show);
-+	proc_create_single("mpstat", 0, base, jfs_mpstat_proc_show);
-+#endif
-+#ifdef CONFIG_JFS_DEBUG
-+	proc_create_single("TxAnchor", 0, base, jfs_txanchor_proc_show);
-+	proc_create("loglevel", 0, base, &jfs_loglevel_proc_fops);
-+#endif
+ 	struct net *net = seq_file_net(seq);
+@@ -246,6 +232,19 @@ static int kcm_seq_show(struct seq_file *seq, void *v)
+ 	return 0;
  }
  
- void jfs_proc_clean(void)
- {
--	int i;
--
--	if (base) {
--		for (i = 0; i < NPROCENT; i++)
--			remove_proc_entry(Entries[i].name, base);
--		remove_proc_entry("fs/jfs", NULL);
++static const struct seq_operations kcm_seq_ops = {
++	.show	= kcm_seq_show,
++	.start	= kcm_seq_start,
++	.next	= kcm_seq_next,
++	.stop	= kcm_seq_stop,
++};
++
++static int kcm_seq_open(struct inode *inode, struct file *file)
++{
++	return seq_open_net(inode, file, &kcm_seq_ops,
++			   sizeof(struct kcm_proc_mux_state));
++}
++
+ static const struct file_operations kcm_seq_fops = {
+ 	.open		= kcm_seq_open,
+ 	.read		= seq_read,
+@@ -253,37 +252,6 @@ static const struct file_operations kcm_seq_fops = {
+ 	.release	= seq_release_net,
+ };
+ 
+-static struct kcm_seq_muxinfo kcm_seq_muxinfo = {
+-	.name		= "kcm",
+-	.seq_fops	= &kcm_seq_fops,
+-	.seq_ops	= {
+-		.show	= kcm_seq_show,
+-		.start	= kcm_seq_start,
+-		.next	= kcm_seq_next,
+-		.stop	= kcm_seq_stop,
 -	}
-+	remove_proc_subtree("fs/jfs", NULL);
- }
- 
- #endif /* PROC_FS_JFS */
-diff --git a/fs/jfs/jfs_debug.h b/fs/jfs/jfs_debug.h
-index eafd1300a00b..0d9e35da8462 100644
---- a/fs/jfs/jfs_debug.h
-+++ b/fs/jfs/jfs_debug.h
-@@ -62,7 +62,7 @@ extern void jfs_proc_clean(void);
- 
- extern int jfsloglevel;
- 
--extern const struct file_operations jfs_txanchor_proc_fops;
-+int jfs_txanchor_proc_show(struct seq_file *m, void *v);
- 
- /* information message: e.g., configuration, major event */
- #define jfs_info(fmt, arg...) do {			\
-@@ -105,10 +105,10 @@ extern const struct file_operations jfs_txanchor_proc_fops;
-  *	----------
-  */
- #ifdef	CONFIG_JFS_STATISTICS
--extern const struct file_operations jfs_lmstats_proc_fops;
--extern const struct file_operations jfs_txstats_proc_fops;
--extern const struct file_operations jfs_mpstat_proc_fops;
--extern const struct file_operations jfs_xtstat_proc_fops;
-+int jfs_lmstats_proc_show(struct seq_file *m, void *v);
-+int jfs_txstats_proc_show(struct seq_file *m, void *v);
-+int jfs_mpstat_proc_show(struct seq_file *m, void *v);
-+int jfs_xtstat_proc_show(struct seq_file *m, void *v);
- 
- #define	INCREMENT(x)		((x)++)
- #define	DECREMENT(x)		((x)--)
-diff --git a/fs/jfs/jfs_logmgr.c b/fs/jfs/jfs_logmgr.c
-index 0e5d412c0b01..6b68df395892 100644
---- a/fs/jfs/jfs_logmgr.c
-+++ b/fs/jfs/jfs_logmgr.c
-@@ -2493,7 +2493,7 @@ int lmLogFormat(struct jfs_log *log, s64 logAddress, int logSize)
- }
- 
- #ifdef CONFIG_JFS_STATISTICS
--static int jfs_lmstats_proc_show(struct seq_file *m, void *v)
-+int jfs_lmstats_proc_show(struct seq_file *m, void *v)
- {
- 	seq_printf(m,
- 		       "JFS Logmgr stats\n"
-@@ -2510,16 +2510,4 @@ static int jfs_lmstats_proc_show(struct seq_file *m, void *v)
- 		       lmStat.partial_page);
- 	return 0;
- }
--
--static int jfs_lmstats_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, jfs_lmstats_proc_show, NULL);
--}
--
--const struct file_operations jfs_lmstats_proc_fops = {
--	.open		= jfs_lmstats_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
 -};
- #endif /* CONFIG_JFS_STATISTICS */
-diff --git a/fs/jfs/jfs_metapage.c b/fs/jfs/jfs_metapage.c
-index 1a3b0cc22ad3..fa2c6824c7f2 100644
---- a/fs/jfs/jfs_metapage.c
-+++ b/fs/jfs/jfs_metapage.c
-@@ -815,7 +815,7 @@ void __invalidate_metapages(struct inode *ip, s64 addr, int len)
+-
+-static int kcm_proc_register(struct net *net, struct kcm_seq_muxinfo *muxinfo)
+-{
+-	struct proc_dir_entry *p;
+-	int rc = 0;
+-
+-	p = proc_create_data(muxinfo->name, 0444, net->proc_net,
+-			     muxinfo->seq_fops, muxinfo);
+-	if (!p)
+-		rc = -ENOMEM;
+-	return rc;
+-}
+-EXPORT_SYMBOL(kcm_proc_register);
+-
+-static void kcm_proc_unregister(struct net *net,
+-				struct kcm_seq_muxinfo *muxinfo)
+-{
+-	remove_proc_entry(muxinfo->name, net->proc_net);
+-}
+-EXPORT_SYMBOL(kcm_proc_unregister);
+-
+ static int kcm_stats_seq_show(struct seq_file *seq, void *v)
+ {
+ 	struct kcm_psock_stats psock_stats;
+@@ -404,16 +372,11 @@ static const struct file_operations kcm_stats_seq_fops = {
+ 
+ static int kcm_proc_init_net(struct net *net)
+ {
+-	int err;
+-
+ 	if (!proc_create("kcm_stats", 0444, net->proc_net,
+-			 &kcm_stats_seq_fops)) {
+-		err = -ENOMEM;
++			 &kcm_stats_seq_fops))
+ 		goto out_kcm_stats;
+-	}
+ 
+-	err = kcm_proc_register(net, &kcm_seq_muxinfo);
+-	if (err)
++	if (!proc_create("kcm", 0444, net->proc_net, &kcm_seq_fops))
+ 		goto out_kcm;
+ 
+ 	return 0;
+@@ -421,12 +384,12 @@ static int kcm_proc_init_net(struct net *net)
+ out_kcm:
+ 	remove_proc_entry("kcm_stats", net->proc_net);
+ out_kcm_stats:
+-	return err;
++	return -ENOMEM;
  }
  
- #ifdef CONFIG_JFS_STATISTICS
--static int jfs_mpstat_proc_show(struct seq_file *m, void *v)
-+int jfs_mpstat_proc_show(struct seq_file *m, void *v)
+ static void kcm_proc_exit_net(struct net *net)
  {
- 	seq_printf(m,
- 		       "JFS Metapage statistics\n"
-@@ -828,16 +828,4 @@ static int jfs_mpstat_proc_show(struct seq_file *m, void *v)
- 		       mpStat.lockwait);
- 	return 0;
- }
--
--static int jfs_mpstat_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, jfs_mpstat_proc_show, NULL);
--}
--
--const struct file_operations jfs_mpstat_proc_fops = {
--	.open		= jfs_mpstat_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif
-diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
-index 4d973524c887..a5663cb621d8 100644
---- a/fs/jfs/jfs_txnmgr.c
-+++ b/fs/jfs/jfs_txnmgr.c
-@@ -2998,7 +2998,7 @@ int jfs_sync(void *arg)
+-	kcm_proc_unregister(net, &kcm_seq_muxinfo);
++	remove_proc_entry("kcm", net->proc_net);
+ 	remove_proc_entry("kcm_stats", net->proc_net);
  }
  
- #if defined(CONFIG_PROC_FS) && defined(CONFIG_JFS_DEBUG)
--static int jfs_txanchor_proc_show(struct seq_file *m, void *v)
-+int jfs_txanchor_proc_show(struct seq_file *m, void *v)
- {
- 	char *freewait;
- 	char *freelockwait;
-@@ -3032,22 +3032,10 @@ static int jfs_txanchor_proc_show(struct seq_file *m, void *v)
- 		       list_empty(&TxAnchor.unlock_queue) ? "" : "not ");
- 	return 0;
- }
--
--static int jfs_txanchor_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, jfs_txanchor_proc_show, NULL);
--}
--
--const struct file_operations jfs_txanchor_proc_fops = {
--	.open		= jfs_txanchor_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif
- 
- #if defined(CONFIG_PROC_FS) && defined(CONFIG_JFS_STATISTICS)
--static int jfs_txstats_proc_show(struct seq_file *m, void *v)
-+int jfs_txstats_proc_show(struct seq_file *m, void *v)
- {
- 	seq_printf(m,
- 		       "JFS TxStats\n"
-@@ -3072,16 +3060,4 @@ static int jfs_txstats_proc_show(struct seq_file *m, void *v)
- 		       TxStat.txLockAlloc_freelock);
- 	return 0;
- }
--
--static int jfs_txstats_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, jfs_txstats_proc_show, NULL);
--}
--
--const struct file_operations jfs_txstats_proc_fops = {
--	.open		= jfs_txstats_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif
-diff --git a/fs/jfs/jfs_xtree.c b/fs/jfs/jfs_xtree.c
-index 5cde6d2fcfca..2c200b5256a6 100644
---- a/fs/jfs/jfs_xtree.c
-+++ b/fs/jfs/jfs_xtree.c
-@@ -3874,7 +3874,7 @@ s64 xtTruncate_pmap(tid_t tid, struct inode *ip, s64 committed_size)
- }
- 
- #ifdef CONFIG_JFS_STATISTICS
--static int jfs_xtstat_proc_show(struct seq_file *m, void *v)
-+int jfs_xtstat_proc_show(struct seq_file *m, void *v)
- {
- 	seq_printf(m,
- 		       "JFS Xtree statistics\n"
-@@ -3887,16 +3887,4 @@ static int jfs_xtstat_proc_show(struct seq_file *m, void *v)
- 		       xtStat.split);
- 	return 0;
- }
--
--static int jfs_xtstat_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, jfs_xtstat_proc_show, NULL);
--}
--
--const struct file_operations jfs_xtstat_proc_fops = {
--	.open		= jfs_xtstat_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif
 -- 
 2.17.0
