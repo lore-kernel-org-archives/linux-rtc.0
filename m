@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:41046 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:41014 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755069AbeDYPvn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:43 -0400
+        with ESMTP id S1753551AbeDSMoQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:44:16 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,11 +18,11 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 37/40] proc: don't detour through seq->private to get the inode
-Date: Wed, 25 Apr 2018 17:48:24 +0200
-Message-Id: <20180425154827.32251-38-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Subject: [PATCH 36/39] proc: don't detour through seq->private to get the inode
+Date: Thu, 19 Apr 2018 14:41:37 +0200
+Message-Id: <20180419124140.9309-37-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
