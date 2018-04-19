@@ -1,61 +1,121 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:13791 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751271AbeDYJcz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:55 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 04/17] dt-bindings: mfd: mt6397: add a description for MT6323 power controller
-Date: Wed, 25 Apr 2018 17:32:30 +0800
-Message-ID: <317723e775d8de4aca70e17bf365db0c6b453666.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from bombadil.infradead.org ([198.137.202.133]:39454 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753378AbeDSMni (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:38 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 23/39] staging/rtl8192u: simplify procfs code
+Date: Thu, 19 Apr 2018 14:41:24 +0200
+Message-Id: <20180419124140.9309-24-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+Unwind the registration loop into individual calls.  Switch to use
+proc_create_single where applicable.
 
-Add a description for MT6323 power controller on MT6323 and link it to the
-detailed binding documentation.
-
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/staging/rtl8192u/r8192U_core.c | 67 ++++++--------------------
+ 1 file changed, 14 insertions(+), 53 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 11a748d..61115ea 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -8,6 +8,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
- - Clock
- - LED
- - Keys
-+- Power controller
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index d607c59761cf..7a0dbc0fa18e 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -646,64 +646,25 @@ static void rtl8192_proc_module_init(void)
+ 	rtl8192_proc = proc_mkdir(RTL819xU_MODULE_NAME, init_net.proc_net);
+ }
  
- It is interfaced to host controller using SPI interface by a proprietary hardware
- called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
-@@ -48,6 +49,11 @@ Optional subnodes:
- 		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
- 	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+-/*
+- * seq_file wrappers for procfile show routines.
+- */
+-static int rtl8192_proc_open(struct inode *inode, struct file *file)
+-{
+-	struct net_device *dev = proc_get_parent_data(inode);
+-	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
+-
+-	return single_open(file, show, dev);
+-}
+-
+-static const struct file_operations rtl8192_proc_fops = {
+-	.open		= rtl8192_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
+-};
+-
+-/*
+- * Table of proc files we need to create.
+- */
+-struct rtl8192_proc_file {
+-	char name[12];
+-	int (*show)(struct seq_file *, void *);
+-};
+-
+-static const struct rtl8192_proc_file rtl8192_proc_files[] = {
+-	{ "stats-rx",	&proc_get_stats_rx },
+-	{ "stats-tx",	&proc_get_stats_tx },
+-	{ "stats-ap",	&proc_get_stats_ap },
+-	{ "registers",	&proc_get_registers },
+-	{ "" }
+-};
+-
+ static void rtl8192_proc_init_one(struct net_device *dev)
+ {
+-	const struct rtl8192_proc_file *f;
+ 	struct proc_dir_entry *dir;
  
-+- power-controller
-+	Required properties:
-+		- compatible: "mediatek,mt6323-pwrc"
-+	For details, see Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
+-	if (rtl8192_proc) {
+-		dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
+-		if (!dir) {
+-			RT_TRACE(COMP_ERR,
+-				 "Unable to initialize /proc/net/rtl8192/%s\n",
+-				 dev->name);
+-			return;
+-		}
++	if (!rtl8192_proc)
++		return;
+ 
+-		for (f = rtl8192_proc_files; f->name[0]; f++) {
+-			if (!proc_create_data(f->name, S_IFREG | S_IRUGO, dir,
+-					      &rtl8192_proc_fops, f->show)) {
+-				RT_TRACE(COMP_ERR,
+-					 "Unable to initialize /proc/net/rtl8192/%s/%s\n",
+-					 dev->name, f->name);
+-				return;
+-			}
+-		}
+-	}
++	dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
++	if (!dir)
++		return;
 +
- Example:
- 	pwrap: pwrap@1000f000 {
- 		compatible = "mediatek,mt8135-pwrap";
++	proc_create_single("stats-rx", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_rx);
++	proc_create_single("stats-tx", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_tx);
++	proc_create_single("stats-ap", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_ap);
++	proc_create_single("registers", S_IFREG | S_IRUGO, dir,
++			proc_get_registers);
+ }
+ 
+ static void rtl8192_proc_remove_one(struct net_device *dev)
 -- 
-2.7.4
+2.17.0
