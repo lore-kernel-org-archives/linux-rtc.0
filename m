@@ -1,68 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38338 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752417AbeDJH4W (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 10 Apr 2018 03:56:22 -0400
-Date: Tue, 10 Apr 2018 09:56:11 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: SZ Lin =?utf-8?B?KOael+S4iuaZuik=?= <sz.lin@moxa.com>
-Cc: Taiyi Wu <taiyity.wu@moxa.com>,
+Received: from bombadil.infradead.org ([198.137.202.133]:38136 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752640AbeDSMmj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:39 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RESEND PATCH] rtc: tps65910: add bounds checking
-Message-ID: <20180410075610.GA24625@piout.net>
-References: <20180410072417.7078-1-sz.lin@moxa.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180410072417.7078-1-sz.lin@moxa.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 09/39] ipv6/flowlabel: simplify pid namespace lookup
+Date: Thu, 19 Apr 2018 14:41:10 +0200
+Message-Id: <20180419124140.9309-10-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+The shole seq_file sequence already operates under a single RCU lock pair,
+so move the pid namespace lookup into it, and stop grabbing a reference
+and remove all kinds of boilerplate code.
 
-On 10/04/2018 15:24:17+0800, SZ Lin (林上智) wrote:
-> Since tm->tm_year is the offset relative to 1900, it needs to check for
-> positive value to avoid overflow in YEARS_REG register.
-> 
-> The system will hang at the following stage on the next boot when overflow
-> has occurred.
-> 
-> [    2.221192] systemd[1]: Time has been changed
-> 
-> This patch fixes the above hanging issue by adding bounds checking.
-> 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ net/ipv6/ip6_flowlabel.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-Did you test linux-next, this should not happen anymore after
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=b3a5ac42ab18b7d1a8f2f072ca0ee76a3b754a43
-
-> Signed-off-by: Taiyi Wu <taiyity.wu@moxa.com>
-> Signed-off-by: SZ Lin (林上智) <sz.lin@moxa.com>
-> ---
->  drivers/rtc/rtc-tps65910.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-> index d0244d7979fc..6be9f7bb0f1b 100644
-> --- a/drivers/rtc/rtc-tps65910.c
-> +++ b/drivers/rtc/rtc-tps65910.c
-> @@ -105,6 +105,12 @@ static int tps65910_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	struct tps65910 *tps = dev_get_drvdata(dev->parent);
->  	int ret;
->  
-> +	if ((tm->tm_year - 100) < 0) {
-> +		dev_err(dev, "the requested year %d is unsupported\n",
-> +			1900 + tm->tm_year);
-> +		return -EINVAL;
-> +	}
-> +
->  	rtc_data[0] = bin2bcd(tm->tm_sec);
->  	rtc_data[1] = bin2bcd(tm->tm_min);
->  	rtc_data[2] = bin2bcd(tm->tm_hour);
-> -- 
-> 2.17.0
-> 
-
+diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
+index c05c4e82a7ca..a9f221d45ef9 100644
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -754,7 +754,10 @@ static struct ip6_flowlabel *ip6fl_get_idx(struct seq_file *seq, loff_t pos)
+ static void *ip6fl_seq_start(struct seq_file *seq, loff_t *pos)
+ 	__acquires(RCU)
+ {
++	struct ip6fl_iter_state *state = ip6fl_seq_private(seq);
++
+ 	rcu_read_lock_bh();
++	state->pid_ns = task_active_pid_ns(current);
+ 	return *pos ? ip6fl_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+@@ -810,36 +813,15 @@ static const struct seq_operations ip6fl_seq_ops = {
+ 
+ static int ip6fl_seq_open(struct inode *inode, struct file *file)
+ {
+-	struct seq_file *seq;
+-	struct ip6fl_iter_state *state;
+-	int err;
+-
+-	err = seq_open_net(inode, file, &ip6fl_seq_ops,
++	return seq_open_net(inode, file, &ip6fl_seq_ops,
+ 			   sizeof(struct ip6fl_iter_state));
+-
+-	if (!err) {
+-		seq = file->private_data;
+-		state = ip6fl_seq_private(seq);
+-		rcu_read_lock();
+-		state->pid_ns = get_pid_ns(task_active_pid_ns(current));
+-		rcu_read_unlock();
+-	}
+-	return err;
+-}
+-
+-static int ip6fl_seq_release(struct inode *inode, struct file *file)
+-{
+-	struct seq_file *seq = file->private_data;
+-	struct ip6fl_iter_state *state = ip6fl_seq_private(seq);
+-	put_pid_ns(state->pid_ns);
+-	return seq_release_net(inode, file);
+ }
+ 
+ static const struct file_operations ip6fl_seq_fops = {
+ 	.open		=	ip6fl_seq_open,
+ 	.read		=	seq_read,
+ 	.llseek		=	seq_lseek,
+-	.release	=	ip6fl_seq_release,
++	.release	=	seq_release_net,
+ };
+ 
+ static int __net_init ip6_flowlabel_proc_init(struct net *net)
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.0
