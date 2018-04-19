@@ -1,44 +1,85 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:59538 "EHLO newverein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757818AbeDXORe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 24 Apr 2018 10:17:34 -0400
-Date: Tue, 24 Apr 2018 16:19:02 +0200
+Received: from bombadil.infradead.org ([198.137.202.133]:39078 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751047AbeDSMna (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:30 -0400
 From: Christoph Hellwig <hch@lst.de>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        linux-ide@vger.kernel.org,
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
-Subject: Re: [PATCH 03/39] proc: introduce proc_create_seq_private
-Message-ID: <20180424141902.GD26136@lst.de>
-References: <20180419124140.9309-1-hch@lst.de> <20180419124140.9309-4-hch@lst.de> <20180419141818.pjys7at4xmz2h6ho@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180419141818.pjys7at4xmz2h6ho@mwanda>
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 26/39] rtc/proc: switch to proc_create_single_data
+Date: Thu, 19 Apr 2018 14:41:27 +0200
+Message-Id: <20180419124140.9309-27-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 05:18:18PM +0300, Dan Carpenter wrote:
-> > -static const struct file_operations cio_ignore_proc_fops = {
-> > -	.open    = cio_ignore_proc_open,
-> > -	.read    = seq_read,
-> > -	.llseek  = seq_lseek,
-> > -	.release = seq_release_private,
-> > -	.write   = cio_ignore_write,
->                    ^^^^^^^^^^^^^^^^
-> The cio_ignore_write() function isn't used any more so compilers will
-> complain.
+And stop trying to get a reference on the submodule, procfs code deals
+with release after and unloaded module and thus removed proc entry.
 
-No compiler in the buildboot farm complained, but neverless this
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/rtc/rtc-proc.c | 33 ++-------------------------------
+ 1 file changed, 2 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index 31e7e23cc5be..a9dd9218fae2 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+ 	return 0;
+ }
+ 
+-static int rtc_proc_open(struct inode *inode, struct file *file)
+-{
+-	int ret;
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	if (!try_module_get(rtc->owner))
+-		return -ENODEV;
+-
+-	ret = single_open(file, rtc_proc_show, rtc);
+-	if (ret)
+-		module_put(rtc->owner);
+-	return ret;
+-}
+-
+-static int rtc_proc_release(struct inode *inode, struct file *file)
+-{
+-	int res = single_release(inode, file);
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	module_put(rtc->owner);
+-	return res;
+-}
+-
+-static const struct file_operations rtc_proc_fops = {
+-	.open		= rtc_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= rtc_proc_release,
+-};
+-
+ void rtc_proc_add_device(struct rtc_device *rtc)
+ {
+ 	if (is_rtc_hctosys(rtc))
+-		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
++		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
++				rtc);
+ }
+ 
+ void rtc_proc_del_device(struct rtc_device *rtc)
+-- 
+2.17.0
