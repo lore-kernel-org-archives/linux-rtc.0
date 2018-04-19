@@ -1,60 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:42052 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751487AbeDZC7l (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 22:59:41 -0400
-Received: by mail-pf0-f193.google.com with SMTP id o16so16977559pfk.9
-        for <linux-rtc@vger.kernel.org>; Wed, 25 Apr 2018 19:59:41 -0700 (PDT)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: baolin.wang@linaro.org, broonie@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] rtc: sprd: Change to use devm_rtc_allocate_device()
-Date: Thu, 26 Apr 2018 10:58:44 +0800
-Message-Id: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:27931 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753059AbeDSNWn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:43 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 3/4] dt-bindings: rtc: update stm32-rtc documentation for st,syscfg property
+Date: Thu, 19 Apr 2018 15:21:42 +0200
+Message-ID: <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This is a preparation patch, changing to use devm_rtc_allocate_device()
-that can allow driver to set 'range_max' and 'range_min' for the RTC
-device.
+RTC driver should not be aware of the PWR registers offset and bits
+position. Furthermore, we can imagine that Disable Backup Protection (DBP)
+relative register and bit mask could change depending on the SoC. So this
+patch moves st,syscfg property from single pwrcfg phandle to pwrcfg
+phandle/offset/mask triplet.
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- drivers/rtc/rtc-sc27xx.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index 00d87d1..ac86322 100644
---- a/drivers/rtc/rtc-sc27xx.c
-+++ b/drivers/rtc/rtc-sc27xx.c
-@@ -600,6 +600,10 @@ static int sprd_rtc_probe(struct platform_device *pdev)
- 		return rtc->irq;
- 	}
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+index a66692a..00f8b5d 100644
+--- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+@@ -14,8 +14,10 @@ Required properties:
+     It is required only on stm32h7.
+ - interrupt-parent: phandle for the interrupt controller.
+ - interrupts: rtc alarm interrupt.
+-- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
+-  (RTC registers) write protection.
++- st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
++  access control register at offset, and change the dbp (Disable Backup
++  Protection) bit represented by the mask, mandatory to disable/enable backup
++  domain (RTC registers) write protection.
  
-+	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc->rtc))
-+		return PTR_ERR(rtc->rtc);
-+
- 	rtc->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, rtc);
+ Optional properties (to override default rtc_ck parent clock):
+ - assigned-clocks: reference to the rtc_ck clock entry.
+@@ -31,7 +33,7 @@ Example:
+ 		assigned-clock-parents = <&rcc 1 CLK_LSE>;
+ 		interrupt-parent = <&exti>;
+ 		interrupts = <17 1>;
+-		st,syscfg = <&pwrcfg>;
++		st,syscfg = <&pwrcfg 0x00 0x100>;
+ 	};
  
-@@ -626,10 +630,12 @@ static int sprd_rtc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					    &sprd_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc))
--		return PTR_ERR(rtc->rtc);
-+	rtc->rtc->ops = &sprd_rtc_ops;
-+	ret = rtc_register_device(rtc->rtc);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register rtc device\n");
-+		return ret;
-+	}
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 	return 0;
+ 	rtc: rtc@58004000 {
+@@ -44,5 +46,5 @@ Example:
+ 		interrupt-parent = <&exti>;
+ 		interrupts = <17 1>;
+ 		interrupt-names = "alarm";
+-		st,syscfg = <&pwrcfg>;
++		st,syscfg = <&pwrcfg 0x00 0x100>;
+ 	};
 -- 
-1.7.9.5
+2.7.4
