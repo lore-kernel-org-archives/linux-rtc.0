@@ -1,47 +1,233 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:63767 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751574AbeDYJdF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:05 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 08/17] rtc: mt6397: add MT6323 support to RTC driver
-Date: Wed, 25 Apr 2018 17:32:34 +0800
-Message-ID: <f49c2f3d20f54859603cfa40f0ff184eed2d4e4a.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from bombadil.infradead.org ([198.137.202.133]:40752 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752887AbeDSMoJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:44:09 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 30/39] netfilter/xt_hashlimit: switch to proc_create_{seq,single}_data
+Date: Thu, 19 Apr 2018 14:41:31 +0200
+Message-Id: <20180419124140.9309-31-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+And use proc private data directly instead of doing a detour
+through seq->private.
 
-Just to add MT6323 support to existing RTC driver
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-mt6397.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/xt_hashlimit.c | 92 +++++++-----------------------------
+ 1 file changed, 18 insertions(+), 74 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 385f830..0df7ccd 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -398,6 +398,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
- 			mt6397_rtc_resume);
+diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
+index 0cd73567e7ff..9b16402f29af 100644
+--- a/net/netfilter/xt_hashlimit.c
++++ b/net/netfilter/xt_hashlimit.c
+@@ -57,9 +57,9 @@ static inline struct hashlimit_net *hashlimit_pernet(struct net *net)
+ }
  
- static const struct of_device_id mt6397_rtc_of_match[] = {
-+	{ .compatible = "mediatek,mt6323-rtc", },
- 	{ .compatible = "mediatek,mt6397-rtc", },
- 	{ }
+ /* need to declare this at the top */
+-static const struct file_operations dl_file_ops_v2;
+-static const struct file_operations dl_file_ops_v1;
+-static const struct file_operations dl_file_ops;
++static const struct seq_operations dl_seq_ops_v2;
++static const struct seq_operations dl_seq_ops_v1;
++static const struct seq_operations dl_seq_ops;
+ 
+ /* hash table crap */
+ struct dsthash_dst {
+@@ -272,7 +272,7 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
+ {
+ 	struct hashlimit_net *hashlimit_net = hashlimit_pernet(net);
+ 	struct xt_hashlimit_htable *hinfo;
+-	const struct file_operations *fops;
++	const struct seq_operations *ops;
+ 	unsigned int size, i;
+ 	int ret;
+ 
+@@ -321,19 +321,19 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
+ 
+ 	switch (revision) {
+ 	case 1:
+-		fops = &dl_file_ops_v1;
++		ops = &dl_seq_ops_v1;
+ 		break;
+ 	case 2:
+-		fops = &dl_file_ops_v2;
++		ops = &dl_seq_ops_v2;
+ 		break;
+ 	default:
+-		fops = &dl_file_ops;
++		ops = &dl_seq_ops;
+ 	}
+ 
+-	hinfo->pde = proc_create_data(name, 0,
++	hinfo->pde = proc_create_seq_data(name, 0,
+ 		(family == NFPROTO_IPV4) ?
+ 		hashlimit_net->ipt_hashlimit : hashlimit_net->ip6t_hashlimit,
+-		fops, hinfo);
++		ops, hinfo);
+ 	if (hinfo->pde == NULL) {
+ 		kfree(hinfo->name);
+ 		vfree(hinfo);
+@@ -1057,7 +1057,7 @@ static struct xt_match hashlimit_mt_reg[] __read_mostly = {
+ static void *dl_seq_start(struct seq_file *s, loff_t *pos)
+ 	__acquires(htable->lock)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket;
+ 
+ 	spin_lock_bh(&htable->lock);
+@@ -1074,7 +1074,7 @@ static void *dl_seq_start(struct seq_file *s, loff_t *pos)
+ 
+ static void *dl_seq_next(struct seq_file *s, void *v, loff_t *pos)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 
+ 	*pos = ++(*bucket);
+@@ -1088,7 +1088,7 @@ static void *dl_seq_next(struct seq_file *s, void *v, loff_t *pos)
+ static void dl_seq_stop(struct seq_file *s, void *v)
+ 	__releases(htable->lock)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 
+ 	if (!IS_ERR(bucket))
+@@ -1130,7 +1130,7 @@ static void dl_seq_print(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show_v2(struct dsthash_ent *ent, u_int8_t family,
+ 			       struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1145,7 +1145,7 @@ static int dl_seq_real_show_v2(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show_v1(struct dsthash_ent *ent, u_int8_t family,
+ 			       struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1160,7 +1160,7 @@ static int dl_seq_real_show_v1(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show(struct dsthash_ent *ent, u_int8_t family,
+ 			    struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1174,7 +1174,7 @@ static int dl_seq_real_show(struct dsthash_ent *ent, u_int8_t family,
+ 
+ static int dl_seq_show_v2(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = (unsigned int *)v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1188,7 +1188,7 @@ static int dl_seq_show_v2(struct seq_file *s, void *v)
+ 
+ static int dl_seq_show_v1(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1202,7 +1202,7 @@ static int dl_seq_show_v1(struct seq_file *s, void *v)
+ 
+ static int dl_seq_show(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1235,62 +1235,6 @@ static const struct seq_operations dl_seq_ops = {
+ 	.show  = dl_seq_show
  };
+ 
+-static int dl_proc_open_v2(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops_v2);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static int dl_proc_open_v1(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops_v1);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static int dl_proc_open(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static const struct file_operations dl_file_ops_v2 = {
+-	.open    = dl_proc_open_v2,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+-static const struct file_operations dl_file_ops_v1 = {
+-	.open    = dl_proc_open_v1,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+-static const struct file_operations dl_file_ops = {
+-	.open    = dl_proc_open,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+ static int __net_init hashlimit_proc_net_init(struct net *net)
+ {
+ 	struct hashlimit_net *hashlimit_net = hashlimit_pernet(net);
 -- 
-2.7.4
+2.17.0
