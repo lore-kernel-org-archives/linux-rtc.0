@@ -1,408 +1,553 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40926 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752890AbeDSMoN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:44:13 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 35/39] isdn: replace ->proc_fops with ->proc_show
-Date: Thu, 19 Apr 2018 14:41:36 +0200
-Message-Id: <20180419124140.9309-36-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:33445 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753518AbeDSMuv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 08:50:51 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/4] selftests: rtc: rework rtctest
+Date: Thu, 19 Apr 2018 14:50:30 +0200
+Message-Id: <20180419125030.5076-5-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And switch to proc_create_single_data.
+Rework rtctest to use the test harness to better handle skipping tests
+(e.g. when alarms are not available). Also, it now handles timeout so it
+will not block expecting an alarm that never comes.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/isdn/capi/kcapi.c              |  3 ++-
- drivers/isdn/gigaset/capi.c            | 16 +---------------
- drivers/isdn/hardware/avm/avmcard.h    |  4 ++--
- drivers/isdn/hardware/avm/b1.c         | 17 ++---------------
- drivers/isdn/hardware/avm/b1dma.c      | 17 ++---------------
- drivers/isdn/hardware/avm/b1isa.c      |  2 +-
- drivers/isdn/hardware/avm/b1pci.c      |  4 ++--
- drivers/isdn/hardware/avm/b1pcmcia.c   |  2 +-
- drivers/isdn/hardware/avm/c4.c         | 15 +--------------
- drivers/isdn/hardware/avm/t1isa.c      |  2 +-
- drivers/isdn/hardware/avm/t1pci.c      |  2 +-
- drivers/isdn/hardware/eicon/capimain.c | 15 +--------------
- drivers/isdn/hysdn/hycapi.c            | 15 +--------------
- include/linux/isdn/capilli.h           |  2 +-
- net/bluetooth/cmtp/capi.c              | 14 +-------------
- 15 files changed, 20 insertions(+), 110 deletions(-)
+ tools/testing/selftests/rtc/rtctest.c | 472 +++++++++++---------------
+ 1 file changed, 191 insertions(+), 281 deletions(-)
 
-diff --git a/drivers/isdn/capi/kcapi.c b/drivers/isdn/capi/kcapi.c
-index 46c189ad8d94..0ff517d3c98f 100644
---- a/drivers/isdn/capi/kcapi.c
-+++ b/drivers/isdn/capi/kcapi.c
-@@ -534,7 +534,8 @@ int attach_capi_ctr(struct capi_ctr *ctr)
- 	init_waitqueue_head(&ctr->state_wait_queue);
- 
- 	sprintf(ctr->procfn, "capi/controllers/%d", ctr->cnr);
--	ctr->procent = proc_create_data(ctr->procfn, 0, NULL, ctr->proc_fops, ctr);
-+	ctr->procent = proc_create_single_data(ctr->procfn, 0, NULL,
-+			ctr->proc_show, ctr);
- 
- 	ncontrollers++;
- 
-diff --git a/drivers/isdn/gigaset/capi.c b/drivers/isdn/gigaset/capi.c
-index ccec7778cad2..dac5cd35e901 100644
---- a/drivers/isdn/gigaset/capi.c
-+++ b/drivers/isdn/gigaset/capi.c
-@@ -2437,19 +2437,6 @@ static int gigaset_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int gigaset_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, gigaset_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations gigaset_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= gigaset_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /**
-  * gigaset_isdn_regdev() - register device to LL
-  * @cs:		device descriptor structure.
-@@ -2478,8 +2465,7 @@ int gigaset_isdn_regdev(struct cardstate *cs, const char *isdnid)
- 	iif->ctr.register_appl = gigaset_register_appl;
- 	iif->ctr.release_appl  = gigaset_release_appl;
- 	iif->ctr.send_message  = gigaset_send_message;
--	iif->ctr.procinfo      = gigaset_procinfo;
--	iif->ctr.proc_fops = &gigaset_proc_fops;
-+	iif->ctr.proc_show     = gigaset_proc_show,
- 	INIT_LIST_HEAD(&iif->appls);
- 	skb_queue_head_init(&iif->sendqueue);
- 	atomic_set(&iif->sendqlen, 0);
-diff --git a/drivers/isdn/hardware/avm/avmcard.h b/drivers/isdn/hardware/avm/avmcard.h
-index c95712dbfa9f..cdfa89c71997 100644
---- a/drivers/isdn/hardware/avm/avmcard.h
-+++ b/drivers/isdn/hardware/avm/avmcard.h
-@@ -556,7 +556,7 @@ u16  b1_send_message(struct capi_ctr *ctrl, struct sk_buff *skb);
- void b1_parse_version(avmctrl_info *card);
- irqreturn_t b1_interrupt(int interrupt, void *devptr);
- 
--extern const struct file_operations b1ctl_proc_fops;
-+int b1_proc_show(struct seq_file *m, void *v);
- 
- avmcard_dmainfo *avmcard_dma_alloc(char *name, struct pci_dev *,
- 				   long rsize, long ssize);
-@@ -576,6 +576,6 @@ void b1dma_register_appl(struct capi_ctr *ctrl,
- 			 capi_register_params *rp);
- void b1dma_release_appl(struct capi_ctr *ctrl, u16 appl);
- u16  b1dma_send_message(struct capi_ctr *ctrl, struct sk_buff *skb);
--extern const struct file_operations b1dmactl_proc_fops;
-+int b1dma_proc_show(struct seq_file *m, void *v);
- 
- #endif /* _AVMCARD_H_ */
-diff --git a/drivers/isdn/hardware/avm/b1.c b/drivers/isdn/hardware/avm/b1.c
-index b1833d08a5fe..5ee5489d3f15 100644
---- a/drivers/isdn/hardware/avm/b1.c
-+++ b/drivers/isdn/hardware/avm/b1.c
-@@ -637,7 +637,7 @@ irqreturn_t b1_interrupt(int interrupt, void *devptr)
- }
- 
- /* ------------------------------------------------------------- */
--static int b1ctl_proc_show(struct seq_file *m, void *v)
-+int b1_proc_show(struct seq_file *m, void *v)
- {
- 	struct capi_ctr *ctrl = m->private;
- 	avmctrl_info *cinfo = (avmctrl_info *)(ctrl->driverdata);
-@@ -699,20 +699,7 @@ static int b1ctl_proc_show(struct seq_file *m, void *v)
- 
- 	return 0;
- }
--
--static int b1ctl_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, b1ctl_proc_show, PDE_DATA(inode));
--}
--
--const struct file_operations b1ctl_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= b1ctl_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--EXPORT_SYMBOL(b1ctl_proc_fops);
-+EXPORT_SYMBOL(b1_proc_show);
- 
- /* ------------------------------------------------------------- */
- 
-diff --git a/drivers/isdn/hardware/avm/b1dma.c b/drivers/isdn/hardware/avm/b1dma.c
-index 9538a9e5e1a8..6a3dc9937ce5 100644
---- a/drivers/isdn/hardware/avm/b1dma.c
-+++ b/drivers/isdn/hardware/avm/b1dma.c
-@@ -858,7 +858,7 @@ u16 b1dma_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
- 
- /* ------------------------------------------------------------- */
- 
--static int b1dmactl_proc_show(struct seq_file *m, void *v)
-+int b1dma_proc_show(struct seq_file *m, void *v)
- {
- 	struct capi_ctr *ctrl = m->private;
- 	avmctrl_info *cinfo = (avmctrl_info *)(ctrl->driverdata);
-@@ -941,20 +941,7 @@ static int b1dmactl_proc_show(struct seq_file *m, void *v)
- 
- 	return 0;
- }
--
--static int b1dmactl_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, b1dmactl_proc_show, PDE_DATA(inode));
--}
--
--const struct file_operations b1dmactl_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= b1dmactl_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--EXPORT_SYMBOL(b1dmactl_proc_fops);
-+EXPORT_SYMBOL(b1dma_proc_show);
- 
- /* ------------------------------------------------------------- */
- 
-diff --git a/drivers/isdn/hardware/avm/b1isa.c b/drivers/isdn/hardware/avm/b1isa.c
-index 54e871a47387..cdfea72e0ef6 100644
---- a/drivers/isdn/hardware/avm/b1isa.c
-+++ b/drivers/isdn/hardware/avm/b1isa.c
-@@ -121,7 +121,7 @@ static int b1isa_probe(struct pci_dev *pdev)
- 	cinfo->capi_ctrl.load_firmware = b1_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = b1_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = b1isa_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1ctl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 	retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/avm/b1pci.c b/drivers/isdn/hardware/avm/b1pci.c
-index ac4863c2ecbc..b76b57a82c02 100644
---- a/drivers/isdn/hardware/avm/b1pci.c
-+++ b/drivers/isdn/hardware/avm/b1pci.c
-@@ -112,7 +112,7 @@ static int b1pci_probe(struct capicardparams *p, struct pci_dev *pdev)
- 	cinfo->capi_ctrl.load_firmware = b1_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = b1_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = b1pci_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1ctl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 	cinfo->capi_ctrl.owner         = THIS_MODULE;
- 
-@@ -251,7 +251,7 @@ static int b1pciv4_probe(struct capicardparams *p, struct pci_dev *pdev)
- 	cinfo->capi_ctrl.load_firmware = b1dma_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = b1dma_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = b1pciv4_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1dmactl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1dma_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 	retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/avm/b1pcmcia.c b/drivers/isdn/hardware/avm/b1pcmcia.c
-index 6b0d19d963d5..3aca16e62902 100644
---- a/drivers/isdn/hardware/avm/b1pcmcia.c
-+++ b/drivers/isdn/hardware/avm/b1pcmcia.c
-@@ -108,7 +108,7 @@ static int b1pcmcia_add_card(unsigned int port, unsigned irq,
- 	cinfo->capi_ctrl.load_firmware = b1_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = b1_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = b1pcmcia_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1ctl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 	retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/avm/c4.c b/drivers/isdn/hardware/avm/c4.c
-index 034cabac699d..ac72cd204c4d 100644
---- a/drivers/isdn/hardware/avm/c4.c
-+++ b/drivers/isdn/hardware/avm/c4.c
-@@ -1127,19 +1127,6 @@ static int c4_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int c4_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, c4_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations c4_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= c4_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /* ------------------------------------------------------------- */
- 
- static int c4_add_card(struct capicardparams *p, struct pci_dev *dev,
-@@ -1211,7 +1198,7 @@ static int c4_add_card(struct capicardparams *p, struct pci_dev *dev,
- 		cinfo->capi_ctrl.load_firmware = c4_load_firmware;
- 		cinfo->capi_ctrl.reset_ctr     = c4_reset_ctr;
- 		cinfo->capi_ctrl.procinfo      = c4_procinfo;
--		cinfo->capi_ctrl.proc_fops = &c4_proc_fops;
-+		cinfo->capi_ctrl.proc_show     = c4_proc_show;
- 		strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 		retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/avm/t1isa.c b/drivers/isdn/hardware/avm/t1isa.c
-index 9f80d20ced87..2153619c5b31 100644
---- a/drivers/isdn/hardware/avm/t1isa.c
-+++ b/drivers/isdn/hardware/avm/t1isa.c
-@@ -430,7 +430,7 @@ static int t1isa_probe(struct pci_dev *pdev, int cardnr)
- 	cinfo->capi_ctrl.load_firmware = t1isa_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = t1isa_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = t1isa_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1ctl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 	retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/avm/t1pci.c b/drivers/isdn/hardware/avm/t1pci.c
-index 2180b1685691..f5ed1d5004c9 100644
---- a/drivers/isdn/hardware/avm/t1pci.c
-+++ b/drivers/isdn/hardware/avm/t1pci.c
-@@ -119,7 +119,7 @@ static int t1pci_add_card(struct capicardparams *p, struct pci_dev *pdev)
- 	cinfo->capi_ctrl.load_firmware = b1dma_load_firmware;
- 	cinfo->capi_ctrl.reset_ctr     = b1dma_reset_ctr;
- 	cinfo->capi_ctrl.procinfo      = t1pci_procinfo;
--	cinfo->capi_ctrl.proc_fops = &b1dmactl_proc_fops;
-+	cinfo->capi_ctrl.proc_show     = b1dma_proc_show;
- 	strcpy(cinfo->capi_ctrl.name, card->name);
- 
- 	retval = attach_capi_ctr(&cinfo->capi_ctrl);
-diff --git a/drivers/isdn/hardware/eicon/capimain.c b/drivers/isdn/hardware/eicon/capimain.c
-index be36d82004d6..f9244dc1c3c9 100644
---- a/drivers/isdn/hardware/eicon/capimain.c
-+++ b/drivers/isdn/hardware/eicon/capimain.c
-@@ -90,19 +90,6 @@ static int diva_ctl_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int diva_ctl_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, diva_ctl_proc_show, NULL);
--}
--
--static const struct file_operations diva_ctl_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= diva_ctl_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
+diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+index 6e17b96551ec..e20b017e7073 100644
+--- a/tools/testing/selftests/rtc/rtctest.c
++++ b/tools/testing/selftests/rtc/rtctest.c
+@@ -1,328 +1,238 @@
++// SPDX-License-Identifier: GPL-2.0
  /*
-  * set additional os settings in capi_ctr struct
+- *      Real Time Clock Driver Test/Example Program
+- *
+- *      Compile with:
+- *		     gcc -s -Wall -Wstrict-prototypes rtctest.c -o rtctest
+- *
+- *      Copyright (C) 1996, Paul Gortmaker.
+- *
+- *      Released under the GNU General Public License, version 2,
+- *      included herein by reference.
++ * Real Time Clock Driver Test Program
+  *
++ * Copyright (c) 2018 Alexandre Belloni <alexandre.belloni@bootlin.com>
   */
-@@ -111,7 +98,7 @@ void diva_os_set_controller_struct(struct capi_ctr *ctrl)
- 	ctrl->driver_name = DRIVERLNAME;
- 	ctrl->load_firmware = NULL;
- 	ctrl->reset_ctr = NULL;
--	ctrl->proc_fops = &diva_ctl_proc_fops;
-+	ctrl->proc_show = diva_ctl_proc_show;
- 	ctrl->owner = THIS_MODULE;
- }
  
-diff --git a/drivers/isdn/hysdn/hycapi.c b/drivers/isdn/hysdn/hycapi.c
-index eac0f51a0f60..a2c15cd7bf67 100644
---- a/drivers/isdn/hysdn/hycapi.c
-+++ b/drivers/isdn/hysdn/hycapi.c
-@@ -467,19 +467,6 @@ static int hycapi_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+-#include <stdio.h>
++#include <errno.h>
++#include <fcntl.h>
+ #include <linux/rtc.h>
++#include <stdio.h>
++#include <stdlib.h>
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
+ #include <sys/types.h>
+-#include <fcntl.h>
++#include <time.h>
+ #include <unistd.h>
+-#include <stdlib.h>
+-#include <errno.h>
  
--static int hycapi_proc_open(struct inode *inode, struct file *file)
+-#ifndef ARRAY_SIZE
+-# define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+-#endif
++#include "../kselftest_harness.h"
+ 
+-/*
+- * This expects the new RTC class driver framework, working with
+- * clocks that will often not be clones of what the PC-AT had.
+- * Use the command line to specify another RTC if you need one.
+- */
+-static const char default_rtc[] = "/dev/rtc0";
+-
+-static struct rtc_time cutoff_dates[] = {
+-	{
+-		.tm_year = 70, /* 1970 -1900 */
+-		.tm_mday = 1,
+-	},
+-	/* signed time_t 19/01/2038 3:14:08 */
+-	{
+-		.tm_year = 138,
+-		.tm_mday = 19,
+-	},
+-	{
+-		.tm_year = 138,
+-		.tm_mday = 20,
+-	},
+-	{
+-		.tm_year = 199, /* 2099 -1900 */
+-		.tm_mday = 1,
+-	},
+-	{
+-		.tm_year = 200, /* 2100 -1900 */
+-		.tm_mday = 1,
+-	},
+-	/* unsigned time_t 07/02/2106 7:28:15*/
+-	{
+-		.tm_year = 205,
+-		.tm_mon = 1,
+-		.tm_mday = 7,
+-	},
+-	{
+-		.tm_year = 206,
+-		.tm_mon = 1,
+-		.tm_mday = 8,
+-	},
+-	/* signed time on 64bit in nanoseconds 12/04/2262 01:47:16*/
+-	{
+-		.tm_year = 362,
+-		.tm_mon = 3,
+-		.tm_mday = 12,
+-	},
+-	{
+-		.tm_year = 362, /* 2262 -1900 */
+-		.tm_mon = 3,
+-		.tm_mday = 13,
+-	},
++#define NUM_UIE 3
++#define ALARM_DELTA 3
++
++static char *rtc_file = "/dev/rtc0";
++
++FIXTURE(rtc) {
++	int fd;
+ };
+ 
+-static int compare_dates(struct rtc_time *a, struct rtc_time *b)
 -{
--	return single_open(file, hycapi_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations hycapi_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= hycapi_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /**************************************************************
- hycapi_load_firmware
+-	if (a->tm_year != b->tm_year ||
+-	    a->tm_mon != b->tm_mon ||
+-	    a->tm_mday != b->tm_mday ||
+-	    a->tm_hour != b->tm_hour ||
+-	    a->tm_min != b->tm_min ||
+-	    ((b->tm_sec - a->tm_sec) > 1))
+-		return 1;
++FIXTURE_SETUP(rtc) {
++	self->fd = open(rtc_file, O_RDONLY);
++	ASSERT_NE(-1, self->fd);
++}
  
-@@ -774,7 +761,7 @@ hycapi_capi_create(hysdn_card *card)
- 		ctrl->load_firmware = hycapi_load_firmware;
- 		ctrl->reset_ctr     = hycapi_reset_ctr;
- 		ctrl->procinfo      = hycapi_procinfo;
--		ctrl->proc_fops = &hycapi_proc_fops;
-+		ctrl->proc_show     = hycapi_proc_show;
- 		strcpy(ctrl->name, cinfo->cardname);
- 		ctrl->owner = THIS_MODULE;
- 
-diff --git a/include/linux/isdn/capilli.h b/include/linux/isdn/capilli.h
-index 11b57c485854..d75e1ad72964 100644
---- a/include/linux/isdn/capilli.h
-+++ b/include/linux/isdn/capilli.h
-@@ -50,7 +50,7 @@ struct capi_ctr {
- 	u16  (*send_message)(struct capi_ctr *, struct sk_buff *skb);
- 	
- 	char *(*procinfo)(struct capi_ctr *);
--	const struct file_operations *proc_fops;
-+	int (*proc_show)(struct seq_file *, void *);
- 
- 	/* filled in before calling ready callback */
- 	u8 manu[CAPI_MANUFACTURER_LEN];		/* CAPI_GET_MANUFACTURER */
-diff --git a/net/bluetooth/cmtp/capi.c b/net/bluetooth/cmtp/capi.c
-index 426a92f02db4..eb41556002e3 100644
---- a/net/bluetooth/cmtp/capi.c
-+++ b/net/bluetooth/cmtp/capi.c
-@@ -521,18 +521,6 @@ static int cmtp_proc_show(struct seq_file *m, void *v)
- 	return 0;
+-	return 0;
++FIXTURE_TEARDOWN(rtc) {
++	close(self->fd);
  }
  
--static int cmtp_proc_open(struct inode *inode, struct file *file)
+-int main(int argc, char **argv)
 -{
--	return single_open(file, cmtp_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations cmtp_proc_fops = {
--	.open		= cmtp_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- int cmtp_attach_device(struct cmtp_session *session)
- {
- 	unsigned char buf[4];
-@@ -571,7 +559,7 @@ int cmtp_attach_device(struct cmtp_session *session)
- 	session->ctrl.send_message  = cmtp_send_message;
+-	int i, fd, retval, irqcount = 0, dangerous = 0;
+-	unsigned long data;
++TEST_F(rtc, date_read) {
++	int rc;
+ 	struct rtc_time rtc_tm;
+-	const char *rtc = default_rtc;
  
- 	session->ctrl.procinfo      = cmtp_procinfo;
--	session->ctrl.proc_fops = &cmtp_proc_fops;
-+	session->ctrl.proc_show     = cmtp_proc_show;
+-	switch (argc) {
+-	case 3:
+-		if (*argv[2] == 'd')
+-			dangerous = 1;
+-	case 2:
+-		rtc = argv[1];
+-		/* FALLTHROUGH */
+-	case 1:
+-		break;
+-	default:
+-		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
+-		return 1;
+-	}
++	/* Read the RTC time/date */
++	rc = ioctl(self->fd, RTC_RD_TIME, &rtc_tm);
++	ASSERT_NE(-1, rc);
  
- 	if (attach_capi_ctr(&session->ctrl) < 0) {
- 		BT_ERR("Can't attach new controller");
+-	fd = open(rtc, O_RDONLY);
++	TH_LOG("Current RTC date/time is %02d/%02d/%02d %02d:%02d:%02d.",
++	       rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
++	       rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
++}
+ 
+-	if (fd ==  -1) {
+-		perror(rtc);
+-		exit(errno);
+-	}
++TEST_F(rtc, uie_read) {
++	int i, rc, irq = 0;
++	unsigned long data;
+ 
+-	fprintf(stderr, "\n\t\t\tRTC Driver Test Example.\n\n");
+-
+-	/* Turn on update interrupts (one per second) */
+-	retval = ioctl(fd, RTC_UIE_ON, 0);
+-	if (retval == -1) {
+-		if (errno == EINVAL) {
+-			fprintf(stderr,
+-				"\n...Update IRQs not supported.\n");
+-			goto test_READ;
+-		}
+-		perror("RTC_UIE_ON ioctl");
+-		exit(errno);
++	/* Turn on update interrupts */
++	rc = ioctl(self->fd, RTC_UIE_ON, 0);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip update IRQs not supported.");
++		return;
+ 	}
+ 
+-	fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading %s:",
+-			rtc);
+-	fflush(stderr);
+-	for (i=1; i<6; i++) {
++	for (i = 0; i < NUM_UIE; i++) {
+ 		/* This read will block */
+-		retval = read(fd, &data, sizeof(unsigned long));
+-		if (retval == -1) {
+-			perror("read");
+-			exit(errno);
+-		}
+-		fprintf(stderr, " %d",i);
+-		fflush(stderr);
+-		irqcount++;
++		rc = read(self->fd, &data, sizeof(data));
++		ASSERT_NE(-1, rc);
++		irq++;
++	}
++
++	EXPECT_EQ(NUM_UIE, irq);
++
++	rc = ioctl(self->fd, RTC_UIE_OFF, 0);
++	ASSERT_NE(-1, rc);
++}
++
++TEST_F(rtc, uie_select) {
++	int i, rc, irq = 0;
++	unsigned long data;
++
++	/* Turn on update interrupts */
++	rc = ioctl(self->fd, RTC_UIE_ON, 0);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip update IRQs not supported.");
++		return;
+ 	}
+ 
+-	fprintf(stderr, "\nAgain, from using select(2) on /dev/rtc:");
+-	fflush(stderr);
+-	for (i=1; i<6; i++) {
+-		struct timeval tv = {5, 0};     /* 5 second timeout on select */
++	for (i = 0; i < NUM_UIE; i++) {
++		struct timeval tv = { .tv_sec = 2 };
+ 		fd_set readfds;
+ 
+ 		FD_ZERO(&readfds);
+-		FD_SET(fd, &readfds);
++		FD_SET(self->fd, &readfds);
+ 		/* The select will wait until an RTC interrupt happens. */
+-		retval = select(fd+1, &readfds, NULL, NULL, &tv);
+-		if (retval == -1) {
+-		        perror("select");
+-		        exit(errno);
+-		}
+-		/* This read won't block unlike the select-less case above. */
+-		retval = read(fd, &data, sizeof(unsigned long));
+-		if (retval == -1) {
+-		        perror("read");
+-		        exit(errno);
+-		}
+-		fprintf(stderr, " %d",i);
+-		fflush(stderr);
+-		irqcount++;
+-	}
+-
+-	/* Turn off update interrupts */
+-	retval = ioctl(fd, RTC_UIE_OFF, 0);
+-	if (retval == -1) {
+-		perror("RTC_UIE_OFF ioctl");
+-		exit(errno);
++		rc = select(self->fd + 1, &readfds, NULL, NULL, &tv);
++		ASSERT_NE(-1, rc);
++		ASSERT_NE(0, rc);
++
++		/* This read won't block */
++		rc = read(self->fd, &data, sizeof(unsigned long));
++		ASSERT_NE(-1, rc);
++		irq++;
+ 	}
+ 
+-test_READ:
+-	/* Read the RTC time/date */
+-	retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
+-	if (retval == -1) {
+-		perror("RTC_RD_TIME ioctl");
+-		exit(errno);
+-	}
++	EXPECT_EQ(NUM_UIE, irq);
+ 
+-	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
+-		rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
+-		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
++	rc = ioctl(self->fd, RTC_UIE_OFF, 0);
++	ASSERT_NE(-1, rc);
++}
+ 
+-	/* Set the alarm to 5 sec in the future, and check for rollover */
+-	rtc_tm.tm_sec += 5;
+-	if (rtc_tm.tm_sec >= 60) {
+-		rtc_tm.tm_sec %= 60;
+-		rtc_tm.tm_min++;
+-	}
+-	if (rtc_tm.tm_min == 60) {
+-		rtc_tm.tm_min = 0;
+-		rtc_tm.tm_hour++;
+-	}
+-	if (rtc_tm.tm_hour == 24)
+-		rtc_tm.tm_hour = 0;
+-
+-	retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
+-	if (retval == -1) {
+-		if (errno == EINVAL) {
+-			fprintf(stderr,
+-				"\n...Alarm IRQs not supported.\n");
+-			goto test_DATE;
+-		}
+-
+-		perror("RTC_ALM_SET ioctl");
+-		exit(errno);
++TEST_F(rtc, alarm_alm_set) {
++	struct timeval tv = { .tv_sec = ALARM_DELTA + 2 };
++	unsigned long data;
++	struct rtc_time tm;
++	fd_set readfds;
++	time_t secs, new;
++	int rc;
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	secs = timegm((struct tm *)&tm) + ALARM_DELTA;
++	gmtime_r(&secs, (struct tm *)&tm);
++
++	rc = ioctl(self->fd, RTC_ALM_SET, &tm);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip alarms are not supported.");
++		return;
+ 	}
+ 
+-	/* Read the current alarm settings */
+-	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
+-	if (retval == -1) {
+-		if (errno == EINVAL) {
+-			fprintf(stderr,
+-					"\n...EINVAL reading current alarm setting.\n");
+-			goto test_DATE;
+-		}
+-		perror("RTC_ALM_READ ioctl");
+-		exit(errno);
+-	}
++	rc = ioctl(self->fd, RTC_ALM_READ, &tm);
++	ASSERT_NE(-1, rc);
+ 
+-	fprintf(stderr, "Alarm time now set to %02d:%02d:%02d.\n",
+-		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
++	TH_LOG("Alarm time now set to %02d:%02d:%02d.",
++	       tm.tm_hour, tm.tm_min, tm.tm_sec);
+ 
+ 	/* Enable alarm interrupts */
+-	retval = ioctl(fd, RTC_AIE_ON, 0);
+-	if (retval == -1) {
+-		if (errno == EINVAL || errno == EIO) {
+-			fprintf(stderr,
+-				"\n...Alarm IRQs not supported.\n");
+-			goto test_DATE;
+-		}
+-
+-		perror("RTC_AIE_ON ioctl");
+-		exit(errno);
+-	}
++	rc = ioctl(self->fd, RTC_AIE_ON, 0);
++	ASSERT_NE(-1, rc);
+ 
+-	fprintf(stderr, "Waiting 5 seconds for alarm...");
+-	fflush(stderr);
+-	/* This blocks until the alarm ring causes an interrupt */
+-	retval = read(fd, &data, sizeof(unsigned long));
+-	if (retval == -1) {
+-		perror("read");
+-		exit(errno);
+-	}
+-	irqcount++;
+-	fprintf(stderr, " okay. Alarm rang.\n");
++	FD_ZERO(&readfds);
++	FD_SET(self->fd, &readfds);
++
++	rc = select(self->fd + 1, &readfds, NULL, NULL, &tv);
++	ASSERT_NE(-1, rc);
++	EXPECT_NE(0, rc);
+ 
+ 	/* Disable alarm interrupts */
+-	retval = ioctl(fd, RTC_AIE_OFF, 0);
+-	if (retval == -1) {
+-		perror("RTC_AIE_OFF ioctl");
+-		exit(errno);
+-	}
++	rc = ioctl(self->fd, RTC_AIE_OFF, 0);
++	ASSERT_NE(-1, rc);
++
++	if (rc == 0)
++		return;
++
++	rc = read(self->fd, &data, sizeof(unsigned long));
++	ASSERT_NE(-1, rc);
++	TH_LOG("data: %lx", data);
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	new = timegm((struct tm *)&tm);
++	ASSERT_EQ(new, secs);
++}
++
++TEST_F(rtc, alarm_wkalm_set) {
++	struct timeval tv = { .tv_sec = ALARM_DELTA + 2 };
++	struct rtc_wkalrm alarm = { 0 };
++	struct rtc_time tm;
++	unsigned long data;
++	fd_set readfds;
++	time_t secs, new;
++	int rc;
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &alarm.time);
++	ASSERT_NE(-1, rc);
++
++	secs = timegm((struct tm *)&alarm.time) + ALARM_DELTA;
++	gmtime_r(&secs, (struct tm *)&alarm.time);
++
++	alarm.enabled = 1;
+ 
+-test_DATE:
+-	if (!dangerous)
+-		goto done;
+-
+-	fprintf(stderr, "\nTesting problematic dates\n");
+-
+-	for (i = 0; i < ARRAY_SIZE(cutoff_dates); i++) {
+-		struct rtc_time current;
+-
+-		/* Write the new date in RTC */
+-		retval = ioctl(fd, RTC_SET_TIME, &cutoff_dates[i]);
+-		if (retval == -1) {
+-			perror("RTC_SET_TIME ioctl");
+-			close(fd);
+-			exit(errno);
+-		}
+-
+-		/* Read back */
+-		retval = ioctl(fd, RTC_RD_TIME, &current);
+-		if (retval == -1) {
+-			perror("RTC_RD_TIME ioctl");
+-			exit(errno);
+-		}
+-
+-		if(compare_dates(&cutoff_dates[i], &current)) {
+-			fprintf(stderr,"Setting date %d failed\n",
+-			        cutoff_dates[i].tm_year + 1900);
+-			goto done;
+-		}
+-
+-		cutoff_dates[i].tm_sec += 5;
+-
+-		/* Write the new alarm in RTC */
+-		retval = ioctl(fd, RTC_ALM_SET, &cutoff_dates[i]);
+-		if (retval == -1) {
+-			perror("RTC_ALM_SET ioctl");
+-			close(fd);
+-			exit(errno);
+-		}
+-
+-		/* Read back */
+-		retval = ioctl(fd, RTC_ALM_READ, &current);
+-		if (retval == -1) {
+-			perror("RTC_ALM_READ ioctl");
+-			exit(errno);
+-		}
+-
+-		if(compare_dates(&cutoff_dates[i], &current)) {
+-			fprintf(stderr,"Setting alarm %d failed\n",
+-			        cutoff_dates[i].tm_year + 1900);
+-			goto done;
+-		}
+-
+-		fprintf(stderr, "Setting year %d is OK \n",
+-			cutoff_dates[i].tm_year + 1900);
++	rc = ioctl(self->fd, RTC_WKALM_SET, &alarm);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip alarms are not supported.");
++		return;
+ 	}
+-done:
+-	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+ 
+-	close(fd);
++	rc = ioctl(self->fd, RTC_WKALM_RD, &alarm);
++	ASSERT_NE(-1, rc);
++
++	TH_LOG("Alarm time now set to %02d/%02d/%02d %02d:%02d:%02d.",
++	       alarm.time.tm_mday, alarm.time.tm_mon + 1,
++	       alarm.time.tm_year + 1900, alarm.time.tm_hour,
++	       alarm.time.tm_min, alarm.time.tm_sec);
++
++	FD_ZERO(&readfds);
++	FD_SET(self->fd, &readfds);
++
++	rc = select(self->fd + 1, &readfds, NULL, NULL, &tv);
++	ASSERT_NE(-1, rc);
++	EXPECT_NE(0, rc);
++
++	rc = read(self->fd, &data, sizeof(unsigned long));
++	ASSERT_NE(-1, rc);
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	new = timegm((struct tm *)&tm);
++	ASSERT_EQ(new, secs);
++}
++
++static void __attribute__((constructor))
++__constructor_order_last(void)
++{
++	if (!__constructor_order)
++		__constructor_order = _CONSTRUCTOR_ORDER_BACKWARD;
++}
++
++int main(int argc, char **argv)
++{
++	switch (argc) {
++	case 2:
++		rtc_file = argv[1];
++		/* FALLTHROUGH */
++	case 1:
++		break;
++	default:
++		fprintf(stderr, "usage: %s [rtcdev]\n", argv[0]);
++		return 1;
++	}
+ 
+-	return 0;
++	return test_harness_run(argc, argv);
+ }
 -- 
 2.17.0
