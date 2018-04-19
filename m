@@ -1,94 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:44398 "EHLO
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:48005 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1753589AbeDSNey (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:34:54 -0400
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        by vger.kernel.org with ESMTP id S1752593AbeDSOOw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 10:14:52 -0400
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Alexandre TORGUE <alexandre.torgue@st.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH 2/3] dt-bindings: rtc: update stm32-rtc documentation for stm32mp1 rtc
-Date: Thu, 19 Apr 2018 15:34:04 +0200
-Message-ID: <1524144845-23016-3-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
-References: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 0/4] Various fixes on STM32 RTC
+Date: Thu, 19 Apr 2018 14:14:17 +0000
+Message-ID: <d2d1897e40834a1c84fc1e64309e2c3f@GPXDAG3NODE5.st.com>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+ <20180419134321.GF7369@piout.net>
+In-Reply-To: <20180419134321.GF7369@piout.net>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
-doesn't require to disable backup domain write protection, and rtc_ck
-parent clock assignment isn't allowed.
-To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
-alarm interrupt.
+Hi,
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 +++++++++++++++++-----
- 1 file changed, 21 insertions(+), 6 deletions(-)
+Sorry for that! I take note of your new email address. Thanks for your highlight.
 
-diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-index 00f8b5d..f1c2080 100644
---- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-@@ -1,25 +1,31 @@
- STM32 Real Time Clock
- 
- Required properties:
--- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
--  the device is compatible with stm32(f4/f7) or stm32h7.
-+- compatible: can be "st,stm32-rtc", "st,stm32h7-rtc" or "st,stm32mp1-rtc",
-+	      depending on the device is compatible with stm32(f4/f7), stm32h7
-+	      or stm32mp1.
- - reg: address range of rtc register set.
- - clocks: can use up to two clocks, depending on part used:
-   - "rtc_ck": RTC clock source.
--    It is required on stm32(f4/f7) and stm32h7.
-+    It is required on stm32(f4/f7/h7/mp1).
-   - "pclk": RTC APB interface clock.
-     It is not present on stm32(f4/f7).
--    It is required on stm32h7.
-+    It is required on stm32(h7/mp1).
- - clock-names: must be "rtc_ck" and "pclk".
--    It is required only on stm32h7.
-+    It is required on stm32(h7/mp1).
- - interrupt-parent: phandle for the interrupt controller.
-+    It is required on stm32(f4/f7/h7).
- - interrupts: rtc alarm interrupt.
-+- interrupts-extended: replace interrupts property on stm32mp1, to specify rtc
-+  alarm wakeup interrupt, which is on exti interrupt controller instead of gic.
-+    It is required on stm32mp1.
- - st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
-   access control register at offset, and change the dbp (Disable Backup
-   Protection) bit represented by the mask, mandatory to disable/enable backup
-   domain (RTC registers) write protection.
-+    It is required on stm32(f4/f7/h7).
- 
--Optional properties (to override default rtc_ck parent clock):
-+Optional properties (to override default rtc_ck parent clock on stm32(f4/f7/h7):
- - assigned-clocks: reference to the rtc_ck clock entry.
- - assigned-clock-parents: phandle of the new parent clock of rtc_ck.
- 
-@@ -48,3 +54,12 @@ Example:
- 		interrupt-names = "alarm";
- 		st,syscfg = <&pwrcfg 0x00 0x100>;
- 	};
-+
-+	rtc: rtc@5c004000 {
-+		compatible = "st,stm32mp1-rtc";
-+		reg = <0x5c004000 0x400>;
-+		clocks = <&rcc RTCAPB>, <&rcc RTC>;
-+		clock-names = "pclk", "rtc_ck";
-+		interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_NONE>,
-+				      <&exti 19 1>;
-+	};
--- 
-2.7.4
+Regards,
+Amelie
+
+> -----Original Message-----
+> From: Alexandre Belloni [mailto:alexandre.belloni@bootlin.com]
+> Sent: jeudi 19 avril 2018 15:43
+> To: Amelie DELAUNAY <amelie.delaunay@st.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>; Rob Herring
+> <robh+dt@kernel.org>; Mark Rutland <mark.rutland@arm.com>; Maxime
+> Coquelin <mcoquelin.stm32@gmail.com>; Alexandre TORGUE
+> <alexandre.torgue@st.com>; linux-rtc@vger.kernel.org;
+> devicetree@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH 0/4] Various fixes on STM32 RTC
+> 
+> Hi,
+> 
+> Both series were not sent to the correct email address. I would suggest
+> rebasing on top of v4.17-rc1 ;). No need to resend just for that.
+> 
+> On 19/04/2018 15:21:39+0200, Amelie Delaunay wrote:
+> > This series makes some corrections on STM32 RTC:
+> > - update copyright and adopt SPDX identifier
+> > - fix alarm interrupt flags
+> > - rework DBP (Disable Backup domain Protection) management.
+> >
+> > This series is a preamble to the serie which will introduce next STM32
+> > RTC version.
+> >
+> > Amelie Delaunay (4):
+> >   rtc: stm32: fix copyright and adopt SPDX identifier
+> >   rtc: stm32: fix alarm interrupt flags by removing IRQF_TRIGGER_RISING
+> >   dt-bindings: rtc: update stm32-rtc documentation for st,syscfg
+> >     property
+> >   rtc: stm32: get DBP register and mask from DT st,syscfg property
+> >
+> >  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 10 ++--
+> >  drivers/rtc/rtc-stm32.c                            | 68 +++++++++++++---------
+> >  2 files changed, 47 insertions(+), 31 deletions(-)
+> >
+> > --
+> > 2.7.4
+> >
+> 
+> --
+> Alexandre Belloni, Bootlin (formerly Free Electrons)
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
