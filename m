@@ -1,54 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33432 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752116AbeDSMut (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 19 Apr 2018 08:50:49 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Shuah Khan <shuah@kernel.org>
-Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 0/4] selftests: rework RTC tests
-Date: Thu, 19 Apr 2018 14:50:26 +0200
-Message-Id: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+Received: from mail-wr0-f174.google.com ([209.85.128.174]:35873 "EHLO
+        mail-wr0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753080AbeDSSoK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 14:44:10 -0400
+Date: Thu, 19 Apr 2018 21:44:04 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 14/39] proc: introduce proc_create_net_single
+Message-ID: <20180419184404.GB2066@avx2>
+References: <20180419124140.9309-1-hch@lst.de>
+ <20180419124140.9309-15-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180419124140.9309-15-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Thu, Apr 19, 2018 at 02:41:15PM +0200, Christoph Hellwig wrote:
+> Variant of proc_create_data that directly take a seq_file show
 
-This series separates tests using the RTC devices between the one
-testing driver agnostic kernel facilities (timers) and the others that
-are testing device drivers and hardware.
+> +struct proc_dir_entry *proc_create_net_single(const char *name, umode_t mode,
+> +		struct proc_dir_entry *parent,
+> +		int (*show)(struct seq_file *, void *), void *data)
+> +{
+> +	struct proc_dir_entry *p;
+> +
+> +	p = proc_create_data(name, mode, parent, &proc_net_single_fops, data);
+> +	if (p)
+> +		p->single_show = show;
+> +	return p;
+> +}
 
-Then, rtctest is reworked to use the test harness and be much more
-robust. Skipping tests is now easier and tests will not block
-indefinitively.
-
-I'm planning to send more improvements later this cycle.
-
-Alexandre Belloni (4):
-  selftests: timers: move PIE tests out of rtctest
-  selftests: timers: rtcpie: restore previous PIE rate
-  selftests: move RTC tests to rtc subfolder
-  selftests: rtc: rework rtctest
-
- MAINTAINERS                                   |   2 +-
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/rtc/.gitignore        |   2 +
- tools/testing/selftests/rtc/Makefile          |   9 +
- tools/testing/selftests/rtc/rtctest.c         | 238 +++++++++++
- .../rtctest_setdate.c => rtc/setdate.c}       |   0
- tools/testing/selftests/timers/.gitignore     |   3 +-
- tools/testing/selftests/timers/Makefile       |   4 +-
- tools/testing/selftests/timers/rtcpie.c       | 134 ++++++
- tools/testing/selftests/timers/rtctest.c      | 403 ------------------
- 10 files changed, 388 insertions(+), 408 deletions(-)
- create mode 100644 tools/testing/selftests/rtc/.gitignore
- create mode 100644 tools/testing/selftests/rtc/Makefile
- create mode 100644 tools/testing/selftests/rtc/rtctest.c
- rename tools/testing/selftests/{timers/rtctest_setdate.c => rtc/setdate.c} (100%)
- create mode 100644 tools/testing/selftests/timers/rtcpie.c
- delete mode 100644 tools/testing/selftests/timers/rtctest.c
-
--- 
-2.17.0
+Ditto, should be oopsable.
