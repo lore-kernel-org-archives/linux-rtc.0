@@ -1,10 +1,11 @@
-Return-Path: <BATV+8b59ddf2a3dd4691ec7e+5358+infradead.org+hch@bombadil.srs.infradead.org>
+Return-Path: <BATV+e1a5265bff2368ff7229+5352+infradead.org+hch@bombadil.srs.infradead.org>
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Jiri Slaby <jslaby@suse.com>,
+	Corey Minyard <minyard@acm.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	linux-acpi@vger.kernel.org,
@@ -20,11 +21,11 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
 	jfs-discussion@lists.sourceforge.net,
 	netfilter-devel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 06/40] proc: introduce proc_create_single{,_data}
-Date: Wed, 25 Apr 2018 17:47:53 +0200
-Message-Id: <20180425154827.32251-7-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Subject: [PATCH 04/39] proc: introduce proc_create_single{,_data}
+Date: Thu, 19 Apr 2018 14:41:05 +0200
+Message-Id: <20180419124140.9309-5-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 List-ID: <linux-rtc.vger.kernel.org>
 
 Variants of proc_create{,_data} that directly take a seq_file show
@@ -97,7 +98,7 @@ Signed-off-by: Christoph Hellwig <hch@lst.de>
  fs/fscache/proc.c                             |  4 +-
  fs/fscache/stats.c                            | 17 +---
  fs/proc/cmdline.c                             | 14 +---
- fs/proc/generic.c                             | 29 +++++++
+ fs/proc/generic.c                             | 27 ++++++
  fs/proc/internal.h                            |  5 +-
  fs/proc/loadavg.c                             | 14 +---
  fs/proc/meminfo.c                             | 14 +---
@@ -119,7 +120,7 @@ Signed-off-by: Christoph Hellwig <hch@lst.de>
  net/ipv4/route.c                              | 15 +---
  net/ipv6/proc.c                               | 17 +---
  net/sched/sch_api.c                           | 14 +---
- 85 files changed, 235 insertions(+), 1513 deletions(-)
+ 85 files changed, 233 insertions(+), 1513 deletions(-)
 
 diff --git a/arch/arm/kernel/dma.c b/arch/arm/kernel/dma.c
 index e651c4d0a0d9..6739d37c2bc5 100644
@@ -751,12 +752,12 @@ index fb070d8cad07..d49063d0baa4 100644
  }
  
 diff --git a/arch/powerpc/platforms/cell/spufs/sched.c b/arch/powerpc/platforms/cell/spufs/sched.c
-index ccc421503363..c9ef3c532169 100644
+index 9033c8194eda..3ce665ebf388 100644
 --- a/arch/powerpc/platforms/cell/spufs/sched.c
 +++ b/arch/powerpc/platforms/cell/spufs/sched.c
 @@ -1095,18 +1095,6 @@ static int show_spu_loadavg(struct seq_file *s, void *private)
  		atomic_read(&nr_spu_contexts),
- 		idr_get_cursor(&task_active_pid_ns(current)->idr) - 1);
+ 		idr_get_cursor(&task_active_pid_ns(current)->idr));
  	return 0;
 -}
 -
@@ -2748,13 +2749,14 @@ index 8233e7af9389..fa762c5fbcb2 100644
  }
  fs_initcall(proc_cmdline_init);
 diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index f87cb0053387..02bb1914f5f7 100644
+index 19c40c6f8fd2..330e00942d04 100644
 --- a/fs/proc/generic.c
 +++ b/fs/proc/generic.c
-@@ -588,6 +588,35 @@ struct proc_dir_entry *proc_create_seq_private(const char *name, umode_t mode,
+@@ -581,6 +581,33 @@ struct proc_dir_entry *proc_create_seq_private(const char *name, umode_t mode,
+ 	return p;
  }
  EXPORT_SYMBOL(proc_create_seq_private);
- 
++
 +static int proc_single_open(struct inode *inode, struct file *file)
 +{
 +	struct proc_dir_entry *de = PDE(inode);
@@ -2775,20 +2777,17 @@ index f87cb0053387..02bb1914f5f7 100644
 +{
 +	struct proc_dir_entry *p;
 +
-+	p = proc_create_reg(name, mode, &parent, data);
-+	if (!p)
-+		return NULL;
-+	p->proc_fops = &proc_single_fops;
-+	p->single_show = show;
-+	return proc_register(parent, p);
++	p = proc_create_data(name, mode, parent, &proc_single_fops, data);
++	if (p)
++		p->single_show = show;
++	return p;
 +}
 +EXPORT_SYMBOL(proc_create_single_data);
-+
- void proc_set_size(struct proc_dir_entry *de, loff_t size)
- {
- 	de->size = size;
+  
+ struct proc_dir_entry *proc_create(const char *name, umode_t mode,
+ 				   struct proc_dir_entry *parent,
 diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index ed29e91ae483..6d171485c45b 100644
+index 90756a26f710..6ca009dcd92a 100644
 --- a/fs/proc/internal.h
 +++ b/fs/proc/internal.h
 @@ -44,7 +44,10 @@ struct proc_dir_entry {
@@ -2800,11 +2799,11 @@ index ed29e91ae483..6d171485c45b 100644
 +		const struct seq_operations *seq_ops;
 +		int (*single_show)(struct seq_file *, void *);
 +	};
- 	unsigned int state_size;
+ 	size_t state_size;
  	void *data;
  	unsigned int low_ino;
 diff --git a/fs/proc/loadavg.c b/fs/proc/loadavg.c
-index b572cc865b92..d06694757201 100644
+index a000d7547479..78e254e8297d 100644
 --- a/fs/proc/loadavg.c
 +++ b/fs/proc/loadavg.c
 @@ -28,21 +28,9 @@ static int loadavg_proc_show(struct seq_file *m, void *v)
@@ -3029,7 +3028,7 @@ index 056e12b421eb..04762a72e344 100644
  #endif
  	return 0;
 diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 91d7b84c3c64..8e7230e76f1c 100644
+index 12ad642ecc56..4f5f2c002e30 100644
 --- a/include/linux/proc_fs.h
 +++ b/include/linux/proc_fs.h
 @@ -9,6 +9,7 @@
