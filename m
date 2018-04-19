@@ -1,125 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40244 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753463AbeDSMnz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:55 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 32/39] bluetooth: switch to proc_create_seq_data
-Date: Thu, 19 Apr 2018 14:41:33 +0200
-Message-Id: <20180419124140.9309-33-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:44398 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1753589AbeDSNey (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:34:54 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 2/3] dt-bindings: rtc: update stm32-rtc documentation for stm32mp1 rtc
+Date: Thu, 19 Apr 2018 15:34:04 +0200
+Message-ID: <1524144845-23016-3-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use proc private data directly instead of doing a detour
-through seq->private and private state.
+RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
+doesn't require to disable backup domain write protection, and rtc_ck
+parent clock assignment isn't allowed.
+To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
+alarm interrupt.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- net/bluetooth/af_bluetooth.c | 40 +++++-------------------------------
- 1 file changed, 5 insertions(+), 35 deletions(-)
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 +++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
-index 84d92a077834..3264e1873219 100644
---- a/net/bluetooth/af_bluetooth.c
-+++ b/net/bluetooth/af_bluetooth.c
-@@ -605,15 +605,10 @@ int bt_sock_wait_ready(struct sock *sk, unsigned long flags)
- EXPORT_SYMBOL(bt_sock_wait_ready);
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+index 00f8b5d..f1c2080 100644
+--- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+@@ -1,25 +1,31 @@
+ STM32 Real Time Clock
  
- #ifdef CONFIG_PROC_FS
--struct bt_seq_state {
--	struct bt_sock_list *l;
--};
--
- static void *bt_seq_start(struct seq_file *seq, loff_t *pos)
- 	__acquires(seq->private->l->lock)
- {
--	struct bt_seq_state *s = seq->private;
--	struct bt_sock_list *l = s->l;
-+	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
+ Required properties:
+-- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
+-  the device is compatible with stm32(f4/f7) or stm32h7.
++- compatible: can be "st,stm32-rtc", "st,stm32h7-rtc" or "st,stm32mp1-rtc",
++	      depending on the device is compatible with stm32(f4/f7), stm32h7
++	      or stm32mp1.
+ - reg: address range of rtc register set.
+ - clocks: can use up to two clocks, depending on part used:
+   - "rtc_ck": RTC clock source.
+-    It is required on stm32(f4/f7) and stm32h7.
++    It is required on stm32(f4/f7/h7/mp1).
+   - "pclk": RTC APB interface clock.
+     It is not present on stm32(f4/f7).
+-    It is required on stm32h7.
++    It is required on stm32(h7/mp1).
+ - clock-names: must be "rtc_ck" and "pclk".
+-    It is required only on stm32h7.
++    It is required on stm32(h7/mp1).
+ - interrupt-parent: phandle for the interrupt controller.
++    It is required on stm32(f4/f7/h7).
+ - interrupts: rtc alarm interrupt.
++- interrupts-extended: replace interrupts property on stm32mp1, to specify rtc
++  alarm wakeup interrupt, which is on exti interrupt controller instead of gic.
++    It is required on stm32mp1.
+ - st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
+   access control register at offset, and change the dbp (Disable Backup
+   Protection) bit represented by the mask, mandatory to disable/enable backup
+   domain (RTC registers) write protection.
++    It is required on stm32(f4/f7/h7).
  
- 	read_lock(&l->lock);
- 	return seq_hlist_start_head(&l->head, *pos);
-@@ -621,8 +616,7 @@ static void *bt_seq_start(struct seq_file *seq, loff_t *pos)
+-Optional properties (to override default rtc_ck parent clock):
++Optional properties (to override default rtc_ck parent clock on stm32(f4/f7/h7):
+ - assigned-clocks: reference to the rtc_ck clock entry.
+ - assigned-clock-parents: phandle of the new parent clock of rtc_ck.
  
- static void *bt_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	struct bt_seq_state *s = seq->private;
--	struct bt_sock_list *l = s->l;
-+	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
- 
- 	return seq_hlist_next(v, &l->head, pos);
- }
-@@ -630,16 +624,14 @@ static void *bt_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- static void bt_seq_stop(struct seq_file *seq, void *v)
- 	__releases(seq->private->l->lock)
- {
--	struct bt_seq_state *s = seq->private;
--	struct bt_sock_list *l = s->l;
-+	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
- 
- 	read_unlock(&l->lock);
- }
- 
- static int bt_seq_show(struct seq_file *seq, void *v)
- {
--	struct bt_seq_state *s = seq->private;
--	struct bt_sock_list *l = s->l;
-+	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
- 
- 	if (v == SEQ_START_TOKEN) {
- 		seq_puts(seq ,"sk               RefCnt Rmem   Wmem   User   Inode  Parent");
-@@ -681,35 +673,13 @@ static const struct seq_operations bt_seq_ops = {
- 	.show  = bt_seq_show,
- };
- 
--static int bt_seq_open(struct inode *inode, struct file *file)
--{
--	struct bt_sock_list *sk_list;
--	struct bt_seq_state *s;
--
--	sk_list = PDE_DATA(inode);
--	s = __seq_open_private(file, &bt_seq_ops,
--			       sizeof(struct bt_seq_state));
--	if (!s)
--		return -ENOMEM;
--
--	s->l = sk_list;
--	return 0;
--}
--
--static const struct file_operations bt_fops = {
--	.open = bt_seq_open,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = seq_release_private
--};
--
- int bt_procfs_init(struct net *net, const char *name,
- 		   struct bt_sock_list *sk_list,
- 		   int (* seq_show)(struct seq_file *, void *))
- {
- 	sk_list->custom_seq_show = seq_show;
- 
--	if (!proc_create_data(name, 0, net->proc_net, &bt_fops, sk_list))
-+	if (!proc_create_seq_data(name, 0, net->proc_net, &bt_seq_ops, sk_list))
- 		return -ENOMEM;
- 	return 0;
- }
+@@ -48,3 +54,12 @@ Example:
+ 		interrupt-names = "alarm";
+ 		st,syscfg = <&pwrcfg 0x00 0x100>;
+ 	};
++
++	rtc: rtc@5c004000 {
++		compatible = "st,stm32mp1-rtc";
++		reg = <0x5c004000 0x400>;
++		clocks = <&rcc RTCAPB>, <&rcc RTC>;
++		clock-names = "pclk", "rtc_ck";
++		interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_NONE>,
++				      <&exti 19 1>;
++	};
 -- 
-2.17.0
+2.7.4
