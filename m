@@ -1,162 +1,165 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38352 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755232AbeDYPuD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:03 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 12/40] net/kcm: simplify proc registration
-Date: Wed, 25 Apr 2018 17:47:59 +0200
-Message-Id: <20180425154827.32251-13-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:57453 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753180AbeDSNWq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:46 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 4/4] rtc: stm32: get DBP register and mask from DT st,syscfg property
+Date: Thu, 19 Apr 2018 15:21:43 +0200
+Message-ID: <1524144103-21432-5-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Remove a couple indirections to make the code look like most other
-protocols.
+RTC driver should not be aware of the PWR registers offset and bits
+position. Furthermore, we can imagine that DBP relative register and bit
+mask could change depending on the SoC.
+So this patch introduces 2 parameters, dbp_reg and dbp_mask, allowing to
+get PWR_CR and PWR_CR_DBP from device tree. And it prepares next RTC
+version, backup domain write protection is disabled only if needed.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- net/kcm/kcmproc.c | 71 ++++++++++++-----------------------------------
- 1 file changed, 17 insertions(+), 54 deletions(-)
+ drivers/rtc/rtc-stm32.c | 59 +++++++++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 22 deletions(-)
 
-diff --git a/net/kcm/kcmproc.c b/net/kcm/kcmproc.c
-index 1fac92543094..6d0667e62baf 100644
---- a/net/kcm/kcmproc.c
-+++ b/net/kcm/kcmproc.c
-@@ -15,12 +15,6 @@
- #include <net/tcp.h>
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 6a06078..de49b5b 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -85,23 +85,17 @@
+ #define RTC_WPR_2ND_KEY			0x53
+ #define RTC_WPR_WRONG_KEY		0xFF
  
- #ifdef CONFIG_PROC_FS
--struct kcm_seq_muxinfo {
--	char				*name;
--	const struct file_operations	*seq_fops;
--	const struct seq_operations	seq_ops;
--};
+-/*
+- * RTC registers are protected against parasitic write access.
+- * PWR_CR_DBP bit must be set to enable write access to RTC registers.
+- */
+-/* STM32_PWR_CR */
+-#define PWR_CR				0x00
+-/* STM32_PWR_CR bit field */
+-#define PWR_CR_DBP			BIT(8)
 -
- static struct kcm_mux *kcm_get_first(struct seq_file *seq)
- {
- 	struct net *net = seq_file_net(seq);
-@@ -86,14 +80,6 @@ struct kcm_proc_mux_state {
- 	int idx;
+ struct stm32_rtc_data {
+ 	bool has_pclk;
++	bool need_dbp;
  };
  
--static int kcm_seq_open(struct inode *inode, struct file *file)
--{
--	struct kcm_seq_muxinfo *muxinfo = PDE_DATA(inode);
--
--	return seq_open_net(inode, file, &muxinfo->seq_ops,
--			   sizeof(struct kcm_proc_mux_state));
--}
--
- static void kcm_format_mux_header(struct seq_file *seq)
- {
- 	struct net *net = seq_file_net(seq);
-@@ -246,6 +232,19 @@ static int kcm_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
+ struct stm32_rtc {
+ 	struct rtc_device *rtc_dev;
+ 	void __iomem *base;
+ 	struct regmap *dbp;
++	unsigned int dbp_reg;
++	unsigned int dbp_mask;
+ 	struct stm32_rtc_data *data;
+ 	struct clk *pclk;
+ 	struct clk *rtc_ck;
+@@ -498,10 +492,12 @@ static const struct rtc_class_ops stm32_rtc_ops = {
  
-+static const struct seq_operations kcm_seq_ops = {
-+	.show	= kcm_seq_show,
-+	.start	= kcm_seq_start,
-+	.next	= kcm_seq_next,
-+	.stop	= kcm_seq_stop,
-+};
-+
-+static int kcm_seq_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open_net(inode, file, &kcm_seq_ops,
-+			   sizeof(struct kcm_proc_mux_state));
-+}
-+
- static const struct file_operations kcm_seq_fops = {
- 	.open		= kcm_seq_open,
- 	.read		= seq_read,
-@@ -253,37 +252,6 @@ static const struct file_operations kcm_seq_fops = {
- 	.release	= seq_release_net,
+ static const struct stm32_rtc_data stm32_rtc_data = {
+ 	.has_pclk = false,
++	.need_dbp = true,
  };
  
--static struct kcm_seq_muxinfo kcm_seq_muxinfo = {
--	.name		= "kcm",
--	.seq_fops	= &kcm_seq_fops,
--	.seq_ops	= {
--		.show	= kcm_seq_show,
--		.start	= kcm_seq_start,
--		.next	= kcm_seq_next,
--		.stop	= kcm_seq_stop,
+ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 	.has_pclk = true,
++	.need_dbp = true,
+ };
+ 
+ static const struct of_device_id stm32_rtc_of_match[] = {
+@@ -576,7 +572,6 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct stm32_rtc *rtc;
+ 	struct resource *res;
+-	const struct of_device_id *match;
+ 	int ret;
+ 
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+@@ -588,15 +583,31 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rtc->base))
+ 		return PTR_ERR(rtc->base);
+ 
+-	rtc->dbp = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
+-						   "st,syscfg");
+-	if (IS_ERR(rtc->dbp)) {
+-		dev_err(&pdev->dev, "no st,syscfg\n");
+-		return PTR_ERR(rtc->dbp);
 -	}
--};
--
--static int kcm_proc_register(struct net *net, struct kcm_seq_muxinfo *muxinfo)
--{
--	struct proc_dir_entry *p;
--	int rc = 0;
--
--	p = proc_create_data(muxinfo->name, 0444, net->proc_net,
--			     muxinfo->seq_fops, muxinfo);
--	if (!p)
--		rc = -ENOMEM;
--	return rc;
--}
--EXPORT_SYMBOL(kcm_proc_register);
--
--static void kcm_proc_unregister(struct net *net,
--				struct kcm_seq_muxinfo *muxinfo)
--{
--	remove_proc_entry(muxinfo->name, net->proc_net);
--}
--EXPORT_SYMBOL(kcm_proc_unregister);
--
- static int kcm_stats_seq_show(struct seq_file *seq, void *v)
- {
- 	struct kcm_psock_stats psock_stats;
-@@ -404,16 +372,11 @@ static const struct file_operations kcm_stats_seq_fops = {
++	rtc->data = (struct stm32_rtc_data *)
++		    of_device_get_match_data(&pdev->dev);
++
++	if (rtc->data->need_dbp) {
++		rtc->dbp = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
++							   "st,syscfg");
++		if (IS_ERR(rtc->dbp)) {
++			dev_err(&pdev->dev, "no st,syscfg\n");
++			return PTR_ERR(rtc->dbp);
++		}
  
- static int kcm_proc_init_net(struct net *net)
- {
--	int err;
--
- 	if (!proc_create("kcm_stats", 0444, net->proc_net,
--			 &kcm_stats_seq_fops)) {
--		err = -ENOMEM;
-+			 &kcm_stats_seq_fops))
- 		goto out_kcm_stats;
--	}
+-	match = of_match_device(stm32_rtc_of_match, &pdev->dev);
+-	rtc->data = (struct stm32_rtc_data *)match->data;
++		ret = of_property_read_u32_index(pdev->dev.of_node, "st,syscfg",
++						 1, &rtc->dbp_reg);
++		if (ret) {
++			dev_err(&pdev->dev, "can't read DBP register offset\n");
++			return ret;
++		}
++
++		ret = of_property_read_u32_index(pdev->dev.of_node, "st,syscfg",
++						 2, &rtc->dbp_mask);
++		if (ret) {
++			dev_err(&pdev->dev, "can't read DBP register mask\n");
++			return ret;
++		}
++	}
  
--	err = kcm_proc_register(net, &kcm_seq_muxinfo);
--	if (err)
-+	if (!proc_create("kcm", 0444, net->proc_net, &kcm_seq_fops))
- 		goto out_kcm;
+ 	if (!rtc->data->has_pclk) {
+ 		rtc->pclk = NULL;
+@@ -624,7 +635,9 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err;
  
- 	return 0;
-@@ -421,12 +384,12 @@ static int kcm_proc_init_net(struct net *net)
- out_kcm:
- 	remove_proc_entry("kcm_stats", net->proc_net);
- out_kcm_stats:
--	return err;
-+	return -ENOMEM;
- }
+-	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, PWR_CR_DBP);
++	if (rtc->data->need_dbp)
++		regmap_update_bits(rtc->dbp, rtc->dbp_reg,
++				   rtc->dbp_mask, rtc->dbp_mask);
  
- static void kcm_proc_exit_net(struct net *net)
- {
--	kcm_proc_unregister(net, &kcm_seq_muxinfo);
-+	remove_proc_entry("kcm", net->proc_net);
- 	remove_proc_entry("kcm_stats", net->proc_net);
- }
+ 	/*
+ 	 * After a system reset, RTC_ISR.INITS flag can be read to check if
+@@ -684,7 +697,8 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 		clk_disable_unprepare(rtc->pclk);
+ 	clk_disable_unprepare(rtc->rtc_ck);
+ 
+-	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
++	if (rtc->data->need_dbp)
++		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
+ 
+ 	device_init_wakeup(&pdev->dev, false);
+ 
+@@ -707,8 +721,9 @@ static int stm32_rtc_remove(struct platform_device *pdev)
+ 	if (rtc->data->has_pclk)
+ 		clk_disable_unprepare(rtc->pclk);
+ 
+-	/* Enable backup domain write protection */
+-	regmap_update_bits(rtc->dbp, PWR_CR, PWR_CR_DBP, 0);
++	/* Enable backup domain write protection if needed */
++	if (rtc->data->need_dbp)
++		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
+ 
+ 	device_init_wakeup(&pdev->dev, false);
  
 -- 
-2.17.0
+2.7.4
