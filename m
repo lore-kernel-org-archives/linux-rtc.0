@@ -1,10 +1,12 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:41486 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755527AbeDYPv4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:56 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
+Received: from mail-ot0-f196.google.com ([74.125.82.196]:35568 "EHLO
+        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752629AbeDSP3e (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 11:29:34 -0400
+Reply-To: minyard@acm.org
+Subject: Re: [PATCH 16/39] ipmi: simplify procfs code
+To: Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -18,470 +20,471 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 40/40] tty: replace ->proc_fops with ->proc_show
-Date: Wed, 25 Apr 2018 17:48:27 +0200
-Message-Id: <20180425154827.32251-41-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
+ <20180419124140.9309-17-hch@lst.de>
+From: Corey Minyard <minyard@acm.org>
+Message-ID: <f322f243-9ab1-7e9f-00a4-9652cd288ca2@acm.org>
+Date: Thu, 19 Apr 2018 10:29:29 -0500
+MIME-Version: 1.0
+In-Reply-To: <20180419124140.9309-17-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Just set up the show callback in the tty_operations, and use
-proc_create_single_data to create the file without additional
-boilerplace code.
+On 04/19/2018 07:41 AM, Christoph Hellwig wrote:
+> Use remove_proc_subtree to remove the whole subtree on cleanup instead
+> of a hand rolled list of proc entries, unwind the registration loop into
+> individual calls.  Switch to use proc_create_single to further simplify
+> the code.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/ia64/hp/sim/simserial.c        | 15 +--------------
- arch/xtensa/platforms/iss/console.c | 15 +--------------
- drivers/char/pcmcia/synclink_cs.c   | 15 +--------------
- drivers/mmc/core/sdio_uart.c        | 15 +--------------
- drivers/staging/fwserial/fwserial.c | 15 +--------------
- drivers/tty/amiserial.c             | 15 +--------------
- drivers/tty/cyclades.c              | 15 +--------------
- drivers/tty/serial/serial_core.c    | 15 +--------------
- drivers/tty/synclink.c              | 15 +--------------
- drivers/tty/synclink_gt.c           | 15 +--------------
- drivers/tty/synclinkmp.c            | 15 +--------------
- drivers/usb/serial/usb-serial.c     | 15 +--------------
- fs/proc/proc_tty.c                  |  6 +++---
- include/linux/tty_driver.h          |  2 +-
- 14 files changed, 16 insertions(+), 172 deletions(-)
+I'm yanking all the proc code out of the IPMI driver in 3.18.  So this 
+is probably
+not necessary.
 
-diff --git a/arch/ia64/hp/sim/simserial.c b/arch/ia64/hp/sim/simserial.c
-index a419ccf33cde..663388a73d4e 100644
---- a/arch/ia64/hp/sim/simserial.c
-+++ b/arch/ia64/hp/sim/simserial.c
-@@ -435,19 +435,6 @@ static int rs_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int rs_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, rs_proc_show, NULL);
--}
--
--static const struct file_operations rs_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= rs_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static const struct tty_operations hp_ops = {
- 	.open = rs_open,
- 	.close = rs_close,
-@@ -462,7 +449,7 @@ static const struct tty_operations hp_ops = {
- 	.unthrottle = rs_unthrottle,
- 	.send_xchar = rs_send_xchar,
- 	.hangup = rs_hangup,
--	.proc_fops = &rs_proc_fops,
-+	.proc_show = rs_proc_show,
- };
- 
- static const struct tty_port_operations hp_port_ops = {
-diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
-index 92f567f9a21e..af81a62faba6 100644
---- a/arch/xtensa/platforms/iss/console.c
-+++ b/arch/xtensa/platforms/iss/console.c
-@@ -153,19 +153,6 @@ static int rs_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int rs_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, rs_proc_show, NULL);
--}
--
--static const struct file_operations rs_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= rs_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static const struct tty_operations serial_ops = {
- 	.open = rs_open,
- 	.close = rs_close,
-@@ -176,7 +163,7 @@ static const struct tty_operations serial_ops = {
- 	.chars_in_buffer = rs_chars_in_buffer,
- 	.hangup = rs_hangup,
- 	.wait_until_sent = rs_wait_until_sent,
--	.proc_fops = &rs_proc_fops,
-+	.proc_show = rs_proc_show,
- };
- 
- int __init rs_init(void)
-diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
-index aa502e9fb7fa..66b04194aa9f 100644
---- a/drivers/char/pcmcia/synclink_cs.c
-+++ b/drivers/char/pcmcia/synclink_cs.c
-@@ -2616,19 +2616,6 @@ static int mgslpc_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int mgslpc_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, mgslpc_proc_show, NULL);
--}
--
--static const struct file_operations mgslpc_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= mgslpc_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static int rx_alloc_buffers(MGSLPC_INFO *info)
- {
- 	/* each buffer has header and data */
-@@ -2815,7 +2802,7 @@ static const struct tty_operations mgslpc_ops = {
- 	.tiocmget = tiocmget,
- 	.tiocmset = tiocmset,
- 	.get_icount = mgslpc_get_icount,
--	.proc_fops = &mgslpc_proc_fops,
-+	.proc_show = mgslpc_proc_show,
- };
- 
- static int __init synclink_cs_init(void)
-diff --git a/drivers/mmc/core/sdio_uart.c b/drivers/mmc/core/sdio_uart.c
-index d3c91f412b69..25e113001a3c 100644
---- a/drivers/mmc/core/sdio_uart.c
-+++ b/drivers/mmc/core/sdio_uart.c
-@@ -1008,19 +1008,6 @@ static int sdio_uart_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int sdio_uart_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, sdio_uart_proc_show, NULL);
--}
--
--static const struct file_operations sdio_uart_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= sdio_uart_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static const struct tty_port_operations sdio_uart_port_ops = {
- 	.dtr_rts = uart_dtr_rts,
- 	.carrier_raised = uart_carrier_raised,
-@@ -1045,7 +1032,7 @@ static const struct tty_operations sdio_uart_ops = {
- 	.tiocmset		= sdio_uart_tiocmset,
- 	.install		= sdio_uart_install,
- 	.cleanup		= sdio_uart_cleanup,
--	.proc_fops		= &sdio_uart_proc_fops,
-+	.proc_show		= sdio_uart_proc_show,
- };
- 
- static struct tty_driver *sdio_uart_tty_driver;
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index e8bfe5520bc7..fa0dd425b454 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -1506,11 +1506,6 @@ static int fwtty_debugfs_peers_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int fwtty_proc_open(struct inode *inode, struct file *fp)
--{
--	return single_open(fp, fwtty_proc_show, NULL);
--}
--
- static int fwtty_stats_open(struct inode *inode, struct file *fp)
- {
- 	return single_open(fp, fwtty_debugfs_stats_show, inode->i_private);
-@@ -1537,14 +1532,6 @@ static const struct file_operations fwtty_peers_fops = {
- 	.release =	single_release,
- };
- 
--static const struct file_operations fwtty_proc_fops = {
--	.owner =        THIS_MODULE,
--	.open =         fwtty_proc_open,
--	.read =         seq_read,
--	.llseek =       seq_lseek,
--	.release =      single_release,
--};
--
- static const struct tty_port_operations fwtty_port_ops = {
- 	.dtr_rts =		fwtty_port_dtr_rts,
- 	.carrier_raised =	fwtty_port_carrier_raised,
-@@ -1570,7 +1557,7 @@ static const struct tty_operations fwtty_ops = {
- 	.tiocmget =		fwtty_tiocmget,
- 	.tiocmset =		fwtty_tiocmset,
- 	.get_icount =		fwtty_get_icount,
--	.proc_fops =		&fwtty_proc_fops,
-+	.proc_show =		fwtty_proc_show,
- };
- 
- static const struct tty_operations fwloop_ops = {
-diff --git a/drivers/tty/amiserial.c b/drivers/tty/amiserial.c
-index 32d7ce430b02..34dead614149 100644
---- a/drivers/tty/amiserial.c
-+++ b/drivers/tty/amiserial.c
-@@ -1566,19 +1566,6 @@ static int rs_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int rs_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, rs_proc_show, NULL);
--}
--
--static const struct file_operations rs_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= rs_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /*
-  * ---------------------------------------------------------------------
-  * rs_init() and friends
-@@ -1620,7 +1607,7 @@ static const struct tty_operations serial_ops = {
- 	.tiocmget = rs_tiocmget,
- 	.tiocmset = rs_tiocmset,
- 	.get_icount = rs_get_icount,
--	.proc_fops = &rs_proc_fops,
-+	.proc_show = rs_proc_show,
- };
- 
- static int amiga_carrier_raised(struct tty_port *port)
-diff --git a/drivers/tty/cyclades.c b/drivers/tty/cyclades.c
-index cf0bde3bb927..6d3c58051ce3 100644
---- a/drivers/tty/cyclades.c
-+++ b/drivers/tty/cyclades.c
-@@ -3972,19 +3972,6 @@ static int cyclades_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int cyclades_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, cyclades_proc_show, NULL);
--}
--
--static const struct file_operations cyclades_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= cyclades_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /* The serial driver boot-time initialization code!
-     Hardware I/O ports are mapped to character special devices on a
-     first found, first allocated manner.  That is, this code searches
-@@ -4024,7 +4011,7 @@ static const struct tty_operations cy_ops = {
- 	.tiocmget = cy_tiocmget,
- 	.tiocmset = cy_tiocmset,
- 	.get_icount = cy_get_icount,
--	.proc_fops = &cyclades_proc_fops,
-+	.proc_show = cyclades_proc_show,
- };
- 
- static int __init cy_init(void)
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 0466f9f08a91..6ff9405954a6 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1829,19 +1829,6 @@ static int uart_proc_show(struct seq_file *m, void *v)
- 		uart_line_info(m, drv, i);
- 	return 0;
- }
--
--static int uart_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, uart_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations uart_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= uart_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif
- 
- #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(CONFIG_CONSOLE_POLL)
-@@ -2415,7 +2402,7 @@ static const struct tty_operations uart_ops = {
- 	.break_ctl	= uart_break_ctl,
- 	.wait_until_sent= uart_wait_until_sent,
- #ifdef CONFIG_PROC_FS
--	.proc_fops	= &uart_proc_fops,
-+	.proc_show	= uart_proc_show,
- #endif
- 	.tiocmget	= uart_tiocmget,
- 	.tiocmset	= uart_tiocmset,
-diff --git a/drivers/tty/synclink.c b/drivers/tty/synclink.c
-index 3c4ad71f261d..fbdf4d01c6a9 100644
---- a/drivers/tty/synclink.c
-+++ b/drivers/tty/synclink.c
-@@ -3534,19 +3534,6 @@ static int mgsl_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int mgsl_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, mgsl_proc_show, NULL);
--}
--
--static const struct file_operations mgsl_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= mgsl_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /* mgsl_allocate_dma_buffers()
-  * 
-  * 	Allocate and format DMA buffers (ISA adapter)
-@@ -4298,7 +4285,7 @@ static const struct tty_operations mgsl_ops = {
- 	.tiocmget = tiocmget,
- 	.tiocmset = tiocmset,
- 	.get_icount = msgl_get_icount,
--	.proc_fops = &mgsl_proc_fops,
-+	.proc_show = mgsl_proc_show,
- };
- 
- /*
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 255c49687877..a94086597ebd 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -1316,19 +1316,6 @@ static int synclink_gt_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int synclink_gt_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, synclink_gt_proc_show, NULL);
--}
--
--static const struct file_operations synclink_gt_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= synclink_gt_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /*
-  * return count of bytes in transmit buffer
-  */
-@@ -3721,7 +3708,7 @@ static const struct tty_operations ops = {
- 	.tiocmget = tiocmget,
- 	.tiocmset = tiocmset,
- 	.get_icount = get_icount,
--	.proc_fops = &synclink_gt_proc_fops,
-+	.proc_show = synclink_gt_proc_show,
- };
- 
- static void slgt_cleanup(void)
-diff --git a/drivers/tty/synclinkmp.c b/drivers/tty/synclinkmp.c
-index 75f11ce1f0a1..1e4d5b9c981a 100644
---- a/drivers/tty/synclinkmp.c
-+++ b/drivers/tty/synclinkmp.c
-@@ -1421,19 +1421,6 @@ static int synclinkmp_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int synclinkmp_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, synclinkmp_proc_show, NULL);
--}
--
--static const struct file_operations synclinkmp_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= synclinkmp_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- /* Return the count of bytes in transmit buffer
-  */
- static int chars_in_buffer(struct tty_struct *tty)
-@@ -3899,7 +3886,7 @@ static const struct tty_operations ops = {
- 	.tiocmget = tiocmget,
- 	.tiocmset = tiocmset,
- 	.get_icount = get_icount,
--	.proc_fops = &synclinkmp_proc_fops,
-+	.proc_show = synclinkmp_proc_show,
- };
- 
- 
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index 790e0cbe3da9..268ffa6b51d2 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -476,19 +476,6 @@ static int serial_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int serial_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, serial_proc_show, NULL);
--}
--
--static const struct file_operations serial_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= serial_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static int serial_tiocmget(struct tty_struct *tty)
- {
- 	struct usb_serial_port *port = tty->driver_data;
-@@ -1192,7 +1179,7 @@ static const struct tty_operations serial_ops = {
- 	.get_icount =		serial_get_icount,
- 	.cleanup =		serial_cleanup,
- 	.install =		serial_install,
--	.proc_fops =		&serial_proc_fops,
-+	.proc_show =		serial_proc_show,
- };
- 
- 
-diff --git a/fs/proc/proc_tty.c b/fs/proc/proc_tty.c
-index b1a4a8ddd246..c69ff191e5d8 100644
---- a/fs/proc/proc_tty.c
-+++ b/fs/proc/proc_tty.c
-@@ -135,11 +135,11 @@ void proc_tty_register_driver(struct tty_driver *driver)
- 	struct proc_dir_entry *ent;
- 		
- 	if (!driver->driver_name || driver->proc_entry ||
--	    !driver->ops->proc_fops)
-+	    !driver->ops->proc_show)
- 		return;
- 
--	ent = proc_create_data(driver->driver_name, 0, proc_tty_driver,
--			       driver->ops->proc_fops, driver);
-+	ent = proc_create_single_data(driver->driver_name, 0, proc_tty_driver,
-+			       driver->ops->proc_show, driver);
- 	driver->proc_entry = ent;
- }
- 
-diff --git a/include/linux/tty_driver.h b/include/linux/tty_driver.h
-index 31c2b5b166de..71dbc891851a 100644
---- a/include/linux/tty_driver.h
-+++ b/include/linux/tty_driver.h
-@@ -293,7 +293,7 @@ struct tty_operations {
- 	int (*poll_get_char)(struct tty_driver *driver, int line);
- 	void (*poll_put_char)(struct tty_driver *driver, int line, char ch);
- #endif
--	const struct file_operations *proc_fops;
-+	int (*proc_show)(struct seq_file *, void *);
- } __randomize_layout;
- 
- struct tty_driver {
--- 
-2.17.0
+Thanks,
+
+-corey
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   drivers/char/ipmi/ipmi_msghandler.c | 150 +++++-----------------------
+>   drivers/char/ipmi/ipmi_si_intf.c    |  47 +--------
+>   drivers/char/ipmi/ipmi_ssif.c       |  34 +------
+>   include/linux/ipmi_smi.h            |   8 +-
+>   4 files changed, 33 insertions(+), 206 deletions(-)
+>
+> diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+> index 361148938801..c18db313e4c4 100644
+> --- a/drivers/char/ipmi/ipmi_msghandler.c
+> +++ b/drivers/char/ipmi/ipmi_msghandler.c
+> @@ -247,13 +247,6 @@ struct ipmi_my_addrinfo {
+>   	unsigned char lun;
+>   };
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+> -struct ipmi_proc_entry {
+> -	char                   *name;
+> -	struct ipmi_proc_entry *next;
+> -};
+> -#endif
+> -
+>   /*
+>    * Note that the product id, manufacturer id, guid, and device id are
+>    * immutable in this structure, so dyn_mutex is not required for
+> @@ -430,10 +423,6 @@ struct ipmi_smi {
+>   	void                     *send_info;
+>   
+>   #ifdef CONFIG_IPMI_PROC_INTERFACE
+> -	/* A list of proc entries for this interface. */
+> -	struct mutex           proc_entry_lock;
+> -	struct ipmi_proc_entry *proc_entries;
+> -
+>   	struct proc_dir_entry *proc_dir;
+>   	char                  proc_dir_name[10];
+>   #endif
+> @@ -2358,18 +2347,6 @@ static int smi_ipmb_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_ipmb_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_ipmb_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_ipmb_proc_ops = {
+> -	.open		= smi_ipmb_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   static int smi_version_proc_show(struct seq_file *m, void *v)
+>   {
+>   	ipmi_smi_t intf = m->private;
+> @@ -2387,18 +2364,6 @@ static int smi_version_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_version_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_version_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_version_proc_ops = {
+> -	.open		= smi_version_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   static int smi_stats_proc_show(struct seq_file *m, void *v)
+>   {
+>   	ipmi_smi_t intf = m->private;
+> @@ -2462,95 +2427,45 @@ static int smi_stats_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_stats_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_stats_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_stats_proc_ops = {
+> -	.open		= smi_stats_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   int ipmi_smi_add_proc_entry(ipmi_smi_t smi, char *name,
+> -			    const struct file_operations *proc_ops,
+> -			    void *data)
+> +		int (*show)(struct seq_file *, void *), void *data)
+>   {
+> -	int                    rv = 0;
+> -	struct proc_dir_entry  *file;
+> -	struct ipmi_proc_entry *entry;
+> -
+> -	/* Create a list element. */
+> -	entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+> -	if (!entry)
+> +	if (!proc_create_single_data(name, 0, smi->proc_dir, show, data))
+>   		return -ENOMEM;
+> -	entry->name = kstrdup(name, GFP_KERNEL);
+> -	if (!entry->name) {
+> -		kfree(entry);
+> -		return -ENOMEM;
+> -	}
+> -
+> -	file = proc_create_data(name, 0, smi->proc_dir, proc_ops, data);
+> -	if (!file) {
+> -		kfree(entry->name);
+> -		kfree(entry);
+> -		rv = -ENOMEM;
+> -	} else {
+> -		mutex_lock(&smi->proc_entry_lock);
+> -		/* Stick it on the list. */
+> -		entry->next = smi->proc_entries;
+> -		smi->proc_entries = entry;
+> -		mutex_unlock(&smi->proc_entry_lock);
+> -	}
+> -
+> -	return rv;
+> +	return 0;
+>   }
+>   EXPORT_SYMBOL(ipmi_smi_add_proc_entry);
+>   
+>   static int add_proc_entries(ipmi_smi_t smi, int num)
+>   {
+> -	int rv = 0;
+> -
+>   	sprintf(smi->proc_dir_name, "%d", num);
+>   	smi->proc_dir = proc_mkdir(smi->proc_dir_name, proc_ipmi_root);
+>   	if (!smi->proc_dir)
+> -		rv = -ENOMEM;
+> -
+> -	if (rv == 0)
+> -		rv = ipmi_smi_add_proc_entry(smi, "stats",
+> -					     &smi_stats_proc_ops,
+> -					     smi);
+> -
+> -	if (rv == 0)
+> -		rv = ipmi_smi_add_proc_entry(smi, "ipmb",
+> -					     &smi_ipmb_proc_ops,
+> -					     smi);
+> -
+> -	if (rv == 0)
+> -		rv = ipmi_smi_add_proc_entry(smi, "version",
+> -					     &smi_version_proc_ops,
+> -					     smi);
+> -
+> -	return rv;
+> +		return -ENOMEM;
+> +	if (!proc_create_single_data("stats", 0, smi->proc_dir,
+> +			smi_stats_proc_show, smi))
+> +		return -ENOMEM;
+> +	if (!proc_create_single_data("ipmb", 0, smi->proc_dir,
+> +			smi_ipmb_proc_show, smi))
+> +		return -ENOMEM;
+> +	if (!proc_create_single_data("version", 0, smi->proc_dir,
+> +			smi_version_proc_show, smi))
+> +		return -ENOMEM;
+> +	return 0;
+>   }
+>   
+>   static void remove_proc_entries(ipmi_smi_t smi)
+>   {
+> -	struct ipmi_proc_entry *entry;
+> -
+> -	mutex_lock(&smi->proc_entry_lock);
+> -	while (smi->proc_entries) {
+> -		entry = smi->proc_entries;
+> -		smi->proc_entries = entry->next;
+> -
+> -		remove_proc_entry(entry->name, smi->proc_dir);
+> -		kfree(entry->name);
+> -		kfree(entry);
+> -	}
+> -	mutex_unlock(&smi->proc_entry_lock);
+> -	remove_proc_entry(smi->proc_dir_name, proc_ipmi_root);
+> +	if (smi->proc_dir)
+> +		remove_proc_subtree(smi->proc_dir_name, proc_ipmi_root);
+> +}
+> +#else
+> +static int add_proc_entries(ipmi_smi_t smi, int num)
+> +{
+> +	return 0;
+> +}
+> +static void remove_proc_entries(ipmi_smi_t smi)
+> +{
+>   }
+>   #endif /* CONFIG_IPMI_PROC_INTERFACE */
+>   
+> @@ -3386,9 +3301,6 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+>   		intf->seq_table[j].seqid = 0;
+>   	}
+>   	intf->curr_seq = 0;
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+> -	mutex_init(&intf->proc_entry_lock);
+> -#endif
+>   	spin_lock_init(&intf->waiting_rcv_msgs_lock);
+>   	INIT_LIST_HEAD(&intf->waiting_rcv_msgs);
+>   	tasklet_init(&intf->recv_tasklet,
+> @@ -3410,10 +3322,6 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+>   	for (i = 0; i < IPMI_NUM_STATS; i++)
+>   		atomic_set(&intf->stats[i], 0);
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+> -	intf->proc_dir = NULL;
+> -#endif
+> -
+>   	mutex_lock(&smi_watchers_mutex);
+>   	mutex_lock(&ipmi_interfaces_mutex);
+>   	/* Look for a hole in the numbers. */
+> @@ -3448,17 +3356,11 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+>   	if (rv)
+>   		goto out;
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+>   	rv = add_proc_entries(intf, i);
+> -#endif
+> -
+>    out:
+>   	if (rv) {
+>   		ipmi_bmc_unregister(intf);
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+> -		if (intf->proc_dir)
+> -			remove_proc_entries(intf);
+> -#endif
+> +		remove_proc_entries(intf);
+>   		intf->handlers = NULL;
+>   		list_del_rcu(&intf->link);
+>   		mutex_unlock(&ipmi_interfaces_mutex);
+> @@ -3563,9 +3465,7 @@ int ipmi_unregister_smi(ipmi_smi_t intf)
+>   	intf->handlers = NULL;
+>   	mutex_unlock(&ipmi_interfaces_mutex);
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+>   	remove_proc_entries(intf);
+> -#endif
+>   	ipmi_bmc_unregister(intf);
+>   
+>   	/*
+> diff --git a/drivers/char/ipmi/ipmi_si_intf.c b/drivers/char/ipmi/ipmi_si_intf.c
+> index ff870aa91cfe..7acc8cbf8d6f 100644
+> --- a/drivers/char/ipmi/ipmi_si_intf.c
+> +++ b/drivers/char/ipmi/ipmi_si_intf.c
+> @@ -1602,18 +1602,6 @@ static int smi_type_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_type_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_type_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_type_proc_ops = {
+> -	.open		= smi_type_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   static int smi_si_stats_proc_show(struct seq_file *m, void *v)
+>   {
+>   	struct smi_info *smi = m->private;
+> @@ -1645,18 +1633,6 @@ static int smi_si_stats_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_si_stats_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_si_stats_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_si_stats_proc_ops = {
+> -	.open		= smi_si_stats_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   static int smi_params_proc_show(struct seq_file *m, void *v)
+>   {
+>   	struct smi_info *smi = m->private;
+> @@ -1674,18 +1650,6 @@ static int smi_params_proc_show(struct seq_file *m, void *v)
+>   
+>   	return 0;
+>   }
+> -
+> -static int smi_params_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_params_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_params_proc_ops = {
+> -	.open		= smi_params_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+>   #endif
+>   
+>   #define IPMI_SI_ATTR(name) \
+> @@ -2182,10 +2146,8 @@ static int try_smi_init(struct smi_info *new_smi)
+>   		goto out_err;
+>   	}
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+>   	rv = ipmi_smi_add_proc_entry(new_smi->intf, "type",
+> -				     &smi_type_proc_ops,
+> -				     new_smi);
+> +				     smi_type_proc_show, new_smi);
+>   	if (rv) {
+>   		dev_err(new_smi->io.dev,
+>   			"Unable to create proc entry: %d\n", rv);
+> @@ -2193,8 +2155,7 @@ static int try_smi_init(struct smi_info *new_smi)
+>   	}
+>   
+>   	rv = ipmi_smi_add_proc_entry(new_smi->intf, "si_stats",
+> -				     &smi_si_stats_proc_ops,
+> -				     new_smi);
+> +				     smi_si_stats_proc_show, new_smi);
+>   	if (rv) {
+>   		dev_err(new_smi->io.dev,
+>   			"Unable to create proc entry: %d\n", rv);
+> @@ -2202,14 +2163,12 @@ static int try_smi_init(struct smi_info *new_smi)
+>   	}
+>   
+>   	rv = ipmi_smi_add_proc_entry(new_smi->intf, "params",
+> -				     &smi_params_proc_ops,
+> -				     new_smi);
+> +				     smi_params_proc_show, new_smi);
+>   	if (rv) {
+>   		dev_err(new_smi->io.dev,
+>   			"Unable to create proc entry: %d\n", rv);
+>   		goto out_err;
+>   	}
+> -#endif
+>   
+>   	/* Don't increment till we know we have succeeded. */
+>   	smi_num++;
+> diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+> index 35a82f4bfd78..57f6116a17b2 100644
+> --- a/drivers/char/ipmi/ipmi_ssif.c
+> +++ b/drivers/char/ipmi/ipmi_ssif.c
+> @@ -1349,18 +1349,6 @@ static int smi_type_proc_show(struct seq_file *m, void *v)
+>   	return 0;
+>   }
+>   
+> -static int smi_type_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_type_proc_show, inode->i_private);
+> -}
+> -
+> -static const struct file_operations smi_type_proc_ops = {
+> -	.open		= smi_type_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>   static int smi_stats_proc_show(struct seq_file *m, void *v)
+>   {
+>   	struct ssif_info *ssif_info = m->private;
+> @@ -1393,18 +1381,6 @@ static int smi_stats_proc_show(struct seq_file *m, void *v)
+>   		   ssif_get_stat(ssif_info, alerts));
+>   	return 0;
+>   }
+> -
+> -static int smi_stats_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, smi_stats_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations smi_stats_proc_ops = {
+> -	.open		= smi_stats_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+>   #endif
+>   
+>   static int strcmp_nospace(char *s1, char *s2)
+> @@ -1740,23 +1716,19 @@ static int ssif_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>   		goto out_remove_attr;
+>   	}
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+>   	rv = ipmi_smi_add_proc_entry(ssif_info->intf, "type",
+> -				     &smi_type_proc_ops,
+> -				     ssif_info);
+> +				     smi_type_proc_show, ssif_info);
+>   	if (rv) {
+>   		pr_err(PFX "Unable to create proc entry: %d\n", rv);
+>   		goto out_err_unreg;
+>   	}
+>   
+>   	rv = ipmi_smi_add_proc_entry(ssif_info->intf, "ssif_stats",
+> -				     &smi_stats_proc_ops,
+> -				     ssif_info);
+> +				     smi_stats_proc_show, ssif_info);
+>   	if (rv) {
+>   		pr_err(PFX "Unable to create proc entry: %d\n", rv);
+>   		goto out_err_unreg;
+>   	}
+> -#endif
+>   
+>    out:
+>   	if (rv) {
+> @@ -1775,10 +1747,8 @@ static int ssif_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>   	kfree(resp);
+>   	return rv;
+>   
+> -#ifdef CONFIG_IPMI_PROC_INTERFACE
+>   out_err_unreg:
+>   	ipmi_unregister_smi(ssif_info->intf);
+> -#endif
+>   
+>   out_remove_attr:
+>   	device_remove_group(&ssif_info->client->dev, &ipmi_ssif_dev_attr_group);
+> diff --git a/include/linux/ipmi_smi.h b/include/linux/ipmi_smi.h
+> index af457b5a689e..78d9fd480fe8 100644
+> --- a/include/linux/ipmi_smi.h
+> +++ b/include/linux/ipmi_smi.h
+> @@ -223,12 +223,10 @@ static inline void ipmi_free_smi_msg(struct ipmi_smi_msg *msg)
+>   }
+>   
+>   #ifdef CONFIG_IPMI_PROC_INTERFACE
+> -/* Allow the lower layer to add things to the proc filesystem
+> -   directory for this interface.  Note that the entry will
+> -   automatically be dstroyed when the interface is destroyed. */
+>   int ipmi_smi_add_proc_entry(ipmi_smi_t smi, char *name,
+> -			    const struct file_operations *proc_ops,
+> -			    void *data);
+> +		int (*show)(struct seq_file *, void *), void *data);
+> +#else
+> +#define ipmi_smi_add_proc_entry(smi, name, show, data)	0
+>   #endif
+>   
+>   #endif /* __LINUX_IPMI_SMI_H */
