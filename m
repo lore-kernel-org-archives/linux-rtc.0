@@ -1,241 +1,132 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38888 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755151AbeDYPua (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:30 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 19/40] megaraid: simplify procfs code
-Date: Wed, 25 Apr 2018 17:48:06 +0200
-Message-Id: <20180425154827.32251-20-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:33443 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753517AbeDSMuv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 08:50:51 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 3/4] selftests: move RTC tests to rtc subfolder
+Date: Thu, 19 Apr 2018 14:50:29 +0200
+Message-Id: <20180419125030.5076-4-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_single.
+Move the RTC tests out of the timers folder as they are mostly unrelated.
+Keep rtcpie in timers as it only test hrtimers.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/scsi/megaraid.c | 140 +++++++++++-----------------------------
- drivers/scsi/megaraid.h |  12 ----
- 2 files changed, 36 insertions(+), 116 deletions(-)
+ MAINTAINERS                                              | 2 +-
+ tools/testing/selftests/Makefile                         | 1 +
+ tools/testing/selftests/rtc/.gitignore                   | 2 ++
+ tools/testing/selftests/rtc/Makefile                     | 9 +++++++++
+ tools/testing/selftests/{timers => rtc}/rtctest.c        | 0
+ .../{timers/rtctest_setdate.c => rtc/setdate.c}          | 0
+ tools/testing/selftests/timers/.gitignore                | 2 --
+ tools/testing/selftests/timers/Makefile                  | 4 ++--
+ 8 files changed, 15 insertions(+), 5 deletions(-)
+ create mode 100644 tools/testing/selftests/rtc/.gitignore
+ create mode 100644 tools/testing/selftests/rtc/Makefile
+ rename tools/testing/selftests/{timers => rtc}/rtctest.c (100%)
+ rename tools/testing/selftests/{timers/rtctest_setdate.c => rtc/setdate.c} (100%)
 
-diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
-index 7195cff51d4c..91f5e2c68dbc 100644
---- a/drivers/scsi/megaraid.c
-+++ b/drivers/scsi/megaraid.c
-@@ -2731,53 +2731,6 @@ proc_show_rdrv_40(struct seq_file *m, void *v)
- 	return proc_show_rdrv(m, m->private, 30, 39);
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0a1410d5a621..0d86deb969bc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11868,7 +11868,7 @@ F:	include/linux/rtc.h
+ F:	include/uapi/linux/rtc.h
+ F:	include/linux/rtc/
+ F:	include/linux/platform_data/rtc-*
+-F:	tools/testing/selftests/timers/rtctest.c
++F:	tools/testing/selftests/rtc/
  
--
--/*
-- * seq_file wrappers for procfile show routines.
-- */
--static int mega_proc_open(struct inode *inode, struct file *file)
--{
--	adapter_t *adapter = proc_get_parent_data(inode);
--	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
--
--	return single_open(file, show, adapter);
--}
--
--static const struct file_operations mega_proc_fops = {
--	.open		= mega_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
--/*
-- * Table of proc files we need to create.
-- */
--struct mega_proc_file {
--	const char *name;
--	unsigned short ptr_offset;
--	int (*show) (struct seq_file *m, void *v);
--};
--
--static const struct mega_proc_file mega_proc_files[] = {
--	{ "config",	      offsetof(adapter_t, proc_read), proc_show_config },
--	{ "stat",	      offsetof(adapter_t, proc_stat), proc_show_stat },
--	{ "mailbox",	      offsetof(adapter_t, proc_mbox), proc_show_mbox },
--#if MEGA_HAVE_ENH_PROC
--	{ "rebuild-rate",     offsetof(adapter_t, proc_rr), proc_show_rebuild_rate },
--	{ "battery-status",   offsetof(adapter_t, proc_battery), proc_show_battery },
--	{ "diskdrives-ch0",   offsetof(adapter_t, proc_pdrvstat[0]), proc_show_pdrv_ch0 },
--	{ "diskdrives-ch1",   offsetof(adapter_t, proc_pdrvstat[1]), proc_show_pdrv_ch1 },
--	{ "diskdrives-ch2",   offsetof(adapter_t, proc_pdrvstat[2]), proc_show_pdrv_ch2 },
--	{ "diskdrives-ch3",   offsetof(adapter_t, proc_pdrvstat[3]), proc_show_pdrv_ch3 },
--	{ "raiddrives-0-9",   offsetof(adapter_t, proc_rdrvstat[0]), proc_show_rdrv_10 },
--	{ "raiddrives-10-19", offsetof(adapter_t, proc_rdrvstat[1]), proc_show_rdrv_20 },
--	{ "raiddrives-20-29", offsetof(adapter_t, proc_rdrvstat[2]), proc_show_rdrv_30 },
--	{ "raiddrives-30-39", offsetof(adapter_t, proc_rdrvstat[3]), proc_show_rdrv_40 },
--#endif
--	{ NULL }
--};
--
- /**
-  * mega_create_proc_entry()
-  * @index - index in soft state array
-@@ -2788,31 +2741,45 @@ static const struct mega_proc_file mega_proc_files[] = {
- static void
- mega_create_proc_entry(int index, struct proc_dir_entry *parent)
- {
--	const struct mega_proc_file *f;
--	adapter_t	*adapter = hba_soft_state[index];
--	struct proc_dir_entry	*dir, *de, **ppde;
--	u8		string[16];
-+	adapter_t *adapter = hba_soft_state[index];
-+	struct proc_dir_entry *dir;
-+	u8 string[16];
+ REALTEK AUDIO CODECS
+ M:	Bard Liao <bardliao@realtek.com>
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index 32aafa92074c..a368279301b7 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -28,6 +28,7 @@ TARGETS += powerpc
+ TARGETS += proc
+ TARGETS += pstore
+ TARGETS += ptrace
++TARGETS += rtc
+ TARGETS += seccomp
+ TARGETS += sigaltstack
+ TARGETS += size
+diff --git a/tools/testing/selftests/rtc/.gitignore b/tools/testing/selftests/rtc/.gitignore
+new file mode 100644
+index 000000000000..d0ad44f6294a
+--- /dev/null
++++ b/tools/testing/selftests/rtc/.gitignore
+@@ -0,0 +1,2 @@
++rtctest
++setdate
+diff --git a/tools/testing/selftests/rtc/Makefile b/tools/testing/selftests/rtc/Makefile
+new file mode 100644
+index 000000000000..de9c8566672a
+--- /dev/null
++++ b/tools/testing/selftests/rtc/Makefile
+@@ -0,0 +1,9 @@
++# SPDX-License-Identifier: GPL-2.0
++CFLAGS += -O3 -Wl,-no-as-needed -Wall
++LDFLAGS += -lrt -lpthread -lm
++
++TEST_GEN_PROGS = rtctest
++
++TEST_GEN_PROGS_EXTENDED = setdate
++
++include ../lib.mk
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+similarity index 100%
+rename from tools/testing/selftests/timers/rtctest.c
+rename to tools/testing/selftests/rtc/rtctest.c
+diff --git a/tools/testing/selftests/timers/rtctest_setdate.c b/tools/testing/selftests/rtc/setdate.c
+similarity index 100%
+rename from tools/testing/selftests/timers/rtctest_setdate.c
+rename to tools/testing/selftests/rtc/setdate.c
+diff --git a/tools/testing/selftests/timers/.gitignore b/tools/testing/selftests/timers/.gitignore
+index 353ae15daa1e..32a9eadb2d4e 100644
+--- a/tools/testing/selftests/timers/.gitignore
++++ b/tools/testing/selftests/timers/.gitignore
+@@ -10,7 +10,6 @@ nsleep-lat
+ posix_timers
+ raw_skew
+ rtcpie
+-rtctest
+ set-2038
+ set-tai
+ set-timer-lat
+@@ -20,4 +19,3 @@ valid-adjtimex
+ adjtick
+ set-tz
+ freq-step
+-rtctest_setdate
+diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+index 8be7895ff918..c02683cfb6c9 100644
+--- a/tools/testing/selftests/timers/Makefile
++++ b/tools/testing/selftests/timers/Makefile
+@@ -5,13 +5,13 @@ LDFLAGS += -lrt -lpthread -lm
+ # these are all "safe" tests that don't modify
+ # system time or require escalated privileges
+ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
+-	     inconsistency-check raw_skew threadtest rtctest rtcpie
++	     inconsistency-check raw_skew threadtest rtcpie
  
- 	sprintf(string, "hba%d", adapter->host->host_no);
--
--	dir = adapter->controller_proc_dir_entry =
--		proc_mkdir_data(string, 0, parent, adapter);
--	if(!dir) {
-+	dir = proc_mkdir_data(string, 0, parent, adapter);
-+	if (!dir) {
- 		dev_warn(&adapter->dev->dev, "proc_mkdir failed\n");
- 		return;
- 	}
+ DESTRUCTIVE_TESTS = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+ 		      skew_consistency clocksource-switch freq-step leap-a-day \
+ 		      leapcrash set-tai set-2038 set-tz
  
--	for (f = mega_proc_files; f->name; f++) {
--		de = proc_create_data(f->name, S_IRUSR, dir, &mega_proc_fops,
--				      f->show);
--		if (!de) {
--			dev_warn(&adapter->dev->dev, "proc_create failed\n");
--			return;
--		}
--
--		ppde = (void *)adapter + f->ptr_offset;
--		*ppde = de;
--	}
-+	proc_create_single_data("config", S_IRUSR, dir,
-+			proc_show_config, adapter);
-+	proc_create_single_data("stat", S_IRUSR, dir,
-+			proc_show_stat, adapter);
-+	proc_create_single_data("mailbox", S_IRUSR, dir,
-+			proc_show_mbox, adapter);
-+#if MEGA_HAVE_ENH_PROC
-+	proc_create_single_data("rebuild-rate", S_IRUSR, dir,
-+			proc_show_rebuild_rate, adapter);
-+	proc_create_single_data("battery-status", S_IRUSR, dir,
-+			proc_show_battery, adapter);
-+	proc_create_single_data("diskdrives-ch0", S_IRUSR, dir,
-+			proc_show_pdrv_ch0, adapter);
-+	proc_create_single_data("diskdrives-ch1", S_IRUSR, dir,
-+			proc_show_pdrv_ch1, adapter);
-+	proc_create_single_data("diskdrives-ch2", S_IRUSR, dir,
-+			proc_show_pdrv_ch2, adapter);
-+	proc_create_single_data("diskdrives-ch3", S_IRUSR, dir,
-+			proc_show_pdrv_ch3, adapter);
-+	proc_create_single_data("raiddrives-0-9", S_IRUSR, dir,
-+			proc_show_rdrv_10, adapter);
-+	proc_create_single_data("raiddrives-10-19", S_IRUSR, dir,
-+			proc_show_rdrv_20, adapter);
-+	proc_create_single_data("raiddrives-20-29", S_IRUSR, dir,
-+			proc_show_rdrv_30, adapter);
-+	proc_create_single_data("raiddrives-30-39", S_IRUSR, dir,
-+			proc_show_rdrv_40, adapter);
-+#endif
- }
+-TEST_GEN_PROGS_EXTENDED = $(DESTRUCTIVE_TESTS) rtctest_setdate
++TEST_GEN_PROGS_EXTENDED = $(DESTRUCTIVE_TESTS)
  
- #else
-@@ -4580,6 +4547,7 @@ megaraid_remove_one(struct pci_dev *pdev)
- {
- 	struct Scsi_Host *host = pci_get_drvdata(pdev);
- 	adapter_t *adapter = (adapter_t *)host->hostdata;
-+	char buf[12] = { 0 };
  
- 	scsi_remove_host(host);
- 
-@@ -4594,44 +4562,8 @@ megaraid_remove_one(struct pci_dev *pdev)
- 
- 	mega_free_sgl(adapter);
- 
--#ifdef CONFIG_PROC_FS
--	if (adapter->controller_proc_dir_entry) {
--		remove_proc_entry("stat", adapter->controller_proc_dir_entry);
--		remove_proc_entry("config",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("mailbox",
--				adapter->controller_proc_dir_entry);
--#if MEGA_HAVE_ENH_PROC
--		remove_proc_entry("rebuild-rate",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("battery-status",
--				adapter->controller_proc_dir_entry);
--
--		remove_proc_entry("diskdrives-ch0",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("diskdrives-ch1",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("diskdrives-ch2",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("diskdrives-ch3",
--				adapter->controller_proc_dir_entry);
--
--		remove_proc_entry("raiddrives-0-9",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("raiddrives-10-19",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("raiddrives-20-29",
--				adapter->controller_proc_dir_entry);
--		remove_proc_entry("raiddrives-30-39",
--				adapter->controller_proc_dir_entry);
--#endif
--		{
--			char	buf[12] = { 0 };
--			sprintf(buf, "hba%d", adapter->host->host_no);
--			remove_proc_entry(buf, mega_proc_dir_entry);
--		}
--	}
--#endif
-+	sprintf(buf, "hba%d", adapter->host->host_no);
-+	remove_proc_subtree(buf, mega_proc_dir_entry);
- 
- 	pci_free_consistent(adapter->dev, MEGA_BUFFER_SIZE,
- 			adapter->mega_buffer, adapter->buf_dma_handle);
-diff --git a/drivers/scsi/megaraid.h b/drivers/scsi/megaraid.h
-index 21eba2fd465a..18e85d9267ff 100644
---- a/drivers/scsi/megaraid.h
-+++ b/drivers/scsi/megaraid.h
-@@ -814,18 +814,6 @@ typedef struct {
- 
- #ifdef CONFIG_PROC_FS
- 	struct proc_dir_entry	*controller_proc_dir_entry;
--	struct proc_dir_entry	*proc_read;
--	struct proc_dir_entry	*proc_stat;
--	struct proc_dir_entry	*proc_mbox;
--
--#if MEGA_HAVE_ENH_PROC
--	struct proc_dir_entry	*proc_rr;
--	struct proc_dir_entry	*proc_battery;
--#define MAX_PROC_CHANNELS	4
--	struct proc_dir_entry	*proc_pdrvstat[MAX_PROC_CHANNELS];
--	struct proc_dir_entry	*proc_rdrvstat[MAX_PROC_CHANNELS];
--#endif
--
- #endif
- 
- 	int	has_64bit_addr;		/* are we using 64-bit addressing */
+ include ../lib.mk
 -- 
 2.17.0
