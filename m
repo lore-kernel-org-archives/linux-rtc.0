@@ -1,84 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38536 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755277AbeDYPuL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:11 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 14/40] net: move seq_file_single_net to <linux/seq_file_net.h>
-Date: Wed, 25 Apr 2018 17:48:01 +0200
-Message-Id: <20180425154827.32251-15-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:13723 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752947AbeDSNWg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:36 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 2/4] rtc: stm32: fix alarm interrupt flags by removing IRQF_TRIGGER_RISING
+Date: Thu, 19 Apr 2018 15:21:41 +0200
+Message-ID: <1524144103-21432-3-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This helper deals with single_{open,release}_net internals and thus
-belongs here.
+RTC alarm interrupt is active high and already configured by device tree.
+So remove IRQF_TRIGGER_RISING from driver.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- include/linux/seq_file_net.h | 13 +++++++++++++
- include/net/ip_vs.h          | 12 ------------
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-stm32.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/include/linux/seq_file_net.h b/include/linux/seq_file_net.h
-index 43ccd84127b6..ed20faa99e05 100644
---- a/include/linux/seq_file_net.h
-+++ b/include/linux/seq_file_net.h
-@@ -28,4 +28,17 @@ static inline struct net *seq_file_net(struct seq_file *seq)
- #endif
- }
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 79d9e86..6a06078 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -663,8 +663,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
  
-+/*
-+ * This one is needed for single_open_net since net is stored directly in
-+ * private not as a struct i.e. seq_file_net can't be used.
-+ */
-+static inline struct net *seq_file_single_net(struct seq_file *seq)
-+{
-+#ifdef CONFIG_NET_NS
-+	return (struct net *)seq->private;
-+#else
-+	return &init_net;
-+#endif
-+}
-+
- #endif
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index eb0bec043c96..aea7a124e66b 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -41,18 +41,6 @@ static inline struct netns_ipvs *net_ipvs(struct net* net)
- 	return net->ipvs;
- }
- 
--/* This one needed for single_open_net since net is stored directly in
-- * private not as a struct i.e. seq_file_net can't be used.
-- */
--static inline struct net *seq_file_single_net(struct seq_file *seq)
--{
--#ifdef CONFIG_NET_NS
--	return (struct net *)seq->private;
--#else
--	return &init_net;
--#endif
--}
--
- /* Connections' size value needed by ip_vs_ctl.c */
- extern int ip_vs_conn_tab_size;
- 
+ 	/* Handle RTC alarm interrupts */
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq_alarm, NULL,
+-					stm32_rtc_alarm_irq,
+-					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
++					stm32_rtc_alarm_irq, IRQF_ONESHOT,
+ 					pdev->name, rtc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "IRQ%d (alarm interrupt) already claimed\n",
 -- 
-2.17.0
+2.7.4
