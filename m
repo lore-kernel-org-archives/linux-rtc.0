@@ -1,58 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:56217 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750986AbeDYJcx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:53 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 07/17] mfd: mt6397: reuse DEFINE_RES_* helpers
-Date: Wed, 25 Apr 2018 17:32:33 +0800
-Message-ID: <d9931275ceb41d80fff494112077758500e455ad.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail.bootlin.com ([62.4.15.54]:33438 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753516AbeDSMuu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 08:50:50 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/4] selftests: timers: rtcpie: restore previous PIE rate
+Date: Thu, 19 Apr 2018 14:50:28 +0200
+Message-Id: <20180419125030.5076-3-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+After the test ends, restore the PIE rate to its previous value to be less
+disruptive.
 
-Reuse DEFINE_RES_* helpers instead of an open-coded handling.
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/mfd/mt6397-core.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ tools/testing/selftests/timers/rtcpie.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index c4ad5c3..e0012e2 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -43,16 +43,8 @@ static const struct resource mt6323_rtc_resources[] = {
- };
+diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
+index ea98b1f6ac17..47b5bad1b393 100644
+--- a/tools/testing/selftests/timers/rtcpie.c
++++ b/tools/testing/selftests/timers/rtcpie.c
+@@ -28,7 +28,7 @@ static const char default_rtc[] = "/dev/rtc0";
+ int main(int argc, char **argv)
+ {
+ 	int i, fd, retval, irqcount = 0;
+-	unsigned long tmp, data;
++	unsigned long tmp, data, old_pie_rate;
+ 	const char *rtc = default_rtc;
+ 	struct timeval start, end, diff;
  
- static const struct resource mt6397_rtc_resources[] = {
--	{
--		.start = MT6397_RTC_BASE,
--		.end   = MT6397_RTC_BASE + MT6397_RTC_SIZE,
--		.flags = IORESOURCE_MEM,
--	},
--	{
--		.start = MT6397_IRQ_RTC,
--		.end   = MT6397_IRQ_RTC,
--		.flags = IORESOURCE_IRQ,
--	},
-+	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
-+	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
- };
+@@ -51,7 +51,7 @@ int main(int argc, char **argv)
+ 	}
  
- static const struct resource mt6323_keys_resources[] = {
+ 	/* Read periodic IRQ rate */
+-	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
++	retval = ioctl(fd, RTC_IRQP_READ, &old_pie_rate);
+ 	if (retval == -1) {
+ 		/* not all RTCs support periodic IRQs */
+ 		if (errno == EINVAL) {
+@@ -61,7 +61,7 @@ int main(int argc, char **argv)
+ 		perror("RTC_IRQP_READ ioctl");
+ 		exit(errno);
+ 	}
+-	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
++	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", old_pie_rate);
+ 
+ 	fprintf(stderr, "Counting 20 interrupts at:");
+ 	fflush(stderr);
+@@ -124,6 +124,8 @@ int main(int argc, char **argv)
+ 	}
+ 
+ done:
++	ioctl(fd, RTC_IRQP_SET, old_pie_rate);
++
+ 	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+ 
+ 	close(fd);
 -- 
-2.7.4
+2.17.0
