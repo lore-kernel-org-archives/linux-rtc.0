@@ -1,47 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:33344 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751840AbeDSNA2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 19 Apr 2018 09:00:28 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20180419124140.9309-21-hch@lst.de>
-References: <20180419124140.9309-21-hch@lst.de> <20180419124140.9309-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:34318 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751957AbeDSNK3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 09:10:29 -0400
+Date: Thu, 19 Apr 2018 15:10:27 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: Christoph Hellwig <hch@lst.de>
-Cc: dhowells@redhat.com, Andrew Morton <akpm@linux-foundation.org>,
+Cc: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        linux-ide@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        jfs-discussion@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
         Alexey Dobriyan <adobriyan@gmail.com>,
-        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
-Subject: Re: [PATCH 20/39] afs: simplify procfs code
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 26/39] rtc/proc: switch to proc_create_single_data
+Message-ID: <20180419131027.GC7369@piout.net>
+References: <20180419124140.9309-1-hch@lst.de>
+ <20180419124140.9309-27-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 19 Apr 2018 14:00:23 +0100
-Message-ID: <22411.1524142823@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180419124140.9309-27-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Christoph Hellwig <hch@lst.de> wrote:
+On 19/04/2018 14:41:27+0200, Christoph Hellwig wrote:
+> And stop trying to get a reference on the submodule, procfs code deals
+> with release after and unloaded module and thus removed proc entry.
+> 
 
-> Use remove_proc_subtree to remove the whole subtree on cleanup, and
-> unwind the registration loop into individual calls.  Switch to use
-> proc_create_seq where applicable.
+Are you sure about that? The rtc module is not the one adding the procfs
+file so I'm not sure how the procfs code can handle it.
 
-Note that this is likely going to clash with my patch to net-namespace all of
-the afs proc files:
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/rtc/rtc-proc.c | 33 ++-------------------------------
+>  1 file changed, 2 insertions(+), 31 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+> index 31e7e23cc5be..a9dd9218fae2 100644
+> --- a/drivers/rtc/rtc-proc.c
+> +++ b/drivers/rtc/rtc-proc.c
+> @@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+>  	return 0;
+>  }
+>  
+> -static int rtc_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	int ret;
+> -	struct rtc_device *rtc = PDE_DATA(inode);
+> -
+> -	if (!try_module_get(rtc->owner))
+> -		return -ENODEV;
+> -
+> -	ret = single_open(file, rtc_proc_show, rtc);
+> -	if (ret)
+> -		module_put(rtc->owner);
+> -	return ret;
+> -}
+> -
+> -static int rtc_proc_release(struct inode *inode, struct file *file)
+> -{
+> -	int res = single_release(inode, file);
+> -	struct rtc_device *rtc = PDE_DATA(inode);
+> -
+> -	module_put(rtc->owner);
+> -	return res;
+> -}
+> -
+> -static const struct file_operations rtc_proc_fops = {
+> -	.open		= rtc_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= rtc_proc_release,
+> -};
+> -
+>  void rtc_proc_add_device(struct rtc_device *rtc)
+>  {
+>  	if (is_rtc_hctosys(rtc))
+> -		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
+> +		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
+> +				rtc);
+>  }
+>  
+>  void rtc_proc_del_device(struct rtc_device *rtc)
+> -- 
+> 2.17.0
+> 
 
-	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/commit/?h=mount-context&id=f60c26c827c073583107ebf19d87bc5c0e71c3d2
-
-If it helps, I should be able to disentangle this from the mount-api changes
-since the subsequent patch connects the dots to propagate the network
-namespace over automount using the new fs_context to do it.
-
-David
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
