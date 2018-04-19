@@ -1,63 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:62845 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751328AbeDYJdH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:07 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 13/17] rtc: mt6397: cleanup header files to include
-Date: Wed, 25 Apr 2018 17:32:39 +0800
-Message-ID: <ac254bb75a28a6a7c55557eedc9e466a5dbba075.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail.bootlin.com ([62.4.15.54]:33432 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752116AbeDSMut (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 08:50:49 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 0/4] selftests: rework RTC tests
+Date: Thu, 19 Apr 2018 14:50:26 +0200
+Message-Id: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+Hi,
 
-Clean up those included header files by removing unreferenced ones,
-add missing ones the driver explicitly depends on and finally list
-all #includes in alphabetical order.
+This series separates tests using the RTC devices between the one
+testing driver agnostic kernel facilities (timers) and the others that
+are testing device drivers and hardware.
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- drivers/rtc/rtc-mt6397.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+Then, rtctest is reworked to use the test harness and be much more
+robust. Skipping tests is now easier and tests will not block
+indefinitively.
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 4c5cdaa..3672d622 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -12,17 +12,14 @@
- * GNU General Public License for more details.
- */
- 
--#include <linux/delay.h>
--#include <linux/init.h>
-+#include <linux/err.h>
- #include <linux/interrupt.h>
-+#include <linux/mfd/mt6397/core.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
--#include <linux/platform_device.h>
--#include <linux/of_address.h>
--#include <linux/of_irq.h>
--#include <linux/io.h>
--#include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6397/rtc.h>
- 
- static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+I'm planning to send more improvements later this cycle.
+
+Alexandre Belloni (4):
+  selftests: timers: move PIE tests out of rtctest
+  selftests: timers: rtcpie: restore previous PIE rate
+  selftests: move RTC tests to rtc subfolder
+  selftests: rtc: rework rtctest
+
+ MAINTAINERS                                   |   2 +-
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/rtc/.gitignore        |   2 +
+ tools/testing/selftests/rtc/Makefile          |   9 +
+ tools/testing/selftests/rtc/rtctest.c         | 238 +++++++++++
+ .../rtctest_setdate.c => rtc/setdate.c}       |   0
+ tools/testing/selftests/timers/.gitignore     |   3 +-
+ tools/testing/selftests/timers/Makefile       |   4 +-
+ tools/testing/selftests/timers/rtcpie.c       | 134 ++++++
+ tools/testing/selftests/timers/rtctest.c      | 403 ------------------
+ 10 files changed, 388 insertions(+), 408 deletions(-)
+ create mode 100644 tools/testing/selftests/rtc/.gitignore
+ create mode 100644 tools/testing/selftests/rtc/Makefile
+ create mode 100644 tools/testing/selftests/rtc/rtctest.c
+ rename tools/testing/selftests/{timers/rtctest_setdate.c => rtc/setdate.c} (100%)
+ create mode 100644 tools/testing/selftests/timers/rtcpie.c
+ delete mode 100644 tools/testing/selftests/timers/rtctest.c
+
 -- 
-2.7.4
+2.17.0
