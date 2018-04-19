@@ -1,737 +1,261 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38732 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755302AbeDYPuV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:21 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 16/40] proc: introduce proc_create_net_single
-Date: Wed, 25 Apr 2018 17:48:03 +0200
-Message-Id: <20180425154827.32251-17-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:1902 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753046AbeDSNfB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:35:01 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH 3/3] rtc: stm32: add stm32mp1 rtc support
+Date: Thu, 19 Apr 2018 15:34:05 +0200
+Message-ID: <1524144845-23016-4-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
+References: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Variant of proc_create_data that directly take a seq_file show
-callback and deals with network namespaces in ->open and ->release.
-All callers of proc_create + single_open_net converted over, and
-single_{open,release}_net are removed entirely.
+This patch adds support for stm32mp1 RTC.
+Some common registers with previous RTC version have a different offset.
+It is the case for Control Register (CR) and ALaRMA Register (ALRMAR).
+There are also new registers regarding event flags: now, Alarm event flag
+is in Status Register (SR) and write 1 in Status Clear Register (SCR) is
+required to clear the event.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- fs/proc/proc_net.c             |  49 ++++++++-----
- include/linux/proc_fs.h        |   4 ++
- include/linux/seq_file_net.h   |   7 +-
- net/can/bcm.c                  |  16 +----
- net/can/proc.c                 | 127 ++++++---------------------------
- net/ipv4/fib_trie.c            |  16 +----
- net/ipv4/proc.c                |  48 ++-----------
- net/ipv6/proc.c                |  31 ++------
- net/ipv6/route.c               |  15 +---
- net/kcm/kcmproc.c              |  16 +----
- net/netfilter/ipvs/ip_vs_ctl.c |  31 ++------
- net/sctp/proc.c                |  17 +----
- net/xfrm/xfrm_proc.c           |  16 +----
- 13 files changed, 86 insertions(+), 307 deletions(-)
+ drivers/rtc/rtc-stm32.c | 88 +++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 81 insertions(+), 7 deletions(-)
 
-diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
-index 2b04ca9d7601..baf1994289ce 100644
---- a/fs/proc/proc_net.c
-+++ b/fs/proc/proc_net.c
-@@ -93,37 +93,50 @@ struct proc_dir_entry *proc_create_net_data(const char *name, umode_t mode,
- }
- EXPORT_SYMBOL_GPL(proc_create_net_data);
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 52ee027..45e0175 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -11,6 +11,7 @@
+ #include <linux/mfd/syscon.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
  
--int single_open_net(struct inode *inode, struct file *file,
--		int (*show)(struct seq_file *, void *))
-+static int single_open_net(struct inode *inode, struct file *file)
- {
--	int err;
-+	struct proc_dir_entry *de = PDE(inode);
- 	struct net *net;
-+	int err;
+@@ -39,7 +40,7 @@
+ #define STM32_RTC_CR_ALRAE		BIT(8)
+ #define STM32_RTC_CR_ALRAIE		BIT(12)
  
--	err = -ENXIO;
- 	net = get_proc_net(inode);
--	if (net == NULL)
--		goto err_net;
--
--	err = single_open(file, show, net);
--	if (err < 0)
--		goto err_open;
--
--	return 0;
-+	if (!net)
-+		return -ENXIO;
+-/* STM32_RTC_ISR bit fields */
++/* STM32_RTC_ISR/STM32_RTC_ICSR bit fields */
+ #define STM32_RTC_ISR_ALRAWF		BIT(0)
+ #define STM32_RTC_ISR_INITS		BIT(4)
+ #define STM32_RTC_ISR_RSF		BIT(5)
+@@ -71,11 +72,22 @@
+ #define STM32_RTC_ALRMXR_WDAY		GENMASK(27, 24)
+ #define STM32_RTC_ALRMXR_DATE_MASK	BIT(31)
  
--err_open:
--	put_net(net);
--err_net:
-+	err = single_open(file, de->single_show, net);
-+	if (err)
-+		put_net(net);
- 	return err;
- }
--EXPORT_SYMBOL_GPL(single_open_net);
- 
--int single_release_net(struct inode *ino, struct file *f)
-+static int single_release_net(struct inode *ino, struct file *f)
- {
- 	struct seq_file *seq = f->private_data;
- 	put_net(seq->private);
- 	return single_release(ino, f);
- }
--EXPORT_SYMBOL_GPL(single_release_net);
++/* STM32_RTC_SR/_SCR bit fields */
++#define STM32_RTC_SR_ALRA		BIT(0)
 +
-+static const struct file_operations proc_net_single_fops = {
-+	.open		= single_open_net,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= single_release_net,
-+};
++/* STM32_RTC_VERR bit fields */
++#define STM32_RTC_VERR_MINREV_SHIFT	0
++#define STM32_RTC_VERR_MINREV		GENMASK(3, 0)
++#define STM32_RTC_VERR_MAJREV_SHIFT	4
++#define STM32_RTC_VERR_MAJREV		GENMASK(7, 4)
 +
-+struct proc_dir_entry *proc_create_net_single(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent,
-+		int (*show)(struct seq_file *, void *), void *data)
-+{
-+	struct proc_dir_entry *p;
+ /* STM32_RTC_WPR key constants */
+ #define RTC_WPR_1ST_KEY			0xCA
+ #define RTC_WPR_2ND_KEY			0x53
+ #define RTC_WPR_WRONG_KEY		0xFF
+ 
++#define UNDEF_REG ~0
 +
-+	p = proc_create_reg(name, mode, &parent, data);
-+	if (!p)
-+		return NULL;
-+	p->proc_fops = &proc_net_single_fops;
-+	p->single_show = show;
-+	return proc_register(parent, p);
-+}
-+EXPORT_SYMBOL_GPL(proc_create_net_single);
+ struct stm32_rtc;
  
- static struct net *get_proc_task_net(struct inode *dir)
- {
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index ae2f849776ec..928c7b2cbff4 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -58,6 +58,9 @@ struct proc_dir_entry *proc_create_net_data(const char *name, umode_t mode,
- 		unsigned int state_size, void *data);
- #define proc_create_net(name, mode, parent, state_size, ops) \
- 	proc_create_net_data(name, mode, parent, state_size, ops, NULL)
-+struct proc_dir_entry *proc_create_net_single(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent,
-+		int (*show)(struct seq_file *, void *), void *data);
- 
- #else /* CONFIG_PROC_FS */
- 
-@@ -97,6 +100,7 @@ static inline int remove_proc_subtree(const char *name, struct proc_dir_entry *p
- 
- #define proc_create_net_data(name, mode, parent, ops, state_size, data) ({NULL;})
- #define proc_create_net(name, mode, parent, state_size, ops) ({NULL;})
-+#define proc_create_net_single(name, mode, parent, show, data) ({NULL;})
- 
- #endif /* CONFIG_PROC_FS */
- 
-diff --git a/include/linux/seq_file_net.h b/include/linux/seq_file_net.h
-index 5ea18a16291a..0fdbe1ddd8d1 100644
---- a/include/linux/seq_file_net.h
-+++ b/include/linux/seq_file_net.h
-@@ -13,9 +13,6 @@ struct seq_net_private {
- #endif
+ struct stm32_rtc_registers {
+@@ -86,6 +98,9 @@ struct stm32_rtc_registers {
+ 	u8 prer;
+ 	u8 alrmar;
+ 	u8 wpr;
++	u8 sr;
++	u8 scr;
++	u16 verr;
  };
  
--int single_open_net(struct inode *, struct file *file,
--		int (*show)(struct seq_file *, void *));
--int single_release_net(struct inode *, struct file *);
- static inline struct net *seq_file_net(struct seq_file *seq)
- {
- #ifdef CONFIG_NET_NS
-@@ -26,8 +23,8 @@ static inline struct net *seq_file_net(struct seq_file *seq)
- }
+ struct stm32_rtc_events {
+@@ -98,6 +113,7 @@ struct stm32_rtc_data {
+ 	void (*clear_events)(struct stm32_rtc *rtc, unsigned int flags);
+ 	bool has_pclk;
+ 	bool need_dbp;
++	bool has_wakeirq;
+ };
  
- /*
-- * This one is needed for single_open_net since net is stored directly in
-- * private not as a struct i.e. seq_file_net can't be used.
-+ * This one is needed for proc_create_net_single since net is stored directly
-+ * in private not as a struct i.e. seq_file_net can't be used.
-  */
- static inline struct net *seq_file_single_net(struct seq_file *seq)
- {
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 8073fa14e143..6ad89f49b341 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -239,18 +239,6 @@ static int bcm_proc_show(struct seq_file *m, void *v)
- 	seq_putc(m, '\n');
- 	return 0;
- }
--
--static int bcm_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, bcm_proc_show);
--}
--
--static const struct file_operations bcm_proc_fops = {
--	.open		= bcm_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release_net,
--};
- #endif /* CONFIG_PROC_FS */
+ struct stm32_rtc {
+@@ -110,6 +126,7 @@ struct stm32_rtc {
+ 	struct clk *rtc_ck;
+ 	const struct stm32_rtc_data *data;
+ 	int irq_alarm;
++	int wakeirq_alarm;
+ };
  
- /*
-@@ -1606,9 +1594,9 @@ static int bcm_connect(struct socket *sock, struct sockaddr *uaddr, int len,
- 	if (net->can.bcmproc_dir) {
- 		/* unique socket address as filename */
- 		sprintf(bo->procname, "%lu", sock_i_ino(sk));
--		bo->bcm_proc_read = proc_create_data(bo->procname, 0644,
-+		bo->bcm_proc_read = proc_create_net_single(bo->procname, 0644,
- 						     net->can.bcmproc_dir,
--						     &bcm_proc_fops, sk);
-+						     bcm_proc_show, sk);
- 		if (!bo->bcm_proc_read) {
- 			ret = -ENOMEM;
- 			goto fail;
-diff --git a/net/can/proc.c b/net/can/proc.c
-index fde2fd55b826..70fea17bb04c 100644
---- a/net/can/proc.c
-+++ b/net/can/proc.c
-@@ -270,18 +270,6 @@ static int can_stats_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+ static void stm32_rtc_wpr_unlock(struct stm32_rtc *rtc)
+@@ -193,7 +210,7 @@ static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
  
--static int can_stats_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_stats_proc_show);
--}
--
--static const struct file_operations can_stats_proc_fops = {
--	.open		= can_stats_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release_net,
--};
--
- static int can_reset_stats_proc_show(struct seq_file *m, void *v)
- {
- 	struct net *net = m->private;
-@@ -303,36 +291,12 @@ static int can_reset_stats_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+ 	mutex_lock(&rtc->rtc_dev->ops_lock);
  
--static int can_reset_stats_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_reset_stats_proc_show);
--}
--
--static const struct file_operations can_reset_stats_proc_fops = {
--	.open		= can_reset_stats_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static int can_version_proc_show(struct seq_file *m, void *v)
- {
- 	seq_printf(m, "%s\n", CAN_VERSION_STRING);
- 	return 0;
- }
+-	status = readl_relaxed(rtc->base + regs.isr);
++	status = readl_relaxed(rtc->base + regs.sr);
+ 	cr = readl_relaxed(rtc->base + regs.cr);
  
--static int can_version_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_version_proc_show);
--}
--
--static const struct file_operations can_version_proc_fops = {
--	.open		= can_version_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static inline void can_rcvlist_proc_show_one(struct seq_file *m, int idx,
- 					     struct net_device *dev,
- 					     struct can_dev_rcv_lists *d)
-@@ -373,18 +337,6 @@ static int can_rcvlist_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+ 	if ((status & evts.alra) &&
+@@ -325,7 +342,7 @@ static int stm32_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  
--static int can_rcvlist_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_rcvlist_proc_show);
--}
--
--static const struct file_operations can_rcvlist_proc_fops = {
--	.open		= can_rcvlist_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- static inline void can_rcvlist_proc_show_array(struct seq_file *m,
- 					       struct net_device *dev,
- 					       struct hlist_head *rcv_array,
-@@ -440,19 +392,6 @@ static int can_rcvlist_sff_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+ 	alrmar = readl_relaxed(rtc->base + regs.alrmar);
+ 	cr = readl_relaxed(rtc->base + regs.cr);
+-	status = readl_relaxed(rtc->base + regs.isr);
++	status = readl_relaxed(rtc->base + regs.sr);
  
--static int can_rcvlist_sff_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_rcvlist_sff_proc_show);
--}
--
--static const struct file_operations can_rcvlist_sff_proc_fops = {
--	.open		= can_rcvlist_sff_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release_net,
--};
--
--
- static int can_rcvlist_eff_proc_show(struct seq_file *m, void *v)
- {
- 	struct net_device *dev;
-@@ -483,18 +422,6 @@ static int can_rcvlist_eff_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
+ 	if (alrmar & STM32_RTC_ALRMXR_DATE_MASK) {
+ 		/*
+@@ -533,6 +550,7 @@ static void stm32_rtc_clear_events(struct stm32_rtc *rtc,
+ static const struct stm32_rtc_data stm32_rtc_data = {
+ 	.has_pclk = false,
+ 	.need_dbp = true,
++	.has_wakeirq = false,
+ 	.regs = {
+ 		.tr = 0x00,
+ 		.dr = 0x04,
+@@ -541,6 +559,9 @@ static const struct stm32_rtc_data stm32_rtc_data = {
+ 		.prer = 0x10,
+ 		.alrmar = 0x1C,
+ 		.wpr = 0x24,
++		.sr = 0x0C, /* set to ISR offset to ease alarm management */
++		.scr = UNDEF_REG,
++		.verr = UNDEF_REG,
+ 	},
+ 	.events = {
+ 		.alra = STM32_RTC_ISR_ALRAF,
+@@ -551,6 +572,7 @@ static const struct stm32_rtc_data stm32_rtc_data = {
+ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 	.has_pclk = true,
+ 	.need_dbp = true,
++	.has_wakeirq = false,
+ 	.regs = {
+ 		.tr = 0x00,
+ 		.dr = 0x04,
+@@ -559,6 +581,9 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 		.prer = 0x10,
+ 		.alrmar = 0x1C,
+ 		.wpr = 0x24,
++		.sr = 0x0C, /* set to ISR offset to ease alarm management */
++		.scr = UNDEF_REG,
++		.verr = UNDEF_REG,
+ 	},
+ 	.events = {
+ 		.alra = STM32_RTC_ISR_ALRAF,
+@@ -566,9 +591,41 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 	.clear_events = stm32_rtc_clear_events,
+ };
  
--static int can_rcvlist_eff_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, can_rcvlist_eff_proc_show);
--}
--
--static const struct file_operations can_rcvlist_eff_proc_fops = {
--	.open		= can_rcvlist_eff_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release_net,
--};
--
- /*
-  * can_init_proc - create main CAN proc directory and procfs entries
-  */
-@@ -510,37 +437,29 @@ void can_init_proc(struct net *net)
++static void stm32mp1_rtc_clear_events(struct stm32_rtc *rtc,
++				      unsigned int flags)
++{
++	struct stm32_rtc_registers regs = rtc->data->regs;
++
++	/* Flags are cleared by writing 1 in RTC_SCR */
++	writel_relaxed(flags, rtc->base + regs.scr);
++}
++
++static const struct stm32_rtc_data stm32mp1_data = {
++	.has_pclk = true,
++	.need_dbp = false,
++	.has_wakeirq = true,
++	.regs = {
++		.tr = 0x00,
++		.dr = 0x04,
++		.cr = 0x18,
++		.isr = 0x0C, /* named RTC_ICSR on stm32mp1 */
++		.prer = 0x10,
++		.alrmar = 0x40,
++		.wpr = 0x24,
++		.sr = 0x50,
++		.scr = 0x5C,
++		.verr = 0x3F4,
++	},
++	.events = {
++		.alra = STM32_RTC_SR_ALRA,
++	},
++	.clear_events = stm32mp1_rtc_clear_events,
++};
++
+ static const struct of_device_id stm32_rtc_of_match[] = {
+ 	{ .compatible = "st,stm32-rtc", .data = &stm32_rtc_data },
+ 	{ .compatible = "st,stm32h7-rtc", .data = &stm32h7_rtc_data },
++	{ .compatible = "st,stm32mp1-rtc", .data = &stm32mp1_data },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, stm32_rtc_of_match);
+@@ -727,12 +784,19 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 		goto err;
  	}
  
- 	/* own procfs entries from the AF_CAN core */
--	net->can.pde_version     = proc_create(CAN_PROC_VERSION, 0644,
--					       net->can.proc_dir,
--					       &can_version_proc_fops);
--	net->can.pde_stats       = proc_create(CAN_PROC_STATS, 0644,
--					       net->can.proc_dir,
--					       &can_stats_proc_fops);
--	net->can.pde_reset_stats = proc_create(CAN_PROC_RESET_STATS, 0644,
--					       net->can.proc_dir,
--					       &can_reset_stats_proc_fops);
--	net->can.pde_rcvlist_err = proc_create_data(CAN_PROC_RCVLIST_ERR, 0644,
--						    net->can.proc_dir,
--						    &can_rcvlist_proc_fops,
--						    (void *)RX_ERR);
--	net->can.pde_rcvlist_all = proc_create_data(CAN_PROC_RCVLIST_ALL, 0644,
--						    net->can.proc_dir,
--						    &can_rcvlist_proc_fops,
--						    (void *)RX_ALL);
--	net->can.pde_rcvlist_fil = proc_create_data(CAN_PROC_RCVLIST_FIL, 0644,
--						    net->can.proc_dir,
--						    &can_rcvlist_proc_fops,
--						    (void *)RX_FIL);
--	net->can.pde_rcvlist_inv = proc_create_data(CAN_PROC_RCVLIST_INV, 0644,
--						    net->can.proc_dir,
--						    &can_rcvlist_proc_fops,
--						    (void *)RX_INV);
--	net->can.pde_rcvlist_eff = proc_create(CAN_PROC_RCVLIST_EFF, 0644,
--					       net->can.proc_dir,
--					       &can_rcvlist_eff_proc_fops);
--	net->can.pde_rcvlist_sff = proc_create(CAN_PROC_RCVLIST_SFF, 0644,
--					       net->can.proc_dir,
--					       &can_rcvlist_sff_proc_fops);
-+	net->can.pde_version = proc_create_net_single(CAN_PROC_VERSION, 0644,
-+			net->can.proc_dir, can_version_proc_show, NULL);
-+	net->can.pde_stats = proc_create_net_single(CAN_PROC_STATS, 0644,
-+			net->can.proc_dir, can_stats_proc_show, NULL);
-+	net->can.pde_reset_stats = proc_create_net_single(CAN_PROC_RESET_STATS,
-+			0644, net->can.proc_dir, can_reset_stats_proc_show,
-+			NULL);
-+	net->can.pde_rcvlist_err = proc_create_net_single(CAN_PROC_RCVLIST_ERR,
-+			0644, net->can.proc_dir, can_rcvlist_proc_show,
-+			(void *)RX_ERR);
-+	net->can.pde_rcvlist_all = proc_create_net_single(CAN_PROC_RCVLIST_ALL,
-+			0644, net->can.proc_dir, can_rcvlist_proc_show,
-+			(void *)RX_ALL);
-+	net->can.pde_rcvlist_fil = proc_create_net_single(CAN_PROC_RCVLIST_FIL,
-+			0644, net->can.proc_dir, can_rcvlist_proc_show,
-+			(void *)RX_FIL);
-+	net->can.pde_rcvlist_inv = proc_create_net_single(CAN_PROC_RCVLIST_INV,
-+			0644, net->can.proc_dir, can_rcvlist_proc_show,
-+			(void *)RX_INV);
-+	net->can.pde_rcvlist_eff = proc_create_net_single(CAN_PROC_RCVLIST_EFF,
-+			0644, net->can.proc_dir, can_rcvlist_eff_proc_show, NULL);
-+	net->can.pde_rcvlist_sff = proc_create_net_single(CAN_PROC_RCVLIST_SFF,
-+			0644, net->can.proc_dir, can_rcvlist_sff_proc_show, NULL);
- }
+-	platform_set_drvdata(pdev, rtc);
+-
+ 	ret = device_init_wakeup(&pdev->dev, true);
++	if (rtc->data->has_wakeirq) {
++		rtc->wakeirq_alarm = platform_get_irq(pdev, 1);
++		if (rtc->wakeirq_alarm <= 0)
++			ret = rtc->wakeirq_alarm;
++		else
++			ret = dev_pm_set_dedicated_wake_irq(&pdev->dev,
++							    rtc->wakeirq_alarm);
++	}
+ 	if (ret)
+-		dev_warn(&pdev->dev,
+-			 "alarm won't be able to wake up the system");
++		dev_warn(&pdev->dev, "alarm can't wake up the system: %d", ret);
++
++	platform_set_drvdata(pdev, rtc);
  
- /*
-diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
-index 3293f04b941d..99c23a0cb8ca 100644
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -2348,18 +2348,6 @@ static int fib_triestat_seq_show(struct seq_file *seq, void *v)
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 						&stm32_rtc_ops, THIS_MODULE);
+@@ -760,6 +824,14 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (!(readl_relaxed(rtc->base + regs.isr) & STM32_RTC_ISR_INITS))
+ 		dev_warn(&pdev->dev, "Date/Time must be initialized\n");
+ 
++	if (regs.verr != UNDEF_REG) {
++		u32 ver = readl_relaxed(rtc->base + regs.verr);
++
++		dev_info(&pdev->dev, "registered rev:%d.%d\n",
++			 (ver >> STM32_RTC_VERR_MAJREV_SHIFT) & 0xF,
++			 (ver >> STM32_RTC_VERR_MINREV_SHIFT) & 0xF);
++	}
++
  	return 0;
- }
+ err:
+ 	if (rtc->data->has_pclk)
+@@ -769,6 +841,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
  
--static int fib_triestat_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, fib_triestat_seq_show);
--}
--
--static const struct file_operations fib_triestat_fops = {
--	.open	= fib_triestat_seq_open,
--	.read	= seq_read,
--	.llseek	= seq_lseek,
--	.release = single_release_net,
--};
--
- static struct key_vector *fib_trie_get_idx(struct seq_file *seq, loff_t pos)
- {
- 	struct fib_trie_iter *iter = seq->private;
-@@ -2719,8 +2707,8 @@ int __net_init fib_proc_init(struct net *net)
- 			sizeof(struct fib_trie_iter)))
- 		goto out1;
++	dev_pm_clear_wake_irq(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, false);
  
--	if (!proc_create("fib_triestat", 0444, net->proc_net,
--			 &fib_triestat_fops))
-+	if (!proc_create_net_single("fib_triestat", 0444, net->proc_net,
-+			fib_triestat_seq_show, NULL))
- 		goto out2;
+ 	return ret;
+@@ -795,6 +868,7 @@ static int stm32_rtc_remove(struct platform_device *pdev)
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
  
- 	if (!proc_create_net("route", 0444, net->proc_net, &fib_route_seq_ops,
-diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
-index a058de677e94..573e43c8ed87 100644
---- a/net/ipv4/proc.c
-+++ b/net/ipv4/proc.c
-@@ -77,18 +77,6 @@ static int sockstat_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int sockstat_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, sockstat_seq_show);
--}
--
--static const struct file_operations sockstat_seq_fops = {
--	.open	 = sockstat_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- /* snmp items */
- static const struct snmp_mib snmp4_ipstats_list[] = {
- 	SNMP_MIB_ITEM("InReceives", IPSTATS_MIB_INPKTS),
-@@ -460,20 +448,6 @@ static int snmp_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int snmp_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, snmp_seq_show);
--}
--
--static const struct file_operations snmp_seq_fops = {
--	.open	 = snmp_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
--
--
- /*
-  *	Output /proc/net/netstat
-  */
-@@ -507,26 +481,16 @@ static int netstat_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int netstat_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, netstat_seq_show);
--}
--
--static const struct file_operations netstat_seq_fops = {
--	.open	 = netstat_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- static __net_init int ip_proc_init_net(struct net *net)
- {
--	if (!proc_create("sockstat", 0444, net->proc_net,
--			 &sockstat_seq_fops))
-+	if (!proc_create_net_single("sockstat", 0444, net->proc_net,
-+			sockstat_seq_show, NULL))
- 		goto out_sockstat;
--	if (!proc_create("netstat", 0444, net->proc_net, &netstat_seq_fops))
-+	if (!proc_create_net_single("netstat", 0444, net->proc_net,
-+			netstat_seq_show, NULL))
- 		goto out_netstat;
--	if (!proc_create("snmp", 0444, net->proc_net, &snmp_seq_fops))
-+	if (!proc_create_net_single("snmp", 0444, net->proc_net, snmp_seq_show,
-+			NULL))
- 		goto out_snmp;
++	dev_pm_clear_wake_irq(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, false);
  
  	return 0;
-diff --git a/net/ipv6/proc.c b/net/ipv6/proc.c
-index a0edf194822a..2356b4af7309 100644
---- a/net/ipv6/proc.c
-+++ b/net/ipv6/proc.c
-@@ -53,18 +53,6 @@ static int sockstat6_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int sockstat6_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, sockstat6_seq_show);
--}
--
--static const struct file_operations sockstat6_seq_fops = {
--	.open	 = sockstat6_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- static const struct snmp_mib snmp6_ipstats_list[] = {
- /* ipv6 mib according to RFC 2465 */
- 	SNMP_MIB_ITEM("Ip6InReceives", IPSTATS_MIB_INPKTS),
-@@ -242,18 +230,6 @@ static int snmp6_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int snmp6_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, snmp6_seq_show);
--}
--
--static const struct file_operations snmp6_seq_fops = {
--	.open	 = snmp6_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- static int snmp6_dev_seq_show(struct seq_file *seq, void *v)
- {
- 	struct inet6_dev *idev = (struct inet6_dev *)seq->private;
-@@ -302,11 +278,12 @@ int snmp6_unregister_dev(struct inet6_dev *idev)
- 
- static int __net_init ipv6_proc_init_net(struct net *net)
- {
--	if (!proc_create("sockstat6", 0444, net->proc_net,
--			 &sockstat6_seq_fops))
-+	if (!proc_create_net_single("sockstat6", 0444, net->proc_net,
-+			sockstat6_seq_show, NULL))
- 		return -ENOMEM;
- 
--	if (!proc_create("snmp6", 0444, net->proc_net, &snmp6_seq_fops))
-+	if (!proc_create_net_single("snmp6", 0444, net->proc_net,
-+			snmp6_seq_show, NULL))
- 		goto proc_snmp6_fail;
- 
- 	net->mib.proc_net_devsnmp6 = proc_mkdir("dev_snmp6", net->proc_net);
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 07c4aafe7710..095ed6ae9cc9 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -4869,18 +4869,6 @@ static int rt6_stats_seq_show(struct seq_file *seq, void *v)
- 
- 	return 0;
- }
--
--static int rt6_stats_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, rt6_stats_seq_show);
--}
--
--static const struct file_operations rt6_stats_seq_fops = {
--	.open	 = rt6_stats_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
- #endif	/* CONFIG_PROC_FS */
- 
- #ifdef CONFIG_SYSCTL
-@@ -5087,7 +5075,8 @@ static int __net_init ip6_route_net_init_late(struct net *net)
- #ifdef CONFIG_PROC_FS
- 	proc_create_net("ipv6_route", 0, net->proc_net, &ipv6_route_seq_ops,
- 			sizeof(struct ipv6_route_iter));
--	proc_create("rt6_stats", 0444, net->proc_net, &rt6_stats_seq_fops);
-+	proc_create_net_single("rt6_stats", 0444, net->proc_net,
-+			rt6_stats_seq_show, NULL);
- #endif
- 	return 0;
- }
-diff --git a/net/kcm/kcmproc.c b/net/kcm/kcmproc.c
-index 6283ed2f43b2..370da2f80e3c 100644
---- a/net/kcm/kcmproc.c
-+++ b/net/kcm/kcmproc.c
-@@ -345,22 +345,10 @@ static int kcm_stats_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int kcm_stats_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, kcm_stats_seq_show);
--}
--
--static const struct file_operations kcm_stats_seq_fops = {
--	.open    = kcm_stats_seq_open,
--	.read    = seq_read,
--	.llseek  = seq_lseek,
--	.release = single_release_net,
--};
--
- static int kcm_proc_init_net(struct net *net)
- {
--	if (!proc_create("kcm_stats", 0444, net->proc_net,
--			 &kcm_stats_seq_fops))
-+	if (!proc_create_net_single("kcm_stats", 0444, net->proc_net,
-+			 kcm_stats_seq_show, NULL))
- 		goto out_kcm_stats;
- 
- 	if (!proc_create_net("kcm", 0444, net->proc_net, &kcm_seq_ops,
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 5d7abe11ccb5..f5a1d3503a7c 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -2141,18 +2141,6 @@ static int ip_vs_stats_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int ip_vs_stats_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, ip_vs_stats_show);
--}
--
--static const struct file_operations ip_vs_stats_fops = {
--	.open = ip_vs_stats_seq_open,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = single_release_net,
--};
--
- static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
- {
- 	struct net *net = seq_file_single_net(seq);
-@@ -2208,18 +2196,6 @@ static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
- 
- 	return 0;
- }
--
--static int ip_vs_stats_percpu_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, ip_vs_stats_percpu_show);
--}
--
--static const struct file_operations ip_vs_stats_percpu_fops = {
--	.open = ip_vs_stats_percpu_seq_open,
--	.read = seq_read,
--	.llseek = seq_lseek,
--	.release = single_release_net,
--};
- #endif
- 
- /*
-@@ -4027,9 +4003,10 @@ int __net_init ip_vs_control_net_init(struct netns_ipvs *ipvs)
- 
- 	proc_create_net("ip_vs", 0, ipvs->net->proc_net, &ip_vs_info_seq_ops,
- 			sizeof(struct ip_vs_iter));
--	proc_create("ip_vs_stats", 0, ipvs->net->proc_net, &ip_vs_stats_fops);
--	proc_create("ip_vs_stats_percpu", 0, ipvs->net->proc_net,
--		    &ip_vs_stats_percpu_fops);
-+	proc_create_net_single("ip_vs_stats", 0, ipvs->net->proc_net,
-+			ip_vs_stats_show, NULL);
-+	proc_create_net_single("ip_vs_stats_percpu", 0, ipvs->net->proc_net,
-+			ip_vs_stats_percpu_show, NULL);
- 
- 	if (ip_vs_control_net_init_sysctl(ipvs))
- 		goto err;
-diff --git a/net/sctp/proc.c b/net/sctp/proc.c
-index 009c185b71eb..ef5c9a82d4e8 100644
---- a/net/sctp/proc.c
-+++ b/net/sctp/proc.c
-@@ -88,19 +88,6 @@ static int sctp_snmp_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--/* Initialize the seq file operations for 'snmp' object. */
--static int sctp_snmp_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, sctp_snmp_seq_show);
--}
--
--static const struct file_operations sctp_snmp_seq_fops = {
--	.open	 = sctp_snmp_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- /* Dump local addresses of an association/endpoint. */
- static void sctp_seq_dump_local_addrs(struct seq_file *seq, struct sctp_ep_common *epb)
- {
-@@ -408,8 +395,8 @@ int __net_init sctp_proc_init(struct net *net)
- 	net->sctp.proc_net_sctp = proc_net_mkdir(net, "sctp", net->proc_net);
- 	if (!net->sctp.proc_net_sctp)
- 		return -ENOMEM;
--	if (!proc_create("snmp", 0444, net->sctp.proc_net_sctp,
--			 &sctp_snmp_seq_fops))
-+	if (!proc_create_net_single("snmp", 0444, net->sctp.proc_net_sctp,
-+			 sctp_snmp_seq_show, NULL))
- 		goto cleanup;
- 	if (!proc_create_net("eps", 0444, net->sctp.proc_net_sctp,
- 			&sctp_eps_ops, sizeof(struct seq_net_private)))
-diff --git a/net/xfrm/xfrm_proc.c b/net/xfrm/xfrm_proc.c
-index ed06903cd84d..178318d2e120 100644
---- a/net/xfrm/xfrm_proc.c
-+++ b/net/xfrm/xfrm_proc.c
-@@ -65,22 +65,10 @@ static int xfrm_statistics_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int xfrm_statistics_seq_open(struct inode *inode, struct file *file)
--{
--	return single_open_net(inode, file, xfrm_statistics_seq_show);
--}
--
--static const struct file_operations xfrm_statistics_seq_fops = {
--	.open	 = xfrm_statistics_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = single_release_net,
--};
--
- int __net_init xfrm_proc_init(struct net *net)
- {
--	if (!proc_create("xfrm_stat", 0444, net->proc_net,
--			 &xfrm_statistics_seq_fops))
-+	if (!proc_create_net_single("xfrm_stat", 0444, net->proc_net,
-+			 xfrm_statistics_seq_show, NULL))
- 		return -ENOMEM;
- 	return 0;
- }
 -- 
-2.17.0
+2.7.4
