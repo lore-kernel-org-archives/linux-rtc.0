@@ -1,203 +1,323 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38220 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752982AbeDSMmo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:44 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 07/39] ipv{4,6}/ping: simplify proc file creation
-Date: Thu, 19 Apr 2018 14:41:08 +0200
-Message-Id: <20180419124140.9309-8-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:33437 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753515AbeDSMuu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 19 Apr 2018 08:50:50 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/4] selftests: timers: move PIE tests out of rtctest
+Date: Thu, 19 Apr 2018 14:50:27 +0200
+Message-Id: <20180419125030.5076-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Remove the pointless ping_seq_afinfo indirection and make the code look
-like most other protocols.
+Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
+events"), PIE are completely handled using hrtimers, without actually using
+any underlying hardware RTC.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Move PIE testing out of rtctest. It still depends on the presence of an RTC
+(to access the device file) but doesn't depend on it actually working.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- include/net/ping.h | 11 ----------
- net/ipv4/ping.c    | 50 +++++++++++++---------------------------------
- net/ipv6/ping.c    | 35 +++++++++++++++++++++-----------
- 3 files changed, 37 insertions(+), 59 deletions(-)
+ tools/testing/selftests/timers/.gitignore |   1 +
+ tools/testing/selftests/timers/Makefile   |   2 +-
+ tools/testing/selftests/timers/rtcpie.c   | 132 ++++++++++++++++++++++
+ tools/testing/selftests/timers/rtctest.c  |  83 +-------------
+ 4 files changed, 138 insertions(+), 80 deletions(-)
+ create mode 100644 tools/testing/selftests/timers/rtcpie.c
 
-diff --git a/include/net/ping.h b/include/net/ping.h
-index 4cd90d6b5c25..fd080e043a6e 100644
---- a/include/net/ping.h
-+++ b/include/net/ping.h
-@@ -83,20 +83,9 @@ int  ping_queue_rcv_skb(struct sock *sk, struct sk_buff *skb);
- bool ping_rcv(struct sk_buff *skb);
+diff --git a/tools/testing/selftests/timers/.gitignore b/tools/testing/selftests/timers/.gitignore
+index 2c8ac8416299..353ae15daa1e 100644
+--- a/tools/testing/selftests/timers/.gitignore
++++ b/tools/testing/selftests/timers/.gitignore
+@@ -9,6 +9,7 @@ nanosleep
+ nsleep-lat
+ posix_timers
+ raw_skew
++rtcpie
+ rtctest
+ set-2038
+ set-tai
+diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+index 3496680981f2..8be7895ff918 100644
+--- a/tools/testing/selftests/timers/Makefile
++++ b/tools/testing/selftests/timers/Makefile
+@@ -5,7 +5,7 @@ LDFLAGS += -lrt -lpthread -lm
+ # these are all "safe" tests that don't modify
+ # system time or require escalated privileges
+ TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
+-	     inconsistency-check raw_skew threadtest rtctest
++	     inconsistency-check raw_skew threadtest rtctest rtcpie
  
- #ifdef CONFIG_PROC_FS
--struct ping_seq_afinfo {
--	char				*name;
--	sa_family_t			family;
--	const struct file_operations	*seq_fops;
--	const struct seq_operations	seq_ops;
--};
--
--extern const struct file_operations ping_seq_fops;
--
- void *ping_seq_start(struct seq_file *seq, loff_t *pos, sa_family_t family);
- void *ping_seq_next(struct seq_file *seq, void *v, loff_t *pos);
- void ping_seq_stop(struct seq_file *seq, void *v);
--int ping_proc_register(struct net *net, struct ping_seq_afinfo *afinfo);
--void ping_proc_unregister(struct net *net, struct ping_seq_afinfo *afinfo);
- 
- int __init ping_proc_init(void);
- void ping_proc_exit(void);
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index 05e47d777009..83170ebf5dfc 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -1147,58 +1147,36 @@ static int ping_v4_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int ping_seq_open(struct inode *inode, struct file *file)
-+static const struct seq_operations ping_v4_seq_ops = {
-+	.start		= ping_v4_seq_start,
-+	.show		= ping_v4_seq_show,
-+	.next		= ping_seq_next,
-+	.stop		= ping_seq_stop,
-+};
+ DESTRUCTIVE_TESTS = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+ 		      skew_consistency clocksource-switch freq-step leap-a-day \
+diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
+new file mode 100644
+index 000000000000..ea98b1f6ac17
+--- /dev/null
++++ b/tools/testing/selftests/timers/rtcpie.c
+@@ -0,0 +1,132 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Real Time Clock Periodic Interrupt test program
++ *
++ * Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
++ * events"), PIE are completely handled using hrtimers, without actually using
++ * any underlying hardware RTC.
++ *
++ */
 +
-+static int ping_v4_seq_open(struct inode *inode, struct file *file)
- {
--	struct ping_seq_afinfo *afinfo = PDE_DATA(inode);
--	return seq_open_net(inode, file, &afinfo->seq_ops,
-+	return seq_open_net(inode, file, &ping_v4_seq_ops,
- 			   sizeof(struct ping_iter_state));
- }
- 
--const struct file_operations ping_seq_fops = {
--	.open		= ping_seq_open,
-+const struct file_operations ping_v4_seq_fops = {
-+	.open		= ping_v4_seq_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
- 	.release	= seq_release_net,
- };
--EXPORT_SYMBOL_GPL(ping_seq_fops);
--
--static struct ping_seq_afinfo ping_v4_seq_afinfo = {
--	.name		= "icmp",
--	.family		= AF_INET,
--	.seq_fops	= &ping_seq_fops,
--	.seq_ops	= {
--		.start		= ping_v4_seq_start,
--		.show		= ping_v4_seq_show,
--		.next		= ping_seq_next,
--		.stop		= ping_seq_stop,
--	},
--};
- 
--int ping_proc_register(struct net *net, struct ping_seq_afinfo *afinfo)
-+static int __net_init ping_v4_proc_init_net(struct net *net)
- {
--	struct proc_dir_entry *p;
--	p = proc_create_data(afinfo->name, 0444, net->proc_net,
--			     afinfo->seq_fops, afinfo);
--	if (!p)
-+	if (!proc_create("icmp", 0444, net->proc_net, &ping_v4_seq_fops))
- 		return -ENOMEM;
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(ping_proc_register);
--
--void ping_proc_unregister(struct net *net, struct ping_seq_afinfo *afinfo)
--{
--	remove_proc_entry(afinfo->name, net->proc_net);
--}
--EXPORT_SYMBOL_GPL(ping_proc_unregister);
--
--static int __net_init ping_v4_proc_init_net(struct net *net)
--{
--	return ping_proc_register(net, &ping_v4_seq_afinfo);
--}
- 
- static void __net_exit ping_v4_proc_exit_net(struct net *net)
- {
--	ping_proc_unregister(net, &ping_v4_seq_afinfo);
-+	remove_proc_entry("icmp", net->proc_net);
- }
- 
- static struct pernet_operations ping_v4_net_ops = {
-diff --git a/net/ipv6/ping.c b/net/ipv6/ping.c
-index 746eeae7f581..45d5c8e0f2bf 100644
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -24,6 +24,7 @@
- #include <net/protocol.h>
- #include <net/udp.h>
- #include <net/transp_v6.h>
-+#include <linux/proc_fs.h>
- #include <net/ping.h>
- 
- /* Compatibility glue so we can support IPv6 when it's compiled as a module */
-@@ -215,26 +216,36 @@ static int ping_v6_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static struct ping_seq_afinfo ping_v6_seq_afinfo = {
--	.name		= "icmp6",
--	.family		= AF_INET6,
--	.seq_fops       = &ping_seq_fops,
--	.seq_ops	= {
--		.start		= ping_v6_seq_start,
--		.show		= ping_v6_seq_show,
--		.next		= ping_seq_next,
--		.stop		= ping_seq_stop,
--	},
-+static const struct seq_operations ping_v6_seq_ops = {
-+	.start		= ping_v6_seq_start,
-+	.show		= ping_v6_seq_show,
-+	.next		= ping_seq_next,
-+	.stop		= ping_seq_stop,
-+};
++#include <stdio.h>
++#include <linux/rtc.h>
++#include <sys/ioctl.h>
++#include <sys/time.h>
++#include <sys/types.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <errno.h>
 +
-+static int ping_v6_seq_open(struct inode *inode, struct file *file)
++/*
++ * This expects the new RTC class driver framework, working with
++ * clocks that will often not be clones of what the PC-AT had.
++ * Use the command line to specify another RTC if you need one.
++ */
++static const char default_rtc[] = "/dev/rtc0";
++
++int main(int argc, char **argv)
 +{
-+	return seq_open_net(inode, file, &ping_v6_seq_ops,
-+			   sizeof(struct ping_iter_state));
-+}
++	int i, fd, retval, irqcount = 0;
++	unsigned long tmp, data;
++	const char *rtc = default_rtc;
++	struct timeval start, end, diff;
 +
-+const struct file_operations ping_v6_seq_fops = {
-+	.open		= ping_v6_seq_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release_net,
- };
- 
- static int __net_init ping_v6_proc_init_net(struct net *net)
- {
--	return ping_proc_register(net, &ping_v6_seq_afinfo);
-+	if (!proc_create("icmp6", 0444, net->proc_net, &ping_v6_seq_fops))
-+		return -ENOMEM;
++	switch (argc) {
++	case 2:
++		rtc = argv[1];
++		/* FALLTHROUGH */
++	case 1:
++		break;
++	default:
++		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
++		return 1;
++	}
++
++	fd = open(rtc, O_RDONLY);
++
++	if (fd ==  -1) {
++		perror(rtc);
++		exit(errno);
++	}
++
++	/* Read periodic IRQ rate */
++	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
++	if (retval == -1) {
++		/* not all RTCs support periodic IRQs */
++		if (errno == EINVAL) {
++			fprintf(stderr, "\nNo periodic IRQ support\n");
++			goto done;
++		}
++		perror("RTC_IRQP_READ ioctl");
++		exit(errno);
++	}
++	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
++
++	fprintf(stderr, "Counting 20 interrupts at:");
++	fflush(stderr);
++
++	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
++	for (tmp=2; tmp<=64; tmp*=2) {
++
++		retval = ioctl(fd, RTC_IRQP_SET, tmp);
++		if (retval == -1) {
++			/* not all RTCs can change their periodic IRQ rate */
++			if (errno == EINVAL) {
++				fprintf(stderr,
++					"\n...Periodic IRQ rate is fixed\n");
++				goto done;
++			}
++			perror("RTC_IRQP_SET ioctl");
++			exit(errno);
++		}
++
++		fprintf(stderr, "\n%ldHz:\t", tmp);
++		fflush(stderr);
++
++		/* Enable periodic interrupts */
++		retval = ioctl(fd, RTC_PIE_ON, 0);
++		if (retval == -1) {
++			perror("RTC_PIE_ON ioctl");
++			exit(errno);
++		}
++
++		for (i=1; i<21; i++) {
++			gettimeofday(&start, NULL);
++			/* This blocks */
++			retval = read(fd, &data, sizeof(unsigned long));
++			if (retval == -1) {
++				perror("read");
++				exit(errno);
++			}
++			gettimeofday(&end, NULL);
++			timersub(&end, &start, &diff);
++			if (diff.tv_sec > 0 ||
++			    diff.tv_usec > ((1000000L / tmp) * 1.10)) {
++				fprintf(stderr, "\nPIE delta error: %ld.%06ld should be close to 0.%06ld\n",
++				       diff.tv_sec, diff.tv_usec,
++				       (1000000L / tmp));
++				fflush(stdout);
++				exit(-1);
++			}
++
++			fprintf(stderr, " %d",i);
++			fflush(stderr);
++			irqcount++;
++		}
++
++		/* Disable periodic interrupts */
++		retval = ioctl(fd, RTC_PIE_OFF, 0);
++		if (retval == -1) {
++			perror("RTC_PIE_OFF ioctl");
++			exit(errno);
++		}
++	}
++
++done:
++	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
++
++	close(fd);
++
 +	return 0;
- }
- 
- static void __net_init ping_v6_proc_exit_net(struct net *net)
++}
+diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
+index 411eff625e66..6e17b96551ec 100644
+--- a/tools/testing/selftests/timers/rtctest.c
++++ b/tools/testing/selftests/timers/rtctest.c
+@@ -94,10 +94,9 @@ static int compare_dates(struct rtc_time *a, struct rtc_time *b)
+ int main(int argc, char **argv)
  {
--	return ping_proc_unregister(net, &ping_v6_seq_afinfo);
-+	remove_proc_entry("icmp6", net->proc_net);
- }
+ 	int i, fd, retval, irqcount = 0, dangerous = 0;
+-	unsigned long tmp, data;
++	unsigned long data;
+ 	struct rtc_time rtc_tm;
+ 	const char *rtc = default_rtc;
+-	struct timeval start, end, diff;
  
- static struct pernet_operations ping_v6_net_ops = {
+ 	switch (argc) {
+ 	case 3:
+@@ -211,7 +210,7 @@ int main(int argc, char **argv)
+ 		if (errno == EINVAL) {
+ 			fprintf(stderr,
+ 				"\n...Alarm IRQs not supported.\n");
+-			goto test_PIE;
++			goto test_DATE;
+ 		}
+ 
+ 		perror("RTC_ALM_SET ioctl");
+@@ -224,7 +223,7 @@ int main(int argc, char **argv)
+ 		if (errno == EINVAL) {
+ 			fprintf(stderr,
+ 					"\n...EINVAL reading current alarm setting.\n");
+-			goto test_PIE;
++			goto test_DATE;
+ 		}
+ 		perror("RTC_ALM_READ ioctl");
+ 		exit(errno);
+@@ -239,7 +238,7 @@ int main(int argc, char **argv)
+ 		if (errno == EINVAL || errno == EIO) {
+ 			fprintf(stderr,
+ 				"\n...Alarm IRQs not supported.\n");
+-			goto test_PIE;
++			goto test_DATE;
+ 		}
+ 
+ 		perror("RTC_AIE_ON ioctl");
+@@ -264,80 +263,6 @@ int main(int argc, char **argv)
+ 		exit(errno);
+ 	}
+ 
+-test_PIE:
+-	/* Read periodic IRQ rate */
+-	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
+-	if (retval == -1) {
+-		/* not all RTCs support periodic IRQs */
+-		if (errno == EINVAL) {
+-			fprintf(stderr, "\nNo periodic IRQ support\n");
+-			goto test_DATE;
+-		}
+-		perror("RTC_IRQP_READ ioctl");
+-		exit(errno);
+-	}
+-	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
+-
+-	fprintf(stderr, "Counting 20 interrupts at:");
+-	fflush(stderr);
+-
+-	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
+-	for (tmp=2; tmp<=64; tmp*=2) {
+-
+-		retval = ioctl(fd, RTC_IRQP_SET, tmp);
+-		if (retval == -1) {
+-			/* not all RTCs can change their periodic IRQ rate */
+-			if (errno == EINVAL) {
+-				fprintf(stderr,
+-					"\n...Periodic IRQ rate is fixed\n");
+-				goto test_DATE;
+-			}
+-			perror("RTC_IRQP_SET ioctl");
+-			exit(errno);
+-		}
+-
+-		fprintf(stderr, "\n%ldHz:\t", tmp);
+-		fflush(stderr);
+-
+-		/* Enable periodic interrupts */
+-		retval = ioctl(fd, RTC_PIE_ON, 0);
+-		if (retval == -1) {
+-			perror("RTC_PIE_ON ioctl");
+-			exit(errno);
+-		}
+-
+-		for (i=1; i<21; i++) {
+-			gettimeofday(&start, NULL);
+-			/* This blocks */
+-			retval = read(fd, &data, sizeof(unsigned long));
+-			if (retval == -1) {
+-				perror("read");
+-				exit(errno);
+-			}
+-			gettimeofday(&end, NULL);
+-			timersub(&end, &start, &diff);
+-			if (diff.tv_sec > 0 ||
+-			    diff.tv_usec > ((1000000L / tmp) * 1.10)) {
+-				fprintf(stderr, "\nPIE delta error: %ld.%06ld should be close to 0.%06ld\n",
+-				       diff.tv_sec, diff.tv_usec,
+-				       (1000000L / tmp));
+-				fflush(stdout);
+-				exit(-1);
+-			}
+-
+-			fprintf(stderr, " %d",i);
+-			fflush(stderr);
+-			irqcount++;
+-		}
+-
+-		/* Disable periodic interrupts */
+-		retval = ioctl(fd, RTC_PIE_OFF, 0);
+-		if (retval == -1) {
+-			perror("RTC_PIE_OFF ioctl");
+-			exit(errno);
+-		}
+-	}
+-
+ test_DATE:
+ 	if (!dangerous)
+ 		goto done;
 -- 
 2.17.0
