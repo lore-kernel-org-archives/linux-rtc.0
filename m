@@ -1,65 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:37055 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750995AbeDYJcy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:54 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 01/17] dt-bindings: power: reset: mt6323: add bindings for MT6323 power controller
-Date: Wed, 25 Apr 2018 17:32:27 +0800
-Message-ID: <0b3123e42c8a47e3fa8b21aa2e139e6d3dc69f41.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
+Received: from aserp2120.oracle.com ([141.146.126.78]:43882 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752775AbeDSOT1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 10:19:27 -0400
+Date: Thu, 19 Apr 2018 17:18:18 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, Corey Minyard <minyard@acm.org>,
+        linux-ide@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        jfs-discussion@lists.sourceforge.net,
+        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
+Subject: Re: [PATCH 03/39] proc: introduce proc_create_seq_private
+Message-ID: <20180419141818.pjys7at4xmz2h6ho@mwanda>
+References: <20180419124140.9309-1-hch@lst.de>
+ <20180419124140.9309-4-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180419124140.9309-4-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On Thu, Apr 19, 2018 at 02:41:04PM +0200, Christoph Hellwig wrote:
+> diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+> index 2a3f874a21d5..ad35cddcf6af 100644
+> --- a/drivers/s390/cio/blacklist.c
+> +++ b/drivers/s390/cio/blacklist.c
+> @@ -391,28 +391,15 @@ static const struct seq_operations cio_ignore_proc_seq_ops = {
+>  	.show  = cio_ignore_proc_seq_show,
+>  };
+>  
+> -static int
+> -cio_ignore_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return seq_open_private(file, &cio_ignore_proc_seq_ops,
+> -				sizeof(struct ccwdev_iter));
+> -}
+> -
+> -static const struct file_operations cio_ignore_proc_fops = {
+> -	.open    = cio_ignore_proc_open,
+> -	.read    = seq_read,
+> -	.llseek  = seq_lseek,
+> -	.release = seq_release_private,
+> -	.write   = cio_ignore_write,
+                   ^^^^^^^^^^^^^^^^
+The cio_ignore_write() function isn't used any more so compilers will
+complain.
 
-Adding device-tree binding for the power controller which is a tiny
-circuit block present as a part of MT6323 PMIC and is responsible for
-externally powering off or on a remote SoC the PMIC is connected to.
+> -};
+> -
+>  static int
+>  cio_ignore_proc_init (void)
+>  {
+>  	struct proc_dir_entry *entry;
+>  
+> -	entry = proc_create("cio_ignore", S_IFREG | S_IRUGO | S_IWUSR, NULL,
+> -			    &cio_ignore_proc_fops);
+> +	entry = proc_create_seq_private("cio_ignore",
+> +			S_IFREG | S_IRUGO | S_IWUSR, NULL,
+> +			&cio_ignore_proc_seq_ops, sizeof(struct ccwdev_iter),
+> +			NULL);
+>  	if (!entry)
+>  		return -ENOENT;
+>  	return 0;
 
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- .../bindings/power/reset/mt6323-poweroff.txt         | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
-
-diff --git a/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
-new file mode 100644
-index 0000000..6f7c590
---- /dev/null
-+++ b/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
-@@ -0,0 +1,20 @@
-+Device Tree Bindings for Power Controller on MediaTek PMIC
-+
-+The power controller which could be found on PMIC is responsible for externally
-+powering off or on the remote MediaTek SoC through the circuit BBPU.
-+
-+Required properties:
-+- compatible: Should be one of follows
-+	"mediatek,mt6323-pwrc": for MT6323 PMIC
-+
-+Example:
-+
-+	pmic {
-+		compatible = "mediatek,mt6323";
-+
-+		...
-+
-+		power-controller {
-+			compatible = "mediatek,mt6323-pwrc";
-+		};
-+	}
--- 
-2.7.4
+regards,
+dan carpenter
