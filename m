@@ -1,43 +1,111 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:46104 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753811AbeD3NTa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 30 Apr 2018 09:19:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20180425154827.32251-5-hch@lst.de>
-References: <20180425154827.32251-5-hch@lst.de> <20180425154827.32251-1-hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: dhowells@redhat.com, Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+Received: from bombadil.infradead.org ([198.137.202.133]:40106 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751184AbeDSMnw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:52 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
-Subject: Re: [PATCH 04/40] proc: introduce proc_create_seq{,_data}
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 30 Apr 2018 14:19:25 +0100
-Message-ID: <26540.1525094365@warthog.procyon.org.uk>
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 31/39] netfilter/x_tables: switch to proc_create_seq_private
+Date: Thu, 19 Apr 2018 14:41:32 +0200
+Message-Id: <20180419124140.9309-32-hch@lst.de>
+In-Reply-To: <20180419124140.9309-1-hch@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Christoph Hellwig <hch@lst.de> wrote:
+And remove proc boilerplate code.
 
-> +
-> +struct proc_dir_entry *proc_create_seq_data(const char *name, umode_t mode,
-> +		struct proc_dir_entry *parent, const struct seq_operations *ops,
-> +		void *data)
-> +{
-> ...
-> +EXPORT_SYMBOL(proc_create_seq_data);
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ net/netfilter/x_tables.c | 42 ++++++----------------------------------
+ 1 file changed, 6 insertions(+), 36 deletions(-)
 
-Please add documentation comments to exported functions when you add them.
-
-David
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 344dd01a5027..0e314f95a4a3 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1648,22 +1648,6 @@ static const struct seq_operations xt_match_seq_ops = {
+ 	.show	= xt_match_seq_show,
+ };
+ 
+-static int xt_match_open(struct inode *inode, struct file *file)
+-{
+-	struct nf_mttg_trav *trav;
+-	trav = __seq_open_private(file, &xt_match_seq_ops, sizeof(*trav));
+-	if (!trav)
+-		return -ENOMEM;
+-	return 0;
+-}
+-
+-static const struct file_operations xt_match_ops = {
+-	.open	 = xt_match_open,
+-	.read	 = seq_read,
+-	.llseek	 = seq_lseek,
+-	.release = seq_release_private,
+-};
+-
+ static void *xt_target_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	return xt_mttg_seq_start(seq, pos, true);
+@@ -1698,22 +1682,6 @@ static const struct seq_operations xt_target_seq_ops = {
+ 	.show	= xt_target_seq_show,
+ };
+ 
+-static int xt_target_open(struct inode *inode, struct file *file)
+-{
+-	struct nf_mttg_trav *trav;
+-	trav = __seq_open_private(file, &xt_target_seq_ops, sizeof(*trav));
+-	if (!trav)
+-		return -ENOMEM;
+-	return 0;
+-}
+-
+-static const struct file_operations xt_target_ops = {
+-	.open	 = xt_target_open,
+-	.read	 = seq_read,
+-	.llseek	 = seq_lseek,
+-	.release = seq_release_private,
+-};
+-
+ #define FORMAT_TABLES	"_tables_names"
+ #define	FORMAT_MATCHES	"_tables_matches"
+ #define FORMAT_TARGETS 	"_tables_targets"
+@@ -1787,8 +1755,9 @@ int xt_proto_init(struct net *net, u_int8_t af)
+ 
+ 	strlcpy(buf, xt_prefix[af], sizeof(buf));
+ 	strlcat(buf, FORMAT_MATCHES, sizeof(buf));
+-	proc = proc_create_data(buf, 0440, net->proc_net, &xt_match_ops,
+-				(void *)(unsigned long)af);
++	proc = proc_create_seq_private(buf, 0440, net->proc_net,
++			&xt_match_seq_ops, sizeof(struct nf_mttg_trav),
++			(void *)(unsigned long)af);
+ 	if (!proc)
+ 		goto out_remove_tables;
+ 	if (uid_valid(root_uid) && gid_valid(root_gid))
+@@ -1796,8 +1765,9 @@ int xt_proto_init(struct net *net, u_int8_t af)
+ 
+ 	strlcpy(buf, xt_prefix[af], sizeof(buf));
+ 	strlcat(buf, FORMAT_TARGETS, sizeof(buf));
+-	proc = proc_create_data(buf, 0440, net->proc_net, &xt_target_ops,
+-				(void *)(unsigned long)af);
++	proc = proc_create_seq_private(buf, 0440, net->proc_net,
++			 &xt_target_seq_ops, sizeof(struct nf_mttg_trav),
++			 (void *)(unsigned long)af);
+ 	if (!proc)
+ 		goto out_remove_matches;
+ 	if (uid_valid(root_uid) && gid_valid(root_gid))
+-- 
+2.17.0
