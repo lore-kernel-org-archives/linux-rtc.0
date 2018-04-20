@@ -1,115 +1,90 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36354 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754926AbeDYPs5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:48:57 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 03/40] proc: add a proc_create_reg helper
-Date: Wed, 25 Apr 2018 17:47:50 +0200
-Message-Id: <20180425154827.32251-4-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mga17.intel.com ([192.55.52.151]:36862 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751254AbeDTF7h (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Apr 2018 01:59:37 -0400
+Message-ID: <1524203968.2553.32.camel@intel.com>
+Subject: Re: [PATCH 1/3] rtc: cmos: allow using ACPI for RTC alarm instead
+ of HPET
+From: Zhang Rui <rui.zhang@intel.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        rjw@rjwysocki.net, gabriele.mzt@gmail.com
+Date: Fri, 20 Apr 2018 13:59:28 +0800
+In-Reply-To: <20180419140538.GG7369@piout.net>
+References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
+         <20180419140538.GG7369@piout.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Common code for creating a regular file.  Factor out of proc_create_data, to
-be reused by other functions soon.
+Hi, Alexandre
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/generic.c  | 44 +++++++++++++++++++++++++-------------------
- fs/proc/internal.h |  2 ++
- 2 files changed, 27 insertions(+), 19 deletions(-)
+On 四, 2018-04-19 at 16:05 +0200, Alexandre Belloni wrote:
+> Hi,
+> 
+> 
+> On 26/03/2018 21:58:01+0800, Zhang Rui wrote:
+> > 
+> > It's found that the HPET timer prevents the platform from entering
+> > Low Power S0 on some new Intel platforms.
+> > 
+> > This means that
+> > 1. users can still use RTC wake Alarm for suspend-to-idle, but the
+> > system
+> >    never enters Low Power S0, which is a waste of power.
+> > or
+> > 2. if users want to put the system into Low Power S0, they can not
+> > use
+> >    RTC as the wakeup source.
+> > 
+> > To fix this, we need to stop using the HPET timer for wake alarm.
+> > But disabling CONFIG_HPET_EMULATE_RTC is not an option because HPET
+> > emulates PIT at the same time, and this is needed on some of these
+> > platforms.
+> > 
+> > Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos driver,
+> > so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still
+> > possible to
+> > use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead of
+> > HPET.
+> > 
+> > Only necessary changes are made for the new "use_acpi_alarm" mode,
+> > including
+> > 1. drop all the calls to HPET emulation code, including the HPET
+> > irq
+> >    handler for rtc interrupt.
+> > 2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE
+> > request.
+> > 3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
+> > 
+> > There is no functional change made in this patch if the new mode is
+> > not
+> > enabled.
+> > 
+> > Note: this "use_acpi_alarm" mode is made based on the assumption
+> > that
+> > ACPI RTC Fixed event is reliable both at runtime and during system
+> > wakeup.
+> > And this has been verified on a couple of platforms I have,
+> > including
+> > a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP 9360
+> > (KBL).
+> > 
+> > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> > ---
+> >  drivers/rtc/rtc-cmos.c | 111 +++++++++++++++++++++++++++++++++++
+> > --------------
+> >  1 file changed, 80 insertions(+), 31 deletions(-)
+> > 
+> I've applied the series but it didn't apply cleanly, please check
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/lo
+> g/?h=rtc-next
+> 
+Yes, I noticed this conflict as well.
+I have rebased it on top of -rc1 and it is under testing right now.
+I will rebase on your tree and resend.
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index bd8480ff0d35..ab6a321076b8 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -511,33 +511,39 @@ struct proc_dir_entry *proc_create_mount_point(const char *name)
- }
- EXPORT_SYMBOL(proc_create_mount_point);
- 
--struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
--					struct proc_dir_entry *parent,
--					const struct file_operations *proc_fops,
--					void *data)
-+struct proc_dir_entry *proc_create_reg(const char *name, umode_t mode,
-+		struct proc_dir_entry **parent, void *data)
- {
--	struct proc_dir_entry *pde;
-+	struct proc_dir_entry *p;
-+
- 	if ((mode & S_IFMT) == 0)
- 		mode |= S_IFREG;
--
--	if (!S_ISREG(mode)) {
--		WARN_ON(1);	/* use proc_mkdir() */
-+	if ((mode & S_IALLUGO) == 0)
-+		mode |= S_IRUGO;
-+	if (WARN_ON_ONCE(!S_ISREG(mode)))
- 		return NULL;
-+
-+	p = __proc_create(parent, name, mode, 1);
-+	if (p) {
-+		p->proc_iops = &proc_file_inode_operations;
-+		p->data = data;
- 	}
-+	return p;
-+}
-+
-+struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent,
-+		const struct file_operations *proc_fops, void *data)
-+{
-+	struct proc_dir_entry *p;
- 
- 	BUG_ON(proc_fops == NULL);
- 
--	if ((mode & S_IALLUGO) == 0)
--		mode |= S_IRUGO;
--	pde = __proc_create(&parent, name, mode, 1);
--	if (!pde)
--		goto out;
--	pde->proc_fops = proc_fops;
--	pde->data = data;
--	pde->proc_iops = &proc_file_inode_operations;
--	return proc_register(parent, pde);
--out:
--	return NULL;
-+	p = proc_create_reg(name, mode, &parent, data);
-+	if (!p)
-+		return NULL;
-+	p->proc_fops = proc_fops;
-+	return proc_register(parent, p);
- }
- EXPORT_SYMBOL(proc_create_data);
-  
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 488e67490312..dd1e11400b97 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -162,6 +162,8 @@ extern bool proc_fill_cache(struct file *, struct dir_context *, const char *, i
- /*
-  * generic.c
-  */
-+struct proc_dir_entry *proc_create_reg(const char *name, umode_t mode,
-+		struct proc_dir_entry **parent, void *data);
- struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
- 		struct proc_dir_entry *dp);
- extern struct dentry *proc_lookup(struct inode *, struct dentry *, unsigned int);
--- 
-2.17.0
+thanks,
+rui
