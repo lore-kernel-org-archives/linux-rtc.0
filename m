@@ -1,98 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:56217 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751324AbeDYJcz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:55 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 09/17] rtc: mt6397: replace a poll with regmap_read_poll_timeout
-Date: Wed, 25 Apr 2018 17:32:35 +0800
-Message-ID: <de46e310a29fd63f66165e6f8296e949f392a370.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mout.kundenserver.de ([212.227.126.187]:52585 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751836AbeDTQO6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Apr 2018 12:14:58 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] rtc: ls1x: remove mktime usage
+Date: Fri, 20 Apr 2018 18:14:25 +0200
+Message-Id: <20180420161433.3721192-2-arnd@arndb.de>
+In-Reply-To: <20180420161433.3721192-1-arnd@arndb.de>
+References: <20180420161433.3721192-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+The loongson1 platform is 32-bit, so storing a time value in 32 bits
+suffers from limited range. In this case it is likely to be correct
+until 2106, but it's better to avoid the limitation and just use
+the time64_t based mktime64() and rtc_time64_to_tm() interfaces.
 
-Reuse the helper regmap_read_poll_timeout instead of an open-coding
-handling to simpify the logic.
+The hardware uses a 32-bit year number, and time64_t can cover that
+entire range.
 
-Furthermore, the time for a wait in each iteration changed from cpu_relax
-to 20us is for matching the usage of the helper, but it wouldn't acctually
-break any the existent functionality according to a good test on MT6323
-PMIC.
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-mt6397.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-ls1x.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 0df7ccd..efb9370 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -18,6 +18,7 @@
- #include <linux/regmap.h>
- #include <linux/rtc.h>
- #include <linux/irqdomain.h>
-+#include <linux/jiffies.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
- #include <linux/of_irq.h>
-@@ -63,6 +64,9 @@
- #define RTC_NUM_YEARS		128
- #define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
+diff --git a/drivers/rtc/rtc-ls1x.c b/drivers/rtc/rtc-ls1x.c
+index 045af1135e48..de86f9fabc11 100644
+--- a/drivers/rtc/rtc-ls1x.c
++++ b/drivers/rtc/rtc-ls1x.c
+@@ -87,16 +87,17 @@
  
-+#define MTK_RTC_POLL_DELAY_US	10
-+#define MTK_RTC_POLL_TIMEOUT	(jiffies_to_usecs(HZ))
-+
- struct mt6397_rtc {
- 	struct device		*dev;
- 	struct rtc_device	*rtc_dev;
-@@ -74,7 +78,6 @@ struct mt6397_rtc {
- 
- static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+ static int ls1x_rtc_read_time(struct device *dev, struct rtc_time *rtm)
  {
--	unsigned long timeout = jiffies + HZ;
- 	int ret;
- 	u32 data;
+-	unsigned long v, t;
++	unsigned long v;
++	time64_t t;
  
-@@ -82,19 +85,13 @@ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
- 	if (ret < 0)
- 		return ret;
+ 	v = readl(SYS_TOYREAD0);
+ 	t = readl(SYS_TOYREAD1);
  
--	while (1) {
--		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
--				  &data);
--		if (ret < 0)
--			break;
--		if (!(data & RTC_BBPU_CBUSY))
--			break;
--		if (time_after(jiffies, timeout)) {
--			ret = -ETIMEDOUT;
--			break;
--		}
--		cpu_relax();
--	}
-+	ret = regmap_read_poll_timeout(rtc->regmap,
-+				       rtc->addr_base + RTC_BBPU, data,
-+				       !(data & RTC_BBPU_CBUSY),
-+				       MTK_RTC_POLL_DELAY_US,
-+				       MTK_RTC_POLL_TIMEOUT);
-+	if (ret < 0)
-+		dev_err(rtc->dev, "failed to write WRTGE: %d\n", ret);
+ 	memset(rtm, 0, sizeof(struct rtc_time));
+-	t  = mktime((t & LS1X_YEAR_MASK), ls1x_get_month(v),
++	t  = mktime64((t & LS1X_YEAR_MASK), ls1x_get_month(v),
+ 			ls1x_get_day(v), ls1x_get_hour(v),
+ 			ls1x_get_min(v), ls1x_get_sec(v));
+-	rtc_time_to_tm(t, rtm);
++	rtc_time64_to_tm(t, rtm);
  
- 	return ret;
+ 	return 0;
  }
 -- 
-2.7.4
+2.9.0
