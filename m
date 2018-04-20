@@ -1,72 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:27931 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753059AbeDSNWn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 09:22:43 -0400
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH 3/4] dt-bindings: rtc: update stm32-rtc documentation for st,syscfg property
-Date: Thu, 19 Apr 2018 15:21:42 +0200
-Message-ID: <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
-References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+Received: from mail-by2nam03on0046.outbound.protection.outlook.com ([104.47.42.46]:7638
+        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753823AbeDTHYs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Apr 2018 03:24:48 -0400
+Subject: Re: [PATCH 44/61] rtc: simplify getting .drvdata
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        <linux-kernel@vger.kernel.org>
+CC: <linux-renesas-soc@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Joshua Kinard <kumba@gentoo.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        <linux-rtc@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
+References: <20180419140641.27926-1-wsa+renesas@sang-engineering.com>
+ <20180419140641.27926-45-wsa+renesas@sang-engineering.com>
+From: Michal Simek <michal.simek@xilinx.com>
+Message-ID: <6c43fc08-4f73-601f-228c-9a4202d5b5c5@xilinx.com>
+Date: Fri, 20 Apr 2018 09:24:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20180419140641.27926-45-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-RTC driver should not be aware of the PWR registers offset and bits
-position. Furthermore, we can imagine that Disable Backup Protection (DBP)
-relative register and bit mask could change depending on the SoC. So this
-patch moves st,syscfg property from single pwrcfg phandle to pwrcfg
-phandle/offset/mask triplet.
+On 19.4.2018 16:06, Wolfram Sang wrote:
+> We should get drvdata from struct device directly. Going via
+> platform_device is an unneeded step back and forth.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> 
+> Build tested only. buildbot is happy. Please apply individually.
+> 
+>  drivers/rtc/rtc-bq4802.c   |  6 ++----
+>  drivers/rtc/rtc-ds1216.c   |  6 ++----
+>  drivers/rtc/rtc-ds1511.c   |  9 +++------
+>  drivers/rtc/rtc-ds1553.c   | 15 +++++----------
+>  drivers/rtc/rtc-ds1685.c   | 21 +++++++--------------
+>  drivers/rtc/rtc-ds1742.c   |  6 ++----
+>  drivers/rtc/rtc-lpc32xx.c  | 16 ++++++----------
+>  drivers/rtc/rtc-m48t59.c   | 41 ++++++++++++++++-------------------------
+>  drivers/rtc/rtc-mv.c       |  3 +--
+>  drivers/rtc/rtc-mxc.c      | 21 +++++++--------------
+>  drivers/rtc/rtc-pcap.c     | 15 +++++----------
+>  drivers/rtc/rtc-sh.c       | 15 +++++----------
+>  drivers/rtc/rtc-stk17ta8.c | 15 +++++----------
+>  drivers/rtc/rtc-test.c     |  3 +--
+>  drivers/rtc/rtc-zynqmp.c   | 10 ++++------
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Acked-by: Michal Simek <michal.simek@xilinx.com> (for zynqmp)
 
-diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-index a66692a..00f8b5d 100644
---- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-@@ -14,8 +14,10 @@ Required properties:
-     It is required only on stm32h7.
- - interrupt-parent: phandle for the interrupt controller.
- - interrupts: rtc alarm interrupt.
--- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
--  (RTC registers) write protection.
-+- st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
-+  access control register at offset, and change the dbp (Disable Backup
-+  Protection) bit represented by the mask, mandatory to disable/enable backup
-+  domain (RTC registers) write protection.
- 
- Optional properties (to override default rtc_ck parent clock):
- - assigned-clocks: reference to the rtc_ck clock entry.
-@@ -31,7 +33,7 @@ Example:
- 		assigned-clock-parents = <&rcc 1 CLK_LSE>;
- 		interrupt-parent = <&exti>;
- 		interrupts = <17 1>;
--		st,syscfg = <&pwrcfg>;
-+		st,syscfg = <&pwrcfg 0x00 0x100>;
- 	};
- 
- 	rtc: rtc@58004000 {
-@@ -44,5 +46,5 @@ Example:
- 		interrupt-parent = <&exti>;
- 		interrupts = <17 1>;
- 		interrupt-names = "alarm";
--		st,syscfg = <&pwrcfg>;
-+		st,syscfg = <&pwrcfg 0x00 0x100>;
- 	};
--- 
-2.7.4
+Thanks,
+Michal
