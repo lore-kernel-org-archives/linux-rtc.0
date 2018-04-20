@@ -1,55 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:37055 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751350AbeDYJc4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:56 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 03/17] dt-bindings: mfd: mt6397: add a description for MT6323 RTC
-Date: Wed, 25 Apr 2018 17:32:29 +0800
-Message-ID: <6c99566b38e51e102eefbef573b685500d04d39a.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:33889 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754191AbeDTJe1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Apr 2018 05:34:27 -0400
+From: Andrea Greco <andrea.greco.gapmilano@gmail.com>
+Cc: andrea.greco.gapmilano@gmail.com, Andrea Greco <a.greco@4sigma.it>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] RTC: DS1340 Add support for trickle charger.
+Date: Fri, 20 Apr 2018 11:34:02 +0200
+Message-Id: <20180420093402.28758-1-andrea.greco.gapmilano@gmail.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Andrea Greco <a.greco@4sigma.it>
 
-Add a description for MT6323 RTC and link it to the detailed binding
-documentation.
+Add support Dallas DS1340 trickle charger function.
 
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Andrea Greco <a.greco@4sigma.it>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-ds1307.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index d1df77f..11a748d 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -22,8 +22,10 @@ compatible: "mediatek,mt6397" or "mediatek,mt6323"
- Optional subnodes:
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59edff53..e9ec4160d7f6 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -201,6 +201,7 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.century_reg	= DS1307_REG_HOUR,
+ 		.century_enable_bit = DS1340_BIT_CENTURY_EN,
+ 		.century_bit	= DS1340_BIT_CENTURY,
++		.do_trickle_setup = &do_trickle_setup_ds1339,
+ 		.trickle_charger_reg = 0x08,
+ 	},
+ 	[ds_1341] = {
+@@ -1371,6 +1372,7 @@ static void ds1307_clks_register(struct ds1307 *ds1307)
+ static const struct regmap_config regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
++	.max_register = 0x9,
+ };
  
- - rtc
--	Required properties:
-+	Required properties: Should be one of follows
-+		- compatible: "mediatek,mt6323-rtc"
- 		- compatible: "mediatek,mt6397-rtc"
-+	For details, see Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- - regulators
- 	Required properties:
- 		- compatible: "mediatek,mt6397-regulator"
+ static int ds1307_probe(struct i2c_client *client,
 -- 
-2.7.4
+2.14.3
