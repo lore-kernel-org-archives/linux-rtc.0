@@ -1,90 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga17.intel.com ([192.55.52.151]:36862 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751254AbeDTF7h (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 20 Apr 2018 01:59:37 -0400
-Message-ID: <1524203968.2553.32.camel@intel.com>
-Subject: Re: [PATCH 1/3] rtc: cmos: allow using ACPI for RTC alarm instead
- of HPET
-From: Zhang Rui <rui.zhang@intel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        rjw@rjwysocki.net, gabriele.mzt@gmail.com
-Date: Fri, 20 Apr 2018 13:59:28 +0800
-In-Reply-To: <20180419140538.GG7369@piout.net>
-References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
-         <20180419140538.GG7369@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mout.kundenserver.de ([212.227.126.131]:55201 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750858AbeDTQOw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Apr 2018 12:14:52 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] rtc: vr41xx: remove mktime usage
+Date: Fri, 20 Apr 2018 18:14:24 +0200
+Message-Id: <20180420161433.3721192-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi, Alexandre
+This driver uses mktime() and rtc_time_to_tm() to convert between time
+values. This works fine on 64-bit kernels over the whole supported
+range, and the vr41xx chip is a 64-bit MIPS implementation, but it is
+inconsistent because it doesn't do the same thing on 32-bit kernels that
+overflow in 2106 or 2038.
 
-On 四, 2018-04-19 at 16:05 +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> 
-> On 26/03/2018 21:58:01+0800, Zhang Rui wrote:
-> > 
-> > It's found that the HPET timer prevents the platform from entering
-> > Low Power S0 on some new Intel platforms.
-> > 
-> > This means that
-> > 1. users can still use RTC wake Alarm for suspend-to-idle, but the
-> > system
-> >    never enters Low Power S0, which is a waste of power.
-> > or
-> > 2. if users want to put the system into Low Power S0, they can not
-> > use
-> >    RTC as the wakeup source.
-> > 
-> > To fix this, we need to stop using the HPET timer for wake alarm.
-> > But disabling CONFIG_HPET_EMULATE_RTC is not an option because HPET
-> > emulates PIT at the same time, and this is needed on some of these
-> > platforms.
-> > 
-> > Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos driver,
-> > so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still
-> > possible to
-> > use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead of
-> > HPET.
-> > 
-> > Only necessary changes are made for the new "use_acpi_alarm" mode,
-> > including
-> > 1. drop all the calls to HPET emulation code, including the HPET
-> > irq
-> >    handler for rtc interrupt.
-> > 2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE
-> > request.
-> > 3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
-> > 
-> > There is no functional change made in this patch if the new mode is
-> > not
-> > enabled.
-> > 
-> > Note: this "use_acpi_alarm" mode is made based on the assumption
-> > that
-> > ACPI RTC Fixed event is reliable both at runtime and during system
-> > wakeup.
-> > And this has been verified on a couple of platforms I have,
-> > including
-> > a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP 9360
-> > (KBL).
-> > 
-> > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> > ---
-> >  drivers/rtc/rtc-cmos.c | 111 +++++++++++++++++++++++++++++++++++
-> > --------------
-> >  1 file changed, 80 insertions(+), 31 deletions(-)
-> > 
-> I've applied the series but it didn't apply cleanly, please check
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/lo
-> g/?h=rtc-next
-> 
-Yes, I noticed this conflict as well.
-I have rebased it on top of -rc1 and it is under testing right now.
-I will rebase on your tree and resend.
+Changing it to use mktime64/rtc_time64_to_tm() should have no visible
+impact on vr41xx but gets us closer to removing the 32-bit interfaces.
 
-thanks,
-rui
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-vr41xx.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index 7ce22967fd16..480cffe8d321 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -88,7 +88,7 @@ static unsigned int alarm_enabled;
+ static int aie_irq;
+ static int pie_irq;
+ 
+-static inline unsigned long read_elapsed_second(void)
++static inline time64_t read_elapsed_second(void)
+ {
+ 
+ 	unsigned long first_low, first_mid, first_high;
+@@ -105,10 +105,10 @@ static inline unsigned long read_elapsed_second(void)
+ 	} while (first_low != second_low || first_mid != second_mid ||
+ 		 first_high != second_high);
+ 
+-	return (first_high << 17) | (first_mid << 1) | (first_low >> 15);
++	return ((u64)first_high << 17) | (first_mid << 1) | (first_low >> 15);
+ }
+ 
+-static inline void write_elapsed_second(unsigned long sec)
++static inline void write_elapsed_second(time64_t sec)
+ {
+ 	spin_lock_irq(&rtc_lock);
+ 
+@@ -121,22 +121,22 @@ static inline void write_elapsed_second(unsigned long sec)
+ 
+ static int vr41xx_rtc_read_time(struct device *dev, struct rtc_time *time)
+ {
+-	unsigned long epoch_sec, elapsed_sec;
++	time64_t epoch_sec, elapsed_sec;
+ 
+-	epoch_sec = mktime(epoch, 1, 1, 0, 0, 0);
++	epoch_sec = mktime64(epoch, 1, 1, 0, 0, 0);
+ 	elapsed_sec = read_elapsed_second();
+ 
+-	rtc_time_to_tm(epoch_sec + elapsed_sec, time);
++	rtc_time64_to_tm(epoch_sec + elapsed_sec, time);
+ 
+ 	return 0;
+ }
+ 
+ static int vr41xx_rtc_set_time(struct device *dev, struct rtc_time *time)
+ {
+-	unsigned long epoch_sec, current_sec;
++	time64_t epoch_sec, current_sec;
+ 
+-	epoch_sec = mktime(epoch, 1, 1, 0, 0, 0);
+-	current_sec = mktime(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
++	epoch_sec = mktime64(epoch, 1, 1, 0, 0, 0);
++	current_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
+ 			     time->tm_hour, time->tm_min, time->tm_sec);
+ 
+ 	write_elapsed_second(current_sec - epoch_sec);
+@@ -165,11 +165,11 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 
+ static int vr41xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ {
+-	unsigned long alarm_sec;
++	time64_t alarm_sec;
+ 	struct rtc_time *time = &wkalrm->time;
+ 
+-	alarm_sec = mktime(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
+-			   time->tm_hour, time->tm_min, time->tm_sec);
++	alarm_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
++			     time->tm_hour, time->tm_min, time->tm_sec);
+ 
+ 	spin_lock_irq(&rtc_lock);
+ 
+-- 
+2.9.0
