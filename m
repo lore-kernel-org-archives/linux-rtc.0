@@ -1,76 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:50576 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:35866 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751095AbeDCO4y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 3 Apr 2018 10:56:54 -0400
-Date: Tue, 3 Apr 2018 16:56:42 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it,
-        Pan Bian <bianpan2016@163.com>,
-        Guy Shapiro <guy.shapiro@mobi-wize.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Frank Li <Frank.Li@freescale.com>,
-        Shawn Guo <shawn.guo@linaro.org>, linux-rtc@vger.kernel.org,
-        "# v3 . 16+" <stable@vger.kernel.org>
-Subject: Re: [RESEND] [PATCH] rtc: snvs: Fix usage of snvs_rtc_enable
-Message-ID: <20180403145642.GA6444@piout.net>
-References: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+        id S1751300AbeDXSj3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 24 Apr 2018 14:39:29 -0400
+Date: Tue, 24 Apr 2018 20:39:18 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: linuxppc-dev@lists.ozlabs.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 2/3] powerpc/powernv: Fix OPAL RTC driver OPAL_BUSY loops
+Message-ID: <20180424183918.GF19011@piout.net>
+References: <20180410114933.24581-1-npiggin@gmail.com>
+ <20180410114933.24581-3-npiggin@gmail.com>
+ <20180410120728.GC2745@piout.net>
+ <20180410230136.7d0b357e@roar.ozlabs.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1522264445-2398-1-git-send-email-pure.logic@nexus-software.ie>
+In-Reply-To: <20180410230136.7d0b357e@roar.ozlabs.ibm.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 28/03/2018 20:14:05+0100, Bryan O'Donoghue wrote:
-> commit 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver") introduces
-> the SNVS RTC driver with a function snvs_rtc_enable().
+On 10/04/2018 23:01:36+1000, Nicholas Piggin wrote:
+> On Tue, 10 Apr 2018 14:07:28 +0200
+> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> > > Fixes 	 ("powerpc/powernv: Add RTC and NVRAM support plus RTAS fallbacks"
+> > > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> > > Cc: linux-rtc@vger.kernel.org
+> > > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > > ---
+> > >  arch/powerpc/platforms/powernv/opal-rtc.c |  8 +++--
+> > >  drivers/rtc/rtc-opal.c                    | 37 ++++++++++++++---------  
+> > 
+> > From what I understand, the changes in those files are fairly
+> > independent, they should probably be separated to ease merging.
 > 
-> snvs_rtc_enable() can return an error on the enable path however this
-> driver does not currently trap that failure on the probe() path and
-> consequently if enabling the RTC fails we encounter a later error spinning
-> forever in rtc_write_sync_lp().
+> I'm happy to do that. It's using the same firmware call, so I thought
+> a single patch would be fine. But I guess the boot call can be
+> dropped from this patch because it does not  not solve the problem
+> described in the changelog.
 > 
-> [   36.093481] [<c010d630>] (__irq_svc) from [<c0c2e9ec>] (_raw_spin_unlock_irqrestore+0x34/0x44)
-> [   36.102122] [<c0c2e9ec>] (_raw_spin_unlock_irqrestore) from [<c072e32c>] (regmap_read+0x4c/0x5c)
-> [   36.110938] [<c072e32c>] (regmap_read) from [<c085d0f4>] (rtc_write_sync_lp+0x6c/0x98)
-> [   36.118881] [<c085d0f4>] (rtc_write_sync_lp) from [<c085d160>] (snvs_rtc_alarm_irq_enable+0x40/0x4c)
-> [   36.128041] [<c085d160>] (snvs_rtc_alarm_irq_enable) from [<c08567b4>] (rtc_timer_do_work+0xd8/0x1a8)
-> [   36.137291] [<c08567b4>] (rtc_timer_do_work) from [<c01441b8>] (process_one_work+0x28c/0x76c)
-> [   36.145840] [<c01441b8>] (process_one_work) from [<c01446cc>] (worker_thread+0x34/0x58c)
-> [   36.153961] [<c01446cc>] (worker_thread) from [<c014aee4>] (kthread+0x138/0x150)
-> [   36.161388] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
-> [   36.168635] rcu_sched kthread starved for 2602 jiffies! g496 c495 f0x2 RCU_GP_WAIT_FQS(3) ->state=0x0 ->cpu=0
-> [   36.178564] rcu_sched       R  running task        0     8      2 0x00000000
-> [   36.185664] [<c0c288b0>] (__schedule) from [<c0c29134>] (schedule+0x3c/0xa0)
-> [   36.192739] [<c0c29134>] (schedule) from [<c0c2db80>] (schedule_timeout+0x78/0x4e0)
-> [   36.200422] [<c0c2db80>] (schedule_timeout) from [<c01a7ab0>] (rcu_gp_kthread+0x648/0x1864)
-> [   36.208800] [<c01a7ab0>] (rcu_gp_kthread) from [<c014aee4>] (kthread+0x138/0x150)
-> [   36.216309] [<c014aee4>] (kthread) from [<c0107e14>] (ret_from_fork+0x14/0x20)
+> Would you be happy for the driver change to be merged via the powerpc
+> tree? The code being fixed here came from the same original patch as
+> a similar issue being fixed in the OPAL NVRAM driver so it might be
+> easier that way.
 > 
-> This patch fixes by parsing the result of rtc_write_sync_lp() and
-> propagating both in the probe and elsewhere. If the RTC doesn't start we
-> don't proceed loading the driver and don't get into this loop mess later
-> on.
-> 
-> Fixes: 179a502f8c46 ("rtc: snvs: add Freescale rtc-snvs driver")
-> 
-> Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-> Cc: a.zummo@towertech.it
-> Cc: alexandre.belloni@free-electrons.com
-> Cc: Pan Bian <bianpan2016@163.com>
-> Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>
-> Cc: Stefan Agner <stefan@agner.ch>
-> Cc: Frank Li <Frank.Li@freescale.com>
-> Cc: Shawn Guo <shawn.guo@linaro.org>
-> Cc: linux-rtc@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: <stable@vger.kernel.org> # v3.16+
-> ---
->  drivers/rtc/rtc-snvs.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-Applied, thanks.
+
+Ok then, just add my
+
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+and let it go through the powerpc tree.
+
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
