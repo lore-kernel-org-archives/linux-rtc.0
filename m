@@ -1,44 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:59500 "EHLO newverein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933322AbeDXOOd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 24 Apr 2018 10:14:33 -0400
-Date: Tue, 24 Apr 2018 16:16:01 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Corey Minyard <minyard@acm.org>
-Cc: Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/39] ipmi: simplify procfs code
-Message-ID: <20180424141601.GC26136@lst.de>
-References: <20180419124140.9309-1-hch@lst.de> <20180419124140.9309-17-hch@lst.de> <f322f243-9ab1-7e9f-00a4-9652cd288ca2@acm.org>
+Received: from mailout.easymail.ca ([64.68.200.34]:55468 "EHLO
+        mailout.easymail.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750735AbeDXTdX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Apr 2018 15:33:23 -0400
+Subject: Re: [PATCH 0/4] selftests: rework RTC tests
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Shuah Khan <shuah@kernel.org>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+From: Shuah Khan <shuah@kernel.org>
+Message-ID: <95d19039-69ee-cda5-3cfe-918283cf9913@kernel.org>
+Date: Tue, 24 Apr 2018 13:33:01 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <f322f243-9ab1-7e9f-00a4-9652cd288ca2@acm.org>
+In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 10:29:29AM -0500, Corey Minyard wrote:
-> On 04/19/2018 07:41 AM, Christoph Hellwig wrote:
->> Use remove_proc_subtree to remove the whole subtree on cleanup instead
->> of a hand rolled list of proc entries, unwind the registration loop into
->> individual calls.  Switch to use proc_create_single to further simplify
->> the code.
->
-> I'm yanking all the proc code out of the IPMI driver in 3.18.  So this is 
-> probably
-> not necessary.
+On 04/19/2018 06:50 AM, Alexandre Belloni wrote:
+> Hi,
+> 
+> This series separates tests using the RTC devices between the one
+> testing driver agnostic kernel facilities (timers) and the others that
+> are testing device drivers and hardware.
+> 
+> Then, rtctest is reworked to use the test harness and be much more
+> robust. Skipping tests is now easier and tests will not block
+> indefinitively.
+> 
+> I'm planning to send more improvements later this cycle.
+> 
+> Alexandre Belloni (4):
+>   selftests: timers: move PIE tests out of rtctest
+>   selftests: timers: rtcpie: restore previous PIE rate
+>   selftests: move RTC tests to rtc subfolder
+>   selftests: rtc: rework rtctest
+> 
+>  MAINTAINERS                                   |   2 +-
+>  tools/testing/selftests/Makefile              |   1 +
+>  tools/testing/selftests/rtc/.gitignore        |   2 +
+>  tools/testing/selftests/rtc/Makefile          |   9 +
+>  tools/testing/selftests/rtc/rtctest.c         | 238 +++++++++++
+>  .../rtctest_setdate.c => rtc/setdate.c}       |   0
+>  tools/testing/selftests/timers/.gitignore     |   3 +-
+>  tools/testing/selftests/timers/Makefile       |   4 +-
+>  tools/testing/selftests/timers/rtcpie.c       | 134 ++++++
+>  tools/testing/selftests/timers/rtctest.c      | 403 ------------------
+>  10 files changed, 388 insertions(+), 408 deletions(-)
+>  create mode 100644 tools/testing/selftests/rtc/.gitignore
+>  create mode 100644 tools/testing/selftests/rtc/Makefile
+>  create mode 100644 tools/testing/selftests/rtc/rtctest.c
+>  rename tools/testing/selftests/{timers/rtctest_setdate.c => rtc/setdate.c} (100%)
+>  create mode 100644 tools/testing/selftests/timers/rtcpie.c
+>  delete mode 100644 tools/testing/selftests/timers/rtctest.c
+> 
 
-Ok, I'll drop this patch.
+Looks good to me. Thanks for doing this. I will queue this for 4.18-rc1
+
+thanks,
+-- Shuah
