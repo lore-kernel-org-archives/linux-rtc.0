@@ -1,55 +1,44 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:43491 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751589AbeDJFqg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Apr 2018 01:46:36 -0400
-Message-ID: <1523339187.12445.1.camel@mhfsdcap03>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-CC: Matthias Brugger <matthias.bgg@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>, <a.zummo@towertech.it>,
-        <devicetree@vger.kernel.org>, <linus.walleij@linaro.org>,
-        <jcsing.lee@samsung.com>, <linux-kernel@vger.kernel.org>,
-        <krzk@kernel.org>, <javier@osg.samsung.com>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-input@vger.kernel.org>, <eddie.huang@mediatek.com>,
-        <beomho.seo@samsung.com>, <linux-rtc@vger.kernel.org>
-Date: Tue, 10 Apr 2018 13:46:27 +0800
-In-Reply-To: <20180329161527.GA107392@dtor-ws>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
-         <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
-         <1521685073.28226.10.camel@mtkswgap22> <20180323185418.GD255819@dtor-ws>
-         <20180327080507.pgil6pw2mn4y2f4d@dell>
-         <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
-         <20180328102640.yx6nv5abfexmouuf@dell>
-         <1522290675.17084.8.camel@mhfsdcap03>
-         <20180329130402.6fp7nofyp6iesmbv@dell> <20180329161527.GA107392@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"
+Received: from verein.lst.de ([213.95.11.211]:59581 "EHLO newverein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758365AbeDXOVg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 24 Apr 2018 10:21:36 -0400
+Date: Tue, 24 Apr 2018 16:23:04 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: simplify procfs code for seq_file instances
+Message-ID: <20180424142304.GE26136@lst.de>
+References: <20180419124140.9309-1-hch@lst.de> <20180419185750.GD2066@avx2>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180419185750.GD2066@avx2>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, 2018-03-29 at 09:15 -0700, Dmitry Torokhov wrote:
+On Thu, Apr 19, 2018 at 09:57:50PM +0300, Alexey Dobriyan wrote:
+> >     git://git.infradead.org/users/hch/misc.git proc_create
 > 
 > 
-> Oh, sorry, I did not realize you wanted my Ack for bindings. I usually
-> leave it to Rob and simply ack the driver itself when I am happy with
-> the code.
-> 
-> I'll go and add my ack to the binding post if that will help merging
-> the series.
-> 
-> Thanks. 
+> I want to ask if it is time to start using poorman function overloading
+> with _b_c_e(). There are millions of allocation functions for example,
+> all slightly difference, and people will add more. Seeing /proc interfaces
+> doubled like this is painful.
 
-Hi Lee,
+Function overloading is totally unacceptable.
 
-May I know if I need to collect Dmitry's comments and send a new version
-for the merging?
-
-Thank you.
+And I very much disagree with a tradeoff that keeps 5000 lines of 
+code vs a few new helpers.
