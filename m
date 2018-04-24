@@ -1,77 +1,120 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:43882 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752775AbeDSOT1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 10:19:27 -0400
-Date: Thu, 19 Apr 2018 17:18:18 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        linux-ide@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        jfs-discussion@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
-Subject: Re: [PATCH 03/39] proc: introduce proc_create_seq_private
-Message-ID: <20180419141818.pjys7at4xmz2h6ho@mwanda>
-References: <20180419124140.9309-1-hch@lst.de>
- <20180419124140.9309-4-hch@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180419124140.9309-4-hch@lst.de>
+Received: from mga05.intel.com ([192.55.52.43]:43282 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933379AbeDXNPY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 24 Apr 2018 09:15:24 -0400
+Message-ID: <1524575720.2597.28.camel@intel.com>
+Subject: Re: [PATCH 1/3] rtc: cmos: allow using ACPI for RTC alarm instead
+ of HPET
+From: Zhang Rui <rui.zhang@intel.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        rjw@rjwysocki.net, gabriele.mzt@gmail.com
+Date: Tue, 24 Apr 2018 21:15:20 +0800
+In-Reply-To: <20180420064652.GI7369@piout.net>
+References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
+         <20180419140538.GG7369@piout.net> <1524203968.2553.32.camel@intel.com>
+         <20180420064652.GI7369@piout.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 02:41:04PM +0200, Christoph Hellwig wrote:
-> diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-> index 2a3f874a21d5..ad35cddcf6af 100644
-> --- a/drivers/s390/cio/blacklist.c
-> +++ b/drivers/s390/cio/blacklist.c
-> @@ -391,28 +391,15 @@ static const struct seq_operations cio_ignore_proc_seq_ops = {
->  	.show  = cio_ignore_proc_seq_show,
->  };
->  
-> -static int
-> -cio_ignore_proc_open(struct inode *inode, struct file *file)
-> -{
-> -	return seq_open_private(file, &cio_ignore_proc_seq_ops,
-> -				sizeof(struct ccwdev_iter));
-> -}
-> -
-> -static const struct file_operations cio_ignore_proc_fops = {
-> -	.open    = cio_ignore_proc_open,
-> -	.read    = seq_read,
-> -	.llseek  = seq_lseek,
-> -	.release = seq_release_private,
-> -	.write   = cio_ignore_write,
-                   ^^^^^^^^^^^^^^^^
-The cio_ignore_write() function isn't used any more so compilers will
-complain.
+On 五, 2018-04-20 at 08:46 +0200, Alexandre Belloni wrote:
+> On 20/04/2018 13:59:28+0800, Zhang Rui wrote:
+> > 
+> > Hi, Alexandre
+> > 
+> > On 四, 2018-04-19 at 16:05 +0200, Alexandre Belloni wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > 
+> > > On 26/03/2018 21:58:01+0800, Zhang Rui wrote:
+> > > > 
+> > > > 
+> > > > It's found that the HPET timer prevents the platform from
+> > > > entering
+> > > > Low Power S0 on some new Intel platforms.
+> > > > 
+> > > > This means that
+> > > > 1. users can still use RTC wake Alarm for suspend-to-idle, but
+> > > > the
+> > > > system
+> > > >    never enters Low Power S0, which is a waste of power.
+> > > > or
+> > > > 2. if users want to put the system into Low Power S0, they can
+> > > > not
+> > > > use
+> > > >    RTC as the wakeup source.
+> > > > 
+> > > > To fix this, we need to stop using the HPET timer for wake
+> > > > alarm.
+> > > > But disabling CONFIG_HPET_EMULATE_RTC is not an option because
+> > > > HPET
+> > > > emulates PIT at the same time, and this is needed on some of
+> > > > these
+> > > > platforms.
+> > > > 
+> > > > Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos
+> > > > driver,
+> > > > so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still
+> > > > possible to
+> > > > use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead
+> > > > of
+> > > > HPET.
+> > > > 
+> > > > Only necessary changes are made for the new "use_acpi_alarm"
+> > > > mode,
+> > > > including
+> > > > 1. drop all the calls to HPET emulation code, including the
+> > > > HPET
+> > > > irq
+> > > >    handler for rtc interrupt.
+> > > > 2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE
+> > > > request.
+> > > > 3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
+> > > > 
+> > > > There is no functional change made in this patch if the new
+> > > > mode is
+> > > > not
+> > > > enabled.
+> > > > 
+> > > > Note: this "use_acpi_alarm" mode is made based on the
+> > > > assumption
+> > > > that
+> > > > ACPI RTC Fixed event is reliable both at runtime and during
+> > > > system
+> > > > wakeup.
+> > > > And this has been verified on a couple of platforms I have,
+> > > > including
+> > > > a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP
+> > > > 9360
+> > > > (KBL).
+> > > > 
+> > > > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> > > > ---
+> > > >  drivers/rtc/rtc-cmos.c | 111
+> > > > +++++++++++++++++++++++++++++++++++
+> > > > --------------
+> > > >  1 file changed, 80 insertions(+), 31 deletions(-)
+> > > > 
+> > > I've applied the series but it didn't apply cleanly, please check
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.gi
+> > > t/lo
+> > > g/?h=rtc-next
+> > > 
+> > Yes, I noticed this conflict as well.
+> > I have rebased it on top of -rc1 and it is under testing right now.
+> > I will rebase on your tree and resend.
+> > 
+> Rebasing on top of -rc1 is sufficient, I'm already carrying your
+> patches
+> now so they are part of linux-next early in the cycle.
+> 
+Great, thanks.
+so I don't need to send the refreshed ones, right?
 
-> -};
-> -
->  static int
->  cio_ignore_proc_init (void)
->  {
->  	struct proc_dir_entry *entry;
->  
-> -	entry = proc_create("cio_ignore", S_IFREG | S_IRUGO | S_IWUSR, NULL,
-> -			    &cio_ignore_proc_fops);
-> +	entry = proc_create_seq_private("cio_ignore",
-> +			S_IFREG | S_IRUGO | S_IWUSR, NULL,
-> +			&cio_ignore_proc_seq_ops, sizeof(struct ccwdev_iter),
-> +			NULL);
->  	if (!entry)
->  		return -ENOENT;
->  	return 0;
-
-regards,
-dan carpenter
+thanks,
+rui
+> 
