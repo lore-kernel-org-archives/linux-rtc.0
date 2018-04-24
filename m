@@ -1,44 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:48754 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933939AbeDXNag (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 24 Apr 2018 09:30:36 -0400
-Date: Tue, 24 Apr 2018 15:30:25 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Zhang Rui <rui.zhang@intel.com>
-Cc: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        rjw@rjwysocki.net, gabriele.mzt@gmail.com
-Subject: Re: [PATCH 1/3] rtc: cmos: allow using ACPI for RTC alarm instead of
- HPET
-Message-ID: <20180424133025.GC19011@piout.net>
-References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
- <20180419140538.GG7369@piout.net>
- <1524203968.2553.32.camel@intel.com>
- <20180420064652.GI7369@piout.net>
- <1524575720.2597.28.camel@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1524575720.2597.28.camel@intel.com>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:49020 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750749AbeDXPTV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Apr 2018 11:19:21 -0400
+Date: Tue, 24 Apr 2018 08:19:16 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: simplify procfs code for seq_file instances
+Message-Id: <20180424081916.e94ca8463fb3c39ebc082bdd@linux-foundation.org>
+In-Reply-To: <20180424142304.GE26136@lst.de>
+References: <20180419124140.9309-1-hch@lst.de>
+        <20180419185750.GD2066@avx2>
+        <20180424142304.GE26136@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 24/04/2018 21:15:20+0800, Zhang Rui wrote:
-> > > Yes, I noticed this conflict as well.
-> > > I have rebased it on top of -rc1 and it is under testing right now.
-> > > I will rebase on your tree and resend.
-> > > 
-> > Rebasing on top of -rc1 is sufficient, I'm already carrying your
-> > patches
-> > now so they are part of linux-next early in the cycle.
+On Tue, 24 Apr 2018 16:23:04 +0200 Christoph Hellwig <hch@lst.de> wrote:
+
+> On Thu, Apr 19, 2018 at 09:57:50PM +0300, Alexey Dobriyan wrote:
+> > >     git://git.infradead.org/users/hch/misc.git proc_create
 > > 
-> Great, thanks.
-> so I don't need to send the refreshed ones, right?
+> > 
+> > I want to ask if it is time to start using poorman function overloading
+> > with _b_c_e(). There are millions of allocation functions for example,
+> > all slightly difference, and people will add more. Seeing /proc interfaces
+> > doubled like this is painful.
 > 
+> Function overloading is totally unacceptable.
+> 
+> And I very much disagree with a tradeoff that keeps 5000 lines of 
+> code vs a few new helpers.
 
-If what I did works, then all is fine and I'll send them to Linus for
-4.18.
-
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+OK, the curiosity and suspense are killing me.  What the heck is
+"function overloading with _b_c_e()"?
