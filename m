@@ -1,44 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:43968 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752131AbeDZC7o (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 22:59:44 -0400
-Received: by mail-pg0-f67.google.com with SMTP id f132so14773277pgc.10
-        for <linux-rtc@vger.kernel.org>; Wed, 25 Apr 2018 19:59:43 -0700 (PDT)
-From: Baolin Wang <baolin.wang@linaro.org>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: baolin.wang@linaro.org, broonie@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] rtc: sprd: Add RTC hardware range
-Date: Thu, 26 Apr 2018 10:58:45 +0800
-Message-Id: <e8ad73f71c8976658ce7e9d6eb8b228349fb3116.1524710929.git.baolin.wang@linaro.org>
-In-Reply-To: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
-References: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
-In-Reply-To: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
-References: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
+Received: from verein.lst.de ([213.95.11.211]:60099 "EHLO newverein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752105AbeDXQFY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 24 Apr 2018 12:05:24 -0400
+Date: Tue, 24 Apr 2018 18:06:53 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: simplify procfs code for seq_file instances
+Message-ID: <20180424160652.GA28483@lst.de>
+References: <20180419124140.9309-1-hch@lst.de> <20180419185750.GD2066@avx2> <20180424142304.GE26136@lst.de> <20180424081916.e94ca8463fb3c39ebc082bdd@linux-foundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180424081916.e94ca8463fb3c39ebc082bdd@linux-foundation.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The SC27xx RTC can support dates from 1970-01-01 00:00:00 to 2149-06-06
-23:59:59.
+On Tue, Apr 24, 2018 at 08:19:16AM -0700, Andrew Morton wrote:
+> > > I want to ask if it is time to start using poorman function overloading
+> > > with _b_c_e(). There are millions of allocation functions for example,
+> > > all slightly difference, and people will add more. Seeing /proc interfaces
+> > > doubled like this is painful.
+> > 
+> > Function overloading is totally unacceptable.
+> > 
+> > And I very much disagree with a tradeoff that keeps 5000 lines of 
+> > code vs a few new helpers.
+> 
+> OK, the curiosity and suspense are killing me.  What the heck is
+> "function overloading with _b_c_e()"?
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- drivers/rtc/rtc-sc27xx.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index ac86322..6a3876e 100644
---- a/drivers/rtc/rtc-sc27xx.c
-+++ b/drivers/rtc/rtc-sc27xx.c
-@@ -631,6 +631,8 @@ static int sprd_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	rtc->rtc->ops = &sprd_rtc_ops;
-+	rtc->rtc->range_min = 0;
-+	rtc->rtc->range_max = 5662310399LL;
- 	ret = rtc_register_device(rtc->rtc);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register rtc device\n");
--- 
-1.7.9.5
+The way I understood Alexey was to use have a proc_create macro
+that can take different ops types.  Although the short cut for
+__builtin_types_compatible_p would be _b_t_c or similar, so maybe
+I misunderstood him.
