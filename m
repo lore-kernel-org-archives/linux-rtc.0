@@ -1,124 +1,115 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39564 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755413AbeDYPvB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:01 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 26/40] drbd: switch to proc_create_single
-Date: Wed, 25 Apr 2018 17:48:13 +0200
-Message-Id: <20180425154827.32251-27-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:13791 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751591AbeDYJdK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:10 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Sean Wang" <sean.wang@mediatek.com>
+Subject: [PATCH v2 00/17] Add support to MT6323 RTC and its power device
+Date: Wed, 25 Apr 2018 17:32:26 +0800
+Message-ID: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And stop messing with try_module_get on THIS_MODULE, which doesn't make
-any sense here.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/drbd/drbd_int.h  |  2 +-
- drivers/block/drbd/drbd_main.c |  3 ++-
- drivers/block/drbd/drbd_proc.c | 34 +---------------------------------
- 3 files changed, 4 insertions(+), 35 deletions(-)
+v2:
 
-diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
-index 06ecee1b528e..461ddec04e7c 100644
---- a/drivers/block/drbd/drbd_int.h
-+++ b/drivers/block/drbd/drbd_int.h
-@@ -1643,7 +1643,7 @@ void drbd_bump_write_ordering(struct drbd_resource *resource, struct drbd_backin
- 
- /* drbd_proc.c */
- extern struct proc_dir_entry *drbd_proc;
--extern const struct file_operations drbd_proc_fops;
-+int drbd_seq_show(struct seq_file *seq, void *v);
- 
- /* drbd_actlog.c */
- extern bool drbd_al_begin_io_prepare(struct drbd_device *device, struct drbd_interval *i);
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 185f1ef00a7c..c2d154faac02 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -3010,7 +3010,8 @@ static int __init drbd_init(void)
- 		goto fail;
- 
- 	err = -ENOMEM;
--	drbd_proc = proc_create_data("drbd", S_IFREG | S_IRUGO , NULL, &drbd_proc_fops, NULL);
-+	drbd_proc = proc_create_single("drbd", S_IFREG | S_IRUGO , NULL,
-+			drbd_seq_show);
- 	if (!drbd_proc)	{
- 		pr_err("unable to register proc file\n");
- 		goto fail;
-diff --git a/drivers/block/drbd/drbd_proc.c b/drivers/block/drbd/drbd_proc.c
-index 582caeb0de86..74ef29247bb5 100644
---- a/drivers/block/drbd/drbd_proc.c
-+++ b/drivers/block/drbd/drbd_proc.c
-@@ -33,18 +33,7 @@
- #include <linux/drbd.h>
- #include "drbd_int.h"
- 
--static int drbd_proc_open(struct inode *inode, struct file *file);
--static int drbd_proc_release(struct inode *inode, struct file *file);
--
--
- struct proc_dir_entry *drbd_proc;
--const struct file_operations drbd_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= drbd_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= drbd_proc_release,
--};
- 
- static void seq_printf_with_thousands_grouping(struct seq_file *seq, long v)
- {
-@@ -235,7 +224,7 @@ static void drbd_syncer_progress(struct drbd_device *device, struct seq_file *se
- 	}
- }
- 
--static int drbd_seq_show(struct seq_file *seq, void *v)
-+int drbd_seq_show(struct seq_file *seq, void *v)
- {
- 	int i, prev_i = -1;
- 	const char *sn;
-@@ -345,24 +334,3 @@ static int drbd_seq_show(struct seq_file *seq, void *v)
- 
- 	return 0;
- }
--
--static int drbd_proc_open(struct inode *inode, struct file *file)
--{
--	int err;
--
--	if (try_module_get(THIS_MODULE)) {
--		err = single_open(file, drbd_seq_show, NULL);
--		if (err)
--			module_put(THIS_MODULE);
--		return err;
--	}
--	return -ENODEV;
--}
--
--static int drbd_proc_release(struct inode *inode, struct file *file)
--{
--	module_put(THIS_MODULE);
--	return single_release(inode, file);
--}
--
--/* PROC FS stuff end */
+- The changes must be relative to the below tree since one critial patch
+  for the rtc-mt6397.c the series depends on was being applied into
+  the tree. Otherwise, for example, if the series are applied on the top
+  of [1], a build error must happen due to an implicit declaration of
+  function 'irq_create_mapping' as kbuild test robot was reporting in [2].
+  
+  tree    : https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
+  branch  : mfd/ib-mfd-input-rtc-4.18
+
+- changes since v1:
+  * Define the power controller as a function of MT6323 MFD.
+  * Refine the whole series commit message and title.
+  * Add tag Reviewed-by and Acked-by got from v1 result.
+  * Reuse use the DEFINE_RES_* helpers in mfd driver.
+  * Remove an overdone patch rtc: mediatek: remove unnecessary parentheses.
+  * Use devm_rtc_allocate_device() and rtc_register_device instead of
+    devm_rtc_device_register.
+  * Have an improvement according to the license rule the SPDX notation
+    for C header file.
+  * Move a file from include/linux/rtc/mt6397.h to include/linux/mfd/mt6397/rtc.h
+  * Refine include/linux/mfd/mt6397/rtc.h
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+[2] http://lists.infradead.org/pipermail/linux-mediatek/2018-March/012548.html
+
+v1:
+
+Hi,
+
+The series keeps to extend the capability of BPI-R2 board with MT7623 and
+the result can as well bring benefits into the other MediaTek PMICs such
+as MT6397 or SoCs.
+
+The series sent across mfd, rtc, pm, dt-binding sub-system is for hoping
+to let people have a simple cross-reference to know the exact dependency
+and why those patches are being split in that way between each one.
+
+Patch 1-3: Add dt-binding to the related devices newly or already
+	   supported.
+Patch 4-5: Extend driver with the functionality of MT6323 RTC device.
+Patch 6-9 and 12-13: Add a few of trivial fixups, cleanups and
+	  improvements.
+Patch 10-11: It's a preparation for Patch 14 adding a new driver.
+Patch 14: Add a new driver for a power-off driver.
+Patch 15-16: Update MAINTAINERS with these new files being added.
+
+	Sean
+
+Sean Wang (17):
+  dt-bindings: power: reset: mt6323: add bindings for MT6323 power
+    controller
+  dt-bindings: rtc: mt6397: add bindings for MediaTek PMIC based RTC
+  dt-bindings: mfd: mt6397: add a description for MT6323 RTC
+  dt-bindings: mfd: mt6397: add a description for MT6323 power
+    controller
+  mfd: mt6397: add MT6323 RTC support into MT6397 driver
+  mfd: mt6397: add support for MT6323 power controller into MT6397
+    driver
+  mfd: mt6397: reuse DEFINE_RES_* helpers
+  rtc: mt6397: add MT6323 support to RTC driver
+  rtc: mt6397: replace a poll with regmap_read_poll_timeout
+  rtc: mt6397: remove unnecessary irq_dispose_mapping
+  rtc: mt6397: convert to use device managed functions
+  rtc: mt6397: move the declaration into a globally visible header file
+  rtc: mt6397: cleanup header files to include
+  rtc: mt6397: update license converting to using SPDX identifiers
+  power: reset: mt6323: add a driver for MT6323 power controller
+  MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
+  MAINTAINERS: add an entry for MediaTek board level shutdown driver
+
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |  10 +-
+ .../bindings/power/reset/mt6323-poweroff.txt       |  20 +++
+ .../devicetree/bindings/rtc/rtc-mt6397.txt         |  29 ++++
+ MAINTAINERS                                        |   9 ++
+ drivers/mfd/mt6397-core.c                          |  40 ++++--
+ drivers/power/reset/Kconfig                        |  10 ++
+ drivers/power/reset/Makefile                       |   1 +
+ drivers/power/reset/mt6323-poweroff.c              |  97 ++++++++++++++
+ drivers/rtc/rtc-mt6397.c                           | 146 +++++----------------
+ include/linux/mfd/mt6397/rtc.h                     |  71 ++++++++++
+ 10 files changed, 308 insertions(+), 125 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+ create mode 100644 drivers/power/reset/mt6323-poweroff.c
+ create mode 100644 include/linux/mfd/mt6397/rtc.h
+
 -- 
-2.17.0
+2.7.4
