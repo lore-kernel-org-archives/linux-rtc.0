@@ -1,84 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:41014 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753551AbeDSMoQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:44:16 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 36/39] proc: don't detour through seq->private to get the inode
-Date: Thu, 19 Apr 2018 14:41:37 +0200
-Message-Id: <20180419124140.9309-37-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:37055 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750995AbeDYJcy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:54 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 01/17] dt-bindings: power: reset: mt6323: add bindings for MT6323 power controller
+Date: Wed, 25 Apr 2018 17:32:27 +0800
+Message-ID: <0b3123e42c8a47e3fa8b21aa2e139e6d3dc69f41.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/array.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+From: Sean Wang <sean.wang@mediatek.com>
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index ae2c807fd719..b34796b562ef 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -677,7 +677,7 @@ get_children_pid(struct inode *inode, struct pid *pid_prev, loff_t pos)
- 
- static int children_seq_show(struct seq_file *seq, void *v)
- {
--	struct inode *inode = seq->private;
-+	struct inode *inode = file_inode(seq->file);
- 	pid_t pid;
- 
- 	pid = pid_nr_ns(v, inode->i_sb->s_fs_info);
-@@ -688,14 +688,14 @@ static int children_seq_show(struct seq_file *seq, void *v)
- 
- static void *children_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	return get_children_pid(seq->private, NULL, *pos);
-+	return get_children_pid(file_inode(seq->file), NULL, *pos);
- }
- 
- static void *children_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
- 	struct pid *pid;
- 
--	pid = get_children_pid(seq->private, v, *pos + 1);
-+	pid = get_children_pid(file_inode(seq->file), v, *pos + 1);
- 	put_pid(v);
- 
- 	++*pos;
-@@ -716,17 +716,7 @@ static const struct seq_operations children_seq_ops = {
- 
- static int children_seq_open(struct inode *inode, struct file *file)
- {
--	struct seq_file *m;
--	int ret;
--
--	ret = seq_open(file, &children_seq_ops);
--	if (ret)
--		return ret;
--
--	m = file->private_data;
--	m->private = inode;
--
--	return ret;
-+	return seq_open(file, &children_seq_ops);
- }
- 
- const struct file_operations proc_tid_children_operations = {
+Adding device-tree binding for the power controller which is a tiny
+circuit block present as a part of MT6323 PMIC and is responsible for
+externally powering off or on a remote SoC the PMIC is connected to.
+
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ .../bindings/power/reset/mt6323-poweroff.txt         | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
+
+diff --git a/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt b/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
+new file mode 100644
+index 0000000..6f7c590
+--- /dev/null
++++ b/Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
+@@ -0,0 +1,20 @@
++Device Tree Bindings for Power Controller on MediaTek PMIC
++
++The power controller which could be found on PMIC is responsible for externally
++powering off or on the remote MediaTek SoC through the circuit BBPU.
++
++Required properties:
++- compatible: Should be one of follows
++	"mediatek,mt6323-pwrc": for MT6323 PMIC
++
++Example:
++
++	pmic {
++		compatible = "mediatek,mt6323";
++
++		...
++
++		power-controller {
++			compatible = "mediatek,mt6323-pwrc";
++		};
++	}
 -- 
-2.17.0
+2.7.4
