@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:37784 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:36514 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752337AbeDSMmS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:42:18 -0400
+        with ESMTP id S1754196AbeDYPtJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:49:09 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,11 +18,11 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 03/39] proc: introduce proc_create_seq_private
-Date: Thu, 19 Apr 2018 14:41:04 +0200
-Message-Id: <20180419124140.9309-4-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Subject: [PATCH 05/40] proc: introduce proc_create_seq_private
+Date: Wed, 25 Apr 2018 17:47:52 +0200
+Message-Id: <20180425154827.32251-6-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -34,58 +34,20 @@ All trivial callers converted over.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/blacklist.c | 21 ++++-----------------
- fs/locks.c                   | 16 ++--------------
- fs/proc/generic.c            | 13 +++++++++----
- fs/proc/internal.h           |  1 +
- include/linux/atalk.h        |  7 ++++++-
- include/linux/proc_fs.h      |  9 ++++++---
- kernel/time/timer_list.c     | 16 ++--------------
- mm/vmalloc.c                 | 18 +++---------------
- net/appletalk/aarp.c         | 20 +-------------------
- net/appletalk/atalk_proc.c   |  3 ++-
- net/atm/lec.c                | 15 ++-------------
- net/decnet/af_decnet.c       | 17 +++--------------
- net/decnet/dn_route.c        | 19 +++----------------
- 13 files changed, 44 insertions(+), 131 deletions(-)
+ fs/locks.c                 | 16 ++--------------
+ fs/proc/generic.c          |  9 ++++++---
+ fs/proc/internal.h         |  1 +
+ include/linux/atalk.h      |  7 ++++++-
+ include/linux/proc_fs.h    |  9 ++++++---
+ kernel/time/timer_list.c   | 16 ++--------------
+ mm/vmalloc.c               | 18 +++---------------
+ net/appletalk/aarp.c       | 20 +-------------------
+ net/appletalk/atalk_proc.c |  3 ++-
+ net/atm/lec.c              | 15 ++-------------
+ net/decnet/af_decnet.c     | 17 +++--------------
+ net/decnet/dn_route.c      | 19 +++----------------
+ 12 files changed, 37 insertions(+), 113 deletions(-)
 
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 2a3f874a21d5..ad35cddcf6af 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -391,28 +391,15 @@ static const struct seq_operations cio_ignore_proc_seq_ops = {
- 	.show  = cio_ignore_proc_seq_show,
- };
- 
--static int
--cio_ignore_proc_open(struct inode *inode, struct file *file)
--{
--	return seq_open_private(file, &cio_ignore_proc_seq_ops,
--				sizeof(struct ccwdev_iter));
--}
--
--static const struct file_operations cio_ignore_proc_fops = {
--	.open    = cio_ignore_proc_open,
--	.read    = seq_read,
--	.llseek  = seq_lseek,
--	.release = seq_release_private,
--	.write   = cio_ignore_write,
--};
--
- static int
- cio_ignore_proc_init (void)
- {
- 	struct proc_dir_entry *entry;
- 
--	entry = proc_create("cio_ignore", S_IFREG | S_IRUGO | S_IWUSR, NULL,
--			    &cio_ignore_proc_fops);
-+	entry = proc_create_seq_private("cio_ignore",
-+			S_IFREG | S_IRUGO | S_IWUSR, NULL,
-+			&cio_ignore_proc_seq_ops, sizeof(struct ccwdev_iter),
-+			NULL);
- 	if (!entry)
- 		return -ENOENT;
- 	return 0;
 diff --git a/fs/locks.c b/fs/locks.c
 index 62bbe8b31f26..05e211be8684 100644
 --- a/fs/locks.c
@@ -116,10 +78,10 @@ index 62bbe8b31f26..05e211be8684 100644
  }
  fs_initcall(proc_locks_init);
 diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 2135443e52ef..19c40c6f8fd2 100644
+index af644caaaf85..f87cb0053387 100644
 --- a/fs/proc/generic.c
 +++ b/fs/proc/generic.c
-@@ -554,6 +554,8 @@ static int proc_seq_open(struct inode *inode, struct file *file)
+@@ -560,6 +560,8 @@ static int proc_seq_open(struct inode *inode, struct file *file)
  {
  	struct proc_dir_entry *de = PDE(inode);
  
@@ -128,7 +90,7 @@ index 2135443e52ef..19c40c6f8fd2 100644
  	return seq_open(file, de->seq_ops);
  }
  
-@@ -564,18 +566,21 @@ static const struct file_operations proc_seq_fops = {
+@@ -570,9 +572,9 @@ static const struct file_operations proc_seq_fops = {
  	.release	= seq_release,
  };
  
@@ -136,33 +98,31 @@ index 2135443e52ef..19c40c6f8fd2 100644
 +struct proc_dir_entry *proc_create_seq_private(const char *name, umode_t mode,
  		struct proc_dir_entry *parent, const struct seq_operations *ops,
 -		void *data)
-+		size_t state_size, void *data)
++		unsigned int state_size, void *data)
  {
  	struct proc_dir_entry *p;
  
- 	p = proc_create_data(name, mode, parent, &proc_seq_fops, data);
--	if (p)
-+	if (p) {
- 		p->seq_ops = ops;
-+		p->state_size = state_size;
-+	}
-+
- 	return p;
+@@ -581,9 +583,10 @@ struct proc_dir_entry *proc_create_seq_data(const char *name, umode_t mode,
+ 		return NULL;
+ 	p->proc_fops = &proc_seq_fops;
+ 	p->seq_ops = ops;
++	p->state_size = state_size;
+ 	return proc_register(parent, p);
  }
 -EXPORT_SYMBOL(proc_create_seq_data);
 +EXPORT_SYMBOL(proc_create_seq_private);
-  
- struct proc_dir_entry *proc_create(const char *name, umode_t mode,
- 				   struct proc_dir_entry *parent,
+ 
+ void proc_set_size(struct proc_dir_entry *de, loff_t size)
+ {
 diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 4430fd38dfc4..90756a26f710 100644
+index 4fb01c5f9c1a..ed29e91ae483 100644
 --- a/fs/proc/internal.h
 +++ b/fs/proc/internal.h
 @@ -45,6 +45,7 @@ struct proc_dir_entry {
  	const struct inode_operations *proc_iops;
  	const struct file_operations *proc_fops;
  	const struct seq_operations *seq_ops;
-+	size_t state_size;
++	unsigned int state_size;
  	void *data;
  	unsigned int low_ino;
  	nlink_t nlink;
@@ -185,7 +145,7 @@ index 40373920ea58..23f805562f4e 100644
  extern int sysctl_aarp_expiry_time;
  extern int sysctl_aarp_tick_time;
 diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 45f5824b99dc..12ad642ecc56 100644
+index 45f5824b99dc..91d7b84c3c64 100644
 --- a/include/linux/proc_fs.h
 +++ b/include/linux/proc_fs.h
 @@ -25,11 +25,13 @@ extern struct proc_dir_entry *proc_mkdir_mode(const char *, umode_t,
@@ -196,7 +156,7 @@ index 45f5824b99dc..12ad642ecc56 100644
 +struct proc_dir_entry *proc_create_seq_private(const char *name, umode_t mode,
  		struct proc_dir_entry *parent, const struct seq_operations *ops,
 -		void *data);
-+		size_t state_size, void *data);
++		unsigned int state_size, void *data);
 +#define proc_create_seq_data(name, mode, parent, ops, data) \
 +	proc_create_seq_private(name, mode, parent, ops, 0, data)
  #define proc_create_seq(name, mode, parent, ops) \
