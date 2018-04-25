@@ -1,15 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:49020 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750749AbeDXPTV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Apr 2018 11:19:21 -0400
-Date: Tue, 24 Apr 2018 08:19:16 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Christoph Hellwig <hch@lst.de>
+Received: from bombadil.infradead.org ([198.137.202.133]:41224 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755492AbeDYPvs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:48 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -19,32 +18,84 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: simplify procfs code for seq_file instances
-Message-Id: <20180424081916.e94ca8463fb3c39ebc082bdd@linux-foundation.org>
-In-Reply-To: <20180424142304.GE26136@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
-        <20180419185750.GD2066@avx2>
-        <20180424142304.GE26136@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 38/40] ide: remove ide_driver_proc_write
+Date: Wed, 25 Apr 2018 17:48:25 +0200
+Message-Id: <20180425154827.32251-39-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 24 Apr 2018 16:23:04 +0200 Christoph Hellwig <hch@lst.de> wrote:
+The driver proc file hasn't been writeable for a long time, so this is
+just dead code.
 
-> On Thu, Apr 19, 2018 at 09:57:50PM +0300, Alexey Dobriyan wrote:
-> > >     git://git.infradead.org/users/hch/misc.git proc_create
-> > 
-> > 
-> > I want to ask if it is time to start using poorman function overloading
-> > with _b_c_e(). There are millions of allocation functions for example,
-> > all slightly difference, and people will add more. Seeing /proc interfaces
-> > doubled like this is painful.
-> 
-> Function overloading is totally unacceptable.
-> 
-> And I very much disagree with a tradeoff that keeps 5000 lines of 
-> code vs a few new helpers.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/ide/ide-proc.c | 46 ------------------------------------------
+ 1 file changed, 46 deletions(-)
 
-OK, the curiosity and suspense are killing me.  What the heck is
-"function overloading with _b_c_e()"?
+diff --git a/drivers/ide/ide-proc.c b/drivers/ide/ide-proc.c
+index 863db44c7916..b3b8b8822d6a 100644
+--- a/drivers/ide/ide-proc.c
++++ b/drivers/ide/ide-proc.c
+@@ -528,58 +528,12 @@ static int ide_driver_proc_open(struct inode *inode, struct file *file)
+ 	return single_open(file, ide_driver_proc_show, PDE_DATA(inode));
+ }
+ 
+-static int ide_replace_subdriver(ide_drive_t *drive, const char *driver)
+-{
+-	struct device *dev = &drive->gendev;
+-	int ret = 1;
+-	int err;
+-
+-	device_release_driver(dev);
+-	/* FIXME: device can still be in use by previous driver */
+-	strlcpy(drive->driver_req, driver, sizeof(drive->driver_req));
+-	err = device_attach(dev);
+-	if (err < 0)
+-		printk(KERN_WARNING "IDE: %s: device_attach error: %d\n",
+-			__func__, err);
+-	drive->driver_req[0] = 0;
+-	if (dev->driver == NULL) {
+-		err = device_attach(dev);
+-		if (err < 0)
+-			printk(KERN_WARNING
+-				"IDE: %s: device_attach(2) error: %d\n",
+-				__func__, err);
+-	}
+-	if (dev->driver && !strcmp(dev->driver->name, driver))
+-		ret = 0;
+-
+-	return ret;
+-}
+-
+-static ssize_t ide_driver_proc_write(struct file *file, const char __user *buffer,
+-				     size_t count, loff_t *pos)
+-{
+-	ide_drive_t	*drive = PDE_DATA(file_inode(file));
+-	char name[32];
+-
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-	if (count > 31)
+-		count = 31;
+-	if (copy_from_user(name, buffer, count))
+-		return -EFAULT;
+-	name[count] = '\0';
+-	if (ide_replace_subdriver(drive, name))
+-		return -EINVAL;
+-	return count;
+-}
+-
+ static const struct file_operations ide_driver_proc_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= ide_driver_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+-	.write		= ide_driver_proc_write,
+ };
+ 
+ static int ide_media_proc_show(struct seq_file *m, void *v)
+-- 
+2.17.0
