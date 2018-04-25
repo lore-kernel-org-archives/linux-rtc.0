@@ -1,300 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38934 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755019AbeDYPud (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:33 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 21/40] afs: simplify procfs code
-Date: Wed, 25 Apr 2018 17:48:08 +0200
-Message-Id: <20180425154827.32251-22-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:56217 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751324AbeDYJcz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:55 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 09/17] rtc: mt6397: replace a poll with regmap_read_poll_timeout
+Date: Wed, 25 Apr 2018 17:32:35 +0800
+Message-ID: <de46e310a29fd63f66165e6f8296e949f392a370.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reuse the helper regmap_read_poll_timeout instead of an open-coding
+handling to simpify the logic.
+
+Furthermore, the time for a wait in each iteration changed from cpu_relax
+to 20us is for matching the usage of the helper, but it wouldn't acctually
+break any the existent functionality according to a good test on MT6323
+PMIC.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- fs/afs/proc.c | 134 ++++++--------------------------------------------
- 1 file changed, 15 insertions(+), 119 deletions(-)
+ drivers/rtc/rtc-mt6397.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/fs/afs/proc.c b/fs/afs/proc.c
-index 839a22280606..3aad32762989 100644
---- a/fs/afs/proc.c
-+++ b/fs/afs/proc.c
-@@ -62,7 +62,6 @@ static const struct file_operations afs_proc_rootcell_fops = {
- 	.llseek		= no_llseek,
- };
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 0df7ccd..efb9370 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -18,6 +18,7 @@
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+ #include <linux/irqdomain.h>
++#include <linux/jiffies.h>
+ #include <linux/platform_device.h>
+ #include <linux/of_address.h>
+ #include <linux/of_irq.h>
+@@ -63,6 +64,9 @@
+ #define RTC_NUM_YEARS		128
+ #define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
  
--static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file);
- static void *afs_proc_cell_volumes_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- 					loff_t *pos);
-@@ -76,15 +75,6 @@ static const struct seq_operations afs_proc_cell_volumes_ops = {
- 	.show	= afs_proc_cell_volumes_show,
- };
++#define MTK_RTC_POLL_DELAY_US	10
++#define MTK_RTC_POLL_TIMEOUT	(jiffies_to_usecs(HZ))
++
+ struct mt6397_rtc {
+ 	struct device		*dev;
+ 	struct rtc_device	*rtc_dev;
+@@ -74,7 +78,6 @@ struct mt6397_rtc {
  
--static const struct file_operations afs_proc_cell_volumes_fops = {
--	.open		= afs_proc_cell_volumes_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static int afs_proc_cell_vlservers_open(struct inode *inode,
--					struct file *file);
- static void *afs_proc_cell_vlservers_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
- 					  loff_t *pos);
-@@ -98,14 +88,6 @@ static const struct seq_operations afs_proc_cell_vlservers_ops = {
- 	.show	= afs_proc_cell_vlservers_show,
- };
- 
--static const struct file_operations afs_proc_cell_vlservers_fops = {
--	.open		= afs_proc_cell_vlservers_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static int afs_proc_servers_open(struct inode *inode, struct file *file);
- static void *afs_proc_servers_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_servers_next(struct seq_file *p, void *v,
- 					loff_t *pos);
-@@ -119,13 +101,6 @@ static const struct seq_operations afs_proc_servers_ops = {
- 	.show	= afs_proc_servers_show,
- };
- 
--static const struct file_operations afs_proc_servers_fops = {
--	.open		= afs_proc_servers_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int afs_proc_sysname_open(struct inode *inode, struct file *file);
- static int afs_proc_sysname_release(struct inode *inode, struct file *file);
- static void *afs_proc_sysname_start(struct seq_file *p, loff_t *pos);
-@@ -152,7 +127,7 @@ static const struct file_operations afs_proc_sysname_fops = {
- 	.write		= afs_proc_sysname_write,
- };
- 
--static const struct file_operations afs_proc_stats_fops;
-+static int afs_proc_stats_show(struct seq_file *m, void *v);
- 
- /*
-  * initialise the /proc/fs/afs/ directory
-@@ -167,8 +142,8 @@ int afs_proc_init(struct afs_net *net)
- 
- 	if (!proc_create("cells", 0644, net->proc_afs, &afs_proc_cells_fops) ||
- 	    !proc_create("rootcell", 0644, net->proc_afs, &afs_proc_rootcell_fops) ||
--	    !proc_create("servers", 0644, net->proc_afs, &afs_proc_servers_fops) ||
--	    !proc_create("stats", 0644, net->proc_afs, &afs_proc_stats_fops) ||
-+	    !proc_create_seq("servers", 0644, net->proc_afs, &afs_proc_servers_ops) ||
-+	    !proc_create_single("stats", 0644, net->proc_afs, afs_proc_stats_show) ||
- 	    !proc_create("sysname", 0644, net->proc_afs, &afs_proc_sysname_fops))
- 		goto error_tree;
- 
-@@ -196,16 +171,7 @@ void afs_proc_cleanup(struct afs_net *net)
-  */
- static int afs_proc_cells_open(struct inode *inode, struct file *file)
+ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
  {
--	struct seq_file *m;
--	int ret;
--
--	ret = seq_open(file, &afs_proc_cells_ops);
--	if (ret < 0)
--		return ret;
--
--	m = file->private_data;
--	m->private = PDE_DATA(inode);
--	return 0;
-+	return seq_open(file, &afs_proc_cells_ops);
+-	unsigned long timeout = jiffies + HZ;
+ 	int ret;
+ 	u32 data;
+ 
+@@ -82,19 +85,13 @@ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	while (1) {
+-		ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_BBPU,
+-				  &data);
+-		if (ret < 0)
+-			break;
+-		if (!(data & RTC_BBPU_CBUSY))
+-			break;
+-		if (time_after(jiffies, timeout)) {
+-			ret = -ETIMEDOUT;
+-			break;
+-		}
+-		cpu_relax();
+-	}
++	ret = regmap_read_poll_timeout(rtc->regmap,
++				       rtc->addr_base + RTC_BBPU, data,
++				       !(data & RTC_BBPU_CBUSY),
++				       MTK_RTC_POLL_DELAY_US,
++				       MTK_RTC_POLL_TIMEOUT);
++	if (ret < 0)
++		dev_err(rtc->dev, "failed to write WRTGE: %d\n", ret);
+ 
+ 	return ret;
  }
- 
- /*
-@@ -430,10 +396,11 @@ int afs_proc_cell_setup(struct afs_net *net, struct afs_cell *cell)
- 	if (!dir)
- 		goto error_dir;
- 
--	if (!proc_create_data("vlservers", 0, dir,
--			      &afs_proc_cell_vlservers_fops, cell) ||
--	    !proc_create_data("volumes", 0, dir,
--			      &afs_proc_cell_volumes_fops, cell))
-+	if (!proc_create_seq_data("vlservers", 0, dir,
-+			&afs_proc_cell_vlservers_ops, cell))
-+		goto error_tree;
-+	if (!proc_create_seq_data("volumes", 0, dir, &afs_proc_cell_volumes_ops,
-+			cell))
- 		goto error_tree;
- 
- 	_leave(" = 0");
-@@ -458,29 +425,6 @@ void afs_proc_cell_remove(struct afs_net *net, struct afs_cell *cell)
- 	_leave("");
- }
- 
--/*
-- * open "/proc/fs/afs/<cell>/volumes" which provides a summary of extant cells
-- */
--static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
--{
--	struct afs_cell *cell;
--	struct seq_file *m;
--	int ret;
--
--	cell = PDE_DATA(inode);
--	if (!cell)
--		return -ENOENT;
--
--	ret = seq_open(file, &afs_proc_cell_volumes_ops);
--	if (ret < 0)
--		return ret;
--
--	m = file->private_data;
--	m->private = cell;
--
--	return 0;
--}
--
- /*
-  * set up the iterator to start reading from the cells list and return the
-  * first item
-@@ -488,7 +432,7 @@ static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
- static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
- 	__acquires(cell->proc_lock)
- {
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 
- 	_enter("cell=%p pos=%Ld", cell, *_pos);
- 
-@@ -502,7 +446,7 @@ static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
- static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- 					loff_t *_pos)
- {
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 
- 	_enter("cell=%p pos=%Ld", cell, *_pos);
- 	return seq_list_next(v, &cell->proc_volumes, _pos);
-@@ -514,7 +458,7 @@ static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- static void afs_proc_cell_volumes_stop(struct seq_file *p, void *v)
- 	__releases(cell->proc_lock)
- {
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 
- 	read_unlock(&cell->proc_lock);
- }
-@@ -530,7 +474,7 @@ static const char afs_vol_types[3][3] = {
-  */
- static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
- {
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 	struct afs_volume *vol = list_entry(v, struct afs_volume, proc_link);
- 
- 	/* Display header on line 1 */
-@@ -546,30 +490,6 @@ static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--/*
-- * open "/proc/fs/afs/<cell>/vlservers" which provides a list of volume
-- * location server
-- */
--static int afs_proc_cell_vlservers_open(struct inode *inode, struct file *file)
--{
--	struct afs_cell *cell;
--	struct seq_file *m;
--	int ret;
--
--	cell = PDE_DATA(inode);
--	if (!cell)
--		return -ENOENT;
--
--	ret = seq_open(file, &afs_proc_cell_vlservers_ops);
--	if (ret<0)
--		return ret;
--
--	m = file->private_data;
--	m->private = cell;
--
--	return 0;
--}
--
- /*
-  * set up the iterator to start reading from the cells list and return the
-  * first item
-@@ -578,7 +498,7 @@ static void *afs_proc_cell_vlservers_start(struct seq_file *m, loff_t *_pos)
- 	__acquires(rcu)
- {
- 	struct afs_addr_list *alist;
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 	loff_t pos = *_pos;
- 
- 	rcu_read_lock();
-@@ -603,7 +523,7 @@ static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
- 					  loff_t *_pos)
- {
- 	struct afs_addr_list *alist;
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 	loff_t pos;
- 
- 	alist = rcu_dereference(cell->vl_addrs);
-@@ -643,15 +563,6 @@ static int afs_proc_cell_vlservers_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--/*
-- * open "/proc/fs/afs/servers" which provides a summary of active
-- * servers
-- */
--static int afs_proc_servers_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &afs_proc_servers_ops);
--}
--
- /*
-  * Set up the iterator to start reading from the server list and return the
-  * first item.
-@@ -931,18 +842,3 @@ static int afs_proc_stats_show(struct seq_file *m, void *v)
- 		   atomic_long_read(&net->n_store_bytes));
- 	return 0;
- }
--
--/*
-- * Open "/proc/fs/afs/stats" to allow reading of the stat counters.
-- */
--static int afs_proc_stats_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, afs_proc_stats_show, NULL);
--}
--
--static const struct file_operations afs_proc_stats_fops = {
--	.open		= afs_proc_stats_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release        = single_release,
--};
 -- 
-2.17.0
+2.7.4
