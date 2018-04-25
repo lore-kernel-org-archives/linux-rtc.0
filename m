@@ -1,51 +1,84 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:62845 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751743AbeDYJdN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:13 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 16/17] MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
-Date: Wed, 25 Apr 2018 17:32:42 +0800
-Message-ID: <39a73c162a637e1558e8c00a971db5db569397ff.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from bombadil.infradead.org ([198.137.202.133]:38536 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755277AbeDYPuL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:11 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 14/40] net: move seq_file_single_net to <linux/seq_file_net.h>
+Date: Wed, 25 Apr 2018 17:48:01 +0200
+Message-Id: <20180425154827.32251-15-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+This helper deals with single_{open,release}_net internals and thus
+belongs here.
 
-Add new files for new dt-bindings and a globally visible header file.
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/seq_file_net.h | 13 +++++++++++++
+ include/net/ip_vs.h          | 12 ------------
+ 2 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0a1410d..a7ef37f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1607,9 +1607,11 @@ M:	Sean Wang <sean.wang@mediatek.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- F:	Documentation/devicetree/bindings/rtc/rtc-mt7622.txt
- F:	drivers/rtc/rtc-mt6397.c
- F:	drivers/rtc/rtc-mt7622.c
-+F:	include/linux/mfd/mt6397/rtc.h
+diff --git a/include/linux/seq_file_net.h b/include/linux/seq_file_net.h
+index 43ccd84127b6..ed20faa99e05 100644
+--- a/include/linux/seq_file_net.h
++++ b/include/linux/seq_file_net.h
+@@ -28,4 +28,17 @@ static inline struct net *seq_file_net(struct seq_file *seq)
+ #endif
+ }
  
- ARM/Mediatek SoC support
- M:	Matthias Brugger <matthias.bgg@gmail.com>
++/*
++ * This one is needed for single_open_net since net is stored directly in
++ * private not as a struct i.e. seq_file_net can't be used.
++ */
++static inline struct net *seq_file_single_net(struct seq_file *seq)
++{
++#ifdef CONFIG_NET_NS
++	return (struct net *)seq->private;
++#else
++	return &init_net;
++#endif
++}
++
+ #endif
+diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
+index eb0bec043c96..aea7a124e66b 100644
+--- a/include/net/ip_vs.h
++++ b/include/net/ip_vs.h
+@@ -41,18 +41,6 @@ static inline struct netns_ipvs *net_ipvs(struct net* net)
+ 	return net->ipvs;
+ }
+ 
+-/* This one needed for single_open_net since net is stored directly in
+- * private not as a struct i.e. seq_file_net can't be used.
+- */
+-static inline struct net *seq_file_single_net(struct seq_file *seq)
+-{
+-#ifdef CONFIG_NET_NS
+-	return (struct net *)seq->private;
+-#else
+-	return &init_net;
+-#endif
+-}
+-
+ /* Connections' size value needed by ip_vs_ctl.c */
+ extern int ip_vs_conn_tab_size;
+ 
 -- 
-2.7.4
+2.17.0
