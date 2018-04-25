@@ -1,15 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f171.google.com ([209.85.128.171]:40075 "EHLO
-        mail-wr0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753148AbeDSSlN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 14:41:13 -0400
-Date: Thu, 19 Apr 2018 21:41:06 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+Received: from bombadil.infradead.org ([198.137.202.133]:39676 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755426AbeDYPvF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:05 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -19,60 +18,68 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/39] proc: introduce proc_create_seq{,_data}
-Message-ID: <20180419184106.GA2066@avx2>
-References: <20180419124140.9309-1-hch@lst.de>
- <20180419124140.9309-3-hch@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180419124140.9309-3-hch@lst.de>
+Subject: [PATCH 27/40] rtc/proc: switch to proc_create_single_data
+Date: Wed, 25 Apr 2018 17:48:14 +0200
+Message-Id: <20180425154827.32251-28-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 02:41:03PM +0200, Christoph Hellwig wrote:
-> Variants of proc_create{,_data} that directly take a struct seq_operations
-> argument and drastically reduces the boilerplate code in the callers.
+And stop trying to get a reference on the submodule, procfs code deals
+with release after and unloaded module and thus removed proc entry.
 
-> +static int proc_seq_open(struct inode *inode, struct file *file)
-> +{
-> +	struct proc_dir_entry *de = PDE(inode);
-> +
-> +	return seq_open(file, de->seq_ops);
-> +}
-> +
-> +static const struct file_operations proc_seq_fops = {
-> +	.open		= proc_seq_open,
-> +	.read		= seq_read,
-> +	.llseek		= seq_lseek,
-> +	.release	= seq_release,
-> +};
-> +
-> +struct proc_dir_entry *proc_create_seq_data(const char *name, umode_t mode,
-> +		struct proc_dir_entry *parent, const struct seq_operations *ops,
-> +		void *data)
-> +{
-> +	struct proc_dir_entry *p;
-> +
-> +	p = proc_create_data(name, mode, parent, &proc_seq_fops, data);
-> +	if (p)
-> +		p->seq_ops = ops;
-> +	return p;
-> +}
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/rtc/rtc-proc.c | 33 ++-------------------------------
+ 1 file changed, 2 insertions(+), 31 deletions(-)
 
-Should be oopsable.
-Once proc_create_data() returns, entry is live, ->open can be called.
-
-> --- a/fs/proc/internal.h
-> +++ b/fs/proc/internal.h
-> @@ -44,6 +44,7 @@ struct proc_dir_entry {
->  	struct completion *pde_unload_completion;
->  	const struct inode_operations *proc_iops;
->  	const struct file_operations *proc_fops;
-> +	const struct seq_operations *seq_ops;
->  	void *data;
->  	unsigned int low_ino;
->  	nlink_t nlink;
-
-"struct proc_dir_entry is 192/128 bytes now.
-If someone knows how to pad array to certain size without union
-please tell.
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index 31e7e23cc5be..a9dd9218fae2 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+ 	return 0;
+ }
+ 
+-static int rtc_proc_open(struct inode *inode, struct file *file)
+-{
+-	int ret;
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	if (!try_module_get(rtc->owner))
+-		return -ENODEV;
+-
+-	ret = single_open(file, rtc_proc_show, rtc);
+-	if (ret)
+-		module_put(rtc->owner);
+-	return ret;
+-}
+-
+-static int rtc_proc_release(struct inode *inode, struct file *file)
+-{
+-	int res = single_release(inode, file);
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	module_put(rtc->owner);
+-	return res;
+-}
+-
+-static const struct file_operations rtc_proc_fops = {
+-	.open		= rtc_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= rtc_proc_release,
+-};
+-
+ void rtc_proc_add_device(struct rtc_device *rtc)
+ {
+ 	if (is_rtc_hctosys(rtc))
+-		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
++		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
++				rtc);
+ }
+ 
+ void rtc_proc_del_device(struct rtc_device *rtc)
+-- 
+2.17.0
