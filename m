@@ -1,112 +1,313 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:63767 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751346AbeDYJc4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:56 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
-Subject: [PATCH v2 11/17] rtc: mt6397: convert to use device managed functions
-Date: Wed, 25 Apr 2018 17:32:37 +0800
-Message-ID: <6d203dafedc93496baf27f695d21e00c9564d840.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from bombadil.infradead.org ([198.137.202.133]:37564 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755228AbeDYPti (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:49:38 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 08/40] ipv{4,6}/tcp: simplify procfs registration
+Date: Wed, 25 Apr 2018 17:47:55 +0200
+Message-Id: <20180425154827.32251-9-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+Avoid most of the afinfo indirections and just call the proc helpers
+directly.
 
-Use device managed operation to simplify error handling, reduce source
-code size, and reduce the likelyhood of bugs, and remove our removal
-callback which contains anything already done by device managed functions.
-
-v1 -> v2:
- - Use devm_rtc_allocate_device() and rtc_register_device instead of
-   devm_rtc_device_register.
-
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-mt6397.c | 37 ++++++++++---------------------------
- 1 file changed, 10 insertions(+), 27 deletions(-)
+ include/net/tcp.h   | 11 ++----
+ net/ipv4/tcp_ipv4.c | 85 +++++++++++++++++----------------------------
+ net/ipv6/tcp_ipv6.c | 27 +++++++++-----
+ 3 files changed, 53 insertions(+), 70 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 398bae5..91d584a 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -14,6 +14,7 @@
- 
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
-@@ -328,10 +329,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, rtc);
- 
--	ret = request_threaded_irq(rtc->irq, NULL,
--				   mtk_rtc_irq_handler_thread,
--				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
--				   "mt6397-rtc", rtc);
-+	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
-+					mtk_rtc_irq_handler_thread,
-+					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-+					"mt6397-rtc", rtc);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
- 			rtc->irq, ret);
-@@ -340,30 +341,13 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
--					   &mtk_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc_dev)) {
--		dev_err(&pdev->dev, "register rtc device failed\n");
--		ret = PTR_ERR(rtc->rtc_dev);
--		goto out_free_irq;
--	}
--
--	return 0;
--
--out_free_irq:
--	free_irq(rtc->irq, rtc->rtc_dev);
--
--	return ret;
--}
-+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc->rtc_dev))
-+		return PTR_ERR(rtc->rtc_dev);
- 
--static int mtk_rtc_remove(struct platform_device *pdev)
--{
--	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
-+	rtc->rtc_dev->ops = &mtk_rtc_ops;
- 
--	rtc_device_unregister(rtc->rtc_dev);
--	free_irq(rtc->irq, rtc->rtc_dev);
--
--	return 0;
-+	return rtc_register_device(rtc->rtc_dev);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -405,7 +389,6 @@ static struct platform_driver mtk_rtc_driver = {
- 		.pm = &mt6397_pm_ops,
- 	},
- 	.probe	= mtk_rtc_probe,
--	.remove = mtk_rtc_remove,
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 9c9b3768b350..51dc7a26a2fa 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1747,27 +1747,22 @@ enum tcp_seq_states {
+ 	TCP_SEQ_STATE_ESTABLISHED,
  };
  
- module_platform_driver(mtk_rtc_driver);
+-int tcp_seq_open(struct inode *inode, struct file *file);
++void *tcp_seq_start(struct seq_file *seq, loff_t *pos);
++void *tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos);
++void tcp_seq_stop(struct seq_file *seq, void *v);
+ 
+ struct tcp_seq_afinfo {
+-	char				*name;
+ 	sa_family_t			family;
+-	const struct file_operations	*seq_fops;
+-	struct seq_operations		seq_ops;
+ };
+ 
+ struct tcp_iter_state {
+ 	struct seq_net_private	p;
+-	sa_family_t		family;
+ 	enum tcp_seq_states	state;
+ 	struct sock		*syn_wait_sk;
+ 	int			bucket, offset, sbucket, num;
+ 	loff_t			last_pos;
+ };
+ 
+-int tcp_proc_register(struct net *net, struct tcp_seq_afinfo *afinfo);
+-void tcp_proc_unregister(struct net *net, struct tcp_seq_afinfo *afinfo);
+-
+ extern struct request_sock_ops tcp_request_sock_ops;
+ extern struct request_sock_ops tcp6_request_sock_ops;
+ 
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index f70586b50838..645f259d0972 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1961,6 +1961,7 @@ EXPORT_SYMBOL(tcp_v4_destroy_sock);
+  */
+ static void *listening_get_next(struct seq_file *seq, void *cur)
+ {
++	struct tcp_seq_afinfo *afinfo = PDE_DATA(file_inode(seq->file));
+ 	struct tcp_iter_state *st = seq->private;
+ 	struct net *net = seq_file_net(seq);
+ 	struct inet_listen_hashbucket *ilb;
+@@ -1983,7 +1984,7 @@ static void *listening_get_next(struct seq_file *seq, void *cur)
+ 	sk_for_each_from(sk) {
+ 		if (!net_eq(sock_net(sk), net))
+ 			continue;
+-		if (sk->sk_family == st->family)
++		if (sk->sk_family == afinfo->family)
+ 			return sk;
+ 	}
+ 	spin_unlock(&ilb->lock);
+@@ -2020,6 +2021,7 @@ static inline bool empty_bucket(const struct tcp_iter_state *st)
+  */
+ static void *established_get_first(struct seq_file *seq)
+ {
++	struct tcp_seq_afinfo *afinfo = PDE_DATA(file_inode(seq->file));
+ 	struct tcp_iter_state *st = seq->private;
+ 	struct net *net = seq_file_net(seq);
+ 	void *rc = NULL;
+@@ -2036,7 +2038,7 @@ static void *established_get_first(struct seq_file *seq)
+ 
+ 		spin_lock_bh(lock);
+ 		sk_nulls_for_each(sk, node, &tcp_hashinfo.ehash[st->bucket].chain) {
+-			if (sk->sk_family != st->family ||
++			if (sk->sk_family != afinfo->family ||
+ 			    !net_eq(sock_net(sk), net)) {
+ 				continue;
+ 			}
+@@ -2051,6 +2053,7 @@ static void *established_get_first(struct seq_file *seq)
+ 
+ static void *established_get_next(struct seq_file *seq, void *cur)
+ {
++	struct tcp_seq_afinfo *afinfo = PDE_DATA(file_inode(seq->file));
+ 	struct sock *sk = cur;
+ 	struct hlist_nulls_node *node;
+ 	struct tcp_iter_state *st = seq->private;
+@@ -2062,7 +2065,8 @@ static void *established_get_next(struct seq_file *seq, void *cur)
+ 	sk = sk_nulls_next(sk);
+ 
+ 	sk_nulls_for_each_from(sk, node) {
+-		if (sk->sk_family == st->family && net_eq(sock_net(sk), net))
++		if (sk->sk_family == afinfo->family &&
++		    net_eq(sock_net(sk), net))
+ 			return sk;
+ 	}
+ 
+@@ -2135,7 +2139,7 @@ static void *tcp_seek_last_pos(struct seq_file *seq)
+ 	return rc;
+ }
+ 
+-static void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
++void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	struct tcp_iter_state *st = seq->private;
+ 	void *rc;
+@@ -2156,8 +2160,9 @@ static void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
+ 	st->last_pos = *pos;
+ 	return rc;
+ }
++EXPORT_SYMBOL(tcp_seq_start);
+ 
+-static void *tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
++void *tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct tcp_iter_state *st = seq->private;
+ 	void *rc = NULL;
+@@ -2186,8 +2191,9 @@ static void *tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ 	st->last_pos = *pos;
+ 	return rc;
+ }
++EXPORT_SYMBOL(tcp_seq_next);
+ 
+-static void tcp_seq_stop(struct seq_file *seq, void *v)
++void tcp_seq_stop(struct seq_file *seq, void *v)
+ {
+ 	struct tcp_iter_state *st = seq->private;
+ 
+@@ -2202,47 +2208,7 @@ static void tcp_seq_stop(struct seq_file *seq, void *v)
+ 		break;
+ 	}
+ }
+-
+-int tcp_seq_open(struct inode *inode, struct file *file)
+-{
+-	struct tcp_seq_afinfo *afinfo = PDE_DATA(inode);
+-	struct tcp_iter_state *s;
+-	int err;
+-
+-	err = seq_open_net(inode, file, &afinfo->seq_ops,
+-			  sizeof(struct tcp_iter_state));
+-	if (err < 0)
+-		return err;
+-
+-	s = ((struct seq_file *)file->private_data)->private;
+-	s->family		= afinfo->family;
+-	s->last_pos		= 0;
+-	return 0;
+-}
+-EXPORT_SYMBOL(tcp_seq_open);
+-
+-int tcp_proc_register(struct net *net, struct tcp_seq_afinfo *afinfo)
+-{
+-	int rc = 0;
+-	struct proc_dir_entry *p;
+-
+-	afinfo->seq_ops.start		= tcp_seq_start;
+-	afinfo->seq_ops.next		= tcp_seq_next;
+-	afinfo->seq_ops.stop		= tcp_seq_stop;
+-
+-	p = proc_create_data(afinfo->name, 0444, net->proc_net,
+-			     afinfo->seq_fops, afinfo);
+-	if (!p)
+-		rc = -ENOMEM;
+-	return rc;
+-}
+-EXPORT_SYMBOL(tcp_proc_register);
+-
+-void tcp_proc_unregister(struct net *net, struct tcp_seq_afinfo *afinfo)
+-{
+-	remove_proc_entry(afinfo->name, net->proc_net);
+-}
+-EXPORT_SYMBOL(tcp_proc_unregister);
++EXPORT_SYMBOL(tcp_seq_stop);
+ 
+ static void get_openreq4(const struct request_sock *req,
+ 			 struct seq_file *f, int i)
+@@ -2377,6 +2343,19 @@ static int tcp4_seq_show(struct seq_file *seq, void *v)
+ 	return 0;
+ }
+ 
++static const struct seq_operations tcp4_seq_ops = {
++	.show		= tcp4_seq_show,
++	.start		= tcp_seq_start,
++	.next		= tcp_seq_next,
++	.stop		= tcp_seq_stop,
++};
++
++static int tcp_seq_open(struct inode *inode, struct file *file)
++{
++	return seq_open_net(inode, file, &tcp4_seq_ops,
++			  sizeof(struct tcp_iter_state));
++}
++
+ static const struct file_operations tcp_afinfo_seq_fops = {
+ 	.open    = tcp_seq_open,
+ 	.read    = seq_read,
+@@ -2385,22 +2364,20 @@ static const struct file_operations tcp_afinfo_seq_fops = {
+ };
+ 
+ static struct tcp_seq_afinfo tcp4_seq_afinfo = {
+-	.name		= "tcp",
+ 	.family		= AF_INET,
+-	.seq_fops	= &tcp_afinfo_seq_fops,
+-	.seq_ops	= {
+-		.show		= tcp4_seq_show,
+-	},
+ };
+ 
+ static int __net_init tcp4_proc_init_net(struct net *net)
+ {
+-	return tcp_proc_register(net, &tcp4_seq_afinfo);
++	if (!proc_create_data("tcp", 0444, net->proc_net,
++			&tcp_afinfo_seq_fops, &tcp4_seq_afinfo))
++		return -ENOMEM;
++	return 0;
+ }
+ 
+ static void __net_exit tcp4_proc_exit_net(struct net *net)
+ {
+-	tcp_proc_unregister(net, &tcp4_seq_afinfo);
++	remove_proc_entry("tcp", net->proc_net);
+ }
+ 
+ static struct pernet_operations tcp4_net_ops = {
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 6d664d83cd16..c0329bb1692f 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1909,30 +1909,41 @@ static int tcp6_seq_show(struct seq_file *seq, void *v)
+ 	return 0;
+ }
+ 
++static const struct seq_operations tcp6_seq_ops = {
++	.show		= tcp6_seq_show,
++	.start		= tcp_seq_start,
++	.next		= tcp_seq_next,
++	.stop		= tcp_seq_stop,
++};
++
++static int tcp6_seq_open(struct inode *inode, struct file *file)
++{
++	return seq_open_net(inode, file, &tcp6_seq_ops,
++			  sizeof(struct tcp_iter_state));
++}
++
+ static const struct file_operations tcp6_afinfo_seq_fops = {
+-	.open    = tcp_seq_open,
++	.open    = tcp6_seq_open,
+ 	.read    = seq_read,
+ 	.llseek  = seq_lseek,
+ 	.release = seq_release_net
+ };
+ 
+ static struct tcp_seq_afinfo tcp6_seq_afinfo = {
+-	.name		= "tcp6",
+ 	.family		= AF_INET6,
+-	.seq_fops	= &tcp6_afinfo_seq_fops,
+-	.seq_ops	= {
+-		.show		= tcp6_seq_show,
+-	},
+ };
+ 
+ int __net_init tcp6_proc_init(struct net *net)
+ {
+-	return tcp_proc_register(net, &tcp6_seq_afinfo);
++	if (!proc_create_data("tcp6", 0444, net->proc_net,
++			&tcp6_afinfo_seq_fops, &tcp6_seq_afinfo))
++		return -ENOMEM;
++	return 0;
+ }
+ 
+ void tcp6_proc_exit(struct net *net)
+ {
+-	tcp_proc_unregister(net, &tcp6_seq_afinfo);
++	remove_proc_entry("tcp6", net->proc_net);
+ }
+ #endif
+ 
 -- 
-2.7.4
+2.17.0
