@@ -1,115 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39370 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755322AbeDYPu4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:56 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 30/40] neigh: switch to proc_create_seq_data
-Date: Wed, 25 Apr 2018 17:48:17 +0200
-Message-Id: <20180425154827.32251-31-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:62845 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751328AbeDYJdH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:07 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 13/17] rtc: mt6397: cleanup header files to include
+Date: Wed, 25 Apr 2018 17:32:39 +0800
+Message-ID: <ac254bb75a28a6a7c55557eedc9e466a5dbba075.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use proc private data directly instead of doing a detour
-through seq->private.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Clean up those included header files by removing unreferenced ones,
+add missing ones the driver explicitly depends on and finally list
+all #includes in alphabetical order.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- net/core/neighbour.c | 31 ++++++-------------------------
- 1 file changed, 6 insertions(+), 25 deletions(-)
+ drivers/rtc/rtc-mt6397.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index ce519861be59..1fb43bff417d 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -59,7 +59,7 @@ static int pneigh_ifdown_and_unlock(struct neigh_table *tbl,
- 				    struct net_device *dev);
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 4c5cdaa..3672d622 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -12,17 +12,14 @@
+ * GNU General Public License for more details.
+ */
  
- #ifdef CONFIG_PROC_FS
--static const struct file_operations neigh_stat_seq_fops;
-+static const struct seq_operations neigh_stat_seq_ops;
- #endif
+-#include <linux/delay.h>
+-#include <linux/init.h>
++#include <linux/err.h>
+ #include <linux/interrupt.h>
++#include <linux/mfd/mt6397/core.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+-#include <linux/platform_device.h>
+-#include <linux/of_address.h>
+-#include <linux/of_irq.h>
+-#include <linux/io.h>
+-#include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/rtc.h>
  
- /*
-@@ -1558,8 +1558,8 @@ void neigh_table_init(int index, struct neigh_table *tbl)
- 		panic("cannot create neighbour cache statistics");
- 
- #ifdef CONFIG_PROC_FS
--	if (!proc_create_data(tbl->id, 0, init_net.proc_net_stat,
--			      &neigh_stat_seq_fops, tbl))
-+	if (!proc_create_seq_data(tbl->id, 0, init_net.proc_net_stat,
-+			      &neigh_stat_seq_ops, tbl))
- 		panic("cannot create neighbour proc dir entry");
- #endif
- 
-@@ -2786,7 +2786,7 @@ EXPORT_SYMBOL(neigh_seq_stop);
- 
- static void *neigh_stat_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	int cpu;
- 
- 	if (*pos == 0)
-@@ -2803,7 +2803,7 @@ static void *neigh_stat_seq_start(struct seq_file *seq, loff_t *pos)
- 
- static void *neigh_stat_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	int cpu;
- 
- 	for (cpu = *pos; cpu < nr_cpu_ids; ++cpu) {
-@@ -2822,7 +2822,7 @@ static void neigh_stat_seq_stop(struct seq_file *seq, void *v)
- 
- static int neigh_stat_seq_show(struct seq_file *seq, void *v)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	struct neigh_statistics *st = v;
- 
- 	if (v == SEQ_START_TOKEN) {
-@@ -2861,25 +2861,6 @@ static const struct seq_operations neigh_stat_seq_ops = {
- 	.stop	= neigh_stat_seq_stop,
- 	.show	= neigh_stat_seq_show,
- };
--
--static int neigh_stat_seq_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &neigh_stat_seq_ops);
--
--	if (!ret) {
--		struct seq_file *sf = file->private_data;
--		sf->private = PDE_DATA(inode);
--	}
--	return ret;
--};
--
--static const struct file_operations neigh_stat_seq_fops = {
--	.open 	 = neigh_stat_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = seq_release,
--};
--
- #endif /* CONFIG_PROC_FS */
- 
- static inline size_t neigh_nlmsg_size(void)
+ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
 -- 
-2.17.0
+2.7.4
