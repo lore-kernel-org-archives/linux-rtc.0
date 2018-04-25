@@ -1,203 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38394 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754813AbeDYPuE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:04 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 09/40] ipv{4,6}/ping: simplify proc file creation
-Date: Wed, 25 Apr 2018 17:47:56 +0200
-Message-Id: <20180425154827.32251-10-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:63767 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751672AbeDYJdL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:11 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 17/17] MAINTAINERS: add an entry for MediaTek board level shutdown driver
+Date: Wed, 25 Apr 2018 17:32:43 +0800
+Message-ID: <a356e91c593d600418c7a37cdae58bf2d80c0a94.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Remove the pointless ping_seq_afinfo indirection and make the code look
-like most other protocols.
+From: Sean Wang <sean.wang@mediatek.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Add an entry for the MediaTek board level shutdown driver.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- include/net/ping.h | 11 ----------
- net/ipv4/ping.c    | 50 +++++++++++++---------------------------------
- net/ipv6/ping.c    | 35 +++++++++++++++++++++-----------
- 3 files changed, 37 insertions(+), 59 deletions(-)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/net/ping.h b/include/net/ping.h
-index 4cd90d6b5c25..fd080e043a6e 100644
---- a/include/net/ping.h
-+++ b/include/net/ping.h
-@@ -83,20 +83,9 @@ int  ping_queue_rcv_skb(struct sock *sk, struct sk_buff *skb);
- bool ping_rcv(struct sk_buff *skb);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a7ef37f..816554b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8912,6 +8912,13 @@ S:	Maintained
+ F:	drivers/net/dsa/mt7530.*
+ F:	net/dsa/tag_mtk.c
  
- #ifdef CONFIG_PROC_FS
--struct ping_seq_afinfo {
--	char				*name;
--	sa_family_t			family;
--	const struct file_operations	*seq_fops;
--	const struct seq_operations	seq_ops;
--};
--
--extern const struct file_operations ping_seq_fops;
--
- void *ping_seq_start(struct seq_file *seq, loff_t *pos, sa_family_t family);
- void *ping_seq_next(struct seq_file *seq, void *v, loff_t *pos);
- void ping_seq_stop(struct seq_file *seq, void *v);
--int ping_proc_register(struct net *net, struct ping_seq_afinfo *afinfo);
--void ping_proc_unregister(struct net *net, struct ping_seq_afinfo *afinfo);
- 
- int __init ping_proc_init(void);
- void ping_proc_exit(void);
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index 05e47d777009..83170ebf5dfc 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -1147,58 +1147,36 @@ static int ping_v4_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static int ping_seq_open(struct inode *inode, struct file *file)
-+static const struct seq_operations ping_v4_seq_ops = {
-+	.start		= ping_v4_seq_start,
-+	.show		= ping_v4_seq_show,
-+	.next		= ping_seq_next,
-+	.stop		= ping_seq_stop,
-+};
++MEDIATEK BOARD LEVEL SHUTDOWN DRIVERS
++M:	Sean Wang <sean.wang@mediatek.com>
++L:	linux-pm@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
++F:	drivers/power/reset/mt6323-poweroff.c
 +
-+static int ping_v4_seq_open(struct inode *inode, struct file *file)
- {
--	struct ping_seq_afinfo *afinfo = PDE_DATA(inode);
--	return seq_open_net(inode, file, &afinfo->seq_ops,
-+	return seq_open_net(inode, file, &ping_v4_seq_ops,
- 			   sizeof(struct ping_iter_state));
- }
- 
--const struct file_operations ping_seq_fops = {
--	.open		= ping_seq_open,
-+const struct file_operations ping_v4_seq_fops = {
-+	.open		= ping_v4_seq_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
- 	.release	= seq_release_net,
- };
--EXPORT_SYMBOL_GPL(ping_seq_fops);
--
--static struct ping_seq_afinfo ping_v4_seq_afinfo = {
--	.name		= "icmp",
--	.family		= AF_INET,
--	.seq_fops	= &ping_seq_fops,
--	.seq_ops	= {
--		.start		= ping_v4_seq_start,
--		.show		= ping_v4_seq_show,
--		.next		= ping_seq_next,
--		.stop		= ping_seq_stop,
--	},
--};
- 
--int ping_proc_register(struct net *net, struct ping_seq_afinfo *afinfo)
-+static int __net_init ping_v4_proc_init_net(struct net *net)
- {
--	struct proc_dir_entry *p;
--	p = proc_create_data(afinfo->name, 0444, net->proc_net,
--			     afinfo->seq_fops, afinfo);
--	if (!p)
-+	if (!proc_create("icmp", 0444, net->proc_net, &ping_v4_seq_fops))
- 		return -ENOMEM;
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(ping_proc_register);
--
--void ping_proc_unregister(struct net *net, struct ping_seq_afinfo *afinfo)
--{
--	remove_proc_entry(afinfo->name, net->proc_net);
--}
--EXPORT_SYMBOL_GPL(ping_proc_unregister);
--
--static int __net_init ping_v4_proc_init_net(struct net *net)
--{
--	return ping_proc_register(net, &ping_v4_seq_afinfo);
--}
- 
- static void __net_exit ping_v4_proc_exit_net(struct net *net)
- {
--	ping_proc_unregister(net, &ping_v4_seq_afinfo);
-+	remove_proc_entry("icmp", net->proc_net);
- }
- 
- static struct pernet_operations ping_v4_net_ops = {
-diff --git a/net/ipv6/ping.c b/net/ipv6/ping.c
-index 746eeae7f581..45d5c8e0f2bf 100644
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -24,6 +24,7 @@
- #include <net/protocol.h>
- #include <net/udp.h>
- #include <net/transp_v6.h>
-+#include <linux/proc_fs.h>
- #include <net/ping.h>
- 
- /* Compatibility glue so we can support IPv6 when it's compiled as a module */
-@@ -215,26 +216,36 @@ static int ping_v6_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
--static struct ping_seq_afinfo ping_v6_seq_afinfo = {
--	.name		= "icmp6",
--	.family		= AF_INET6,
--	.seq_fops       = &ping_seq_fops,
--	.seq_ops	= {
--		.start		= ping_v6_seq_start,
--		.show		= ping_v6_seq_show,
--		.next		= ping_seq_next,
--		.stop		= ping_seq_stop,
--	},
-+static const struct seq_operations ping_v6_seq_ops = {
-+	.start		= ping_v6_seq_start,
-+	.show		= ping_v6_seq_show,
-+	.next		= ping_seq_next,
-+	.stop		= ping_seq_stop,
-+};
-+
-+static int ping_v6_seq_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open_net(inode, file, &ping_v6_seq_ops,
-+			   sizeof(struct ping_iter_state));
-+}
-+
-+const struct file_operations ping_v6_seq_fops = {
-+	.open		= ping_v6_seq_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release_net,
- };
- 
- static int __net_init ping_v6_proc_init_net(struct net *net)
- {
--	return ping_proc_register(net, &ping_v6_seq_afinfo);
-+	if (!proc_create("icmp6", 0444, net->proc_net, &ping_v6_seq_fops))
-+		return -ENOMEM;
-+	return 0;
- }
- 
- static void __net_init ping_v6_proc_exit_net(struct net *net)
- {
--	return ping_proc_unregister(net, &ping_v6_seq_afinfo);
-+	remove_proc_entry("icmp6", net->proc_net);
- }
- 
- static struct pernet_operations ping_v6_net_ops = {
+ MEDIATEK JPEG DRIVER
+ M:	Rick Chang <rick.chang@mediatek.com>
+ M:	Bin Liu <bin.liu@mediatek.com>
 -- 
-2.17.0
+2.7.4
