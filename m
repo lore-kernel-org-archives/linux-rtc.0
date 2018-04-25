@@ -1,8 +1,8 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39676 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:36340 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755426AbeDYPvF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:05 -0400
+        with ESMTP id S1754196AbeDYPsz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:48:55 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
@@ -18,68 +18,65 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 27/40] rtc/proc: switch to proc_create_single_data
-Date: Wed, 25 Apr 2018 17:48:14 +0200
-Message-Id: <20180425154827.32251-28-hch@lst.de>
+Subject: [PATCH 01/40] net/can: single_open_net needs to be paired with single_release_net
+Date: Wed, 25 Apr 2018 17:47:48 +0200
+Message-Id: <20180425154827.32251-2-hch@lst.de>
 In-Reply-To: <20180425154827.32251-1-hch@lst.de>
 References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And stop trying to get a reference on the submodule, procfs code deals
-with release after and unloaded module and thus removed proc entry.
+Otherwise we will leak a reference to the network namespace.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-proc.c | 33 ++-------------------------------
- 1 file changed, 2 insertions(+), 31 deletions(-)
+ net/can/bcm.c  | 2 +-
+ net/can/proc.c | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index 31e7e23cc5be..a9dd9218fae2 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
- 	return 0;
- }
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index ac5e5e34fee3..8073fa14e143 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -249,7 +249,7 @@ static const struct file_operations bcm_proc_fops = {
+ 	.open		= bcm_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
+ #endif /* CONFIG_PROC_FS */
  
--static int rtc_proc_open(struct inode *inode, struct file *file)
--{
--	int ret;
--	struct rtc_device *rtc = PDE_DATA(inode);
--
--	if (!try_module_get(rtc->owner))
--		return -ENODEV;
--
--	ret = single_open(file, rtc_proc_show, rtc);
--	if (ret)
--		module_put(rtc->owner);
--	return ret;
--}
--
--static int rtc_proc_release(struct inode *inode, struct file *file)
--{
--	int res = single_release(inode, file);
--	struct rtc_device *rtc = PDE_DATA(inode);
--
--	module_put(rtc->owner);
--	return res;
--}
--
--static const struct file_operations rtc_proc_fops = {
--	.open		= rtc_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= rtc_proc_release,
--};
--
- void rtc_proc_add_device(struct rtc_device *rtc)
- {
- 	if (is_rtc_hctosys(rtc))
--		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
-+		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
-+				rtc);
- }
+diff --git a/net/can/proc.c b/net/can/proc.c
+index fdf704e9bb8c..fde2fd55b826 100644
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -279,7 +279,7 @@ static const struct file_operations can_stats_proc_fops = {
+ 	.open		= can_stats_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
  
- void rtc_proc_del_device(struct rtc_device *rtc)
+ static int can_reset_stats_proc_show(struct seq_file *m, void *v)
+@@ -449,7 +449,7 @@ static const struct file_operations can_rcvlist_sff_proc_fops = {
+ 	.open		= can_rcvlist_sff_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
+ 
+ 
+@@ -492,7 +492,7 @@ static const struct file_operations can_rcvlist_eff_proc_fops = {
+ 	.open		= can_rcvlist_eff_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= single_release_net,
+ };
+ 
+ /*
 -- 
 2.17.0
