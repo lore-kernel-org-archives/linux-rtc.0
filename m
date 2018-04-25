@@ -1,57 +1,124 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:35168 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757046AbeD0C6F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Apr 2018 22:58:05 -0400
-Date: Thu, 26 Apr 2018 21:58:03 -0500
-From: Rob Herring <robh@kernel.org>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] dt-bindings: rtc: update stm32-rtc documentation for
- st,syscfg property
-Message-ID: <20180427025803.mn32y5xle2p6knn6@rob-hp-laptop>
-References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
- <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:39564 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755413AbeDYPvB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:01 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 26/40] drbd: switch to proc_create_single
+Date: Wed, 25 Apr 2018 17:48:13 +0200
+Message-Id: <20180425154827.32251-27-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 03:21:42PM +0200, Amelie Delaunay wrote:
-> RTC driver should not be aware of the PWR registers offset and bits
-> position. Furthermore, we can imagine that Disable Backup Protection (DBP)
-> relative register and bit mask could change depending on the SoC. So this
-> patch moves st,syscfg property from single pwrcfg phandle to pwrcfg
-> phandle/offset/mask triplet.
-> 
-> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> ---
->  Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> index a66692a..00f8b5d 100644
-> --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> @@ -14,8 +14,10 @@ Required properties:
->      It is required only on stm32h7.
->  - interrupt-parent: phandle for the interrupt controller.
->  - interrupts: rtc alarm interrupt.
-> -- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
-> -  (RTC registers) write protection.
-> +- st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
-> +  access control register at offset, and change the dbp (Disable Backup
-> +  Protection) bit represented by the mask, mandatory to disable/enable backup
-> +  domain (RTC registers) write protection.
+And stop messing with try_module_get on THIS_MODULE, which doesn't make
+any sense here.
 
-It's fine to add this, but you are breaking compatibility in the driver 
-with existing DTBs by requiring these new fields.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/drbd/drbd_int.h  |  2 +-
+ drivers/block/drbd/drbd_main.c |  3 ++-
+ drivers/block/drbd/drbd_proc.c | 34 +---------------------------------
+ 3 files changed, 4 insertions(+), 35 deletions(-)
 
-Rob
+diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
+index 06ecee1b528e..461ddec04e7c 100644
+--- a/drivers/block/drbd/drbd_int.h
++++ b/drivers/block/drbd/drbd_int.h
+@@ -1643,7 +1643,7 @@ void drbd_bump_write_ordering(struct drbd_resource *resource, struct drbd_backin
+ 
+ /* drbd_proc.c */
+ extern struct proc_dir_entry *drbd_proc;
+-extern const struct file_operations drbd_proc_fops;
++int drbd_seq_show(struct seq_file *seq, void *v);
+ 
+ /* drbd_actlog.c */
+ extern bool drbd_al_begin_io_prepare(struct drbd_device *device, struct drbd_interval *i);
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 185f1ef00a7c..c2d154faac02 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -3010,7 +3010,8 @@ static int __init drbd_init(void)
+ 		goto fail;
+ 
+ 	err = -ENOMEM;
+-	drbd_proc = proc_create_data("drbd", S_IFREG | S_IRUGO , NULL, &drbd_proc_fops, NULL);
++	drbd_proc = proc_create_single("drbd", S_IFREG | S_IRUGO , NULL,
++			drbd_seq_show);
+ 	if (!drbd_proc)	{
+ 		pr_err("unable to register proc file\n");
+ 		goto fail;
+diff --git a/drivers/block/drbd/drbd_proc.c b/drivers/block/drbd/drbd_proc.c
+index 582caeb0de86..74ef29247bb5 100644
+--- a/drivers/block/drbd/drbd_proc.c
++++ b/drivers/block/drbd/drbd_proc.c
+@@ -33,18 +33,7 @@
+ #include <linux/drbd.h>
+ #include "drbd_int.h"
+ 
+-static int drbd_proc_open(struct inode *inode, struct file *file);
+-static int drbd_proc_release(struct inode *inode, struct file *file);
+-
+-
+ struct proc_dir_entry *drbd_proc;
+-const struct file_operations drbd_proc_fops = {
+-	.owner		= THIS_MODULE,
+-	.open		= drbd_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= drbd_proc_release,
+-};
+ 
+ static void seq_printf_with_thousands_grouping(struct seq_file *seq, long v)
+ {
+@@ -235,7 +224,7 @@ static void drbd_syncer_progress(struct drbd_device *device, struct seq_file *se
+ 	}
+ }
+ 
+-static int drbd_seq_show(struct seq_file *seq, void *v)
++int drbd_seq_show(struct seq_file *seq, void *v)
+ {
+ 	int i, prev_i = -1;
+ 	const char *sn;
+@@ -345,24 +334,3 @@ static int drbd_seq_show(struct seq_file *seq, void *v)
+ 
+ 	return 0;
+ }
+-
+-static int drbd_proc_open(struct inode *inode, struct file *file)
+-{
+-	int err;
+-
+-	if (try_module_get(THIS_MODULE)) {
+-		err = single_open(file, drbd_seq_show, NULL);
+-		if (err)
+-			module_put(THIS_MODULE);
+-		return err;
+-	}
+-	return -ENODEV;
+-}
+-
+-static int drbd_proc_release(struct inode *inode, struct file *file)
+-{
+-	module_put(THIS_MODULE);
+-	return single_release(inode, file);
+-}
+-
+-/* PROC FS stuff end */
+-- 
+2.17.0
