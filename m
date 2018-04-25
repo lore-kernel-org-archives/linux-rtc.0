@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39454 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:39026 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753378AbeDSMni (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:38 -0400
+        with ESMTP id S1755365AbeDYPul (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:41 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,11 +18,11 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 23/39] staging/rtl8192u: simplify procfs code
-Date: Thu, 19 Apr 2018 14:41:24 +0200
-Message-Id: <20180419124140.9309-24-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Subject: [PATCH 24/40] staging/rtl8192u: simplify procfs code
+Date: Wed, 25 Apr 2018 17:48:11 +0200
+Message-Id: <20180425154827.32251-25-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
