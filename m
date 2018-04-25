@@ -1,101 +1,73 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:46823 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756396AbeDYSZu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 25 Apr 2018 14:25:50 -0400
-Date: Wed, 25 Apr 2018 20:25:37 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 27/40] rtc/proc: switch to proc_create_single_data
-Message-ID: <20180425182537.GG4813@piout.net>
-References: <20180425154827.32251-1-hch@lst.de>
- <20180425154827.32251-28-hch@lst.de>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:62845 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751563AbeDYJdC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:02 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 06/17] mfd: mt6397: add support for MT6323 power controller into MT6397 driver
+Date: Wed, 25 Apr 2018 17:32:32 +0800
+Message-ID: <8ee68834240600125548155b063a2a4addfc5627.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180425154827.32251-28-hch@lst.de>
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 25/04/2018 17:48:14+0200, Christoph Hellwig wrote:
-> And stop trying to get a reference on the submodule, procfs code deals
-> with release after and unloaded module and thus removed proc entry.
-small typo here        ^
+From: Sean Wang <sean.wang@mediatek.com>
 
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Add compatible string as "mt6323-pwrc" that will make the OF core spawn
+child devices for the power-controller subnode of that MT6323 MFD device.
 
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-
-> ---
->  drivers/rtc/rtc-proc.c | 33 ++-------------------------------
->  1 file changed, 2 insertions(+), 31 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-> index 31e7e23cc5be..a9dd9218fae2 100644
-> --- a/drivers/rtc/rtc-proc.c
-> +++ b/drivers/rtc/rtc-proc.c
-> @@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
->  	return 0;
->  }
->  
-> -static int rtc_proc_open(struct inode *inode, struct file *file)
-> -{
-> -	int ret;
-> -	struct rtc_device *rtc = PDE_DATA(inode);
-> -
-> -	if (!try_module_get(rtc->owner))
-> -		return -ENODEV;
-> -
-> -	ret = single_open(file, rtc_proc_show, rtc);
-> -	if (ret)
-> -		module_put(rtc->owner);
-> -	return ret;
-> -}
-> -
-> -static int rtc_proc_release(struct inode *inode, struct file *file)
-> -{
-> -	int res = single_release(inode, file);
-> -	struct rtc_device *rtc = PDE_DATA(inode);
-> -
-> -	module_put(rtc->owner);
-> -	return res;
-> -}
-> -
-> -static const struct file_operations rtc_proc_fops = {
-> -	.open		= rtc_proc_open,
-> -	.read		= seq_read,
-> -	.llseek		= seq_lseek,
-> -	.release	= rtc_proc_release,
-> -};
-> -
->  void rtc_proc_add_device(struct rtc_device *rtc)
->  {
->  	if (is_rtc_hctosys(rtc))
-> -		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
-> +		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
-> +				rtc);
->  }
->  
->  void rtc_proc_del_device(struct rtc_device *rtc)
-> -- 
-> 2.17.0
-> 
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index c70d5b2..c4ad5c3 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -30,6 +30,9 @@
+ #define MT6397_RTC_BASE		0xe000
+ #define MT6397_RTC_SIZE		0x3e
+ 
++#define MT6323_PWRC_BASE	0x8000
++#define MT6323_PWRC_SIZE	0x40
++
+ #define MT6323_CID_CODE		0x23
+ #define MT6391_CID_CODE		0x91
+ #define MT6397_CID_CODE		0x97
+@@ -62,6 +65,10 @@ static const struct resource mt6397_keys_resources[] = {
+ 	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
+ };
+ 
++static const struct resource mt6323_pwrc_resources[] = {
++	DEFINE_RES_MEM(MT6323_PWRC_BASE, MT6323_PWRC_SIZE),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-rtc",
+@@ -79,6 +86,11 @@ static const struct mfd_cell mt6323_devs[] = {
+ 		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
+ 		.resources = mt6323_keys_resources,
+ 		.of_compatible = "mediatek,mt6323-keys"
++	}, {
++		.name = "mt6323-pwrc",
++		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
++		.resources = mt6323_pwrc_resources,
++		.of_compatible = "mediatek,mt6323-pwrc"
+ 	},
+ };
+ 
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
