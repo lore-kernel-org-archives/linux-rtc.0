@@ -1,50 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:41926 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753996AbeD3PiY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 30 Apr 2018 11:38:24 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:46823 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756396AbeDYSZu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 25 Apr 2018 14:25:50 -0400
+Date: Wed, 25 Apr 2018 20:25:37 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: Christoph Hellwig <hch@lst.de>
-Cc: dhowells@redhat.com, Andrew Morton <akpm@linux-foundation.org>,
+Cc: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        jfs-discussion@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
         Alexey Dobriyan <adobriyan@gmail.com>,
-        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
-Subject: Re: simplify procfs code for seq_file instances V2
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 27/40] rtc/proc: switch to proc_create_single_data
+Message-ID: <20180425182537.GG4813@piout.net>
+References: <20180425154827.32251-1-hch@lst.de>
+ <20180425154827.32251-28-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 30 Apr 2018 16:38:18 +0100
-Message-ID: <15622.1525102698@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180425154827.32251-28-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Note that your kernel hits the:
+On 25/04/2018 17:48:14+0200, Christoph Hellwig wrote:
+> And stop trying to get a reference on the submodule, procfs code deals
+> with release after and unloaded module and thus removed proc entry.
+small typo here        ^
 
-	inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-W} usage.
-	swapper/0/0 [HC1[1]:SC0[0]:HE0:SE1] takes:
-		(ptrval) (fs_reclaim){?.+.}, at: fs_reclaim_acquire+0x12/0x35
-	{HARDIRQ-ON-W} state was registered at:
-	  fs_reclaim_acquire+0x32/0x35
-	  kmem_cache_alloc_node_trace+0x49/0x2cf
-	  alloc_worker+0x1d/0x49
-	  init_rescuer.part.7+0x19/0x8f
-	  workqueue_init+0xc0/0x1fe
-	  kernel_init_freeable+0xdc/0x433
-	  kernel_init+0xa/0xf5
-	  ret_from_fork+0x24/0x30
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-bug, as described here:
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-	https://groups.google.com/forum/#!msg/syzkaller-bugs/sJC3Y3hOM08/aO3z9JXoAgAJ
 
-David
+> ---
+>  drivers/rtc/rtc-proc.c | 33 ++-------------------------------
+>  1 file changed, 2 insertions(+), 31 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+> index 31e7e23cc5be..a9dd9218fae2 100644
+> --- a/drivers/rtc/rtc-proc.c
+> +++ b/drivers/rtc/rtc-proc.c
+> @@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+>  	return 0;
+>  }
+>  
+> -static int rtc_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	int ret;
+> -	struct rtc_device *rtc = PDE_DATA(inode);
+> -
+> -	if (!try_module_get(rtc->owner))
+> -		return -ENODEV;
+> -
+> -	ret = single_open(file, rtc_proc_show, rtc);
+> -	if (ret)
+> -		module_put(rtc->owner);
+> -	return ret;
+> -}
+> -
+> -static int rtc_proc_release(struct inode *inode, struct file *file)
+> -{
+> -	int res = single_release(inode, file);
+> -	struct rtc_device *rtc = PDE_DATA(inode);
+> -
+> -	module_put(rtc->owner);
+> -	return res;
+> -}
+> -
+> -static const struct file_operations rtc_proc_fops = {
+> -	.open		= rtc_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= rtc_proc_release,
+> -};
+> -
+>  void rtc_proc_add_device(struct rtc_device *rtc)
+>  {
+>  	if (is_rtc_hctosys(rtc))
+> -		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
+> +		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
+> +				rtc);
+>  }
+>  
+>  void rtc_proc_del_device(struct rtc_device *rtc)
+> -- 
+> 2.17.0
+> 
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
