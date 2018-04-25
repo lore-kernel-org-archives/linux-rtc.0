@@ -1,80 +1,73 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:48005 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752593AbeDSOOw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 10:14:52 -0400
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 0/4] Various fixes on STM32 RTC
-Date: Thu, 19 Apr 2018 14:14:17 +0000
-Message-ID: <d2d1897e40834a1c84fc1e64309e2c3f@GPXDAG3NODE5.st.com>
-References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
- <20180419134321.GF7369@piout.net>
-In-Reply-To: <20180419134321.GF7369@piout.net>
-Content-Type: text/plain; charset="us-ascii"
+Received: from mailgw01.mediatek.com ([210.61.82.183]:13791 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751567AbeDYJdD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:03 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Sean Wang" <sean.wang@mediatek.com>
+Subject: [PATCH v2 02/17] dt-bindings: rtc: mt6397: add bindings for MediaTek PMIC based RTC
+Date: Wed, 25 Apr 2018 17:32:28 +0800
+Message-ID: <ae63c2a511e40ab4f6778197a1f15e41505d5682.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+From: Sean Wang <sean.wang@mediatek.com>
 
-Sorry for that! I take note of your new email address. Thanks for your highlight.
+Add device-tree binding for MediaTek PMIC based RTC
 
-Regards,
-Amelie
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ .../devicetree/bindings/rtc/rtc-mt6397.txt         | 29 ++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
 
-> -----Original Message-----
-> From: Alexandre Belloni [mailto:alexandre.belloni@bootlin.com]
-> Sent: jeudi 19 avril 2018 15:43
-> To: Amelie DELAUNAY <amelie.delaunay@st.com>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>; Rob Herring
-> <robh+dt@kernel.org>; Mark Rutland <mark.rutland@arm.com>; Maxime
-> Coquelin <mcoquelin.stm32@gmail.com>; Alexandre TORGUE
-> <alexandre.torgue@st.com>; linux-rtc@vger.kernel.org;
-> devicetree@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH 0/4] Various fixes on STM32 RTC
-> 
-> Hi,
-> 
-> Both series were not sent to the correct email address. I would suggest
-> rebasing on top of v4.17-rc1 ;). No need to resend just for that.
-> 
-> On 19/04/2018 15:21:39+0200, Amelie Delaunay wrote:
-> > This series makes some corrections on STM32 RTC:
-> > - update copyright and adopt SPDX identifier
-> > - fix alarm interrupt flags
-> > - rework DBP (Disable Backup domain Protection) management.
-> >
-> > This series is a preamble to the serie which will introduce next STM32
-> > RTC version.
-> >
-> > Amelie Delaunay (4):
-> >   rtc: stm32: fix copyright and adopt SPDX identifier
-> >   rtc: stm32: fix alarm interrupt flags by removing IRQF_TRIGGER_RISING
-> >   dt-bindings: rtc: update stm32-rtc documentation for st,syscfg
-> >     property
-> >   rtc: stm32: get DBP register and mask from DT st,syscfg property
-> >
-> >  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 10 ++--
-> >  drivers/rtc/rtc-stm32.c                            | 68 +++++++++++++---------
-> >  2 files changed, 47 insertions(+), 31 deletions(-)
-> >
-> > --
-> > 2.7.4
-> >
-> 
-> --
-> Alexandre Belloni, Bootlin (formerly Free Electrons)
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+new file mode 100644
+index 0000000..6e97248
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+@@ -0,0 +1,29 @@
++Device-Tree bindings for MediaTek PMIC based RTC
++
++MediaTek PMIC based RTC is an independent function of MediaTek PMIC that works
++as a type of multi-function device (MFD). The RTC can be configured and set up
++with PMIC wrapper bus which is a common resource shared with the other
++functions found on the same PMIC.
++
++For MediaTek PMIC MFD bindings, see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++For MediaTek PMIC wrapper bus bindings, see:
++Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
++
++Required properties:
++- compatible: Should be one of follows
++	"mediatek,mt6323-rtc": for MT6323 PMIC
++	"mediatek,mt6397-rtc": for MT6397 PMIC
++
++Example:
++
++	pmic {
++		compatible = "mediatek,mt6323";
++
++		...
++
++		rtc {
++			compatible = "mediatek,mt6323-rtc";
++		};
++	};
+-- 
+2.7.4
