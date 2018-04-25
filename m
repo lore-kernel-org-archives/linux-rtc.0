@@ -1,89 +1,115 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:60258 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752018AbeDZGxn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Apr 2018 02:53:43 -0400
-Message-ID: <1524725617.31521.0.camel@mhfsdcap03>
-Subject: Re: [GIT PULL] Immutable branch between MFD, Input and RTC due for
- the v4.18 merge window
-From: Chen Zhong <chen.zhong@mediatek.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Eddie Huang" <eddie.huang@mediatek.com>,
+Received: from bombadil.infradead.org ([198.137.202.133]:36354 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754926AbeDYPs5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:48:57 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Beomho Seo <beomho.seo@samsung.com>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Jaechul Lee <jcsing.lee@samsung.com>,
-        "Krzysztof Kozlowski" <krzk@kernel.org>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
-Date: Thu, 26 Apr 2018 14:53:37 +0800
-In-Reply-To: <20180416141809.34l2ofmeljqvyicm@dell>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
-         <20180416141809.34l2ofmeljqvyicm@dell>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 03/40] proc: add a proc_create_reg helper
+Date: Wed, 25 Apr 2018 17:47:50 +0200
+Message-Id: <20180425154827.32251-4-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 2018-04-16 at 15:18 +0100, Lee Jones wrote:
-> Enjoy!
-> 
-> The following changes since commit 60cc43fc888428bb2f18f08997432d426a243338:
-> 
->   Linux 4.17-rc1 (2018-04-15 18:24:20 -0700)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-rtc-v4.18
-> 
-> for you to fetch changes up to 55d1d1547ab5e52269988af5e7c553796ff68e97:
-> 
->   mfd: mt6397: Add PMIC keys support to MT6397 driver (2018-04-16 15:16:11 +0100)
-> 
-> ----------------------------------------------------------------
-> Immutable branch between MFD, Input and RTC due for the v4.18 merge window
-> 
-> ----------------------------------------------------------------
-> Chen Zhong (5):
->       mfd: mt6397: Create irq mappings in mfd core driver
->       dt-bindings: input: Add document bindings for mtk-pmic-keys
->       dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
->       input: Add MediaTek PMIC keys support
->       mfd: mt6397: Add PMIC keys support to MT6397 driver
-> 
->  .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
->  Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
->  drivers/input/keyboard/Kconfig                     |   9 +
->  drivers/input/keyboard/Makefile                    |   1 +
->  drivers/input/keyboard/mtk-pmic-keys.c             | 339 +++++++++++++++++++++
->  drivers/mfd/mt6397-core.c                          |  26 +-
->  drivers/rtc/rtc-mt6397.c                           |   7 +-
->  7 files changed, 424 insertions(+), 7 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
->  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-> 
+Common code for creating a regular file.  Factor out of proc_create_data, to
+be reused by other functions soon.
 
-Hi Lee,
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/proc/generic.c  | 44 +++++++++++++++++++++++++-------------------
+ fs/proc/internal.h |  2 ++
+ 2 files changed, 27 insertions(+), 19 deletions(-)
 
-I’m sorry that I found this patch
-https://patchwork.kernel.org/patch/10026705/
-
-is missing in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
-ib-mfd-input-rtc-v4.18
-
-Could you please take this patch up?
-
-Thanks.
-
-Best regards,
-Chen Zhong
+diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+index bd8480ff0d35..ab6a321076b8 100644
+--- a/fs/proc/generic.c
++++ b/fs/proc/generic.c
+@@ -511,33 +511,39 @@ struct proc_dir_entry *proc_create_mount_point(const char *name)
+ }
+ EXPORT_SYMBOL(proc_create_mount_point);
+ 
+-struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
+-					struct proc_dir_entry *parent,
+-					const struct file_operations *proc_fops,
+-					void *data)
++struct proc_dir_entry *proc_create_reg(const char *name, umode_t mode,
++		struct proc_dir_entry **parent, void *data)
+ {
+-	struct proc_dir_entry *pde;
++	struct proc_dir_entry *p;
++
+ 	if ((mode & S_IFMT) == 0)
+ 		mode |= S_IFREG;
+-
+-	if (!S_ISREG(mode)) {
+-		WARN_ON(1);	/* use proc_mkdir() */
++	if ((mode & S_IALLUGO) == 0)
++		mode |= S_IRUGO;
++	if (WARN_ON_ONCE(!S_ISREG(mode)))
+ 		return NULL;
++
++	p = __proc_create(parent, name, mode, 1);
++	if (p) {
++		p->proc_iops = &proc_file_inode_operations;
++		p->data = data;
+ 	}
++	return p;
++}
++
++struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
++		struct proc_dir_entry *parent,
++		const struct file_operations *proc_fops, void *data)
++{
++	struct proc_dir_entry *p;
+ 
+ 	BUG_ON(proc_fops == NULL);
+ 
+-	if ((mode & S_IALLUGO) == 0)
+-		mode |= S_IRUGO;
+-	pde = __proc_create(&parent, name, mode, 1);
+-	if (!pde)
+-		goto out;
+-	pde->proc_fops = proc_fops;
+-	pde->data = data;
+-	pde->proc_iops = &proc_file_inode_operations;
+-	return proc_register(parent, pde);
+-out:
+-	return NULL;
++	p = proc_create_reg(name, mode, &parent, data);
++	if (!p)
++		return NULL;
++	p->proc_fops = proc_fops;
++	return proc_register(parent, p);
+ }
+ EXPORT_SYMBOL(proc_create_data);
+  
+diff --git a/fs/proc/internal.h b/fs/proc/internal.h
+index 488e67490312..dd1e11400b97 100644
+--- a/fs/proc/internal.h
++++ b/fs/proc/internal.h
+@@ -162,6 +162,8 @@ extern bool proc_fill_cache(struct file *, struct dir_context *, const char *, i
+ /*
+  * generic.c
+  */
++struct proc_dir_entry *proc_create_reg(const char *name, umode_t mode,
++		struct proc_dir_entry **parent, void *data);
+ struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
+ 		struct proc_dir_entry *dp);
+ extern struct dentry *proc_lookup(struct inode *, struct dentry *, unsigned int);
+-- 
+2.17.0
