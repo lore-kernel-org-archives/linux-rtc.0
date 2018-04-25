@@ -1,120 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:43282 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933379AbeDXNPY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 24 Apr 2018 09:15:24 -0400
-Message-ID: <1524575720.2597.28.camel@intel.com>
-Subject: Re: [PATCH 1/3] rtc: cmos: allow using ACPI for RTC alarm instead
- of HPET
-From: Zhang Rui <rui.zhang@intel.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        rjw@rjwysocki.net, gabriele.mzt@gmail.com
-Date: Tue, 24 Apr 2018 21:15:20 +0800
-In-Reply-To: <20180420064652.GI7369@piout.net>
-References: <1522072683-3968-1-git-send-email-rui.zhang@intel.com>
-         <20180419140538.GG7369@piout.net> <1524203968.2553.32.camel@intel.com>
-         <20180420064652.GI7369@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mailgw02.mediatek.com ([210.61.82.184]:42507 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751186AbeDYJcy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:54 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 05/17] mfd: mt6397: add MT6323 RTC support into MT6397 driver
+Date: Wed, 25 Apr 2018 17:32:31 +0800
+Message-ID: <44d4fa8ed71e3d806e26ff1fb71aecf05f18f49c.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 五, 2018-04-20 at 08:46 +0200, Alexandre Belloni wrote:
-> On 20/04/2018 13:59:28+0800, Zhang Rui wrote:
-> > 
-> > Hi, Alexandre
-> > 
-> > On 四, 2018-04-19 at 16:05 +0200, Alexandre Belloni wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > 
-> > > On 26/03/2018 21:58:01+0800, Zhang Rui wrote:
-> > > > 
-> > > > 
-> > > > It's found that the HPET timer prevents the platform from
-> > > > entering
-> > > > Low Power S0 on some new Intel platforms.
-> > > > 
-> > > > This means that
-> > > > 1. users can still use RTC wake Alarm for suspend-to-idle, but
-> > > > the
-> > > > system
-> > > >    never enters Low Power S0, which is a waste of power.
-> > > > or
-> > > > 2. if users want to put the system into Low Power S0, they can
-> > > > not
-> > > > use
-> > > >    RTC as the wakeup source.
-> > > > 
-> > > > To fix this, we need to stop using the HPET timer for wake
-> > > > alarm.
-> > > > But disabling CONFIG_HPET_EMULATE_RTC is not an option because
-> > > > HPET
-> > > > emulates PIT at the same time, and this is needed on some of
-> > > > these
-> > > > platforms.
-> > > > 
-> > > > Thus, introduce a new mode (use_acpi_alarm) to the rtc_cmos
-> > > > driver,
-> > > > so that, even with CONFIG_HPET_EMULATE_RTC enabled, it's still
-> > > > possible to
-> > > > use ACPI SCI for RTC Alarm, including UIE/AIE/wkalrm, instead
-> > > > of
-> > > > HPET.
-> > > > 
-> > > > Only necessary changes are made for the new "use_acpi_alarm"
-> > > > mode,
-> > > > including
-> > > > 1. drop all the calls to HPET emulation code, including the
-> > > > HPET
-> > > > irq
-> > > >    handler for rtc interrupt.
-> > > > 2. enabling/disabling ACPI RTC Fixed event upon RTC UIE/AIE
-> > > > request.
-> > > > 3. acknowledge the RTC Alarm in ACPI RTC Fixed event handler.
-> > > > 
-> > > > There is no functional change made in this patch if the new
-> > > > mode is
-> > > > not
-> > > > enabled.
-> > > > 
-> > > > Note: this "use_acpi_alarm" mode is made based on the
-> > > > assumption
-> > > > that
-> > > > ACPI RTC Fixed event is reliable both at runtime and during
-> > > > system
-> > > > wakeup.
-> > > > And this has been verified on a couple of platforms I have,
-> > > > including
-> > > > a MS Surface Pro 4 (SKL), a Lenovo Yoga 900 (SKL), and a HP
-> > > > 9360
-> > > > (KBL).
-> > > > 
-> > > > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> > > > ---
-> > > >  drivers/rtc/rtc-cmos.c | 111
-> > > > +++++++++++++++++++++++++++++++++++
-> > > > --------------
-> > > >  1 file changed, 80 insertions(+), 31 deletions(-)
-> > > > 
-> > > I've applied the series but it didn't apply cleanly, please check
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.gi
-> > > t/lo
-> > > g/?h=rtc-next
-> > > 
-> > Yes, I noticed this conflict as well.
-> > I have rebased it on top of -rc1 and it is under testing right now.
-> > I will rebase on your tree and resend.
-> > 
-> Rebasing on top of -rc1 is sufficient, I'm already carrying your
-> patches
-> now so they are part of linux-next early in the cycle.
-> 
-Great, thanks.
-so I don't need to send the refreshed ones, right?
+From: Sean Wang <sean.wang@mediatek.com>
 
-thanks,
-rui
-> 
+Add compatible string as "mt6323-rtc" that will make the OF core spawn
+child devices for the RTC subnode of that MT6323 MFD device.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 77b64bd..c70d5b2 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2014 MediaTek Inc.
++ * Copyright (c) 2014-2018 MediaTek Inc.
+  * Author: Flora Fu, MediaTek
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -13,6 +13,7 @@
+  */
+ 
+ #include <linux/interrupt.h>
++#include <linux/ioport.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
+@@ -23,6 +24,9 @@
+ #include <linux/mfd/mt6397/registers.h>
+ #include <linux/mfd/mt6323/registers.h>
+ 
++#define MT6323_RTC_BASE		0x8000
++#define MT6323_RTC_SIZE		0x40
++
+ #define MT6397_RTC_BASE		0xe000
+ #define MT6397_RTC_SIZE		0x3e
+ 
+@@ -30,6 +34,11 @@
+ #define MT6391_CID_CODE		0x91
+ #define MT6397_CID_CODE		0x97
+ 
++static const struct resource mt6323_rtc_resources[] = {
++	DEFINE_RES_MEM(MT6323_RTC_BASE, MT6323_RTC_SIZE),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_RTC),
++};
++
+ static const struct resource mt6397_rtc_resources[] = {
+ 	{
+ 		.start = MT6397_RTC_BASE,
+@@ -55,6 +64,11 @@ static const struct resource mt6397_keys_resources[] = {
+ 
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
++		.name = "mt6323-rtc",
++		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
++		.resources = mt6323_rtc_resources,
++		.of_compatible = "mediatek,mt6323-rtc",
++	}, {
+ 		.name = "mt6323-regulator",
+ 		.of_compatible = "mediatek,mt6323-regulator"
+ 	}, {
+-- 
+2.7.4
