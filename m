@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39480 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:40914 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753379AbeDSMni (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:38 -0400
+        with ESMTP id S1754884AbeDYPvj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:51:39 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,90 +18,108 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 24/39] resource: switch to proc_create_seq_data
-Date: Thu, 19 Apr 2018 14:41:25 +0200
-Message-Id: <20180419124140.9309-25-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Subject: [PATCH 33/40] bluetooth: switch to proc_create_seq_data
+Date: Wed, 25 Apr 2018 17:48:20 +0200
+Message-Id: <20180425154827.32251-34-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use the root resource directly from the proc private data.
+And use proc private data directly instead of doing a detour
+through seq->private and private state.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- kernel/resource.c | 43 +++++--------------------------------------
- 1 file changed, 5 insertions(+), 38 deletions(-)
+ net/bluetooth/af_bluetooth.c | 40 +++++-------------------------------
+ 1 file changed, 5 insertions(+), 35 deletions(-)
 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 2af6c03858b9..b589dda910b3 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -87,7 +87,7 @@ enum { MAX_IORES_LEVEL = 5 };
- static void *r_start(struct seq_file *m, loff_t *pos)
- 	__acquires(resource_lock)
- {
--	struct resource *p = m->private;
-+	struct resource *p = PDE_DATA(file_inode(m->file));
- 	loff_t l = 0;
- 	read_lock(&resource_lock);
- 	for (p = p->child; p && l < *pos; p = r_next(m, p, &l))
-@@ -103,7 +103,7 @@ static void r_stop(struct seq_file *m, void *v)
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index 84d92a077834..3264e1873219 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -605,15 +605,10 @@ int bt_sock_wait_ready(struct sock *sk, unsigned long flags)
+ EXPORT_SYMBOL(bt_sock_wait_ready);
  
- static int r_show(struct seq_file *m, void *v)
+ #ifdef CONFIG_PROC_FS
+-struct bt_seq_state {
+-	struct bt_sock_list *l;
+-};
+-
+ static void *bt_seq_start(struct seq_file *seq, loff_t *pos)
+ 	__acquires(seq->private->l->lock)
  {
--	struct resource *root = m->private;
-+	struct resource *root = PDE_DATA(file_inode(m->file));
- 	struct resource *r = v, *p;
- 	unsigned long long start, end;
- 	int width = root->end < 0x10000 ? 4 : 8;
-@@ -135,44 +135,11 @@ static const struct seq_operations resource_op = {
- 	.show	= r_show,
+-	struct bt_seq_state *s = seq->private;
+-	struct bt_sock_list *l = s->l;
++	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
+ 
+ 	read_lock(&l->lock);
+ 	return seq_hlist_start_head(&l->head, *pos);
+@@ -621,8 +616,7 @@ static void *bt_seq_start(struct seq_file *seq, loff_t *pos)
+ 
+ static void *bt_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+-	struct bt_seq_state *s = seq->private;
+-	struct bt_sock_list *l = s->l;
++	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
+ 
+ 	return seq_hlist_next(v, &l->head, pos);
+ }
+@@ -630,16 +624,14 @@ static void *bt_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ static void bt_seq_stop(struct seq_file *seq, void *v)
+ 	__releases(seq->private->l->lock)
+ {
+-	struct bt_seq_state *s = seq->private;
+-	struct bt_sock_list *l = s->l;
++	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
+ 
+ 	read_unlock(&l->lock);
+ }
+ 
+ static int bt_seq_show(struct seq_file *seq, void *v)
+ {
+-	struct bt_seq_state *s = seq->private;
+-	struct bt_sock_list *l = s->l;
++	struct bt_sock_list *l = PDE_DATA(file_inode(seq->file));
+ 
+ 	if (v == SEQ_START_TOKEN) {
+ 		seq_puts(seq ,"sk               RefCnt Rmem   Wmem   User   Inode  Parent");
+@@ -681,35 +673,13 @@ static const struct seq_operations bt_seq_ops = {
+ 	.show  = bt_seq_show,
  };
  
--static int ioports_open(struct inode *inode, struct file *file)
+-static int bt_seq_open(struct inode *inode, struct file *file)
 -{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &ioport_resource;
--	}
--	return res;
+-	struct bt_sock_list *sk_list;
+-	struct bt_seq_state *s;
+-
+-	sk_list = PDE_DATA(inode);
+-	s = __seq_open_private(file, &bt_seq_ops,
+-			       sizeof(struct bt_seq_state));
+-	if (!s)
+-		return -ENOMEM;
+-
+-	s->l = sk_list;
+-	return 0;
 -}
 -
--static int iomem_open(struct inode *inode, struct file *file)
--{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &iomem_resource;
--	}
--	return res;
--}
--
--static const struct file_operations proc_ioports_operations = {
--	.open		= ioports_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
+-static const struct file_operations bt_fops = {
+-	.open = bt_seq_open,
+-	.read = seq_read,
+-	.llseek = seq_lseek,
+-	.release = seq_release_private
 -};
 -
--static const struct file_operations proc_iomem_operations = {
--	.open		= iomem_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int __init ioresources_init(void)
+ int bt_procfs_init(struct net *net, const char *name,
+ 		   struct bt_sock_list *sk_list,
+ 		   int (* seq_show)(struct seq_file *, void *))
  {
--	proc_create("ioports", 0, NULL, &proc_ioports_operations);
--	proc_create("iomem", 0, NULL, &proc_iomem_operations);
-+	proc_create_seq_data("ioports", 0, NULL, &resource_op,
-+			&ioport_resource);
-+	proc_create_seq_data("iomem", 0, NULL, &resource_op, &iomem_resource);
+ 	sk_list->custom_seq_show = seq_show;
+ 
+-	if (!proc_create_data(name, 0, net->proc_net, &bt_fops, sk_list))
++	if (!proc_create_seq_data(name, 0, net->proc_net, &bt_seq_ops, sk_list))
+ 		return -ENOMEM;
  	return 0;
  }
- __initcall(ioresources_init);
 -- 
 2.17.0
