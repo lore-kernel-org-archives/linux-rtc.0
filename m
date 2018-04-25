@@ -1,323 +1,148 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33437 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753515AbeDSMuu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 19 Apr 2018 08:50:50 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Shuah Khan <shuah@kernel.org>
-Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/4] selftests: timers: move PIE tests out of rtctest
-Date: Thu, 19 Apr 2018 14:50:27 +0200
-Message-Id: <20180419125030.5076-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
-References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:38802 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755322AbeDYPuZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:25 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 18/40] sgi-gru: simplify procfs code
+Date: Wed, 25 Apr 2018 17:48:05 +0200
+Message-Id: <20180425154827.32251-19-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
-events"), PIE are completely handled using hrtimers, without actually using
-any underlying hardware RTC.
+Use remove_proc_subtree to remove the whole subtree on cleanup, and
+unwind the registration loop into individual calls.  Switch to use
+proc_create_seq where applicable.
 
-Move PIE testing out of rtctest. It still depends on the presence of an RTC
-(to access the device file) but doesn't depend on it actually working.
-
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- tools/testing/selftests/timers/.gitignore |   1 +
- tools/testing/selftests/timers/Makefile   |   2 +-
- tools/testing/selftests/timers/rtcpie.c   | 132 ++++++++++++++++++++++
- tools/testing/selftests/timers/rtctest.c  |  83 +-------------
- 4 files changed, 138 insertions(+), 80 deletions(-)
- create mode 100644 tools/testing/selftests/timers/rtcpie.c
+ drivers/misc/sgi-gru/gruprocfs.c | 81 ++++++--------------------------
+ 1 file changed, 14 insertions(+), 67 deletions(-)
 
-diff --git a/tools/testing/selftests/timers/.gitignore b/tools/testing/selftests/timers/.gitignore
-index 2c8ac8416299..353ae15daa1e 100644
---- a/tools/testing/selftests/timers/.gitignore
-+++ b/tools/testing/selftests/timers/.gitignore
-@@ -9,6 +9,7 @@ nanosleep
- nsleep-lat
- posix_timers
- raw_skew
-+rtcpie
- rtctest
- set-2038
- set-tai
-diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
-index 3496680981f2..8be7895ff918 100644
---- a/tools/testing/selftests/timers/Makefile
-+++ b/tools/testing/selftests/timers/Makefile
-@@ -5,7 +5,7 @@ LDFLAGS += -lrt -lpthread -lm
- # these are all "safe" tests that don't modify
- # system time or require escalated privileges
- TEST_GEN_PROGS = posix_timers nanosleep nsleep-lat set-timer-lat mqueue-lat \
--	     inconsistency-check raw_skew threadtest rtctest
-+	     inconsistency-check raw_skew threadtest rtctest rtcpie
+diff --git a/drivers/misc/sgi-gru/gruprocfs.c b/drivers/misc/sgi-gru/gruprocfs.c
+index 4f7635922394..42ea2eccaee9 100644
+--- a/drivers/misc/sgi-gru/gruprocfs.c
++++ b/drivers/misc/sgi-gru/gruprocfs.c
+@@ -270,16 +270,6 @@ static int options_open(struct inode *inode, struct file *file)
+ 	return single_open(file, options_show, NULL);
+ }
  
- DESTRUCTIVE_TESTS = alarmtimer-suspend valid-adjtimex adjtick change_skew \
- 		      skew_consistency clocksource-switch freq-step leap-a-day \
-diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
-new file mode 100644
-index 000000000000..ea98b1f6ac17
---- /dev/null
-+++ b/tools/testing/selftests/timers/rtcpie.c
-@@ -0,0 +1,132 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Real Time Clock Periodic Interrupt test program
-+ *
-+ * Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
-+ * events"), PIE are completely handled using hrtimers, without actually using
-+ * any underlying hardware RTC.
-+ *
-+ */
-+
-+#include <stdio.h>
-+#include <linux/rtc.h>
-+#include <sys/ioctl.h>
-+#include <sys/time.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+
-+/*
-+ * This expects the new RTC class driver framework, working with
-+ * clocks that will often not be clones of what the PC-AT had.
-+ * Use the command line to specify another RTC if you need one.
-+ */
-+static const char default_rtc[] = "/dev/rtc0";
-+
-+int main(int argc, char **argv)
-+{
-+	int i, fd, retval, irqcount = 0;
-+	unsigned long tmp, data;
-+	const char *rtc = default_rtc;
-+	struct timeval start, end, diff;
-+
-+	switch (argc) {
-+	case 2:
-+		rtc = argv[1];
-+		/* FALLTHROUGH */
-+	case 1:
-+		break;
-+	default:
-+		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
-+		return 1;
-+	}
-+
-+	fd = open(rtc, O_RDONLY);
-+
-+	if (fd ==  -1) {
-+		perror(rtc);
-+		exit(errno);
-+	}
-+
-+	/* Read periodic IRQ rate */
-+	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
-+	if (retval == -1) {
-+		/* not all RTCs support periodic IRQs */
-+		if (errno == EINVAL) {
-+			fprintf(stderr, "\nNo periodic IRQ support\n");
-+			goto done;
-+		}
-+		perror("RTC_IRQP_READ ioctl");
-+		exit(errno);
-+	}
-+	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
-+
-+	fprintf(stderr, "Counting 20 interrupts at:");
-+	fflush(stderr);
-+
-+	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
-+	for (tmp=2; tmp<=64; tmp*=2) {
-+
-+		retval = ioctl(fd, RTC_IRQP_SET, tmp);
-+		if (retval == -1) {
-+			/* not all RTCs can change their periodic IRQ rate */
-+			if (errno == EINVAL) {
-+				fprintf(stderr,
-+					"\n...Periodic IRQ rate is fixed\n");
-+				goto done;
-+			}
-+			perror("RTC_IRQP_SET ioctl");
-+			exit(errno);
-+		}
-+
-+		fprintf(stderr, "\n%ldHz:\t", tmp);
-+		fflush(stderr);
-+
-+		/* Enable periodic interrupts */
-+		retval = ioctl(fd, RTC_PIE_ON, 0);
-+		if (retval == -1) {
-+			perror("RTC_PIE_ON ioctl");
-+			exit(errno);
-+		}
-+
-+		for (i=1; i<21; i++) {
-+			gettimeofday(&start, NULL);
-+			/* This blocks */
-+			retval = read(fd, &data, sizeof(unsigned long));
-+			if (retval == -1) {
-+				perror("read");
-+				exit(errno);
-+			}
-+			gettimeofday(&end, NULL);
-+			timersub(&end, &start, &diff);
-+			if (diff.tv_sec > 0 ||
-+			    diff.tv_usec > ((1000000L / tmp) * 1.10)) {
-+				fprintf(stderr, "\nPIE delta error: %ld.%06ld should be close to 0.%06ld\n",
-+				       diff.tv_sec, diff.tv_usec,
-+				       (1000000L / tmp));
-+				fflush(stdout);
-+				exit(-1);
-+			}
-+
-+			fprintf(stderr, " %d",i);
-+			fflush(stderr);
-+			irqcount++;
-+		}
-+
-+		/* Disable periodic interrupts */
-+		retval = ioctl(fd, RTC_PIE_OFF, 0);
-+		if (retval == -1) {
-+			perror("RTC_PIE_OFF ioctl");
-+			exit(errno);
-+		}
-+	}
-+
-+done:
-+	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
-+
-+	close(fd);
-+
-+	return 0;
-+}
-diff --git a/tools/testing/selftests/timers/rtctest.c b/tools/testing/selftests/timers/rtctest.c
-index 411eff625e66..6e17b96551ec 100644
---- a/tools/testing/selftests/timers/rtctest.c
-+++ b/tools/testing/selftests/timers/rtctest.c
-@@ -94,10 +94,9 @@ static int compare_dates(struct rtc_time *a, struct rtc_time *b)
- int main(int argc, char **argv)
+-static int cch_open(struct inode *inode, struct file *file)
+-{
+-	return seq_open(file, &cch_seq_ops);
+-}
+-
+-static int gru_open(struct inode *inode, struct file *file)
+-{
+-	return seq_open(file, &gru_seq_ops);
+-}
+-
+ /* *INDENT-OFF* */
+ static const struct file_operations statistics_fops = {
+ 	.open 		= statistics_open,
+@@ -305,73 +295,30 @@ static const struct file_operations options_fops = {
+ 	.release 	= single_release,
+ };
+ 
+-static const struct file_operations cch_fops = {
+-	.open 		= cch_open,
+-	.read 		= seq_read,
+-	.llseek 	= seq_lseek,
+-	.release 	= seq_release,
+-};
+-static const struct file_operations gru_fops = {
+-	.open 		= gru_open,
+-	.read 		= seq_read,
+-	.llseek 	= seq_lseek,
+-	.release 	= seq_release,
+-};
+-
+-static struct proc_entry {
+-	char *name;
+-	umode_t mode;
+-	const struct file_operations *fops;
+-	struct proc_dir_entry *entry;
+-} proc_files[] = {
+-	{"statistics", 0644, &statistics_fops},
+-	{"mcs_statistics", 0644, &mcs_statistics_fops},
+-	{"debug_options", 0644, &options_fops},
+-	{"cch_status", 0444, &cch_fops},
+-	{"gru_status", 0444, &gru_fops},
+-	{NULL}
+-};
+-/* *INDENT-ON* */
+-
+ static struct proc_dir_entry *proc_gru __read_mostly;
+ 
+-static int create_proc_file(struct proc_entry *p)
+-{
+-	p->entry = proc_create(p->name, p->mode, proc_gru, p->fops);
+-	if (!p->entry)
+-		return -1;
+-	return 0;
+-}
+-
+-static void delete_proc_files(void)
+-{
+-	struct proc_entry *p;
+-
+-	if (proc_gru) {
+-		for (p = proc_files; p->name; p++)
+-			if (p->entry)
+-				remove_proc_entry(p->name, proc_gru);
+-		proc_remove(proc_gru);
+-	}
+-}
+-
+ int gru_proc_init(void)
  {
- 	int i, fd, retval, irqcount = 0, dangerous = 0;
--	unsigned long tmp, data;
-+	unsigned long data;
- 	struct rtc_time rtc_tm;
- 	const char *rtc = default_rtc;
--	struct timeval start, end, diff;
+-	struct proc_entry *p;
+-
+ 	proc_gru = proc_mkdir("sgi_uv/gru", NULL);
+-
+-	for (p = proc_files; p->name; p++)
+-		if (create_proc_file(p))
+-			goto err;
++	if (!proc_gru)
++		return -1;
++	if (!proc_create("statistics", 0644, proc_gru, &statistics_fops))
++		goto err;
++	if (!proc_create("mcs_statistics", 0644, proc_gru, &mcs_statistics_fops))
++		goto err;
++	if (!proc_create("debug_options", 0644, proc_gru, &options_fops))
++		goto err;
++	if (!proc_create_seq("cch_status", 0444, proc_gru, &cch_seq_ops))
++		goto err;
++	if (!proc_create_seq("gru_status", 0444, proc_gru, &gru_seq_ops))
++		goto err;
+ 	return 0;
+-
+ err:
+-	delete_proc_files();
++	remove_proc_subtree("sgi_uv/gru", NULL);
+ 	return -1;
+ }
  
- 	switch (argc) {
- 	case 3:
-@@ -211,7 +210,7 @@ int main(int argc, char **argv)
- 		if (errno == EINVAL) {
- 			fprintf(stderr,
- 				"\n...Alarm IRQs not supported.\n");
--			goto test_PIE;
-+			goto test_DATE;
- 		}
- 
- 		perror("RTC_ALM_SET ioctl");
-@@ -224,7 +223,7 @@ int main(int argc, char **argv)
- 		if (errno == EINVAL) {
- 			fprintf(stderr,
- 					"\n...EINVAL reading current alarm setting.\n");
--			goto test_PIE;
-+			goto test_DATE;
- 		}
- 		perror("RTC_ALM_READ ioctl");
- 		exit(errno);
-@@ -239,7 +238,7 @@ int main(int argc, char **argv)
- 		if (errno == EINVAL || errno == EIO) {
- 			fprintf(stderr,
- 				"\n...Alarm IRQs not supported.\n");
--			goto test_PIE;
-+			goto test_DATE;
- 		}
- 
- 		perror("RTC_AIE_ON ioctl");
-@@ -264,80 +263,6 @@ int main(int argc, char **argv)
- 		exit(errno);
- 	}
- 
--test_PIE:
--	/* Read periodic IRQ rate */
--	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
--	if (retval == -1) {
--		/* not all RTCs support periodic IRQs */
--		if (errno == EINVAL) {
--			fprintf(stderr, "\nNo periodic IRQ support\n");
--			goto test_DATE;
--		}
--		perror("RTC_IRQP_READ ioctl");
--		exit(errno);
--	}
--	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
--
--	fprintf(stderr, "Counting 20 interrupts at:");
--	fflush(stderr);
--
--	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
--	for (tmp=2; tmp<=64; tmp*=2) {
--
--		retval = ioctl(fd, RTC_IRQP_SET, tmp);
--		if (retval == -1) {
--			/* not all RTCs can change their periodic IRQ rate */
--			if (errno == EINVAL) {
--				fprintf(stderr,
--					"\n...Periodic IRQ rate is fixed\n");
--				goto test_DATE;
--			}
--			perror("RTC_IRQP_SET ioctl");
--			exit(errno);
--		}
--
--		fprintf(stderr, "\n%ldHz:\t", tmp);
--		fflush(stderr);
--
--		/* Enable periodic interrupts */
--		retval = ioctl(fd, RTC_PIE_ON, 0);
--		if (retval == -1) {
--			perror("RTC_PIE_ON ioctl");
--			exit(errno);
--		}
--
--		for (i=1; i<21; i++) {
--			gettimeofday(&start, NULL);
--			/* This blocks */
--			retval = read(fd, &data, sizeof(unsigned long));
--			if (retval == -1) {
--				perror("read");
--				exit(errno);
--			}
--			gettimeofday(&end, NULL);
--			timersub(&end, &start, &diff);
--			if (diff.tv_sec > 0 ||
--			    diff.tv_usec > ((1000000L / tmp) * 1.10)) {
--				fprintf(stderr, "\nPIE delta error: %ld.%06ld should be close to 0.%06ld\n",
--				       diff.tv_sec, diff.tv_usec,
--				       (1000000L / tmp));
--				fflush(stdout);
--				exit(-1);
--			}
--
--			fprintf(stderr, " %d",i);
--			fflush(stderr);
--			irqcount++;
--		}
--
--		/* Disable periodic interrupts */
--		retval = ioctl(fd, RTC_PIE_OFF, 0);
--		if (retval == -1) {
--			perror("RTC_PIE_OFF ioctl");
--			exit(errno);
--		}
--	}
--
- test_DATE:
- 	if (!dangerous)
- 		goto done;
+ void gru_proc_exit(void)
+ {
+-	delete_proc_files();
++	remove_proc_subtree("sgi_uv/gru", NULL);
+ }
 -- 
 2.17.0
