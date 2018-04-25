@@ -1,107 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39424 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755394AbeDYPu6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:58 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 25/40] resource: switch to proc_create_seq_data
-Date: Wed, 25 Apr 2018 17:48:12 +0200
-Message-Id: <20180425154827.32251-26-hch@lst.de>
-In-Reply-To: <20180425154827.32251-1-hch@lst.de>
-References: <20180425154827.32251-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:54442 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750986AbeDYJlV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 25 Apr 2018 05:41:21 -0400
+Date: Wed, 25 Apr 2018 11:41:10 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-rtc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 2/3] powerpc/powernv: Fix OPAL RTC driver OPAL_BUSY loops
+Message-ID: <20180425094110.GC4813@piout.net>
+References: <20180410114933.24581-1-npiggin@gmail.com>
+ <20180410114933.24581-3-npiggin@gmail.com>
+ <20180410120728.GC2745@piout.net>
+ <20180410230136.7d0b357e@roar.ozlabs.ibm.com>
+ <20180424183918.GF19011@piout.net>
+ <87d0yo55ic.fsf@concordia.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87d0yo55ic.fsf@concordia.ellerman.id.au>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use the root resource directly from the proc private data.
+On 25/04/2018 13:28:27+1000, Michael Ellerman wrote:
+> Alexandre Belloni <alexandre.belloni@bootlin.com> writes:
+> > On 10/04/2018 23:01:36+1000, Nicholas Piggin wrote:
+> >> On Tue, 10 Apr 2018 14:07:28 +0200
+> >> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> >> > > Fixes 	 ("powerpc/powernv: Add RTC and NVRAM support plus RTAS fallbacks"
+> >> > > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> >> > > Cc: linux-rtc@vger.kernel.org
+> >> > > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> >> > > ---
+> >> > >  arch/powerpc/platforms/powernv/opal-rtc.c |  8 +++--
+> >> > >  drivers/rtc/rtc-opal.c                    | 37 ++++++++++++++---------  
+> >> > 
+> >> > From what I understand, the changes in those files are fairly
+> >> > independent, they should probably be separated to ease merging.
+> >> 
+> >> I'm happy to do that. It's using the same firmware call, so I thought
+> >> a single patch would be fine. But I guess the boot call can be
+> >> dropped from this patch because it does not  not solve the problem
+> >> described in the changelog.
+> >> 
+> >> Would you be happy for the driver change to be merged via the powerpc
+> >> tree? The code being fixed here came from the same original patch as
+> >> a similar issue being fixed in the OPAL NVRAM driver so it might be
+> >> easier that way.
+> >
+> > Ok then, just add my
+> >
+> > Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> >
+> > and let it go through the powerpc tree.
+> 
+> Thanks.
+> 
+> It's still mostly an rtc patch by lines changed, so I changed the
+> subject to:
+> 
+>   rtc: opal: Fix OPAL RTC driver OPAL_BUSY loops
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- kernel/resource.c | 43 +++++--------------------------------------
- 1 file changed, 5 insertions(+), 38 deletions(-)
+Great, thanks!
 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 2af6c03858b9..b589dda910b3 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -87,7 +87,7 @@ enum { MAX_IORES_LEVEL = 5 };
- static void *r_start(struct seq_file *m, loff_t *pos)
- 	__acquires(resource_lock)
- {
--	struct resource *p = m->private;
-+	struct resource *p = PDE_DATA(file_inode(m->file));
- 	loff_t l = 0;
- 	read_lock(&resource_lock);
- 	for (p = p->child; p && l < *pos; p = r_next(m, p, &l))
-@@ -103,7 +103,7 @@ static void r_stop(struct seq_file *m, void *v)
- 
- static int r_show(struct seq_file *m, void *v)
- {
--	struct resource *root = m->private;
-+	struct resource *root = PDE_DATA(file_inode(m->file));
- 	struct resource *r = v, *p;
- 	unsigned long long start, end;
- 	int width = root->end < 0x10000 ? 4 : 8;
-@@ -135,44 +135,11 @@ static const struct seq_operations resource_op = {
- 	.show	= r_show,
- };
- 
--static int ioports_open(struct inode *inode, struct file *file)
--{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &ioport_resource;
--	}
--	return res;
--}
--
--static int iomem_open(struct inode *inode, struct file *file)
--{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &iomem_resource;
--	}
--	return res;
--}
--
--static const struct file_operations proc_ioports_operations = {
--	.open		= ioports_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static const struct file_operations proc_iomem_operations = {
--	.open		= iomem_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int __init ioresources_init(void)
- {
--	proc_create("ioports", 0, NULL, &proc_ioports_operations);
--	proc_create("iomem", 0, NULL, &proc_iomem_operations);
-+	proc_create_seq_data("ioports", 0, NULL, &resource_op,
-+			&ioport_resource);
-+	proc_create_seq_data("iomem", 0, NULL, &resource_op, &iomem_resource);
- 	return 0;
- }
- __initcall(ioresources_init);
+
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
