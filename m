@@ -1,130 +1,112 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36280 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752373AbeDJLtt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Apr 2018 07:49:49 -0400
-Received: by mail-pf0-f196.google.com with SMTP id g14so8077414pfh.3
-        for <linux-rtc@vger.kernel.org>; Tue, 10 Apr 2018 04:49:49 -0700 (PDT)
-From: Nicholas Piggin <npiggin@gmail.com>
-To: linuxppc-dev@lists.ozlabs.org
-Cc: Nicholas Piggin <npiggin@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH 2/3] powerpc/powernv: Fix OPAL RTC driver OPAL_BUSY loops
-Date: Tue, 10 Apr 2018 21:49:32 +1000
-Message-Id: <20180410114933.24581-3-npiggin@gmail.com>
-In-Reply-To: <20180410114933.24581-1-npiggin@gmail.com>
-References: <20180410114933.24581-1-npiggin@gmail.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:63767 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751346AbeDYJc4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:32:56 -0400
+From: <sean.wang@mediatek.com>
+To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
+        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
+        <eddie.huang@mediatek.com>
+CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Sean Wang <sean.wang@mediatek.com>
+Subject: [PATCH v2 11/17] rtc: mt6397: convert to use device managed functions
+Date: Wed, 25 Apr 2018 17:32:37 +0800
+Message-ID: <6d203dafedc93496baf27f695d21e00c9564d840.1524646231.git.sean.wang@mediatek.com>
+In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The OPAL RTC driver does not sleep in case it gets OPAL_BUSY or
-OPAL_BUSY_EVENT from firmware, which causes large scheduling
-latencies, up to 50 seconds have been observed here when RTC stops
-responding (BMC reboot can do it).
+From: Sean Wang <sean.wang@mediatek.com>
 
-Fix this by converting it to the standard form OPAL_BUSY loop that
-sleeps.
+Use device managed operation to simplify error handling, reduce source
+code size, and reduce the likelyhood of bugs, and remove our removal
+callback which contains anything already done by device managed functions.
 
-Fixes 628daa8d5abfd ("powerpc/powernv: Add RTC and NVRAM support plus RTAS fallbacks"
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+v1 -> v2:
+ - Use devm_rtc_allocate_device() and rtc_register_device instead of
+   devm_rtc_device_register.
+
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 ---
- arch/powerpc/platforms/powernv/opal-rtc.c |  8 +++--
- drivers/rtc/rtc-opal.c                    | 37 ++++++++++++++---------
- 2 files changed, 28 insertions(+), 17 deletions(-)
+ drivers/rtc/rtc-mt6397.c | 37 ++++++++++---------------------------
+ 1 file changed, 10 insertions(+), 27 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/opal-rtc.c b/arch/powerpc/platforms/powernv/opal-rtc.c
-index f8868864f373..aa2a5139462e 100644
---- a/arch/powerpc/platforms/powernv/opal-rtc.c
-+++ b/arch/powerpc/platforms/powernv/opal-rtc.c
-@@ -48,10 +48,12 @@ unsigned long __init opal_get_boot_time(void)
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 398bae5..91d584a 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -14,6 +14,7 @@
  
- 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
- 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
--		if (rc == OPAL_BUSY_EVENT)
-+		if (rc == OPAL_BUSY_EVENT) {
-+			mdelay(OPAL_BUSY_DELAY_MS);
- 			opal_poll_events(NULL);
--		else if (rc == OPAL_BUSY)
--			mdelay(10);
-+		} else if (rc == OPAL_BUSY) {
-+			mdelay(OPAL_BUSY_DELAY_MS);
-+		}
- 	}
- 	if (rc != OPAL_SUCCESS)
- 		return 0;
-diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
-index 304e891e35fc..60f2250fd96b 100644
---- a/drivers/rtc/rtc-opal.c
-+++ b/drivers/rtc/rtc-opal.c
-@@ -57,7 +57,7 @@ static void tm_to_opal(struct rtc_time *tm, u32 *y_m_d, u64 *h_m_s_ms)
+ #include <linux/delay.h>
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+@@ -328,10 +329,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
  
- static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
- {
--	long rc = OPAL_BUSY;
-+	s64 rc = OPAL_BUSY;
- 	int retries = 10;
- 	u32 y_m_d;
- 	u64 h_m_s_ms;
-@@ -66,13 +66,17 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
+ 	platform_set_drvdata(pdev, rtc);
  
- 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
- 		rc = opal_rtc_read(&__y_m_d, &__h_m_s_ms);
--		if (rc == OPAL_BUSY_EVENT)
-+		if (rc == OPAL_BUSY_EVENT) {
-+			msleep(OPAL_BUSY_DELAY_MS);
- 			opal_poll_events(NULL);
--		else if (retries-- && (rc == OPAL_HARDWARE
--				       || rc == OPAL_INTERNAL_ERROR))
--			msleep(10);
--		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
--			break;
-+		} else if (rc == OPAL_BUSY) {
-+			msleep(OPAL_BUSY_DELAY_MS);
-+		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
-+			if (retries--) {
-+				msleep(10); /* Wait 10ms before retry */
-+				rc = OPAL_BUSY; /* go around again */
-+			}
-+		}
- 	}
+-	ret = request_threaded_irq(rtc->irq, NULL,
+-				   mtk_rtc_irq_handler_thread,
+-				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+-				   "mt6397-rtc", rtc);
++	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
++					mtk_rtc_irq_handler_thread,
++					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
++					"mt6397-rtc", rtc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			rtc->irq, ret);
+@@ -340,30 +341,13 @@ static int mtk_rtc_probe(struct platform_device *pdev)
  
- 	if (rc != OPAL_SUCCESS)
-@@ -87,21 +91,26 @@ static int opal_get_rtc_time(struct device *dev, struct rtc_time *tm)
+ 	device_init_wakeup(&pdev->dev, 1);
  
- static int opal_set_rtc_time(struct device *dev, struct rtc_time *tm)
- {
--	long rc = OPAL_BUSY;
-+	s64 rc = OPAL_BUSY;
- 	int retries = 10;
- 	u32 y_m_d = 0;
- 	u64 h_m_s_ms = 0;
+-	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
+-					   &mtk_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
+-		dev_err(&pdev->dev, "register rtc device failed\n");
+-		ret = PTR_ERR(rtc->rtc_dev);
+-		goto out_free_irq;
+-	}
+-
+-	return 0;
+-
+-out_free_irq:
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-
+-	return ret;
+-}
++	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
  
- 	tm_to_opal(tm, &y_m_d, &h_m_s_ms);
-+
- 	while (rc == OPAL_BUSY || rc == OPAL_BUSY_EVENT) {
- 		rc = opal_rtc_write(y_m_d, h_m_s_ms);
--		if (rc == OPAL_BUSY_EVENT)
-+		if (rc == OPAL_BUSY_EVENT) {
-+			msleep(OPAL_BUSY_DELAY_MS);
- 			opal_poll_events(NULL);
--		else if (retries-- && (rc == OPAL_HARDWARE
--				       || rc == OPAL_INTERNAL_ERROR))
--			msleep(10);
--		else if (rc != OPAL_BUSY && rc != OPAL_BUSY_EVENT)
--			break;
-+		} else if (rc == OPAL_BUSY) {
-+			msleep(OPAL_BUSY_DELAY_MS);
-+		} else if (rc == OPAL_HARDWARE || rc == OPAL_INTERNAL_ERROR) {
-+			if (retries--) {
-+				msleep(10); /* Wait 10ms before retry */
-+				rc = OPAL_BUSY; /* go around again */
-+			}
-+		}
- 	}
+-static int mtk_rtc_remove(struct platform_device *pdev)
+-{
+-	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
++	rtc->rtc_dev->ops = &mtk_rtc_ops;
  
- 	return rc == OPAL_SUCCESS ? 0 : -EIO;
+-	rtc_device_unregister(rtc->rtc_dev);
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-
+-	return 0;
++	return rtc_register_device(rtc->rtc_dev);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -405,7 +389,6 @@ static struct platform_driver mtk_rtc_driver = {
+ 		.pm = &mt6397_pm_ops,
+ 	},
+ 	.probe	= mtk_rtc_probe,
+-	.remove = mtk_rtc_remove,
+ };
+ 
+ module_platform_driver(mtk_rtc_driver);
 -- 
-2.17.0
+2.7.4
