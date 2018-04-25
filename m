@@ -1,14 +1,14 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39744 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:38444 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753421AbeDSMno (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Apr 2018 08:43:44 -0400
+        with ESMTP id S1755276AbeDYPuF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 11:50:05 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Corey Minyard <minyard@acm.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
@@ -18,107 +18,147 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 25/39] drbd: switch to proc_create_single
-Date: Thu, 19 Apr 2018 14:41:26 +0200
-Message-Id: <20180419124140.9309-26-hch@lst.de>
-In-Reply-To: <20180419124140.9309-1-hch@lst.de>
-References: <20180419124140.9309-1-hch@lst.de>
+Subject: [PATCH 13/40] =?UTF-8?q?netfilter/x=5Ftables:=20simplify=20=D1=95?= =?UTF-8?q?eq=5Ffile=20code?=
+Date: Wed, 25 Apr 2018 17:48:00 +0200
+Message-Id: <20180425154827.32251-14-hch@lst.de>
+In-Reply-To: <20180425154827.32251-1-hch@lst.de>
+References: <20180425154827.32251-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And stop messing with try_module_get on THIS_MODULE, which doesn't make
-any sense here.
+Just use the address family from the proc private data instead of copying
+it into per-file data.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/drbd/drbd_int.h  |  2 +-
- drivers/block/drbd/drbd_main.c |  3 ++-
- drivers/block/drbd/drbd_proc.c | 34 +---------------------------------
- 3 files changed, 4 insertions(+), 35 deletions(-)
+ net/netfilter/x_tables.c | 39 +++++++++++----------------------------
+ 1 file changed, 11 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
-index 06ecee1b528e..461ddec04e7c 100644
---- a/drivers/block/drbd/drbd_int.h
-+++ b/drivers/block/drbd/drbd_int.h
-@@ -1643,7 +1643,7 @@ void drbd_bump_write_ordering(struct drbd_resource *resource, struct drbd_backin
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 71325fef647d..3704101af27f 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1489,15 +1489,10 @@ void *xt_unregister_table(struct xt_table *table)
+ EXPORT_SYMBOL_GPL(xt_unregister_table);
  
- /* drbd_proc.c */
- extern struct proc_dir_entry *drbd_proc;
--extern const struct file_operations drbd_proc_fops;
-+int drbd_seq_show(struct seq_file *seq, void *v);
- 
- /* drbd_actlog.c */
- extern bool drbd_al_begin_io_prepare(struct drbd_device *device, struct drbd_interval *i);
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 185f1ef00a7c..c2d154faac02 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -3010,7 +3010,8 @@ static int __init drbd_init(void)
- 		goto fail;
- 
- 	err = -ENOMEM;
--	drbd_proc = proc_create_data("drbd", S_IFREG | S_IRUGO , NULL, &drbd_proc_fops, NULL);
-+	drbd_proc = proc_create_single("drbd", S_IFREG | S_IRUGO , NULL,
-+			drbd_seq_show);
- 	if (!drbd_proc)	{
- 		pr_err("unable to register proc file\n");
- 		goto fail;
-diff --git a/drivers/block/drbd/drbd_proc.c b/drivers/block/drbd/drbd_proc.c
-index 582caeb0de86..74ef29247bb5 100644
---- a/drivers/block/drbd/drbd_proc.c
-+++ b/drivers/block/drbd/drbd_proc.c
-@@ -33,18 +33,7 @@
- #include <linux/drbd.h>
- #include "drbd_int.h"
- 
--static int drbd_proc_open(struct inode *inode, struct file *file);
--static int drbd_proc_release(struct inode *inode, struct file *file);
--
--
- struct proc_dir_entry *drbd_proc;
--const struct file_operations drbd_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= drbd_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= drbd_proc_release,
+ #ifdef CONFIG_PROC_FS
+-struct xt_names_priv {
+-	struct seq_net_private p;
+-	u_int8_t af;
 -};
- 
- static void seq_printf_with_thousands_grouping(struct seq_file *seq, long v)
+ static void *xt_table_seq_start(struct seq_file *seq, loff_t *pos)
  {
-@@ -235,7 +224,7 @@ static void drbd_syncer_progress(struct drbd_device *device, struct seq_file *se
+-	struct xt_names_priv *priv = seq->private;
+ 	struct net *net = seq_file_net(seq);
+-	u_int8_t af = priv->af;
++	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 
+ 	mutex_lock(&xt[af].mutex);
+ 	return seq_list_start(&net->xt.tables[af], *pos);
+@@ -1505,17 +1500,15 @@ static void *xt_table_seq_start(struct seq_file *seq, loff_t *pos)
+ 
+ static void *xt_table_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+-	struct xt_names_priv *priv = seq->private;
+ 	struct net *net = seq_file_net(seq);
+-	u_int8_t af = priv->af;
++	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 
+ 	return seq_list_next(v, &net->xt.tables[af], pos);
+ }
+ 
+ static void xt_table_seq_stop(struct seq_file *seq, void *v)
+ {
+-	struct xt_names_priv *priv = seq->private;
+-	u_int8_t af = priv->af;
++	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 
+ 	mutex_unlock(&xt[af].mutex);
+ }
+@@ -1538,16 +1531,8 @@ static const struct seq_operations xt_table_seq_ops = {
+ 
+ static int xt_table_open(struct inode *inode, struct file *file)
+ {
+-	int ret;
+-	struct xt_names_priv *priv;
+-
+-	ret = seq_open_net(inode, file, &xt_table_seq_ops,
+-			   sizeof(struct xt_names_priv));
+-	if (!ret) {
+-		priv = ((struct seq_file *)file->private_data)->private;
+-		priv->af = (unsigned long)PDE_DATA(inode);
+-	}
+-	return ret;
++	return seq_open_net(inode, file, &xt_table_seq_ops,
++			sizeof(struct seq_net_private));
+ }
+ 
+ static const struct file_operations xt_table_ops = {
+@@ -1563,7 +1548,7 @@ static const struct file_operations xt_table_ops = {
+  */
+ struct nf_mttg_trav {
+ 	struct list_head *head, *curr;
+-	uint8_t class, nfproto;
++	uint8_t class;
+ };
+ 
+ enum {
+@@ -1580,6 +1565,7 @@ static void *xt_mttg_seq_next(struct seq_file *seq, void *v, loff_t *ppos,
+ 		[MTTG_TRAV_NFP_UNSPEC] = MTTG_TRAV_NFP_SPEC,
+ 		[MTTG_TRAV_NFP_SPEC]   = MTTG_TRAV_DONE,
+ 	};
++	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 	struct nf_mttg_trav *trav = seq->private;
+ 
+ 	switch (trav->class) {
+@@ -1594,9 +1580,9 @@ static void *xt_mttg_seq_next(struct seq_file *seq, void *v, loff_t *ppos,
+ 		if (trav->curr != trav->head)
+ 			break;
+ 		mutex_unlock(&xt[NFPROTO_UNSPEC].mutex);
+-		mutex_lock(&xt[trav->nfproto].mutex);
++		mutex_lock(&xt[nfproto].mutex);
+ 		trav->head = trav->curr = is_target ?
+-			&xt[trav->nfproto].target : &xt[trav->nfproto].match;
++			&xt[nfproto].target : &xt[nfproto].match;
+ 		trav->class = next_class[trav->class];
+ 		break;
+ 	case MTTG_TRAV_NFP_SPEC:
+@@ -1628,6 +1614,7 @@ static void *xt_mttg_seq_start(struct seq_file *seq, loff_t *pos,
+ 
+ static void xt_mttg_seq_stop(struct seq_file *seq, void *v)
+ {
++	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 	struct nf_mttg_trav *trav = seq->private;
+ 
+ 	switch (trav->class) {
+@@ -1635,7 +1622,7 @@ static void xt_mttg_seq_stop(struct seq_file *seq, void *v)
+ 		mutex_unlock(&xt[NFPROTO_UNSPEC].mutex);
+ 		break;
+ 	case MTTG_TRAV_NFP_SPEC:
+-		mutex_unlock(&xt[trav->nfproto].mutex);
++		mutex_unlock(&xt[nfproto].mutex);
+ 		break;
  	}
  }
- 
--static int drbd_seq_show(struct seq_file *seq, void *v)
-+int drbd_seq_show(struct seq_file *seq, void *v)
- {
- 	int i, prev_i = -1;
- 	const char *sn;
-@@ -345,24 +334,3 @@ static int drbd_seq_show(struct seq_file *seq, void *v)
- 
+@@ -1680,8 +1667,6 @@ static int xt_match_open(struct inode *inode, struct file *file)
+ 	trav = __seq_open_private(file, &xt_match_seq_ops, sizeof(*trav));
+ 	if (!trav)
+ 		return -ENOMEM;
+-
+-	trav->nfproto = (unsigned long)PDE_DATA(inode);
  	return 0;
  }
+ 
+@@ -1732,8 +1717,6 @@ static int xt_target_open(struct inode *inode, struct file *file)
+ 	trav = __seq_open_private(file, &xt_target_seq_ops, sizeof(*trav));
+ 	if (!trav)
+ 		return -ENOMEM;
 -
--static int drbd_proc_open(struct inode *inode, struct file *file)
--{
--	int err;
--
--	if (try_module_get(THIS_MODULE)) {
--		err = single_open(file, drbd_seq_show, NULL);
--		if (err)
--			module_put(THIS_MODULE);
--		return err;
--	}
--	return -ENODEV;
--}
--
--static int drbd_proc_release(struct inode *inode, struct file *file)
--{
--	module_put(THIS_MODULE);
--	return single_release(inode, file);
--}
--
--/* PROC FS stuff end */
+-	trav->nfproto = (unsigned long)PDE_DATA(inode);
+ 	return 0;
+ }
+ 
 -- 
 2.17.0
