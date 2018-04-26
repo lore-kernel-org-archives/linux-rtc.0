@@ -1,115 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:13791 "EHLO
+Received: from mailgw01.mediatek.com ([210.61.82.183]:60258 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751591AbeDYJdK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:10 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
+        with ESMTP id S1752018AbeDZGxn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Apr 2018 02:53:43 -0400
+Message-ID: <1524725617.31521.0.camel@mhfsdcap03>
+Subject: Re: [GIT PULL] Immutable branch between MFD, Input and RTC due for
+ the v4.18 merge window
+From: Chen Zhong <chen.zhong@mediatek.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "Eddie Huang" <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Beomho Seo <beomho.seo@samsung.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Jaechul Lee <jcsing.lee@samsung.com>,
+        "Krzysztof Kozlowski" <krzk@kernel.org>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
-        "Sean Wang" <sean.wang@mediatek.com>
-Subject: [PATCH v2 00/17] Add support to MT6323 RTC and its power device
-Date: Wed, 25 Apr 2018 17:32:26 +0800
-Message-ID: <cover.1524646231.git.sean.wang@mediatek.com>
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Date: Thu, 26 Apr 2018 14:53:37 +0800
+In-Reply-To: <20180416141809.34l2ofmeljqvyicm@dell>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+         <20180416141809.34l2ofmeljqvyicm@dell>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On Mon, 2018-04-16 at 15:18 +0100, Lee Jones wrote:
+> Enjoy!
+> 
+> The following changes since commit 60cc43fc888428bb2f18f08997432d426a243338:
+> 
+>   Linux 4.17-rc1 (2018-04-15 18:24:20 -0700)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-rtc-v4.18
+> 
+> for you to fetch changes up to 55d1d1547ab5e52269988af5e7c553796ff68e97:
+> 
+>   mfd: mt6397: Add PMIC keys support to MT6397 driver (2018-04-16 15:16:11 +0100)
+> 
+> ----------------------------------------------------------------
+> Immutable branch between MFD, Input and RTC due for the v4.18 merge window
+> 
+> ----------------------------------------------------------------
+> Chen Zhong (5):
+>       mfd: mt6397: Create irq mappings in mfd core driver
+>       dt-bindings: input: Add document bindings for mtk-pmic-keys
+>       dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+>       input: Add MediaTek PMIC keys support
+>       mfd: mt6397: Add PMIC keys support to MT6397 driver
+> 
+>  .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
+>  Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
+>  drivers/input/keyboard/Kconfig                     |   9 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/mtk-pmic-keys.c             | 339 +++++++++++++++++++++
+>  drivers/mfd/mt6397-core.c                          |  26 +-
+>  drivers/rtc/rtc-mt6397.c                           |   7 +-
+>  7 files changed, 424 insertions(+), 7 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
+> 
 
-v2:
+Hi Lee,
 
-- The changes must be relative to the below tree since one critial patch
-  for the rtc-mt6397.c the series depends on was being applied into
-  the tree. Otherwise, for example, if the series are applied on the top
-  of [1], a build error must happen due to an implicit declaration of
-  function 'irq_create_mapping' as kbuild test robot was reporting in [2].
-  
-  tree    : https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
-  branch  : mfd/ib-mfd-input-rtc-4.18
+I’m sorry that I found this patch
+https://patchwork.kernel.org/patch/10026705/
 
-- changes since v1:
-  * Define the power controller as a function of MT6323 MFD.
-  * Refine the whole series commit message and title.
-  * Add tag Reviewed-by and Acked-by got from v1 result.
-  * Reuse use the DEFINE_RES_* helpers in mfd driver.
-  * Remove an overdone patch rtc: mediatek: remove unnecessary parentheses.
-  * Use devm_rtc_allocate_device() and rtc_register_device instead of
-    devm_rtc_device_register.
-  * Have an improvement according to the license rule the SPDX notation
-    for C header file.
-  * Move a file from include/linux/rtc/mt6397.h to include/linux/mfd/mt6397/rtc.h
-  * Refine include/linux/mfd/mt6397/rtc.h
+is missing in the git repository at:
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
-[2] http://lists.infradead.org/pipermail/linux-mediatek/2018-March/012548.html
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
+ib-mfd-input-rtc-v4.18
 
-v1:
+Could you please take this patch up?
 
-Hi,
+Thanks.
 
-The series keeps to extend the capability of BPI-R2 board with MT7623 and
-the result can as well bring benefits into the other MediaTek PMICs such
-as MT6397 or SoCs.
-
-The series sent across mfd, rtc, pm, dt-binding sub-system is for hoping
-to let people have a simple cross-reference to know the exact dependency
-and why those patches are being split in that way between each one.
-
-Patch 1-3: Add dt-binding to the related devices newly or already
-	   supported.
-Patch 4-5: Extend driver with the functionality of MT6323 RTC device.
-Patch 6-9 and 12-13: Add a few of trivial fixups, cleanups and
-	  improvements.
-Patch 10-11: It's a preparation for Patch 14 adding a new driver.
-Patch 14: Add a new driver for a power-off driver.
-Patch 15-16: Update MAINTAINERS with these new files being added.
-
-	Sean
-
-Sean Wang (17):
-  dt-bindings: power: reset: mt6323: add bindings for MT6323 power
-    controller
-  dt-bindings: rtc: mt6397: add bindings for MediaTek PMIC based RTC
-  dt-bindings: mfd: mt6397: add a description for MT6323 RTC
-  dt-bindings: mfd: mt6397: add a description for MT6323 power
-    controller
-  mfd: mt6397: add MT6323 RTC support into MT6397 driver
-  mfd: mt6397: add support for MT6323 power controller into MT6397
-    driver
-  mfd: mt6397: reuse DEFINE_RES_* helpers
-  rtc: mt6397: add MT6323 support to RTC driver
-  rtc: mt6397: replace a poll with regmap_read_poll_timeout
-  rtc: mt6397: remove unnecessary irq_dispose_mapping
-  rtc: mt6397: convert to use device managed functions
-  rtc: mt6397: move the declaration into a globally visible header file
-  rtc: mt6397: cleanup header files to include
-  rtc: mt6397: update license converting to using SPDX identifiers
-  power: reset: mt6323: add a driver for MT6323 power controller
-  MAINTAINERS: update entry for ARM/Mediatek RTC DRIVER
-  MAINTAINERS: add an entry for MediaTek board level shutdown driver
-
- Documentation/devicetree/bindings/mfd/mt6397.txt   |  10 +-
- .../bindings/power/reset/mt6323-poweroff.txt       |  20 +++
- .../devicetree/bindings/rtc/rtc-mt6397.txt         |  29 ++++
- MAINTAINERS                                        |   9 ++
- drivers/mfd/mt6397-core.c                          |  40 ++++--
- drivers/power/reset/Kconfig                        |  10 ++
- drivers/power/reset/Makefile                       |   1 +
- drivers/power/reset/mt6323-poweroff.c              |  97 ++++++++++++++
- drivers/rtc/rtc-mt6397.c                           | 146 +++++----------------
- include/linux/mfd/mt6397/rtc.h                     |  71 ++++++++++
- 10 files changed, 308 insertions(+), 125 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- create mode 100644 drivers/power/reset/mt6323-poweroff.c
- create mode 100644 include/linux/mfd/mt6397/rtc.h
-
--- 
-2.7.4
+Best regards,
+Chen Zhong
