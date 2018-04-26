@@ -1,184 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:37055 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751577AbeDYJdF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 05:33:05 -0400
-From: <sean.wang@mediatek.com>
-To: <robh+dt@kernel.org>, <mark.rutland@arm.com>, <sre@kernel.org>,
-        <lee.jones@linaro.org>, <a.zummo@towertech.it>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <eddie.huang@mediatek.com>
-CC: <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-pm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Sean Wang" <sean.wang@mediatek.com>
-Subject: [PATCH v2 12/17] rtc: mt6397: move the declaration into a globally visible header file
-Date: Wed, 25 Apr 2018 17:32:38 +0800
-Message-ID: <f5a717b840579d9023abc412051a206c54d285c9.1524646231.git.sean.wang@mediatek.com>
-In-Reply-To: <cover.1524646231.git.sean.wang@mediatek.com>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from ozlabs.org ([203.11.71.1]:54625 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753879AbeDZKWp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Apr 2018 06:22:45 -0400
+In-Reply-To: <20180410114933.24581-3-npiggin@gmail.com>
+To: Nicholas Piggin <npiggin@gmail.com>, linuxppc-dev@lists.ozlabs.org
+From: Michael Ellerman <patch-notifications@ellerman.id.au>
+Cc: linux-rtc@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [2/3] powerpc/powernv: Fix OPAL RTC driver OPAL_BUSY loops
+Message-Id: <40WtRl5jlDz9s0R@ozlabs.org>
+Date: Thu, 26 Apr 2018 20:22:43 +1000 (AEST)
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Sean Wang <sean.wang@mediatek.com>
+On Tue, 2018-04-10 at 11:49:32 UTC, Nicholas Piggin wrote:
+> The OPAL RTC driver does not sleep in case it gets OPAL_BUSY or
+> OPAL_BUSY_EVENT from firmware, which causes large scheduling
+> latencies, up to 50 seconds have been observed here when RTC stops
+> responding (BMC reboot can do it).
+> 
+> Fix this by converting it to the standard form OPAL_BUSY loop that
+> sleeps.
+> 
+> Fixes 628daa8d5abfd ("powerpc/powernv: Add RTC and NVRAM support plus RTAS fallbacks"
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: linux-rtc@vger.kernel.org
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-This is in preparation for allowing other drivers can share the
-declaration, so move the declaration into a globally visible header file.
+Applied to powerpc fixes, thanks.
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
----
- drivers/rtc/rtc-mt6397.c       | 53 +-------------------------------
- include/linux/mfd/mt6397/rtc.h | 70 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 71 insertions(+), 52 deletions(-)
- create mode 100644 include/linux/mfd/mt6397/rtc.h
+https://git.kernel.org/powerpc/c/682e6b4da5cbe8e9a53f979a58c2a9
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 91d584a..4c5cdaa 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -18,63 +18,12 @@
- #include <linux/module.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
--#include <linux/jiffies.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
- #include <linux/of_irq.h>
- #include <linux/io.h>
- #include <linux/mfd/mt6397/core.h>
--
--#define RTC_BBPU		0x0000
--#define RTC_BBPU_CBUSY		BIT(6)
--
--#define RTC_WRTGR		0x003c
--
--#define RTC_IRQ_STA		0x0002
--#define RTC_IRQ_STA_AL		BIT(0)
--#define RTC_IRQ_STA_LP		BIT(3)
--
--#define RTC_IRQ_EN		0x0004
--#define RTC_IRQ_EN_AL		BIT(0)
--#define RTC_IRQ_EN_ONESHOT	BIT(2)
--#define RTC_IRQ_EN_LP		BIT(3)
--#define RTC_IRQ_EN_ONESHOT_AL	(RTC_IRQ_EN_ONESHOT | RTC_IRQ_EN_AL)
--
--#define RTC_AL_MASK		0x0008
--#define RTC_AL_MASK_DOW		BIT(4)
--
--#define RTC_TC_SEC		0x000a
--/* Min, Hour, Dom... register offset to RTC_TC_SEC */
--#define RTC_OFFSET_SEC		0
--#define RTC_OFFSET_MIN		1
--#define RTC_OFFSET_HOUR		2
--#define RTC_OFFSET_DOM		3
--#define RTC_OFFSET_DOW		4
--#define RTC_OFFSET_MTH		5
--#define RTC_OFFSET_YEAR		6
--#define RTC_OFFSET_COUNT	7
--
--#define RTC_AL_SEC		0x0018
--
--#define RTC_PDN2		0x002e
--#define RTC_PDN2_PWRON_ALARM	BIT(4)
--
--#define RTC_MIN_YEAR		1968
--#define RTC_BASE_YEAR		1900
--#define RTC_NUM_YEARS		128
--#define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
--
--#define MTK_RTC_POLL_DELAY_US	10
--#define MTK_RTC_POLL_TIMEOUT	(jiffies_to_usecs(HZ))
--
--struct mt6397_rtc {
--	struct device		*dev;
--	struct rtc_device	*rtc_dev;
--	struct mutex		lock;
--	struct regmap		*regmap;
--	int			irq;
--	u32			addr_base;
--};
-+#include <linux/mfd/mt6397/rtc.h>
- 
- static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
- {
-diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc.h
-new file mode 100644
-index 0000000..480977c
---- /dev/null
-+++ b/include/linux/mfd/mt6397/rtc.h
-@@ -0,0 +1,70 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (C) 2014-2018 MediaTek Inc.
-+ *
-+ * Author: Tianping.Fang <tianping.fang@mediatek.com>
-+ *	   Sean Wang <sean.wang@mediatek.com>
-+ */
-+
-+#ifndef _LINUX_MFD_MT6397_RTC_H_
-+#define _LINUX_MFD_MT6397_RTC_H_
-+
-+#include <linux/jiffies.h>
-+#include <linux/mutex.h>
-+#include <linux/regmap.h>
-+#include <linux/rtc.h>
-+
-+#define RTC_BBPU		0x0000
-+#define RTC_BBPU_CBUSY		BIT(6)
-+
-+#define RTC_WRTGR		0x003c
-+
-+#define RTC_IRQ_STA		0x0002
-+#define RTC_IRQ_STA_AL		BIT(0)
-+#define RTC_IRQ_STA_LP		BIT(3)
-+
-+#define RTC_IRQ_EN		0x0004
-+#define RTC_IRQ_EN_AL		BIT(0)
-+#define RTC_IRQ_EN_ONESHOT	BIT(2)
-+#define RTC_IRQ_EN_LP		BIT(3)
-+#define RTC_IRQ_EN_ONESHOT_AL	(RTC_IRQ_EN_ONESHOT | RTC_IRQ_EN_AL)
-+
-+#define RTC_AL_MASK		0x0008
-+#define RTC_AL_MASK_DOW		BIT(4)
-+
-+#define RTC_TC_SEC		0x000a
-+/* Min, Hour, Dom... register offset to RTC_TC_SEC */
-+#define RTC_OFFSET_SEC		0
-+#define RTC_OFFSET_MIN		1
-+#define RTC_OFFSET_HOUR		2
-+#define RTC_OFFSET_DOM		3
-+#define RTC_OFFSET_DOW		4
-+#define RTC_OFFSET_MTH		5
-+#define RTC_OFFSET_YEAR		6
-+#define RTC_OFFSET_COUNT	7
-+
-+#define RTC_AL_SEC		0x0018
-+
-+#define RTC_PDN2		0x002e
-+#define RTC_PDN2_PWRON_ALARM	BIT(4)
-+
-+#define RTC_MIN_YEAR		1968
-+#define RTC_BASE_YEAR		1900
-+#define RTC_NUM_YEARS		128
-+#define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
-+
-+#define MTK_RTC_POLL_DELAY_US	10
-+#define MTK_RTC_POLL_TIMEOUT	(jiffies_to_usecs(HZ))
-+
-+struct mt6397_rtc {
-+	struct device		*dev;
-+	struct rtc_device	*rtc_dev;
-+
-+	/* Protect register access from multiple tasks */
-+	struct mutex		lock;
-+	struct regmap		*regmap;
-+	int			irq;
-+	u32			addr_base;
-+};
-+
-+#endif /* _LINUX_MFD_MT6397_RTC_H_ */
--- 
-2.7.4
+cheers
