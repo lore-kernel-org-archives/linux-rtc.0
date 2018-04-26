@@ -1,46 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:40298 "EHLO
-        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752313AbeDZBp5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 21:45:57 -0400
-Date: Thu, 26 Apr 2018 11:45:50 +1000 (AEST)
-From: Finn Thain <fthain@telegraphics.com.au>
-To: Christoph Hellwig <hch@lst.de>
-cc: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/40] proc: introduce proc_create_single{,_data}
-In-Reply-To: <20180425154827.32251-7-hch@lst.de>
-Message-ID: <alpine.LNX.2.21.1804261118050.8@nippy.intranet>
-References: <20180425154827.32251-1-hch@lst.de> <20180425154827.32251-7-hch@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:42052 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751487AbeDZC7l (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Apr 2018 22:59:41 -0400
+Received: by mail-pf0-f193.google.com with SMTP id o16so16977559pfk.9
+        for <linux-rtc@vger.kernel.org>; Wed, 25 Apr 2018 19:59:41 -0700 (PDT)
+From: Baolin Wang <baolin.wang@linaro.org>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: baolin.wang@linaro.org, broonie@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] rtc: sprd: Change to use devm_rtc_allocate_device()
+Date: Thu, 26 Apr 2018 10:58:44 +0800
+Message-Id: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, 25 Apr 2018, Christoph Hellwig wrote:
+This is a preparation patch, changing to use devm_rtc_allocate_device()
+that can allow driver to set 'range_max' and 'range_min' for the RTC
+device.
 
->  
-> -/*
-> - * /proc/nubus stuff
-> - */
-> -
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+ drivers/rtc/rtc-sc27xx.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-I don't think that the introduction of proc_create_single{,_data} alters 
-the value of that comment. That comment and similar comments in the same 
-file do have a purpose, which is to keep separate the /proc/nubus 
-implementation is kept separate from the /proc/bus/nubus/devices 
-implementation and so on.
-
+diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
+index 00d87d1..ac86322 100644
+--- a/drivers/rtc/rtc-sc27xx.c
++++ b/drivers/rtc/rtc-sc27xx.c
+@@ -600,6 +600,10 @@ static int sprd_rtc_probe(struct platform_device *pdev)
+ 		return rtc->irq;
+ 	}
+ 
++	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc))
++		return PTR_ERR(rtc->rtc);
++
+ 	rtc->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, rtc);
+ 
+@@ -626,10 +630,12 @@ static int sprd_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					    &sprd_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc))
+-		return PTR_ERR(rtc->rtc);
++	rtc->rtc->ops = &sprd_rtc_ops;
++	ret = rtc_register_device(rtc->rtc);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to register rtc device\n");
++		return ret;
++	}
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 	return 0;
 -- 
+1.7.9.5
