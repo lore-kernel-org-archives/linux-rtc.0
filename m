@@ -1,40 +1,58 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:54498 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:38255 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750966AbeETMdv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 20 May 2018 08:33:51 -0400
+        id S1750962AbeECUJU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 3 May 2018 16:09:20 -0400
+Date: Thu, 3 May 2018 22:09:08 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Patrice Chotard <patrice.chotard@st.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/2] rtc: st-lpc: add range
-Date: Sun, 20 May 2018 14:33:37 +0200
-Message-Id: <20180520123337.14856-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
-References: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        kernel-janitors@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Joshua Kinard <kumba@gentoo.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 44/61] rtc: simplify getting .drvdata
+Message-ID: <20180503200908.GA10960@piout.net>
+References: <20180419140641.27926-1-wsa+renesas@sang-engineering.com>
+ <20180419140641.27926-45-wsa+renesas@sang-engineering.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180419140641.27926-45-wsa+renesas@sang-engineering.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The RTC has a 64 bit counter.
+On 19/04/2018 16:06:14+0200, Wolfram Sang wrote:
+> We should get drvdata from struct device directly. Going via
+> platform_device is an unneeded step back and forth.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> 
+> Build tested only. buildbot is happy. Please apply individually.
+> 
+>  drivers/rtc/rtc-bq4802.c   |  6 ++----
+>  drivers/rtc/rtc-ds1216.c   |  6 ++----
+>  drivers/rtc/rtc-ds1511.c   |  9 +++------
+>  drivers/rtc/rtc-ds1553.c   | 15 +++++----------
+>  drivers/rtc/rtc-ds1685.c   | 21 +++++++--------------
+>  drivers/rtc/rtc-ds1742.c   |  6 ++----
+>  drivers/rtc/rtc-lpc32xx.c  | 16 ++++++----------
+>  drivers/rtc/rtc-m48t59.c   | 41 ++++++++++++++++-------------------------
+>  drivers/rtc/rtc-mv.c       |  3 +--
+>  drivers/rtc/rtc-mxc.c      | 21 +++++++--------------
+>  drivers/rtc/rtc-pcap.c     | 15 +++++----------
+>  drivers/rtc/rtc-sh.c       | 15 +++++----------
+>  drivers/rtc/rtc-stk17ta8.c | 15 +++++----------
+>  drivers/rtc/rtc-test.c     |  3 +--
+>  drivers/rtc/rtc-zynqmp.c   | 10 ++++------
+>  15 files changed, 71 insertions(+), 131 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-st-lpc.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-index 2f1ef2c28740..df467ace397b 100644
---- a/drivers/rtc/rtc-st-lpc.c
-+++ b/drivers/rtc/rtc-st-lpc.c
-@@ -258,6 +258,7 @@ static int st_rtc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, rtc);
- 
- 	rtc->rtc_dev->ops = &st_rtc_ops;
-+	rtc->range_max = do_div(U64_MAX, rtc->clkrate);
- 
- 	ret = rtc_register_device(rtc->rtc_dev);
- 	if (ret) {
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
