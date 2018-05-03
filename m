@@ -1,118 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:38446 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932916AbeEHPCY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:24 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 55720B00B4D
-        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:17 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id kfhardWc3XxA for <linux-rtc@vger.kernel.org>;
-        Tue,  8 May 2018 16:56:16 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH 2/4] rtc: ds1307: support m41t11 variant
-Date: Tue,  8 May 2018 16:56:09 +0200
-Message-Id: <20180508145611.49072-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
-References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:39007 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751103AbeECUyD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 3 May 2018 16:54:03 -0400
+Date: Thu, 3 May 2018 22:53:51 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Amelie Delaunay <amelie.delaunay@st.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] dt-bindings: rtc: update stm32-rtc documentation for
+ st,syscfg property
+Message-ID: <20180503205351.GE10960@piout.net>
+References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
+ <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
+ <20180427025803.mn32y5xle2p6knn6@rob-hp-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180427025803.mn32y5xle2p6knn6@rob-hp-laptop>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+Amelie,
 
-Add it to driver taking into account NVRAM section.
+On 26/04/2018 21:58:03-0500, Rob Herring wrote:
+> On Thu, Apr 19, 2018 at 03:21:42PM +0200, Amelie Delaunay wrote:
+> > RTC driver should not be aware of the PWR registers offset and bits
+> > position. Furthermore, we can imagine that Disable Backup Protection (DBP)
+> > relative register and bit mask could change depending on the SoC. So this
+> > patch moves st,syscfg property from single pwrcfg phandle to pwrcfg
+> > phandle/offset/mask triplet.
+> > 
+> > Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> > ---
+> >  Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt | 10 ++++++----
+> >  1 file changed, 6 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+> > index a66692a..00f8b5d 100644
+> > --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+> > +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+> > @@ -14,8 +14,10 @@ Required properties:
+> >      It is required only on stm32h7.
+> >  - interrupt-parent: phandle for the interrupt controller.
+> >  - interrupts: rtc alarm interrupt.
+> > -- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
+> > -  (RTC registers) write protection.
+> > +- st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
+> > +  access control register at offset, and change the dbp (Disable Backup
+> > +  Protection) bit represented by the mask, mandatory to disable/enable backup
+> > +  domain (RTC registers) write protection.
+> 
+> It's fine to add this, but you are breaking compatibility in the driver 
+> with existing DTBs by requiring these new fields.
+> 
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+I'm fine with that change but I would like confirmation that this has
+been well thought. Maybe Maxime or Alexandre could give their ack.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 32aadcbc377f..0ab0c166da83 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -226,6 +227,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -248,6 +254,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -304,6 +311,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -346,6 +357,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1574,6 +1586,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1639,6 +1652,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
