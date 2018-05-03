@@ -1,75 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:39654 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965379AbeE2Rja (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 May 2018 13:39:30 -0400
-Received: by mail-pg0-f67.google.com with SMTP id w12-v6so5683249pgc.6
-        for <linux-rtc@vger.kernel.org>; Tue, 29 May 2018 10:39:30 -0700 (PDT)
-From: Jagan Teki <jagan@amarulasolutions.com>
-To: Maxime Ripard <maxime.ripard@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-sunxi@googlegroups.com,
-        Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH v3] rtc: sun6i: Fix bit_idx value for clk_register_gate
-Date: Tue, 29 May 2018 23:09:13 +0530
-Message-Id: <20180529173913.12386-1-jagan@amarulasolutions.com>
+Received: from mail.bootlin.com ([62.4.15.54]:38331 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750962AbeECUMg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 3 May 2018 16:12:36 -0400
+Date: Thu, 3 May 2018 22:12:25 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: a.zummo@towertech.it, broonie@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] rtc: sprd: Change to use devm_rtc_allocate_device()
+Message-ID: <20180503201225.GB10960@piout.net>
+References: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <95b85b6d0369b4693e9d4e57af5eac49eee87dc9.1524710929.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Michael Trimarchi <michael@amarulasolutions.com>
+On 26/04/2018 10:58:44+0800, Baolin Wang wrote:
+> This is a preparation patch, changing to use devm_rtc_allocate_device()
+> that can allow driver to set 'range_max' and 'range_min' for the RTC
+> device.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+>  drivers/rtc/rtc-sc27xx.c |   14 ++++++++++----
+>  1 file changed, 10 insertions(+), 4 deletions(-)
+> 
 
-clk-gate core will take bit_idx through clk_register_gate
-and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
-is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
-which is wrong and eventually external gate clock is not enabling.
+Both applied, thanks.
 
-This patch fixed by passing bit index and the original change
-introduced from below commit.
-"rtc: sun6i: Add support for the external oscillator gate"
-(sha1: 17ecd246414b3a0fe0cb248c86977a8bda465b7b)
-
-Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator
-gate")
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
----
-Changes for v3:
-- add fixes tag
-- Cced stable ML
-Changes for v2:
-- add suffix _OFFSET with macro name to distinguish b/w
-  register actual values vs offset.
-
- drivers/rtc/rtc-sun6i.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 2e6fb275acc8..2cd5a7b1a2e3 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -74,7 +74,7 @@
- #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
- 
- #define SUN6I_LOSC_OUT_GATING			0x0060
--#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-+#define SUN6I_LOSC_OUT_GATING_EN_OFFSET		0
- 
- /*
-  * Get date values
-@@ -255,7 +255,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 				      &clkout_name);
- 	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
- 					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
--					  SUN6I_LOSC_OUT_GATING_EN, 0,
-+					  SUN6I_LOSC_OUT_GATING_EN_OFFSET, 0,
- 					  &rtc->lock);
- 	if (IS_ERR(rtc->ext_losc)) {
- 		pr_crit("Couldn't register the LOSC external gate\n");
 -- 
-2.14.3
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
