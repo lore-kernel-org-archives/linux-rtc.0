@@ -1,162 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:58892 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752354AbeEPKdA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:33:00 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id B1E27B00B88
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:32:59 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id DusrCo71Cxua for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 12:32:59 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
-Date: Wed, 16 May 2018 12:32:51 +0200
-Message-Id: <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
-References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754386AbeEHRkr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 8 May 2018 13:40:47 -0400
+MIME-Version: 1.0
+In-Reply-To: <20180508145611.49072-3-giulio.benetti@micronovasrl.com>
+References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com> <20180508145611.49072-3-giulio.benetti@micronovasrl.com>
+From: Rob Herring <robh+dt@kernel.org>
+Date: Tue, 8 May 2018 12:40:25 -0500
+Message-ID: <CAL_JsqKa7AF4x5440aVtCsCcvbTS85o-dRT8+Ka6QB=8zK2NzA@mail.gmail.com>
+Subject: Re: [PATCH 3/4] rtc: ds1307: add calibration of_ for mt41txx chips.
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On m41txx you can enable open-drain OUT pin to check if offset is ok.
-Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-512 times faster than 1s tick base.
+On Tue, May 8, 2018 at 9:56 AM, Giulio Benetti
+<giulio.benetti@micronovasrl.com> wrote:
+> m41txx chips can hold a calibration value to get really near to real
+> tick value.
 
-Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+Typo in the subject.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
-V3 => V4:
-* change attribute from freq_test to frequency_test_enable
-* use regmap_update_bits instead of regmap_write
-V4 => V5:
-* update commit log
+> Add calibration property(ranging between (-31) and 31), so on every probe
+> calibration value will be written to rtc.
+> This is because ic could loose supply due to low battery.
+>
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-ds1307.txt    |  2 ++
 
- drivers/rtc/rtc-ds1307.c | 99 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 99 insertions(+)
+Put all the binding changes in separate patch (or maybe 2: new
+compatible and new properties).
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 2797d01bfa1d..de98ddc39515 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1053,6 +1053,99 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
- 				  ctrl_reg);
- }
- 
-+static ssize_t frequency_test_enable_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned long freq_test = 0;
-+	int retval;
-+
-+	retval = kstrtoul(buf, 10, &freq_test);
-+	if ((retval < 0) || (retval > 1)) {
-+		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-+		return -EINVAL;
-+	}
-+
-+	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-+			   freq_test ? M41TXX_BIT_FT : 0);
-+
-+	return retval ? retval : count;
-+}
-+
-+static ssize_t frequency_test_enable_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	int freq_test_en = 0;
-+	unsigned int ctrl_reg;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	if (ctrl_reg & M41TXX_BIT_FT)
-+		freq_test_en = true;
-+	else
-+		freq_test_en = false;
-+
-+	return sprintf(buf, "%d\n", freq_test_en);
-+}
-+
-+static DEVICE_ATTR_RW(frequency_test_enable);
-+
-+static struct attribute *rtc_freq_test_attrs[] = {
-+	&dev_attr_frequency_test_enable.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group rtc_freq_test_attr_group = {
-+	.attrs		= rtc_freq_test_attrs,
-+};
-+
-+static void rtc_calib_remove_sysfs_group(void *_dev)
-+{
-+	struct device *dev = _dev;
-+
-+	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
-+}
-+
-+static int ds1307_add_frequency_test(struct ds1307 *ds1307)
-+{
-+	int err = 0;
-+
-+	switch (ds1307->type) {
-+	case m41t0:
-+	case m41t00:
-+	case m41t11:
-+		/* Export sysfs entries */
-+		err = sysfs_create_group(&(ds1307->dev)->kobj,
-+					 &rtc_freq_test_attr_group);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to create sysfs group: %d\n",
-+				err);
-+			return err;
-+		}
-+
-+		err = devm_add_action_or_reset(ds1307->dev,
-+					       rtc_calib_remove_sysfs_group,
-+					       ds1307->dev);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to add sysfs cleanup action: %d\n",
-+				err);
-+			sysfs_remove_group(&(ds1307->dev)->kobj,
-+					   &rtc_freq_test_attr_group);
-+			return err;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-@@ -1794,6 +1887,12 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
-+	err = ds1307_add_frequency_test(ds1307);
-+	if (err) {
-+		rtc_device_unregister(ds1307->rtc);
-+		return err;
-+	}
-+
- 	if (chip->nvram_size) {
- 		struct nvmem_config nvmem_cfg = {
- 			.name = "ds1307_nvram",
--- 
-2.17.0
+>  drivers/rtc/rtc-ds1307.c                      | 33 +++++++++++++++++++
+>  2 files changed, 35 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+> index ce6469c1a516..d3d70a5495c5 100644
+> --- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+> +++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+> @@ -34,6 +34,8 @@ Optional properties:
+>  - trickle-diode-disable : ds1339, ds1340 and ds 1388 only
+>         Do not use internal trickle charger diode
+>         Should be given if internal trickle charger diode should be disabled
+> +- calibration: m41t0, m41t00, m41t11 only
+
+Needs a vendor prefix.
+
+Calibration of what and what are the units?
+
+> +       Set calibration value to correct external bias, ranging between (-31) and 31.
+>
+>  Example:
+>         rtc1: ds1339@68 {
