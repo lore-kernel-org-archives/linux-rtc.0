@@ -1,171 +1,112 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48650 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753226AbeEPJrU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:47:20 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 37/42] atm: switch to proc_create_seq_private
-Date: Wed, 16 May 2018 11:43:41 +0200
-Message-Id: <20180516094346.20506-38-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.micronovasrl.com ([212.103.203.10]:38448 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933029AbeEHPCY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:24 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 90715B00AE8
+        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:22 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id ArJHW9oUP89F for <linux-rtc@vger.kernel.org>;
+        Tue,  8 May 2018 16:56:22 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it
+Cc: alexandre.belloni@bootlin.com, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH 3/4] rtc: ds1307: add calibration of_ for mt41txx chips.
+Date: Tue,  8 May 2018 16:56:10 +0200
+Message-Id: <20180508145611.49072-3-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And remove proc boilerplate code.
+m41txx chips can hold a calibration value to get really near to real
+tick value.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Add calibration property(ranging between (-31) and 31), so on every probe
+calibration value will be written to rtc.
+This is because ic could loose supply due to low battery.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- net/atm/proc.c | 72 +++++++++-----------------------------------------
- 1 file changed, 13 insertions(+), 59 deletions(-)
+ .../devicetree/bindings/rtc/rtc-ds1307.txt    |  2 ++
+ drivers/rtc/rtc-ds1307.c                      | 33 +++++++++++++++++++
+ 2 files changed, 35 insertions(+)
 
-diff --git a/net/atm/proc.c b/net/atm/proc.c
-index f272b0f59d82..0b0495a41bbe 100644
---- a/net/atm/proc.c
-+++ b/net/atm/proc.c
-@@ -68,7 +68,6 @@ static void atm_dev_info(struct seq_file *seq, const struct atm_dev *dev)
- struct vcc_state {
- 	int bucket;
- 	struct sock *sk;
--	int family;
- };
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index ce6469c1a516..d3d70a5495c5 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -34,6 +34,8 @@ Optional properties:
+ - trickle-diode-disable : ds1339, ds1340 and ds 1388 only
+ 	Do not use internal trickle charger diode
+ 	Should be given if internal trickle charger diode should be disabled
++- calibration: m41t0, m41t00, m41t11 only
++	Set calibration value to correct external bias, ranging between (-31) and 31.
  
- static inline int compare_family(struct sock *sk, int family)
-@@ -106,23 +105,13 @@ static int __vcc_walk(struct sock **sock, int family, int *bucket, loff_t l)
- 	return (l < 0);
- }
+ Example:
+ 	rtc1: ds1339@68 {
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0ab0c166da83..9cda52589c0f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,12 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
  
--static inline void *vcc_walk(struct vcc_state *state, loff_t l)
-+static inline void *vcc_walk(struct seq_file *seq, loff_t l)
- {
--	return __vcc_walk(&state->sk, state->family, &state->bucket, l) ?
--	       state : NULL;
--}
--
--static int __vcc_seq_open(struct inode *inode, struct file *file,
--	int family, const struct seq_operations *ops)
--{
--	struct vcc_state *state;
--
--	state = __seq_open_private(file, ops, sizeof(*state));
--	if (state == NULL)
--		return -ENOMEM;
-+	struct vcc_state *state = seq->private;
-+	int family = (uintptr_t)(PDE_DATA(file_inode(seq->file)));
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		0x80
++#	define M41TXX_BIT_FT		0x40
++#	define M41TXX_BIT_CALIB_SIGN	0x20
++#	define M41TXX_M_CALIBRATION	0x1f
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -1397,6 +1403,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	unsigned char		regs[8];
+ 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	u8			trickle_charger_setup = 0;
++	s32			calib;
  
--	state->family = family;
--	return 0;
-+	return __vcc_walk(&state->sk, family, &state->bucket, l) ?
-+	       state : NULL;
- }
+ 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
+ 	if (!ds1307)
+@@ -1460,6 +1467,32 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (chip->alarm && of_property_read_bool(client->dev.of_node,
+ 						 "wakeup-source"))
+ 		ds1307_can_wakeup_device = true;
++
++	/* retrieve calibration value if provided */
++	if (!of_property_read_s32(client->dev.of_node, "calibration",
++				 &calib)) {
++		switch (ds1307->type) {
++		case m41t0:
++		case m41t00:
++		case m41t11:
++		{
++			/*
++			 * Set calibration value every power-on since rtc
++			 * could have shut off(low battery)
++			 */
++			u8 out_byte = abs(calib) & M41TXX_M_CALIBRATION;
++
++			if (calib >= 0)
++				out_byte |= M41TXX_BIT_CALIB_SIGN;
++
++			regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,
++					out_byte);
++		}
++			break;
++		default:
++			break;
++		}
++	}
+ #endif
  
- static void *vcc_seq_start(struct seq_file *seq, loff_t *pos)
-@@ -133,7 +122,7 @@ static void *vcc_seq_start(struct seq_file *seq, loff_t *pos)
- 
- 	read_lock(&vcc_sklist_lock);
- 	state->sk = SEQ_START_TOKEN;
--	return left ? vcc_walk(state, left) : SEQ_START_TOKEN;
-+	return left ? vcc_walk(seq, left) : SEQ_START_TOKEN;
- }
- 
- static void vcc_seq_stop(struct seq_file *seq, void *v)
-@@ -144,9 +133,7 @@ static void vcc_seq_stop(struct seq_file *seq, void *v)
- 
- static void *vcc_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	struct vcc_state *state = seq->private;
--
--	v = vcc_walk(state, 1);
-+	v = vcc_walk(seq, 1);
- 	*pos += !!PTR_ERR(v);
- 	return v;
- }
-@@ -280,18 +267,6 @@ static const struct seq_operations pvc_seq_ops = {
- 	.show	= pvc_seq_show,
- };
- 
--static int pvc_seq_open(struct inode *inode, struct file *file)
--{
--	return __vcc_seq_open(inode, file, PF_ATMPVC, &pvc_seq_ops);
--}
--
--static const struct file_operations pvc_seq_fops = {
--	.open		= pvc_seq_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release_private,
--};
--
- static int vcc_seq_show(struct seq_file *seq, void *v)
- {
- 	if (v == SEQ_START_TOKEN) {
-@@ -314,18 +289,6 @@ static const struct seq_operations vcc_seq_ops = {
- 	.show	= vcc_seq_show,
- };
- 
--static int vcc_seq_open(struct inode *inode, struct file *file)
--{
--	return __vcc_seq_open(inode, file, 0, &vcc_seq_ops);
--}
--
--static const struct file_operations vcc_seq_fops = {
--	.open		= vcc_seq_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release_private,
--};
--
- static int svc_seq_show(struct seq_file *seq, void *v)
- {
- 	static const char atm_svc_banner[] =
-@@ -349,18 +312,6 @@ static const struct seq_operations svc_seq_ops = {
- 	.show	= svc_seq_show,
- };
- 
--static int svc_seq_open(struct inode *inode, struct file *file)
--{
--	return __vcc_seq_open(inode, file, PF_ATMSVC, &svc_seq_ops);
--}
--
--static const struct file_operations svc_seq_fops = {
--	.open		= svc_seq_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release_private,
--};
--
- static ssize_t proc_dev_atm_read(struct file *file, char __user *buf,
- 				 size_t count, loff_t *pos)
- {
-@@ -434,9 +385,12 @@ int __init atm_proc_init(void)
- 	if (!atm_proc_root)
- 		return -ENOMEM;
- 	proc_create_seq("devices", 0444, atm_proc_root, &atm_dev_seq_ops);
--	proc_create("pvc", 0444, atm_proc_root, &pvc_seq_fops);
--	proc_create("svc", 0444, atm_proc_root, &svc_seq_fops);
--	proc_create("vc", 0444, atm_proc_root, &vcc_seq_fops);
-+	proc_create_seq_private("pvc", 0444, atm_proc_root, &pvc_seq_ops,
-+			sizeof(struct vcc_state), (void *)(uintptr_t)PF_ATMPVC);
-+	proc_create_seq_private("svc", 0444, atm_proc_root, &svc_seq_ops,
-+			sizeof(struct vcc_state), (void *)(uintptr_t)PF_ATMSVC);
-+	proc_create_seq_private("vc", 0444, atm_proc_root, &vcc_seq_ops,
-+			sizeof(struct vcc_state), NULL);
- 	return 0;
- }
- 
+ 	switch (ds1307->type) {
 -- 
 2.17.0
