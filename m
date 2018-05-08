@@ -1,50 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:38444 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:38442 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933031AbeEHPC1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:27 -0400
+        with ESMTP id S933030AbeEHPCZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:25 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 30064B00B1A
-        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:16 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id A54DFB00BA2
+        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:26 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9x65jSmFLu3X for <linux-rtc@vger.kernel.org>;
-        Tue,  8 May 2018 16:56:15 +0200 (CEST)
+        with ESMTP id CIu5yFNM249F for <linux-rtc@vger.kernel.org>;
+        Tue,  8 May 2018 16:56:25 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
 To: a.zummo@towertech.it
 Cc: alexandre.belloni@bootlin.com, robh+dt@kernel.org,
         mark.rutland@arm.com, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH 1/4] rtc: ds1307: fix data pointer to m41t0
-Date: Tue,  8 May 2018 16:56:08 +0200
-Message-Id: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+Subject: [PATCH 4/4] rtc: ds1307: add frequency-test property to check calibration on m41txx
+Date: Tue,  8 May 2018 16:56:11 +0200
+Message-Id: <20180508145611.49072-4-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-data field points to m41t00, instead it should point to m41t0.
-Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
-are equal.
+On m41txx you can enable open-drain OUT pin to check if calibration is ok.
+Enabling OUT pin with frequency-test bool property, OUT pin will tick
+512 times faster than 1s tick base.
 
-Point to right enum m41t0 instead of m41t00.
+Enable FT bit on CONTROL register if calibration is active.
 
 Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/rtc-ds1307.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 3 +++
+ drivers/rtc/rtc-ds1307.c                             | 4 ++++
+ 2 files changed, 7 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index d3d70a5495c5..72a5f8cdc306 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -36,6 +36,9 @@ Optional properties:
+ 	Should be given if internal trickle charger diode should be disabled
+ - calibration: m41t0, m41t00, m41t11 only
+ 	Set calibration value to correct external bias, ranging between (-31) and 31.
++- frequency-test: m41t0, m41t00, m41t11 only
++	Enable open-drain OUT pin 512 times faster than 1 second tick.
++	This allows to check calibration value.
+ 
+ Example:
+ 	rtc1: ds1339@68 {
 diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a13e59edff53..32aadcbc377f 100644
+index 9cda52589c0f..a727ced157df 100644
 --- a/drivers/rtc/rtc-ds1307.c
 +++ b/drivers/rtc/rtc-ds1307.c
-@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
- 	},
- 	{
- 		.compatible = "st,m41t0",
--		.data = (void *)m41t00
-+		.data = (void *)m41t0
- 	},
- 	{
- 		.compatible = "st,m41t00",
+@@ -1485,6 +1485,10 @@ static int ds1307_probe(struct i2c_client *client,
+ 			if (calib >= 0)
+ 				out_byte |= M41TXX_BIT_CALIB_SIGN;
+ 
++			if (of_property_read_bool(client->dev.of_node,
++					"frequency-test"))
++				out_byte |= M41TXX_BIT_FT;
++
+ 			regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,
+ 					out_byte);
+ 		}
 -- 
 2.17.0
