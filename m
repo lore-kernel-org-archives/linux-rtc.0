@@ -1,145 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:60921 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751292AbeETNhc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 May 2018 09:37:32 -0400
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-        <u.kleine-koenig@pengutronix.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH] rtc: pcf2127: add support for accessing internal static RAM
-Date: Sun, 20 May 2018 15:37:23 +0200
-Message-Id: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:35093 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755222AbeEHPjo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:39:44 -0400
+Date: Tue, 8 May 2018 10:39:41 -0500
+From: Rob Herring <robh@kernel.org>
+To: sean.wang@mediatek.com
+Cc: mark.rutland@arm.com, sre@kernel.org, lee.jones@linaro.org,
+        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
+        matthias.bgg@gmail.com, eddie.huang@mediatek.com,
+        devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 02/17] dt-bindings: rtc: mt6397: add bindings for
+ MediaTek PMIC based RTC
+Message-ID: <20180508153941.GA23906@rob-hp-laptop>
+References: <cover.1524646231.git.sean.wang@mediatek.com>
+ <ae63c2a511e40ab4f6778197a1f15e41505d5682.1524646231.git.sean.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ae63c2a511e40ab4f6778197a1f15e41505d5682.1524646231.git.sean.wang@mediatek.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The PCF2127 has 512 bytes of internal static RAM and this patch expands
-the driver to access this memory.
+On Wed, Apr 25, 2018 at 05:32:28PM +0800, sean.wang@mediatek.com wrote:
+> From: Sean Wang <sean.wang@mediatek.com>
+> 
+> Add device-tree binding for MediaTek PMIC based RTC
+> 
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 29 ++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/rtc/rtc-pcf2127.c | 68 ++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 62 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index e83be1852c2f..9f99a0966550 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -36,6 +36,11 @@
- #define PCF2127_REG_MO          (0x08)
- #define PCF2127_REG_YR          (0x09)
- 
-+/* the pcf2127 has 512 bytes nvmem, pcf2129 doesn't */
-+#define PCF2127_REG_RAM_addr_MSB       0x1a
-+#define PCF2127_REG_RAM_wrt_cmd        0x1c
-+#define PCF2127_REG_RAM_rd_cmd         0x1d
-+
- #define PCF2127_OSF             BIT(7)  /* Oscillator Fail flag */
- 
- struct pcf2127 {
-@@ -183,10 +188,47 @@ static const struct rtc_class_ops pcf2127_rtc_ops = {
- 	.set_time	= pcf2127_rtc_set_time,
- };
- 
-+static int pcf2127_nvmem_read(void *priv, unsigned int offset,
-+			      void *val, size_t bytes)
-+{
-+	struct pcf2127 *pcf2127 = priv;
-+	int ret;
-+	unsigned char offsetbuf[] = { offset >> 8, offset };
-+
-+	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_addr_MSB,
-+				offsetbuf, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_RAM_rd_cmd,
-+			       val, bytes);
-+
-+	return ret ?: bytes;
-+}
-+
-+static int pcf2127_nvmem_write(void *priv, unsigned int offset,
-+			       void *val, size_t bytes)
-+{
-+	struct pcf2127 *pcf2127 = priv;
-+	int ret;
-+	unsigned char offsetbuf[] = { offset >> 8, offset };
-+
-+	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_addr_MSB,
-+				offsetbuf, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_wrt_cmd,
-+				val, bytes);
-+
-+	return ret ?: bytes;
-+}
-+
- static int pcf2127_probe(struct device *dev, struct regmap *regmap,
--			const char *name)
-+			const char *name, bool has_nvmem)
- {
- 	struct pcf2127 *pcf2127;
-+	int ret = 0;
- 
- 	dev_dbg(dev, "%s\n", __func__);
- 
-@@ -200,8 +242,21 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 
- 	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
- 						THIS_MODULE);
-+	if (IS_ERR(pcf2127->rtc))
-+		return PTR_ERR(pcf2127->rtc);
-+
-+	if (has_nvmem) {
-+		struct nvmem_config nvmem_cfg = {
-+			.priv = pcf2127,
-+			.reg_read = pcf2127_nvmem_read,
-+			.reg_write = pcf2127_nvmem_write,
-+			.size = 512,
-+		};
-+
-+		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
-+	}
- 
--	return PTR_ERR_OR_ZERO(pcf2127->rtc);
-+	return ret;
- }
- 
- #ifdef CONFIG_OF
-@@ -309,11 +364,11 @@ static int pcf2127_i2c_probe(struct i2c_client *client,
- 	}
- 
- 	return pcf2127_probe(&client->dev, regmap,
--				pcf2127_i2c_driver.driver.name);
-+			     pcf2127_i2c_driver.driver.name, id->driver_data);
- }
- 
- static const struct i2c_device_id pcf2127_i2c_id[] = {
--	{ "pcf2127", 0 },
-+	{ "pcf2127", 1 },
- 	{ "pcf2129", 0 },
- 	{ }
- };
-@@ -372,11 +427,12 @@ static int pcf2127_spi_probe(struct spi_device *spi)
- 		return PTR_ERR(regmap);
- 	}
- 
--	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name);
-+	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name,
-+			     spi_get_device_id(spi)->driver_data);
- }
- 
- static const struct spi_device_id pcf2127_spi_id[] = {
--	{ "pcf2127", 0 },
-+	{ "pcf2127", 1 },
- 	{ "pcf2129", 0 },
- 	{ }
- };
--- 
-2.1.4
+Reviewed-by: Rob Herring <robh@kernel.org>
