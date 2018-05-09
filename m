@@ -1,300 +1,144 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48100 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752628AbeEPJqU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:20 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 23/42] afs: simplify procfs code
-Date: Wed, 16 May 2018 11:43:27 +0200
-Message-Id: <20180516094346.20506-24-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail-bn3nam01on0112.outbound.protection.outlook.com ([104.47.33.112]:39447
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S934932AbeEIUT3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 9 May 2018 16:19:29 -0400
+From: Trent Piepho <tpiepho@impinj.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "pure.logic@nexus-software.ie" <pure.logic@nexus-software.ie>
+CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "alexandre.belloni@free-electrons.com"
+        <alexandre.belloni@free-electrons.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "fabio.estevam@nxp.com" <fabio.estevam@nxp.com>
+Subject: Re: [PATCH] rtc-snvs: Add timeouts to avoid kernel lockups
+Date: Wed, 9 May 2018 20:19:26 +0000
+Message-ID: <1525897165.31312.111.camel@impinj.com>
+References: <20180316181202.14896-1-tpiepho@impinj.com>
+In-Reply-To: <20180316181202.14896-1-tpiepho@impinj.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/afs/proc.c | 134 ++++++--------------------------------------------
- 1 file changed, 15 insertions(+), 119 deletions(-)
-
-diff --git a/fs/afs/proc.c b/fs/afs/proc.c
-index 839a22280606..3aad32762989 100644
---- a/fs/afs/proc.c
-+++ b/fs/afs/proc.c
-@@ -62,7 +62,6 @@ static const struct file_operations afs_proc_rootcell_fops = {
- 	.llseek		= no_llseek,
- };
- 
--static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file);
- static void *afs_proc_cell_volumes_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- 					loff_t *pos);
-@@ -76,15 +75,6 @@ static const struct seq_operations afs_proc_cell_volumes_ops = {
- 	.show	= afs_proc_cell_volumes_show,
- };
- 
--static const struct file_operations afs_proc_cell_volumes_fops = {
--	.open		= afs_proc_cell_volumes_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static int afs_proc_cell_vlservers_open(struct inode *inode,
--					struct file *file);
- static void *afs_proc_cell_vlservers_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
- 					  loff_t *pos);
-@@ -98,14 +88,6 @@ static const struct seq_operations afs_proc_cell_vlservers_ops = {
- 	.show	= afs_proc_cell_vlservers_show,
- };
- 
--static const struct file_operations afs_proc_cell_vlservers_fops = {
--	.open		= afs_proc_cell_vlservers_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static int afs_proc_servers_open(struct inode *inode, struct file *file);
- static void *afs_proc_servers_start(struct seq_file *p, loff_t *pos);
- static void *afs_proc_servers_next(struct seq_file *p, void *v,
- 					loff_t *pos);
-@@ -119,13 +101,6 @@ static const struct seq_operations afs_proc_servers_ops = {
- 	.show	= afs_proc_servers_show,
- };
- 
--static const struct file_operations afs_proc_servers_fops = {
--	.open		= afs_proc_servers_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int afs_proc_sysname_open(struct inode *inode, struct file *file);
- static int afs_proc_sysname_release(struct inode *inode, struct file *file);
- static void *afs_proc_sysname_start(struct seq_file *p, loff_t *pos);
-@@ -152,7 +127,7 @@ static const struct file_operations afs_proc_sysname_fops = {
- 	.write		= afs_proc_sysname_write,
- };
- 
--static const struct file_operations afs_proc_stats_fops;
-+static int afs_proc_stats_show(struct seq_file *m, void *v);
- 
- /*
-  * initialise the /proc/fs/afs/ directory
-@@ -167,8 +142,8 @@ int afs_proc_init(struct afs_net *net)
- 
- 	if (!proc_create("cells", 0644, net->proc_afs, &afs_proc_cells_fops) ||
- 	    !proc_create("rootcell", 0644, net->proc_afs, &afs_proc_rootcell_fops) ||
--	    !proc_create("servers", 0644, net->proc_afs, &afs_proc_servers_fops) ||
--	    !proc_create("stats", 0644, net->proc_afs, &afs_proc_stats_fops) ||
-+	    !proc_create_seq("servers", 0644, net->proc_afs, &afs_proc_servers_ops) ||
-+	    !proc_create_single("stats", 0644, net->proc_afs, afs_proc_stats_show) ||
- 	    !proc_create("sysname", 0644, net->proc_afs, &afs_proc_sysname_fops))
- 		goto error_tree;
- 
-@@ -196,16 +171,7 @@ void afs_proc_cleanup(struct afs_net *net)
-  */
- static int afs_proc_cells_open(struct inode *inode, struct file *file)
- {
--	struct seq_file *m;
--	int ret;
--
--	ret = seq_open(file, &afs_proc_cells_ops);
--	if (ret < 0)
--		return ret;
--
--	m = file->private_data;
--	m->private = PDE_DATA(inode);
--	return 0;
-+	return seq_open(file, &afs_proc_cells_ops);
- }
- 
- /*
-@@ -430,10 +396,11 @@ int afs_proc_cell_setup(struct afs_net *net, struct afs_cell *cell)
- 	if (!dir)
- 		goto error_dir;
- 
--	if (!proc_create_data("vlservers", 0, dir,
--			      &afs_proc_cell_vlservers_fops, cell) ||
--	    !proc_create_data("volumes", 0, dir,
--			      &afs_proc_cell_volumes_fops, cell))
-+	if (!proc_create_seq_data("vlservers", 0, dir,
-+			&afs_proc_cell_vlservers_ops, cell))
-+		goto error_tree;
-+	if (!proc_create_seq_data("volumes", 0, dir, &afs_proc_cell_volumes_ops,
-+			cell))
- 		goto error_tree;
- 
- 	_leave(" = 0");
-@@ -458,29 +425,6 @@ void afs_proc_cell_remove(struct afs_net *net, struct afs_cell *cell)
- 	_leave("");
- }
- 
--/*
-- * open "/proc/fs/afs/<cell>/volumes" which provides a summary of extant cells
-- */
--static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
--{
--	struct afs_cell *cell;
--	struct seq_file *m;
--	int ret;
--
--	cell = PDE_DATA(inode);
--	if (!cell)
--		return -ENOENT;
--
--	ret = seq_open(file, &afs_proc_cell_volumes_ops);
--	if (ret < 0)
--		return ret;
--
--	m = file->private_data;
--	m->private = cell;
--
--	return 0;
--}
--
- /*
-  * set up the iterator to start reading from the cells list and return the
-  * first item
-@@ -488,7 +432,7 @@ static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
- static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
- 	__acquires(cell->proc_lock)
- {
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 
- 	_enter("cell=%p pos=%Ld", cell, *_pos);
- 
-@@ -502,7 +446,7 @@ static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
- static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- 					loff_t *_pos)
- {
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 
- 	_enter("cell=%p pos=%Ld", cell, *_pos);
- 	return seq_list_next(v, &cell->proc_volumes, _pos);
-@@ -514,7 +458,7 @@ static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
- static void afs_proc_cell_volumes_stop(struct seq_file *p, void *v)
- 	__releases(cell->proc_lock)
- {
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 
- 	read_unlock(&cell->proc_lock);
- }
-@@ -530,7 +474,7 @@ static const char afs_vol_types[3][3] = {
-  */
- static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
- {
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 	struct afs_volume *vol = list_entry(v, struct afs_volume, proc_link);
- 
- 	/* Display header on line 1 */
-@@ -546,30 +490,6 @@ static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--/*
-- * open "/proc/fs/afs/<cell>/vlservers" which provides a list of volume
-- * location server
-- */
--static int afs_proc_cell_vlservers_open(struct inode *inode, struct file *file)
--{
--	struct afs_cell *cell;
--	struct seq_file *m;
--	int ret;
--
--	cell = PDE_DATA(inode);
--	if (!cell)
--		return -ENOENT;
--
--	ret = seq_open(file, &afs_proc_cell_vlservers_ops);
--	if (ret<0)
--		return ret;
--
--	m = file->private_data;
--	m->private = cell;
--
--	return 0;
--}
--
- /*
-  * set up the iterator to start reading from the cells list and return the
-  * first item
-@@ -578,7 +498,7 @@ static void *afs_proc_cell_vlservers_start(struct seq_file *m, loff_t *_pos)
- 	__acquires(rcu)
- {
- 	struct afs_addr_list *alist;
--	struct afs_cell *cell = m->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
- 	loff_t pos = *_pos;
- 
- 	rcu_read_lock();
-@@ -603,7 +523,7 @@ static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
- 					  loff_t *_pos)
- {
- 	struct afs_addr_list *alist;
--	struct afs_cell *cell = p->private;
-+	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
- 	loff_t pos;
- 
- 	alist = rcu_dereference(cell->vl_addrs);
-@@ -643,15 +563,6 @@ static int afs_proc_cell_vlservers_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--/*
-- * open "/proc/fs/afs/servers" which provides a summary of active
-- * servers
-- */
--static int afs_proc_servers_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &afs_proc_servers_ops);
--}
--
- /*
-  * Set up the iterator to start reading from the server list and return the
-  * first item.
-@@ -931,18 +842,3 @@ static int afs_proc_stats_show(struct seq_file *m, void *v)
- 		   atomic_long_read(&net->n_store_bytes));
- 	return 0;
- }
--
--/*
-- * Open "/proc/fs/afs/stats" to allow reading of the stat counters.
-- */
--static int afs_proc_stats_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, afs_proc_stats_show, NULL);
--}
--
--static const struct file_operations afs_proc_stats_fops = {
--	.open		= afs_proc_stats_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release        = single_release,
--};
--- 
-2.17.0
+QnVtcC4NCg0KQmVlbiB3aGlsZSwgbm8gcmVzcG9uc2UuDQoNCkFub3RoZXIgcGF0Y2ggZnJvbSBC
+cnlhbiBPJ0Rvbm9naHVlIHdlbnQgaW4gdG8gZml4IGEgcmVsYXRlZCBpc3N1ZSwgYnV0DQpJIGJl
+bGlldmUgdGhpcyBwYXRjaCBzdGlsbCBmaXhlcyBhbm90aGVyIGJ1Zy4NCg0KDQpPbiBGcmksIDIw
+MTgtMDMtMTYgYXQgMTE6MTIgLTA3MDAsIFRyZW50IFBpZXBobyB3cm90ZToNCj4gSW4gb3JkZXIg
+dG8gcmVhZCBjb3JyZWN0bHkgZnJvbSBhc3luY2hyb25vdXNseSB1cGRhdGVkIFJUQyByZWdpc3Rl
+cnMsIGl0J3MNCj4gbmVjZXNzYXJ5IHRvIHJlYWQgcmVwZWF0ZWRseSB1bnRpbCB0aGVpciB2YWx1
+ZXMgZG8gbm90IGNoYW5nZSBmcm9tIHJlYWQgdG8NCj4gcmVhZC4gIFRoZXJlIGlzIG5vIHRpbWVv
+dXQgaW4gdGhpcyBjb2RlIGFuZCBpdCBjb3VsZCBwb3NzaWJseSBsb29wDQo+IGZvcmV2ZXIuDQo+
+IA0KPiBJdCdzIGFsc28gbmVjZXNzYXJ5IHRvIHdhaXQgZm9yIHRocmVlIFJUQyBjbG9jayB0aWNr
+cyBmb3IgY2VydGFpbg0KPiBvcGVyYXRpb25zIHRvIHRha2UgZWZmZWN0IGFuZCB0aGUgZHJpdmVy
+IG1pZ2h0IHdhaXQgZm9yZXZlciBmb3IgdGhpcyB0bw0KPiBoYXBwZW4uDQo+IA0KPiBUbyBhdm9p
+ZCBrZXJuZWwgaGFuZ3MsIHB1dCBpbiB0aW1lb3V0cy4NCj4gDQo+IFRoZXNlIGhhbmdzIHdpbGwg
+aGFwcGVuIHdoZW4gcnVubmluZyB1bmRlciBxZW11LCB3aGljaCBkb2Vzbid0IGVtdWxhdGUgdGhl
+DQo+IFNOVlMgUlRDLiAgSXQgY291bGQgYWxzbyBoYXBwZW4gaWYgdGhlIFJUQyBibG9jayB3aGVy
+ZSBzb21laG93IHBsYWNlZCBpbnRvDQo+IHJlc2V0IG9yIHRoZSBzbG93IHNwZWVkIGNsb2NrIHRo
+YXQgZHJpdmVzIHRoZSBSVEMgY291bnRlciAoYnV0IG5vdCB0aGUNCj4gQ1BVKSB3ZXJlIHRvIHN0
+b3AuDQo+IA0KPiBUaGUgc3ltcHRvbXMgYXJlIGEgd29yayBxdWV1ZSBoYW5nIG9uIHJ0Y190aW1l
+cl9kb193b3JrKCksIHdoaWNoDQo+IGV2ZW50dWFsbHkgYmxvY2tzIGEgc3lzdGVtZCBmc25vdGlm
+eSBvcGVyYXRpb24gdGhhdCB0cmlnZ2VycyBhIHdvcmsgcXVldWUNCj4gZmx1c2gsIGNhdXNpbmcg
+c3lzdGVtZCB0byBoYW5nIGFuZCB0aHVzIGNhdXNpbmcgYWxsIHNlcnZpY2VzIHRoYXQgc2hvdWxk
+DQo+IGJlIHN0YXJ0ZWQgYnkgc3lzdGVtZCwgbGlrZSBhIGNvbnNvbGUgZ2V0dHksIHRvIGZhaWwg
+dG8gc3RhcnQgb3Igc3RvcC4NCj4gDQo+IEFsc28gb3B0aW1pemUgdGhlIHdhaXQgY29kZSB0byB3
+YWl0IGxlc3MuICBJdCBvbmx5IG5lZWRzIHRvIHdhaXQgZm9yIHRoZQ0KPiBjbG9jayB0byBhZHZh
+bmNlIHRocmVlIHRpY2tzLCBub3QgdG8gc2VlIGl0IGNoYW5nZSB0aHJlZSB0aW1lcy4NCj4gDQo+
+IFNpZ25lZC1vZmYtYnk6IFRyZW50IFBpZXBobyA8dHBpZXBob0BpbXBpbmouY29tPg0KPiBDYzog
+QWxlc3NhbmRybyBadW1tbyA8YS56dW1tb0B0b3dlcnRlY2guaXQ+DQo+IENjOiBBbGV4YW5kcmUg
+QmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAZnJlZS1lbGVjdHJvbnMuY29tPg0KPiBDYzogbGlu
+dXgtcnRjQHZnZXIua2VybmVsLm9yZw0KPiBDYzogU2hhd24gR3VvIDxzaGF3bmd1b0BrZXJuZWwu
+b3JnPg0KPiBDYzogU2FzY2hhIEhhdWVyIDxrZXJuZWxAcGVuZ3V0cm9uaXguZGU+DQo+IENjOiBG
+YWJpbyBFc3RldmFtIDxmYWJpby5lc3RldmFtQG54cC5jb20+DQo+IA0KPiAtLS0NCj4gIGRyaXZl
+cnMvcnRjL3J0Yy1zbnZzLmMgfCAxMDUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKyst
+LS0tLS0tLS0tLS0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDcwIGluc2VydGlvbnMoKyksIDM1
+IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1zbnZzLmMg
+Yi9kcml2ZXJzL3J0Yy9ydGMtc252cy5jDQo+IGluZGV4IGQ4ZWY5ZTA1MmM0Zi4uMGU3NTY0Yjlk
+NmYyIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3J0Yy9ydGMtc252cy5jDQo+ICsrKyBiL2RyaXZl
+cnMvcnRjL3J0Yy1zbnZzLmMNCj4gQEAgLTQ3LDQ5ICs0Nyw4MyBAQCBzdHJ1Y3Qgc252c19ydGNf
+ZGF0YSB7DQo+ICAJc3RydWN0IGNsayAqY2xrOw0KPiAgfTsNCj4gIA0KPiArLyogUmVhZCA2NCBi
+aXQgdGltZXIgcmVnaXN0ZXIsIHdoaWNoIGNvdWxkIGJlIGluIGluY29uc2lzdGVudCBzdGF0ZSAq
+Lw0KPiArc3RhdGljIHU2NCBydGNfcmVhZF9scHNydChzdHJ1Y3Qgc252c19ydGNfZGF0YSAqZGF0
+YSkNCj4gK3sNCj4gKwl1MzIgbXNiLCBsc2I7DQo+ICsNCj4gKwlyZWdtYXBfcmVhZChkYXRhLT5y
+ZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTVIsICZtc2IpOw0KPiArCXJlZ21hcF9y
+ZWFkKGRhdGEtPnJlZ21hcCwgZGF0YS0+b2Zmc2V0ICsgU05WU19MUFNSVENMUiwgJmxzYik7DQo+
+ICsJcmV0dXJuICh1NjQpbXNiIDw8IDMyIHwgbHNiOw0KPiArfQ0KPiArDQo+ICsvKiBSZWFkIHRo
+ZSBzZWN1cmUgcmVhbCB0aW1lIGNvdW50ZXIsIHRha2luZyBjYXJlIHRvIGRlYWwgd2l0aCB0aGUg
+Y2FzZXMgb2YgdGhlDQo+ICsgKiBjb3VudGVyIHVwZGF0aW5nIHdoaWxlIGJlaW5nIHJlYWQuDQo+
+ICsgKi8NCj4gIHN0YXRpYyB1MzIgcnRjX3JlYWRfbHBfY291bnRlcihzdHJ1Y3Qgc252c19ydGNf
+ZGF0YSAqZGF0YSkNCj4gIHsNCj4gIAl1NjQgcmVhZDEsIHJlYWQyOw0KPiAtCXUzMiB2YWw7DQo+
+ICsJdW5zaWduZWQgaW50IHRpbWVvdXQgPSAxMDA7DQo+ICANCj4gKwkvKiBBcyBleHBlY3RlZCwg
+dGhlIHJlZ2lzdGVycyBtaWdodCB1cGRhdGUgYmV0d2VlbiB0aGUgcmVhZCBvZiB0aGUgTFNCDQo+
+ICsJICogcmVnIGFuZCB0aGUgTVNCIHJlZy4gIEl0J3MgYWxzbyBwb3NzaWJsZSB0aGF0IG9uZSBy
+ZWdpc3RlciBtaWdodCBiZQ0KPiArCSAqIGluIHBhcnRpYWxseSBtb2RpZmllZCBzdGF0ZSBhcyB3
+ZWxsLg0KPiArCSAqLw0KPiArCXJlYWQxID0gcnRjX3JlYWRfbHBzcnQoZGF0YSk7DQo+ICAJZG8g
+ew0KPiAtCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBT
+UlRDTVIsICZ2YWwpOw0KPiAtCQlyZWFkMSA9IHZhbDsNCj4gLQkJcmVhZDEgPDw9IDMyOw0KPiAt
+CQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTFIs
+ICZ2YWwpOw0KPiAtCQlyZWFkMSB8PSB2YWw7DQo+IC0NCj4gLQkJcmVnbWFwX3JlYWQoZGF0YS0+
+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ01SLCAmdmFsKTsNCj4gLQkJcmVhZDIg
+PSB2YWw7DQo+IC0JCXJlYWQyIDw8PSAzMjsNCj4gLQkJcmVnbWFwX3JlYWQoZGF0YS0+cmVnbWFw
+LCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmdmFsKTsNCj4gLQkJcmVhZDIgfD0gdmFs
+Ow0KPiAtCX0gd2hpbGUgKHJlYWQxICE9IHJlYWQyKTsNCj4gKwkJcmVhZDIgPSByZWFkMTsNCj4g
+KwkJcmVhZDEgPSBydGNfcmVhZF9scHNydChkYXRhKTsNCj4gKwl9IHdoaWxlIChyZWFkMSAhPSBy
+ZWFkMiAmJiAtLXRpbWVvdXQpOw0KPiArCWlmICghdGltZW91dCkNCj4gKwkJZGV2X2VycigmZGF0
+YS0+cnRjLT5kZXYsICJUaW1lb3V0IHRyeWluZyB0byBnZXQgdmFsaWQgTFBTUlQgQ291bnRlciBy
+ZWFkXG4iKTsNCj4gIA0KPiAgCS8qIENvbnZlcnQgNDctYml0IGNvdW50ZXIgdG8gMzItYml0IHJh
+dyBzZWNvbmQgY291bnQgKi8NCj4gIAlyZXR1cm4gKHUzMikgKHJlYWQxID4+IENOVFJfVE9fU0VD
+U19TSCk7DQo+ICB9DQo+ICANCj4gLXN0YXRpYyB2b2lkIHJ0Y193cml0ZV9zeW5jX2xwKHN0cnVj
+dCBzbnZzX3J0Y19kYXRhICpkYXRhKQ0KPiArLyogSnVzdCByZWFkIHRoZSBsc2IgZnJvbSB0aGUg
+Y291bnRlciwgZGVhbGluZyB3aXRoIGluY29uc2lzdGVudCBzdGF0ZSAqLw0KPiArc3RhdGljIGlu
+dCBydGNfcmVhZF9scF9jb3VudGVyX2xzYihzdHJ1Y3Qgc252c19ydGNfZGF0YSAqZGF0YSwgdTMy
+ICpsc2IpDQo+ICB7DQo+IC0JdTMyIGNvdW50MSwgY291bnQyLCBjb3VudDM7DQo+IC0JaW50IGk7
+DQo+IC0NCj4gLQkvKiBXYWl0IGZvciAzIENLSUwgY3ljbGVzICovDQo+IC0JZm9yIChpID0gMDsg
+aSA8IDM7IGkrKykgew0KPiAtCQlkbyB7DQo+IC0JCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAs
+IGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTFIsICZjb3VudDEpOw0KPiAtCQkJcmVnbWFwX3Jl
+YWQoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291bnQyKTsN
+Cj4gLQkJfSB3aGlsZSAoY291bnQxICE9IGNvdW50Mik7DQo+IC0NCj4gLQkJLyogTm93IHdhaXQg
+dW50aWwgY291bnRlciB2YWx1ZSBjaGFuZ2VzICovDQo+IC0JCWRvIHsNCj4gLQkJCWRvIHsNCj4g
+LQkJCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRD
+TFIsICZjb3VudDIpOw0KPiAtCQkJCXJlZ21hcF9yZWFkKGRhdGEtPnJlZ21hcCwgZGF0YS0+b2Zm
+c2V0ICsgU05WU19MUFNSVENMUiwgJmNvdW50Myk7DQo+IC0JCQl9IHdoaWxlIChjb3VudDIgIT0g
+Y291bnQzKTsNCj4gLQkJfSB3aGlsZSAoY291bnQzID09IGNvdW50MSk7DQo+ICsJdTMyIGNvdW50
+MSwgY291bnQyOw0KPiArCXVuc2lnbmVkIGludCB0aW1lb3V0ID0gMTAwOw0KPiArDQo+ICsJcmVn
+bWFwX3JlYWQoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291
+bnQxKTsNCj4gKwlkbyB7DQo+ICsJCWNvdW50MiA9IGNvdW50MTsNCj4gKwkJcmVnbWFwX3JlYWQo
+ZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291bnQxKTsNCj4g
+Kwl9IHdoaWxlIChjb3VudDEgIT0gY291bnQyICYmIC0tdGltZW91dCk7DQo+ICsJaWYgKCF0aW1l
+b3V0KSB7DQo+ICsJCWRldl9lcnIoJmRhdGEtPnJ0Yy0+ZGV2LCAiVGltZW91dCB0cnlpbmcgdG8g
+Z2V0IHZhbGlkIExQU1JUIENvdW50ZXIgcmVhZFxuIik7DQo+ICsJCXJldHVybiAtRVRJTUVET1VU
+Ow0KPiAgCX0NCj4gKw0KPiArCSpsc2IgPSBjb3VudDE7DQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+
+ICsNCj4gK3N0YXRpYyBpbnQgcnRjX3dyaXRlX3N5bmNfbHAoc3RydWN0IHNudnNfcnRjX2RhdGEg
+KmRhdGEpDQo+ICt7DQo+ICsJdTMyIGNvdW50MSwgY291bnQyOw0KPiArCXUzMiBlbGFwc2VkOw0K
+PiArCXVuc2lnbmVkIGludCB0aW1lb3V0ID0gMTAwMDsNCj4gKwlpbnQgcmV0Ow0KPiArDQo+ICsJ
+cmV0ID0gcnRjX3JlYWRfbHBfY291bnRlcl9sc2IoZGF0YSwgJmNvdW50MSk7DQo+ICsJaWYgKHJl
+dCkNCj4gKwkJcmV0dXJuIHJldDsNCj4gKw0KPiArCS8qIFdhaXQgZm9yIDMgQ0tJTCBjeWNsZXMs
+IGFib3V0IDYxLjAtOTEuNSDCtXMgKi8NCj4gKwlkbyB7DQo+ICsJCXJldCA9IHJ0Y19yZWFkX2xw
+X2NvdW50ZXJfbHNiKGRhdGEsICZjb3VudDIpOw0KPiArCQlpZiAocmV0KQ0KPiArCQkJcmV0dXJu
+IHJldDsNCj4gKwkJZWxhcHNlZCA9IGNvdW50MiAtIGNvdW50MTsgLyogd3JhcCBhcm91bmQgX2lz
+XyBoYW5kbGVkISAqLw0KPiArCX0gd2hpbGUgKGVsYXBzZWQgPCAzICYmIC0tdGltZW91dCk7DQo+
+ICsJaWYgKCF0aW1lb3V0KSB7DQo+ICsJCWRldl9lcnIoJmRhdGEtPnJ0Yy0+ZGV2LCAiVGltZW91
+dCB3YWl0aW5nIGZvciBMUFNSVCBDb3VudGVyIHRvIGNoYW5nZVxuIik7DQo+ICsJCXJldHVybiAt
+RVRJTUVET1VUOw0KPiArCX0NCj4gKwlyZXR1cm4gMDsNCj4gIH0NCj4gIA0KPiAgc3RhdGljIGlu
+dCBzbnZzX3J0Y19lbmFibGUoc3RydWN0IHNudnNfcnRjX2RhdGEgKmRhdGEsIGJvb2wgZW5hYmxl
+KQ0KPiBAQCAtMTcwLDkgKzIwNCw3IEBAIHN0YXRpYyBpbnQgc252c19ydGNfYWxhcm1faXJxX2Vu
+YWJsZShzdHJ1Y3QgZGV2aWNlICpkZXYsIHVuc2lnbmVkIGludCBlbmFibGUpDQo+ICAJCQkgICAo
+U05WU19MUENSX0xQVEFfRU4gfCBTTlZTX0xQQ1JfTFBXVUlfRU4pLA0KPiAgCQkJICAgZW5hYmxl
+ID8gKFNOVlNfTFBDUl9MUFRBX0VOIHwgU05WU19MUENSX0xQV1VJX0VOKSA6IDApOw0KPiAgDQo+
+IC0JcnRjX3dyaXRlX3N5bmNfbHAoZGF0YSk7DQo+IC0NCj4gLQlyZXR1cm4gMDsNCj4gKwlyZXR1
+cm4gcnRjX3dyaXRlX3N5bmNfbHAoZGF0YSk7DQo+ICB9DQo+ICANCj4gIHN0YXRpYyBpbnQgc252
+c19ydGNfc2V0X2FsYXJtKHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IHJ0Y193a2Fscm0gKmFs
+cm0pDQo+IEBAIC0xODAsMTEgKzIxMiwxNCBAQCBzdGF0aWMgaW50IHNudnNfcnRjX3NldF9hbGFy
+bShzdHJ1Y3QgZGV2aWNlICpkZXYsIHN0cnVjdCBydGNfd2thbHJtICphbHJtKQ0KPiAgCXN0cnVj
+dCBzbnZzX3J0Y19kYXRhICpkYXRhID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQo+ICAJc3RydWN0
+IHJ0Y190aW1lICphbHJtX3RtID0gJmFscm0tPnRpbWU7DQo+ICAJdW5zaWduZWQgbG9uZyB0aW1l
+Ow0KPiArCWludCByZXQ7DQo+ICANCj4gIAlydGNfdG1fdG9fdGltZShhbHJtX3RtLCAmdGltZSk7
+DQo+ICANCj4gIAlyZWdtYXBfdXBkYXRlX2JpdHMoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQg
+KyBTTlZTX0xQQ1IsIFNOVlNfTFBDUl9MUFRBX0VOLCAwKTsNCj4gLQlydGNfd3JpdGVfc3luY19s
+cChkYXRhKTsNCj4gKwlyZXQgPSBydGNfd3JpdGVfc3luY19scChkYXRhKTsNCj4gKwlpZiAocmV0
+KQ0KPiArCQlyZXR1cm4gcmV0Ow0KPiAgCXJlZ21hcF93cml0ZShkYXRhLT5yZWdtYXAsIGRhdGEt
+Pm9mZnNldCArIFNOVlNfTFBUQVIsIHRpbWUpOw0KPiAgDQo+ICAJLyogQ2xlYXIgYWxhcm0gaW50
+ZXJydXB0IHN0YXR1cyBiaXQgKi8=
