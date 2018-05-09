@@ -1,82 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:46826 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751402AbeEPJoV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:21 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 01/42] net/can: single_open_net needs to be paired with single_release_net
-Date: Wed, 16 May 2018 11:43:05 +0200
-Message-Id: <20180516094346.20506-2-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.micronovasrl.com ([212.103.203.10]:59514 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935425AbeEIS2S (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:18 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 336D5B00AE8
+        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:17 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Dt8pgSMbCxds for <linux-rtc@vger.kernel.org>;
+        Wed,  9 May 2018 20:28:15 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v2 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed,  9 May 2018 20:28:09 +0200
+Message-Id: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Otherwise we will leak a reference to the network namespace.
+data field points to m41t00, instead it should point to m41t0.
+Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+are equal.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Point to right enum m41t0 instead of m41t00.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- net/can/bcm.c  | 2 +-
- net/can/proc.c | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index ac5e5e34fee3..8073fa14e143 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -249,7 +249,7 @@ static const struct file_operations bcm_proc_fops = {
- 	.open		= bcm_proc_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
--	.release	= single_release,
-+	.release	= single_release_net,
- };
- #endif /* CONFIG_PROC_FS */
- 
-diff --git a/net/can/proc.c b/net/can/proc.c
-index fdf704e9bb8c..fde2fd55b826 100644
---- a/net/can/proc.c
-+++ b/net/can/proc.c
-@@ -279,7 +279,7 @@ static const struct file_operations can_stats_proc_fops = {
- 	.open		= can_stats_proc_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
--	.release	= single_release,
-+	.release	= single_release_net,
- };
- 
- static int can_reset_stats_proc_show(struct seq_file *m, void *v)
-@@ -449,7 +449,7 @@ static const struct file_operations can_rcvlist_sff_proc_fops = {
- 	.open		= can_rcvlist_sff_proc_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
--	.release	= single_release,
-+	.release	= single_release_net,
- };
- 
- 
-@@ -492,7 +492,7 @@ static const struct file_operations can_rcvlist_eff_proc_fops = {
- 	.open		= can_rcvlist_eff_proc_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
--	.release	= single_release,
-+	.release	= single_release_net,
- };
- 
- /*
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59edff53..32aadcbc377f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
++		.data = (void *)m41t0
+ 	},
+ 	{
+ 		.compatible = "st,m41t00",
 -- 
 2.17.0
