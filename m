@@ -1,58 +1,118 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38893 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751788AbeEQU0g (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:26:36 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/3] rtc: tps65910: allow platform power up
-Date: Thu, 17 May 2018 22:26:22 +0200
-Message-Id: <20180517202623.23497-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517202623.23497-1-alexandre.belloni@bootlin.com>
-References: <20180517202623.23497-1-alexandre.belloni@bootlin.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:59526 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935454AbeEIS2S (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:18 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 5FAADB00ADE
+        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:17 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 5XCsqs9FAuWO for <linux-rtc@vger.kernel.org>;
+        Wed,  9 May 2018 20:28:16 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v2 2/4] rtc: ds1307: support m41t11 variant
+Date: Wed,  9 May 2018 20:28:10 +0200
+Message-Id: <20180509182812.17646-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
+References: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Currently, the IRQs are disabled when the rtc driver is removed (e.g. when
-shutting down the platform).
-This means that the RTC will be unable to power up the platform.
+The m41t11 variant is very similar to the already supported m41t00 and
+m41t0, but it has also 56 bytes of NVRAM.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Add it to driver taking into account NVRAM section.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/rtc-tps65910.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
+ drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-index a56b526db89a..819d2d0957b4 100644
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -436,17 +436,6 @@ static int tps65910_rtc_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--/*
-- * Disable tps65910 RTC interrupts.
-- * Sets status flag to free.
-- */
--static int tps65910_rtc_remove(struct platform_device *pdev)
--{
--	tps65910_rtc_alarm_irq_enable(&pdev->dev, 0);
--
--	return 0;
--}
--
- #ifdef CONFIG_PM_SLEEP
- static int tps65910_rtc_suspend(struct device *dev)
- {
-@@ -472,7 +461,6 @@ static SIMPLE_DEV_PM_OPS(tps65910_rtc_pm_ops, tps65910_rtc_suspend,
- 
- static struct platform_driver tps65910_rtc_driver = {
- 	.probe		= tps65910_rtc_probe,
--	.remove		= tps65910_rtc_remove,
- 	.driver		= {
- 		.name	= "tps65910-rtc",
- 		.pm	= &tps65910_rtc_pm_ops,
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index d28d6e7f6ae8..ce6469c1a516 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"maxim,ds3231",
+ 	"st,m41t0",
+ 	"st,m41t00",
++	"st,m41t11",
+ 	"microchip,mcp7940x",
+ 	"microchip,mcp7941x",
+ 	"pericom,pt7c4338",
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 32aadcbc377f..0ab0c166da83 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -44,6 +44,7 @@ enum ds_type {
+ 	ds_3231,
+ 	m41t0,
+ 	m41t00,
++	m41t11,
+ 	mcp794xx,
+ 	rx_8025,
+ 	rx_8130,
+@@ -226,6 +227,11 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t11] = {
++		/* this is battery backed SRAM */
++		.nvram_offset	= 8,
++		.nvram_size	= 56,
++	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+@@ -248,6 +254,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "ds3231", ds_3231 },
+ 	{ "m41t0", m41t0 },
+ 	{ "m41t00", m41t00 },
++	{ "m41t11", m41t11 },
+ 	{ "mcp7940x", mcp794xx },
+ 	{ "mcp7941x", mcp794xx },
+ 	{ "pt7c4338", ds_1307 },
+@@ -304,6 +311,10 @@ static const struct of_device_id ds1307_of_match[] = {
+ 		.compatible = "st,m41t00",
+ 		.data = (void *)m41t00
+ 	},
++	{
++		.compatible = "st,m41t11",
++		.data = (void *)m41t11
++	},
+ 	{
+ 		.compatible = "microchip,mcp7940x",
+ 		.data = (void *)mcp794xx
+@@ -346,6 +357,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
+ 	{ .id = "DS3231", .driver_data = ds_3231 },
+ 	{ .id = "M41T0", .driver_data = m41t0 },
+ 	{ .id = "M41T00", .driver_data = m41t00 },
++	{ .id = "M41T11", .driver_data = m41t11 },
+ 	{ .id = "MCP7940X", .driver_data = mcp794xx },
+ 	{ .id = "MCP7941X", .driver_data = mcp794xx },
+ 	{ .id = "PT7C4338", .driver_data = ds_1307 },
+@@ -1574,6 +1586,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1307:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/* clock halted?  turn it on, so clock can tick. */
+ 		if (tmp & DS1307_BIT_CH) {
+ 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+@@ -1639,6 +1652,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1340:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/*
+ 		 * NOTE: ignores century bits; fix before deploying
+ 		 * systems that will run through year 2100.
 -- 
 2.17.0
