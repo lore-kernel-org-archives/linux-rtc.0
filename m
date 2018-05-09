@@ -1,161 +1,261 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:33680 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964956AbeEITeE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 15:34:04 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 9E540B00AE1
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 21:34:02 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id T1Jbm8YyGo9j for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 21:34:01 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v3 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed,  9 May 2018 21:33:54 +0200
-Message-Id: <20180509193355.49466-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180509193355.49466-1-giulio.benetti@micronovasrl.com>
-References: <20180509193355.49466-1-giulio.benetti@micronovasrl.com>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:37247 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S965087AbeEIPqp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 11:46:45 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH v2 3/3] rtc: stm32: add stm32mp1 rtc support
+Date: Wed, 9 May 2018 17:46:10 +0200
+Message-ID: <1525880770-22263-4-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
+References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
-If positive offset is passed, it means adding 512 cycles(@32.768Hz)
-every tick(1s).
-If negative offset is passed, it means subtracting 256 cycles(@32.768Hz)
-every tick(1s).
+This patch adds support for stm32mp1 RTC.
+Some common registers with previous RTC version have a different offset.
+It is the case for Control Register (CR) and ALaRMA Register (ALRMAR).
+There are also new registers regarding event flags: now, Alarm event flag
+is in Status Register (SR) and write 1 in Status Clear Register (SCR) is
+required to clear the event.
 
-Add offset handling (ranging between (-31) and 31) via sysfs.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- drivers/rtc/rtc-ds1307.c | 70 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/rtc/rtc-stm32.c | 88 +++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 81 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0ab0c166da83..33895668b363 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,16 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 52ee027..45e0175 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -11,6 +11,7 @@
+ #include <linux/mfd/syscon.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
+@@ -39,7 +40,7 @@
+ #define STM32_RTC_CR_ALRAE		BIT(8)
+ #define STM32_RTC_CR_ALRAIE		BIT(12)
+ 
+-/* STM32_RTC_ISR bit fields */
++/* STM32_RTC_ISR/STM32_RTC_ICSR bit fields */
+ #define STM32_RTC_ISR_ALRAWF		BIT(0)
+ #define STM32_RTC_ISR_INITS		BIT(4)
+ #define STM32_RTC_ISR_RSF		BIT(5)
+@@ -71,11 +72,22 @@
+ #define STM32_RTC_ALRMXR_WDAY		GENMASK(27, 24)
+ #define STM32_RTC_ALRMXR_DATE_MASK	BIT(31)
+ 
++/* STM32_RTC_SR/_SCR bit fields */
++#define STM32_RTC_SR_ALRA		BIT(0)
 +
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	(-31)
-+#define M41TXX_MAX_OFFSET	(31)
++/* STM32_RTC_VERR bit fields */
++#define STM32_RTC_VERR_MINREV_SHIFT	0
++#define STM32_RTC_VERR_MINREV		GENMASK(3, 0)
++#define STM32_RTC_VERR_MAJREV_SHIFT	4
++#define STM32_RTC_VERR_MAJREV		GENMASK(7, 4)
 +
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +156,9 @@ struct chip_desc {
+ /* STM32_RTC_WPR key constants */
+ #define RTC_WPR_1ST_KEY			0xCA
+ #define RTC_WPR_2ND_KEY			0x53
+ #define RTC_WPR_WRONG_KEY		0xFF
  
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +168,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
++#define UNDEF_REG ~0
++
+ struct stm32_rtc;
  
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +187,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+ struct stm32_rtc_registers {
+@@ -86,6 +98,9 @@ struct stm32_rtc_registers {
+ 	u8 prer;
+ 	u8 alrmar;
+ 	u8 wpr;
++	u8 sr;
++	u8 scr;
++	u16 verr;
  };
  
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
+ struct stm32_rtc_events {
+@@ -98,6 +113,7 @@ struct stm32_rtc_data {
+ 	void (*clear_events)(struct stm32_rtc *rtc, unsigned int flags);
+ 	bool has_pclk;
+ 	bool need_dbp;
++	bool has_wakeirq;
+ };
+ 
+ struct stm32_rtc {
+@@ -110,6 +126,7 @@ struct stm32_rtc {
+ 	struct clk *rtc_ck;
+ 	const struct stm32_rtc_data *data;
+ 	int irq_alarm;
++	int wakeirq_alarm;
+ };
+ 
+ static void stm32_rtc_wpr_unlock(struct stm32_rtc *rtc)
+@@ -193,7 +210,7 @@ static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
+ 
+ 	mutex_lock(&rtc->rtc_dev->ops_lock);
+ 
+-	status = readl_relaxed(rtc->base + regs.isr);
++	status = readl_relaxed(rtc->base + regs.sr);
+ 	cr = readl_relaxed(rtc->base + regs.cr);
+ 
+ 	if ((status & evts.alra) &&
+@@ -325,7 +342,7 @@ static int stm32_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	alrmar = readl_relaxed(rtc->base + regs.alrmar);
+ 	cr = readl_relaxed(rtc->base + regs.cr);
+-	status = readl_relaxed(rtc->base + regs.isr);
++	status = readl_relaxed(rtc->base + regs.sr);
+ 
+ 	if (alrmar & STM32_RTC_ALRMXR_DATE_MASK) {
+ 		/*
+@@ -533,6 +550,7 @@ static void stm32_rtc_clear_events(struct stm32_rtc *rtc,
+ static const struct stm32_rtc_data stm32_rtc_data = {
+ 	.has_pclk = false,
+ 	.need_dbp = true,
++	.has_wakeirq = false,
+ 	.regs = {
+ 		.tr = 0x00,
+ 		.dr = 0x04,
+@@ -541,6 +559,9 @@ static const struct stm32_rtc_data stm32_rtc_data = {
+ 		.prer = 0x10,
+ 		.alrmar = 0x1C,
+ 		.wpr = 0x24,
++		.sr = 0x0C, /* set to ISR offset to ease alarm management */
++		.scr = UNDEF_REG,
++		.verr = UNDEF_REG,
+ 	},
+ 	.events = {
+ 		.alra = STM32_RTC_ISR_ALRAF,
+@@ -551,6 +572,7 @@ static const struct stm32_rtc_data stm32_rtc_data = {
+ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 	.has_pclk = true,
+ 	.need_dbp = true,
++	.has_wakeirq = false,
+ 	.regs = {
+ 		.tr = 0x00,
+ 		.dr = 0x04,
+@@ -559,6 +581,9 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 		.prer = 0x10,
+ 		.alrmar = 0x1C,
+ 		.wpr = 0x24,
++		.sr = 0x0C, /* set to ISR offset to ease alarm management */
++		.scr = UNDEF_REG,
++		.verr = UNDEF_REG,
+ 	},
+ 	.events = {
+ 		.alra = STM32_RTC_ISR_ALRAF,
+@@ -566,9 +591,41 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
+ 	.clear_events = stm32_rtc_clear_events,
+ };
+ 
++static void stm32mp1_rtc_clear_events(struct stm32_rtc *rtc,
++				      unsigned int flags)
++{
++	struct stm32_rtc_registers regs = rtc->data->regs;
++
++	/* Flags are cleared by writing 1 in RTC_SCR */
++	writel_relaxed(flags, rtc->base + regs.scr);
++}
++
++static const struct stm32_rtc_data stm32mp1_data = {
++	.has_pclk = true,
++	.need_dbp = false,
++	.has_wakeirq = true,
++	.regs = {
++		.tr = 0x00,
++		.dr = 0x04,
++		.cr = 0x18,
++		.isr = 0x0C, /* named RTC_ICSR on stm32mp1 */
++		.prer = 0x10,
++		.alrmar = 0x40,
++		.wpr = 0x24,
++		.sr = 0x50,
++		.scr = 0x5C,
++		.verr = 0x3F4,
++	},
++	.events = {
++		.alra = STM32_RTC_SR_ALRA,
++	},
++	.clear_events = stm32mp1_rtc_clear_events,
 +};
 +
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -227,10 +252,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -972,6 +1004,44 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
+ static const struct of_device_id stm32_rtc_of_match[] = {
+ 	{ .compatible = "st,stm32-rtc", .data = &stm32_rtc_data },
+ 	{ .compatible = "st,stm32h7-rtc", .data = &stm32h7_rtc_data },
++	{ .compatible = "st,stm32mp1-rtc", .data = &stm32mp1_data },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, stm32_rtc_of_match);
+@@ -727,12 +784,19 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 		goto err;
+ 	}
  
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
+-	platform_set_drvdata(pdev, rtc);
+-
+ 	ret = device_init_wakeup(&pdev->dev, true);
++	if (rtc->data->has_wakeirq) {
++		rtc->wakeirq_alarm = platform_get_irq(pdev, 1);
++		if (rtc->wakeirq_alarm <= 0)
++			ret = rtc->wakeirq_alarm;
++		else
++			ret = dev_pm_set_dedicated_wake_irq(&pdev->dev,
++							    rtc->wakeirq_alarm);
++	}
+ 	if (ret)
+-		dev_warn(&pdev->dev,
+-			 "alarm won't be able to wake up the system");
++		dev_warn(&pdev->dev, "alarm can't wake up the system: %d", ret);
 +
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = val;
-+	else
-+		*offset = -val;
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	ctrl_reg &= ~M41TXX_M_CALIBRATION;
-+	ctrl_reg |= abs(offset) & M41TXX_M_CALIBRATION;
-+
-+	if (offset >= 0)
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+
-+	return regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,	ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
++	platform_set_drvdata(pdev, rtc);
  
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+ 						&stm32_rtc_ops, THIS_MODULE);
+@@ -760,6 +824,14 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (!(readl_relaxed(rtc->base + regs.isr) & STM32_RTC_ISR_INITS))
+ 		dev_warn(&pdev->dev, "Date/Time must be initialized\n");
+ 
++	if (regs.verr != UNDEF_REG) {
++		u32 ver = readl_relaxed(rtc->base + regs.verr);
++
++		dev_info(&pdev->dev, "registered rev:%d.%d\n",
++			 (ver >> STM32_RTC_VERR_MAJREV_SHIFT) & 0xF,
++			 (ver >> STM32_RTC_VERR_MINREV_SHIFT) & 0xF);
++	}
++
+ 	return 0;
+ err:
+ 	if (rtc->data->has_pclk)
+@@ -769,6 +841,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
+ 
++	dev_pm_clear_wake_irq(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, false);
+ 
+ 	return ret;
+@@ -795,6 +868,7 @@ static int stm32_rtc_remove(struct platform_device *pdev)
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
+ 
++	dev_pm_clear_wake_irq(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, false);
+ 
+ 	return 0;
 -- 
-2.17.0
+2.7.4
