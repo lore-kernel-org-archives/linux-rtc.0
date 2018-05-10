@@ -1,234 +1,181 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:38432 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750823AbeEBCbX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 May 2018 22:31:23 -0400
-Message-ID: <1525228271.14792.5.camel@mtkswgap22>
-Subject: Re: Re: [PATCH v2 15/17] power: reset: mt6323: add a driver for
- MT6323 power controller
-From: Sean Wang <sean.wang@mediatek.com>
-To: Sebastian Reichel <sre@kernel.org>
-CC: <mark.rutland@arm.com>, <a.zummo@towertech.it>,
-        <devicetree@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <robh+dt@kernel.org>,
-        <alexandre.belloni@free-electrons.com>, <matthias.bgg@gmail.com>,
-        <linux-mediatek@lists.infradead.org>, <eddie.huang@mediatek.com>,
-        <lee.jones@linaro.org>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-rtc@vger.kernel.org>
-Date: Wed, 2 May 2018 10:31:11 +0800
-In-Reply-To: <20180501125628.44nyx25tqsrxkvsl@earth.universe>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
-         <51d4fbe0d6a22986ddd2df66c9db39aa1eaab74a.1524646231.git.sean.wang@mediatek.com>
-         <20180501125628.44nyx25tqsrxkvsl@earth.universe>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.bootlin.com ([62.4.15.54]:50932 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752568AbeEJVqv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 10 May 2018 17:46:51 -0400
+Date: Thu, 10 May 2018 23:46:49 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 4/4] rtc: ds1307: add freq_test sysfs attribute to
+ check tick on m41txx
+Message-ID: <20180510214649.GR10960@piout.net>
+References: <20180509193355.49466-1-giulio.benetti@micronovasrl.com>
+ <20180509193355.49466-4-giulio.benetti@micronovasrl.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180509193355.49466-4-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, 2018-05-01 at 14:56 +0200, Sebastian Reichel wrote:
-> Hi,
+On 09/05/2018 21:33:55+0200, Giulio Benetti wrote:
+> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+> Enabling OUT pin with freq_test attribute, OUT pin will tick 512 times
+> faster than 1s tick base.
 > 
-> On Wed, Apr 25, 2018 at 05:32:41PM +0800, sean.wang@mediatek.com wrote:
-> > From: Sean Wang <sean.wang@mediatek.com>
-> > 
-> > The power device is responsible for externally down or up the power
-> > of the remote MediaTek SoC through the tiny circuit BBPU inside PMIC RTC.
-> > 
-> > Though it's a part of RTC device, it would be better to be a standalone
-> > driver than to be a part of existent RTC driver so as to let us make
-> > concentration on works about power-controlling topic and to obtain
-> > improvements while the subsystem power/reset constantly growing.
+> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
 > 
-> I don't understand the above sentence. (I'm fine with adding the
-> driver)
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+> V2 => V3: export freq_test on sysfs only if supported(m41txx series)
+> 
+>  drivers/rtc/rtc-ds1307.c | 107 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 107 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 33895668b363..79206bf21018 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -1042,6 +1042,109 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+>  	return regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,	ctrl_reg);
+>  }
+>  
+> +static ssize_t freq_test_store(struct device *dev,
+> +			       struct device_attribute *attr,
+> +			       const char *buf, size_t count)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	unsigned long freq_test = 0;
+> +	unsigned int ctrl_reg;
+> +	int retval;
+> +
+> +	retval = kstrtoul(buf, 10, &freq_test);
+> +	if ((retval < 0) || (retval > 1)) {
+> +		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+> +
+> +	if (freq_test)
+> +		ctrl_reg |= M41TXX_BIT_FT;
+> +	else
+> +		ctrl_reg &= ~M41TXX_BIT_FT;
+> +
+> +	retval = regmap_write(ds1307->regmap, M41TXX_REG_CONTROL, ctrl_reg);
+> +
 
-Which I was actually meaning is that taking the poweroff driver as the
-standalone one and placing it under driver/reset/power seems can simply
-get a help from its subsystem either for function extension or bugfix in
-the future. I thought that way is better than just an embedded one
-somewhere in rtc driver or other drivers.
+Pleas use regmap_update_bits
 
-> > Currently, the most basic functionality supported is to just power off
-> > the system by writing to a special bit field in BBPU register after the
-> > system has reached pm_poweroff.
-> > 
-> > Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> > ---
-> >  drivers/power/reset/Kconfig           | 10 ++++
-> >  drivers/power/reset/Makefile          |  1 +
-> >  drivers/power/reset/mt6323-poweroff.c | 97 +++++++++++++++++++++++++++++++++++
-> >  include/linux/mfd/mt6397/rtc.h        |  1 +
-> >  4 files changed, 109 insertions(+)
-> >  create mode 100644 drivers/power/reset/mt6323-poweroff.c
-> > 
-> > diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
-> > index df58fc8..7b49d71 100644
-> > --- a/drivers/power/reset/Kconfig
-> > +++ b/drivers/power/reset/Kconfig
-> > @@ -128,6 +128,16 @@ config POWER_RESET_LTC2952
-> >  	  This driver supports an external powerdown trigger and board power
-> >  	  down via the LTC2952. Bindings are made in the device tree.
-> >  
-> > +config POWER_RESET_MT6323
-> > +	bool "MediaTek MT6323 power-off driver"
-> > +	depends on MFD_MT6397
-> > +	help
-> > +	  The power-off driver is responsible for externally shutdown down
-> > +	  the power of a remote MediaTek SoC MT6323 is connected to through
-> > +	  controlling a tiny circuit BBPU inside MT6323 RTC.
-> > +
-> > +	  Say Y if you have a board where MT6323 could be found.
-> > +
-> >  config POWER_RESET_QNAP
-> >  	bool "QNAP power-off driver"
-> >  	depends on OF_GPIO && PLAT_ORION
-> > diff --git a/drivers/power/reset/Makefile b/drivers/power/reset/Makefile
-> > index 7778c74..8836172 100644
-> > --- a/drivers/power/reset/Makefile
-> > +++ b/drivers/power/reset/Makefile
-> > @@ -11,6 +11,7 @@ obj-$(CONFIG_POWER_RESET_GPIO) += gpio-poweroff.o
-> >  obj-$(CONFIG_POWER_RESET_GPIO_RESTART) += gpio-restart.o
-> >  obj-$(CONFIG_POWER_RESET_HISI) += hisi-reboot.o
-> >  obj-$(CONFIG_POWER_RESET_MSM) += msm-poweroff.o
-> > +obj-$(CONFIG_POWER_RESET_MT6323) += mt6323-poweroff.o
-> >  obj-$(CONFIG_POWER_RESET_OCELOT_RESET) += ocelot-reset.o
-> >  obj-$(CONFIG_POWER_RESET_PIIX4_POWEROFF) += piix4-poweroff.o
-> >  obj-$(CONFIG_POWER_RESET_LTC2952) += ltc2952-poweroff.o
-> > diff --git a/drivers/power/reset/mt6323-poweroff.c b/drivers/power/reset/mt6323-poweroff.c
-> > new file mode 100644
-> > index 0000000..c195766
-> > --- /dev/null
-> > +++ b/drivers/power/reset/mt6323-poweroff.c
-> > @@ -0,0 +1,97 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +/*
-> > + * Power off through MediaTek PMIC
-> > + *
-> > + * Copyright (C) 2018 MediaTek Inc.
-> > + *
-> > + * Author: Sean Wang <sean.wang@mediatek.com>
-> > + *
-> > + */
-> > +
-> > +#include <linux/err.h>
-> > +#include <linux/module.h>
-> > +#include <linux/of.h>
-> 
-> Not needed
+> +	return retval ? retval : count;
+> +}
+> +
+> +static ssize_t freq_test_show(struct device *dev,
+> +				    struct device_attribute *attr, char *buf)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	int freq_test = 0;
+> +	unsigned int ctrl_reg;
+> +
+> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+> +
+> +	if (ctrl_reg & M41TXX_BIT_FT)
+> +		freq_test = true;
+> +	else
+> +		freq_test = false;
+> +
+> +	if ((freq_test < 0) || (freq_test > 1)) {
 
-Will be removed.
+This will never happen
 
-> 
-> > +#include <linux/platform_device.h>
-> > +#include <linux/mfd/mt6397/core.h>
-> > +#include <linux/mfd/mt6397/rtc.h>
-> > +
-> > +struct mt6323_pwrc {
-> > +	struct device *dev;
-> > +	struct regmap *regmap;
-> > +	u32 base;
-> > +};
-> > +
-> > +static struct mt6323_pwrc *mt_pwrc;
-> > +
-> > +static void mt6323_do_pwroff(void)
-> > +{
-> > +	struct mt6323_pwrc *pwrc = mt_pwrc;
-> > +	unsigned int val;
-> > +	int ret;
-> > +
-> > +	regmap_write(pwrc->regmap, pwrc->base + RTC_BBPU, RTC_BBPU_KEY);
-> > +	regmap_write(pwrc->regmap, pwrc->base + RTC_WRTGR, 1);
-> > +
-> > +	ret = regmap_read_poll_timeout(pwrc->regmap,
-> > +				       pwrc->base + RTC_BBPU, val,
-> > +				       !(val & RTC_BBPU_CBUSY),
-> > +				       MTK_RTC_POLL_DELAY_US,
-> > +				       MTK_RTC_POLL_TIMEOUT);
-> > +	if (ret)
-> > +		dev_err(pwrc->dev, "failed to write BBPU: %d\n", ret);
-> > +
-> > +	/* Wait some time until system down, otherwise, notice with a warn */
-> > +	mdelay(1000);
-> > +
-> > +	WARN_ONCE(1, "Unable to power off system\n");
-> > +}
-> > +
-> > +static int mt6323_pwrc_probe(struct platform_device *pdev)
-> > +{
-> > +	struct mt6397_chip *mt6397_chip = dev_get_drvdata(pdev->dev.parent);
-> > +	struct mt6323_pwrc *pwrc;
-> > +	struct resource *res;
-> > +
-> > +	pwrc = devm_kzalloc(&pdev->dev, sizeof(*pwrc), GFP_KERNEL);
-> > +	if (!pwrc)
-> > +		return -ENOMEM;
-> > +
-> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +	pwrc->base = res->start;
-> > +	pwrc->regmap = mt6397_chip->regmap;
-> > +	pwrc->dev = &pdev->dev;
-> > +	mt_pwrc = pwrc;
-> > +
-> > +	pm_power_off = &mt6323_do_pwroff;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int mt6323_pwrc_remove(struct platform_device *pdev)
-> > +{
-> > +	if (pm_power_off == &mt6323_do_pwroff)
-> > +		pm_power_off = NULL;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static const struct of_device_id mt6323_pwrc_dt_match[] = {
-> > +	{ .compatible = "mediatek,mt6323-pwrc" },
-> > +	{},
-> > +};
-> > +MODULE_DEVICE_TABLE(of, mt6323_pwrc_dt_match);
-> 
-> Don't forget to remove the DT table when you respin the series for
-> the requested binding changes.
+> +		dev_err(dev, "Failed to read RTC Frequency Test\n");
+> +		sprintf(buf, "0\n");
+> +		return freq_test;
+> +	}
+> +
+> +	return sprintf(buf, "%d\n", freq_test);
+> +}
+> +
+> +static DEVICE_ATTR_RW(freq_test);
+
+I'd prefer the file to be named frequency_test_enable
+
+> +
+> +static struct attribute *rtc_freq_test_attrs[] = {
+> +	&dev_attr_freq_test.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group rtc_freq_test_attr_group = {
+> +	.attrs		= rtc_freq_test_attrs,
+> +};
+> +
+> +static void rtc_calib_remove_sysfs_group(void *_dev)
+> +{
+> +	struct device *dev = _dev;
+> +
+> +	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
+> +}
+> +
+> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+> +{
+> +	int err = 0;
+> +
+> +	switch (ds1307->type) {
+> +	case m41t0:
+> +	case m41t00:
+> +	case m41t11:
+> +		/* Export sysfs entries */
+> +		err = sysfs_create_group(&(ds1307->dev)->kobj,
+> +					 &rtc_freq_test_attr_group);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to create sysfs group: %d\n",
+> +				err);
+> +			return err;
+> +		}
+> +
+> +		err = devm_add_action_or_reset(ds1307->dev,
+> +					       rtc_calib_remove_sysfs_group,
+> +					       ds1307->dev);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to add sysfs cleanup action: %d\n",
+> +				err);
+
+You need to sysfs_remove_group here
+
+> +			return err;
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return err;
+> +}
+> +
+>  /*----------------------------------------------------------------------*/
+>  
+>  static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+> @@ -1783,6 +1886,10 @@ static int ds1307_probe(struct i2c_client *client,
+>  	if (err)
+>  		return err;
+>  
+> +	err = ds1307_add_frequency_test(ds1307);
+> +	if (err)
+> +		return err;
+> +
+>  	if (chip->nvram_size) {
+>  		struct nvmem_config nvmem_cfg = {
+>  			.name = "ds1307_nvram",
+> -- 
+> 2.17.0
 > 
 
-Thanks. This table will be removed in the next version.
-
-
-> > +static struct platform_driver mt6323_pwrc_driver = {
-> > +	.probe		= mt6323_pwrc_probe,
-> > +	.remove		= mt6323_pwrc_remove,
-> > +	.driver		= {
-> > +		.name	= "mt6323-pwrc",
-> > +		.of_match_table = mt6323_pwrc_dt_match,
-> > +	},
-> > +};
-> > +
-> > +module_platform_driver(mt6323_pwrc_driver);
-> > +
-> > +MODULE_DESCRIPTION("Poweroff driver for MT6323 PMIC");
-> > +MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
-> > +MODULE_LICENSE("GPL v2");
-> > diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc.h
-> > index 480977c..ac932c9 100644
-> > --- a/include/linux/mfd/mt6397/rtc.h
-> > +++ b/include/linux/mfd/mt6397/rtc.h
-> > @@ -16,6 +16,7 @@
-> >  
-> >  #define RTC_BBPU		0x0000
-> >  #define RTC_BBPU_CBUSY		BIT(6)
-> > +#define RTC_BBPU_KEY            (0x43 << 8)
-> >  
-> >  #define RTC_WRTGR		0x003c
-> 
-> The driver looks fine otherwise.
-> 
-
-Thanks.
-
-> -- Sebastian
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
