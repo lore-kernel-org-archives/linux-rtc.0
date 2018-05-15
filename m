@@ -1,50 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f175.google.com ([209.85.128.175]:43598 "EHLO
-        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753962AbeEYJXr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 May 2018 05:23:47 -0400
-Received: by mail-wr0-f175.google.com with SMTP id r13-v6so7981956wrj.10
-        for <linux-rtc@vger.kernel.org>; Fri, 25 May 2018 02:23:47 -0700 (PDT)
-Message-ID: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
-Subject: rtc_cmos 00:01: nvmem registration failed
-From: Timur =?ISO-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>
-To: linux-rtc@vger.kernel.org
-Cc: alexandre.belloni@bootlin.com
-Date: Fri, 25 May 2018 11:23:43 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from verein.lst.de ([213.95.11.211]:42309 "EHLO newverein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752246AbeEOOi0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 15 May 2018 10:38:26 -0400
+Date: Tue, 15 May 2018 16:42:44 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        jfs-discussion@lists.sourceforge.net,
+        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
+Subject: Re: [PATCH 04/40] proc: introduce proc_create_seq{,_data}
+Message-ID: <20180515144244.GA32583@lst.de>
+References: <20180425154827.32251-5-hch@lst.de> <20180425154827.32251-1-hch@lst.de> <26540.1525094365@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <26540.1525094365@warthog.procyon.org.uk>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Mon, Apr 30, 2018 at 02:19:25PM +0100, David Howells wrote:
+> Christoph Hellwig <hch@lst.de> wrote:
+> 
+> > +
+> > +struct proc_dir_entry *proc_create_seq_data(const char *name, umode_t mode,
+> > +		struct proc_dir_entry *parent, const struct seq_operations *ops,
+> > +		void *data)
+> > +{
+> > ...
+> > +EXPORT_SYMBOL(proc_create_seq_data);
+> 
+> Please add documentation comments to exported functions when you add them.
 
-I've used kernel 4.17 rc5 and now using rc6 on Fedora 28 on a Dell XPS
-13 9370 machine. Since upgrading to this kernel, I get the following
-messages in the journal:
-
-máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: RTC can wake from S4
-máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: registered as rtc0
-máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: nvmem registration failed
-máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: alarms up to one month, y3k, 242 bytes nvram, hpet irqs
-
-The "nvmem registration failed" is highlighted red in the journal, and also shows up on every boot.
-
-This where the error message comes from:
-https://github.com/torvalds/linux/blob/master/drivers/rtc/rtc-cmos.c#L818
-And this is the commit that introduced it:
-https://github.com/torvalds/linux/commit/8b5b7958fd1cac54bdca62ec5552c6be0b38def4#diff-4dcdf420d40078042c28f0f3d8d6535c
-
-The error message doesn't give any indication about why it failed.
-How can I help diagnose the what the problem is?
-
-Created a bugzilla entry, to give better visibility:
-https://bugzilla.kernel.org/show_bug.cgi?id=199801
-Someone already reported it against Fedora:
-https://bugzilla.redhat.com/show_bug.cgi?id=1568276
-In the bug report the user says he uses a Msi z370 pc pro motherboard,
-so I assume the problem is not specific to my machine.
-
-Thanks & best regards,
-Tim
-
-ps. I'm not registered to the mailing list, please CC me on replies.
+None of the base functions are document, and we really want people to not
+use procfs for new code anyway.  But if I get some consensus from the
+maintainers and the list I can throw in another patch to document
+all proc_create* variants.
