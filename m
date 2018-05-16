@@ -1,59 +1,160 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:38787 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751379AbeEQDnt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 23:43:49 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180516135500.GE3254@piout.net>
-References: <20180420161433.3721192-1-arnd@arndb.de> <20180516135500.GE3254@piout.net>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 16 May 2018 23:43:48 -0400
-Message-ID: <CAK8P3a0JG10ABKBV1XWWOaZJOZz7zR-0TDmPXtdZ1-JNzP5OkA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] rtc: vr41xx: remove mktime usage
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        y2038 Mailman List <y2038@lists.linaro.org>,
-        linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.micronovasrl.com ([212.103.203.10]:57496 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753400AbeEPKFp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:05:45 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 5A230B00B93
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:05:44 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id XnjyZ8w02KUY for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 12:05:43 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v4 4/4] rtc: ds1307: add freq_test sysfs attribute to check tick on m41txx
+Date: Wed, 16 May 2018 12:05:26 +0200
+Message-Id: <20180516100526.73549-4-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
+References: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, May 16, 2018 at 9:55 AM, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> Hi,
->
-> On 20/04/2018 18:14:24+0200, Arnd Bergmann wrote:
->> This driver uses mktime() and rtc_time_to_tm() to convert between time
->> values. This works fine on 64-bit kernels over the whole supported
->> range, and the vr41xx chip is a 64-bit MIPS implementation, but it is
->> inconsistent because it doesn't do the same thing on 32-bit kernels that
->> overflow in 2106 or 2038.
->>
->> Changing it to use mktime64/rtc_time64_to_tm() should have no visible
->> impact on vr41xx but gets us closer to removing the 32-bit interfaces.
->>
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> ---
->>  drivers/rtc/rtc-vr41xx.c | 24 ++++++++++++------------
->>  1 file changed, 12 insertions(+), 12 deletions(-)
->>
->
-> I've applied the series a while ago.
+On m41txx you can enable open-drain OUT pin to check if offset is ok.
+Enabling OUT pin with freq_test attribute, OUT pin will tick 512 times
+faster than 1s tick base.
 
-Thanks! We should be able to remove mktime() in the near future then,
-along with some other interfaces from linux/time32.h and linux/timekeeping32.h.
+Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
 
-> It should be noted that mktime64
-> will fail on 32bit platforms in year 21000 or so but I pretty sure it is
-> not worth fixing. My understanding is that the kernel will fail in April
-> 2262 anyway as ktime_t will overflow.
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+V3 => V4:
+* change attribute from freq_test to frequency_test_enable
+* use regmap_update_bits instead of regmap_write
 
-Right.
+ drivers/rtc/rtc-ds1307.c | 99 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 99 insertions(+)
 
-> Note that I will be following up with multiple series adding proper
-> rtc HW range, removing set_mmss and rtc_time_to_tm/rtc_tm_to_time64.
-
-Ok, looking forward to those patches!
-
-        Arnd
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 2797d01bfa1d..de98ddc39515 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1053,6 +1053,99 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+ 				  ctrl_reg);
+ }
+ 
++static ssize_t frequency_test_enable_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned long freq_test = 0;
++	int retval;
++
++	retval = kstrtoul(buf, 10, &freq_test);
++	if ((retval < 0) || (retval > 1)) {
++		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
++		return -EINVAL;
++	}
++
++	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
++			   freq_test ? M41TXX_BIT_FT : 0);
++
++	return retval ? retval : count;
++}
++
++static ssize_t frequency_test_enable_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	int freq_test_en = 0;
++	unsigned int ctrl_reg;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	if (ctrl_reg & M41TXX_BIT_FT)
++		freq_test_en = true;
++	else
++		freq_test_en = false;
++
++	return sprintf(buf, "%d\n", freq_test_en);
++}
++
++static DEVICE_ATTR_RW(frequency_test_enable);
++
++static struct attribute *rtc_freq_test_attrs[] = {
++	&dev_attr_frequency_test_enable.attr,
++	NULL,
++};
++
++static const struct attribute_group rtc_freq_test_attr_group = {
++	.attrs		= rtc_freq_test_attrs,
++};
++
++static void rtc_calib_remove_sysfs_group(void *_dev)
++{
++	struct device *dev = _dev;
++
++	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
++}
++
++static int ds1307_add_frequency_test(struct ds1307 *ds1307)
++{
++	int err = 0;
++
++	switch (ds1307->type) {
++	case m41t0:
++	case m41t00:
++	case m41t11:
++		/* Export sysfs entries */
++		err = sysfs_create_group(&(ds1307->dev)->kobj,
++					 &rtc_freq_test_attr_group);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to create sysfs group: %d\n",
++				err);
++			return err;
++		}
++
++		err = devm_add_action_or_reset(ds1307->dev,
++					       rtc_calib_remove_sysfs_group,
++					       ds1307->dev);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to add sysfs cleanup action: %d\n",
++				err);
++			sysfs_remove_group(&(ds1307->dev)->kobj,
++					   &rtc_freq_test_attr_group);
++			return err;
++		}
++		break;
++	default:
++		break;
++	}
++
++	return err;
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+@@ -1794,6 +1887,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
++	err = ds1307_add_frequency_test(ds1307);
++	if (err) {
++		rtc_device_unregister(ds1307->rtc);
++		return err;
++	}
++
+ 	if (chip->nvram_size) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.name = "ds1307_nvram",
+-- 
+2.17.0
