@@ -1,53 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58997 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751038AbeEPUcl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 16 May 2018 16:32:41 -0400
-Date: Wed, 16 May 2018 22:32:40 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] rtc: stm32: add stm32mp1 rtc support
-Message-ID: <20180516203240.GB24496@piout.net>
-References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
- <1525880770-22263-4-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1525880770-22263-4-git-send-email-amelie.delaunay@st.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:48332 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751524AbeEPJqn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:43 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 29/42] rtc/proc: switch to proc_create_single_data
+Date: Wed, 16 May 2018 11:43:33 +0200
+Message-Id: <20180516094346.20506-30-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 09/05/2018 17:46:10+0200, Amelie Delaunay wrote:
->  struct stm32_rtc_registers {
-> @@ -86,6 +98,9 @@ struct stm32_rtc_registers {
->  	u8 prer;
->  	u8 alrmar;
->  	u8 wpr;
-> +	u8 sr;
-> +	u8 scr;
-> +	u16 verr;
+And stop trying to get a reference on the submodule, procfs code deals
+with release after an unloaded module and thus removed proc entry.
 
-All those offsets should probably be u16 or u32...
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-proc.c | 33 ++-------------------------------
+ 1 file changed, 2 insertions(+), 31 deletions(-)
 
-> +	if (regs.verr != UNDEF_REG) {
-
-...else, this is not working, as reported by kbuild
-
-> +		u32 ver = readl_relaxed(rtc->base + regs.verr);
-> +
-> +		dev_info(&pdev->dev, "registered rev:%d.%d\n",
-> +			 (ver >> STM32_RTC_VERR_MAJREV_SHIFT) & 0xF,
-> +			 (ver >> STM32_RTC_VERR_MINREV_SHIFT) & 0xF);
-> +	}
-> +
-
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index 31e7e23cc5be..a9dd9218fae2 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -107,40 +107,11 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+ 	return 0;
+ }
+ 
+-static int rtc_proc_open(struct inode *inode, struct file *file)
+-{
+-	int ret;
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	if (!try_module_get(rtc->owner))
+-		return -ENODEV;
+-
+-	ret = single_open(file, rtc_proc_show, rtc);
+-	if (ret)
+-		module_put(rtc->owner);
+-	return ret;
+-}
+-
+-static int rtc_proc_release(struct inode *inode, struct file *file)
+-{
+-	int res = single_release(inode, file);
+-	struct rtc_device *rtc = PDE_DATA(inode);
+-
+-	module_put(rtc->owner);
+-	return res;
+-}
+-
+-static const struct file_operations rtc_proc_fops = {
+-	.open		= rtc_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= rtc_proc_release,
+-};
+-
+ void rtc_proc_add_device(struct rtc_device *rtc)
+ {
+ 	if (is_rtc_hctosys(rtc))
+-		proc_create_data("driver/rtc", 0, NULL, &rtc_proc_fops, rtc);
++		proc_create_single_data("driver/rtc", 0, NULL, rtc_proc_show,
++				rtc);
+ }
+ 
+ void rtc_proc_del_device(struct rtc_device *rtc)
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.0
