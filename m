@@ -1,84 +1,168 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:46832 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752146AbeEPJoV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:21 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 03/42] proc: don't detour through seq->private to get the inode
-Date: Wed, 16 May 2018 11:43:07 +0200
-Message-Id: <20180516094346.20506-4-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.micronovasrl.com ([212.103.203.10]:55146 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751028AbeEPVHP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:07:15 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id C03CCB00940
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:07:13 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id e2rXVFvtBFo6 for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 23:07:13 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v6 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 16 May 2018 23:07:04 +0200
+Message-Id: <20180516210705.5824-3-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180516210705.5824-1-giulio.benetti@micronovasrl.com>
+References: <20180516210705.5824-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/array.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+m41txx chips can hold a calibration value to get correct clock bias.
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index 911f66924d81..4a8e413bf59b 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -677,20 +677,22 @@ get_children_pid(struct inode *inode, struct pid *pid_prev, loff_t pos)
+Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+ drivers/rtc/rtc-ds1307.c | 81 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 81 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0ab0c166da83..2797d01bfa1d 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,20 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
  
- static int children_seq_show(struct seq_file *seq, void *v)
- {
--	seq_printf(seq, "%d ", pid_nr_ns(v, proc_pid_ns(seq->private)));
-+	struct inode *inode = file_inode(seq->file);
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		0x80
++#	define M41TXX_BIT_FT		0x40
++#	define M41TXX_BIT_CALIB_SIGN	0x20
++#	define M41TXX_M_CALIBRATION	0x1f
 +
-+	seq_printf(seq, "%d ", pid_nr_ns(v, proc_pid_ns(inode)));
- 	return 0;
++/* negative offset step is -2.034ppm */
++#define M41TXX_NEG_OFFSET_STEP_PPM	2034
++/* positive offset step is +4.068ppm */
++#define M41TXX_POS_OFFSET_STEP_PPM	4068
++/* Min and max values supported with 'offset' interface by M41TXX */
++#define M41TXX_MIN_OFFSET	(((-31) * M41TXX_NEG_OFFSET_STEP_PPM) / 1000)
++#define M41TXX_MAX_OFFSET	(((31) * M41TXX_POS_OFFSET_STEP_PPM) / 1000)
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -146,6 +160,9 @@ struct chip_desc {
+ 
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t);
++static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+ static irqreturn_t rx8130_irq(int irq, void *dev_id);
+ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset);
++static int m41txx_rtc_set_offset(struct device *dev, long offset);
+ 
+ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+ };
+ 
++static const struct rtc_class_ops m41txx_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm	= ds1337_read_alarm,
++	.set_alarm	= ds1337_set_alarm,
++	.alarm_irq_enable = ds1307_alarm_irq_enable,
++	.read_offset	= m41txx_rtc_read_offset,
++	.set_offset	= m41txx_rtc_set_offset,
++};
++
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+ 		.nvram_offset	= 8,
+@@ -227,10 +256,17 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t0] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
++	[m41t00] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
+ 	[m41t11] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 8,
+ 		.nvram_size	= 56,
++		.rtc_ops	= &m41txx_rtc_ops,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -972,6 +1008,51 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
  }
  
- static void *children_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	return get_children_pid(seq->private, NULL, *pos);
-+	return get_children_pid(file_inode(seq->file), NULL, *pos);
- }
++static int m41txx_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++	u8 val;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	val = ctrl_reg & M41TXX_M_CALIBRATION;
++
++	/* check if positive */
++	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
++		*offset = (val * M41TXX_POS_OFFSET_STEP_PPM);
++	else
++		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPM);
++
++	*offset = DIV_ROUND_CLOSEST(*offset, 1000);
++
++	return 0;
++}
++
++static int m41txx_rtc_set_offset(struct device *dev, long offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
++		return -ERANGE;
++
++	offset *= 1000;
++
++	if (offset >= 0) {
++		ctrl_reg = DIV_ROUND_CLOSEST(offset,
++					     M41TXX_POS_OFFSET_STEP_PPM);
++		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
++	} else {
++		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
++					     M41TXX_NEG_OFFSET_STEP_PPM);
++	}
++
++	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
++				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
++				  ctrl_reg);
++}
++
+ /*----------------------------------------------------------------------*/
  
- static void *children_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
- 	struct pid *pid;
- 
--	pid = get_children_pid(seq->private, v, *pos + 1);
-+	pid = get_children_pid(file_inode(seq->file), v, *pos + 1);
- 	put_pid(v);
- 
- 	++*pos;
-@@ -711,17 +713,7 @@ static const struct seq_operations children_seq_ops = {
- 
- static int children_seq_open(struct inode *inode, struct file *file)
- {
--	struct seq_file *m;
--	int ret;
--
--	ret = seq_open(file, &children_seq_ops);
--	if (ret)
--		return ret;
--
--	m = file->private_data;
--	m->private = inode;
--
--	return ret;
-+	return seq_open(file, &children_seq_ops);
- }
- 
- const struct file_operations proc_tid_children_operations = {
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
 2.17.0
