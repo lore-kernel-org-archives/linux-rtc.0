@@ -1,151 +1,148 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:59610 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935479AbeEIS2V (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:21 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 76C4FB00AD4
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:20 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id YqsEZcKknEls for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:28:19 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v2 4/4] rtc: ds1307: add freq_test sysfs attribute to check tick on m41txx
-Date: Wed,  9 May 2018 20:28:12 +0200
-Message-Id: <20180509182812.17646-4-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
-References: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:47698 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752962AbeEPJpg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:36 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 20/42] sgi-gru: simplify procfs code
+Date: Wed, 16 May 2018 11:43:24 +0200
+Message-Id: <20180516094346.20506-21-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On m41txx you can enable open-drain OUT pin to check if offset is ok.
-Enabling OUT pin with freq_test attribute, OUT pin will tick 512 times
-faster than 1s tick base.
+Use remove_proc_subtree to remove the whole subtree on cleanup, and
+unwind the registration loop into individual calls.  Switch to use
+proc_create_seq where applicable.
 
-Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
-V1 => V2: change frequency test from dt property to dev sysfs attribute
- drivers/rtc/rtc-ds1307.c | 86 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 86 insertions(+)
+ drivers/misc/sgi-gru/gruprocfs.c | 81 ++++++--------------------------
+ 1 file changed, 14 insertions(+), 67 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 33895668b363..da71000101da 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1042,6 +1042,67 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
- 	return regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,	ctrl_reg);
+diff --git a/drivers/misc/sgi-gru/gruprocfs.c b/drivers/misc/sgi-gru/gruprocfs.c
+index 4f7635922394..42ea2eccaee9 100644
+--- a/drivers/misc/sgi-gru/gruprocfs.c
++++ b/drivers/misc/sgi-gru/gruprocfs.c
+@@ -270,16 +270,6 @@ static int options_open(struct inode *inode, struct file *file)
+ 	return single_open(file, options_show, NULL);
  }
  
-+static ssize_t freq_test_store(struct device *dev,
-+			       struct device_attribute *attr,
-+			       const char *buf, size_t count)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned long freq_test = 0;
-+	unsigned int ctrl_reg;
-+	int retval;
-+
-+	retval = kstrtoul(buf, 10, &freq_test);
-+	if ((retval < 0) || (retval > 1)) {
-+		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-+		return -EINVAL;
-+	}
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	if (freq_test)
-+		ctrl_reg |= M41TXX_BIT_FT;
-+	else
-+		ctrl_reg &= ~M41TXX_BIT_FT;
-+
-+	retval = regmap_write(ds1307->regmap, M41TXX_REG_CONTROL, ctrl_reg);
-+
-+	return retval ? retval : count;
-+}
-+
-+static ssize_t freq_test_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	int freq_test = 0;
-+	unsigned int ctrl_reg;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	if (ctrl_reg & M41TXX_BIT_FT)
-+		freq_test = true;
-+	else
-+		freq_test = false;
-+
-+	if ((freq_test < 0) || (freq_test > 1)) {
-+		dev_err(dev, "Failed to read RTC Frequency Test\n");
-+		sprintf(buf, "0\n");
-+		return freq_test;
-+	}
-+
-+	return sprintf(buf, "%d\n", freq_test);
-+}
-+
-+static DEVICE_ATTR_RW(freq_test);
-+
-+static struct attribute *rtc_calib_attrs[] = {
-+	&dev_attr_freq_test.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group rtc_calib_attr_group = {
-+	.attrs		= rtc_calib_attrs,
-+};
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-@@ -1455,6 +1516,13 @@ static const struct regmap_config regmap_config = {
- 	.val_bits = 8,
+-static int cch_open(struct inode *inode, struct file *file)
+-{
+-	return seq_open(file, &cch_seq_ops);
+-}
+-
+-static int gru_open(struct inode *inode, struct file *file)
+-{
+-	return seq_open(file, &gru_seq_ops);
+-}
+-
+ /* *INDENT-OFF* */
+ static const struct file_operations statistics_fops = {
+ 	.open 		= statistics_open,
+@@ -305,73 +295,30 @@ static const struct file_operations options_fops = {
+ 	.release 	= single_release,
  };
  
-+static void rtc_calib_remove_sysfs_group(void *_dev)
-+{
-+	struct device *dev = _dev;
-+
-+	sysfs_remove_group(&dev->kobj, &rtc_calib_attr_group);
-+}
-+
- static int ds1307_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -1783,6 +1851,24 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
+-static const struct file_operations cch_fops = {
+-	.open 		= cch_open,
+-	.read 		= seq_read,
+-	.llseek 	= seq_lseek,
+-	.release 	= seq_release,
+-};
+-static const struct file_operations gru_fops = {
+-	.open 		= gru_open,
+-	.read 		= seq_read,
+-	.llseek 	= seq_lseek,
+-	.release 	= seq_release,
+-};
+-
+-static struct proc_entry {
+-	char *name;
+-	umode_t mode;
+-	const struct file_operations *fops;
+-	struct proc_dir_entry *entry;
+-} proc_files[] = {
+-	{"statistics", 0644, &statistics_fops},
+-	{"mcs_statistics", 0644, &mcs_statistics_fops},
+-	{"debug_options", 0644, &options_fops},
+-	{"cch_status", 0444, &cch_fops},
+-	{"gru_status", 0444, &gru_fops},
+-	{NULL}
+-};
+-/* *INDENT-ON* */
+-
+ static struct proc_dir_entry *proc_gru __read_mostly;
  
-+	/* Export sysfs entries */
-+	err = sysfs_create_group(&(&client->dev)->kobj, &rtc_calib_attr_group);
-+	if (err) {
-+		dev_err(&client->dev, "Failed to create sysfs group: %d\n",
-+			err);
-+		return err;
-+	}
-+
-+	err = devm_add_action_or_reset(&client->dev,
-+				       rtc_calib_remove_sysfs_group,
-+				       &client->dev);
-+	if (err) {
-+		dev_err(&client->dev,
-+			"Failed to add sysfs cleanup action: %d\n",
-+			err);
-+		return err;
-+	}
-+
- 	if (chip->nvram_size) {
- 		struct nvmem_config nvmem_cfg = {
- 			.name = "ds1307_nvram",
+-static int create_proc_file(struct proc_entry *p)
+-{
+-	p->entry = proc_create(p->name, p->mode, proc_gru, p->fops);
+-	if (!p->entry)
+-		return -1;
+-	return 0;
+-}
+-
+-static void delete_proc_files(void)
+-{
+-	struct proc_entry *p;
+-
+-	if (proc_gru) {
+-		for (p = proc_files; p->name; p++)
+-			if (p->entry)
+-				remove_proc_entry(p->name, proc_gru);
+-		proc_remove(proc_gru);
+-	}
+-}
+-
+ int gru_proc_init(void)
+ {
+-	struct proc_entry *p;
+-
+ 	proc_gru = proc_mkdir("sgi_uv/gru", NULL);
+-
+-	for (p = proc_files; p->name; p++)
+-		if (create_proc_file(p))
+-			goto err;
++	if (!proc_gru)
++		return -1;
++	if (!proc_create("statistics", 0644, proc_gru, &statistics_fops))
++		goto err;
++	if (!proc_create("mcs_statistics", 0644, proc_gru, &mcs_statistics_fops))
++		goto err;
++	if (!proc_create("debug_options", 0644, proc_gru, &options_fops))
++		goto err;
++	if (!proc_create_seq("cch_status", 0444, proc_gru, &cch_seq_ops))
++		goto err;
++	if (!proc_create_seq("gru_status", 0444, proc_gru, &gru_seq_ops))
++		goto err;
+ 	return 0;
+-
+ err:
+-	delete_proc_files();
++	remove_proc_subtree("sgi_uv/gru", NULL);
+ 	return -1;
+ }
+ 
+ void gru_proc_exit(void)
+ {
+-	delete_proc_files();
++	remove_proc_subtree("sgi_uv/gru", NULL);
+ }
 -- 
 2.17.0
