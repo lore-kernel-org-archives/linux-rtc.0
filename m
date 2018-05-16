@@ -1,99 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38638 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:58997 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752319AbeEQUVM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:21:12 -0400
+        id S1751038AbeEPUcl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 16 May 2018 16:32:41 -0400
+Date: Wed, 16 May 2018 22:32:40 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: ab-b5ze-s3: fix possible race conditions
-Date: Thu, 17 May 2018 22:20:39 +0200
-Message-Id: <20180517202040.22292-1-alexandre.belloni@bootlin.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] rtc: stm32: add stm32mp1 rtc support
+Message-ID: <20180516203240.GB24496@piout.net>
+References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
+ <1525880770-22263-4-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1525880770-22263-4-git-send-email-amelie.delaunay@st.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+On 09/05/2018 17:46:10+0200, Amelie Delaunay wrote:
+>  struct stm32_rtc_registers {
+> @@ -86,6 +98,9 @@ struct stm32_rtc_registers {
+>  	u8 prer;
+>  	u8 alrmar;
+>  	u8 wpr;
+> +	u8 sr;
+> +	u8 scr;
+> +	u16 verr;
 
-Also, the probe function is not allowed to fail after the RTC is registered
-because the following may happen:
+All those offsets should probably be u16 or u32...
 
-CPU0:                                CPU1:
-sys_load_module()
- do_init_module()
-  do_one_initcall()
-   cmos_do_probe()
-    rtc_device_register()
-     __register_chrdev()
-     cdev->owner = struct module*
-                                     open("/dev/rtc0")
-    rtc_device_unregister()
-  module_put()
-  free_module()
-   module_free(mod->module_core)
-   /* struct module *module is now
-      freed */
-                                      chrdev_open()
-                                       spin_lock(cdev_lock)
-                                       cdev_get()
-                                        try_module_get()
-                                         module_is_live()
-                                         /* dereferences already
-                                            freed struct module* */
+> +	if (regs.verr != UNDEF_REG) {
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ and register the RTC as late as possible.
+...else, this is not working, as reported by kbuild
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ab-b5ze-s3.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+> +		u32 ver = readl_relaxed(rtc->base + regs.verr);
+> +
+> +		dev_info(&pdev->dev, "registered rev:%d.%d\n",
+> +			 (ver >> STM32_RTC_VERR_MAJREV_SHIFT) & 0xF,
+> +			 (ver >> STM32_RTC_VERR_MINREV_SHIFT) & 0xF);
+> +	}
+> +
 
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index 8dc451932446..f486912577e7 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -925,6 +925,14 @@ static int abb5zes3_probe(struct i2c_client *client,
- 	if (ret)
- 		goto err;
- 
-+	data->rtc = devm_rtc_allocate_device(dev);
-+	ret = PTR_ERR_OR_ZERO(data->rtc);
-+	if (ret) {
-+		dev_err(dev, "%s: unable to allocate RTC device (%d)\n",
-+			__func__, ret);
-+		goto err;
-+	}
-+
- 	if (client->irq > 0) {
- 		ret = devm_request_threaded_irq(dev, client->irq, NULL,
- 						_abb5zes3_rtc_interrupt,
-@@ -942,14 +950,7 @@ static int abb5zes3_probe(struct i2c_client *client,
- 		}
- 	}
- 
--	data->rtc = devm_rtc_device_register(dev, DRV_NAME, &rtc_ops,
--					     THIS_MODULE);
--	ret = PTR_ERR_OR_ZERO(data->rtc);
--	if (ret) {
--		dev_err(dev, "%s: unable to register RTC device (%d)\n",
--			__func__, ret);
--		goto err;
--	}
-+	data->rtc->ops = &rtc_ops;
- 
- 	/* Enable battery low detection interrupt if battery not already low */
- 	if (!data->battery_low && data->irq) {
-@@ -961,6 +962,8 @@ static int abb5zes3_probe(struct i2c_client *client,
- 		}
- 	}
- 
-+	ret = rtc_register_device(data->rtc);
-+
- err:
- 	if (ret && data && data->irq)
- 		device_init_wakeup(dev, false);
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
