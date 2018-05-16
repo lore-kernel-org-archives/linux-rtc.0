@@ -1,118 +1,185 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:57504 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752937AbeEPKFm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:05:42 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 6752FB00B6F
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:05:38 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id XGH3y88dK2fw for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 12:05:35 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v4 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed, 16 May 2018 12:05:24 +0200
-Message-Id: <20180516100526.73549-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
-References: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:47268 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752774AbeEPJpB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:01 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 12/42] =?UTF-8?q?ipv{4,6}/raw:=20simplify=20=D1=95eq=5Ffil?= =?UTF-8?q?e=20code?=
+Date: Wed, 16 May 2018 11:43:16 +0200
+Message-Id: <20180516094346.20506-13-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+Pass the hashtable to the proc private data instead of copying
+it into the per-file private data.
 
-Add it to driver taking into account NVRAM section.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ include/net/raw.h |  4 ----
+ net/ipv4/raw.c    | 36 ++++++++++++------------------------
+ net/ipv6/raw.c    |  6 ++++--
+ 3 files changed, 16 insertions(+), 30 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 32aadcbc377f..0ab0c166da83 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -226,6 +227,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -248,6 +254,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -304,6 +311,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -346,6 +357,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1574,6 +1586,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1639,6 +1652,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
+diff --git a/include/net/raw.h b/include/net/raw.h
+index 99d26d0c4a19..9c9fa98a91a4 100644
+--- a/include/net/raw.h
++++ b/include/net/raw.h
+@@ -48,7 +48,6 @@ void raw_proc_exit(void);
+ struct raw_iter_state {
+ 	struct seq_net_private p;
+ 	int bucket;
+-	struct raw_hashinfo *h;
+ };
+ 
+ static inline struct raw_iter_state *raw_seq_private(struct seq_file *seq)
+@@ -58,9 +57,6 @@ static inline struct raw_iter_state *raw_seq_private(struct seq_file *seq)
+ void *raw_seq_start(struct seq_file *seq, loff_t *pos);
+ void *raw_seq_next(struct seq_file *seq, void *v, loff_t *pos);
+ void raw_seq_stop(struct seq_file *seq, void *v);
+-int raw_seq_open(struct inode *ino, struct file *file,
+-		 struct raw_hashinfo *h, const struct seq_operations *ops);
+-
+ #endif
+ 
+ int raw_hash_sk(struct sock *sk);
+diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
+index 1b4d3355624a..ae57962b31e3 100644
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -1003,11 +1003,12 @@ struct proto raw_prot = {
+ static struct sock *raw_get_first(struct seq_file *seq)
+ {
+ 	struct sock *sk;
++	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
+ 	struct raw_iter_state *state = raw_seq_private(seq);
+ 
+ 	for (state->bucket = 0; state->bucket < RAW_HTABLE_SIZE;
+ 			++state->bucket) {
+-		sk_for_each(sk, &state->h->ht[state->bucket])
++		sk_for_each(sk, &h->ht[state->bucket])
+ 			if (sock_net(sk) == seq_file_net(seq))
+ 				goto found;
+ 	}
+@@ -1018,6 +1019,7 @@ static struct sock *raw_get_first(struct seq_file *seq)
+ 
+ static struct sock *raw_get_next(struct seq_file *seq, struct sock *sk)
+ {
++	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
+ 	struct raw_iter_state *state = raw_seq_private(seq);
+ 
+ 	do {
+@@ -1027,7 +1029,7 @@ static struct sock *raw_get_next(struct seq_file *seq, struct sock *sk)
+ 	} while (sk && sock_net(sk) != seq_file_net(seq));
+ 
+ 	if (!sk && ++state->bucket < RAW_HTABLE_SIZE) {
+-		sk = sk_head(&state->h->ht[state->bucket]);
++		sk = sk_head(&h->ht[state->bucket]);
+ 		goto try_again;
+ 	}
+ 	return sk;
+@@ -1045,9 +1047,9 @@ static struct sock *raw_get_idx(struct seq_file *seq, loff_t pos)
+ 
+ void *raw_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	struct raw_iter_state *state = raw_seq_private(seq);
++	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
+ 
+-	read_lock(&state->h->lock);
++	read_lock(&h->lock);
+ 	return *pos ? raw_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ EXPORT_SYMBOL_GPL(raw_seq_start);
+@@ -1067,9 +1069,9 @@ EXPORT_SYMBOL_GPL(raw_seq_next);
+ 
+ void raw_seq_stop(struct seq_file *seq, void *v)
+ {
+-	struct raw_iter_state *state = raw_seq_private(seq);
++	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
+ 
+-	read_unlock(&state->h->lock);
++	read_unlock(&h->lock);
+ }
+ EXPORT_SYMBOL_GPL(raw_seq_stop);
+ 
+@@ -1110,25 +1112,10 @@ static const struct seq_operations raw_seq_ops = {
+ 	.show  = raw_seq_show,
+ };
+ 
+-int raw_seq_open(struct inode *ino, struct file *file,
+-		 struct raw_hashinfo *h, const struct seq_operations *ops)
+-{
+-	int err;
+-	struct raw_iter_state *i;
+-
+-	err = seq_open_net(ino, file, ops, sizeof(struct raw_iter_state));
+-	if (err < 0)
+-		return err;
+-
+-	i = raw_seq_private((struct seq_file *)file->private_data);
+-	i->h = h;
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(raw_seq_open);
+-
+ static int raw_v4_seq_open(struct inode *inode, struct file *file)
+ {
+-	return raw_seq_open(inode, file, &raw_v4_hashinfo, &raw_seq_ops);
++	return seq_open_net(inode, file, &raw_seq_ops,
++			sizeof(struct raw_iter_state));
+ }
+ 
+ static const struct file_operations raw_seq_fops = {
+@@ -1140,7 +1127,8 @@ static const struct file_operations raw_seq_fops = {
+ 
+ static __net_init int raw_init_net(struct net *net)
+ {
+-	if (!proc_create("raw", 0444, net->proc_net, &raw_seq_fops))
++	if (!proc_create_data("raw", 0444, net->proc_net, &raw_seq_fops,
++			&raw_v4_hashinfo))
+ 		return -ENOMEM;
+ 
+ 	return 0;
+diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
+index 5eb9b08947ed..dade69bf61e6 100644
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -1306,7 +1306,8 @@ static const struct seq_operations raw6_seq_ops = {
+ 
+ static int raw6_seq_open(struct inode *inode, struct file *file)
+ {
+-	return raw_seq_open(inode, file, &raw_v6_hashinfo, &raw6_seq_ops);
++	return seq_open_net(inode, file, &raw6_seq_ops,
++			sizeof(struct raw_iter_state));
+ }
+ 
+ static const struct file_operations raw6_seq_fops = {
+@@ -1318,7 +1319,8 @@ static const struct file_operations raw6_seq_fops = {
+ 
+ static int __net_init raw6_init_net(struct net *net)
+ {
+-	if (!proc_create("raw6", 0444, net->proc_net, &raw6_seq_fops))
++	if (!proc_create_data("raw6", 0444, net->proc_net, &raw6_seq_fops,
++			&raw_v6_hashinfo))
+ 		return -ENOMEM;
+ 
+ 	return 0;
 -- 
 2.17.0
