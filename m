@@ -1,8 +1,8 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48214 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:47466 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752179AbeEPJqb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:31 -0400
+        with ESMTP id S1752378AbeEPJpR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:17 -0400
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>
@@ -18,108 +18,67 @@ Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 26/42] staging/rtl8192u: simplify procfs code
-Date: Wed, 16 May 2018 11:43:30 +0200
-Message-Id: <20180516094346.20506-27-hch@lst.de>
+Subject: [PATCH 16/42] net: move seq_file_single_net to <linux/seq_file_net.h>
+Date: Wed, 16 May 2018 11:43:20 +0200
+Message-Id: <20180516094346.20506-17-hch@lst.de>
 In-Reply-To: <20180516094346.20506-1-hch@lst.de>
 References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Unwind the registration loop into individual calls.  Switch to use
-proc_create_single where applicable.
-
-Also don't bother handling proc_create* failures - the driver works
-perfectly fine without the proc files, and the cleanup will handle
-missing files gracefully.
+This helper deals with single_{open,release}_net internals and thus
+belongs here.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/staging/rtl8192u/r8192U_core.c | 67 ++++++--------------------
- 1 file changed, 14 insertions(+), 53 deletions(-)
+ include/linux/seq_file_net.h | 13 +++++++++++++
+ include/net/ip_vs.h          | 12 ------------
+ 2 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index d607c59761cf..7a0dbc0fa18e 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -646,64 +646,25 @@ static void rtl8192_proc_module_init(void)
- 	rtl8192_proc = proc_mkdir(RTL819xU_MODULE_NAME, init_net.proc_net);
+diff --git a/include/linux/seq_file_net.h b/include/linux/seq_file_net.h
+index 43ccd84127b6..ed20faa99e05 100644
+--- a/include/linux/seq_file_net.h
++++ b/include/linux/seq_file_net.h
+@@ -28,4 +28,17 @@ static inline struct net *seq_file_net(struct seq_file *seq)
+ #endif
  }
  
--/*
-- * seq_file wrappers for procfile show routines.
++/*
++ * This one is needed for single_open_net since net is stored directly in
++ * private not as a struct i.e. seq_file_net can't be used.
++ */
++static inline struct net *seq_file_single_net(struct seq_file *seq)
++{
++#ifdef CONFIG_NET_NS
++	return (struct net *)seq->private;
++#else
++	return &init_net;
++#endif
++}
++
+ #endif
+diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
+index eb0bec043c96..aea7a124e66b 100644
+--- a/include/net/ip_vs.h
++++ b/include/net/ip_vs.h
+@@ -41,18 +41,6 @@ static inline struct netns_ipvs *net_ipvs(struct net* net)
+ 	return net->ipvs;
+ }
+ 
+-/* This one needed for single_open_net since net is stored directly in
+- * private not as a struct i.e. seq_file_net can't be used.
 - */
--static int rtl8192_proc_open(struct inode *inode, struct file *file)
+-static inline struct net *seq_file_single_net(struct seq_file *seq)
 -{
--	struct net_device *dev = proc_get_parent_data(inode);
--	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
--
--	return single_open(file, show, dev);
+-#ifdef CONFIG_NET_NS
+-	return (struct net *)seq->private;
+-#else
+-	return &init_net;
+-#endif
 -}
 -
--static const struct file_operations rtl8192_proc_fops = {
--	.open		= rtl8192_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
--/*
-- * Table of proc files we need to create.
-- */
--struct rtl8192_proc_file {
--	char name[12];
--	int (*show)(struct seq_file *, void *);
--};
--
--static const struct rtl8192_proc_file rtl8192_proc_files[] = {
--	{ "stats-rx",	&proc_get_stats_rx },
--	{ "stats-tx",	&proc_get_stats_tx },
--	{ "stats-ap",	&proc_get_stats_ap },
--	{ "registers",	&proc_get_registers },
--	{ "" }
--};
--
- static void rtl8192_proc_init_one(struct net_device *dev)
- {
--	const struct rtl8192_proc_file *f;
- 	struct proc_dir_entry *dir;
+ /* Connections' size value needed by ip_vs_ctl.c */
+ extern int ip_vs_conn_tab_size;
  
--	if (rtl8192_proc) {
--		dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
--		if (!dir) {
--			RT_TRACE(COMP_ERR,
--				 "Unable to initialize /proc/net/rtl8192/%s\n",
--				 dev->name);
--			return;
--		}
-+	if (!rtl8192_proc)
-+		return;
- 
--		for (f = rtl8192_proc_files; f->name[0]; f++) {
--			if (!proc_create_data(f->name, S_IFREG | S_IRUGO, dir,
--					      &rtl8192_proc_fops, f->show)) {
--				RT_TRACE(COMP_ERR,
--					 "Unable to initialize /proc/net/rtl8192/%s/%s\n",
--					 dev->name, f->name);
--				return;
--			}
--		}
--	}
-+	dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
-+	if (!dir)
-+		return;
-+
-+	proc_create_single("stats-rx", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_rx);
-+	proc_create_single("stats-tx", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_tx);
-+	proc_create_single("stats-ap", S_IFREG | S_IRUGO, dir,
-+			proc_get_stats_ap);
-+	proc_create_single("registers", S_IFREG | S_IRUGO, dir,
-+			proc_get_registers);
- }
- 
- static void rtl8192_proc_remove_one(struct net_device *dev)
 -- 
 2.17.0
