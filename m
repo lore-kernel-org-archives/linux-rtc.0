@@ -1,70 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39493 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:45786 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752061AbeEQUxa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:53:30 -0400
+        id S1751389AbeEPNzM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 16 May 2018 09:55:12 -0400
+Date: Wed, 16 May 2018 15:55:00 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/3] rtc: ls1x: remove useless label and goto
-Date: Thu, 17 May 2018 22:53:26 +0200
-Message-Id: <20180517205327.29150-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
-References: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, y2038@lists.linaro.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] rtc: vr41xx: remove mktime usage
+Message-ID: <20180516135500.GE3254@piout.net>
+References: <20180420161433.3721192-1-arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180420161433.3721192-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The error handling in ls1x_rtc_probe used to release resources but since
-it is using devm functions, it only returns a value. Make the code clearer
-by returning directly instead of using goto.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ls1x.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+On 20/04/2018 18:14:24+0200, Arnd Bergmann wrote:
+> This driver uses mktime() and rtc_time_to_tm() to convert between time
+> values. This works fine on 64-bit kernels over the whole supported
+> range, and the vr41xx chip is a 64-bit MIPS implementation, but it is
+> inconsistent because it doesn't do the same thing on 32-bit kernels that
+> overflow in 2106 or 2038.
+> 
+> Changing it to use mktime64/rtc_time64_to_tm() should have no visible
+> impact on vr41xx but gets us closer to removing the 32-bit interfaces.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/rtc/rtc-vr41xx.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+> 
 
-diff --git a/drivers/rtc/rtc-ls1x.c b/drivers/rtc/rtc-ls1x.c
-index 609bd1d013f0..8aa3f223621c 100644
---- a/drivers/rtc/rtc-ls1x.c
-+++ b/drivers/rtc/rtc-ls1x.c
-@@ -148,15 +148,13 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
- {
- 	struct rtc_device *rtcdev;
- 	unsigned long v;
--	int ret;
- 
- 	v = readl(SYS_COUNTER_CNTRL);
- 	if (!(v & RTC_CNTR_OK)) {
- 		dev_err(&pdev->dev, "rtc counters not working\n");
--		ret = -ENODEV;
--		goto err;
-+		return -ENODEV;
- 	}
--	ret = -ETIMEDOUT;
-+
- 	/* set to 1 HZ if needed */
- 	if (readl(SYS_TOYTRIM) != 32767) {
- 		v = 0x100000;
-@@ -165,7 +163,7 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
- 
- 		if (!v) {
- 			dev_err(&pdev->dev, "time out\n");
--			goto err;
-+			return -ETIMEDOUT;
- 		}
- 		writel(32767, SYS_TOYTRIM);
- 	}
-@@ -181,9 +179,6 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
- 	rtcdev->ops = &ls1x_rtc_ops;
- 
- 	return rtc_register_device(rtcdev);
--
--err:
--	return ret;
- }
- 
- static struct platform_driver  ls1x_rtc_driver = {
+I've applied the series a while ago. It should be noted that mktime64
+will fail on 32bit platforms in year 21000 or so but I pretty sure it is
+not worth fixing. My understanding is that the kernel will fail in April
+2262 anyway as ktime_t will overflow.
+
+Note that I will be following up with multiple series adding proper
+rtc HW range, removing set_mmss and rtc_time_to_tm/rtc_tm_to_time64.
+
 -- 
-2.17.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
