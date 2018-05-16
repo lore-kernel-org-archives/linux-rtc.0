@@ -1,124 +1,169 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47992 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752407AbeEPJqI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:08 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 28/42] drbd: switch to proc_create_single
-Date: Wed, 16 May 2018 11:43:32 +0200
-Message-Id: <20180516094346.20506-29-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.micronovasrl.com ([212.103.203.10]:58478 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752245AbeEPK1P (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:27:15 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 54A8BB00B70
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:27:14 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id b_LP0e-H9_Pv for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 12:27:13 +0200 (CEST)
+Subject: Re: [PATCH v4 4/4] rtc: ds1307: add freq_test sysfs attribute to
+ check tick on m41txx
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
+ <20180516100526.73549-4-giulio.benetti@micronovasrl.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <72e1b582-d9c5-523b-9a21-5ad2c6fb1d98@micronovasrl.com>
+Date: Wed, 16 May 2018 12:27:12 +0200
+MIME-Version: 1.0
+In-Reply-To: <20180516100526.73549-4-giulio.benetti@micronovasrl.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And stop messing with try_module_get on THIS_MODULE, which doesn't make
-any sense here.
+Oh, sorry, I've forgotten to reword commit log.
+I follow with v5 patchset.
+Sorry again.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/drbd/drbd_int.h  |  2 +-
- drivers/block/drbd/drbd_main.c |  3 ++-
- drivers/block/drbd/drbd_proc.c | 34 +---------------------------------
- 3 files changed, 4 insertions(+), 35 deletions(-)
+Giulio
 
-diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
-index 06ecee1b528e..461ddec04e7c 100644
---- a/drivers/block/drbd/drbd_int.h
-+++ b/drivers/block/drbd/drbd_int.h
-@@ -1643,7 +1643,7 @@ void drbd_bump_write_ordering(struct drbd_resource *resource, struct drbd_backin
- 
- /* drbd_proc.c */
- extern struct proc_dir_entry *drbd_proc;
--extern const struct file_operations drbd_proc_fops;
-+int drbd_seq_show(struct seq_file *seq, void *v);
- 
- /* drbd_actlog.c */
- extern bool drbd_al_begin_io_prepare(struct drbd_device *device, struct drbd_interval *i);
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 185f1ef00a7c..c2d154faac02 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -3010,7 +3010,8 @@ static int __init drbd_init(void)
- 		goto fail;
- 
- 	err = -ENOMEM;
--	drbd_proc = proc_create_data("drbd", S_IFREG | S_IRUGO , NULL, &drbd_proc_fops, NULL);
-+	drbd_proc = proc_create_single("drbd", S_IFREG | S_IRUGO , NULL,
-+			drbd_seq_show);
- 	if (!drbd_proc)	{
- 		pr_err("unable to register proc file\n");
- 		goto fail;
-diff --git a/drivers/block/drbd/drbd_proc.c b/drivers/block/drbd/drbd_proc.c
-index 582caeb0de86..74ef29247bb5 100644
---- a/drivers/block/drbd/drbd_proc.c
-+++ b/drivers/block/drbd/drbd_proc.c
-@@ -33,18 +33,7 @@
- #include <linux/drbd.h>
- #include "drbd_int.h"
- 
--static int drbd_proc_open(struct inode *inode, struct file *file);
--static int drbd_proc_release(struct inode *inode, struct file *file);
--
--
- struct proc_dir_entry *drbd_proc;
--const struct file_operations drbd_proc_fops = {
--	.owner		= THIS_MODULE,
--	.open		= drbd_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= drbd_proc_release,
--};
- 
- static void seq_printf_with_thousands_grouping(struct seq_file *seq, long v)
- {
-@@ -235,7 +224,7 @@ static void drbd_syncer_progress(struct drbd_device *device, struct seq_file *se
- 	}
- }
- 
--static int drbd_seq_show(struct seq_file *seq, void *v)
-+int drbd_seq_show(struct seq_file *seq, void *v)
- {
- 	int i, prev_i = -1;
- 	const char *sn;
-@@ -345,24 +334,3 @@ static int drbd_seq_show(struct seq_file *seq, void *v)
- 
- 	return 0;
- }
--
--static int drbd_proc_open(struct inode *inode, struct file *file)
--{
--	int err;
--
--	if (try_module_get(THIS_MODULE)) {
--		err = single_open(file, drbd_seq_show, NULL);
--		if (err)
--			module_put(THIS_MODULE);
--		return err;
--	}
--	return -ENODEV;
--}
--
--static int drbd_proc_release(struct inode *inode, struct file *file)
--{
--	module_put(THIS_MODULE);
--	return single_release(inode, file);
--}
--
--/* PROC FS stuff end */
--- 
-2.17.0
+Il 16/05/2018 12:05, Giulio Benetti ha scritto:
+> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+> Enabling OUT pin with freq_test attribute, OUT pin will tick 512 times
+> faster than 1s tick base.
+> 
+> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+> V3 => V4:
+> * change attribute from freq_test to frequency_test_enable
+> * use regmap_update_bits instead of regmap_write
+> 
+>   drivers/rtc/rtc-ds1307.c | 99 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 99 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 2797d01bfa1d..de98ddc39515 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -1053,6 +1053,99 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+>   				  ctrl_reg);
+>   }
+>   
+> +static ssize_t frequency_test_enable_store(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   const char *buf, size_t count)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	unsigned long freq_test = 0;
+> +	int retval;
+> +
+> +	retval = kstrtoul(buf, 10, &freq_test);
+> +	if ((retval < 0) || (retval > 1)) {
+> +		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
+> +			   freq_test ? M41TXX_BIT_FT : 0);
+> +
+> +	return retval ? retval : count;
+> +}
+> +
+> +static ssize_t frequency_test_enable_show(struct device *dev,
+> +					  struct device_attribute *attr,
+> +					  char *buf)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	int freq_test_en = 0;
+> +	unsigned int ctrl_reg;
+> +
+> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+> +
+> +	if (ctrl_reg & M41TXX_BIT_FT)
+> +		freq_test_en = true;
+> +	else
+> +		freq_test_en = false;
+> +
+> +	return sprintf(buf, "%d\n", freq_test_en);
+> +}
+> +
+> +static DEVICE_ATTR_RW(frequency_test_enable);
+> +
+> +static struct attribute *rtc_freq_test_attrs[] = {
+> +	&dev_attr_frequency_test_enable.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group rtc_freq_test_attr_group = {
+> +	.attrs		= rtc_freq_test_attrs,
+> +};
+> +
+> +static void rtc_calib_remove_sysfs_group(void *_dev)
+> +{
+> +	struct device *dev = _dev;
+> +
+> +	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
+> +}
+> +
+> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+> +{
+> +	int err = 0;
+> +
+> +	switch (ds1307->type) {
+> +	case m41t0:
+> +	case m41t00:
+> +	case m41t11:
+> +		/* Export sysfs entries */
+> +		err = sysfs_create_group(&(ds1307->dev)->kobj,
+> +					 &rtc_freq_test_attr_group);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to create sysfs group: %d\n",
+> +				err);
+> +			return err;
+> +		}
+> +
+> +		err = devm_add_action_or_reset(ds1307->dev,
+> +					       rtc_calib_remove_sysfs_group,
+> +					       ds1307->dev);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to add sysfs cleanup action: %d\n",
+> +				err);
+> +			sysfs_remove_group(&(ds1307->dev)->kobj,
+> +					   &rtc_freq_test_attr_group);
+> +			return err;
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return err;
+> +}
+> +
+>   /*----------------------------------------------------------------------*/
+>   
+>   static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+> @@ -1794,6 +1887,12 @@ static int ds1307_probe(struct i2c_client *client,
+>   	if (err)
+>   		return err;
+>   
+> +	err = ds1307_add_frequency_test(ds1307);
+> +	if (err) {
+> +		rtc_device_unregister(ds1307->rtc);
+> +		return err;
+> +	}
+> +
+>   	if (chip->nvram_size) {
+>   		struct nvmem_config nvmem_cfg = {
+>   			.name = "ds1307_nvram",
+> 
