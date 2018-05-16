@@ -1,60 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55146 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1031682AbeEXKGI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 24 May 2018 06:06:08 -0400
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hogan <jhogan@kernel.org>,
-        Miodrag Dinic <miodrag.dinic@mips.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.16 161/161] rtc: goldfish: Add missing MODULE_LICENSE
-Date: Thu, 24 May 2018 11:39:46 +0200
-Message-Id: <20180524093037.531987302@linuxfoundation.org>
-In-Reply-To: <20180524093018.331893860@linuxfoundation.org>
-References: <20180524093018.331893860@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.micronovasrl.com ([212.103.203.10]:58768 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752307AbeEPKcz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:32:55 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 77820B00B7B
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:32:54 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id FhIjJcKn9ngb for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 12:32:54 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v5 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed, 16 May 2018 12:32:48 +0200
+Message-Id: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-4.16-stable review patch.  If anyone has any objections, please let me know.
+data field points to m41t00, instead it should point to m41t0.
+Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+are equal.
 
-------------------
+Point to right enum m41t0 instead of m41t00.
 
-From: James Hogan <jhogan@kernel.org>
-
-[ Upstream commit 82d632b85eb89f97051530f556cb49ee1c04bde7 ]
-
-Fix the following warning in MIPS allmodconfig by adding a
-MODULE_LICENSE() at the end of rtc-goldfish.c, based on the file header
-comment which says GNU General Public License version 2:
-
-WARNING: modpost: missing MODULE_LICENSE() in drivers/rtc/rtc-goldfish.o
-
-Fixes: f22d9cdcb5eb ("rtc: goldfish: Add RTC driver for Android emulator")
-Signed-off-by: James Hogan <jhogan@kernel.org>
-Cc: Miodrag Dinic <miodrag.dinic@mips.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/rtc-goldfish.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-goldfish.c
-+++ b/drivers/rtc/rtc-goldfish.c
-@@ -235,3 +235,5 @@ static struct platform_driver goldfish_r
- };
- 
- module_platform_driver(goldfish_rtc);
-+
-+MODULE_LICENSE("GPL v2");
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59edff53..32aadcbc377f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
++		.data = (void *)m41t0
+ 	},
+ 	{
+ 		.compatible = "st,m41t00",
+-- 
+2.17.0
