@@ -1,61 +1,125 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38534 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751409AbeEQUTQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:19:16 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/5] rtc: 88pm80x: fix possible race condition
-Date: Thu, 17 May 2018 22:18:58 +0200
-Message-Id: <20180517201900.22055-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
-References: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:48214 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752179AbeEPJqb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:31 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 26/42] staging/rtl8192u: simplify procfs code
+Date: Wed, 16 May 2018 11:43:30 +0200
+Message-Id: <20180516094346.20506-27-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+Unwind the registration loop into individual calls.  Switch to use
+proc_create_single where applicable.
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ.
+Also don't bother handling proc_create* failures - the driver works
+perfectly fine without the proc files, and the cleanup will handle
+missing files gracefully.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-88pm80x.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/staging/rtl8192u/r8192U_core.c | 67 ++++++--------------------
+ 1 file changed, 14 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index f60c0d73c2f3..dae527f8c58e 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -290,6 +290,10 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
- 	info->dev = &pdev->dev;
- 	dev_set_drvdata(&pdev->dev, info);
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index d607c59761cf..7a0dbc0fa18e 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -646,64 +646,25 @@ static void rtl8192_proc_module_init(void)
+ 	rtl8192_proc = proc_mkdir(RTL819xU_MODULE_NAME, init_net.proc_net);
+ }
  
-+	info->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(info->rtc_dev))
-+		return PTR_ERR(info->rtc_dev);
-+
- 	ret = pm80x_request_irq(chip, info->irq, rtc_update_handler,
- 				IRQF_ONESHOT, "rtc", info);
- 	if (ret < 0) {
-@@ -298,10 +302,10 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
- 		goto out;
- 	}
+-/*
+- * seq_file wrappers for procfile show routines.
+- */
+-static int rtl8192_proc_open(struct inode *inode, struct file *file)
+-{
+-	struct net_device *dev = proc_get_parent_data(inode);
+-	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
+-
+-	return single_open(file, show, dev);
+-}
+-
+-static const struct file_operations rtl8192_proc_fops = {
+-	.open		= rtl8192_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
+-};
+-
+-/*
+- * Table of proc files we need to create.
+- */
+-struct rtl8192_proc_file {
+-	char name[12];
+-	int (*show)(struct seq_file *, void *);
+-};
+-
+-static const struct rtl8192_proc_file rtl8192_proc_files[] = {
+-	{ "stats-rx",	&proc_get_stats_rx },
+-	{ "stats-tx",	&proc_get_stats_tx },
+-	{ "stats-ap",	&proc_get_stats_ap },
+-	{ "registers",	&proc_get_registers },
+-	{ "" }
+-};
+-
+ static void rtl8192_proc_init_one(struct net_device *dev)
+ {
+-	const struct rtl8192_proc_file *f;
+ 	struct proc_dir_entry *dir;
  
--	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "88pm80x-rtc",
--					    &pm80x_rtc_ops, THIS_MODULE);
--	if (IS_ERR(info->rtc_dev)) {
--		ret = PTR_ERR(info->rtc_dev);
-+	info->rtc_dev->ops = &pm80x_rtc_ops;
+-	if (rtl8192_proc) {
+-		dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
+-		if (!dir) {
+-			RT_TRACE(COMP_ERR,
+-				 "Unable to initialize /proc/net/rtl8192/%s\n",
+-				 dev->name);
+-			return;
+-		}
++	if (!rtl8192_proc)
++		return;
+ 
+-		for (f = rtl8192_proc_files; f->name[0]; f++) {
+-			if (!proc_create_data(f->name, S_IFREG | S_IRUGO, dir,
+-					      &rtl8192_proc_fops, f->show)) {
+-				RT_TRACE(COMP_ERR,
+-					 "Unable to initialize /proc/net/rtl8192/%s/%s\n",
+-					 dev->name, f->name);
+-				return;
+-			}
+-		}
+-	}
++	dir = proc_mkdir_data(dev->name, 0, rtl8192_proc, dev);
++	if (!dir)
++		return;
 +
-+	ret = rtc_register_device(info->rtc_dev);
-+	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
- 		goto out_rtc;
- 	}
++	proc_create_single("stats-rx", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_rx);
++	proc_create_single("stats-tx", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_tx);
++	proc_create_single("stats-ap", S_IFREG | S_IRUGO, dir,
++			proc_get_stats_ap);
++	proc_create_single("registers", S_IFREG | S_IRUGO, dir,
++			proc_get_registers);
+ }
+ 
+ static void rtl8192_proc_remove_one(struct net_device *dev)
 -- 
 2.17.0
