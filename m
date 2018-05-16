@@ -1,93 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:45371 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751850AbeEQMFL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 08:05:11 -0400
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from bombadil.infradead.org ([198.137.202.133]:47658 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752957AbeEPJpd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:33 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH v3 3/4] dt-bindings: rtc: update stm32-rtc documentation for stm32mp1 rtc
-Date: Thu, 17 May 2018 14:04:25 +0200
-Message-ID: <1526558666-24243-4-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
-References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 13/42] ipv6/flowlabel: simplify pid namespace lookup
+Date: Wed, 16 May 2018 11:43:17 +0200
+Message-Id: <20180516094346.20506-14-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
-doesn't require to disable backup domain write protection, and rtc_ck
-parent clock assignment isn't allowed.
-To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
-alarm interrupt.
+The code should be using the pid namespace from the procfs mount
+instead of trying to look it up during open.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 ++++++++++++++++------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ net/ipv6/ip6_flowlabel.c | 29 ++++++-----------------------
+ 1 file changed, 6 insertions(+), 23 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-index 00f8b5d..c920e27 100644
---- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-@@ -1,25 +1,29 @@
- STM32 Real Time Clock
- 
- Required properties:
--- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
--  the device is compatible with stm32(f4/f7) or stm32h7.
-+- compatible: can be one of the following:
-+  - "st,stm32-rtc" for devices compatible with stm32(f4/f7).
-+  - "st,stm32h7-rtc" for devices compatible with stm32h7.
-+  - "st,stm32mp1-rtc" for devices compatible with stm32mp1.
- - reg: address range of rtc register set.
- - clocks: can use up to two clocks, depending on part used:
-   - "rtc_ck": RTC clock source.
--    It is required on stm32(f4/f7) and stm32h7.
-   - "pclk": RTC APB interface clock.
-     It is not present on stm32(f4/f7).
--    It is required on stm32h7.
-+    It is required on stm32(h7/mp1).
- - clock-names: must be "rtc_ck" and "pclk".
--    It is required only on stm32h7.
-+    It is required on stm32(h7/mp1).
- - interrupt-parent: phandle for the interrupt controller.
--- interrupts: rtc alarm interrupt.
-+    It is required on stm32(f4/f7/h7).
-+- interrupts: rtc alarm interrupt. On stm32mp1, a second interrupt is required
-+  for rtc alarm wakeup interrupt.
- - st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
-   access control register at offset, and change the dbp (Disable Backup
-   Protection) bit represented by the mask, mandatory to disable/enable backup
-   domain (RTC registers) write protection.
-+    It is required on stm32(f4/f7/h7).
- 
--Optional properties (to override default rtc_ck parent clock):
-+Optional properties (to override default rtc_ck parent clock on stm32(f4/f7/h7):
- - assigned-clocks: reference to the rtc_ck clock entry.
- - assigned-clock-parents: phandle of the new parent clock of rtc_ck.
- 
-@@ -48,3 +52,12 @@ Example:
- 		interrupt-names = "alarm";
- 		st,syscfg = <&pwrcfg 0x00 0x100>;
- 	};
+diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
+index c05c4e82a7ca..2fbd9bed764a 100644
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -754,6 +754,10 @@ static struct ip6_flowlabel *ip6fl_get_idx(struct seq_file *seq, loff_t pos)
+ static void *ip6fl_seq_start(struct seq_file *seq, loff_t *pos)
+ 	__acquires(RCU)
+ {
++	struct ip6fl_iter_state *state = ip6fl_seq_private(seq);
 +
-+	rtc: rtc@5c004000 {
-+		compatible = "st,stm32mp1-rtc";
-+		reg = <0x5c004000 0x400>;
-+		clocks = <&rcc RTCAPB>, <&rcc RTC>;
-+		clock-names = "pclk", "rtc_ck";
-+		interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_NONE>,
-+				      <&exti 19 1>;
-+	};
++	state->pid_ns = proc_pid_ns(file_inode(seq->file));
++
+ 	rcu_read_lock_bh();
+ 	return *pos ? ip6fl_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+@@ -810,36 +814,15 @@ static const struct seq_operations ip6fl_seq_ops = {
+ 
+ static int ip6fl_seq_open(struct inode *inode, struct file *file)
+ {
+-	struct seq_file *seq;
+-	struct ip6fl_iter_state *state;
+-	int err;
+-
+-	err = seq_open_net(inode, file, &ip6fl_seq_ops,
++	return seq_open_net(inode, file, &ip6fl_seq_ops,
+ 			   sizeof(struct ip6fl_iter_state));
+-
+-	if (!err) {
+-		seq = file->private_data;
+-		state = ip6fl_seq_private(seq);
+-		rcu_read_lock();
+-		state->pid_ns = get_pid_ns(task_active_pid_ns(current));
+-		rcu_read_unlock();
+-	}
+-	return err;
+-}
+-
+-static int ip6fl_seq_release(struct inode *inode, struct file *file)
+-{
+-	struct seq_file *seq = file->private_data;
+-	struct ip6fl_iter_state *state = ip6fl_seq_private(seq);
+-	put_pid_ns(state->pid_ns);
+-	return seq_release_net(inode, file);
+ }
+ 
+ static const struct file_operations ip6fl_seq_fops = {
+ 	.open		=	ip6fl_seq_open,
+ 	.read		=	seq_read,
+ 	.llseek		=	seq_lseek,
+-	.release	=	ip6fl_seq_release,
++	.release	=	seq_release_net,
+ };
+ 
+ static int __net_init ip6_flowlabel_proc_init(struct net *net)
 -- 
-2.7.4
+2.17.0
