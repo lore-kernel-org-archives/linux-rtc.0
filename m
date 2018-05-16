@@ -1,26 +1,26 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:59526 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:58824 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935454AbeEIS2S (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:18 -0400
+        with ESMTP id S1752387AbeEPKc4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:32:56 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 5FAADB00ADE
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:17 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id A599EB00BA2
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:32:55 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 5XCsqs9FAuWO for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:28:16 +0200 (CEST)
+        with ESMTP id NzkwdapfveJO for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 12:32:55 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
 To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc: robh+dt@kernel.org, mark.rutland@arm.com,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v2 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed,  9 May 2018 20:28:10 +0200
-Message-Id: <20180509182812.17646-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
-References: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
+Subject: [PATCH v5 2/4] rtc: ds1307: support m41t11 variant
+Date: Wed, 16 May 2018 12:32:49 +0200
+Message-Id: <20180516103251.74707-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
