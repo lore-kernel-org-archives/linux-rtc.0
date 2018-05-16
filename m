@@ -1,112 +1,245 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:38448 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933029AbeEHPCY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:24 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 90715B00AE8
-        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:22 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ArJHW9oUP89F for <linux-rtc@vger.kernel.org>;
-        Tue,  8 May 2018 16:56:22 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH 3/4] rtc: ds1307: add calibration of_ for mt41txx chips.
-Date: Tue,  8 May 2018 16:56:10 +0200
-Message-Id: <20180508145611.49072-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
-References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:47786 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752995AbeEPJpn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:43 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 21/42] megaraid: simplify procfs code
+Date: Wed, 16 May 2018 11:43:25 +0200
+Message-Id: <20180516094346.20506-22-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get really near to real
-tick value.
+Use remove_proc_subtree to remove the whole subtree on cleanup, and
+unwind the registration loop into individual calls.  Switch to use
+proc_create_single.
 
-Add calibration property(ranging between (-31) and 31), so on every probe
-calibration value will be written to rtc.
-This is because ic could loose supply due to low battery.
+Also don't bother handling proc_create* failures - the driver works
+perfectly fine without the proc files, and the cleanup will handle
+missing files gracefully.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- .../devicetree/bindings/rtc/rtc-ds1307.txt    |  2 ++
- drivers/rtc/rtc-ds1307.c                      | 33 +++++++++++++++++++
- 2 files changed, 35 insertions(+)
+ drivers/scsi/megaraid.c | 140 +++++++++++-----------------------------
+ drivers/scsi/megaraid.h |  12 ----
+ 2 files changed, 36 insertions(+), 116 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index ce6469c1a516..d3d70a5495c5 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -34,6 +34,8 @@ Optional properties:
- - trickle-diode-disable : ds1339, ds1340 and ds 1388 only
- 	Do not use internal trickle charger diode
- 	Should be given if internal trickle charger diode should be disabled
-+- calibration: m41t0, m41t00, m41t11 only
-+	Set calibration value to correct external bias, ranging between (-31) and 31.
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index 7195cff51d4c..91f5e2c68dbc 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -2731,53 +2731,6 @@ proc_show_rdrv_40(struct seq_file *m, void *v)
+ 	return proc_show_rdrv(m, m->private, 30, 39);
+ }
  
- Example:
- 	rtc1: ds1339@68 {
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0ab0c166da83..9cda52589c0f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,12 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+-
+-/*
+- * seq_file wrappers for procfile show routines.
+- */
+-static int mega_proc_open(struct inode *inode, struct file *file)
+-{
+-	adapter_t *adapter = proc_get_parent_data(inode);
+-	int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
+-
+-	return single_open(file, show, adapter);
+-}
+-
+-static const struct file_operations mega_proc_fops = {
+-	.open		= mega_proc_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
+-};
+-
+-/*
+- * Table of proc files we need to create.
+- */
+-struct mega_proc_file {
+-	const char *name;
+-	unsigned short ptr_offset;
+-	int (*show) (struct seq_file *m, void *v);
+-};
+-
+-static const struct mega_proc_file mega_proc_files[] = {
+-	{ "config",	      offsetof(adapter_t, proc_read), proc_show_config },
+-	{ "stat",	      offsetof(adapter_t, proc_stat), proc_show_stat },
+-	{ "mailbox",	      offsetof(adapter_t, proc_mbox), proc_show_mbox },
+-#if MEGA_HAVE_ENH_PROC
+-	{ "rebuild-rate",     offsetof(adapter_t, proc_rr), proc_show_rebuild_rate },
+-	{ "battery-status",   offsetof(adapter_t, proc_battery), proc_show_battery },
+-	{ "diskdrives-ch0",   offsetof(adapter_t, proc_pdrvstat[0]), proc_show_pdrv_ch0 },
+-	{ "diskdrives-ch1",   offsetof(adapter_t, proc_pdrvstat[1]), proc_show_pdrv_ch1 },
+-	{ "diskdrives-ch2",   offsetof(adapter_t, proc_pdrvstat[2]), proc_show_pdrv_ch2 },
+-	{ "diskdrives-ch3",   offsetof(adapter_t, proc_pdrvstat[3]), proc_show_pdrv_ch3 },
+-	{ "raiddrives-0-9",   offsetof(adapter_t, proc_rdrvstat[0]), proc_show_rdrv_10 },
+-	{ "raiddrives-10-19", offsetof(adapter_t, proc_rdrvstat[1]), proc_show_rdrv_20 },
+-	{ "raiddrives-20-29", offsetof(adapter_t, proc_rdrvstat[2]), proc_show_rdrv_30 },
+-	{ "raiddrives-30-39", offsetof(adapter_t, proc_rdrvstat[3]), proc_show_rdrv_40 },
+-#endif
+-	{ NULL }
+-};
+-
+ /**
+  * mega_create_proc_entry()
+  * @index - index in soft state array
+@@ -2788,31 +2741,45 @@ static const struct mega_proc_file mega_proc_files[] = {
+ static void
+ mega_create_proc_entry(int index, struct proc_dir_entry *parent)
+ {
+-	const struct mega_proc_file *f;
+-	adapter_t	*adapter = hba_soft_state[index];
+-	struct proc_dir_entry	*dir, *de, **ppde;
+-	u8		string[16];
++	adapter_t *adapter = hba_soft_state[index];
++	struct proc_dir_entry *dir;
++	u8 string[16];
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -1397,6 +1403,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	unsigned char		regs[8];
- 	struct ds1307_platform_data *pdata = dev_get_platdata(&client->dev);
- 	u8			trickle_charger_setup = 0;
-+	s32			calib;
+ 	sprintf(string, "hba%d", adapter->host->host_no);
+-
+-	dir = adapter->controller_proc_dir_entry =
+-		proc_mkdir_data(string, 0, parent, adapter);
+-	if(!dir) {
++	dir = proc_mkdir_data(string, 0, parent, adapter);
++	if (!dir) {
+ 		dev_warn(&adapter->dev->dev, "proc_mkdir failed\n");
+ 		return;
+ 	}
  
- 	ds1307 = devm_kzalloc(&client->dev, sizeof(struct ds1307), GFP_KERNEL);
- 	if (!ds1307)
-@@ -1460,6 +1467,32 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (chip->alarm && of_property_read_bool(client->dev.of_node,
- 						 "wakeup-source"))
- 		ds1307_can_wakeup_device = true;
-+
-+	/* retrieve calibration value if provided */
-+	if (!of_property_read_s32(client->dev.of_node, "calibration",
-+				 &calib)) {
-+		switch (ds1307->type) {
-+		case m41t0:
-+		case m41t00:
-+		case m41t11:
-+		{
-+			/*
-+			 * Set calibration value every power-on since rtc
-+			 * could have shut off(low battery)
-+			 */
-+			u8 out_byte = abs(calib) & M41TXX_M_CALIBRATION;
-+
-+			if (calib >= 0)
-+				out_byte |= M41TXX_BIT_CALIB_SIGN;
-+
-+			regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,
-+					out_byte);
-+		}
-+			break;
-+		default:
-+			break;
-+		}
-+	}
+-	for (f = mega_proc_files; f->name; f++) {
+-		de = proc_create_data(f->name, S_IRUSR, dir, &mega_proc_fops,
+-				      f->show);
+-		if (!de) {
+-			dev_warn(&adapter->dev->dev, "proc_create failed\n");
+-			return;
+-		}
+-
+-		ppde = (void *)adapter + f->ptr_offset;
+-		*ppde = de;
+-	}
++	proc_create_single_data("config", S_IRUSR, dir,
++			proc_show_config, adapter);
++	proc_create_single_data("stat", S_IRUSR, dir,
++			proc_show_stat, adapter);
++	proc_create_single_data("mailbox", S_IRUSR, dir,
++			proc_show_mbox, adapter);
++#if MEGA_HAVE_ENH_PROC
++	proc_create_single_data("rebuild-rate", S_IRUSR, dir,
++			proc_show_rebuild_rate, adapter);
++	proc_create_single_data("battery-status", S_IRUSR, dir,
++			proc_show_battery, adapter);
++	proc_create_single_data("diskdrives-ch0", S_IRUSR, dir,
++			proc_show_pdrv_ch0, adapter);
++	proc_create_single_data("diskdrives-ch1", S_IRUSR, dir,
++			proc_show_pdrv_ch1, adapter);
++	proc_create_single_data("diskdrives-ch2", S_IRUSR, dir,
++			proc_show_pdrv_ch2, adapter);
++	proc_create_single_data("diskdrives-ch3", S_IRUSR, dir,
++			proc_show_pdrv_ch3, adapter);
++	proc_create_single_data("raiddrives-0-9", S_IRUSR, dir,
++			proc_show_rdrv_10, adapter);
++	proc_create_single_data("raiddrives-10-19", S_IRUSR, dir,
++			proc_show_rdrv_20, adapter);
++	proc_create_single_data("raiddrives-20-29", S_IRUSR, dir,
++			proc_show_rdrv_30, adapter);
++	proc_create_single_data("raiddrives-30-39", S_IRUSR, dir,
++			proc_show_rdrv_40, adapter);
++#endif
+ }
+ 
+ #else
+@@ -4580,6 +4547,7 @@ megaraid_remove_one(struct pci_dev *pdev)
+ {
+ 	struct Scsi_Host *host = pci_get_drvdata(pdev);
+ 	adapter_t *adapter = (adapter_t *)host->hostdata;
++	char buf[12] = { 0 };
+ 
+ 	scsi_remove_host(host);
+ 
+@@ -4594,44 +4562,8 @@ megaraid_remove_one(struct pci_dev *pdev)
+ 
+ 	mega_free_sgl(adapter);
+ 
+-#ifdef CONFIG_PROC_FS
+-	if (adapter->controller_proc_dir_entry) {
+-		remove_proc_entry("stat", adapter->controller_proc_dir_entry);
+-		remove_proc_entry("config",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("mailbox",
+-				adapter->controller_proc_dir_entry);
+-#if MEGA_HAVE_ENH_PROC
+-		remove_proc_entry("rebuild-rate",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("battery-status",
+-				adapter->controller_proc_dir_entry);
+-
+-		remove_proc_entry("diskdrives-ch0",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("diskdrives-ch1",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("diskdrives-ch2",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("diskdrives-ch3",
+-				adapter->controller_proc_dir_entry);
+-
+-		remove_proc_entry("raiddrives-0-9",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("raiddrives-10-19",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("raiddrives-20-29",
+-				adapter->controller_proc_dir_entry);
+-		remove_proc_entry("raiddrives-30-39",
+-				adapter->controller_proc_dir_entry);
+-#endif
+-		{
+-			char	buf[12] = { 0 };
+-			sprintf(buf, "hba%d", adapter->host->host_no);
+-			remove_proc_entry(buf, mega_proc_dir_entry);
+-		}
+-	}
+-#endif
++	sprintf(buf, "hba%d", adapter->host->host_no);
++	remove_proc_subtree(buf, mega_proc_dir_entry);
+ 
+ 	pci_free_consistent(adapter->dev, MEGA_BUFFER_SIZE,
+ 			adapter->mega_buffer, adapter->buf_dma_handle);
+diff --git a/drivers/scsi/megaraid.h b/drivers/scsi/megaraid.h
+index 21eba2fd465a..18e85d9267ff 100644
+--- a/drivers/scsi/megaraid.h
++++ b/drivers/scsi/megaraid.h
+@@ -814,18 +814,6 @@ typedef struct {
+ 
+ #ifdef CONFIG_PROC_FS
+ 	struct proc_dir_entry	*controller_proc_dir_entry;
+-	struct proc_dir_entry	*proc_read;
+-	struct proc_dir_entry	*proc_stat;
+-	struct proc_dir_entry	*proc_mbox;
+-
+-#if MEGA_HAVE_ENH_PROC
+-	struct proc_dir_entry	*proc_rr;
+-	struct proc_dir_entry	*proc_battery;
+-#define MAX_PROC_CHANNELS	4
+-	struct proc_dir_entry	*proc_pdrvstat[MAX_PROC_CHANNELS];
+-	struct proc_dir_entry	*proc_rdrvstat[MAX_PROC_CHANNELS];
+-#endif
+-
  #endif
  
- 	switch (ds1307->type) {
+ 	int	has_64bit_addr;		/* are we using 64-bit addressing */
 -- 
 2.17.0
