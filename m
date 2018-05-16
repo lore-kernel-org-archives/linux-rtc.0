@@ -1,66 +1,85 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:5698 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750938AbeEQMFG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 08:05:06 -0400
-From: Amelie Delaunay <amelie.delaunay@st.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Amelie Delaunay <amelie.delaunay@st.com>
-Subject: [PATCH v3 1/4] rtc: stm32: fix misspelling and misalignment issues
-Date: Thu, 17 May 2018 14:04:23 +0200
-Message-ID: <1526558666-24243-2-git-send-email-amelie.delaunay@st.com>
-In-Reply-To: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
-References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:32804 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751013AbeEPUWZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 16:22:25 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
+References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com> <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Wed, 16 May 2018 23:22:24 +0300
+Message-ID: <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
+Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        alexandre.belloni@bootlin.com, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This patch cleans the following checkpatch complaints:
+On Wed, May 16, 2018 at 1:32 PM, Giulio Benetti
+<giulio.benetti@micronovasrl.com> wrote:
+> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+> 512 times faster than 1s tick base.
+>
+> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+>
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 
-CHECK: 'initalized' may be misspelled - perhaps 'initialized'?
-#644: FILE: drivers/rtc/rtc-stm32.c:644:
-+	 * the calendar has been initalized or not. INITS flag is reset by a
+> +static ssize_t frequency_test_enable_store(struct device *dev,
+> +                                          struct device_attribute *attr,
+> +                                          const char *buf, size_t count)
+> +{
+> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +       unsigned long freq_test = 0;
+> +       int retval;
+> +
+> +       retval = kstrtoul(buf, 10, &freq_test);
+> +       if ((retval < 0) || (retval > 1)) {
 
-CHECK: Alignment should match open parenthesis
-#669: FILE: drivers/rtc/rtc-stm32.c:669:
-+	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
-+			&stm32_rtc_ops, THIS_MODULE);
+kstrtobool() then?
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
----
- drivers/rtc/rtc-stm32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> +               dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index de49b5b..d41f804 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -641,7 +641,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 
- 	/*
- 	 * After a system reset, RTC_ISR.INITS flag can be read to check if
--	 * the calendar has been initalized or not. INITS flag is reset by a
-+	 * the calendar has been initialized or not. INITS flag is reset by a
- 	 * power-on reset (no vbat, no power-supply). It is not reset if
- 	 * rtc_ck parent clock has changed (so RTC prescalers need to be
- 	 * changed). That's why we cannot rely on this flag to know if RTC
-@@ -666,7 +666,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 			 "alarm won't be able to wake up the system");
- 
- 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
--			&stm32_rtc_ops, THIS_MODULE);
-+						&stm32_rtc_ops, THIS_MODULE);
- 	if (IS_ERR(rtc->rtc_dev)) {
- 		ret = PTR_ERR(rtc->rtc_dev);
- 		dev_err(&pdev->dev, "rtc device registration failed, err=%d\n",
+> +               return -EINVAL;
+
+...and do not shadow actual error code.
+
+> +       }
+> +
+> +       regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
+> +                          freq_test ? M41TXX_BIT_FT : 0);
+> +
+
+> +       return retval ? retval : count;
+
+Does the condition make any sense?
+
+> +}
+
+> +static ssize_t frequency_test_enable_show(struct device *dev,
+> +                                         struct device_attribute *attr,
+> +                                         char *buf)
+> +{
+
+> +       int freq_test_en = 0;
+
+> +       if (ctrl_reg & M41TXX_BIT_FT)
+> +               freq_test_en = true;
+> +       else
+> +               freq_test_en = false;
+> +
+> +       return sprintf(buf, "%d\n", freq_test_en);
+
+So, is it boolean or integer? This code makes it confusing a lot.
+
+> +}
+
 -- 
-2.7.4
+With Best Regards,
+Andy Shevchenko
