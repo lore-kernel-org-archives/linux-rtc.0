@@ -1,13 +1,12 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from out03.mta.xmission.com ([166.70.13.233]:36941 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751118AbeEENJx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 5 May 2018 09:09:53 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
+Received: from bombadil.infradead.org ([198.137.202.133]:47618 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751608AbeEPJpa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:30 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -19,103 +18,210 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180425154827.32251-1-hch@lst.de>
-        <20180425154827.32251-39-hch@lst.de>
-Date: Sat, 05 May 2018 08:09:42 -0500
-In-Reply-To: <20180425154827.32251-39-hch@lst.de> (Christoph Hellwig's message
-        of "Wed, 25 Apr 2018 17:48:25 +0200")
-Message-ID: <87efiq2qqx.fsf@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 38/40] ide: remove ide_driver_proc_write
+Subject: [PATCH 19/42] acpi/battery: simplify procfs code
+Date: Wed, 16 May 2018 11:43:23 +0200
+Message-Id: <20180516094346.20506-20-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Christoph Hellwig <hch@lst.de> writes:
+Use remove_proc_subtree to remove the whole subtree on cleanup, and
+unwind the registration loop into individual calls.  Switch to use
+proc_create_seq where applicable.
 
-> The driver proc file hasn't been writeable for a long time, so this is
-> just dead code.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/acpi/battery.c | 121 +++++++++--------------------------------
+ 1 file changed, 26 insertions(+), 95 deletions(-)
 
-It is possible to chmod this file to get at the write method.  Not that
-I think anyone does.
-
-It looks like this code was merged in 2.3.99-pre1 with permissions
-S_IFREG|S_IRUGO so I don't think the write support was ever finished.
-
-That cap_capable in the write method looks down right scary/buggy.
-
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-
-Eric
-
-
-
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/ide/ide-proc.c | 46 ------------------------------------------
->  1 file changed, 46 deletions(-)
->
-> diff --git a/drivers/ide/ide-proc.c b/drivers/ide/ide-proc.c
-> index 863db44c7916..b3b8b8822d6a 100644
-> --- a/drivers/ide/ide-proc.c
-> +++ b/drivers/ide/ide-proc.c
-> @@ -528,58 +528,12 @@ static int ide_driver_proc_open(struct inode *inode, struct file *file)
->  	return single_open(file, ide_driver_proc_show, PDE_DATA(inode));
->  }
->  
-> -static int ide_replace_subdriver(ide_drive_t *drive, const char *driver)
-> -{
-> -	struct device *dev = &drive->gendev;
-> -	int ret = 1;
-> -	int err;
-> -
-> -	device_release_driver(dev);
-> -	/* FIXME: device can still be in use by previous driver */
-> -	strlcpy(drive->driver_req, driver, sizeof(drive->driver_req));
-> -	err = device_attach(dev);
-> -	if (err < 0)
-> -		printk(KERN_WARNING "IDE: %s: device_attach error: %d\n",
-> -			__func__, err);
-> -	drive->driver_req[0] = 0;
-> -	if (dev->driver == NULL) {
-> -		err = device_attach(dev);
-> -		if (err < 0)
-> -			printk(KERN_WARNING
-> -				"IDE: %s: device_attach(2) error: %d\n",
-> -				__func__, err);
-> -	}
-> -	if (dev->driver && !strcmp(dev->driver->name, driver))
-> -		ret = 0;
-> -
-> -	return ret;
-> -}
-> -
-> -static ssize_t ide_driver_proc_write(struct file *file, const char __user *buffer,
-> -				     size_t count, loff_t *pos)
-> -{
-> -	ide_drive_t	*drive = PDE_DATA(file_inode(file));
-> -	char name[32];
-> -
-> -	if (!capable(CAP_SYS_ADMIN))
-> -		return -EACCES;
-> -	if (count > 31)
-> -		count = 31;
-> -	if (copy_from_user(name, buffer, count))
-> -		return -EFAULT;
-> -	name[count] = '\0';
-> -	if (ide_replace_subdriver(drive, name))
-> -		return -EINVAL;
-> -	return count;
-> -}
-> -
->  static const struct file_operations ide_driver_proc_fops = {
->  	.owner		= THIS_MODULE,
->  	.open		= ide_driver_proc_open,
->  	.read		= seq_read,
->  	.llseek		= seq_lseek,
->  	.release	= single_release,
-> -	.write		= ide_driver_proc_write,
->  };
->  
->  static int ide_media_proc_show(struct seq_file *m, void *v)
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index bdb24d636d9a..76550689ce10 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -81,14 +81,6 @@ MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
+ #ifdef CONFIG_ACPI_PROCFS_POWER
+ extern struct proc_dir_entry *acpi_lock_battery_dir(void);
+ extern void *acpi_unlock_battery_dir(struct proc_dir_entry *acpi_battery_dir);
+-
+-enum acpi_battery_files {
+-	info_tag = 0,
+-	state_tag,
+-	alarm_tag,
+-	ACPI_BATTERY_NUMFILES,
+-};
+-
+ #endif
+ 
+ static const struct acpi_device_id battery_device_ids[] = {
+@@ -985,9 +977,10 @@ static const char *acpi_battery_units(const struct acpi_battery *battery)
+ 		"mA" : "mW";
+ }
+ 
+-static int acpi_battery_print_info(struct seq_file *seq, int result)
++static int acpi_battery_info_proc_show(struct seq_file *seq, void *offset)
+ {
+ 	struct acpi_battery *battery = seq->private;
++	int result = acpi_battery_update(battery, false);
+ 
+ 	if (result)
+ 		goto end;
+@@ -1041,9 +1034,10 @@ static int acpi_battery_print_info(struct seq_file *seq, int result)
+ 	return result;
+ }
+ 
+-static int acpi_battery_print_state(struct seq_file *seq, int result)
++static int acpi_battery_state_proc_show(struct seq_file *seq, void *offset)
+ {
+ 	struct acpi_battery *battery = seq->private;
++	int result = acpi_battery_update(battery, false);
+ 
+ 	if (result)
+ 		goto end;
+@@ -1088,9 +1082,10 @@ static int acpi_battery_print_state(struct seq_file *seq, int result)
+ 	return result;
+ }
+ 
+-static int acpi_battery_print_alarm(struct seq_file *seq, int result)
++static int acpi_battery_alarm_proc_show(struct seq_file *seq, void *offset)
+ {
+ 	struct acpi_battery *battery = seq->private;
++	int result = acpi_battery_update(battery, false);
+ 
+ 	if (result)
+ 		goto end;
+@@ -1142,82 +1137,22 @@ static ssize_t acpi_battery_write_alarm(struct file *file,
+ 	return result;
+ }
+ 
+-typedef int(*print_func)(struct seq_file *seq, int result);
+-
+-static print_func acpi_print_funcs[ACPI_BATTERY_NUMFILES] = {
+-	acpi_battery_print_info,
+-	acpi_battery_print_state,
+-	acpi_battery_print_alarm,
+-};
+-
+-static int acpi_battery_read(int fid, struct seq_file *seq)
++static int acpi_battery_alarm_proc_open(struct inode *inode, struct file *file)
+ {
+-	struct acpi_battery *battery = seq->private;
+-	int result = acpi_battery_update(battery, false);
+-	return acpi_print_funcs[fid](seq, result);
++	return single_open(file, acpi_battery_alarm_proc_show, PDE_DATA(inode));
+ }
+ 
+-#define DECLARE_FILE_FUNCTIONS(_name) \
+-static int acpi_battery_read_##_name(struct seq_file *seq, void *offset) \
+-{ \
+-	return acpi_battery_read(_name##_tag, seq); \
+-} \
+-static int acpi_battery_##_name##_open_fs(struct inode *inode, struct file *file) \
+-{ \
+-	return single_open(file, acpi_battery_read_##_name, PDE_DATA(inode)); \
+-}
+-
+-DECLARE_FILE_FUNCTIONS(info);
+-DECLARE_FILE_FUNCTIONS(state);
+-DECLARE_FILE_FUNCTIONS(alarm);
+-
+-#undef DECLARE_FILE_FUNCTIONS
+-
+-#define FILE_DESCRIPTION_RO(_name) \
+-	{ \
+-	.name = __stringify(_name), \
+-	.mode = S_IRUGO, \
+-	.ops = { \
+-		.open = acpi_battery_##_name##_open_fs, \
+-		.read = seq_read, \
+-		.llseek = seq_lseek, \
+-		.release = single_release, \
+-		.owner = THIS_MODULE, \
+-		}, \
+-	}
+-
+-#define FILE_DESCRIPTION_RW(_name) \
+-	{ \
+-	.name = __stringify(_name), \
+-	.mode = S_IFREG | S_IRUGO | S_IWUSR, \
+-	.ops = { \
+-		.open = acpi_battery_##_name##_open_fs, \
+-		.read = seq_read, \
+-		.llseek = seq_lseek, \
+-		.write = acpi_battery_write_##_name, \
+-		.release = single_release, \
+-		.owner = THIS_MODULE, \
+-		}, \
+-	}
+-
+-static const struct battery_file {
+-	struct file_operations ops;
+-	umode_t mode;
+-	const char *name;
+-} acpi_battery_file[] = {
+-	FILE_DESCRIPTION_RO(info),
+-	FILE_DESCRIPTION_RO(state),
+-	FILE_DESCRIPTION_RW(alarm),
++static const struct file_operations acpi_battery_alarm_fops = {
++	.owner		= THIS_MODULE,
++	.open		= acpi_battery_alarm_proc_open,
++	.read		= seq_read,
++	.write		= acpi_battery_write_alarm,
++	.llseek		= seq_lseek,
++	.release	= single_release,
+ };
+ 
+-#undef FILE_DESCRIPTION_RO
+-#undef FILE_DESCRIPTION_RW
+-
+ static int acpi_battery_add_fs(struct acpi_device *device)
+ {
+-	struct proc_dir_entry *entry = NULL;
+-	int i;
+-
+ 	printk(KERN_WARNING PREFIX "Deprecated procfs I/F for battery is loaded,"
+ 			" please retry with CONFIG_ACPI_PROCFS_POWER cleared\n");
+ 	if (!acpi_device_dir(device)) {
+@@ -1227,28 +1162,24 @@ static int acpi_battery_add_fs(struct acpi_device *device)
+ 			return -ENODEV;
+ 	}
+ 
+-	for (i = 0; i < ACPI_BATTERY_NUMFILES; ++i) {
+-		entry = proc_create_data(acpi_battery_file[i].name,
+-					 acpi_battery_file[i].mode,
+-					 acpi_device_dir(device),
+-					 &acpi_battery_file[i].ops,
+-					 acpi_driver_data(device));
+-		if (!entry)
+-			return -ENODEV;
+-	}
++	if (!proc_create_single_data("info", S_IRUGO, acpi_device_dir(device),
++			acpi_battery_info_proc_show, acpi_driver_data(device)))
++		return -ENODEV;
++	if (!proc_create_single_data("state", S_IRUGO, acpi_device_dir(device),
++			acpi_battery_state_proc_show, acpi_driver_data(device)))
++		return -ENODEV;
++	if (!proc_create_data("alarm", S_IFREG | S_IRUGO | S_IWUSR,
++			acpi_device_dir(device), &acpi_battery_alarm_fops,
++			acpi_driver_data(device)))
++		return -ENODEV;
+ 	return 0;
+ }
+ 
+ static void acpi_battery_remove_fs(struct acpi_device *device)
+ {
+-	int i;
+ 	if (!acpi_device_dir(device))
+ 		return;
+-	for (i = 0; i < ACPI_BATTERY_NUMFILES; ++i)
+-		remove_proc_entry(acpi_battery_file[i].name,
+-				  acpi_device_dir(device));
+-
+-	remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
++	remove_proc_subtree(acpi_device_bid(device), acpi_battery_dir);
+ 	acpi_device_dir(device) = NULL;
+ }
+ 
+-- 
+2.17.0
