@@ -1,124 +1,111 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:34464 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750770AbeEaVKC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 31 May 2018 17:10:02 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/5] rtc: test: emulate alarms using timers
-Date: Thu, 31 May 2018 23:09:58 +0200
-Message-Id: <20180531210959.2472-4-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
-References: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:48226 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752358AbeEPJqc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:32 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 34/42] netfilter/x_tables: switch to proc_create_seq_private
+Date: Wed, 16 May 2018 11:43:38 +0200
+Message-Id: <20180516094346.20506-35-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use timers to emulate alarms. Note that multiple alarms may happen if they
-are set more than 15 days after the current RTC time.
+And remove proc boilerplate code.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-test.c | 56 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 52 insertions(+), 4 deletions(-)
+ net/netfilter/x_tables.c | 42 ++++++----------------------------------
+ 1 file changed, 6 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 041150e53fd7..975f6cdda73f 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -18,19 +18,49 @@
- struct rtc_test_data {
- 	struct rtc_device *rtc;
- 	time64_t offset;
-+	struct timer_list alarm;
-+	bool alarm_en;
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 344dd01a5027..0e314f95a4a3 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1648,22 +1648,6 @@ static const struct seq_operations xt_match_seq_ops = {
+ 	.show	= xt_match_seq_show,
  };
  
- struct platform_device *pdev[MAX_RTC_TEST];
- 
--static int test_rtc_read_alarm(struct device *dev,
--	struct rtc_wkalrm *alrm)
-+static int test_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+-static int xt_match_open(struct inode *inode, struct file *file)
+-{
+-	struct nf_mttg_trav *trav;
+-	trav = __seq_open_private(file, &xt_match_seq_ops, sizeof(*trav));
+-	if (!trav)
+-		return -ENOMEM;
+-	return 0;
+-}
+-
+-static const struct file_operations xt_match_ops = {
+-	.open	 = xt_match_open,
+-	.read	 = seq_read,
+-	.llseek	 = seq_lseek,
+-	.release = seq_release_private,
+-};
+-
+ static void *xt_target_seq_start(struct seq_file *seq, loff_t *pos)
  {
-+	struct rtc_test_data *rtd = dev_get_drvdata(dev);
-+	time64_t alarm;
-+
-+	alarm = (rtd->alarm.expires - jiffies) / HZ;
-+	alarm += ktime_get_real_seconds() + rtd->offset;
-+
-+	rtc_time64_to_tm(alarm, &alrm->time);
-+	alrm->enabled = rtd->alarm_en;
-+
- 	return 0;
- }
- 
--static int test_rtc_set_alarm(struct device *dev,
--	struct rtc_wkalrm *alrm)
-+static int test_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
-+	struct rtc_test_data *rtd = dev_get_drvdata(dev);
-+	ktime_t timeout;
-+	u64 expires;
-+
-+	timeout = rtc_tm_to_time64(&alrm->time) - ktime_get_real_seconds();
-+	timeout -= rtd->offset;
-+
-+	del_timer(&rtd->alarm);
-+
-+	expires = jiffies + timeout * HZ;
-+	if (expires > U32_MAX)
-+		expires = U32_MAX;
-+
-+	pr_err("ABE: %s +%d %s\n", __FILE__, __LINE__, __func__);
-+	rtd->alarm.expires = expires;
-+
-+	if (alrm->enabled)
-+		add_timer(&rtd->alarm);
-+
-+	rtd->alarm_en = alrm->enabled;
-+
- 	return 0;
- }
- 
-@@ -54,6 +84,14 @@ static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
- 
- static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- {
-+	struct rtc_test_data *rtd = dev_get_drvdata(dev);
-+
-+	rtd->alarm_en = enable;
-+	if (enable)
-+		add_timer(&rtd->alarm);
-+	else
-+		del_timer(&rtd->alarm);
-+
- 	return 0;
- }
- 
-@@ -65,6 +103,13 @@ static const struct rtc_class_ops test_rtc_ops = {
- 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
+ 	return xt_mttg_seq_start(seq, pos, true);
+@@ -1698,22 +1682,6 @@ static const struct seq_operations xt_target_seq_ops = {
+ 	.show	= xt_target_seq_show,
  };
  
-+static void test_rtc_alarm_handler(struct timer_list *t)
-+{
-+	struct rtc_test_data *rtd = from_timer(rtd, t, alarm);
-+
-+	rtc_update_irq(rtd->rtc, 1, RTC_AF | RTC_IRQF);
-+}
-+
- static ssize_t test_irq_show(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
-@@ -111,6 +156,9 @@ static int test_probe(struct platform_device *plat_dev)
- 	if (IS_ERR(rtd->rtc))
- 		return PTR_ERR(rtd->rtc);
+-static int xt_target_open(struct inode *inode, struct file *file)
+-{
+-	struct nf_mttg_trav *trav;
+-	trav = __seq_open_private(file, &xt_target_seq_ops, sizeof(*trav));
+-	if (!trav)
+-		return -ENOMEM;
+-	return 0;
+-}
+-
+-static const struct file_operations xt_target_ops = {
+-	.open	 = xt_target_open,
+-	.read	 = seq_read,
+-	.llseek	 = seq_lseek,
+-	.release = seq_release_private,
+-};
+-
+ #define FORMAT_TABLES	"_tables_names"
+ #define	FORMAT_MATCHES	"_tables_matches"
+ #define FORMAT_TARGETS 	"_tables_targets"
+@@ -1787,8 +1755,9 @@ int xt_proto_init(struct net *net, u_int8_t af)
  
-+	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
-+	rtd->alarm.expires = 0;
-+
- 	return 0;
- }
+ 	strlcpy(buf, xt_prefix[af], sizeof(buf));
+ 	strlcat(buf, FORMAT_MATCHES, sizeof(buf));
+-	proc = proc_create_data(buf, 0440, net->proc_net, &xt_match_ops,
+-				(void *)(unsigned long)af);
++	proc = proc_create_seq_private(buf, 0440, net->proc_net,
++			&xt_match_seq_ops, sizeof(struct nf_mttg_trav),
++			(void *)(unsigned long)af);
+ 	if (!proc)
+ 		goto out_remove_tables;
+ 	if (uid_valid(root_uid) && gid_valid(root_gid))
+@@ -1796,8 +1765,9 @@ int xt_proto_init(struct net *net, u_int8_t af)
  
+ 	strlcpy(buf, xt_prefix[af], sizeof(buf));
+ 	strlcat(buf, FORMAT_TARGETS, sizeof(buf));
+-	proc = proc_create_data(buf, 0440, net->proc_net, &xt_target_ops,
+-				(void *)(unsigned long)af);
++	proc = proc_create_seq_private(buf, 0440, net->proc_net,
++			 &xt_target_seq_ops, sizeof(struct nf_mttg_trav),
++			 (void *)(unsigned long)af);
+ 	if (!proc)
+ 		goto out_remove_matches;
+ 	if (uid_valid(root_uid) && gid_valid(root_gid))
 -- 
 2.17.0
