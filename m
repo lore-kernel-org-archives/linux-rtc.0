@@ -1,144 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-bn3nam01on0112.outbound.protection.outlook.com ([104.47.33.112]:39447
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934932AbeEIUT3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 9 May 2018 16:19:29 -0400
-From: Trent Piepho <tpiepho@impinj.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "pure.logic@nexus-software.ie" <pure.logic@nexus-software.ie>
-CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "fabio.estevam@nxp.com" <fabio.estevam@nxp.com>
-Subject: Re: [PATCH] rtc-snvs: Add timeouts to avoid kernel lockups
-Date: Wed, 9 May 2018 20:19:26 +0000
-Message-ID: <1525897165.31312.111.camel@impinj.com>
-References: <20180316181202.14896-1-tpiepho@impinj.com>
-In-Reply-To: <20180316181202.14896-1-tpiepho@impinj.com>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail.bootlin.com ([62.4.15.54]:58669 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751028AbeEPUZy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 16 May 2018 16:25:54 -0400
+Date: Wed, 16 May 2018 22:25:52 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] rtc: stm32: rework register management to prepare
+ other version of RTC
+Message-ID: <20180516202552.GA24496@piout.net>
+References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
+ <1525880770-22263-2-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1525880770-22263-2-git-send-email-amelie.delaunay@st.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-QnVtcC4NCg0KQmVlbiB3aGlsZSwgbm8gcmVzcG9uc2UuDQoNCkFub3RoZXIgcGF0Y2ggZnJvbSBC
-cnlhbiBPJ0Rvbm9naHVlIHdlbnQgaW4gdG8gZml4IGEgcmVsYXRlZCBpc3N1ZSwgYnV0DQpJIGJl
-bGlldmUgdGhpcyBwYXRjaCBzdGlsbCBmaXhlcyBhbm90aGVyIGJ1Zy4NCg0KDQpPbiBGcmksIDIw
-MTgtMDMtMTYgYXQgMTE6MTIgLTA3MDAsIFRyZW50IFBpZXBobyB3cm90ZToNCj4gSW4gb3JkZXIg
-dG8gcmVhZCBjb3JyZWN0bHkgZnJvbSBhc3luY2hyb25vdXNseSB1cGRhdGVkIFJUQyByZWdpc3Rl
-cnMsIGl0J3MNCj4gbmVjZXNzYXJ5IHRvIHJlYWQgcmVwZWF0ZWRseSB1bnRpbCB0aGVpciB2YWx1
-ZXMgZG8gbm90IGNoYW5nZSBmcm9tIHJlYWQgdG8NCj4gcmVhZC4gIFRoZXJlIGlzIG5vIHRpbWVv
-dXQgaW4gdGhpcyBjb2RlIGFuZCBpdCBjb3VsZCBwb3NzaWJseSBsb29wDQo+IGZvcmV2ZXIuDQo+
-IA0KPiBJdCdzIGFsc28gbmVjZXNzYXJ5IHRvIHdhaXQgZm9yIHRocmVlIFJUQyBjbG9jayB0aWNr
-cyBmb3IgY2VydGFpbg0KPiBvcGVyYXRpb25zIHRvIHRha2UgZWZmZWN0IGFuZCB0aGUgZHJpdmVy
-IG1pZ2h0IHdhaXQgZm9yZXZlciBmb3IgdGhpcyB0bw0KPiBoYXBwZW4uDQo+IA0KPiBUbyBhdm9p
-ZCBrZXJuZWwgaGFuZ3MsIHB1dCBpbiB0aW1lb3V0cy4NCj4gDQo+IFRoZXNlIGhhbmdzIHdpbGwg
-aGFwcGVuIHdoZW4gcnVubmluZyB1bmRlciBxZW11LCB3aGljaCBkb2Vzbid0IGVtdWxhdGUgdGhl
-DQo+IFNOVlMgUlRDLiAgSXQgY291bGQgYWxzbyBoYXBwZW4gaWYgdGhlIFJUQyBibG9jayB3aGVy
-ZSBzb21laG93IHBsYWNlZCBpbnRvDQo+IHJlc2V0IG9yIHRoZSBzbG93IHNwZWVkIGNsb2NrIHRo
-YXQgZHJpdmVzIHRoZSBSVEMgY291bnRlciAoYnV0IG5vdCB0aGUNCj4gQ1BVKSB3ZXJlIHRvIHN0
-b3AuDQo+IA0KPiBUaGUgc3ltcHRvbXMgYXJlIGEgd29yayBxdWV1ZSBoYW5nIG9uIHJ0Y190aW1l
-cl9kb193b3JrKCksIHdoaWNoDQo+IGV2ZW50dWFsbHkgYmxvY2tzIGEgc3lzdGVtZCBmc25vdGlm
-eSBvcGVyYXRpb24gdGhhdCB0cmlnZ2VycyBhIHdvcmsgcXVldWUNCj4gZmx1c2gsIGNhdXNpbmcg
-c3lzdGVtZCB0byBoYW5nIGFuZCB0aHVzIGNhdXNpbmcgYWxsIHNlcnZpY2VzIHRoYXQgc2hvdWxk
-DQo+IGJlIHN0YXJ0ZWQgYnkgc3lzdGVtZCwgbGlrZSBhIGNvbnNvbGUgZ2V0dHksIHRvIGZhaWwg
-dG8gc3RhcnQgb3Igc3RvcC4NCj4gDQo+IEFsc28gb3B0aW1pemUgdGhlIHdhaXQgY29kZSB0byB3
-YWl0IGxlc3MuICBJdCBvbmx5IG5lZWRzIHRvIHdhaXQgZm9yIHRoZQ0KPiBjbG9jayB0byBhZHZh
-bmNlIHRocmVlIHRpY2tzLCBub3QgdG8gc2VlIGl0IGNoYW5nZSB0aHJlZSB0aW1lcy4NCj4gDQo+
-IFNpZ25lZC1vZmYtYnk6IFRyZW50IFBpZXBobyA8dHBpZXBob0BpbXBpbmouY29tPg0KPiBDYzog
-QWxlc3NhbmRybyBadW1tbyA8YS56dW1tb0B0b3dlcnRlY2guaXQ+DQo+IENjOiBBbGV4YW5kcmUg
-QmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAZnJlZS1lbGVjdHJvbnMuY29tPg0KPiBDYzogbGlu
-dXgtcnRjQHZnZXIua2VybmVsLm9yZw0KPiBDYzogU2hhd24gR3VvIDxzaGF3bmd1b0BrZXJuZWwu
-b3JnPg0KPiBDYzogU2FzY2hhIEhhdWVyIDxrZXJuZWxAcGVuZ3V0cm9uaXguZGU+DQo+IENjOiBG
-YWJpbyBFc3RldmFtIDxmYWJpby5lc3RldmFtQG54cC5jb20+DQo+IA0KPiAtLS0NCj4gIGRyaXZl
-cnMvcnRjL3J0Yy1zbnZzLmMgfCAxMDUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKyst
-LS0tLS0tLS0tLS0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDcwIGluc2VydGlvbnMoKyksIDM1
-IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1zbnZzLmMg
-Yi9kcml2ZXJzL3J0Yy9ydGMtc252cy5jDQo+IGluZGV4IGQ4ZWY5ZTA1MmM0Zi4uMGU3NTY0Yjlk
-NmYyIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3J0Yy9ydGMtc252cy5jDQo+ICsrKyBiL2RyaXZl
-cnMvcnRjL3J0Yy1zbnZzLmMNCj4gQEAgLTQ3LDQ5ICs0Nyw4MyBAQCBzdHJ1Y3Qgc252c19ydGNf
-ZGF0YSB7DQo+ICAJc3RydWN0IGNsayAqY2xrOw0KPiAgfTsNCj4gIA0KPiArLyogUmVhZCA2NCBi
-aXQgdGltZXIgcmVnaXN0ZXIsIHdoaWNoIGNvdWxkIGJlIGluIGluY29uc2lzdGVudCBzdGF0ZSAq
-Lw0KPiArc3RhdGljIHU2NCBydGNfcmVhZF9scHNydChzdHJ1Y3Qgc252c19ydGNfZGF0YSAqZGF0
-YSkNCj4gK3sNCj4gKwl1MzIgbXNiLCBsc2I7DQo+ICsNCj4gKwlyZWdtYXBfcmVhZChkYXRhLT5y
-ZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTVIsICZtc2IpOw0KPiArCXJlZ21hcF9y
-ZWFkKGRhdGEtPnJlZ21hcCwgZGF0YS0+b2Zmc2V0ICsgU05WU19MUFNSVENMUiwgJmxzYik7DQo+
-ICsJcmV0dXJuICh1NjQpbXNiIDw8IDMyIHwgbHNiOw0KPiArfQ0KPiArDQo+ICsvKiBSZWFkIHRo
-ZSBzZWN1cmUgcmVhbCB0aW1lIGNvdW50ZXIsIHRha2luZyBjYXJlIHRvIGRlYWwgd2l0aCB0aGUg
-Y2FzZXMgb2YgdGhlDQo+ICsgKiBjb3VudGVyIHVwZGF0aW5nIHdoaWxlIGJlaW5nIHJlYWQuDQo+
-ICsgKi8NCj4gIHN0YXRpYyB1MzIgcnRjX3JlYWRfbHBfY291bnRlcihzdHJ1Y3Qgc252c19ydGNf
-ZGF0YSAqZGF0YSkNCj4gIHsNCj4gIAl1NjQgcmVhZDEsIHJlYWQyOw0KPiAtCXUzMiB2YWw7DQo+
-ICsJdW5zaWduZWQgaW50IHRpbWVvdXQgPSAxMDA7DQo+ICANCj4gKwkvKiBBcyBleHBlY3RlZCwg
-dGhlIHJlZ2lzdGVycyBtaWdodCB1cGRhdGUgYmV0d2VlbiB0aGUgcmVhZCBvZiB0aGUgTFNCDQo+
-ICsJICogcmVnIGFuZCB0aGUgTVNCIHJlZy4gIEl0J3MgYWxzbyBwb3NzaWJsZSB0aGF0IG9uZSBy
-ZWdpc3RlciBtaWdodCBiZQ0KPiArCSAqIGluIHBhcnRpYWxseSBtb2RpZmllZCBzdGF0ZSBhcyB3
-ZWxsLg0KPiArCSAqLw0KPiArCXJlYWQxID0gcnRjX3JlYWRfbHBzcnQoZGF0YSk7DQo+ICAJZG8g
-ew0KPiAtCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBT
-UlRDTVIsICZ2YWwpOw0KPiAtCQlyZWFkMSA9IHZhbDsNCj4gLQkJcmVhZDEgPDw9IDMyOw0KPiAt
-CQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTFIs
-ICZ2YWwpOw0KPiAtCQlyZWFkMSB8PSB2YWw7DQo+IC0NCj4gLQkJcmVnbWFwX3JlYWQoZGF0YS0+
-cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ01SLCAmdmFsKTsNCj4gLQkJcmVhZDIg
-PSB2YWw7DQo+IC0JCXJlYWQyIDw8PSAzMjsNCj4gLQkJcmVnbWFwX3JlYWQoZGF0YS0+cmVnbWFw
-LCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmdmFsKTsNCj4gLQkJcmVhZDIgfD0gdmFs
-Ow0KPiAtCX0gd2hpbGUgKHJlYWQxICE9IHJlYWQyKTsNCj4gKwkJcmVhZDIgPSByZWFkMTsNCj4g
-KwkJcmVhZDEgPSBydGNfcmVhZF9scHNydChkYXRhKTsNCj4gKwl9IHdoaWxlIChyZWFkMSAhPSBy
-ZWFkMiAmJiAtLXRpbWVvdXQpOw0KPiArCWlmICghdGltZW91dCkNCj4gKwkJZGV2X2VycigmZGF0
-YS0+cnRjLT5kZXYsICJUaW1lb3V0IHRyeWluZyB0byBnZXQgdmFsaWQgTFBTUlQgQ291bnRlciBy
-ZWFkXG4iKTsNCj4gIA0KPiAgCS8qIENvbnZlcnQgNDctYml0IGNvdW50ZXIgdG8gMzItYml0IHJh
-dyBzZWNvbmQgY291bnQgKi8NCj4gIAlyZXR1cm4gKHUzMikgKHJlYWQxID4+IENOVFJfVE9fU0VD
-U19TSCk7DQo+ICB9DQo+ICANCj4gLXN0YXRpYyB2b2lkIHJ0Y193cml0ZV9zeW5jX2xwKHN0cnVj
-dCBzbnZzX3J0Y19kYXRhICpkYXRhKQ0KPiArLyogSnVzdCByZWFkIHRoZSBsc2IgZnJvbSB0aGUg
-Y291bnRlciwgZGVhbGluZyB3aXRoIGluY29uc2lzdGVudCBzdGF0ZSAqLw0KPiArc3RhdGljIGlu
-dCBydGNfcmVhZF9scF9jb3VudGVyX2xzYihzdHJ1Y3Qgc252c19ydGNfZGF0YSAqZGF0YSwgdTMy
-ICpsc2IpDQo+ICB7DQo+IC0JdTMyIGNvdW50MSwgY291bnQyLCBjb3VudDM7DQo+IC0JaW50IGk7
-DQo+IC0NCj4gLQkvKiBXYWl0IGZvciAzIENLSUwgY3ljbGVzICovDQo+IC0JZm9yIChpID0gMDsg
-aSA8IDM7IGkrKykgew0KPiAtCQlkbyB7DQo+IC0JCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAs
-IGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRDTFIsICZjb3VudDEpOw0KPiAtCQkJcmVnbWFwX3Jl
-YWQoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291bnQyKTsN
-Cj4gLQkJfSB3aGlsZSAoY291bnQxICE9IGNvdW50Mik7DQo+IC0NCj4gLQkJLyogTm93IHdhaXQg
-dW50aWwgY291bnRlciB2YWx1ZSBjaGFuZ2VzICovDQo+IC0JCWRvIHsNCj4gLQkJCWRvIHsNCj4g
-LQkJCQlyZWdtYXBfcmVhZChkYXRhLT5yZWdtYXAsIGRhdGEtPm9mZnNldCArIFNOVlNfTFBTUlRD
-TFIsICZjb3VudDIpOw0KPiAtCQkJCXJlZ21hcF9yZWFkKGRhdGEtPnJlZ21hcCwgZGF0YS0+b2Zm
-c2V0ICsgU05WU19MUFNSVENMUiwgJmNvdW50Myk7DQo+IC0JCQl9IHdoaWxlIChjb3VudDIgIT0g
-Y291bnQzKTsNCj4gLQkJfSB3aGlsZSAoY291bnQzID09IGNvdW50MSk7DQo+ICsJdTMyIGNvdW50
-MSwgY291bnQyOw0KPiArCXVuc2lnbmVkIGludCB0aW1lb3V0ID0gMTAwOw0KPiArDQo+ICsJcmVn
-bWFwX3JlYWQoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291
-bnQxKTsNCj4gKwlkbyB7DQo+ICsJCWNvdW50MiA9IGNvdW50MTsNCj4gKwkJcmVnbWFwX3JlYWQo
-ZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQgKyBTTlZTX0xQU1JUQ0xSLCAmY291bnQxKTsNCj4g
-Kwl9IHdoaWxlIChjb3VudDEgIT0gY291bnQyICYmIC0tdGltZW91dCk7DQo+ICsJaWYgKCF0aW1l
-b3V0KSB7DQo+ICsJCWRldl9lcnIoJmRhdGEtPnJ0Yy0+ZGV2LCAiVGltZW91dCB0cnlpbmcgdG8g
-Z2V0IHZhbGlkIExQU1JUIENvdW50ZXIgcmVhZFxuIik7DQo+ICsJCXJldHVybiAtRVRJTUVET1VU
-Ow0KPiAgCX0NCj4gKw0KPiArCSpsc2IgPSBjb3VudDE7DQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+
-ICsNCj4gK3N0YXRpYyBpbnQgcnRjX3dyaXRlX3N5bmNfbHAoc3RydWN0IHNudnNfcnRjX2RhdGEg
-KmRhdGEpDQo+ICt7DQo+ICsJdTMyIGNvdW50MSwgY291bnQyOw0KPiArCXUzMiBlbGFwc2VkOw0K
-PiArCXVuc2lnbmVkIGludCB0aW1lb3V0ID0gMTAwMDsNCj4gKwlpbnQgcmV0Ow0KPiArDQo+ICsJ
-cmV0ID0gcnRjX3JlYWRfbHBfY291bnRlcl9sc2IoZGF0YSwgJmNvdW50MSk7DQo+ICsJaWYgKHJl
-dCkNCj4gKwkJcmV0dXJuIHJldDsNCj4gKw0KPiArCS8qIFdhaXQgZm9yIDMgQ0tJTCBjeWNsZXMs
-IGFib3V0IDYxLjAtOTEuNSDCtXMgKi8NCj4gKwlkbyB7DQo+ICsJCXJldCA9IHJ0Y19yZWFkX2xw
-X2NvdW50ZXJfbHNiKGRhdGEsICZjb3VudDIpOw0KPiArCQlpZiAocmV0KQ0KPiArCQkJcmV0dXJu
-IHJldDsNCj4gKwkJZWxhcHNlZCA9IGNvdW50MiAtIGNvdW50MTsgLyogd3JhcCBhcm91bmQgX2lz
-XyBoYW5kbGVkISAqLw0KPiArCX0gd2hpbGUgKGVsYXBzZWQgPCAzICYmIC0tdGltZW91dCk7DQo+
-ICsJaWYgKCF0aW1lb3V0KSB7DQo+ICsJCWRldl9lcnIoJmRhdGEtPnJ0Yy0+ZGV2LCAiVGltZW91
-dCB3YWl0aW5nIGZvciBMUFNSVCBDb3VudGVyIHRvIGNoYW5nZVxuIik7DQo+ICsJCXJldHVybiAt
-RVRJTUVET1VUOw0KPiArCX0NCj4gKwlyZXR1cm4gMDsNCj4gIH0NCj4gIA0KPiAgc3RhdGljIGlu
-dCBzbnZzX3J0Y19lbmFibGUoc3RydWN0IHNudnNfcnRjX2RhdGEgKmRhdGEsIGJvb2wgZW5hYmxl
-KQ0KPiBAQCAtMTcwLDkgKzIwNCw3IEBAIHN0YXRpYyBpbnQgc252c19ydGNfYWxhcm1faXJxX2Vu
-YWJsZShzdHJ1Y3QgZGV2aWNlICpkZXYsIHVuc2lnbmVkIGludCBlbmFibGUpDQo+ICAJCQkgICAo
-U05WU19MUENSX0xQVEFfRU4gfCBTTlZTX0xQQ1JfTFBXVUlfRU4pLA0KPiAgCQkJICAgZW5hYmxl
-ID8gKFNOVlNfTFBDUl9MUFRBX0VOIHwgU05WU19MUENSX0xQV1VJX0VOKSA6IDApOw0KPiAgDQo+
-IC0JcnRjX3dyaXRlX3N5bmNfbHAoZGF0YSk7DQo+IC0NCj4gLQlyZXR1cm4gMDsNCj4gKwlyZXR1
-cm4gcnRjX3dyaXRlX3N5bmNfbHAoZGF0YSk7DQo+ICB9DQo+ICANCj4gIHN0YXRpYyBpbnQgc252
-c19ydGNfc2V0X2FsYXJtKHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IHJ0Y193a2Fscm0gKmFs
-cm0pDQo+IEBAIC0xODAsMTEgKzIxMiwxNCBAQCBzdGF0aWMgaW50IHNudnNfcnRjX3NldF9hbGFy
-bShzdHJ1Y3QgZGV2aWNlICpkZXYsIHN0cnVjdCBydGNfd2thbHJtICphbHJtKQ0KPiAgCXN0cnVj
-dCBzbnZzX3J0Y19kYXRhICpkYXRhID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQo+ICAJc3RydWN0
-IHJ0Y190aW1lICphbHJtX3RtID0gJmFscm0tPnRpbWU7DQo+ICAJdW5zaWduZWQgbG9uZyB0aW1l
-Ow0KPiArCWludCByZXQ7DQo+ICANCj4gIAlydGNfdG1fdG9fdGltZShhbHJtX3RtLCAmdGltZSk7
-DQo+ICANCj4gIAlyZWdtYXBfdXBkYXRlX2JpdHMoZGF0YS0+cmVnbWFwLCBkYXRhLT5vZmZzZXQg
-KyBTTlZTX0xQQ1IsIFNOVlNfTFBDUl9MUFRBX0VOLCAwKTsNCj4gLQlydGNfd3JpdGVfc3luY19s
-cChkYXRhKTsNCj4gKwlyZXQgPSBydGNfd3JpdGVfc3luY19scChkYXRhKTsNCj4gKwlpZiAocmV0
-KQ0KPiArCQlyZXR1cm4gcmV0Ow0KPiAgCXJlZ21hcF93cml0ZShkYXRhLT5yZWdtYXAsIGRhdGEt
-Pm9mZnNldCArIFNOVlNfTFBUQVIsIHRpbWUpOw0KPiAgDQo+ICAJLyogQ2xlYXIgYWxhcm0gaW50
-ZXJydXB0IHN0YXR1cyBiaXQgKi8=
+Hi,
+
+On 09/05/2018 17:46:08+0200, Amelie Delaunay wrote:
+>  static void stm32_rtc_wpr_unlock(struct stm32_rtc *rtc)
+>  {
+> -	writel_relaxed(RTC_WPR_1ST_KEY, rtc->base + STM32_RTC_WPR);
+> -	writel_relaxed(RTC_WPR_2ND_KEY, rtc->base + STM32_RTC_WPR);
+> +	struct stm32_rtc_registers regs = rtc->data->regs;
+
+regs should probably be a pointer to ensure that no copy is made. I've
+actually checked and it doesn't make a difference because gcc is smart
+enough to not make the copy.
+
+> +
+> +	writel_relaxed(RTC_WPR_1ST_KEY, rtc->base + regs.wpr);
+> +	writel_relaxed(RTC_WPR_2ND_KEY, rtc->base + regs.wpr);
+>  }
+>  
+
+...
+
+>  static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
+>  {
+>  	struct stm32_rtc *rtc = (struct stm32_rtc *)dev_id;
+> -	unsigned int isr, cr;
+> +	struct stm32_rtc_registers regs = rtc->data->regs;
+> +	struct stm32_rtc_events evts = rtc->data->events;
+
+Ditto for evts.
+
+> +	unsigned int status, cr;
+>  
+>  	mutex_lock(&rtc->rtc_dev->ops_lock);
+>  
+> -	isr = readl_relaxed(rtc->base + STM32_RTC_ISR);
+> -	cr = readl_relaxed(rtc->base + STM32_RTC_CR);
+> +	status = readl_relaxed(rtc->base + regs.isr);
+> +	cr = readl_relaxed(rtc->base + regs.cr);
+>  
+> -	if ((isr & STM32_RTC_ISR_ALRAF) &&
+> +	if ((status & evts.alra) &&
+>  	    (cr & STM32_RTC_CR_ALRAIE)) {
+>  		/* Alarm A flag - Alarm interrupt */
+>  		dev_dbg(&rtc->rtc_dev->dev, "Alarm occurred\n");
+
+...
+
+> @@ -641,7 +710,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+>  
+>  	/*
+>  	 * After a system reset, RTC_ISR.INITS flag can be read to check if
+> -	 * the calendar has been initalized or not. INITS flag is reset by a
+> +	 * the calendar has been initialized or not. INITS flag is reset by a
+>  	 * power-on reset (no vbat, no power-supply). It is not reset if
+>  	 * rtc_ck parent clock has changed (so RTC prescalers need to be
+>  	 * changed). That's why we cannot rely on this flag to know if RTC
+> @@ -666,7 +735,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+>  			 "alarm won't be able to wake up the system");
+>  
+>  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+> -			&stm32_rtc_ops, THIS_MODULE);
+> +						&stm32_rtc_ops, THIS_MODULE);
+>  	if (IS_ERR(rtc->rtc_dev)) {
+>  		ret = PTR_ERR(rtc->rtc_dev);
+>  		dev_err(&pdev->dev, "rtc device registration failed, err=%d\n",
+
+Those two changes should go into a separate cleanup patch.
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
