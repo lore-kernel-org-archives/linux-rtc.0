@@ -1,13 +1,12 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from zeniv.linux.org.uk ([195.92.253.2]:43804 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751751AbeEFRpq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 May 2018 13:45:46 -0400
-Date: Sun, 6 May 2018 18:45:31 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
+Received: from bombadil.infradead.org ([198.137.202.133]:48100 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752628AbeEPJqU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:20 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -19,101 +18,283 @@ Cc: Christoph Hellwig <hch@lst.de>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: simplify procfs code for seq_file instances V2
-Message-ID: <20180506174531.GK30522@ZenIV.linux.org.uk>
-References: <20180425154827.32251-1-hch@lst.de>
- <20180506171948.GA769@avx2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180506171948.GA769@avx2>
+Subject: [PATCH 23/42] afs: simplify procfs code
+Date: Wed, 16 May 2018 11:43:27 +0200
+Message-Id: <20180516094346.20506-24-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sun, May 06, 2018 at 08:19:49PM +0300, Alexey Dobriyan wrote:
-> +++ b/fs/proc/internal.h
-> @@ -48,8 +48,8 @@ struct proc_dir_entry {
->  		const struct seq_operations *seq_ops;
->  		int (*single_show)(struct seq_file *, void *);
->  	};
-> -	unsigned int state_size;
->  	void *data;
-> +	unsigned int state_size;
->  	unsigned int low_ino;
->  	nlink_t nlink;
->  	kuid_t uid;
+Use remove_proc_subtree to remove the whole subtree on cleanup, and
+unwind the registration loop into individual calls.  Switch to use
+proc_create_seq where applicable.
 
-Makes sense
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/afs/proc.c | 134 ++++++--------------------------------------------
+ 1 file changed, 15 insertions(+), 119 deletions(-)
 
-> @@ -62,9 +62,9 @@ struct proc_dir_entry {
->  	umode_t mode;
->  	u8 namelen;
->  #ifdef CONFIG_64BIT
-> -#define SIZEOF_PDE_INLINE_NAME	(192-139)
-> +#define SIZEOF_PDE_INLINE_NAME	(192-155)
->  #else
-> -#define SIZEOF_PDE_INLINE_NAME	(128-87)
-> +#define SIZEOF_PDE_INLINE_NAME	(128-95)
-
->  #endif
->  	char inline_name[SIZEOF_PDE_INLINE_NAME];
->  } __randomize_layout;
-
-*UGH*
-
-Both to the original state and that kind of "adjustments".
-Incidentally, with __bugger_layout in there these expressions
-are simply wrong.
-
-If nothing else, I would suggest turning the last one into
-	char inline_name[];
-in hope that layout won't get... randomized that much and
-used
-
-#ifdef CONFIG_64BIT
-#define PDE_SIZE 192
-#else
-#define PDE_SIZE 128
-#endif
-
-union __proc_dir_entry {
-	char pad[PDE_SIZE];
-	struct proc_dir_entry real;
-};
-
-#define SIZEOF_PDE_INLINE_NAME (PDE_SIZE - offsetof(struct proc_dir_entry, inline_name))
-
-for constants, adjusted sizeof and sizeof_field when creating
-proc_dir_entry_cache and turned proc_root into
-
-union __proc_dir_entry __proc_root = { .real = {
-        .low_ino        = PROC_ROOT_INO,
-        .namelen        = 5,
-        .mode           = S_IFDIR | S_IRUGO | S_IXUGO,
-        .nlink          = 2,
-        .refcnt         = REFCOUNT_INIT(1),
-        .proc_iops      = &proc_root_inode_operations,
-        .proc_fops      = &proc_root_operations,
-        .parent         = &__proc_root.real,
-        .subdir         = RB_ROOT,
-        .name           = __proc_root.real.inline_name,
-        .inline_name    = "/proc",
-}};
-
-#define proc_root __proc_root.real
-(or actually used __proc_root.real in all of a 6 places where it remains).
-
-> diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
-> index baf1994289ce..7d94fa005b0d 100644
-> --- a/fs/proc/proc_net.c
-> +++ b/fs/proc/proc_net.c
-> @@ -40,7 +40,7 @@ static struct net *get_proc_net(const struct inode *inode)
->  
->  static int seq_open_net(struct inode *inode, struct file *file)
->  {
-> -	size_t state_size = PDE(inode)->state_size;
-> +	unsigned int state_size = PDE(inode)->state_size;
->  	struct seq_net_private *p;
->  	struct net *net;
-
-<shakes head>
-You and your "size_t is evil" crusade...
+diff --git a/fs/afs/proc.c b/fs/afs/proc.c
+index 839a22280606..3aad32762989 100644
+--- a/fs/afs/proc.c
++++ b/fs/afs/proc.c
+@@ -62,7 +62,6 @@ static const struct file_operations afs_proc_rootcell_fops = {
+ 	.llseek		= no_llseek,
+ };
+ 
+-static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file);
+ static void *afs_proc_cell_volumes_start(struct seq_file *p, loff_t *pos);
+ static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
+ 					loff_t *pos);
+@@ -76,15 +75,6 @@ static const struct seq_operations afs_proc_cell_volumes_ops = {
+ 	.show	= afs_proc_cell_volumes_show,
+ };
+ 
+-static const struct file_operations afs_proc_cell_volumes_fops = {
+-	.open		= afs_proc_cell_volumes_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= seq_release,
+-};
+-
+-static int afs_proc_cell_vlservers_open(struct inode *inode,
+-					struct file *file);
+ static void *afs_proc_cell_vlservers_start(struct seq_file *p, loff_t *pos);
+ static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
+ 					  loff_t *pos);
+@@ -98,14 +88,6 @@ static const struct seq_operations afs_proc_cell_vlservers_ops = {
+ 	.show	= afs_proc_cell_vlservers_show,
+ };
+ 
+-static const struct file_operations afs_proc_cell_vlservers_fops = {
+-	.open		= afs_proc_cell_vlservers_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= seq_release,
+-};
+-
+-static int afs_proc_servers_open(struct inode *inode, struct file *file);
+ static void *afs_proc_servers_start(struct seq_file *p, loff_t *pos);
+ static void *afs_proc_servers_next(struct seq_file *p, void *v,
+ 					loff_t *pos);
+@@ -119,13 +101,6 @@ static const struct seq_operations afs_proc_servers_ops = {
+ 	.show	= afs_proc_servers_show,
+ };
+ 
+-static const struct file_operations afs_proc_servers_fops = {
+-	.open		= afs_proc_servers_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= seq_release,
+-};
+-
+ static int afs_proc_sysname_open(struct inode *inode, struct file *file);
+ static int afs_proc_sysname_release(struct inode *inode, struct file *file);
+ static void *afs_proc_sysname_start(struct seq_file *p, loff_t *pos);
+@@ -152,7 +127,7 @@ static const struct file_operations afs_proc_sysname_fops = {
+ 	.write		= afs_proc_sysname_write,
+ };
+ 
+-static const struct file_operations afs_proc_stats_fops;
++static int afs_proc_stats_show(struct seq_file *m, void *v);
+ 
+ /*
+  * initialise the /proc/fs/afs/ directory
+@@ -167,8 +142,8 @@ int afs_proc_init(struct afs_net *net)
+ 
+ 	if (!proc_create("cells", 0644, net->proc_afs, &afs_proc_cells_fops) ||
+ 	    !proc_create("rootcell", 0644, net->proc_afs, &afs_proc_rootcell_fops) ||
+-	    !proc_create("servers", 0644, net->proc_afs, &afs_proc_servers_fops) ||
+-	    !proc_create("stats", 0644, net->proc_afs, &afs_proc_stats_fops) ||
++	    !proc_create_seq("servers", 0644, net->proc_afs, &afs_proc_servers_ops) ||
++	    !proc_create_single("stats", 0644, net->proc_afs, afs_proc_stats_show) ||
+ 	    !proc_create("sysname", 0644, net->proc_afs, &afs_proc_sysname_fops))
+ 		goto error_tree;
+ 
+@@ -196,16 +171,7 @@ void afs_proc_cleanup(struct afs_net *net)
+  */
+ static int afs_proc_cells_open(struct inode *inode, struct file *file)
+ {
+-	struct seq_file *m;
+-	int ret;
+-
+-	ret = seq_open(file, &afs_proc_cells_ops);
+-	if (ret < 0)
+-		return ret;
+-
+-	m = file->private_data;
+-	m->private = PDE_DATA(inode);
+-	return 0;
++	return seq_open(file, &afs_proc_cells_ops);
+ }
+ 
+ /*
+@@ -430,10 +396,11 @@ int afs_proc_cell_setup(struct afs_net *net, struct afs_cell *cell)
+ 	if (!dir)
+ 		goto error_dir;
+ 
+-	if (!proc_create_data("vlservers", 0, dir,
+-			      &afs_proc_cell_vlservers_fops, cell) ||
+-	    !proc_create_data("volumes", 0, dir,
+-			      &afs_proc_cell_volumes_fops, cell))
++	if (!proc_create_seq_data("vlservers", 0, dir,
++			&afs_proc_cell_vlservers_ops, cell))
++		goto error_tree;
++	if (!proc_create_seq_data("volumes", 0, dir, &afs_proc_cell_volumes_ops,
++			cell))
+ 		goto error_tree;
+ 
+ 	_leave(" = 0");
+@@ -458,29 +425,6 @@ void afs_proc_cell_remove(struct afs_net *net, struct afs_cell *cell)
+ 	_leave("");
+ }
+ 
+-/*
+- * open "/proc/fs/afs/<cell>/volumes" which provides a summary of extant cells
+- */
+-static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
+-{
+-	struct afs_cell *cell;
+-	struct seq_file *m;
+-	int ret;
+-
+-	cell = PDE_DATA(inode);
+-	if (!cell)
+-		return -ENOENT;
+-
+-	ret = seq_open(file, &afs_proc_cell_volumes_ops);
+-	if (ret < 0)
+-		return ret;
+-
+-	m = file->private_data;
+-	m->private = cell;
+-
+-	return 0;
+-}
+-
+ /*
+  * set up the iterator to start reading from the cells list and return the
+  * first item
+@@ -488,7 +432,7 @@ static int afs_proc_cell_volumes_open(struct inode *inode, struct file *file)
+ static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
+ 	__acquires(cell->proc_lock)
+ {
+-	struct afs_cell *cell = m->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
+ 
+ 	_enter("cell=%p pos=%Ld", cell, *_pos);
+ 
+@@ -502,7 +446,7 @@ static void *afs_proc_cell_volumes_start(struct seq_file *m, loff_t *_pos)
+ static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
+ 					loff_t *_pos)
+ {
+-	struct afs_cell *cell = p->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
+ 
+ 	_enter("cell=%p pos=%Ld", cell, *_pos);
+ 	return seq_list_next(v, &cell->proc_volumes, _pos);
+@@ -514,7 +458,7 @@ static void *afs_proc_cell_volumes_next(struct seq_file *p, void *v,
+ static void afs_proc_cell_volumes_stop(struct seq_file *p, void *v)
+ 	__releases(cell->proc_lock)
+ {
+-	struct afs_cell *cell = p->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
+ 
+ 	read_unlock(&cell->proc_lock);
+ }
+@@ -530,7 +474,7 @@ static const char afs_vol_types[3][3] = {
+  */
+ static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
+ {
+-	struct afs_cell *cell = m->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
+ 	struct afs_volume *vol = list_entry(v, struct afs_volume, proc_link);
+ 
+ 	/* Display header on line 1 */
+@@ -546,30 +490,6 @@ static int afs_proc_cell_volumes_show(struct seq_file *m, void *v)
+ 	return 0;
+ }
+ 
+-/*
+- * open "/proc/fs/afs/<cell>/vlservers" which provides a list of volume
+- * location server
+- */
+-static int afs_proc_cell_vlservers_open(struct inode *inode, struct file *file)
+-{
+-	struct afs_cell *cell;
+-	struct seq_file *m;
+-	int ret;
+-
+-	cell = PDE_DATA(inode);
+-	if (!cell)
+-		return -ENOENT;
+-
+-	ret = seq_open(file, &afs_proc_cell_vlservers_ops);
+-	if (ret<0)
+-		return ret;
+-
+-	m = file->private_data;
+-	m->private = cell;
+-
+-	return 0;
+-}
+-
+ /*
+  * set up the iterator to start reading from the cells list and return the
+  * first item
+@@ -578,7 +498,7 @@ static void *afs_proc_cell_vlservers_start(struct seq_file *m, loff_t *_pos)
+ 	__acquires(rcu)
+ {
+ 	struct afs_addr_list *alist;
+-	struct afs_cell *cell = m->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(m->file));
+ 	loff_t pos = *_pos;
+ 
+ 	rcu_read_lock();
+@@ -603,7 +523,7 @@ static void *afs_proc_cell_vlservers_next(struct seq_file *p, void *v,
+ 					  loff_t *_pos)
+ {
+ 	struct afs_addr_list *alist;
+-	struct afs_cell *cell = p->private;
++	struct afs_cell *cell = PDE_DATA(file_inode(p->file));
+ 	loff_t pos;
+ 
+ 	alist = rcu_dereference(cell->vl_addrs);
+@@ -643,15 +563,6 @@ static int afs_proc_cell_vlservers_show(struct seq_file *m, void *v)
+ 	return 0;
+ }
+ 
+-/*
+- * open "/proc/fs/afs/servers" which provides a summary of active
+- * servers
+- */
+-static int afs_proc_servers_open(struct inode *inode, struct file *file)
+-{
+-	return seq_open(file, &afs_proc_servers_ops);
+-}
+-
+ /*
+  * Set up the iterator to start reading from the server list and return the
+  * first item.
+@@ -931,18 +842,3 @@ static int afs_proc_stats_show(struct seq_file *m, void *v)
+ 		   atomic_long_read(&net->n_store_bytes));
+ 	return 0;
+ }
+-
+-/*
+- * Open "/proc/fs/afs/stats" to allow reading of the stat counters.
+- */
+-static int afs_proc_stats_open(struct inode *inode, struct file *file)
+-{
+-	return single_open(file, afs_proc_stats_show, NULL);
+-}
+-
+-static const struct file_operations afs_proc_stats_fops = {
+-	.open		= afs_proc_stats_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release        = single_release,
+-};
+-- 
+2.17.0
