@@ -1,117 +1,56 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:54904 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751153AbeEPVCT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:02:19 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id A7382B00958
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:02:17 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id g2kgj6zwh2KS for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 23:02:17 +0200 (CEST)
-Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        alexandre.belloni@bootlin.com, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
- <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
- <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <836407b4-8c51-5efa-8e29-f487bbcb528d@micronovasrl.com>
-Date: Wed, 16 May 2018 23:02:16 +0200
-MIME-Version: 1.0
-In-Reply-To: <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from bombadil.infradead.org ([198.137.202.133]:46828 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751485AbeEPJoV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:21 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: simplify procfs code for seq_file instances V3
+Date: Wed, 16 May 2018 11:43:04 +0200
+Message-Id: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+We currently have hundreds of proc files that implement plain, read-only
+seq_file based interfaces.  This series consolidates them using new
+procfs helpers that take the seq_operations or simple show callback
+directly.
 
-Il 16/05/2018 22:22, Andy Shevchenko ha scritto:
-> On Wed, May 16, 2018 at 1:32 PM, Giulio Benetti
-> <giulio.benetti@micronovasrl.com> wrote:
->> On m41txx you can enable open-drain OUT pin to check if offset is ok.
->> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
->> 512 times faster than 1s tick base.
->>
->> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
->>
->> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
-> 
->> +static ssize_t frequency_test_enable_store(struct device *dev,
->> +                                          struct device_attribute *attr,
->> +                                          const char *buf, size_t count)
->> +{
->> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
->> +       unsigned long freq_test = 0;
->> +       int retval;
->> +
->> +       retval = kstrtoul(buf, 10, &freq_test);
->> +       if ((retval < 0) || (retval > 1)) {
-> 
-> kstrtobool() then?
+A git tree is available at:
 
-Yes, you're right.
+    git://git.infradead.org/users/hch/misc.git proc_create.3
 
-> 
->> +               dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-> 
->> +               return -EINVAL;
-> 
-> ...and do not shadow actual error code.
+Gitweb:
 
-Ok
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/proc_create.3
 
-> 
->> +       }
->> +
->> +       regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
->> +                          freq_test ? M41TXX_BIT_FT : 0);
->> +
-> 
->> +       return retval ? retval : count;
-> 
-> Does the condition make any sense?
+Changes since V2:
+ - use unsigned int for state_size everywhere
+ - move state_size around in proc_dir_entry to use a struct packing hole
+ - update SIZEOF_PDE_INLINE_NAME
+ - added a new proc_pid_ns helper
+ - improved a few changelogs
+ - added back a nubus comment
+ - minor typo fix
+ - collected various ACKs
 
-You're right, not at all.
-I changed it into:
-"return count;"
-
-> 
->> +}
-> 
->> +static ssize_t frequency_test_enable_show(struct device *dev,
->> +                                         struct device_attribute *attr,
->> +                                         char *buf)
->> +{
-> 
->> +       int freq_test_en = 0;
-> 
->> +       if (ctrl_reg & M41TXX_BIT_FT)
->> +               freq_test_en = true;
->> +       else
->> +               freq_test_en = false;
->> +
->> +       return sprintf(buf, "%d\n", freq_test_en);
-> 
-> So, is it boolean or integer? This code makes it confusing a lot.
-
-It is a boolean, so now I've updated with this:
-
-if (ctrl_reg & M41TXX_BIT_FT)
-	return scnprintf(buf, PAGE_SIZE, "on\n");
-else
-	return scnprintf(buf, PAGE_SIZE, "off\n");
-
-> 
->> +}
-> 
-
-Thank you very much for review
-
-Giulio Benetti
+Changes since V1:
+ - open code proc_create_data to avoid setting not fully initialized
+   entries live
+ - use unsigned int for state_size
+ - dropped the s390/cio/blacklist hunk as it has a write method
+ - dropped the IPMI patch given that IPMI proc support is scheduled for
+   removal.
