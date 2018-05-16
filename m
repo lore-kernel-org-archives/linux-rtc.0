@@ -1,195 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47032 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752684AbeEPJon (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:43 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
+Received: from mail.micronovasrl.com ([212.103.203.10]:55708 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751379AbeEPVPp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:15:45 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 2917CB00914
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:15:44 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id bl9aOwSqyKjV for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 23:15:43 +0200 (CEST)
+Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 02/42] proc: introduce a proc_pid_ns helper
-Date: Wed, 16 May 2018 11:43:06 +0200
-Message-Id: <20180516094346.20506-3-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+ <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
+ <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
+ <836407b4-8c51-5efa-8e29-f487bbcb528d@micronovasrl.com>
+ <20180516211001.GC24496@piout.net>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <b6e9be1c-3f69-cec9-909b-48d8167a2a54@micronovasrl.com>
+Date: Wed, 16 May 2018 23:15:43 +0200
+MIME-Version: 1.0
+In-Reply-To: <20180516211001.GC24496@piout.net>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Factor out retrieving the per-sb pid namespaces from the sb private data
-into an easier to understand helper.
+Hi,
 
-Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/array.c         |  7 +------
- fs/proc/base.c          | 18 ++++++++----------
- fs/proc/self.c          |  4 ++--
- fs/proc/thread_self.c   |  4 ++--
- include/linux/proc_fs.h |  6 ++++++
- 5 files changed, 19 insertions(+), 20 deletions(-)
+Il 16/05/2018 23:10, Alexandre Belloni ha scritto:
+> On 16/05/2018 23:02:16+0200, Giulio Benetti wrote:
+>>>> +static ssize_t frequency_test_enable_show(struct device *dev,
+>>>> +                                         struct device_attribute *attr,
+>>>> +                                         char *buf)
+>>>> +{
+>>>
+>>>> +       int freq_test_en = 0;
+>>>
+>>>> +       if (ctrl_reg & M41TXX_BIT_FT)
+>>>> +               freq_test_en = true;
+>>>> +       else
+>>>> +               freq_test_en = false;
+>>>> +
+>>>> +       return sprintf(buf, "%d\n", freq_test_en);
+>>>
+>>> So, is it boolean or integer? This code makes it confusing a lot.
+>>
+>> It is a boolean, so now I've updated with this:
+>>
+>> if (ctrl_reg & M41TXX_BIT_FT)
+>> 	return scnprintf(buf, PAGE_SIZE, "on\n");
+>> else
+>> 	return scnprintf(buf, PAGE_SIZE, "off\n");
+>>
+> 
+> No, it has to be consistent with what you write.
+> 
+> Here, you'd write 0 or 1 in the file and read off or on...
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index ae2c807fd719..911f66924d81 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -677,12 +677,7 @@ get_children_pid(struct inode *inode, struct pid *pid_prev, loff_t pos)
- 
- static int children_seq_show(struct seq_file *seq, void *v)
- {
--	struct inode *inode = seq->private;
--	pid_t pid;
--
--	pid = pid_nr_ns(v, inode->i_sb->s_fs_info);
--	seq_printf(seq, "%d ", pid);
--
-+	seq_printf(seq, "%d ", pid_nr_ns(v, proc_pid_ns(seq->private)));
- 	return 0;
- }
- 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 1b2ede6abcdf..29237cad19fd 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -698,7 +698,7 @@ static bool has_pid_permissions(struct pid_namespace *pid,
- 
- static int proc_pid_permission(struct inode *inode, int mask)
- {
--	struct pid_namespace *pid = inode->i_sb->s_fs_info;
-+	struct pid_namespace *pid = proc_pid_ns(inode);
- 	struct task_struct *task;
- 	bool has_perms;
- 
-@@ -733,13 +733,11 @@ static const struct inode_operations proc_def_inode_operations = {
- static int proc_single_show(struct seq_file *m, void *v)
- {
- 	struct inode *inode = m->private;
--	struct pid_namespace *ns;
--	struct pid *pid;
-+	struct pid_namespace *ns = proc_pid_ns(inode);
-+	struct pid *pid = proc_pid(inode);
- 	struct task_struct *task;
- 	int ret;
- 
--	ns = inode->i_sb->s_fs_info;
--	pid = proc_pid(inode);
- 	task = get_pid_task(pid, PIDTYPE_PID);
- 	if (!task)
- 		return -ESRCH;
-@@ -1410,7 +1408,7 @@ static const struct file_operations proc_fail_nth_operations = {
- static int sched_show(struct seq_file *m, void *v)
- {
- 	struct inode *inode = m->private;
--	struct pid_namespace *ns = inode->i_sb->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(inode);
- 	struct task_struct *p;
- 
- 	p = get_proc_task(inode);
-@@ -1782,8 +1780,8 @@ int pid_getattr(const struct path *path, struct kstat *stat,
- 		u32 request_mask, unsigned int query_flags)
- {
- 	struct inode *inode = d_inode(path->dentry);
-+	struct pid_namespace *pid = proc_pid_ns(inode);
- 	struct task_struct *task;
--	struct pid_namespace *pid = path->dentry->d_sb->s_fs_info;
- 
- 	generic_fillattr(inode, stat);
- 
-@@ -2337,7 +2335,7 @@ static int proc_timers_open(struct inode *inode, struct file *file)
- 		return -ENOMEM;
- 
- 	tp->pid = proc_pid(inode);
--	tp->ns = inode->i_sb->s_fs_info;
-+	tp->ns = proc_pid_ns(inode);
- 	return 0;
- }
- 
-@@ -3239,7 +3237,7 @@ static struct tgid_iter next_tgid(struct pid_namespace *ns, struct tgid_iter ite
- int proc_pid_readdir(struct file *file, struct dir_context *ctx)
- {
- 	struct tgid_iter iter;
--	struct pid_namespace *ns = file_inode(file)->i_sb->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(file_inode(file));
- 	loff_t pos = ctx->pos;
- 
- 	if (pos >= PID_MAX_LIMIT + TGID_OFFSET)
-@@ -3588,7 +3586,7 @@ static int proc_task_readdir(struct file *file, struct dir_context *ctx)
- 	/* f_version caches the tgid value that the last readdir call couldn't
- 	 * return. lseek aka telldir automagically resets f_version to 0.
- 	 */
--	ns = inode->i_sb->s_fs_info;
-+	ns = proc_pid_ns(inode);
- 	tid = (int)file->f_version;
- 	file->f_version = 0;
- 	for (task = first_tid(proc_pid(inode), tid, ctx->pos - 2, ns);
-diff --git a/fs/proc/self.c b/fs/proc/self.c
-index 4d7d061696b3..127265e5c55f 100644
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -12,7 +12,7 @@ static const char *proc_self_get_link(struct dentry *dentry,
- 				      struct inode *inode,
- 				      struct delayed_call *done)
- {
--	struct pid_namespace *ns = inode->i_sb->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(inode);
- 	pid_t tgid = task_tgid_nr_ns(current, ns);
- 	char *name;
- 
-@@ -36,7 +36,7 @@ static unsigned self_inum __ro_after_init;
- int proc_setup_self(struct super_block *s)
- {
- 	struct inode *root_inode = d_inode(s->s_root);
--	struct pid_namespace *ns = s->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(root_inode);
- 	struct dentry *self;
- 	
- 	inode_lock(root_inode);
-diff --git a/fs/proc/thread_self.c b/fs/proc/thread_self.c
-index 9d2efaca499f..b905010ca9eb 100644
---- a/fs/proc/thread_self.c
-+++ b/fs/proc/thread_self.c
-@@ -12,7 +12,7 @@ static const char *proc_thread_self_get_link(struct dentry *dentry,
- 					     struct inode *inode,
- 					     struct delayed_call *done)
- {
--	struct pid_namespace *ns = inode->i_sb->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(inode);
- 	pid_t tgid = task_tgid_nr_ns(current, ns);
- 	pid_t pid = task_pid_nr_ns(current, ns);
- 	char *name;
-@@ -36,7 +36,7 @@ static unsigned thread_self_inum __ro_after_init;
- int proc_setup_thread_self(struct super_block *s)
- {
- 	struct inode *root_inode = d_inode(s->s_root);
--	struct pid_namespace *ns = s->s_fs_info;
-+	struct pid_namespace *ns = proc_pid_ns(root_inode);
- 	struct dentry *thread_self;
- 
- 	inode_lock(root_inode);
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 928ef9e4d912..4edcde510631 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -83,4 +83,10 @@ struct ns_common;
- int open_related_ns(struct ns_common *ns,
- 		   struct ns_common *(*get_ns)(struct ns_common *ns));
- 
-+/* get the associated pid namespace for a file in procfs */
-+static inline struct pid_namespace *proc_pid_ns(struct inode *inode)
-+{
-+	return inode->i_sb->s_fs_info;
-+}
-+
- #endif /* _LINUX_PROC_FS_H */
--- 
-2.17.0
+I'm submitting too many patches, without waiting, sorry.
+I've submitted v6 patchset(too early), can you please take a look there 
+and tell if I'm on the right path? On that I've change also _store 
+function with kstrtobool().
+
+I'm sorry I'm doing so much confusion.
+I'm trying to learn to make it the best way.
+
+> 
+> 
