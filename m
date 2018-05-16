@@ -1,91 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:60070 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:55314 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935375AbeEISd7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:33:59 -0400
+        with ESMTP id S1751290AbeEPVIw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:08:52 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 39731B00379
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:33:58 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id E6C5FB0098C
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:08:50 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Ggss6-y6HrC3 for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:33:57 +0200 (CEST)
-Subject: Re: [PATCH 3/4] rtc: ds1307: add calibration of_ for mt41txx chips.
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
- <20180508145611.49072-3-giulio.benetti@micronovasrl.com>
- <CAL_JsqKa7AF4x5440aVtCsCcvbTS85o-dRT8+Ka6QB=8zK2NzA@mail.gmail.com>
+        with ESMTP id FC9CxbcnQYWX for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 23:08:50 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <201d77b1-ea75-90eb-8b30-da60529c70ba@micronovasrl.com>
-Date: Wed, 9 May 2018 20:33:56 +0200
-MIME-Version: 1.0
-In-Reply-To: <CAL_JsqKa7AF4x5440aVtCsCcvbTS85o-dRT8+Ka6QB=8zK2NzA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v6 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed, 16 May 2018 23:08:39 +0200
+Message-Id: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Rob,
+data field points to m41t00, instead it should point to m41t0.
+Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+are equal.
 
-Il 08/05/2018 19:40, Rob Herring ha scritto:
-> On Tue, May 8, 2018 at 9:56 AM, Giulio Benetti
-> <giulio.benetti@micronovasrl.com> wrote:
->> m41txx chips can hold a calibration value to get really near to real
->> tick value.
-> 
-> Typo in the subject.
-> 
->> Add calibration property(ranging between (-31) and 31), so on every probe
->> calibration value will be written to rtc.
->> This is because ic could loose supply due to low battery.
->>
->> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
->> ---
->>   .../devicetree/bindings/rtc/rtc-ds1307.txt    |  2 ++
-> 
-> Put all the binding changes in separate patch (or maybe 2: new
-> compatible and new properties).
-> 
->>   drivers/rtc/rtc-ds1307.c                      | 33 +++++++++++++++++++
->>   2 files changed, 35 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
->> index ce6469c1a516..d3d70a5495c5 100644
->> --- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
->> +++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
->> @@ -34,6 +34,8 @@ Optional properties:
->>   - trickle-diode-disable : ds1339, ds1340 and ds 1388 only
->>          Do not use internal trickle charger diode
->>          Should be given if internal trickle charger diode should be disabled
->> +- calibration: m41t0, m41t00, m41t11 only
-> 
-> Needs a vendor prefix.
-> 
-> Calibration of what and what are the units?
-> 
->> +       Set calibration value to correct external bias, ranging between (-31) and 31.
->>
->>   Example:
->>          rtc1: ds1339@68 {
+Point to right enum m41t0 instead of m41t00.
 
-This is not a problem anymore since I've used standard rtc sysfs 
-"offset" instead of a dt-property as Alexandre pointed me out.
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59edff53..32aadcbc377f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
++		.data = (void *)m41t0
+ 	},
+ 	{
+ 		.compatible = "st,m41t00",
 -- 
-Giulio Benetti
-CTO
-
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale € 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
+2.17.0
