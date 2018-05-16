@@ -1,24 +1,24 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:59514 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:57462 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935425AbeEIS2S (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:18 -0400
+        with ESMTP id S1753061AbeEPKFi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:05:38 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 336D5B00AE8
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:17 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id D841AB00BA8
+        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:05:34 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Dt8pgSMbCxds for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:28:15 +0200 (CEST)
+        with ESMTP id vmaOrFoGO9al for <linux-rtc@vger.kernel.org>;
+        Wed, 16 May 2018 12:05:33 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
 To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc: robh+dt@kernel.org, mark.rutland@arm.com,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v2 1/4] rtc: ds1307: fix data pointer to m41t0
-Date: Wed,  9 May 2018 20:28:09 +0200
-Message-Id: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
+Subject: [PATCH v4 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed, 16 May 2018 12:05:23 +0200
+Message-Id: <20180516100526.73549-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
