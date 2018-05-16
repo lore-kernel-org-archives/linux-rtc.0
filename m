@@ -1,61 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:20630 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754024AbeEWHTi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 May 2018 03:19:38 -0400
-From: Patrice CHOTARD <patrice.chotard@st.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 1/2] rtc: st-lpc: fix possible race condition
-Date: Wed, 23 May 2018 07:19:16 +0000
-Message-ID: <21f4fd1a-1744-b46f-eb0f-09d6af04247b@st.com>
-References: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail.bootlin.com ([62.4.15.54]:59932 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752226AbeEPVKD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 16 May 2018 17:10:03 -0400
+Date: Wed, 16 May 2018 23:10:01 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+Message-ID: <20180516211001.GC24496@piout.net>
+References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+ <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
+ <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
+ <836407b4-8c51-5efa-8e29-f487bbcb528d@micronovasrl.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <836407b4-8c51-5efa-8e29-f487bbcb528d@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGkgQWxleGFuZHJlDQoNCk9uIDA1LzIwLzIwMTggMDI6MzMgUE0sIEFsZXhhbmRyZSBCZWxsb25p
-IHdyb3RlOg0KPiBUaGUgSVJRIGlzIHJlcXVlc3RlZCBiZWZvcmUgdGhlIHN0cnVjdCBydGMgaXMg
-YWxsb2NhdGVkIGFuZCByZWdpc3RlcmVkLCBidXQNCj4gdGhpcyBzdHJ1Y3QgaXMgdXNlZCBpbiB0
-aGUgSVJRIGhhbmRsZXIuIFRoaXMgbWF5IGxlYWQgdG8gYSBOVUxMIHBvaW50ZXINCj4gZGVyZWZl
-cmVuY2UuDQo+IA0KPiBTd2l0Y2ggdG8gZGV2bV9ydGNfYWxsb2NhdGVfZGV2aWNlL3J0Y19yZWdp
-c3Rlcl9kZXZpY2UgdG8gYWxsb2NhdGUgdGhlIHJ0Yw0KPiBiZWZvcmUgcmVxdWVzdGluZyB0aGUg
-SVJRLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5i
-ZWxsb25pQGJvb3RsaW4uY29tPg0KPiAtLS0NCj4gICBkcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMg
-fCAyNCArKysrKysrKystLS0tLS0tLS0tLS0tLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNl
-cnRpb25zKCspLCAxNSBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3J0
-Yy9ydGMtc3QtbHBjLmMgYi9kcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMNCj4gaW5kZXggZDUyMjI2
-NjdmODkyLi4yZjFlZjJjMjg3NDAgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1zdC1s
-cGMuYw0KPiArKysgYi9kcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMNCj4gQEAgLTIxMiw2ICsyMTIs
-MTAgQEAgc3RhdGljIGludCBzdF9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRl
-dikNCj4gICAJaWYgKCFydGMpDQo+ICAgCQlyZXR1cm4gLUVOT01FTTsNCj4gICANCj4gKwlydGMt
-PnJ0Y19kZXYgPSBkZXZtX3J0Y19hbGxvY2F0ZV9kZXZpY2UoJnBkZXYtPmRldik7DQo+ICsJaWYg
-KElTX0VSUihydGMtPnJ0Y19kZXYpKQ0KPiArCQlyZXR1cm4gUFRSX0VSUihydGMtPnJ0Y19kZXYp
-Ow0KPiArDQo+ICAgCXNwaW5fbG9ja19pbml0KCZydGMtPmxvY2spOw0KPiAgIA0KPiAgIAlyZXMg
-PSBwbGF0Zm9ybV9nZXRfcmVzb3VyY2UocGRldiwgSU9SRVNPVVJDRV9NRU0sIDApOw0KPiBAQCAt
-MjUzLDI2ICsyNTcsMTcgQEAgc3RhdGljIGludCBzdF9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3Jt
-X2RldmljZSAqcGRldikNCj4gICANCj4gICAJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgcnRj
-KTsNCj4gICANCj4gLQlydGMtPnJ0Y19kZXYgPSBydGNfZGV2aWNlX3JlZ2lzdGVyKCJzdC1scGMt
-cnRjIiwgJnBkZXYtPmRldiwNCj4gLQkJCQkJICAgJnN0X3J0Y19vcHMsIFRISVNfTU9EVUxFKTsN
-Cj4gLQlpZiAoSVNfRVJSKHJ0Yy0+cnRjX2RldikpIHsNCj4gKwlydGMtPnJ0Y19kZXYtPm9wcyA9
-ICZzdF9ydGNfb3BzOw0KPiArDQo+ICsJcmV0ID0gcnRjX3JlZ2lzdGVyX2RldmljZShydGMtPnJ0
-Y19kZXYpOw0KPiArCWlmIChyZXQpIHsNCj4gICAJCWNsa19kaXNhYmxlX3VucHJlcGFyZShydGMt
-PmNsayk7DQo+IC0JCXJldHVybiBQVFJfRVJSKHJ0Yy0+cnRjX2Rldik7DQo+ICsJCXJldHVybiBy
-ZXQ7DQo+ICAgCX0NCj4gICANCj4gICAJcmV0dXJuIDA7DQo+ICAgfQ0KPiAgIA0KPiAtc3RhdGlj
-IGludCBzdF9ydGNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+IC17DQo+
-IC0Jc3RydWN0IHN0X3J0YyAqcnRjID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+IC0N
-Cj4gLQlpZiAobGlrZWx5KHJ0Yy0+cnRjX2RldikpDQo+IC0JCXJ0Y19kZXZpY2VfdW5yZWdpc3Rl
-cihydGMtPnJ0Y19kZXYpOw0KPiAtDQo+IC0JcmV0dXJuIDA7DQo+IC19DQo+IC0NCj4gICAjaWZk
-ZWYgQ09ORklHX1BNX1NMRUVQDQo+ICAgc3RhdGljIGludCBzdF9ydGNfc3VzcGVuZChzdHJ1Y3Qg
-ZGV2aWNlICpkZXYpDQo+ICAgew0KPiBAQCAtMzI1LDcgKzMyMCw2IEBAIHN0YXRpYyBzdHJ1Y3Qg
-cGxhdGZvcm1fZHJpdmVyIHN0X3J0Y19wbGF0Zm9ybV9kcml2ZXIgPSB7DQo+ICAgCQkub2ZfbWF0
-Y2hfdGFibGUgPSBzdF9ydGNfbWF0Y2gsDQo+ICAgCX0sDQo+ICAgCS5wcm9iZSA9IHN0X3J0Y19w
-cm9iZSwNCj4gLQkucmVtb3ZlID0gc3RfcnRjX3JlbW92ZSwNCj4gICB9Ow0KPiAgIA0KPiAgIG1v
-ZHVsZV9wbGF0Zm9ybV9kcml2ZXIoc3RfcnRjX3BsYXRmb3JtX2RyaXZlcik7DQo+IA0KDQpBY2tl
-ZC1ieTogUGF0cmljZSBDaG90YXJkIDxwYXRyaWNlLmNob3RhcmRAc3QuY29tPg0KDQpUaGFua3MN
-Cg0KUGF0cmljZQ==
+On 16/05/2018 23:02:16+0200, Giulio Benetti wrote:
+> > > +static ssize_t frequency_test_enable_show(struct device *dev,
+> > > +                                         struct device_attribute *attr,
+> > > +                                         char *buf)
+> > > +{
+> > 
+> > > +       int freq_test_en = 0;
+> > 
+> > > +       if (ctrl_reg & M41TXX_BIT_FT)
+> > > +               freq_test_en = true;
+> > > +       else
+> > > +               freq_test_en = false;
+> > > +
+> > > +       return sprintf(buf, "%d\n", freq_test_en);
+> > 
+> > So, is it boolean or integer? This code makes it confusing a lot.
+> 
+> It is a boolean, so now I've updated with this:
+> 
+> if (ctrl_reg & M41TXX_BIT_FT)
+> 	return scnprintf(buf, PAGE_SIZE, "on\n");
+> else
+> 	return scnprintf(buf, PAGE_SIZE, "off\n");
+> 
+
+No, it has to be consistent with what you write.
+
+Here, you'd write 0 or 1 in the file and read off or on...
+
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
