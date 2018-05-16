@@ -1,77 +1,233 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:55708 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751379AbeEPVPp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:15:45 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 2917CB00914
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:15:44 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id bl9aOwSqyKjV for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 23:15:43 +0200 (CEST)
-Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+Received: from bombadil.infradead.org ([198.137.202.133]:48536 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752624AbeEPJrC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:47:02 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
- <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
- <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
- <836407b4-8c51-5efa-8e29-f487bbcb528d@micronovasrl.com>
- <20180516211001.GC24496@piout.net>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <b6e9be1c-3f69-cec9-909b-48d8167a2a54@micronovasrl.com>
-Date: Wed, 16 May 2018 23:15:43 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180516211001.GC24496@piout.net>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 33/42] netfilter/xt_hashlimit: switch to proc_create_{seq,single}_data
+Date: Wed, 16 May 2018 11:43:37 +0200
+Message-Id: <20180516094346.20506-34-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+And use proc private data directly instead of doing a detour
+through seq->private.
 
-Il 16/05/2018 23:10, Alexandre Belloni ha scritto:
-> On 16/05/2018 23:02:16+0200, Giulio Benetti wrote:
->>>> +static ssize_t frequency_test_enable_show(struct device *dev,
->>>> +                                         struct device_attribute *attr,
->>>> +                                         char *buf)
->>>> +{
->>>
->>>> +       int freq_test_en = 0;
->>>
->>>> +       if (ctrl_reg & M41TXX_BIT_FT)
->>>> +               freq_test_en = true;
->>>> +       else
->>>> +               freq_test_en = false;
->>>> +
->>>> +       return sprintf(buf, "%d\n", freq_test_en);
->>>
->>> So, is it boolean or integer? This code makes it confusing a lot.
->>
->> It is a boolean, so now I've updated with this:
->>
->> if (ctrl_reg & M41TXX_BIT_FT)
->> 	return scnprintf(buf, PAGE_SIZE, "on\n");
->> else
->> 	return scnprintf(buf, PAGE_SIZE, "off\n");
->>
-> 
-> No, it has to be consistent with what you write.
-> 
-> Here, you'd write 0 or 1 in the file and read off or on...
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ net/netfilter/xt_hashlimit.c | 92 +++++++-----------------------------
+ 1 file changed, 18 insertions(+), 74 deletions(-)
 
-I'm submitting too many patches, without waiting, sorry.
-I've submitted v6 patchset(too early), can you please take a look there 
-and tell if I'm on the right path? On that I've change also _store 
-function with kstrtobool().
-
-I'm sorry I'm doing so much confusion.
-I'm trying to learn to make it the best way.
-
-> 
-> 
+diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
+index 0cd73567e7ff..9b16402f29af 100644
+--- a/net/netfilter/xt_hashlimit.c
++++ b/net/netfilter/xt_hashlimit.c
+@@ -57,9 +57,9 @@ static inline struct hashlimit_net *hashlimit_pernet(struct net *net)
+ }
+ 
+ /* need to declare this at the top */
+-static const struct file_operations dl_file_ops_v2;
+-static const struct file_operations dl_file_ops_v1;
+-static const struct file_operations dl_file_ops;
++static const struct seq_operations dl_seq_ops_v2;
++static const struct seq_operations dl_seq_ops_v1;
++static const struct seq_operations dl_seq_ops;
+ 
+ /* hash table crap */
+ struct dsthash_dst {
+@@ -272,7 +272,7 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
+ {
+ 	struct hashlimit_net *hashlimit_net = hashlimit_pernet(net);
+ 	struct xt_hashlimit_htable *hinfo;
+-	const struct file_operations *fops;
++	const struct seq_operations *ops;
+ 	unsigned int size, i;
+ 	int ret;
+ 
+@@ -321,19 +321,19 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
+ 
+ 	switch (revision) {
+ 	case 1:
+-		fops = &dl_file_ops_v1;
++		ops = &dl_seq_ops_v1;
+ 		break;
+ 	case 2:
+-		fops = &dl_file_ops_v2;
++		ops = &dl_seq_ops_v2;
+ 		break;
+ 	default:
+-		fops = &dl_file_ops;
++		ops = &dl_seq_ops;
+ 	}
+ 
+-	hinfo->pde = proc_create_data(name, 0,
++	hinfo->pde = proc_create_seq_data(name, 0,
+ 		(family == NFPROTO_IPV4) ?
+ 		hashlimit_net->ipt_hashlimit : hashlimit_net->ip6t_hashlimit,
+-		fops, hinfo);
++		ops, hinfo);
+ 	if (hinfo->pde == NULL) {
+ 		kfree(hinfo->name);
+ 		vfree(hinfo);
+@@ -1057,7 +1057,7 @@ static struct xt_match hashlimit_mt_reg[] __read_mostly = {
+ static void *dl_seq_start(struct seq_file *s, loff_t *pos)
+ 	__acquires(htable->lock)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket;
+ 
+ 	spin_lock_bh(&htable->lock);
+@@ -1074,7 +1074,7 @@ static void *dl_seq_start(struct seq_file *s, loff_t *pos)
+ 
+ static void *dl_seq_next(struct seq_file *s, void *v, loff_t *pos)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 
+ 	*pos = ++(*bucket);
+@@ -1088,7 +1088,7 @@ static void *dl_seq_next(struct seq_file *s, void *v, loff_t *pos)
+ static void dl_seq_stop(struct seq_file *s, void *v)
+ 	__releases(htable->lock)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 
+ 	if (!IS_ERR(bucket))
+@@ -1130,7 +1130,7 @@ static void dl_seq_print(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show_v2(struct dsthash_ent *ent, u_int8_t family,
+ 			       struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1145,7 +1145,7 @@ static int dl_seq_real_show_v2(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show_v1(struct dsthash_ent *ent, u_int8_t family,
+ 			       struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1160,7 +1160,7 @@ static int dl_seq_real_show_v1(struct dsthash_ent *ent, u_int8_t family,
+ static int dl_seq_real_show(struct dsthash_ent *ent, u_int8_t family,
+ 			    struct seq_file *s)
+ {
+-	const struct xt_hashlimit_htable *ht = s->private;
++	struct xt_hashlimit_htable *ht = PDE_DATA(file_inode(s->private));
+ 
+ 	spin_lock(&ent->lock);
+ 	/* recalculate to show accurate numbers */
+@@ -1174,7 +1174,7 @@ static int dl_seq_real_show(struct dsthash_ent *ent, u_int8_t family,
+ 
+ static int dl_seq_show_v2(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = (unsigned int *)v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1188,7 +1188,7 @@ static int dl_seq_show_v2(struct seq_file *s, void *v)
+ 
+ static int dl_seq_show_v1(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1202,7 +1202,7 @@ static int dl_seq_show_v1(struct seq_file *s, void *v)
+ 
+ static int dl_seq_show(struct seq_file *s, void *v)
+ {
+-	struct xt_hashlimit_htable *htable = s->private;
++	struct xt_hashlimit_htable *htable = PDE_DATA(file_inode(s->private));
+ 	unsigned int *bucket = v;
+ 	struct dsthash_ent *ent;
+ 
+@@ -1235,62 +1235,6 @@ static const struct seq_operations dl_seq_ops = {
+ 	.show  = dl_seq_show
+ };
+ 
+-static int dl_proc_open_v2(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops_v2);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static int dl_proc_open_v1(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops_v1);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static int dl_proc_open(struct inode *inode, struct file *file)
+-{
+-	int ret = seq_open(file, &dl_seq_ops);
+-
+-	if (!ret) {
+-		struct seq_file *sf = file->private_data;
+-
+-		sf->private = PDE_DATA(inode);
+-	}
+-	return ret;
+-}
+-
+-static const struct file_operations dl_file_ops_v2 = {
+-	.open    = dl_proc_open_v2,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+-static const struct file_operations dl_file_ops_v1 = {
+-	.open    = dl_proc_open_v1,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+-static const struct file_operations dl_file_ops = {
+-	.open    = dl_proc_open,
+-	.read    = seq_read,
+-	.llseek  = seq_lseek,
+-	.release = seq_release
+-};
+-
+ static int __net_init hashlimit_proc_net_init(struct net *net)
+ {
+ 	struct hashlimit_net *hashlimit_net = hashlimit_pernet(net);
+-- 
+2.17.0
