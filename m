@@ -1,89 +1,162 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38538 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751626AbeEQUTQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:19:16 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/5] rtc: 88pm80x: convert to rtc_tm_to_time64/rtc_time64_to_tm
-Date: Thu, 17 May 2018 22:19:00 +0200
-Message-Id: <20180517201900.22055-5-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
-References: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:47350 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752119AbeEPJpH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:07 -0400
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 14/42] net/kcm: simplify proc registration
+Date: Wed, 16 May 2018 11:43:18 +0200
+Message-Id: <20180516094346.20506-15-hch@lst.de>
+In-Reply-To: <20180516094346.20506-1-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Now that the RTC range is properly checked, convert the driver to
-rtc_tm_to_time64/rtc_time64_to_tm
+Remove a couple indirections to make the code look like most other
+protocols.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/rtc/rtc-88pm80x.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/kcm/kcmproc.c | 71 ++++++++++++-----------------------------------
+ 1 file changed, 17 insertions(+), 54 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 33b28b6117e9..cab293cb2bf0 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -98,13 +98,13 @@ static void rtc_next_alarm_time(struct rtc_time *next, struct rtc_time *now,
- 	next->tm_min = alrm->tm_min;
- 	next->tm_sec = alrm->tm_sec;
+diff --git a/net/kcm/kcmproc.c b/net/kcm/kcmproc.c
+index 1fac92543094..6d0667e62baf 100644
+--- a/net/kcm/kcmproc.c
++++ b/net/kcm/kcmproc.c
+@@ -15,12 +15,6 @@
+ #include <net/tcp.h>
  
--	rtc_tm_to_time(now, &now_time);
--	rtc_tm_to_time(next, &next_time);
-+	now_time = rtc_tm_to_time64(now);
-+	next_time = rtc_tm_to_time64(next);
+ #ifdef CONFIG_PROC_FS
+-struct kcm_seq_muxinfo {
+-	char				*name;
+-	const struct file_operations	*seq_fops;
+-	const struct seq_operations	seq_ops;
+-};
+-
+ static struct kcm_mux *kcm_get_first(struct seq_file *seq)
+ {
+ 	struct net *net = seq_file_net(seq);
+@@ -86,14 +80,6 @@ struct kcm_proc_mux_state {
+ 	int idx;
+ };
  
- 	if (next_time < now_time) {
- 		/* Advance one day */
- 		next_time += 60 * 60 * 24;
--		rtc_time_to_tm(next_time, next);
-+		rtc_time64_to_tm(next_time, next);
- 	}
- }
- 
-@@ -123,7 +123,7 @@ static int pm80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
--	rtc_time_to_tm(ticks, tm);
-+	rtc_time64_to_tm(ticks, tm);
+-static int kcm_seq_open(struct inode *inode, struct file *file)
+-{
+-	struct kcm_seq_muxinfo *muxinfo = PDE_DATA(inode);
+-
+-	return seq_open_net(inode, file, &muxinfo->seq_ops,
+-			   sizeof(struct kcm_proc_mux_state));
+-}
+-
+ static void kcm_format_mux_header(struct seq_file *seq)
+ {
+ 	struct net *net = seq_file_net(seq);
+@@ -246,6 +232,19 @@ static int kcm_seq_show(struct seq_file *seq, void *v)
  	return 0;
  }
  
-@@ -133,7 +133,7 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	unsigned char buf[4];
- 	unsigned long ticks, base, data;
++static const struct seq_operations kcm_seq_ops = {
++	.show	= kcm_seq_show,
++	.start	= kcm_seq_start,
++	.next	= kcm_seq_next,
++	.stop	= kcm_seq_stop,
++};
++
++static int kcm_seq_open(struct inode *inode, struct file *file)
++{
++	return seq_open_net(inode, file, &kcm_seq_ops,
++			   sizeof(struct kcm_proc_mux_state));
++}
++
+ static const struct file_operations kcm_seq_fops = {
+ 	.open		= kcm_seq_open,
+ 	.read		= seq_read,
+@@ -253,37 +252,6 @@ static const struct file_operations kcm_seq_fops = {
+ 	.release	= seq_release_net,
+ };
  
--	rtc_tm_to_time(tm, &ticks);
-+	ticks = rtc_tm_to_time64(tm);
+-static struct kcm_seq_muxinfo kcm_seq_muxinfo = {
+-	.name		= "kcm",
+-	.seq_fops	= &kcm_seq_fops,
+-	.seq_ops	= {
+-		.show	= kcm_seq_show,
+-		.start	= kcm_seq_start,
+-		.next	= kcm_seq_next,
+-		.stop	= kcm_seq_stop,
+-	}
+-};
+-
+-static int kcm_proc_register(struct net *net, struct kcm_seq_muxinfo *muxinfo)
+-{
+-	struct proc_dir_entry *p;
+-	int rc = 0;
+-
+-	p = proc_create_data(muxinfo->name, 0444, net->proc_net,
+-			     muxinfo->seq_fops, muxinfo);
+-	if (!p)
+-		rc = -ENOMEM;
+-	return rc;
+-}
+-EXPORT_SYMBOL(kcm_proc_register);
+-
+-static void kcm_proc_unregister(struct net *net,
+-				struct kcm_seq_muxinfo *muxinfo)
+-{
+-	remove_proc_entry(muxinfo->name, net->proc_net);
+-}
+-EXPORT_SYMBOL(kcm_proc_unregister);
+-
+ static int kcm_stats_seq_show(struct seq_file *seq, void *v)
+ {
+ 	struct kcm_psock_stats psock_stats;
+@@ -404,16 +372,11 @@ static const struct file_operations kcm_stats_seq_fops = {
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
-@@ -167,7 +167,7 @@ static int pm80x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
+ static int kcm_proc_init_net(struct net *net)
+ {
+-	int err;
+-
+ 	if (!proc_create("kcm_stats", 0444, net->proc_net,
+-			 &kcm_stats_seq_fops)) {
+-		err = -ENOMEM;
++			 &kcm_stats_seq_fops))
+ 		goto out_kcm_stats;
+-	}
  
--	rtc_time_to_tm(ticks, &alrm->time);
-+	rtc_time64_to_tm(ticks, &alrm->time);
- 	regmap_read(info->map, PM800_RTC_CONTROL, &ret);
- 	alrm->enabled = (ret & PM800_ALARM1_EN) ? 1 : 0;
- 	alrm->pending = (ret & (PM800_ALARM | PM800_ALARM_WAKEUP)) ? 1 : 0;
-@@ -195,11 +195,11 @@ static int pm80x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
+-	err = kcm_proc_register(net, &kcm_seq_muxinfo);
+-	if (err)
++	if (!proc_create("kcm", 0444, net->proc_net, &kcm_seq_fops))
+ 		goto out_kcm;
  
--	rtc_time_to_tm(ticks, &now_tm);
-+	rtc_time64_to_tm(ticks, &now_tm);
- 	dev_dbg(info->dev, "%s, now time : %lu\n", __func__, ticks);
- 	rtc_next_alarm_time(&alarm_tm, &now_tm, &alrm->time);
- 	/* get new ticks for alarm in 24 hours */
--	rtc_tm_to_time(&alarm_tm, &ticks);
-+	ticks = rtc_tm_to_time64(&alarm_tm);
- 	dev_dbg(info->dev, "%s, alarm time: %lu\n", __func__, ticks);
- 	data = ticks - base;
+ 	return 0;
+@@ -421,12 +384,12 @@ static int kcm_proc_init_net(struct net *net)
+ out_kcm:
+ 	remove_proc_entry("kcm_stats", net->proc_net);
+ out_kcm_stats:
+-	return err;
++	return -ENOMEM;
+ }
+ 
+ static void kcm_proc_exit_net(struct net *net)
+ {
+-	kcm_proc_unregister(net, &kcm_seq_muxinfo);
++	remove_proc_entry("kcm", net->proc_net);
+ 	remove_proc_entry("kcm_stats", net->proc_net);
+ }
  
 -- 
 2.17.0
