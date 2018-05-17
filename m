@@ -1,132 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48314 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752458AbeEPJqk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:40 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:5698 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750938AbeEQMFG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 08:05:06 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 36/42] atm: simplify procfs code
-Date: Wed, 16 May 2018 11:43:40 +0200
-Message-Id: <20180516094346.20506-37-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+        Rob Herring <robh+dt@kernel.org>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH v3 1/4] rtc: stm32: fix misspelling and misalignment issues
+Date: Thu, 17 May 2018 14:04:23 +0200
+Message-ID: <1526558666-24243-2-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+This patch cleans the following checkpatch complaints:
 
-Also don't bother handling proc_create* failures - the driver works
-perfectly fine without the proc files, and the cleanup will handle
-missing files gracefully.
+CHECK: 'initalized' may be misspelled - perhaps 'initialized'?
+#644: FILE: drivers/rtc/rtc-stm32.c:644:
++	 * the calendar has been initalized or not. INITS flag is reset by a
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+CHECK: Alignment should match open parenthesis
+#669: FILE: drivers/rtc/rtc-stm32.c:669:
++	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
++			&stm32_rtc_ops, THIS_MODULE);
+
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- net/atm/proc.c | 65 ++++++--------------------------------------------
- 1 file changed, 7 insertions(+), 58 deletions(-)
+ drivers/rtc/rtc-stm32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/atm/proc.c b/net/atm/proc.c
-index 55410c00c7e2..f272b0f59d82 100644
---- a/net/atm/proc.c
-+++ b/net/atm/proc.c
-@@ -257,18 +257,6 @@ static const struct seq_operations atm_dev_seq_ops = {
- 	.show	= atm_dev_seq_show,
- };
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index de49b5b..d41f804 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -641,7 +641,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
  
--static int atm_dev_seq_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &atm_dev_seq_ops);
--}
--
--static const struct file_operations devices_seq_fops = {
--	.open		= atm_dev_seq_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int pvc_seq_show(struct seq_file *seq, void *v)
- {
- 	static char atm_pvc_banner[] =
-@@ -440,58 +428,19 @@ void atm_proc_dev_deregister(struct atm_dev *dev)
- 	kfree(dev->proc_name);
- }
+ 	/*
+ 	 * After a system reset, RTC_ISR.INITS flag can be read to check if
+-	 * the calendar has been initalized or not. INITS flag is reset by a
++	 * the calendar has been initialized or not. INITS flag is reset by a
+ 	 * power-on reset (no vbat, no power-supply). It is not reset if
+ 	 * rtc_ck parent clock has changed (so RTC prescalers need to be
+ 	 * changed). That's why we cannot rely on this flag to know if RTC
+@@ -666,7 +666,7 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 			 "alarm won't be able to wake up the system");
  
--static struct atm_proc_entry {
--	char *name;
--	const struct file_operations *proc_fops;
--	struct proc_dir_entry *dirent;
--} atm_proc_ents[] = {
--	{ .name = "devices",	.proc_fops = &devices_seq_fops },
--	{ .name = "pvc",	.proc_fops = &pvc_seq_fops },
--	{ .name = "svc",	.proc_fops = &svc_seq_fops },
--	{ .name = "vc",		.proc_fops = &vcc_seq_fops },
--	{ .name = NULL,		.proc_fops = NULL }
--};
--
--static void atm_proc_dirs_remove(void)
--{
--	static struct atm_proc_entry *e;
--
--	for (e = atm_proc_ents; e->name; e++) {
--		if (e->dirent)
--			remove_proc_entry(e->name, atm_proc_root);
--	}
--	remove_proc_entry("atm", init_net.proc_net);
--}
--
- int __init atm_proc_init(void)
- {
--	static struct atm_proc_entry *e;
--	int ret;
--
- 	atm_proc_root = proc_net_mkdir(&init_net, "atm", init_net.proc_net);
- 	if (!atm_proc_root)
--		goto err_out;
--	for (e = atm_proc_ents; e->name; e++) {
--		struct proc_dir_entry *dirent;
--
--		dirent = proc_create(e->name, 0444,
--				     atm_proc_root, e->proc_fops);
--		if (!dirent)
--			goto err_out_remove;
--		e->dirent = dirent;
--	}
--	ret = 0;
--out:
--	return ret;
--
--err_out_remove:
--	atm_proc_dirs_remove();
--err_out:
--	ret = -ENOMEM;
--	goto out;
-+		return -ENOMEM;
-+	proc_create_seq("devices", 0444, atm_proc_root, &atm_dev_seq_ops);
-+	proc_create("pvc", 0444, atm_proc_root, &pvc_seq_fops);
-+	proc_create("svc", 0444, atm_proc_root, &svc_seq_fops);
-+	proc_create("vc", 0444, atm_proc_root, &vcc_seq_fops);
-+	return 0;
- }
- 
- void atm_proc_exit(void)
- {
--	atm_proc_dirs_remove();
-+	remove_proc_subtree("atm", init_net.proc_net);
- }
+ 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+-			&stm32_rtc_ops, THIS_MODULE);
++						&stm32_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc->rtc_dev)) {
+ 		ret = PTR_ERR(rtc->rtc_dev);
+ 		dev_err(&pdev->dev, "rtc device registration failed, err=%d\n",
 -- 
-2.17.0
+2.7.4
