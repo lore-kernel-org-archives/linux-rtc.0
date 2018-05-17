@@ -1,80 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39325 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:39013 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751017AbeEQUrJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:47:09 -0400
+        id S1751047AbeEQUdo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:33:44 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: vr41xx: fix possible race condition
-Date: Thu, 17 May 2018 22:47:05 +0200
-Message-Id: <20180517204706.28192-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/7] rtc: rx8581: add RTC range
+Date: Thu, 17 May 2018 22:33:26 +0200
+Message-Id: <20180517203331.24504-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517203331.24504-1-alexandre.belloni@bootlin.com>
+References: <20180517203331.24504-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The probe function is not allowed to fail after the RTC is registered
-because the following may happen:
-
-CPU0:                                CPU1:
-sys_load_module()
- do_init_module()
-  do_one_initcall()
-   cmos_do_probe()
-    rtc_device_register()
-     __register_chrdev()
-     cdev->owner = struct module*
-                                     open("/dev/rtc0")
-    rtc_device_unregister()
-  module_put()
-  free_module()
-   module_free(mod->module_core)
-   /* struct module *module is now
-      freed */
-                                      chrdev_open()
-                                       spin_lock(cdev_lock)
-                                       cdev_get()
-                                        try_module_get()
-                                         module_is_live()
-                                         /* dereferences already
-                                            freed struct module* */
+The rx8581 can support dates from 01/01/2000 to 31/12/2099.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-vr41xx.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-rx8581.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
-index 480cffe8d321..2f1212a25f7e 100644
---- a/drivers/rtc/rtc-vr41xx.c
-+++ b/drivers/rtc/rtc-vr41xx.c
-@@ -292,13 +292,14 @@ static int rtc_probe(struct platform_device *pdev)
- 		goto err_rtc1_iounmap;
- 	}
+diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
+index c64911a08531..c5ffd30ca672 100644
+--- a/drivers/rtc/rtc-rx8581.c
++++ b/drivers/rtc/rtc-rx8581.c
+@@ -291,6 +291,8 @@ static int rx8581_probe(struct i2c_client *client,
+ 		return PTR_ERR(rx8581->rtc);
  
--	rtc = devm_rtc_device_register(&pdev->dev, rtc_name, &vr41xx_rtc_ops,
--					THIS_MODULE);
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc)) {
- 		retval = PTR_ERR(rtc);
- 		goto err_iounmap_all;
- 	}
+ 	rx8581->rtc->ops = &rx8581_rtc_ops;
++	rx8581->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rx8581->rtc->range_max = RTC_TIMESTAMP_END_2099;
  
-+	rtc->ops = &vr41xx_rtc_ops;
-+
- 	rtc->max_user_freq = MAX_PERIODIC_RATE;
- 
- 	spin_lock_irq(&rtc_lock);
-@@ -340,6 +341,10 @@ static int rtc_probe(struct platform_device *pdev)
- 
- 	dev_info(&pdev->dev, "Real Time Clock of NEC VR4100 series\n");
- 
-+	retval = rtc_register_device(rtc);
-+	if (retval)
-+		goto err_iounmap_all;
-+
- 	return 0;
- 
- err_iounmap_all:
+ 	return rtc_register_device(rx8581->rtc);
+ }
 -- 
 2.17.0
