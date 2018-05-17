@@ -1,47 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f176.google.com ([209.85.128.176]:34277 "EHLO
-        mail-wr0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1032377AbeEZVE5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 26 May 2018 17:04:57 -0400
-Received: by mail-wr0-f176.google.com with SMTP id j1-v6so14472677wrm.1
-        for <linux-rtc@vger.kernel.org>; Sat, 26 May 2018 14:04:57 -0700 (PDT)
-Message-ID: <98daac6be2f0200eb672333f1dde59ae6c063987.camel@gmail.com>
-Subject: Re: rtc_cmos 00:01: nvmem registration failed
-From: Timur =?ISO-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org
-Date: Sat, 26 May 2018 23:04:54 +0200
-In-Reply-To: <20180525093922.GA2500@piout.net>
-References: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
-         <20180525093922.GA2500@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mail.bootlin.com ([62.4.15.54]:39019 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752141AbeEQUdr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:33:47 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/7] rtc: rx8581: error out when time invalid
+Date: Thu, 17 May 2018 22:33:30 +0200
+Message-Id: <20180517203331.24504-6-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517203331.24504-1-alexandre.belloni@bootlin.com>
+References: <20180517203331.24504-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Return an error when the date is unreliable because the battery is low.
 
-On Fri, 2018-05-25 at 11:39 +0200, Alexandre Belloni wrote:
-> > 
-> > The "nvmem registration failed" is highlighted red in the journal,
-> > and also shows up on every boot.
-> > 
-> 
-> This is probably fixed by
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/co
-> mmit/?h=rtc-next&id=c59b3715ac16544f8f68ab7af03f108e339b36aa
-> 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-rx8581.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Thank you Alexandre!
-I can confirm that this patch fixes the issue on my machine.
-
-> > The error message doesn't give any indication about why it failed.
-> > How can I help diagnose the what the problem is?
-> > 
-> 
-> My guess is that CONFIG_RTC_NVMEM is not enabled on your kernel.
-
-Yes, that is correct, it isn't enabled.
-
-Best regards,
-Tim
+diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
+index 0a70f1ac5cc2..53644bb271af 100644
+--- a/drivers/rtc/rtc-rx8581.c
++++ b/drivers/rtc/rtc-rx8581.c
+@@ -109,6 +109,12 @@ static int rx8581_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		return -EIO;
+ 	}
+ 
++	if (data & RX8581_FLAG_VLF) {
++		dev_warn(dev,
++			"low voltage detected, date/time is not reliable.\n");
++		return -EINVAL;
++	}
++
+ 	do {
+ 		/* If update flag set, clear it */
+ 		if (data & RX8581_FLAG_UF) {
+@@ -136,10 +142,6 @@ static int rx8581_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		}
+ 	} while (data & RX8581_FLAG_UF);
+ 
+-	if (data & RX8581_FLAG_VLF)
+-		dev_info(dev,
+-			"low voltage detected, date/time is not reliable.\n");
+-
+ 	dev_dbg(dev, "%s: raw data is sec=%02x, min=%02x, hr=%02x, "
+ 		"wday=%02x, mday=%02x, mon=%02x, year=%02x\n",
+ 		__func__,
+-- 
+2.17.0
