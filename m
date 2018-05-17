@@ -1,31 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0125.outbound.protection.outlook.com ([104.47.36.125]:10946
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751225AbeEPXgg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 16 May 2018 19:36:36 -0400
-From: Trent Piepho <tpiepho@impinj.com>
-To: "alexandre.belloni@free-electrons.com"
-        <alexandre.belloni@free-electrons.com>
-CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH] rtc-snvs: Add timeouts to avoid kernel lockups
-Date: Wed, 16 May 2018 23:36:34 +0000
-Message-ID: <1526513793.30073.35.camel@impinj.com>
-References: <20180316181202.14896-1-tpiepho@impinj.com>
-         <1525897165.31312.111.camel@impinj.com> <20180510052557.GQ10960@piout.net>
-In-Reply-To: <20180510052557.GQ10960@piout.net>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Received: from mail.bootlin.com ([62.4.15.54]:38532 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751293AbeEQUTP (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:19:15 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/5] rtc: 88pm80x: remove unused pm80x_rtc_info members
+Date: Thu, 17 May 2018 22:18:57 +0200
+Message-Id: <20180517201900.22055-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
+References: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-T24gVGh1LCAyMDE4LTA1LTEwIGF0IDA3OjI1ICswMjAwLCBBbGV4YW5kcmUgQmVsbG9uaSB3cm90
-ZToNCj4gSGksDQo+IA0KPiBPbiAwOS8wNS8yMDE4IDIwOjE5OjI2KzAwMDAsIFRyZW50IFBpZXBo
-byB3cm90ZToNCj4gPiBCdW1wLg0KPiA+IA0KPiA+IEJlZW4gd2hpbGUsIG5vIHJlc3BvbnNlLg0K
-PiA+IA0KPiA+IEFub3RoZXIgcGF0Y2ggZnJvbSBCcnlhbiBPJ0Rvbm9naHVlIHdlbnQgaW4gdG8g
-Zml4IGEgcmVsYXRlZCBpc3N1ZSwgYnV0DQo+ID4gSSBiZWxpZXZlIHRoaXMgcGF0Y2ggc3RpbGwg
-Zml4ZXMgYW5vdGhlciBidWcuDQo+ID4gDQo+IA0KPiBPbiBBcHJpbCAyNiwgMjAxOCwgSSd2ZSBh
-c2tlZCB3aGV0aGVyIHlvdSBjb3VsZCByZWJhc2VkIG9uIHRvcCBvZg0KPiBydGMtbmV4dC4NCj4g
-DQoNClNvcnJ5LCBkaWRuJ3QgZ2V0IHRoYXQgZW1haWwgYW5kIHNvbWVob3cgSSBkaWRuJ3Qgc2Vl
-IHRoZSBjb21tZW50IG9uIA0KcGF0Y2h3b3JrLiAgV2lsbCByZXNlbmQuICBEb24ndCB0aGluayBh
-bnkgY29kZSBjaGFuZ2VkIGJ1dCBJJ2xsIGFtZW5kDQp0aGUgY29tbWl0IG1lc3NhZ2Uu
+pm80x_rtc_info.calib_work and pm80x_rtc_info.vrtc are never used, remove
+them.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-88pm80x.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index 76df274f3e1a..f60c0d73c2f3 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -52,10 +52,8 @@ struct pm80x_rtc_info {
+ 	struct regmap *map;
+ 	struct rtc_device *rtc_dev;
+ 	struct device *dev;
+-	struct delayed_work calib_work;
+ 
+ 	int irq;
+-	int vrtc;
+ };
+ 
+ static irqreturn_t rtc_update_handler(int irq, void *data)
+-- 
+2.17.0
