@@ -1,95 +1,85 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:27722 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933771AbeEIH0e (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 03:26:34 -0400
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-To: Rob Herring <robh@kernel.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] dt-bindings: rtc: update stm32-rtc documentation for
- stm32mp1 rtc
-Date: Wed, 9 May 2018 07:25:53 +0000
-Message-ID: <4fed55d0-95a2-c6cc-8812-7aea214d39e4@st.com>
-References: <1524144845-23016-1-git-send-email-amelie.delaunay@st.com>
- <1524144845-23016-3-git-send-email-amelie.delaunay@st.com>
- <20180427030140.nmlqmpewqatabnmt@rob-hp-laptop>
-In-Reply-To: <20180427030140.nmlqmpewqatabnmt@rob-hp-laptop>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Received: from mail.bootlin.com ([62.4.15.54]:39364 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751907AbeEQUsX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:48:23 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: tps6586x: fix possible race condition
+Date: Thu, 17 May 2018 22:48:17 +0200
+Message-Id: <20180517204818.28593-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-DQoNCk9uIDA0LzI3LzIwMTggMDU6MDEgQU0sIFJvYiBIZXJyaW5nIHdyb3RlOg0KPiBPbiBUaHUs
-IEFwciAxOSwgMjAxOCBhdCAwMzozNDowNFBNICswMjAwLCBBbWVsaWUgRGVsYXVuYXkgd3JvdGU6
-DQo+PiBSVEMgZW1iZWRkZWQgaW4gc3RtMzJtcDEgU29DIGlzIHNsaWdodGx5IGRpZmZlcmVudCBm
-cm9tIHN0bTMyaDcgb25lLCBpdA0KPj4gZG9lc24ndCByZXF1aXJlIHRvIGRpc2FibGUgYmFja3Vw
-IGRvbWFpbiB3cml0ZSBwcm90ZWN0aW9uLCBhbmQgcnRjX2NrDQo+PiBwYXJlbnQgY2xvY2sgYXNz
-aWdubWVudCBpc24ndCBhbGxvd2VkLg0KPj4gVG8gc3VtIHVwLCBzdG0zMm1wMSBSVEMgcmVxdWly
-ZXMgMiBjbG9ja3MsIHBjbGsgYW5kIHJ0Y19jaywgYW5kIGFuIFJUQw0KPj4gYWxhcm0gaW50ZXJy
-dXB0Lg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEFtZWxpZSBEZWxhdW5heSA8YW1lbGllLmRlbGF1
-bmF5QHN0LmNvbT4NCj4+IC0tLQ0KPj4gICAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvc3Qs
-c3RtMzItcnRjLnR4dCAgICAgICB8IDI3ICsrKysrKysrKysrKysrKysrLS0tLS0NCj4+ICAgMSBm
-aWxlIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pDQo+Pg0KPj4gZGlm
-ZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvc3Qsc3RtMzIt
-cnRjLnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvc3Qsc3RtMzIt
-cnRjLnR4dA0KPj4gaW5kZXggMDBmOGI1ZC4uZjFjMjA4MCAxMDA2NDQNCj4+IC0tLSBhL0RvY3Vt
-ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvc3Qsc3RtMzItcnRjLnR4dA0KPj4gKysr
-IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0Yy9zdCxzdG0zMi1ydGMudHh0
-DQo+PiBAQCAtMSwyNSArMSwzMSBAQA0KPj4gICBTVE0zMiBSZWFsIFRpbWUgQ2xvY2sNCj4+ICAg
-DQo+PiAgIFJlcXVpcmVkIHByb3BlcnRpZXM6DQo+PiAtLSBjb21wYXRpYmxlOiBjYW4gYmUgZWl0
-aGVyICJzdCxzdG0zMi1ydGMiIG9yICJzdCxzdG0zMmg3LXJ0YyIsIGRlcGVuZGluZyBvbg0KPj4g
-LSAgdGhlIGRldmljZSBpcyBjb21wYXRpYmxlIHdpdGggc3RtMzIoZjQvZjcpIG9yIHN0bTMyaDcu
-DQo+PiArLSBjb21wYXRpYmxlOiBjYW4gYmUgInN0LHN0bTMyLXJ0YyIsICJzdCxzdG0zMmg3LXJ0
-YyIgb3IgInN0LHN0bTMybXAxLXJ0YyIsDQo+PiArCSAgICAgIGRlcGVuZGluZyBvbiB0aGUgZGV2
-aWNlIGlzIGNvbXBhdGlibGUgd2l0aCBzdG0zMihmNC9mNyksIHN0bTMyaDcNCj4+ICsJICAgICAg
-b3Igc3RtMzJtcDEuDQo+IA0KPiBPbmUgY29tcGF0aWJsZSBwZXIgbGluZSBwbGVhc2UuDQo+IA0K
-Pj4gICAtIHJlZzogYWRkcmVzcyByYW5nZSBvZiBydGMgcmVnaXN0ZXIgc2V0Lg0KPj4gICAtIGNs
-b2NrczogY2FuIHVzZSB1cCB0byB0d28gY2xvY2tzLCBkZXBlbmRpbmcgb24gcGFydCB1c2VkOg0K
-Pj4gICAgIC0gInJ0Y19jayI6IFJUQyBjbG9jayBzb3VyY2UuDQo+PiAtICAgIEl0IGlzIHJlcXVp
-cmVkIG9uIHN0bTMyKGY0L2Y3KSBhbmQgc3RtMzJoNy4NCj4+ICsgICAgSXQgaXMgcmVxdWlyZWQg
-b24gc3RtMzIoZjQvZjcvaDcvbXAxKS4NCj4gDQo+IElPVywgcmVxdWlyZWQgZm9yIGFsbD8NCj4g
-DQoNClllcywgc28sIEknbGwgcmVtb3ZlIHRoZSBjb21tZW50IGFzIGl0IGlzIHJlcXVpcmVkIGZv
-ciBhbGwuDQoNCj4+ICAgICAtICJwY2xrIjogUlRDIEFQQiBpbnRlcmZhY2UgY2xvY2suDQo+PiAg
-ICAgICBJdCBpcyBub3QgcHJlc2VudCBvbiBzdG0zMihmNC9mNykuDQo+PiAtICAgIEl0IGlzIHJl
-cXVpcmVkIG9uIHN0bTMyaDcuDQo+PiArICAgIEl0IGlzIHJlcXVpcmVkIG9uIHN0bTMyKGg3L21w
-MSkuDQo+PiAgIC0gY2xvY2stbmFtZXM6IG11c3QgYmUgInJ0Y19jayIgYW5kICJwY2xrIi4NCj4+
-IC0gICAgSXQgaXMgcmVxdWlyZWQgb25seSBvbiBzdG0zMmg3Lg0KPj4gKyAgICBJdCBpcyByZXF1
-aXJlZCBvbiBzdG0zMihoNy9tcDEpLg0KPj4gICAtIGludGVycnVwdC1wYXJlbnQ6IHBoYW5kbGUg
-Zm9yIHRoZSBpbnRlcnJ1cHQgY29udHJvbGxlci4NCj4+ICsgICAgSXQgaXMgcmVxdWlyZWQgb24g
-c3RtMzIoZjQvZjcvaDcpLg0KPj4gICAtIGludGVycnVwdHM6IHJ0YyBhbGFybSBpbnRlcnJ1cHQu
-DQo+PiArLSBpbnRlcnJ1cHRzLWV4dGVuZGVkOiByZXBsYWNlIGludGVycnVwdHMgcHJvcGVydHkg
-b24gc3RtMzJtcDEsIHRvIHNwZWNpZnkgcnRjDQo+PiArICBhbGFybSB3YWtldXAgaW50ZXJydXB0
-LCB3aGljaCBpcyBvbiBleHRpIGludGVycnVwdCBjb250cm9sbGVyIGluc3RlYWQgb2YgZ2ljLg0K
-Pj4gKyAgICBJdCBpcyByZXF1aXJlZCBvbiBzdG0zMm1wMS4NCj4gDQo+IEp1c3QgZG9jdW1lbnQg
-J2ludGVycnVwdHMnLiBpbnRlcnJ1cHRzLWV4dGVuZGVkIGlzIGltcGxpY2l0bHkgc3VwcG9ydGVk
-DQo+IGFuZCB3aGF0IHRoZSBpbnRlcnJ1cHRzIGFyZSBjb25uZWN0ZWQgdG8gaXMgb3V0c2lkZSB0
-aGUgc2NvcGUgb2YgdGhpcw0KPiBiaW5kaW5nLg0KPiANCg0KT0ssIEknbGwgY2xlYW4gdGhpcy4N
-Cg0KPj4gICAtIHN0LHN5c2NmZzogcGhhbmRsZS9vZmZzZXQvbWFzayB0cmlwbGV0LiBUaGUgcGhh
-bmRsZSB0byBwd3JjZmcgdXNlZCB0bw0KPj4gICAgIGFjY2VzcyBjb250cm9sIHJlZ2lzdGVyIGF0
-IG9mZnNldCwgYW5kIGNoYW5nZSB0aGUgZGJwIChEaXNhYmxlIEJhY2t1cA0KPj4gICAgIFByb3Rl
-Y3Rpb24pIGJpdCByZXByZXNlbnRlZCBieSB0aGUgbWFzaywgbWFuZGF0b3J5IHRvIGRpc2FibGUv
-ZW5hYmxlIGJhY2t1cA0KPj4gICAgIGRvbWFpbiAoUlRDIHJlZ2lzdGVycykgd3JpdGUgcHJvdGVj
-dGlvbi4NCj4+ICsgICAgSXQgaXMgcmVxdWlyZWQgb24gc3RtMzIoZjQvZjcvaDcpLg0KPj4gICAN
-Cj4+IC1PcHRpb25hbCBwcm9wZXJ0aWVzICh0byBvdmVycmlkZSBkZWZhdWx0IHJ0Y19jayBwYXJl
-bnQgY2xvY2spOg0KPj4gK09wdGlvbmFsIHByb3BlcnRpZXMgKHRvIG92ZXJyaWRlIGRlZmF1bHQg
-cnRjX2NrIHBhcmVudCBjbG9jayBvbiBzdG0zMihmNC9mNy9oNyk6DQo+PiAgIC0gYXNzaWduZWQt
-Y2xvY2tzOiByZWZlcmVuY2UgdG8gdGhlIHJ0Y19jayBjbG9jayBlbnRyeS4NCj4+ICAgLSBhc3Np
-Z25lZC1jbG9jay1wYXJlbnRzOiBwaGFuZGxlIG9mIHRoZSBuZXcgcGFyZW50IGNsb2NrIG9mIHJ0
-Y19jay4NCj4+ICAgDQo+PiBAQCAtNDgsMyArNTQsMTIgQEAgRXhhbXBsZToNCj4+ICAgCQlpbnRl
-cnJ1cHQtbmFtZXMgPSAiYWxhcm0iOw0KPj4gICAJCXN0LHN5c2NmZyA9IDwmcHdyY2ZnIDB4MDAg
-MHgxMDA+Ow0KPj4gICAJfTsNCj4+ICsNCj4+ICsJcnRjOiBydGNANWMwMDQwMDAgew0KPj4gKwkJ
-Y29tcGF0aWJsZSA9ICJzdCxzdG0zMm1wMS1ydGMiOw0KPj4gKwkJcmVnID0gPDB4NWMwMDQwMDAg
-MHg0MDA+Ow0KPj4gKwkJY2xvY2tzID0gPCZyY2MgUlRDQVBCPiwgPCZyY2MgUlRDPjsNCj4+ICsJ
-CWNsb2NrLW5hbWVzID0gInBjbGsiLCAicnRjX2NrIjsNCj4+ICsJCWludGVycnVwdHMtZXh0ZW5k
-ZWQgPSA8JmludGMgR0lDX1NQSSAzIElSUV9UWVBFX05PTkU+LA0KPj4gKwkJCQkgICAgICA8JmV4
-dGkgMTkgMT47DQo+PiArCX07DQo+PiAtLSANCj4+IDIuNy40DQo+Pg0KDQpUaGFua3MsDQpBbWVs
-aWU=
+The probe function is not allowed to fail after the RTC is registered
+because the following may happen:
+
+CPU0:                                CPU1:
+sys_load_module()
+ do_init_module()
+  do_one_initcall()
+   cmos_do_probe()
+    rtc_device_register()
+     __register_chrdev()
+     cdev->owner = struct module*
+                                     open("/dev/rtc0")
+    rtc_device_unregister()
+  module_put()
+  free_module()
+   module_free(mod->module_core)
+   /* struct module *module is now
+      freed */
+                                      chrdev_open()
+                                       spin_lock(cdev_lock)
+                                       cdev_get()
+                                        try_module_get()
+                                         module_is_live()
+                                         /* dereferences already
+                                            freed struct module* */
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-tps6586x.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index 46a19adf9a96..9b741143f131 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -276,14 +276,15 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+ 	platform_set_drvdata(pdev, rtc);
+-	rtc->rtc = devm_rtc_device_register(&pdev->dev, dev_name(&pdev->dev),
+-				       &tps6586x_rtc_ops, THIS_MODULE);
++	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtc)) {
+ 		ret = PTR_ERR(rtc->rtc);
+-		dev_err(&pdev->dev, "RTC device register: ret %d\n", ret);
++		dev_err(&pdev->dev, "RTC allocate device: ret %d\n", ret);
+ 		goto fail_rtc_register;
+ 	}
+ 
++	rtc->rtc->ops = &tps6586x_rtc_ops;
++
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+ 				tps6586x_rtc_irq,
+ 				IRQF_ONESHOT,
+@@ -294,6 +295,13 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 		goto fail_rtc_register;
+ 	}
+ 	disable_irq(rtc->irq);
++
++	ret = rtc_register_device(rtc->rtc);
++	if (ret) {
++		dev_err(&pdev->dev, "RTC device register: ret %d\n", ret);
++		goto fail_rtc_register;
++	}
++
+ 	return 0;
+ 
+ fail_rtc_register:
+-- 
+2.17.0
