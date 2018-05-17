@@ -1,162 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47350 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752119AbeEPJpH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:07 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 14/42] net/kcm: simplify proc registration
-Date: Wed, 16 May 2018 11:43:18 +0200
-Message-Id: <20180516094346.20506-15-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:38638 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752319AbeEQUVM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:21:12 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: ab-b5ze-s3: fix possible race conditions
+Date: Thu, 17 May 2018 22:20:39 +0200
+Message-Id: <20180517202040.22292-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Remove a couple indirections to make the code look like most other
-protocols.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Also, the probe function is not allowed to fail after the RTC is registered
+because the following may happen:
+
+CPU0:                                CPU1:
+sys_load_module()
+ do_init_module()
+  do_one_initcall()
+   cmos_do_probe()
+    rtc_device_register()
+     __register_chrdev()
+     cdev->owner = struct module*
+                                     open("/dev/rtc0")
+    rtc_device_unregister()
+  module_put()
+  free_module()
+   module_free(mod->module_core)
+   /* struct module *module is now
+      freed */
+                                      chrdev_open()
+                                       spin_lock(cdev_lock)
+                                       cdev_get()
+                                        try_module_get()
+                                         module_is_live()
+                                         /* dereferences already
+                                            freed struct module* */
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ and register the RTC as late as possible.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- net/kcm/kcmproc.c | 71 ++++++++++++-----------------------------------
- 1 file changed, 17 insertions(+), 54 deletions(-)
+ drivers/rtc/rtc-ab-b5ze-s3.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/net/kcm/kcmproc.c b/net/kcm/kcmproc.c
-index 1fac92543094..6d0667e62baf 100644
---- a/net/kcm/kcmproc.c
-+++ b/net/kcm/kcmproc.c
-@@ -15,12 +15,6 @@
- #include <net/tcp.h>
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index 8dc451932446..f486912577e7 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -925,6 +925,14 @@ static int abb5zes3_probe(struct i2c_client *client,
+ 	if (ret)
+ 		goto err;
  
- #ifdef CONFIG_PROC_FS
--struct kcm_seq_muxinfo {
--	char				*name;
--	const struct file_operations	*seq_fops;
--	const struct seq_operations	seq_ops;
--};
--
- static struct kcm_mux *kcm_get_first(struct seq_file *seq)
- {
- 	struct net *net = seq_file_net(seq);
-@@ -86,14 +80,6 @@ struct kcm_proc_mux_state {
- 	int idx;
- };
- 
--static int kcm_seq_open(struct inode *inode, struct file *file)
--{
--	struct kcm_seq_muxinfo *muxinfo = PDE_DATA(inode);
--
--	return seq_open_net(inode, file, &muxinfo->seq_ops,
--			   sizeof(struct kcm_proc_mux_state));
--}
--
- static void kcm_format_mux_header(struct seq_file *seq)
- {
- 	struct net *net = seq_file_net(seq);
-@@ -246,6 +232,19 @@ static int kcm_seq_show(struct seq_file *seq, void *v)
- 	return 0;
- }
- 
-+static const struct seq_operations kcm_seq_ops = {
-+	.show	= kcm_seq_show,
-+	.start	= kcm_seq_start,
-+	.next	= kcm_seq_next,
-+	.stop	= kcm_seq_stop,
-+};
++	data->rtc = devm_rtc_allocate_device(dev);
++	ret = PTR_ERR_OR_ZERO(data->rtc);
++	if (ret) {
++		dev_err(dev, "%s: unable to allocate RTC device (%d)\n",
++			__func__, ret);
++		goto err;
++	}
 +
-+static int kcm_seq_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open_net(inode, file, &kcm_seq_ops,
-+			   sizeof(struct kcm_proc_mux_state));
-+}
+ 	if (client->irq > 0) {
+ 		ret = devm_request_threaded_irq(dev, client->irq, NULL,
+ 						_abb5zes3_rtc_interrupt,
+@@ -942,14 +950,7 @@ static int abb5zes3_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	data->rtc = devm_rtc_device_register(dev, DRV_NAME, &rtc_ops,
+-					     THIS_MODULE);
+-	ret = PTR_ERR_OR_ZERO(data->rtc);
+-	if (ret) {
+-		dev_err(dev, "%s: unable to register RTC device (%d)\n",
+-			__func__, ret);
+-		goto err;
+-	}
++	data->rtc->ops = &rtc_ops;
+ 
+ 	/* Enable battery low detection interrupt if battery not already low */
+ 	if (!data->battery_low && data->irq) {
+@@ -961,6 +962,8 @@ static int abb5zes3_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
++	ret = rtc_register_device(data->rtc);
 +
- static const struct file_operations kcm_seq_fops = {
- 	.open		= kcm_seq_open,
- 	.read		= seq_read,
-@@ -253,37 +252,6 @@ static const struct file_operations kcm_seq_fops = {
- 	.release	= seq_release_net,
- };
- 
--static struct kcm_seq_muxinfo kcm_seq_muxinfo = {
--	.name		= "kcm",
--	.seq_fops	= &kcm_seq_fops,
--	.seq_ops	= {
--		.show	= kcm_seq_show,
--		.start	= kcm_seq_start,
--		.next	= kcm_seq_next,
--		.stop	= kcm_seq_stop,
--	}
--};
--
--static int kcm_proc_register(struct net *net, struct kcm_seq_muxinfo *muxinfo)
--{
--	struct proc_dir_entry *p;
--	int rc = 0;
--
--	p = proc_create_data(muxinfo->name, 0444, net->proc_net,
--			     muxinfo->seq_fops, muxinfo);
--	if (!p)
--		rc = -ENOMEM;
--	return rc;
--}
--EXPORT_SYMBOL(kcm_proc_register);
--
--static void kcm_proc_unregister(struct net *net,
--				struct kcm_seq_muxinfo *muxinfo)
--{
--	remove_proc_entry(muxinfo->name, net->proc_net);
--}
--EXPORT_SYMBOL(kcm_proc_unregister);
--
- static int kcm_stats_seq_show(struct seq_file *seq, void *v)
- {
- 	struct kcm_psock_stats psock_stats;
-@@ -404,16 +372,11 @@ static const struct file_operations kcm_stats_seq_fops = {
- 
- static int kcm_proc_init_net(struct net *net)
- {
--	int err;
--
- 	if (!proc_create("kcm_stats", 0444, net->proc_net,
--			 &kcm_stats_seq_fops)) {
--		err = -ENOMEM;
-+			 &kcm_stats_seq_fops))
- 		goto out_kcm_stats;
--	}
- 
--	err = kcm_proc_register(net, &kcm_seq_muxinfo);
--	if (err)
-+	if (!proc_create("kcm", 0444, net->proc_net, &kcm_seq_fops))
- 		goto out_kcm;
- 
- 	return 0;
-@@ -421,12 +384,12 @@ static int kcm_proc_init_net(struct net *net)
- out_kcm:
- 	remove_proc_entry("kcm_stats", net->proc_net);
- out_kcm_stats:
--	return err;
-+	return -ENOMEM;
- }
- 
- static void kcm_proc_exit_net(struct net *net)
- {
--	kcm_proc_unregister(net, &kcm_seq_muxinfo);
-+	remove_proc_entry("kcm", net->proc_net);
- 	remove_proc_entry("kcm_stats", net->proc_net);
- }
- 
+ err:
+ 	if (ret && data && data->irq)
+ 		device_init_wakeup(dev, false);
 -- 
 2.17.0
