@@ -1,501 +1,143 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48146 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752913AbeEPJqY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:24 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 31/42] hostap: switch to proc_create_{seq,single}_data
-Date: Wed, 16 May 2018 11:43:35 +0200
-Message-Id: <20180516094346.20506-32-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:39366 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751976AbeEQUsY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:48:24 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: tps6586x: let the core handle rtc range
+Date: Thu, 17 May 2018 22:48:18 +0200
+Message-Id: <20180517204818.28593-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517204818.28593-1-alexandre.belloni@bootlin.com>
+References: <20180517204818.28593-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use proc private data directly instead of doing a detour
-through seq->private.
+Let the core handle offsetting and windowing the RTC range.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The RTC has a 40-bit counter counting at 1024 Hz. So its maximum value is
+2^(40-10) - 1. Also, let the core handle the offset instead of coding it in
+the callbacks. Keep the default epoch at the beginning of 2009 (this will
+fail in 2043).
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- .../net/wireless/intersil/hostap/hostap_ap.c  |  70 ++-------
- .../net/wireless/intersil/hostap/hostap_hw.c  |  17 +--
- .../wireless/intersil/hostap/hostap_proc.c    | 143 +++---------------
- 3 files changed, 39 insertions(+), 191 deletions(-)
+ drivers/rtc/rtc-tps6586x.c | 27 +++++----------------------
+ 1 file changed, 5 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/wireless/intersil/hostap/hostap_ap.c b/drivers/net/wireless/intersil/hostap/hostap_ap.c
-index 4f76f81dd3af..d1884b8913e7 100644
---- a/drivers/net/wireless/intersil/hostap/hostap_ap.c
-+++ b/drivers/net/wireless/intersil/hostap/hostap_ap.c
-@@ -69,7 +69,7 @@ static void prism2_send_mgmt(struct net_device *dev,
- #ifndef PRISM2_NO_PROCFS_DEBUG
- static int ap_debug_proc_show(struct seq_file *m, void *v)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 
- 	seq_printf(m, "BridgedUnicastFrames=%u\n", ap->bridged_unicast);
- 	seq_printf(m, "BridgedMulticastFrames=%u\n", ap->bridged_multicast);
-@@ -81,18 +81,6 @@ static int ap_debug_proc_show(struct seq_file *m, void *v)
- 	seq_printf(m, "tx_drop_nonassoc=%u\n", ap->tx_drop_nonassoc);
- 	return 0;
- }
--
--static int ap_debug_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, ap_debug_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations ap_debug_proc_fops = {
--	.open		= ap_debug_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif /* PRISM2_NO_PROCFS_DEBUG */
- 
- 
-@@ -333,7 +321,7 @@ void hostap_deauth_all_stas(struct net_device *dev, struct ap_data *ap,
- 
- static int ap_control_proc_show(struct seq_file *m, void *v)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	char *policy_txt;
- 	struct mac_entry *entry;
- 
-@@ -365,20 +353,20 @@ static int ap_control_proc_show(struct seq_file *m, void *v)
- 
- static void *ap_control_proc_start(struct seq_file *m, loff_t *_pos)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	spin_lock_bh(&ap->mac_restrictions.lock);
- 	return seq_list_start_head(&ap->mac_restrictions.mac_list, *_pos);
- }
- 
- static void *ap_control_proc_next(struct seq_file *m, void *v, loff_t *_pos)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	return seq_list_next(v, &ap->mac_restrictions.mac_list, _pos);
- }
- 
- static void ap_control_proc_stop(struct seq_file *m, void *v)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	spin_unlock_bh(&ap->mac_restrictions.lock);
- }
- 
-@@ -389,24 +377,6 @@ static const struct seq_operations ap_control_proc_seqops = {
- 	.show	= ap_control_proc_show,
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index 9b741143f131..d6434e514a52 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -58,7 +58,6 @@ struct tps6586x_rtc {
+ 	struct rtc_device	*rtc;
+ 	int			irq;
+ 	bool			irq_en;
+-	time64_t		epoch_start;
  };
  
--static int ap_control_proc_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &ap_control_proc_seqops);
--	if (ret == 0) {
--		struct seq_file *m = file->private_data;
--		m->private = PDE_DATA(inode);
--	}
--	return ret;
--}
--
--static const struct file_operations ap_control_proc_fops = {
--	.open		= ap_control_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--
- int ap_control_add_mac(struct mac_restrictions *mac_restrictions, u8 *mac)
+ static inline struct device *to_tps6586x_dev(struct device *dev)
+@@ -68,7 +67,6 @@ static inline struct device *to_tps6586x_dev(struct device *dev)
+ 
+ static int tps6586x_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct mac_entry *entry;
-@@ -585,20 +555,20 @@ static int prism2_ap_proc_show(struct seq_file *m, void *v)
- 
- static void *prism2_ap_proc_start(struct seq_file *m, loff_t *_pos)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	spin_lock_bh(&ap->sta_table_lock);
- 	return seq_list_start_head(&ap->sta_list, *_pos);
- }
- 
- static void *prism2_ap_proc_next(struct seq_file *m, void *v, loff_t *_pos)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	return seq_list_next(v, &ap->sta_list, _pos);
- }
- 
- static void prism2_ap_proc_stop(struct seq_file *m, void *v)
- {
--	struct ap_data *ap = m->private;
-+	struct ap_data *ap = PDE_DATA(file_inode(m->file));
- 	spin_unlock_bh(&ap->sta_table_lock);
- }
- 
-@@ -608,23 +578,6 @@ static const struct seq_operations prism2_ap_proc_seqops = {
- 	.stop	= prism2_ap_proc_stop,
- 	.show	= prism2_ap_proc_show,
- };
--
--static int prism2_ap_proc_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &prism2_ap_proc_seqops);
--	if (ret == 0) {
--		struct seq_file *m = file->private_data;
--		m->private = PDE_DATA(inode);
--	}
--	return ret;
--}
--
--static const struct file_operations prism2_ap_proc_fops = {
--	.open		= prism2_ap_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
- #endif /* PRISM2_NO_KERNEL_IEEE80211_MGMT */
- 
- 
-@@ -896,12 +849,13 @@ void hostap_init_ap_proc(local_info_t *local)
- 		return;
- 
- #ifndef PRISM2_NO_PROCFS_DEBUG
--	proc_create_data("ap_debug", 0, ap->proc, &ap_debug_proc_fops, ap);
-+	proc_create_single_data("ap_debug", 0, ap->proc, ap_debug_proc_show, ap);
- #endif /* PRISM2_NO_PROCFS_DEBUG */
- 
- #ifndef PRISM2_NO_KERNEL_IEEE80211_MGMT
--	proc_create_data("ap_control", 0, ap->proc, &ap_control_proc_fops, ap);
--	proc_create_data("ap", 0, ap->proc, &prism2_ap_proc_fops, ap);
-+	proc_create_seq_data("ap_control", 0, ap->proc, &ap_control_proc_seqops,
-+			ap);
-+	proc_create_seq_data("ap", 0, ap->proc, &prism2_ap_proc_seqops, ap);
- #endif /* PRISM2_NO_KERNEL_IEEE80211_MGMT */
- 
- }
-diff --git a/drivers/net/wireless/intersil/hostap/hostap_hw.c b/drivers/net/wireless/intersil/hostap/hostap_hw.c
-index 5c4a17a18968..2720aa39f530 100644
---- a/drivers/net/wireless/intersil/hostap/hostap_hw.c
-+++ b/drivers/net/wireless/intersil/hostap/hostap_hw.c
-@@ -2951,19 +2951,6 @@ static int prism2_registers_proc_show(struct seq_file *m, void *v)
- 
- 	return 0;
- }
--
--static int prism2_registers_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, prism2_registers_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations prism2_registers_proc_fops = {
--	.open		= prism2_registers_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
- #endif /* PRISM2_NO_PROCFS_DEBUG */
- 
- 
-@@ -3279,8 +3266,8 @@ static int hostap_hw_ready(struct net_device *dev)
- 		}
- 		hostap_init_proc(local);
- #ifndef PRISM2_NO_PROCFS_DEBUG
--		proc_create_data("registers", 0, local->proc,
--				 &prism2_registers_proc_fops, local);
-+		proc_create_single_data("registers", 0, local->proc,
-+				 prism2_registers_proc_show, local);
- #endif /* PRISM2_NO_PROCFS_DEBUG */
- 		hostap_init_ap_proc(local);
- 		return 0;
-diff --git a/drivers/net/wireless/intersil/hostap/hostap_proc.c b/drivers/net/wireless/intersil/hostap/hostap_proc.c
-index d234231bf532..5b33ccab9188 100644
---- a/drivers/net/wireless/intersil/hostap/hostap_proc.c
-+++ b/drivers/net/wireless/intersil/hostap/hostap_proc.c
-@@ -43,18 +43,6 @@ static int prism2_debug_proc_show(struct seq_file *m, void *v)
- 
- 	return 0;
- }
--
--static int prism2_debug_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, prism2_debug_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations prism2_debug_proc_fops = {
--	.open		= prism2_debug_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
- #endif /* PRISM2_NO_PROCFS_DEBUG */
- 
- 
-@@ -95,19 +83,6 @@ static int prism2_stats_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int prism2_stats_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, prism2_stats_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations prism2_stats_proc_fops = {
--	.open		= prism2_stats_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
--
- static int prism2_wds_proc_show(struct seq_file *m, void *v)
- {
- 	struct list_head *ptr = v;
-@@ -122,20 +97,20 @@ static int prism2_wds_proc_show(struct seq_file *m, void *v)
- 
- static void *prism2_wds_proc_start(struct seq_file *m, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	read_lock_bh(&local->iface_lock);
- 	return seq_list_start(&local->hostap_interfaces, *_pos);
- }
- 
- static void *prism2_wds_proc_next(struct seq_file *m, void *v, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	return seq_list_next(v, &local->hostap_interfaces, _pos);
- }
- 
- static void prism2_wds_proc_stop(struct seq_file *m, void *v)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	read_unlock_bh(&local->iface_lock);
- }
- 
-@@ -146,27 +121,9 @@ static const struct seq_operations prism2_wds_proc_seqops = {
- 	.show	= prism2_wds_proc_show,
- };
- 
--static int prism2_wds_proc_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &prism2_wds_proc_seqops);
--	if (ret == 0) {
--		struct seq_file *m = file->private_data;
--		m->private = PDE_DATA(inode);
--	}
--	return ret;
--}
--
--static const struct file_operations prism2_wds_proc_fops = {
--	.open		= prism2_wds_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--
- static int prism2_bss_list_proc_show(struct seq_file *m, void *v)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	struct list_head *ptr = v;
- 	struct hostap_bss_info *bss;
- 
-@@ -193,20 +150,20 @@ static int prism2_bss_list_proc_show(struct seq_file *m, void *v)
- 
- static void *prism2_bss_list_proc_start(struct seq_file *m, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	spin_lock_bh(&local->lock);
- 	return seq_list_start_head(&local->bss_list, *_pos);
- }
- 
- static void *prism2_bss_list_proc_next(struct seq_file *m, void *v, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	return seq_list_next(v, &local->bss_list, _pos);
- }
- 
- static void prism2_bss_list_proc_stop(struct seq_file *m, void *v)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	spin_unlock_bh(&local->lock);
- }
- 
-@@ -217,24 +174,6 @@ static const struct seq_operations prism2_bss_list_proc_seqops = {
- 	.show	= prism2_bss_list_proc_show,
- };
- 
--static int prism2_bss_list_proc_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &prism2_bss_list_proc_seqops);
--	if (ret == 0) {
--		struct seq_file *m = file->private_data;
--		m->private = PDE_DATA(inode);
--	}
--	return ret;
--}
--
--static const struct file_operations prism2_bss_list_proc_fops = {
--	.open		= prism2_bss_list_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--
- static int prism2_crypt_proc_show(struct seq_file *m, void *v)
- {
- 	local_info_t *local = m->private;
-@@ -252,19 +191,6 @@ static int prism2_crypt_proc_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int prism2_crypt_proc_open(struct inode *inode, struct file *file)
--{
--	return single_open(file, prism2_crypt_proc_show, PDE_DATA(inode));
--}
--
--static const struct file_operations prism2_crypt_proc_fops = {
--	.open		= prism2_crypt_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
--
--
- static ssize_t prism2_pda_proc_read(struct file *file, char __user *buf,
- 				    size_t count, loff_t *_pos)
- {
-@@ -342,7 +268,7 @@ static int prism2_io_debug_proc_read(char *page, char **start, off_t off,
- #ifndef PRISM2_NO_STATION_MODES
- static int prism2_scan_results_proc_show(struct seq_file *m, void *v)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	unsigned long entry;
- 	int i, len;
- 	struct hfa384x_hostscan_result *scanres;
-@@ -392,7 +318,7 @@ static int prism2_scan_results_proc_show(struct seq_file *m, void *v)
- 
- static void *prism2_scan_results_proc_start(struct seq_file *m, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	spin_lock_bh(&local->lock);
- 
- 	/* We have a header (pos 0) + N results to show (pos 1...N) */
-@@ -403,7 +329,7 @@ static void *prism2_scan_results_proc_start(struct seq_file *m, loff_t *_pos)
- 
- static void *prism2_scan_results_proc_next(struct seq_file *m, void *v, loff_t *_pos)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 
- 	++*_pos;
- 	if (*_pos > local->last_scan_results_count)
-@@ -413,7 +339,7 @@ static void *prism2_scan_results_proc_next(struct seq_file *m, void *v, loff_t *
- 
- static void prism2_scan_results_proc_stop(struct seq_file *m, void *v)
- {
--	local_info_t *local = m->private;
-+	local_info_t *local = PDE_DATA(file_inode(m->file));
- 	spin_unlock_bh(&local->lock);
- }
- 
-@@ -423,25 +349,6 @@ static const struct seq_operations prism2_scan_results_proc_seqops = {
- 	.stop	= prism2_scan_results_proc_stop,
- 	.show	= prism2_scan_results_proc_show,
- };
--
--static int prism2_scan_results_proc_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &prism2_scan_results_proc_seqops);
--	if (ret == 0) {
--		struct seq_file *m = file->private_data;
--		m->private = PDE_DATA(inode);
--	}
--	return ret;
--}
--
--static const struct file_operations prism2_scan_results_proc_fops = {
--	.open		= prism2_scan_results_proc_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--
- #endif /* PRISM2_NO_STATION_MODES */
- 
- 
-@@ -463,29 +370,29 @@ void hostap_init_proc(local_info_t *local)
+-	struct tps6586x_rtc *rtc = dev_get_drvdata(dev);
+ 	struct device *tps_dev = to_tps6586x_dev(dev);
+ 	unsigned long long ticks = 0;
+ 	time64_t seconds;
+@@ -88,14 +86,13 @@ static int tps6586x_rtc_read_time(struct device *dev, struct rtc_time *tm)
  	}
  
- #ifndef PRISM2_NO_PROCFS_DEBUG
--	proc_create_data("debug", 0, local->proc,
--			 &prism2_debug_proc_fops, local);
-+	proc_create_single_data("debug", 0, local->proc,
-+			prism2_debug_proc_show, local);
- #endif /* PRISM2_NO_PROCFS_DEBUG */
--	proc_create_data("stats", 0, local->proc,
--			 &prism2_stats_proc_fops, local);
--	proc_create_data("wds", 0, local->proc,
--			 &prism2_wds_proc_fops, local);
-+	proc_create_single_data("stats", 0, local->proc, prism2_stats_proc_show,
-+			local);
-+	proc_create_seq_data("wds", 0, local->proc,
-+			&prism2_wds_proc_seqops, local);
- 	proc_create_data("pda", 0, local->proc,
- 			 &prism2_pda_proc_fops, local);
- 	proc_create_data("aux_dump", 0, local->proc,
- 			 local->func->read_aux_fops ?: &prism2_aux_dump_proc_fops,
- 			 local);
--	proc_create_data("bss_list", 0, local->proc,
--			 &prism2_bss_list_proc_fops, local);
--	proc_create_data("crypt", 0, local->proc,
--			 &prism2_crypt_proc_fops, local);
-+	proc_create_seq_data("bss_list", 0, local->proc,
-+			&prism2_bss_list_proc_seqops, local);
-+	proc_create_single_data("crypt", 0, local->proc, prism2_crypt_proc_show,
-+		local);
- #ifdef PRISM2_IO_DEBUG
--	proc_create_data("io_debug", 0, local->proc,
--			 &prism2_io_debug_proc_fops, local);
-+	proc_create_single_data("io_debug", 0, local->proc,
-+			prism2_debug_proc_show, local);
- #endif /* PRISM2_IO_DEBUG */
- #ifndef PRISM2_NO_STATION_MODES
--	proc_create_data("scan_results", 0, local->proc,
--			 &prism2_scan_results_proc_fops, local);
-+	proc_create_seq_data("scan_results", 0, local->proc,
-+			&prism2_scan_results_proc_seqops, local);
- #endif /* PRISM2_NO_STATION_MODES */
+ 	seconds = ticks >> 10;
+-	seconds += rtc->epoch_start;
+-	rtc_time_to_tm(seconds, tm);
++	rtc_time64_to_tm(seconds, tm);
++
+ 	return 0;
  }
  
+ static int tps6586x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct tps6586x_rtc *rtc = dev_get_drvdata(dev);
+ 	struct device *tps_dev = to_tps6586x_dev(dev);
+ 	unsigned long long ticks;
+ 	time64_t seconds;
+@@ -103,11 +100,6 @@ static int tps6586x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	int ret;
+ 
+ 	seconds = rtc_tm_to_time64(tm);
+-	if (seconds < rtc->epoch_start) {
+-		dev_err(dev, "requested time unsupported\n");
+-		return -EINVAL;
+-	}
+-	seconds -= rtc->epoch_start;
+ 
+ 	ticks = (unsigned long long)seconds << 10;
+ 	buff[0] = (ticks >> 32) & 0xff;
+@@ -155,7 +147,6 @@ static int tps6586x_rtc_alarm_irq_enable(struct device *dev,
+ 
+ static int tps6586x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+-	struct tps6586x_rtc *rtc = dev_get_drvdata(dev);
+ 	struct device *tps_dev = to_tps6586x_dev(dev);
+ 	time64_t seconds;
+ 	unsigned long ticks;
+@@ -168,18 +159,12 @@ static int tps6586x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	seconds = rtc_tm_to_time64(&alrm->time);
+ 
+-	if (alrm->enabled && (seconds < rtc->epoch_start)) {
+-		dev_err(dev, "can't set alarm to requested time\n");
+-		return -EINVAL;
+-	}
+-
+ 	ret = tps6586x_rtc_alarm_irq_enable(dev, alrm->enabled);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can't set alarm irq, err %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-	seconds -= rtc->epoch_start;
+ 	ret = tps6586x_reads(tps_dev, RTC_COUNT4_DUMMYREAD,
+ 			sizeof(rbuff), rbuff);
+ 	if (ret < 0) {
+@@ -210,7 +195,6 @@ static int tps6586x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ static int tps6586x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+-	struct tps6586x_rtc *rtc = dev_get_drvdata(dev);
+ 	struct device *tps_dev = to_tps6586x_dev(dev);
+ 	unsigned long ticks;
+ 	time64_t seconds;
+@@ -225,7 +209,6 @@ static int tps6586x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	ticks = (buff[0] << 16) | (buff[1] << 8) | buff[2];
+ 	seconds = ticks >> 10;
+-	seconds += rtc->epoch_start;
+ 
+ 	rtc_time64_to_tm(seconds, &alrm->time);
+ 	return 0;
+@@ -260,9 +243,6 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 	rtc->dev = &pdev->dev;
+ 	rtc->irq = platform_get_irq(pdev, 0);
+ 
+-	/* Set epoch start as 00:00:00:01:01:2009 */
+-	rtc->epoch_start = mktime64(2009, 1, 1, 0, 0, 0);
+-
+ 	/* 1 kHz tick mode, enable tick counting */
+ 	ret = tps6586x_update(tps_dev, RTC_CTRL,
+ 		RTC_ENABLE | OSC_SRC_SEL |
+@@ -284,6 +264,9 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	rtc->rtc->ops = &tps6586x_rtc_ops;
++	rtc->rtc->range_max = (1ULL << 30) - 1; /* 30-bit seconds */
++	rtc->rtc->start_secs = mktime64(2009, 1, 1, 0, 0, 0);
++	rtc->rtc->set_start_time = true;
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+ 				tps6586x_rtc_irq,
 -- 
 2.17.0
