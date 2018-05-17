@@ -1,50 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39012 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750924AbeEQUdo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:33:44 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/7] rtc: rx8581: switch to rtc_register_device
-Date: Thu, 17 May 2018 22:33:25 +0200
-Message-Id: <20180517203331.24504-1-alexandre.belloni@bootlin.com>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:45371 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751850AbeEQMFL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 08:05:11 -0400
+From: Amelie Delaunay <amelie.delaunay@st.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Amelie Delaunay <amelie.delaunay@st.com>
+Subject: [PATCH v3 3/4] dt-bindings: rtc: update stm32-rtc documentation for stm32mp1 rtc
+Date: Thu, 17 May 2018 14:04:25 +0200
+Message-ID: <1526558666-24243-4-git-send-email-amelie.delaunay@st.com>
+In-Reply-To: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This allows for future improvement of the driver.
+RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
+doesn't require to disable backup domain write protection, and rtc_ck
+parent clock assignment isn't allowed.
+To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
+alarm interrupt.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 ---
- drivers/rtc/rtc-rx8581.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 ++++++++++++++++------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
-index 32caadf912ca..c64911a08531 100644
---- a/drivers/rtc/rtc-rx8581.c
-+++ b/drivers/rtc/rtc-rx8581.c
-@@ -286,16 +286,13 @@ static int rx8581_probe(struct i2c_client *client,
- 		rx8581->write_block_data = rx8581_write_block_data;
- 	}
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+index 00f8b5d..c920e27 100644
+--- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
+@@ -1,25 +1,29 @@
+ STM32 Real Time Clock
  
--	rx8581->rtc = devm_rtc_device_register(&client->dev,
--		rx8581_driver.driver.name, &rx8581_rtc_ops, THIS_MODULE);
--
--	if (IS_ERR(rx8581->rtc)) {
--		dev_err(&client->dev,
--			"unable to register the class device\n");
-+	rx8581->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(rx8581->rtc))
- 		return PTR_ERR(rx8581->rtc);
--	}
+ Required properties:
+-- compatible: can be either "st,stm32-rtc" or "st,stm32h7-rtc", depending on
+-  the device is compatible with stm32(f4/f7) or stm32h7.
++- compatible: can be one of the following:
++  - "st,stm32-rtc" for devices compatible with stm32(f4/f7).
++  - "st,stm32h7-rtc" for devices compatible with stm32h7.
++  - "st,stm32mp1-rtc" for devices compatible with stm32mp1.
+ - reg: address range of rtc register set.
+ - clocks: can use up to two clocks, depending on part used:
+   - "rtc_ck": RTC clock source.
+-    It is required on stm32(f4/f7) and stm32h7.
+   - "pclk": RTC APB interface clock.
+     It is not present on stm32(f4/f7).
+-    It is required on stm32h7.
++    It is required on stm32(h7/mp1).
+ - clock-names: must be "rtc_ck" and "pclk".
+-    It is required only on stm32h7.
++    It is required on stm32(h7/mp1).
+ - interrupt-parent: phandle for the interrupt controller.
+-- interrupts: rtc alarm interrupt.
++    It is required on stm32(f4/f7/h7).
++- interrupts: rtc alarm interrupt. On stm32mp1, a second interrupt is required
++  for rtc alarm wakeup interrupt.
+ - st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
+   access control register at offset, and change the dbp (Disable Backup
+   Protection) bit represented by the mask, mandatory to disable/enable backup
+   domain (RTC registers) write protection.
++    It is required on stm32(f4/f7/h7).
  
--	return 0;
-+	rx8581->rtc->ops = &rx8581_rtc_ops;
+-Optional properties (to override default rtc_ck parent clock):
++Optional properties (to override default rtc_ck parent clock on stm32(f4/f7/h7):
+ - assigned-clocks: reference to the rtc_ck clock entry.
+ - assigned-clock-parents: phandle of the new parent clock of rtc_ck.
+ 
+@@ -48,3 +52,12 @@ Example:
+ 		interrupt-names = "alarm";
+ 		st,syscfg = <&pwrcfg 0x00 0x100>;
+ 	};
 +
-+	return rtc_register_device(rx8581->rtc);
- }
- 
- static const struct i2c_device_id rx8581_id[] = {
++	rtc: rtc@5c004000 {
++		compatible = "st,stm32mp1-rtc";
++		reg = <0x5c004000 0x400>;
++		clocks = <&rcc RTCAPB>, <&rcc RTC>;
++		clock-names = "pclk", "rtc_ck";
++		interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_NONE>,
++				      <&exti 19 1>;
++	};
 -- 
-2.17.0
+2.7.4
