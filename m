@@ -1,50 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:33624 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965181AbeEITeB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 15:34:01 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 566C4B00B0F
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 21:34:00 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id gaidZ1XFs1Kn for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 21:33:58 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v3 1/4] rtc: ds1307: fix data pointer to m41t0
-Date: Wed,  9 May 2018 21:33:52 +0200
-Message-Id: <20180509193355.49466-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:39325 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751017AbeEQUrJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:47:09 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: vr41xx: fix possible race condition
+Date: Thu, 17 May 2018 22:47:05 +0200
+Message-Id: <20180517204706.28192-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-data field points to m41t00, instead it should point to m41t0.
-Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
-are equal.
+The probe function is not allowed to fail after the RTC is registered
+because the following may happen:
 
-Point to right enum m41t0 instead of m41t00.
+CPU0:                                CPU1:
+sys_load_module()
+ do_init_module()
+  do_one_initcall()
+   cmos_do_probe()
+    rtc_device_register()
+     __register_chrdev()
+     cdev->owner = struct module*
+                                     open("/dev/rtc0")
+    rtc_device_unregister()
+  module_put()
+  free_module()
+   module_free(mod->module_core)
+   /* struct module *module is now
+      freed */
+                                      chrdev_open()
+                                       spin_lock(cdev_lock)
+                                       cdev_get()
+                                        try_module_get()
+                                         module_is_live()
+                                         /* dereferences already
+                                            freed struct module* */
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1307.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-vr41xx.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a13e59edff53..32aadcbc377f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
- 	},
- 	{
- 		.compatible = "st,m41t0",
--		.data = (void *)m41t00
-+		.data = (void *)m41t0
- 	},
- 	{
- 		.compatible = "st,m41t00",
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index 480cffe8d321..2f1212a25f7e 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -292,13 +292,14 @@ static int rtc_probe(struct platform_device *pdev)
+ 		goto err_rtc1_iounmap;
+ 	}
+ 
+-	rtc = devm_rtc_device_register(&pdev->dev, rtc_name, &vr41xx_rtc_ops,
+-					THIS_MODULE);
++	rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc)) {
+ 		retval = PTR_ERR(rtc);
+ 		goto err_iounmap_all;
+ 	}
+ 
++	rtc->ops = &vr41xx_rtc_ops;
++
+ 	rtc->max_user_freq = MAX_PERIODIC_RATE;
+ 
+ 	spin_lock_irq(&rtc_lock);
+@@ -340,6 +341,10 @@ static int rtc_probe(struct platform_device *pdev)
+ 
+ 	dev_info(&pdev->dev, "Real Time Clock of NEC VR4100 series\n");
+ 
++	retval = rtc_register_device(rtc);
++	if (retval)
++		goto err_iounmap_all;
++
+ 	return 0;
+ 
+ err_iounmap_all:
 -- 
 2.17.0
