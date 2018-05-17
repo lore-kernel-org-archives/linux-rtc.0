@@ -1,36 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:42114 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1754024AbeEWHYc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 May 2018 03:24:32 -0400
-From: Patrice CHOTARD <patrice.chotard@st.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2] rtc: st-lpc: add range
-Date: Wed, 23 May 2018 07:24:14 +0000
-Message-ID: <8d2f6057-4d33-6b75-f01e-df06e9426d07@st.com>
-References: <20180521204905.7113-1-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180521204905.7113-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Received: from mail.bootlin.com ([62.4.15.54]:39493 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752061AbeEQUxa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:53:30 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>, linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/3] rtc: ls1x: remove useless label and goto
+Date: Thu, 17 May 2018 22:53:26 +0200
+Message-Id: <20180517205327.29150-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
+References: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGkgQWxleGFuZHJlDQoNCk9uIDA1LzIxLzIwMTggMTA6NDkgUE0sIEFsZXhhbmRyZSBCZWxsb25p
-IHdyb3RlOg0KPiBUaGUgUlRDIGhhcyBhIDY0IGJpdCBjb3VudGVyLg0KPiANCj4gU2lnbmVkLW9m
-Zi1ieTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5iZWxsb25pQGJvb3RsaW4uY29tPg0K
-PiAtLS0NCj4gICBkcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMgfCAyICsrDQo+ICAgMSBmaWxlIGNo
-YW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0
-Yy1zdC1scGMuYyBiL2RyaXZlcnMvcnRjL3J0Yy1zdC1scGMuYw0KPiBpbmRleCAyZjFlZjJjMjg3
-NDAuLmJlZTc1Y2E3ZmY3OSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ydGMvcnRjLXN0LWxwYy5j
-DQo+ICsrKyBiL2RyaXZlcnMvcnRjL3J0Yy1zdC1scGMuYw0KPiBAQCAtMjU4LDYgKzI1OCw4IEBA
-IHN0YXRpYyBpbnQgc3RfcnRjX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+
-ICAgCXBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYsIHJ0Yyk7DQo+ICAgDQo+ICAgCXJ0Yy0+cnRj
-X2Rldi0+b3BzID0gJnN0X3J0Y19vcHM7DQo+ICsJcnRjLT5ydGNfZGV2LT5yYW5nZV9tYXggPSBV
-NjRfTUFYOw0KPiArCWRvX2RpdihydGMtPnJ0Y19kZXYtPnJhbmdlX21heCwgcnRjLT5jbGtyYXRl
-KTsNCj4gICANCj4gICAJcmV0ID0gcnRjX3JlZ2lzdGVyX2RldmljZShydGMtPnJ0Y19kZXYpOw0K
-PiAgIAlpZiAocmV0KSB7DQo+IA0KDQpBY2tlZC1ieTogUGF0cmljZSBDaG90YXJkIDxwYXRyaWNl
-LmNob3RhcmRAc3QuY29tPg0KDQpQYXRyaWNl
+The error handling in ls1x_rtc_probe used to release resources but since
+it is using devm functions, it only returns a value. Make the code clearer
+by returning directly instead of using goto.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ls1x.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ls1x.c b/drivers/rtc/rtc-ls1x.c
+index 609bd1d013f0..8aa3f223621c 100644
+--- a/drivers/rtc/rtc-ls1x.c
++++ b/drivers/rtc/rtc-ls1x.c
+@@ -148,15 +148,13 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct rtc_device *rtcdev;
+ 	unsigned long v;
+-	int ret;
+ 
+ 	v = readl(SYS_COUNTER_CNTRL);
+ 	if (!(v & RTC_CNTR_OK)) {
+ 		dev_err(&pdev->dev, "rtc counters not working\n");
+-		ret = -ENODEV;
+-		goto err;
++		return -ENODEV;
+ 	}
+-	ret = -ETIMEDOUT;
++
+ 	/* set to 1 HZ if needed */
+ 	if (readl(SYS_TOYTRIM) != 32767) {
+ 		v = 0x100000;
+@@ -165,7 +163,7 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
+ 
+ 		if (!v) {
+ 			dev_err(&pdev->dev, "time out\n");
+-			goto err;
++			return -ETIMEDOUT;
+ 		}
+ 		writel(32767, SYS_TOYTRIM);
+ 	}
+@@ -181,9 +179,6 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
+ 	rtcdev->ops = &ls1x_rtc_ops;
+ 
+ 	return rtc_register_device(rtcdev);
+-
+-err:
+-	return ret;
+ }
+ 
+ static struct platform_driver  ls1x_rtc_driver = {
+-- 
+2.17.0
