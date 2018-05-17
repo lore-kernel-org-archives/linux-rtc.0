@@ -1,47 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39498 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:38536 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752062AbeEQUxa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:53:30 -0400
+        id S1751543AbeEQUTQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 May 2018 16:19:16 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>, linux-kernel@vger.kernel.org,
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/3] rtc: ls1x: add range
-Date: Thu, 17 May 2018 22:53:27 +0200
-Message-Id: <20180517205327.29150-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
-References: <20180517205327.29150-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/5] rtc: 88pm80x: let the core handle the RTC range
+Date: Thu, 17 May 2018 22:18:59 +0200
+Message-Id: <20180517201900.22055-4-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
+References: <20180517201900.22055-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-While the year in encoded on 32 bits in SYS_TOYWRITE1i/SYS_TOYREAD1. The
-Loongson 1c datasheet states that the range is from 0 to 99.
-
-The current code exceeds this range and seems to be working, I deduce that
-the leap year algorithm will fail in 2100.
-
-Anyway, alarm registers only encode the year on 14 bits so with alarm
-support, the range will always be limited to 0 to 16383.
+The 88pm80x RTC is storing the time as a 32bit offset from a 32bit counter
+so it can handle dates from 0 to U32_MAX.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ls1x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-88pm80x.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ls1x.c b/drivers/rtc/rtc-ls1x.c
-index 8aa3f223621c..f4c248655edd 100644
---- a/drivers/rtc/rtc-ls1x.c
-+++ b/drivers/rtc/rtc-ls1x.c
-@@ -177,6 +177,8 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+index dae527f8c58e..33b28b6117e9 100644
+--- a/drivers/rtc/rtc-88pm80x.c
++++ b/drivers/rtc/rtc-88pm80x.c
+@@ -132,12 +132,7 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
+ 	unsigned char buf[4];
+ 	unsigned long ticks, base, data;
+-	if (tm->tm_year > 206) {
+-		dev_dbg(info->dev,
+-			"Set time %d out of range. Please set time between 1970 to 2106.\n",
+-			1900 + tm->tm_year);
+-		return -EINVAL;
+-	}
++
+ 	rtc_tm_to_time(tm, &ticks);
  
- 	platform_set_drvdata(pdev, rtcdev);
- 	rtcdev->ops = &ls1x_rtc_ops;
-+	rtcdev->range_min = RTC_TIMESTAMP_BEGIN_1900;
-+	rtcdev->range_max = RTC_TIMESTAMP_END_2099;
+ 	/* load 32-bit read-only counter */
+@@ -303,6 +298,7 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
+ 	}
  
- 	return rtc_register_device(rtcdev);
- }
+ 	info->rtc_dev->ops = &pm80x_rtc_ops;
++	info->rtc_dev->range_max = U32_MAX;
+ 
+ 	ret = rtc_register_device(info->rtc_dev);
+ 	if (ret) {
 -- 
 2.17.0
