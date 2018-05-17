@@ -1,99 +1,57 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:44963 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754260AbeEaJ5S (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 31 May 2018 05:57:18 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: ds1685: fix possible race condition
-Date: Thu, 31 May 2018 11:56:42 +0200
-Message-Id: <20180531095643.8581-1-alexandre.belloni@bootlin.com>
+Received: from out02.mta.xmission.com ([166.70.13.232]:54756 "EHLO
+        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752014AbeEQBPa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 21:15:30 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
+        jfs-discussion@lists.sourceforge.net,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20180425154827.32251-1-hch@lst.de>
+        <20180425154827.32251-35-hch@lst.de> <87r2mq2rll.fsf@xmission.com>
+        <20180515141232.GD31296@lst.de>
+Date: Wed, 16 May 2018 20:15:21 -0500
+In-Reply-To: <20180515141232.GD31296@lst.de> (Christoph Hellwig's message of
+        "Tue, 15 May 2018 16:12:33 +0200")
+Message-ID: <87efibjd5i.fsf@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH 34/40] atm: simplify procfs code
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler.
+Christoph Hellwig <hch@lst.de> writes:
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ.
+> On Sat, May 05, 2018 at 07:51:18AM -0500, Eric W. Biederman wrote:
+>> Christoph Hellwig <hch@lst.de> writes:
+>> 
+>> > Use remove_proc_subtree to remove the whole subtree on cleanup, and
+>> > unwind the registration loop into individual calls.  Switch to use
+>> > proc_create_seq where applicable.
+>> 
+>> Can you please explain why you are removing the error handling when
+>> you are unwinding the registration loop?
+>
+> Because there is no point in handling these errors.  The code work
+> perfectly fine without procfs, or without given proc files and the
+> removal works just fine if they don't exist either.  This is a very
+> common patter in various parts of the kernel already.
+>
+> I'll document it better in the changelog.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1685.c | 41 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 23 deletions(-)
+Thank you.  That is the kind of thing that could be a signal of
+inattentiveness and problems, especially when it is not documented.
 
-diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-index f0f8011dce3d..e6390475380f 100644
---- a/drivers/rtc/rtc-ds1685.c
-+++ b/drivers/rtc/rtc-ds1685.c
-@@ -2037,6 +2037,22 @@ ds1685_rtc_probe(struct platform_device *pdev)
- 	rtc->write(rtc, RTC_EXT_CTRL_4B,
- 		   (rtc->read(rtc, RTC_EXT_CTRL_4B) | RTC_CTRL_4B_KSE));
- 
-+	rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc_dev))
-+		return PTR_ERR(rtc_dev);
-+
-+	rtc_dev->ops = &ds1685_rtc_ops;
-+
-+	/* Maximum periodic rate is 8192Hz (0.122070ms). */
-+	rtc_dev->max_user_freq = RTC_MAX_USER_FREQ;
-+
-+	/* See if the platform doesn't support UIE. */
-+	if (pdata->uie_unsupported)
-+		rtc_dev->uie_unsupported = 1;
-+	rtc->uie_unsupported = pdata->uie_unsupported;
-+
-+	rtc->dev = rtc_dev;
-+
- 	/*
- 	 * Fetch the IRQ and setup the interrupt handler.
- 	 *
-@@ -2069,32 +2085,13 @@ ds1685_rtc_probe(struct platform_device *pdev)
- 	/* Setup complete. */
- 	ds1685_rtc_switch_to_bank0(rtc);
- 
--	/* Register the device as an RTC. */
--	rtc_dev = rtc_device_register(pdev->name, &pdev->dev,
--				      &ds1685_rtc_ops, THIS_MODULE);
--
--	/* Success? */
--	if (IS_ERR(rtc_dev))
--		return PTR_ERR(rtc_dev);
--
--	/* Maximum periodic rate is 8192Hz (0.122070ms). */
--	rtc_dev->max_user_freq = RTC_MAX_USER_FREQ;
--
--	/* See if the platform doesn't support UIE. */
--	if (pdata->uie_unsupported)
--		rtc_dev->uie_unsupported = 1;
--	rtc->uie_unsupported = pdata->uie_unsupported;
--
--	rtc->dev = rtc_dev;
--
- #ifdef CONFIG_SYSFS
- 	ret = ds1685_rtc_sysfs_register(&pdev->dev);
- 	if (ret)
--		rtc_device_unregister(rtc->dev);
-+		return ret;
- #endif
- 
--	/* Done! */
--	return ret;
-+	return rtc_register_device(rtc_dev);
- }
- 
- /**
-@@ -2110,8 +2107,6 @@ ds1685_rtc_remove(struct platform_device *pdev)
- 	ds1685_rtc_sysfs_unregister(&pdev->dev);
- #endif
- 
--	rtc_device_unregister(rtc->dev);
--
- 	/* Read Ctrl B and clear PIE/AIE/UIE. */
- 	rtc->write(rtc, RTC_CTRL_B,
- 		   (rtc->read(rtc, RTC_CTRL_B) &
--- 
-2.17.0
+Eric
