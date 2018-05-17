@@ -1,149 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47112 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752710AbeEPJou (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:50 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 04/42] proc: simplify proc_register calling conventions
-Date: Wed, 16 May 2018 11:43:08 +0200
-Message-Id: <20180516094346.20506-5-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:26656 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751734AbeEQKCe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 06:02:34 -0400
+From: Amelie DELAUNAY <amelie.delaunay@st.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre TORGUE <alexandre.torgue@st.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 1/3] rtc: stm32: rework register management to prepare
+ other version of RTC
+Date: Thu, 17 May 2018 10:01:49 +0000
+Message-ID: <d08bcefc-7698-a968-7a35-ed9ab62bd623@st.com>
+References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
+ <1525880770-22263-2-git-send-email-amelie.delaunay@st.com>
+ <20180516202552.GA24496@piout.net>
+In-Reply-To: <20180516202552.GA24496@piout.net>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Return registered entry on success, return NULL on failure and free the
-passed in entry.  Also expose it in internal.h as we'll start using it
-in proc_net.c soon.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/proc/generic.c  | 44 ++++++++++++++++++--------------------------
- fs/proc/internal.h |  2 ++
- 2 files changed, 20 insertions(+), 26 deletions(-)
-
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 2078e70e1595..bd8480ff0d35 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -346,13 +346,12 @@ static const struct inode_operations proc_dir_inode_operations = {
- 	.setattr	= proc_notify_change,
- };
- 
--static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp)
-+/* returns the registered entry, or frees dp and returns NULL on failure */
-+struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
-+		struct proc_dir_entry *dp)
- {
--	int ret;
--
--	ret = proc_alloc_inum(&dp->low_ino);
--	if (ret)
--		return ret;
-+	if (proc_alloc_inum(&dp->low_ino))
-+		goto out_free_entry;
- 
- 	write_lock(&proc_subdir_lock);
- 	dp->parent = dir;
-@@ -360,12 +359,16 @@ static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp
- 		WARN(1, "proc_dir_entry '%s/%s' already registered\n",
- 		     dir->name, dp->name);
- 		write_unlock(&proc_subdir_lock);
--		proc_free_inum(dp->low_ino);
--		return -EEXIST;
-+		goto out_free_inum;
- 	}
- 	write_unlock(&proc_subdir_lock);
- 
--	return 0;
-+	return dp;
-+out_free_inum:
-+	proc_free_inum(dp->low_ino);
-+out_free_entry:
-+	pde_free(dp);
-+	return NULL;
- }
- 
- static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
-@@ -443,10 +446,7 @@ struct proc_dir_entry *proc_symlink(const char *name,
- 		if (ent->data) {
- 			strcpy((char*)ent->data,dest);
- 			ent->proc_iops = &proc_link_inode_operations;
--			if (proc_register(parent, ent) < 0) {
--				pde_free(ent);
--				ent = NULL;
--			}
-+			ent = proc_register(parent, ent);
- 		} else {
- 			pde_free(ent);
- 			ent = NULL;
-@@ -470,11 +470,9 @@ struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
- 		ent->proc_fops = &proc_dir_operations;
- 		ent->proc_iops = &proc_dir_inode_operations;
- 		parent->nlink++;
--		if (proc_register(parent, ent) < 0) {
--			pde_free(ent);
-+		ent = proc_register(parent, ent);
-+		if (!ent)
- 			parent->nlink--;
--			ent = NULL;
--		}
- 	}
- 	return ent;
- }
-@@ -505,11 +503,9 @@ struct proc_dir_entry *proc_create_mount_point(const char *name)
- 		ent->proc_fops = NULL;
- 		ent->proc_iops = NULL;
- 		parent->nlink++;
--		if (proc_register(parent, ent) < 0) {
--			pde_free(ent);
-+		ent = proc_register(parent, ent);
-+		if (!ent)
- 			parent->nlink--;
--			ent = NULL;
--		}
- 	}
- 	return ent;
- }
-@@ -539,11 +535,7 @@ struct proc_dir_entry *proc_create_data(const char *name, umode_t mode,
- 	pde->proc_fops = proc_fops;
- 	pde->data = data;
- 	pde->proc_iops = &proc_file_inode_operations;
--	if (proc_register(parent, pde) < 0)
--		goto out_free;
--	return pde;
--out_free:
--	pde_free(pde);
-+	return proc_register(parent, pde);
- out:
- 	return NULL;
- }
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 0f1692e63cb6..488e67490312 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -162,6 +162,8 @@ extern bool proc_fill_cache(struct file *, struct dir_context *, const char *, i
- /*
-  * generic.c
-  */
-+struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
-+		struct proc_dir_entry *dp);
- extern struct dentry *proc_lookup(struct inode *, struct dentry *, unsigned int);
- struct dentry *proc_lookup_de(struct inode *, struct dentry *, struct proc_dir_entry *);
- extern int proc_readdir(struct file *, struct dir_context *);
--- 
-2.17.0
+SGksDQoNCk9uIDA1LzE2LzIwMTggMTA6MjUgUE0sIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0K
+PiBIaSwNCj4gDQo+IE9uIDA5LzA1LzIwMTggMTc6NDY6MDgrMDIwMCwgQW1lbGllIERlbGF1bmF5
+IHdyb3RlOg0KPj4gICBzdGF0aWMgdm9pZCBzdG0zMl9ydGNfd3ByX3VubG9jayhzdHJ1Y3Qgc3Rt
+MzJfcnRjICpydGMpDQo+PiAgIHsNCj4+IC0Jd3JpdGVsX3JlbGF4ZWQoUlRDX1dQUl8xU1RfS0VZ
+LCBydGMtPmJhc2UgKyBTVE0zMl9SVENfV1BSKTsNCj4+IC0Jd3JpdGVsX3JlbGF4ZWQoUlRDX1dQ
+Ul8yTkRfS0VZLCBydGMtPmJhc2UgKyBTVE0zMl9SVENfV1BSKTsNCj4+ICsJc3RydWN0IHN0bTMy
+X3J0Y19yZWdpc3RlcnMgcmVncyA9IHJ0Yy0+ZGF0YS0+cmVnczsNCj4gDQo+IHJlZ3Mgc2hvdWxk
+IHByb2JhYmx5IGJlIGEgcG9pbnRlciB0byBlbnN1cmUgdGhhdCBubyBjb3B5IGlzIG1hZGUuIEkn
+dmUNCj4gYWN0dWFsbHkgY2hlY2tlZCBhbmQgaXQgZG9lc24ndCBtYWtlIGEgZGlmZmVyZW5jZSBi
+ZWNhdXNlIGdjYyBpcyBzbWFydA0KPiBlbm91Z2ggdG8gbm90IG1ha2UgdGhlIGNvcHkuDQo+IA0K
+DQouLi4NCg0KPj4gICBzdGF0aWMgaXJxcmV0dXJuX3Qgc3RtMzJfcnRjX2FsYXJtX2lycShpbnQg
+aXJxLCB2b2lkICpkZXZfaWQpDQo+PiAgIHsNCj4+ICAgCXN0cnVjdCBzdG0zMl9ydGMgKnJ0YyA9
+IChzdHJ1Y3Qgc3RtMzJfcnRjICopZGV2X2lkOw0KPj4gLQl1bnNpZ25lZCBpbnQgaXNyLCBjcjsN
+Cj4+ICsJc3RydWN0IHN0bTMyX3J0Y19yZWdpc3RlcnMgcmVncyA9IHJ0Yy0+ZGF0YS0+cmVnczsN
+Cj4+ICsJc3RydWN0IHN0bTMyX3J0Y19ldmVudHMgZXZ0cyA9IHJ0Yy0+ZGF0YS0+ZXZlbnRzOw0K
+PiANCj4gRGl0dG8gZm9yIGV2dHMuDQo+DQoNCkkgcHJlcGFyZSBhIHYzIHdpdGggY29uc3Qgc3Ry
+dWN0IHN0bTMyX3J0Y19yZWdpc3RlcnMgKnJlZ3MgYW5kIGNvbnN0IA0Kc3RydWN0IHN0bTMyX3J0
+Y19ldmVudHMgKmV2dHMuDQoNCj4+ICsJdW5zaWduZWQgaW50IHN0YXR1cywgY3I7DQo+PiAgIA0K
+Pj4gICAJbXV0ZXhfbG9jaygmcnRjLT5ydGNfZGV2LT5vcHNfbG9jayk7DQo+PiAgIA0KPj4gLQlp
+c3IgPSByZWFkbF9yZWxheGVkKHJ0Yy0+YmFzZSArIFNUTTMyX1JUQ19JU1IpOw0KPj4gLQljciA9
+IHJlYWRsX3JlbGF4ZWQocnRjLT5iYXNlICsgU1RNMzJfUlRDX0NSKTsNCj4+ICsJc3RhdHVzID0g
+cmVhZGxfcmVsYXhlZChydGMtPmJhc2UgKyByZWdzLmlzcik7DQo+PiArCWNyID0gcmVhZGxfcmVs
+YXhlZChydGMtPmJhc2UgKyByZWdzLmNyKTsNCj4+ICAgDQo+PiAtCWlmICgoaXNyICYgU1RNMzJf
+UlRDX0lTUl9BTFJBRikgJiYNCj4+ICsJaWYgKChzdGF0dXMgJiBldnRzLmFscmEpICYmDQo+PiAg
+IAkgICAgKGNyICYgU1RNMzJfUlRDX0NSX0FMUkFJRSkpIHsNCj4+ICAgCQkvKiBBbGFybSBBIGZs
+YWcgLSBBbGFybSBpbnRlcnJ1cHQgKi8NCj4+ICAgCQlkZXZfZGJnKCZydGMtPnJ0Y19kZXYtPmRl
+diwgIkFsYXJtIG9jY3VycmVkXG4iKTsNCj4gDQo+IC4uLg0KPiANCj4+IEBAIC02NDEsNyArNzEw
+LDcgQEAgc3RhdGljIGludCBzdG0zMl9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAq
+cGRldikNCj4+ICAgDQo+PiAgIAkvKg0KPj4gICAJICogQWZ0ZXIgYSBzeXN0ZW0gcmVzZXQsIFJU
+Q19JU1IuSU5JVFMgZmxhZyBjYW4gYmUgcmVhZCB0byBjaGVjayBpZg0KPj4gLQkgKiB0aGUgY2Fs
+ZW5kYXIgaGFzIGJlZW4gaW5pdGFsaXplZCBvciBub3QuIElOSVRTIGZsYWcgaXMgcmVzZXQgYnkg
+YQ0KPj4gKwkgKiB0aGUgY2FsZW5kYXIgaGFzIGJlZW4gaW5pdGlhbGl6ZWQgb3Igbm90LiBJTklU
+UyBmbGFnIGlzIHJlc2V0IGJ5IGENCj4+ICAgCSAqIHBvd2VyLW9uIHJlc2V0IChubyB2YmF0LCBu
+byBwb3dlci1zdXBwbHkpLiBJdCBpcyBub3QgcmVzZXQgaWYNCj4+ICAgCSAqIHJ0Y19jayBwYXJl
+bnQgY2xvY2sgaGFzIGNoYW5nZWQgKHNvIFJUQyBwcmVzY2FsZXJzIG5lZWQgdG8gYmUNCj4+ICAg
+CSAqIGNoYW5nZWQpLiBUaGF0J3Mgd2h5IHdlIGNhbm5vdCByZWx5IG9uIHRoaXMgZmxhZyB0byBr
+bm93IGlmIFJUQw0KPj4gQEAgLTY2Niw3ICs3MzUsNyBAQCBzdGF0aWMgaW50IHN0bTMyX3J0Y19w
+cm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4gICAJCQkgImFsYXJtIHdvbid0
+IGJlIGFibGUgdG8gd2FrZSB1cCB0aGUgc3lzdGVtIik7DQo+PiAgIA0KPj4gICAJcnRjLT5ydGNf
+ZGV2ID0gZGV2bV9ydGNfZGV2aWNlX3JlZ2lzdGVyKCZwZGV2LT5kZXYsIHBkZXYtPm5hbWUsDQo+
+PiAtCQkJJnN0bTMyX3J0Y19vcHMsIFRISVNfTU9EVUxFKTsNCj4+ICsJCQkJCQkmc3RtMzJfcnRj
+X29wcywgVEhJU19NT0RVTEUpOw0KPj4gICAJaWYgKElTX0VSUihydGMtPnJ0Y19kZXYpKSB7DQo+
+PiAgIAkJcmV0ID0gUFRSX0VSUihydGMtPnJ0Y19kZXYpOw0KPj4gICAJCWRldl9lcnIoJnBkZXYt
+PmRldiwgInJ0YyBkZXZpY2UgcmVnaXN0cmF0aW9uIGZhaWxlZCwgZXJyPSVkXG4iLA0KPiANCj4g
+VGhvc2UgdHdvIGNoYW5nZXMgc2hvdWxkIGdvIGludG8gYSBzZXBhcmF0ZSBjbGVhbnVwIHBhdGNo
+Lg0KPiANCg0KT0ssIG5ldyBwYXRjaCBmb3IgdGhlc2UgdHdvIGNoYW5nZXMgaW4gdjMuDQoNClRo
+YW5rcyBmb3IgcmV2aWV3aW5nLA0KQW1lbGll
