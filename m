@@ -1,51 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:39608 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752569AbeEVCqG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 May 2018 22:46:06 -0400
-Received: by mail-qt0-f195.google.com with SMTP id f1-v6so21592078qtj.6
-        for <linux-rtc@vger.kernel.org>; Mon, 21 May 2018 19:46:06 -0700 (PDT)
-From: Fabio Estevam <festevam@gmail.com>
-To: alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH 2/2] rtc: mxc: Switch to SPDX identifier
-Date: Mon, 21 May 2018 23:45:59 -0300
-Message-Id: <1526957159-19418-2-git-send-email-festevam@gmail.com>
-In-Reply-To: <1526957159-19418-1-git-send-email-festevam@gmail.com>
-References: <1526957159-19418-1-git-send-email-festevam@gmail.com>
+Received: from mail-ot0-f196.google.com ([74.125.82.196]:37660 "EHLO
+        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751405AbeERQfM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 May 2018 12:35:12 -0400
+Date: Fri, 18 May 2018 11:35:10 -0500
+From: Rob Herring <robh@kernel.org>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        andy.shevchenko@gmail.com
+Subject: Re: [PATCH v6 2/4] rtc: ds1307: support m41t11 variant
+Message-ID: <20180518163510.GA12620@rob-hp-laptop>
+References: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
+ <20180516210842.5874-2-giulio.benetti@micronovasrl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180516210842.5874-2-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
+On Wed, May 16, 2018 at 11:08:40PM +0200, Giulio Benetti wrote:
+> The m41t11 variant is very similar to the already supported m41t00 and
+> m41t0, but it has also 56 bytes of NVRAM.
+> 
+> Add it to driver taking into account NVRAM section.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
+>  drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
+>  2 files changed, 15 insertions(+)
 
-Adopt the SPDX license identifier headers to ease license compliance
-management.
-
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
----
- drivers/rtc/rtc-mxc.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 822ebe4..878c6ee 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -1,13 +1,6 @@
--/*
-- * Copyright 2004-2008 Freescale Semiconductor, Inc. All Rights Reserved.
-- *
-- * The code contained herein is licensed under the GNU General Public
-- * License. You may obtain a copy of the GNU General Public License
-- * Version 2 or later at the following locations:
-- *
-- * http://www.opensource.org/licenses/gpl-license.html
-- * http://www.gnu.org/copyleft/gpl.html
-- */
-+// SPDX-License-Identifier: GPL-2.0+
-+//
-+// Copyright 2004-2008 Freescale Semiconductor, Inc. All Rights Reserved.
- 
- #include <linux/io.h>
- #include <linux/rtc.h>
--- 
-2.7.4
+Reviewed-by: Rob Herring <robh@kernel.org>
