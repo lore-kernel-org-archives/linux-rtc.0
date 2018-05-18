@@ -1,50 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:58768 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752307AbeEPKcz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:32:55 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 77820B00B7B
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:32:54 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id FhIjJcKn9ngb for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 12:32:54 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v5 1/4] rtc: ds1307: fix data pointer to m41t0
-Date: Wed, 16 May 2018 12:32:48 +0200
-Message-Id: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:56302 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752136AbeERM4C (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 May 2018 08:56:02 -0400
+Received: by mail-wm0-f66.google.com with SMTP id a8-v6so13943568wmg.5
+        for <linux-rtc@vger.kernel.org>; Fri, 18 May 2018 05:56:02 -0700 (PDT)
+Date: Fri, 18 May 2018 14:55:54 +0200
+From: Lars Ellenberg <lars.ellenberg@linbit.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        jfs-discussion@lists.sourceforge.net,
+        linux-afs@lists.infradead.org, linux-acpi@vger.kernel.org,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        Jiri Slaby <jslaby@suse.com>, linux-ext4@vger.kernel.org,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        megaraidlinux.pdl@broadcom.com, drbd-dev@lists.linbit.com
+Subject: Re: [Drbd-dev] [PATCH 28/42] drbd: switch to proc_create_single
+Message-ID: <20180518125554.GA9238@soda.linbit>
+References: <20180516094346.20506-1-hch@lst.de>
+ <20180516094346.20506-29-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180516094346.20506-29-hch@lst.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-data field points to m41t00, instead it should point to m41t0.
-Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
-are equal.
+On Wed, May 16, 2018 at 11:43:32AM +0200, Christoph Hellwig wrote:
+> And stop messing with try_module_get on THIS_MODULE, which doesn't make
+> any sense here.
 
-Point to right enum m41t0 instead of m41t00.
+The idea was to increase module count on /proc/drbd access.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- drivers/rtc/rtc-ds1307.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+If someone holds /proc/drbd open, previously rmmod would
+"succeed" in starting the unload, but then block on remove_proc_entry,
+leading to a situation where the lsmod does not show drbd anymore,
+but /proc/drbd being still there (but no longer accessible).
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index a13e59edff53..32aadcbc377f 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -298,7 +298,7 @@ static const struct of_device_id ds1307_of_match[] = {
- 	},
- 	{
- 		.compatible = "st,m41t0",
--		.data = (void *)m41t00
-+		.data = (void *)m41t0
- 	},
- 	{
- 		.compatible = "st,m41t00",
--- 
-2.17.0
+I'd rather have rmmod fail up front in this case.
+And try_module_get() seemed most appropriate.
+
+    Lars
