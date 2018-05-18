@@ -1,9 +1,11 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from out03.mta.xmission.com ([166.70.13.233]:59230 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750723AbeEQF2K (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 01:28:10 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
+Received: from lb1-smtp-cloud8.xs4all.net ([194.109.24.21]:43037 "EHLO
+        lb1-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753139AbeERIoM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 May 2018 04:44:12 -0400
+Message-ID: <4e7091873e8a220c454a7ce5a3f52edc5b5c3e3a.camel@tiscali.nl>
+Subject: Re: [PATCH 38/42] isdn: replace ->proc_fops with ->proc_show
+From: Paul Bolle <pebolle@tiscali.nl>
 To: Christoph Hellwig <hch@lst.de>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -19,57 +21,63 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
         linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
         jfs-discussion@lists.sourceforge.net,
         netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180425154827.32251-1-hch@lst.de>
-        <20180425154827.32251-12-hch@lst.de> <878t8y46sy.fsf@xmission.com>
-        <20180515145643.GA661@lst.de>
-Date: Thu, 17 May 2018 00:28:01 -0500
-In-Reply-To: <20180515145643.GA661@lst.de> (Christoph Hellwig's message of
-        "Tue, 15 May 2018 16:56:43 +0200")
-Message-ID: <871seakg0u.fsf@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 11/40] ipv6/flowlabel: simplify pid namespace lookup
+Date: Fri, 18 May 2018 10:43:46 +0200
+In-Reply-To: <20180516094346.20506-39-hch@lst.de>
+References: <20180516094346.20506-1-hch@lst.de>
+         <20180516094346.20506-39-hch@lst.de>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Christoph Hellwig <hch@lst.de> writes:
+Hi Christoph,
 
-> On Sat, May 05, 2018 at 07:37:33AM -0500, Eric W. Biederman wrote:
->> Christoph Hellwig <hch@lst.de> writes:
->> 
->> > The shole seq_file sequence already operates under a single RCU lock pair,
->> > so move the pid namespace lookup into it, and stop grabbing a reference
->> > and remove all kinds of boilerplate code.
->> 
->> This is wrong.
->> 
->> Move task_active_pid_ns(current) from open to seq_start actually means
->> that the results if you pass this proc file between callers the results
->> will change.  So this breaks file descriptor passing.
->> 
->> Open is a bad place to access current.  In the middle of read/write is
->> broken.
->> 
->> 
->> In this particular instance looking up the pid namespace with
->> task_active_pid_ns was a personal brain fart.  What the code should be
->> doing (with an appropriate helper) is:
->> 
->> struct pid_namespace *pid_ns = inode->i_sb->s_fs_info;
->> 
->> Because each mount of proc is bound to a pid namespace.  Looking up the
->> pid namespace from the super_block is a much better way to go.
->
-> What do you have in mind for the helper?  For now I've thrown it in
-> opencoded into my working tree, but I'd be glad to add a helper.
->
-> struct pid_namespace *proc_pid_namespace(struct inode *inode)
-> {
-> 	// maybe warn on for s_magic not on procfs??
-> 	return inode->i_sb->s_fs_info;
-> }
+(I don't think the patches of this series ever hit the ISDN related addresses
+still found in MAINTAINERS. And now I might be a bit late.) 
 
-That should work.  Ideally out of line for the proc_fs.h version.
-Basically it should be a cousin of PDE_DATA.
+Christoph Hellwig schreef op wo 16-05-2018 om 11:43 [+0200]:
+> diff --git a/drivers/isdn/gigaset/capi.c b/drivers/isdn/gigaset/capi.c
+> index ccec7778cad2..dac5cd35e901 100644
+> --- a/drivers/isdn/gigaset/capi.c
+> +++ b/drivers/isdn/gigaset/capi.c
+> @@ -2437,19 +2437,6 @@ static int gigaset_proc_show(struct seq_file *m, void *v)
+>  	return 0;
+>  }
+>  
+> -static int gigaset_proc_open(struct inode *inode, struct file *file)
+> -{
+> -	return single_open(file, gigaset_proc_show, PDE_DATA(inode));
+> -}
+> -
+> -static const struct file_operations gigaset_proc_fops = {
+> -	.owner		= THIS_MODULE,
+> -	.open		= gigaset_proc_open,
+> -	.read		= seq_read,
+> -	.llseek		= seq_lseek,
+> -	.release	= single_release,
+> -};
+> -
+>  /**
+>   * gigaset_isdn_regdev() - register device to LL
+>   * @cs:		device descriptor structure.
+> @@ -2478,8 +2465,7 @@ int gigaset_isdn_regdev(struct cardstate *cs, const char *isdnid)
+>  	iif->ctr.register_appl = gigaset_register_appl;
+>  	iif->ctr.release_appl  = gigaset_release_appl;
+>  	iif->ctr.send_message  = gigaset_send_message;
+> -	iif->ctr.procinfo      = gigaset_procinfo;
 
-Eric
+Is this intentional? You didn't touch the procinfo method in the other ISDN
+drivers, as far as I can see.
+
+(If it was intentional, gigaset_procinfo() can of course be removed.)
+
+> -	iif->ctr.proc_fops = &gigaset_proc_fops;
+> +	iif->ctr.proc_show     = gigaset_proc_show,
+>  	INIT_LIST_HEAD(&iif->appls);
+>  	skb_queue_head_init(&iif->sendqueue);
+>  	atomic_set(&iif->sendqlen, 0);
+
+Thanks,
+
+
+Paul Bolle
