@@ -1,69 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:38442 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933030AbeEHPCZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:02:25 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id A54DFB00BA2
-        for <linux-rtc@vger.kernel.org>; Tue,  8 May 2018 16:56:26 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id CIu5yFNM249F for <linux-rtc@vger.kernel.org>;
-        Tue,  8 May 2018 16:56:25 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it
-Cc: alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH 4/4] rtc: ds1307: add frequency-test property to check calibration on m41txx
-Date: Tue,  8 May 2018 16:56:11 +0200
-Message-Id: <20180508145611.49072-4-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
-References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:41266 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752193AbeESIrF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 19 May 2018 04:47:05 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: mxc_v2: let the core handle rtc range
+Date: Sat, 19 May 2018 10:46:47 +0200
+Message-Id: <20180519084647.32313-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180519084647.32313-1-alexandre.belloni@bootlin.com>
+References: <20180519084647.32313-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On m41txx you can enable open-drain OUT pin to check if calibration is ok.
-Enabling OUT pin with frequency-test bool property, OUT pin will tick
-512 times faster than 1s tick base.
+This RTC is a 32-bit second counter.
 
-Enable FT bit on CONTROL register if calibration is active.
+This also solves an issue where mxc_rtc_set_alarm() can return with the
+lock taken.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 3 +++
- drivers/rtc/rtc-ds1307.c                             | 4 ++++
- 2 files changed, 7 insertions(+)
+ drivers/rtc/rtc-mxc_v2.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d3d70a5495c5..72a5f8cdc306 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -36,6 +36,9 @@ Optional properties:
- 	Should be given if internal trickle charger diode should be disabled
- - calibration: m41t0, m41t00, m41t11 only
- 	Set calibration value to correct external bias, ranging between (-31) and 31.
-+- frequency-test: m41t0, m41t00, m41t11 only
-+	Enable open-drain OUT pin 512 times faster than 1 second tick.
-+	This allows to check calibration value.
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 4cc121a41fe0..24ca74ca632a 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -165,11 +165,6 @@ static int mxc_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	time64_t time = rtc_tm_to_time64(tm);
+ 	int ret;
  
- Example:
- 	rtc1: ds1339@68 {
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 9cda52589c0f..a727ced157df 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1485,6 +1485,10 @@ static int ds1307_probe(struct i2c_client *client,
- 			if (calib >= 0)
- 				out_byte |= M41TXX_BIT_CALIB_SIGN;
+-	if (time > U32_MAX) {
+-		dev_err(dev, "RTC exceeded by %llus\n", time - U32_MAX);
+-		return -EINVAL;
+-	}
+-
+ 	ret = mxc_rtc_lock(pdata);
+ 	if (ret)
+ 		return ret;
+@@ -248,11 +243,6 @@ static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	if (ret)
+ 		return ret;
  
-+			if (of_property_read_bool(client->dev.of_node,
-+					"frequency-test"))
-+				out_byte |= M41TXX_BIT_FT;
-+
- 			regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,
- 					out_byte);
- 		}
+-	if (time > U32_MAX) {
+-		dev_err(dev, "Hopefully I am out of service by then :-(\n");
+-		return -EINVAL;
+-	}
+-
+ 	writel((u32)time, pdata->ioaddr + SRTC_LPSAR);
+ 
+ 	/* clear alarm interrupt status bit */
+@@ -348,6 +338,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(pdata->rtc);
+ 
+ 	pdata->rtc->ops = &mxc_rtc_ops;
++	pdata->rtc->range_max = U32_MAX;
+ 
+ 	clk_disable(pdata->clk);
+ 	platform_set_drvdata(pdev, pdata);
 -- 
 2.17.0
