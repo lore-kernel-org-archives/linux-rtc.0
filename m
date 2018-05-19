@@ -1,49 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:34223 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752569AbeEVCqE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 May 2018 22:46:04 -0400
-Received: by mail-qt0-f194.google.com with SMTP id m5-v6so21603573qti.1
-        for <linux-rtc@vger.kernel.org>; Mon, 21 May 2018 19:46:04 -0700 (PDT)
-From: Fabio Estevam <festevam@gmail.com>
-To: alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH 1/2] rtc: snvs: Switch to SPDX identifier
-Date: Mon, 21 May 2018 23:45:58 -0300
-Message-Id: <1526957159-19418-1-git-send-email-festevam@gmail.com>
+Received: from mail.bootlin.com ([62.4.15.54]:41265 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752140AbeESIrF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 19 May 2018 04:47:05 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: mxc_v2: fix possible race condition
+Date: Sat, 19 May 2018 10:46:46 +0200
+Message-Id: <20180519084647.32313-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Adopt the SPDX license identifier headers to ease license compliance
-management.
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
 
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-snvs.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ drivers/rtc/rtc-mxc_v2.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 9af591d..8a75cc3 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -1,13 +1,6 @@
--/*
-- * Copyright (C) 2011-2012 Freescale Semiconductor, Inc.
-- *
-- * The code contained herein is licensed under the GNU General Public
-- * License. You may obtain a copy of the GNU General Public License
-- * Version 2 or later at the following locations:
-- *
-- * http://www.opensource.org/licenses/gpl-license.html
-- * http://www.gnu.org/copyleft/gpl.html
-- */
-+// SPDX-License-Identifier: GPL-2.0+
-+//
-+// Copyright (C) 2011-2012 Freescale Semiconductor, Inc.
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 9e14efb990b2..4cc121a41fe0 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -343,6 +343,12 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- #include <linux/init.h>
- #include <linux/io.h>
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
++
++	pdata->rtc->ops = &mxc_rtc_ops;
++
+ 	clk_disable(pdata->clk);
+ 	platform_set_drvdata(pdev, pdata);
+ 	ret =
+@@ -354,15 +360,11 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	pdata->rtc =
+-	    devm_rtc_device_register(&pdev->dev, pdev->name, &mxc_rtc_ops,
+-				     THIS_MODULE);
+-	if (IS_ERR(pdata->rtc)) {
++	ret = rtc_register_device(pdata->rtc);
++	if (ret < 0)
+ 		clk_unprepare(pdata->clk);
+-		return PTR_ERR(pdata->rtc);
+-	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int mxc_rtc_remove(struct platform_device *pdev)
 -- 
-2.7.4
+2.17.0
