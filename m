@@ -1,51 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60706 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:60172 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965130AbeEYJje (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 25 May 2018 05:39:34 -0400
-Date: Fri, 25 May 2018 11:39:22 +0200
+        id S1751029AbeETSFW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 May 2018 14:05:22 -0400
+Date: Sun, 20 May 2018 20:05:20 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Timur =?iso-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: rtc_cmos 00:01: nvmem registration failed
-Message-ID: <20180525093922.GA2500@piout.net>
-References: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: Re: [PATCH] rtc: pcf2127: add support for accessing internal static
+ RAM
+Message-ID: <20180520180520.GC23730@piout.net>
+References: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
+In-Reply-To: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 Hi,
 
-On 25/05/2018 11:23:43+0200, Timur Kristóf wrote:
-> Hi,
-> 
-> I've used kernel 4.17 rc5 and now using rc6 on Fedora 28 on a Dell XPS
-> 13 9370 machine. Since upgrading to this kernel, I get the following
-> messages in the journal:
-> 
-> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: RTC can wake from S4
-> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: registered as rtc0
-> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: nvmem registration failed
-> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: alarms up to one month, y3k, 242 bytes nvram, hpet irqs
-> 
-> The "nvmem registration failed" is highlighted red in the journal, and also shows up on every boot.
-> 
+On 20/05/2018 15:37:23+0200, Uwe Kleine-König wrote:
+>  static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+> -			const char *name)
+> +			const char *name, bool has_nvmem)
+>  {
+>  	struct pcf2127 *pcf2127;
+> +	int ret = 0;
+>  
+>  	dev_dbg(dev, "%s\n", __func__);
+>  
+> @@ -200,8 +242,21 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+>  
+>  	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
+>  						THIS_MODULE);
+> +	if (IS_ERR(pcf2127->rtc))
+> +		return PTR_ERR(pcf2127->rtc);
+> +
+> +	if (has_nvmem) {
+> +		struct nvmem_config nvmem_cfg = {
+> +			.priv = pcf2127,
+> +			.reg_read = pcf2127_nvmem_read,
+> +			.reg_write = pcf2127_nvmem_write,
+> +			.size = 512,
+> +		};
+> +
+> +		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
+> +	}
+>  
+> -	return PTR_ERR_OR_ZERO(pcf2127->rtc);
+> +	return ret;
 
-This is probably fixed by
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=c59b3715ac16544f8f68ab7af03f108e339b36aa
-
-> This where the error message comes from:
-> https://github.com/torvalds/linux/blob/master/drivers/rtc/rtc-cmos.c#L818
-> And this is the commit that introduced it:
-> https://github.com/torvalds/linux/commit/8b5b7958fd1cac54bdca62ec5552c6be0b38def4#diff-4dcdf420d40078042c28f0f3d8d6535c
-> 
-> The error message doesn't give any indication about why it failed.
-> How can I help diagnose the what the problem is?
-> 
-
-My guess is that CONFIG_RTC_NVMEM is not enabled on your kernel.
+You must not return an error here once devm_rtc_device_register has
+succeeded. You have the choice between ignoring the nvmem registration
+error or switching to devm_rtc_allocate_device/rtc_register_device().
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
