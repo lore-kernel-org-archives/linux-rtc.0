@@ -1,116 +1,58 @@
-Return-Path: <ukl@pengutronix.de>
-Resent-Message-ID: <20180521124710.GA7274@taurus.defre.kleine-koenig.org>
-Date: Mon, 21 May 2018 14:25:14 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
-To: Ales Novak <alnovak@suse.cz>
-Cc: a.zummo@towertech.it, akpm@linux-foundation.org,
-	rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-	jkosina@suse.cz
-Subject: Re: rtc: fix chardev initialization races
-Message-ID: <20180521122509.GA4251@taurus.defre.kleine-koenig.org>
-References: <1393410793-7315-1-git-send-email-alnovak@suse.cz>
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:50729 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751045AbeETSkF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 May 2018 14:40:05 -0400
+Date: Sun, 20 May 2018 20:40:01 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: Re: [PATCH] rtc: pcf2127: add support for accessing internal static
+ RAM
+Message-ID: <20180520184001.xcgn4b6aijvfzu37@pengutronix.de>
+References: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
+ <20180520180520.GC23730@piout.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-In-Reply-To: <1393410793-7315-1-git-send-email-alnovak@suse.cz>
-List-ID: <rtc-linux.googlegroups.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180520180520.GC23730@piout.net>
+Sender: linux-rtc-owner@vger.kernel.org
+List-ID: <linux-rtc.vger.kernel.org>
 
+Hello Alexandre,
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, May 20, 2018 at 08:05:20PM +0200, Alexandre Belloni wrote:
+> On 20/05/2018 15:37:23+0200, Uwe Kleine-König wrote:
+> > @@ -200,8 +242,21 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+> >  
+> >  	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
+> >  						THIS_MODULE);
+> > +	if (IS_ERR(pcf2127->rtc))
+> > +		return PTR_ERR(pcf2127->rtc);
+> > +
+> > +	if (has_nvmem) {
+> > +		struct nvmem_config nvmem_cfg = {
+> > +			.priv = pcf2127,
+> > +			.reg_read = pcf2127_nvmem_read,
+> > +			.reg_write = pcf2127_nvmem_write,
+> > +			.size = 512,
+> > +		};
+> > +
+> > +		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
+> > +	}
+> >  
+> > -	return PTR_ERR_OR_ZERO(pcf2127->rtc);
+> > +	return ret;
+> 
+> You must not return an error here once devm_rtc_device_register has
+> succeeded.
 
-On Wed, Feb 26, 2014 at 11:33:13AM +0100, Ales Novak wrote:
-> In many rtc modules, the chardevice file in rtc module probe is
-> being created prematurely. If the probe fails after the chardevice
-> file has been created (e.g. after rtc_device_register), it's possible
-> for a program to open() it, which subsequently can cause memory
-> corruption.
->=20
-> The race looks like that (thanks Jiri):
->=20
-> CPU0:                                CPU1:
-> sys_load_module()
->  do_init_module()
->   do_one_initcall()
->    cmos_do_probe()
->     rtc_device_register()
->      __register_chrdev()
->      cdev->owner =3D struct module*
->                                      open("/dev/rtc0")
->     rtc_device_unregister()
->   module_put()
->   free_module()
->    module_free(mod->module_core)
->    /* struct module *module is now
->       freed */
->                                       chrdev_open()
->                                        spin_lock(cdev_lock)
->                                        cdev_get()
->                                         try_module_get()
->                                          module_is_live()
->                                          /* dereferences already
->                                             freed struct module* */
-
-[Context: For a patch to rtc-pcf2127.c Alexandre Belloni asked not to
-fail after rtc_device_register successfully finished and pointed to this
-reasoning as explaination.]
-
-If there is really such a race then (I hope) there is
-something in the cdev code that needs fixing. According to my
-understanding, when rtc_device_unregister returned, the cdev is gone and
-so chrdev_open is supposed to fail.
-
-Otherwise the same problem can be triggered when the device is unbound
-and the module unloaded while another cpu opens the char dev.
-
-I added a msleep(5000) to chrdev_open like this:
-
-        if (current->pid !=3D 1) {
-                pr_info("%s:%d: sleeping to open race window\n", __func__, =
-__LINE__);
-                msleep(5000);
-                pr_info("%s:%d: done sleeping\n", __func__, __LINE__);
-        }
-
-before the spinlock is taken. If I trigger that (using
-
-	a =3D open("/dev/rtc0")
-
-in a Python shell) and then do rmmod rtc_pcf2127 (which is the driver
-backing my rtc0), I get:
-
-	OSError: [Errno 6] No such device or address: '/dev/rtc0'
-
-> This patch is proposing a solution, splitting the function
-> {devm_,}rtc_device_register into {devm_,}rtc_device_register{_fs,}.
-> The {devm_}rtc_device_register_fs which is creating the files, should
-> be called after it is clear that the probe will pass. It will set the
-> RTC_DEV_FILES_EXIST into rtc_device->flags.
-
-So this split is not a complete fix but only a work around for some
-cases at best.
-
-Maybe there isn't even a problem?
+Why? Sounds like something that should be fixed.
 
 Best regards
 Uwe
-=20
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAlsCuqIACgkQwfwUeK3K
-7AnEhgf/Vj/D2FzcmADX0wvZM+0sq/9zEFviSDobEQ3EAqjedwEbyug8C5N5j/39
-wBHVrd61jpl5/W88KdB7YdwhlC+R3pSMm7Eu6GXfE/LmqMQsAFNVifFvnFw24GNg
-kawwzvJX5TPiEVRmgD3e5Y+HdJypSIr24RWHL6xUCMeLcnkvh8YnAKAVQxWmZgme
-xaGKBHo686djotKnE3UPEP1oOch22LlBLMm4FnhE+ReT8elufLtrqh3D1de8m74i
-bnaes7r5qrKx3x32w9pwTRSt5Awm/Tx2L3yWxK136fFDNpfFicDFsSTymjt+OBEi
-KW3WW/ZNUQctw7y+kJt8dARYfNbcwA==
-=o6r5
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
