@@ -1,162 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:59526 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964829AbeEIS2U (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:28:20 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 37D25B00AC1
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:28:19 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9kBv0Gucpmhi for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:28:18 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v2 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed,  9 May 2018 20:28:11 +0200
-Message-Id: <20180509182812.17646-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
-References: <20180509182812.17646-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:54497 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750932AbeETMdv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 May 2018 08:33:51 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Patrice Chotard <patrice.chotard@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: st-lpc: fix possible race condition
+Date: Sun, 20 May 2018 14:33:36 +0200
+Message-Id: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
-If positive offset is passed, it means adding 512 cycles(@32.768Hz)
-every tick(1s).
-If negative offset is passed, it means subtracting 256 cycles(@32.768Hz)
-every tick(1s).
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Add offset handling (ranging between (-31) and 31) via sysfs.
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
-V1 => V2: changed "calibration" from dt property to rtc sysfs offset
- drivers/rtc/rtc-ds1307.c | 70 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/rtc/rtc-st-lpc.c | 24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0ab0c166da83..33895668b363 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,16 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index d5222667f892..2f1ef2c28740 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -212,6 +212,10 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 	if (!rtc)
+ 		return -ENOMEM;
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
++	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
 +
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	(-31)
-+#define M41TXX_MAX_OFFSET	(31)
+ 	spin_lock_init(&rtc->lock);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -253,26 +257,17 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, rtc);
+ 
+-	rtc->rtc_dev = rtc_device_register("st-lpc-rtc", &pdev->dev,
+-					   &st_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
++	rtc->rtc_dev->ops = &st_rtc_ops;
 +
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +156,9 @@ struct chip_desc {
++	ret = rtc_register_device(rtc->rtc_dev);
++	if (ret) {
+ 		clk_disable_unprepare(rtc->clk);
+-		return PTR_ERR(rtc->rtc_dev);
++		return ret;
+ 	}
  
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +168,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
- 
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +187,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
-+};
-+
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -227,10 +252,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -972,6 +1004,44 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ 	return 0;
  }
  
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = val;
-+	else
-+		*offset = -val;
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	ctrl_reg &= ~M41TXX_M_CALIBRATION;
-+	ctrl_reg |= abs(offset) & M41TXX_M_CALIBRATION;
-+
-+	if (offset >= 0)
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+
-+	return regmap_write(ds1307->regmap, M41TXX_REG_CONTROL,	ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
+-static int st_rtc_remove(struct platform_device *pdev)
+-{
+-	struct st_rtc *rtc = platform_get_drvdata(pdev);
+-
+-	if (likely(rtc->rtc_dev))
+-		rtc_device_unregister(rtc->rtc_dev);
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_PM_SLEEP
+ static int st_rtc_suspend(struct device *dev)
+ {
+@@ -325,7 +320,6 @@ static struct platform_driver st_rtc_platform_driver = {
+ 		.of_match_table = st_rtc_match,
+ 	},
+ 	.probe = st_rtc_probe,
+-	.remove = st_rtc_remove,
+ };
  
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+ module_platform_driver(st_rtc_platform_driver);
 -- 
 2.17.0
