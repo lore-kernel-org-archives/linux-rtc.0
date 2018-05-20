@@ -1,84 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47466 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752378AbeEPJpR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:17 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 16/42] net: move seq_file_single_net to <linux/seq_file_net.h>
-Date: Wed, 16 May 2018 11:43:20 +0200
-Message-Id: <20180516094346.20506-17-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:32821 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751486AbeETU1i (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 May 2018 16:27:38 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Brian Norris <computersforpeace@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Gregory Fong <gregory.0xf0@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: brcmstb-waketimer: add range
+Date: Sun, 20 May 2018 22:27:30 +0200
+Message-Id: <20180520202730.28172-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180520202730.28172-1-alexandre.belloni@bootlin.com>
+References: <20180520202730.28172-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This helper deals with single_{open,release}_net internals and thus
-belongs here.
+Let the core handle the range.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- include/linux/seq_file_net.h | 13 +++++++++++++
- include/net/ip_vs.h          | 12 ------------
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-brcmstb-waketimer.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/include/linux/seq_file_net.h b/include/linux/seq_file_net.h
-index 43ccd84127b6..ed20faa99e05 100644
---- a/include/linux/seq_file_net.h
-+++ b/include/linux/seq_file_net.h
-@@ -28,4 +28,17 @@ static inline struct net *seq_file_net(struct seq_file *seq)
- #endif
- }
+diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+index ba49d9bcff12..f4010a75f2be 100644
+--- a/drivers/rtc/rtc-brcmstb-waketimer.c
++++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+@@ -145,9 +145,6 @@ static int brcmstb_waketmr_settime(struct device *dev,
  
-+/*
-+ * This one is needed for single_open_net since net is stored directly in
-+ * private not as a struct i.e. seq_file_net can't be used.
-+ */
-+static inline struct net *seq_file_single_net(struct seq_file *seq)
-+{
-+#ifdef CONFIG_NET_NS
-+	return (struct net *)seq->private;
-+#else
-+	return &init_net;
-+#endif
-+}
-+
- #endif
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index eb0bec043c96..aea7a124e66b 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -41,18 +41,6 @@ static inline struct netns_ipvs *net_ipvs(struct net* net)
- 	return net->ipvs;
- }
+ 	sec = rtc_tm_to_time64(tm);
  
--/* This one needed for single_open_net since net is stored directly in
-- * private not as a struct i.e. seq_file_net can't be used.
-- */
--static inline struct net *seq_file_single_net(struct seq_file *seq)
--{
--#ifdef CONFIG_NET_NS
--	return (struct net *)seq->private;
--#else
--	return &init_net;
--#endif
--}
+-	if (sec > U32_MAX || sec < 0)
+-		return -EINVAL;
 -
- /* Connections' size value needed by ip_vs_ctl.c */
- extern int ip_vs_conn_tab_size;
+ 	writel_relaxed(sec, timer->base + BRCMSTB_WKTMR_COUNTER);
  
+ 	return 0;
+@@ -184,9 +181,6 @@ static int brcmstb_waketmr_setalarm(struct device *dev,
+ 	else
+ 		sec = 0;
+ 
+-	if (sec > U32_MAX || sec < 0)
+-		return -EINVAL;
+-
+ 	brcmstb_waketmr_set_alarm(timer, sec);
+ 
+ 	return 0;
+@@ -266,6 +260,7 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
+ 	register_reboot_notifier(&timer->reboot_notifier);
+ 
+ 	timer->rtc->ops = &brcmstb_waketmr_ops;
++	timer->rtc->range_max = U32_MAX;
+ 
+ 	ret = rtc_register_device(timer->rtc);
+ 	if (ret) {
 -- 
 2.17.0
