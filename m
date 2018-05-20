@@ -1,49 +1,145 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:45786 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751389AbeEPNzM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 16 May 2018 09:55:12 -0400
-Date: Wed, 16 May 2018 15:55:00 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, y2038@lists.linaro.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] rtc: vr41xx: remove mktime usage
-Message-ID: <20180516135500.GE3254@piout.net>
-References: <20180420161433.3721192-1-arnd@arndb.de>
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:60921 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751292AbeETNhc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 May 2018 09:37:32 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH] rtc: pcf2127: add support for accessing internal static RAM
+Date: Sun, 20 May 2018 15:37:23 +0200
+Message-Id: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180420161433.3721192-1-arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+The PCF2127 has 512 bytes of internal static RAM and this patch expands
+the driver to access this memory.
 
-On 20/04/2018 18:14:24+0200, Arnd Bergmann wrote:
-> This driver uses mktime() and rtc_time_to_tm() to convert between time
-> values. This works fine on 64-bit kernels over the whole supported
-> range, and the vr41xx chip is a 64-bit MIPS implementation, but it is
-> inconsistent because it doesn't do the same thing on 32-bit kernels that
-> overflow in 2106 or 2038.
-> 
-> Changing it to use mktime64/rtc_time64_to_tm() should have no visible
-> impact on vr41xx but gets us closer to removing the 32-bit interfaces.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/rtc/rtc-vr41xx.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
-> 
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-pcf2127.c | 68 ++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 62 insertions(+), 6 deletions(-)
 
-I've applied the series a while ago. It should be noted that mktime64
-will fail on 32bit platforms in year 21000 or so but I pretty sure it is
-not worth fixing. My understanding is that the kernel will fail in April
-2262 anyway as ktime_t will overflow.
-
-Note that I will be following up with multiple series adding proper
-rtc HW range, removing set_mmss and rtc_time_to_tm/rtc_tm_to_time64.
-
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index e83be1852c2f..9f99a0966550 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -36,6 +36,11 @@
+ #define PCF2127_REG_MO          (0x08)
+ #define PCF2127_REG_YR          (0x09)
+ 
++/* the pcf2127 has 512 bytes nvmem, pcf2129 doesn't */
++#define PCF2127_REG_RAM_addr_MSB       0x1a
++#define PCF2127_REG_RAM_wrt_cmd        0x1c
++#define PCF2127_REG_RAM_rd_cmd         0x1d
++
+ #define PCF2127_OSF             BIT(7)  /* Oscillator Fail flag */
+ 
+ struct pcf2127 {
+@@ -183,10 +188,47 @@ static const struct rtc_class_ops pcf2127_rtc_ops = {
+ 	.set_time	= pcf2127_rtc_set_time,
+ };
+ 
++static int pcf2127_nvmem_read(void *priv, unsigned int offset,
++			      void *val, size_t bytes)
++{
++	struct pcf2127 *pcf2127 = priv;
++	int ret;
++	unsigned char offsetbuf[] = { offset >> 8, offset };
++
++	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_addr_MSB,
++				offsetbuf, 2);
++	if (ret)
++		return ret;
++
++	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_RAM_rd_cmd,
++			       val, bytes);
++
++	return ret ?: bytes;
++}
++
++static int pcf2127_nvmem_write(void *priv, unsigned int offset,
++			       void *val, size_t bytes)
++{
++	struct pcf2127 *pcf2127 = priv;
++	int ret;
++	unsigned char offsetbuf[] = { offset >> 8, offset };
++
++	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_addr_MSB,
++				offsetbuf, 2);
++	if (ret)
++		return ret;
++
++	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_wrt_cmd,
++				val, bytes);
++
++	return ret ?: bytes;
++}
++
+ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+-			const char *name)
++			const char *name, bool has_nvmem)
+ {
+ 	struct pcf2127 *pcf2127;
++	int ret = 0;
+ 
+ 	dev_dbg(dev, "%s\n", __func__);
+ 
+@@ -200,8 +242,21 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 
+ 	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
+ 						THIS_MODULE);
++	if (IS_ERR(pcf2127->rtc))
++		return PTR_ERR(pcf2127->rtc);
++
++	if (has_nvmem) {
++		struct nvmem_config nvmem_cfg = {
++			.priv = pcf2127,
++			.reg_read = pcf2127_nvmem_read,
++			.reg_write = pcf2127_nvmem_write,
++			.size = 512,
++		};
++
++		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
++	}
+ 
+-	return PTR_ERR_OR_ZERO(pcf2127->rtc);
++	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
+@@ -309,11 +364,11 @@ static int pcf2127_i2c_probe(struct i2c_client *client,
+ 	}
+ 
+ 	return pcf2127_probe(&client->dev, regmap,
+-				pcf2127_i2c_driver.driver.name);
++			     pcf2127_i2c_driver.driver.name, id->driver_data);
+ }
+ 
+ static const struct i2c_device_id pcf2127_i2c_id[] = {
+-	{ "pcf2127", 0 },
++	{ "pcf2127", 1 },
+ 	{ "pcf2129", 0 },
+ 	{ }
+ };
+@@ -372,11 +427,12 @@ static int pcf2127_spi_probe(struct spi_device *spi)
+ 		return PTR_ERR(regmap);
+ 	}
+ 
+-	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name);
++	return pcf2127_probe(&spi->dev, regmap, pcf2127_spi_driver.driver.name,
++			     spi_get_device_id(spi)->driver_data);
+ }
+ 
+ static const struct spi_device_id pcf2127_spi_id[] = {
+-	{ "pcf2127", 0 },
++	{ "pcf2127", 1 },
+ 	{ "pcf2129", 0 },
+ 	{ }
+ };
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.1.4
