@@ -1,56 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:46828 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751485AbeEPJoV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:44:21 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: simplify procfs code for seq_file instances V3
-Date: Wed, 16 May 2018 11:43:04 +0200
-Message-Id: <20180516094346.20506-1-hch@lst.de>
+Received: from mail.bootlin.com ([62.4.15.54]:54498 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750966AbeETMdv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 20 May 2018 08:33:51 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Patrice Chotard <patrice.chotard@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: st-lpc: add range
+Date: Sun, 20 May 2018 14:33:37 +0200
+Message-Id: <20180520123337.14856-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
+References: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We currently have hundreds of proc files that implement plain, read-only
-seq_file based interfaces.  This series consolidates them using new
-procfs helpers that take the seq_operations or simple show callback
-directly.
+The RTC has a 64 bit counter.
 
-A git tree is available at:
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-st-lpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-    git://git.infradead.org/users/hch/misc.git proc_create.3
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/proc_create.3
-
-Changes since V2:
- - use unsigned int for state_size everywhere
- - move state_size around in proc_dir_entry to use a struct packing hole
- - update SIZEOF_PDE_INLINE_NAME
- - added a new proc_pid_ns helper
- - improved a few changelogs
- - added back a nubus comment
- - minor typo fix
- - collected various ACKs
-
-Changes since V1:
- - open code proc_create_data to avoid setting not fully initialized
-   entries live
- - use unsigned int for state_size
- - dropped the s390/cio/blacklist hunk as it has a write method
- - dropped the IPMI patch given that IPMI proc support is scheduled for
-   removal.
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index 2f1ef2c28740..df467ace397b 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -258,6 +258,7 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, rtc);
+ 
+ 	rtc->rtc_dev->ops = &st_rtc_ops;
++	rtc->range_max = do_div(U64_MAX, rtc->clkrate);
+ 
+ 	ret = rtc_register_device(rtc->rtc_dev);
+ 	if (ret) {
+-- 
+2.17.0
