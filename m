@@ -1,148 +1,34 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47698 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752962AbeEPJpg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:45:36 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 20/42] sgi-gru: simplify procfs code
-Date: Wed, 16 May 2018 11:43:24 +0200
-Message-Id: <20180516094346.20506-21-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:34482 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751188AbeEUTUY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 May 2018 15:20:24 -0400
+Subject: Re: [PATCH 2/2] rtc: brcmstb-waketimer: add range
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Brian Norris <computersforpeace@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Gregory Fong <gregory.0xf0@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org
+References: <20180520202730.28172-1-alexandre.belloni@bootlin.com>
+ <20180520202730.28172-2-alexandre.belloni@bootlin.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <dd13ff3a-6bc0-6871-2253-e12444141c09@gmail.com>
+Date: Mon, 21 May 2018 12:20:20 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180520202730.28172-2-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use remove_proc_subtree to remove the whole subtree on cleanup, and
-unwind the registration loop into individual calls.  Switch to use
-proc_create_seq where applicable.
+On 05/20/2018 01:27 PM, Alexandre Belloni wrote:
+> Let the core handle the range.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/misc/sgi-gru/gruprocfs.c | 81 ++++++--------------------------
- 1 file changed, 14 insertions(+), 67 deletions(-)
-
-diff --git a/drivers/misc/sgi-gru/gruprocfs.c b/drivers/misc/sgi-gru/gruprocfs.c
-index 4f7635922394..42ea2eccaee9 100644
---- a/drivers/misc/sgi-gru/gruprocfs.c
-+++ b/drivers/misc/sgi-gru/gruprocfs.c
-@@ -270,16 +270,6 @@ static int options_open(struct inode *inode, struct file *file)
- 	return single_open(file, options_show, NULL);
- }
- 
--static int cch_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &cch_seq_ops);
--}
--
--static int gru_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &gru_seq_ops);
--}
--
- /* *INDENT-OFF* */
- static const struct file_operations statistics_fops = {
- 	.open 		= statistics_open,
-@@ -305,73 +295,30 @@ static const struct file_operations options_fops = {
- 	.release 	= single_release,
- };
- 
--static const struct file_operations cch_fops = {
--	.open 		= cch_open,
--	.read 		= seq_read,
--	.llseek 	= seq_lseek,
--	.release 	= seq_release,
--};
--static const struct file_operations gru_fops = {
--	.open 		= gru_open,
--	.read 		= seq_read,
--	.llseek 	= seq_lseek,
--	.release 	= seq_release,
--};
--
--static struct proc_entry {
--	char *name;
--	umode_t mode;
--	const struct file_operations *fops;
--	struct proc_dir_entry *entry;
--} proc_files[] = {
--	{"statistics", 0644, &statistics_fops},
--	{"mcs_statistics", 0644, &mcs_statistics_fops},
--	{"debug_options", 0644, &options_fops},
--	{"cch_status", 0444, &cch_fops},
--	{"gru_status", 0444, &gru_fops},
--	{NULL}
--};
--/* *INDENT-ON* */
--
- static struct proc_dir_entry *proc_gru __read_mostly;
- 
--static int create_proc_file(struct proc_entry *p)
--{
--	p->entry = proc_create(p->name, p->mode, proc_gru, p->fops);
--	if (!p->entry)
--		return -1;
--	return 0;
--}
--
--static void delete_proc_files(void)
--{
--	struct proc_entry *p;
--
--	if (proc_gru) {
--		for (p = proc_files; p->name; p++)
--			if (p->entry)
--				remove_proc_entry(p->name, proc_gru);
--		proc_remove(proc_gru);
--	}
--}
--
- int gru_proc_init(void)
- {
--	struct proc_entry *p;
--
- 	proc_gru = proc_mkdir("sgi_uv/gru", NULL);
--
--	for (p = proc_files; p->name; p++)
--		if (create_proc_file(p))
--			goto err;
-+	if (!proc_gru)
-+		return -1;
-+	if (!proc_create("statistics", 0644, proc_gru, &statistics_fops))
-+		goto err;
-+	if (!proc_create("mcs_statistics", 0644, proc_gru, &mcs_statistics_fops))
-+		goto err;
-+	if (!proc_create("debug_options", 0644, proc_gru, &options_fops))
-+		goto err;
-+	if (!proc_create_seq("cch_status", 0444, proc_gru, &cch_seq_ops))
-+		goto err;
-+	if (!proc_create_seq("gru_status", 0444, proc_gru, &gru_seq_ops))
-+		goto err;
- 	return 0;
--
- err:
--	delete_proc_files();
-+	remove_proc_subtree("sgi_uv/gru", NULL);
- 	return -1;
- }
- 
- void gru_proc_exit(void)
- {
--	delete_proc_files();
-+	remove_proc_subtree("sgi_uv/gru", NULL);
- }
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.17.0
+-- 
+Florian
