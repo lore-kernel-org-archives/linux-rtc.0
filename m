@@ -1,55 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:44151 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753734AbeE1Huo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 May 2018 03:50:44 -0400
-Received: by mail-pf0-f196.google.com with SMTP id q22-v6so5460311pff.11
-        for <linux-rtc@vger.kernel.org>; Mon, 28 May 2018 00:50:44 -0700 (PDT)
-From: Jagan Teki <jagan@amarulasolutions.com>
-To: Maxime Ripard <maxime.ripard@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:34562 "EHLO
+        mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751412AbeEVRRJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 May 2018 13:17:09 -0400
+Date: Tue, 22 May 2018 12:17:05 -0500
+From: Rob Herring <robh@kernel.org>
+To: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Trimarchi <michael@amarulasolutions.com>
-Cc: linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH] rtc: sun6i: Fix bit_idx value for clk_register_gate
-Date: Mon, 28 May 2018 13:20:32 +0530
-Message-Id: <20180528075032.6769-1-jagan@amarulasolutions.com>
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: update stm32-rtc documentation
+ for stm32mp1 rtc
+Message-ID: <20180522171705.GA22550@rob-hp-laptop>
+References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
+ <1526558666-24243-4-git-send-email-amelie.delaunay@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1526558666-24243-4-git-send-email-amelie.delaunay@st.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Michael Trimarchi <michael@amarulasolutions.com>
+On Thu, May 17, 2018 at 02:04:25PM +0200, Amelie Delaunay wrote:
+> RTC embedded in stm32mp1 SoC is slightly different from stm32h7 one, it
+> doesn't require to disable backup domain write protection, and rtc_ck
+> parent clock assignment isn't allowed.
+> To sum up, stm32mp1 RTC requires 2 clocks, pclk and rtc_ck, and an RTC
+> alarm interrupt.
+> 
+> Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+> ---
+>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       | 27 ++++++++++++++++------
+>  1 file changed, 20 insertions(+), 7 deletions(-)
 
-clk-gate core will take bit_idx through clk_register_gate
-and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
-is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
-which is wrong and eventually external gate clock is not enabling.
-
-This patch fixed by passing bit index and the original change
-introduced from below commit.
-"rtc: sun6i: Add support for the external oscillator gate"
-(sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
-
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
----
- drivers/rtc/rtc-sun6i.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 2e6fb275acc8..a66f40c96582 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -74,7 +74,7 @@
- #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
- 
- #define SUN6I_LOSC_OUT_GATING			0x0060
--#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-+#define SUN6I_LOSC_OUT_GATING_EN		0
- 
- /*
-  * Get date values
--- 
-2.14.3
+Reviewed-by: Rob Herring <robh@kernel.org>
