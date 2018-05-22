@@ -1,69 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60757 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:43459 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933858AbeE2OCb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 29 May 2018 10:02:31 -0400
-Date: Tue, 29 May 2018 16:02:19 +0200
-From: Maxime Ripard <maxime.ripard@bootlin.com>
-To: Jagan Teki <jagan@amarulasolutions.com>
+        id S1751329AbeEVSLi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 22 May 2018 14:11:38 -0400
+Date: Tue, 22 May 2018 20:11:26 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Amelie Delaunay <amelie.delaunay@st.com>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH] rtc: sun6i: Fix bit_idx value for clk_register_gate
-Message-ID: <20180529140219.auat656qcl5jdru7@flea.home>
-References: <20180528075032.6769-1-jagan@amarulasolutions.com>
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/4] Introduce STM32MP1 RTC
+Message-ID: <20180522181126.GL13267@piout.net>
+References: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180528075032.6769-1-jagan@amarulasolutions.com>
+In-Reply-To: <1526558666-24243-1-git-send-email-amelie.delaunay@st.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
-
-On Mon, May 28, 2018 at 01:20:32PM +0530, Jagan Teki wrote:
-> From: Michael Trimarchi <michael@amarulasolutions.com>
+On 17/05/2018 14:04:22+0200, Amelie Delaunay wrote:
+> This series introduces STM32MP1 RTC.
+> On STM32MP1:
+> - two clocks are needed, plck and rtc_ck;
+> - to wakeup the system, a wakeup alarm interrupt is needed;
+> - some registers or bits have moved, but the operation is the same;
+> - the Backup Domain Protection (DBP) is not managed by RTC driver.
 > 
-> clk-gate core will take bit_idx through clk_register_gate
-> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
-> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
-> which is wrong and eventually external gate clock is not enabling.
-> 
-> This patch fixed by passing bit index and the original change
-> introduced from below commit.
-> "rtc: sun6i: Add support for the external oscillator gate"
-> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
-> 
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-
-Cc'ing to stable and adding a Fixes tag would be great.
-
 > ---
->  drivers/rtc/rtc-sun6i.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes in v3:
+> * Move cleanup changes in a separate patch
+> * Replace regs and evts by pointers to ensure no copy is made
+> * Set all registers offset as u16 instead of u8 and u16
+> * Fix Kbuild smatch warning:
+>   drivers/rtc/rtc-stm32.c:827 stm32_rtc_probe()
+>   warn: always true condition '(regs.verr != ~0) => (0-u16max != (-1))'
 > 
-> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-> index 2e6fb275acc8..a66f40c96582 100644
-> --- a/drivers/rtc/rtc-sun6i.c
-> +++ b/drivers/rtc/rtc-sun6i.c
-> @@ -74,7 +74,7 @@
->  #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
->  
->  #define SUN6I_LOSC_OUT_GATING			0x0060
-> -#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
-> +#define SUN6I_LOSC_OUT_GATING_EN		0
+> Changes in v2:
+> * One compatible per line in bindings file
+> * Remove unnecessary comment under rtc_ck as this clock is required for all
+> * Remove interrupts-extended and add stm32mp1 rtc alarm wakeup interrupt in
+>   interrupts property description
+> 
+> Amelie Delaunay (4):
+>   rtc: stm32: fix misspelling and misalignment issues
+>   rtc: stm32: rework register management to prepare other version of RTC
+>   dt-bindings: rtc: update stm32-rtc documentation for stm32mp1 rtc
+>   rtc: stm32: add stm32mp1 rtc support
+> 
+>  .../devicetree/bindings/rtc/st,stm32-rtc.txt       |  27 +-
+>  drivers/rtc/rtc-stm32.c                            | 273 ++++++++++++++++-----
+>  2 files changed, 229 insertions(+), 71 deletions(-)
+> 
 
-All the other register definitions in that driver are the actual value
-needed, and not the offset. Just to make it obvious that it shouldn't
-be used as is, please add an _OFFSET at the end of the defined name
-
-Thanks!
-Maxime
+Applied, thanks.
 
 -- 
-Maxime Ripard, Bootlin (formerly Free Electrons)
+Alexandre Belloni, Bootlin (formerly Free Electrons)
 Embedded Linux and Kernel engineering
 https://bootlin.com
