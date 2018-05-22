@@ -1,36 +1,49 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:34771 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751027AbeEUUfA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 21 May 2018 16:35:00 -0400
-Date: Mon, 21 May 2018 22:34:59 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH] rtc: ds1742: don't explicitly specify word_size and
- stride of nvmem
-Message-ID: <20180521203459.GC25500@piout.net>
-References: <20180520152145.21177-1-u.kleine-koenig@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180520152145.21177-1-u.kleine-koenig@pengutronix.de>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:34223 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752569AbeEVCqE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 May 2018 22:46:04 -0400
+Received: by mail-qt0-f194.google.com with SMTP id m5-v6so21603573qti.1
+        for <linux-rtc@vger.kernel.org>; Mon, 21 May 2018 19:46:04 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH 1/2] rtc: snvs: Switch to SPDX identifier
+Date: Mon, 21 May 2018 23:45:58 -0300
+Message-Id: <1526957159-19418-1-git-send-email-festevam@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 20/05/2018 17:21:45+0200, Uwe Kleine-König wrote:
-> nvmem_register() assumes these values to be 1 if unset, so they don't
-> need to be set explicitly.
-> 
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> ---
->  drivers/rtc/rtc-ds1742.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-Applied, thanks.
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
+Adopt the SPDX license identifier headers to ease license compliance
+management.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+ drivers/rtc/rtc-snvs.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 9af591d..8a75cc3 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -1,13 +1,6 @@
+-/*
+- * Copyright (C) 2011-2012 Freescale Semiconductor, Inc.
+- *
+- * The code contained herein is licensed under the GNU General Public
+- * License. You may obtain a copy of the GNU General Public License
+- * Version 2 or later at the following locations:
+- *
+- * http://www.opensource.org/licenses/gpl-license.html
+- * http://www.gnu.org/copyleft/gpl.html
+- */
++// SPDX-License-Identifier: GPL-2.0+
++//
++// Copyright (C) 2011-2012 Freescale Semiconductor, Inc.
+ 
+ #include <linux/init.h>
+ #include <linux/io.h>
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
