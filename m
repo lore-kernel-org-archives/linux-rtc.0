@@ -1,45 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:51537 "EHLO newverein.lst.de"
+Received: from mail.bootlin.com ([62.4.15.54]:45522 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751564AbeEQGhs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 02:37:48 -0400
-Date: Thu, 17 May 2018 08:42:20 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/40] ipv6/flowlabel: simplify pid namespace lookup
-Message-ID: <20180517064220.GA24300@lst.de>
-References: <20180425154827.32251-1-hch@lst.de> <20180425154827.32251-12-hch@lst.de> <878t8y46sy.fsf@xmission.com> <20180515145643.GA661@lst.de> <871seakg0u.fsf@xmission.com>
+        id S1750707AbeEVHru (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 22 May 2018 03:47:50 -0400
+Date: Tue, 22 May 2018 09:47:48 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: linux-rtc@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
+Subject: Re: [PATCH 1/2] rtc: snvs: Switch to SPDX identifier
+Message-ID: <20180522074748.GA13267@piout.net>
+References: <1526957159-19418-1-git-send-email-festevam@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <871seakg0u.fsf@xmission.com>
+In-Reply-To: <1526957159-19418-1-git-send-email-festevam@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, May 17, 2018 at 12:28:01AM -0500, Eric W. Biederman wrote:
-> > struct pid_namespace *proc_pid_namespace(struct inode *inode)
-> > {
-> > 	// maybe warn on for s_magic not on procfs??
-> > 	return inode->i_sb->s_fs_info;
-> > }
+On 21/05/2018 23:45:58-0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@nxp.com>
 > 
-> That should work.  Ideally out of line for the proc_fs.h version.
-> Basically it should be a cousin of PDE_DATA.
+> Adopt the SPDX license identifier headers to ease license compliance
+> management.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+> ---
+>  drivers/rtc/rtc-snvs.c | 13 +++----------
+>  1 file changed, 3 insertions(+), 10 deletions(-)
+> 
 
-The version in Al's tree is inline and without the warning as
-I didn't want to drag in the magic.h include.  Please look at it for
-additional comments, I can send incremental fixups if needed.
+Both applied, thanks.
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
