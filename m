@@ -1,61 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:43981 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754135AbeEaJZy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 31 May 2018 05:25:54 -0400
-Date: Thu, 31 May 2018 11:25:42 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] rtc: sun6i: Fix bit_idx value for clk_register_gate
-Message-ID: <20180531092542.GA2727@piout.net>
-References: <20180530182744.27611-1-jagan@amarulasolutions.com>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:20630 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754024AbeEWHTi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 May 2018 03:19:38 -0400
+From: Patrice CHOTARD <patrice.chotard@st.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH 1/2] rtc: st-lpc: fix possible race condition
+Date: Wed, 23 May 2018 07:19:16 +0000
+Message-ID: <21f4fd1a-1744-b46f-eb0f-09d6af04247b@st.com>
+References: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180520123337.14856-1-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180530182744.27611-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 30/05/2018 23:57:44+0530, Jagan Teki wrote:
-> From: Michael Trimarchi <michael@amarulasolutions.com>
-> 
-> clk-gate core will take bit_idx through clk_register_gate
-> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
-> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
-> which is wrong and eventually external gate clock is not enabling.
-> 
-> This patch fixed by passing bit index and the original change
-> introduced from below commit.
-> "rtc: sun6i: Add support for the external oscillator gate"
-> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
-> 
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator gate")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-> ---
-> Changes for v4:
-> - Cc to stable tree
-> Changes for v3:
-> - add fixes tag
-> - Cced stable ML
-> Changes for v2:
-> - add suffix _OFFSET with macro name to distinguish b/w
->   register actual values vs offset.
-> 
->  drivers/rtc/rtc-sun6i.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-Applied, thanks.
-
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+SGkgQWxleGFuZHJlDQoNCk9uIDA1LzIwLzIwMTggMDI6MzMgUE0sIEFsZXhhbmRyZSBCZWxsb25p
+IHdyb3RlOg0KPiBUaGUgSVJRIGlzIHJlcXVlc3RlZCBiZWZvcmUgdGhlIHN0cnVjdCBydGMgaXMg
+YWxsb2NhdGVkIGFuZCByZWdpc3RlcmVkLCBidXQNCj4gdGhpcyBzdHJ1Y3QgaXMgdXNlZCBpbiB0
+aGUgSVJRIGhhbmRsZXIuIFRoaXMgbWF5IGxlYWQgdG8gYSBOVUxMIHBvaW50ZXINCj4gZGVyZWZl
+cmVuY2UuDQo+IA0KPiBTd2l0Y2ggdG8gZGV2bV9ydGNfYWxsb2NhdGVfZGV2aWNlL3J0Y19yZWdp
+c3Rlcl9kZXZpY2UgdG8gYWxsb2NhdGUgdGhlIHJ0Yw0KPiBiZWZvcmUgcmVxdWVzdGluZyB0aGUg
+SVJRLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5i
+ZWxsb25pQGJvb3RsaW4uY29tPg0KPiAtLS0NCj4gICBkcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMg
+fCAyNCArKysrKysrKystLS0tLS0tLS0tLS0tLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNl
+cnRpb25zKCspLCAxNSBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3J0
+Yy9ydGMtc3QtbHBjLmMgYi9kcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMNCj4gaW5kZXggZDUyMjI2
+NjdmODkyLi4yZjFlZjJjMjg3NDAgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1zdC1s
+cGMuYw0KPiArKysgYi9kcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMNCj4gQEAgLTIxMiw2ICsyMTIs
+MTAgQEAgc3RhdGljIGludCBzdF9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRl
+dikNCj4gICAJaWYgKCFydGMpDQo+ICAgCQlyZXR1cm4gLUVOT01FTTsNCj4gICANCj4gKwlydGMt
+PnJ0Y19kZXYgPSBkZXZtX3J0Y19hbGxvY2F0ZV9kZXZpY2UoJnBkZXYtPmRldik7DQo+ICsJaWYg
+KElTX0VSUihydGMtPnJ0Y19kZXYpKQ0KPiArCQlyZXR1cm4gUFRSX0VSUihydGMtPnJ0Y19kZXYp
+Ow0KPiArDQo+ICAgCXNwaW5fbG9ja19pbml0KCZydGMtPmxvY2spOw0KPiAgIA0KPiAgIAlyZXMg
+PSBwbGF0Zm9ybV9nZXRfcmVzb3VyY2UocGRldiwgSU9SRVNPVVJDRV9NRU0sIDApOw0KPiBAQCAt
+MjUzLDI2ICsyNTcsMTcgQEAgc3RhdGljIGludCBzdF9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3Jt
+X2RldmljZSAqcGRldikNCj4gICANCj4gICAJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgcnRj
+KTsNCj4gICANCj4gLQlydGMtPnJ0Y19kZXYgPSBydGNfZGV2aWNlX3JlZ2lzdGVyKCJzdC1scGMt
+cnRjIiwgJnBkZXYtPmRldiwNCj4gLQkJCQkJICAgJnN0X3J0Y19vcHMsIFRISVNfTU9EVUxFKTsN
+Cj4gLQlpZiAoSVNfRVJSKHJ0Yy0+cnRjX2RldikpIHsNCj4gKwlydGMtPnJ0Y19kZXYtPm9wcyA9
+ICZzdF9ydGNfb3BzOw0KPiArDQo+ICsJcmV0ID0gcnRjX3JlZ2lzdGVyX2RldmljZShydGMtPnJ0
+Y19kZXYpOw0KPiArCWlmIChyZXQpIHsNCj4gICAJCWNsa19kaXNhYmxlX3VucHJlcGFyZShydGMt
+PmNsayk7DQo+IC0JCXJldHVybiBQVFJfRVJSKHJ0Yy0+cnRjX2Rldik7DQo+ICsJCXJldHVybiBy
+ZXQ7DQo+ICAgCX0NCj4gICANCj4gICAJcmV0dXJuIDA7DQo+ICAgfQ0KPiAgIA0KPiAtc3RhdGlj
+IGludCBzdF9ydGNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+IC17DQo+
+IC0Jc3RydWN0IHN0X3J0YyAqcnRjID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+IC0N
+Cj4gLQlpZiAobGlrZWx5KHJ0Yy0+cnRjX2RldikpDQo+IC0JCXJ0Y19kZXZpY2VfdW5yZWdpc3Rl
+cihydGMtPnJ0Y19kZXYpOw0KPiAtDQo+IC0JcmV0dXJuIDA7DQo+IC19DQo+IC0NCj4gICAjaWZk
+ZWYgQ09ORklHX1BNX1NMRUVQDQo+ICAgc3RhdGljIGludCBzdF9ydGNfc3VzcGVuZChzdHJ1Y3Qg
+ZGV2aWNlICpkZXYpDQo+ICAgew0KPiBAQCAtMzI1LDcgKzMyMCw2IEBAIHN0YXRpYyBzdHJ1Y3Qg
+cGxhdGZvcm1fZHJpdmVyIHN0X3J0Y19wbGF0Zm9ybV9kcml2ZXIgPSB7DQo+ICAgCQkub2ZfbWF0
+Y2hfdGFibGUgPSBzdF9ydGNfbWF0Y2gsDQo+ICAgCX0sDQo+ICAgCS5wcm9iZSA9IHN0X3J0Y19w
+cm9iZSwNCj4gLQkucmVtb3ZlID0gc3RfcnRjX3JlbW92ZSwNCj4gICB9Ow0KPiAgIA0KPiAgIG1v
+ZHVsZV9wbGF0Zm9ybV9kcml2ZXIoc3RfcnRjX3BsYXRmb3JtX2RyaXZlcik7DQo+IA0KDQpBY2tl
+ZC1ieTogUGF0cmljZSBDaG90YXJkIDxwYXRyaWNlLmNob3RhcmRAc3QuY29tPg0KDQpUaGFua3MN
+Cg0KUGF0cmljZQ==
