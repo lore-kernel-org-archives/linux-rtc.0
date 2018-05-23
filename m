@@ -1,107 +1,36 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48246 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752628AbeEPJqd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:33 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 27/42] resource: switch to proc_create_seq_data
-Date: Wed, 16 May 2018 11:43:31 +0200
-Message-Id: <20180516094346.20506-28-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:42114 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1754024AbeEWHYc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 May 2018 03:24:32 -0400
+From: Patrice CHOTARD <patrice.chotard@st.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2] rtc: st-lpc: add range
+Date: Wed, 23 May 2018 07:24:14 +0000
+Message-ID: <8d2f6057-4d33-6b75-f01e-df06e9426d07@st.com>
+References: <20180521204905.7113-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180521204905.7113-1-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use the root resource directly from the proc private data.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- kernel/resource.c | 43 +++++--------------------------------------
- 1 file changed, 5 insertions(+), 38 deletions(-)
-
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 2af6c03858b9..b589dda910b3 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -87,7 +87,7 @@ enum { MAX_IORES_LEVEL = 5 };
- static void *r_start(struct seq_file *m, loff_t *pos)
- 	__acquires(resource_lock)
- {
--	struct resource *p = m->private;
-+	struct resource *p = PDE_DATA(file_inode(m->file));
- 	loff_t l = 0;
- 	read_lock(&resource_lock);
- 	for (p = p->child; p && l < *pos; p = r_next(m, p, &l))
-@@ -103,7 +103,7 @@ static void r_stop(struct seq_file *m, void *v)
- 
- static int r_show(struct seq_file *m, void *v)
- {
--	struct resource *root = m->private;
-+	struct resource *root = PDE_DATA(file_inode(m->file));
- 	struct resource *r = v, *p;
- 	unsigned long long start, end;
- 	int width = root->end < 0x10000 ? 4 : 8;
-@@ -135,44 +135,11 @@ static const struct seq_operations resource_op = {
- 	.show	= r_show,
- };
- 
--static int ioports_open(struct inode *inode, struct file *file)
--{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &ioport_resource;
--	}
--	return res;
--}
--
--static int iomem_open(struct inode *inode, struct file *file)
--{
--	int res = seq_open(file, &resource_op);
--	if (!res) {
--		struct seq_file *m = file->private_data;
--		m->private = &iomem_resource;
--	}
--	return res;
--}
--
--static const struct file_operations proc_ioports_operations = {
--	.open		= ioports_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
--static const struct file_operations proc_iomem_operations = {
--	.open		= iomem_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
- static int __init ioresources_init(void)
- {
--	proc_create("ioports", 0, NULL, &proc_ioports_operations);
--	proc_create("iomem", 0, NULL, &proc_iomem_operations);
-+	proc_create_seq_data("ioports", 0, NULL, &resource_op,
-+			&ioport_resource);
-+	proc_create_seq_data("iomem", 0, NULL, &resource_op, &iomem_resource);
- 	return 0;
- }
- __initcall(ioresources_init);
--- 
-2.17.0
+SGkgQWxleGFuZHJlDQoNCk9uIDA1LzIxLzIwMTggMTA6NDkgUE0sIEFsZXhhbmRyZSBCZWxsb25p
+IHdyb3RlOg0KPiBUaGUgUlRDIGhhcyBhIDY0IGJpdCBjb3VudGVyLg0KPiANCj4gU2lnbmVkLW9m
+Zi1ieTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5iZWxsb25pQGJvb3RsaW4uY29tPg0K
+PiAtLS0NCj4gICBkcml2ZXJzL3J0Yy9ydGMtc3QtbHBjLmMgfCAyICsrDQo+ICAgMSBmaWxlIGNo
+YW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0
+Yy1zdC1scGMuYyBiL2RyaXZlcnMvcnRjL3J0Yy1zdC1scGMuYw0KPiBpbmRleCAyZjFlZjJjMjg3
+NDAuLmJlZTc1Y2E3ZmY3OSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ydGMvcnRjLXN0LWxwYy5j
+DQo+ICsrKyBiL2RyaXZlcnMvcnRjL3J0Yy1zdC1scGMuYw0KPiBAQCAtMjU4LDYgKzI1OCw4IEBA
+IHN0YXRpYyBpbnQgc3RfcnRjX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+
+ICAgCXBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYsIHJ0Yyk7DQo+ICAgDQo+ICAgCXJ0Yy0+cnRj
+X2Rldi0+b3BzID0gJnN0X3J0Y19vcHM7DQo+ICsJcnRjLT5ydGNfZGV2LT5yYW5nZV9tYXggPSBV
+NjRfTUFYOw0KPiArCWRvX2RpdihydGMtPnJ0Y19kZXYtPnJhbmdlX21heCwgcnRjLT5jbGtyYXRl
+KTsNCj4gICANCj4gICAJcmV0ID0gcnRjX3JlZ2lzdGVyX2RldmljZShydGMtPnJ0Y19kZXYpOw0K
+PiAgIAlpZiAocmV0KSB7DQo+IA0KDQpBY2tlZC1ieTogUGF0cmljZSBDaG90YXJkIDxwYXRyaWNl
+LmNob3RhcmRAc3QuY29tPg0KDQpQYXRyaWNl
