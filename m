@@ -1,70 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailout.easymail.ca ([64.68.200.34]:39231 "EHLO
-        mailout.easymail.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966770AbeEJRew (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 May 2018 13:34:52 -0400
-Subject: Re: [PATCH 0/4] selftests: rework RTC tests
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Shuah Khan <shuah@kernel.org>
-References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
- <95d19039-69ee-cda5-3cfe-918283cf9913@kernel.org>
-From: Shuah Khan <shuah@kernel.org>
-Message-ID: <0efabd57-040b-d4d6-e9a1-21a0a8746086@kernel.org>
-Date: Thu, 10 May 2018 11:34:43 -0600
+Received: from mail.kernel.org ([198.145.29.99]:38674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1030648AbeEXJ6j (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 24 May 2018 05:58:39 -0400
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, James Hogan <jhogan@kernel.org>,
+        Miodrag Dinic <miodrag.dinic@mips.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 165/165] rtc: goldfish: Add missing MODULE_LICENSE
+Date: Thu, 24 May 2018 11:39:31 +0200
+Message-Id: <20180524093628.757071922@linuxfoundation.org>
+In-Reply-To: <20180524093621.979359379@linuxfoundation.org>
+References: <20180524093621.979359379@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <95d19039-69ee-cda5-3cfe-918283cf9913@kernel.org>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 04/24/2018 01:33 PM, Shuah Khan wrote:
-> On 04/19/2018 06:50 AM, Alexandre Belloni wrote:
->> Hi,
->>
->> This series separates tests using the RTC devices between the one
->> testing driver agnostic kernel facilities (timers) and the others that
->> are testing device drivers and hardware.
->>
->> Then, rtctest is reworked to use the test harness and be much more
->> robust. Skipping tests is now easier and tests will not block
->> indefinitively.
->>
->> I'm planning to send more improvements later this cycle.
->>
->> Alexandre Belloni (4):
->>   selftests: timers: move PIE tests out of rtctest
->>   selftests: timers: rtcpie: restore previous PIE rate
->>   selftests: move RTC tests to rtc subfolder
->>   selftests: rtc: rework rtctest
->>
->>  MAINTAINERS                                   |   2 +-
->>  tools/testing/selftests/Makefile              |   1 +
->>  tools/testing/selftests/rtc/.gitignore        |   2 +
->>  tools/testing/selftests/rtc/Makefile          |   9 +
->>  tools/testing/selftests/rtc/rtctest.c         | 238 +++++++++++
->>  .../rtctest_setdate.c => rtc/setdate.c}       |   0
->>  tools/testing/selftests/timers/.gitignore     |   3 +-
->>  tools/testing/selftests/timers/Makefile       |   4 +-
->>  tools/testing/selftests/timers/rtcpie.c       | 134 ++++++
->>  tools/testing/selftests/timers/rtctest.c      | 403 ------------------
->>  10 files changed, 388 insertions(+), 408 deletions(-)
->>  create mode 100644 tools/testing/selftests/rtc/.gitignore
->>  create mode 100644 tools/testing/selftests/rtc/Makefile
->>  create mode 100644 tools/testing/selftests/rtc/rtctest.c
->>  rename tools/testing/selftests/{timers/rtctest_setdate.c => rtc/setdate.c} (100%)
->>  create mode 100644 tools/testing/selftests/timers/rtcpie.c
->>  delete mode 100644 tools/testing/selftests/timers/rtctest.c
->>
-> 
-> Looks good to me. Thanks for doing this. I will queue this for 4.18-rc1
-> 
-> thanks,
-> -- Shuah
-> 
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
-Applied to linux-kselftest next for 4.18-rc1
+------------------
 
-thanks,
--- Shuah
+From: James Hogan <jhogan@kernel.org>
+
+[ Upstream commit 82d632b85eb89f97051530f556cb49ee1c04bde7 ]
+
+Fix the following warning in MIPS allmodconfig by adding a
+MODULE_LICENSE() at the end of rtc-goldfish.c, based on the file header
+comment which says GNU General Public License version 2:
+
+WARNING: modpost: missing MODULE_LICENSE() in drivers/rtc/rtc-goldfish.o
+
+Fixes: f22d9cdcb5eb ("rtc: goldfish: Add RTC driver for Android emulator")
+Signed-off-by: James Hogan <jhogan@kernel.org>
+Cc: Miodrag Dinic <miodrag.dinic@mips.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/rtc/rtc-goldfish.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -235,3 +235,5 @@ static struct platform_driver goldfish_r
+ };
+ 
+ module_platform_driver(goldfish_rtc);
++
++MODULE_LICENSE("GPL v2");
