@@ -1,62 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:60172 "EHLO mail.bootlin.com"
+Received: from mail.kernel.org ([198.145.29.99]:55146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751029AbeETSFW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 20 May 2018 14:05:22 -0400
-Date: Sun, 20 May 2018 20:05:20 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH] rtc: pcf2127: add support for accessing internal static
- RAM
-Message-ID: <20180520180520.GC23730@piout.net>
-References: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
+        id S1031682AbeEXKGI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 24 May 2018 06:06:08 -0400
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, James Hogan <jhogan@kernel.org>,
+        Miodrag Dinic <miodrag.dinic@mips.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.16 161/161] rtc: goldfish: Add missing MODULE_LICENSE
+Date: Thu, 24 May 2018 11:39:46 +0200
+Message-Id: <20180524093037.531987302@linuxfoundation.org>
+In-Reply-To: <20180524093018.331893860@linuxfoundation.org>
+References: <20180524093018.331893860@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180520133723.30547-1-u.kleine-koenig@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+4.16-stable review patch.  If anyone has any objections, please let me know.
 
-On 20/05/2018 15:37:23+0200, Uwe Kleine-König wrote:
->  static int pcf2127_probe(struct device *dev, struct regmap *regmap,
-> -			const char *name)
-> +			const char *name, bool has_nvmem)
->  {
->  	struct pcf2127 *pcf2127;
-> +	int ret = 0;
->  
->  	dev_dbg(dev, "%s\n", __func__);
->  
-> @@ -200,8 +242,21 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
->  
->  	pcf2127->rtc = devm_rtc_device_register(dev, name, &pcf2127_rtc_ops,
->  						THIS_MODULE);
-> +	if (IS_ERR(pcf2127->rtc))
-> +		return PTR_ERR(pcf2127->rtc);
-> +
-> +	if (has_nvmem) {
-> +		struct nvmem_config nvmem_cfg = {
-> +			.priv = pcf2127,
-> +			.reg_read = pcf2127_nvmem_read,
-> +			.reg_write = pcf2127_nvmem_write,
-> +			.size = 512,
-> +		};
-> +
-> +		ret = rtc_nvmem_register(pcf2127->rtc, &nvmem_cfg);
-> +	}
->  
-> -	return PTR_ERR_OR_ZERO(pcf2127->rtc);
-> +	return ret;
+------------------
 
-You must not return an error here once devm_rtc_device_register has
-succeeded. You have the choice between ignoring the nvmem registration
-error or switching to devm_rtc_allocate_device/rtc_register_device().
+From: James Hogan <jhogan@kernel.org>
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+[ Upstream commit 82d632b85eb89f97051530f556cb49ee1c04bde7 ]
+
+Fix the following warning in MIPS allmodconfig by adding a
+MODULE_LICENSE() at the end of rtc-goldfish.c, based on the file header
+comment which says GNU General Public License version 2:
+
+WARNING: modpost: missing MODULE_LICENSE() in drivers/rtc/rtc-goldfish.o
+
+Fixes: f22d9cdcb5eb ("rtc: goldfish: Add RTC driver for Android emulator")
+Signed-off-by: James Hogan <jhogan@kernel.org>
+Cc: Miodrag Dinic <miodrag.dinic@mips.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-rtc@vger.kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/rtc/rtc-goldfish.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -235,3 +235,5 @@ static struct platform_driver goldfish_r
+ };
+ 
+ module_platform_driver(goldfish_rtc);
++
++MODULE_LICENSE("GPL v2");
