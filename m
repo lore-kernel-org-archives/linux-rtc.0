@@ -1,85 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:32804 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751013AbeEPUWZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 16:22:25 -0400
+Received: from mail.bootlin.com ([62.4.15.54]:60706 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965130AbeEYJje (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 25 May 2018 05:39:34 -0400
+Date: Fri, 25 May 2018 11:39:22 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Timur =?iso-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>
+Cc: linux-rtc@vger.kernel.org
+Subject: Re: rtc_cmos 00:01: nvmem registration failed
+Message-ID: <20180525093922.GA2500@piout.net>
+References: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
-References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com> <20180516103251.74707-4-giulio.benetti@micronovasrl.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 16 May 2018 23:22:24 +0300
-Message-ID: <CAHp75VdC74jW+Vox2ogDVzG17Z3kD0Vg-1du4SeK30WajT7N-Q@mail.gmail.com>
-Subject: Re: [PATCH v5 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        alexandre.belloni@bootlin.com, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <fa7eee0178fe888859730e7ce41e8e8af512f685.camel@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, May 16, 2018 at 1:32 PM, Giulio Benetti
-<giulio.benetti@micronovasrl.com> wrote:
-> On m41txx you can enable open-drain OUT pin to check if offset is ok.
-> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-> 512 times faster than 1s tick base.
->
-> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
->
-> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Hi,
 
-> +static ssize_t frequency_test_enable_store(struct device *dev,
-> +                                          struct device_attribute *attr,
-> +                                          const char *buf, size_t count)
-> +{
-> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
-> +       unsigned long freq_test = 0;
-> +       int retval;
-> +
-> +       retval = kstrtoul(buf, 10, &freq_test);
-> +       if ((retval < 0) || (retval > 1)) {
+On 25/05/2018 11:23:43+0200, Timur Kristóf wrote:
+> Hi,
+> 
+> I've used kernel 4.17 rc5 and now using rc6 on Fedora 28 on a Dell XPS
+> 13 9370 machine. Since upgrading to this kernel, I get the following
+> messages in the journal:
+> 
+> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: RTC can wake from S4
+> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: registered as rtc0
+> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: nvmem registration failed
+> máj 25 08:54:06 timur-xps kernel: rtc_cmos 00:01: alarms up to one month, y3k, 242 bytes nvram, hpet irqs
+> 
+> The "nvmem registration failed" is highlighted red in the journal, and also shows up on every boot.
+> 
 
-kstrtobool() then?
+This is probably fixed by
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=c59b3715ac16544f8f68ab7af03f108e339b36aa
 
-> +               dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
+> This where the error message comes from:
+> https://github.com/torvalds/linux/blob/master/drivers/rtc/rtc-cmos.c#L818
+> And this is the commit that introduced it:
+> https://github.com/torvalds/linux/commit/8b5b7958fd1cac54bdca62ec5552c6be0b38def4#diff-4dcdf420d40078042c28f0f3d8d6535c
+> 
+> The error message doesn't give any indication about why it failed.
+> How can I help diagnose the what the problem is?
+> 
 
-> +               return -EINVAL;
-
-...and do not shadow actual error code.
-
-> +       }
-> +
-> +       regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-> +                          freq_test ? M41TXX_BIT_FT : 0);
-> +
-
-> +       return retval ? retval : count;
-
-Does the condition make any sense?
-
-> +}
-
-> +static ssize_t frequency_test_enable_show(struct device *dev,
-> +                                         struct device_attribute *attr,
-> +                                         char *buf)
-> +{
-
-> +       int freq_test_en = 0;
-
-> +       if (ctrl_reg & M41TXX_BIT_FT)
-> +               freq_test_en = true;
-> +       else
-> +               freq_test_en = false;
-> +
-> +       return sprintf(buf, "%d\n", freq_test_en);
-
-So, is it boolean or integer? This code makes it confusing a lot.
-
-> +}
+My guess is that CONFIG_RTC_NVMEM is not enabled on your kernel.
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
