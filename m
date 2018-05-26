@@ -1,176 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:58866 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752560AbeEPKdA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 06:33:00 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 8A646B00BA2
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 12:32:58 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ioJInXBDtBHF for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 12:32:57 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v5 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 16 May 2018 12:32:50 +0200
-Message-Id: <20180516103251.74707-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
-References: <20180516103251.74707-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:33472 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1030648AbeEZCEa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 25 May 2018 22:04:30 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: test: remove obsolete .set_mmss
+Date: Sat, 26 May 2018 04:04:26 +0200
+Message-Id: <20180526020426.2984-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
+There is no point in testing .set_mmss versus .set_mmss64 as there are both
+taking the exact same argument (truncated for set_mmss though).
 
-Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
-V3 => V4:
-* use ppm as offset input according to documentation instead of
-raw ic offset values.
-* use regmap_update_bits instead of regmap_write to update ic registers
-* sysfs_remove_group if devm_add_action_or_reset fails
-* rtc_device_unregister if ds1307_add_frequency_test fails on m41txx
-series
+ drivers/rtc/rtc-test.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
- drivers/rtc/rtc-ds1307.c | 81 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 81 insertions(+)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0ab0c166da83..2797d01bfa1d 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,20 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 390f928fd6fc..a0d1571c4af6 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -13,10 +13,6 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
-+
-+/* negative offset step is -2.034ppm */
-+#define M41TXX_NEG_OFFSET_STEP_PPM	2034
-+/* positive offset step is +4.068ppm */
-+#define M41TXX_POS_OFFSET_STEP_PPM	4068
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	(((-31) * M41TXX_NEG_OFFSET_STEP_PPM) / 1000)
-+#define M41TXX_MAX_OFFSET	(((31) * M41TXX_POS_OFFSET_STEP_PPM) / 1000)
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +160,9 @@ struct chip_desc {
+-static int test_mmss64;
+-module_param(test_mmss64, int, 0644);
+-MODULE_PARM_DESC(test_mmss64, "Test struct rtc_class_ops.set_mmss64().");
+-
+ static struct platform_device *test0 = NULL, *test1 = NULL;
  
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
- 
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
-+};
-+
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -227,10 +256,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -972,6 +1008,51 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ static int test_rtc_read_alarm(struct device *dev,
+@@ -44,12 +40,6 @@ static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
+ 	return 0;
  }
  
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = (val * M41TXX_POS_OFFSET_STEP_PPM);
-+	else
-+		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPM);
-+
-+	*offset = DIV_ROUND_CLOSEST(*offset, 1000);
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	offset *= 1000;
-+
-+	if (offset >= 0) {
-+		ctrl_reg = DIV_ROUND_CLOSEST(offset,
-+					     M41TXX_POS_OFFSET_STEP_PPM);
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+	} else {
-+		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
-+					     M41TXX_NEG_OFFSET_STEP_PPM);
-+	}
-+
-+	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
-+				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
-+				  ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
+-static int test_rtc_set_mmss(struct device *dev, unsigned long secs)
+-{
+-	dev_info(dev, "%s, secs = %lu\n", __func__, secs);
+-	return 0;
+-}
+-
+ static int test_rtc_proc(struct device *dev, struct seq_file *seq)
+ {
+ 	struct platform_device *plat_dev = to_platform_device(dev);
+@@ -65,12 +55,12 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 	return 0;
+ }
  
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+-static struct rtc_class_ops test_rtc_ops = {
++static const struct rtc_class_ops test_rtc_ops = {
+ 	.proc = test_rtc_proc,
+ 	.read_time = test_rtc_read_time,
+ 	.read_alarm = test_rtc_read_alarm,
+ 	.set_alarm = test_rtc_set_alarm,
+-	.set_mmss = test_rtc_set_mmss,
++	.set_mmss64 = test_rtc_set_mmss64,
+ 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
+ };
+ 
+@@ -110,11 +100,6 @@ static int test_probe(struct platform_device *plat_dev)
+ 	int err;
+ 	struct rtc_device *rtc;
+ 
+-	if (test_mmss64) {
+-		test_rtc_ops.set_mmss64 = test_rtc_set_mmss64;
+-		test_rtc_ops.set_mmss = NULL;
+-	}
+-
+ 	rtc = devm_rtc_device_register(&plat_dev->dev, "test",
+ 				&test_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc)) {
 -- 
 2.17.0
