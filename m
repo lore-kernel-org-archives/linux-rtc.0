@@ -1,68 +1,75 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:32817 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751434AbeETU1i (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 20 May 2018 16:27:38 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Brian Norris <computersforpeace@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Gregory Fong <gregory.0xf0@gmail.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: brcmstb-waketimer: switch to rtc_register_device
-Date: Sun, 20 May 2018 22:27:29 +0200
-Message-Id: <20180520202730.28172-1-alexandre.belloni@bootlin.com>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:39654 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965379AbeE2Rja (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 May 2018 13:39:30 -0400
+Received: by mail-pg0-f67.google.com with SMTP id w12-v6so5683249pgc.6
+        for <linux-rtc@vger.kernel.org>; Tue, 29 May 2018 10:39:30 -0700 (PDT)
+From: Jagan Teki <jagan@amarulasolutions.com>
+To: Maxime Ripard <maxime.ripard@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com,
+        Jagan Teki <jagan@amarulasolutions.com>
+Subject: [PATCH v3] rtc: sun6i: Fix bit_idx value for clk_register_gate
+Date: Tue, 29 May 2018 23:09:13 +0530
+Message-Id: <20180529173913.12386-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Switch to devm_rtc_allocate_device/rtc_register_device.
+From: Michael Trimarchi <michael@amarulasolutions.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+clk-gate core will take bit_idx through clk_register_gate
+and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
+is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
+which is wrong and eventually external gate clock is not enabling.
+
+This patch fixed by passing bit index and the original change
+introduced from below commit.
+"rtc: sun6i: Add support for the external oscillator gate"
+(sha1: 17ecd246414b3a0fe0cb248c86977a8bda465b7b)
+
+Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator
+gate")
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
- drivers/rtc/rtc-brcmstb-waketimer.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Changes for v3:
+- add fixes tag
+- Cced stable ML
+Changes for v2:
+- add suffix _OFFSET with macro name to distinguish b/w
+  register actual values vs offset.
 
-diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-index bdd6674a1054..ba49d9bcff12 100644
---- a/drivers/rtc/rtc-brcmstb-waketimer.c
-+++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-@@ -229,6 +229,10 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
- 	if (IS_ERR(timer->base))
- 		return PTR_ERR(timer->base);
+ drivers/rtc/rtc-sun6i.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 2e6fb275acc8..2cd5a7b1a2e3 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -74,7 +74,7 @@
+ #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
  
-+	timer->rtc = devm_rtc_allocate_device(dev);
-+	if (IS_ERR(timer->rtc))
-+		return PTR_ERR(timer->rtc);
-+
- 	/*
- 	 * Set wakeup capability before requesting wakeup interrupt, so we can
- 	 * process boot-time "wakeups" (e.g., from S5 soft-off)
-@@ -261,11 +265,11 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
- 	timer->reboot_notifier.notifier_call = brcmstb_waketmr_reboot;
- 	register_reboot_notifier(&timer->reboot_notifier);
+ #define SUN6I_LOSC_OUT_GATING			0x0060
+-#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
++#define SUN6I_LOSC_OUT_GATING_EN_OFFSET		0
  
--	timer->rtc = rtc_device_register("brcmstb-waketmr", dev,
--					 &brcmstb_waketmr_ops, THIS_MODULE);
--	if (IS_ERR(timer->rtc)) {
-+	timer->rtc->ops = &brcmstb_waketmr_ops;
-+
-+	ret = rtc_register_device(timer->rtc);
-+	if (ret) {
- 		dev_err(dev, "unable to register device\n");
--		ret = PTR_ERR(timer->rtc);
- 		goto err_notifier;
- 	}
- 
-@@ -288,7 +292,6 @@ static int brcmstb_waketmr_remove(struct platform_device *pdev)
- 	struct brcmstb_waketmr *timer = dev_get_drvdata(&pdev->dev);
- 
- 	unregister_reboot_notifier(&timer->reboot_notifier);
--	rtc_device_unregister(timer->rtc);
- 
- 	return 0;
- }
+ /*
+  * Get date values
+@@ -255,7 +255,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 				      &clkout_name);
+ 	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
+ 					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
+-					  SUN6I_LOSC_OUT_GATING_EN, 0,
++					  SUN6I_LOSC_OUT_GATING_EN_OFFSET, 0,
+ 					  &rtc->lock);
+ 	if (IS_ERR(rtc->ext_losc)) {
+ 		pr_crit("Couldn't register the LOSC external gate\n");
 -- 
-2.17.0
+2.14.3
