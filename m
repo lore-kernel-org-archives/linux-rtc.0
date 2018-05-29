@@ -1,63 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:59934 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935580AbeEIScl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 May 2018 14:32:41 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 90279B002BB
-        for <linux-rtc@vger.kernel.org>; Wed,  9 May 2018 20:32:40 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id QOWnHDrzsETn for <linux-rtc@vger.kernel.org>;
-        Wed,  9 May 2018 20:32:40 +0200 (CEST)
-Subject: Re: [PATCH 4/4] rtc: ds1307: add frequency-test property to check
- calibration on m41txx
-To: Rob Herring <robh+dt@kernel.org>
+Received: from mail.bootlin.com ([62.4.15.54]:39692 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934877AbeE2QGt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 29 May 2018 12:06:49 -0400
+Date: Tue, 29 May 2018 18:06:47 +0200
+From: Maxime Ripard <maxime.ripard@bootlin.com>
+To: Jagan Teki <jagan@amarulasolutions.com>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20180508145611.49072-1-giulio.benetti@micronovasrl.com>
- <20180508145611.49072-4-giulio.benetti@micronovasrl.com>
- <CAL_JsqKb9aLxjQbOc1PFRQhbVL2a3Ti2oJ8Gm8Ojn0a39LxajA@mail.gmail.com>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <05eb5e80-a38a-1988-bec8-54ba7c6f38df@micronovasrl.com>
-Date: Wed, 9 May 2018 20:32:38 +0200
+        Chen-Yu Tsai <wens@csie.org>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2] rtc: sun6i: Fix bit_idx value for clk_register_gate
+Message-ID: <20180529160647.ene36dc7iacyppia@flea.home>
+References: <20180529160425.23697-1-jagan@amarulasolutions.com>
 MIME-Version: 1.0
-In-Reply-To: <CAL_JsqKb9aLxjQbOc1PFRQhbVL2a3Ti2oJ8Gm8Ojn0a39LxajA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180529160425.23697-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Rob,
-
-Il 08/05/2018 19:44, Rob Herring ha scritto:
-> On Tue, May 8, 2018 at 9:56 AM, Giulio Benetti
-> <giulio.benetti@micronovasrl.com> wrote:
->> On m41txx you can enable open-drain OUT pin to check if calibration is ok.
->> Enabling OUT pin with frequency-test bool property, OUT pin will tick
->> 512 times faster than 1s tick base.
->>
->> Enable FT bit on CONTROL register if calibration is active.
+On Tue, May 29, 2018 at 09:34:25PM +0530, Jagan Teki wrote:
+> From: Michael Trimarchi <michael@amarulasolutions.com>
 > 
-> A DT is (or should be) a pretty static thing, so I don't think this
-> belongs. A kernel command line option (via module params) or a
-> sysfs/debugfs file would make more sense IMO.
+> clk-gate core will take bit_idx through clk_register_gate
+> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
+> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
+> which is wrong and eventually external gate clock is not enabling.
+> 
+> This patch fixed by passing bit index and the original change
+> introduced from below commit.
+> "rtc: sun6i: Add support for the external oscillator gate"
+> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
+> 
+> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 
-Totally right, it's very useful having it accessible via sysfs.
-Already changed and just submitted V2 patchset.
-Thanks
+I said it in the v1 already, but this should be sent to stable and
+have a fixes tag.
+
+Maxime
 
 -- 
-Giulio Benetti
-CTO
-
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale € 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
+Maxime Ripard, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
