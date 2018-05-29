@@ -1,115 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48502 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753198AbeEPJq4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 05:46:56 -0400
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.bootlin.com ([62.4.15.54]:60757 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933858AbeE2OCb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 29 May 2018 10:02:31 -0400
+Date: Tue, 29 May 2018 16:02:19 +0200
+From: Maxime Ripard <maxime.ripard@bootlin.com>
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-acpi@vger.kernel.org, drbd-dev@lists.linbit.com,
-        linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-afs@lists.infradead.org, linux-ext4@vger.kernel.org,
-        jfs-discussion@lists.sourceforge.net,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 32/42] neigh: switch to proc_create_seq_data
-Date: Wed, 16 May 2018 11:43:36 +0200
-Message-Id: <20180516094346.20506-33-hch@lst.de>
-In-Reply-To: <20180516094346.20506-1-hch@lst.de>
-References: <20180516094346.20506-1-hch@lst.de>
+        Chen-Yu Tsai <wens@csie.org>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH] rtc: sun6i: Fix bit_idx value for clk_register_gate
+Message-ID: <20180529140219.auat656qcl5jdru7@flea.home>
+References: <20180528075032.6769-1-jagan@amarulasolutions.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180528075032.6769-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-And use proc private data directly instead of doing a detour
-through seq->private.
+Hi,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- net/core/neighbour.c | 31 ++++++-------------------------
- 1 file changed, 6 insertions(+), 25 deletions(-)
+On Mon, May 28, 2018 at 01:20:32PM +0530, Jagan Teki wrote:
+> From: Michael Trimarchi <michael@amarulasolutions.com>
+> 
+> clk-gate core will take bit_idx through clk_register_gate
+> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
+> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
+> which is wrong and eventually external gate clock is not enabling.
+> 
+> This patch fixed by passing bit index and the original change
+> introduced from below commit.
+> "rtc: sun6i: Add support for the external oscillator gate"
+> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
+> 
+> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index ce519861be59..1fb43bff417d 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -59,7 +59,7 @@ static int pneigh_ifdown_and_unlock(struct neigh_table *tbl,
- 				    struct net_device *dev);
- 
- #ifdef CONFIG_PROC_FS
--static const struct file_operations neigh_stat_seq_fops;
-+static const struct seq_operations neigh_stat_seq_ops;
- #endif
- 
- /*
-@@ -1558,8 +1558,8 @@ void neigh_table_init(int index, struct neigh_table *tbl)
- 		panic("cannot create neighbour cache statistics");
- 
- #ifdef CONFIG_PROC_FS
--	if (!proc_create_data(tbl->id, 0, init_net.proc_net_stat,
--			      &neigh_stat_seq_fops, tbl))
-+	if (!proc_create_seq_data(tbl->id, 0, init_net.proc_net_stat,
-+			      &neigh_stat_seq_ops, tbl))
- 		panic("cannot create neighbour proc dir entry");
- #endif
- 
-@@ -2786,7 +2786,7 @@ EXPORT_SYMBOL(neigh_seq_stop);
- 
- static void *neigh_stat_seq_start(struct seq_file *seq, loff_t *pos)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	int cpu;
- 
- 	if (*pos == 0)
-@@ -2803,7 +2803,7 @@ static void *neigh_stat_seq_start(struct seq_file *seq, loff_t *pos)
- 
- static void *neigh_stat_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	int cpu;
- 
- 	for (cpu = *pos; cpu < nr_cpu_ids; ++cpu) {
-@@ -2822,7 +2822,7 @@ static void neigh_stat_seq_stop(struct seq_file *seq, void *v)
- 
- static int neigh_stat_seq_show(struct seq_file *seq, void *v)
- {
--	struct neigh_table *tbl = seq->private;
-+	struct neigh_table *tbl = PDE_DATA(file_inode(seq->file));
- 	struct neigh_statistics *st = v;
- 
- 	if (v == SEQ_START_TOKEN) {
-@@ -2861,25 +2861,6 @@ static const struct seq_operations neigh_stat_seq_ops = {
- 	.stop	= neigh_stat_seq_stop,
- 	.show	= neigh_stat_seq_show,
- };
--
--static int neigh_stat_seq_open(struct inode *inode, struct file *file)
--{
--	int ret = seq_open(file, &neigh_stat_seq_ops);
--
--	if (!ret) {
--		struct seq_file *sf = file->private_data;
--		sf->private = PDE_DATA(inode);
--	}
--	return ret;
--};
--
--static const struct file_operations neigh_stat_seq_fops = {
--	.open 	 = neigh_stat_seq_open,
--	.read	 = seq_read,
--	.llseek	 = seq_lseek,
--	.release = seq_release,
--};
--
- #endif /* CONFIG_PROC_FS */
- 
- static inline size_t neigh_nlmsg_size(void)
+Cc'ing to stable and adding a Fixes tag would be great.
+
+> ---
+>  drivers/rtc/rtc-sun6i.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index 2e6fb275acc8..a66f40c96582 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -74,7 +74,7 @@
+>  #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
+>  
+>  #define SUN6I_LOSC_OUT_GATING			0x0060
+> -#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
+> +#define SUN6I_LOSC_OUT_GATING_EN		0
+
+All the other register definitions in that driver are the actual value
+needed, and not the offset. Just to make it obvious that it shouldn't
+be used as is, please add an _OFFSET at the end of the defined name
+
+Thanks!
+Maxime
+
 -- 
-2.17.0
+Maxime Ripard, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
