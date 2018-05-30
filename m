@@ -1,168 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:55366 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752200AbeEPVIz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 May 2018 17:08:55 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 39334B00999
-        for <linux-rtc@vger.kernel.org>; Wed, 16 May 2018 23:08:54 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id hFVJ484B7Nz6 for <linux-rtc@vger.kernel.org>;
-        Wed, 16 May 2018 23:08:53 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v6 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 16 May 2018 23:08:41 +0200
-Message-Id: <20180516210842.5874-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
-References: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:46205 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753946AbeE3S2N (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 30 May 2018 14:28:13 -0400
+Received: by mail-pl0-f67.google.com with SMTP id 30-v6so11574771pld.13
+        for <linux-rtc@vger.kernel.org>; Wed, 30 May 2018 11:28:13 -0700 (PDT)
+From: Jagan Teki <jagan@amarulasolutions.com>
+To: Maxime Ripard <maxime.ripard@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>
+Subject: [PATCH v4] rtc: sun6i: Fix bit_idx value for clk_register_gate
+Date: Wed, 30 May 2018 23:57:44 +0530
+Message-Id: <20180530182744.27611-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
+From: Michael Trimarchi <michael@amarulasolutions.com>
 
-Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+clk-gate core will take bit_idx through clk_register_gate
+and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
+is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
+which is wrong and eventually external gate clock is not enabling.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+This patch fixed by passing bit index and the original change
+introduced from below commit.
+"rtc: sun6i: Add support for the external oscillator gate"
+(sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
+
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator gate")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
- drivers/rtc/rtc-ds1307.c | 81 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 81 insertions(+)
+Changes for v4:
+- Cc to stable tree
+Changes for v3:
+- add fixes tag
+- Cced stable ML
+Changes for v2:
+- add suffix _OFFSET with macro name to distinguish b/w
+  register actual values vs offset.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0ab0c166da83..2797d01bfa1d 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,20 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+ drivers/rtc/rtc-sun6i.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 2e6fb275acc8..2cd5a7b1a2e3 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -74,7 +74,7 @@
+ #define SUN6I_ALARM_CONFIG_WAKEUP		BIT(0)
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
-+
-+/* negative offset step is -2.034ppm */
-+#define M41TXX_NEG_OFFSET_STEP_PPM	2034
-+/* positive offset step is +4.068ppm */
-+#define M41TXX_POS_OFFSET_STEP_PPM	4068
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	(((-31) * M41TXX_NEG_OFFSET_STEP_PPM) / 1000)
-+#define M41TXX_MAX_OFFSET	(((31) * M41TXX_POS_OFFSET_STEP_PPM) / 1000)
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +160,9 @@ struct chip_desc {
+ #define SUN6I_LOSC_OUT_GATING			0x0060
+-#define SUN6I_LOSC_OUT_GATING_EN		BIT(0)
++#define SUN6I_LOSC_OUT_GATING_EN_OFFSET		0
  
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
- 
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
-+};
-+
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -227,10 +256,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -972,6 +1008,51 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
- 
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = (val * M41TXX_POS_OFFSET_STEP_PPM);
-+	else
-+		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPM);
-+
-+	*offset = DIV_ROUND_CLOSEST(*offset, 1000);
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	offset *= 1000;
-+
-+	if (offset >= 0) {
-+		ctrl_reg = DIV_ROUND_CLOSEST(offset,
-+					     M41TXX_POS_OFFSET_STEP_PPM);
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+	} else {
-+		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
-+					     M41TXX_NEG_OFFSET_STEP_PPM);
-+	}
-+
-+	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
-+				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
-+				  ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+ /*
+  * Get date values
+@@ -255,7 +255,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 				      &clkout_name);
+ 	rtc->ext_losc = clk_register_gate(NULL, clkout_name, rtc->hw.init->name,
+ 					  0, rtc->base + SUN6I_LOSC_OUT_GATING,
+-					  SUN6I_LOSC_OUT_GATING_EN, 0,
++					  SUN6I_LOSC_OUT_GATING_EN_OFFSET, 0,
+ 					  &rtc->lock);
+ 	if (IS_ERR(rtc->ext_losc)) {
+ 		pr_crit("Couldn't register the LOSC external gate\n");
 -- 
-2.17.0
+2.14.3
