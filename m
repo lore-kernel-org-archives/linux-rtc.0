@@ -1,77 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:26656 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751734AbeEQKCe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 May 2018 06:02:34 -0400
-From: Amelie DELAUNAY <amelie.delaunay@st.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/3] rtc: stm32: rework register management to prepare
- other version of RTC
-Date: Thu, 17 May 2018 10:01:49 +0000
-Message-ID: <d08bcefc-7698-a968-7a35-ed9ab62bd623@st.com>
-References: <1525880770-22263-1-git-send-email-amelie.delaunay@st.com>
- <1525880770-22263-2-git-send-email-amelie.delaunay@st.com>
- <20180516202552.GA24496@piout.net>
-In-Reply-To: <20180516202552.GA24496@piout.net>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail.bootlin.com ([62.4.15.54]:44434 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754274AbeEaJlM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 05:41:12 -0400
+Date: Thu, 31 May 2018 11:41:01 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: a.zummo@towertech.it, broonie@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: sprd: Add new RTC power down check method
+Message-ID: <20180531094101.GB2727@piout.net>
+References: <ea3bed8a6cb9493a7b0162f144de8a5ee4f06777.1527757194.git.baolin.wang@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ea3bed8a6cb9493a7b0162f144de8a5ee4f06777.1527757194.git.baolin.wang@linaro.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGksDQoNCk9uIDA1LzE2LzIwMTggMTA6MjUgUE0sIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0K
-PiBIaSwNCj4gDQo+IE9uIDA5LzA1LzIwMTggMTc6NDY6MDgrMDIwMCwgQW1lbGllIERlbGF1bmF5
-IHdyb3RlOg0KPj4gICBzdGF0aWMgdm9pZCBzdG0zMl9ydGNfd3ByX3VubG9jayhzdHJ1Y3Qgc3Rt
-MzJfcnRjICpydGMpDQo+PiAgIHsNCj4+IC0Jd3JpdGVsX3JlbGF4ZWQoUlRDX1dQUl8xU1RfS0VZ
-LCBydGMtPmJhc2UgKyBTVE0zMl9SVENfV1BSKTsNCj4+IC0Jd3JpdGVsX3JlbGF4ZWQoUlRDX1dQ
-Ul8yTkRfS0VZLCBydGMtPmJhc2UgKyBTVE0zMl9SVENfV1BSKTsNCj4+ICsJc3RydWN0IHN0bTMy
-X3J0Y19yZWdpc3RlcnMgcmVncyA9IHJ0Yy0+ZGF0YS0+cmVnczsNCj4gDQo+IHJlZ3Mgc2hvdWxk
-IHByb2JhYmx5IGJlIGEgcG9pbnRlciB0byBlbnN1cmUgdGhhdCBubyBjb3B5IGlzIG1hZGUuIEkn
-dmUNCj4gYWN0dWFsbHkgY2hlY2tlZCBhbmQgaXQgZG9lc24ndCBtYWtlIGEgZGlmZmVyZW5jZSBi
-ZWNhdXNlIGdjYyBpcyBzbWFydA0KPiBlbm91Z2ggdG8gbm90IG1ha2UgdGhlIGNvcHkuDQo+IA0K
-DQouLi4NCg0KPj4gICBzdGF0aWMgaXJxcmV0dXJuX3Qgc3RtMzJfcnRjX2FsYXJtX2lycShpbnQg
-aXJxLCB2b2lkICpkZXZfaWQpDQo+PiAgIHsNCj4+ICAgCXN0cnVjdCBzdG0zMl9ydGMgKnJ0YyA9
-IChzdHJ1Y3Qgc3RtMzJfcnRjICopZGV2X2lkOw0KPj4gLQl1bnNpZ25lZCBpbnQgaXNyLCBjcjsN
-Cj4+ICsJc3RydWN0IHN0bTMyX3J0Y19yZWdpc3RlcnMgcmVncyA9IHJ0Yy0+ZGF0YS0+cmVnczsN
-Cj4+ICsJc3RydWN0IHN0bTMyX3J0Y19ldmVudHMgZXZ0cyA9IHJ0Yy0+ZGF0YS0+ZXZlbnRzOw0K
-PiANCj4gRGl0dG8gZm9yIGV2dHMuDQo+DQoNCkkgcHJlcGFyZSBhIHYzIHdpdGggY29uc3Qgc3Ry
-dWN0IHN0bTMyX3J0Y19yZWdpc3RlcnMgKnJlZ3MgYW5kIGNvbnN0IA0Kc3RydWN0IHN0bTMyX3J0
-Y19ldmVudHMgKmV2dHMuDQoNCj4+ICsJdW5zaWduZWQgaW50IHN0YXR1cywgY3I7DQo+PiAgIA0K
-Pj4gICAJbXV0ZXhfbG9jaygmcnRjLT5ydGNfZGV2LT5vcHNfbG9jayk7DQo+PiAgIA0KPj4gLQlp
-c3IgPSByZWFkbF9yZWxheGVkKHJ0Yy0+YmFzZSArIFNUTTMyX1JUQ19JU1IpOw0KPj4gLQljciA9
-IHJlYWRsX3JlbGF4ZWQocnRjLT5iYXNlICsgU1RNMzJfUlRDX0NSKTsNCj4+ICsJc3RhdHVzID0g
-cmVhZGxfcmVsYXhlZChydGMtPmJhc2UgKyByZWdzLmlzcik7DQo+PiArCWNyID0gcmVhZGxfcmVs
-YXhlZChydGMtPmJhc2UgKyByZWdzLmNyKTsNCj4+ICAgDQo+PiAtCWlmICgoaXNyICYgU1RNMzJf
-UlRDX0lTUl9BTFJBRikgJiYNCj4+ICsJaWYgKChzdGF0dXMgJiBldnRzLmFscmEpICYmDQo+PiAg
-IAkgICAgKGNyICYgU1RNMzJfUlRDX0NSX0FMUkFJRSkpIHsNCj4+ICAgCQkvKiBBbGFybSBBIGZs
-YWcgLSBBbGFybSBpbnRlcnJ1cHQgKi8NCj4+ICAgCQlkZXZfZGJnKCZydGMtPnJ0Y19kZXYtPmRl
-diwgIkFsYXJtIG9jY3VycmVkXG4iKTsNCj4gDQo+IC4uLg0KPiANCj4+IEBAIC02NDEsNyArNzEw
-LDcgQEAgc3RhdGljIGludCBzdG0zMl9ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAq
-cGRldikNCj4+ICAgDQo+PiAgIAkvKg0KPj4gICAJICogQWZ0ZXIgYSBzeXN0ZW0gcmVzZXQsIFJU
-Q19JU1IuSU5JVFMgZmxhZyBjYW4gYmUgcmVhZCB0byBjaGVjayBpZg0KPj4gLQkgKiB0aGUgY2Fs
-ZW5kYXIgaGFzIGJlZW4gaW5pdGFsaXplZCBvciBub3QuIElOSVRTIGZsYWcgaXMgcmVzZXQgYnkg
-YQ0KPj4gKwkgKiB0aGUgY2FsZW5kYXIgaGFzIGJlZW4gaW5pdGlhbGl6ZWQgb3Igbm90LiBJTklU
-UyBmbGFnIGlzIHJlc2V0IGJ5IGENCj4+ICAgCSAqIHBvd2VyLW9uIHJlc2V0IChubyB2YmF0LCBu
-byBwb3dlci1zdXBwbHkpLiBJdCBpcyBub3QgcmVzZXQgaWYNCj4+ICAgCSAqIHJ0Y19jayBwYXJl
-bnQgY2xvY2sgaGFzIGNoYW5nZWQgKHNvIFJUQyBwcmVzY2FsZXJzIG5lZWQgdG8gYmUNCj4+ICAg
-CSAqIGNoYW5nZWQpLiBUaGF0J3Mgd2h5IHdlIGNhbm5vdCByZWx5IG9uIHRoaXMgZmxhZyB0byBr
-bm93IGlmIFJUQw0KPj4gQEAgLTY2Niw3ICs3MzUsNyBAQCBzdGF0aWMgaW50IHN0bTMyX3J0Y19w
-cm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4gICAJCQkgImFsYXJtIHdvbid0
-IGJlIGFibGUgdG8gd2FrZSB1cCB0aGUgc3lzdGVtIik7DQo+PiAgIA0KPj4gICAJcnRjLT5ydGNf
-ZGV2ID0gZGV2bV9ydGNfZGV2aWNlX3JlZ2lzdGVyKCZwZGV2LT5kZXYsIHBkZXYtPm5hbWUsDQo+
-PiAtCQkJJnN0bTMyX3J0Y19vcHMsIFRISVNfTU9EVUxFKTsNCj4+ICsJCQkJCQkmc3RtMzJfcnRj
-X29wcywgVEhJU19NT0RVTEUpOw0KPj4gICAJaWYgKElTX0VSUihydGMtPnJ0Y19kZXYpKSB7DQo+
-PiAgIAkJcmV0ID0gUFRSX0VSUihydGMtPnJ0Y19kZXYpOw0KPj4gICAJCWRldl9lcnIoJnBkZXYt
-PmRldiwgInJ0YyBkZXZpY2UgcmVnaXN0cmF0aW9uIGZhaWxlZCwgZXJyPSVkXG4iLA0KPiANCj4g
-VGhvc2UgdHdvIGNoYW5nZXMgc2hvdWxkIGdvIGludG8gYSBzZXBhcmF0ZSBjbGVhbnVwIHBhdGNo
-Lg0KPiANCg0KT0ssIG5ldyBwYXRjaCBmb3IgdGhlc2UgdHdvIGNoYW5nZXMgaW4gdjMuDQoNClRo
-YW5rcyBmb3IgcmV2aWV3aW5nLA0KQW1lbGll
+On 31/05/2018 17:18:08+0800, Baolin Wang wrote:
+> We should use the new method to check if RTC was powered down, which
+> is more solid. Since we have introduced power control and power status
+> registers, and we just check if the power status is the default value
+> (0x96), if yes that means the RTC has been powered down. Meanwhile We
+> can set the power control register to be one valid value to change
+> the power status to indicate RTC device is valid now.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+>  drivers/rtc/rtc-sc27xx.c |   47 +++++++++++++++++++++++-----------------------
+>  1 file changed, 24 insertions(+), 23 deletions(-)
+> 
+Applied, thanks.
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
