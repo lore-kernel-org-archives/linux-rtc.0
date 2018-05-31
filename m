@@ -1,51 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:41396 "EHLO mail.bootlin.com"
+Received: from smtpbg65.qq.com ([103.7.28.233]:56774 "EHLO smtpbg65.qq.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753740AbeEaIDd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 31 May 2018 04:03:33 -0400
-Date: Thu, 31 May 2018 10:03:31 +0200
-From: Maxime Ripard <maxime.ripard@bootlin.com>
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] rtc: sun6i: Fix bit_idx value for clk_register_gate
-Message-ID: <20180531080331.5onjtjmxfolzbtc2@flea.home>
-References: <20180530182744.27611-1-jagan@amarulasolutions.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180530182744.27611-1-jagan@amarulasolutions.com>
+        id S1751660AbeEaGOD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 02:14:03 -0400
+From: Linkui <xiaolinkui@kylinos.cn>
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linkui Xiao <xiaolinkui@kylinos.cn>
+Subject: [PATCH]  It assume 20xx not 19xx.
+Date: Thu, 31 May 2018 14:13:51 +0800
+Message-Id: <20180531061351.6981-1-xiaolinkui@kylinos.cn>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, May 30, 2018 at 11:57:44PM +0530, Jagan Teki wrote:
-> From: Michael Trimarchi <michael@amarulasolutions.com>
-> 
-> clk-gate core will take bit_idx through clk_register_gate
-> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
-> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
-> which is wrong and eventually external gate clock is not enabling.
-> 
-> This patch fixed by passing bit index and the original change
-> introduced from below commit.
-> "rtc: sun6i: Add support for the external oscillator gate"
-> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
-> 
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator gate")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+From: Linkui Xiao <xiaolinkui@kylinos.cn>
 
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+If we settime between 1970 and 2000.
+for example:
+root# date 052915571978
+root# hwclock -w
 
-Maxime
+It will be wrong, this patch fix the bug.
 
+Signed-off-by: Linkui Xiao <xiaolinkui@kylinos.cn>
+---
+ drivers/rtc/rtc-ds1307.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59e..8c218a1 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -425,7 +425,9 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
+ 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
+ 	t->tm_mon = bcd2bin(tmp) - 1;
+-	t->tm_year = bcd2bin(regs[DS1307_REG_YEAR]) + 100;
++	t->tm_year = bcd2bin(regs[DS1307_REG_YEAR]);
++	if (t->tm_year >= 0 && t->tm_year <= 69)
++		t->tm_year += 100;
+ 
+ 	if (regs[chip->century_reg] & chip->century_bit &&
+ 	    IS_ENABLED(CONFIG_RTC_DRV_DS1307_CENTURY))
+@@ -454,7 +456,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		t->tm_hour, t->tm_mday,
+ 		t->tm_mon, t->tm_year, t->tm_wday);
+ 
+-	if (t->tm_year < 100)
++	if (t->tm_year < 0)
+ 		return -EINVAL;
+ 
+ #ifdef CONFIG_RTC_DRV_DS1307_CENTURY
+@@ -472,8 +474,9 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+ 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+ 
+-	/* assume 20YY not 19YY */
+-	tmp = t->tm_year - 100;
++	tmp = t->tm_year;
++	if (tmp >= 100 && tmp <= 169)
++		tmp -= 100;
+ 	regs[DS1307_REG_YEAR] = bin2bcd(tmp);
+ 
+ 	if (chip->century_enable_bit)
 -- 
-Maxime Ripard, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
