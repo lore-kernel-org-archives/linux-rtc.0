@@ -1,68 +1,86 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39007 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:34466 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751103AbeECUyD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 3 May 2018 16:54:03 -0400
-Date: Thu, 3 May 2018 22:53:51 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Rob Herring <robh@kernel.org>
-Cc: Amelie Delaunay <amelie.delaunay@st.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] dt-bindings: rtc: update stm32-rtc documentation for
- st,syscfg property
-Message-ID: <20180503205351.GE10960@piout.net>
-References: <1524144103-21432-1-git-send-email-amelie.delaunay@st.com>
- <1524144103-21432-4-git-send-email-amelie.delaunay@st.com>
- <20180427025803.mn32y5xle2p6knn6@rob-hp-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180427025803.mn32y5xle2p6knn6@rob-hp-laptop>
+        id S1750795AbeEaVKD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 17:10:03 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/5] rtc: test: remove irq sysfs file
+Date: Thu, 31 May 2018 23:09:59 +0200
+Message-Id: <20180531210959.2472-5-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
+References: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Amelie,
+Now that alarms are emulated, remove the irq sysfs file that could be used
+to send alarms.
 
-On 26/04/2018 21:58:03-0500, Rob Herring wrote:
-> On Thu, Apr 19, 2018 at 03:21:42PM +0200, Amelie Delaunay wrote:
-> > RTC driver should not be aware of the PWR registers offset and bits
-> > position. Furthermore, we can imagine that Disable Backup Protection (DBP)
-> > relative register and bit mask could change depending on the SoC. So this
-> > patch moves st,syscfg property from single pwrcfg phandle to pwrcfg
-> > phandle/offset/mask triplet.
-> > 
-> > Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-> > ---
-> >  Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt | 10 ++++++----
-> >  1 file changed, 6 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> > index a66692a..00f8b5d 100644
-> > --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> > +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.txt
-> > @@ -14,8 +14,10 @@ Required properties:
-> >      It is required only on stm32h7.
-> >  - interrupt-parent: phandle for the interrupt controller.
-> >  - interrupts: rtc alarm interrupt.
-> > -- st,syscfg: phandle for pwrcfg, mandatory to disable/enable backup domain
-> > -  (RTC registers) write protection.
-> > +- st,syscfg: phandle/offset/mask triplet. The phandle to pwrcfg used to
-> > +  access control register at offset, and change the dbp (Disable Backup
-> > +  Protection) bit represented by the mask, mandatory to disable/enable backup
-> > +  domain (RTC registers) write protection.
-> 
-> It's fine to add this, but you are breaking compatibility in the driver 
-> with existing DTBs by requiring these new fields.
-> 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-test.c | 39 ---------------------------------------
+ 1 file changed, 39 deletions(-)
 
-I'm fine with that change but I would like confirmation that this has
-been well thought. Maybe Maxime or Alexandre could give their ack.
-
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 975f6cdda73f..fbcec4a2e3c9 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -110,37 +110,6 @@ static void test_rtc_alarm_handler(struct timer_list *t)
+ 	rtc_update_irq(rtd->rtc, 1, RTC_AF | RTC_IRQF);
+ }
+ 
+-static ssize_t test_irq_show(struct device *dev,
+-				struct device_attribute *attr, char *buf)
+-{
+-	return sprintf(buf, "%d\n", 42);
+-}
+-static ssize_t test_irq_store(struct device *dev,
+-				struct device_attribute *attr,
+-				const char *buf, size_t count)
+-{
+-	int retval;
+-	struct rtc_device *rtc = dev_get_drvdata(dev);
+-
+-	retval = count;
+-	if (strncmp(buf, "tick", 4) == 0 && rtc->pie_enabled)
+-		rtc_update_irq(rtc, 1, RTC_PF | RTC_IRQF);
+-	else if (strncmp(buf, "alarm", 5) == 0) {
+-		struct rtc_wkalrm alrm;
+-		int err = rtc_read_alarm(rtc, &alrm);
+-
+-		if (!err && alrm.enabled)
+-			rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
+-
+-	} else if (strncmp(buf, "update", 6) == 0 && rtc->uie_rtctimer.enabled)
+-		rtc_update_irq(rtc, 1, RTC_UF | RTC_IRQF);
+-	else
+-		retval = -EINVAL;
+-
+-	return retval;
+-}
+-static DEVICE_ATTR(irq, S_IRUGO | S_IWUSR, test_irq_show, test_irq_store);
+-
+ static int test_probe(struct platform_device *plat_dev)
+ {
+ 	struct rtc_test_data *rtd;
+@@ -162,16 +131,8 @@ static int test_probe(struct platform_device *plat_dev)
+ 	return 0;
+ }
+ 
+-static int test_remove(struct platform_device *plat_dev)
+-{
+-	device_remove_file(&plat_dev->dev, &dev_attr_irq);
+-
+-	return 0;
+-}
+-
+ static struct platform_driver test_driver = {
+ 	.probe	= test_probe,
+-	.remove = test_remove,
+ 	.driver = {
+ 		.name = "rtc-test",
+ 	},
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.0
