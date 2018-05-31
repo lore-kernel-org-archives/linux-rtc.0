@@ -1,38 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:35093 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755222AbeEHPjo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 May 2018 11:39:44 -0400
-Date: Tue, 8 May 2018 10:39:41 -0500
-From: Rob Herring <robh@kernel.org>
-To: sean.wang@mediatek.com
-Cc: mark.rutland@arm.com, sre@kernel.org, lee.jones@linaro.org,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        matthias.bgg@gmail.com, eddie.huang@mediatek.com,
-        devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 02/17] dt-bindings: rtc: mt6397: add bindings for
- MediaTek PMIC based RTC
-Message-ID: <20180508153941.GA23906@rob-hp-laptop>
-References: <cover.1524646231.git.sean.wang@mediatek.com>
- <ae63c2a511e40ab4f6778197a1f15e41505d5682.1524646231.git.sean.wang@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ae63c2a511e40ab4f6778197a1f15e41505d5682.1524646231.git.sean.wang@mediatek.com>
+Received: from mail.bootlin.com ([62.4.15.54]:44964 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754488AbeEaJ5T (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 05:57:19 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: ds1685: Add range
+Date: Thu, 31 May 2018 11:56:43 +0200
+Message-Id: <20180531095643.8581-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180531095643.8581-1-alexandre.belloni@bootlin.com>
+References: <20180531095643.8581-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Apr 25, 2018 at 05:32:28PM +0800, sean.wang@mediatek.com wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
-> 
-> Add device-tree binding for MediaTek PMIC based RTC
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> ---
->  .../devicetree/bindings/rtc/rtc-mt6397.txt         | 29 ++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+Useful range is 2000-2099 because leap year fails on centuries.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1685.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index e6390475380f..5c0db6c8134c 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -2043,6 +2043,10 @@ ds1685_rtc_probe(struct platform_device *pdev)
+ 
+ 	rtc_dev->ops = &ds1685_rtc_ops;
+ 
++	/* Century bit is useless because leap year fails in 1900 and 2100 */
++	rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rtc_dev->range_max = RTC_TIMESTAMP_END_2099;
++
+ 	/* Maximum periodic rate is 8192Hz (0.122070ms). */
+ 	rtc_dev->max_user_freq = RTC_MAX_USER_FREQ;
+ 
+-- 
+2.17.0
