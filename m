@@ -1,40 +1,110 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34542 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934090AbeEWT60 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 May 2018 15:58:26 -0400
-From: Mathieu Malaterre <malat@debian.org>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: trivial@kernel.org, Mathieu Malaterre <malat@debian.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix a typo in RTC documentation for RTC_DRV_JZ4740
-Date: Wed, 23 May 2018 21:58:14 +0200
-Message-Id: <20180523195814.568-1-malat@debian.org>
+Received: from mail.bootlin.com ([62.4.15.54]:34460 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750756AbeEaVKC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 17:10:02 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/5] rtc: test: allow registering many devices
+Date: Thu, 31 May 2018 23:09:56 +0200
+Message-Id: <20180531210959.2472-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
+References: <20180531210959.2472-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Fix typo introduced for RTC_DRV_JZ4740 in commit 586655d278ba ("rtc:
-jz4740: make the driver buildable as a module again").
+Use a loop to register RTC devices
 
-Signed-off-by: Mathieu Malaterre <malat@debian.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-test.c | 48 +++++++++++++++++++++---------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 59e6dede3db3..a2ba5db36145 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1613,7 +1613,7 @@ config RTC_DRV_JZ4740
- 	  If you say yes here you get support for the Ingenic JZ47xx SoCs RTC
- 	  controllers.
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index f0eb8e0c5055..796c45dee661 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -13,7 +13,9 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
  
--	  This driver can also be buillt as a module. If so, the module
-+	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-jz4740.
+-static struct platform_device *test0 = NULL, *test1 = NULL;
++#define MAX_RTC_TEST 3
++
++struct platform_device *pdev[MAX_RTC_TEST];
  
- config RTC_DRV_LPC24XX
+ static int test_rtc_read_alarm(struct device *dev,
+ 	struct rtc_wkalrm *alrm)
+@@ -122,47 +124,45 @@ static struct platform_driver test_driver = {
+ 
+ static int __init test_init(void)
+ {
+-	int err;
++	int i, err;
+ 
+ 	if ((err = platform_driver_register(&test_driver)))
+ 		return err;
+ 
+-	if ((test0 = platform_device_alloc("rtc-test", 0)) == NULL) {
+-		err = -ENOMEM;
+-		goto exit_driver_unregister;
++	err = -ENOMEM;
++	for (i = 0; i < MAX_RTC_TEST; i++) {
++		pdev[i] = platform_device_alloc("rtc-test", i);
++		if (!pdev[i])
++			goto exit_free_mem;
+ 	}
+ 
+-	if ((test1 = platform_device_alloc("rtc-test", 1)) == NULL) {
+-		err = -ENOMEM;
+-		goto exit_put_test0;
++	for (i = 0; i < MAX_RTC_TEST; i++) {
++		err = platform_device_add(pdev[i]);
++		if (err)
++			goto exit_device_del;
+ 	}
+ 
+-	if ((err = platform_device_add(test0)))
+-		goto exit_put_test1;
+-
+-	if ((err = platform_device_add(test1)))
+-		goto exit_del_test0;
+-
+ 	return 0;
+ 
+-exit_del_test0:
+-	platform_device_del(test0);
++exit_device_del:
++	for (; i > 0; i--)
++		platform_device_del(pdev[i - 1]);
+ 
+-exit_put_test1:
+-	platform_device_put(test1);
++exit_free_mem:
++	for (i = 0; i < MAX_RTC_TEST; i++)
++		platform_device_put(pdev[i]);
+ 
+-exit_put_test0:
+-	platform_device_put(test0);
+-
+-exit_driver_unregister:
+ 	platform_driver_unregister(&test_driver);
+ 	return err;
+ }
+ 
+ static void __exit test_exit(void)
+ {
+-	platform_device_unregister(test0);
+-	platform_device_unregister(test1);
++	int i;
++
++	for (i = 0; i < MAX_RTC_TEST; i++)
++		platform_device_unregister(pdev[i]);
++
+ 	platform_driver_unregister(&test_driver);
+ }
+ 
 -- 
-2.11.0
+2.17.0
