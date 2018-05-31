@@ -1,56 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38640 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:41396 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752326AbeEQUVM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 17 May 2018 16:21:12 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/2] rtc: ab-b5ze-s3: let the core handle the RTC range
-Date: Thu, 17 May 2018 22:20:40 +0200
-Message-Id: <20180517202040.22292-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180517202040.22292-1-alexandre.belloni@bootlin.com>
-References: <20180517202040.22292-1-alexandre.belloni@bootlin.com>
+        id S1753740AbeEaIDd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 May 2018 04:03:33 -0400
+Date: Thu, 31 May 2018 10:03:31 +0200
+From: Maxime Ripard <maxime.ripard@bootlin.com>
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v4] rtc: sun6i: Fix bit_idx value for clk_register_gate
+Message-ID: <20180531080331.5onjtjmxfolzbtc2@flea.home>
+References: <20180530182744.27611-1-jagan@amarulasolutions.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180530182744.27611-1-jagan@amarulasolutions.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The ab-b5ze-s3 RTC is storing the year in an 8bit bcd coded register so it
-can handle dates from year 2000 to year 2099.
+On Wed, May 30, 2018 at 11:57:44PM +0530, Jagan Teki wrote:
+> From: Michael Trimarchi <michael@amarulasolutions.com>
+> 
+> clk-gate core will take bit_idx through clk_register_gate
+> and then do clk_gate_ops by using BIT(bit_idx), but rtc-sun6i
+> is passing bit_idx as BIT(bit_idx) it becomes BIT(BIT(bit_idx)
+> which is wrong and eventually external gate clock is not enabling.
+> 
+> This patch fixed by passing bit index and the original change
+> introduced from below commit.
+> "rtc: sun6i: Add support for the external oscillator gate"
+> (sha1: 	17ecd246414b3a0fe0cb248c86977a8bda465b7b)
+> 
+> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Fixes: 17ecd246414b ("rtc: sun6i: Add support for the external oscillator gate")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ab-b5ze-s3.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index f486912577e7..2233601761ac 100644
---- a/drivers/rtc/rtc-ab-b5ze-s3.c
-+++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -265,15 +265,6 @@ static int abb5zes3_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	u8 regs[ABB5ZES3_REG_RTC_SC + ABB5ZES3_RTC_SEC_LEN];
- 	int ret;
- 
--	/*
--	 * Year register is 8-bit wide and bcd-coded, i.e records values
--	 * between 0 and 99. tm_year is an offset from 1900 and we are
--	 * interested in the 2000-2099 range, so any value less than 100
--	 * is invalid.
--	 */
--	if (tm->tm_year < 100)
--		return -EINVAL;
--
- 	regs[ABB5ZES3_REG_RTC_SC] = bin2bcd(tm->tm_sec); /* MSB=0 clears OSC */
- 	regs[ABB5ZES3_REG_RTC_MN] = bin2bcd(tm->tm_min);
- 	regs[ABB5ZES3_REG_RTC_HR] = bin2bcd(tm->tm_hour); /* 24-hour format */
-@@ -951,6 +942,8 @@ static int abb5zes3_probe(struct i2c_client *client,
- 	}
- 
- 	data->rtc->ops = &rtc_ops;
-+	data->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	data->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 
- 	/* Enable battery low detection interrupt if battery not already low */
- 	if (!data->battery_low && data->irq) {
+Maxime
+
 -- 
-2.17.0
+Maxime Ripard, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
