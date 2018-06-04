@@ -1,59 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47944 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751632AbeFEJWW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Jun 2018 05:22:22 -0400
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
-Date: Tue,  5 Jun 2018 11:22:05 +0200
-Message-Id: <20180605092209.22887-6-enric.balletbo@collabora.com>
-In-Reply-To: <20180605092209.22887-1-enric.balletbo@collabora.com>
-References: <20180605092209.22887-1-enric.balletbo@collabora.com>
+Received: from mail.bootlin.com ([62.4.15.54]:51373 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753641AbeFDOPy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 4 Jun 2018 10:15:54 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: ftrtc010: switch to devm_rtc_allocate_device
+Date: Mon,  4 Jun 2018 16:15:26 +0200
+Message-Id: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Adopt the SPDX license identifier headers to ease license compliance
-management.
+Switch to devm_rtc_allocate_device/rtc_register_device. This allow or
+further improvement and simplifies ftrtc010_rtc_remove().
 
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
+ drivers/rtc/rtc-ftrtc010.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
- drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index bf7ced095c94..e42e863b203a 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -1,19 +1,8 @@
--/*
-- * RTC driver for Chrome OS Embedded Controller
-- *
-- * Copyright (c) 2017, Google, Inc
-- *
-- * Author: Stephen Barber <smbarber@chromium.org>
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- */
-+// SPDX-License-Identifier: GPL-2.0+
-+// RTC driver for ChromeOS Embedded Controller.
-+//
-+// Copyright (C) 2017 Google, Inc.
-+// Author: Stephen Barber <smbarber@chromium.org>
+diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+index af8d6beae20c..165d0b62db00 100644
+--- a/drivers/rtc/rtc-ftrtc010.c
++++ b/drivers/rtc/rtc-ftrtc010.c
+@@ -166,14 +166,18 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
+ 	if (!rtc->rtc_base)
+ 		return -ENOMEM;
  
- #include <linux/kernel.h>
- #include <linux/mfd/cros_ec.h>
++	rtc->rtc_dev = devm_rtc_allocate_device(dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
++	rtc->rtc_dev->ops = &ftrtc010_rtc_ops;
++
+ 	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+ 			       IRQF_SHARED, pdev->name, dev);
+ 	if (unlikely(ret))
+ 		return ret;
+ 
+-	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
+-					   &ftrtc010_rtc_ops, THIS_MODULE);
+-	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
++	return rtc_register_device(rtc->rtc_dev);
+ }
+ 
+ static int ftrtc010_rtc_remove(struct platform_device *pdev)
+@@ -184,7 +188,6 @@ static int ftrtc010_rtc_remove(struct platform_device *pdev)
+ 		clk_disable_unprepare(rtc->extclk);
+ 	if (!IS_ERR(rtc->pclk))
+ 		clk_disable_unprepare(rtc->pclk);
+-	rtc_device_unregister(rtc->rtc_dev);
+ 
+ 	return 0;
+ }
 -- 
 2.17.1
