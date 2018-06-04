@@ -1,71 +1,79 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:34254 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934706AbeFGOru (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 Jun 2018 10:47:50 -0400
-Date: Thu, 7 Jun 2018 16:43:31 +0200 (CEST)
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/3] rtc: ftrtc010: switch to devm_rtc_allocate_device
-In-Reply-To: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
-Message-ID: <alpine.LNX.2.00.1806071643190.3181@T420s>
-References: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mail.bootlin.com ([62.4.15.54]:47578 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751354AbeFDMIB (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 4 Jun 2018 08:08:01 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: mrst: switch to devm_rtc_allocate_device
+Date: Mon,  4 Jun 2018 14:07:42 +0200
+Message-Id: <20180604120742.6084-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 4 Jun 2018, Alexandre Belloni wrote:
+Switch to devm_rtc_allocate_device/rtc_device_unregister to allow for
+further improvements.
 
-> Switch to devm_rtc_allocate_device/rtc_register_device. This allow or
-> further improvement and simplifies ftrtc010_rtc_remove().
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  drivers/rtc/rtc-ftrtc010.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-> index af8d6beae20c..165d0b62db00 100644
-> --- a/drivers/rtc/rtc-ftrtc010.c
-> +++ b/drivers/rtc/rtc-ftrtc010.c
-> @@ -166,14 +166,18 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
->  	if (!rtc->rtc_base)
->  		return -ENOMEM;
->  
-> +	rtc->rtc_dev = devm_rtc_allocate_device(dev);
-> +	if (IS_ERR(rtc->rtc_dev))
-> +		return PTR_ERR(rtc->rtc_dev);
-> +
-> +	rtc->rtc_dev->ops = &ftrtc010_rtc_ops;
-> +
->  	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
->  			       IRQF_SHARED, pdev->name, dev);
->  	if (unlikely(ret))
->  		return ret;
->  
-> -	rtc->rtc_dev = rtc_device_register(pdev->name, dev,
-> -					   &ftrtc010_rtc_ops, THIS_MODULE);
-> -	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
-> +	return rtc_register_device(rtc->rtc_dev);
->  }
->  
->  static int ftrtc010_rtc_remove(struct platform_device *pdev)
-> @@ -184,7 +188,6 @@ static int ftrtc010_rtc_remove(struct platform_device *pdev)
->  		clk_disable_unprepare(rtc->extclk);
->  	if (!IS_ERR(rtc->pclk))
->  		clk_disable_unprepare(rtc->pclk);
-> -	rtc_device_unregister(rtc->rtc_dev);
->  
->  	return 0;
->  }
-> -- 
-> 2.17.1
-> 
-> 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-mrst.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index fcb9de5218b2..a3c528f7e833 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -341,12 +341,11 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
+ 	mrst_rtc.dev = dev;
+ 	dev_set_drvdata(dev, &mrst_rtc);
+ 
+-	mrst_rtc.rtc = rtc_device_register(driver_name, dev,
+-				&mrst_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(mrst_rtc.rtc)) {
+-		retval = PTR_ERR(mrst_rtc.rtc);
+-		goto cleanup0;
+-	}
++	mrst_rtc.rtc = devm_rtc_allocate_device(dev);
++	if (IS_ERR(mrst_rtc.rtc))
++		return PTR_ERR(mrst_rtc.rtc);
++
++	mrst_rtc.rtc->ops = &mrst_rtc_ops;
+ 
+ 	rename_region(iomem, dev_name(&mrst_rtc.rtc->dev));
+ 
+@@ -365,14 +364,21 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
+ 		if (retval < 0) {
+ 			dev_dbg(dev, "IRQ %d is already in use, err %d\n",
+ 				rtc_irq, retval);
+-			goto cleanup1;
++			goto cleanup0;
+ 		}
+ 	}
++
++	retval = rtc_register_device(mrst_rtc.rtc);
++	if (retval) {
++		retval = PTR_ERR(mrst_rtc.rtc);
++		goto cleanup1;
++	}
++
+ 	dev_dbg(dev, "initialised\n");
+ 	return 0;
+ 
+ cleanup1:
+-	rtc_device_unregister(mrst_rtc.rtc);
++	free_irq(rtc_irq, mrst->rtc);
+ cleanup0:
+ 	mrst_rtc.dev = NULL;
+ 	release_mem_region(iomem->start, resource_size(iomem));
+@@ -397,7 +403,6 @@ static void rtc_mrst_do_remove(struct device *dev)
+ 	if (mrst->irq)
+ 		free_irq(mrst->irq, mrst->rtc);
+ 
+-	rtc_device_unregister(mrst->rtc);
+ 	mrst->rtc = NULL;
+ 
+ 	iomem = mrst->iomem;
+-- 
+2.17.1
