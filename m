@@ -1,73 +1,83 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:35204 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932226AbeFUSLi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 21 Jun 2018 14:11:38 -0400
-Date: Thu, 21 Jun 2018 21:11:33 +0300
-From: Baruch Siach <baruch@tkos.co.il>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@free-electrons.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Jon Nettleton <jon@solid-run.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/2] rtc: armada38x: drop redundant initialization
-Message-ID: <20180621181133.udrvjul73edmcznt@tarshish>
-References: <00ffe926e6878724d8289dd0e289a1f16df55ef7.1529602823.git.baruch@tkos.co.il>
- <20180621175939.GL7737@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180621175939.GL7737@piout.net>
+Received: from mail.bootlin.com ([62.4.15.54]:47313 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752413AbeFDMGG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 4 Jun 2018 08:06:06 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: sunxi: fix possible race condition
+Date: Mon,  4 Jun 2018 14:05:40 +0200
+Message-Id: <20180604120540.5782-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-On Thu, Jun 21, 2018 at 07:59:39PM +0200, Alexandre Belloni wrote:
-> On 21/06/2018 20:40:22+0300, Baruch Siach wrote:
-> > The 'ret' variable in these functions is set unconditionally below.
-> 
-> Hum, what is the actual benefit of this patch?
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
 
-It is just a small cleanup to reduces somewhat the strain on the reader of the 
-code. ret is not different from other variables in the same functions that are 
-only initialized when needed.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-sunxi.c | 23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
-baruch
-
-> > Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-> > ---
-> >  drivers/rtc/rtc-armada38x.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-> > index 1e4978c96ffd..4d62a54fd5d6 100644
-> > --- a/drivers/rtc/rtc-armada38x.c
-> > +++ b/drivers/rtc/rtc-armada38x.c
-> > @@ -229,7 +229,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> >  static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> >  {
-> >  	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
-> > -	int ret = 0;
-> > +	int ret;
-> >  	unsigned long time, flags;
-> >  
-> >  	ret = rtc_tm_to_time(tm, &time);
-> > @@ -272,7 +272,7 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >  	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
-> >  	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
-> >  	unsigned long time, flags;
-> > -	int ret = 0;
-> > +	int ret;
-> >  
-> >  	ret = rtc_tm_to_time(&alrm->time, &time);
-> >  
-> > -- 
-> > 2.17.1
-
+diff --git a/drivers/rtc/rtc-sunxi.c b/drivers/rtc/rtc-sunxi.c
+index dadbf8b324ad..21865d3d8fe8 100644
+--- a/drivers/rtc/rtc-sunxi.c
++++ b/drivers/rtc/rtc-sunxi.c
+@@ -445,6 +445,10 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, chip);
+ 	chip->dev = &pdev->dev;
+ 
++	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(chip->rtc))
++		return PTR_ERR(chip->rtc);
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	chip->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(chip->base))
+@@ -481,11 +485,12 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	writel(SUNXI_ALRM_IRQ_STA_CNT_IRQ_PEND, chip->base +
+ 			SUNXI_ALRM_IRQ_STA);
+ 
+-	chip->rtc = rtc_device_register("rtc-sunxi", &pdev->dev,
+-			&sunxi_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(chip->rtc)) {
++	chip->rtc->ops = &sunxi_rtc_ops;
++
++	ret = rtc_register_device(chip->rtc);
++	if (ret) {
+ 		dev_err(&pdev->dev, "unable to register device\n");
+-		return PTR_ERR(chip->rtc);
++		return ret;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "RTC enabled\n");
+@@ -493,18 +498,8 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int sunxi_rtc_remove(struct platform_device *pdev)
+-{
+-	struct sunxi_rtc_dev *chip = platform_get_drvdata(pdev);
+-
+-	rtc_device_unregister(chip->rtc);
+-
+-	return 0;
+-}
+-
+ static struct platform_driver sunxi_rtc_driver = {
+ 	.probe		= sunxi_rtc_probe,
+-	.remove		= sunxi_rtc_remove,
+ 	.driver		= {
+ 		.name		= "sunxi-rtc",
+ 		.of_match_table = sunxi_rtc_dt_ids,
 -- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+2.17.1
