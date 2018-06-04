@@ -1,90 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47892 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751296AbeFEJWT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Jun 2018 05:22:19 -0400
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        Tony Luck <tony.luck@intel.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Paolo Cretaro <paolocretaro@gmail.com>,
-        linux-iio@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>,
-        linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Benson Leung <bleung@chromium.org>,
-        linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-pwm@vger.kernel.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Colin Cross <ccross@android.com>,
-        Kees Cook <keescook@chromium.org>,
-        Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 0/9] croc_ec: Switch to SPDX identifier
-Date: Tue,  5 Jun 2018 11:22:00 +0200
-Message-Id: <20180605092209.22887-1-enric.balletbo@collabora.com>
+Received: from SMTPBG19.QQ.COM ([183.60.61.236]:52091 "EHLO smtpbg320.qq.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751445AbeFDCzf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 3 Jun 2018 22:55:35 -0400
+From: Linkui <xiaolinkui@kylinos.cn>
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc:ds1307:it assume 20xx not 19xx.
+Date: Mon,  4 Jun 2018 10:47:42 +0800
+Message-Id: <20180604024742.29240-1-xiaolinkui@kylinos.cn>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Dear all,
+If we settime between 1970 and 2000.
+for example:
+$ date 052915571978
+$ hwclock -w
 
-This patchset is just to adopt the SPDX license identifier for all
-ChromeOS Embedded Controller related drivers. The patches touches
-different subsystems but every patch can be picked from their respective
-maintainer independently.
+it will be wrong, this patch fix it.
 
-Thanks,
- Enric
+Signed-off-by: Linkui <xiaolinkui@kylinos.cn>
+---
+ drivers/rtc/rtc-ds1307.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-Enric Balletbo i Serra (9):
-  platform/chrome: cros_ec: Switch to SPDX identifier.
-  platform/chrome: pstore: Switch to SPDX identifier.
-  mfd: cros_ec: Add or fix SPDX-License-Identifier in all files.
-  iio: cros_ec: Switch to SPDX identifier.
-  rtc: cros-ec: Switch to SPDX identifier.
-  Input: cros_ec_keyb - Switch to SPDX identifier.
-  pwm: cros-ec: Switch to SPDX identifier.
-  extcon: usbc-cros-ec: Switch to SPDX identifier.
-  i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
-
- drivers/extcon/extcon-usbc-cros-ec.c          | 20 ++++----------
- drivers/i2c/busses/i2c-cros-ec-tunnel.c       | 14 +++-------
- drivers/iio/accel/cros_ec_accel_legacy.c      | 23 ++++------------
- .../common/cros_ec_sensors/cros_ec_sensors.c  | 24 +++++------------
- .../cros_ec_sensors/cros_ec_sensors_core.c    | 18 +++----------
- .../cros_ec_sensors/cros_ec_sensors_core.h    | 12 ++-------
- drivers/iio/light/cros_ec_light_prox.c        | 18 +++----------
- drivers/iio/pressure/cros_ec_baro.c           | 18 +++----------
- drivers/input/keyboard/cros_ec_keyb.c         | 26 +++---------------
- drivers/mfd/cros_ec.c                         | 27 +++++++------------
- drivers/mfd/cros_ec_dev.c                     | 24 +++++------------
- drivers/mfd/cros_ec_dev.h                     | 16 ++---------
- drivers/mfd/cros_ec_i2c.c                     | 19 ++++---------
- drivers/mfd/cros_ec_spi.c                     | 21 +++++----------
- drivers/platform/chrome/chromeos_pstore.c     | 13 +++------
- drivers/platform/chrome/cros_ec_debugfs.c     | 22 +++------------
- drivers/platform/chrome/cros_ec_lightbar.c    | 22 +++------------
- drivers/platform/chrome/cros_ec_lpc.c         | 26 +++---------------
- drivers/platform/chrome/cros_ec_lpc_mec.c     | 26 +++---------------
- drivers/platform/chrome/cros_ec_lpc_reg.c     | 26 +++---------------
- drivers/platform/chrome/cros_ec_proto.c       | 19 +++----------
- drivers/platform/chrome/cros_ec_sysfs.c       | 22 +++------------
- drivers/platform/chrome/cros_ec_vbc.c         | 24 ++++-------------
- .../platform/chrome/cros_kbd_led_backlight.c  | 19 +++----------
- drivers/pwm/pwm-cros-ec.c                     | 13 +++------
- drivers/rtc/rtc-cros-ec.c                     | 21 ++++-----------
- include/linux/mfd/cros_ec.h                   | 10 +------
- include/linux/mfd/cros_ec_commands.h          | 10 +------
- include/linux/mfd/cros_ec_lpc_mec.h           | 12 ++-------
- include/linux/mfd/cros_ec_lpc_reg.h           | 12 ++-------
- 30 files changed, 123 insertions(+), 454 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index a13e59edff53..8c218a16569d 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -425,7 +425,9 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
+ 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
+ 	t->tm_mon = bcd2bin(tmp) - 1;
+-	t->tm_year = bcd2bin(regs[DS1307_REG_YEAR]) + 100;
++	t->tm_year = bcd2bin(regs[DS1307_REG_YEAR]);
++	if (t->tm_year >= 0 && t->tm_year <= 69)
++		t->tm_year += 100;
+ 
+ 	if (regs[chip->century_reg] & chip->century_bit &&
+ 	    IS_ENABLED(CONFIG_RTC_DRV_DS1307_CENTURY))
+@@ -454,7 +456,7 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		t->tm_hour, t->tm_mday,
+ 		t->tm_mon, t->tm_year, t->tm_wday);
+ 
+-	if (t->tm_year < 100)
++	if (t->tm_year < 0)
+ 		return -EINVAL;
+ 
+ #ifdef CONFIG_RTC_DRV_DS1307_CENTURY
+@@ -472,8 +474,9 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+ 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+ 
+-	/* assume 20YY not 19YY */
+-	tmp = t->tm_year - 100;
++	tmp = t->tm_year;
++	if (tmp >= 100 && tmp <= 169)
++		tmp -= 100;
+ 	regs[DS1307_REG_YEAR] = bin2bcd(tmp);
+ 
+ 	if (chip->century_enable_bit)
 -- 
-2.17.1
+2.17.0
