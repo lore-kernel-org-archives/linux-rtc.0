@@ -1,57 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35523 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752605AbeFYCCV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 24 Jun 2018 22:02:21 -0400
-Date: Mon, 25 Jun 2018 09:58:32 +0800
-From: Greg KH <greg@kroah.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        linux-kernel@vger.kernel.org,
-        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
-Message-ID: <20180625015832.GB30408@kroah.com>
-References: <20180605092209.22887-1-enric.balletbo@collabora.com>
- <20180605092209.22887-6-enric.balletbo@collabora.com>
- <20180605094626.GC4637@piout.net>
- <39af6363-ce08-a227-f66a-4c7bd4916596@collabora.com>
- <20180605185952.GG4637@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180605185952.GG4637@piout.net>
+Received: from mail.bootlin.com ([62.4.15.54]:51381 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753720AbeFDOPz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 4 Jun 2018 10:15:55 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/3] rtc: ftrtc010: handle dates after 2106
+Date: Mon,  4 Jun 2018 16:15:27 +0200
+Message-Id: <20180604141528.15635-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
+References: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Jun 05, 2018 at 08:59:52PM +0200, Alexandre Belloni wrote:
-> On 05/06/2018 20:51:06+0200, Enric Balletbo i Serra wrote:
-> > Hi Alexandre,
-> > 
-> > On 05/06/18 11:46, Alexandre Belloni wrote:
-> > > On 05/06/2018 11:22:05+0200, Enric Balletbo i Serra wrote:
-> > >> Adopt the SPDX license identifier headers to ease license compliance
-> > >> management.
-> > >>
-> > >> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> > >> ---
-> > >>
-> > >>  drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
-> > >>  1 file changed, 5 insertions(+), 16 deletions(-)
-> > >>
-> > > Applied, thanks.
-> > > 
-> > 
-> > Looks like all the ChromeOS drivers should be licensed as GPL v2 only. There was
-> > a mismatch between what the header says and the MODULE_LICENSE and I wrongly
-> > assumed that the MODULE_LICENSE is the one I should follow. So could you not
-> > apply this patch for now and I'll send another version with the correct license?
-> > 
-> 
-> Hum, ok, this seemed to be the correct way to solve the mismatch to me.
+Use correct types for offset and time and use
+rtc_time64_to_tm/rtc_tm_to_time64 to handle dates after 2106 properly.
 
-No, the license text trumps the MODULE_LICENSE() string.  Please revert
-this, or fix it up to be correct.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ftrtc010.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-thanks,
-
-greg k-h
+diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+index 165d0b62db00..2cdc78ffeb17 100644
+--- a/drivers/rtc/rtc-ftrtc010.c
++++ b/drivers/rtc/rtc-ftrtc010.c
+@@ -73,8 +73,8 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
+ 
+-	unsigned int  days, hour, min, sec;
+-	unsigned long offset, time;
++	u32 days, hour, min, sec, offset;
++	timeu64_t time;
+ 
+ 	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+ 	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+@@ -84,7 +84,7 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
+ 
+-	rtc_time_to_tm(time, tm);
++	rtc_time64_to_tm(time, tm);
+ 
+ 	return 0;
+ }
+@@ -92,13 +92,13 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned int sec, min, hour, day;
+-	unsigned long offset, time;
++	u32 sec, min, hour, day, offset;
++	timeu64_t time;
+ 
+ 	if (tm->tm_year >= 2148)	/* EPOCH Year + 179 */
+ 		return -EINVAL;
+ 
+-	rtc_tm_to_time(tm, &time);
++	time = rtc_tm_to_time64(tm);
+ 
+ 	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+ 	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+-- 
+2.17.1
