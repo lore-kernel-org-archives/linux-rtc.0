@@ -1,46 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:56824 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752448AbeFFPJM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Jun 2018 11:09:12 -0400
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: [PATCH v3 05/12] rtc: cros-ec: Make license text and module license match.
-Date: Wed,  6 Jun 2018 17:08:53 +0200
-Message-Id: <20180606150900.8342-6-enric.balletbo@collabora.com>
-In-Reply-To: <20180606150900.8342-1-enric.balletbo@collabora.com>
-References: <20180606150900.8342-1-enric.balletbo@collabora.com>
+Received: from mail.bootlin.com ([62.4.15.54]:42263 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751506AbeFEJq2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Jun 2018 05:46:28 -0400
+Date: Tue, 5 Jun 2018 11:46:26 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org,
+        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
+Message-ID: <20180605094626.GC4637@piout.net>
+References: <20180605092209.22887-1-enric.balletbo@collabora.com>
+ <20180605092209.22887-6-enric.balletbo@collabora.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180605092209.22887-6-enric.balletbo@collabora.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The license text is specifying "GPLv2" but the MODULE_LICENSE is set to
-GPL which means GNU Public License v2 or later. When MODULE_LICENSE and
-boiler plate does not match, go for boiler plate license.
+On 05/06/2018 11:22:05+0200, Enric Balletbo i Serra wrote:
+> Adopt the SPDX license identifier headers to ease license compliance
+> management.
+> 
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+> 
+>  drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
+>  1 file changed, 5 insertions(+), 16 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
----
-
-Changes in v3: None
-Changes in v2: None
-
- drivers/rtc/rtc-cros-ec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index bf7ced095c94..f2b87f9159c1 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -409,5 +409,5 @@ module_platform_driver(cros_ec_rtc_driver);
- 
- MODULE_DESCRIPTION("RTC driver for Chrome OS ECs");
- MODULE_AUTHOR("Stephen Barber <smbarber@chromium.org>");
--MODULE_LICENSE("GPL");
-+MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:" DRV_NAME);
 -- 
-2.17.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
