@@ -1,64 +1,48 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:35799 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:58380 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751607AbeFYHfL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 25 Jun 2018 03:35:11 -0400
-Date: Mon, 25 Jun 2018 09:34:59 +0200
+        id S1751698AbeFEVRy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Jun 2018 17:17:54 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Greg KH <greg@kroah.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        linux-kernel@vger.kernel.org,
-        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
-Message-ID: <20180625073459.GA15406@piout.net>
-References: <20180605092209.22887-1-enric.balletbo@collabora.com>
- <20180605092209.22887-6-enric.balletbo@collabora.com>
- <20180605094626.GC4637@piout.net>
- <39af6363-ce08-a227-f66a-4c7bd4916596@collabora.com>
- <20180605185952.GG4637@piout.net>
- <20180625015832.GB30408@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180625015832.GB30408@kroah.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: test: convert to devm_rtc_allocate_device
+Date: Tue,  5 Jun 2018 23:09:12 +0200
+Message-Id: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 25/06/2018 09:58:32+0800, Greg KH wrote:
-> On Tue, Jun 05, 2018 at 08:59:52PM +0200, Alexandre Belloni wrote:
-> > On 05/06/2018 20:51:06+0200, Enric Balletbo i Serra wrote:
-> > > Hi Alexandre,
-> > > 
-> > > On 05/06/18 11:46, Alexandre Belloni wrote:
-> > > > On 05/06/2018 11:22:05+0200, Enric Balletbo i Serra wrote:
-> > > >> Adopt the SPDX license identifier headers to ease license compliance
-> > > >> management.
-> > > >>
-> > > >> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> > > >> ---
-> > > >>
-> > > >>  drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
-> > > >>  1 file changed, 5 insertions(+), 16 deletions(-)
-> > > >>
-> > > > Applied, thanks.
-> > > > 
-> > > 
-> > > Looks like all the ChromeOS drivers should be licensed as GPL v2 only. There was
-> > > a mismatch between what the header says and the MODULE_LICENSE and I wrongly
-> > > assumed that the MODULE_LICENSE is the one I should follow. So could you not
-> > > apply this patch for now and I'll send another version with the correct license?
-> > > 
-> > 
-> > Hum, ok, this seemed to be the correct way to solve the mismatch to me.
-> 
-> No, the license text trumps the MODULE_LICENSE() string.  Please revert
-> this, or fix it up to be correct.
-> 
+This allows further improvement of the driver.
 
-Isn't it correct in Linus' tree?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-test.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 70d4ab1d2769..6a6bc1f2a14d 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -120,15 +120,16 @@ static int test_probe(struct platform_device *plat_dev)
+ 
+ 	platform_set_drvdata(plat_dev, rtd);
+ 
+-	rtd->rtc = devm_rtc_device_register(&plat_dev->dev, "test",
+-					    &test_rtc_ops, THIS_MODULE);
++	rtd->rtc = devm_rtc_allocate_device(&plat_dev->dev);
+ 	if (IS_ERR(rtd->rtc))
+ 		return PTR_ERR(rtd->rtc);
+ 
++	rtd->rtc->ops = &test_rtc_ops;
++
+ 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
+ 	rtd->alarm.expires = 0;
+ 
+-	return 0;
++	return rtc_register_device(rtd->rtc);
+ }
+ 
+ static struct platform_driver test_driver = {
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
