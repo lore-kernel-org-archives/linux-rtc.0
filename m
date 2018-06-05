@@ -1,68 +1,90 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:48305 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752131AbeFDMb0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 4 Jun 2018 08:31:26 -0400
-Date: Mon, 4 Jun 2018 14:31:24 +0200
-From: Maxime Ripard <maxime.ripard@bootlin.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Chen-Yu Tsai <wens@csie.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] rtc: sunxi: fix possible race condition
-Message-ID: <20180604123124.ix5iql3wfgjqymsv@flea>
-References: <20180604120540.5782-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="lbbrlf5xq4ckj7jx"
-In-Reply-To: <20180604120540.5782-1-alexandre.belloni@bootlin.com>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:47892 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751296AbeFEJWT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Jun 2018 05:22:19 -0400
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        Tony Luck <tony.luck@intel.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Paolo Cretaro <paolocretaro@gmail.com>,
+        linux-iio@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+        linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Benson Leung <bleung@chromium.org>,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        linux-pwm@vger.kernel.org,
+        Thierry Reding <thierry.reding@gmail.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Colin Cross <ccross@android.com>,
+        Kees Cook <keescook@chromium.org>,
+        Lars-Peter Clausen <lars@metafoo.de>
+Subject: [PATCH 0/9] croc_ec: Switch to SPDX identifier
+Date: Tue,  5 Jun 2018 11:22:00 +0200
+Message-Id: <20180605092209.22887-1-enric.balletbo@collabora.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+Dear all,
 
---lbbrlf5xq4ckj7jx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patchset is just to adopt the SPDX license identifier for all
+ChromeOS Embedded Controller related drivers. The patches touches
+different subsystems but every patch can be picked from their respective
+maintainer independently.
 
-On Mon, Jun 04, 2018 at 02:05:40PM +0200, Alexandre Belloni wrote:
-> The IRQ is requested before the struct rtc is allocated and registered, b=
-ut
-> this struct is used in the IRQ handler. This may lead to a NULL pointer
-> dereference.
->=20
-> Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-> before requesting the IRQ.
->=20
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Thanks,
+ Enric
 
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Enric Balletbo i Serra (9):
+  platform/chrome: cros_ec: Switch to SPDX identifier.
+  platform/chrome: pstore: Switch to SPDX identifier.
+  mfd: cros_ec: Add or fix SPDX-License-Identifier in all files.
+  iio: cros_ec: Switch to SPDX identifier.
+  rtc: cros-ec: Switch to SPDX identifier.
+  Input: cros_ec_keyb - Switch to SPDX identifier.
+  pwm: cros-ec: Switch to SPDX identifier.
+  extcon: usbc-cros-ec: Switch to SPDX identifier.
+  i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
 
-Maxime
+ drivers/extcon/extcon-usbc-cros-ec.c          | 20 ++++----------
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c       | 14 +++-------
+ drivers/iio/accel/cros_ec_accel_legacy.c      | 23 ++++------------
+ .../common/cros_ec_sensors/cros_ec_sensors.c  | 24 +++++------------
+ .../cros_ec_sensors/cros_ec_sensors_core.c    | 18 +++----------
+ .../cros_ec_sensors/cros_ec_sensors_core.h    | 12 ++-------
+ drivers/iio/light/cros_ec_light_prox.c        | 18 +++----------
+ drivers/iio/pressure/cros_ec_baro.c           | 18 +++----------
+ drivers/input/keyboard/cros_ec_keyb.c         | 26 +++---------------
+ drivers/mfd/cros_ec.c                         | 27 +++++++------------
+ drivers/mfd/cros_ec_dev.c                     | 24 +++++------------
+ drivers/mfd/cros_ec_dev.h                     | 16 ++---------
+ drivers/mfd/cros_ec_i2c.c                     | 19 ++++---------
+ drivers/mfd/cros_ec_spi.c                     | 21 +++++----------
+ drivers/platform/chrome/chromeos_pstore.c     | 13 +++------
+ drivers/platform/chrome/cros_ec_debugfs.c     | 22 +++------------
+ drivers/platform/chrome/cros_ec_lightbar.c    | 22 +++------------
+ drivers/platform/chrome/cros_ec_lpc.c         | 26 +++---------------
+ drivers/platform/chrome/cros_ec_lpc_mec.c     | 26 +++---------------
+ drivers/platform/chrome/cros_ec_lpc_reg.c     | 26 +++---------------
+ drivers/platform/chrome/cros_ec_proto.c       | 19 +++----------
+ drivers/platform/chrome/cros_ec_sysfs.c       | 22 +++------------
+ drivers/platform/chrome/cros_ec_vbc.c         | 24 ++++-------------
+ .../platform/chrome/cros_kbd_led_backlight.c  | 19 +++----------
+ drivers/pwm/pwm-cros-ec.c                     | 13 +++------
+ drivers/rtc/rtc-cros-ec.c                     | 21 ++++-----------
+ include/linux/mfd/cros_ec.h                   | 10 +------
+ include/linux/mfd/cros_ec_commands.h          | 10 +------
+ include/linux/mfd/cros_ec_lpc_mec.h           | 12 ++-------
+ include/linux/mfd/cros_ec_lpc_reg.h           | 12 ++-------
+ 30 files changed, 123 insertions(+), 454 deletions(-)
 
---=20
-Maxime Ripard, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
---lbbrlf5xq4ckj7jx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlsVMRsACgkQ0rTAlCFN
-r3TlhQ//X3Yo2WQrquX/evNNPHbPmAR1mGWC+xicF59ryY06dD1Q3P/VbEhmPEvU
-9jc1XKLa+OqYL6WeyL+eavkGstb4B3O89+iDrXudrzDXL7xZHS+k/o+VJLQPxA7J
-/T7r8T0Ik5HDoxzBcSsqvOCnXz0QzAnJG6YXczYsk1wj+IRiZBK7G6bcEgKXXDb/
-NrStoK2802gBESKsIIBlInzoA2kbpr+acjpJzpskeKCkA5yYFs5o+SFW2k0xMEXe
-zsHY8H6f6XPUTohxzQdEdIp1WqxF+BAlnmDfh13xhbIIKmoW8fMud1gQPtkcSwRV
-J5VIerXb7pzw7/prZvjRIv+W0PsjlPDDMlEdXMigwYQd06lkQEbuCF57Rv/5i0r2
-Q9sKjGq9WFHmBF1/qxyhDMXaqeYtqGg0Nb95liK5zBa3rPBc/Vi1XUkXaZhY3D5m
-qYkYma7/E1s+s1Z9Y2F3CBsZX3KzExQD5twyaBGgx/ilLpY4KJMQfBOb0JAP0jYP
-b4IR7w/Rm147AdxxuQGYHibmetJXowby5v6fNg8+tx7CWz23a+rKWFmFye9coQGL
-3+IZvFqaEwyx7dmS2i5G9NWYF3pAhrUr1YTlxiXpfLvqIUWTLVqZ7PFpBRlZlWPm
-02tRrfKXFwyiGK9Et9+vRNdMS0HwwYqFLeUBTcFL4YbRAnCKruE=
-=4f4z
------END PGP SIGNATURE-----
-
---lbbrlf5xq4ckj7jx--
+-- 
+2.17.1
