@@ -1,42 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:41014 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751631AbeFZQPh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 26 Jun 2018 12:15:37 -0400
-Date: Tue, 26 Jun 2018 18:15:36 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] RTC for 4.18
-Message-ID: <20180626161536.GH4207@piout.net>
-References: <20180610221645.GA26123@piout.net>
- <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:47944 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751632AbeFEJWW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Jun 2018 05:22:22 -0400
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
+Date: Tue,  5 Jun 2018 11:22:05 +0200
+Message-Id: <20180605092209.22887-6-enric.balletbo@collabora.com>
+In-Reply-To: <20180605092209.22887-1-enric.balletbo@collabora.com>
+References: <20180605092209.22887-1-enric.balletbo@collabora.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+Adopt the SPDX license identifier headers to ease license compliance
+management.
 
-On 26/06/2018 16:51:40+0100, Jon Hunter wrote:
-> >       rtc: tps6586x: let the core handle rtc range
-> 
-> Sorry I am missing the original mail with the above change, but I
-> have noticed on v4.18-rc1 that rtc wake-ups from suspend are no
-> longer working on one of our Tegra boards. The bisect points to the
-> above change and reverting it fixes the problem. I have not had
-> chance to dig further, but if you have any thoughts, please let me
-> know.
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
 
+ drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-Thanks for the report, does the following patch fix the issue:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=1b287f23b0a1fcb2b502dae981a8024be379391e
-
-
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index bf7ced095c94..e42e863b203a 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -1,19 +1,8 @@
+-/*
+- * RTC driver for Chrome OS Embedded Controller
+- *
+- * Copyright (c) 2017, Google, Inc
+- *
+- * Author: Stephen Barber <smbarber@chromium.org>
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- */
++// SPDX-License-Identifier: GPL-2.0+
++// RTC driver for ChromeOS Embedded Controller.
++//
++// Copyright (C) 2017 Google, Inc.
++// Author: Stephen Barber <smbarber@chromium.org>
+ 
+ #include <linux/kernel.h>
+ #include <linux/mfd/cros_ec.h>
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
