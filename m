@@ -1,39 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:48194 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932373AbeFLMD2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Jun 2018 08:03:28 -0400
-Date: Tue, 12 Jun 2018 15:03:02 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.bootlin.com ([62.4.15.54]:58381 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752034AbeFEVRy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Jun 2018 17:17:54 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH] rtc: mrst: fix error code in probe()
-Message-ID: <20180612120302.kprwknomakzg7bdn@kili.mountain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 2/3] rtc: test: remove alarm support from the first device
+Date: Tue,  5 Jun 2018 23:09:13 +0200
+Message-Id: <20180605210914.8054-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
+References: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-We should be returning "retval".  The "mrst_rtc.rtc" variable is a valid
-pointer.
+To test for issues with RTCs that don't provide an alarm, remove alarm
+support from the first test RTC device.
 
-Fixes: 32b41f93dcaf ("rtc: mrst: switch to devm functions")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-test.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
-index 097a4d4e2aba..1925aaf09093 100644
---- a/drivers/rtc/rtc-mrst.c
-+++ b/drivers/rtc/rtc-mrst.c
-@@ -367,10 +367,8 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
- 	}
- 
- 	retval = rtc_register_device(mrst_rtc.rtc);
--	if (retval) {
--		retval = PTR_ERR(mrst_rtc.rtc);
-+	if (retval)
- 		goto cleanup0;
--	}
- 
- 	dev_dbg(dev, "initialised\n");
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 6a6bc1f2a14d..9b7ef6f63251 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -95,6 +95,12 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
  	return 0;
+ }
+ 
++static const struct rtc_class_ops test_rtc_ops_noalm = {
++	.read_time = test_rtc_read_time,
++	.set_mmss64 = test_rtc_set_mmss64,
++	.alarm_irq_enable = test_rtc_alarm_irq_enable,
++};
++
+ static const struct rtc_class_ops test_rtc_ops = {
+ 	.read_time = test_rtc_read_time,
+ 	.read_alarm = test_rtc_read_alarm,
+@@ -124,7 +130,13 @@ static int test_probe(struct platform_device *plat_dev)
+ 	if (IS_ERR(rtd->rtc))
+ 		return PTR_ERR(rtd->rtc);
+ 
+-	rtd->rtc->ops = &test_rtc_ops;
++	switch (plat_dev->id) {
++	case 0:
++		rtd->rtc->ops = &test_rtc_ops_noalm;
++		break;
++	default:
++		rtd->rtc->ops = &test_rtc_ops;
++	}
+ 
+ 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
+ 	rtd->alarm.expires = 0;
+-- 
+2.17.1
