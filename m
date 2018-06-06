@@ -1,59 +1,63 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58381 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752034AbeFEVRy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Jun 2018 17:17:54 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/3] rtc: test: remove alarm support from the first device
-Date: Tue,  5 Jun 2018 23:09:13 +0200
-Message-Id: <20180605210914.8054-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
-References: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:56850 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752451AbeFFPJN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Jun 2018 11:09:13 -0400
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: [PATCH v3 06/12] rtc: cros-ec: Switch to SPDX identifier.
+Date: Wed,  6 Jun 2018 17:08:54 +0200
+Message-Id: <20180606150900.8342-7-enric.balletbo@collabora.com>
+In-Reply-To: <20180606150900.8342-1-enric.balletbo@collabora.com>
+References: <20180606150900.8342-1-enric.balletbo@collabora.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-To test for issues with RTCs that don't provide an alarm, remove alarm
-support from the first test RTC device.
+Adopt the SPDX license identifier headers to ease license compliance
+management.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 ---
- drivers/rtc/rtc-test.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 6a6bc1f2a14d..9b7ef6f63251 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -95,6 +95,12 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- 	return 0;
- }
+Changes in v3: None
+Changes in v2: None
+
+ drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index f2b87f9159c1..e5444296075e 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -1,19 +1,8 @@
+-/*
+- * RTC driver for Chrome OS Embedded Controller
+- *
+- * Copyright (c) 2017, Google, Inc
+- *
+- * Author: Stephen Barber <smbarber@chromium.org>
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- */
++// SPDX-License-Identifier: GPL-2.0
++// RTC driver for ChromeOS Embedded Controller.
++//
++// Copyright (C) 2017 Google, Inc.
++// Author: Stephen Barber <smbarber@chromium.org>
  
-+static const struct rtc_class_ops test_rtc_ops_noalm = {
-+	.read_time = test_rtc_read_time,
-+	.set_mmss64 = test_rtc_set_mmss64,
-+	.alarm_irq_enable = test_rtc_alarm_irq_enable,
-+};
-+
- static const struct rtc_class_ops test_rtc_ops = {
- 	.read_time = test_rtc_read_time,
- 	.read_alarm = test_rtc_read_alarm,
-@@ -124,7 +130,13 @@ static int test_probe(struct platform_device *plat_dev)
- 	if (IS_ERR(rtd->rtc))
- 		return PTR_ERR(rtd->rtc);
- 
--	rtd->rtc->ops = &test_rtc_ops;
-+	switch (plat_dev->id) {
-+	case 0:
-+		rtd->rtc->ops = &test_rtc_ops_noalm;
-+		break;
-+	default:
-+		rtd->rtc->ops = &test_rtc_ops;
-+	}
- 
- 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
- 	rtd->alarm.expires = 0;
+ #include <linux/kernel.h>
+ #include <linux/mfd/cros_ec.h>
 -- 
 2.17.1
