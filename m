@@ -1,78 +1,43 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:45751 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934861AbeFGOsD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 Jun 2018 10:48:03 -0400
-Date: Thu, 7 Jun 2018 16:43:45 +0200 (CEST)
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/3] rtc: ftrtc010: handle dates after 2106
-In-Reply-To: <20180604141528.15635-2-alexandre.belloni@bootlin.com>
-Message-ID: <alpine.LNX.2.00.1806071643370.3181@T420s>
-References: <20180604141528.15635-1-alexandre.belloni@bootlin.com> <20180604141528.15635-2-alexandre.belloni@bootlin.com>
+Received: from mail.bootlin.com ([62.4.15.54]:49525 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752268AbeFFPvx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 6 Jun 2018 11:51:53 -0400
+Date: Wed, 6 Jun 2018 17:51:51 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org,
+        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH v3 05/12] rtc: cros-ec: Make license text and module
+ license match.
+Message-ID: <20180606155151.GO4637@piout.net>
+References: <20180606150900.8342-1-enric.balletbo@collabora.com>
+ <20180606150900.8342-6-enric.balletbo@collabora.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180606150900.8342-6-enric.balletbo@collabora.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 4 Jun 2018, Alexandre Belloni wrote:
-
-> Use correct types for offset and time and use
-> rtc_time64_to_tm/rtc_tm_to_time64 to handle dates after 2106 properly.
+On 06/06/2018 17:08:53+0200, Enric Balletbo i Serra wrote:
+> The license text is specifying "GPLv2" but the MODULE_LICENSE is set to
+> GPL which means GNU Public License v2 or later. When MODULE_LICENSE and
+> boiler plate does not match, go for boiler plate license.
 > 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 > ---
->  drivers/rtc/rtc-ftrtc010.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-> index 165d0b62db00..2cdc78ffeb17 100644
-> --- a/drivers/rtc/rtc-ftrtc010.c
-> +++ b/drivers/rtc/rtc-ftrtc010.c
-> @@ -73,8 +73,8 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
->  
-> -	unsigned int  days, hour, min, sec;
-> -	unsigned long offset, time;
-> +	u32 days, hour, min, sec, offset;
-> +	timeu64_t time;
->  
->  	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
->  	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-> @@ -84,7 +84,7 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  
->  	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
->  
-> -	rtc_time_to_tm(time, tm);
-> +	rtc_time64_to_tm(time, tm);
->  
->  	return 0;
->  }
-> @@ -92,13 +92,13 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
-> -	unsigned int sec, min, hour, day;
-> -	unsigned long offset, time;
-> +	u32 sec, min, hour, day, offset;
-> +	timeu64_t time;
->  
->  	if (tm->tm_year >= 2148)	/* EPOCH Year + 179 */
->  		return -EINVAL;
->  
-> -	rtc_tm_to_time(tm, &time);
-> +	time = rtc_tm_to_time64(tm);
->  
->  	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
->  	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-> -- 
-> 2.17.1
+> Changes in v3: None
+> Changes in v2: None
 > 
+>  drivers/rtc/rtc-cros-ec.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
+Applied, thanks.
 
-Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
