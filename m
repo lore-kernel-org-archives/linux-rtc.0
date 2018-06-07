@@ -1,49 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58382 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752580AbeFEVRy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Jun 2018 17:17:54 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/3] rtc: ensure rtc_set_alarm fails when alarms are not supported
-Date: Tue,  5 Jun 2018 23:09:14 +0200
-Message-Id: <20180605210914.8054-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
-References: <20180605210914.8054-1-alexandre.belloni@bootlin.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:36477 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934474AbeFGOsR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 Jun 2018 10:48:17 -0400
+Date: Thu, 7 Jun 2018 16:43:59 +0200 (CEST)
+From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 3/3] rtc: ftrtc010: let the core handle range
+In-Reply-To: <20180604141528.15635-3-alexandre.belloni@bootlin.com>
+Message-ID: <alpine.LNX.2.00.1806071643490.3181@T420s>
+References: <20180604141528.15635-1-alexandre.belloni@bootlin.com> <20180604141528.15635-3-alexandre.belloni@bootlin.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-When using RTC_ALM_SET or RTC_WKALM_SET with rtc_wkalrm.enabled not set,
-rtc_timer_enqueue() is not called and rtc_set_alarm() may succeed but the
-subsequent RTC_AIE_ON ioctl will fail. RTC_ALM_READ would also fail in that
-case.
+On Mon, 4 Jun 2018, Alexandre Belloni wrote:
 
-Ensure rtc_set_alarm() fails when alarms are not supported to avoid letting
-programs think the alarms are working for a particular RTC when they are
-not.
+> The current range handling is highly suspicious. Anyway, let the core
+> handle it.
+> The RTC has a 32 bit counter on top of days + hh:mm:ss registers.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  drivers/rtc/rtc-ftrtc010.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+> index 2cdc78ffeb17..61f798c6101f 100644
+> --- a/drivers/rtc/rtc-ftrtc010.c
+> +++ b/drivers/rtc/rtc-ftrtc010.c
+> @@ -95,9 +95,6 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	u32 sec, min, hour, day, offset;
+>  	timeu64_t time;
+>  
+> -	if (tm->tm_year >= 2148)	/* EPOCH Year + 179 */
+> -		return -EINVAL;
+> -
+>  	time = rtc_tm_to_time64(tm);
+>  
+>  	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+> @@ -120,6 +117,7 @@ static const struct rtc_class_ops ftrtc010_rtc_ops = {
+>  
+>  static int ftrtc010_rtc_probe(struct platform_device *pdev)
+>  {
+> +	u32 days, hour, min, sec;
+>  	struct ftrtc010_rtc *rtc;
+>  	struct device *dev = &pdev->dev;
+>  	struct resource *res;
+> @@ -172,6 +170,15 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
+>  
+>  	rtc->rtc_dev->ops = &ftrtc010_rtc_ops;
+>  
+> +	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+> +	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+> +	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
+> +	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+> +
+> +	rtc->rtc_dev->range_min = (u64)days * 86400 + hour * 3600 +
+> +				  min * 60 + sec;
+> +	rtc->rtc_dev->range_max = U32_MAX + rtc->rtc_dev->range_min;
+> +
+>  	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+>  			       IRQF_SHARED, pdev->name, dev);
+>  	if (unlikely(ret))
+> -- 
+> 2.17.1
+> 
+> 
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/interface.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index ffcfe6319466..7cae46c6b9bf 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -442,6 +442,11 @@ int rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
- {
- 	int err;
- 
-+	if (!rtc->ops)
-+		return -ENODEV;
-+	else if (!rtc->ops->set_alarm)
-+		return -EINVAL;
-+
- 	err = rtc_valid_tm(&alarm->time);
- 	if (err != 0)
- 		return err;
--- 
-2.17.1
+Acked-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
