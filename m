@@ -1,52 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:35171 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933245AbeFURmK (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 21 Jun 2018 13:42:10 -0400
-From: Baruch Siach <baruch@tkos.co.il>
-To: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@free-electrons.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>,
-        Jon Nettleton <jon@solid-run.com>,
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:40830 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750969AbeFHI6h (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 8 Jun 2018 04:58:37 -0400
+Subject: Re: [PATCH v3 00/12] cros_ec: Match licenses and switch to SPDX
+ identifier.
+To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Tony Luck <tony.luck@intel.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
+        Paolo Cretaro <paolocretaro@gmail.com>,
+        linux-iio@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Baruch Siach <baruch@tkos.co.il>
-Subject: [PATCH 1/2] rtc: armada38x: drop redundant initialization
-Date: Thu, 21 Jun 2018 20:40:22 +0300
-Message-Id: <00ffe926e6878724d8289dd0e289a1f16df55ef7.1529602823.git.baruch@tkos.co.il>
+        linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+        linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Benson Leung <bleung@chromium.org>,
+        linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Colin Cross <ccross@android.com>,
+        Kees Cook <keescook@chromium.org>
+References: <20180606150900.8342-1-enric.balletbo@collabora.com>
+ <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Message-ID: <aee6f480-28e0-4b9f-0e90-35a2b7a37419@collabora.com>
+Date: Fri, 8 Jun 2018 10:58:31 +0200
+MIME-Version: 1.0
+In-Reply-To: <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The 'ret' variable in these functions is set unconditionally below.
+Hi Joe,
 
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- drivers/rtc/rtc-armada38x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 06/06/18 17:42, Joe Perches wrote:
+> On Wed, 2018-06-06 at 17:08 +0200, Enric Balletbo i Serra wrote:
+>> Dear all,
+>>
+>> This patchset is just to adopt the SPDX license identifier for all
+>> ChromeOS Embedded Controller related drivers.
+> 
+> This bit is fine,
+> 
+>>  The patches touches
+>> different subsystems but every patch can be picked from their respective
+>> maintainer independently.
+>>
+>> This third version takes the license note as the valid license (I did
+>> the contrary in the second version) so apart from add the SPDX tags it
+>> also introduces new patches to match the license.
+> 
+> But why change any MODULE_LICENSE text?
+> 
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index 1e4978c96ffd..4d62a54fd5d6 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -229,7 +229,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
--	int ret = 0;
-+	int ret;
- 	unsigned long time, flags;
- 
- 	ret = rtc_tm_to_time(tm, &time);
-@@ -272,7 +272,7 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
- 	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 	unsigned long time, flags;
--	int ret = 0;
-+	int ret;
- 
- 	ret = rtc_tm_to_time(&alrm->time, &time);
- 
--- 
-2.17.1
+Because in some cases there is a mismatch between the license note and the
+MODULE_LICENSE text.
+
+According to the documentation setting MODULE_LICENSE("GPL") means GNU Public
+License v2 or later [1], in the cases where the license note tells explicitly
+that is GPL v2 only I think that the MODULE_LICENSE should match and be changed
+to "GPL v2".
+
+[1] https://elixir.bootlin.com/linux/v4.17/source/include/linux/module.h#L172
+
+> There are uses of MODULE_LICENSE("GPL") where
+> the SPDX license identifier is some GPL variant
+> 
+
+Right, but I suppose in such cases is wrong and should be changed too?
+
+> For instance:
+> $ git grep -P --name-only
+> 'MODULE_LICENSE\s*\("GPL"\s*\)\s*;'| \
+>   xargs grep "SPDX-License-
+> Identifier:" | \
+>   cut -f3- -d: | \
+>   sed -r 's@\s*\*/\s*$@@' | \
+>   sort |
+> uniq -c | sort -rn
+>     551  GPL-2.0+
+>     281  GPL-2.0
+>      13  GPL-1.0+
+>     
+>   9  GPL-2.0-only
+>       2  GPL-2.0 OR MIT
+>       1  (GPL-2.0 OR MPL-1.1)
+>    
+>    1  (GPL-2.0+ OR BSD-3-Clause)
+>       1  (GPL-2.0 OR BSD-3-Clause)
+> 
+> And if you were to do this, please do it tree-wide,
+> and ideally via a script
+> 
