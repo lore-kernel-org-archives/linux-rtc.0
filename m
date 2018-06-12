@@ -1,50 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:45878 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754478AbeFMJZe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 13 Jun 2018 05:25:34 -0400
-Date: Wed, 13 Jun 2018 11:25:22 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-rtc@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 3/3] rtc: ftrtc010: let the core handle range
-Message-ID: <20180613092522.GS10521@piout.net>
-References: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
- <20180604141528.15635-3-alexandre.belloni@bootlin.com>
- <CACRpkdabaH2yiYNnQHBru=-Snb3Eeni2eDAa9mjsa-3DqMC72g@mail.gmail.com>
+Received: from aserp2120.oracle.com ([141.146.126.78]:48194 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932373AbeFLMD2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Jun 2018 08:03:28 -0400
+Date: Tue, 12 Jun 2018 15:03:02 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [PATCH] rtc: mrst: fix error code in probe()
+Message-ID: <20180612120302.kprwknomakzg7bdn@kili.mountain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CACRpkdabaH2yiYNnQHBru=-Snb3Eeni2eDAa9mjsa-3DqMC72g@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 13/06/2018 11:10:35+0200, Linus Walleij wrote:
-> On Mon, Jun 4, 2018 at 4:15 PM, Alexandre Belloni
-> <alexandre.belloni@bootlin.com> wrote:
-> > The current range handling is highly suspicious. Anyway, let the core
-> > handle it.
-> 
-> Hmmm. I have datasheets, do you need some input about the hardware?
-> Something I should patch?
-> 
+We should be returning "retval".  The "mrst_rtc.rtc" variable is a valid
+pointer.
 
-Nothing to do as you seemed to confirm what I did was OK. I could find
-why it was set to 2148 in the first place. Maybe it correspond to the
-default days, hours minutes, second values on the SoC.
+Fixes: 32b41f93dcaf ("rtc: mrst: switch to devm functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-> > The RTC has a 32 bit counter on top of days + hh:mm:ss registers.
-> >
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> 
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> Yours,
-> Linus Walleij
-
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index 097a4d4e2aba..1925aaf09093 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -367,10 +367,8 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
+ 	}
+ 
+ 	retval = rtc_register_device(mrst_rtc.rtc);
+-	if (retval) {
+-		retval = PTR_ERR(mrst_rtc.rtc);
++	if (retval)
+ 		goto cleanup0;
+-	}
+ 
+ 	dev_dbg(dev, "initialised\n");
+ 	return 0;
