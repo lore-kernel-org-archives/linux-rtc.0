@@ -1,125 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:48169 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751901AbeFEOSa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Jun 2018 10:18:30 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: mrst: switch to devm functions
-Date: Tue,  5 Jun 2018 16:18:17 +0200
-Message-Id: <20180605141817.317-1-alexandre.belloni@bootlin.com>
+Received: from mail-it0-f65.google.com ([209.85.214.65]:36021 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934533AbeFMJKg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Jun 2018 05:10:36 -0400
+Received: by mail-it0-f65.google.com with SMTP id j135-v6so2898782itj.1
+        for <linux-rtc@vger.kernel.org>; Wed, 13 Jun 2018 02:10:36 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20180604141528.15635-3-alexandre.belloni@bootlin.com>
+References: <20180604141528.15635-1-alexandre.belloni@bootlin.com> <20180604141528.15635-3-alexandre.belloni@bootlin.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 13 Jun 2018 11:10:35 +0200
+Message-ID: <CACRpkdabaH2yiYNnQHBru=-Snb3Eeni2eDAa9mjsa-3DqMC72g@mail.gmail.com>
+Subject: Re: [PATCH 3/3] rtc: ftrtc010: let the core handle range
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Switch to devm managed functions to simplify error handling and device
-removal
+On Mon, Jun 4, 2018 at 4:15 PM, Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+> The current range handling is highly suspicious. Anyway, let the core
+> handle it.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-mrst.c | 45 +++++++++++++++++-------------------------
- 1 file changed, 18 insertions(+), 27 deletions(-)
+Hmmm. I have datasheets, do you need some input about the hardware?
+Something I should patch?
 
-diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
-index fcb9de5218b2..097a4d4e2aba 100644
---- a/drivers/rtc/rtc-mrst.c
-+++ b/drivers/rtc/rtc-mrst.c
-@@ -45,7 +45,6 @@ struct mrst_rtc {
- 	struct rtc_device	*rtc;
- 	struct device		*dev;
- 	int			irq;
--	struct resource		*iomem;
- 
- 	u8			enabled_wake;
- 	u8			suspend_ctrl;
-@@ -329,24 +328,22 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
- 	if (!iomem)
- 		return -ENODEV;
- 
--	iomem = request_mem_region(iomem->start, resource_size(iomem),
--				   driver_name);
-+	iomem = devm_request_mem_region(dev, iomem->start, resource_size(iomem),
-+					driver_name);
- 	if (!iomem) {
- 		dev_dbg(dev, "i/o mem already in use.\n");
- 		return -EBUSY;
- 	}
- 
- 	mrst_rtc.irq = rtc_irq;
--	mrst_rtc.iomem = iomem;
- 	mrst_rtc.dev = dev;
- 	dev_set_drvdata(dev, &mrst_rtc);
- 
--	mrst_rtc.rtc = rtc_device_register(driver_name, dev,
--				&mrst_rtc_ops, THIS_MODULE);
--	if (IS_ERR(mrst_rtc.rtc)) {
--		retval = PTR_ERR(mrst_rtc.rtc);
--		goto cleanup0;
--	}
-+	mrst_rtc.rtc = devm_rtc_allocate_device(dev);
-+	if (IS_ERR(mrst_rtc.rtc))
-+		return PTR_ERR(mrst_rtc.rtc);
-+
-+	mrst_rtc.rtc->ops = &mrst_rtc_ops;
- 
- 	rename_region(iomem, dev_name(&mrst_rtc.rtc->dev));
- 
-@@ -359,23 +356,27 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
- 		dev_dbg(dev, "TODO: support more than 24-hr BCD mode\n");
- 
- 	if (rtc_irq) {
--		retval = request_irq(rtc_irq, mrst_rtc_irq,
--				0, dev_name(&mrst_rtc.rtc->dev),
--				mrst_rtc.rtc);
-+		retval = devm_request_irq(dev, rtc_irq, mrst_rtc_irq,
-+					  0, dev_name(&mrst_rtc.rtc->dev),
-+					  mrst_rtc.rtc);
- 		if (retval < 0) {
- 			dev_dbg(dev, "IRQ %d is already in use, err %d\n",
- 				rtc_irq, retval);
--			goto cleanup1;
-+			goto cleanup0;
- 		}
- 	}
-+
-+	retval = rtc_register_device(mrst_rtc.rtc);
-+	if (retval) {
-+		retval = PTR_ERR(mrst_rtc.rtc);
-+		goto cleanup0;
-+	}
-+
- 	dev_dbg(dev, "initialised\n");
- 	return 0;
- 
--cleanup1:
--	rtc_device_unregister(mrst_rtc.rtc);
- cleanup0:
- 	mrst_rtc.dev = NULL;
--	release_mem_region(iomem->start, resource_size(iomem));
- 	dev_err(dev, "rtc-mrst: unable to initialise\n");
- 	return retval;
- }
-@@ -390,20 +391,10 @@ static void rtc_mrst_do_shutdown(void)
- static void rtc_mrst_do_remove(struct device *dev)
- {
- 	struct mrst_rtc	*mrst = dev_get_drvdata(dev);
--	struct resource *iomem;
- 
- 	rtc_mrst_do_shutdown();
- 
--	if (mrst->irq)
--		free_irq(mrst->irq, mrst->rtc);
--
--	rtc_device_unregister(mrst->rtc);
- 	mrst->rtc = NULL;
--
--	iomem = mrst->iomem;
--	release_mem_region(iomem->start, resource_size(iomem));
--	mrst->iomem = NULL;
--
- 	mrst->dev = NULL;
- }
- 
--- 
-2.17.1
+> The RTC has a 32 bit counter on top of days + hh:mm:ss registers.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
