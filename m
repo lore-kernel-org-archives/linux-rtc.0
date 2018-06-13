@@ -1,47 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:12287 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752489AbeFZQzB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jun 2018 12:55:01 -0400
-Subject: Re: [GIT PULL] RTC for 4.18
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Linus Torvalds <torvalds@linux-foundation.org>,
-        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20180610221645.GA26123@piout.net>
- <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
- <20180626161536.GH4207@piout.net>
-From: Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
-Date: Tue, 26 Jun 2018 17:54:57 +0100
+Received: from mail-io0-f196.google.com ([209.85.223.196]:42892 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754613AbeFMJIL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Jun 2018 05:08:11 -0400
+Received: by mail-io0-f196.google.com with SMTP id r24-v6so2662123ioh.9
+        for <linux-rtc@vger.kernel.org>; Wed, 13 Jun 2018 02:08:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180626161536.GH4207@piout.net>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20180604141528.15635-2-alexandre.belloni@bootlin.com>
+References: <20180604141528.15635-1-alexandre.belloni@bootlin.com> <20180604141528.15635-2-alexandre.belloni@bootlin.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 13 Jun 2018 11:08:10 +0200
+Message-ID: <CACRpkdbt=2diDRueUqdEnHxViG-Nr0Rcs-aW67hjgrQnxQUaAg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] rtc: ftrtc010: handle dates after 2106
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On Mon, Jun 4, 2018 at 4:15 PM, Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 
-On 26/06/18 17:15, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 26/06/2018 16:51:40+0100, Jon Hunter wrote:
->>>       rtc: tps6586x: let the core handle rtc range
->>
->> Sorry I am missing the original mail with the above change, but I
->> have noticed on v4.18-rc1 that rtc wake-ups from suspend are no
->> longer working on one of our Tegra boards. The bisect points to the
->> above change and reverting it fixes the problem. I have not had
->> chance to dig further, but if you have any thoughts, please let me
->> know.
-> 
-> 
-> Thanks for the report, does the following patch fix the issue:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=1b287f23b0a1fcb2b502dae981a8024be379391e
+> Use correct types for offset and time and use
+> rtc_time64_to_tm/rtc_tm_to_time64 to handle dates after 2106 properly.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Thanks. I gave the above a test, but still not waking-up from suspend.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Cheers
-Jon
-
--- 
-nvpublic
+Yours,
+Linus Walleij
