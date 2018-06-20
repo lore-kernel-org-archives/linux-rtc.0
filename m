@@ -1,35 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:42892 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754613AbeFMJIL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Jun 2018 05:08:11 -0400
-Received: by mail-io0-f196.google.com with SMTP id r24-v6so2662123ioh.9
-        for <linux-rtc@vger.kernel.org>; Wed, 13 Jun 2018 02:08:11 -0700 (PDT)
+Received: from mail.bootlin.com ([62.4.15.54]:48846 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752871AbeFTKoj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 20 Jun 2018 06:44:39 -0400
+Date: Wed, 20 Jun 2018 12:44:27 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH] rtc: mrst: fix error code in probe()
+Message-ID: <20180620104427.GB7737@piout.net>
+References: <20180612120302.kprwknomakzg7bdn@kili.mountain>
 MIME-Version: 1.0
-In-Reply-To: <20180604141528.15635-2-alexandre.belloni@bootlin.com>
-References: <20180604141528.15635-1-alexandre.belloni@bootlin.com> <20180604141528.15635-2-alexandre.belloni@bootlin.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 13 Jun 2018 11:08:10 +0200
-Message-ID: <CACRpkdbt=2diDRueUqdEnHxViG-Nr0Rcs-aW67hjgrQnxQUaAg@mail.gmail.com>
-Subject: Re: [PATCH 2/3] rtc: ftrtc010: handle dates after 2106
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180612120302.kprwknomakzg7bdn@kili.mountain>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Jun 4, 2018 at 4:15 PM, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
+On 12/06/2018 15:03:02+0300, Dan Carpenter wrote:
+> We should be returning "retval".  The "mrst_rtc.rtc" variable is a valid
+> pointer.
+> 
+> Fixes: 32b41f93dcaf ("rtc: mrst: switch to devm functions")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+Applied, thanks.
 
-> Use correct types for offset and time and use
-> rtc_time64_to_tm/rtc_tm_to_time64 to handle dates after 2106 properly.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
