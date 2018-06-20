@@ -1,33 +1,32 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:42263 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:48876 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751506AbeFEJq2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Jun 2018 05:46:28 -0400
-Date: Tue, 5 Jun 2018 11:46:26 +0200
+        id S1753202AbeFTKqX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 20 Jun 2018 06:46:23 -0400
+Date: Wed, 20 Jun 2018 12:46:12 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel@vger.kernel.org,
-        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier.
-Message-ID: <20180605094626.GC4637@piout.net>
-References: <20180605092209.22887-1-enric.balletbo@collabora.com>
- <20180605092209.22887-6-enric.balletbo@collabora.com>
+To: Zhouyang Jia <jiazhouyang09@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: rtc-bq4802: add error handling for devm_ioremap
+Message-ID: <20180620104612.GC7737@piout.net>
+References: <1528778404-41456-1-git-send-email-jiazhouyang09@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180605092209.22887-6-enric.balletbo@collabora.com>
+In-Reply-To: <1528778404-41456-1-git-send-email-jiazhouyang09@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 05/06/2018 11:22:05+0200, Enric Balletbo i Serra wrote:
-> Adopt the SPDX license identifier headers to ease license compliance
-> management.
+On 12/06/2018 12:40:03+0800, Zhouyang Jia wrote:
+> When devm_ioremap fails, the lack of error-handling code may
+> cause unexpected results.
 > 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> This patch adds error-handling code after calling devm_ioremap.
+> 
+> Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
 > ---
-> 
->  drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
->  1 file changed, 5 insertions(+), 16 deletions(-)
+>  drivers/rtc/rtc-bq4802.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
 Applied, thanks.
 
