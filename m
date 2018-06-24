@@ -1,41 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:49539 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752346AbeFFPwE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 6 Jun 2018 11:52:04 -0400
-Date: Wed, 6 Jun 2018 17:52:02 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel@vger.kernel.org,
-        Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH v3 06/12] rtc: cros-ec: Switch to SPDX identifier.
-Message-ID: <20180606155202.GP4637@piout.net>
-References: <20180606150900.8342-1-enric.balletbo@collabora.com>
- <20180606150900.8342-7-enric.balletbo@collabora.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:57312 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751596AbeFXKiG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 24 Jun 2018 06:38:06 -0400
+From: Colin King <colin.king@canonical.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: test: make array pdev static
+Date: Sun, 24 Jun 2018 11:38:03 +0100
+Message-Id: <20180624103803.4606-1-colin.king@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180606150900.8342-7-enric.balletbo@collabora.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 06/06/2018 17:08:54+0200, Enric Balletbo i Serra wrote:
-> Adopt the SPDX license identifier headers to ease license compliance
-> management.
-> 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
-> 
-> Changes in v3: None
-> Changes in v2: None
-> 
->  drivers/rtc/rtc-cros-ec.c | 21 +++++----------------
->  1 file changed, 5 insertions(+), 16 deletions(-)
-> 
-Applied, thanks.
+From: Colin Ian King <colin.king@canonical.com>
 
+The array pdev is local to the source and does not need to be in
+global scope, so make it static.
+
+Cleans up sparse warning:
+symbol 'pdev' was not declared. Should it be static?
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/rtc/rtc-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 8469256edc2a..ade6a82709be 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -22,7 +22,7 @@ struct rtc_test_data {
+ 	bool alarm_en;
+ };
+ 
+-struct platform_device *pdev[MAX_RTC_TEST];
++static struct platform_device *pdev[MAX_RTC_TEST];
+ 
+ static int test_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.0
