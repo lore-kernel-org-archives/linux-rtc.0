@@ -1,71 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:51381 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:41014 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753720AbeFDOPz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 4 Jun 2018 10:15:55 -0400
+        id S1751631AbeFZQPh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 26 Jun 2018 12:15:37 -0400
+Date: Tue, 26 Jun 2018 18:15:36 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/3] rtc: ftrtc010: handle dates after 2106
-Date: Mon,  4 Jun 2018 16:15:27 +0200
-Message-Id: <20180604141528.15635-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
-References: <20180604141528.15635-1-alexandre.belloni@bootlin.com>
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] RTC for 4.18
+Message-ID: <20180626161536.GH4207@piout.net>
+References: <20180610221645.GA26123@piout.net>
+ <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use correct types for offset and time and use
-rtc_time64_to_tm/rtc_tm_to_time64 to handle dates after 2106 properly.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ftrtc010.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+On 26/06/2018 16:51:40+0100, Jon Hunter wrote:
+> >       rtc: tps6586x: let the core handle rtc range
+> 
+> Sorry I am missing the original mail with the above change, but I
+> have noticed on v4.18-rc1 that rtc wake-ups from suspend are no
+> longer working on one of our Tegra boards. The bisect points to the
+> above change and reverting it fixes the problem. I have not had
+> chance to dig further, but if you have any thoughts, please let me
+> know.
 
-diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-index 165d0b62db00..2cdc78ffeb17 100644
---- a/drivers/rtc/rtc-ftrtc010.c
-+++ b/drivers/rtc/rtc-ftrtc010.c
-@@ -73,8 +73,8 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
- 
--	unsigned int  days, hour, min, sec;
--	unsigned long offset, time;
-+	u32 days, hour, min, sec, offset;
-+	timeu64_t time;
- 
- 	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
- 	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-@@ -84,7 +84,7 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- 	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
- 
--	rtc_time_to_tm(time, tm);
-+	rtc_time64_to_tm(time, tm);
- 
- 	return 0;
- }
-@@ -92,13 +92,13 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct ftrtc010_rtc *rtc = dev_get_drvdata(dev);
--	unsigned int sec, min, hour, day;
--	unsigned long offset, time;
-+	u32 sec, min, hour, day, offset;
-+	timeu64_t time;
- 
- 	if (tm->tm_year >= 2148)	/* EPOCH Year + 179 */
- 		return -EINVAL;
- 
--	rtc_tm_to_time(tm, &time);
-+	time = rtc_tm_to_time64(tm);
- 
- 	sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
- 	min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+
+Thanks for the report, does the following patch fix the issue:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=1b287f23b0a1fcb2b502dae981a8024be379391e
+
+
 -- 
-2.17.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
