@@ -1,56 +1,52 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:44143 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933445AbeFROWu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Jun 2018 10:22:50 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: use ktime_get_real_ts64() instead of getnstimeofday64()
-Date: Mon, 18 Jun 2018 16:22:14 +0200
-Message-Id: <20180618142238.3509274-1-arnd@arndb.de>
+Received: from mail.bootlin.com ([62.4.15.54]:50078 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752118AbeFZVbt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 26 Jun 2018 17:31:49 -0400
+Date: Tue, 26 Jun 2018 23:31:38 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] RTC for 4.18
+Message-ID: <20180626213138.GI4207@piout.net>
+References: <20180610221645.GA26123@piout.net>
+ <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
+ <20180626161536.GH4207@piout.net>
+ <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-getnstimeofday64() is just a wrapper around the ktime accessor, so
-we should use that directly.
+On 26/06/2018 17:54:57+0100, Jon Hunter wrote:
+> 
+> On 26/06/18 17:15, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 26/06/2018 16:51:40+0100, Jon Hunter wrote:
+> >>>       rtc: tps6586x: let the core handle rtc range
+> >>
+> >> Sorry I am missing the original mail with the above change, but I
+> >> have noticed on v4.18-rc1 that rtc wake-ups from suspend are no
+> >> longer working on one of our Tegra boards. The bisect points to the
+> >> above change and reverting it fixes the problem. I have not had
+> >> chance to dig further, but if you have any thoughts, please let me
+> >> know.
+> > 
+> > 
+> > Thanks for the report, does the following patch fix the issue:
+> > 
+> > https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=1b287f23b0a1fcb2b502dae981a8024be379391e
+> 
+> Thanks. I gave the above a test, but still not waking-up from suspend.
+> 
 
-I considered using ktime_get_boottime_ts64() (to avoid leap second
-problems) or ktime_get_real_seconds() (to simplify the calculation,
-but in the end concluded that the existing interface is probably
-the most appropriate in this case.
+Ok, I probably found the issue but the fix is not immediate. I'll try to
+post something tomorrow.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/rtc/class.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index d37588f08055..7fa32c922617 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -68,7 +68,7 @@ static int rtc_suspend(struct device *dev)
- 		return 0;
- 	}
- 
--	getnstimeofday64(&old_system);
-+	ktime_get_real_ts64(&old_system);
- 	old_rtc.tv_sec = rtc_tm_to_time64(&tm);
- 
- 
-@@ -110,7 +110,7 @@ static int rtc_resume(struct device *dev)
- 		return 0;
- 
- 	/* snapshot the current rtc and system time at resume */
--	getnstimeofday64(&new_system);
-+	ktime_get_real_ts64(&new_system);
- 	err = rtc_read_time(rtc, &tm);
- 	if (err < 0) {
- 		pr_debug("%s:  fail to read rtc time\n", dev_name(&rtc->dev));
 -- 
-2.9.0
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
