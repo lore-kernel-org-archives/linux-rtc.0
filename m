@@ -1,78 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:44522 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727421AbeGSNa1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 09:30:27 -0400
-Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-To: Johan Hovold <johan@kernel.org>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <t-kristo@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
- <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
- <20180719100229.GQ10204@localhost>
- <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
- <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
- <20180719123617.GV10204@localhost>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <e3841afa-fe18-84c0-e5b6-520365c5e4a1@ti.com>
-Date: Thu, 19 Jul 2018 18:16:56 +0530
-MIME-Version: 1.0
-In-Reply-To: <20180719123617.GV10204@localhost>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:36975 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934211AbeGDJGb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 05:06:31 -0400
+From: Johan Hovold <johan@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 3/4] rtc: omap: add missing register lock in error path
+Date: Wed,  4 Jul 2018 11:05:57 +0200
+Message-Id: <20180704090558.16647-4-johan@kernel.org>
+In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
+References: <20180704090558.16647-1-johan@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+For completeness re-lock the registers also in the power-off error path.
 
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On Thursday 19 July 2018 06:06 PM, Johan Hovold wrote:
-> On Thu, Jul 19, 2018 at 05:52:17PM +0530, Keerthy wrote:
->> On Thursday 19 July 2018 05:23 PM, Keerthy wrote:
->>> On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
->>>> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
-> 
->>>>> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
->>>>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
->>>>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
->>>>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-> 
->>>>> +	/* Our calculations started right before the rollover, try again */
-> 
->>>>> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
->>>>> +		goto again;
->>>>
->>>> Here the alarm may have gone off as part of the roll over, in which case
->>>> you shouldn't retry.
->>>
->>> Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
->>>
->>> In the event of Roll over before setting the
->>> OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
->>> not miss the ALARM2 event? Then poweroff would fail right?
-> 
-> Right, that would fail.
-> 
->>> Hence the attempt to retry the next second. This sequence would begin
->>> right at the beginning of a new second and we expect the full sequence
->>> to get over without having to retry again.
->>>
->>> Hope i am clear.
-> 
-> Yes, sure, but my point is that could end up retrying also after the
-> alarm has fired correctly (e.g. due to latencies in turning of the
-> power)>
-> It may be enough to check OMAP_RTC_STATUS_REG before retrying.
-
-Ah okay. Yes this makes sense. I will use the status to retry.
-
-> 
->> I tried to program the interrupt for the same second on the hardware and
->> it does not fire. So to take care of roll over corner case one attempt
->> to retry is needed.
-> 
-> Yes, that's expected.
-> 
-> Thanks,
-> Johan
-> 
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 6a7b804c3074..7f9ee559dd99 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -449,6 +449,7 @@ static void omap_rtc_power_off(void)
+ 
+ 	if (tm2bcd(&tm) < 0) {
+ 		dev_err(&rtc->rtc->dev, "power off failed\n");
++		rtc->type->lock(rtc);
+ 		return;
+ 	}
+ 
+-- 
+2.18.0
