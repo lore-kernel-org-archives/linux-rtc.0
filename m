@@ -1,128 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:33421 "EHLO
-        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729324AbeGRNZn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 09:25:43 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
-References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com> <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 18 Jul 2018 15:47:54 +0300
-Message-ID: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
-Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:43832 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934314AbeGDJGb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 05:06:31 -0400
+From: Johan Hovold <johan@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4/4] rtc: omap: drop unnecessary register unlock around reads
+Date: Wed,  4 Jul 2018 11:05:58 +0200
+Message-Id: <20180704090558.16647-5-johan@kernel.org>
+In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
+References: <20180704090558.16647-1-johan@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 18, 2018 at 12:40 PM, Giulio Benetti
-<giulio.benetti@micronovasrl.com> wrote:
-> On m41txx you can enable open-drain OUT pin to check if offset is ok.
-> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-> 512 times faster than 1s tick base.
->
-> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+Drop unnecessary register write-unlock around two read accesses.
 
-> +static ssize_t frequency_test_enable_store(struct device *dev,
-> +                                          struct device_attribute *attr,
-> +                                          const char *buf, size_t count)
-> +{
-> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-
-> +       bool freq_test_en = 0;
-
-First of all, initialization of boolean using int is not very best style.
-Second, this is not needed.
-
-> +       int ret;
-> +
-> +       ret = kstrtobool(buf, &freq_test_en);
-
-> +       if (ret == -EINVAL) {
-
-What kind of other error code you may expect and why they are not
-considered as no error?
-
-> +               dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-> +               return ret;
-> +       }
-> +
-> +       regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-> +                          freq_test_en ? M41TXX_BIT_FT : 0);
-> +
-> +       return count;
-> +}
-> +
-> +static ssize_t frequency_test_enable_show(struct device *dev,
-> +                                         struct device_attribute *attr,
-> +                                         char *buf)
-> +{
-> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
-> +       unsigned int ctrl_reg;
-> +
-> +       regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-> +
-
-> +       if (ctrl_reg & M41TXX_BIT_FT)
-> +               return scnprintf(buf, PAGE_SIZE, "on\n");
-> +       else
-> +               return scnprintf(buf, PAGE_SIZE, "off\n");
-
-Entire condition might be one line.
-
-> +}
-> +
-
-> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
-> +{
-
-> +       int err = 0;
-
-Redundant assignment. See below.
-
-> +
-> +       switch (ds1307->type) {
-> +       case m41t0:
-> +       case m41t00:
-> +       case m41t11:
-> +               /* Export sysfs entries */
-> +               err = sysfs_create_group(&(ds1307->dev)->kobj,
-> +                                        &rtc_freq_test_attr_group);
-> +               if (err) {
-> +                       dev_err(ds1307->dev,
-> +                               "Failed to create sysfs group: %d\n",
-> +                               err);
-> +                       return err;
-> +               }
-> +
-> +               err = devm_add_action_or_reset(ds1307->dev,
-> +                                              rtc_calib_remove_sysfs_group,
-> +                                              ds1307->dev);
-> +               if (err) {
-> +                       dev_err(ds1307->dev,
-> +                               "Failed to add sysfs cleanup action: %d\n",
-> +                               err);
-> +                       sysfs_remove_group(&(ds1307->dev)->kobj,
-> +                                          &rtc_freq_test_attr_group);
-> +                       return err;
-> +               }
-> +               break;
-> +       default:
-> +               break;
-> +       }
-> +
-
-> +       return err;
-
-return 0;
-
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 7f9ee559dd99..323ff55cc165 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -583,9 +583,7 @@ static int rtc_pinconf_get(struct pinctrl_dev *pctldev,
+ 	u32 val;
+ 	u16 arg = 0;
+ 
+-	rtc->type->unlock(rtc);
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+-	rtc->type->lock(rtc);
+ 
+ 	switch (param) {
+ 	case PIN_CONFIG_INPUT_ENABLE:
+@@ -615,9 +613,7 @@ static int rtc_pinconf_set(struct pinctrl_dev *pctldev,
+ 	u32 param_val;
+ 	int i;
+ 
+-	rtc->type->unlock(rtc);
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+-	rtc->type->lock(rtc);
+ 
+ 	/* active low by default */
+ 	val |= OMAP_RTC_PMIC_EXT_WKUP_POL(pin);
 -- 
-With Best Regards,
-Andy Shevchenko
+2.18.0
