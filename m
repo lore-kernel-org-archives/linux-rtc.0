@@ -1,52 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:42971 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726368AbeGKJZy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 11 Jul 2018 05:25:54 -0400
-Date: Wed, 11 Jul 2018 11:22:13 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] RTC for 4.18
-Message-ID: <20180711092213.GN16084@piout.net>
-References: <20180610221645.GA26123@piout.net>
- <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
- <20180626161536.GH4207@piout.net>
- <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
- <20180626213138.GI4207@piout.net>
- <7fab97df-9cd9-fa57-47a8-883a717dd96c@nvidia.com>
- <20180709121747.GG16084@piout.net>
- <20180710221410.GL16084@piout.net>
- <dccdc3e9-4fac-ee05-dab0-3533c274f59c@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <dccdc3e9-4fac-ee05-dab0-3533c274f59c@nvidia.com>
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:41094 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932835AbeGDJG3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 05:06:29 -0400
+From: Johan Hovold <johan@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Marcin Niestroj <m.niestroj@grinn-global.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 1/4] rtc: omap: fix potential crash on power off
+Date: Wed,  4 Jul 2018 11:05:55 +0200
+Message-Id: <20180704090558.16647-2-johan@kernel.org>
+In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
+References: <20180704090558.16647-1-johan@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 11/07/2018 10:17:11+0100, Jon Hunter wrote:
-> Hi Alexandre.
-> 
-> On 10/07/18 23:14, Alexandre Belloni wrote:
-> > Hi Jon,
-> > 
-> > Can you test that one?
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=4393575d9aa250c74335f8b37e0466b872b5080
-> > 
-> > This fixes setting alarms on the TPS658623 of my T20 board but I don't
-> > get the interrupt I'm expecting. However, I don't get interrupts with
-> > the offending patch reverted so hopefully, this fix is sufficient.
-> 
-> Yes this fixes the problem. Feel free to add my ...
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
-> 
+Do not set the system power-off callback and omap power-off rtc pointer
+until we're done setting up our device to avoid leaving stale pointers
+around after a late probe error.
 
-Great ! Thank you for your patience, I'll send it as a fix before Sunday.
+Fixes: 97ea1906b3c2 ("rtc: omap: Support ext_wakeup configuration")
+Cc: stable <stable@vger.kernel.org>     # 4.9
+Cc: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 39086398833e..c214b69a8787 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -861,13 +861,6 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 			goto err;
+ 	}
+ 
+-	if (rtc->is_pmic_controller) {
+-		if (!pm_power_off) {
+-			omap_rtc_power_off_rtc = rtc;
+-			pm_power_off = omap_rtc_power_off;
+-		}
+-	}
+-
+ 	/* Support ext_wakeup pinconf */
+ 	rtc_pinctrl_desc.name = dev_name(&pdev->dev);
+ 
+@@ -884,6 +877,13 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 
+ 	rtc_nvmem_register(rtc->rtc, &omap_rtc_nvmem_config);
+ 
++	if (rtc->is_pmic_controller) {
++		if (!pm_power_off) {
++			omap_rtc_power_off_rtc = rtc;
++			pm_power_off = omap_rtc_power_off;
++		}
++	}
++
+ 	return 0;
+ 
+ err:
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.18.0
