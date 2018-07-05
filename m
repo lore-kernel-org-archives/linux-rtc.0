@@ -1,38 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ua0-f195.google.com ([209.85.217.195]:38690 "EHLO
-        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730897AbeGRRFh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 13:05:37 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com> <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 18 Jul 2018 19:26:56 +0300
-Message-ID: <CAHp75VeR8H-XhqkrSxBKoaVwcTx6__w4xpR0x2tm-0dxq9tZrw@mail.gmail.com>
-Subject: Re: [PATCH v10 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Received: from muru.com ([72.249.23.125]:50242 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752458AbeGEIbO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 5 Jul 2018 04:31:14 -0400
+Date: Thu, 5 Jul 2018 01:31:10 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Johan Hovold <johan@kernel.org>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Keerthy <j-keerthy@ti.com>, stable <stable@vger.kernel.org>,
+        Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: Re: [PATCH 1/4] rtc: omap: fix potential crash on power off
+Message-ID: <20180705083110.GX112168@atomide.com>
+References: <20180704090558.16647-1-johan@kernel.org>
+ <20180704090558.16647-2-johan@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180704090558.16647-2-johan@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 18, 2018 at 5:09 PM, Giulio Benetti
-<giulio.benetti@micronovasrl.com> wrote:
-> On m41txx you can enable open-drain OUT pin to check if offset is ok.
-> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-> 512 times faster than 1s tick base.
->
-> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+* Johan Hovold <johan@kernel.org> [180704 09:09]:
+> Do not set the system power-off callback and omap power-off rtc pointer
+> until we're done setting up our device to avoid leaving stale pointers
+> around after a late probe error.
+> 
+> Fixes: 97ea1906b3c2 ("rtc: omap: Support ext_wakeup configuration")
+> Cc: stable <stable@vger.kernel.org>     # 4.9
+> Cc: Marcin Niestroj <m.niestroj@grinn-global.com>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Taking into consideration the amount of patches per hour you need to
-slow down a bit.
+Looks good to me:
 
--- 
-With Best Regards,
-Andy Shevchenko
+Acked-by: Tony Lindgren <tony@atomide.com>
