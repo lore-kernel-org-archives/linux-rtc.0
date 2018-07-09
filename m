@@ -1,163 +1,107 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:51460 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731556AbeGTTxk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 15:53:40 -0400
-Date: Fri, 20 Jul 2018 21:03:59 +0200
-From: Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-To: Rob Herring <robh@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <1532113439.2309.1@smtp.crapouillou.net>
-In-Reply-To: <20180720153956.GA18135@rob-hp-laptop>
-References: <20180713151424.13000-1-paul@crapouillou.net>
-        <20180714131920.GU16084@piout.net> <1531574734.2831.0@smtp.crapouillou.net>
-        <20180714133250.GW16084@piout.net> <1531576208.2831.1@smtp.crapouillou.net>
-        <20180720153956.GA18135@rob-hp-laptop>
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:43658 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754011AbeGIJgd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jul 2018 05:36:33 -0400
+Subject: Re: [PATCH v2] rtc: OMAP: Add support for rtc-only mode
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Johan Hovold <johan@kernel.org>
+CC: <a.zummo@towertech.it>, <t-kristo@ti.com>,
+        <linux-rtc@vger.kernel.org>, <linux-omap@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+References: <1531116709-20135-1-git-send-email-j-keerthy@ti.com>
+ <20180709075553.GA3633@localhost> <20180709092952.GF16084@piout.net>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <9717549d-29ac-14b9-b8f5-6b39fbbd74e7@ti.com>
+Date: Mon, 9 Jul 2018 15:05:59 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+In-Reply-To: <20180709092952.GF16084@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
 
-Le ven. 20 juil. 2018 =E0 17:39, Rob Herring <robh@kernel.org> a =E9crit :
-> On Sat, Jul 14, 2018 at 03:50:08PM +0200, Paul Cercueil wrote:
->>=20
->>=20
->>  Le sam. 14 juil. 2018 =E0 15:32, Alexandre Belloni
->>  <alexandre.belloni@bootlin.com> a =E9crit :
->>  > On 14/07/2018 15:25:33+0200, Paul Cercueil wrote:
->>  > >  Hi Alexandre,
->>  > >
->>  > >  Le sam. 14 juil. 2018 =E0 15:19, Alexandre Belloni
->>  > >  <alexandre.belloni@bootlin.com> a =E9crit :
->>  > >  > Hello,
->>  > >  >
->>  > >  > On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
->>  > >  > >  The RTC in the JZ4725B works just like the one in the=20
->> JZ4740.
->>  > >  > >
->>  > >  > >  The RTC in the JZ4760 and JZ4770 work just like the one=20
->> in the
->>  > >  > > JZ4780.
->>  > >  > >
->>  > >  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  > >  > >  ---
->>  > >  > >  =20
->> Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  > > |  3
->>  > >  > > +++
->>  > >  > >   drivers/rtc/rtc-jz4740.c
->>  > > | 11
->>  > >  > > ++++++++++-
->>  > >  > >   2 files changed, 13 insertions(+), 1 deletion(-)
->>  > >  > >
->>  > >  > >  diff --git
->>  > >  > >=20
->> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  > >  > >=20
->> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  > >  > >  index 41c7ae18fd7b..a9e821de84f2 100644
->>  > >  > >  ---
->>  > > a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  > >  > >  +++
->>  > > b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  > >  > >  @@ -4,6 +4,9 @@ Required properties:
->>  > >  > >
->>  > >  > >   - compatible: One of:
->>  > >  > >     - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
->>  > >  > >  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
->>  > >  > >  +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
->>  > >  > >  +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
->>  > >  > >     - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
->>  > >  > >   - reg: Address range of rtc register set
->>  > >  > >   - interrupts: IRQ number for the alarm interrupt
->>  > >  > >  diff --git a/drivers/rtc/rtc-jz4740.c
->>  > > b/drivers/rtc/rtc-jz4740.c
->>  > >  > >  index d0a891777f44..1c867e3a0ea5 100644
->>  > >  > >  --- a/drivers/rtc/rtc-jz4740.c
->>  > >  > >  +++ b/drivers/rtc/rtc-jz4740.c
->>  > >  > >  @@ -54,6 +54,9 @@
->>  > >  > >
->>  > >  > >   enum jz4740_rtc_type {
->>  > >  > >   	ID_JZ4740,
->>  > >  > >  +	ID_JZ4725B,
->>  > >  > >  +	ID_JZ4760,
->>  > >  > >  +	ID_JZ4770,
->>  > >  >
->>  > >  > I wouldn't introduce those ids unless there are handling
->>  > > differences at
->>  > >  > some point.
->>  > >
->>  > >  Well there are handling differences, see below.
->>  > >
->>  > >  > >   	ID_JZ4780,
->>  > >  > >   };
->>  > >  > >
->>  > >  > >  @@ -114,7 +117,7 @@ static inline int
->>  > > jz4740_rtc_reg_write(struct
->>  > >  > > jz4740_rtc *rtc, size_t reg,
->>  > >  > >   {
->>  > >  > >   	int ret =3D 0;
->>  > >  > >
->>  > >  > >  -	if (rtc->type >=3D ID_JZ4780)
->>  > >  > >  +	if (rtc->type >=3D ID_JZ4760)
->>  > >  >
->>  > >  > This would avoid that change (and the test would preferably=20
->> be
->>  > >  > (rtc->type =3D=3D ID_JZ4780))
->>  > >
->>  > >  That branch should be taken if the SoC is JZ4760, JZ4770 or=20
->> JZ4780.
->>  > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
->>  >
->>  > Sure but you can achieve that with only 2 ids...
->>  >
->>  > >
->>  > >  > >   		ret =3D jz4780_rtc_enable_write(rtc);
->>  > >  > >   	if (ret =3D=3D 0)
->>  > >  > >   		ret =3D jz4740_rtc_wait_write_ready(rtc);
->>  > >  > >  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
->>  > >  > >
->>  > >  > >   static const struct of_device_id jz4740_rtc_of_match[] =3D=20
->> {
->>  > >  > >   	{ .compatible =3D "ingenic,jz4740-rtc", .data =3D (void
->>  > > *)ID_JZ4740 },
->>  > >  > >  +	{ .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void
->>  > > *)ID_JZ4725B
->>  > >  > > },
->>  > >  > >  +	{ .compatible =3D "ingenic,jz4760-rtc", .data =3D (void
->>  > > *)ID_JZ4760 },
->>  > >  > >  +	{ .compatible =3D "ingenic,jz4770-rtc", .data =3D (void
->>  > > *)ID_JZ4770 },
->>  >
->>  > By doing the correct mapping here e.g:
->>  >
->>  > { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void *)ID_JZ4740=20
->> },
->>=20
->>  Not very pretty and future-proof if you ask me...
->=20
-> Looks to me like this can be handled entirely in DT without driver
-> changes like the other patches. Correct usage of compatible strings is
-> what gives you future-proofing. And no driver change is better than
-> needless changing.
 
-If I make e.g. the jz4760 and jz4770 use the jz4780 compatible string,=20
-but
-then I want to implement a new feature that only exists on the jz4780,=20
-how
-can I do it without breaking everything?
+On Monday 09 July 2018 02:59 PM, Alexandre Belloni wrote:
+> On 09/07/2018 09:55:53+0200, Johan Hovold wrote:
+>> On Mon, Jul 09, 2018 at 11:41:49AM +0530, Keerthy wrote:
+>>> Prepare rtc driver for rtc-only with DDR in self-refresh mode.
+>>> omap_rtc_power_off now should cater to two features:
+>>>
+>>> 1) RTC plus DDR in self-refresh is power a saving mode where in the
+>>> entire system including the different voltage rails from PMIC are
+>>> shutdown except the ones feeding on to RTC and DDR. DDR is kept in
+>>> self-refresh hence the contents are preserved. RTC ALARM2 is connected
+>>> to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
+>>> DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
+>>> ALARM1 triggers waking up the system[1]. The control goes to bootloader.
+>>> The bootloader then checks RTC scratchpad registers to confirm it was an
+>>> rtc_only wakeup and follows a different path, configure bare minimal
+>>> clocks for ddr and then jumps to the resume address in another RTC
+>>> scratchpad registers and transfers the control to Kernel. Kernel then
+>>> restores the saved context. omap_rtc_power_off_program does the ALARM2
+>>> programming part.
+>>>
+>>>      [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
+>>>
+>>> 2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
+>>> above omap_rtc_power_off_program function and in addition to that
+>>> programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
+>>> the pushbutton and shuts off the PMIC.
+>>>
+>>> Hence the split in omap_rtc_power_off.
+>>>
+>>> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>>> ---
+>>>
+>>> Changes in v2:
+>>>
+>>>   * Add details in the commit log.
+>>>   * Use of_device_is_system_power_controller to check if rtc node is
+>>>     indeed the system power control instead of manually reading property.
+>>>
+>>>  drivers/rtc/interface.c |  12 ++++
+>>>  drivers/rtc/rtc-omap.c  | 167 +++++++++++++++++++++++++++++++++---------------
+>>>  include/linux/rtc.h     |   2 +
+>>>  3 files changed, 131 insertions(+), 50 deletions(-)
+>>>
+>>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+>>> index 6d4012d..d8b70f0 100644
+>>> --- a/drivers/rtc/interface.c
+>>> +++ b/drivers/rtc/interface.c
+>>> @@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+>>>  	trace_rtc_set_offset(offset, ret);
+>>>  	return ret;
+>>>  }
+>>> +
+>>> +/**
+>>> + * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
+>>> + * line and can be used to power off the SoC.
+>>> + *
+>>> + * Kernel interface to program rtc to power off
+>>> + */
+>>> +void rtc_power_off_program(struct rtc_device *rtc)
+>>> +{
+>>> +	rtc->ops->power_off_program(rtc->dev.parent);
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(rtc_power_off_program);
+>>
+>> We typically do not add new interfaces without any users, so this will
+>> probably have to go in along with the corresponding omap changes for
+>> rtc-only mode.
+>>
+> 
+> I'm probably not smart enough but I still don't get why you need to add
+> an interface at all, especially one that will result in a NULL pointer
+> dereference on 99.6% of the drivers.
+> 
+> This is so specific to your use case that this has zero chance to be
+> reused by another driver.
 
-> It may look a bit wierd if 4780 is the fallback for 4770, but if the
-> 4780 is older, then that actually makes sense.
+Alexandre,
 
-The 4770 is older than the 4780.
+So are you suggesting use an EXPORT API from omap-rtc driver alone?
+as it is too specific to one use case?
 
-Thanks,
--Paul
-=
+- Keerthy
+> 
