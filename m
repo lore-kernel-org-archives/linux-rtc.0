@@ -1,43 +1,98 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:40013 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:45473 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726441AbeGLSrJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 12 Jul 2018 14:47:09 -0400
-Date: Thu, 12 Jul 2018 20:36:22 +0200
+        id S932411AbeGIJaE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 9 Jul 2018 05:30:04 -0400
+Date: Mon, 9 Jul 2018 11:29:52 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@free-electrons.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Jon Nettleton <jon@solid-run.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/2] rtc: armada38x: reset after rtc power loss
-Message-ID: <20180712183622.GI16084@piout.net>
-References: <00ffe926e6878724d8289dd0e289a1f16df55ef7.1529602823.git.baruch@tkos.co.il>
- <2a509f094a7ae584f657fb02791e5edea29ea149.1529602823.git.baruch@tkos.co.il>
+To: Johan Hovold <johan@kernel.org>
+Cc: Keerthy <j-keerthy@ti.com>, a.zummo@towertech.it, t-kristo@ti.com,
+        linux-rtc@vger.kernel.org, linux-omap@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] rtc: OMAP: Add support for rtc-only mode
+Message-ID: <20180709092952.GF16084@piout.net>
+References: <1531116709-20135-1-git-send-email-j-keerthy@ti.com>
+ <20180709075553.GA3633@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2a509f094a7ae584f657fb02791e5edea29ea149.1529602823.git.baruch@tkos.co.il>
+In-Reply-To: <20180709075553.GA3633@localhost>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 21/06/2018 20:40:23+0300, Baruch Siach wrote:
-> When the RTC block looses power it needs a reset sequence to make it
-> usable again. Otherwise, writes to the time register have no effect.
+On 09/07/2018 09:55:53+0200, Johan Hovold wrote:
+> On Mon, Jul 09, 2018 at 11:41:49AM +0530, Keerthy wrote:
+> > Prepare rtc driver for rtc-only with DDR in self-refresh mode.
+> > omap_rtc_power_off now should cater to two features:
+> > 
+> > 1) RTC plus DDR in self-refresh is power a saving mode where in the
+> > entire system including the different voltage rails from PMIC are
+> > shutdown except the ones feeding on to RTC and DDR. DDR is kept in
+> > self-refresh hence the contents are preserved. RTC ALARM2 is connected
+> > to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
+> > DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
+> > ALARM1 triggers waking up the system[1]. The control goes to bootloader.
+> > The bootloader then checks RTC scratchpad registers to confirm it was an
+> > rtc_only wakeup and follows a different path, configure bare minimal
+> > clocks for ddr and then jumps to the resume address in another RTC
+> > scratchpad registers and transfers the control to Kernel. Kernel then
+> > restores the saved context. omap_rtc_power_off_program does the ALARM2
+> > programming part.
+> > 
+> >      [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
+> > 
+> > 2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
+> > above omap_rtc_power_off_program function and in addition to that
+> > programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
+> > the pushbutton and shuts off the PMIC.
+> > 
+> > Hence the split in omap_rtc_power_off.
+> > 
+> > Signed-off-by: Keerthy <j-keerthy@ti.com>
+> > ---
+> > 
+> > Changes in v2:
+> > 
+> >   * Add details in the commit log.
+> >   * Use of_device_is_system_power_controller to check if rtc node is
+> >     indeed the system power control instead of manually reading property.
+> > 
+> >  drivers/rtc/interface.c |  12 ++++
+> >  drivers/rtc/rtc-omap.c  | 167 +++++++++++++++++++++++++++++++++---------------
+> >  include/linux/rtc.h     |   2 +
+> >  3 files changed, 131 insertions(+), 50 deletions(-)
+> > 
+> > diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> > index 6d4012d..d8b70f0 100644
+> > --- a/drivers/rtc/interface.c
+> > +++ b/drivers/rtc/interface.c
+> > @@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+> >  	trace_rtc_set_offset(offset, ret);
+> >  	return ret;
+> >  }
+> > +
+> > +/**
+> > + * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
+> > + * line and can be used to power off the SoC.
+> > + *
+> > + * Kernel interface to program rtc to power off
+> > + */
+> > +void rtc_power_off_program(struct rtc_device *rtc)
+> > +{
+> > +	rtc->ops->power_off_program(rtc->dev.parent);
+> > +}
+> > +EXPORT_SYMBOL_GPL(rtc_power_off_program);
 > 
-> This reset sequence combines information from the mvebu_rtc driver in
-> the Marvell provided U-Boot, and the SolidRun provided U-Boot repo.
+> We typically do not add new interfaces without any users, so this will
+> probably have to go in along with the corresponding omap changes for
+> rtc-only mode.
 > 
-> Tested on the Armada 388 based SolidRun Clearfog Base.
-> 
-> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-> ---
->  drivers/rtc/rtc-armada38x.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
-> 
-Applied, thanks.
+
+I'm probably not smart enough but I still don't get why you need to add
+an interface at all, especially one that will result in a NULL pointer
+dereference on 99.6% of the drivers.
+
+This is so specific to your use case that this has zero chance to be
+reused by another driver.
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
