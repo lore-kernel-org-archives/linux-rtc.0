@@ -1,60 +1,73 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.74]:46405 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726457AbeGKMvw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 08:51:52 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:38357 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754383AbeGIIaw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jul 2018 04:30:52 -0400
+Date: Mon, 9 Jul 2018 10:30:41 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        John Stultz <john.stultz@linaro.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [RESEND] rtc: use ktime_get_real_ts64() instead of getnstimeofday64()
-Date: Wed, 11 Jul 2018 14:47:12 +0200
-Message-Id: <20180711124723.1114803-1-arnd@arndb.de>
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
+Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
+ watchdog is running
+Message-ID: <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
+References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-getnstimeofday64() is just a wrapper around the ktime accessor, so
-we should use that directly.
+Hello,
 
-I considered using ktime_get_boottime_ts64() (to avoid leap second
-problems) or ktime_get_real_seconds() (to simplify the calculation,
-but in the end concluded that the existing interface is probably
-the most appropriate in this case.
+On Sat, Jun 09, 2018 at 08:43:13AM +0200, Uwe Kleine-König wrote:
+> As pointed out in the added comment resetting the rtc also stops the
+> included watchdog. This is bad if the bootloader started the watchdog to
+> secure the boot process. So don't reset if the watchdog is running.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-Originally sent on Jun 18, but got no reply
+I didn't get any feedback for this patch yet. Assuming my patch is
+considered ok, my expectation would be that the watchdog people ack it
+and that then it goes in via the rtc tree.
 
-Alexandre, could you pick this up into the rtc tree?
----
- drivers/rtc/class.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Best regards
+Uwe
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index d37588f08055..7fa32c922617 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -68,7 +68,7 @@ static int rtc_suspend(struct device *dev)
- 		return 0;
- 	}
- 
--	getnstimeofday64(&old_system);
-+	ktime_get_real_ts64(&old_system);
- 	old_rtc.tv_sec = rtc_tm_to_time64(&tm);
- 
- 
-@@ -110,7 +110,7 @@ static int rtc_resume(struct device *dev)
- 		return 0;
- 
- 	/* snapshot the current rtc and system time at resume */
--	getnstimeofday64(&new_system);
-+	ktime_get_real_ts64(&new_system);
- 	err = rtc_read_time(rtc, &tm);
- 	if (err < 0) {
- 		pr_debug("%s:  fail to read rtc time\n", dev_name(&rtc->dev));
+> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+> index d578e40d5a50..b76318fd5bb0 100644
+> --- a/drivers/rtc/rtc-stmp3xxx.c
+> +++ b/drivers/rtc/rtc-stmp3xxx.c
+> @@ -288,10 +288,22 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, rtc_data);
+>  
+> -	err = stmp_reset_block(rtc_data->io);
+> -	if (err) {
+> -		dev_err(&pdev->dev, "stmp_reset_block failed: %d\n", err);
+> -		return err;
+> +	/*
+> +	 * Resetting the rtc stops the watchdog timer that is potentially
+> +	 * running. So (assuming it is running on purpose) don't reset if the
+> +	 * watchdog is enabled.
+> +	 */
+> +	if (readl(rtc_data->io + STMP3XXX_RTC_CTRL) &
+> +	    STMP3XXX_RTC_CTRL_WATCHDOGEN) {
+> +		dev_info(&pdev->dev,
+> +			 "Watchdog is running, skip resetting rtc\n");
+> +	} else {
+> +		err = stmp_reset_block(rtc_data->io);
+> +		if (err) {
+> +			dev_err(&pdev->dev, "stmp_reset_block failed: %d\n",
+> +				err);
+> +			return err;
+> +		}
+>  	}
+>  
+>  	/*
+
 -- 
-2.9.0
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
