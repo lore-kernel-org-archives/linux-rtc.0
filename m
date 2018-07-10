@@ -1,24 +1,25 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:31107 "EHLO
-        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388256AbeGXMrN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Jul 2018 08:47:13 -0400
+Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:29534 "EHLO
+        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933279AbeGJJyP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:15 -0400
 From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
 CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
         "kernel@pengutronix.de" <kernel@pengutronix.de>,
         Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v5 5/5] rtc: isl1219: add device tree docu
-Date: Tue, 24 Jul 2018 11:31:22 +0000
-Message-ID: <20180724095437.6016-6-Denis.Osterland@diehl.com>
-References: <20180724095437.6016-1-Denis.Osterland@diehl.com>
-In-Reply-To: <20180724095437.6016-1-Denis.Osterland@diehl.com>
+Subject: [PATCH v4 3/5] rtc: isl1208: Add "evdet" interrupt source for
+ isl1219.
+Date: Tue, 10 Jul 2018 09:44:15 +0000
+Message-ID: <20180710090710.9066-4-Denis.Osterland@diehl.com>
+References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+In-Reply-To: <20180710090710.9066-1-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-rtc-owner@vger.kernel.org
@@ -26,51 +27,101 @@ List-ID: <linux-rtc.vger.kernel.org>
 
 From: Denis Osterland <Denis.Osterland@diehl.com>
 
-The devicetree documentation for the ISL1219 device tree
-binding is added with an short example. It is not a trivial
-device, because it supports two interrupt sources.
+Add support for "evdet" named interrupt source.
+
+The check if i2c client irq matches evdet irq is needed
+for the case that there is only one interrupt named "evdet".
+In this case i2c client code handles this like an unnamed
+interrupt souce and assigns the value.
 
 Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 ---
- .../devicetree/bindings/rtc/isil,isl1219.txt  | 29 +++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
+ drivers/rtc/rtc-isl1208.c | 46 +++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1219.txt b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-new file mode 100644
-index 000000000000..c3efd48e91c2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-@@ -0,0 +1,29 @@
-+Intersil ISL1219 I2C RTC/Alarm chip with event in
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index bb189fe6744a..bbe08c1ab9f3 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -15,6 +15,7 @@
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+ #include "rtc-core.h"
++#include <linux/of_irq.h>
+ 
+ /* Register map */
+ /* rtc section */
+@@ -725,11 +726,30 @@ static const struct attribute_group isl1219_rtc_sysfs_files = {
+ 	.attrs	= isl1219_rtc_attrs,
+ };
+ 
++static int isl1208_setup_irq(struct i2c_client *client, int irq)
++{
++	int rc = devm_request_threaded_irq(&client->dev, irq, NULL,
++					isl1208_rtc_interrupt,
++					IRQF_SHARED | IRQF_ONESHOT,
++					isl1208_driver.driver.name,
++					client);
++	if (!rc) {
++		device_init_wakeup(&client->dev, 1);
++		enable_irq_wake(irq);
++	} else {
++		dev_err(&client->dev,
++			"Unable to request irq %d, no alarm support\n",
++			irq);
++	}
++	return rc;
++}
 +
-+ISL1219 has additional pins EVIN and #EVDET for tamper detection.
+ static int
+ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ {
+ 	int rc = 0;
+ 	struct rtc_device *rtc;
++	int evdet_irq = -1;
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -ENODEV;
+@@ -766,28 +786,22 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
+ 		if (rc)
+ 			return rc;
++		evdet_irq = of_irq_get_byname(client->dev.of_node, "evdet");
+ 	}
+ 
+ 	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
+ 	if (rc)
+ 		return rc;
+ 
+-	if (client->irq > 0) {
+-		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-					       isl1208_rtc_interrupt,
+-					       IRQF_SHARED | IRQF_ONESHOT,
+-					       isl1208_driver.driver.name,
+-					       client);
+-		if (!rc) {
+-			device_init_wakeup(&client->dev, 1);
+-			enable_irq_wake(client->irq);
+-		} else {
+-			dev_err(&client->dev,
+-				"Unable to request irq %d, no alarm support\n",
+-				client->irq);
+-			client->irq = 0;
+-		}
+-	}
++	if (client->irq > 0)
++		rc = isl1208_setup_irq(client, client->irq);
++	if (rc)
++		return rc;
 +
-+Required properties supported by the device:
-+
-+ - "compatible": must be "isil,isl1219"
-+ - "reg": I2C bus address of the device
-+
-+Optional properties:
-+
-+ - "interrupt-names": list which may contains "irq" and "evdet"
-+ - "interrupts": list of interrupts for "irq" and "evdet"
-+ - "isil,ev-evienb": if present EV.EVIENB bit is set to the specified
-+                     value for proper operation.
-+
-+
-+Example isl1219 node with #IRQ pin connected to SoC gpio1 pin12
-+ and #EVDET pin connected to SoC gpio2 pin 24:
-+
-+	isl1219: rtc@68 {
-+		compatible = "isil,isl1219";
-+		reg = <0x68>;
-+		interrupt-names = "irq", "evdet";
-+		interrupts-extended = <&gpio1 12 IRQ_TYPE_EDGE_FALLING>,
-+			<&gpio2 24 IRQ_TYPE_EDGE_FALLING>;
-+		isil,ev-evienb = <1>;
-+	};
-+
++	if (evdet_irq > 0 && evdet_irq != client->irq)
++		rc = isl1208_setup_irq(client, evdet_irq);
++	if (rc)
++		return rc;
+ 
+ 	return rtc_register_device(rtc);
+ }
 -- 
 2.18.0
 
