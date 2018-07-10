@@ -1,46 +1,131 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:59288 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbeGZO6W (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 26 Jul 2018 10:58:22 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6/8] rtc: unexport rtc_irq_set_*
-Date: Thu, 26 Jul 2018 15:40:54 +0200
-Message-Id: <20180726134056.18273-7-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
-References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:64394 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933112AbeGJJyI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:08 -0400
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v4 1/5] rtc: sysfs: facilitate attribute add to rtc device
+Date: Tue, 10 Jul 2018 09:44:15 +0000
+Message-ID: <20180710090710.9066-2-Denis.Osterland@diehl.com>
+References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+In-Reply-To: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Make the rtc_irq_set interface internale to the RTC subsystem.
+From: Denis Osterland <Denis.Osterland@diehl.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+This patches addresses following problem:
+rtc_allocate_device
+devm_device_add_group  <-- kernel oops / null pointer, because
+			sysfs entry does not yet exist
+rtc_register_device
+rc = devm_device_add_group
+if (rc)
+	return rc;     <-- forbidden to return error code
+			after device register
+
+In case groups were not yet registered (kobj.state_in_sysfs == 0)
+rtc_add_group just addes given group to dev.groups,
+otherwise it uses devm_device_add_group.
+
+Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
 ---
- drivers/rtc/interface.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/rtc/rtc-core.h  |  6 ++++++
+ drivers/rtc/rtc-sysfs.c | 39 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 76eb3a2957cc..d0983ed6c842 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -758,7 +758,6 @@ int rtc_irq_set_state(struct rtc_device *rtc, int enabled)
- 	trace_rtc_irq_set_state(enabled, err);
- 	return err;
- }
--EXPORT_SYMBOL_GPL(rtc_irq_set_state);
+diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
+index 0abf98983e13..81d1c3ce7a96 100644
+--- a/drivers/rtc/rtc-core.h
++++ b/drivers/rtc/rtc-core.h
+@@ -40,9 +40,15 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
  
- /**
-  * rtc_irq_set_freq - set 2^N Hz periodic IRQ frequency for IRQ
-@@ -784,7 +783,6 @@ int rtc_irq_set_freq(struct rtc_device *rtc, int freq)
- 	trace_rtc_irq_set_freq(freq, err);
- 	return err;
+ #ifdef CONFIG_RTC_INTF_SYSFS
+ const struct attribute_group **rtc_get_dev_attribute_groups(void);
++int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp);
+ #else
+ static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
+ {
+ 	return NULL;
  }
--EXPORT_SYMBOL_GPL(rtc_irq_set_freq);
- 
- /**
-  * rtc_timer_enqueue - Adds a rtc_timer to the rtc_device timerqueue
++static inline
++int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
++{
++	return 0;
++}
+ #endif
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 454da38c6012..9a177b8f761b 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -317,3 +317,42 @@ const struct attribute_group **rtc_get_dev_attribute_groups(void)
+ {
+ 	return rtc_attr_groups;
+ }
++
++static size_t rtc_group_count(struct rtc_device *rtc)
++{
++	const struct attribute_group **groups = rtc->dev.groups;
++	size_t cnt = 0;
++
++	if (groups)
++		for (; *groups; groups++)
++			cnt++;
++
++	return cnt;
++}
++
++static inline int
++__rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
++{
++	size_t cnt = rtc_group_count(rtc);
++	const struct attribute_group **groups, **old;
++
++	groups = devm_kzalloc(&rtc->dev, (cnt+2)*sizeof(*groups), GFP_KERNEL);
++	if (IS_ERR_OR_NULL(groups))
++		return PTR_ERR(groups);
++	memcpy(groups, rtc->dev.groups, cnt*sizeof(*groups));
++	groups[cnt] = grp;
++
++	old = rtc->dev.groups;
++	rtc->dev.groups = groups;
++	if (old != rtc_attr_groups)
++		devm_kfree(&rtc->dev, old);
++
++	return 0;
++}
++
++int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
++{
++	return rtc->dev.kobj.state_in_sysfs ?
++		devm_device_add_group(&rtc->dev, grp) :
++		__rtc_add_group(rtc, grp);
++}
 -- 
 2.18.0
+
+
+
+Diehl Connectivity Solutions GmbH
+Geschäftsführung: Horst Leonberger
+Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
+Nürnberg: HRB 32315
+___________________________________________________________________________________________________
+
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
+Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
+mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
