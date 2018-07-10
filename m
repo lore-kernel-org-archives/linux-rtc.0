@@ -1,163 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:37960 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729501AbeGYSi5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:57 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id B6643B008F3
-        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:18 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id v7NK724sp3px for <linux-rtc@vger.kernel.org>;
-        Wed, 25 Jul 2018 19:26:18 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: alexandre.belloni@bootlin.com
-Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v11 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 25 Jul 2018 19:26:04 +0200
-Message-Id: <20180725172605.108040-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
-References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:34967 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750985AbeGJHG5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 03:06:57 -0400
+Date: Tue, 10 Jul 2018 09:06:43 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
+ watchdog is running
+Message-ID: <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
+References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
+ <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
+ <20180709161924.GA4595@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180709161924.GA4595@roeck-us.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
+Hello,
 
-Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+adding Wolfram to Cc who authored the watchdog bits in the rtc driver.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
+On Mon, Jul 09, 2018 at 09:19:24AM -0700, Guenter Roeck wrote:
+> On Mon, Jul 09, 2018 at 10:30:41AM +0200, Uwe Kleine-König wrote:
+> > Hello,
+> > 
+> > On Sat, Jun 09, 2018 at 08:43:13AM +0200, Uwe Kleine-König wrote:
+> > > As pointed out in the added comment resetting the rtc also stops the
+> > > included watchdog. This is bad if the bootloader started the watchdog to
+> > > secure the boot process. So don't reset if the watchdog is running.
+> > 
+> > I didn't get any feedback for this patch yet. Assuming my patch is
+> > considered ok, my expectation would be that the watchdog people ack it
+> > and that then it goes in via the rtc tree.
+> > 
+> 
+> Guess there was a good reason for not passing an accessor via regmap ?
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0162a600ff1b..c6d871456f25 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,20 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
- 
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		BIT(7)
-+#	define M41TXX_BIT_FT		BIT(6)
-+#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
-+#	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
-+
-+/* negative offset step is -2.034ppm */
-+#define M41TXX_NEG_OFFSET_STEP_PPB	2034
-+/* positive offset step is +4.068ppm */
-+#define M41TXX_POS_OFFSET_STEP_PPB	4068
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
-+#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +160,9 @@ struct chip_desc {
- 
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
- 
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
-+};
-+
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
- 
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
-+	else
-+		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	if (offset >= 0) {
-+		ctrl_reg = DIV_ROUND_CLOSEST(offset,
-+					     M41TXX_POS_OFFSET_STEP_PPB);
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+	} else {
-+		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
-+					     M41TXX_NEG_OFFSET_STEP_PPB);
-+	}
-+
-+	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
-+				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
-+				  ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+I don't know the details, but maybe this concept wasn't picked because
+just passing a single function for setting the timeout was considered
+simpler. Also given that the registers for wdg and rtc are not separated
+cleanly giving the wdg driver a regmap isn't "nice" IMHO.
+
+Last time I worked on this driver I wondered if it would be cleaner to
+merge both drivers into drivers/rtc as the relevant functionality
+(stmp3xxx_wdt_set_timeout()) is in that driver anyhow and
+drivers/watchdog/stmp3xxx_rtc_wdt.c mostly contains stuff to handle the
+separation. Oh, and there is a reboot notifier that looks strange where
+I wonder if it is really needed.
+
+> Either case, stmp_reset_block() is also called from resume, meaning the
+> watchdog, if running, will likely be disabled by a suspend/resume cycle.
+
+Yeah, that's right. The watchdog driver has the corresponding callbacks
+and restarts the timer on resume though.
+
+> I have no idea why the rtc block is reset in the first place;
+> one would assume that there was a reason for that.
+
+The usual reason is to ensure a clean hardware state. I wouldn't expect
+a deeper reason here. (And if there is one, and removing it really
+breaks something, the right way forward is to reintroduce the reset with
+an explaining comment and think about how to fix the watchdog issue I
+fixed in another way.)
+
+> The associated watchdog driver does not support telling the watchdog
+> core that the watchdog is running. As such, a watchdog running at boot
+> will only be handled if the watchdog daemon is started before the
+> watchdog times out. I assume this is understood and acceptable.
+
+Yeah, that's the use case we have.
+
+> Given all that, and taking no responsibility for the actual impact
+> of the changes, I can only confirm that the patch looks syntactically
+> correct.
+> 
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+Thanks
+Uwe
+
 -- 
-2.17.1
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
