@@ -1,48 +1,93 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:51610 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728348AbeGYHCL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 03:02:11 -0400
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:50394 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751046AbeGJGvW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 02:51:22 -0400
 From: Keerthy <j-keerthy@ti.com>
 To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
 CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
         <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <johan@kernel.org>
-Subject: [PATCH v5 1/2] rtc: omap: use of_device_is_system_power_controller function
-Date: Wed, 25 Jul 2018 11:21:21 +0530
-Message-ID: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
+Subject: [PATCH v3 4/4] rtc: interface: Add power_off_program to rtc_class_ops
+Date: Tue, 10 Jul 2018 12:20:52 +0530
+Message-ID: <1531205452-6086-5-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use of_device_is_system_power_controller instead of manually reading
-the system-power-controller property from the device tree node.
+Add an interface function to set up the rtc for a power_off
+mode.
 
-Reviewed-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Keerthy <j-keerthy@ti.com>
 ---
 
-Changes in v5:
+Alexandre,
 
-  * Added Johan's Reviewed-by
+If you feel power_off_program will be very use case specific then
+I can name this as custom_rtc_program so that even other rtc
+drivers if need be can use this for a custom programming.
 
- drivers/rtc/rtc-omap.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+- Keerthy
 
+ drivers/rtc/interface.c | 12 ++++++++++++
+ drivers/rtc/rtc-omap.c  |  1 +
+ include/linux/rtc.h     |  2 ++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 6d4012d..c19668b9 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+ 	trace_rtc_set_offset(offset, ret);
+ 	return ret;
+ }
++
++/**
++ * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
++ * line and can be used to power off the SoC.
++ *
++ * Kernel interface to program rtc to power off
++ */
++int rtc_power_off_program(struct rtc_device *rtc)
++{
++	return rtc->ops->power_off_program(rtc->dev.parent);
++}
++EXPORT_SYMBOL_GPL(rtc_power_off_program);
 diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 323ff55..44ff4cc 100644
+index 75a12eb..a1f9dde 100644
 --- a/drivers/rtc/rtc-omap.c
 +++ b/drivers/rtc/rtc-omap.c
-@@ -721,8 +721,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	if (of_id) {
- 		rtc->type = of_id->data;
- 		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
--				of_property_read_bool(pdev->dev.of_node,
--						"system-power-controller");
-+			of_device_is_system_power_controller(pdev->dev.of_node);
- 	} else {
- 		id_entry = platform_get_device_id(pdev);
- 		rtc->type = (void *)id_entry->driver_data;
+@@ -519,6 +519,7 @@ static void omap_rtc_power_off(void)
+ 	.read_alarm	= omap_rtc_read_alarm,
+ 	.set_alarm	= omap_rtc_set_alarm,
+ 	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
++	.power_off_program = omap_rtc_power_off_program,
+ };
+ 
+ static const struct omap_rtc_device_type omap_rtc_default_type = {
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 6268208..3fc640c 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -85,6 +85,7 @@ struct rtc_class_ops {
+ 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
+ 	int (*read_offset)(struct device *, long *offset);
+ 	int (*set_offset)(struct device *, long offset);
++	int (*power_off_program)(struct device *dev);
+ };
+ 
+ typedef struct rtc_task {
+@@ -229,6 +230,7 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+ int rtc_read_offset(struct rtc_device *rtc, long *offset);
+ int rtc_set_offset(struct rtc_device *rtc, long offset);
+ void rtc_timer_do_work(struct work_struct *work);
++int rtc_power_off_program(struct rtc_device *rtc);
+ 
+ static inline bool is_leap_year(unsigned int year)
+ {
 -- 
 1.9.1
