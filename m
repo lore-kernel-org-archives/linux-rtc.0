@@ -1,207 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:37276 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388029AbeGWPWW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jul 2018 11:22:22 -0400
-Date: Mon, 23 Jul 2018 16:20:40 +0200
-From: Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-To: Rob Herring <robh@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-Id: <1532355640.2289.0@smtp.crapouillou.net>
-In-Reply-To: <CAL_JsqKrJC7v79L89PCP-hihYLSNjp05xMxQQaVZPLPk26MuHw@mail.gmail.com>
-References: <20180713151424.13000-1-paul@crapouillou.net>
-        <20180714131920.GU16084@piout.net> <1531574734.2831.0@smtp.crapouillou.net>
-        <20180714133250.GW16084@piout.net> <1531576208.2831.1@smtp.crapouillou.net>
-        <20180720153956.GA18135@rob-hp-laptop>
-        <1532113439.2309.1@smtp.crapouillou.net>
-        <CAL_JsqKrJC7v79L89PCP-hihYLSNjp05xMxQQaVZPLPk26MuHw@mail.gmail.com>
+Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:34098 "EHLO
+        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933095AbeGJJyI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:08 -0400
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v4 0/5] rtc: isl1208: fixes, documentation and isl1219 support
+Date: Tue, 10 Jul 2018 09:44:15 +0000
+Message-ID: <20180710090710.9066-1-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+changes since v3:
+Add function to rtc-sysfs to add a group to device groups field,
+between alloc and register calls.
+Remove isl1208 struct to reduce patch footprint.
+Change prefix of defines and functions only available on isl1219.
+Use DEVICE_ATTR_RW macro for timestamp0 attribute.
+Call validate tm before convert and use unsigned long long cased value.
+Add device-tree flag to disable event in pull-up to maximize battery
+life time.
 
-Le lun. 23 juil. 2018 =E0 16:18, Rob Herring <robh@kernel.org> a =E9crit :
-> On Fri, Jul 20, 2018 at 1:04 PM Paul Cercueil <paul@crapouillou.net>=20
-> wrote:
->>=20
->>  Hi,
->>=20
->>  Le ven. 20 juil. 2018 =E0 17:39, Rob Herring <robh@kernel.org> a=20
->> =E9crit :
->>  > On Sat, Jul 14, 2018 at 03:50:08PM +0200, Paul Cercueil wrote:
->>  >>
->>  >>
->>  >>  Le sam. 14 juil. 2018 =E0 15:32, Alexandre Belloni
->>  >>  <alexandre.belloni@bootlin.com> a =E9crit :
->>  >>  > On 14/07/2018 15:25:33+0200, Paul Cercueil wrote:
->>  >>  > >  Hi Alexandre,
->>  >>  > >
->>  >>  > >  Le sam. 14 juil. 2018 =E0 15:19, Alexandre Belloni
->>  >>  > >  <alexandre.belloni@bootlin.com> a =E9crit :
->>  >>  > >  > Hello,
->>  >>  > >  >
->>  >>  > >  > On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
->>  >>  > >  > >  The RTC in the JZ4725B works just like the one in the
->>  >> JZ4740.
->>  >>  > >  > >
->>  >>  > >  > >  The RTC in the JZ4760 and JZ4770 work just like the=20
->> one
->>  >> in the
->>  >>  > >  > > JZ4780.
->>  >>  > >  > >
->>  >>  > >  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  >>  > >  > >  ---
->>  >>  > >  > >
->>  >> Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  >>  > > |  3
->>  >>  > >  > > +++
->>  >>  > >  > >   drivers/rtc/rtc-jz4740.c
->>  >>  > > | 11
->>  >>  > >  > > ++++++++++-
->>  >>  > >  > >   2 files changed, 13 insertions(+), 1 deletion(-)
->>  >>  > >  > >
->>  >>  > >  > >  diff --git
->>  >>  > >  > >
->>  >> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  >>  > >  > >
->>  >> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  >>  > >  > >  index 41c7ae18fd7b..a9e821de84f2 100644
->>  >>  > >  > >  ---
->>  >>  > >=20
->> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  >>  > >  > >  +++
->>  >>  > >=20
->> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  >>  > >  > >  @@ -4,6 +4,9 @@ Required properties:
->>  >>  > >  > >
->>  >>  > >  > >   - compatible: One of:
->>  >>  > >  > >     - "ingenic,jz4740-rtc" - for use with the JZ4740=20
->> SoC
->>  >>  > >  > >  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B=20
->> SoC
->>  >>  > >  > >  +  - "ingenic,jz4760-rtc" - for use with the JZ4760=20
->> SoC
->>  >>  > >  > >  +  - "ingenic,jz4770-rtc" - for use with the JZ4770=20
->> SoC
->>  >>  > >  > >     - "ingenic,jz4780-rtc" - for use with the JZ4780=20
->> SoC
->>  >>  > >  > >   - reg: Address range of rtc register set
->>  >>  > >  > >   - interrupts: IRQ number for the alarm interrupt
->>  >>  > >  > >  diff --git a/drivers/rtc/rtc-jz4740.c
->>  >>  > > b/drivers/rtc/rtc-jz4740.c
->>  >>  > >  > >  index d0a891777f44..1c867e3a0ea5 100644
->>  >>  > >  > >  --- a/drivers/rtc/rtc-jz4740.c
->>  >>  > >  > >  +++ b/drivers/rtc/rtc-jz4740.c
->>  >>  > >  > >  @@ -54,6 +54,9 @@
->>  >>  > >  > >
->>  >>  > >  > >   enum jz4740_rtc_type {
->>  >>  > >  > >    ID_JZ4740,
->>  >>  > >  > >  + ID_JZ4725B,
->>  >>  > >  > >  + ID_JZ4760,
->>  >>  > >  > >  + ID_JZ4770,
->>  >>  > >  >
->>  >>  > >  > I wouldn't introduce those ids unless there are handling
->>  >>  > > differences at
->>  >>  > >  > some point.
->>  >>  > >
->>  >>  > >  Well there are handling differences, see below.
->>  >>  > >
->>  >>  > >  > >    ID_JZ4780,
->>  >>  > >  > >   };
->>  >>  > >  > >
->>  >>  > >  > >  @@ -114,7 +117,7 @@ static inline int
->>  >>  > > jz4740_rtc_reg_write(struct
->>  >>  > >  > > jz4740_rtc *rtc, size_t reg,
->>  >>  > >  > >   {
->>  >>  > >  > >    int ret =3D 0;
->>  >>  > >  > >
->>  >>  > >  > >  - if (rtc->type >=3D ID_JZ4780)
->>  >>  > >  > >  + if (rtc->type >=3D ID_JZ4760)
->>  >>  > >  >
->>  >>  > >  > This would avoid that change (and the test would=20
->> preferably
->>  >> be
->>  >>  > >  > (rtc->type =3D=3D ID_JZ4780))
->>  >>  > >
->>  >>  > >  That branch should be taken if the SoC is JZ4760, JZ4770 or
->>  >> JZ4780.
->>  >>  > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
->>  >>  >
->>  >>  > Sure but you can achieve that with only 2 ids...
->>  >>  >
->>  >>  > >
->>  >>  > >  > >            ret =3D jz4780_rtc_enable_write(rtc);
->>  >>  > >  > >    if (ret =3D=3D 0)
->>  >>  > >  > >            ret =3D jz4740_rtc_wait_write_ready(rtc);
->>  >>  > >  > >  @@ -300,6 +303,9 @@ static void=20
->> jz4740_rtc_power_off(void)
->>  >>  > >  > >
->>  >>  > >  > >   static const struct of_device_id=20
->> jz4740_rtc_of_match[] =3D
->>  >> {
->>  >>  > >  > >    { .compatible =3D "ingenic,jz4740-rtc", .data =3D (void
->>  >>  > > *)ID_JZ4740 },
->>  >>  > >  > >  + { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (voi=
-d
->>  >>  > > *)ID_JZ4725B
->>  >>  > >  > > },
->>  >>  > >  > >  + { .compatible =3D "ingenic,jz4760-rtc", .data =3D (void
->>  >>  > > *)ID_JZ4760 },
->>  >>  > >  > >  + { .compatible =3D "ingenic,jz4770-rtc", .data =3D (void
->>  >>  > > *)ID_JZ4770 },
->>  >>  >
->>  >>  > By doing the correct mapping here e.g:
->>  >>  >
->>  >>  > { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void=20
->> *)ID_JZ4740
->>  >> },
->>  >>
->>  >>  Not very pretty and future-proof if you ask me...
->>  >
->>  > Looks to me like this can be handled entirely in DT without driver
->>  > changes like the other patches. Correct usage of compatible=20
->> strings is
->>  > what gives you future-proofing. And no driver change is better=20
->> than
->>  > needless changing.
->>=20
->>  If I make e.g. the jz4760 and jz4770 use the jz4780 compatible=20
->> string,
->>  but
->>  then I want to implement a new feature that only exists on the=20
->> jz4780,
->>  how
->>  can I do it without breaking everything?
->=20
-> You specify both:
->=20
-> compatible =3D "ingenic,jz4760-rtc", "ingenic,jz4780-rtc";
->=20
-> You match on the less specific compatible until you have features or
-> bugs to handle for the more specific compatible. In your case, you
-> would have to start matching on the 4760 and 4770 and not support the
-> feature for those. A bit backwards from normal, but would still work.
 
-Right, I didn't think about that.
-Thanks!
+Michael Grzeschik (1):
+    rtc: isl1208: add support for isl1219 with tamper detection
 
->>  > It may look a bit wierd if 4780 is the fallback for 4770, but if=20
->> the
->>  > 4780 is older, then that actually makes sense.
->>=20
->>  The 4770 is older than the 4780.
->=20
-> As I said, it's weird, but it will all still work. You could fix this
-> if you want. It would only matter if you had a old dtb with a new
-> kernel and care about that case working.
->=20
-> Rob
-=
+Denis Osterland (4):
+    rtc: sysfs: facilitate attribute add to rtc device
+    rtc: isl1208: Add "evdet" interrupt source for isl1219.
+    rtc: isl1208: set ev-evienb bit from device tree
+    rtc: isl1219: add device tree docu
+
+ .../devicetree/bindings/rtc/isil,isl1219.txt       |  29 ++++
+ drivers/rtc/rtc-core.h                             |   6 +
+ drivers/rtc/rtc-isl1208.c                          | 181 ++++++++++++++++++---
+ drivers/rtc/rtc-sysfs.c                            |  39 +++++
+ 4 files changed, 232 insertions(+), 23 deletions(-)
+
+Message-Id: 1520246373-19023-1-git-send-email-Denis.Osterland@diehl.com
+
+
+
+
+
+Diehl Connectivity Solutions GmbH
+Geschäftsführung: Horst Leonberger
+Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
+Nürnberg: HRB 32315
+___________________________________________________________________________________________________
+
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
+Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
+mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
