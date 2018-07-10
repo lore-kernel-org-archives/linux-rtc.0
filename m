@@ -1,131 +1,151 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:46682 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726043AbeGNNow (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Jul 2018 09:44:52 -0400
-Date: Sat, 14 Jul 2018 15:25:33 +0200
-From: Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <1531574734.2831.0@smtp.crapouillou.net>
-In-Reply-To: <20180714131920.GU16084@piout.net>
-References: <20180713151424.13000-1-paul@crapouillou.net>
-        <20180714131920.GU16084@piout.net>
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:44648 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932910AbeGJGwR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 02:52:17 -0400
+From: Keerthy <j-keerthy@ti.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
+        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <johan@kernel.org>
+Subject: [PATCH v3 2/4] rtc: OMAP: Add support for rtc-only mode
+Date: Tue, 10 Jul 2018 12:20:50 +0530
+Message-ID: <1531205452-6086-3-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+Prepare rtc driver for rtc-only with DDR in self-refresh mode.
+omap_rtc_power_off now should cater to two features:
 
-Le sam. 14 juil. 2018 =E0 15:19, Alexandre Belloni=20
-<alexandre.belloni@bootlin.com> a =E9crit :
-> Hello,
->=20
-> On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
->>  The RTC in the JZ4725B works just like the one in the JZ4740.
->>=20
->>  The RTC in the JZ4760 and JZ4770 work just like the one in the=20
->> JZ4780.
->>=20
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->>   Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  3=20
->> +++
->>   drivers/rtc/rtc-jz4740.c                                     | 11=20
->> ++++++++++-
->>   2 files changed, 13 insertions(+), 1 deletion(-)
->>=20
->>  diff --git=20
->> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt=20
->> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  index 41c7ae18fd7b..a9e821de84f2 100644
->>  --- a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
->>  @@ -4,6 +4,9 @@ Required properties:
->>=20
->>   - compatible: One of:
->>     - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
->>  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
->>  +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
->>  +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
->>     - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
->>   - reg: Address range of rtc register set
->>   - interrupts: IRQ number for the alarm interrupt
->>  diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
->>  index d0a891777f44..1c867e3a0ea5 100644
->>  --- a/drivers/rtc/rtc-jz4740.c
->>  +++ b/drivers/rtc/rtc-jz4740.c
->>  @@ -54,6 +54,9 @@
->>=20
->>   enum jz4740_rtc_type {
->>   	ID_JZ4740,
->>  +	ID_JZ4725B,
->>  +	ID_JZ4760,
->>  +	ID_JZ4770,
->=20
-> I wouldn't introduce those ids unless there are handling differences=20
-> at
-> some point.
+1) RTC plus DDR in self-refresh is power a saving mode where in the
+entire system including the different voltage rails from PMIC are
+shutdown except the ones feeding on to RTC and DDR. DDR is kept in
+self-refresh hence the contents are preserved. RTC ALARM2 is connected
+to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
+DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
+ALARM1 triggers waking up the system[1]. The control goes to bootloader.
+The bootloader then checks RTC scratchpad registers to confirm it was an
+rtc_only wakeup and follows a different path, configure bare minimal
+clocks for ddr and then jumps to the resume address in another RTC
+scratchpad registers and transfers the control to Kernel. Kernel then
+restores the saved context. omap_rtc_power_off_program does the ALARM2
+programming part.
 
-Well there are handling differences, see below.
+     [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
 
->>   	ID_JZ4780,
->>   };
->>=20
->>  @@ -114,7 +117,7 @@ static inline int jz4740_rtc_reg_write(struct=20
->> jz4740_rtc *rtc, size_t reg,
->>   {
->>   	int ret =3D 0;
->>=20
->>  -	if (rtc->type >=3D ID_JZ4780)
->>  +	if (rtc->type >=3D ID_JZ4760)
->=20
-> This would avoid that change (and the test would preferably be=20
-> (rtc->type =3D=3D ID_JZ4780))
+2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
+above omap_rtc_power_off_program function and in addition to that
+programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
+the pushbutton and shuts off the PMIC.
 
-That branch should be taken if the SoC is JZ4760, JZ4770 or JZ4780.
-It should not be taken if the SoC is JZ4740 or JZ4725B.
+Hence the split in omap_rtc_power_off.
 
->>   		ret =3D jz4780_rtc_enable_write(rtc);
->>   	if (ret =3D=3D 0)
->>   		ret =3D jz4740_rtc_wait_write_ready(rtc);
->>  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
->>=20
->>   static const struct of_device_id jz4740_rtc_of_match[] =3D {
->>   	{ .compatible =3D "ingenic,jz4740-rtc", .data =3D (void *)ID_JZ4740 }=
-,
->>  +	{ .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void *)ID_JZ4725B=
-=20
->> },
->>  +	{ .compatible =3D "ingenic,jz4760-rtc", .data =3D (void *)ID_JZ4760 }=
-,
->>  +	{ .compatible =3D "ingenic,jz4770-rtc", .data =3D (void *)ID_JZ4770 }=
-,
->>   	{ .compatible =3D "ingenic,jz4780-rtc", .data =3D (void *)ID_JZ4780 }=
-,
->>   	{},
->>   };
->>  @@ -428,6 +434,9 @@ static const struct dev_pm_ops jz4740_pm_ops =3D {
->>=20
->>   static const struct platform_device_id jz4740_rtc_ids[] =3D {
->>   	{ "jz4740-rtc", ID_JZ4740 },
->>  +	{ "jz4725b-rtc", ID_JZ4725B },
->>  +	{ "jz4760-rtc", ID_JZ4760 },
->>  +	{ "jz4770-rtc", ID_JZ4770 },
->>   	{ "jz4780-rtc", ID_JZ4780 },
->>   	{}
->>   };
->>  --
->>  2.11.0
->>=20
->=20
-> --
-> Alexandre Belloni, Bootlin (formerly Free Electrons)
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-=
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ drivers/rtc/rtc-omap.c | 58 +++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 43 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 14f2241..af46140 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -415,28 +415,23 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ static struct omap_rtc *omap_rtc_power_off_rtc;
+ 
+-/*
+- * omap_rtc_poweroff: RTC-controlled power off
+- *
+- * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+- * which can be configured to transition to OFF on ALARM2 events.
+- *
+- * Notes:
+- * The two-second alarm offset is the shortest offset possible as the alarm
+- * registers must be set before the next timer update and the offset
+- * calculation is too heavy for everything to be done within a single access
+- * period (~15 us).
+- *
+- * Called with local interrupts disabled.
++/**
++ * omap_rtc_power_off_program: Set the pmic power off sequence. The RTC
++ * generates pmic_pwr_enable control, which can be used to control an external
++ * PMIC.
+  */
+-static void omap_rtc_power_off(void)
++static int omap_rtc_power_off_program(struct device *dev)
+ {
+ 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+ 	struct rtc_time tm;
+ 	unsigned long now;
++	int seconds;
+ 	u32 val;
+ 
+ 	rtc->type->unlock(rtc);
++	/* Clear any existing ALARM2 event */
++	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
++
+ 	/* enable pmic_power_en control */
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+ 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+@@ -444,6 +439,7 @@ static void omap_rtc_power_off(void)
+ again:
+ 	/* set alarm one second from now */
+ 	omap_rtc_read_time_raw(rtc, &tm);
++	seconds = tm.tm_sec;
+ 	bcd2tm(&tm);
+ 	rtc_tm_to_time(&tm, &now);
+ 	rtc_time_to_tm(now + 1, &tm);
+@@ -451,7 +447,7 @@ static void omap_rtc_power_off(void)
+ 	if (tm2bcd(&tm) < 0) {
+ 		dev_err(&rtc->rtc->dev, "power off failed\n");
+ 		rtc->type->lock(rtc);
+-		return;
++		return -EINVAL;
+ 	}
+ 
+ 	rtc_wait_not_busy(rtc);
+@@ -477,6 +473,38 @@ static void omap_rtc_power_off(void)
+ 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+ 	rtc->type->lock(rtc);
+ 
++	return 0;
++}
++
++/*
++ * omap_rtc_poweroff: RTC-controlled power off
++ *
++ * The RTC can be used to control an external PMIC via the pmic_power_en pin,
++ * which can be configured to transition to OFF on ALARM2 events.
++ *
++ * Notes:
++ * The one-second alarm offset is the shortest offset possible as the alarm
++ * registers must be set before the next timer update and the offset
++ * calculation is too heavy for everything to be done within a single access
++ * period (~15 us).
++ *
++ * Called with local interrupts disabled.
++ */
++static void omap_rtc_power_off(void)
++{
++	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
++	u32 val;
++
++	omap_rtc_power_off_program(rtc->dev.parent);
++
++	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
++	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
++	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
++	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
++			OMAP_RTC_PMIC_EXT_WKUP_EN(0);
++	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
++	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
++
+ 	/*
+ 	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+ 	 * power off the system. Add a 500 ms margin for external latencies
+-- 
+1.9.1
