@@ -1,65 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:31107 "EHLO
-        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388256AbeGXMrQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Jul 2018 08:47:16 -0400
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:35592 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933248AbeGJOHr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 10:07:47 -0400
 From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+To: "lkp@intel.com" <lkp@intel.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>
-CC: "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "kbuild-all@01.org" <kbuild-all@01.org>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        Denis OSTERLAND <denis.osterland@diehl.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: [PATCH v5 0/5] rtc: isl1208: fixes, documentation and isl1219 support
-Date: Tue, 24 Jul 2018 11:31:21 +0000
-Message-ID: <20180724095437.6016-1-Denis.Osterland@diehl.com>
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Date: Tue, 10 Jul 2018 14:06:57 +0000
+Message-ID: <1531231616.7366.2.camel@diehl.com>
+References: <20180710090710.9066-3-Denis.Osterland@diehl.com>
+         <201807102100.7IWfwFfW%fengguang.wu@intel.com>
+In-Reply-To: <201807102100.7IWfwFfW%fengguang.wu@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-changes since v4:
- - fix 'souces' typo and change interrupt documentation
- - change "isil,ev-evienb" type to int and do not touch bit if not present
- - pass ISL1219_REG_EV_EVEN directly instead of assigning it to rc
- - fix module build by adding EXPORT_SYMBOL to rtc_add_group(s)
- - use kcalloc
- - return error if device is already registered
- - include helper functions into rtc_add_groups
-
-Michael Grzeschik (1):
-    rtc: isl1208: add support for isl1219 with tamper detection
-
-Denis Osterland (4):
-    rtc: sysfs: facilitate attribute add to rtc device
-    rtc: isl1208: Add "evdet" interrupt source for isl1219.
-    rtc: isl1208: set ev-evienb bit from device tree
-    rtc: isl1219: add device tree docu
-
- .../devicetree/bindings/rtc/isil,isl1219.txt       |  29 ++++
- drivers/rtc/rtc-core.h                             |  13 ++
- drivers/rtc/rtc-isl1208.c                          | 192 ++++++++++++++++++---
- drivers/rtc/rtc-sysfs.c                            |  43 +++++
- 4 files changed, 254 insertions(+), 23 deletions(-)
-
-Message-Id: 20180710090710.9066-1-Denis.Osterland@diehl.com
-
-
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+SGksDQoNCnNlZW1zIDIvNSB3YXMgYXBwbGllZCBiZWZvcmUgMS81Lg0KMS81IGludHJvZHVj
+ZXMgcnRjX2FkZF9ncm91cC4NCg0KUmVnYXJkcyBEZW5pcw0KDQpBbSBEaWVuc3RhZywgZGVu
+IDEwLjA3LjIwMTgsIDIxOjIwICswODAwIHNjaHJpZWIga2J1aWxkIHRlc3Qgcm9ib3Q6DQo+
+IEhpIE1pY2hhZWwsDQo+IA0KPiBJIGxvdmUgeW91ciBwYXRjaCEgWWV0IHNvbWV0aGluZyB0
+byBpbXByb3ZlOg0KPiANCj4gW2F1dG8gYnVpbGQgdGVzdCBFUlJPUiBvbiBhYmVsbG9uaS9y
+dGMtbmV4dF0NCj4gW2Fsc28gYnVpbGQgdGVzdCBFUlJPUiBvbiB2NC4xOC1yYzQgbmV4dC0y
+MDE4MDcwOV0NCj4gW2lmIHlvdXIgcGF0Y2ggaXMgYXBwbGllZCB0byB0aGUgd3JvbmcgZ2l0
+IHRyZWUsIHBsZWFzZSBkcm9wIHVzIGEgbm90ZSB0byBoZWxwIGltcHJvdmUgdGhlIHN5c3Rl
+bV0NCj4gDQo+IHVybDrCoMKgwqDCoGh0dHBzOi8vZ2l0aHViLmNvbS8wZGF5LWNpL2xpbnV4
+L2NvbW1pdHMvRGVuaXMtT1NURVJMQU5EL3J0Yy1pc2wxMjA4LWZpeGVzLWRvY3VtZW50YXRp
+b24tYW5kLWlzbDEyMTktc3VwcG9ydC8yMDE4MDcxMC0xODE3MDkNCj4gYmFzZTrCoMKgwqBo
+dHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9hYmVsbG9u
+aS9saW51eC5naXQgcnRjLW5leHQNCj4gY29uZmlnOiB4ODZfNjQtcmFuZGNvbmZpZy1zNC0w
+NzEwMTg1NyAoYXR0YWNoZWQgYXMgLmNvbmZpZykNCj4gY29tcGlsZXI6IGdjYy03IChEZWJp
+YW4gNy4zLjAtMTYpIDcuMy4wDQo+IHJlcHJvZHVjZToNCj4gwqDCoMKgwqDCoMKgwqDCoCMg
+c2F2ZSB0aGUgYXR0YWNoZWQgLmNvbmZpZyB0byBsaW51eCBidWlsZCB0cmVlDQo+IMKgwqDC
+oMKgwqDCoMKgwqBtYWtlIEFSQ0g9eDg2XzY0wqANCj4gDQo+IEFsbCBlcnJvcnMgKG5ldyBv
+bmVzIHByZWZpeGVkIGJ5ID4+KToNCj4gDQo+ID4gDQo+ID4gPiANCj4gPiA+IEVSUk9SOiAi
+cnRjX2FkZF9ncm91cCIgW2RyaXZlcnMvcnRjL3J0Yy1pc2wxMjA4LmtvXSB1bmRlZmluZWQh
+DQo+IC0tLQ0KPiAwLURBWSBrZXJuZWwgdGVzdCBpbmZyYXN0cnVjdHVyZcKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgT3BlbiBTb3VyY2UgVGVjaG5vbG9neSBDZW50ZXINCj4g
+aHR0cHM6Ly9saXN0cy4wMS5vcmcvcGlwZXJtYWlsL2tidWlsZC1hbGzCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoEludGVsIENvcnBvcmF0aW9uDQoNCkRpZWhsIENv
+bm5lY3Rpdml0eSBTb2x1dGlvbnMgR21iSA0KR2VzY2jDpGZ0c2bDvGhydW5nOiBIb3JzdCBM
+ZW9uYmVyZ2VyDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE7DvHJuYmVyZyAtIFJlZ2lzdGVy
+Z2VyaWNodDogQW10c2dlcmljaHQNCk7DvHJuYmVyZzogSFJCIDMyMzE1DQpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCg0KRGVyIEluaGFsdCBkZXIg
+dm9yc3RlaGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVjaHRsaWNoIGJpbmRlbmQuIERpZXNl
+IEUtTWFpbCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIgcmVjaHRsaWNoIGdlc2No
+dWV0enRlIEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJlbiBTaWUgdW5zIGJpdHRlLCB3ZW5u
+IFNpZSBkaWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndlaXNlIGVyaGFsdGVuIGhhYmVuLiBC
+aXR0ZSBsb2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwgZGllIE5hY2hyaWNodC4NCkplZGUg
+dW5lcmxhdWJ0ZSBGb3JtIGRlciBSZXByb2R1a3Rpb24sIEJla2FubnRnYWJlLCBBZW5kZXJ1
+bmcsIFZlcnRlaWx1bmcgdW5kL29kZXIgUHVibGlrYXRpb24gZGllc2VyIEUtTWFpbCBpc3Qg
+c3RyZW5nc3RlbnMgdW50ZXJzYWd0Lg0KVGhlIGNvbnRlbnRzIG9mIHRoZSBhYm92ZSBtZW50
+aW9uZWQgZS1tYWlsIGlzIG5vdCBsZWdhbGx5IGJpbmRpbmcuIFRoaXMgZS1tYWlsIGNvbnRh
+aW5zIGNvbmZpZGVudGlhbCBhbmQvb3IgbGVnYWxseSBwcm90ZWN0ZWQgaW5mb3JtYXRpb24u
+IFBsZWFzZSBpbmZvcm0gdXMgaWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgYnkN
+Cm1pc3Rha2UgYW5kIGRlbGV0ZSBpdCBpbiBzdWNoIGEgY2FzZS4gRWFjaCB1bmF1dGhvcml6
+ZWQgcmVwcm9kdWN0aW9uLCBkaXNjbG9zdXJlLCBhbHRlcmF0aW9uLCBkaXN0cmlidXRpb24g
+YW5kL29yIHB1YmxpY2F0aW9uIG9mIHRoaXMgZS1tYWlsIGlzIHN0cmljdGx5IHByb2hpYml0
+ZWQuIA0K
