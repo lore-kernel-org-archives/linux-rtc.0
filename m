@@ -1,68 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:59309 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbeGZO6Y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 26 Jul 2018 10:58:24 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 7/8] char: rtc: remove task handling
-Date: Thu, 26 Jul 2018 15:40:55 +0200
-Message-Id: <20180726134056.18273-8-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
-References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:46235 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387708AbeGKN7Q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 09:59:16 -0400
+Date: Wed, 11 Jul 2018 15:54:44 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v3 1/4] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
+Message-ID: <20180711135444.GC12517@localhost>
+References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+ <1531205452-6086-2-git-send-email-j-keerthy@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1531205452-6086-2-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Since commit 9e7002a70e42 ("char: rtc: remove unused rtc_control() API"),
-it is not possible to set a callback anymore, remove its handling from the
-interrupt handler.
+On Tue, Jul 10, 2018 at 12:20:49PM +0530, Keerthy wrote:
+> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+> over try again.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>  drivers/rtc/rtc-omap.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 323ff55..14f2241 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -441,11 +441,12 @@ static void omap_rtc_power_off(void)
+>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>  
+> -	/* set alarm two seconds from now */
+> +again:
+> +	/* set alarm one second from now */
+>  	omap_rtc_read_time_raw(rtc, &tm);
+>  	bcd2tm(&tm);
+>  	rtc_tm_to_time(&tm, &now);
+> -	rtc_time_to_tm(now + 2, &tm);
+> +	rtc_time_to_tm(now + 1, &tm);
+>  
+>  	if (tm2bcd(&tm) < 0) {
+>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+> @@ -455,6 +456,10 @@ static void omap_rtc_power_off(void)
+>  
+>  	rtc_wait_not_busy(rtc);
+>  
+> +	/* Our calculations started right before the rollover, try again */
+> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> +		goto again;
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
-Hi,
+First, this doesn't even compile.
 
-My plan is to take that patch through the RTC tree because the next patch relies
-on the rtc_task_t *rtc_callback removal.
+Second, nothing is preventing the rollover from happening here after the
+check. 
 
- drivers/char/rtc.c | 13 -------------
- 1 file changed, 13 deletions(-)
+> +
+>  	rtc_write(rtc, OMAP_RTC_ALARM2_SECONDS_REG, tm.tm_sec);
+>  	rtc_write(rtc, OMAP_RTC_ALARM2_MINUTES_REG, tm.tm_min);
+>  	rtc_write(rtc, OMAP_RTC_ALARM2_HOURS_REG, tm.tm_hour);
 
-diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
-index 94fedeeec035..4948c8bda6b1 100644
---- a/drivers/char/rtc.c
-+++ b/drivers/char/rtc.c
-@@ -193,14 +193,6 @@ static unsigned long rtc_freq;		/* Current periodic IRQ rate	*/
- static unsigned long rtc_irq_data;	/* our output to the world	*/
- static unsigned long rtc_max_user_freq = 64; /* > this, need CAP_SYS_RESOURCE */
- 
--#ifdef RTC_IRQ
--/*
-- * rtc_task_lock nests inside rtc_lock.
-- */
--static DEFINE_SPINLOCK(rtc_task_lock);
--static rtc_task_t *rtc_callback;
--#endif
--
- /*
-  *	If this driver ever becomes modularised, it will be really nice
-  *	to make the epoch retain its value across module reload...
-@@ -264,11 +256,6 @@ static irqreturn_t rtc_interrupt(int irq, void *dev_id)
- 
- 	spin_unlock(&rtc_lock);
- 
--	/* Now do the rest of the actions */
--	spin_lock(&rtc_task_lock);
--	if (rtc_callback)
--		rtc_callback->func(rtc_callback->private_data);
--	spin_unlock(&rtc_task_lock);
- 	wake_up_interruptible(&rtc_wait);
- 
- 	kill_fasync(&rtc_async_queue, SIGIO, POLL_IN);
--- 
-2.18.0
+Johan
