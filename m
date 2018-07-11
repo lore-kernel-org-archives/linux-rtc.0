@@ -1,93 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:50394 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751046AbeGJGvW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 02:51:22 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <johan@kernel.org>
-Subject: [PATCH v3 4/4] rtc: interface: Add power_off_program to rtc_class_ops
-Date: Tue, 10 Jul 2018 12:20:52 +0530
-Message-ID: <1531205452-6086-5-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
-References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:19822 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726398AbeGKJUf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 05:20:35 -0400
+Subject: Re: [GIT PULL] RTC for 4.18
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: Linus Torvalds <torvalds@linux-foundation.org>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20180610221645.GA26123@piout.net>
+ <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
+ <20180626161536.GH4207@piout.net>
+ <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
+ <20180626213138.GI4207@piout.net>
+ <7fab97df-9cd9-fa57-47a8-883a717dd96c@nvidia.com>
+ <20180709121747.GG16084@piout.net> <20180710221410.GL16084@piout.net>
+From: Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <dccdc3e9-4fac-ee05-dab0-3533c274f59c@nvidia.com>
+Date: Wed, 11 Jul 2018 10:17:11 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20180710221410.GL16084@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add an interface function to set up the rtc for a power_off
-mode.
+Hi Alexandre.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
+On 10/07/18 23:14, Alexandre Belloni wrote:
+> Hi Jon,
+> 
+> Can you test that one?
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=4393575d9aa250c74335f8b37e0466b872b5080
+> 
+> This fixes setting alarms on the TPS658623 of my T20 board but I don't
+> get the interrupt I'm expecting. However, I don't get interrupts with
+> the offending patch reverted so hopefully, this fix is sufficient.
 
-Alexandre,
+Yes this fixes the problem. Feel free to add my ...
 
-If you feel power_off_program will be very use case specific then
-I can name this as custom_rtc_program so that even other rtc
-drivers if need be can use this for a custom programming.
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-- Keerthy
+Cheers!
+Jon
 
- drivers/rtc/interface.c | 12 ++++++++++++
- drivers/rtc/rtc-omap.c  |  1 +
- include/linux/rtc.h     |  2 ++
- 3 files changed, 15 insertions(+)
-
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 6d4012d..c19668b9 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
- 	trace_rtc_set_offset(offset, ret);
- 	return ret;
- }
-+
-+/**
-+ * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
-+ * line and can be used to power off the SoC.
-+ *
-+ * Kernel interface to program rtc to power off
-+ */
-+int rtc_power_off_program(struct rtc_device *rtc)
-+{
-+	return rtc->ops->power_off_program(rtc->dev.parent);
-+}
-+EXPORT_SYMBOL_GPL(rtc_power_off_program);
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 75a12eb..a1f9dde 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -519,6 +519,7 @@ static void omap_rtc_power_off(void)
- 	.read_alarm	= omap_rtc_read_alarm,
- 	.set_alarm	= omap_rtc_set_alarm,
- 	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
-+	.power_off_program = omap_rtc_power_off_program,
- };
- 
- static const struct omap_rtc_device_type omap_rtc_default_type = {
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 6268208..3fc640c 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -85,6 +85,7 @@ struct rtc_class_ops {
- 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
- 	int (*read_offset)(struct device *, long *offset);
- 	int (*set_offset)(struct device *, long offset);
-+	int (*power_off_program)(struct device *dev);
- };
- 
- typedef struct rtc_task {
-@@ -229,6 +230,7 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- int rtc_read_offset(struct rtc_device *rtc, long *offset);
- int rtc_set_offset(struct rtc_device *rtc, long offset);
- void rtc_timer_do_work(struct work_struct *work);
-+int rtc_power_off_program(struct rtc_device *rtc);
- 
- static inline bool is_leap_year(unsigned int year)
- {
 -- 
-1.9.1
+nvpublic
