@@ -1,75 +1,60 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:38950 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726130AbeGRIPe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 18 Jul 2018 04:15:34 -0400
-Date: Wed, 18 Jul 2018 09:38:50 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v4 5/5] rtc: isl1219: add device tree docu
-Message-ID: <20180718073850.GH3211@piout.net>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
- <20180710090710.9066-6-Denis.Osterland@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180710090710.9066-6-Denis.Osterland@diehl.com>
+Received: from mout.kundenserver.de ([217.72.192.74]:46405 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726457AbeGKMvw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 08:51:52 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        John Stultz <john.stultz@linaro.org>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [RESEND] rtc: use ktime_get_real_ts64() instead of getnstimeofday64()
+Date: Wed, 11 Jul 2018 14:47:12 +0200
+Message-Id: <20180711124723.1114803-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+getnstimeofday64() is just a wrapper around the ktime accessor, so
+we should use that directly.
 
-On 10/07/2018 09:44:15+0000, Denis OSTERLAND wrote:
-> From: Denis Osterland <Denis.Osterland@diehl.com>
-> 
-> The devicetree documentation for the ISL1219 device tree
-> binding is added with an short example. It is not a trivial
-> device, because it supports two interrupt souces.
-> 
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  .../devicetree/bindings/rtc/isil,isl1219.txt  | 29 +++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1219.txt b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> new file mode 100644
-> index 000000000000..f26f1e9d4bde
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> @@ -0,0 +1,29 @@
-> +Intersil ISL1219 I2C RTC/Alarm chip with event in
-> +
-> +ISL1219 has additional pins EVIN and #EVDET for tamper detection.
-> +
-> +Required properties supported by the device:
-> +
-> + - "compatible": must be "isil,isl1219"
-> + - "reg": I2C bus address of the device
-> +
-> +Optional properties:
-> +
-> + - "interrupt-names": list which may contains "irq" and "evdet"
-> + - "interrupt-parent", "interrupts", "interrupts-extended":
-> +   for passing the interrupt line of the SoC connected to #IRQ pin
-> +   and #EVDET pin of the RTC chip.
-> + - "isil,ev-evienb": if present bit can be set to disable event input pull-up
+I considered using ktime_get_boottime_ts64() (to avoid leap second
+problems) or ktime_get_real_seconds() (to simplify the calculation,
+but in the end concluded that the existing interface is probably
+the most appropriate in this case.
 
-I would use a clearer name for that property like isil,ev-pull-up-enabled.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+Originally sent on Jun 18, but got no reply
 
-Also make it an int so 0 is disabling the pull-up (EVIENB set to 1) 1 is
-enabling the pull-up (EVIENB set to 0) and do nothing when the property
-is not present.
+Alexandre, could you pick this up into the rtc tree?
+---
+ drivers/rtc/class.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index d37588f08055..7fa32c922617 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -68,7 +68,7 @@ static int rtc_suspend(struct device *dev)
+ 		return 0;
+ 	}
+ 
+-	getnstimeofday64(&old_system);
++	ktime_get_real_ts64(&old_system);
+ 	old_rtc.tv_sec = rtc_tm_to_time64(&tm);
+ 
+ 
+@@ -110,7 +110,7 @@ static int rtc_resume(struct device *dev)
+ 		return 0;
+ 
+ 	/* snapshot the current rtc and system time at resume */
+-	getnstimeofday64(&new_system);
++	ktime_get_real_ts64(&new_system);
+ 	err = rtc_read_time(rtc, &tm);
+ 	if (err < 0) {
+ 		pr_debug("%s:  fail to read rtc time\n", dev_name(&rtc->dev));
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.9.0
