@@ -1,165 +1,66 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:43446 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730921AbeGROsB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:48:01 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 6B24BB00787
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:09:54 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Zjc9-y_YZ8ap for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 16:09:53 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v10 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 18 Jul 2018 16:09:44 +0200
-Message-Id: <20180718140946.115093-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:55249 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726377AbeGLJmi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 12 Jul 2018 05:42:38 -0400
+Date: Thu, 12 Jul 2018 11:33:40 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Trent Piepho <tpiepho@impinj.com>
+Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawn.guo@linaro.org>,
+        Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Subject: Re: [PATCH v2] rtc-snvs: Add timeouts to avoid kernel lockups
+Message-ID: <20180712093340.GC16084@piout.net>
+References: <20180516234551.24954-1-tpiepho@impinj.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180516234551.24954-1-tpiepho@impinj.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
+On 16/05/2018 16:45:51-0700, Trent Piepho wrote:
+> In order to read correctly from asynchronously updated RTC registers,
+> it's necessary to read repeatedly until their values do not change from
+> read to read.  It's also necessary to wait for three RTC clock ticks for
+> certain operations.  There are no timeouts in this code and these
+> operations could possibly loop forever.
+> 
+> To avoid kernel hangs, put in timeouts.
+> 
+> The iMX7d can be configured to stop the SRTC on a tamper event, which
+> will lockup the kernel inside this driver as described above.
+> 
+> These hangs can happen when running under qemu, which doesn't emulate
+> the SNVS RTC, though currently the driver will refuse to load on qemu
+> due to a timeout in the driver probe method.
+> 
+> It could also happen if the SRTC block where somehow placed into reset
+> or the slow speed clock that drives the SRTC counter (but not the CPU)
+> were to stop.
+> 
+> The symptoms on a two core iMX7d are a work queue hang on
+> rtc_timer_do_work(), which eventually blocks a systemd fsnotify
+> operation that triggers a work queue flush, causing systemd to hang and
+> thus causing all services that should be started by systemd, like a
+> console getty, to fail to start or stop.
+> 
+> Also optimize the wait code to wait less.  It only needs to wait for the
+> clock to advance three ticks, not to see it change three times.
+> 
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Fabio Estevam <fabio.estevam@nxp.com>
+> Cc: Shawn Guo <shawn.guo@linaro.org>
+> Cc: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+> Signed-off-by: Trent Piepho <tpiepho@impinj.com>
+> ---
+>  drivers/rtc/rtc-snvs.c | 105 ++++++++++++++++++++++++++++++++-----------------
+>  1 file changed, 70 insertions(+), 35 deletions(-)
+> 
+Applied, thanks.
 
-Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0162a600ff1b..c6d871456f25 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,20 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
- 
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		BIT(7)
-+#	define M41TXX_BIT_FT		BIT(6)
-+#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
-+#	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
-+
-+/* negative offset step is -2.034ppm */
-+#define M41TXX_NEG_OFFSET_STEP_PPB	2034
-+/* positive offset step is +4.068ppm */
-+#define M41TXX_POS_OFFSET_STEP_PPB	4068
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
-+#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +160,9 @@ struct chip_desc {
- 
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
- 
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
-+};
-+
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
- 
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
-+	else
-+		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	if (offset >= 0) {
-+		ctrl_reg = DIV_ROUND_CLOSEST(offset,
-+					     M41TXX_POS_OFFSET_STEP_PPB);
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+	} else {
-+		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
-+					     M41TXX_NEG_OFFSET_STEP_PPB);
-+	}
-+
-+	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
-+				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
-+				  ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
-2.17.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
