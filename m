@@ -1,121 +1,131 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:43402 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730316AbeGROr7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:47:59 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id EDD5DB00698
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:09:52 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id TeDEHdWfYgIz for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 16:09:52 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Received: from outils.crapouillou.net ([89.234.176.41]:46682 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726043AbeGNNow (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Jul 2018 09:44:52 -0400
+Date: Sat, 14 Jul 2018 15:25:33 +0200
+From: Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v10 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed, 18 Jul 2018 16:09:43 +0200
-Message-Id: <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
-In-Reply-To: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <1531574734.2831.0@smtp.crapouillou.net>
+In-Reply-To: <20180714131920.GU16084@piout.net>
+References: <20180713151424.13000-1-paul@crapouillou.net>
+        <20180714131920.GU16084@piout.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+Hi Alexandre,
 
-Add it to driver taking into account NVRAM section.
+Le sam. 14 juil. 2018 =E0 15:19, Alexandre Belloni=20
+<alexandre.belloni@bootlin.com> a =E9crit :
+> Hello,
+>=20
+> On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
+>>  The RTC in the JZ4725B works just like the one in the JZ4740.
+>>=20
+>>  The RTC in the JZ4760 and JZ4770 work just like the one in the=20
+>> JZ4780.
+>>=20
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  ---
+>>   Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  3=20
+>> +++
+>>   drivers/rtc/rtc-jz4740.c                                     | 11=20
+>> ++++++++++-
+>>   2 files changed, 13 insertions(+), 1 deletion(-)
+>>=20
+>>  diff --git=20
+>> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt=20
+>> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+>>  index 41c7ae18fd7b..a9e821de84f2 100644
+>>  --- a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+>>  +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+>>  @@ -4,6 +4,9 @@ Required properties:
+>>=20
+>>   - compatible: One of:
+>>     - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+>>  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
+>>  +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
+>>  +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
+>>     - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+>>   - reg: Address range of rtc register set
+>>   - interrupts: IRQ number for the alarm interrupt
+>>  diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+>>  index d0a891777f44..1c867e3a0ea5 100644
+>>  --- a/drivers/rtc/rtc-jz4740.c
+>>  +++ b/drivers/rtc/rtc-jz4740.c
+>>  @@ -54,6 +54,9 @@
+>>=20
+>>   enum jz4740_rtc_type {
+>>   	ID_JZ4740,
+>>  +	ID_JZ4725B,
+>>  +	ID_JZ4760,
+>>  +	ID_JZ4770,
+>=20
+> I wouldn't introduce those ids unless there are handling differences=20
+> at
+> some point.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+Well there are handling differences, see below.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index aa4a161bae98..0162a600ff1b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
--- 
-2.17.1
+>>   	ID_JZ4780,
+>>   };
+>>=20
+>>  @@ -114,7 +117,7 @@ static inline int jz4740_rtc_reg_write(struct=20
+>> jz4740_rtc *rtc, size_t reg,
+>>   {
+>>   	int ret =3D 0;
+>>=20
+>>  -	if (rtc->type >=3D ID_JZ4780)
+>>  +	if (rtc->type >=3D ID_JZ4760)
+>=20
+> This would avoid that change (and the test would preferably be=20
+> (rtc->type =3D=3D ID_JZ4780))
+
+That branch should be taken if the SoC is JZ4760, JZ4770 or JZ4780.
+It should not be taken if the SoC is JZ4740 or JZ4725B.
+
+>>   		ret =3D jz4780_rtc_enable_write(rtc);
+>>   	if (ret =3D=3D 0)
+>>   		ret =3D jz4740_rtc_wait_write_ready(rtc);
+>>  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
+>>=20
+>>   static const struct of_device_id jz4740_rtc_of_match[] =3D {
+>>   	{ .compatible =3D "ingenic,jz4740-rtc", .data =3D (void *)ID_JZ4740 }=
+,
+>>  +	{ .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void *)ID_JZ4725B=
+=20
+>> },
+>>  +	{ .compatible =3D "ingenic,jz4760-rtc", .data =3D (void *)ID_JZ4760 }=
+,
+>>  +	{ .compatible =3D "ingenic,jz4770-rtc", .data =3D (void *)ID_JZ4770 }=
+,
+>>   	{ .compatible =3D "ingenic,jz4780-rtc", .data =3D (void *)ID_JZ4780 }=
+,
+>>   	{},
+>>   };
+>>  @@ -428,6 +434,9 @@ static const struct dev_pm_ops jz4740_pm_ops =3D {
+>>=20
+>>   static const struct platform_device_id jz4740_rtc_ids[] =3D {
+>>   	{ "jz4740-rtc", ID_JZ4740 },
+>>  +	{ "jz4725b-rtc", ID_JZ4725B },
+>>  +	{ "jz4760-rtc", ID_JZ4760 },
+>>  +	{ "jz4770-rtc", ID_JZ4770 },
+>>   	{ "jz4780-rtc", ID_JZ4780 },
+>>   	{}
+>>   };
+>>  --
+>>  2.11.0
+>>=20
+>=20
+> --
+> Alexandre Belloni, Bootlin (formerly Free Electrons)
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
+=
