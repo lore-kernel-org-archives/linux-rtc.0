@@ -1,83 +1,69 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise03.smtp.diehl.com ([193.201.238.214]:34098 "EHLO
-        enterprise03.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751194AbeGJJyC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:02 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v4 4/5] rtc: isl1208: set ev-evienb bit from device tree
-Date: Tue, 10 Jul 2018 09:44:15 +0000
-Message-ID: <20180710090710.9066-5-Denis.Osterland@diehl.com>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
-In-Reply-To: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:54446 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727282AbeGNQnz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 14 Jul 2018 12:43:55 -0400
+Date: Sat, 14 Jul 2018 18:24:19 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
+Message-ID: <20180714162419.GX16084@piout.net>
+References: <20180713151424.13000-1-paul@crapouillou.net>
+ <20180714131920.GU16084@piout.net>
+ <1531574734.2831.0@smtp.crapouillou.net>
+ <20180714133250.GW16084@piout.net>
+ <1531576208.2831.1@smtp.crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1531576208.2831.1@smtp.crapouillou.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Denis Osterland <Denis.Osterland@diehl.com>
+On 14/07/2018 15:50:08+0200, Paul Cercueil wrote:
+> > >  > This would avoid that change (and the test would preferably be
+> > >  > (rtc->type == ID_JZ4780))
+> > > 
+> > >  That branch should be taken if the SoC is JZ4760, JZ4770 or JZ4780.
+> > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
+> > 
+> > Sure but you can achieve that with only 2 ids...
+> > 
+> > > 
+> > >  > >   		ret = jz4780_rtc_enable_write(rtc);
+> > >  > >   	if (ret == 0)
+> > >  > >   		ret = jz4740_rtc_wait_write_ready(rtc);
+> > >  > >  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
+> > >  > >
+> > >  > >   static const struct of_device_id jz4740_rtc_of_match[] = {
+> > >  > >   	{ .compatible = "ingenic,jz4740-rtc", .data = (void
+> > > *)ID_JZ4740 },
+> > >  > >  +	{ .compatible = "ingenic,jz4725b-rtc", .data = (void
+> > > *)ID_JZ4725B
+> > >  > > },
+> > >  > >  +	{ .compatible = "ingenic,jz4760-rtc", .data = (void
+> > > *)ID_JZ4760 },
+> > >  > >  +	{ .compatible = "ingenic,jz4770-rtc", .data = (void
+> > > *)ID_JZ4770 },
+> > 
+> > By doing the correct mapping here e.g:
+> > 
+> > { .compatible = "ingenic,jz4725b-rtc", .data = (void *)ID_JZ4740 },
+> 
+> Not very pretty and future-proof if you ask me...
+> But you're the boss...
+> 
 
-Add support to disable event in pull-up.
+I think it makes the code simpler to follow . Regarding future
+proofness, you will have to add code and probably use a switch case at
+the time you need to handle an RTC differently. At that time, the >=
+test trick will not work anymore anyway.
 
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
----
- drivers/rtc/rtc-isl1208.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index bbe08c1ab9f3..2f18ee3c615a 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -44,6 +44,7 @@
- #define ISL1208_REG_INT_IM     (1<<7)   /* interrupt/alarm mode */
- #define ISL1219_REG_EV  0x09
- #define ISL1219_REG_EV_EVEN    (1<<4)   /* event detection enable */
-+#define ISL1219_REG_EV_EVIENB  (1<<7)   /* event in pull-up disable */
- #define ISL1208_REG_ATR 0x0a
- #define ISL1208_REG_DTR 0x0b
- 
-@@ -777,7 +778,10 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 			 "please set clock.\n");
- 
- 	if (id->driver_data == TYPE_ISL1219) {
-+		struct device_node *np = client->dev.of_node;
- 		rc = ISL1219_REG_EV_EVEN;
-+		if (of_get_property(np, "isil,ev-evienb", NULL))
-+			rc |= ISL1219_REG_EV_EVIENB;
- 		rc = i2c_smbus_write_byte_data(client, ISL1219_REG_EV, rc);
- 		if (rc < 0) {
- 			dev_err(&client->dev, "could not enable tamper detection\n");
-@@ -786,7 +790,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
- 		if (rc)
- 			return rc;
--		evdet_irq = of_irq_get_byname(client->dev.of_node, "evdet");
-+		evdet_irq = of_irq_get_byname(np, "evdet");
- 	}
- 
- 	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
 -- 
-2.18.0
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
