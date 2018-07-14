@@ -1,53 +1,106 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:42059 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727032AbeGSLQ6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 07:16:58 -0400
-Date: Thu, 19 Jul 2018 12:34:13 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        t-kristo@ti.com, linux-rtc@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        johan@kernel.org
-Subject: Re: [PATCH v4 3/4] rtc: omap: use
- of_device_is_system_power_controller function
-Message-ID: <20180719103413.GS10204@localhost>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
- <1531372060-10532-4-git-send-email-j-keerthy@ti.com>
+Received: from mail.bootlin.com ([62.4.15.54]:52831 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726084AbeGNNi1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 14 Jul 2018 09:38:27 -0400
+Date: Sat, 14 Jul 2018 15:19:20 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
+Message-ID: <20180714131920.GU16084@piout.net>
+References: <20180713151424.13000-1-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1531372060-10532-4-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <20180713151424.13000-1-paul@crapouillou.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jul 12, 2018 at 10:37:39AM +0530, Keerthy wrote:
-> Use of_device_is_system_power_controller instead of manually reading
-> the system-power-controller property from the device tree node.
+Hello,
+
+On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
+> The RTC in the JZ4725B works just like the one in the JZ4740.
 > 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> The RTC in the JZ4760 and JZ4770 work just like the one in the JZ4780.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->  drivers/rtc/rtc-omap.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  3 +++
+>  drivers/rtc/rtc-jz4740.c                                     | 11 ++++++++++-
+>  2 files changed, 13 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index cb19ece..3610efd 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -753,8 +753,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
->  	if (of_id) {
->  		rtc->type = of_id->data;
->  		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
-> -				of_property_read_bool(pdev->dev.of_node,
-> -						"system-power-controller");
-> +			of_device_is_system_power_controller(pdev->dev.of_node);
+> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> index 41c7ae18fd7b..a9e821de84f2 100644
+> --- a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> @@ -4,6 +4,9 @@ Required properties:
+>  
+>  - compatible: One of:
+>    - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+> +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
+> +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
+> +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
+>    - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+>  - reg: Address range of rtc register set
+>  - interrupts: IRQ number for the alarm interrupt
+> diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+> index d0a891777f44..1c867e3a0ea5 100644
+> --- a/drivers/rtc/rtc-jz4740.c
+> +++ b/drivers/rtc/rtc-jz4740.c
+> @@ -54,6 +54,9 @@
+>  
+>  enum jz4740_rtc_type {
+>  	ID_JZ4740,
+> +	ID_JZ4725B,
+> +	ID_JZ4760,
+> +	ID_JZ4770,
 
-Nit: Continuation lines should be indented at least two tabs further,
-but in this case an exception seems warranted to keep the line within 80
-cols.
+I wouldn't introduce those ids unless there are handling differences at
+some point.
 
->  	} else {
->  		id_entry = platform_get_device_id(pdev);
->  		rtc->type = (void *)id_entry->driver_data;
+>  	ID_JZ4780,
+>  };
+>  
+> @@ -114,7 +117,7 @@ static inline int jz4740_rtc_reg_write(struct jz4740_rtc *rtc, size_t reg,
+>  {
+>  	int ret = 0;
+>  
+> -	if (rtc->type >= ID_JZ4780)
+> +	if (rtc->type >= ID_JZ4760)
 
-Reviewed-by: Johan Hovold <johan@kernel.org>
+This would avoid that change (and the test would preferably be (rtc->type == ID_JZ4780))
+
+>  		ret = jz4780_rtc_enable_write(rtc);
+>  	if (ret == 0)
+>  		ret = jz4740_rtc_wait_write_ready(rtc);
+> @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
+>  
+>  static const struct of_device_id jz4740_rtc_of_match[] = {
+>  	{ .compatible = "ingenic,jz4740-rtc", .data = (void *)ID_JZ4740 },
+> +	{ .compatible = "ingenic,jz4725b-rtc", .data = (void *)ID_JZ4725B },
+> +	{ .compatible = "ingenic,jz4760-rtc", .data = (void *)ID_JZ4760 },
+> +	{ .compatible = "ingenic,jz4770-rtc", .data = (void *)ID_JZ4770 },
+>  	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
+>  	{},
+>  };
+> @@ -428,6 +434,9 @@ static const struct dev_pm_ops jz4740_pm_ops = {
+>  
+>  static const struct platform_device_id jz4740_rtc_ids[] = {
+>  	{ "jz4740-rtc", ID_JZ4740 },
+> +	{ "jz4725b-rtc", ID_JZ4725B },
+> +	{ "jz4760-rtc", ID_JZ4760 },
+> +	{ "jz4770-rtc", ID_JZ4770 },
+>  	{ "jz4780-rtc", ID_JZ4780 },
+>  	{}
+>  };
+> -- 
+> 2.11.0
+> 
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
