@@ -1,62 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:53980 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731960AbeGSTDl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 15:03:41 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id B50BCB008FF
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Jul 2018 20:19:19 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id gSta1hASQT8E for <linux-rtc@vger.kernel.org>;
-        Thu, 19 Jul 2018 20:19:18 +0200 (CEST)
-Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
- <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
- <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com>
- <CAHp75VchXfm6J+PPcB8ekoXcDktsPUNok3KKBMFyyk9XV=AUyQ@mail.gmail.com>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <d03aec28-a33a-5a07-4305-246508185b2b@micronovasrl.com>
-Date: Thu, 19 Jul 2018 20:19:17 +0200
+Received: from mail.bootlin.com ([62.4.15.54]:47104 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728290AbeGPWGF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 16 Jul 2018 18:06:05 -0400
+Date: Mon, 16 Jul 2018 23:36:46 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com
+Subject: Re: [PATCH v6 1/4] rtc: ds1307: fix data pointer to m41t0
+Message-ID: <20180716213646.GB2751@piout.net>
+References: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VchXfm6J+PPcB8ekoXcDktsPUNok3KKBMFyyk9XV=AUyQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Andy,
+On 16/05/2018 23:08:39+0200, Giulio Benetti wrote:
+> data field points to m41t00, instead it should point to m41t0.
+> Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+> are equal.
+> 
+> Point to right enum m41t0 instead of m41t00.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Il 18/07/2018 18:26, Andy Shevchenko ha scritto:
-> On Wed, Jul 18, 2018 at 5:06 PM, Giulio Benetti
-> <giulio.benetti@micronovasrl.com> wrote:
-> 
->>>> +       int ret;
->>>> +
->>>> +       ret = kstrtobool(buf, &freq_test_en);
->>>> +       if (ret == -EINVAL) {
-> 
->>> What kind of other error code you may expect and why they are not
->>> considered as no error?
-> 
->> According to documentation, kstrtobool can only fail with -EINVAL.
->> See:
->> https://elixir.bootlin.com/linux/v4.18-rc5/source/lib/kstrtox.c#L332
-> 
-> That's correct. So, what do you want to show by explicitly mentioned
-> an error code in the condition?
-> 
-
-So you mean I should check for negative values instead of specific 
-error, right?
-
-Thanks
-
-Giulio
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
