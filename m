@@ -1,89 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:36791 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727361AbeGTLvb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 07:51:31 -0400
-Date: Fri, 20 Jul 2018 13:03:31 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <j-keerthy@ti.com>
-Cc: Johan Hovold <johan@kernel.org>, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, t-kristo@ti.com,
-        linux-rtc@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-Message-ID: <20180720110331.GE19245@localhost>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
- <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
- <20180719100229.GQ10204@localhost>
- <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
- <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
- <20180719123617.GV10204@localhost>
- <e3841afa-fe18-84c0-e5b6-520365c5e4a1@ti.com>
- <28f0d002-f05e-b4dc-f0dd-d0bc0fc5616d@ti.com>
+Received: from mail.bootlin.com ([62.4.15.54]:47113 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728290AbeGPWG0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 16 Jul 2018 18:06:26 -0400
+Date: Mon, 16 Jul 2018 23:37:07 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com
+Subject: Re: [PATCH v6 2/4] rtc: ds1307: support m41t11 variant
+Message-ID: <20180716213707.GC2751@piout.net>
+References: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
+ <20180516210842.5874-2-giulio.benetti@micronovasrl.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <28f0d002-f05e-b4dc-f0dd-d0bc0fc5616d@ti.com>
+In-Reply-To: <20180516210842.5874-2-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 20, 2018 at 04:03:20PM +0530, Keerthy wrote:
+On 16/05/2018 23:08:40+0200, Giulio Benetti wrote:
+> The m41t11 variant is very similar to the already supported m41t00 and
+> m41t0, but it has also 56 bytes of NVRAM.
 > 
+> Add it to driver taking into account NVRAM section.
 > 
-> On Thursday 19 July 2018 06:16 PM, Keerthy wrote:
-> > 
-> > 
-> > On Thursday 19 July 2018 06:06 PM, Johan Hovold wrote:
-> >> On Thu, Jul 19, 2018 at 05:52:17PM +0530, Keerthy wrote:
-> >>> On Thursday 19 July 2018 05:23 PM, Keerthy wrote:
-> >>>> On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
-> >>>>> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
-> >>
-> >>>>>> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
-> >>>>>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
-> >>>>>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
-> >>>>>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-> >>
-> >>>>>> +	/* Our calculations started right before the rollover, try again */
-> >>
-> >>>>>> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-> >>>>>> +		goto again;
-> >>>>>
-> >>>>> Here the alarm may have gone off as part of the roll over, in which case
-> >>>>> you shouldn't retry.
-> >>>>
-> >>>> Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
-> >>>>
-> >>>> In the event of Roll over before setting the
-> >>>> OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
-> >>>> not miss the ALARM2 event? Then poweroff would fail right?
-> >>
-> >> Right, that would fail.
-> >>
-> >>>> Hence the attempt to retry the next second. This sequence would begin
-> >>>> right at the beginning of a new second and we expect the full sequence
-> >>>> to get over without having to retry again.
-> >>>>
-> >>>> Hope i am clear.
-> >>
-> >> Yes, sure, but my point is that could end up retrying also after the
-> >> alarm has fired correctly (e.g. due to latencies in turning of the
-> >> power)>
-> >> It may be enough to check OMAP_RTC_STATUS_REG before retrying.
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
+>  drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
+>  2 files changed, 15 insertions(+)
 > 
-> On a second thought. Status gets set only after the next second.
-> 
-> if ALARM2 status bit is set that surely means interrupt has fired but if
-> it is not set then there are 2 possibilities
-> 
-> 1) ALARM2 is missed as the roll over happened
-> 2) ALARM2 yet to fire as we are yet to get to the next second.
-> 
-> On the other hand Seconds gives me clear indication if we missed the
-> interrupt or we are about to get one.
+Applied, thanks.
 
-Yes, you still have to check seconds *before* retrying based on status.
-
-That should do, right?
-
-Johan
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
