@@ -1,59 +1,192 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:11931 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932528AbeGIMEk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jul 2018 08:04:40 -0400
-Subject: Re: [GIT PULL] RTC for 4.18
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Linus Torvalds <torvalds@linux-foundation.org>,
-        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20180610221645.GA26123@piout.net>
- <ff6d048a-c683-56e0-13f9-1627cdfd0ea9@nvidia.com>
- <20180626161536.GH4207@piout.net>
- <522c3fc8-a4cc-bd83-d034-b5c690e541d0@nvidia.com>
- <20180626213138.GI4207@piout.net>
-From: Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <7fab97df-9cd9-fa57-47a8-883a717dd96c@nvidia.com>
-Date: Mon, 9 Jul 2018 13:04:36 +0100
+Received: from mail.bootlin.com ([62.4.15.54]:47067 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728833AbeGPWCU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 16 Jul 2018 18:02:20 -0400
+Date: Mon, 16 Jul 2018 23:33:02 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com
+Subject: Re: [PATCH v6 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Message-ID: <20180716213302.GA2751@piout.net>
+References: <20180516210842.5874-1-giulio.benetti@micronovasrl.com>
+ <20180516210842.5874-3-giulio.benetti@micronovasrl.com>
 MIME-Version: 1.0
-In-Reply-To: <20180626213138.GI4207@piout.net>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180516210842.5874-3-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre,
+Hi,
 
-On 26/06/18 22:31, Alexandre Belloni wrote:
-> On 26/06/2018 17:54:57+0100, Jon Hunter wrote:
->>
->> On 26/06/18 17:15, Alexandre Belloni wrote:
->>> Hi,
->>>
->>> On 26/06/2018 16:51:40+0100, Jon Hunter wrote:
->>>>>       rtc: tps6586x: let the core handle rtc range
->>>>
->>>> Sorry I am missing the original mail with the above change, but I
->>>> have noticed on v4.18-rc1 that rtc wake-ups from suspend are no
->>>> longer working on one of our Tegra boards. The bisect points to the
->>>> above change and reverting it fixes the problem. I have not had
->>>> chance to dig further, but if you have any thoughts, please let me
->>>> know.
->>>
->>>
->>> Thanks for the report, does the following patch fix the issue:
->>>
->>> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/patch/?id=1b287f23b0a1fcb2b502dae981a8024be379391e
->>
->> Thanks. I gave the above a test, but still not waking-up from suspend.
->>
+On 16/05/2018 23:08:41+0200, Giulio Benetti wrote:
+> m41txx chips can hold a calibration value to get correct clock bias.
 > 
-> Ok, I probably found the issue but the fix is not immediate. I'll try to
-> post something tomorrow.
+> Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>  drivers/rtc/rtc-ds1307.c | 81 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 81 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 0ab0c166da83..2797d01bfa1d 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -114,6 +114,20 @@ enum ds_type {
+>  #	define RX8025_BIT_VDET		0x40
+>  #	define RX8025_BIT_XST		0x20
+>  
+> +#define M41TXX_REG_CONTROL	0x07
+> +#	define M41TXX_BIT_OUT		0x80
+> +#	define M41TXX_BIT_FT		0x40
+> +#	define M41TXX_BIT_CALIB_SIGN	0x20
 
-Sorry if I missed it, but did you send a fix for this?
+Please use BIT()
 
-Cheers
-Jon
+> +#	define M41TXX_M_CALIBRATION	0x1f
+> +
+> +/* negative offset step is -2.034ppm */
+> +#define M41TXX_NEG_OFFSET_STEP_PPM	2034
+
+This should be named M41TXX_NEG_OFFSET_STEP_PPB
+
+> +/* positive offset step is +4.068ppm */
+> +#define M41TXX_POS_OFFSET_STEP_PPM	4068
+
+and M41TXX_POS_OFFSET_STEP_PPB
+
+> +/* Min and max values supported with 'offset' interface by M41TXX */
+> +#define M41TXX_MIN_OFFSET	(((-31) * M41TXX_NEG_OFFSET_STEP_PPM) / 1000)
+> +#define M41TXX_MAX_OFFSET	(((31) * M41TXX_POS_OFFSET_STEP_PPM) / 1000)
+> +
+
+I don't see the point of dividing by 1000 here, it is definitively
+better to keep everything in PPB.
+
+>  struct ds1307 {
+>  	enum ds_type		type;
+>  	unsigned long		flags;
+> @@ -146,6 +160,9 @@ struct chip_desc {
+>  
+>  static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+>  static int ds1307_set_time(struct device *dev, struct rtc_time *t);
+> +static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+> +static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+> +static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+>  static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+>  static irqreturn_t rx8130_irq(int irq, void *dev_id);
+>  static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+> @@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+>  static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+>  static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+>  static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
+> +static int m41txx_rtc_read_offset(struct device *dev, long *offset);
+> +static int m41txx_rtc_set_offset(struct device *dev, long offset);
+>  
+>  static const struct rtc_class_ops rx8130_rtc_ops = {
+>  	.read_time      = ds1307_get_time,
+> @@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+>  	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+>  };
+>  
+> +static const struct rtc_class_ops m41txx_rtc_ops = {
+> +	.read_time      = ds1307_get_time,
+> +	.set_time       = ds1307_set_time,
+> +	.read_alarm	= ds1337_read_alarm,
+> +	.set_alarm	= ds1337_set_alarm,
+> +	.alarm_irq_enable = ds1307_alarm_irq_enable,
+> +	.read_offset	= m41txx_rtc_read_offset,
+> +	.set_offset	= m41txx_rtc_set_offset,
+> +};
+> +
+>  static const struct chip_desc chips[last_ds_type] = {
+>  	[ds_1307] = {
+>  		.nvram_offset	= 8,
+> @@ -227,10 +256,17 @@ static const struct chip_desc chips[last_ds_type] = {
+>  		.irq_handler = rx8130_irq,
+>  		.rtc_ops = &rx8130_rtc_ops,
+>  	},
+> +	[m41t0] = {
+> +		.rtc_ops	= &m41txx_rtc_ops,
+> +	},
+> +	[m41t00] = {
+> +		.rtc_ops	= &m41txx_rtc_ops,
+> +	},
+>  	[m41t11] = {
+>  		/* this is battery backed SRAM */
+>  		.nvram_offset	= 8,
+>  		.nvram_size	= 56,
+> +		.rtc_ops	= &m41txx_rtc_ops,
+>  	},
+>  	[mcp794xx] = {
+>  		.alarm		= 1,
+> @@ -972,6 +1008,51 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+>  				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+>  }
+>  
+> +static int m41txx_rtc_read_offset(struct device *dev, long *offset)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	unsigned int ctrl_reg;
+> +	u8 val;
+> +
+> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+> +
+> +	val = ctrl_reg & M41TXX_M_CALIBRATION;
+> +
+> +	/* check if positive */
+> +	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
+> +		*offset = (val * M41TXX_POS_OFFSET_STEP_PPM);
+> +	else
+> +		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPM);
+> +
+> +	*offset = DIV_ROUND_CLOSEST(*offset, 1000);
+> +
+
+This is definitively not necessary, the whole subsystem handles PPB, not
+PPM.
+
+> +	return 0;
+> +}
+> +
+> +static int m41txx_rtc_set_offset(struct device *dev, long offset)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	unsigned int ctrl_reg;
+> +
+> +	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
+> +		return -ERANGE;
+> +
+> +	offset *= 1000;
+> +
+
+ditto
+
+> +	if (offset >= 0) {
+> +		ctrl_reg = DIV_ROUND_CLOSEST(offset,
+> +					     M41TXX_POS_OFFSET_STEP_PPM);
+> +		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
+> +	} else {
+> +		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
+> +					     M41TXX_NEG_OFFSET_STEP_PPM);
+> +	}
+> +
+> +	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
+> +				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
+> +				  ctrl_reg);
+> +}
+> +
+>  /*----------------------------------------------------------------------*/
+>  
+>  static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+> -- 
+> 2.17.0
+> 
 
 -- 
-nvpublic
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
