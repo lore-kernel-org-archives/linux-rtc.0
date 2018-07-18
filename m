@@ -1,88 +1,121 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:38945 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726967AbeGOV4t (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 15 Jul 2018 17:56:49 -0400
-Received: by mail-ed1-f66.google.com with SMTP id w14-v6so28494635eds.6
-        for <linux-rtc@vger.kernel.org>; Sun, 15 Jul 2018 14:32:31 -0700 (PDT)
-From: =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alvin@airtame.com>
-To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, rkhudolii@airtame.com,
-        attila@airtame.com,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alvin@airtame.com>
-Subject: [PATCH] rtc: pcf85063: preserve control register value between stop and start
-Date: Sun, 15 Jul 2018 23:31:53 +0200
-Message-Id: <20180715213153.8606-1-alvin@airtame.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Received: from mail.micronovasrl.com ([212.103.203.10]:58868 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730361AbeGRJ0R (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:26:17 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 6C848B007CB
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:49:26 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id teUhYTxmM-BV for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 10:49:25 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
+        DEVICE TREE BINDINGS), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v7 2/4] rtc: ds1307: support m41t11 variant
+Date: Wed, 18 Jul 2018 10:49:13 +0200
+Message-Id: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Fix a bug that caused the Control_1 register to get zeroed whenever the
-RTC time is set. The problem occurred between stopping and starting the
-RTC clock, wherein the return value of a successful I2C write function
-would get written to the register.
+The m41t11 variant is very similar to the already supported m41t00 and
+m41t0, but it has also 56 bytes of NVRAM.
 
-Also update variables of the start and stop functions to be more
-consistent with the rest of the driver.
+Add it to driver taking into account NVRAM section.
 
-Signed-off-by: Alvin Šipraga <alvin@airtame.com>
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+V6 => V7
+* already applied
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
+ drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 49bcbb3d4a69..283c2335b01b 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -43,37 +43,38 @@ static struct i2c_driver pcf85063_driver;
- 
- static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
- {
--	s32 ret;
-+	int rc;
-+	u8 reg;
- 
--	ret = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
--	if (ret < 0) {
-+	rc = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
-+	if (rc < 0) {
- 		dev_err(&client->dev, "Failing to stop the clock\n");
- 		return -EIO;
- 	}
- 
- 	/* stop the clock */
--	ret |= PCF85063_REG_CTRL1_STOP;
-+	reg = rc | PCF85063_REG_CTRL1_STOP;
- 
--	ret = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ret);
--	if (ret < 0) {
-+	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, reg);
-+	if (rc < 0) {
- 		dev_err(&client->dev, "Failing to stop the clock\n");
- 		return -EIO;
- 	}
- 
--	*ctrl1 = ret;
-+	*ctrl1 = reg;
- 
- 	return 0;
- }
- 
- static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
- {
--	s32 ret;
-+	int rc;
- 
- 	/* start the clock */
- 	ctrl1 &= ~PCF85063_REG_CTRL1_STOP;
- 
--	ret = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
--	if (ret < 0) {
-+	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
-+	if (rc < 0) {
- 		dev_err(&client->dev, "Failing to start the clock\n");
- 		return -EIO;
- 	}
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index d28d6e7f6ae8..ce6469c1a516 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"maxim,ds3231",
+ 	"st,m41t0",
+ 	"st,m41t00",
++	"st,m41t11",
+ 	"microchip,mcp7940x",
+ 	"microchip,mcp7941x",
+ 	"pericom,pt7c4338",
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index aa4a161bae98..0162a600ff1b 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -44,6 +44,7 @@ enum ds_type {
+ 	ds_3231,
+ 	m41t0,
+ 	m41t00,
++	m41t11,
+ 	mcp794xx,
+ 	rx_8025,
+ 	rx_8130,
+@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t11] = {
++		/* this is battery backed SRAM */
++		.nvram_offset	= 8,
++		.nvram_size	= 56,
++	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "ds3231", ds_3231 },
+ 	{ "m41t0", m41t0 },
+ 	{ "m41t00", m41t00 },
++	{ "m41t11", m41t11 },
+ 	{ "mcp7940x", mcp794xx },
+ 	{ "mcp7941x", mcp794xx },
+ 	{ "pt7c4338", ds_1307 },
+@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
+ 		.compatible = "st,m41t00",
+ 		.data = (void *)m41t00
+ 	},
++	{
++		.compatible = "st,m41t11",
++		.data = (void *)m41t11
++	},
+ 	{
+ 		.compatible = "microchip,mcp7940x",
+ 		.data = (void *)mcp794xx
+@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
+ 	{ .id = "DS3231", .driver_data = ds_3231 },
+ 	{ .id = "M41T0", .driver_data = m41t0 },
+ 	{ .id = "M41T00", .driver_data = m41t00 },
++	{ .id = "M41T11", .driver_data = m41t11 },
+ 	{ .id = "MCP7940X", .driver_data = mcp794xx },
+ 	{ .id = "MCP7941X", .driver_data = mcp794xx },
+ 	{ .id = "PT7C4338", .driver_data = ds_1307 },
+@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1307:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/* clock halted?  turn it on, so clock can tick. */
+ 		if (tmp & DS1307_BIT_CH) {
+ 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1340:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/*
+ 		 * NOTE: ignores century bits; fix before deploying
+ 		 * systems that will run through year 2100.
 -- 
-2.11.0
+2.17.1
