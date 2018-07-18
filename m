@@ -1,54 +1,166 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:52970 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:32964 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731611AbeGTOie (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 10:38:34 -0400
+        with ESMTP id S1729289AbeGRJ7W (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:59:22 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id E85CDB00A0D
-        for <linux-rtc@vger.kernel.org>; Fri, 20 Jul 2018 15:50:08 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id B3990B0018C
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:22:22 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id QVe6h65_XvV7 for <linux-rtc@vger.kernel.org>;
-        Fri, 20 Jul 2018 15:50:08 +0200 (CEST)
-Subject: Re: [PATCH v10 2/4] rtc: ds1307: support m41t11 variant
-To: Rob Herring <robh@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
- <20180720134301.GA23613@rob-hp-laptop>
+        with ESMTP id Es6KR-7Qvl_v for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 11:22:22 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <a5dd8289-9d87-252c-e2a6-3af7237f165e@micronovasrl.com>
-Date: Fri, 20 Jul 2018 15:49:59 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180720134301.GA23613@rob-hp-laptop>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v8 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 18 Jul 2018 11:22:14 +0200
+Message-Id: <20180718092216.91053-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718092216.91053-1-giulio.benetti@micronovasrl.com>
+References: <20180718092216.91053-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Il 20/07/2018 15:43, Rob Herring ha scritto:
-> On Wed, Jul 18, 2018 at 04:09:43PM +0200, Giulio Benetti wrote:
->> The m41t11 variant is very similar to the already supported m41t00 and
->> m41t0, but it has also 56 bytes of NVRAM.
->>
->> Add it to driver taking into account NVRAM section.
->>
->> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
->> ---
->>   .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
-> 
-> Please add acks when posting new versions.
-> 
->>   drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
->>   2 files changed, 15 insertions(+)
+m41txx chips can hold a calibration value to get correct clock bias.
 
-Thank you for pointing me that.
-v11 patchset will include them all.
+Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
 
-Giulio
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+V7 => V8:
+* use BIT() and GENMASK() instead of raw value 0x
+ drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0162a600ff1b..665de9961b28 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,20 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
+ 
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		BIT(7)
++#	define M41TXX_BIT_FT		BIT(6)
++#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
++#	define M41TXX_M_CALIBRATION	GENMASK(5, 0)
++
++/* negative offset step is -2.034ppm */
++#define M41TXX_NEG_OFFSET_STEP_PPB	2034
++/* positive offset step is +4.068ppm */
++#define M41TXX_POS_OFFSET_STEP_PPB	4068
++/* Min and max values supported with 'offset' interface by M41TXX */
++#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
++#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -146,6 +160,9 @@ struct chip_desc {
+ 
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t);
++static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+ static irqreturn_t rx8130_irq(int irq, void *dev_id);
+ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset);
++static int m41txx_rtc_set_offset(struct device *dev, long offset);
+ 
+ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+ };
+ 
++static const struct rtc_class_ops m41txx_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm	= ds1337_read_alarm,
++	.set_alarm	= ds1337_set_alarm,
++	.alarm_irq_enable = ds1307_alarm_irq_enable,
++	.read_offset	= m41txx_rtc_read_offset,
++	.set_offset	= m41txx_rtc_set_offset,
++};
++
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+ 		.nvram_offset	= 8,
+@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t0] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
++	[m41t00] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
+ 	[m41t11] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 8,
+ 		.nvram_size	= 56,
++		.rtc_ops	= &m41txx_rtc_ops,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
+ 
++static int m41txx_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++	u8 val;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	val = ctrl_reg & M41TXX_M_CALIBRATION;
++
++	/* check if positive */
++	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
++		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
++	else
++		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
++
++	return 0;
++}
++
++static int m41txx_rtc_set_offset(struct device *dev, long offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
++		return -ERANGE;
++
++	if (offset >= 0) {
++		ctrl_reg = DIV_ROUND_CLOSEST(offset,
++					     M41TXX_POS_OFFSET_STEP_PPB);
++		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
++	} else {
++		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
++					     M41TXX_NEG_OFFSET_STEP_PPB);
++	}
++
++	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
++				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
++				  ctrl_reg);
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+-- 
+2.17.1
