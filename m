@@ -1,172 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:43558 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729462AbeGROtj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:49:39 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id CEF98B00756
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:11:32 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 4joy4Q-buIDc for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 16:11:32 +0200 (CEST)
-Subject: Re: [PATCH v10 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
- <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <a16db824-636d-2186-1f07-0bbeb1b607ab@micronovasrl.com>
-Date: Wed, 18 Jul 2018 16:11:30 +0200
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:26753 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726869AbeGRLWN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 07:22:13 -0400
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Date: Wed, 18 Jul 2018 10:44:52 +0000
+Message-ID: <1531910692.6017.18.camel@diehl.com>
+References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+         <20180710090710.9066-3-Denis.Osterland@diehl.com>
+         <20180718081313.GI3211@piout.net>
+In-Reply-To: <20180718081313.GI3211@piout.net>
 MIME-Version: 1.0
-In-Reply-To: <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add Andy in Cc
-
-Il 18/07/2018 16:09, Giulio Benetti ha scritto:
-> On m41txx you can enable open-drain OUT pin to check if offset is ok.
-> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-> 512 times faster than 1s tick base.
-> 
-> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
-> 
-> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
-> ---
->   drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 94 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index c6d871456f25..2efe55f43774 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -1050,6 +1050,94 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
->   				  ctrl_reg);
->   }
->   
-> +static ssize_t frequency_test_enable_store(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   const char *buf, size_t count)
-> +{
-> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-> +	bool freq_test_en;
-> +	int ret;
-> +
-> +	ret = kstrtobool(buf, &freq_test_en);
-> +	if (ret == -EINVAL) {
-> +		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-> +		return ret;
-> +	}
-> +
-> +	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-> +			   freq_test_en ? M41TXX_BIT_FT : 0);
-> +
-> +	return count;
-> +}
-> +
-> +static ssize_t frequency_test_enable_show(struct device *dev,
-> +					  struct device_attribute *attr,
-> +					  char *buf)
-> +{
-> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-> +	unsigned int ctrl_reg;
-> +
-> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-> +
-> +	return scnprintf(buf, PAGE_SIZE, (ctrl_reg & M41TXX_BIT_FT) ? "on\n" :
-> +			"off\n");
-> +}
-> +
-> +static DEVICE_ATTR_RW(frequency_test_enable);
-> +
-> +static struct attribute *rtc_freq_test_attrs[] = {
-> +	&dev_attr_frequency_test_enable.attr,
-> +	NULL,
-> +};
-> +
-> +static const struct attribute_group rtc_freq_test_attr_group = {
-> +	.attrs		= rtc_freq_test_attrs,
-> +};
-> +
-> +static void rtc_calib_remove_sysfs_group(void *_dev)
-> +{
-> +	struct device *dev = _dev;
-> +
-> +	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
-> +}
-> +
-> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
-> +{
-> +	int err;
-> +
-> +	switch (ds1307->type) {
-> +	case m41t0:
-> +	case m41t00:
-> +	case m41t11:
-> +		/* Export sysfs entries */
-> +		err = sysfs_create_group(&(ds1307->dev)->kobj,
-> +					 &rtc_freq_test_attr_group);
-> +		if (err) {
-> +			dev_err(ds1307->dev,
-> +				"Failed to create sysfs group: %d\n",
-> +				err);
-> +			return err;
-> +		}
-> +
-> +		err = devm_add_action_or_reset(ds1307->dev,
-> +					       rtc_calib_remove_sysfs_group,
-> +					       ds1307->dev);
-> +		if (err) {
-> +			dev_err(ds1307->dev,
-> +				"Failed to add sysfs cleanup action: %d\n",
-> +				err);
-> +			sysfs_remove_group(&(ds1307->dev)->kobj,
-> +					   &rtc_freq_test_attr_group);
-> +			return err;
-> +		}
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->   /*----------------------------------------------------------------------*/
->   
->   static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-> @@ -1792,6 +1880,12 @@ static int ds1307_probe(struct i2c_client *client,
->   	if (err)
->   		return err;
->   
-> +	err = ds1307_add_frequency_test(ds1307);
-> +	if (err) {
-> +		rtc_device_unregister(ds1307->rtc);
-> +		return err;
-> +	}
-> +
->   	if (chip->nvram_size) {
->   		struct nvmem_config nvmem_cfg = {
->   			.name = "ds1307_nvram",
-> 
-
-
--- 
-Giulio Benetti
-CTO
-
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale ¤ 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
+SGksDQoNCkFtIE1pdHR3b2NoLCBkZW4gMTguMDcuMjAxOCwgMTA6MTMgKzAyMDAgc2Nocmll
+YiBBbGV4YW5kcmUgQmVsbG9uaToNCj4gT24gMTAvMDcvMjAxOCAwOTo0NDoxNSswMDAwLCBE
+ZW5pcyBPU1RFUkxBTkQgd3JvdGU6DQo+ID7CoA0KPiA+ICsJaWYgKGlkLT5kcml2ZXJfZGF0
+YSA9PSBUWVBFX0lTTDEyMTkpIHsNCj4gPiArCQlyYyA9IElTTDEyMTlfUkVHX0VWX0VWRU47
+DQo+ID4gKwkJcmMgPSBpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKGNsaWVudCwgSVNMMTIx
+OV9SRUdfRVYsIHJjKTsNCj4gSSdkIHBhc3MgSVNMMTIxOV9SRUdfRVZfRVZFTiBkaXJlY3Rs
+eSBpbnN0ZWFkIG9mIGFzc2lnbmluZyBpdCB0byByYy4NCj4gDQpCZWNhdXNlIG9mIHRoZSA4
+MCBjaGFyYWN0ZXIgbGltaXQgcGVyIHJvdywgSSB0aG91Z2h0IHRoaXM6DQrCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJjID0gSVNMMTIxOV9SRUdfRVZfRVZFTjsNCsKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmMgPSBpMmNfc21idXNfd3JpdGVfYnl0ZV9k
+YXRhKGNsaWVudCwgSVNMMTIxOV9SRUdfRVYsIHJjKTsNCndvdWxkIGxvb2sgbmljZXIgdGhh
+biB0aGF0Og0KwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByYyA9IGkyY19zbWJ1
+c193cml0ZV9ieXRlX2RhdGEoY2xpZW50LCBJU0wxMjE5X1JFR19FViwNCsKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBJU0wxMjE5
+X1JFR19FVl9FVkVOKTsNCkFyZSB0aGVyZSBhbnkgcmVhc29ucyB3aHkgSSBzaG91bGQgcHJl
+ZmVyIHRoZSBzZWNvbmQgb25lPw0KDQpSZWdhcmRzIERlbmlzDQoNCkRpZWhsIENvbm5lY3Rp
+dml0eSBTb2x1dGlvbnMgR21iSA0KR2VzY2jDpGZ0c2bDvGhydW5nOiBIb3JzdCBMZW9uYmVy
+Z2VyDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE7DvHJuYmVyZyAtIFJlZ2lzdGVyZ2VyaWNo
+dDogQW10c2dlcmljaHQNCk7DvHJuYmVyZzogSFJCIDMyMzE1DQpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCg0KRGVyIEluaGFsdCBkZXIgdm9yc3Rl
+aGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVjaHRsaWNoIGJpbmRlbmQuIERpZXNlIEUtTWFp
+bCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIgcmVjaHRsaWNoIGdlc2NodWV0enRl
+IEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJlbiBTaWUgdW5zIGJpdHRlLCB3ZW5uIFNpZSBk
+aWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndlaXNlIGVyaGFsdGVuIGhhYmVuLiBCaXR0ZSBs
+b2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwgZGllIE5hY2hyaWNodC4NCkplZGUgdW5lcmxh
+dWJ0ZSBGb3JtIGRlciBSZXByb2R1a3Rpb24sIEJla2FubnRnYWJlLCBBZW5kZXJ1bmcsIFZl
+cnRlaWx1bmcgdW5kL29kZXIgUHVibGlrYXRpb24gZGllc2VyIEUtTWFpbCBpc3Qgc3RyZW5n
+c3RlbnMgdW50ZXJzYWd0Lg0KVGhlIGNvbnRlbnRzIG9mIHRoZSBhYm92ZSBtZW50aW9uZWQg
+ZS1tYWlsIGlzIG5vdCBsZWdhbGx5IGJpbmRpbmcuIFRoaXMgZS1tYWlsIGNvbnRhaW5zIGNv
+bmZpZGVudGlhbCBhbmQvb3IgbGVnYWxseSBwcm90ZWN0ZWQgaW5mb3JtYXRpb24uIFBsZWFz
+ZSBpbmZvcm0gdXMgaWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgYnkNCm1pc3Rh
+a2UgYW5kIGRlbGV0ZSBpdCBpbiBzdWNoIGEgY2FzZS4gRWFjaCB1bmF1dGhvcml6ZWQgcmVw
+cm9kdWN0aW9uLCBkaXNjbG9zdXJlLCBhbHRlcmF0aW9uLCBkaXN0cmlidXRpb24gYW5kL29y
+IHB1YmxpY2F0aW9uIG9mIHRoaXMgZS1tYWlsIGlzIHN0cmljdGx5IHByb2hpYml0ZWQuIA0K
