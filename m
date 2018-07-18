@@ -1,69 +1,166 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:54446 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727282AbeGNQnz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 14 Jul 2018 12:43:55 -0400
-Date: Sat, 14 Jul 2018 18:24:19 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-Message-ID: <20180714162419.GX16084@piout.net>
-References: <20180713151424.13000-1-paul@crapouillou.net>
- <20180714131920.GU16084@piout.net>
- <1531574734.2831.0@smtp.crapouillou.net>
- <20180714133250.GW16084@piout.net>
- <1531576208.2831.1@smtp.crapouillou.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1531576208.2831.1@smtp.crapouillou.net>
+Received: from mail.micronovasrl.com ([212.103.203.10]:34010 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731041AbeGRKRX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 06:17:23 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 0C25BB007CB
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:40:20 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 1_gaB24oU5w4 for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 11:40:19 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v9 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 18 Jul 2018 11:40:04 +0200
+Message-Id: <20180718094006.105675-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 14/07/2018 15:50:08+0200, Paul Cercueil wrote:
-> > >  > This would avoid that change (and the test would preferably be
-> > >  > (rtc->type == ID_JZ4780))
-> > > 
-> > >  That branch should be taken if the SoC is JZ4760, JZ4770 or JZ4780.
-> > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
-> > 
-> > Sure but you can achieve that with only 2 ids...
-> > 
-> > > 
-> > >  > >   		ret = jz4780_rtc_enable_write(rtc);
-> > >  > >   	if (ret == 0)
-> > >  > >   		ret = jz4740_rtc_wait_write_ready(rtc);
-> > >  > >  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
-> > >  > >
-> > >  > >   static const struct of_device_id jz4740_rtc_of_match[] = {
-> > >  > >   	{ .compatible = "ingenic,jz4740-rtc", .data = (void
-> > > *)ID_JZ4740 },
-> > >  > >  +	{ .compatible = "ingenic,jz4725b-rtc", .data = (void
-> > > *)ID_JZ4725B
-> > >  > > },
-> > >  > >  +	{ .compatible = "ingenic,jz4760-rtc", .data = (void
-> > > *)ID_JZ4760 },
-> > >  > >  +	{ .compatible = "ingenic,jz4770-rtc", .data = (void
-> > > *)ID_JZ4770 },
-> > 
-> > By doing the correct mapping here e.g:
-> > 
-> > { .compatible = "ingenic,jz4725b-rtc", .data = (void *)ID_JZ4740 },
-> 
-> Not very pretty and future-proof if you ask me...
-> But you're the boss...
-> 
+m41txx chips can hold a calibration value to get correct clock bias.
 
-I think it makes the code simpler to follow . Regarding future
-proofness, you will have to add code and probably use a switch case at
-the time you need to handle an RTC differently. At that time, the >=
-test trick will not work anymore anyway.
+Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
 
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+V8 => V9:
+* fix GENMASK() to get 0x1f, it must be GENMASK(4, 0)
+ drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
 
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0162a600ff1b..c6d871456f25 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,20 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
+ 
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		BIT(7)
++#	define M41TXX_BIT_FT		BIT(6)
++#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
++#	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
++
++/* negative offset step is -2.034ppm */
++#define M41TXX_NEG_OFFSET_STEP_PPB	2034
++/* positive offset step is +4.068ppm */
++#define M41TXX_POS_OFFSET_STEP_PPB	4068
++/* Min and max values supported with 'offset' interface by M41TXX */
++#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
++#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -146,6 +160,9 @@ struct chip_desc {
+ 
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t);
++static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+ static irqreturn_t rx8130_irq(int irq, void *dev_id);
+ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset);
++static int m41txx_rtc_set_offset(struct device *dev, long offset);
+ 
+ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+ };
+ 
++static const struct rtc_class_ops m41txx_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm	= ds1337_read_alarm,
++	.set_alarm	= ds1337_set_alarm,
++	.alarm_irq_enable = ds1307_alarm_irq_enable,
++	.read_offset	= m41txx_rtc_read_offset,
++	.set_offset	= m41txx_rtc_set_offset,
++};
++
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+ 		.nvram_offset	= 8,
+@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t0] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
++	[m41t00] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
+ 	[m41t11] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 8,
+ 		.nvram_size	= 56,
++		.rtc_ops	= &m41txx_rtc_ops,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
+ 
++static int m41txx_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++	u8 val;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	val = ctrl_reg & M41TXX_M_CALIBRATION;
++
++	/* check if positive */
++	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
++		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
++	else
++		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
++
++	return 0;
++}
++
++static int m41txx_rtc_set_offset(struct device *dev, long offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
++		return -ERANGE;
++
++	if (offset >= 0) {
++		ctrl_reg = DIV_ROUND_CLOSEST(offset,
++					     M41TXX_POS_OFFSET_STEP_PPB);
++		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
++	} else {
++		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
++					     M41TXX_NEG_OFFSET_STEP_PPB);
++	}
++
++	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
++				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
++				  ctrl_reg);
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
