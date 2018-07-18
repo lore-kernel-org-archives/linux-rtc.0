@@ -1,180 +1,102 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:32802 "EHLO mail.kernel.org"
+Received: from mail.bootlin.com ([62.4.15.54]:40285 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388021AbeGWPUh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 23 Jul 2018 11:20:37 -0400
+        id S1726514AbeGRIt5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 18 Jul 2018 04:49:57 -0400
+Date: Wed, 18 Jul 2018 10:13:13 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
+ detection
+Message-ID: <20180718081313.GI3211@piout.net>
+References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+ <20180710090710.9066-3-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
-References: <20180713151424.13000-1-paul@crapouillou.net> <20180714131920.GU16084@piout.net>
- <1531574734.2831.0@smtp.crapouillou.net> <20180714133250.GW16084@piout.net>
- <1531576208.2831.1@smtp.crapouillou.net> <20180720153956.GA18135@rob-hp-laptop>
- <1532113439.2309.1@smtp.crapouillou.net>
-In-Reply-To: <1532113439.2309.1@smtp.crapouillou.net>
-From: Rob Herring <robh@kernel.org>
-Date: Mon, 23 Jul 2018 08:18:55 -0600
-Message-ID: <CAL_JsqKrJC7v79L89PCP-hihYLSNjp05xMxQQaVZPLPk26MuHw@mail.gmail.com>
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180710090710.9066-3-Denis.Osterland@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, Jul 20, 2018 at 1:04 PM Paul Cercueil <paul@crapouillou.net> wrote:
->
-> Hi,
->
-> Le ven. 20 juil. 2018 =C3=A0 17:39, Rob Herring <robh@kernel.org> a =C3=
-=A9crit :
-> > On Sat, Jul 14, 2018 at 03:50:08PM +0200, Paul Cercueil wrote:
-> >>
-> >>
-> >>  Le sam. 14 juil. 2018 =C3=A0 15:32, Alexandre Belloni
-> >>  <alexandre.belloni@bootlin.com> a =C3=A9crit :
-> >>  > On 14/07/2018 15:25:33+0200, Paul Cercueil wrote:
-> >>  > >  Hi Alexandre,
-> >>  > >
-> >>  > >  Le sam. 14 juil. 2018 =C3=A0 15:19, Alexandre Belloni
-> >>  > >  <alexandre.belloni@bootlin.com> a =C3=A9crit :
-> >>  > >  > Hello,
-> >>  > >  >
-> >>  > >  > On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
-> >>  > >  > >  The RTC in the JZ4725B works just like the one in the
-> >> JZ4740.
-> >>  > >  > >
-> >>  > >  > >  The RTC in the JZ4760 and JZ4770 work just like the one
-> >> in the
-> >>  > >  > > JZ4780.
-> >>  > >  > >
-> >>  > >  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> >>  > >  > >  ---
-> >>  > >  > >
-> >> Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> >>  > > |  3
-> >>  > >  > > +++
-> >>  > >  > >   drivers/rtc/rtc-jz4740.c
-> >>  > > | 11
-> >>  > >  > > ++++++++++-
-> >>  > >  > >   2 files changed, 13 insertions(+), 1 deletion(-)
-> >>  > >  > >
-> >>  > >  > >  diff --git
-> >>  > >  > >
-> >> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> >>  > >  > >
-> >> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> >>  > >  > >  index 41c7ae18fd7b..a9e821de84f2 100644
-> >>  > >  > >  ---
-> >>  > > a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> >>  > >  > >  +++
-> >>  > > b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> >>  > >  > >  @@ -4,6 +4,9 @@ Required properties:
-> >>  > >  > >
-> >>  > >  > >   - compatible: One of:
-> >>  > >  > >     - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
-> >>  > >  > >  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
-> >>  > >  > >  +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
-> >>  > >  > >  +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
-> >>  > >  > >     - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
-> >>  > >  > >   - reg: Address range of rtc register set
-> >>  > >  > >   - interrupts: IRQ number for the alarm interrupt
-> >>  > >  > >  diff --git a/drivers/rtc/rtc-jz4740.c
-> >>  > > b/drivers/rtc/rtc-jz4740.c
-> >>  > >  > >  index d0a891777f44..1c867e3a0ea5 100644
-> >>  > >  > >  --- a/drivers/rtc/rtc-jz4740.c
-> >>  > >  > >  +++ b/drivers/rtc/rtc-jz4740.c
-> >>  > >  > >  @@ -54,6 +54,9 @@
-> >>  > >  > >
-> >>  > >  > >   enum jz4740_rtc_type {
-> >>  > >  > >    ID_JZ4740,
-> >>  > >  > >  + ID_JZ4725B,
-> >>  > >  > >  + ID_JZ4760,
-> >>  > >  > >  + ID_JZ4770,
-> >>  > >  >
-> >>  > >  > I wouldn't introduce those ids unless there are handling
-> >>  > > differences at
-> >>  > >  > some point.
-> >>  > >
-> >>  > >  Well there are handling differences, see below.
-> >>  > >
-> >>  > >  > >    ID_JZ4780,
-> >>  > >  > >   };
-> >>  > >  > >
-> >>  > >  > >  @@ -114,7 +117,7 @@ static inline int
-> >>  > > jz4740_rtc_reg_write(struct
-> >>  > >  > > jz4740_rtc *rtc, size_t reg,
-> >>  > >  > >   {
-> >>  > >  > >    int ret =3D 0;
-> >>  > >  > >
-> >>  > >  > >  - if (rtc->type >=3D ID_JZ4780)
-> >>  > >  > >  + if (rtc->type >=3D ID_JZ4760)
-> >>  > >  >
-> >>  > >  > This would avoid that change (and the test would preferably
-> >> be
-> >>  > >  > (rtc->type =3D=3D ID_JZ4780))
-> >>  > >
-> >>  > >  That branch should be taken if the SoC is JZ4760, JZ4770 or
-> >> JZ4780.
-> >>  > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
-> >>  >
-> >>  > Sure but you can achieve that with only 2 ids...
-> >>  >
-> >>  > >
-> >>  > >  > >            ret =3D jz4780_rtc_enable_write(rtc);
-> >>  > >  > >    if (ret =3D=3D 0)
-> >>  > >  > >            ret =3D jz4740_rtc_wait_write_ready(rtc);
-> >>  > >  > >  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
-> >>  > >  > >
-> >>  > >  > >   static const struct of_device_id jz4740_rtc_of_match[] =3D
-> >> {
-> >>  > >  > >    { .compatible =3D "ingenic,jz4740-rtc", .data =3D (void
-> >>  > > *)ID_JZ4740 },
-> >>  > >  > >  + { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void
-> >>  > > *)ID_JZ4725B
-> >>  > >  > > },
-> >>  > >  > >  + { .compatible =3D "ingenic,jz4760-rtc", .data =3D (void
-> >>  > > *)ID_JZ4760 },
-> >>  > >  > >  + { .compatible =3D "ingenic,jz4770-rtc", .data =3D (void
-> >>  > > *)ID_JZ4770 },
-> >>  >
-> >>  > By doing the correct mapping here e.g:
-> >>  >
-> >>  > { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void *)ID_JZ474=
-0
-> >> },
-> >>
-> >>  Not very pretty and future-proof if you ask me...
-> >
-> > Looks to me like this can be handled entirely in DT without driver
-> > changes like the other patches. Correct usage of compatible strings is
-> > what gives you future-proofing. And no driver change is better than
-> > needless changing.
->
-> If I make e.g. the jz4760 and jz4770 use the jz4780 compatible string,
-> but
-> then I want to implement a new feature that only exists on the jz4780,
-> how
-> can I do it without breaking everything?
+On 10/07/2018 09:44:15+0000, Denis OSTERLAND wrote:
+>  static int
+>  isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  {
+> @@ -642,6 +744,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	rtc->ops = &isl1208_rtc_ops;
+> 
+>  	i2c_set_clientdata(client, rtc);
+> +	dev_set_drvdata(&rtc->dev, client);
+> 
+>  	rc = isl1208_i2c_get_sr(client);
+>  	if (rc < 0) {
+> @@ -653,6 +756,18 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  		dev_warn(&client->dev, "rtc power failure detected, "
+>  			 "please set clock.\n");
+> 
+> +	if (id->driver_data == TYPE_ISL1219) {
+> +		rc = ISL1219_REG_EV_EVEN;
+> +		rc = i2c_smbus_write_byte_data(client, ISL1219_REG_EV, rc);
 
-You specify both:
+I'd pass ISL1219_REG_EV_EVEN directly instead of assigning it to rc.
 
-compatible =3D "ingenic,jz4760-rtc", "ingenic,jz4780-rtc";
+> +		if (rc < 0) {
+> +			dev_err(&client->dev, "could not enable tamper detection\n");
+> +			return rc;
+> +		}
+> +		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
+> +		if (rc)
+> +			return rc;
+> +	}
+> +
+>  	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
+>  	if (rc)
+>  		return rc;
+> @@ -686,8 +801,9 @@ isl1208_remove(struct i2c_client *client)
+>  }
+> 
+>  static const struct i2c_device_id isl1208_id[] = {
+> -	{ "isl1208", 0 },
+> -	{ "isl1218", 0 },
+> +	{ "isl1208", TYPE_ISL1208 },
+> +	{ "isl1218", TYPE_ISL1218 },
+> +	{ "isl1219", TYPE_ISL1219 },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, isl1208_id);
+> @@ -695,6 +811,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+>  static const struct of_device_id isl1208_of_match[] = {
+>  	{ .compatible = "isil,isl1208" },
+>  	{ .compatible = "isil,isl1218" },
+> +	{ .compatible = "isil,isl1219" },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(of, isl1208_of_match);
+> --
+> 2.18.0
+> 
+> 
+> 
+> Diehl Connectivity Solutions GmbH
+> Geschäftsführung: Horst Leonberger
+> Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
+> Nürnberg: HRB 32315
+> ___________________________________________________________________________________________________
+> 
+> Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+> Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
+> Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+> The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
+> mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
 
-You match on the less specific compatible until you have features or
-bugs to handle for the more specific compatible. In your case, you
-would have to start matching on the 4760 and 4770 and not support the
-feature for those. A bit backwards from normal, but would still work.
-
-> > It may look a bit wierd if 4780 is the fallback for 4770, but if the
-> > 4780 is older, then that actually makes sense.
->
-> The 4770 is older than the 4780.
-
-As I said, it's weird, but it will all still work. You could fix this
-if you want. It would only matter if you had a old dtb with a new
-kernel and care about that case working.
-
-Rob
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
