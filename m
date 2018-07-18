@@ -1,121 +1,156 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:58868 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:43118 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730361AbeGRJ0R (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:26:17 -0400
+        with ESMTP id S1729914AbeGROoo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:44:44 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 6C848B007CB
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:49:26 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id A86F3B00758
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:06:38 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id teUhYTxmM-BV for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 10:49:25 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        with ESMTP id JOQA19_ie3Vi for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 16:06:37 +0200 (CEST)
+Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v7 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed, 18 Jul 2018 10:49:13 +0200
-Message-Id: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+ <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
+ <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com>
+Date: Wed, 18 Jul 2018 16:06:31 +0200
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+Hi Andy,
 
-Add it to driver taking into account NVRAM section.
+Il 18/07/2018 14:47, Andy Shevchenko ha scritto:
+> On Wed, Jul 18, 2018 at 12:40 PM, Giulio Benetti
+> <giulio.benetti@micronovasrl.com> wrote:
+>> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+>> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+>> 512 times faster than 1s tick base.
+>>
+>> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+> 
+>> +static ssize_t frequency_test_enable_store(struct device *dev,
+>> +                                          struct device_attribute *attr,
+>> +                                          const char *buf, size_t count)
+>> +{
+>> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> 
+> 
+>> +       bool freq_test_en = 0;
+> 
+> First of all, initialization of boolean using int is not very best style.
+> Second, this is not needed.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
-V6 => V7
-* already applied
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+Ok I remove initialization.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index aa4a161bae98..0162a600ff1b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
--- 
-2.17.1
+> 
+>> +       int ret;
+>> +
+>> +       ret = kstrtobool(buf, &freq_test_en);
+> 
+>> +       if (ret == -EINVAL) {
+> 
+> What kind of other error code you may expect and why they are not
+> considered as no error?
+
+According to documentation, kstrtobool can only fail with -EINVAL.
+See:
+https://elixir.bootlin.com/linux/v4.18-rc5/source/lib/kstrtox.c#L332
+
+> 
+>> +               dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
+>> +               return ret;
+>> +       }
+>> +
+>> +       regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
+>> +                          freq_test_en ? M41TXX_BIT_FT : 0);
+>> +
+>> +       return count;
+>> +}
+>> +
+>> +static ssize_t frequency_test_enable_show(struct device *dev,
+>> +                                         struct device_attribute *attr,
+>> +                                         char *buf)
+>> +{
+>> +       struct ds1307 *ds1307 = dev_get_drvdata(dev);
+>> +       unsigned int ctrl_reg;
+>> +
+>> +       regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+>> +
+> 
+>> +       if (ctrl_reg & M41TXX_BIT_FT)
+>> +               return scnprintf(buf, PAGE_SIZE, "on\n");
+>> +       else
+>> +               return scnprintf(buf, PAGE_SIZE, "off\n");
+> 
+> Entire condition might be one line.
+
+Right, I change it.
+
+> 
+>> +}
+>> +
+> 
+>> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+>> +{
+> 
+>> +       int err = 0;
+> 
+> Redundant assignment. See below.
+
+Ok.
+
+> 
+>> +
+>> +       switch (ds1307->type) {
+>> +       case m41t0:
+>> +       case m41t00:
+>> +       case m41t11:
+>> +               /* Export sysfs entries */
+>> +               err = sysfs_create_group(&(ds1307->dev)->kobj,
+>> +                                        &rtc_freq_test_attr_group);
+>> +               if (err) {
+>> +                       dev_err(ds1307->dev,
+>> +                               "Failed to create sysfs group: %d\n",
+>> +                               err);
+>> +                       return err;
+>> +               }
+>> +
+>> +               err = devm_add_action_or_reset(ds1307->dev,
+>> +                                              rtc_calib_remove_sysfs_group,
+>> +                                              ds1307->dev);
+>> +               if (err) {
+>> +                       dev_err(ds1307->dev,
+>> +                               "Failed to add sysfs cleanup action: %d\n",
+>> +                               err);
+>> +                       sysfs_remove_group(&(ds1307->dev)->kobj,
+>> +                                          &rtc_freq_test_attr_group);
+>> +                       return err;
+>> +               }
+>> +               break;
+>> +       default:
+>> +               break;
+>> +       }
+>> +
+> 
+>> +       return err;
+> 
+> return 0;
+
+Ok.
+
+Thanks
+
+Giulio
