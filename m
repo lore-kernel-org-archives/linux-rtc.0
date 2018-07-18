@@ -1,144 +1,172 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:59288 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730228AbeGZO6U (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 26 Jul 2018 10:58:20 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/8] rtc: remove irq_task and irq_task_lock
-Date: Thu, 26 Jul 2018 15:40:52 +0200
-Message-Id: <20180726134056.18273-5-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
-References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:43558 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729462AbeGROtj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:49:39 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id CEF98B00756
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:11:32 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 4joy4Q-buIDc for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 16:11:32 +0200 (CEST)
+Subject: Re: [PATCH v10 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+ <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
+ <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <a16db824-636d-2186-1f07-0bbeb1b607ab@micronovasrl.com>
+Date: Wed, 18 Jul 2018 16:11:30 +0200
+MIME-Version: 1.0
+In-Reply-To: <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-There is no way to set a periodic task anymore, remove task pointer and
-lock.
+Add Andy in Cc
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/class.c     |  1 -
- drivers/rtc/interface.c | 50 +++++++++--------------------------------
- include/linux/rtc.h     |  2 --
- 3 files changed, 10 insertions(+), 43 deletions(-)
+Il 18/07/2018 16:09, Giulio Benetti ha scritto:
+> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+> 512 times faster than 1s tick base.
+> 
+> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+>   drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 94 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index c6d871456f25..2efe55f43774 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -1050,6 +1050,94 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+>   				  ctrl_reg);
+>   }
+>   
+> +static ssize_t frequency_test_enable_store(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   const char *buf, size_t count)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	bool freq_test_en;
+> +	int ret;
+> +
+> +	ret = kstrtobool(buf, &freq_test_en);
+> +	if (ret == -EINVAL) {
+> +		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
+> +		return ret;
+> +	}
+> +
+> +	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
+> +			   freq_test_en ? M41TXX_BIT_FT : 0);
+> +
+> +	return count;
+> +}
+> +
+> +static ssize_t frequency_test_enable_show(struct device *dev,
+> +					  struct device_attribute *attr,
+> +					  char *buf)
+> +{
+> +	struct ds1307 *ds1307 = dev_get_drvdata(dev);
+> +	unsigned int ctrl_reg;
+> +
+> +	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, (ctrl_reg & M41TXX_BIT_FT) ? "on\n" :
+> +			"off\n");
+> +}
+> +
+> +static DEVICE_ATTR_RW(frequency_test_enable);
+> +
+> +static struct attribute *rtc_freq_test_attrs[] = {
+> +	&dev_attr_frequency_test_enable.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group rtc_freq_test_attr_group = {
+> +	.attrs		= rtc_freq_test_attrs,
+> +};
+> +
+> +static void rtc_calib_remove_sysfs_group(void *_dev)
+> +{
+> +	struct device *dev = _dev;
+> +
+> +	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
+> +}
+> +
+> +static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+> +{
+> +	int err;
+> +
+> +	switch (ds1307->type) {
+> +	case m41t0:
+> +	case m41t00:
+> +	case m41t11:
+> +		/* Export sysfs entries */
+> +		err = sysfs_create_group(&(ds1307->dev)->kobj,
+> +					 &rtc_freq_test_attr_group);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to create sysfs group: %d\n",
+> +				err);
+> +			return err;
+> +		}
+> +
+> +		err = devm_add_action_or_reset(ds1307->dev,
+> +					       rtc_calib_remove_sysfs_group,
+> +					       ds1307->dev);
+> +		if (err) {
+> +			dev_err(ds1307->dev,
+> +				"Failed to add sysfs cleanup action: %d\n",
+> +				err);
+> +			sysfs_remove_group(&(ds1307->dev)->kobj,
+> +					   &rtc_freq_test_attr_group);
+> +			return err;
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>   /*----------------------------------------------------------------------*/
+>   
+>   static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+> @@ -1792,6 +1880,12 @@ static int ds1307_probe(struct i2c_client *client,
+>   	if (err)
+>   		return err;
+>   
+> +	err = ds1307_add_frequency_test(ds1307);
+> +	if (err) {
+> +		rtc_device_unregister(ds1307->rtc);
+> +		return err;
+> +	}
+> +
+>   	if (chip->nvram_size) {
+>   		struct nvmem_config nvmem_cfg = {
+>   			.name = "ds1307_nvram",
+> 
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 7fa32c922617..0fca4d74c76b 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -172,7 +172,6 @@ static struct rtc_device *rtc_allocate_device(void)
- 
- 	mutex_init(&rtc->ops_lock);
- 	spin_lock_init(&rtc->irq_lock);
--	spin_lock_init(&rtc->irq_task_lock);
- 	init_waitqueue_head(&rtc->irq_queue);
- 
- 	/* Init timerqueue */
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 2b1b9a0b9f8a..ae0d67610c7b 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -605,12 +605,6 @@ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode)
- 	rtc->irq_data = (rtc->irq_data + (num << 8)) | (RTC_IRQF|mode);
- 	spin_unlock_irqrestore(&rtc->irq_lock, flags);
- 
--	/* call the task func */
--	spin_lock_irqsave(&rtc->irq_task_lock, flags);
--	if (rtc->irq_task)
--		rtc->irq_task->func(rtc->irq_task->private_data);
--	spin_unlock_irqrestore(&rtc->irq_task_lock, flags);
--
- 	wake_up_interruptible(&rtc->irq_queue);
- 	kill_fasync(&rtc->async_queue, SIGIO, POLL_IN);
- }
-@@ -750,28 +744,16 @@ static int rtc_update_hrtimer(struct rtc_device *rtc, int enabled)
-  * Context: any
-  *
-  * Note that rtc_irq_set_freq() should previously have been used to
-- * specify the desired frequency of periodic IRQ task->func() callbacks.
-+ * specify the desired frequency of periodic IRQ.
-  */
- int rtc_irq_set_state(struct rtc_device *rtc, struct rtc_task *task, int enabled)
- {
- 	int err = 0;
--	unsigned long flags;
- 
--retry:
--	spin_lock_irqsave(&rtc->irq_task_lock, flags);
--	if (rtc->irq_task != NULL && task == NULL)
--		err = -EBUSY;
--	else if (rtc->irq_task != task)
--		err = -EACCES;
--	else {
--		if (rtc_update_hrtimer(rtc, enabled) < 0) {
--			spin_unlock_irqrestore(&rtc->irq_task_lock, flags);
--			cpu_relax();
--			goto retry;
--		}
--		rtc->pie_enabled = enabled;
--	}
--	spin_unlock_irqrestore(&rtc->irq_task_lock, flags);
-+	while (rtc_update_hrtimer(rtc, enabled) < 0)
-+		cpu_relax();
-+
-+	rtc->pie_enabled = enabled;
- 
- 	trace_rtc_irq_set_state(enabled, err);
- 	return err;
-@@ -782,7 +764,7 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_state);
-  * rtc_irq_set_freq - set 2^N Hz periodic IRQ frequency for IRQ
-  * @rtc: the rtc device
-  * @task: currently registered with rtc_irq_register()
-- * @freq: positive frequency with which task->func() will be called
-+ * @freq: positive frequency
-  * Context: any
-  *
-  * Note that rtc_irq_set_state() is used to enable or disable the
-@@ -791,25 +773,13 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_state);
- int rtc_irq_set_freq(struct rtc_device *rtc, struct rtc_task *task, int freq)
- {
- 	int err = 0;
--	unsigned long flags;
- 
- 	if (freq <= 0 || freq > RTC_MAX_FREQ)
- 		return -EINVAL;
--retry:
--	spin_lock_irqsave(&rtc->irq_task_lock, flags);
--	if (rtc->irq_task != NULL && task == NULL)
--		err = -EBUSY;
--	else if (rtc->irq_task != task)
--		err = -EACCES;
--	else {
--		rtc->irq_freq = freq;
--		if (rtc->pie_enabled && rtc_update_hrtimer(rtc, 1) < 0) {
--			spin_unlock_irqrestore(&rtc->irq_task_lock, flags);
--			cpu_relax();
--			goto retry;
--		}
--	}
--	spin_unlock_irqrestore(&rtc->irq_task_lock, flags);
-+
-+	rtc->irq_freq = freq;
-+	while (rtc->pie_enabled && rtc_update_hrtimer(rtc, 1) < 0)
-+		cpu_relax();
- 
- 	trace_rtc_irq_set_freq(freq, err);
- 	return err;
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index f868d6b619ab..8cc23fdfd4ee 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -121,8 +121,6 @@ struct rtc_device {
- 	wait_queue_head_t irq_queue;
- 	struct fasync_struct *async_queue;
- 
--	struct rtc_task *irq_task;
--	spinlock_t irq_task_lock;
- 	int irq_freq;
- 	int max_user_freq;
- 
+
 -- 
-2.18.0
+Giulio Benetti
+CTO
+
+MICRONOVA SRL
+Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
+Tel. 049/8931563 - Fax 049/8931346
+Cod.Fiscale - P.IVA 02663420285
+Capitale Sociale ¤ 26.000 i.v.
+Iscritta al Reg. Imprese di Padova N. 02663420285
+Numero R.E.A. 258642
