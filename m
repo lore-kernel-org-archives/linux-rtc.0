@@ -1,28 +1,27 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:58544 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:43446 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729262AbeGRJXq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:23:46 -0400
+        with ESMTP id S1730921AbeGROsB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:48:01 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 4027AB007CC
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:41:27 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id 6B24BB00787
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:09:54 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id KTqpzJBZFPMd for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 10:41:26 +0200 (CEST)
+        with ESMTP id Zjc9-y_YZ8ap for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 16:09:53 +0200 (CEST)
 From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
         linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 18 Jul 2018 10:41:16 +0200
-Message-Id: <20180718084118.79540-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180718084118.79540-1-giulio.benetti@micronovasrl.com>
-References: <20180716213302.GA2751@piout.net>
- <20180718084118.79540-1-giulio.benetti@micronovasrl.com>
+Subject: [PATCH v10 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 18 Jul 2018 16:09:44 +0200
+Message-Id: <20180718140946.115093-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
+References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+ <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -36,7 +35,7 @@ Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
  1 file changed, 77 insertions(+)
 
 diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0162a600ff1b..b2ef9defc349 100644
+index 0162a600ff1b..c6d871456f25 100644
 --- a/drivers/rtc/rtc-ds1307.c
 +++ b/drivers/rtc/rtc-ds1307.c
 @@ -114,6 +114,20 @@ enum ds_type {
@@ -44,10 +43,10 @@ index 0162a600ff1b..b2ef9defc349 100644
  #	define RX8025_BIT_XST		0x20
  
 +#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		0x80
-+#	define M41TXX_BIT_FT		0x40
-+#	define M41TXX_BIT_CALIB_SIGN	0x20
-+#	define M41TXX_M_CALIBRATION	0x1f
++#	define M41TXX_BIT_OUT		BIT(7)
++#	define M41TXX_BIT_FT		BIT(6)
++#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
++#	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
 +
 +/* negative offset step is -2.034ppm */
 +#define M41TXX_NEG_OFFSET_STEP_PPB	2034
