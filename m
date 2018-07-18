@@ -1,99 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:59646 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727216AbeGTLVO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 07:21:14 -0400
-Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-From: Keerthy <j-keerthy@ti.com>
-To: Johan Hovold <johan@kernel.org>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <t-kristo@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
- <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
- <20180719100229.GQ10204@localhost>
- <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
- <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
- <20180719123617.GV10204@localhost>
- <e3841afa-fe18-84c0-e5b6-520365c5e4a1@ti.com>
-Message-ID: <28f0d002-f05e-b4dc-f0dd-d0bc0fc5616d@ti.com>
-Date: Fri, 20 Jul 2018 16:03:20 +0530
+Received: from mail.micronovasrl.com ([212.103.203.10]:60652 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730469AbeGRJuu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:50:50 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 26915B00789
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:13:54 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 9Nr5we-I73Py for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 11:13:52 +0200 (CEST)
+Subject: Re: [PATCH v7 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
+ <20180718084916.79837-2-giulio.benetti@micronovasrl.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <09456f94-8f4d-875d-c87f-4dedfeeebadc@micronovasrl.com>
+Date: Wed, 18 Jul 2018 11:13:52 +0200
 MIME-Version: 1.0
-In-Reply-To: <e3841afa-fe18-84c0-e5b6-520365c5e4a1@ti.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20180718084916.79837-2-giulio.benetti@micronovasrl.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+Hi Alexandre,
 
-
-On Thursday 19 July 2018 06:16 PM, Keerthy wrote:
+Il 18/07/2018 10:49, Giulio Benetti ha scritto:
+> m41txx chips can hold a calibration value to get correct clock bias.
 > 
+> Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
 > 
-> On Thursday 19 July 2018 06:06 PM, Johan Hovold wrote:
->> On Thu, Jul 19, 2018 at 05:52:17PM +0530, Keerthy wrote:
->>> On Thursday 19 July 2018 05:23 PM, Keerthy wrote:
->>>> On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
->>>>> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
->>
->>>>>> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
->>>>>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
->>>>>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
->>>>>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
->>
->>>>>> +	/* Our calculations started right before the rollover, try again */
->>
->>>>>> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
->>>>>> +		goto again;
->>>>>
->>>>> Here the alarm may have gone off as part of the roll over, in which case
->>>>> you shouldn't retry.
->>>>
->>>> Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
->>>>
->>>> In the event of Roll over before setting the
->>>> OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
->>>> not miss the ALARM2 event? Then poweroff would fail right?
->>
->> Right, that would fail.
->>
->>>> Hence the attempt to retry the next second. This sequence would begin
->>>> right at the beginning of a new second and we expect the full sequence
->>>> to get over without having to retry again.
->>>>
->>>> Hope i am clear.
->>
->> Yes, sure, but my point is that could end up retrying also after the
->> alarm has fired correctly (e.g. due to latencies in turning of the
->> power)>
->> It may be enough to check OMAP_RTC_STATUS_REG before retrying.
-
-On a second thought. Status gets set only after the next second.
-
-if ALARM2 status bit is set that surely means interrupt has fired but if
-it is not set then there are 2 possibilities
-
-1) ALARM2 is missed as the roll over happened
-2) ALARM2 yet to fire as we are yet to get to the next second.
-
-On the other hand Seconds gives me clear indication if we missed the
-interrupt or we are about to get one.
-
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+> V6 => V7:
+> * changed PPM to PPB as rtc sysfs offset handles PPB
+>   drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 77 insertions(+)
 > 
-> Ah okay. Yes this makes sense. I will use the status to retry.
-> 
->>
->>> I tried to program the interrupt for the same second on the hardware and
->>> it does not fire. So to take care of roll over corner case one attempt
->>> to retry is needed.
->>
->> Yes, that's expected.
->>
->> Thanks,
->> Johan
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> index 0162a600ff1b..b2ef9defc349 100644
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -114,6 +114,20 @@ enum ds_type {
+>   #	define RX8025_BIT_VDET		0x40
+>   #	define RX8025_BIT_XST		0x20
+>   
+> +#define M41TXX_REG_CONTROL	0x07
+> +#	define M41TXX_BIT_OUT		0x80
+> +#	define M41TXX_BIT_FT		0x40
+> +#	define M41TXX_BIT_CALIB_SIGN	0x20
+> +#	define M41TXX_M_CALIBRATION	0x1f
+
+Sorry, I've forgot to use BIT().
+I would also use GENMASK() for M41TXX_M_CALIBRATION.
+I correct and resend asap.
+
+Giulio
