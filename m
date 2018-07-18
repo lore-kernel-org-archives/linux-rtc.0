@@ -1,84 +1,53 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:49948 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725786AbeGLFQe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Jul 2018 01:16:34 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <johan@kernel.org>
-Subject: [PATCH v4 4/4] rtc: interface: Add power_off_program to rtc_class_ops
-Date: Thu, 12 Jul 2018 10:37:40 +0530
-Message-ID: <1531372060-10532-5-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail.micronovasrl.com ([212.103.203.10]:43458 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731031AbeGROsD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:48:03 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id C200AB00709
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:09:56 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id z6Obvkru6no2 for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 16:09:55 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v10 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed, 18 Jul 2018 16:09:46 +0200
+Message-Id: <20180718140946.115093-4-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
+References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+ <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add an interface function to set up the rtc for a power_off
-mode.
+data field points to m41t00, instead it should point to m41t0.
+Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+are equal.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
+Point to right enum m41t0 instead of m41t00.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/interface.c | 12 ++++++++++++
- drivers/rtc/rtc-omap.c  |  1 +
- include/linux/rtc.h     |  2 ++
- 3 files changed, 15 insertions(+)
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 6d4012d..c19668b9 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
- 	trace_rtc_set_offset(offset, ret);
- 	return ret;
- }
-+
-+/**
-+ * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
-+ * line and can be used to power off the SoC.
-+ *
-+ * Kernel interface to program rtc to power off
-+ */
-+int rtc_power_off_program(struct rtc_device *rtc)
-+{
-+	return rtc->ops->power_off_program(rtc->dev.parent);
-+}
-+EXPORT_SYMBOL_GPL(rtc_power_off_program);
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 3610efd..9c9ea44 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -518,6 +518,7 @@ static void omap_rtc_power_off(void)
- 	.read_alarm	= omap_rtc_read_alarm,
- 	.set_alarm	= omap_rtc_set_alarm,
- 	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
-+	.power_off_program = omap_rtc_power_off_program,
- };
- 
- static const struct omap_rtc_device_type omap_rtc_default_type = {
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 6268208..3fc640c 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -85,6 +85,7 @@ struct rtc_class_ops {
- 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
- 	int (*read_offset)(struct device *, long *offset);
- 	int (*set_offset)(struct device *, long offset);
-+	int (*power_off_program)(struct device *dev);
- };
- 
- typedef struct rtc_task {
-@@ -229,6 +230,7 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- int rtc_read_offset(struct rtc_device *rtc, long *offset);
- int rtc_set_offset(struct rtc_device *rtc, long offset);
- void rtc_timer_do_work(struct work_struct *work);
-+int rtc_power_off_program(struct rtc_device *rtc);
- 
- static inline bool is_leap_year(unsigned int year)
- {
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index e9ec4160d7f6..aa4a161bae98 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -299,7 +299,7 @@ static const struct of_device_id ds1307_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
++		.data = (void *)m41t0
+ 	},
+ 	{
+ 		.compatible = "st,m41t00",
 -- 
-1.9.1
+2.17.1
