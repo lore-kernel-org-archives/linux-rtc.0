@@ -1,124 +1,166 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.130]:56164 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726591AbeGaIev (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 31 Jul 2018 04:34:51 -0400
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org, lee.jones@linaro.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH 3/5] dt-bindings: mfd: rk808: Add binding informations for RK809 and RK817.
-Date: Tue, 31 Jul 2018 14:56:32 +0800
-Message-Id: <1533020197-754-5-git-send-email-tony.xie@rock-chips.com>
-In-Reply-To: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
-References: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:58544 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729262AbeGRJXq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:23:46 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 4027AB007CC
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:41:27 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id KTqpzJBZFPMd for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 10:41:26 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 18 Jul 2018 10:41:16 +0200
+Message-Id: <20180718084118.79540-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718084118.79540-1-giulio.benetti@micronovasrl.com>
+References: <20180716213302.GA2751@piout.net>
+ <20180718084118.79540-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
+m41txx chips can hold a calibration value to get correct clock bias.
 
-Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- Documentation/devicetree/bindings/mfd/rk808.txt | 55 +++++++++++++++++++++++++
- 1 file changed, 55 insertions(+)
+ drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-index 91b6522..31c9f3d 100644
---- a/Documentation/devicetree/bindings/mfd/rk808.txt
-+++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-@@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
- The rk8xx family current members:
- rk805
- rk808
-+rk809
-+rk817
- rk818
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0162a600ff1b..b2ef9defc349 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,20 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
  
- Required properties:
- - compatible: "rockchip,rk805"
- - compatible: "rockchip,rk808"
-+- compatible: "rockchip,rk809"
-+- compatible: "rockchip,rk817"
- - compatible: "rockchip,rk818"
- - reg: I2C slave address
- - interrupt-parent: The parent interrupt controller.
-@@ -46,6 +50,28 @@ Optional RK808 properties:
-   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
-   very quickly with no slow ramp time.
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		0x80
++#	define M41TXX_BIT_FT		0x40
++#	define M41TXX_BIT_CALIB_SIGN	0x20
++#	define M41TXX_M_CALIBRATION	0x1f
++
++/* negative offset step is -2.034ppm */
++#define M41TXX_NEG_OFFSET_STEP_PPB	2034
++/* positive offset step is +4.068ppm */
++#define M41TXX_POS_OFFSET_STEP_PPB	4068
++/* Min and max values supported with 'offset' interface by M41TXX */
++#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
++#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -146,6 +160,9 @@ struct chip_desc {
  
-+Optional RK809 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-+- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-+- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-+- vcc8-supply:  The input supply for SWITCH_REG1
-+- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
-+
-+Optional RK817 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-+- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-+- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-+- vcc8-supply:  The input supply for BOOST
-+- vcc9-supply:  The input supply for OTG_SWITCH
-+
- Optional RK818 properties:
- - vcc1-supply:  The input supply for DCDC_REG1
- - vcc2-supply:  The input supply for DCDC_REG2
-@@ -87,6 +113,28 @@ number as described in RK808 datasheet.
- 	- SWITCH_REGn
- 		- valid values for n are 1 to 2
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t);
++static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+ static irqreturn_t rx8130_irq(int irq, void *dev_id);
+ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset);
++static int m41txx_rtc_set_offset(struct device *dev, long offset);
  
-+Following regulators of the RK809 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK808 datasheet.
-+
-+	- DCDC_REGn
-+		- valid values for n are 1 to 5.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- SWITCH_REGn
-+		- valid values for n are 1 to 2.
-+
-+Following regulators of the RK817 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK818 datasheet.
-+
-+	- DCDC_REGn
-+		- valid values for n are 1 to 4.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- BOOST
-+	- OTG_SWITCH
-+
- Following regulators of the RK818 PMIC block are supported. Note that
- the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
- number as described in RK818 datasheet.
-@@ -99,6 +147,13 @@ number as described in RK818 datasheet.
- 	- HDMI_SWITCH
- 	- OTG_SWITCH
+ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
+ };
  
-+There are three pins needed to config, named "gpio_ts" "gpio_gt" "gpio_slp".
-+	The gpio_gt and gpio_ts pins support the gpio function.
-+	The gpio_slp pin is for controlling the pmic states, as below:
-+		- reset
-+		- power down
-+		- sleep
++static const struct rtc_class_ops m41txx_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm	= ds1337_read_alarm,
++	.set_alarm	= ds1337_set_alarm,
++	.alarm_irq_enable = ds1307_alarm_irq_enable,
++	.read_offset	= m41txx_rtc_read_offset,
++	.set_offset	= m41txx_rtc_set_offset,
++};
 +
- Standard regulator bindings are used inside regulator subnodes. Check
-   Documentation/devicetree/bindings/regulator/regulator.txt
- for more details
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+ 		.nvram_offset	= 8,
+@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t0] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
++	[m41t00] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
+ 	[m41t11] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 8,
+ 		.nvram_size	= 56,
++		.rtc_ops	= &m41txx_rtc_ops,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
+ 
++static int m41txx_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++	u8 val;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	val = ctrl_reg & M41TXX_M_CALIBRATION;
++
++	/* check if positive */
++	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
++		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
++	else
++		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
++
++	return 0;
++}
++
++static int m41txx_rtc_set_offset(struct device *dev, long offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
++		return -ERANGE;
++
++	if (offset >= 0) {
++		ctrl_reg = DIV_ROUND_CLOSEST(offset,
++					     M41TXX_POS_OFFSET_STEP_PPB);
++		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
++	} else {
++		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
++					     M41TXX_NEG_OFFSET_STEP_PPB);
++	}
++
++	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
++				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
++				  ctrl_reg);
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
-1.9.1
+2.17.1
