@@ -1,98 +1,153 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:45480 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726831AbeGKPVL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 11:21:11 -0400
-Date: Wed, 11 Jul 2018 09:16:21 -0600
-From: Rob Herring <robh@kernel.org>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v4 5/5] rtc: isl1219: add device tree docu
-Message-ID: <20180711151621.GA4084@rob-hp-laptop>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
- <20180710090710.9066-6-Denis.Osterland@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180710090710.9066-6-Denis.Osterland@diehl.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:58932 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730565AbeGRJ0T (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:26:19 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 41FE5B00779
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:49:28 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id obLlrQk1DVIJ for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 10:49:27 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v7 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
+Date: Wed, 18 Jul 2018 10:49:15 +0200
+Message-Id: <20180718084916.79837-3-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
+References: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Tue, Jul 10, 2018 at 09:44:15AM +0000, Denis OSTERLAND wrote:
-> From: Denis Osterland <Denis.Osterland@diehl.com>
-> 
-> The devicetree documentation for the ISL1219 device tree
-> binding is added with an short example. It is not a trivial
-> device, because it supports two interrupt souces.
+On m41txx you can enable open-drain OUT pin to check if offset is ok.
+Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+512 times faster than 1s tick base.
 
-s/souces/sources/
+Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
 
-> 
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  .../devicetree/bindings/rtc/isil,isl1219.txt  | 29 +++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1219.txt b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> new file mode 100644
-> index 000000000000..f26f1e9d4bde
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-> @@ -0,0 +1,29 @@
-> +Intersil ISL1219 I2C RTC/Alarm chip with event in
-> +
-> +ISL1219 has additional pins EVIN and #EVDET for tamper detection.
-> +
-> +Required properties supported by the device:
-> +
-> + - "compatible": must be "isil,isl1219"
-> + - "reg": I2C bus address of the device
-> +
-> +Optional properties:
-> +
-> + - "interrupt-names": list which may contains "irq" and "evdet"
-> + - "interrupt-parent", "interrupts", "interrupts-extended":
-> +   for passing the interrupt line of the SoC connected to #IRQ pin
-> +   and #EVDET pin of the RTC chip.
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+ drivers/rtc/rtc-ds1307.c | 96 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 96 insertions(+)
 
-Just list 'interrupts' and how many there are. interrupt-parent is 
-implied and may be in a parent node. interrupts-extended is also 
-implicitly allowed as needed.
-
-> + - "isil,ev-evienb": if present bit can be set to disable event input pull-up
-> +
-> +
-> +Example isl1219 node with #IRQ pin connected to SoC gpio1 pin12
-> + and #EVDET pin connected to SoC gpio2 pin 24:
-> +
-> +	isl1219: rtc@68 {
-> +		compatible = "isil,isl1219";
-> +		reg = <0x68>;
-> +		interrupt-names = "irq", "evdet";
-> +		interrupts-extended = <&gpio1 12 IRQ_TYPE_EDGE_FALLING>,
-> +			<&gpio2 24 IRQ_TYPE_EDGE_FALLING>;
-> +	};
-> +
-> --
-> 2.18.0
-> 
-> 
-> 
-> Diehl Connectivity Solutions GmbH
-> Geschäftsführung: Horst Leonberger
-> Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-> Nürnberg: HRB 32315
-> ___________________________________________________________________________________________________
-> 
-> Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-> Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-> Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-> The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-> mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index b2ef9defc349..485e3d87e664 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1050,6 +1050,96 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+ 				  ctrl_reg);
+ }
+ 
++static ssize_t frequency_test_enable_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	bool freq_test_en = 0;
++	int ret;
++
++	ret = kstrtobool(buf, &freq_test_en);
++	if (ret == -EINVAL) {
++		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
++		return ret;
++	}
++
++	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
++			   freq_test_en ? M41TXX_BIT_FT : 0);
++
++	return count;
++}
++
++static ssize_t frequency_test_enable_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	if (ctrl_reg & M41TXX_BIT_FT)
++		return scnprintf(buf, PAGE_SIZE, "on\n");
++	else
++		return scnprintf(buf, PAGE_SIZE, "off\n");
++}
++
++static DEVICE_ATTR_RW(frequency_test_enable);
++
++static struct attribute *rtc_freq_test_attrs[] = {
++	&dev_attr_frequency_test_enable.attr,
++	NULL,
++};
++
++static const struct attribute_group rtc_freq_test_attr_group = {
++	.attrs		= rtc_freq_test_attrs,
++};
++
++static void rtc_calib_remove_sysfs_group(void *_dev)
++{
++	struct device *dev = _dev;
++
++	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
++}
++
++static int ds1307_add_frequency_test(struct ds1307 *ds1307)
++{
++	int err = 0;
++
++	switch (ds1307->type) {
++	case m41t0:
++	case m41t00:
++	case m41t11:
++		/* Export sysfs entries */
++		err = sysfs_create_group(&(ds1307->dev)->kobj,
++					 &rtc_freq_test_attr_group);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to create sysfs group: %d\n",
++				err);
++			return err;
++		}
++
++		err = devm_add_action_or_reset(ds1307->dev,
++					       rtc_calib_remove_sysfs_group,
++					       ds1307->dev);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to add sysfs cleanup action: %d\n",
++				err);
++			sysfs_remove_group(&(ds1307->dev)->kobj,
++					   &rtc_freq_test_attr_group);
++			return err;
++		}
++		break;
++	default:
++		break;
++	}
++
++	return err;
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+@@ -1792,6 +1882,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
++	err = ds1307_add_frequency_test(ds1307);
++	if (err) {
++		rtc_device_unregister(ds1307->rtc);
++		return err;
++	}
++
+ 	if (chip->nvram_size) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.name = "ds1307_nvram",
+-- 
+2.17.1
