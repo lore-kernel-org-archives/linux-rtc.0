@@ -1,151 +1,65 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:44648 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932910AbeGJGwR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 02:52:17 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <johan@kernel.org>
-Subject: [PATCH v3 2/4] rtc: OMAP: Add support for rtc-only mode
-Date: Tue, 10 Jul 2018 12:20:50 +0530
-Message-ID: <1531205452-6086-3-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
-References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:2765 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726276AbeGRIbx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 04:31:53 -0400
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>
+Subject: Re: [PATCH v4 5/5] rtc: isl1219: add device tree docu
+Date: Wed, 18 Jul 2018 07:55:07 +0000
+Message-ID: <1531900507.6017.13.camel@diehl.com>
+References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+         <20180710090710.9066-6-Denis.Osterland@diehl.com>
+         <20180718073850.GH3211@piout.net>
+In-Reply-To: <20180718073850.GH3211@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Prepare rtc driver for rtc-only with DDR in self-refresh mode.
-omap_rtc_power_off now should cater to two features:
-
-1) RTC plus DDR in self-refresh is power a saving mode where in the
-entire system including the different voltage rails from PMIC are
-shutdown except the ones feeding on to RTC and DDR. DDR is kept in
-self-refresh hence the contents are preserved. RTC ALARM2 is connected
-to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
-DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
-ALARM1 triggers waking up the system[1]. The control goes to bootloader.
-The bootloader then checks RTC scratchpad registers to confirm it was an
-rtc_only wakeup and follows a different path, configure bare minimal
-clocks for ddr and then jumps to the resume address in another RTC
-scratchpad registers and transfers the control to Kernel. Kernel then
-restores the saved context. omap_rtc_power_off_program does the ALARM2
-programming part.
-
-     [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
-
-2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
-above omap_rtc_power_off_program function and in addition to that
-programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
-the pushbutton and shuts off the PMIC.
-
-Hence the split in omap_rtc_power_off.
-
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- drivers/rtc/rtc-omap.c | 58 +++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 43 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 14f2241..af46140 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -415,28 +415,23 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 
- static struct omap_rtc *omap_rtc_power_off_rtc;
- 
--/*
-- * omap_rtc_poweroff: RTC-controlled power off
-- *
-- * The RTC can be used to control an external PMIC via the pmic_power_en pin,
-- * which can be configured to transition to OFF on ALARM2 events.
-- *
-- * Notes:
-- * The two-second alarm offset is the shortest offset possible as the alarm
-- * registers must be set before the next timer update and the offset
-- * calculation is too heavy for everything to be done within a single access
-- * period (~15 us).
-- *
-- * Called with local interrupts disabled.
-+/**
-+ * omap_rtc_power_off_program: Set the pmic power off sequence. The RTC
-+ * generates pmic_pwr_enable control, which can be used to control an external
-+ * PMIC.
-  */
--static void omap_rtc_power_off(void)
-+static int omap_rtc_power_off_program(struct device *dev)
- {
- 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
- 	struct rtc_time tm;
- 	unsigned long now;
-+	int seconds;
- 	u32 val;
- 
- 	rtc->type->unlock(rtc);
-+	/* Clear any existing ALARM2 event */
-+	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
-+
- 	/* enable pmic_power_en control */
- 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
- 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
-@@ -444,6 +439,7 @@ static void omap_rtc_power_off(void)
- again:
- 	/* set alarm one second from now */
- 	omap_rtc_read_time_raw(rtc, &tm);
-+	seconds = tm.tm_sec;
- 	bcd2tm(&tm);
- 	rtc_tm_to_time(&tm, &now);
- 	rtc_time_to_tm(now + 1, &tm);
-@@ -451,7 +447,7 @@ static void omap_rtc_power_off(void)
- 	if (tm2bcd(&tm) < 0) {
- 		dev_err(&rtc->rtc->dev, "power off failed\n");
- 		rtc->type->lock(rtc);
--		return;
-+		return -EINVAL;
- 	}
- 
- 	rtc_wait_not_busy(rtc);
-@@ -477,6 +473,38 @@ static void omap_rtc_power_off(void)
- 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
- 	rtc->type->lock(rtc);
- 
-+	return 0;
-+}
-+
-+/*
-+ * omap_rtc_poweroff: RTC-controlled power off
-+ *
-+ * The RTC can be used to control an external PMIC via the pmic_power_en pin,
-+ * which can be configured to transition to OFF on ALARM2 events.
-+ *
-+ * Notes:
-+ * The one-second alarm offset is the shortest offset possible as the alarm
-+ * registers must be set before the next timer update and the offset
-+ * calculation is too heavy for everything to be done within a single access
-+ * period (~15 us).
-+ *
-+ * Called with local interrupts disabled.
-+ */
-+static void omap_rtc_power_off(void)
-+{
-+	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
-+	u32 val;
-+
-+	omap_rtc_power_off_program(rtc->dev.parent);
-+
-+	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
-+	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
-+	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
-+	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
-+			OMAP_RTC_PMIC_EXT_WKUP_EN(0);
-+	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
-+	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
-+
- 	/*
- 	 * Wait for alarm to trigger (within two seconds) and external PMIC to
- 	 * power off the system. Add a 500 ms margin for external latencies
--- 
-1.9.1
+SGVsbG8sDQoNCkFtIE1pdHR3b2NoLCBkZW4gMTguMDcuMjAxOCwgMDk6MzggKzAyMDAgc2No
+cmllYiBBbGV4YW5kcmUgQmVsbG9uaToNCj4gSGksDQo+IA0KPiBPbiAxMC8wNy8yMDE4IDA5
+OjQ0OjE1KzAwMDAsIERlbmlzIE9TVEVSTEFORCB3cm90ZToNCj4gPsKgDQo+ID4gKw0KPiA+
+ICtPcHRpb25hbCBwcm9wZXJ0aWVzOg0KPiA+ICsNCj4gPiArIC0gImludGVycnVwdC1uYW1l
+cyI6IGxpc3Qgd2hpY2ggbWF5IGNvbnRhaW5zICJpcnEiIGFuZCAiZXZkZXQiDQo+ID4gKyAt
+ICJpbnRlcnJ1cHQtcGFyZW50IiwgImludGVycnVwdHMiLCAiaW50ZXJydXB0cy1leHRlbmRl
+ZCI6DQo+ID4gK8KgwqDCoGZvciBwYXNzaW5nIHRoZSBpbnRlcnJ1cHQgbGluZSBvZiB0aGUg
+U29DIGNvbm5lY3RlZCB0byAjSVJRIHBpbg0KPiA+ICvCoMKgwqBhbmQgI0VWREVUIHBpbiBv
+ZiB0aGUgUlRDIGNoaXAuDQo+ID4gKyAtICJpc2lsLGV2LWV2aWVuYiI6IGlmIHByZXNlbnQg
+Yml0IGNhbiBiZSBzZXQgdG8gZGlzYWJsZSBldmVudCBpbnB1dCBwdWxsLXVwDQo+IEkgd291
+bGQgdXNlIGEgY2xlYXJlciBuYW1lIGZvciB0aGF0IHByb3BlcnR5IGxpa2UgaXNpbCxldi1w
+dWxsLXVwLWVuYWJsZWQuDQo+IA0KPiBBbHNvIG1ha2UgaXQgYW4gaW50IHNvIDAgaXMgZGlz
+YWJsaW5nIHRoZSBwdWxsLXVwIChFVklFTkIgc2V0IHRvIDEpIDEgaXMNCj4gZW5hYmxpbmcg
+dGhlIHB1bGwtdXAgKEVWSUVOQiBzZXQgdG8gMCkgYW5kIGRvIG5vdGhpbmcgd2hlbiB0aGUg
+cHJvcGVydHkNCj4gaXMgbm90IHByZXNlbnQuDQpJdCBpcyBkZXNpZ25lZCBsaWtlwqBEb2N1
+bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvcnRjL2lzaWwsaXNsMTIwMjYudHh0LA0K
+d2hpY2ggdXNlcyB0aGUgYml0IG5hbWUgZnJvbSBEb2N1bWVudGF0aW9uIGFzIHdlbGwuDQpJ
+IHdpbGwgY2hhbmdlIHRvIGludGVnZXIgdHlwZS4NCj4gDQo+IA0KUmVnYXJkcyBEZW5pcw0K
+DQpEaWVobCBDb25uZWN0aXZpdHkgU29sdXRpb25zIEdtYkgNCkdlc2Now6RmdHNmw7xocnVu
+ZzogSG9yc3QgTGVvbmJlcmdlcg0KU2l0eiBkZXIgR2VzZWxsc2NoYWZ0OiBOw7xybmJlcmcg
+LSBSZWdpc3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0DQpOw7xybmJlcmc6IEhSQiAzMjMxNQ0K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQoNCkRlciBJ
+bmhhbHQgZGVyIHZvcnN0ZWhlbmRlbiBFLU1haWwgaXN0IG5pY2h0IHJlY2h0bGljaCBiaW5k
+ZW5kLiBEaWVzZSBFLU1haWwgZW50aGFlbHQgdmVydHJhdWxpY2hlIHVuZC9vZGVyIHJlY2h0
+bGljaCBnZXNjaHVldHp0ZSBJbmZvcm1hdGlvbmVuLg0KSW5mb3JtaWVyZW4gU2llIHVucyBi
+aXR0ZSwgd2VubiBTaWUgZGllc2UgRS1NYWlsIGZhZWxzY2hsaWNoZXJ3ZWlzZSBlcmhhbHRl
+biBoYWJlbi4gQml0dGUgbG9lc2NoZW4gU2llIGluIGRpZXNlbSBGYWxsIGRpZSBOYWNocmlj
+aHQuDQpKZWRlIHVuZXJsYXVidGUgRm9ybSBkZXIgUmVwcm9kdWt0aW9uLCBCZWthbm50Z2Fi
+ZSwgQWVuZGVydW5nLCBWZXJ0ZWlsdW5nIHVuZC9vZGVyIFB1Ymxpa2F0aW9uIGRpZXNlciBF
+LU1haWwgaXN0IHN0cmVuZ3N0ZW5zIHVudGVyc2FndC4NClRoZSBjb250ZW50cyBvZiB0aGUg
+YWJvdmUgbWVudGlvbmVkIGUtbWFpbCBpcyBub3QgbGVnYWxseSBiaW5kaW5nLiBUaGlzIGUt
+bWFpbCBjb250YWlucyBjb25maWRlbnRpYWwgYW5kL29yIGxlZ2FsbHkgcHJvdGVjdGVkIGlu
+Zm9ybWF0aW9uLiBQbGVhc2UgaW5mb3JtIHVzIGlmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMg
+ZS1tYWlsIGJ5DQptaXN0YWtlIGFuZCBkZWxldGUgaXQgaW4gc3VjaCBhIGNhc2UuIEVhY2gg
+dW5hdXRob3JpemVkIHJlcHJvZHVjdGlvbiwgZGlzY2xvc3VyZSwgYWx0ZXJhdGlvbiwgZGlz
+dHJpYnV0aW9uIGFuZC9vciBwdWJsaWNhdGlvbiBvZiB0aGlzIGUtbWFpbCBpcyBzdHJpY3Rs
+eSBwcm9oaWJpdGVkLiANCg==
