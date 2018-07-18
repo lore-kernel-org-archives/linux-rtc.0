@@ -1,107 +1,153 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:43658 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754011AbeGIJgd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jul 2018 05:36:33 -0400
-Subject: Re: [PATCH v2] rtc: OMAP: Add support for rtc-only mode
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Johan Hovold <johan@kernel.org>
-CC: <a.zummo@towertech.it>, <t-kristo@ti.com>,
-        <linux-rtc@vger.kernel.org>, <linux-omap@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-References: <1531116709-20135-1-git-send-email-j-keerthy@ti.com>
- <20180709075553.GA3633@localhost> <20180709092952.GF16084@piout.net>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <9717549d-29ac-14b9-b8f5-6b39fbbd74e7@ti.com>
-Date: Mon, 9 Jul 2018 15:05:59 +0530
-MIME-Version: 1.0
-In-Reply-To: <20180709092952.GF16084@piout.net>
-Content-Type: text/plain; charset="utf-8"
+Received: from mail.micronovasrl.com ([212.103.203.10]:34026 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731045AbeGRKRX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 06:17:23 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 8ED85B00776
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:40:20 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id mk-43qL-ZGDg for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 11:40:20 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
+Date: Wed, 18 Jul 2018 11:40:05 +0200
+Message-Id: <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On m41txx you can enable open-drain OUT pin to check if offset is ok.
+Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+512 times faster than 1s tick base.
 
+Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
 
-On Monday 09 July 2018 02:59 PM, Alexandre Belloni wrote:
-> On 09/07/2018 09:55:53+0200, Johan Hovold wrote:
->> On Mon, Jul 09, 2018 at 11:41:49AM +0530, Keerthy wrote:
->>> Prepare rtc driver for rtc-only with DDR in self-refresh mode.
->>> omap_rtc_power_off now should cater to two features:
->>>
->>> 1) RTC plus DDR in self-refresh is power a saving mode where in the
->>> entire system including the different voltage rails from PMIC are
->>> shutdown except the ones feeding on to RTC and DDR. DDR is kept in
->>> self-refresh hence the contents are preserved. RTC ALARM2 is connected
->>> to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
->>> DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
->>> ALARM1 triggers waking up the system[1]. The control goes to bootloader.
->>> The bootloader then checks RTC scratchpad registers to confirm it was an
->>> rtc_only wakeup and follows a different path, configure bare minimal
->>> clocks for ddr and then jumps to the resume address in another RTC
->>> scratchpad registers and transfers the control to Kernel. Kernel then
->>> restores the saved context. omap_rtc_power_off_program does the ALARM2
->>> programming part.
->>>
->>>      [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
->>>
->>> 2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
->>> above omap_rtc_power_off_program function and in addition to that
->>> programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
->>> the pushbutton and shuts off the PMIC.
->>>
->>> Hence the split in omap_rtc_power_off.
->>>
->>> Signed-off-by: Keerthy <j-keerthy@ti.com>
->>> ---
->>>
->>> Changes in v2:
->>>
->>>   * Add details in the commit log.
->>>   * Use of_device_is_system_power_controller to check if rtc node is
->>>     indeed the system power control instead of manually reading property.
->>>
->>>  drivers/rtc/interface.c |  12 ++++
->>>  drivers/rtc/rtc-omap.c  | 167 +++++++++++++++++++++++++++++++++---------------
->>>  include/linux/rtc.h     |   2 +
->>>  3 files changed, 131 insertions(+), 50 deletions(-)
->>>
->>> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
->>> index 6d4012d..d8b70f0 100644
->>> --- a/drivers/rtc/interface.c
->>> +++ b/drivers/rtc/interface.c
->>> @@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
->>>  	trace_rtc_set_offset(offset, ret);
->>>  	return ret;
->>>  }
->>> +
->>> +/**
->>> + * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
->>> + * line and can be used to power off the SoC.
->>> + *
->>> + * Kernel interface to program rtc to power off
->>> + */
->>> +void rtc_power_off_program(struct rtc_device *rtc)
->>> +{
->>> +	rtc->ops->power_off_program(rtc->dev.parent);
->>> +}
->>> +EXPORT_SYMBOL_GPL(rtc_power_off_program);
->>
->> We typically do not add new interfaces without any users, so this will
->> probably have to go in along with the corresponding omap changes for
->> rtc-only mode.
->>
-> 
-> I'm probably not smart enough but I still don't get why you need to add
-> an interface at all, especially one that will result in a NULL pointer
-> dereference on 99.6% of the drivers.
-> 
-> This is so specific to your use case that this has zero chance to be
-> reused by another driver.
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+ drivers/rtc/rtc-ds1307.c | 96 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 96 insertions(+)
 
-Alexandre,
-
-So are you suggesting use an EXPORT API from omap-rtc driver alone?
-as it is too specific to one use case?
-
-- Keerthy
-> 
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index c6d871456f25..3bccb742c983 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1050,6 +1050,96 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+ 				  ctrl_reg);
+ }
+ 
++static ssize_t frequency_test_enable_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	bool freq_test_en = 0;
++	int ret;
++
++	ret = kstrtobool(buf, &freq_test_en);
++	if (ret == -EINVAL) {
++		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
++		return ret;
++	}
++
++	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
++			   freq_test_en ? M41TXX_BIT_FT : 0);
++
++	return count;
++}
++
++static ssize_t frequency_test_enable_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	if (ctrl_reg & M41TXX_BIT_FT)
++		return scnprintf(buf, PAGE_SIZE, "on\n");
++	else
++		return scnprintf(buf, PAGE_SIZE, "off\n");
++}
++
++static DEVICE_ATTR_RW(frequency_test_enable);
++
++static struct attribute *rtc_freq_test_attrs[] = {
++	&dev_attr_frequency_test_enable.attr,
++	NULL,
++};
++
++static const struct attribute_group rtc_freq_test_attr_group = {
++	.attrs		= rtc_freq_test_attrs,
++};
++
++static void rtc_calib_remove_sysfs_group(void *_dev)
++{
++	struct device *dev = _dev;
++
++	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
++}
++
++static int ds1307_add_frequency_test(struct ds1307 *ds1307)
++{
++	int err = 0;
++
++	switch (ds1307->type) {
++	case m41t0:
++	case m41t00:
++	case m41t11:
++		/* Export sysfs entries */
++		err = sysfs_create_group(&(ds1307->dev)->kobj,
++					 &rtc_freq_test_attr_group);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to create sysfs group: %d\n",
++				err);
++			return err;
++		}
++
++		err = devm_add_action_or_reset(ds1307->dev,
++					       rtc_calib_remove_sysfs_group,
++					       ds1307->dev);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to add sysfs cleanup action: %d\n",
++				err);
++			sysfs_remove_group(&(ds1307->dev)->kobj,
++					   &rtc_freq_test_attr_group);
++			return err;
++		}
++		break;
++	default:
++		break;
++	}
++
++	return err;
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+@@ -1792,6 +1882,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
++	err = ds1307_add_frequency_test(ds1307);
++	if (err) {
++		rtc_device_unregister(ds1307->rtc);
++		return err;
++	}
++
+ 	if (chip->nvram_size) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.name = "ds1307_nvram",
+-- 
+2.17.1
