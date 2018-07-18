@@ -1,60 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0143.ext.ti.com ([198.47.23.248]:35648 "EHLO
-        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751017AbeGJGvV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 02:51:21 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <johan@kernel.org>
-Subject: [PATCH v3 1/4] rtc: omap: Cut down the shutdown time from 2 seconds to 1 sec
-Date: Tue, 10 Jul 2018 12:20:49 +0530
-Message-ID: <1531205452-6086-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
-References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
+Received: from mail-ua0-f195.google.com ([209.85.217.195]:44019 "EHLO
+        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731586AbeGRREo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 13:04:44 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com>
+References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+ <20180718094006.105675-3-giulio.benetti@micronovasrl.com> <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+ <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Wed, 18 Jul 2018 19:26:03 +0300
+Message-ID: <CAHp75VchXfm6J+PPcB8ekoXcDktsPUNok3KKBMFyyk9XV=AUyQ@mail.gmail.com>
+Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
-over try again.
+On Wed, Jul 18, 2018 at 5:06 PM, Giulio Benetti
+<giulio.benetti@micronovasrl.com> wrote:
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- drivers/rtc/rtc-omap.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+>>> +       int ret;
+>>> +
+>>> +       ret = kstrtobool(buf, &freq_test_en);
+>>> +       if (ret == -EINVAL) {
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 323ff55..14f2241 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -441,11 +441,12 @@ static void omap_rtc_power_off(void)
- 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
- 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
- 
--	/* set alarm two seconds from now */
-+again:
-+	/* set alarm one second from now */
- 	omap_rtc_read_time_raw(rtc, &tm);
- 	bcd2tm(&tm);
- 	rtc_tm_to_time(&tm, &now);
--	rtc_time_to_tm(now + 2, &tm);
-+	rtc_time_to_tm(now + 1, &tm);
- 
- 	if (tm2bcd(&tm) < 0) {
- 		dev_err(&rtc->rtc->dev, "power off failed\n");
-@@ -455,6 +456,10 @@ static void omap_rtc_power_off(void)
- 
- 	rtc_wait_not_busy(rtc);
- 
-+	/* Our calculations started right before the rollover, try again */
-+	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-+		goto again;
-+
- 	rtc_write(rtc, OMAP_RTC_ALARM2_SECONDS_REG, tm.tm_sec);
- 	rtc_write(rtc, OMAP_RTC_ALARM2_MINUTES_REG, tm.tm_min);
- 	rtc_write(rtc, OMAP_RTC_ALARM2_HOURS_REG, tm.tm_hour);
+>> What kind of other error code you may expect and why they are not
+>> considered as no error?
+
+> According to documentation, kstrtobool can only fail with -EINVAL.
+> See:
+> https://elixir.bootlin.com/linux/v4.18-rc5/source/lib/kstrtox.c#L332
+
+That's correct. So, what do you want to show by explicitly mentioned
+an error code in the condition?
+
 -- 
-1.9.1
+With Best Regards,
+Andy Shevchenko
