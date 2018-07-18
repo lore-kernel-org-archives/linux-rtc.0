@@ -1,53 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:43458 "EHLO
+Received: from mail.micronovasrl.com ([212.103.203.10]:33614 "EHLO
         mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731031AbeGROsD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 10:48:03 -0400
+        with ESMTP id S1730659AbeGRKOB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 06:14:01 -0400
 Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id C200AB00709
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 16:09:56 +0200 (CEST)
+        by mail.micronovasrl.com (Postfix) with ESMTP id D6633B00756
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:36:58 +0200 (CEST)
 Received: from mail.micronovasrl.com ([127.0.0.1])
         by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id z6Obvkru6no2 for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 16:09:55 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+        with ESMTP id kp_iqOZChKXx for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 11:36:58 +0200 (CEST)
+Subject: Re: [PATCH v8 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v10 1/4] rtc: ds1307: fix data pointer to m41t0
-Date: Wed, 18 Jul 2018 16:09:46 +0200
-Message-Id: <20180718140946.115093-4-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20180718092216.91053-1-giulio.benetti@micronovasrl.com>
+ <20180718092216.91053-2-giulio.benetti@micronovasrl.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <265d0f74-d1ca-11c3-4157-6c0405ecbcda@micronovasrl.com>
+Date: Wed, 18 Jul 2018 11:36:57 +0200
+MIME-Version: 1.0
+In-Reply-To: <20180718092216.91053-2-giulio.benetti@micronovasrl.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-data field points to m41t00, instead it should point to m41t0.
-Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
-are equal.
+Il 18/07/2018 11:22, Giulio Benetti ha scritto:
+> +#define M41TXX_REG_CONTROL	0x07
+> +#	define M41TXX_BIT_OUT		BIT(7)
+> +#	define M41TXX_BIT_FT		BIT(6)
+> +#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
+> +#	define M41TXX_M_CALIBRATION	GENMASK(5, 0)
 
-Point to right enum m41t0 instead of m41t00.
+This must be GENMASK(4, 0) to be 0x1f.
+I'm going to send last patchset, sorry everyone for the mess.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- drivers/rtc/rtc-ds1307.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index e9ec4160d7f6..aa4a161bae98 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -299,7 +299,7 @@ static const struct of_device_id ds1307_of_match[] = {
- 	},
- 	{
- 		.compatible = "st,m41t0",
--		.data = (void *)m41t00
-+		.data = (void *)m41t0
- 	},
- 	{
- 		.compatible = "st,m41t00",
--- 
-2.17.1
+Giulio
