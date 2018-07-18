@@ -1,64 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:26753 "EHLO
-        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726869AbeGRLWN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 07:22:13 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
- detection
-Date: Wed, 18 Jul 2018 10:44:52 +0000
-Message-ID: <1531910692.6017.18.camel@diehl.com>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
-         <20180710090710.9066-3-Denis.Osterland@diehl.com>
-         <20180718081313.GI3211@piout.net>
-In-Reply-To: <20180718081313.GI3211@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Received: from mail.micronovasrl.com ([212.103.203.10]:58944 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730573AbeGRJ0U (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:26:20 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id E631AB0076D
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 10:49:28 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id XJm8nrl9jh19 for <linux-rtc@vger.kernel.org>;
+        Wed, 18 Jul 2018 10:49:28 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v7 1/4] rtc: ds1307: fix data pointer to m41t0
+Date: Wed, 18 Jul 2018 10:49:16 +0200
+Message-Id: <20180718084916.79837-4-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
+References: <20180718084916.79837-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-SGksDQoNCkFtIE1pdHR3b2NoLCBkZW4gMTguMDcuMjAxOCwgMTA6MTMgKzAyMDAgc2Nocmll
-YiBBbGV4YW5kcmUgQmVsbG9uaToNCj4gT24gMTAvMDcvMjAxOCAwOTo0NDoxNSswMDAwLCBE
-ZW5pcyBPU1RFUkxBTkQgd3JvdGU6DQo+ID7CoA0KPiA+ICsJaWYgKGlkLT5kcml2ZXJfZGF0
-YSA9PSBUWVBFX0lTTDEyMTkpIHsNCj4gPiArCQlyYyA9IElTTDEyMTlfUkVHX0VWX0VWRU47
-DQo+ID4gKwkJcmMgPSBpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKGNsaWVudCwgSVNMMTIx
-OV9SRUdfRVYsIHJjKTsNCj4gSSdkIHBhc3MgSVNMMTIxOV9SRUdfRVZfRVZFTiBkaXJlY3Rs
-eSBpbnN0ZWFkIG9mIGFzc2lnbmluZyBpdCB0byByYy4NCj4gDQpCZWNhdXNlIG9mIHRoZSA4
-MCBjaGFyYWN0ZXIgbGltaXQgcGVyIHJvdywgSSB0aG91Z2h0IHRoaXM6DQrCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJjID0gSVNMMTIxOV9SRUdfRVZfRVZFTjsNCsKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmMgPSBpMmNfc21idXNfd3JpdGVfYnl0ZV9k
-YXRhKGNsaWVudCwgSVNMMTIxOV9SRUdfRVYsIHJjKTsNCndvdWxkIGxvb2sgbmljZXIgdGhh
-biB0aGF0Og0KwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByYyA9IGkyY19zbWJ1
-c193cml0ZV9ieXRlX2RhdGEoY2xpZW50LCBJU0wxMjE5X1JFR19FViwNCsKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBJU0wxMjE5
-X1JFR19FVl9FVkVOKTsNCkFyZSB0aGVyZSBhbnkgcmVhc29ucyB3aHkgSSBzaG91bGQgcHJl
-ZmVyIHRoZSBzZWNvbmQgb25lPw0KDQpSZWdhcmRzIERlbmlzDQoNCkRpZWhsIENvbm5lY3Rp
-dml0eSBTb2x1dGlvbnMgR21iSA0KR2VzY2jDpGZ0c2bDvGhydW5nOiBIb3JzdCBMZW9uYmVy
-Z2VyDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE7DvHJuYmVyZyAtIFJlZ2lzdGVyZ2VyaWNo
-dDogQW10c2dlcmljaHQNCk7DvHJuYmVyZzogSFJCIDMyMzE1DQpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCg0KRGVyIEluaGFsdCBkZXIgdm9yc3Rl
-aGVuZGVuIEUtTWFpbCBpc3QgbmljaHQgcmVjaHRsaWNoIGJpbmRlbmQuIERpZXNlIEUtTWFp
-bCBlbnRoYWVsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIgcmVjaHRsaWNoIGdlc2NodWV0enRl
-IEluZm9ybWF0aW9uZW4uDQpJbmZvcm1pZXJlbiBTaWUgdW5zIGJpdHRlLCB3ZW5uIFNpZSBk
-aWVzZSBFLU1haWwgZmFlbHNjaGxpY2hlcndlaXNlIGVyaGFsdGVuIGhhYmVuLiBCaXR0ZSBs
-b2VzY2hlbiBTaWUgaW4gZGllc2VtIEZhbGwgZGllIE5hY2hyaWNodC4NCkplZGUgdW5lcmxh
-dWJ0ZSBGb3JtIGRlciBSZXByb2R1a3Rpb24sIEJla2FubnRnYWJlLCBBZW5kZXJ1bmcsIFZl
-cnRlaWx1bmcgdW5kL29kZXIgUHVibGlrYXRpb24gZGllc2VyIEUtTWFpbCBpc3Qgc3RyZW5n
-c3RlbnMgdW50ZXJzYWd0Lg0KVGhlIGNvbnRlbnRzIG9mIHRoZSBhYm92ZSBtZW50aW9uZWQg
-ZS1tYWlsIGlzIG5vdCBsZWdhbGx5IGJpbmRpbmcuIFRoaXMgZS1tYWlsIGNvbnRhaW5zIGNv
-bmZpZGVudGlhbCBhbmQvb3IgbGVnYWxseSBwcm90ZWN0ZWQgaW5mb3JtYXRpb24uIFBsZWFz
-ZSBpbmZvcm0gdXMgaWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgYnkNCm1pc3Rh
-a2UgYW5kIGRlbGV0ZSBpdCBpbiBzdWNoIGEgY2FzZS4gRWFjaCB1bmF1dGhvcml6ZWQgcmVw
-cm9kdWN0aW9uLCBkaXNjbG9zdXJlLCBhbHRlcmF0aW9uLCBkaXN0cmlidXRpb24gYW5kL29y
-IHB1YmxpY2F0aW9uIG9mIHRoaXMgZS1tYWlsIGlzIHN0cmljdGx5IHByb2hpYml0ZWQuIA0K
+data field points to m41t00, instead it should point to m41t0.
+Driver works correctly because on both cases(m41t0 and m41t00) chip_desc
+are equal.
+
+Point to right enum m41t0 instead of m41t00.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+V6 => V7:
+* already applied
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index e9ec4160d7f6..aa4a161bae98 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -299,7 +299,7 @@ static const struct of_device_id ds1307_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "st,m41t0",
+-		.data = (void *)m41t00
++		.data = (void *)m41t0
+ 	},
+ 	{
+ 		.compatible = "st,m41t00",
+-- 
+2.17.1
