@@ -1,49 +1,71 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:49532 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731282AbeGRSTK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 14:19:10 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 2FEB8B00758
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 19:40:12 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Y4QkaQLJNHSB for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 19:40:11 +0200 (CEST)
-Subject: Re: [PATCH v10 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <20180718140946.115093-1-giulio.benetti@micronovasrl.com>
- <20180718140946.115093-3-giulio.benetti@micronovasrl.com>
- <CAHp75VeR8H-XhqkrSxBKoaVwcTx6__w4xpR0x2tm-0dxq9tZrw@mail.gmail.com>
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Message-ID: <2a249756-3b3b-2a3e-f293-3a13d586e9ad@micronovasrl.com>
-Date: Wed, 18 Jul 2018 19:40:07 +0200
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:37623 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726531AbeGSLXE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 07:23:04 -0400
+Date: Thu, 19 Jul 2018 12:40:18 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v4 4/4] rtc: interface: Add power_off_program to
+ rtc_class_ops
+Message-ID: <20180719104018.GT10204@localhost>
+References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
+ <1531372060-10532-5-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VeR8H-XhqkrSxBKoaVwcTx6__w4xpR0x2tm-0dxq9tZrw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1531372060-10532-5-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Il 18/07/2018 18:26, Andy Shevchenko ha scritto:
-> On Wed, Jul 18, 2018 at 5:09 PM, Giulio Benetti
-> <giulio.benetti@micronovasrl.com> wrote:
->> On m41txx you can enable open-drain OUT pin to check if offset is ok.
->> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
->> 512 times faster than 1s tick base.
->>
->> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+On Thu, Jul 12, 2018 at 10:37:40AM +0530, Keerthy wrote:
+> Add an interface function to set up the rtc for a power_off
+> mode.
 > 
-> Taking into consideration the amount of patches per hour you need to
-> slow down a bit.
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>  drivers/rtc/interface.c | 12 ++++++++++++
+>  drivers/rtc/rtc-omap.c  |  1 +
+>  include/linux/rtc.h     |  2 ++
+>  3 files changed, 15 insertions(+)
 > 
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index 6d4012d..c19668b9 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
+>  	trace_rtc_set_offset(offset, ret);
+>  	return ret;
+>  }
+> +
+> +/**
+> + * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
+> + * line and can be used to power off the SoC.
+> + *
+> + * Kernel interface to program rtc to power off
+> + */
+> +int rtc_power_off_program(struct rtc_device *rtc)
+> +{
+> +	return rtc->ops->power_off_program(rtc->dev.parent);
 
-You're right, I'm really sorry about it.
+Why pass in parent instead of the rtc?
 
-Giulio
+> +}
+> +EXPORT_SYMBOL_GPL(rtc_power_off_program);
+
+Either way, this is likely not an acceptable interface for this as
+Alexandre already mentioned.
+
+As I already suggested, I think you submit this as part of the PM work
+adding support for entering the TI RTC-only mode. That will hopefully
+provide enough context to be able to determine the right interface.
+
+Note that this also means that we shouldn't split the current rtc-omap
+power-off handler before this has been settled (i.e. patches 2/4 and 4/4
+should not be applied before then).
+
+Thanks,
+Johan
