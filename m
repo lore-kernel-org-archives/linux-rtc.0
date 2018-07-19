@@ -1,37 +1,103 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from muru.com ([72.249.23.125]:50242 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752458AbeGEIbO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 5 Jul 2018 04:31:14 -0400
-Date: Thu, 5 Jul 2018 01:31:10 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Johan Hovold <johan@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Keerthy <j-keerthy@ti.com>, stable <stable@vger.kernel.org>,
-        Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH 1/4] rtc: omap: fix potential crash on power off
-Message-ID: <20180705083110.GX112168@atomide.com>
-References: <20180704090558.16647-1-johan@kernel.org>
- <20180704090558.16647-2-johan@kernel.org>
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:41051 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727032AbeGSKpG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 06:45:06 -0400
+Date: Thu, 19 Jul 2018 12:02:29 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
+Message-ID: <20180719100229.GQ10204@localhost>
+References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
+ <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180704090558.16647-2-johan@kernel.org>
+In-Reply-To: <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-* Johan Hovold <johan@kernel.org> [180704 09:09]:
-> Do not set the system power-off callback and omap power-off rtc pointer
-> until we're done setting up our device to avoid leaving stale pointers
-> around after a late probe error.
+On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
+> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+> over try again.
 > 
-> Fixes: 97ea1906b3c2 ("rtc: omap: Support ext_wakeup configuration")
-> Cc: stable <stable@vger.kernel.org>     # 4.9
-> Cc: Marcin Niestroj <m.niestroj@grinn-global.com>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+> 
+> Changes in v4:
+> 
+>   * Fixed a compilation issue.
+>   * Extended the roll over check post interrupt programming.
+> 
+>  drivers/rtc/rtc-omap.c | 13 +++++++++++--
+>  1 file changed, 11 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 323ff55..88da927 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
 
-Looks good to me:
+First, the comment above this function would need to be updated as part
+of this patch as it refers to the two-second alarm offset.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+> @@ -435,17 +435,23 @@ static void omap_rtc_power_off(void)
+>  	struct rtc_time tm;
+>  	unsigned long now;
+>  	u32 val;
+> +	int seconds;
+>  
+>  	rtc->type->unlock(rtc);
+>  	/* enable pmic_power_en control */
+>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>  
+> -	/* set alarm two seconds from now */
+> +again:
+> +	/* Clear any existing ALARM2 event */
+> +	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
+
+Why is this needed? Any pending interrupt is cleared at probe, and a
+previous attempt to set the alarm really led to the alarm going off, why
+would we retry?
+
+> +
+> +	/* set alarm one second from now */
+>  	omap_rtc_read_time_raw(rtc, &tm);
+> +	seconds = tm.tm_sec;
+>  	bcd2tm(&tm);
+>  	rtc_tm_to_time(&tm, &now);
+> -	rtc_time_to_tm(now + 2, &tm);
+> +	rtc_time_to_tm(now + 1, &tm);
+>  
+>  	if (tm2bcd(&tm) < 0) {
+>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
+>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+
+Add a newline here.
+
+> +	/* Our calculations started right before the rollover, try again */
+
+Nit: use all lower case unless writing full sentences, which also
+matches most of the other comments in this file.
+
+> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> +		goto again;
+
+Here the alarm may have gone off as part of the roll over, in which case
+you shouldn't retry.
+
+Add a newline here too.
+
+>  	rtc->type->lock(rtc);
+>  
+>  	/*
+
+Thanks,
+Johan
