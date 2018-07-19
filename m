@@ -1,103 +1,72 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:41051 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727032AbeGSKpG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 06:45:06 -0400
-Date: Thu, 19 Jul 2018 12:02:29 +0200
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:44268 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727367AbeGSNT2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 09:19:28 -0400
+Date: Thu, 19 Jul 2018 14:36:17 +0200
 From: Johan Hovold <johan@kernel.org>
 To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        t-kristo@ti.com, linux-rtc@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        johan@kernel.org
+Cc: Johan Hovold <johan@kernel.org>, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, t-kristo@ti.com,
+        linux-rtc@vger.kernel.org, linux-omap@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
  seconds to 1 sec
-Message-ID: <20180719100229.GQ10204@localhost>
+Message-ID: <20180719123617.GV10204@localhost>
 References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
  <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
+ <20180719100229.GQ10204@localhost>
+ <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
+ <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
-> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
-> over try again.
-> 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
-> 
-> Changes in v4:
-> 
->   * Fixed a compilation issue.
->   * Extended the roll over check post interrupt programming.
-> 
->  drivers/rtc/rtc-omap.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 323ff55..88da927 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
+On Thu, Jul 19, 2018 at 05:52:17PM +0530, Keerthy wrote:
+> On Thursday 19 July 2018 05:23 PM, Keerthy wrote:
+> > On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
+> >> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
 
-First, the comment above this function would need to be updated as part
-of this patch as it refers to the two-second alarm offset.
+> >>> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
+> >>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+> >>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+> >>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
 
-> @@ -435,17 +435,23 @@ static void omap_rtc_power_off(void)
->  	struct rtc_time tm;
->  	unsigned long now;
->  	u32 val;
-> +	int seconds;
->  
->  	rtc->type->unlock(rtc);
->  	/* enable pmic_power_en control */
->  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
->  
-> -	/* set alarm two seconds from now */
-> +again:
-> +	/* Clear any existing ALARM2 event */
-> +	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
+> >>> +	/* Our calculations started right before the rollover, try again */
 
-Why is this needed? Any pending interrupt is cleared at probe, and a
-previous attempt to set the alarm really led to the alarm going off, why
-would we retry?
+> >>> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> >>> +		goto again;
+> >>
+> >> Here the alarm may have gone off as part of the roll over, in which case
+> >> you shouldn't retry.
+> > 
+> > Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
+> > 
+> > In the event of Roll over before setting the
+> > OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
+> > not miss the ALARM2 event? Then poweroff would fail right?
 
-> +
-> +	/* set alarm one second from now */
->  	omap_rtc_read_time_raw(rtc, &tm);
-> +	seconds = tm.tm_sec;
->  	bcd2tm(&tm);
->  	rtc_tm_to_time(&tm, &now);
-> -	rtc_time_to_tm(now + 2, &tm);
-> +	rtc_time_to_tm(now + 1, &tm);
->  
->  	if (tm2bcd(&tm) < 0) {
->  		dev_err(&rtc->rtc->dev, "power off failed\n");
-> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
->  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
->  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
->  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+Right, that would fail.
 
-Add a newline here.
+> > Hence the attempt to retry the next second. This sequence would begin
+> > right at the beginning of a new second and we expect the full sequence
+> > to get over without having to retry again.
+> > 
+> > Hope i am clear.
 
-> +	/* Our calculations started right before the rollover, try again */
+Yes, sure, but my point is that could end up retrying also after the
+alarm has fired correctly (e.g. due to latencies in turning of the
+power).
 
-Nit: use all lower case unless writing full sentences, which also
-matches most of the other comments in this file.
+It may be enough to check OMAP_RTC_STATUS_REG before retrying.
 
-> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-> +		goto again;
+> I tried to program the interrupt for the same second on the hardware and
+> it does not fire. So to take care of roll over corner case one attempt
+> to retry is needed.
 
-Here the alarm may have gone off as part of the roll over, in which case
-you shouldn't retry.
-
-Add a newline here too.
-
->  	rtc->type->lock(rtc);
->  
->  	/*
+Yes, that's expected.
 
 Thanks,
 Johan
