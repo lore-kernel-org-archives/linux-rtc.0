@@ -1,76 +1,158 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0143.ext.ti.com ([198.47.23.248]:42834 "EHLO
-        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725786AbeGLFQU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Jul 2018 01:16:20 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <johan@kernel.org>
-Subject: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2 seconds to 1 sec
-Date: Thu, 12 Jul 2018 10:37:37 +0530
-Message-ID: <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
-In-Reply-To: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:43037 "EHLO
+        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726574AbeGSLMX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 07:12:23 -0400
+Date: Thu, 19 Jul 2018 12:29:38 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v4 2/4] rtc: OMAP: Add support for rtc-only mode
+Message-ID: <20180719102938.GR10204@localhost>
 References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
+ <1531372060-10532-3-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1531372060-10532-3-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
-over try again.
+On Thu, Jul 12, 2018 at 10:37:38AM +0530, Keerthy wrote:
+> Prepare rtc driver for rtc-only with DDR in self-refresh mode.
+> omap_rtc_power_off now should cater to two features:
+> 
+> 1) RTC plus DDR in self-refresh is power a saving mode where in the
+> entire system including the different voltage rails from PMIC are
+> shutdown except the ones feeding on to RTC and DDR. DDR is kept in
+> self-refresh hence the contents are preserved. RTC ALARM2 is connected
+> to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
+> DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
+> ALARM1 triggers waking up the system[1]. The control goes to bootloader.
+> The bootloader then checks RTC scratchpad registers to confirm it was an
+> rtc_only wakeup and follows a different path, configure bare minimal
+> clocks for ddr and then jumps to the resume address in another RTC
+> scratchpad registers and transfers the control to Kernel. Kernel then
+> restores the saved context. omap_rtc_power_off_program does the ALARM2
+> programming part.
+> 
+>      [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
+> 
+> 2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
+> above omap_rtc_power_off_program function and in addition to that
+> programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
+> the pushbutton and shuts off the PMIC.
+> 
+> Hence the split in omap_rtc_power_off.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>  drivers/rtc/rtc-omap.c | 53 ++++++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 38 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 88da927..cb19ece 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -415,21 +415,12 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  
+>  static struct omap_rtc *omap_rtc_power_off_rtc;
+>  
+> -/*
+> - * omap_rtc_poweroff: RTC-controlled power off
+> - *
+> - * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+> - * which can be configured to transition to OFF on ALARM2 events.
+> - *
+> - * Notes:
+> - * The two-second alarm offset is the shortest offset possible as the alarm
+> - * registers must be set before the next timer update and the offset
+> - * calculation is too heavy for everything to be done within a single access
+> - * period (~15 us).
+> - *
+> - * Called with local interrupts disabled.
+> +/**
+> + * omap_rtc_power_off_program: Set the pmic power off sequence. The RTC
+> + * generates pmic_pwr_enable control, which can be used to control an external
+> + * PMIC.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
+Since this is kerneldoc, you need an empty line after "sequence." above.
 
-Changes in v4:
+You should also add a comment that this function depends on local
+interrupts being disabled when called (for the wait_not_busy handling); 
+and make sure you follow that in subsequent patches.
 
-  * Fixed a compilation issue.
-  * Extended the roll over check post interrupt programming.
+>   */
+> -static void omap_rtc_power_off(void)
+> +static int omap_rtc_power_off_program(struct device *dev)
 
- drivers/rtc/rtc-omap.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+dev is never used in this function.
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 323ff55..88da927 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -435,17 +435,23 @@ static void omap_rtc_power_off(void)
- 	struct rtc_time tm;
- 	unsigned long now;
- 	u32 val;
-+	int seconds;
- 
- 	rtc->type->unlock(rtc);
- 	/* enable pmic_power_en control */
- 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
- 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
- 
--	/* set alarm two seconds from now */
-+again:
-+	/* Clear any existing ALARM2 event */
-+	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
-+
-+	/* set alarm one second from now */
- 	omap_rtc_read_time_raw(rtc, &tm);
-+	seconds = tm.tm_sec;
- 	bcd2tm(&tm);
- 	rtc_tm_to_time(&tm, &now);
--	rtc_time_to_tm(now + 2, &tm);
-+	rtc_time_to_tm(now + 1, &tm);
- 
- 	if (tm2bcd(&tm) < 0) {
- 		dev_err(&rtc->rtc->dev, "power off failed\n");
-@@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
- 	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
- 	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
- 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-+	/* Our calculations started right before the rollover, try again */
-+	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-+		goto again;
- 	rtc->type->lock(rtc);
- 
- 	/*
--- 
-1.9.1
+>  {
+>  	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+>  	struct rtc_time tm;
+> @@ -456,7 +447,7 @@ static void omap_rtc_power_off(void)
+>  	if (tm2bcd(&tm) < 0) {
+>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+>  		rtc->type->lock(rtc);
+> -		return;
+> +		return -EINVAL;
+>  	}
+>  
+>  	rtc_wait_not_busy(rtc);
+> @@ -481,6 +472,38 @@ static void omap_rtc_power_off(void)
+>  		goto again;
+>  	rtc->type->lock(rtc);
+>  
+> +	return 0;
+> +}
+> +
+> +/*
+> + * omap_rtc_poweroff: RTC-controlled power off
+> + *
+> + * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+> + * which can be configured to transition to OFF on ALARM2 events.
+> + *
+> + * Notes:
+> + * The one-second alarm offset is the shortest offset possible as the alarm
+> + * registers must be set before the next timer update and the offset
+> + * calculation is too heavy for everything to be done within a single access
+> + * period (~15 us).
+
+This note really doesn't make much sense anymore, and should have been
+updated as part of the previous patch.
+
+> + *
+> + * Called with local interrupts disabled.
+> + */
+> +static void omap_rtc_power_off(void)
+> +{
+> +	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
+
+Use struct omap_rtc here as before.
+
+> +	u32 val;
+> +
+> +	omap_rtc_power_off_program(rtc->dev.parent);
+> +
+> +	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
+> +	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
+> +	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
+> +	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
+> +			OMAP_RTC_PMIC_EXT_WKUP_EN(0);
+> +	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
+> +	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
+
+What is all this, and why is it here?
+
+Surely fiddling with this register after you've set the alarm to trigger
+isn't the right thing to do.
+
+> +
+>  	/*
+>  	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+>  	 * power off the system. Add a 500 ms margin for external latencies
+
+Johan
