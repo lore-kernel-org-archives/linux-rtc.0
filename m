@@ -1,104 +1,90 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:59293 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729839AbeGZO6V (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 26 Jul 2018 10:58:21 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/8] rtc: simplify rtc_irq_set_state/rtc_irq_set_freq
-Date: Thu, 26 Jul 2018 15:40:53 +0200
-Message-Id: <20180726134056.18273-6-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
-References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:50698 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731109AbeGTNy0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 09:54:26 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id 4153CB008F0
+        for <linux-rtc@vger.kernel.org>; Fri, 20 Jul 2018 15:06:13 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id WYzJ8_Fwe4D2 for <linux-rtc@vger.kernel.org>;
+        Fri, 20 Jul 2018 15:06:12 +0200 (CEST)
+Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+ <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
+ <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
+ <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com>
+ <CAHp75VchXfm6J+PPcB8ekoXcDktsPUNok3KKBMFyyk9XV=AUyQ@mail.gmail.com>
+ <d03aec28-a33a-5a07-4305-246508185b2b@micronovasrl.com>
+ <CAHp75VdSHdtJA5E=KvkUyij8CcgpyVO1b63-XBR7MnhVeWDpWA@mail.gmail.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Message-ID: <27a1d79b-7651-4896-58f7-73ff73b14c22@micronovasrl.com>
+Date: Fri, 20 Jul 2018 15:06:10 +0200
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VdSHdtJA5E=KvkUyij8CcgpyVO1b63-XBR7MnhVeWDpWA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The PIE doesn't handle tasks anymore, remove the pointer from the
-interface.
+Il 20/07/2018 14:53, Andy Shevchenko ha scritto:
+> On Thu, Jul 19, 2018 at 9:19 PM, Giulio Benetti
+> <giulio.benetti@micronovasrl.com> wrote:
+>> Hi Andy,
+>>
+>> Il 18/07/2018 18:26, Andy Shevchenko ha scritto:
+>>>
+>>> On Wed, Jul 18, 2018 at 5:06 PM, Giulio Benetti
+>>> <giulio.benetti@micronovasrl.com> wrote:
+>>>
+>>>>>> +       int ret;
+>>>>>> +
+>>>>>> +       ret = kstrtobool(buf, &freq_test_en);
+>>>>>> +       if (ret == -EINVAL) {
+>>>
+>>>
+>>>>> What kind of other error code you may expect and why they are not
+>>>>> considered as no error?
+>>>
+>>>
+>>>> According to documentation, kstrtobool can only fail with -EINVAL.
+>>>> See:
+>>>> https://elixir.bootlin.com/linux/v4.18-rc5/source/lib/kstrtox.c#L332
+>>>
+>>>
+>>> That's correct. So, what do you want to show by explicitly mentioned
+>>> an error code in the condition?
+>>>
+>>
+>> So you mean I should check for negative values instead of specific error,
+>> right?
+> 
+> Learn from the existing code.
+> 
+> As you found kstrtobool() returns either 0 (no error), or -EINVAL (the
+> only possible error code for now).
+> Checking ret for non-zero is enough.
+> Thus,
+> 
+> if (ret) {
+>   ...
+>   return ret;
+> }
+> 
+> should do a job.
+> 
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/interface.c | 4 ++--
- drivers/rtc/rtc-dev.c   | 8 ++++----
- include/linux/rtc.h     | 6 ++----
- 3 files changed, 8 insertions(+), 10 deletions(-)
+Oh, I was pretty sure I've found an example of kstrtobool() in the way 
+I've used, instead no.
+Thanks for pointing me.
+I correct it.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index ae0d67610c7b..76eb3a2957cc 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -746,7 +746,7 @@ static int rtc_update_hrtimer(struct rtc_device *rtc, int enabled)
-  * Note that rtc_irq_set_freq() should previously have been used to
-  * specify the desired frequency of periodic IRQ.
-  */
--int rtc_irq_set_state(struct rtc_device *rtc, struct rtc_task *task, int enabled)
-+int rtc_irq_set_state(struct rtc_device *rtc, int enabled)
- {
- 	int err = 0;
- 
-@@ -770,7 +770,7 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_state);
-  * Note that rtc_irq_set_state() is used to enable or disable the
-  * periodic IRQs.
-  */
--int rtc_irq_set_freq(struct rtc_device *rtc, struct rtc_task *task, int freq)
-+int rtc_irq_set_freq(struct rtc_device *rtc, int freq)
- {
- 	int err = 0;
- 
-diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
-index efa221e8bc22..43d962a9c210 100644
---- a/drivers/rtc/rtc-dev.c
-+++ b/drivers/rtc/rtc-dev.c
-@@ -341,11 +341,11 @@ static long rtc_dev_ioctl(struct file *file,
- 		return rtc_set_time(rtc, &tm);
- 
- 	case RTC_PIE_ON:
--		err = rtc_irq_set_state(rtc, NULL, 1);
-+		err = rtc_irq_set_state(rtc, 1);
- 		break;
- 
- 	case RTC_PIE_OFF:
--		err = rtc_irq_set_state(rtc, NULL, 0);
-+		err = rtc_irq_set_state(rtc, 0);
- 		break;
- 
- 	case RTC_AIE_ON:
-@@ -365,7 +365,7 @@ static long rtc_dev_ioctl(struct file *file,
- 		return rtc_update_irq_enable(rtc, 0);
- 
- 	case RTC_IRQP_SET:
--		err = rtc_irq_set_freq(rtc, NULL, arg);
-+		err = rtc_irq_set_freq(rtc, arg);
- 		break;
- 
- 	case RTC_IRQP_READ:
-@@ -427,7 +427,7 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
- 	/* Keep ioctl until all drivers are converted */
- 	rtc_dev_ioctl(file, RTC_UIE_OFF, 0);
- 	rtc_update_irq_enable(rtc, 0);
--	rtc_irq_set_state(rtc, NULL, 0);
-+	rtc_irq_set_state(rtc, 0);
- 
- 	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
- 	return 0;
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 8cc23fdfd4ee..bf4d375025d1 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -202,10 +202,8 @@ extern void rtc_update_irq(struct rtc_device *rtc,
- extern struct rtc_device *rtc_class_open(const char *name);
- extern void rtc_class_close(struct rtc_device *rtc);
- 
--extern int rtc_irq_set_state(struct rtc_device *rtc,
--				struct rtc_task *task, int enabled);
--extern int rtc_irq_set_freq(struct rtc_device *rtc,
--				struct rtc_task *task, int freq);
-+extern int rtc_irq_set_state(struct rtc_device *rtc, int enabled);
-+extern int rtc_irq_set_freq(struct rtc_device *rtc, int freq);
- extern int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled);
- extern int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled);
- extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
--- 
-2.18.0
+Best regards
+Giulio
