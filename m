@@ -1,106 +1,89 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:52831 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726084AbeGNNi1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 14 Jul 2018 09:38:27 -0400
-Date: Sat, 14 Jul 2018 15:19:20 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
-Message-ID: <20180714131920.GU16084@piout.net>
-References: <20180713151424.13000-1-paul@crapouillou.net>
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:36791 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727361AbeGTLvb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 07:51:31 -0400
+Date: Fri, 20 Jul 2018 13:03:31 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: Johan Hovold <johan@kernel.org>, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, t-kristo@ti.com,
+        linux-rtc@vger.kernel.org, linux-omap@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
+Message-ID: <20180720110331.GE19245@localhost>
+References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
+ <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
+ <20180719100229.GQ10204@localhost>
+ <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
+ <a6930aca-f475-5b53-ce9d-d45fbc75d69c@ti.com>
+ <20180719123617.GV10204@localhost>
+ <e3841afa-fe18-84c0-e5b6-520365c5e4a1@ti.com>
+ <28f0d002-f05e-b4dc-f0dd-d0bc0fc5616d@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180713151424.13000-1-paul@crapouillou.net>
+In-Reply-To: <28f0d002-f05e-b4dc-f0dd-d0bc0fc5616d@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hello,
-
-On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
-> The RTC in the JZ4725B works just like the one in the JZ4740.
+On Fri, Jul 20, 2018 at 04:03:20PM +0530, Keerthy wrote:
 > 
-> The RTC in the JZ4760 and JZ4770 work just like the one in the JZ4780.
 > 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt |  3 +++
->  drivers/rtc/rtc-jz4740.c                                     | 11 ++++++++++-
->  2 files changed, 13 insertions(+), 1 deletion(-)
+> On Thursday 19 July 2018 06:16 PM, Keerthy wrote:
+> > 
+> > 
+> > On Thursday 19 July 2018 06:06 PM, Johan Hovold wrote:
+> >> On Thu, Jul 19, 2018 at 05:52:17PM +0530, Keerthy wrote:
+> >>> On Thursday 19 July 2018 05:23 PM, Keerthy wrote:
+> >>>> On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
+> >>>>> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
+> >>
+> >>>>>> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
+> >>>>>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+> >>>>>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+> >>>>>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+> >>
+> >>>>>> +	/* Our calculations started right before the rollover, try again */
+> >>
+> >>>>>> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> >>>>>> +		goto again;
+> >>>>>
+> >>>>> Here the alarm may have gone off as part of the roll over, in which case
+> >>>>> you shouldn't retry.
+> >>>>
+> >>>> Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
+> >>>>
+> >>>> In the event of Roll over before setting the
+> >>>> OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
+> >>>> not miss the ALARM2 event? Then poweroff would fail right?
+> >>
+> >> Right, that would fail.
+> >>
+> >>>> Hence the attempt to retry the next second. This sequence would begin
+> >>>> right at the beginning of a new second and we expect the full sequence
+> >>>> to get over without having to retry again.
+> >>>>
+> >>>> Hope i am clear.
+> >>
+> >> Yes, sure, but my point is that could end up retrying also after the
+> >> alarm has fired correctly (e.g. due to latencies in turning of the
+> >> power)>
+> >> It may be enough to check OMAP_RTC_STATUS_REG before retrying.
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> index 41c7ae18fd7b..a9e821de84f2 100644
-> --- a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-> @@ -4,6 +4,9 @@ Required properties:
->  
->  - compatible: One of:
->    - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
-> +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
-> +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
-> +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
->    - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
->  - reg: Address range of rtc register set
->  - interrupts: IRQ number for the alarm interrupt
-> diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-> index d0a891777f44..1c867e3a0ea5 100644
-> --- a/drivers/rtc/rtc-jz4740.c
-> +++ b/drivers/rtc/rtc-jz4740.c
-> @@ -54,6 +54,9 @@
->  
->  enum jz4740_rtc_type {
->  	ID_JZ4740,
-> +	ID_JZ4725B,
-> +	ID_JZ4760,
-> +	ID_JZ4770,
-
-I wouldn't introduce those ids unless there are handling differences at
-some point.
-
->  	ID_JZ4780,
->  };
->  
-> @@ -114,7 +117,7 @@ static inline int jz4740_rtc_reg_write(struct jz4740_rtc *rtc, size_t reg,
->  {
->  	int ret = 0;
->  
-> -	if (rtc->type >= ID_JZ4780)
-> +	if (rtc->type >= ID_JZ4760)
-
-This would avoid that change (and the test would preferably be (rtc->type == ID_JZ4780))
-
->  		ret = jz4780_rtc_enable_write(rtc);
->  	if (ret == 0)
->  		ret = jz4740_rtc_wait_write_ready(rtc);
-> @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
->  
->  static const struct of_device_id jz4740_rtc_of_match[] = {
->  	{ .compatible = "ingenic,jz4740-rtc", .data = (void *)ID_JZ4740 },
-> +	{ .compatible = "ingenic,jz4725b-rtc", .data = (void *)ID_JZ4725B },
-> +	{ .compatible = "ingenic,jz4760-rtc", .data = (void *)ID_JZ4760 },
-> +	{ .compatible = "ingenic,jz4770-rtc", .data = (void *)ID_JZ4770 },
->  	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
->  	{},
->  };
-> @@ -428,6 +434,9 @@ static const struct dev_pm_ops jz4740_pm_ops = {
->  
->  static const struct platform_device_id jz4740_rtc_ids[] = {
->  	{ "jz4740-rtc", ID_JZ4740 },
-> +	{ "jz4725b-rtc", ID_JZ4725B },
-> +	{ "jz4760-rtc", ID_JZ4760 },
-> +	{ "jz4770-rtc", ID_JZ4770 },
->  	{ "jz4780-rtc", ID_JZ4780 },
->  	{}
->  };
-> -- 
-> 2.11.0
+> On a second thought. Status gets set only after the next second.
 > 
+> if ALARM2 status bit is set that surely means interrupt has fired but if
+> it is not set then there are 2 possibilities
+> 
+> 1) ALARM2 is missed as the roll over happened
+> 2) ALARM2 yet to fire as we are yet to get to the next second.
+> 
+> On the other hand Seconds gives me clear indication if we missed the
+> interrupt or we are about to get one.
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Yes, you still have to check seconds *before* retrying based on status.
+
+That should do, right?
+
+Johan
