@@ -18,8 +18,8 @@ Cc: broonie@kernel.org,
 	huangtao@rock-chips.com,
 	tony.xie@rock-chips.com
 Subject: [PATCH 0/5] support a new type of PMIC，including two chips(rk817 and rk809)
-Date: Tue, 31 Jul 2018 14:56:28 +0800
-Message-Id: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
+Date: Mon, 23 Jul 2018 11:19:00 +0800
+Message-Id: <1532315945-1094-1-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-rtc.vger.kernel.org>
@@ -35,23 +35,22 @@ Their specifications are as follows：
 
 Tony Xie (5):
   mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: add RK809 and RK817 support.
-  dt-bindings: mfd: rk808: Add binding informations for RK809 and RK817.
-  RTC: RK808: add RK809 and RK817 support.
-  clk: RK808: add RK809 and RK817 support.
+  regulator: rk808: Add regulator driver for RK809 and RK817.
+  mfd: dt-bindings: Add RK809 and RK817 device tree bindings document
+  RTC: RK808: add RTC driver for RK809 and RK817.
+  clk: RK808: add clkout driver for RK809 and RK817.
 
  Documentation/devicetree/bindings/mfd/rk808.txt |  55 ++
  drivers/clk/Kconfig                             |   6 +-
  drivers/clk/clk-rk808.c                         |  62 ++-
  drivers/mfd/Kconfig                             |   6 +-
- drivers/mfd/rk808.c                             | 218 +++++++-
+ drivers/mfd/rk808.c                             | 216 +++++++-
  drivers/regulator/Kconfig                       |   4 +-
  drivers/regulator/rk808-regulator.c             | 633 +++++++++++++++++++++++-
  drivers/rtc/Kconfig                             |   4 +-
  drivers/rtc/rtc-rk808.c                         |  68 ++-
  include/linux/mfd/rk808.h                       | 175 +++++++
- kernel/reboot.c                                 |   1 +
- 11 files changed, 1203 insertions(+), 29 deletions(-)
+ 10 files changed, 1201 insertions(+), 28 deletions(-)
 
 -- 
 1.9.1
