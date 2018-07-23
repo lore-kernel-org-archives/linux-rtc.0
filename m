@@ -1,166 +1,243 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:32964 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729289AbeGRJ7W (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 05:59:22 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id B3990B0018C
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:22:22 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Es6KR-7Qvl_v for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 11:22:22 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v8 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
-Date: Wed, 18 Jul 2018 11:22:14 +0200
-Message-Id: <20180718092216.91053-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180718092216.91053-1-giulio.benetti@micronovasrl.com>
-References: <20180718092216.91053-1-giulio.benetti@micronovasrl.com>
+Received: from lucky1.263xmail.com ([211.157.147.134]:36159 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728200AbeGWEZJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jul 2018 00:25:09 -0400
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org, lee.jones@linaro.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: [PATCH 4/5] RTC: RK808: add RTC driver for RK809 and RK817.
+Date: Mon, 23 Jul 2018 11:19:04 +0800
+Message-Id: <1532315945-1094-5-git-send-email-tony.xie@rock-chips.com>
+In-Reply-To: <1532315945-1094-1-git-send-email-tony.xie@rock-chips.com>
+References: <1532315945-1094-1-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-m41txx chips can hold a calibration value to get correct clock bias.
+RK809 and RK817 are power management IC chips for multimedia products.
+Most of their functions and registers are same, including the rtc.
 
-Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
 ---
-V7 => V8:
-* use BIT() and GENMASK() instead of raw value 0x
- drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
+ drivers/rtc/Kconfig     |  4 +--
+ drivers/rtc/rtc-rk808.c | 68 +++++++++++++++++++++++++++++++++++++++----------
+ 2 files changed, 56 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 0162a600ff1b..665de9961b28 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -114,6 +114,20 @@ enum ds_type {
- #	define RX8025_BIT_VDET		0x40
- #	define RX8025_BIT_XST		0x20
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index a2ba5db..1aaf935 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -371,11 +371,11 @@ config RTC_DRV_MAX77686
+ 	  will be called rtc-max77686.
  
-+#define M41TXX_REG_CONTROL	0x07
-+#	define M41TXX_BIT_OUT		BIT(7)
-+#	define M41TXX_BIT_FT		BIT(6)
-+#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
-+#	define M41TXX_M_CALIBRATION	GENMASK(5, 0)
-+
-+/* negative offset step is -2.034ppm */
-+#define M41TXX_NEG_OFFSET_STEP_PPB	2034
-+/* positive offset step is +4.068ppm */
-+#define M41TXX_POS_OFFSET_STEP_PPB	4068
-+/* Min and max values supported with 'offset' interface by M41TXX */
-+#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
-+#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
-+
- struct ds1307 {
- 	enum ds_type		type;
- 	unsigned long		flags;
-@@ -146,6 +160,9 @@ struct chip_desc {
+ config RTC_DRV_RK808
+-	tristate "Rockchip RK805/RK808/RK818 RTC"
++	tristate "Rockchip RK805/RK808/RK809/RK817/RK818 RTC"
+ 	depends on MFD_RK808
+ 	help
+ 	  If you say yes here you will get support for the
+-	  RTC of RK805, RK808 and RK818 PMIC.
++	  RTC of RK805, RK809 and RK817, RK808 and RK818 PMIC.
  
- static int ds1307_get_time(struct device *dev, struct rtc_time *t);
- static int ds1307_set_time(struct device *dev, struct rtc_time *t);
-+static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
-+static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
- static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
- static irqreturn_t rx8130_irq(int irq, void *dev_id);
- static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
-@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
- static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
- static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset);
-+static int m41txx_rtc_set_offset(struct device *dev, long offset);
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rk808-rtc.
+diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+index 739c0d4..5bacdaf 100644
+--- a/drivers/rtc/rtc-rk808.c
++++ b/drivers/rtc/rtc-rk808.c
+@@ -50,9 +50,18 @@
+ #define NUM_TIME_REGS	(RK808_WEEKS_REG - RK808_SECONDS_REG + 1)
+ #define NUM_ALARM_REGS	(RK808_ALARM_YEARS_REG - RK808_ALARM_SECONDS_REG + 1)
  
- static const struct rtc_class_ops rx8130_rtc_ops = {
- 	.read_time      = ds1307_get_time,
-@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
- 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
- };
- 
-+static const struct rtc_class_ops m41txx_rtc_ops = {
-+	.read_time      = ds1307_get_time,
-+	.set_time       = ds1307_set_time,
-+	.read_alarm	= ds1337_read_alarm,
-+	.set_alarm	= ds1337_set_alarm,
-+	.alarm_irq_enable = ds1307_alarm_irq_enable,
-+	.read_offset	= m41txx_rtc_read_offset,
-+	.set_offset	= m41txx_rtc_set_offset,
++struct rk_rtc_compat_reg {
++	unsigned int ctrl_reg;
++	unsigned int status_reg;
++	unsigned int alarm_seconds_reg;
++	unsigned int int_reg;
++	unsigned int seconds_reg;
 +};
 +
- static const struct chip_desc chips[last_ds_type] = {
- 	[ds_1307] = {
- 		.nvram_offset	= 8,
-@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t0] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
-+	[m41t00] = {
-+		.rtc_ops	= &m41txx_rtc_ops,
-+	},
- 	[m41t11] = {
- 		/* this is battery backed SRAM */
- 		.nvram_offset	= 8,
- 		.nvram_size	= 56,
-+		.rtc_ops	= &m41txx_rtc_ops,
- 	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
-@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
- }
+ struct rk808_rtc {
+ 	struct rk808 *rk808;
+ 	struct rtc_device *rtc;
++	struct rk_rtc_compat_reg *creg;
+ 	int irq;
+ };
  
-+static int m41txx_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+	u8 val;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	val = ctrl_reg & M41TXX_M_CALIBRATION;
-+
-+	/* check if positive */
-+	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
-+		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
-+	else
-+		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
-+
-+	return 0;
-+}
-+
-+static int m41txx_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
-+		return -ERANGE;
-+
-+	if (offset >= 0) {
-+		ctrl_reg = DIV_ROUND_CLOSEST(offset,
-+					     M41TXX_POS_OFFSET_STEP_PPB);
-+		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
-+	} else {
-+		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
-+					     M41TXX_NEG_OFFSET_STEP_PPB);
+@@ -101,7 +110,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 	int ret;
+ 
+ 	/* Force an update of the shadowed registers right now */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
+ 	if (ret) {
+@@ -115,7 +124,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
+ 	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
+ 	 */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+ 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
+ 				 0);
+ 	if (ret) {
+@@ -123,7 +132,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
++	ret = regmap_bulk_read(rk808->regmap, rk808_rtc->creg->seconds_reg,
+ 			       rtc_data, NUM_TIME_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
+@@ -166,7 +175,7 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	rtc_data[6] = bin2bcd(tm->tm_wday);
+ 
+ 	/* Stop RTC while updating the RTC registers */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M);
+ 	if (ret) {
+@@ -174,14 +183,14 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
++	ret = regmap_bulk_write(rk808->regmap, rk808_rtc->creg->seconds_reg,
+ 				rtc_data, NUM_TIME_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
+ 		return ret;
+ 	}
+ 	/* Start RTC again */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to update RTC control: %d\n", ret);
+@@ -199,8 +208,13 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	uint32_t int_reg;
+ 	int ret;
+ 
+-	ret = regmap_bulk_read(rk808->regmap, RK808_ALARM_SECONDS_REG,
++	ret = regmap_bulk_read(rk808->regmap,
++			       rk808_rtc->creg->alarm_seconds_reg,
+ 			       alrm_data, NUM_ALARM_REGS);
++	if (ret) {
++		dev_err(dev, "Failed to read RTC alarm date REG: %d\n", ret);
++		return ret;
 +	}
-+
-+	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
-+				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
-+				  ctrl_reg);
-+}
-+
- /*----------------------------------------------------------------------*/
  
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+ 	alrm->time.tm_sec = bcd2bin(alrm_data[0] & SECONDS_REG_MSK);
+ 	alrm->time.tm_min = bcd2bin(alrm_data[1] & MINUTES_REG_MAK);
+@@ -210,7 +224,7 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
+ 	rockchip_to_gregorian(&alrm->time);
+ 
+-	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
++	ret = regmap_read(rk808->regmap, rk808_rtc->creg->int_reg, &int_reg);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to read RTC INT REG: %d\n", ret);
+ 		return ret;
+@@ -231,7 +245,7 @@ static int rk808_rtc_stop_alarm(struct rk808_rtc *rk808_rtc)
+ 	struct rk808 *rk808 = rk808_rtc->rk808;
+ 	int ret;
+ 
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M, 0);
+ 
+ 	return ret;
+@@ -242,7 +256,7 @@ static int rk808_rtc_start_alarm(struct rk808_rtc *rk808_rtc)
+ 	struct rk808 *rk808 = rk808_rtc->rk808;
+ 	int ret;
+ 
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M,
+ 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
+ 
+@@ -274,7 +288,8 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	alrm_data[4] = bin2bcd(alrm->time.tm_mon + 1);
+ 	alrm_data[5] = bin2bcd(alrm->time.tm_year - 100);
+ 
+-	ret = regmap_bulk_write(rk808->regmap, RK808_ALARM_SECONDS_REG,
++	ret = regmap_bulk_write(rk808->regmap,
++				rk808_rtc->creg->alarm_seconds_reg,
+ 				alrm_data, NUM_ALARM_REGS);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to bulk write: %d\n", ret);
+@@ -318,7 +333,7 @@ static irqreturn_t rk808_alarm_irq(int irq, void *data)
+ 	struct i2c_client *client = rk808->i2c;
+ 	int ret;
+ 
+-	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
++	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
+ 			   RTC_STATUS_MASK);
+ 	if (ret) {
+ 		dev_err(&client->dev,
+@@ -371,6 +386,22 @@ static int rk808_rtc_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(rk808_rtc_pm_ops,
+ 	rk808_rtc_suspend, rk808_rtc_resume);
+ 
++static struct rk_rtc_compat_reg rk808_creg = {
++	.ctrl_reg = RK808_RTC_CTRL_REG,
++	.status_reg = RK808_RTC_STATUS_REG,
++	.alarm_seconds_reg = RK808_ALARM_SECONDS_REG,
++	.int_reg = RK808_RTC_INT_REG,
++	.seconds_reg = RK808_SECONDS_REG,
++};
++
++static struct rk_rtc_compat_reg rk817_creg = {
++	.ctrl_reg = RK817_RTC_CTRL_REG,
++	.status_reg = RK817_RTC_STATUS_REG,
++	.alarm_seconds_reg = RK817_ALARM_SECONDS_REG,
++	.int_reg = RK817_RTC_INT_REG,
++	.seconds_reg = RK817_SECONDS_REG,
++};
++
+ static int rk808_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+@@ -381,11 +412,20 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+ 	if (rk808_rtc == NULL)
+ 		return -ENOMEM;
+ 
++	switch (rk808->variant) {
++	case RK809_ID:
++	case RK817_ID:
++		rk808_rtc->creg = &rk817_creg;
++		break;
++	default:
++		rk808_rtc->creg = &rk808_creg;
++		break;
++	}
+ 	platform_set_drvdata(pdev, rk808_rtc);
+ 	rk808_rtc->rk808 = rk808;
+ 
+ 	/* start rtc running by default, and use shadowed timer. */
+-	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
++	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+ 				 BIT_RTC_CTRL_REG_STOP_RTC_M |
+ 				 BIT_RTC_CTRL_REG_RTC_READSEL_M,
+ 				 BIT_RTC_CTRL_REG_RTC_READSEL_M);
+@@ -395,7 +435,7 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
++	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
+ 			   RTC_STATUS_MASK);
+ 	if (ret) {
+ 		dev_err(&pdev->dev,
 -- 
-2.17.1
+1.9.1
