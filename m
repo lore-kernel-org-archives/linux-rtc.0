@@ -1,135 +1,180 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:41104 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727501AbeGSMgq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Jul 2018 08:36:46 -0400
-Subject: Re: [PATCH v4 1/4] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-To: Johan Hovold <johan@kernel.org>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <t-kristo@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <1531372060-10532-1-git-send-email-j-keerthy@ti.com>
- <1531372060-10532-2-git-send-email-j-keerthy@ti.com>
- <20180719100229.GQ10204@localhost>
-From: Keerthy <j-keerthy@ti.com>
-Message-ID: <ed335c7a-f079-082d-d572-93632087fd8f@ti.com>
-Date: Thu, 19 Jul 2018 17:23:16 +0530
+Received: from mail.kernel.org ([198.145.29.99]:32802 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388021AbeGWPUh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 23 Jul 2018 11:20:37 -0400
 MIME-Version: 1.0
-In-Reply-To: <20180719100229.GQ10204@localhost>
-Content-Type: text/plain; charset="utf-8"
+References: <20180713151424.13000-1-paul@crapouillou.net> <20180714131920.GU16084@piout.net>
+ <1531574734.2831.0@smtp.crapouillou.net> <20180714133250.GW16084@piout.net>
+ <1531576208.2831.1@smtp.crapouillou.net> <20180720153956.GA18135@rob-hp-laptop>
+ <1532113439.2309.1@smtp.crapouillou.net>
+In-Reply-To: <1532113439.2309.1@smtp.crapouillou.net>
+From: Rob Herring <robh@kernel.org>
+Date: Mon, 23 Jul 2018 08:18:55 -0600
+Message-ID: <CAL_JsqKrJC7v79L89PCP-hihYLSNjp05xMxQQaVZPLPk26MuHw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: jz4740: Add support for the JZ4725B, JZ4760, JZ4770
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
+        <linux-rtc@vger.kernel.org>, devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+On Fri, Jul 20, 2018 at 1:04 PM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+> Hi,
+>
+> Le ven. 20 juil. 2018 =C3=A0 17:39, Rob Herring <robh@kernel.org> a =C3=
+=A9crit :
+> > On Sat, Jul 14, 2018 at 03:50:08PM +0200, Paul Cercueil wrote:
+> >>
+> >>
+> >>  Le sam. 14 juil. 2018 =C3=A0 15:32, Alexandre Belloni
+> >>  <alexandre.belloni@bootlin.com> a =C3=A9crit :
+> >>  > On 14/07/2018 15:25:33+0200, Paul Cercueil wrote:
+> >>  > >  Hi Alexandre,
+> >>  > >
+> >>  > >  Le sam. 14 juil. 2018 =C3=A0 15:19, Alexandre Belloni
+> >>  > >  <alexandre.belloni@bootlin.com> a =C3=A9crit :
+> >>  > >  > Hello,
+> >>  > >  >
+> >>  > >  > On 13/07/2018 17:14:24+0200, Paul Cercueil wrote:
+> >>  > >  > >  The RTC in the JZ4725B works just like the one in the
+> >> JZ4740.
+> >>  > >  > >
+> >>  > >  > >  The RTC in the JZ4760 and JZ4770 work just like the one
+> >> in the
+> >>  > >  > > JZ4780.
+> >>  > >  > >
+> >>  > >  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> >>  > >  > >  ---
+> >>  > >  > >
+> >> Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> >>  > > |  3
+> >>  > >  > > +++
+> >>  > >  > >   drivers/rtc/rtc-jz4740.c
+> >>  > > | 11
+> >>  > >  > > ++++++++++-
+> >>  > >  > >   2 files changed, 13 insertions(+), 1 deletion(-)
+> >>  > >  > >
+> >>  > >  > >  diff --git
+> >>  > >  > >
+> >> a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> >>  > >  > >
+> >> b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> >>  > >  > >  index 41c7ae18fd7b..a9e821de84f2 100644
+> >>  > >  > >  ---
+> >>  > > a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> >>  > >  > >  +++
+> >>  > > b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> >>  > >  > >  @@ -4,6 +4,9 @@ Required properties:
+> >>  > >  > >
+> >>  > >  > >   - compatible: One of:
+> >>  > >  > >     - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+> >>  > >  > >  +  - "ingenic,jz4725b-rtc" - for use with the JZ4725B SoC
+> >>  > >  > >  +  - "ingenic,jz4760-rtc" - for use with the JZ4760 SoC
+> >>  > >  > >  +  - "ingenic,jz4770-rtc" - for use with the JZ4770 SoC
+> >>  > >  > >     - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+> >>  > >  > >   - reg: Address range of rtc register set
+> >>  > >  > >   - interrupts: IRQ number for the alarm interrupt
+> >>  > >  > >  diff --git a/drivers/rtc/rtc-jz4740.c
+> >>  > > b/drivers/rtc/rtc-jz4740.c
+> >>  > >  > >  index d0a891777f44..1c867e3a0ea5 100644
+> >>  > >  > >  --- a/drivers/rtc/rtc-jz4740.c
+> >>  > >  > >  +++ b/drivers/rtc/rtc-jz4740.c
+> >>  > >  > >  @@ -54,6 +54,9 @@
+> >>  > >  > >
+> >>  > >  > >   enum jz4740_rtc_type {
+> >>  > >  > >    ID_JZ4740,
+> >>  > >  > >  + ID_JZ4725B,
+> >>  > >  > >  + ID_JZ4760,
+> >>  > >  > >  + ID_JZ4770,
+> >>  > >  >
+> >>  > >  > I wouldn't introduce those ids unless there are handling
+> >>  > > differences at
+> >>  > >  > some point.
+> >>  > >
+> >>  > >  Well there are handling differences, see below.
+> >>  > >
+> >>  > >  > >    ID_JZ4780,
+> >>  > >  > >   };
+> >>  > >  > >
+> >>  > >  > >  @@ -114,7 +117,7 @@ static inline int
+> >>  > > jz4740_rtc_reg_write(struct
+> >>  > >  > > jz4740_rtc *rtc, size_t reg,
+> >>  > >  > >   {
+> >>  > >  > >    int ret =3D 0;
+> >>  > >  > >
+> >>  > >  > >  - if (rtc->type >=3D ID_JZ4780)
+> >>  > >  > >  + if (rtc->type >=3D ID_JZ4760)
+> >>  > >  >
+> >>  > >  > This would avoid that change (and the test would preferably
+> >> be
+> >>  > >  > (rtc->type =3D=3D ID_JZ4780))
+> >>  > >
+> >>  > >  That branch should be taken if the SoC is JZ4760, JZ4770 or
+> >> JZ4780.
+> >>  > >  It should not be taken if the SoC is JZ4740 or JZ4725B.
+> >>  >
+> >>  > Sure but you can achieve that with only 2 ids...
+> >>  >
+> >>  > >
+> >>  > >  > >            ret =3D jz4780_rtc_enable_write(rtc);
+> >>  > >  > >    if (ret =3D=3D 0)
+> >>  > >  > >            ret =3D jz4740_rtc_wait_write_ready(rtc);
+> >>  > >  > >  @@ -300,6 +303,9 @@ static void jz4740_rtc_power_off(void)
+> >>  > >  > >
+> >>  > >  > >   static const struct of_device_id jz4740_rtc_of_match[] =3D
+> >> {
+> >>  > >  > >    { .compatible =3D "ingenic,jz4740-rtc", .data =3D (void
+> >>  > > *)ID_JZ4740 },
+> >>  > >  > >  + { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void
+> >>  > > *)ID_JZ4725B
+> >>  > >  > > },
+> >>  > >  > >  + { .compatible =3D "ingenic,jz4760-rtc", .data =3D (void
+> >>  > > *)ID_JZ4760 },
+> >>  > >  > >  + { .compatible =3D "ingenic,jz4770-rtc", .data =3D (void
+> >>  > > *)ID_JZ4770 },
+> >>  >
+> >>  > By doing the correct mapping here e.g:
+> >>  >
+> >>  > { .compatible =3D "ingenic,jz4725b-rtc", .data =3D (void *)ID_JZ474=
+0
+> >> },
+> >>
+> >>  Not very pretty and future-proof if you ask me...
+> >
+> > Looks to me like this can be handled entirely in DT without driver
+> > changes like the other patches. Correct usage of compatible strings is
+> > what gives you future-proofing. And no driver change is better than
+> > needless changing.
+>
+> If I make e.g. the jz4760 and jz4770 use the jz4780 compatible string,
+> but
+> then I want to implement a new feature that only exists on the jz4780,
+> how
+> can I do it without breaking everything?
 
+You specify both:
 
-On Thursday 19 July 2018 03:32 PM, Johan Hovold wrote:
-> On Thu, Jul 12, 2018 at 10:37:37AM +0530, Keerthy wrote:
->> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
->> over try again.
->>
->> Signed-off-by: Keerthy <j-keerthy@ti.com>
->> ---
->>
->> Changes in v4:
->>
->>   * Fixed a compilation issue.
->>   * Extended the roll over check post interrupt programming.
->>
->>  drivers/rtc/rtc-omap.c | 13 +++++++++++--
->>  1 file changed, 11 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->> index 323ff55..88da927 100644
->> --- a/drivers/rtc/rtc-omap.c
->> +++ b/drivers/rtc/rtc-omap.c
-> 
-> First, the comment above this function would need to be updated as part
-> of this patch as it refers to the two-second alarm offset.
+compatible =3D "ingenic,jz4760-rtc", "ingenic,jz4780-rtc";
 
-Yes, will change that.
+You match on the less specific compatible until you have features or
+bugs to handle for the more specific compatible. In your case, you
+would have to start matching on the 4760 and 4770 and not support the
+feature for those. A bit backwards from normal, but would still work.
 
-> 
->> @@ -435,17 +435,23 @@ static void omap_rtc_power_off(void)
->>  	struct rtc_time tm;
->>  	unsigned long now;
->>  	u32 val;
->> +	int seconds;
->>  
->>  	rtc->type->unlock(rtc);
->>  	/* enable pmic_power_en control */
->>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
->>  
->> -	/* set alarm two seconds from now */
->> +again:
->> +	/* Clear any existing ALARM2 event */
->> +	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
-> 
-> Why is this needed? Any pending interrupt is cleared at probe, and a
-> previous attempt to set the alarm really led to the alarm going off, why
-> would we retry?
+> > It may look a bit wierd if 4780 is the fallback for 4770, but if the
+> > 4780 is older, then that actually makes sense.
+>
+> The 4770 is older than the 4780.
 
-Yes this is not needed.
+As I said, it's weird, but it will all still work. You could fix this
+if you want. It would only matter if you had a old dtb with a new
+kernel and care about that case working.
 
-> 
->> +
->> +	/* set alarm one second from now */
->>  	omap_rtc_read_time_raw(rtc, &tm);
->> +	seconds = tm.tm_sec;
->>  	bcd2tm(&tm);
->>  	rtc_tm_to_time(&tm, &now);
->> -	rtc_time_to_tm(now + 2, &tm);
->> +	rtc_time_to_tm(now + 1, &tm);
->>  
->>  	if (tm2bcd(&tm) < 0) {
->>  		dev_err(&rtc->rtc->dev, "power off failed\n");
->> @@ -470,6 +476,9 @@ static void omap_rtc_power_off(void)
->>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
->>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
->>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-> 
-> Add a newline here.
-
-Okay
-
-> 
->> +	/* Our calculations started right before the rollover, try again */
-> 
-> Nit: use all lower case unless writing full sentences, which also
-> matches most of the other comments in this file.
-
-okay
-
-> 
->> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
->> +		goto again;
-> 
-> Here the alarm may have gone off as part of the roll over, in which case
-> you shouldn't retry.
-
-Ex: We programmed at Sec = 2 and we expect ALARM2 to fire at sec = 3.
-
-In the event of Roll over before setting the
-OMAP_RTC_INTERRUPTS_IT_ALARM2 bit in the OMAP_RTC_INTERRUPTS_REG will we
-not miss the ALARM2 event? Then poweroff would fail right?
-
-Hence the attempt to retry the next second. This sequence would begin
-right at the beginning of a new second and we expect the full sequence
-to get over without having to retry again.
-
-Hope i am clear.
-
-> 
-> Add a newline here too.
-
-Okay
-
-> 
->>  	rtc->type->lock(rtc);
->>  
->>  	/*
-> 
-> Thanks,
-> Johan
-> 
+Rob
