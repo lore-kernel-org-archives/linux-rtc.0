@@ -1,153 +1,140 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:37988 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729345AbeGYSi6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:58 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id C310FB00749
-        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:19 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ulAqdaWQrwsP for <linux-rtc@vger.kernel.org>;
-        Wed, 25 Jul 2018 19:26:19 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: alexandre.belloni@bootlin.com
-Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v11 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
-Date: Wed, 25 Jul 2018 19:26:05 +0200
-Message-Id: <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
-References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:61312 "EHLO
+        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388417AbeGXMr0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Jul 2018 08:47:26 -0400
+From: Denis OSTERLAND <denis.osterland@diehl.com>
+To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        Denis OSTERLAND <denis.osterland@diehl.com>
+Subject: [PATCH v5 3/5] rtc: isl1208: Add "evdet" interrupt source for
+ isl1219.
+Date: Tue, 24 Jul 2018 11:31:21 +0000
+Message-ID: <20180724095437.6016-4-Denis.Osterland@diehl.com>
+References: <20180724095437.6016-1-Denis.Osterland@diehl.com>
+In-Reply-To: <20180724095437.6016-1-Denis.Osterland@diehl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On m41txx you can enable open-drain OUT pin to check if offset is ok.
-Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-512 times faster than 1s tick base.
+From: Denis Osterland <Denis.Osterland@diehl.com>
 
-Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+Add support for "evdet" named interrupt source.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+The check if i2c client irq matches evdet irq is needed
+for the case that there is only one interrupt named "evdet".
+In this case i2c client code handles this like an unnamed
+interrupt souce and assigns the value.
+
+Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 ---
-V10 => V11:
-* kstrtobool(): check error if (ret) avoiding checking specific error.
+ drivers/rtc/rtc-isl1208.c | 46 +++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
- drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 94 insertions(+)
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index c6d871456f25..afbdcfaa397d 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1050,6 +1050,94 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
- 				  ctrl_reg);
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index 3150ebdcb179..0812a14c2d5c 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -15,6 +15,7 @@
+ #include <linux/bcd.h>
+ #include <linux/rtc.h>
+ #include "rtc-core.h"
++#include <linux/of_irq.h>
+ 
+ /* Register map */
+ /* rtc section */
+@@ -725,11 +726,30 @@ static const struct attribute_group isl1219_rtc_sysfs_files = {
+ 	.attrs	= isl1219_rtc_attrs,
+ };
+ 
++static int isl1208_setup_irq(struct i2c_client *client, int irq)
++{
++	int rc = devm_request_threaded_irq(&client->dev, irq, NULL,
++					isl1208_rtc_interrupt,
++					IRQF_SHARED | IRQF_ONESHOT,
++					isl1208_driver.driver.name,
++					client);
++	if (!rc) {
++		device_init_wakeup(&client->dev, 1);
++		enable_irq_wake(irq);
++	} else {
++		dev_err(&client->dev,
++			"Unable to request irq %d, no alarm support\n",
++			irq);
++	}
++	return rc;
++}
++
+ static int
+ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ {
+ 	int rc = 0;
+ 	struct rtc_device *rtc;
++	int evdet_irq = -1;
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -ENODEV;
+@@ -766,28 +786,22 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
+ 		if (rc)
+ 			return rc;
++		evdet_irq = of_irq_get_byname(client->dev.of_node, "evdet");
+ 	}
+ 
+ 	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
+ 	if (rc)
+ 		return rc;
+ 
+-	if (client->irq > 0) {
+-		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-					       isl1208_rtc_interrupt,
+-					       IRQF_SHARED | IRQF_ONESHOT,
+-					       isl1208_driver.driver.name,
+-					       client);
+-		if (!rc) {
+-			device_init_wakeup(&client->dev, 1);
+-			enable_irq_wake(client->irq);
+-		} else {
+-			dev_err(&client->dev,
+-				"Unable to request irq %d, no alarm support\n",
+-				client->irq);
+-			client->irq = 0;
+-		}
+-	}
++	if (client->irq > 0)
++		rc = isl1208_setup_irq(client, client->irq);
++	if (rc)
++		return rc;
++
++	if (evdet_irq > 0 && evdet_irq != client->irq)
++		rc = isl1208_setup_irq(client, evdet_irq);
++	if (rc)
++		return rc;
+ 
+ 	return rtc_register_device(rtc);
  }
- 
-+static ssize_t frequency_test_enable_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	bool freq_test_en;
-+	int ret;
-+
-+	ret = kstrtobool(buf, &freq_test_en);
-+	if (ret) {
-+		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-+		return ret;
-+	}
-+
-+	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-+			   freq_test_en ? M41TXX_BIT_FT : 0);
-+
-+	return count;
-+}
-+
-+static ssize_t frequency_test_enable_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	return scnprintf(buf, PAGE_SIZE, (ctrl_reg & M41TXX_BIT_FT) ? "on\n" :
-+			"off\n");
-+}
-+
-+static DEVICE_ATTR_RW(frequency_test_enable);
-+
-+static struct attribute *rtc_freq_test_attrs[] = {
-+	&dev_attr_frequency_test_enable.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group rtc_freq_test_attr_group = {
-+	.attrs		= rtc_freq_test_attrs,
-+};
-+
-+static void rtc_calib_remove_sysfs_group(void *_dev)
-+{
-+	struct device *dev = _dev;
-+
-+	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
-+}
-+
-+static int ds1307_add_frequency_test(struct ds1307 *ds1307)
-+{
-+	int err;
-+
-+	switch (ds1307->type) {
-+	case m41t0:
-+	case m41t00:
-+	case m41t11:
-+		/* Export sysfs entries */
-+		err = sysfs_create_group(&(ds1307->dev)->kobj,
-+					 &rtc_freq_test_attr_group);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to create sysfs group: %d\n",
-+				err);
-+			return err;
-+		}
-+
-+		err = devm_add_action_or_reset(ds1307->dev,
-+					       rtc_calib_remove_sysfs_group,
-+					       ds1307->dev);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to add sysfs cleanup action: %d\n",
-+				err);
-+			sysfs_remove_group(&(ds1307->dev)->kobj,
-+					   &rtc_freq_test_attr_group);
-+			return err;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- /*----------------------------------------------------------------------*/
- 
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-@@ -1792,6 +1880,12 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
-+	err = ds1307_add_frequency_test(ds1307);
-+	if (err) {
-+		rtc_device_unregister(ds1307->rtc);
-+		return err;
-+	}
-+
- 	if (chip->nvram_size) {
- 		struct nvmem_config nvmem_cfg = {
- 			.name = "ds1307_nvram",
 -- 
-2.17.1
+2.18.0
+
+
+
+Diehl Connectivity Solutions GmbH
+Geschäftsführung: Horst Leonberger
+Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
+Nürnberg: HRB 32315
+___________________________________________________________________________________________________
+
+Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
+Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
+mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
