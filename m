@@ -1,100 +1,118 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:40285 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:56635 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726514AbeGRIt5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 18 Jul 2018 04:49:57 -0400
-Date: Wed, 18 Jul 2018 10:13:13 +0200
+        id S1728646AbeGYKlK (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 25 Jul 2018 06:41:10 -0400
+Date: Wed, 25 Jul 2018 11:30:18 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
- detection
-Message-ID: <20180718081313.GI3211@piout.net>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
- <20180710090710.9066-3-Denis.Osterland@diehl.com>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
+Message-ID: <20180725093018.GA3539@piout.net>
+References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
+ <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180710090710.9066-3-Denis.Osterland@diehl.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 10/07/2018 09:44:15+0000, Denis OSTERLAND wrote:
->  static int
->  isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  {
-> @@ -642,6 +744,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	rtc->ops = &isl1208_rtc_ops;
-> 
->  	i2c_set_clientdata(client, rtc);
-> +	dev_set_drvdata(&rtc->dev, client);
-> 
->  	rc = isl1208_i2c_get_sr(client);
->  	if (rc < 0) {
-> @@ -653,6 +756,18 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  		dev_warn(&client->dev, "rtc power failure detected, "
->  			 "please set clock.\n");
-> 
-> +	if (id->driver_data == TYPE_ISL1219) {
-> +		rc = ISL1219_REG_EV_EVEN;
-> +		rc = i2c_smbus_write_byte_data(client, ISL1219_REG_EV, rc);
+Hi,
 
-I'd pass ISL1219_REG_EV_EVEN directly instead of assigning it to rc.
-
-> +		if (rc < 0) {
-> +			dev_err(&client->dev, "could not enable tamper detection\n");
-> +			return rc;
-> +		}
-> +		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
-> +		if (rc)
-> +			return rc;
-> +	}
+On 25/07/2018 11:21:22+0530, Keerthy wrote:
+> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+> over try again.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+> 
+> Changes in v5:
+> 
+>   * Added an additional check to see if ALARM2 status is not set
+>     before retrying.
+>   * Cleaned up comments
+>   * Also reduced mdelay to 1S lesser as per this commit
+> 
+>  drivers/rtc/rtc-omap.c | 28 ++++++++++++++++++----------
+>  1 file changed, 18 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 44ff4cc..caa6da6 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>   * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+>   * which can be configured to transition to OFF on ALARM2 events.
+>   *
+> - * Notes:
+> - * The two-second alarm offset is the shortest offset possible as the alarm
+> - * registers must be set before the next timer update and the offset
+> - * calculation is too heavy for everything to be done within a single access
+> - * period (~15 us).
+> - *
+>   * Called with local interrupts disabled.
+>   */
+>  static void omap_rtc_power_off(void)
+> @@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
+>  	struct rtc_time tm;
+>  	unsigned long now;
+>  	u32 val;
+> +	int seconds;
+>  
+>  	rtc->type->unlock(rtc);
+>  	/* enable pmic_power_en control */
+>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>  
+> -	/* set alarm two seconds from now */
+> +again:
+> +	/* set alarm one second from now */
+>  	omap_rtc_read_time_raw(rtc, &tm);
+> +	seconds = tm.tm_sec;
+>  	bcd2tm(&tm);
+>  	rtc_tm_to_time(&tm, &now);
+> -	rtc_time_to_tm(now + 2, &tm);
+> +	rtc_time_to_tm(now + 1, &tm);
+>  
+>  	if (tm2bcd(&tm) < 0) {
+>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+> @@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
+>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
 > +
->  	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
->  	if (rc)
->  		return rc;
-> @@ -686,8 +801,9 @@ isl1208_remove(struct i2c_client *client)
+> +	/*
+> +	 * first check if ALARM2 has fired, if not then check if
+> +	 * our calculations started right before the rollover, try again
+> +	 * in case of rollover
+> +	 */
+> +	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
+> +						 OMAP_RTC_STATUS_REG)) &&
+> +	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> +		goto again;
+> +
+
+Can you use a while loop instead of goto?
+
+>  	rtc->type->lock(rtc);
+>  
+>  	/*
+> -	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+> +	 * Wait for alarm to trigger (within one second) and external PMIC to
+>  	 * power off the system. Add a 500 ms margin for external latencies
+>  	 * (e.g. debounce circuits).
+>  	 */
+> -	mdelay(2500);
+> +	mdelay(1500);
 >  }
+>  
+>  static const struct rtc_class_ops omap_rtc_ops = {
+> -- 
+> 1.9.1
 > 
->  static const struct i2c_device_id isl1208_id[] = {
-> -	{ "isl1208", 0 },
-> -	{ "isl1218", 0 },
-> +	{ "isl1208", TYPE_ISL1208 },
-> +	{ "isl1218", TYPE_ISL1218 },
-> +	{ "isl1219", TYPE_ISL1219 },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(i2c, isl1208_id);
-> @@ -695,6 +811,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
->  static const struct of_device_id isl1208_of_match[] = {
->  	{ .compatible = "isil,isl1208" },
->  	{ .compatible = "isil,isl1218" },
-> +	{ .compatible = "isil,isl1219" },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, isl1208_of_match);
-> --
-> 2.18.0
-> 
-> 
-> 
-> Diehl Connectivity Solutions GmbH
-> Geschäftsführung: Horst Leonberger
-> Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-> Nürnberg: HRB 32315
-> ___________________________________________________________________________________________________
-> 
-> Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-> Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-> Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-> The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-> mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
 
 -- 
 Alexandre Belloni, Bootlin (formerly Free Electrons)
