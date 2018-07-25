@@ -1,82 +1,119 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:59588 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733263AbeGKQWJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jul 2018 12:22:09 -0400
-Subject: Re: [PATCH v3 1/4] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-To: Johan Hovold <johan@kernel.org>
-CC: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <t-kristo@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <1531205452-6086-1-git-send-email-j-keerthy@ti.com>
- <1531205452-6086-2-git-send-email-j-keerthy@ti.com>
- <20180711135444.GC12517@localhost>
-From: "J, KEERTHY" <j-keerthy@ti.com>
-Message-ID: <cf50def4-9ff8-a921-521a-c568b4987b89@ti.com>
-Date: Wed, 11 Jul 2018 21:46:41 +0530
-MIME-Version: 1.0
-In-Reply-To: <20180711135444.GC12517@localhost>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Received: from mail.micronovasrl.com ([212.103.203.10]:37938 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729345AbeGYSi4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:56 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id E0488B009B0
+        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:17 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id lx2HQfDcTGsd for <linux-rtc@vger.kernel.org>;
+        Wed, 25 Jul 2018 19:26:17 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: alexandre.belloni@bootlin.com
+Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v11 2/4] rtc: ds1307: support m41t11 variant
+Date: Wed, 25 Jul 2018 19:26:03 +0200
+Message-Id: <20180725172605.108040-2-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+The m41t11 variant is very similar to the already supported m41t00 and
+m41t0, but it has also 56 bytes of NVRAM.
 
+Add it to driver taking into account NVRAM section.
 
-On 7/11/2018 7:24 PM, Johan Hovold wrote:
-> On Tue, Jul 10, 2018 at 12:20:49PM +0530, Keerthy wrote:
->> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
->> over try again.
->>
->> Signed-off-by: Keerthy <j-keerthy@ti.com>
->> ---
->>   drivers/rtc/rtc-omap.c | 9 +++++++--
->>   1 file changed, 7 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
->> index 323ff55..14f2241 100644
->> --- a/drivers/rtc/rtc-omap.c
->> +++ b/drivers/rtc/rtc-omap.c
->> @@ -441,11 +441,12 @@ static void omap_rtc_power_off(void)
->>   	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->>   	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
->>   
->> -	/* set alarm two seconds from now */
->> +again:
->> +	/* set alarm one second from now */
->>   	omap_rtc_read_time_raw(rtc, &tm);
->>   	bcd2tm(&tm);
->>   	rtc_tm_to_time(&tm, &now);
->> -	rtc_time_to_tm(now + 2, &tm);
->> +	rtc_time_to_tm(now + 1, &tm);
->>   
->>   	if (tm2bcd(&tm) < 0) {
->>   		dev_err(&rtc->rtc->dev, "power off failed\n");
->> @@ -455,6 +456,10 @@ static void omap_rtc_power_off(void)
->>   
->>   	rtc_wait_not_busy(rtc);
->>   
->> +	/* Our calculations started right before the rollover, try again */
->> +	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
->> +		goto again;
-> 
-> First, this doesn't even compile.
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
+ drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
-My bad. seconds got introduced in patch 2 and i did not compile test 
-this one individually. Apologies for that.
-
-> 
-> Second, nothing is preventing the rollover from happening here after the
-> check.
-
-Okay. That window cannot be ignored. So 'now + 2' will surely solve 
-that. I will stick to that.
-
-> 
->> +
->>   	rtc_write(rtc, OMAP_RTC_ALARM2_SECONDS_REG, tm.tm_sec);
->>   	rtc_write(rtc, OMAP_RTC_ALARM2_MINUTES_REG, tm.tm_min);
->>   	rtc_write(rtc, OMAP_RTC_ALARM2_HOURS_REG, tm.tm_hour);
-> 
-> Johan
-> 
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index d28d6e7f6ae8..ce6469c1a516 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"maxim,ds3231",
+ 	"st,m41t0",
+ 	"st,m41t00",
++	"st,m41t11",
+ 	"microchip,mcp7940x",
+ 	"microchip,mcp7941x",
+ 	"pericom,pt7c4338",
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index aa4a161bae98..0162a600ff1b 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -44,6 +44,7 @@ enum ds_type {
+ 	ds_3231,
+ 	m41t0,
+ 	m41t00,
++	m41t11,
+ 	mcp794xx,
+ 	rx_8025,
+ 	rx_8130,
+@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t11] = {
++		/* this is battery backed SRAM */
++		.nvram_offset	= 8,
++		.nvram_size	= 56,
++	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "ds3231", ds_3231 },
+ 	{ "m41t0", m41t0 },
+ 	{ "m41t00", m41t00 },
++	{ "m41t11", m41t11 },
+ 	{ "mcp7940x", mcp794xx },
+ 	{ "mcp7941x", mcp794xx },
+ 	{ "pt7c4338", ds_1307 },
+@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
+ 		.compatible = "st,m41t00",
+ 		.data = (void *)m41t00
+ 	},
++	{
++		.compatible = "st,m41t11",
++		.data = (void *)m41t11
++	},
+ 	{
+ 		.compatible = "microchip,mcp7940x",
+ 		.data = (void *)mcp794xx
+@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
+ 	{ .id = "DS3231", .driver_data = ds_3231 },
+ 	{ .id = "M41T0", .driver_data = m41t0 },
+ 	{ .id = "M41T00", .driver_data = m41t00 },
++	{ .id = "M41T11", .driver_data = m41t11 },
+ 	{ .id = "MCP7940X", .driver_data = mcp794xx },
+ 	{ .id = "MCP7941X", .driver_data = mcp794xx },
+ 	{ .id = "PT7C4338", .driver_data = ds_1307 },
+@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1307:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/* clock halted?  turn it on, so clock can tick. */
+ 		if (tmp & DS1307_BIT_CH) {
+ 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 	case ds_1340:
+ 	case m41t0:
+ 	case m41t00:
++	case m41t11:
+ 		/*
+ 		 * NOTE: ignores century bits; fix before deploying
+ 		 * systems that will run through year 2100.
+-- 
+2.17.1
