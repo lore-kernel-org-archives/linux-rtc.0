@@ -1,312 +1,163 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lelv0143.ext.ti.com ([198.47.23.248]:35304 "EHLO
-        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752990AbeGDGe1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 02:34:27 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] rtc: OMAP: Add support for rtc-only mode
-Date: Wed, 4 Jul 2018 12:03:45 +0530
-Message-ID: <1530686025-546-1-git-send-email-j-keerthy@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail.micronovasrl.com ([212.103.203.10]:37960 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729501AbeGYSi5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:57 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id B6643B008F3
+        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:18 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id v7NK724sp3px for <linux-rtc@vger.kernel.org>;
+        Wed, 25 Jul 2018 19:26:18 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: alexandre.belloni@bootlin.com
+Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v11 3/4] rtc: ds1307: add offset sysfs for mt41txx chips.
+Date: Wed, 25 Jul 2018 19:26:04 +0200
+Message-Id: <20180725172605.108040-3-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Prepare rtc driver for rtc-only mode. This involes splitting the power-off
-function so that an external driver can initiate the programming of
-setting the power_off to be triggered in the next second.
+m41txx chips can hold a calibration value to get correct clock bias.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
+Add offset handling (ranging between -63ppm and 126ppm) via sysfs.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
 ---
- drivers/rtc/interface.c |  12 ++++
- drivers/rtc/rtc-omap.c  | 164 ++++++++++++++++++++++++++++++++++--------------
- include/linux/rtc.h     |   2 +
- 3 files changed, 130 insertions(+), 48 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 77 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 6d4012d..d8b70f0 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -1139,3 +1139,15 @@ int rtc_set_offset(struct rtc_device *rtc, long offset)
- 	trace_rtc_set_offset(offset, ret);
- 	return ret;
- }
-+
-+/**
-+ * rtc_power_off_program - Some of the rtc are hooked on to PMIC_EN
-+ * line and can be used to power off the SoC.
-+ *
-+ * Kernel interface to program rtc to power off
-+ */
-+void rtc_power_off_program(struct rtc_device *rtc)
-+{
-+	rtc->ops->power_off_program(rtc->dev.parent);
-+}
-+EXPORT_SYMBOL_GPL(rtc_power_off_program);
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 3908639..4dcee1c 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -29,6 +29,7 @@
- #include <linux/pinctrl/pinconf-generic.h>
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
-+#include <linux/regulator/machine.h>
- #include <linux/rtc.h>
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 0162a600ff1b..c6d871456f25 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -114,6 +114,20 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
  
- /*
-@@ -131,6 +132,8 @@
- #define	KICK0_VALUE			0x83e70b13
- #define	KICK1_VALUE			0x95a4f1e0
++#define M41TXX_REG_CONTROL	0x07
++#	define M41TXX_BIT_OUT		BIT(7)
++#	define M41TXX_BIT_FT		BIT(6)
++#	define M41TXX_BIT_CALIB_SIGN	BIT(5)
++#	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
++
++/* negative offset step is -2.034ppm */
++#define M41TXX_NEG_OFFSET_STEP_PPB	2034
++/* positive offset step is +4.068ppm */
++#define M41TXX_POS_OFFSET_STEP_PPB	4068
++/* Min and max values supported with 'offset' interface by M41TXX */
++#define M41TXX_MIN_OFFSET	((-31) * M41TXX_NEG_OFFSET_STEP_PPB)
++#define M41TXX_MAX_OFFSET	((31) * M41TXX_POS_OFFSET_STEP_PPB)
++
+ struct ds1307 {
+ 	enum ds_type		type;
+ 	unsigned long		flags;
+@@ -146,6 +160,9 @@ struct chip_desc {
  
-+#define SHUTDOWN_TIME_SEC		1
-+
- struct omap_rtc;
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t);
+ static int ds1307_set_time(struct device *dev, struct rtc_time *t);
++static int ds1337_read_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1337_set_alarm(struct device *dev, struct rtc_wkalrm *t);
++static int ds1307_alarm_irq_enable(struct device *dev, unsigned int enabled);
+ static u8 do_trickle_setup_ds1339(struct ds1307 *, u32 ohms, bool diode);
+ static irqreturn_t rx8130_irq(int irq, void *dev_id);
+ static int rx8130_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+@@ -155,6 +172,8 @@ static irqreturn_t mcp794xx_irq(int irq, void *dev_id);
+ static int mcp794xx_read_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_set_alarm(struct device *dev, struct rtc_wkalrm *t);
+ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset);
++static int m41txx_rtc_set_offset(struct device *dev, long offset);
  
- struct omap_rtc_device_type {
-@@ -415,6 +418,77 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 
- static struct omap_rtc *omap_rtc_power_off_rtc;
- 
-+/**
-+ * omap_rtc_power_off_program: Set the pmic power off sequence. The RTC
-+ * generates pmic_pwr_enable control, which can be used to control an external
-+ * PMIC.
-+ */
-+void omap_rtc_power_off_program(struct device *dev)
-+{
-+	u32 val;
-+	struct rtc_time tm;
-+	unsigned long time;
-+	int seconds;
-+
-+	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
-+
-+	/* Clear any existing ALARM2 event */
-+	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_STATUS_REG,
-+		   OMAP_RTC_STATUS_ALARM2);
-+
-+	pr_info("System will go to power_off state in approx. %d second\n",
-+		SHUTDOWN_TIME_SEC);
-+
-+again:
-+	/* Read rtc time */
-+	tm.tm_sec = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG);
-+	seconds = tm.tm_sec;
-+	tm.tm_min = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_MINUTES_REG);
-+	tm.tm_hour = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_HOURS_REG);
-+	tm.tm_mday = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_DAYS_REG);
-+	tm.tm_mon = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_MONTHS_REG);
-+	tm.tm_year = rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_YEARS_REG);
-+	bcd2tm(&tm);
-+
-+	/* Convert Gregorian date to seconds since 01-01-1970 00:00:00 */
-+	rtc_tm_to_time(&tm, &time);
-+
-+	/* Convert seconds since 01-01-1970 00:00:00 to Gregorian date */
-+	rtc_time_to_tm(time + SHUTDOWN_TIME_SEC, &tm);
-+
-+	if (tm2bcd(&tm) < 0)
-+		return;
-+
-+	/* After wait_not_busy, we have at least 15us until the next second. */
-+	rtc_wait_not_busy(omap_rtc_power_off_rtc);
-+
-+	/* Our calculations started right before the rollover, try again */
-+	if (seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-+		goto again;
-+
-+	/*
-+	 * pmic_pwr_enable is controlled by means of ALARM2 event. So here
-+	 * programming alarm2 expiry time and enabling alarm2 interrupt
-+	 */
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_SECONDS_REG,
-+		  tm.tm_sec);
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_MINUTES_REG,
-+		  tm.tm_min);
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_HOURS_REG,
-+		  tm.tm_hour);
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_DAYS_REG,
-+		  tm.tm_mday);
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_MONTHS_REG,
-+		  tm.tm_mon);
-+	rtc_write(omap_rtc_power_off_rtc, OMAP_RTC_ALARM2_YEARS_REG,
-+		  tm.tm_year);
-+
-+	/* Enable alarm2 interrupt */
-+	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_INTERRUPTS_REG);
-+	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_INTERRUPTS_REG, val |
-+		   OMAP_RTC_INTERRUPTS_IT_ALARM2);
-+}
-+
- /*
-  * omap_rtc_poweroff: RTC-controlled power off
-  *
-@@ -431,45 +505,19 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-  */
- static void omap_rtc_power_off(void)
- {
--	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
--	struct rtc_time tm;
--	unsigned long now;
-+	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
- 	u32 val;
- 
--	rtc->type->unlock(rtc);
--	/* enable pmic_power_en control */
--	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
--	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
--
--	/* set alarm two seconds from now */
--	omap_rtc_read_time_raw(rtc, &tm);
--	bcd2tm(&tm);
--	rtc_tm_to_time(&tm, &now);
--	rtc_time_to_tm(now + 2, &tm);
--
--	if (tm2bcd(&tm) < 0) {
--		dev_err(&rtc->rtc->dev, "power off failed\n");
--		return;
--	}
--
--	rtc_wait_not_busy(rtc);
-+	regulator_suspend_prepare(PM_SUSPEND_MAX);
-+	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
-+	omap_rtc_power_off_program(rtc->dev.parent);
- 
--	rtc_write(rtc, OMAP_RTC_ALARM2_SECONDS_REG, tm.tm_sec);
--	rtc_write(rtc, OMAP_RTC_ALARM2_MINUTES_REG, tm.tm_min);
--	rtc_write(rtc, OMAP_RTC_ALARM2_HOURS_REG, tm.tm_hour);
--	rtc_write(rtc, OMAP_RTC_ALARM2_DAYS_REG, tm.tm_mday);
--	rtc_write(rtc, OMAP_RTC_ALARM2_MONTHS_REG, tm.tm_mon);
--	rtc_write(rtc, OMAP_RTC_ALARM2_YEARS_REG, tm.tm_year);
--
--	/*
--	 * enable ALARM2 interrupt
--	 *
--	 * NOTE: this fails on AM3352 if rtc_write (writeb) is used
--	 */
--	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
--	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
--			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
--	rtc->type->lock(rtc);
-+	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
-+	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
-+	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
-+	       OMAP_RTC_PMIC_EXT_WKUP_EN(0);
-+	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
-+	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
- 
- 	/*
- 	 * Wait for alarm to trigger (within two seconds) and external PMIC to
-@@ -477,6 +525,17 @@ static void omap_rtc_power_off(void)
- 	 * (e.g. debounce circuits).
- 	 */
- 	mdelay(2500);
-+
-+	pr_err("rtc_power_off failed, bailing out.\n");
-+}
-+
-+static void omap_rtc_cleanup_pm_power_off(struct omap_rtc *rtc)
-+{
-+	if (pm_power_off == omap_rtc_power_off &&
-+	    omap_rtc_power_off_rtc == rtc) {
-+		pm_power_off = NULL;
-+		omap_rtc_power_off_rtc = NULL;
-+	}
- }
- 
- static const struct rtc_class_ops omap_rtc_ops = {
-@@ -485,6 +544,7 @@ static void omap_rtc_power_off(void)
- 	.read_alarm	= omap_rtc_read_alarm,
- 	.set_alarm	= omap_rtc_set_alarm,
- 	.alarm_irq_enable = omap_rtc_alarm_irq_enable,
-+	.power_off_program = omap_rtc_power_off_program,
+ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+@@ -172,6 +191,16 @@ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.alarm_irq_enable = mcp794xx_alarm_irq_enable,
  };
  
- static const struct omap_rtc_device_type omap_rtc_default_type = {
-@@ -838,6 +898,11 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	rtc->type->lock(rtc);
- 
- 	device_init_wakeup(&pdev->dev, true);
-+	omap_rtc_power_off_rtc = rtc;
++static const struct rtc_class_ops m41txx_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm	= ds1337_read_alarm,
++	.set_alarm	= ds1337_set_alarm,
++	.alarm_irq_enable = ds1307_alarm_irq_enable,
++	.read_offset	= m41txx_rtc_read_offset,
++	.set_offset	= m41txx_rtc_set_offset,
++};
 +
-+	if (rtc->is_pmic_controller)
-+		if (!pm_power_off)
-+			pm_power_off = omap_rtc_power_off;
+ static const struct chip_desc chips[last_ds_type] = {
+ 	[ds_1307] = {
+ 		.nvram_offset	= 8,
+@@ -228,10 +257,17 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.irq_handler = rx8130_irq,
+ 		.rtc_ops = &rx8130_rtc_ops,
+ 	},
++	[m41t0] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
++	[m41t00] = {
++		.rtc_ops	= &m41txx_rtc_ops,
++	},
+ 	[m41t11] = {
+ 		/* this is battery backed SRAM */
+ 		.nvram_offset	= 8,
+ 		.nvram_size	= 56,
++		.rtc_ops	= &m41txx_rtc_ops,
+ 	},
+ 	[mcp794xx] = {
+ 		.alarm		= 1,
+@@ -973,6 +1009,47 @@ static int mcp794xx_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 				  enabled ? MCP794XX_BIT_ALM0_EN : 0);
+ }
  
- 	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc->rtc)) {
-@@ -887,6 +952,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	return 0;
- 
- err:
-+	omap_rtc_cleanup_pm_power_off(rtc);
- 	clk_disable_unprepare(rtc->clk);
- 	device_init_wakeup(&pdev->dev, false);
- 	rtc->type->lock(rtc);
-@@ -901,11 +967,7 @@ static int omap_rtc_remove(struct platform_device *pdev)
- 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
- 	u8 reg;
- 
--	if (pm_power_off == omap_rtc_power_off &&
--			omap_rtc_power_off_rtc == rtc) {
--		pm_power_off = NULL;
--		omap_rtc_power_off_rtc = NULL;
--	}
-+	omap_rtc_cleanup_pm_power_off(rtc);
- 
- 	device_init_wakeup(&pdev->dev, 0);
- 
-@@ -993,14 +1055,20 @@ static void omap_rtc_shutdown(struct platform_device *pdev)
- 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
- 	u8 mask;
- 
--	/*
--	 * Keep the ALARM interrupt enabled to allow the system to power up on
--	 * alarm events.
--	 */
- 	rtc->type->unlock(rtc);
--	mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
--	mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
--	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
-+	/* If rtc does not control PMIC then no need to enable ALARM */
-+	if (!rtc->is_pmic_controller) {
-+		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
++static int m41txx_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++	u8 val;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	val = ctrl_reg & M41TXX_M_CALIBRATION;
++
++	/* check if positive */
++	if (ctrl_reg & M41TXX_BIT_CALIB_SIGN)
++		*offset = (val * M41TXX_POS_OFFSET_STEP_PPB);
++	else
++		*offset = -(val * M41TXX_NEG_OFFSET_STEP_PPB);
++
++	return 0;
++}
++
++static int m41txx_rtc_set_offset(struct device *dev, long offset)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	if ((offset < M41TXX_MIN_OFFSET) || (offset > M41TXX_MAX_OFFSET))
++		return -ERANGE;
++
++	if (offset >= 0) {
++		ctrl_reg = DIV_ROUND_CLOSEST(offset,
++					     M41TXX_POS_OFFSET_STEP_PPB);
++		ctrl_reg |= M41TXX_BIT_CALIB_SIGN;
 +	} else {
-+		/*
-+		 * Keep the ALARM interrupt enabled to allow the system to
-+		 * power up on alarm events.
-+		 */
-+		mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
-+		mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
-+		rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
++		ctrl_reg = DIV_ROUND_CLOSEST(abs(offset),
++					     M41TXX_NEG_OFFSET_STEP_PPB);
 +	}
 +
- 	rtc->type->lock(rtc);
- }
++	return regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL,
++				  M41TXX_M_CALIBRATION | M41TXX_BIT_CALIB_SIGN,
++				  ctrl_reg);
++}
++
+ /*----------------------------------------------------------------------*/
  
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 6268208..f17bc6a 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -85,6 +85,7 @@ struct rtc_class_ops {
- 	int (*alarm_irq_enable)(struct device *, unsigned int enabled);
- 	int (*read_offset)(struct device *, long *offset);
- 	int (*set_offset)(struct device *, long offset);
-+	void (*power_off_program)(struct device *dev);
- };
- 
- typedef struct rtc_task {
-@@ -229,6 +230,7 @@ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- int rtc_read_offset(struct rtc_device *rtc, long *offset);
- int rtc_set_offset(struct rtc_device *rtc, long offset);
- void rtc_timer_do_work(struct work_struct *work);
-+void rtc_power_off_program(struct rtc_device *rtc);
- 
- static inline bool is_leap_year(unsigned int year)
- {
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
 -- 
-1.9.1
+2.17.1
