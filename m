@@ -1,284 +1,106 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:29534 "EHLO
-        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933279AbeGJJyU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:20 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
- detection
-Date: Tue, 10 Jul 2018 09:44:15 +0000
-Message-ID: <20180710090710.9066-3-Denis.Osterland@diehl.com>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
-In-Reply-To: <20180710090710.9066-1-Denis.Osterland@diehl.com>
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:51608 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728100AbeGYHCL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 03:02:11 -0400
+From: Keerthy <j-keerthy@ti.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+CC: <t-kristo@ti.com>, <j-keerthy@ti.com>, <linux-rtc@vger.kernel.org>,
+        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <johan@kernel.org>
+Subject: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2 seconds to 1 sec
+Date: Wed, 25 Jul 2018 11:21:22 +0530
+Message-ID: <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
+References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+over try again.
 
-We add support for the ISL1219 chip that got an integrated tamper
-detection function. This patch implements the feature by adding
-an additional timestamp0 file to sysfs device path.
-This file contains seconds since epoch, if an event occurred,
-or is empty, if none occurred.
-
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
 ---
- drivers/rtc/rtc-isl1208.c | 131 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 124 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 1a2c38cc0178..bb189fe6744a 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -14,6 +14,7 @@
- #include <linux/i2c.h>
- #include <linux/bcd.h>
- #include <linux/rtc.h>
-+#include "rtc-core.h"
+Changes in v5:
+
+  * Added an additional check to see if ALARM2 status is not set
+    before retrying.
+  * Cleaned up comments
+  * Also reduced mdelay to 1S lesser as per this commit
+
+ drivers/rtc/rtc-omap.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 44ff4cc..caa6da6 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+  * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+  * which can be configured to transition to OFF on ALARM2 events.
+  *
+- * Notes:
+- * The two-second alarm offset is the shortest offset possible as the alarm
+- * registers must be set before the next timer update and the offset
+- * calculation is too heavy for everything to be done within a single access
+- * period (~15 us).
+- *
+  * Called with local interrupts disabled.
+  */
+ static void omap_rtc_power_off(void)
+@@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
+ 	struct rtc_time tm;
+ 	unsigned long now;
+ 	u32 val;
++	int seconds;
  
- /* Register map */
- /* rtc section */
-@@ -33,13 +34,15 @@
- #define ISL1208_REG_SR_ARST    (1<<7)	/* auto reset */
- #define ISL1208_REG_SR_XTOSCB  (1<<6)	/* crystal oscillator */
- #define ISL1208_REG_SR_WRTC    (1<<4)	/* write rtc */
-+#define ISL1208_REG_SR_EVT     (1<<3)	/* event */
- #define ISL1208_REG_SR_ALM     (1<<2)	/* alarm */
- #define ISL1208_REG_SR_BAT     (1<<1)	/* battery */
- #define ISL1208_REG_SR_RTCF    (1<<0)	/* rtc fail */
- #define ISL1208_REG_INT 0x08
- #define ISL1208_REG_INT_ALME   (1<<6)   /* alarm enable */
- #define ISL1208_REG_INT_IM     (1<<7)   /* interrupt/alarm mode */
--#define ISL1208_REG_09  0x09	/* reserved */
-+#define ISL1219_REG_EV  0x09
-+#define ISL1219_REG_EV_EVEN    (1<<4)   /* event detection enable */
- #define ISL1208_REG_ATR 0x0a
- #define ISL1208_REG_DTR 0x0b
+ 	rtc->type->unlock(rtc);
+ 	/* enable pmic_power_en control */
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+ 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
  
-@@ -57,8 +60,24 @@
- #define ISL1208_REG_USR2 0x13
- #define ISL1208_USR_SECTION_LEN 2
+-	/* set alarm two seconds from now */
++again:
++	/* set alarm one second from now */
+ 	omap_rtc_read_time_raw(rtc, &tm);
++	seconds = tm.tm_sec;
+ 	bcd2tm(&tm);
+ 	rtc_tm_to_time(&tm, &now);
+-	rtc_time_to_tm(now + 2, &tm);
++	rtc_time_to_tm(now + 1, &tm);
  
-+/* event section */
-+#define ISL1219_REG_SCT 0x14
-+#define ISL1219_REG_MNT 0x15
-+#define ISL1219_REG_HRT 0x16
-+#define ISL1219_REG_DTT 0x17
-+#define ISL1219_REG_MOT 0x18
-+#define ISL1219_REG_YRT 0x19
-+#define ISL1219_EVT_SECTION_LEN 6
+ 	if (tm2bcd(&tm) < 0) {
+ 		dev_err(&rtc->rtc->dev, "power off failed\n");
+@@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
+ 	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+ 	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+ 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
 +
- static struct i2c_driver isl1208_driver;
- 
-+/* ISL1208 various variants */
-+enum {
-+	TYPE_ISL1208 = 0,
-+	TYPE_ISL1218,
-+	TYPE_ISL1219,
-+};
++	/*
++	 * first check if ALARM2 has fired, if not then check if
++	 * our calculations started right before the rollover, try again
++	 * in case of rollover
++	 */
++	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
++						 OMAP_RTC_STATUS_REG)) &&
++	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
++		goto again;
 +
- /* block read */
- static int
- isl1208_i2c_read_regs(struct i2c_client *client, u8 reg, u8 buf[],
-@@ -80,8 +99,8 @@ isl1208_i2c_read_regs(struct i2c_client *client, u8 reg, u8 buf[],
- 	};
- 	int ret;
+ 	rtc->type->lock(rtc);
  
--	BUG_ON(reg > ISL1208_REG_USR2);
--	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
-+	WARN_ON(reg > ISL1219_REG_YRT);
-+	WARN_ON(reg + len > ISL1219_REG_YRT + 1);
- 
- 	ret = i2c_transfer(client->adapter, msgs, 2);
- 	if (ret > 0)
-@@ -104,8 +123,8 @@ isl1208_i2c_set_regs(struct i2c_client *client, u8 reg, u8 const buf[],
- 	};
- 	int ret;
- 
--	BUG_ON(reg > ISL1208_REG_USR2);
--	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
-+	WARN_ON(reg > ISL1219_REG_YRT);
-+	WARN_ON(reg + len > ISL1219_REG_YRT + 1);
- 
- 	i2c_buf[0] = reg;
- 	memcpy(&i2c_buf[1], &buf[0], len);
-@@ -493,6 +512,73 @@ isl1208_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	return isl1208_i2c_set_alarm(to_i2c_client(dev), alarm);
+ 	/*
+-	 * Wait for alarm to trigger (within two seconds) and external PMIC to
++	 * Wait for alarm to trigger (within one second) and external PMIC to
+ 	 * power off the system. Add a 500 ms margin for external latencies
+ 	 * (e.g. debounce circuits).
+ 	 */
+-	mdelay(2500);
++	mdelay(1500);
  }
  
-+static ssize_t timestamp0_store(struct device *dev,
-+		struct device_attribute *attr,
-+		const char *buf, size_t count)
-+{
-+	struct i2c_client *client = dev_get_drvdata(dev);
-+	int sr;
-+
-+	sr = isl1208_i2c_get_sr(client);
-+	if (sr < 0) {
-+		dev_err(dev, "%s: reading SR failed\n", __func__);
-+		return sr;
-+	}
-+
-+	sr &= ~ISL1208_REG_SR_EVT;
-+
-+	sr = i2c_smbus_write_byte_data(client, ISL1208_REG_SR, sr);
-+	if (sr < 0)
-+		dev_err(dev, "%s: writing SR failed\n",
-+			__func__);
-+
-+	return count;
-+};
-+
-+static ssize_t timestamp0_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = dev_get_drvdata(dev);
-+	u8 regs[ISL1219_EVT_SECTION_LEN] = { 0, };
-+	struct rtc_time tm;
-+	int sr;
-+
-+	sr = isl1208_i2c_get_sr(client);
-+	if (sr < 0) {
-+		dev_err(dev, "%s: reading SR failed\n", __func__);
-+		return sr;
-+	}
-+
-+	if (!(sr & ISL1208_REG_SR_EVT))
-+		return 0;
-+
-+	sr = isl1208_i2c_read_regs(client, ISL1219_REG_SCT, regs,
-+				   ISL1219_EVT_SECTION_LEN);
-+	if (sr < 0) {
-+		dev_err(dev, "%s: reading event section failed\n",
-+			__func__);
-+		return 0;
-+	}
-+
-+	/* MSB of each alarm register is an enable bit */
-+	tm.tm_sec = bcd2bin(regs[ISL1219_REG_SCT - ISL1219_REG_SCT] & 0x7f);
-+	tm.tm_min = bcd2bin(regs[ISL1219_REG_MNT - ISL1219_REG_SCT] & 0x7f);
-+	tm.tm_hour = bcd2bin(regs[ISL1219_REG_HRT - ISL1219_REG_SCT] & 0x3f);
-+	tm.tm_mday = bcd2bin(regs[ISL1219_REG_DTT - ISL1219_REG_SCT] & 0x3f);
-+	tm.tm_mon =
-+		bcd2bin(regs[ISL1219_REG_MOT - ISL1219_REG_SCT] & 0x1f) - 1;
-+	tm.tm_year = bcd2bin(regs[ISL1219_REG_YRT - ISL1219_REG_SCT]) + 100;
-+
-+	sr = rtc_valid_tm(&tm);
-+	if (sr)
-+		return sr;
-+
-+	return sprintf(buf, "%llu\n",
-+				(unsigned long long)rtc_tm_to_time64(&tm));
-+};
-+
-+static DEVICE_ATTR_RW(timestamp0);
-+
- static irqreturn_t
- isl1208_rtc_interrupt(int irq, void *data)
- {
-@@ -538,6 +624,13 @@ isl1208_rtc_interrupt(int irq, void *data)
- 			return err;
- 	}
- 
-+	if (sr & ISL1208_REG_SR_EVT) {
-+		sysfs_notify(&rtc->dev.kobj, NULL,
-+			dev_attr_timestamp0.attr.name);
-+		dev_warn(&client->dev, "event detected");
-+		handled = 1;
-+	}
-+
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-@@ -623,6 +716,15 @@ static const struct attribute_group isl1208_rtc_sysfs_files = {
- 	.attrs	= isl1208_rtc_attrs,
- };
- 
-+static struct attribute *isl1219_rtc_attrs[] = {
-+	&dev_attr_timestamp0.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group isl1219_rtc_sysfs_files = {
-+	.attrs	= isl1219_rtc_attrs,
-+};
-+
- static int
- isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
-@@ -642,6 +744,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	rtc->ops = &isl1208_rtc_ops;
- 
- 	i2c_set_clientdata(client, rtc);
-+	dev_set_drvdata(&rtc->dev, client);
- 
- 	rc = isl1208_i2c_get_sr(client);
- 	if (rc < 0) {
-@@ -653,6 +756,18 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		dev_warn(&client->dev, "rtc power failure detected, "
- 			 "please set clock.\n");
- 
-+	if (id->driver_data == TYPE_ISL1219) {
-+		rc = ISL1219_REG_EV_EVEN;
-+		rc = i2c_smbus_write_byte_data(client, ISL1219_REG_EV, rc);
-+		if (rc < 0) {
-+			dev_err(&client->dev, "could not enable tamper detection\n");
-+			return rc;
-+		}
-+		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
-+		if (rc)
-+			return rc;
-+	}
-+
- 	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
- 	if (rc)
- 		return rc;
-@@ -686,8 +801,9 @@ isl1208_remove(struct i2c_client *client)
- }
- 
- static const struct i2c_device_id isl1208_id[] = {
--	{ "isl1208", 0 },
--	{ "isl1218", 0 },
-+	{ "isl1208", TYPE_ISL1208 },
-+	{ "isl1218", TYPE_ISL1218 },
-+	{ "isl1219", TYPE_ISL1219 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, isl1208_id);
-@@ -695,6 +811,7 @@ MODULE_DEVICE_TABLE(i2c, isl1208_id);
- static const struct of_device_id isl1208_of_match[] = {
- 	{ .compatible = "isil,isl1208" },
- 	{ .compatible = "isil,isl1218" },
-+	{ .compatible = "isil,isl1219" },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, isl1208_of_match);
+ static const struct rtc_class_ops omap_rtc_ops = {
 -- 
-2.18.0
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+1.9.1
