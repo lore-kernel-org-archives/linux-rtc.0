@@ -1,41 +1,153 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:55567 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728542AbeG1ORr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 28 Jul 2018 10:17:47 -0400
-Date: Sat, 28 Jul 2018 14:51:20 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Alvin =?utf-8?Q?=C5=A0ipraga?= <alvin@airtame.com>
-Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        rkhudolii@airtame.com, attila@airtame.com
-Subject: Re: [PATCH] rtc: pcf85063: preserve control register value between
- stop and start
-Message-ID: <20180728125120.GA28585@piout.net>
-References: <20180715213153.8606-1-alvin@airtame.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180715213153.8606-1-alvin@airtame.com>
+Received: from mail.micronovasrl.com ([212.103.203.10]:37988 "EHLO
+        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729345AbeGYSi6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:58 -0400
+Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
+        by mail.micronovasrl.com (Postfix) with ESMTP id C310FB00749
+        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:19 +0200 (CEST)
+Received: from mail.micronovasrl.com ([127.0.0.1])
+        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id ulAqdaWQrwsP for <linux-rtc@vger.kernel.org>;
+        Wed, 25 Jul 2018 19:26:19 +0200 (CEST)
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+To: alexandre.belloni@bootlin.com
+Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: [PATCH v11 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
+Date: Wed, 25 Jul 2018 19:26:05 +0200
+Message-Id: <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
+In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 15/07/2018 23:31:53+0200, Alvin Šipraga wrote:
-> Fix a bug that caused the Control_1 register to get zeroed whenever the
-> RTC time is set. The problem occurred between stopping and starting the
-> RTC clock, wherein the return value of a successful I2C write function
-> would get written to the register.
-> 
-> Also update variables of the start and stop functions to be more
-> consistent with the rest of the driver.
-> 
-> Signed-off-by: Alvin Šipraga <alvin@airtame.com>
-> ---
->  drivers/rtc/rtc-pcf85063.c | 21 +++++++++++----------
->  1 file changed, 11 insertions(+), 10 deletions(-)
-> 
+On m41txx you can enable open-drain OUT pin to check if offset is ok.
+Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+512 times faster than 1s tick base.
 
-Applied, thanks.
+Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
 
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+---
+V10 => V11:
+* kstrtobool(): check error if (ret) avoiding checking specific error.
+
+ drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 94 insertions(+)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index c6d871456f25..afbdcfaa397d 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1050,6 +1050,94 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+ 				  ctrl_reg);
+ }
+ 
++static ssize_t frequency_test_enable_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	bool freq_test_en;
++	int ret;
++
++	ret = kstrtobool(buf, &freq_test_en);
++	if (ret) {
++		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
++		return ret;
++	}
++
++	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
++			   freq_test_en ? M41TXX_BIT_FT : 0);
++
++	return count;
++}
++
++static ssize_t frequency_test_enable_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	unsigned int ctrl_reg;
++
++	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
++
++	return scnprintf(buf, PAGE_SIZE, (ctrl_reg & M41TXX_BIT_FT) ? "on\n" :
++			"off\n");
++}
++
++static DEVICE_ATTR_RW(frequency_test_enable);
++
++static struct attribute *rtc_freq_test_attrs[] = {
++	&dev_attr_frequency_test_enable.attr,
++	NULL,
++};
++
++static const struct attribute_group rtc_freq_test_attr_group = {
++	.attrs		= rtc_freq_test_attrs,
++};
++
++static void rtc_calib_remove_sysfs_group(void *_dev)
++{
++	struct device *dev = _dev;
++
++	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
++}
++
++static int ds1307_add_frequency_test(struct ds1307 *ds1307)
++{
++	int err;
++
++	switch (ds1307->type) {
++	case m41t0:
++	case m41t00:
++	case m41t11:
++		/* Export sysfs entries */
++		err = sysfs_create_group(&(ds1307->dev)->kobj,
++					 &rtc_freq_test_attr_group);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to create sysfs group: %d\n",
++				err);
++			return err;
++		}
++
++		err = devm_add_action_or_reset(ds1307->dev,
++					       rtc_calib_remove_sysfs_group,
++					       ds1307->dev);
++		if (err) {
++			dev_err(ds1307->dev,
++				"Failed to add sysfs cleanup action: %d\n",
++				err);
++			sysfs_remove_group(&(ds1307->dev)->kobj,
++					   &rtc_freq_test_attr_group);
++			return err;
++		}
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
+ /*----------------------------------------------------------------------*/
+ 
+ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
+@@ -1792,6 +1880,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
++	err = ds1307_add_frequency_test(ds1307);
++	if (err) {
++		rtc_device_unregister(ds1307->rtc);
++		return err;
++	}
++
+ 	if (chip->nvram_size) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.name = "ds1307_nvram",
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
