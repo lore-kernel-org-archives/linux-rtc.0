@@ -1,68 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:41094 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932835AbeGDJG3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 05:06:29 -0400
-From: Johan Hovold <johan@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Marcin Niestroj <m.niestroj@grinn-global.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 1/4] rtc: omap: fix potential crash on power off
-Date: Wed,  4 Jul 2018 11:05:55 +0200
-Message-Id: <20180704090558.16647-2-johan@kernel.org>
-In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
-References: <20180704090558.16647-1-johan@kernel.org>
+Received: from mail.bootlin.com ([62.4.15.54]:59288 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730198AbeGZO6W (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:22 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/8] rtc: unexport rtc_irq_set_*
+Date: Thu, 26 Jul 2018 15:40:54 +0200
+Message-Id: <20180726134056.18273-7-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Do not set the system power-off callback and omap power-off rtc pointer
-until we're done setting up our device to avoid leaving stale pointers
-around after a late probe error.
+Make the rtc_irq_set interface internale to the RTC subsystem.
 
-Fixes: 97ea1906b3c2 ("rtc: omap: Support ext_wakeup configuration")
-Cc: stable <stable@vger.kernel.org>     # 4.9
-Cc: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-omap.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/rtc/interface.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 39086398833e..c214b69a8787 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -861,13 +861,6 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 			goto err;
- 	}
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 76eb3a2957cc..d0983ed6c842 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -758,7 +758,6 @@ int rtc_irq_set_state(struct rtc_device *rtc, int enabled)
+ 	trace_rtc_irq_set_state(enabled, err);
+ 	return err;
+ }
+-EXPORT_SYMBOL_GPL(rtc_irq_set_state);
  
--	if (rtc->is_pmic_controller) {
--		if (!pm_power_off) {
--			omap_rtc_power_off_rtc = rtc;
--			pm_power_off = omap_rtc_power_off;
--		}
--	}
--
- 	/* Support ext_wakeup pinconf */
- 	rtc_pinctrl_desc.name = dev_name(&pdev->dev);
+ /**
+  * rtc_irq_set_freq - set 2^N Hz periodic IRQ frequency for IRQ
+@@ -784,7 +783,6 @@ int rtc_irq_set_freq(struct rtc_device *rtc, int freq)
+ 	trace_rtc_irq_set_freq(freq, err);
+ 	return err;
+ }
+-EXPORT_SYMBOL_GPL(rtc_irq_set_freq);
  
-@@ -884,6 +877,13 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 
- 	rtc_nvmem_register(rtc->rtc, &omap_rtc_nvmem_config);
- 
-+	if (rtc->is_pmic_controller) {
-+		if (!pm_power_off) {
-+			omap_rtc_power_off_rtc = rtc;
-+			pm_power_off = omap_rtc_power_off;
-+		}
-+	}
-+
- 	return 0;
- 
- err:
+ /**
+  * rtc_timer_enqueue - Adds a rtc_timer to the rtc_device timerqueue
 -- 
 2.18.0
