@@ -1,74 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-vk0-f67.google.com ([209.85.213.67]:43320 "EHLO
-        mail-vk0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731833AbeGTNlv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Jul 2018 09:41:51 -0400
-MIME-Version: 1.0
-In-Reply-To: <d03aec28-a33a-5a07-4305-246508185b2b@micronovasrl.com>
-References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
- <20180718094006.105675-3-giulio.benetti@micronovasrl.com> <CAHp75VcaALb8fYJExnZ=Ye=GcNHc3aPXgFihVK+rAu_a1A01Sg@mail.gmail.com>
- <30d6b568-b785-ae93-9f56-d0a8b7e82901@micronovasrl.com> <CAHp75VchXfm6J+PPcB8ekoXcDktsPUNok3KKBMFyyk9XV=AUyQ@mail.gmail.com>
- <d03aec28-a33a-5a07-4305-246508185b2b@micronovasrl.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 20 Jul 2018 15:53:42 +0300
-Message-ID: <CAHp75VdSHdtJA5E=KvkUyij8CcgpyVO1b63-XBR7MnhVeWDpWA@mail.gmail.com>
-Subject: Re: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM"
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.bootlin.com ([62.4.15.54]:59285 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730441AbeGZO6T (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:19 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 3/8] rtc: remove rtc_irq_register/rtc_irq_unregister
+Date: Thu, 26 Jul 2018 15:40:51 +0200
+Message-Id: <20180726134056.18273-4-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jul 19, 2018 at 9:19 PM, Giulio Benetti
-<giulio.benetti@micronovasrl.com> wrote:
-> Hi Andy,
->
-> Il 18/07/2018 18:26, Andy Shevchenko ha scritto:
->>
->> On Wed, Jul 18, 2018 at 5:06 PM, Giulio Benetti
->> <giulio.benetti@micronovasrl.com> wrote:
->>
->>>>> +       int ret;
->>>>> +
->>>>> +       ret = kstrtobool(buf, &freq_test_en);
->>>>> +       if (ret == -EINVAL) {
->>
->>
->>>> What kind of other error code you may expect and why they are not
->>>> considered as no error?
->>
->>
->>> According to documentation, kstrtobool can only fail with -EINVAL.
->>> See:
->>> https://elixir.bootlin.com/linux/v4.18-rc5/source/lib/kstrtox.c#L332
->>
->>
->> That's correct. So, what do you want to show by explicitly mentioned
->> an error code in the condition?
->>
->
-> So you mean I should check for negative values instead of specific error,
-> right?
+The rtc_irq_* interface is not used from outside the RTC subsytem since
+2016.
 
-Learn from the existing code.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/interface.c | 33 ---------------------------------
+ include/linux/rtc.h     |  4 ----
+ 2 files changed, 37 deletions(-)
 
-As you found kstrtobool() returns either 0 (no error), or -EINVAL (the
-only possible error code for now).
-Checking ret for non-zero is enough.
-Thus,
-
-if (ret) {
- ...
- return ret;
-}
-
-should do a job.
-
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 6d4012dd6922..2b1b9a0b9f8a 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -719,39 +719,6 @@ void rtc_class_close(struct rtc_device *rtc)
+ }
+ EXPORT_SYMBOL_GPL(rtc_class_close);
+ 
+-int rtc_irq_register(struct rtc_device *rtc, struct rtc_task *task)
+-{
+-	int retval = -EBUSY;
+-
+-	if (task == NULL || task->func == NULL)
+-		return -EINVAL;
+-
+-	/* Cannot register while the char dev is in use */
+-	if (test_and_set_bit_lock(RTC_DEV_BUSY, &rtc->flags))
+-		return -EBUSY;
+-
+-	spin_lock_irq(&rtc->irq_task_lock);
+-	if (rtc->irq_task == NULL) {
+-		rtc->irq_task = task;
+-		retval = 0;
+-	}
+-	spin_unlock_irq(&rtc->irq_task_lock);
+-
+-	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+-
+-	return retval;
+-}
+-EXPORT_SYMBOL_GPL(rtc_irq_register);
+-
+-void rtc_irq_unregister(struct rtc_device *rtc, struct rtc_task *task)
+-{
+-	spin_lock_irq(&rtc->irq_task_lock);
+-	if (rtc->irq_task == task)
+-		rtc->irq_task = NULL;
+-	spin_unlock_irq(&rtc->irq_task_lock);
+-}
+-EXPORT_SYMBOL_GPL(rtc_irq_unregister);
+-
+ static int rtc_update_hrtimer(struct rtc_device *rtc, int enabled)
+ {
+ 	/*
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 6268208760e9..f868d6b619ab 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -204,10 +204,6 @@ extern void rtc_update_irq(struct rtc_device *rtc,
+ extern struct rtc_device *rtc_class_open(const char *name);
+ extern void rtc_class_close(struct rtc_device *rtc);
+ 
+-extern int rtc_irq_register(struct rtc_device *rtc,
+-				struct rtc_task *task);
+-extern void rtc_irq_unregister(struct rtc_device *rtc,
+-				struct rtc_task *task);
+ extern int rtc_irq_set_state(struct rtc_device *rtc,
+ 				struct rtc_task *task, int enabled);
+ extern int rtc_irq_set_freq(struct rtc_device *rtc,
 -- 
-With Best Regards,
-Andy Shevchenko
+2.18.0
