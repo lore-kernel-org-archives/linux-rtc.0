@@ -1,86 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:32125 "EHLO mga09.intel.com"
+Received: from mail.bootlin.com ([62.4.15.54]:59293 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726146AbeGKGI2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 11 Jul 2018 02:08:28 -0400
-Date: Wed, 11 Jul 2018 14:01:54 +0800
-From: Ye Xiaolong <xiaolong.ye@intel.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "lkp@intel.com" <lkp@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "kbuild-all@01.org" <kbuild-all@01.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH v4 2/5] rtc: isl1208: add support for isl1219 with tamper
- detection
-Message-ID: <20180711060154.GD7170@yexl-desktop>
-References: <20180710090710.9066-3-Denis.Osterland@diehl.com>
- <201807102100.7IWfwFfW%fengguang.wu@intel.com>
- <1531231616.7366.2.camel@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1531231616.7366.2.camel@diehl.com>
+        id S1729839AbeGZO6V (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:21 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/8] rtc: simplify rtc_irq_set_state/rtc_irq_set_freq
+Date: Thu, 26 Jul 2018 15:40:53 +0200
+Message-Id: <20180726134056.18273-6-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi, Denis
+The PIE doesn't handle tasks anymore, remove the pointer from the
+interface.
 
-The patch was applied in correct sequence as you can see in the github link.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/interface.c | 4 ++--
+ drivers/rtc/rtc-dev.c   | 8 ++++----
+ include/linux/rtc.h     | 6 ++----
+ 3 files changed, 8 insertions(+), 10 deletions(-)
 
-I think the question here is rtc-isl1208 can be built as a built-in module,
-but it would fail if it was built as a ko.
-
-Thanks,
-Xiaolong
-
-On 07/10, Denis OSTERLAND wrote:
->Hi,
->
->seems 2/5 was applied before 1/5.
->1/5 introduces rtc_add_group.
->
->Regards Denis
->
->Am Dienstag, den 10.07.2018, 21:20 +0800 schrieb kbuild test robot:
->> Hi Michael,
->> 
->> I love your patch! Yet something to improve:
->> 
->> [auto build test ERROR on abelloni/rtc-next]
->> [also build test ERROR on v4.18-rc4 next-20180709]
->> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->> 
->> url:    https://github.com/0day-ci/linux/commits/Denis-OSTERLAND/rtc-isl1208-fixes-documentation-and-isl1219-support/20180710-181709
->> base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
->> config: x86_64-randconfig-s4-07101857 (attached as .config)
->> compiler: gcc-7 (Debian 7.3.0-16) 7.3.0
->> reproduce:
->>         # save the attached .config to linux build tree
->>         make ARCH=x86_64 
->> 
->> All errors (new ones prefixed by >>):
->> 
->> > 
->> > > 
->> > > ERROR: "rtc_add_group" [drivers/rtc/rtc-isl1208.ko] undefined!
->> ---
->> 0-DAY kernel test infrastructure                Open Source Technology Center
->> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
->
->Diehl Connectivity Solutions GmbH
->Geschäftsführung: Horst Leonberger
->Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
->Nürnberg: HRB 32315
->___________________________________________________________________________________________________
->
->Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
->Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
->Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
->The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
->mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index ae0d67610c7b..76eb3a2957cc 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -746,7 +746,7 @@ static int rtc_update_hrtimer(struct rtc_device *rtc, int enabled)
+  * Note that rtc_irq_set_freq() should previously have been used to
+  * specify the desired frequency of periodic IRQ.
+  */
+-int rtc_irq_set_state(struct rtc_device *rtc, struct rtc_task *task, int enabled)
++int rtc_irq_set_state(struct rtc_device *rtc, int enabled)
+ {
+ 	int err = 0;
+ 
+@@ -770,7 +770,7 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_state);
+  * Note that rtc_irq_set_state() is used to enable or disable the
+  * periodic IRQs.
+  */
+-int rtc_irq_set_freq(struct rtc_device *rtc, struct rtc_task *task, int freq)
++int rtc_irq_set_freq(struct rtc_device *rtc, int freq)
+ {
+ 	int err = 0;
+ 
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index efa221e8bc22..43d962a9c210 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -341,11 +341,11 @@ static long rtc_dev_ioctl(struct file *file,
+ 		return rtc_set_time(rtc, &tm);
+ 
+ 	case RTC_PIE_ON:
+-		err = rtc_irq_set_state(rtc, NULL, 1);
++		err = rtc_irq_set_state(rtc, 1);
+ 		break;
+ 
+ 	case RTC_PIE_OFF:
+-		err = rtc_irq_set_state(rtc, NULL, 0);
++		err = rtc_irq_set_state(rtc, 0);
+ 		break;
+ 
+ 	case RTC_AIE_ON:
+@@ -365,7 +365,7 @@ static long rtc_dev_ioctl(struct file *file,
+ 		return rtc_update_irq_enable(rtc, 0);
+ 
+ 	case RTC_IRQP_SET:
+-		err = rtc_irq_set_freq(rtc, NULL, arg);
++		err = rtc_irq_set_freq(rtc, arg);
+ 		break;
+ 
+ 	case RTC_IRQP_READ:
+@@ -427,7 +427,7 @@ static int rtc_dev_release(struct inode *inode, struct file *file)
+ 	/* Keep ioctl until all drivers are converted */
+ 	rtc_dev_ioctl(file, RTC_UIE_OFF, 0);
+ 	rtc_update_irq_enable(rtc, 0);
+-	rtc_irq_set_state(rtc, NULL, 0);
++	rtc_irq_set_state(rtc, 0);
+ 
+ 	clear_bit_unlock(RTC_DEV_BUSY, &rtc->flags);
+ 	return 0;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 8cc23fdfd4ee..bf4d375025d1 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -202,10 +202,8 @@ extern void rtc_update_irq(struct rtc_device *rtc,
+ extern struct rtc_device *rtc_class_open(const char *name);
+ extern void rtc_class_close(struct rtc_device *rtc);
+ 
+-extern int rtc_irq_set_state(struct rtc_device *rtc,
+-				struct rtc_task *task, int enabled);
+-extern int rtc_irq_set_freq(struct rtc_device *rtc,
+-				struct rtc_task *task, int freq);
++extern int rtc_irq_set_state(struct rtc_device *rtc, int enabled);
++extern int rtc_irq_set_freq(struct rtc_device *rtc, int freq);
+ extern int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled);
+ extern int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled);
+ extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
+-- 
+2.18.0
