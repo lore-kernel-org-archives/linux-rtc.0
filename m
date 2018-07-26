@@ -1,140 +1,157 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise01.smtp.diehl.com ([193.201.238.219]:29534 "EHLO
-        enterprise01.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933279AbeGJJyP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jul 2018 05:54:15 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v4 3/5] rtc: isl1208: Add "evdet" interrupt source for
- isl1219.
-Date: Tue, 10 Jul 2018 09:44:15 +0000
-Message-ID: <20180710090710.9066-4-Denis.Osterland@diehl.com>
-References: <20180710090710.9066-1-Denis.Osterland@diehl.com>
-In-Reply-To: <20180710090710.9066-1-Denis.Osterland@diehl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from mail.bootlin.com ([62.4.15.54]:59280 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730184AbeGZO6S (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:18 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/8] rtc: sh: remove dead code
+Date: Thu, 26 Jul 2018 15:40:50 +0200
+Message-Id: <20180726134056.18273-3-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Denis Osterland <Denis.Osterland@diehl.com>
+Since commit 80d4bb515b78 ("RTC: Cleanup rtc_class_ops->irq_set_state") and
+commit 696160fec162 ("RTC: Cleanup rtc_class_ops->irq_set_freq()"),
+sh_rtc_irq_set_state and sh_rtc_irq_set_freq are never called. Remove them
+along with task handling.
 
-Add support for "evdet" named interrupt source.
-
-The check if i2c client irq matches evdet irq is needed
-for the case that there is only one interrupt named "evdet".
-In this case i2c client code handles this like an unnamed
-interrupt souce and assigns the value.
-
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-isl1208.c | 46 +++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-sh.c | 89 +-------------------------------------------
+ 1 file changed, 1 insertion(+), 88 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index bb189fe6744a..bbe08c1ab9f3 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -15,6 +15,7 @@
- #include <linux/bcd.h>
- #include <linux/rtc.h>
- #include "rtc-core.h"
-+#include <linux/of_irq.h>
- 
- /* Register map */
- /* rtc section */
-@@ -725,11 +726,30 @@ static const struct attribute_group isl1219_rtc_sysfs_files = {
- 	.attrs	= isl1219_rtc_attrs,
- };
- 
-+static int isl1208_setup_irq(struct i2c_client *client, int irq)
-+{
-+	int rc = devm_request_threaded_irq(&client->dev, irq, NULL,
-+					isl1208_rtc_interrupt,
-+					IRQF_SHARED | IRQF_ONESHOT,
-+					isl1208_driver.driver.name,
-+					client);
-+	if (!rc) {
-+		device_init_wakeup(&client->dev, 1);
-+		enable_irq_wake(irq);
-+	} else {
-+		dev_err(&client->dev,
-+			"Unable to request irq %d, no alarm support\n",
-+			irq);
-+	}
-+	return rc;
-+}
-+
- static int
- isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index 4f98543d1ea5..abbce362f4df 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -143,7 +143,6 @@ static int __sh_rtc_alarm(struct sh_rtc *rtc)
+ static int __sh_rtc_periodic(struct sh_rtc *rtc)
  {
- 	int rc = 0;
- 	struct rtc_device *rtc;
-+	int evdet_irq = -1;
+ 	struct rtc_device *rtc_dev = rtc->rtc_dev;
+-	struct rtc_task *irq_task;
+ 	unsigned int tmp, pending;
  
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
- 		return -ENODEV;
-@@ -766,28 +786,22 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		rc = rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
- 		if (rc)
- 			return rc;
-+		evdet_irq = of_irq_get_byname(client->dev.of_node, "evdet");
+ 	tmp = readb(rtc->regbase + RCR2);
+@@ -160,14 +159,7 @@ static int __sh_rtc_periodic(struct sh_rtc *rtc)
+ 	else {
+ 		if (rtc->periodic_freq & PF_HP)
+ 			rtc->periodic_freq |= PF_COUNT;
+-		if (rtc->periodic_freq & PF_KOU) {
+-			spin_lock(&rtc_dev->irq_task_lock);
+-			irq_task = rtc_dev->irq_task;
+-			if (irq_task)
+-				irq_task->func(irq_task->private_data);
+-			spin_unlock(&rtc_dev->irq_task_lock);
+-		} else
+-			rtc_update_irq(rtc->rtc_dev, 1, RTC_PF | RTC_IRQF);
++		rtc_update_irq(rtc->rtc_dev, 1, RTC_PF | RTC_IRQF);
  	}
  
- 	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
- 	if (rc)
- 		return rc;
- 
--	if (client->irq > 0) {
--		rc = devm_request_threaded_irq(&client->dev, client->irq, NULL,
--					       isl1208_rtc_interrupt,
--					       IRQF_SHARED | IRQF_ONESHOT,
--					       isl1208_driver.driver.name,
--					       client);
--		if (!rc) {
--			device_init_wakeup(&client->dev, 1);
--			enable_irq_wake(client->irq);
--		} else {
--			dev_err(&client->dev,
--				"Unable to request irq %d, no alarm support\n",
--				client->irq);
--			client->irq = 0;
--		}
--	}
-+	if (client->irq > 0)
-+		rc = isl1208_setup_irq(client, client->irq);
-+	if (rc)
-+		return rc;
-+
-+	if (evdet_irq > 0 && evdet_irq != client->irq)
-+		rc = isl1208_setup_irq(client, evdet_irq);
-+	if (rc)
-+		return rc;
- 
- 	return rtc_register_device(rtc);
+ 	return pending;
+@@ -223,81 +215,6 @@ static irqreturn_t sh_rtc_shared(int irq, void *dev_id)
+ 	return IRQ_RETVAL(ret);
  }
+ 
+-static int sh_rtc_irq_set_state(struct device *dev, int enable)
+-{
+-	struct sh_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned int tmp;
+-
+-	spin_lock_irq(&rtc->lock);
+-
+-	tmp = readb(rtc->regbase + RCR2);
+-
+-	if (enable) {
+-		rtc->periodic_freq |= PF_KOU;
+-		tmp &= ~RCR2_PEF;	/* Clear PES bit */
+-		tmp |= (rtc->periodic_freq & ~PF_HP);	/* Set PES2-0 */
+-	} else {
+-		rtc->periodic_freq &= ~PF_KOU;
+-		tmp &= ~(RCR2_PESMASK | RCR2_PEF);
+-	}
+-
+-	writeb(tmp, rtc->regbase + RCR2);
+-
+-	spin_unlock_irq(&rtc->lock);
+-
+-	return 0;
+-}
+-
+-static int sh_rtc_irq_set_freq(struct device *dev, int freq)
+-{
+-	struct sh_rtc *rtc = dev_get_drvdata(dev);
+-	int tmp, ret = 0;
+-
+-	spin_lock_irq(&rtc->lock);
+-	tmp = rtc->periodic_freq & PF_MASK;
+-
+-	switch (freq) {
+-	case 0:
+-		rtc->periodic_freq = 0x00;
+-		break;
+-	case 1:
+-		rtc->periodic_freq = 0x60;
+-		break;
+-	case 2:
+-		rtc->periodic_freq = 0x50;
+-		break;
+-	case 4:
+-		rtc->periodic_freq = 0x40;
+-		break;
+-	case 8:
+-		rtc->periodic_freq = 0x30 | PF_HP;
+-		break;
+-	case 16:
+-		rtc->periodic_freq = 0x30;
+-		break;
+-	case 32:
+-		rtc->periodic_freq = 0x20 | PF_HP;
+-		break;
+-	case 64:
+-		rtc->periodic_freq = 0x20;
+-		break;
+-	case 128:
+-		rtc->periodic_freq = 0x10 | PF_HP;
+-		break;
+-	case 256:
+-		rtc->periodic_freq = 0x10;
+-		break;
+-	default:
+-		ret = -ENOTSUPP;
+-	}
+-
+-	if (ret == 0)
+-		rtc->periodic_freq |= tmp;
+-
+-	spin_unlock_irq(&rtc->lock);
+-	return ret;
+-}
+-
+ static inline void sh_rtc_setaie(struct device *dev, unsigned int enable)
+ {
+ 	struct sh_rtc *rtc = dev_get_drvdata(dev);
+@@ -674,8 +591,6 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, rtc);
+ 
+ 	/* everything disabled by default */
+-	sh_rtc_irq_set_freq(&pdev->dev, 0);
+-	sh_rtc_irq_set_state(&pdev->dev, 0);
+ 	sh_rtc_setaie(&pdev->dev, 0);
+ 	sh_rtc_setcie(&pdev->dev, 0);
+ 
+@@ -707,8 +622,6 @@ static int __exit sh_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct sh_rtc *rtc = platform_get_drvdata(pdev);
+ 
+-	sh_rtc_irq_set_state(&pdev->dev, 0);
+-
+ 	sh_rtc_setaie(&pdev->dev, 0);
+ 	sh_rtc_setcie(&pdev->dev, 0);
+ 
 -- 
 2.18.0
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
