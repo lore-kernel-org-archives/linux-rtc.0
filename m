@@ -1,119 +1,76 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:37938 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729345AbeGYSi4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 25 Jul 2018 14:38:56 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id E0488B009B0
-        for <linux-rtc@vger.kernel.org>; Wed, 25 Jul 2018 19:26:17 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id lx2HQfDcTGsd for <linux-rtc@vger.kernel.org>;
-        Wed, 25 Jul 2018 19:26:17 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: alexandre.belloni@bootlin.com
-Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: [PATCH v11 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed, 25 Jul 2018 19:26:03 +0200
-Message-Id: <20180725172605.108040-2-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
-References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:59315 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730198AbeGZO61 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:27 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 8/8] rtc: remove struct rtc_task
+Date: Thu, 26 Jul 2018 15:40:56 +0200
+Message-Id: <20180726134056.18273-9-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+Include rtc_task members directly in rtc_timer member.
 
-Add it to driver taking into account NVRAM section.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/rtc/interface.c | 8 ++++----
+ include/linux/rtc.h     | 9 ++-------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index aa4a161bae98..0162a600ff1b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index d0983ed6c842..a962540faf2e 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -912,8 +912,8 @@ void rtc_timer_do_work(struct work_struct *work)
+ 		timerqueue_del(&rtc->timerqueue, &timer->node);
+ 		trace_rtc_timer_dequeue(timer);
+ 		timer->enabled = 0;
+-		if (timer->task.func)
+-			timer->task.func(timer->task.private_data);
++		if (timer->func)
++			timer->func(timer->private_data);
+ 
+ 		trace_rtc_timer_fired(timer);
+ 		/* Re-add/fwd periodic timers */
+@@ -968,8 +968,8 @@ void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data)
+ {
+ 	timerqueue_init(&timer->node);
+ 	timer->enabled = 0;
+-	timer->task.func = f;
+-	timer->task.private_data = data;
++	timer->func = f;
++	timer->private_data = data;
+ }
+ 
+ /* rtc_timer_start - Sets an rtc_timer to fire in the future
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index bf4d375025d1..6aedc30003e7 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -87,16 +87,11 @@ struct rtc_class_ops {
+ 	int (*set_offset)(struct device *, long offset);
+ };
+ 
+-typedef struct rtc_task {
+-	void (*func)(void *private_data);
+-	void *private_data;
+-} rtc_task_t;
+-
+-
+ struct rtc_timer {
+-	struct rtc_task	task;
+ 	struct timerqueue_node node;
+ 	ktime_t period;
++	void (*func)(void *private_data);
++	void *private_data;
+ 	int enabled;
+ };
+ 
 -- 
-2.17.1
+2.18.0
