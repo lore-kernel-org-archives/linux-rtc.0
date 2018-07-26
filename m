@@ -1,153 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:34026 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731045AbeGRKRX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 06:17:23 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 8ED85B00776
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:40:20 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id mk-43qL-ZGDg for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 11:40:20 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v9 4/4] rtc: ds1307: add frequency_test_enable sysfs attribute to check tick on m41txx
-Date: Wed, 18 Jul 2018 11:40:05 +0200
-Message-Id: <20180718094006.105675-3-giulio.benetti@micronovasrl.com>
-In-Reply-To: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
-References: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:59309 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730198AbeGZO6Y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 26 Jul 2018 10:58:24 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 7/8] char: rtc: remove task handling
+Date: Thu, 26 Jul 2018 15:40:55 +0200
+Message-Id: <20180726134056.18273-8-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On m41txx you can enable open-drain OUT pin to check if offset is ok.
-Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-512 times faster than 1s tick base.
+Since commit 9e7002a70e42 ("char: rtc: remove unused rtc_control() API"),
+it is not possible to set a callback anymore, remove its handling from the
+interrupt handler.
 
-Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
-
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1307.c | 96 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 96 insertions(+)
+Hi,
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index c6d871456f25..3bccb742c983 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1050,6 +1050,96 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
- 				  ctrl_reg);
- }
+My plan is to take that patch through the RTC tree because the next patch relies
+on the rtc_task_t *rtc_callback removal.
+
+ drivers/char/rtc.c | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
+index 94fedeeec035..4948c8bda6b1 100644
+--- a/drivers/char/rtc.c
++++ b/drivers/char/rtc.c
+@@ -193,14 +193,6 @@ static unsigned long rtc_freq;		/* Current periodic IRQ rate	*/
+ static unsigned long rtc_irq_data;	/* our output to the world	*/
+ static unsigned long rtc_max_user_freq = 64; /* > this, need CAP_SYS_RESOURCE */
  
-+static ssize_t frequency_test_enable_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	bool freq_test_en = 0;
-+	int ret;
-+
-+	ret = kstrtobool(buf, &freq_test_en);
-+	if (ret == -EINVAL) {
-+		dev_err(dev, "Failed to store RTC Frequency Test attribute\n");
-+		return ret;
-+	}
-+
-+	regmap_update_bits(ds1307->regmap, M41TXX_REG_CONTROL, M41TXX_BIT_FT,
-+			   freq_test_en ? M41TXX_BIT_FT : 0);
-+
-+	return count;
-+}
-+
-+static ssize_t frequency_test_enable_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	unsigned int ctrl_reg;
-+
-+	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-+
-+	if (ctrl_reg & M41TXX_BIT_FT)
-+		return scnprintf(buf, PAGE_SIZE, "on\n");
-+	else
-+		return scnprintf(buf, PAGE_SIZE, "off\n");
-+}
-+
-+static DEVICE_ATTR_RW(frequency_test_enable);
-+
-+static struct attribute *rtc_freq_test_attrs[] = {
-+	&dev_attr_frequency_test_enable.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group rtc_freq_test_attr_group = {
-+	.attrs		= rtc_freq_test_attrs,
-+};
-+
-+static void rtc_calib_remove_sysfs_group(void *_dev)
-+{
-+	struct device *dev = _dev;
-+
-+	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
-+}
-+
-+static int ds1307_add_frequency_test(struct ds1307 *ds1307)
-+{
-+	int err = 0;
-+
-+	switch (ds1307->type) {
-+	case m41t0:
-+	case m41t00:
-+	case m41t11:
-+		/* Export sysfs entries */
-+		err = sysfs_create_group(&(ds1307->dev)->kobj,
-+					 &rtc_freq_test_attr_group);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to create sysfs group: %d\n",
-+				err);
-+			return err;
-+		}
-+
-+		err = devm_add_action_or_reset(ds1307->dev,
-+					       rtc_calib_remove_sysfs_group,
-+					       ds1307->dev);
-+		if (err) {
-+			dev_err(ds1307->dev,
-+				"Failed to add sysfs cleanup action: %d\n",
-+				err);
-+			sysfs_remove_group(&(ds1307->dev)->kobj,
-+					   &rtc_freq_test_attr_group);
-+			return err;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
- /*----------------------------------------------------------------------*/
+-#ifdef RTC_IRQ
+-/*
+- * rtc_task_lock nests inside rtc_lock.
+- */
+-static DEFINE_SPINLOCK(rtc_task_lock);
+-static rtc_task_t *rtc_callback;
+-#endif
+-
+ /*
+  *	If this driver ever becomes modularised, it will be really nice
+  *	to make the epoch retain its value across module reload...
+@@ -264,11 +256,6 @@ static irqreturn_t rtc_interrupt(int irq, void *dev_id)
  
- static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
-@@ -1792,6 +1882,12 @@ static int ds1307_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
+ 	spin_unlock(&rtc_lock);
  
-+	err = ds1307_add_frequency_test(ds1307);
-+	if (err) {
-+		rtc_device_unregister(ds1307->rtc);
-+		return err;
-+	}
-+
- 	if (chip->nvram_size) {
- 		struct nvmem_config nvmem_cfg = {
- 			.name = "ds1307_nvram",
+-	/* Now do the rest of the actions */
+-	spin_lock(&rtc_task_lock);
+-	if (rtc_callback)
+-		rtc_callback->func(rtc_callback->private_data);
+-	spin_unlock(&rtc_task_lock);
+ 	wake_up_interruptible(&rtc_wait);
+ 
+ 	kill_fasync(&rtc_async_queue, SIGIO, POLL_IN);
 -- 
-2.17.1
+2.18.0
