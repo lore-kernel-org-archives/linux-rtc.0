@@ -1,77 +1,46 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:52759 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726202AbeGMJCo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 13 Jul 2018 05:02:44 -0400
-Date: Fri, 13 Jul 2018 10:49:02 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, y2038@lists.linaro.org,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        John Stultz <john.stultz@linaro.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RESEND] rtc: use ktime_get_real_ts64() instead of
- getnstimeofday64()
-Message-ID: <20180713084902.GO16084@piout.net>
-References: <20180711124723.1114803-1-arnd@arndb.de>
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:33969 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732143AbeG0Qco (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 27 Jul 2018 12:32:44 -0400
+Received: by mail-lj1-f193.google.com with SMTP id f8-v6so4740145ljk.1
+        for <linux-rtc@vger.kernel.org>; Fri, 27 Jul 2018 08:10:22 -0700 (PDT)
+From: Anders Roxell <anders.roxell@linaro.org>
+To: alexandre.belloni@bootlin.com, a.zummo@towertech.it
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH] rtc: sh: remove unused variable rtc_dev
+Date: Fri, 27 Jul 2018 17:10:15 +0200
+Message-Id: <20180727151015.3930-1-anders.roxell@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180711124723.1114803-1-arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 11/07/2018 14:47:12+0200, Arnd Bergmann wrote:
-> getnstimeofday64() is just a wrapper around the ktime accessor, so
-> we should use that directly.
-> 
-> I considered using ktime_get_boottime_ts64() (to avoid leap second
-> problems) or ktime_get_real_seconds() (to simplify the calculation,
-> but in the end concluded that the existing interface is probably
-> the most appropriate in this case.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> Originally sent on Jun 18, but got no reply
-> 
-> Alexandre, could you pick this up into the rtc tree?
+When building rtc-sh, rtc_dev isn't used in function __sh_rtc_periodic.
+drivers/rtc/rtc-sh.c: In function ‘__sh_rtc_periodic’:
+drivers/rtc/rtc-sh.c:146:21: warning: unused variable ‘rtc_dev’ [-Wunused-variable]
+  struct rtc_device *rtc_dev = rtc->rtc_dev;
+                     ^~~~~~~
+Remove the declaration of rtc_dev to dispose the warning.
 
-Yes, I've been late in my reviews lately. It is applied now.
+Fixes: ec623ff014c4 ("rtc: sh: remove dead code")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+---
+ drivers/rtc/rtc-sh.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-I had some trouble figuring out that ktime_get_real_ts64 was not a macro
-anymore as I was still looking at 4.17 ;)
-
-> ---
->  drivers/rtc/class.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-> index d37588f08055..7fa32c922617 100644
-> --- a/drivers/rtc/class.c
-> +++ b/drivers/rtc/class.c
-> @@ -68,7 +68,7 @@ static int rtc_suspend(struct device *dev)
->  		return 0;
->  	}
->  
-> -	getnstimeofday64(&old_system);
-> +	ktime_get_real_ts64(&old_system);
->  	old_rtc.tv_sec = rtc_tm_to_time64(&tm);
->  
->  
-> @@ -110,7 +110,7 @@ static int rtc_resume(struct device *dev)
->  		return 0;
->  
->  	/* snapshot the current rtc and system time at resume */
-> -	getnstimeofday64(&new_system);
-> +	ktime_get_real_ts64(&new_system);
->  	err = rtc_read_time(rtc, &tm);
->  	if (err < 0) {
->  		pr_debug("%s:  fail to read rtc time\n", dev_name(&rtc->dev));
-> -- 
-> 2.9.0
-> 
-
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index 25ec6a937858..51ba414798a8 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -143,7 +143,6 @@ static int __sh_rtc_alarm(struct sh_rtc *rtc)
+ 
+ static int __sh_rtc_periodic(struct sh_rtc *rtc)
+ {
+-	struct rtc_device *rtc_dev = rtc->rtc_dev;
+ 	unsigned int tmp, pending;
+ 
+ 	tmp = readb(rtc->regbase + RCR2);
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.18.0
