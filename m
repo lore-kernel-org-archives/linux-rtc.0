@@ -1,119 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:33996 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730910AbeGRKRW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Jul 2018 06:17:22 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id A5684B002CE
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Jul 2018 11:40:19 +0200 (CEST)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Fnz6079K2RAl for <linux-rtc@vger.kernel.org>;
-        Wed, 18 Jul 2018 11:40:18 +0200 (CEST)
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v9 2/4] rtc: ds1307: support m41t11 variant
-Date: Wed, 18 Jul 2018 11:40:03 +0200
-Message-Id: <20180718094006.105675-1-giulio.benetti@micronovasrl.com>
+Received: from mail.bootlin.com ([62.4.15.54]:55567 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728542AbeG1ORr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 28 Jul 2018 10:17:47 -0400
+Date: Sat, 28 Jul 2018 14:51:20 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Alvin =?utf-8?Q?=C5=A0ipraga?= <alvin@airtame.com>
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        rkhudolii@airtame.com, attila@airtame.com
+Subject: Re: [PATCH] rtc: pcf85063: preserve control register value between
+ stop and start
+Message-ID: <20180728125120.GA28585@piout.net>
+References: <20180715213153.8606-1-alvin@airtame.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180715213153.8606-1-alvin@airtame.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The m41t11 variant is very similar to the already supported m41t00 and
-m41t0, but it has also 56 bytes of NVRAM.
+On 15/07/2018 23:31:53+0200, Alvin Šipraga wrote:
+> Fix a bug that caused the Control_1 register to get zeroed whenever the
+> RTC time is set. The problem occurred between stopping and starting the
+> RTC clock, wherein the return value of a successful I2C write function
+> would get written to the register.
+> 
+> Also update variables of the start and stop functions to be more
+> consistent with the rest of the driver.
+> 
+> Signed-off-by: Alvin Šipraga <alvin@airtame.com>
+> ---
+>  drivers/rtc/rtc-pcf85063.c | 21 +++++++++++----------
+>  1 file changed, 11 insertions(+), 10 deletions(-)
+> 
 
-Add it to driver taking into account NVRAM section.
+Applied, thanks.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
----
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |  1 +
- drivers/rtc/rtc-ds1307.c                           | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-index d28d6e7f6ae8..ce6469c1a516 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -13,6 +13,7 @@ Required properties:
- 	"maxim,ds3231",
- 	"st,m41t0",
- 	"st,m41t00",
-+	"st,m41t11",
- 	"microchip,mcp7940x",
- 	"microchip,mcp7941x",
- 	"pericom,pt7c4338",
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index aa4a161bae98..0162a600ff1b 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -44,6 +44,7 @@ enum ds_type {
- 	ds_3231,
- 	m41t0,
- 	m41t00,
-+	m41t11,
- 	mcp794xx,
- 	rx_8025,
- 	rx_8130,
-@@ -227,6 +228,11 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
- 	},
-+	[m41t11] = {
-+		/* this is battery backed SRAM */
-+		.nvram_offset	= 8,
-+		.nvram_size	= 56,
-+	},
- 	[mcp794xx] = {
- 		.alarm		= 1,
- 		/* this is battery backed SRAM */
-@@ -249,6 +255,7 @@ static const struct i2c_device_id ds1307_id[] = {
- 	{ "ds3231", ds_3231 },
- 	{ "m41t0", m41t0 },
- 	{ "m41t00", m41t00 },
-+	{ "m41t11", m41t11 },
- 	{ "mcp7940x", mcp794xx },
- 	{ "mcp7941x", mcp794xx },
- 	{ "pt7c4338", ds_1307 },
-@@ -305,6 +312,10 @@ static const struct of_device_id ds1307_of_match[] = {
- 		.compatible = "st,m41t00",
- 		.data = (void *)m41t00
- 	},
-+	{
-+		.compatible = "st,m41t11",
-+		.data = (void *)m41t11
-+	},
- 	{
- 		.compatible = "microchip,mcp7940x",
- 		.data = (void *)mcp794xx
-@@ -347,6 +358,7 @@ static const struct acpi_device_id ds1307_acpi_ids[] = {
- 	{ .id = "DS3231", .driver_data = ds_3231 },
- 	{ .id = "M41T0", .driver_data = m41t0 },
- 	{ .id = "M41T00", .driver_data = m41t00 },
-+	{ .id = "M41T11", .driver_data = m41t11 },
- 	{ .id = "MCP7940X", .driver_data = mcp794xx },
- 	{ .id = "MCP7941X", .driver_data = mcp794xx },
- 	{ .id = "PT7C4338", .driver_data = ds_1307 },
-@@ -1576,6 +1588,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1307:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/* clock halted?  turn it on, so clock can tick. */
- 		if (tmp & DS1307_BIT_CH) {
- 			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
-@@ -1641,6 +1654,7 @@ static int ds1307_probe(struct i2c_client *client,
- 	case ds_1340:
- 	case m41t0:
- 	case m41t00:
-+	case m41t11:
- 		/*
- 		 * NOTE: ignores century bits; fix before deploying
- 		 * systems that will run through year 2100.
 -- 
-2.17.1
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
