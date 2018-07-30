@@ -1,46 +1,41 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39915 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726543AbeGLSo2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 12 Jul 2018 14:44:28 -0400
-Date: Thu, 12 Jul 2018 20:33:42 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Johan Hovold <johan@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>
-Subject: Re: [PATCH 0/4] rtc: omap: fixes and clean ups
-Message-ID: <20180712183342.GH16084@piout.net>
-References: <20180704090558.16647-1-johan@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:46574 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726723AbeG3Pe6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 30 Jul 2018 11:34:58 -0400
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: [PATCH] rtc: rtc-mrst: Replace mdelay() with msleep() in mrst_read_time()
+Date: Mon, 30 Jul 2018 21:59:03 +0800
+Message-Id: <20180730135903.9442-1-baijiaju1990@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 04/07/2018 11:05:54+0200, Johan Hovold wrote:
-> Here are a couple of fixes for issues discovered through inspection
-> along with some clean ups.
-> 
-> Johan
-> 
-> 
-> Johan Hovold (4):
->   rtc: omap: fix potential crash on power off
->   rtc: omap: fix resource leak in registration error path
->   rtc: omap: add missing register lock in error path
->   rtc: omap: drop unnecessary register unlock around reads
-> 
->  drivers/rtc/rtc-omap.c | 23 +++++++++++------------
->  1 file changed, 11 insertions(+), 12 deletions(-)
-> 
+mrst_read_time() is never called in atomic context.
+It calls mdelay() to busily wait, which is not necessary.
+mdelay() can be replaced with msleep().
 
-All applied, thanks
+This is found by a static analysis tool named DCNS written by myself.
 
-> -- 
-> 2.18.0
-> 
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+---
+ drivers/rtc/rtc-mrst.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index fcb9de5218b2..e4015f70f9fe 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -91,7 +91,7 @@ static int mrst_read_time(struct device *dev, struct rtc_time *time)
+ 	unsigned long flags;
+ 
+ 	if (vrtc_is_updating())
+-		mdelay(20);
++		msleep(20);
+ 
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 	time->tm_sec = vrtc_cmos_read(RTC_SECONDS);
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.0
