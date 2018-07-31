@@ -17,9 +17,9 @@ Cc: broonie@kernel.org,
 	zhangqing@rock-chips.com,
 	huangtao@rock-chips.com,
 	tony.xie@rock-chips.com
-Subject: [PATCH v2 0/5] support a new type of PMIC，including two chips(rk817 and rk809)
-Date: Tue, 31 Jul 2018 15:57:25 +0800
-Message-Id: <1533023850-29004-1-git-send-email-tony.xie@rock-chips.com>
+Subject: [PATCH 0/5] support a new type of PMIC，including two chips(rk817 and rk809)
+Date: Tue, 31 Jul 2018 14:56:28 +0800
+Message-Id: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-rtc.vger.kernel.org>
@@ -32,11 +32,6 @@ Their specifications are as follows：
      for these components except dcdc5.
   2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
   3) The RK817 has one switch but The Rk809 has two.
-
-Changes in V2:
-1. initialize the pm_pwroff_fn to NULL. 
-2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
-3. change patch 2/3/4/5 subjects. 
 
 Tony Xie (5):
   mfd: rk808: Add RK817 and RK809 support
