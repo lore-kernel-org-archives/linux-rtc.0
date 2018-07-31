@@ -1,55 +1,124 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:44627 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933889AbeGDJGa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Jul 2018 05:06:30 -0400
-From: Johan Hovold <johan@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 2/4] rtc: omap: fix resource leak in registration error path
-Date: Wed,  4 Jul 2018 11:05:56 +0200
-Message-Id: <20180704090558.16647-3-johan@kernel.org>
-In-Reply-To: <20180704090558.16647-1-johan@kernel.org>
-References: <20180704090558.16647-1-johan@kernel.org>
+Received: from lucky1.263xmail.com ([211.157.147.130]:56164 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbeGaIev (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 31 Jul 2018 04:34:51 -0400
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org, lee.jones@linaro.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: [PATCH 3/5] dt-bindings: mfd: rk808: Add binding informations for RK809 and RK817.
+Date: Tue, 31 Jul 2018 14:56:32 +0800
+Message-Id: <1533020197-754-5-git-send-email-tony.xie@rock-chips.com>
+In-Reply-To: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
+References: <1533020197-754-1-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Make sure to deregister the pin controller in case rtc registration
-fails.
+Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
 
-Fixes: 57072758623f ("rtc: omap: switch to rtc_register_device")
-Cc: stable <stable@vger.kernel.org>     # 4.14
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
 ---
- drivers/rtc/rtc-omap.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/mfd/rk808.txt | 55 +++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index c214b69a8787..6a7b804c3074 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -873,7 +873,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 91b6522..31c9f3d 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
+ The rk8xx family current members:
+ rk805
+ rk808
++rk809
++rk817
+ rk818
  
- 	ret = rtc_register_device(rtc->rtc);
- 	if (ret)
--		goto err;
-+		goto err_deregister_pinctrl;
+ Required properties:
+ - compatible: "rockchip,rk805"
+ - compatible: "rockchip,rk808"
++- compatible: "rockchip,rk809"
++- compatible: "rockchip,rk817"
+ - compatible: "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+@@ -46,6 +50,28 @@ Optional RK808 properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
  
- 	rtc_nvmem_register(rtc->rtc, &omap_rtc_nvmem_config);
++Optional RK809 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
++- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
++- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
++- vcc8-supply:  The input supply for SWITCH_REG1
++- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
++
++Optional RK817 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
++- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
++- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
++- vcc8-supply:  The input supply for BOOST
++- vcc9-supply:  The input supply for OTG_SWITCH
++
+ Optional RK818 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+@@ -87,6 +113,28 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
  
-@@ -886,6 +886,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
++Following regulators of the RK809 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK808 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 5.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REGn
++		- valid values for n are 1 to 2.
++
++Following regulators of the RK817 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- BOOST
++	- OTG_SWITCH
++
+ Following regulators of the RK818 PMIC block are supported. Note that
+ the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
+ number as described in RK818 datasheet.
+@@ -99,6 +147,13 @@ number as described in RK818 datasheet.
+ 	- HDMI_SWITCH
+ 	- OTG_SWITCH
  
- 	return 0;
- 
-+err_deregister_pinctrl:
-+	pinctrl_unregister(rtc->pctldev);
- err:
- 	clk_disable_unprepare(rtc->clk);
- 	device_init_wakeup(&pdev->dev, false);
++There are three pins needed to config, named "gpio_ts" "gpio_gt" "gpio_slp".
++	The gpio_gt and gpio_ts pins support the gpio function.
++	The gpio_slp pin is for controlling the pmic states, as below:
++		- reset
++		- power down
++		- sleep
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
-2.18.0
+1.9.1
