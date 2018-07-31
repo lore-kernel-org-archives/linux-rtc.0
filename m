@@ -1,141 +1,62 @@
-Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:61312 "EHLO
-        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388256AbeGXMrY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 Jul 2018 08:47:24 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Denis OSTERLAND <denis.osterland@diehl.com>
-Subject: [PATCH v5 1/5] rtc: sysfs: facilitate attribute add to rtc device
-Date: Tue, 24 Jul 2018 11:31:22 +0000
-Message-ID: <20180724095437.6016-2-Denis.Osterland@diehl.com>
-References: <20180724095437.6016-1-Denis.Osterland@diehl.com>
-In-Reply-To: <20180724095437.6016-1-Denis.Osterland@diehl.com>
+Return-Path: <tony.xie@rock-chips.com>
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org,
+	lee.jones@linaro.org,
+	a.zummo@towertech.it,
+	alexandre.belloni@bootlin.com,
+	sboyd@kernel.org,
+	linux-clk@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	chenjh@rock-chips.com,
+	xsf@rock-chips.com,
+	zhangqing@rock-chips.com,
+	huangtao@rock-chips.com,
+	tony.xie@rock-chips.com
+Subject: [PATCH v2 0/5] support a new type of PMICï¼Œincluding two chips(rk817 and rk809)
+Date: Tue, 31 Jul 2018 15:57:25 +0800
+Message-Id: <1533023850-29004-1-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Sender: linux-rtc-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Denis Osterland <Denis.Osterland@diehl.com>
+Most of functions and registers of the rk817 and rk808 are the same,
+so they can share allmost all codes.
 
-This patches addresses following problem:
-rtc_allocate_device
-devm_device_add_group  <-- kernel oops / null pointer, because
-			sysfs entry does not yet exist
-rtc_register_device
-rc = devm_device_add_group
-if (rc)
-	return rc;     <-- forbidden to return error code
-			after device register
+Their specifications are as followsï¼š
+  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
+     for these components except dcdc5.
+  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
+  3) The RK817 has one switch but The Rk809 has two.
 
-This patch adds rtc_add_group(s) functions.
-The functions store the sum of attribute groups as device resource.
+Changes in V2:
+1. initialize the pm_pwroff_fn to NULL. 
+2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
+3. change patch 2/3/4/5 subjects. 
 
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
----
- drivers/rtc/rtc-core.h  | 13 +++++++++++++
- drivers/rtc/rtc-sysfs.c | 43 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+)
+Tony Xie (5):
+  mfd: rk808: Add RK817 and RK809 support
+  regulator: rk808: add RK809 and RK817 support.
+  dt-bindings: mfd: rk808: Add binding informations for RK809 and RK817.
+  RTC: RK808: add RK809 and RK817 support.
+  clk: RK808: add RK809 and RK817 support.
 
-diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
-index 0abf98983e13..c74537d03644 100644
---- a/drivers/rtc/rtc-core.h
-+++ b/drivers/rtc/rtc-core.h
-@@ -40,9 +40,22 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
- 
- #ifdef CONFIG_RTC_INTF_SYSFS
- const struct attribute_group **rtc_get_dev_attribute_groups(void);
-+int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp);
-+int rtc_add_groups(struct rtc_device *rtc,
-+					const struct attribute_group **grps);
- #else
- static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
- {
- 	return NULL;
- }
-+static inline
-+int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
-+{
-+	return 0;
-+}
-+static inline
-+int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
-+{
-+	return 0;
-+}
- #endif
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index 454da38c6012..498e65f13686 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -317,3 +317,46 @@ const struct attribute_group **rtc_get_dev_attribute_groups(void)
- {
- 	return rtc_attr_groups;
- }
-+
-+int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
-+{
-+	size_t old_cnt = 0, add_cnt = 0, new_cnt;
-+	const struct attribute_group **groups, **old;
-+
-+	if (rtc->registered)
-+		return -EINVAL;
-+	if (!grps)
-+		return -EINVAL;
-+
-+	groups = rtc->dev.groups;
-+	if (groups)
-+		for (; *groups; groups++)
-+			old_cnt++;
-+
-+	for (groups = grps; *groups; groups++)
-+		add_cnt++;
-+
-+	new_cnt = old_cnt + add_cnt + 1;
-+	groups = devm_kcalloc(&rtc->dev, new_cnt, sizeof(*groups), GFP_KERNEL);
-+	if (IS_ERR_OR_NULL(groups))
-+		return PTR_ERR(groups);
-+	memcpy(groups, rtc->dev.groups, old_cnt*sizeof(*groups));
-+	memcpy(groups+old_cnt, grps, add_cnt*sizeof(*groups));
-+	groups[old_cnt+add_cnt] = NULL;
-+
-+	old = rtc->dev.groups;
-+	rtc->dev.groups = groups;
-+	if (old && old != rtc_attr_groups)
-+		devm_kfree(&rtc->dev, old);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(rtc_add_groups);
-+
-+int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
-+{
-+	const struct attribute_group *groups[] = { grp, NULL };
-+
-+	return rtc_add_groups(rtc, groups);
-+}
-+EXPORT_SYMBOL(rtc_add_group);
+ Documentation/devicetree/bindings/mfd/rk808.txt |  55 ++
+ drivers/clk/Kconfig                             |   6 +-
+ drivers/clk/clk-rk808.c                         |  62 ++-
+ drivers/mfd/Kconfig                             |   6 +-
+ drivers/mfd/rk808.c                             | 218 +++++++-
+ drivers/regulator/Kconfig                       |   4 +-
+ drivers/regulator/rk808-regulator.c             | 633 +++++++++++++++++++++++-
+ drivers/rtc/Kconfig                             |   4 +-
+ drivers/rtc/rtc-rk808.c                         |  68 ++-
+ include/linux/mfd/rk808.h                       | 175 +++++++
+ kernel/reboot.c                                 |   1 +
+ 11 files changed, 1203 insertions(+), 29 deletions(-)
+
 -- 
-2.18.0
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+1.9.1
