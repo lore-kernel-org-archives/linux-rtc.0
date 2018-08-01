@@ -1,50 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from gateway30.websitewelcome.com ([192.185.148.2]:33937 "EHLO
-        gateway30.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726145AbeHXCSi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Aug 2018 22:18:38 -0400
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway30.websitewelcome.com (Postfix) with ESMTP id 5CF74D886
-        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 17:01:26 -0500 (CDT)
-Subject: Re: [PATCH] rtc: sun6i: Use struct_size() in kzalloc()
-To: Kees Cook <keescook@chromium.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>
-References: <20180823185140.GA29028@embeddedor.com>
- <CAGXu5jKPOVRk5DbFMKu0BV_K-ES+j+6_aApjyo0X8zXBfTYDnw@mail.gmail.com>
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Message-ID: <7a213f7c-354c-06d5-7b14-fc69e9bb8a31@embeddedor.com>
-Date: Thu, 23 Aug 2018 17:01:11 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:60256 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387643AbeHALKV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Aug 2018 07:10:21 -0400
+Date: Wed, 1 Aug 2018 10:25:12 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Tony Xie <tony.xie@rock-chips.com>
+Cc: heiko@sntech.de, lee.jones@linaro.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v2 2/5] regulator: rk808: add RK809 and RK817 support.
+Message-ID: <20180801092512.GA5509@sirena.org.uk>
+References: <1533023850-29004-1-git-send-email-tony.xie@rock-chips.com>
+ <1533023850-29004-3-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-In-Reply-To: <CAGXu5jKPOVRk5DbFMKu0BV_K-ES+j+6_aApjyo0X8zXBfTYDnw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+In-Reply-To: <1533023850-29004-3-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
 
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 8/23/18 3:56 PM, Kees Cook wrote:
+On Tue, Jul 31, 2018 at 03:57:27PM +0800, Tony Xie wrote:
 
->>
->> -       clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
->> -                          GFP_KERNEL);
->> +       clk_data = kzalloc(struct_size(clk_data, hws, 2), GFP_KERNEL);
->>         if (!clk_data) {
->>                 kfree(rtc);
->>                 return;
-> 
-> This looks like entirely correct to me, but I'm surprised the
-> Coccinelle script didn't discover this. I guess the isomorphisms don't
-> cover the parenthesis?
-> 
+> +	default:
+> +		pr_warn("%s ramp_delay: %d not supported, setting 10000\n",
+> +			rdev->desc->name, ramp_delay);
+> +	}
 
-Apparently.
+This looks mostly good but I notice that most of the prints in the
+driver are pr_ rather than dev_ ones - using dev_ is better as it allows
+people to see which device was affected.
 
-If I manually remove the ()s, the cocci script successfully generates a patch.
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature; name="signature.asc"
 
---
-Gustavo
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlthfHcACgkQJNaLcl1U
+h9C8Igf/dgHh7kVnRuWvWyT7b/+8mMS+HNtVuTBMtiUf5textB9vCDqH+oOZoZE/
+2PEPQccsJdhF2tkxfuArUQtY8lxO7BQFu3HFxD70ROweX9CfuvfnJBVDAw094Wx6
+Z4G8HLLp0WqLiqSdGvASehN8jspMmWRkV4ucf6ED/yUjGKZMUf3ow7cwgfg2e6S/
+It4Yp/5Z4QrXpQchKhRWYvJZ6xAbtGevKaEvjBWegj7L9vFJTZn1uSJJeDrrnste
+b0I0q4MUN6cfgQwYFK8JeBLvJWkmAC4bBQYv0ulDzboDtRB5VcP6WnjnDiWHBCnj
+G39mcKBy/R9YlALxB1kxGxp2Aj3Y9g==
+=3sW2
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--
