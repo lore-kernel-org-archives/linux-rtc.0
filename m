@@ -1,62 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.133]:40079 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727460AbeH1STj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 14:19:39 -0400
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:45145 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726572AbeHFLO3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Aug 2018 07:14:29 -0400
+MIME-Version: 1.0
+References: <20180726134056.18273-1-alexandre.belloni@bootlin.com> <20180726134056.18273-9-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180726134056.18273-9-alexandre.belloni@bootlin.com>
 From: Arnd Bergmann <arnd@arndb.de>
-To: linux-rtc@vger.kernel.org
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        keguang.zhang@gmail.com, y2038@lists.linaro.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matt Redfearn <matt.redfearn@mips.com>,
-        Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>,
-        linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] rtc: mips: default to rtc-cmos on mips
-Date: Tue, 28 Aug 2018 16:26:30 +0200
-Message-Id: <20180828142724.4067857-1-arnd@arndb.de>
+Date: Mon, 6 Aug 2018 11:06:07 +0200
+Message-ID: <CAK8P3a121CrinzrXPZ86f=KkK9yfnVHF70MQQYt2VVr-6jCnGQ@mail.gmail.com>
+Subject: Re: [PATCH 8/8] rtc: remove struct rtc_task
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The old rtc driver is getting in the way of some compat_ioctl
-simplification. Looking up the loongson64 git history, it seems
-that everyone uses the more modern but compatible RTC_CMOS driver
-anyway, so let's remove the special case for loongson64.
+On Thu, Jul 26, 2018 at 3:42 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> Include rtc_task members directly in rtc_timer member.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  drivers/rtc/interface.c | 8 ++++----
+>  include/linux/rtc.h     | 9 ++-------
+>  2 files changed, 6 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+> index d0983ed6c842..a962540faf2e 100644
+> --- a/drivers/rtc/interface.c
+> +++ b/drivers/rtc/interface.c
+> @@ -912,8 +912,8 @@ void rtc_timer_do_work(struct work_struct *work)
+>                 timerqueue_del(&rtc->timerqueue, &timer->node);
+>                 trace_rtc_timer_dequeue(timer);
+>                 timer->enabled = 0;
+> -               if (timer->task.func)
+> -                       timer->task.func(timer->task.private_data);
+> +               if (timer->func)
+> +                       timer->func(timer->private_data);
+>
+>                 trace_rtc_timer_fired(timer);
+>                 /* Re-add/fwd periodic timers */
+> @@ -968,8 +968,8 @@ void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data)
+>  {
+>         timerqueue_init(&timer->node);
+>         timer->enabled = 0;
+> -       timer->task.func = f;
+> -       timer->task.private_data = data;
+> +       timer->func = f;
+> +       timer->private_data = data;
+>  }
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/mips/Kconfig    | 2 +-
- drivers/char/Kconfig | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+>From what I can see, all remaining users pass the rtc_device pointer as
+'private_data', so maybe make that explicit now instead of the void pointer?
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 35511999156a..c695825d9377 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -75,7 +75,7 @@ config MIPS
- 	select MODULES_USE_ELF_RELA if MODULES && 64BIT
- 	select MODULES_USE_ELF_REL if MODULES
- 	select PERF_USE_VMALLOC
--	select RTC_LIB if !MACH_LOONGSON64
-+	select RTC_LIB
- 	select SYSCTL_EXCEPTION_TRACE
- 	select VIRT_TO_BUS
- 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index ce277ee0a28a..131b4c300050 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -268,7 +268,7 @@ if RTC_LIB=n
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
--	depends on ALPHA || (MIPS && MACH_LOONGSON64)
-+	depends on ALPHA
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
--- 
-2.18.0
+      Arnd
