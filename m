@@ -1,59 +1,62 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:38309 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729443AbeHNHD3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 14 Aug 2018 03:03:29 -0400
-Date: Tue, 14 Aug 2018 07:18:05 +0300
-From: Baruch Siach <baruch@tkos.co.il>
-To: zhong jiang <zhongjiang@huawei.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] rtc:rtc-digicolor: Use PTR_ERR_OR_ZERO to replace
- the open code
-Message-ID: <20180814041805.666uaxe2gf75r3wr@sapphire.tkos.co.il>
-References: <1534159885-25364-1-git-send-email-zhongjiang@huawei.com>
- <1534159885-25364-2-git-send-email-zhongjiang@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1534159885-25364-2-git-send-email-zhongjiang@huawei.com>
+Received: from mail.kernel.org ([198.145.29.99]:60572 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388939AbeHGSeu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 7 Aug 2018 14:34:50 -0400
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sangbeom Kim <sbkim73@samsung.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH 2/2] rtc: s5m: Add SPDX license identifier
+Date: Tue,  7 Aug 2018 18:19:19 +0200
+Message-Id: <20180807161919.7827-2-krzk@kernel.org>
+In-Reply-To: <20180807161919.7827-1-krzk@kernel.org>
+References: <20180807161919.7827-1-krzk@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi zhong,
+Replace GPL v2.0+ license statement with SPDX license
+identifier.
 
-On Mon, Aug 13, 2018 at 07:31:24PM +0800, zhong jiang wrote:
-> PTR_ERR_OR_ZERO has implemented the if(IS_ERR(...)) + PTR_ERR, So
-> just replace them rather than duplicating its implement.
-> 
-> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/rtc/rtc-s5m.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
-Acked-by: Baruch Siach <baruch@tkos.co.il>
-
-Thanks,
-baruch
-
-> ---
->  drivers/rtc/rtc-digicolor.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
-> index b253bf1..fd6850c 100644
-> --- a/drivers/rtc/rtc-digicolor.c
-> +++ b/drivers/rtc/rtc-digicolor.c
-> @@ -202,10 +202,8 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
->  	platform_set_drvdata(pdev, rtc);
->  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
->  						&dc_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(rtc->rtc_dev))
-> -		return PTR_ERR(rtc->rtc_dev);
->  
-> -	return 0;
-> +	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
->  }
->  
->  static const struct of_device_id dc_dt_ids[] = {
-
+diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
+index 8428455432ca..6495f84f7428 100644
+--- a/drivers/rtc/rtc-s5m.c
++++ b/drivers/rtc/rtc-s5m.c
+@@ -1,19 +1,9 @@
+-/*
+- * Copyright (c) 2013-2014 Samsung Electronics Co., Ltd
+- *	http://www.samsung.com
+- *
+- *  Copyright (C) 2013 Google, Inc
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- */
++// SPDX-License-Identifier: GPL-2.0+
++//
++// Copyright (c) 2013-2014 Samsung Electronics Co., Ltd
++//	http://www.samsung.com
++//
++//  Copyright (C) 2013 Google, Inc
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
 -- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+2.14.1
