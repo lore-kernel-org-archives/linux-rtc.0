@@ -1,48 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:51244 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726089AbeHTXHD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 20 Aug 2018 19:07:03 -0400
-Date: Mon, 20 Aug 2018 21:50:02 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, od@zcrc.me,
+Received: from guitar.tcltek.co.il ([192.115.133.116]:38309 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729443AbeHNHD3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 14 Aug 2018 03:03:29 -0400
+Date: Tue, 14 Aug 2018 07:18:05 +0300
+From: Baruch Siach <baruch@tkos.co.il>
+To: zhong jiang <zhongjiang@huawei.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: jz4740: Drop dependency on MACH_INGENIC
-Message-ID: <20180820195002.GW21707@piout.net>
-References: <20180820180716.1853-1-paul@crapouillou.net>
- <20180820191247.GU21707@piout.net>
- <1534792697.1744.0@crapouillou.net>
+Subject: Re: [PATCH 1/2] rtc:rtc-digicolor: Use PTR_ERR_OR_ZERO to replace
+ the open code
+Message-ID: <20180814041805.666uaxe2gf75r3wr@sapphire.tkos.co.il>
+References: <1534159885-25364-1-git-send-email-zhongjiang@huawei.com>
+ <1534159885-25364-2-git-send-email-zhongjiang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1534792697.1744.0@crapouillou.net>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1534159885-25364-2-git-send-email-zhongjiang@huawei.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 20/08/2018 21:18:17+0200, Paul Cercueil wrote:
-> Hi,
-> 
-> Le lun. 20 août 2018 à 21:12, Alexandre Belloni
-> <alexandre.belloni@bootlin.com> a écrit :
-> > On 20/08/2018 20:07:16+0200, Paul Cercueil wrote:
-> > >  Depending on MACH_INGENIC prevent us from creating a generic kernel
-> > > that
-> > >  works on more than one MIPS board. Instead, we just depend on MIPS
-> > > being
-> > >  set.
-> > 
-> > Maybe you could consider dropping the whole dependency as we already
-> > know it will build on every architecture.
-> 
-> Well, I didn't really want the Kconfig option to show on the menu when
-> compiling for non-MIPS, since it's only ever useful there.
-> 
-> Should I drop the dependency then?
-> 
+Hi zhong,
 
-No, I don't mind.
+On Mon, Aug 13, 2018 at 07:31:24PM +0800, zhong jiang wrote:
+> PTR_ERR_OR_ZERO has implemented the if(IS_ERR(...)) + PTR_ERR, So
+> just replace them rather than duplicating its implement.
+> 
+> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+
+Thanks,
+baruch
+
+> ---
+>  drivers/rtc/rtc-digicolor.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+> index b253bf1..fd6850c 100644
+> --- a/drivers/rtc/rtc-digicolor.c
+> +++ b/drivers/rtc/rtc-digicolor.c
+> @@ -202,10 +202,8 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>  	platform_set_drvdata(pdev, rtc);
+>  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+>  						&dc_rtc_ops, THIS_MODULE);
+> -	if (IS_ERR(rtc->rtc_dev))
+> -		return PTR_ERR(rtc->rtc_dev);
+>  
+> -	return 0;
+> +	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+>  }
+>  
+>  static const struct of_device_id dc_dt_ids[] = {
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
