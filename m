@@ -1,77 +1,40 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-yb0-f195.google.com ([209.85.213.195]:37573 "EHLO
-        mail-yb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726458AbeHXB2l (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Aug 2018 21:28:41 -0400
-Received: by mail-yb0-f195.google.com with SMTP id f145-v6so2778265ybg.4
-        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 14:57:01 -0700 (PDT)
-Received: from mail-yw1-f44.google.com (mail-yw1-f44.google.com. [209.85.161.44])
-        by smtp.gmail.com with ESMTPSA id 138-v6sm1823526ywj.30.2018.08.23.14.56.59
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 Aug 2018 14:56:59 -0700 (PDT)
-Received: by mail-yw1-f44.google.com with SMTP id 14-v6so2389372ywe.2
-        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 14:56:59 -0700 (PDT)
+Received: from mail.bootlin.com ([62.4.15.54]:41158 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727807AbeHOA3C (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 14 Aug 2018 20:29:02 -0400
+Date: Tue, 14 Aug 2018 23:39:40 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Sangbeom Kim <sbkim73@samsung.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: Re: [PATCH 1/2] rtc: maxim: Add SPDX license identifiers
+Message-ID: <20180814213940.GR943@piout.net>
+References: <20180807161919.7827-1-krzk@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20180823185140.GA29028@embeddedor.com>
-References: <20180823185140.GA29028@embeddedor.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Thu, 23 Aug 2018 14:56:57 -0700
-Message-ID: <CAGXu5jLOg-uB3wsyRNJd2rFEoT9_u2Q0YQXVWv38Z946S_t6xw@mail.gmail.com>
-Subject: Re: [PATCH] rtc: sun6i: Use struct_size() in kzalloc()
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180807161919.7827-1-krzk@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Aug 23, 2018 at 11:51 AM, Gustavo A. R. Silva
-<gustavo@embeddedor.com> wrote:
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
->
-> struct foo {
->         int stuff;
->         void *entry[];
-> };
->
-> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
->
-> Instead of leaving these open-coded and prone to type mistakes, we can
-> now use the new struct_size() helper:
->
-> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
->
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+On 07/08/2018 18:19:18+0200, Krzysztof Kozlowski wrote:
+> Replace GPL v2.0+ license statements with SPDX license
+> identifiers.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 > ---
->  drivers/rtc/rtc-sun6i.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-> index 2cd5a7b..fe07310 100644
-> --- a/drivers/rtc/rtc-sun6i.c
-> +++ b/drivers/rtc/rtc-sun6i.c
-> @@ -199,8 +199,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
->         if (!rtc)
->                 return;
->
-> -       clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
-> -                          GFP_KERNEL);
-> +       clk_data = kzalloc(struct_size(clk_data, hws, 2), GFP_KERNEL);
->         if (!clk_data) {
->                 kfree(rtc);
->                 return;
-
-Reviewed-by: Kees Cook <keescook@chromium.org>
-
--Kees
+>  drivers/rtc/rtc-max77686.c | 20 +++++++-------------
+>  drivers/rtc/rtc-max8997.c  | 20 +++++++-------------
+>  drivers/rtc/rtc-max8998.c  | 20 +++++++-------------
+>  3 files changed, 21 insertions(+), 39 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-Kees Cook
-Pixel Security
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
