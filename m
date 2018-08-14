@@ -1,66 +1,80 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.131]:46540 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726143AbeHXHCQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Aug 2018 03:02:16 -0400
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v3 0/5] support a new type of PMIC,including two chips(rk817 and rk809)
-Date: Fri, 24 Aug 2018 11:30:36 +0800
-Message-Id: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+Received: from mail.bootlin.com ([62.4.15.54]:41061 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725877AbeHOAQl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 14 Aug 2018 20:16:41 -0400
+Date: Tue, 14 Aug 2018 23:27:10 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Denis OSTERLAND <denis.osterland@diehl.com>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: Re: [PATCH v5 0/5] rtc: isl1208: fixes, documentation and isl1219
+ support
+Message-ID: <20180814212710.GQ943@piout.net>
+References: <20180724095437.6016-1-Denis.Osterland@diehl.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180724095437.6016-1-Denis.Osterland@diehl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Most of functions and registers of the rk817 and rk808 are the same,
-so they can share allmost all codes.
+Hi,
 
-Their specifications are as followsï¼š
-  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
-     for these components except dcdc5.
-  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
-  3) The RK817 has one switch but The Rk809 has two.
+On 24/07/2018 11:31:21+0000, Denis OSTERLAND wrote:
+> changes since v4:
+>  - fix 'souces' typo and change interrupt documentation
+>  - change "isil,ev-evienb" type to int and do not touch bit if not present
+>  - pass ISL1219_REG_EV_EVEN directly instead of assigning it to rc
+>  - fix module build by adding EXPORT_SYMBOL to rtc_add_group(s)
+>  - use kcalloc
+>  - return error if device is already registered
+>  - include helper functions into rtc_add_groups
+> 
+> Michael Grzeschik (1):
+>     rtc: isl1208: add support for isl1219 with tamper detection
+> 
+> Denis Osterland (4):
+>     rtc: sysfs: facilitate attribute add to rtc device
+>     rtc: isl1208: Add "evdet" interrupt source for isl1219.
+>     rtc: isl1208: set ev-evienb bit from device tree
+>     rtc: isl1219: add device tree docu
+> 
 
-Changes in V2:
-1. initialize the pm_pwroff_fn to NULL. 
-2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
-3. change patch 2/3/4/5 subjects. 
 
-Changes in V3ï¼š
-1. change patch 4 subjects
-2. replace pr_ with dev_ for printing in patch 2
-3. modify switch1 and switch2 configs in patch 2
-4. explain gpio information for rk809 and rk817 in patch 4
+I've now applied all the patches after fixing a few whitespace issues
+here and there.
 
-Tony Xie (5):
-  mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: add RK809 and RK817 support.
-  dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
-  rtc: rk808: add RK809 and RK817 support.
-  clk: RK808: add RK809 and RK817 support.
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  56 +++
- drivers/clk/Kconfig                             |   9 +-
- drivers/clk/clk-rk808.c                         |  62 ++-
- drivers/mfd/Kconfig                             |   6 +-
- drivers/mfd/rk808.c                             | 218 +++++++-
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 639 +++++++++++++++++++++++-
- drivers/rtc/Kconfig                             |   4 +-
- drivers/rtc/rtc-rk808.c                         |  68 ++-
- include/linux/mfd/rk808.h                       | 175 +++++++
- kernel/reboot.c                                 |   1 +
- 11 files changed, 1209 insertions(+), 33 deletions(-)
+>  .../devicetree/bindings/rtc/isil,isl1219.txt       |  29 ++++
+>  drivers/rtc/rtc-core.h                             |  13 ++
+>  drivers/rtc/rtc-isl1208.c                          | 192 ++++++++++++++++++---
+>  drivers/rtc/rtc-sysfs.c                            |  43 +++++
+>  4 files changed, 254 insertions(+), 23 deletions(-)
+> 
+> Message-Id: 20180710090710.9066-1-Denis.Osterland@diehl.com
+> 
+> 
+> 
+> 
+> 
+> Diehl Connectivity Solutions GmbH
+> Geschäftsführung: Horst Leonberger
+> Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
+> Nürnberg: HRB 32315
+> ___________________________________________________________________________________________________
+> 
+> Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
+> Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
+> Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
+> The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
+> mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited.
 
 -- 
-1.9.1
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
