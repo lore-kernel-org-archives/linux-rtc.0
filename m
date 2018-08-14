@@ -1,34 +1,137 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f51.google.com ([209.85.214.51]:36087 "EHLO
-        mail-it0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726681AbeHUCwJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Aug 2018 22:52:09 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:44888 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728314AbeHNMJq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Aug 2018 08:09:46 -0400
+Date: Tue, 14 Aug 2018 11:23:17 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Keerthy <j-keerthy@ti.com>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        t-kristo@ti.com, linux-rtc@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        johan@kernel.org
+Subject: Re: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
+Message-ID: <20180814092317.GA30344@localhost>
+References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
+ <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-References: <20180820212157.GA20956@piout.net>
-In-Reply-To: <20180820212157.GA20956@piout.net>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 20 Aug 2018 16:34:18 -0700
-Message-ID: <CA+55aFwgmjY-RRRsSZTHnzceuYy0ouAishVe934WOjVQ5kdKmw@mail.gmail.com>
-Subject: Re: [GIT PULL] RTC for 4.19
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Aug 20, 2018 at 2:22 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
->
-> Subsystem:
->  - struct rtc_task removal along with rtc_irq_register/rtc_irq_unregister
+On Wed, Jul 25, 2018 at 11:21:22AM +0530, Keerthy wrote:
+> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+> over try again.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+> 
+> Changes in v5:
+> 
+>   * Added an additional check to see if ALARM2 status is not set
+>     before retrying.
+>   * Cleaned up comments
+>   * Also reduced mdelay to 1S lesser as per this commit
+> 
+>  drivers/rtc/rtc-omap.c | 28 ++++++++++++++++++----------
+>  1 file changed, 18 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 44ff4cc..caa6da6 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>   * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+>   * which can be configured to transition to OFF on ALARM2 events.
+>   *
+> - * Notes:
+> - * The two-second alarm offset is the shortest offset possible as the alarm
+> - * registers must be set before the next timer update and the offset
+> - * calculation is too heavy for everything to be done within a single access
+> - * period (~15 us).
+> - *
+>   * Called with local interrupts disabled.
+>   */
+>  static void omap_rtc_power_off(void)
+> @@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
+>  	struct rtc_time tm;
+>  	unsigned long now;
+>  	u32 val;
+> +	int seconds;
 
-You can still find stale mentions of it by grepping for it:
+Nit: I'd place this above val to maintain the reverse xmas-tree style.
 
- * @task: currently registered with rtc_irq_register()
+>  
+>  	rtc->type->unlock(rtc);
+>  	/* enable pmic_power_en control */
+>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>  
+> -	/* set alarm two seconds from now */
+> +again:
+> +	/* set alarm one second from now */
+>  	omap_rtc_read_time_raw(rtc, &tm);
+> +	seconds = tm.tm_sec;
+>  	bcd2tm(&tm);
+>  	rtc_tm_to_time(&tm, &now);
+> -	rtc_time_to_tm(now + 2, &tm);
+> +	rtc_time_to_tm(now + 1, &tm);
+>  
+>  	if (tm2bcd(&tm) < 0) {
+>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+> @@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
+>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+> +
+> +	/*
+> +	 * first check if ALARM2 has fired, if not then check if
+> +	 * our calculations started right before the rollover, try again
+> +	 * in case of rollover
+> +	 */
 
-which should presumably be fixed up too.
+This is unnecessarily verbose; I'd rephrase it as something like:
 
-That's not holding me from doing the pull, but I thought I'd mention it.
+	/* Retry in case roll over happened before alarm was armed. */
 
-               Linus
+> +	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
+> +						 OMAP_RTC_STATUS_REG)) &&
+> +	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+> +		goto again;
+
+And this is clearly broken. First, you use boolean && instead of the &
+bit operation.
+
+Second, you need to check the status register *after* checking for
+roll-over, as I already mentioned.
+
+Also, use the rtc pointer rather than omap_rtc_power_off_rtc, which will
+allow for more readable code.
+
+I also strongly suggest you split the conditional, and use val to store
+the status register value, that is:
+
+	if (rtc_read(rtc, OMAP_RTC_SECONDS_REG) != seconds) {
+		val = rtc_read(rtc, OMAP_RTC_STATUS_REG);
+		if (!(val & OMAP_RTC_STATUS_ALARM2))
+			goto again;
+	}
+
+> +
+>  	rtc->type->lock(rtc);
+>  
+>  	/*
+> -	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+> +	 * Wait for alarm to trigger (within one second) and external PMIC to
+>  	 * power off the system. Add a 500 ms margin for external latencies
+>  	 * (e.g. debounce circuits).
+>  	 */
+> -	mdelay(2500);
+> +	mdelay(1500);
+>  }
+>  
+>  static const struct rtc_class_ops omap_rtc_ops = {
+
+Johan
