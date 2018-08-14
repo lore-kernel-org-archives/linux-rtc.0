@@ -1,35 +1,124 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:39668 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729982AbeHBKUo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Aug 2018 06:20:44 -0400
-Date: Thu, 2 Aug 2018 10:30:36 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:53476 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728272AbeHNMTn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Aug 2018 08:19:43 -0400
+Subject: Re: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2
+ seconds to 1 sec
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 7/8] char: rtc: remove task handling
-Message-ID: <20180802083036.GA12755@kroah.com>
-References: <20180726134056.18273-1-alexandre.belloni@bootlin.com>
- <20180726134056.18273-8-alexandre.belloni@bootlin.com>
+CC: <a.zummo@towertech.it>, <t-kristo@ti.com>,
+        <linux-rtc@vger.kernel.org>, <linux-omap@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <johan@kernel.org>
+References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
+ <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
+ <20180725093018.GA3539@piout.net>
+From: Keerthy <j-keerthy@ti.com>
+Message-ID: <87ea901f-2a0b-007e-530a-0ca0e9392829@ti.com>
+Date: Tue, 14 Aug 2018 15:02:03 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180726134056.18273-8-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180725093018.GA3539@piout.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Thu, Jul 26, 2018 at 03:40:55PM +0200, Alexandre Belloni wrote:
-> Since commit 9e7002a70e42 ("char: rtc: remove unused rtc_control() API"),
-> it is not possible to set a callback anymore, remove its handling from the
-> interrupt handler.
-> 
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
+
+
+On Wednesday 25 July 2018 03:00 PM, Alexandre Belloni wrote:
 > Hi,
 > 
-> My plan is to take that patch through the RTC tree because the next patch relies
-> on the rtc_task_t *rtc_callback removal.
+> On 25/07/2018 11:21:22+0530, Keerthy wrote:
+>> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+>> over try again.
+>>
+>> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>> ---
+>>
+>> Changes in v5:
+>>
+>>   * Added an additional check to see if ALARM2 status is not set
+>>     before retrying.
+>>   * Cleaned up comments
+>>   * Also reduced mdelay to 1S lesser as per this commit
+>>
+>>  drivers/rtc/rtc-omap.c | 28 ++++++++++++++++++----------
+>>  1 file changed, 18 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>> index 44ff4cc..caa6da6 100644
+>> --- a/drivers/rtc/rtc-omap.c
+>> +++ b/drivers/rtc/rtc-omap.c
+>> @@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>>   * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+>>   * which can be configured to transition to OFF on ALARM2 events.
+>>   *
+>> - * Notes:
+>> - * The two-second alarm offset is the shortest offset possible as the alarm
+>> - * registers must be set before the next timer update and the offset
+>> - * calculation is too heavy for everything to be done within a single access
+>> - * period (~15 us).
+>> - *
+>>   * Called with local interrupts disabled.
+>>   */
+>>  static void omap_rtc_power_off(void)
+>> @@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
+>>  	struct rtc_time tm;
+>>  	unsigned long now;
+>>  	u32 val;
+>> +	int seconds;
+>>  
+>>  	rtc->type->unlock(rtc);
+>>  	/* enable pmic_power_en control */
+>>  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+>>  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>>  
+>> -	/* set alarm two seconds from now */
+>> +again:
+>> +	/* set alarm one second from now */
+>>  	omap_rtc_read_time_raw(rtc, &tm);
+>> +	seconds = tm.tm_sec;
+>>  	bcd2tm(&tm);
+>>  	rtc_tm_to_time(&tm, &now);
+>> -	rtc_time_to_tm(now + 2, &tm);
+>> +	rtc_time_to_tm(now + 1, &tm);
+>>  
+>>  	if (tm2bcd(&tm) < 0) {
+>>  		dev_err(&rtc->rtc->dev, "power off failed\n");
+>> @@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
+>>  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+>>  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+>>  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
+>> +
+>> +	/*
+>> +	 * first check if ALARM2 has fired, if not then check if
+>> +	 * our calculations started right before the rollover, try again
+>> +	 * in case of rollover
+>> +	 */
+>> +	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
+>> +						 OMAP_RTC_STATUS_REG)) &&
+>> +	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
+>> +		goto again;
+>> +
+> 
+> Can you use a while loop instead of goto?
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Apologies for the late reply. A one time retry should be able to take
+care of the exception case.
+
+> 
+>>  	rtc->type->lock(rtc);
+>>  
+>>  	/*
+>> -	 * Wait for alarm to trigger (within two seconds) and external PMIC to
+>> +	 * Wait for alarm to trigger (within one second) and external PMIC to
+>>  	 * power off the system. Add a 500 ms margin for external latencies
+>>  	 * (e.g. debounce circuits).
+>>  	 */
+>> -	mdelay(2500);
+>> +	mdelay(1500);
+>>  }
+>>  
+>>  static const struct rtc_class_ops omap_rtc_ops = {
+>> -- 
+>> 1.9.1
+>>
+> 
