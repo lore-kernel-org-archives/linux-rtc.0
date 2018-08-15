@@ -1,50 +1,59 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.ispras.ru ([83.149.199.45]:37182 "EHLO mail.ispras.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbeHIAe5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 8 Aug 2018 20:34:57 -0400
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-To: Denis Osterland <Denis.Osterland@diehl.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ldv-project@linuxtesting.org
-Subject: [PATCH] rtc: isl1208: fix error handling in isl1208_probe()
-Date: Thu,  9 Aug 2018 01:13:07 +0300
-Message-Id: <1533766387-30529-1-git-send-email-khoroshilov@ispras.ru>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:11111 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726014AbeHOKIE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 15 Aug 2018 06:08:04 -0400
+Message-ID: <5B73D368.5010205@huawei.com>
+Date: Wed, 15 Aug 2018 15:16:56 +0800
+From: zhong jiang <zhongjiang@huawei.com>
+MIME-Version: 1.0
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: <a.zummo@towertech.it>, <baruch@tkos.co.il>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] rtc:rtc-digicolor: Use PTR_ERR_OR_ZERO to replace
+ the open code
+References: <1534159885-25364-1-git-send-email-zhongjiang@huawei.com> <1534159885-25364-2-git-send-email-zhongjiang@huawei.com> <20180814161541.GP943@piout.net>
+In-Reply-To: <20180814161541.GP943@piout.net>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-After moving rtc_register_device() sysfs group is left unremoved
-on the error path.
+On 2018/8/15 0:15, Alexandre Belloni wrote:
+> Hi,
+>
+> On 13/08/2018 19:31:24+0800, zhong jiang wrote:
+>> PTR_ERR_OR_ZERO has implemented the if(IS_ERR(...)) + PTR_ERR, So
+>> just replace them rather than duplicating its implement.
+>>
+>> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+>> ---
+>>  drivers/rtc/rtc-digicolor.c | 4 +---
+>>  1 file changed, 1 insertion(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+>> index b253bf1..fd6850c 100644
+>> --- a/drivers/rtc/rtc-digicolor.c
+>> +++ b/drivers/rtc/rtc-digicolor.c
+>> @@ -202,10 +202,8 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>>  	platform_set_drvdata(pdev, rtc);
+>>  	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+>>  						&dc_rtc_ops, THIS_MODULE);
+>> -	if (IS_ERR(rtc->rtc_dev))
+>> -		return PTR_ERR(rtc->rtc_dev);
+>>  
+>> -	return 0;
+>> +	return PTR_ERR_OR_ZERO(rtc->rtc_dev);
+> As many other maintainers, I don't find that kind of change useful and
+> I'm not taking them unless there are other improvements in the driver.
+>
+>
+Hi,  Alexandre
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The issue is detected with the help of  Coccinelle.  It simplify the code with specific
+function rather than duplicating its implementation.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Fixes: 236b7187034e ("rtc: isl1208: switch to rtc_register_device")
----
- drivers/rtc/rtc-isl1208.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+The patch clean up the code.   of course,  it is not a bug.  if you do not care about it.
+I am ok with that.
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 1a2c38cc0178..4b5df9bfb8d4 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -674,7 +674,12 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		}
- 	}
- 
--	return rtc_register_device(rtc);
-+	rc = rtc_register_device(rtc);
-+	if (rc) {
-+		sysfs_remove_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
-+		return rc;
-+	}
-+	return 0;
- }
- 
- static int
--- 
-2.7.4
+Thanks,
+zhong jiang
