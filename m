@@ -1,40 +1,96 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:41788 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726802AbeH0NIy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 27 Aug 2018 09:08:54 -0400
-Date: Mon, 27 Aug 2018 12:22:34 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Denis Osterland <Denis.Osterland@diehl.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH] rtc: sysfs: fix NULL check in rtc_add_groups()
-Message-ID: <20180827092234.mj44ruwkglbor3e5@kili.mountain>
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:58606 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726051AbeHPIFV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 16 Aug 2018 04:05:21 -0400
+From: Keerthy <j-keerthy@ti.com>
+To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+CC: <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-omap@vger.kernel.org>, <johan@kernel.org>,
+        <j-keerthy@ti.com>
+Subject: [PATCH v6 2/2] rtc: omap: Cut down the shutdown time from 2 seconds to 1 sec
+Date: Thu, 16 Aug 2018 10:39:00 +0530
+Message-ID: <1534396140-1161-2-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1534396140-1161-1-git-send-email-j-keerthy@ti.com>
+References: <1534396140-1161-1-git-send-email-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-devm_kcalloc() returns NULL, it never returns error pointers.  In the
-current code we would return PTR_ERR(NULL) which is success, instead of
-returning the -ENOMEM error code.
+Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
+over try again.
 
-Fixes: a0a1a1ba3032 ("rtc: sysfs: facilitate attribute add to rtc device")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ drivers/rtc/rtc-omap.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
-index f1ff30ade534..9746c32eee2e 100644
---- a/drivers/rtc/rtc-sysfs.c
-+++ b/drivers/rtc/rtc-sysfs.c
-@@ -338,8 +338,8 @@ int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 44ff4cc..320b4a5 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+  * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+  * which can be configured to transition to OFF on ALARM2 events.
+  *
+- * Notes:
+- * The two-second alarm offset is the shortest offset possible as the alarm
+- * registers must be set before the next timer update and the offset
+- * calculation is too heavy for everything to be done within a single access
+- * period (~15 us).
+- *
+  * Called with local interrupts disabled.
+  */
+ static void omap_rtc_power_off(void)
+@@ -434,6 +428,7 @@ static void omap_rtc_power_off(void)
+ 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+ 	struct rtc_time tm;
+ 	unsigned long now;
++	int seconds;
+ 	u32 val;
  
- 	new_cnt = old_cnt + add_cnt + 1;
- 	groups = devm_kcalloc(&rtc->dev, new_cnt, sizeof(*groups), GFP_KERNEL);
--	if (IS_ERR_OR_NULL(groups))
--		return PTR_ERR(groups);
-+	if (!groups)
-+		return -ENOMEM;
- 	memcpy(groups, rtc->dev.groups, old_cnt * sizeof(*groups));
- 	memcpy(groups + old_cnt, grps, add_cnt * sizeof(*groups));
- 	groups[old_cnt + add_cnt] = NULL;
+ 	rtc->type->unlock(rtc);
+@@ -441,11 +436,13 @@ static void omap_rtc_power_off(void)
+ 	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
+ 	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+ 
+-	/* set alarm two seconds from now */
++again:
++	/* set alarm one second from now */
+ 	omap_rtc_read_time_raw(rtc, &tm);
++	seconds = tm.tm_sec;
+ 	bcd2tm(&tm);
+ 	rtc_tm_to_time(&tm, &now);
+-	rtc_time_to_tm(now + 2, &tm);
++	rtc_time_to_tm(now + 1, &tm);
+ 
+ 	if (tm2bcd(&tm) < 0) {
+ 		dev_err(&rtc->rtc->dev, "power off failed\n");
+@@ -470,14 +467,22 @@ static void omap_rtc_power_off(void)
+ 	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
+ 	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
+ 			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
++
++	/* Retry in case roll over happened before alarm was armed. */
++	if (rtc_read(rtc, OMAP_RTC_SECONDS_REG) != seconds) {
++		val = rtc_read(rtc, OMAP_RTC_STATUS_REG);
++		if (!(val & OMAP_RTC_STATUS_ALARM2))
++			goto again;
++	}
++
+ 	rtc->type->lock(rtc);
+ 
+ 	/*
+-	 * Wait for alarm to trigger (within two seconds) and external PMIC to
++	 * Wait for alarm to trigger (within one second) and external PMIC to
+ 	 * power off the system. Add a 500 ms margin for external latencies
+ 	 * (e.g. debounce circuits).
+ 	 */
+-	mdelay(2500);
++	mdelay(1500);
+ }
+ 
+ static const struct rtc_class_ops omap_rtc_ops = {
+-- 
+1.9.1
