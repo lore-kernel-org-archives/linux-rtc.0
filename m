@@ -1,147 +1,151 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:42037 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726806AbeH1MBB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 08:01:01 -0400
+Received: from mail.bootlin.com ([62.4.15.54]:52822 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726099AbeHUAj1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 20 Aug 2018 20:39:27 -0400
+Date: Mon, 20 Aug 2018 23:21:57 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] RTC for 4.19
+Message-ID: <20180820212157.GA20956@piout.net>
 MIME-Version: 1.0
-References: <20180827200338.220211-1-arnd@arndb.de> <20180827200338.220211-2-arnd@arndb.de>
- <20180827202137.GD6515@ZenIV.linux.org.uk>
-In-Reply-To: <20180827202137.GD6515@ZenIV.linux.org.uk>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 28 Aug 2018 10:10:15 +0200
-Message-ID: <CAK8P3a31DtuRQFwK=yfKJHC-Qx0Kb9xWib1Us+_tdtFNw0iwQQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] rtc: move compat_ioctl handling into rtc-dev.c
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        keguang.zhang@gmail.com,
-        y2038 Mailman List <y2038@lists.linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Aug 27, 2018 at 10:21 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
-> On Mon, Aug 27, 2018 at 10:03:09PM +0200, Arnd Bergmann wrote:
-> > +     case RTC_IRQP_READ32:
-> > +     case RTC_EPOCH_READ32: {
-> > +             valp = compat_alloc_user_space(sizeof(*valp));
-> > +             if (valp == NULL)
-> > +                     return -EFAULT;
-> > +             ret = rtc_dev_ioctl(file, (cmd == RTC_IRQP_READ32) ?
-> > +                                     RTC_IRQP_READ : RTC_EPOCH_READ,
-> > +                                     (unsigned long)valp);
-> > +             if (ret)
-> > +                     return ret;
-> > +             if (get_user(val, valp) || put_user(val, argp))
-> > +                     return -EFAULT;
->
->         No.  With the side of Hell, No.  This is bloody ridiculous - take a look
-> at rtc_dev_ioctl().  Seriously.  Relevant bits:
->         struct rtc_device *rtc = file->private_data;
->         const struct rtc_class_ops *ops = rtc->ops;
->         struct rtc_time tm;
->         struct rtc_wkalrm alarm;
->         void __user *uarg = (void __user *) arg;
->
->         err = mutex_lock_interruptible(&rtc->ops_lock);
->         if (err)
->                 return err;
->
->                 err = put_user(rtc->irq_freq, (unsigned long __user *)uarg);
->
->         mutex_unlock(&rtc->ops_lock);
->         return err;
->
-> That's RTC_IRQP_READ.  IOW, all that song and dance starting with
-> compat_alloc_user_space() is just a way to get to rtc->irq_freq value.
->
-> RTC_EPOCH_READ is in the bowels of individual implementations, but it's
-> otherwise very similar; add a method returning the damn thing (e.g.
-> rtc->ops->get_epoch(rtc)) and lift its call into rtc_dev_ioctl(), then
-> this nonsense will go away as well.
+Hi Linus,
 
-Okay. I was basically trying to do one step of moving the code
-in a more appropriate place without changing it much. The problem
-I see with a get_epoch() callback is that we don't actually want more
-drivers to implement it. At the moment there is only one (vr41xx),
-so how about just moving the compat epoch handling there and
-completely leaving it outside of the common rtc-dev implementation?
+Here is the pull-request for the RTC subsystem for 4.19.
 
-diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
-index 70f013e692b0..05f981f7cd21 100644
---- a/drivers/rtc/rtc-vr41xx.c
-+++ b/drivers/rtc/rtc-vr41xx.c
-@@ -17,6 +17,7 @@
-  *  along with this program; if not, write to the Free Software
-  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
-+#include <linux/compat.h>
- #include <linux/err.h>
- #include <linux/fs.h>
- #include <linux/init.h>
-@@ -195,6 +196,11 @@ static int vr41xx_rtc_ioctl(struct device *dev,
-unsigned int cmd, unsigned long
-        switch (cmd) {
-        case RTC_EPOCH_READ:
-                return put_user(epoch, (unsigned long __user *)arg);
-+#ifdef CONFIG_COMPAT
-+       case RTC_EPOCH_READ32:
-+               return put_user(epoch, (unsigned int __user *)arg);
-+       case RTC_EPOCH_SET32:
-+#endif
-        case RTC_EPOCH_SET:
-                /* Doesn't support before 1900 */
+It is now possible to add custom sysfs attributes while avoiding a
+possible race condition. Unused code has been removed resulting in a
+nice reduction of the code base. And more drivers have been switched to
+SPDX by their maintainers.
 
-> > +             return 0;
-> > +     }
-> > +
-> > +     /* arguments are compatible, command number is not */
-> > +     case RTC_IRQP_SET32:
-> > +             return rtc_dev_ioctl(file, RTC_IRQP_SET, arg);
-> ITYM
->                 cmd = RTC_IRQP_SET;
->                 break;
-> > +     case RTC_EPOCH_SET32:
-> ... and
->                 cmd = RTC_EPOCH_SET;
->                 break;
-> here.
+The following changes since commit ce397d215ccd07b8ae3f71db689aedb85d56ab40:
 
-Just to clarify: do you mean I copied a bug from the old code,
-or are you objecting to the coding style?
+  Linux 4.18-rc1 (2018-06-17 08:04:49 +0900)
 
-> > +             return rtc_dev_ioctl(file, RTC_EPOCH_SET, arg);
-> > +     }
-> > +
-> > +     /*
-> > +      * all other rtc ioctls are compatible, or only
-> > +      * exist on architectures without compat mode
-> > +      */
-> > +
-> > +     return rtc_dev_ioctl(file, cmd, (unsigned long)argp);
-> > +}
->
-> compat_alloc_user_space() is usually papering over bogosities like
-> that; if you are moving something out to individual drivers, it's
-> always a red flag - most of the time it'll turn out to be pointless.
+are available in the Git repository at:
 
-Absolutely agreed. Eliminating compat_alloc_user_space()
-was a bit lower on my priority list than killing off do_ioctl_trans()
-(which is already fairly low at the bottom), but I've adjusted that
-and will send an update.
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.19
 
-I have a couple more patches for do_ioctl_trans() that started
-out as a side product of my y2038 patches, I'll make sure
-to do it the same way for any others. SG_GET_REQUEST_TABLE
-was the only other command for which I chose to keep
-compat_alloc_user_space() after my attempt to kill it ended
-up in way more complexity, but I can also revisit that, or maybe
-drop that patch until I get motivated to also tackle SG_IO.
+for you to fetch changes up to 6b583a64fd1e019fd01626b46892ebf2361951c5:
 
-     Arnd
+  rtc: ds1307: simplify hwmon config (2018-08-16 07:46:41 +0200)
+
+----------------------------------------------------------------
+RTC for 4.19
+
+Subsystem:
+ - new helpers to add custom sysfs attributes
+ - struct rtc_task removal along with rtc_irq_register/rtc_irq_unregister
+ - rtc_irq_set_state and rtc_irq_set_freq are not exported anymore
+
+Drivers:
+ - armada38x: reset after rtc power loss
+ - ds1307: now supports m41t11
+ - isl1208: now supports isl1219 and tamper detection
+ - pcf2127: internal SRAM support
+
+----------------------------------------------------------------
+Alexandre Belloni (10):
+      rtc: ds1685: remove improper datetime access ABI
+      rtc: ds1685: remove sysfs access to control registers
+      rtc: sa1100: don't set PIE frequency
+      rtc: sh: remove dead code
+      rtc: remove rtc_irq_register/rtc_irq_unregister
+      rtc: remove irq_task and irq_task_lock
+      rtc: simplify rtc_irq_set_state/rtc_irq_set_freq
+      rtc: unexport rtc_irq_set_*
+      char: rtc: remove task handling
+      rtc: remove struct rtc_task
+
+Alvin Šipraga (1):
+      rtc: pcf85063: preserve control register value between stop and start
+
+Anders Roxell (1):
+      rtc: sh: remove unused variable rtc_dev
+
+Arnd Bergmann (1):
+      rtc: use ktime_get_real_ts64() instead of getnstimeofday64()
+
+Baruch Siach (1):
+      rtc: armada38x: reset after rtc power loss
+
+Colin Ian King (2):
+      rtc: test: make array pdev static
+      rtc: m48t59: remove redundant pointer 'name'
+
+Denis Osterland (4):
+      rtc: sysfs: facilitate attribute add to rtc device
+      rtc: isl1208: Add "evdet" interrupt source for isl1219
+      rtc: isl1208: set ev-evienb bit from device tree
+      rtc: isl1219: add device tree documentation
+
+Giulio Benetti (2):
+      rtc: ds1307: fix data pointer to m41t0
+      rtc: ds1307: support m41t11 variant
+
+Heiner Kallweit (1):
+      rtc: ds1307: simplify hwmon config
+
+Johan Hovold (4):
+      rtc: omap: fix potential crash on power off
+      rtc: omap: fix resource leak in registration error path
+      rtc: omap: add missing register lock in error path
+      rtc: omap: drop unnecessary register unlock around reads
+
+Krzysztof Kozlowski (2):
+      rtc: maxim: Add SPDX license identifiers
+      rtc: s5m: Add SPDX license identifier
+
+Michael Grzeschik (1):
+      rtc: isl1208: add support for isl1219 with tamper detection
+
+Trent Piepho (1):
+      rtc: snvs: Add timeouts to avoid kernel lockups
+
+Uwe Kleine-König (2):
+      rtc: pcf2127: add support for accessing internal static RAM
+      rtc: stmp3xxx: Don't reset the rtc in .probe() when watchdog is running
+
+Zhouyang Jia (1):
+      rtc: bq4802: add error handling for devm_ioremap
+
+ .../devicetree/bindings/rtc/isil,isl1219.txt       |  29 +
+ .../devicetree/bindings/rtc/rtc-ds1307.txt         |   1 +
+ drivers/char/rtc.c                                 |  13 -
+ drivers/rtc/Kconfig                                |  21 -
+ drivers/rtc/class.c                                |   5 +-
+ drivers/rtc/interface.c                            |  97 +---
+ drivers/rtc/rtc-armada38x.c                        |  23 +
+ drivers/rtc/rtc-bq4802.c                           |   4 +
+ drivers/rtc/rtc-core.h                             |  14 +
+ drivers/rtc/rtc-dev.c                              |   8 +-
+ drivers/rtc/rtc-ds1307.c                           |  18 +-
+ drivers/rtc/rtc-ds1685.c                           | 590 ---------------------
+ drivers/rtc/rtc-isl1208.c                          | 192 ++++++-
+ drivers/rtc/rtc-m48t59.c                           |   4 -
+ drivers/rtc/rtc-max77686.c                         |  20 +-
+ drivers/rtc/rtc-max8997.c                          |  20 +-
+ drivers/rtc/rtc-max8998.c                          |  20 +-
+ drivers/rtc/rtc-omap.c                             |  23 +-
+ drivers/rtc/rtc-pcf2127.c                          |  68 ++-
+ drivers/rtc/rtc-pcf85063.c                         |  21 +-
+ drivers/rtc/rtc-s5m.c                              |  22 +-
+ drivers/rtc/rtc-sa1100.c                           |   1 -
+ drivers/rtc/rtc-sh.c                               |  90 +---
+ drivers/rtc/rtc-snvs.c                             | 105 ++--
+ drivers/rtc/rtc-stmp3xxx.c                         |  20 +-
+ drivers/rtc/rtc-sysfs.c                            |  43 ++
+ drivers/rtc/rtc-test.c                             |   2 +-
+ include/linux/rtc.h                                |  21 +-
+ 28 files changed, 524 insertions(+), 971 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
