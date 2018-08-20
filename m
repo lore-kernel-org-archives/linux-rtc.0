@@ -1,79 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:36941 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728314AbeHNMOZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Aug 2018 08:14:25 -0400
-Date: Tue, 14 Aug 2018 11:27:55 +0200
-From: Johan Hovold <johan@kernel.org>
+Received: from outils.crapouillou.net ([89.234.176.41]:56074 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726293AbeHTWfR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Aug 2018 18:35:17 -0400
+Date: Mon, 20 Aug 2018 21:18:17 +0200
+From: Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] rtc: jz4740: Drop dependency on MACH_INGENIC
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Keerthy <j-keerthy@ti.com>, a.zummo@towertech.it, t-kristo@ti.com,
-        linux-rtc@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-kernel@vger.kernel.org, johan@kernel.org
-Subject: Re: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-Message-ID: <20180814092755.GB30344@localhost>
-References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
- <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
- <20180725093018.GA3539@piout.net>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, od@zcrc.me,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <1534792697.1744.0@crapouillou.net>
+In-Reply-To: <20180820191247.GU21707@piout.net>
+References: <20180820180716.1853-1-paul@crapouillou.net>
+        <20180820191247.GU21707@piout.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180725093018.GA3539@piout.net>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 25, 2018 at 11:30:18AM +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 25/07/2018 11:21:22+0530, Keerthy wrote:
-> > Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
-> > over try again.
-> > 
-> > Signed-off-by: Keerthy <j-keerthy@ti.com>
+Hi,
 
-> >  static void omap_rtc_power_off(void)
-> > @@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
-> >  	struct rtc_time tm;
-> >  	unsigned long now;
-> >  	u32 val;
-> > +	int seconds;
-> >  
-> >  	rtc->type->unlock(rtc);
-> >  	/* enable pmic_power_en control */
-> >  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-> >  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
-> >  
-> > -	/* set alarm two seconds from now */
-> > +again:
-> > +	/* set alarm one second from now */
-> >  	omap_rtc_read_time_raw(rtc, &tm);
-> > +	seconds = tm.tm_sec;
-> >  	bcd2tm(&tm);
-> >  	rtc_tm_to_time(&tm, &now);
-> > -	rtc_time_to_tm(now + 2, &tm);
-> > +	rtc_time_to_tm(now + 1, &tm);
-> >  
-> >  	if (tm2bcd(&tm) < 0) {
-> >  		dev_err(&rtc->rtc->dev, "power off failed\n");
-> > @@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
-> >  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
-> >  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
-> >  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-> > +
-> > +	/*
-> > +	 * first check if ALARM2 has fired, if not then check if
-> > +	 * our calculations started right before the rollover, try again
-> > +	 * in case of rollover
-> > +	 */
-> > +	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
-> > +						 OMAP_RTC_STATUS_REG)) &&
-> > +	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-> > +		goto again;
-> > +
-> 
-> Can you use a while loop instead of goto?
+Le lun. 20 ao=FBt 2018 =E0 21:12, Alexandre Belloni=20
+<alexandre.belloni@bootlin.com> a =E9crit :
+> On 20/08/2018 20:07:16+0200, Paul Cercueil wrote:
+>>  Depending on MACH_INGENIC prevent us from creating a generic kernel=20
+>> that
+>>  works on more than one MIPS board. Instead, we just depend on MIPS=20
+>> being
+>>  set.
+>=20
+> Maybe you could consider dropping the whole dependency as we already
+> know it will build on every architecture.
 
-I think a goto is warranted here as it allows for more readable code
-with less indentation. And the exception case it is used for is truly an
-exception that a single retry would take care of.
+Well, I didn't really want the Kconfig option to show on the menu when
+compiling for non-MIPS, since it's only ever useful there.
 
-Johan
+Should I drop the dependency then?
+
+>>=20
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  ---
+>>   drivers/rtc/Kconfig | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>=20
+>>  diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+>>  index a2ba5db36145..98c7f19256b1 100644
+>>  --- a/drivers/rtc/Kconfig
+>>  +++ b/drivers/rtc/Kconfig
+>>  @@ -1608,7 +1608,7 @@ config RTC_DRV_MPC5121
+>>=20
+>>   config RTC_DRV_JZ4740
+>>   	tristate "Ingenic JZ4740 SoC"
+>>  -	depends on MACH_INGENIC || COMPILE_TEST
+>>  +	depends on MIPS || COMPILE_TEST
+>>   	help
+>>   	  If you say yes here you get support for the Ingenic JZ47xx SoCs=20
+>> RTC
+>>   	  controllers.
+>>  --
+>>  2.11.0
+>>=20
+>=20
+> --
+> Alexandre Belloni, Bootlin
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
+=
