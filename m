@@ -1,68 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:56074 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbeHTWfR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Aug 2018 18:35:17 -0400
-Date: Mon, 20 Aug 2018 21:18:17 +0200
-From: Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] rtc: jz4740: Drop dependency on MACH_INGENIC
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, od@zcrc.me,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <1534792697.1744.0@crapouillou.net>
-In-Reply-To: <20180820191247.GU21707@piout.net>
-References: <20180820180716.1853-1-paul@crapouillou.net>
-        <20180820191247.GU21707@piout.net>
+Received: from mail-yb0-f195.google.com ([209.85.213.195]:37573 "EHLO
+        mail-yb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726458AbeHXB2l (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Aug 2018 21:28:41 -0400
+Received: by mail-yb0-f195.google.com with SMTP id f145-v6so2778265ybg.4
+        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 14:57:01 -0700 (PDT)
+Received: from mail-yw1-f44.google.com (mail-yw1-f44.google.com. [209.85.161.44])
+        by smtp.gmail.com with ESMTPSA id 138-v6sm1823526ywj.30.2018.08.23.14.56.59
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 Aug 2018 14:56:59 -0700 (PDT)
+Received: by mail-yw1-f44.google.com with SMTP id 14-v6so2389372ywe.2
+        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 14:56:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+In-Reply-To: <20180823185140.GA29028@embeddedor.com>
+References: <20180823185140.GA29028@embeddedor.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Thu, 23 Aug 2018 14:56:57 -0700
+Message-ID: <CAGXu5jLOg-uB3wsyRNJd2rFEoT9_u2Q0YQXVWv38Z946S_t6xw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: sun6i: Use struct_size() in kzalloc()
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi,
+On Thu, Aug 23, 2018 at 11:51 AM, Gustavo A. R. Silva
+<gustavo@embeddedor.com> wrote:
+> One of the more common cases of allocation size calculations is finding
+> the size of a structure that has a zero-sized array at the end, along
+> with memory for some number of elements for that array. For example:
+>
+> struct foo {
+>         int stuff;
+>         void *entry[];
+> };
+>
+> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+>
+> Instead of leaving these open-coded and prone to type mistakes, we can
+> now use the new struct_size() helper:
+>
+> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+>
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/rtc/rtc-sun6i.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> index 2cd5a7b..fe07310 100644
+> --- a/drivers/rtc/rtc-sun6i.c
+> +++ b/drivers/rtc/rtc-sun6i.c
+> @@ -199,8 +199,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+>         if (!rtc)
+>                 return;
+>
+> -       clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
+> -                          GFP_KERNEL);
+> +       clk_data = kzalloc(struct_size(clk_data, hws, 2), GFP_KERNEL);
+>         if (!clk_data) {
+>                 kfree(rtc);
+>                 return;
 
-Le lun. 20 ao=FBt 2018 =E0 21:12, Alexandre Belloni=20
-<alexandre.belloni@bootlin.com> a =E9crit :
-> On 20/08/2018 20:07:16+0200, Paul Cercueil wrote:
->>  Depending on MACH_INGENIC prevent us from creating a generic kernel=20
->> that
->>  works on more than one MIPS board. Instead, we just depend on MIPS=20
->> being
->>  set.
->=20
-> Maybe you could consider dropping the whole dependency as we already
-> know it will build on every architecture.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Well, I didn't really want the Kconfig option to show on the menu when
-compiling for non-MIPS, since it's only ever useful there.
+-Kees
 
-Should I drop the dependency then?
-
->>=20
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->>   drivers/rtc/Kconfig | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>=20
->>  diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
->>  index a2ba5db36145..98c7f19256b1 100644
->>  --- a/drivers/rtc/Kconfig
->>  +++ b/drivers/rtc/Kconfig
->>  @@ -1608,7 +1608,7 @@ config RTC_DRV_MPC5121
->>=20
->>   config RTC_DRV_JZ4740
->>   	tristate "Ingenic JZ4740 SoC"
->>  -	depends on MACH_INGENIC || COMPILE_TEST
->>  +	depends on MIPS || COMPILE_TEST
->>   	help
->>   	  If you say yes here you get support for the Ingenic JZ47xx SoCs=20
->> RTC
->>   	  controllers.
->>  --
->>  2.11.0
->>=20
->=20
-> --
-> Alexandre Belloni, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-=
+-- 
+Kees Cook
+Pixel Security
