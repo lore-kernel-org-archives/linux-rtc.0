@@ -1,56 +1,61 @@
-Return-Path: <tony.xie@rock-chips.com>
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org,
-	lee.jones@linaro.org,
-	a.zummo@towertech.it,
-	alexandre.belloni@bootlin.com,
-	sboyd@kernel.org,
-	linux-clk@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	chenjh@rock-chips.com,
-	xsf@rock-chips.com,
-	zhangqing@rock-chips.com,
-	huangtao@rock-chips.com,
-	tony.xie@rock-chips.com
-Subject: [PATCH 0/5] support a new type of PMIC，including two chips(rk817 and rk809)
-Date: Mon, 23 Jul 2018 11:19:00 +0800
-Message-Id: <1532315945-1094-1-git-send-email-tony.xie@rock-chips.com>
+Return-Path: <linux-rtc-owner@vger.kernel.org>
+Received: from gateway24.websitewelcome.com ([192.185.51.253]:18199 "EHLO
+        gateway24.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726081AbeHWWqd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Aug 2018 18:46:33 -0400
+Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
+        by gateway24.websitewelcome.com (Postfix) with ESMTP id 5AF61DB055
+        for <linux-rtc@vger.kernel.org>; Thu, 23 Aug 2018 13:52:28 -0500 (CDT)
+Date: Thu, 23 Aug 2018 13:51:40 -0500
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>
+Cc: linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] rtc: sun6i: Use struct_size() in kzalloc()
+Message-ID: <20180823185140.GA29028@embeddedor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Most of functions and registers of the rk817 and rk808 are the same,
-so they can share allmost all codes.
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
 
-Their specifications are as follows：
-  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
-     for these components except dcdc5.
-  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
-  3) The RK817 has one switch but The Rk809 has two.
+struct foo { 
+	int stuff;
+        void *entry[];
+};
 
-Tony Xie (5):
-  mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: Add regulator driver for RK809 and RK817.
-  mfd: dt-bindings: Add RK809 and RK817 device tree bindings document
-  RTC: RK808: add RTC driver for RK809 and RK817.
-  clk: RK808: add clkout driver for RK809 and RK817.
+instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
 
- Documentation/devicetree/bindings/mfd/rk808.txt |  55 ++
- drivers/clk/Kconfig                             |   6 +-
- drivers/clk/clk-rk808.c                         |  62 ++-
- drivers/mfd/Kconfig                             |   6 +-
- drivers/mfd/rk808.c                             | 216 +++++++-
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 633 +++++++++++++++++++++++-
- drivers/rtc/Kconfig                             |   4 +-
- drivers/rtc/rtc-rk808.c                         |  68 ++-
- include/linux/mfd/rk808.h                       | 175 +++++++
- 10 files changed, 1201 insertions(+), 28 deletions(-)
+Instead of leaving these open-coded and prone to type mistakes, we can
+now use the new struct_size() helper:
 
+instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/rtc/rtc-sun6i.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 2cd5a7b..fe07310 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -199,8 +199,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	if (!rtc)
+ 		return;
+ 
+-	clk_data = kzalloc(sizeof(*clk_data) + (sizeof(*clk_data->hws) * 2),
+-			   GFP_KERNEL);
++	clk_data = kzalloc(struct_size(clk_data, hws, 2), GFP_KERNEL);
+ 	if (!clk_data) {
+ 		kfree(rtc);
+ 		return;
 -- 
-1.9.1
+2.7.4
