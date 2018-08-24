@@ -1,54 +1,126 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:50693 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbeHTW3k (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 20 Aug 2018 18:29:40 -0400
-Date: Mon, 20 Aug 2018 21:12:47 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, od@zcrc.me,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: jz4740: Drop dependency on MACH_INGENIC
-Message-ID: <20180820191247.GU21707@piout.net>
-References: <20180820180716.1853-1-paul@crapouillou.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180820180716.1853-1-paul@crapouillou.net>
+Received: from lucky1.263xmail.com ([211.157.147.135]:42344 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726338AbeHXHCk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Aug 2018 03:02:40 -0400
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: [PATCH v3 3/5] dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
+Date: Fri, 24 Aug 2018 11:30:39 +0800
+Message-Id: <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
+In-Reply-To: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 20/08/2018 20:07:16+0200, Paul Cercueil wrote:
-> Depending on MACH_INGENIC prevent us from creating a generic kernel that
-> works on more than one MIPS board. Instead, we just depend on MIPS being
-> set.
+Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
 
-Maybe you could consider dropping the whole dependency as we already
-know it will build on every architecture.
+Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+---
+ Documentation/devicetree/bindings/mfd/rk808.txt | 56 +++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
-> 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  drivers/rtc/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index a2ba5db36145..98c7f19256b1 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1608,7 +1608,7 @@ config RTC_DRV_MPC5121
->  
->  config RTC_DRV_JZ4740
->  	tristate "Ingenic JZ4740 SoC"
-> -	depends on MACH_INGENIC || COMPILE_TEST
-> +	depends on MIPS || COMPILE_TEST
->  	help
->  	  If you say yes here you get support for the Ingenic JZ47xx SoCs RTC
->  	  controllers.
-> -- 
-> 2.11.0
-> 
-
+diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+index 91b6522..c025a99 100644
+--- a/Documentation/devicetree/bindings/mfd/rk808.txt
++++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+@@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
+ The rk8xx family current members:
+ rk805
+ rk808
++rk809
++rk817
+ rk818
+ 
+ Required properties:
+ - compatible: "rockchip,rk805"
+ - compatible: "rockchip,rk808"
++- compatible: "rockchip,rk809"
++- compatible: "rockchip,rk817"
+ - compatible: "rockchip,rk818"
+ - reg: I2C slave address
+ - interrupt-parent: The parent interrupt controller.
+@@ -46,6 +50,28 @@ Optional RK808 properties:
+   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+   very quickly with no slow ramp time.
+ 
++Optional RK809 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
++- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
++- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
++- vcc8-supply:  The input supply for SWITCH_REG1
++- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
++
++Optional RK817 properties:
++- vcc1-supply:  The input supply for DCDC_REG1
++- vcc2-supply:  The input supply for DCDC_REG2
++- vcc3-supply:  The input supply for DCDC_REG3
++- vcc4-supply:  The input supply for DCDC_REG4
++- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
++- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
++- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
++- vcc8-supply:  The input supply for BOOST
++- vcc9-supply:  The input supply for OTG_SWITCH
++
+ Optional RK818 properties:
+ - vcc1-supply:  The input supply for DCDC_REG1
+ - vcc2-supply:  The input supply for DCDC_REG2
+@@ -87,6 +113,28 @@ number as described in RK808 datasheet.
+ 	- SWITCH_REGn
+ 		- valid values for n are 1 to 2
+ 
++Following regulators of the RK809 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK808 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 5.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- SWITCH_REGn
++		- valid values for n are 1 to 2.
++
++Following regulators of the RK817 PMIC block are supported. Note that
++the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
++number as described in RK818 datasheet.
++
++	- DCDC_REGn
++		- valid values for n are 1 to 4.
++	- LDO_REGn
++		- valid values for n are 1 to 9.
++	- BOOST
++	- OTG_SWITCH
++
+ Following regulators of the RK818 PMIC block are supported. Note that
+ the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
+ number as described in RK818 datasheet.
+@@ -99,6 +147,14 @@ number as described in RK818 datasheet.
+ 	- HDMI_SWITCH
+ 	- OTG_SWITCH
+ 
++There are three pins needed to config for each of RK809 and RK817,
++named "gpio_ts" "gpio_gt" "gpio_slp".
++	The gpio_gt and gpio_ts pins support the gpio function.
++	The gpio_slp pin is for controlling the pmic states, as below:
++		- reset
++		- power down
++		- sleep
++
+ Standard regulator bindings are used inside regulator subnodes. Check
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ for more details
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+1.9.1
