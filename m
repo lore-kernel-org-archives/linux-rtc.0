@@ -1,137 +1,138 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:44888 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728314AbeHNMJq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Aug 2018 08:09:46 -0400
-Date: Tue, 14 Aug 2018 11:23:17 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Keerthy <j-keerthy@ti.com>
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        t-kristo@ti.com, linux-rtc@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        johan@kernel.org
-Subject: Re: [PATCH v5 2/2] rtc: omap: Cut down the shutdown time from 2
- seconds to 1 sec
-Message-ID: <20180814092317.GA30344@localhost>
-References: <1532497882-8828-1-git-send-email-j-keerthy@ti.com>
- <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1532497882-8828-2-git-send-email-j-keerthy@ti.com>
+Received: from lucky1.263xmail.com ([211.157.147.134]:60790 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbeHXHHU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Aug 2018 03:07:20 -0400
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: [PATCH v3 5/5] clk: RK808: add RK809 and RK817 support.
+Date: Fri, 24 Aug 2018 11:36:02 +0800
+Message-Id: <1535081762-20844-1-git-send-email-tony.xie@rock-chips.com>
+In-Reply-To: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Jul 25, 2018 at 11:21:22AM +0530, Keerthy wrote:
-> Cut down the shutdown time from 2 seconds to 1 sec. In case of roll
-> over try again.
-> 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
-> 
-> Changes in v5:
-> 
->   * Added an additional check to see if ALARM2 status is not set
->     before retrying.
->   * Cleaned up comments
->   * Also reduced mdelay to 1S lesser as per this commit
-> 
->  drivers/rtc/rtc-omap.c | 28 ++++++++++++++++++----------
->  1 file changed, 18 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 44ff4cc..caa6da6 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -421,12 +421,6 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
->   * The RTC can be used to control an external PMIC via the pmic_power_en pin,
->   * which can be configured to transition to OFF on ALARM2 events.
->   *
-> - * Notes:
-> - * The two-second alarm offset is the shortest offset possible as the alarm
-> - * registers must be set before the next timer update and the offset
-> - * calculation is too heavy for everything to be done within a single access
-> - * period (~15 us).
-> - *
->   * Called with local interrupts disabled.
->   */
->  static void omap_rtc_power_off(void)
-> @@ -435,17 +429,20 @@ static void omap_rtc_power_off(void)
->  	struct rtc_time tm;
->  	unsigned long now;
->  	u32 val;
-> +	int seconds;
+RK809 and RK817 are power management IC chips for multimedia products.
+most of their functions and registers are same, including the clkout
+funciton.
 
-Nit: I'd place this above val to maintain the reverse xmas-tree style.
+Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+---
+ drivers/clk/Kconfig     |  9 ++++---
+ drivers/clk/clk-rk808.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 65 insertions(+), 6 deletions(-)
 
->  
->  	rtc->type->unlock(rtc);
->  	/* enable pmic_power_en control */
->  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->  	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
->  
-> -	/* set alarm two seconds from now */
-> +again:
-> +	/* set alarm one second from now */
->  	omap_rtc_read_time_raw(rtc, &tm);
-> +	seconds = tm.tm_sec;
->  	bcd2tm(&tm);
->  	rtc_tm_to_time(&tm, &now);
-> -	rtc_time_to_tm(now + 2, &tm);
-> +	rtc_time_to_tm(now + 1, &tm);
->  
->  	if (tm2bcd(&tm) < 0) {
->  		dev_err(&rtc->rtc->dev, "power off failed\n");
-> @@ -470,14 +467,25 @@ static void omap_rtc_power_off(void)
->  	val = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
->  	rtc_writel(rtc, OMAP_RTC_INTERRUPTS_REG,
->  			val | OMAP_RTC_INTERRUPTS_IT_ALARM2);
-> +
-> +	/*
-> +	 * first check if ALARM2 has fired, if not then check if
-> +	 * our calculations started right before the rollover, try again
-> +	 * in case of rollover
-> +	 */
-
-This is unnecessarily verbose; I'd rephrase it as something like:
-
-	/* Retry in case roll over happened before alarm was armed. */
-
-> +	if (!(OMAP_RTC_STATUS_ALARM2 && rtc_read(omap_rtc_power_off_rtc,
-> +						 OMAP_RTC_STATUS_REG)) &&
-> +	    seconds != rtc_read(omap_rtc_power_off_rtc, OMAP_RTC_SECONDS_REG))
-> +		goto again;
-
-And this is clearly broken. First, you use boolean && instead of the &
-bit operation.
-
-Second, you need to check the status register *after* checking for
-roll-over, as I already mentioned.
-
-Also, use the rtc pointer rather than omap_rtc_power_off_rtc, which will
-allow for more readable code.
-
-I also strongly suggest you split the conditional, and use val to store
-the status register value, that is:
-
-	if (rtc_read(rtc, OMAP_RTC_SECONDS_REG) != seconds) {
-		val = rtc_read(rtc, OMAP_RTC_STATUS_REG);
-		if (!(val & OMAP_RTC_STATUS_ALARM2))
-			goto again;
-	}
-
-> +
->  	rtc->type->lock(rtc);
->  
->  	/*
-> -	 * Wait for alarm to trigger (within two seconds) and external PMIC to
-> +	 * Wait for alarm to trigger (within one second) and external PMIC to
->  	 * power off the system. Add a 500 ms margin for external latencies
->  	 * (e.g. debounce circuits).
->  	 */
-> -	mdelay(2500);
-> +	mdelay(1500);
->  }
->  
->  static const struct rtc_class_ops omap_rtc_ops = {
-
-Johan
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 721572a..92cf5ad 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -46,13 +46,12 @@ config COMMON_CLK_MAX77686
+ 	  clock.
+ 
+ config COMMON_CLK_RK808
+-	tristate "Clock driver for RK805/RK808/RK818"
++	tristate "Clock driver for RK805/RK808/RK809/RK817/RK818"
+ 	depends on MFD_RK808
+ 	---help---
+-	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
+-	  multi-function devices have two fixed-rate oscillators,
+-	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
+-	  by control register.
++	  This driver supports RK805, RK809 and RK817, RK808 and RK818 crystal oscillator clock.
++	  These multi-function devices have two fixed-rate oscillators, clocked at 32KHz each.
++	  Clkout1 is always on, Clkout2 can off by control register.
+ 
+ config COMMON_CLK_HI655X
+ 	tristate "Clock driver for Hi655x" if EXPERT
+diff --git a/drivers/clk/clk-rk808.c b/drivers/clk/clk-rk808.c
+index 6461f28..c5d3492 100644
+--- a/drivers/clk/clk-rk808.c
++++ b/drivers/clk/clk-rk808.c
+@@ -96,6 +96,66 @@ static int rk808_clkout2_is_prepared(struct clk_hw *hw)
+ 	return idx ? &rk808_clkout->clkout2_hw : &rk808_clkout->clkout1_hw;
+ }
+ 
++static int rk817_clkout2_enable(struct clk_hw *hw, bool enable)
++{
++	struct rk808_clkout *rk808_clkout = container_of(hw,
++							 struct rk808_clkout,
++							 clkout2_hw);
++	struct rk808 *rk808 = rk808_clkout->rk808;
++
++	return regmap_update_bits(rk808->regmap, RK817_SYS_CFG(1),
++				  RK817_CLK32KOUT2_EN,
++				  enable ? RK817_CLK32KOUT2_EN : 0);
++}
++
++static int rk817_clkout2_prepare(struct clk_hw *hw)
++{
++	return rk817_clkout2_enable(hw, true);
++}
++
++static void rk817_clkout2_unprepare(struct clk_hw *hw)
++{
++	rk817_clkout2_enable(hw, false);
++}
++
++static int rk817_clkout2_is_prepared(struct clk_hw *hw)
++{
++	struct rk808_clkout *rk808_clkout = container_of(hw,
++							 struct rk808_clkout,
++							 clkout2_hw);
++	struct rk808 *rk808 = rk808_clkout->rk808;
++	unsigned int val;
++
++	int ret = regmap_read(rk808->regmap, RK817_SYS_CFG(1), &val);
++
++	if (ret < 0)
++		return ret;
++
++	return (val & RK817_CLK32KOUT2_EN) ? 1 : 0;
++}
++
++static const struct clk_ops rk817_clkout2_ops = {
++	.prepare = rk817_clkout2_prepare,
++	.unprepare = rk817_clkout2_unprepare,
++	.is_prepared = rk817_clkout2_is_prepared,
++	.recalc_rate = rk808_clkout_recalc_rate,
++};
++
++static const struct clk_ops *rkpmic_get_ops(long variant)
++{
++	switch (variant) {
++	case RK809_ID:
++	case RK817_ID:
++		return &rk817_clkout2_ops;
++	case RK805_ID:
++	case RK808_ID:
++	case RK818_ID:
++		return &rk808_clkout2_ops;
++	}
++
++	return &rk808_clkout2_ops;
++}
++
+ static int rk808_clkout_probe(struct platform_device *pdev)
+ {
+ 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+@@ -127,7 +187,7 @@ static int rk808_clkout_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	init.name = "rk808-clkout2";
+-	init.ops = &rk808_clkout2_ops;
++	init.ops = rkpmic_get_ops(rk808->variant);
+ 	rk808_clkout->clkout2_hw.init = &init;
+ 
+ 	/* optional override of the clockname */
+-- 
+1.9.1
