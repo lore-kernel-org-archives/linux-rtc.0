@@ -1,37 +1,50 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:53055 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:52456 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727199AbeH1BMO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 27 Aug 2018 21:12:14 -0400
+        id S1726958AbeH1AvC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 27 Aug 2018 20:51:02 -0400
+Date: Mon, 27 Aug 2018 23:02:43 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: rv8803: fix the rv8803 id in the OF table
-Date: Mon, 27 Aug 2018 23:23:43 +0200
-Message-Id: <20180827212344.9779-1-alexandre.belloni@bootlin.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] rtc: sun6i: Use struct_size() in kzalloc()
+Message-ID: <20180827210243.GG24549@piout.net>
+References: <20180823185140.GA29028@embeddedor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180823185140.GA29028@embeddedor.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The ID for RV8803 must be rv_8803
+On 23/08/2018 13:51:40-0500, Gustavo A. R. Silva wrote:
+> One of the more common cases of allocation size calculations is finding
+> the size of a structure that has a zero-sized array at the end, along
+> with memory for some number of elements for that array. For example:
+> 
+> struct foo { 
+> 	int stuff;
+>         void *entry[];
+> };
+> 
+> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+> 
+> Instead of leaving these open-coded and prone to type mistakes, we can
+> now use the new struct_size() helper:
+> 
+> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/rtc/rtc-sun6i.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-rv8803.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 29fc3d210392..17ccef5d5db1 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -623,7 +623,7 @@ MODULE_DEVICE_TABLE(i2c, rv8803_id);
- static const struct of_device_id rv8803_of_match[] = {
- 	{
- 		.compatible = "microcrystal,rv8803",
--		.data = (void *)rx_8900
-+		.data = (void *)rv_8803
- 	},
- 	{
- 		.compatible = "epson,rx8900",
 -- 
-2.18.0
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
