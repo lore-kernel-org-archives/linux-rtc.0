@@ -1,43 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:50428 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729200AbeHPIFl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 16 Aug 2018 04:05:41 -0400
-From: Keerthy <j-keerthy@ti.com>
-To: <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC: <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>, <johan@kernel.org>,
-        <j-keerthy@ti.com>
-Subject: [PATCH v6 1/2] rtc: omap: use of_device_is_system_power_controller function
-Date: Thu, 16 Aug 2018 10:38:59 +0530
-Message-ID: <1534396140-1161-1-git-send-email-j-keerthy@ti.com>
+Received: from mail.bootlin.com ([62.4.15.54]:52247 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726958AbeH1Aks (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 27 Aug 2018 20:40:48 -0400
+Date: Mon, 27 Aug 2018 22:52:31 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: rtc-mrst: Replace mdelay() with msleep() in
+ mrst_read_time()
+Message-ID: <20180827205231.GA24549@piout.net>
+References: <20180730135903.9442-1-baijiaju1990@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180730135903.9442-1-baijiaju1990@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use of_device_is_system_power_controller instead of manually reading
-the system-power-controller property from the device tree node.
+On 30/07/2018 21:59:03+0800, Jia-Ju Bai wrote:
+> mrst_read_time() is never called in atomic context.
+> It calls mdelay() to busily wait, which is not necessary.
+> mdelay() can be replaced with msleep().
+> 
+> This is found by a static analysis tool named DCNS written by myself.
+> 
+> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> ---
+>  drivers/rtc/rtc-mrst.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Keerthy <j-keerthy@ti.com>
----
- drivers/rtc/rtc-omap.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 323ff55..44ff4cc 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -721,8 +721,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	if (of_id) {
- 		rtc->type = of_id->data;
- 		rtc->is_pmic_controller = rtc->type->has_pmic_mode &&
--				of_property_read_bool(pdev->dev.of_node,
--						"system-power-controller");
-+			of_device_is_system_power_controller(pdev->dev.of_node);
- 	} else {
- 		id_entry = platform_get_device_id(pdev);
- 		rtc->type = (void *)id_entry->driver_data;
 -- 
-1.9.1
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
