@@ -1,126 +1,64 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.135]:42344 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726338AbeHXHCk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Aug 2018 03:02:40 -0400
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v3 3/5] dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
-Date: Fri, 24 Aug 2018 11:30:39 +0800
-Message-Id: <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
-In-Reply-To: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
-References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:45883 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726954AbeH1M4q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 08:56:46 -0400
+Subject: Re: [PATCH] rtc: rtc-omap: Replace mdelay() with msleep() in
+ omap_rtc_power_off()
+To: Johan Hovold <johan@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: j-keerthy@ti.com, a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20180730135314.9336-1-baijiaju1990@gmail.com>
+ <20180827205517.GD24549@piout.net> <20180828084940.GA28861@localhost>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Message-ID: <72f42d57-90d1-83d5-3d1d-e82a2250a8ff@gmail.com>
+Date: Tue, 28 Aug 2018 17:06:00 +0800
+MIME-Version: 1.0
+In-Reply-To: <20180828084940.GA28861@localhost>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
 
-Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
----
- Documentation/devicetree/bindings/mfd/rk808.txt | 56 +++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-index 91b6522..c025a99 100644
---- a/Documentation/devicetree/bindings/mfd/rk808.txt
-+++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-@@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
- The rk8xx family current members:
- rk805
- rk808
-+rk809
-+rk817
- rk818
- 
- Required properties:
- - compatible: "rockchip,rk805"
- - compatible: "rockchip,rk808"
-+- compatible: "rockchip,rk809"
-+- compatible: "rockchip,rk817"
- - compatible: "rockchip,rk818"
- - reg: I2C slave address
- - interrupt-parent: The parent interrupt controller.
-@@ -46,6 +50,28 @@ Optional RK808 properties:
-   the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
-   very quickly with no slow ramp time.
- 
-+Optional RK809 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-+- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-+- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-+- vcc8-supply:  The input supply for SWITCH_REG1
-+- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
-+
-+Optional RK817 properties:
-+- vcc1-supply:  The input supply for DCDC_REG1
-+- vcc2-supply:  The input supply for DCDC_REG2
-+- vcc3-supply:  The input supply for DCDC_REG3
-+- vcc4-supply:  The input supply for DCDC_REG4
-+- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-+- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-+- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-+- vcc8-supply:  The input supply for BOOST
-+- vcc9-supply:  The input supply for OTG_SWITCH
-+
- Optional RK818 properties:
- - vcc1-supply:  The input supply for DCDC_REG1
- - vcc2-supply:  The input supply for DCDC_REG2
-@@ -87,6 +113,28 @@ number as described in RK808 datasheet.
- 	- SWITCH_REGn
- 		- valid values for n are 1 to 2
- 
-+Following regulators of the RK809 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK808 datasheet.
-+
-+	- DCDC_REGn
-+		- valid values for n are 1 to 5.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- SWITCH_REGn
-+		- valid values for n are 1 to 2.
-+
-+Following regulators of the RK817 PMIC block are supported. Note that
-+the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-+number as described in RK818 datasheet.
-+
-+	- DCDC_REGn
-+		- valid values for n are 1 to 4.
-+	- LDO_REGn
-+		- valid values for n are 1 to 9.
-+	- BOOST
-+	- OTG_SWITCH
-+
- Following regulators of the RK818 PMIC block are supported. Note that
- the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
- number as described in RK818 datasheet.
-@@ -99,6 +147,14 @@ number as described in RK818 datasheet.
- 	- HDMI_SWITCH
- 	- OTG_SWITCH
- 
-+There are three pins needed to config for each of RK809 and RK817,
-+named "gpio_ts" "gpio_gt" "gpio_slp".
-+	The gpio_gt and gpio_ts pins support the gpio function.
-+	The gpio_slp pin is for controlling the pmic states, as below:
-+		- reset
-+		- power down
-+		- sleep
-+
- Standard regulator bindings are used inside regulator subnodes. Check
-   Documentation/devicetree/bindings/regulator/regulator.txt
- for more details
--- 
-1.9.1
+On 2018/8/28 16:49, Johan Hovold wrote:
+> On Mon, Aug 27, 2018 at 10:55:17PM +0200, Alexandre Belloni wrote:
+>> Hi,
+>>
+>> On 30/07/2018 21:53:14+0800, Jia-Ju Bai wrote:
+>>> omap_rtc_power_off() is never called in atomic context.
+>>> It calls mdelay() to busily wait, which is not necessary.
+>>> mdelay() can be replaced with msleep().
+>>>
+>>> This is found by a static analysis tool named DCNS written by myself.
+>>>
+>>> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+>>> ---
+>>>   drivers/rtc/rtc-omap.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+>>> index 39086398833e..ef3d09525d0f 100644
+>>> --- a/drivers/rtc/rtc-omap.c
+>>> +++ b/drivers/rtc/rtc-omap.c
+>>> @@ -476,7 +476,7 @@ static void omap_rtc_power_off(void)
+>>>   	 * power off the system. Add a 500 ms margin for external latencies
+>>>   	 * (e.g. debounce circuits).
+>>>   	 */
+>>> -	mdelay(2500);
+>>> +	msleep(2500);
+>> I'm not sure about that one because this is a poweroff function so it
+>> doesn't really make sense to sleep versus busy waiting (all the drivers
+>> in power/reset use mdelay())
+> This power-off handler is called with interrupts disabled (as mentioned
+> in the function header) and must not sleep.
+
+Thanks for your reply :)
+
+I check the code again, and find that you are right.
+Sorry for my incorrect report.
+
+
+Best wishes,
+Jia-Ju Bai
