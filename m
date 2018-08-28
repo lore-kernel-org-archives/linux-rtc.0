@@ -1,56 +1,38 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:34855 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726975AbeH1MkW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 08:40:22 -0400
-Date: Tue, 28 Aug 2018 10:49:40 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jia-Ju Bai <baijiaju1990@gmail.com>, johan@kernel.org,
-        j-keerthy@ti.com, a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: rtc-omap: Replace mdelay() with msleep() in
- omap_rtc_power_off()
-Message-ID: <20180828084940.GA28861@localhost>
-References: <20180730135314.9336-1-baijiaju1990@gmail.com>
- <20180827205517.GD24549@piout.net>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:38401 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727067AbeH2Cd6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 22:33:58 -0400
+Date: Tue, 28 Aug 2018 17:40:09 -0500
+From: Rob Herring <robh@kernel.org>
+To: Tony Xie <tony.xie@rock-chips.com>
+Cc: heiko@sntech.de, broonie@kernel.org, lee.jones@linaro.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: Re: [PATCH v3 3/5] dt-bindings: mfd: rk808: Add binding information
+ for RK809 and RK817.
+Message-ID: <20180828224009.GA25643@bogus>
+References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+ <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180827205517.GD24549@piout.net>
+In-Reply-To: <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Aug 27, 2018 at 10:55:17PM +0200, Alexandre Belloni wrote:
-> Hi,
+On Fri, 24 Aug 2018 11:30:39 +0800, Tony Xie wrote:
+> Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
 > 
-> On 30/07/2018 21:53:14+0800, Jia-Ju Bai wrote:
-> > omap_rtc_power_off() is never called in atomic context.
-> > It calls mdelay() to busily wait, which is not necessary.
-> > mdelay() can be replaced with msleep().
-> > 
-> > This is found by a static analysis tool named DCNS written by myself.
-> > 
-> > Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-> > ---
-> >  drivers/rtc/rtc-omap.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> > index 39086398833e..ef3d09525d0f 100644
-> > --- a/drivers/rtc/rtc-omap.c
-> > +++ b/drivers/rtc/rtc-omap.c
-> > @@ -476,7 +476,7 @@ static void omap_rtc_power_off(void)
-> >  	 * power off the system. Add a 500 ms margin for external latencies
-> >  	 * (e.g. debounce circuits).
-> >  	 */
-> > -	mdelay(2500);
-> > +	msleep(2500);
+> Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/rk808.txt | 56 +++++++++++++++++++++++++
+>  1 file changed, 56 insertions(+)
 > 
-> I'm not sure about that one because this is a poweroff function so it
-> doesn't really make sense to sleep versus busy waiting (all the drivers
-> in power/reset use mdelay())
 
-This power-off handler is called with interrupts disabled (as mentioned
-in the function header) and must not sleep.
-
-Johan
+Reviewed-by: Rob Herring <robh@kernel.org>
