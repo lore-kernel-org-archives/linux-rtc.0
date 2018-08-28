@@ -1,244 +1,147 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.133]:53428 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726338AbeHXHCw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Aug 2018 03:02:52 -0400
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v3 4/5] rtc: rk808: add RK809 and RK817 support.
-Date: Fri, 24 Aug 2018 11:30:40 +0800
-Message-Id: <1535081441-20718-5-git-send-email-tony.xie@rock-chips.com>
-In-Reply-To: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
-References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:42037 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726806AbeH1MBB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Aug 2018 08:01:01 -0400
+MIME-Version: 1.0
+References: <20180827200338.220211-1-arnd@arndb.de> <20180827200338.220211-2-arnd@arndb.de>
+ <20180827202137.GD6515@ZenIV.linux.org.uk>
+In-Reply-To: <20180827202137.GD6515@ZenIV.linux.org.uk>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 28 Aug 2018 10:10:15 +0200
+Message-ID: <CAK8P3a31DtuRQFwK=yfKJHC-Qx0Kb9xWib1Us+_tdtFNw0iwQQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] rtc: move compat_ioctl handling into rtc-dev.c
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        keguang.zhang@gmail.com,
+        y2038 Mailman List <y2038@lists.linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-RK809 and RK817 are power management IC chips for multimedia products.
-Most of their functions and registers are same, including the rtc.
+On Mon, Aug 27, 2018 at 10:21 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> On Mon, Aug 27, 2018 at 10:03:09PM +0200, Arnd Bergmann wrote:
+> > +     case RTC_IRQP_READ32:
+> > +     case RTC_EPOCH_READ32: {
+> > +             valp = compat_alloc_user_space(sizeof(*valp));
+> > +             if (valp == NULL)
+> > +                     return -EFAULT;
+> > +             ret = rtc_dev_ioctl(file, (cmd == RTC_IRQP_READ32) ?
+> > +                                     RTC_IRQP_READ : RTC_EPOCH_READ,
+> > +                                     (unsigned long)valp);
+> > +             if (ret)
+> > +                     return ret;
+> > +             if (get_user(val, valp) || put_user(val, argp))
+> > +                     return -EFAULT;
+>
+>         No.  With the side of Hell, No.  This is bloody ridiculous - take a look
+> at rtc_dev_ioctl().  Seriously.  Relevant bits:
+>         struct rtc_device *rtc = file->private_data;
+>         const struct rtc_class_ops *ops = rtc->ops;
+>         struct rtc_time tm;
+>         struct rtc_wkalrm alarm;
+>         void __user *uarg = (void __user *) arg;
+>
+>         err = mutex_lock_interruptible(&rtc->ops_lock);
+>         if (err)
+>                 return err;
+>
+>                 err = put_user(rtc->irq_freq, (unsigned long __user *)uarg);
+>
+>         mutex_unlock(&rtc->ops_lock);
+>         return err;
+>
+> That's RTC_IRQP_READ.  IOW, all that song and dance starting with
+> compat_alloc_user_space() is just a way to get to rtc->irq_freq value.
+>
+> RTC_EPOCH_READ is in the bowels of individual implementations, but it's
+> otherwise very similar; add a method returning the damn thing (e.g.
+> rtc->ops->get_epoch(rtc)) and lift its call into rtc_dev_ioctl(), then
+> this nonsense will go away as well.
 
-Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
----
- drivers/rtc/Kconfig     |  4 +--
- drivers/rtc/rtc-rk808.c | 68 +++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 56 insertions(+), 16 deletions(-)
+Okay. I was basically trying to do one step of moving the code
+in a more appropriate place without changing it much. The problem
+I see with a get_epoch() callback is that we don't actually want more
+drivers to implement it. At the moment there is only one (vr41xx),
+so how about just moving the compat epoch handling there and
+completely leaving it outside of the common rtc-dev implementation?
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index a2ba5db..1aaf935 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -371,11 +371,11 @@ config RTC_DRV_MAX77686
- 	  will be called rtc-max77686.
- 
- config RTC_DRV_RK808
--	tristate "Rockchip RK805/RK808/RK818 RTC"
-+	tristate "Rockchip RK805/RK808/RK809/RK817/RK818 RTC"
- 	depends on MFD_RK808
- 	help
- 	  If you say yes here you will get support for the
--	  RTC of RK805, RK808 and RK818 PMIC.
-+	  RTC of RK805, RK809 and RK817, RK808 and RK818 PMIC.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rk808-rtc.
-diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
-index 739c0d4..5bacdaf 100644
---- a/drivers/rtc/rtc-rk808.c
-+++ b/drivers/rtc/rtc-rk808.c
-@@ -50,9 +50,18 @@
- #define NUM_TIME_REGS	(RK808_WEEKS_REG - RK808_SECONDS_REG + 1)
- #define NUM_ALARM_REGS	(RK808_ALARM_YEARS_REG - RK808_ALARM_SECONDS_REG + 1)
- 
-+struct rk_rtc_compat_reg {
-+	unsigned int ctrl_reg;
-+	unsigned int status_reg;
-+	unsigned int alarm_seconds_reg;
-+	unsigned int int_reg;
-+	unsigned int seconds_reg;
-+};
-+
- struct rk808_rtc {
- 	struct rk808 *rk808;
- 	struct rtc_device *rtc;
-+	struct rk_rtc_compat_reg *creg;
- 	int irq;
- };
- 
-@@ -101,7 +110,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 	int ret;
- 
- 	/* Force an update of the shadowed registers right now */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
- 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
- 				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
- 	if (ret) {
-@@ -115,7 +124,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
- 	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
- 	 */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
- 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
- 				 0);
- 	if (ret) {
-@@ -123,7 +132,7 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
- 		return ret;
- 	}
- 
--	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
-+	ret = regmap_bulk_read(rk808->regmap, rk808_rtc->creg->seconds_reg,
- 			       rtc_data, NUM_TIME_REGS);
- 	if (ret) {
- 		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
-@@ -166,7 +175,7 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	rtc_data[6] = bin2bcd(tm->tm_wday);
- 
- 	/* Stop RTC while updating the RTC registers */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
- 				 BIT_RTC_CTRL_REG_STOP_RTC_M,
- 				 BIT_RTC_CTRL_REG_STOP_RTC_M);
- 	if (ret) {
-@@ -174,14 +183,14 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		return ret;
- 	}
- 
--	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
-+	ret = regmap_bulk_write(rk808->regmap, rk808_rtc->creg->seconds_reg,
- 				rtc_data, NUM_TIME_REGS);
- 	if (ret) {
- 		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
- 		return ret;
- 	}
- 	/* Start RTC again */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
- 				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
- 	if (ret) {
- 		dev_err(dev, "Failed to update RTC control: %d\n", ret);
-@@ -199,8 +208,13 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	uint32_t int_reg;
- 	int ret;
- 
--	ret = regmap_bulk_read(rk808->regmap, RK808_ALARM_SECONDS_REG,
-+	ret = regmap_bulk_read(rk808->regmap,
-+			       rk808_rtc->creg->alarm_seconds_reg,
- 			       alrm_data, NUM_ALARM_REGS);
-+	if (ret) {
-+		dev_err(dev, "Failed to read RTC alarm date REG: %d\n", ret);
-+		return ret;
-+	}
- 
- 	alrm->time.tm_sec = bcd2bin(alrm_data[0] & SECONDS_REG_MSK);
- 	alrm->time.tm_min = bcd2bin(alrm_data[1] & MINUTES_REG_MAK);
-@@ -210,7 +224,7 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
- 	rockchip_to_gregorian(&alrm->time);
- 
--	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
-+	ret = regmap_read(rk808->regmap, rk808_rtc->creg->int_reg, &int_reg);
- 	if (ret) {
- 		dev_err(dev, "Failed to read RTC INT REG: %d\n", ret);
- 		return ret;
-@@ -231,7 +245,7 @@ static int rk808_rtc_stop_alarm(struct rk808_rtc *rk808_rtc)
- 	struct rk808 *rk808 = rk808_rtc->rk808;
- 	int ret;
- 
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
- 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M, 0);
- 
- 	return ret;
-@@ -242,7 +256,7 @@ static int rk808_rtc_start_alarm(struct rk808_rtc *rk808_rtc)
- 	struct rk808 *rk808 = rk808_rtc->rk808;
- 	int ret;
- 
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
- 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M,
- 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
- 
-@@ -274,7 +288,8 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	alrm_data[4] = bin2bcd(alrm->time.tm_mon + 1);
- 	alrm_data[5] = bin2bcd(alrm->time.tm_year - 100);
- 
--	ret = regmap_bulk_write(rk808->regmap, RK808_ALARM_SECONDS_REG,
-+	ret = regmap_bulk_write(rk808->regmap,
-+				rk808_rtc->creg->alarm_seconds_reg,
- 				alrm_data, NUM_ALARM_REGS);
- 	if (ret) {
- 		dev_err(dev, "Failed to bulk write: %d\n", ret);
-@@ -318,7 +333,7 @@ static irqreturn_t rk808_alarm_irq(int irq, void *data)
- 	struct i2c_client *client = rk808->i2c;
- 	int ret;
- 
--	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
-+	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
- 			   RTC_STATUS_MASK);
- 	if (ret) {
- 		dev_err(&client->dev,
-@@ -371,6 +386,22 @@ static int rk808_rtc_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(rk808_rtc_pm_ops,
- 	rk808_rtc_suspend, rk808_rtc_resume);
- 
-+static struct rk_rtc_compat_reg rk808_creg = {
-+	.ctrl_reg = RK808_RTC_CTRL_REG,
-+	.status_reg = RK808_RTC_STATUS_REG,
-+	.alarm_seconds_reg = RK808_ALARM_SECONDS_REG,
-+	.int_reg = RK808_RTC_INT_REG,
-+	.seconds_reg = RK808_SECONDS_REG,
-+};
-+
-+static struct rk_rtc_compat_reg rk817_creg = {
-+	.ctrl_reg = RK817_RTC_CTRL_REG,
-+	.status_reg = RK817_RTC_STATUS_REG,
-+	.alarm_seconds_reg = RK817_ALARM_SECONDS_REG,
-+	.int_reg = RK817_RTC_INT_REG,
-+	.seconds_reg = RK817_SECONDS_REG,
-+};
-+
- static int rk808_rtc_probe(struct platform_device *pdev)
- {
- 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
-@@ -381,11 +412,20 @@ static int rk808_rtc_probe(struct platform_device *pdev)
- 	if (rk808_rtc == NULL)
- 		return -ENOMEM;
- 
-+	switch (rk808->variant) {
-+	case RK809_ID:
-+	case RK817_ID:
-+		rk808_rtc->creg = &rk817_creg;
-+		break;
-+	default:
-+		rk808_rtc->creg = &rk808_creg;
-+		break;
-+	}
- 	platform_set_drvdata(pdev, rk808_rtc);
- 	rk808_rtc->rk808 = rk808;
- 
- 	/* start rtc running by default, and use shadowed timer. */
--	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
-+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
- 				 BIT_RTC_CTRL_REG_STOP_RTC_M |
- 				 BIT_RTC_CTRL_REG_RTC_READSEL_M,
- 				 BIT_RTC_CTRL_REG_RTC_READSEL_M);
-@@ -395,7 +435,7 @@ static int rk808_rtc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
-+	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
- 			   RTC_STATUS_MASK);
- 	if (ret) {
- 		dev_err(&pdev->dev,
--- 
-1.9.1
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index 70f013e692b0..05f981f7cd21 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -17,6 +17,7 @@
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
++#include <linux/compat.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/init.h>
+@@ -195,6 +196,11 @@ static int vr41xx_rtc_ioctl(struct device *dev,
+unsigned int cmd, unsigned long
+        switch (cmd) {
+        case RTC_EPOCH_READ:
+                return put_user(epoch, (unsigned long __user *)arg);
++#ifdef CONFIG_COMPAT
++       case RTC_EPOCH_READ32:
++               return put_user(epoch, (unsigned int __user *)arg);
++       case RTC_EPOCH_SET32:
++#endif
+        case RTC_EPOCH_SET:
+                /* Doesn't support before 1900 */
+
+> > +             return 0;
+> > +     }
+> > +
+> > +     /* arguments are compatible, command number is not */
+> > +     case RTC_IRQP_SET32:
+> > +             return rtc_dev_ioctl(file, RTC_IRQP_SET, arg);
+> ITYM
+>                 cmd = RTC_IRQP_SET;
+>                 break;
+> > +     case RTC_EPOCH_SET32:
+> ... and
+>                 cmd = RTC_EPOCH_SET;
+>                 break;
+> here.
+
+Just to clarify: do you mean I copied a bug from the old code,
+or are you objecting to the coding style?
+
+> > +             return rtc_dev_ioctl(file, RTC_EPOCH_SET, arg);
+> > +     }
+> > +
+> > +     /*
+> > +      * all other rtc ioctls are compatible, or only
+> > +      * exist on architectures without compat mode
+> > +      */
+> > +
+> > +     return rtc_dev_ioctl(file, cmd, (unsigned long)argp);
+> > +}
+>
+> compat_alloc_user_space() is usually papering over bogosities like
+> that; if you are moving something out to individual drivers, it's
+> always a red flag - most of the time it'll turn out to be pointless.
+
+Absolutely agreed. Eliminating compat_alloc_user_space()
+was a bit lower on my priority list than killing off do_ioctl_trans()
+(which is already fairly low at the bottom), but I've adjusted that
+and will send an update.
+
+I have a couple more patches for do_ioctl_trans() that started
+out as a side product of my y2038 patches, I'll make sure
+to do it the same way for any others. SG_GET_REQUEST_TABLE
+was the only other command for which I chose to keep
+compat_alloc_user_space() after my attempt to kill it ended
+up in way more complexity, but I can also revisit that, or maybe
+drop that patch until I get motivated to also tackle SG_IO.
+
+     Arnd
