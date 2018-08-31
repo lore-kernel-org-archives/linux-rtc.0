@@ -1,59 +1,47 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:60256 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387643AbeHALKV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Aug 2018 07:10:21 -0400
-Date: Wed, 1 Aug 2018 10:25:12 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Tony Xie <tony.xie@rock-chips.com>
-Cc: heiko@sntech.de, lee.jones@linaro.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com
-Subject: Re: [PATCH v2 2/5] regulator: rk808: add RK809 and RK817 support.
-Message-ID: <20180801092512.GA5509@sirena.org.uk>
-References: <1533023850-29004-1-git-send-email-tony.xie@rock-chips.com>
- <1533023850-29004-3-git-send-email-tony.xie@rock-chips.com>
+Received: from szxga07-in.huawei.com ([45.249.212.35]:59877 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726660AbeHaGKO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 31 Aug 2018 02:10:14 -0400
+From: YueHaibing <yuehaibing@huawei.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: YueHaibing <yuehaibing@huawei.com>, <linux-rtc@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>
+Subject: [PATCH -next] rtc: mrst: remove set but not used variable 'valid'
+Date: Fri, 31 Aug 2018 02:15:39 +0000
+Message-ID: <1535681739-156599-1-git-send-email-yuehaibing@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
-In-Reply-To: <1533023850-29004-3-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+Fixes gcc '-Wunused-but-set-variable' warning:
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+drivers/rtc/rtc-mrst.c: In function 'mrst_procfs':
+drivers/rtc/rtc-mrst.c:264:29: warning:
+ variable 'valid' set but not used [-Wunused-but-set-variable]
+  unsigned char rtc_control, valid;
 
-On Tue, Jul 31, 2018 at 03:57:27PM +0800, Tony Xie wrote:
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ drivers/rtc/rtc-mrst.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> +	default:
-> +		pr_warn("%s ramp_delay: %d not supported, setting 10000\n",
-> +			rdev->desc->name, ramp_delay);
-> +	}
-
-This looks mostly good but I notice that most of the prints in the
-driver are pr_ rather than dev_ ones - using dev_ is better as it allows
-people to see which device was affected.
-
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlthfHcACgkQJNaLcl1U
-h9C8Igf/dgHh7kVnRuWvWyT7b/+8mMS+HNtVuTBMtiUf5textB9vCDqH+oOZoZE/
-2PEPQccsJdhF2tkxfuArUQtY8lxO7BQFu3HFxD70ROweX9CfuvfnJBVDAw094Wx6
-Z4G8HLLp0WqLiqSdGvASehN8jspMmWRkV4ucf6ED/yUjGKZMUf3ow7cwgfg2e6S/
-It4Yp/5Z4QrXpQchKhRWYvJZ6xAbtGevKaEvjBWegj7L9vFJTZn1uSJJeDrrnste
-b0I0q4MUN6cfgQwYFK8JeBLvJWkmAC4bBQYv0ulDzboDtRB5VcP6WnjnDiWHBCnj
-G39mcKBy/R9YlALxB1kxGxp2Aj3Y9g==
-=3sW2
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
+index bf2d7af..daf354a 100644
+--- a/drivers/rtc/rtc-mrst.c
++++ b/drivers/rtc/rtc-mrst.c
+@@ -261,11 +261,10 @@ static int mrst_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 
+ static int mrst_procfs(struct device *dev, struct seq_file *seq)
+ {
+-	unsigned char	rtc_control, valid;
++	unsigned char	rtc_control;
+ 
+ 	spin_lock_irq(&rtc_lock);
+ 	rtc_control = vrtc_cmos_read(RTC_CONTROL);
+-	valid = vrtc_cmos_read(RTC_VALID);
+ 	spin_unlock_irq(&rtc_lock);
+ 
+ 	seq_printf(seq,
