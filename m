@@ -1,37 +1,70 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io1-f66.google.com ([209.85.166.66]:43660 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727683AbeIJLhY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Sep 2018 07:37:24 -0400
-Received: by mail-io1-f66.google.com with SMTP id y10-v6so6131903ioa.10
-        for <linux-rtc@vger.kernel.org>; Sun, 09 Sep 2018 23:44:54 -0700 (PDT)
+Received: from lucky1.263xmail.com ([211.157.147.130]:42798 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727401AbeICOSW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 3 Sep 2018 10:18:22 -0400
+From: Tony Xie <tony.xie@rock-chips.com>
+To: heiko@sntech.de
+Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com, tony.xie@rock-chips.com
+Subject: [PATCH v4 0/5] support a new type of PMIC,including two chips(rk817 and rk809)
+Date: Mon,  3 Sep 2018 18:00:24 +0800
+Message-Id: <1535968829-19418-1-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-References: <20180909203848.3470-1-alexandre.belloni@bootlin.com> <20180909203848.3470-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180909203848.3470-3-alexandre.belloni@bootlin.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Mon, 10 Sep 2018 08:44:42 +0200
-Message-ID: <CACRpkdaVH7_eVGC+CRQqsA1Y1+oMkkVhVPJmpiE=k90qa23SQQ@mail.gmail.com>
-Subject: Re: [PATCH 3/3] rtc: pl031: switch to devm_rtc_allocate_device/rtc_register_device
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support"
-        <linux-mediatek@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sun, Sep 9, 2018 at 10:38 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
+Most of functions and registers of the rk817 and rk808 are the same,
+so they can share allmost all codes.
 
-> Switch to devm_rtc_allocate_device to simplify the erro and driver removal
-> paths.
->
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Their specifications are as follows：
+  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
+     for these components except dcdc5.
+  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
+  3) The RK817 has one switch but The Rk809 has two.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Changes in V2:
+1. initialize the pm_pwroff_fn to NULL. 
+2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
+3. change patch 2/3/4/5 subjects. 
 
-Yours,
-Linus Walleij
+Changes in V3：
+1. change patch 4 subjects
+2. replace pr_ with dev_ for printing in patch 2
+3. modify switch1 and switch2 configs in patch 2
+4. explain gpio information for rk809 and rk817 in patch 4
+
+Changes in V4：
+1. modify some codes for patch 2 and patch 5 according to comments 
+2. add reviewer mail lists for patch 3 and 4
+
+Tony Xie (5):
+  mfd: rk808: Add RK817 and RK809 support
+  regulator: rk808: add RK809 and RK817 support.
+  dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
+  rtc: rk808: add RK809 and RK817 support.
+  clk: RK808: add RK809 and RK817 support.
+
+ Documentation/devicetree/bindings/mfd/rk808.txt |  56 ++
+ drivers/clk/Kconfig                             |   9 +-
+ drivers/clk/clk-rk808.c                         |  64 ++-
+ drivers/mfd/Kconfig                             |   6 +-
+ drivers/mfd/rk808.c                             | 218 +++++++-
+ drivers/regulator/Kconfig                       |   4 +-
+ drivers/regulator/rk808-regulator.c             | 657 +++++++++++++++++++++++-
+ drivers/rtc/Kconfig                             |   4 +-
+ drivers/rtc/rtc-rk808.c                         |  68 ++-
+ include/linux/mfd/rk808.h                       | 175 +++++++
+ kernel/reboot.c                                 |   1 +
+ 11 files changed, 1204 insertions(+), 58 deletions(-)
+
+-- 
+1.9.1
