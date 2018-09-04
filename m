@@ -1,106 +1,101 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from asavdk3.altibox.net ([109.247.116.14]:59301 "EHLO
-        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726914AbeINBza (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Sep 2018 21:55:30 -0400
-Date: Thu, 13 Sep 2018 22:44:12 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v1 1/5] dt-binding: rtci-pcf8523: add quartz_load property
-Message-ID: <20180913204412.GA30987@ravnborg.org>
-References: <20180822183555.GA24084@ravnborg.org>
- <20180907193508.24974-2-sam@ravnborg.org>
- <20180913190516.GG14988@piout.net>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:35098 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726004AbeIDTQ5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 4 Sep 2018 15:16:57 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: cmos: Do not export alarm rtc_ops when we do not support alarms
+Date: Tue,  4 Sep 2018 16:51:29 +0200
+Message-Id: <20180904145129.17098-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180913190516.GG14988@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hi Alexandre.
+When there is no IRQ configured for the RTC, the rtc-cmos code does not
+support alarms, all alarm rtc_ops fail with -EIO / -EINVAL.
 
-On Thu, Sep 13, 2018 at 09:05:16PM +0200, Alexandre Belloni wrote:
-> Hi,
-> 
-> You can remove 'rtci-' from the subject.
+The rtc-core expects a rtc driver which does not support rtc alarms to
+not have alarm ops at all. Otherwise the wakealarm sysfs attr will read
+as empty rather then returning an error, making it impossible for
+userspace to find out beforehand if alarms are supported.
 
-The 'i' part was me fooling around in vi.
-After submitting this serie I read the proper subject would be:
-(from bindings/submitting-patches.txt)
+A system without an IRQ for the RTC before this patch:
+[root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
+[root@localhost ~]#
 
-dt-bindings: rtc: <short description>
+After this patch:
+[root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
+cat: /sys/class/rtc/rtc0/wakealarm: No such file or directory
+[root@localhost ~]#
 
-I will use this in next submission so it is clear this is rtc related.
+This fixes gnome-session + systemd trying to use suspend-then-hibernate,
+which causes systemd to abort the suspend when writing the RTC alarm fails.
 
-> 
-> On 07/09/2018 21:35:04+0200, Sam Ravnborg wrote:
-> > From: Søren Andersen <san@skov.dk>
-> > 
-> > The NXP pcf8523 supports two different quartz loads.
-> > - 7 pF (default)
-> > - 12.5 pF (minimum power consumption)
-> > 
-> > The pcf8523 needs to know the size of the quartz load,
-> > otherwise the the RTC will have a bad precision.
-> > 
-> > The default for the rtc (after power-on) is 7 pF.
-> > Add a property that tells if the external capacitor is 12.5 pF.
-> > 
-> > Signed-off-by: Søren Andersen <san@skov.dk>
-> > Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> > Cc: Alessandro Zummo <a.zummo@towertech.it>
-> > Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> > Cc: Rob Herring <robh+dt@kernel.org>
-> > Cc: Mark Rutland <mark.rutland@arm.com>
-> > ---
-> >  Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt | 19 +++++++++++++++++++
-> >  Documentation/devicetree/bindings/trivial-devices.txt |  1 -
-> >  2 files changed, 19 insertions(+), 1 deletion(-)
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
-> > new file mode 100644
-> > index 000000000000..7c5e93f5077c
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
-> > @@ -0,0 +1,19 @@
-> > +* NXP PCF8523 Real Time Clock
-> > +
-> > +NXP PCF8523 Real Time Clock
-> > +
-> > +Required properties:
-> > +- compatible: Should contain "nxp,pcf8523".
-> > +- reg: I2C address for chip.
-> > +
-> > +Optional property:
-> > +- nxp,quartz_load_12.5pF: The capacitive load on the quartz is 12.5 pF,
-> > +  which differ from the default value of 7 pF
-> > +
-> 
-> The boolean properties usually don't work well for RTCs because people
-> usually want to keep any previous configuration that may have been done
-> at the factory or in the bootloader so I would use:
-> 
-> nxp,quartz_load_fF and this would be either 7000 or 12500.
-We had is implmented like this (using pF) in the beginning but
-then went for the simpler property.
-Will add a fF property as you suggest and avoid breaking the existing drivers.
-We will check a few of the boards to see if the current configuration
-of the pcf8523 driver looks wrong, and if so we will print
-the warnings as suggested.
+BugLink: https://github.com/systemd/systemd/issues/9988
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/rtc/rtc-cmos.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-I think the above covers feedback on all patches.
-And thanks for the feedback!
-
-	Sam
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index cd3a2411bc2f..490cdbca4430 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -244,6 +244,7 @@ static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned char	rtc_control;
+ 
++	/* This not only a rtc_op, but also called directly */
+ 	if (!is_valid_irq(cmos->irq))
+ 		return -EIO;
+ 
+@@ -439,6 +440,7 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	unsigned char mon, mday, hrs, min, sec, rtc_control;
+ 	int ret;
+ 
++	/* This not only a rtc_op, but also called directly */
+ 	if (!is_valid_irq(cmos->irq))
+ 		return -EIO;
+ 
+@@ -503,9 +505,6 @@ static int cmos_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned long	flags;
+ 
+-	if (!is_valid_irq(cmos->irq))
+-		return -EINVAL;
+-
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	if (enabled)
+@@ -566,6 +565,12 @@ static const struct rtc_class_ops cmos_rtc_ops = {
+ 	.alarm_irq_enable	= cmos_alarm_irq_enable,
+ };
+ 
++static const struct rtc_class_ops cmos_rtc_ops_no_alarm = {
++	.read_time		= cmos_read_time,
++	.set_time		= cmos_set_time,
++	.proc			= cmos_procfs,
++};
++
+ /*----------------------------------------------------------------*/
+ 
+ /*
+@@ -842,9 +847,12 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
+ 			goto cleanup1;
+ 		}
++
++		cmos_rtc.rtc->ops = &cmos_rtc_ops;
++	} else {
++		cmos_rtc.rtc->ops = &cmos_rtc_ops_no_alarm;
+ 	}
+ 
+-	cmos_rtc.rtc->ops = &cmos_rtc_ops;
+ 	cmos_rtc.rtc->nvram_old_abi = true;
+ 	retval = rtc_register_device(cmos_rtc.rtc);
+ 	if (retval)
+-- 
+2.19.0.rc0
