@@ -1,149 +1,94 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:52822 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726099AbeHUAj1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 20 Aug 2018 20:39:27 -0400
-Date: Mon, 20 Aug 2018 23:21:57 +0200
+Date: Wed, 5 Sep 2018 00:02:07 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC for 4.19
-Message-ID: <20180820212157.GA20956@piout.net>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>, Ales Novak <alnovak@suse.cz>,
+        a.zummo@towertech.it, akpm@linux-foundation.org,
+        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: rtc: fix chardev initialization races
+Message-ID: <20180904220207.GK13888@piout.net>
+References: <1393410793-7315-1-git-send-email-alnovak@suse.cz>
+ <20180521122509.GA4251@taurus.defre.kleine-koenig.org>
+ <nycvar.YFH.7.76.1805221407100.27054@cbobk.fhfr.pm>
+ <20180522133955.jrqijs7xj3cz2lr4@pengutronix.de>
+ <nycvar.YFH.7.76.1805221726300.27054@cbobk.fhfr.pm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <nycvar.YFH.7.76.1805221726300.27054@cbobk.fhfr.pm>
 Sender: linux-rtc-owner@vger.kernel.org
-List-ID: <linux-rtc.vger.kernel.org>
+List-ID: <rtc-linux.googlegroups.com>
 
-Hi Linus,
+On 22/05/2018 17:33:40+0200, Jiri Kosina wrote:
+> On Tue, 22 May 2018, Uwe Kleine-König wrote:
+> > [adding linux-rtc ML and Alexandre to Cc:]
+> > 
+> > Hello,
+> > 
+> > On Tue, May 22, 2018 at 02:09:36PM +0200, Jiri Kosina wrote:
+> > > On Mon, 21 May 2018, Uwe Kleine-König wrote:
+> > > 
+> > > > > The race looks like that (thanks Jiri):
+> > > > > 
+> > > > > CPU0:                                CPU1:
+> > > > > sys_load_module()
+> > > > >  do_init_module()
+> > > > >   do_one_initcall()
+> > > > >    cmos_do_probe()
+> > > > >     rtc_device_register()
+> > > > >      __register_chrdev()
+> > > > >      cdev->owner = struct module*
+> > > > >                                      open("/dev/rtc0")
+> > > > >     rtc_device_unregister()
+> > > > >   module_put()
+> > > > >   free_module()
+> > > > >    module_free(mod->module_core)
+> > > > >    /* struct module *module is now
+> > > > >       freed */
+> > > > >                                       chrdev_open()
+> > > > >                                        spin_lock(cdev_lock)
+> > > > >                                        cdev_get()
+> > > > >                                         try_module_get()
+> > > > >                                          module_is_live()
+> > > > >                                          /* dereferences already
+> > > > >                                             freed struct module* */
+> > > > 
+> > > > [Context: For a patch to rtc-pcf2127.c Alexandre Belloni asked not to
+> > > > fail after rtc_device_register successfully finished and pointed to this
+> > > > reasoning as explaination.]
+> > > > 
+> > > > If there is really such a race then (I hope) there is
+> > > > something in the cdev code that needs fixing. According to my
+> > > > understanding, when rtc_device_unregister returned, the cdev is gone and
+> > > > so chrdev_open is supposed to fail.
+> > > 
+> > > Oh wow, hello back to 4 years ago!
+> > 
+> > :-)
+> > 
+> 
+> > > Looking at the current code, I don't think there is no such race any more, 
+> > > as the last thing cmos_do_probe() -> __rtc_register_device() does that can 
+> > > potentially fail is the chardev creation itself.
+> > 
+> > OK, so you agree that it's also save to do something in a driver's probe
+> > after rtc_device_register() and call rtc_device_unregister() in the error
+> > path, right? 
+> 
+> Hmm, not really; that's what the code apparently did 4 years ago (judging 
+> from the scenario in the old mail, I of course forgot all the details), 
+> but doesn't do it any more.
+> 
+> Looking at the current code, if you call rtc_device_unregister() in the 
+> probe path, where is the guarantee that cdev_get() will not derefernce 
+> already freed struct module*?
+> 
 
-Here is the pull-request for the RTC subsystem for 4.19.
-
-It is now possible to add custom sysfs attributes while avoiding a
-possible race condition. Unused code has been removed resulting in a
-nice reduction of the code base. And more drivers have been switched to
-SPDX by their maintainers.
-
-The following changes since commit ce397d215ccd07b8ae3f71db689aedb85d56ab40:
-
-  Linux 4.18-rc1 (2018-06-17 08:04:49 +0900)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.19
-
-for you to fetch changes up to 6b583a64fd1e019fd01626b46892ebf2361951c5:
-
-  rtc: ds1307: simplify hwmon config (2018-08-16 07:46:41 +0200)
-
-----------------------------------------------------------------
-RTC for 4.19
-
-Subsystem:
- - new helpers to add custom sysfs attributes
- - struct rtc_task removal along with rtc_irq_register/rtc_irq_unregister
- - rtc_irq_set_state and rtc_irq_set_freq are not exported anymore
-
-Drivers:
- - armada38x: reset after rtc power loss
- - ds1307: now supports m41t11
- - isl1208: now supports isl1219 and tamper detection
- - pcf2127: internal SRAM support
-
-----------------------------------------------------------------
-Alexandre Belloni (10):
-      rtc: ds1685: remove improper datetime access ABI
-      rtc: ds1685: remove sysfs access to control registers
-      rtc: sa1100: don't set PIE frequency
-      rtc: sh: remove dead code
-      rtc: remove rtc_irq_register/rtc_irq_unregister
-      rtc: remove irq_task and irq_task_lock
-      rtc: simplify rtc_irq_set_state/rtc_irq_set_freq
-      rtc: unexport rtc_irq_set_*
-      char: rtc: remove task handling
-      rtc: remove struct rtc_task
-
-Alvin Å ipraga (1):
-      rtc: pcf85063: preserve control register value between stop and start
-
-Anders Roxell (1):
-      rtc: sh: remove unused variable rtc_dev
-
-Arnd Bergmann (1):
-      rtc: use ktime_get_real_ts64() instead of getnstimeofday64()
-
-Baruch Siach (1):
-      rtc: armada38x: reset after rtc power loss
-
-Colin Ian King (2):
-      rtc: test: make array pdev static
-      rtc: m48t59: remove redundant pointer 'name'
-
-Denis Osterland (4):
-      rtc: sysfs: facilitate attribute add to rtc device
-      rtc: isl1208: Add "evdet" interrupt source for isl1219
-      rtc: isl1208: set ev-evienb bit from device tree
-      rtc: isl1219: add device tree documentation
-
-Giulio Benetti (2):
-      rtc: ds1307: fix data pointer to m41t0
-      rtc: ds1307: support m41t11 variant
-
-Heiner Kallweit (1):
-      rtc: ds1307: simplify hwmon config
-
-Johan Hovold (4):
-      rtc: omap: fix potential crash on power off
-      rtc: omap: fix resource leak in registration error path
-      rtc: omap: add missing register lock in error path
-      rtc: omap: drop unnecessary register unlock around reads
-
-Krzysztof Kozlowski (2):
-      rtc: maxim: Add SPDX license identifiers
-      rtc: s5m: Add SPDX license identifier
-
-Michael Grzeschik (1):
-      rtc: isl1208: add support for isl1219 with tamper detection
-
-Trent Piepho (1):
-      rtc: snvs: Add timeouts to avoid kernel lockups
-
-Uwe Kleine-KÃ¶nig (2):
-      rtc: pcf2127: add support for accessing internal static RAM
-      rtc: stmp3xxx: Don't reset the rtc in .probe() when watchdog is running
-
-Zhouyang Jia (1):
-      rtc: bq4802: add error handling for devm_ioremap
-
- .../devicetree/bindings/rtc/isil,isl1219.txt       |  29 +
- .../devicetree/bindings/rtc/rtc-ds1307.txt         |   1 +
- drivers/char/rtc.c                                 |  13 -
- drivers/rtc/Kconfig                                |  21 -
- drivers/rtc/class.c                                |   5 +-
- drivers/rtc/interface.c                            |  97 +---
- drivers/rtc/rtc-armada38x.c                        |  23 +
- drivers/rtc/rtc-bq4802.c                           |   4 +
- drivers/rtc/rtc-core.h                             |  14 +
- drivers/rtc/rtc-dev.c                              |   8 +-
- drivers/rtc/rtc-ds1307.c                           |  18 +-
- drivers/rtc/rtc-ds1685.c                           | 590 ---------------------
- drivers/rtc/rtc-isl1208.c                          | 192 ++++++-
- drivers/rtc/rtc-m48t59.c                           |   4 -
- drivers/rtc/rtc-max77686.c                         |  20 +-
- drivers/rtc/rtc-max8997.c                          |  20 +-
- drivers/rtc/rtc-max8998.c                          |  20 +-
- drivers/rtc/rtc-omap.c                             |  23 +-
- drivers/rtc/rtc-pcf2127.c                          |  68 ++-
- drivers/rtc/rtc-pcf85063.c                         |  21 +-
- drivers/rtc/rtc-s5m.c                              |  22 +-
- drivers/rtc/rtc-sa1100.c                           |   1 -
- drivers/rtc/rtc-sh.c                               |  90 +---
- drivers/rtc/rtc-snvs.c                             | 105 ++--
- drivers/rtc/rtc-stmp3xxx.c                         |  20 +-
- drivers/rtc/rtc-sysfs.c                            |  43 ++
- drivers/rtc/rtc-test.c                             |   2 +-
- include/linux/rtc.h                                |  21 +-
- 28 files changed, 524 insertions(+), 971 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
+I've also tried to produce it and couldn't. The whole magic happens in
+kobj_lookup. Freeing the module before ends up with the application
+opening the char dev getting -ENXIO. Freeing the module after
+kobj_lookup is not possible and ends up with -EBUSY.
 
 -- 
 Alexandre Belloni, Bootlin
