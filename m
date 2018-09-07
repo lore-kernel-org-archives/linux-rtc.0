@@ -1,42 +1,92 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:57224 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731460AbeISWpW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 19 Sep 2018 18:45:22 -0400
-Date: Wed, 19 Sep 2018 19:06:18 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v11 4/4] rtc: ds1307: add frequency_test_enable sysfs
- attribute to check tick on m41txx
-Message-ID: <20180919170618.GC2479@piout.net>
-References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
- <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:35708 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725963AbeIHASW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 20:18:22 -0400
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?S=C3=B8ren=20Andersen?= <san@skov.dk>
+Subject: [PATCH v1 1/5] dt-binding: rtci-pcf8523: add quartz_load property
+Date: Fri,  7 Sep 2018 21:35:04 +0200
+Message-Id: <20180907193508.24974-2-sam@ravnborg.org>
+In-Reply-To: <20180822183555.GA24084@ravnborg.org>
+References: <20180822183555.GA24084@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 25/07/2018 19:26:05+0200, Giulio Benetti wrote:
-> On m41txx you can enable open-drain OUT pin to check if offset is ok.
-> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
-> 512 times faster than 1s tick base.
-> 
-> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
-> 
-> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
-> ---
-> V10 => V11:
-> * kstrtobool(): check error if (ret) avoiding checking specific error.
-> 
->  drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 94 insertions(+)
-> 
-Applied, thanks.
+From: Søren Andersen <san@skov.dk>
 
+The NXP pcf8523 supports two different quartz loads.
+- 7 pF (default)
+- 12.5 pF (minimum power consumption)
+
+The pcf8523 needs to know the size of the quartz load,
+otherwise the the RTC will have a bad precision.
+
+The default for the rtc (after power-on) is 7 pF.
+Add a property that tells if the external capacitor is 12.5 pF.
+
+Signed-off-by: Søren Andersen <san@skov.dk>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+---
+ Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt | 19 +++++++++++++++++++
+ Documentation/devicetree/bindings/trivial-devices.txt |  1 -
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
+
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
+new file mode 100644
+index 000000000000..7c5e93f5077c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
+@@ -0,0 +1,19 @@
++* NXP PCF8523 Real Time Clock
++
++NXP PCF8523 Real Time Clock
++
++Required properties:
++- compatible: Should contain "nxp,pcf8523".
++- reg: I2C address for chip.
++
++Optional property:
++- nxp,quartz_load_12.5pF: The capacitive load on the quartz is 12.5 pF,
++  which differ from the default value of 7 pF
++
++Example:
++
++pcf8523: pcf8523@68 {
++	compatible = "nxp,pcf85063";
++	reg = <0x68>;
++	nxp,quartz_load_12.5pF;
++};
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index 763a2808a95c..297dc82b67ad 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -169,7 +169,6 @@ nxp,pca9556		Octal SMBus and I2C registered interface
+ nxp,pca9557		8-bit I2C-bus and SMBus I/O port with reset
+ nxp,pcf2127		Real-time clock
+ nxp,pcf2129		Real-time clock
+-nxp,pcf8523		Real-time Clock
+ nxp,pcf8563		Real-time clock/calendar
+ nxp,pcf85063		Tiny Real-Time Clock
+ oki,ml86v7667		OKI ML86V7667 video decoder
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.12.0
