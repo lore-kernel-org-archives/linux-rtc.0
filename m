@@ -1,101 +1,82 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:41714 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbeIXU2G (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 24 Sep 2018 16:28:06 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: Gregory Clement <gregory.clement@bootlin.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/3] rtc: armada38x: switch to rtc_time64_to_tm/rtc_tm_to_time64
-Date: Mon, 24 Sep 2018 16:25:36 +0200
-Message-Id: <20180924142536.27801-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180924142536.27801-1-alexandre.belloni@bootlin.com>
-References: <20180924142536.27801-1-alexandre.belloni@bootlin.com>
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:35714 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725963AbeIHAS3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 20:18:29 -0400
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?S=C3=B8ren=20Andersen?= <san@skov.dk>
+Subject: [PATCH v1 4/5] rtc: pcf8523: external capacitor configuration
+Date: Fri,  7 Sep 2018 21:35:07 +0200
+Message-Id: <20180907193508.24974-5-sam@ravnborg.org>
+In-Reply-To: <20180822183555.GA24084@ravnborg.org>
+References: <20180822183555.GA24084@ravnborg.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Call the 64bit versions of rtc_time_to_tm and rtc_tm_to_time now that the
-range is enforced by the core.
+From: Søren Andersen <san@skov.dk>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Add support for specifying the quartz load in the DT node.
+The pcf8523 may use either a 7 pF or an 12.5 pF xtal.
+If the rtc has the wrong configuration the time will
+drift several hours/week.
+
+If nothing is specified in DT then the factory default of 7 pF is used.
+This is a change compared to before where the driver assumed 12.5 pF.
+
+Note: all kernel dts trees are updated with the new property.
+
+Signed-off-by: Søren Andersen <san@skov.dk>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-armada38x.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-pcf8523.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index d0278ad0a7f9..9e78f004670b 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -224,7 +224,7 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	time = rtc->data->read_rtc_reg(rtc, RTC_TIME);
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
--	rtc_time_to_tm(time, tm);
-+	rtc_time64_to_tm(time, tm);
- 
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index 453615f8ac9a..3c19b4d21a2d 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -85,7 +85,7 @@ static int pcf8523_write(struct i2c_client *client, u8 reg, u8 value)
  	return 0;
  }
-@@ -249,13 +249,9 @@ static void armada38x_rtc_reset(struct armada38x_rtc *rtc)
- static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+-static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
++static int pcf8523_select_capacitance(struct i2c_client *client)
  {
- 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
--	int ret = 0;
- 	unsigned long time, flags;
+ 	u8 value;
+ 	int err;
+@@ -94,7 +94,7 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
+ 	if (err < 0)
+ 		return err;
  
--	ret = rtc_tm_to_time(tm, &time);
--
--	if (ret)
--		goto out;
-+	time = rtc_tm_to_time64(tm);
+-	if (!high)
++	if (!device_property_present(&client->dev, "nxp,quartz_load_12.5pf"))
+ 		value &= ~REG_CONTROL1_CAP_SEL;
+ 	else
+ 		value |= REG_CONTROL1_CAP_SEL;
+@@ -331,7 +331,7 @@ static int pcf8523_probe(struct i2c_client *client,
+ 	if (!pcf)
+ 		return -ENOMEM;
  
- 	if (!rtc->initialized)
- 		armada38x_rtc_reset(rtc);
-@@ -264,8 +260,7 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	rtc_delayed_write(time, rtc, RTC_TIME);
- 	spin_unlock_irqrestore(&rtc->lock, flags);
+-	err = pcf8523_select_capacitance(client, true);
++	err = pcf8523_select_capacitance(client);
+ 	if (err < 0)
+ 		return err;
  
--out:
--	return ret;
-+	return 0;
- }
- 
- static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -284,7 +279,7 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
- 	alrm->enabled = val ? 1 : 0;
--	rtc_time_to_tm(time,  &alrm->time);
-+	rtc_time64_to_tm(time,  &alrm->time);
- 
- 	return 0;
- }
-@@ -295,12 +290,8 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
- 	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
- 	unsigned long time, flags;
--	int ret = 0;
- 
--	ret = rtc_tm_to_time(&alrm->time, &time);
--
--	if (ret)
--		goto out;
-+	time = rtc_tm_to_time64(&alrm->time);
- 
- 	spin_lock_irqsave(&rtc->lock, flags);
- 
-@@ -313,8 +304,7 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	spin_unlock_irqrestore(&rtc->lock, flags);
- 
--out:
--	return ret;
-+	return 0;
- }
- 
- static int armada38x_rtc_alarm_irq_enable(struct device *dev,
 -- 
-2.19.0
+2.12.0
