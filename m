@@ -1,61 +1,67 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:34142 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727241AbeIKRiU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Sep 2018 13:38:20 -0400
-Received: by mail-wr1-f67.google.com with SMTP id g33-v6so25927137wrd.1
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Sep 2018 05:39:10 -0700 (PDT)
-Date: Tue, 11 Sep 2018 13:39:07 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Tony Xie <tony.xie@rock-chips.com>
-Cc: heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com
-Subject: Re: [PATCH v4 1/5] mfd: rk808: Add RK817 and RK809 support
-Message-ID: <20180911123907.GN4185@dell>
-References: <1535968829-19418-1-git-send-email-tony.xie@rock-chips.com>
- <1535968829-19418-2-git-send-email-tony.xie@rock-chips.com>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:44246 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725963AbeIHASH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 20:18:07 -0400
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH v1 0/5] add quartz load support to NXP rtc drivers
+Date: Fri,  7 Sep 2018 21:35:03 +0200
+Message-Id: <20180907193508.24974-1-sam@ravnborg.org>
+In-Reply-To: <20180822183555.GA24084@ravnborg.org>
+References: <20180822183555.GA24084@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1535968829-19418-2-git-send-email-tony.xie@rock-chips.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, 03 Sep 2018, Tony Xie wrote:
+The current rtc drivers for NXP pcf8523 and pcf85063
+have different configuration of the quartz load.
 
->     The rk809 and rk817 are a Power Management IC (PMIC) for multimedia
->     and handheld devices. It contains the following components:
-> 
->         - Regulators
->         - RTC
->         - Clocking
-> 
->     Both RK809 and RK817 chips are using a similar register map,
->     so we can reuse the RTC and Clocking and regulators functionality.
-> 
-> Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
-> ---
+pcf8523 hardcode the quartz load to 12.5 Pf
+pcf85063 uses the reset default of 7 pF
 
-It's often helpful to place a Changelog in this space.
+Introduce a new property to the bindings for the two
+rtc devices to specify if the quartz load is 12.5 pF.
 
->  drivers/mfd/Kconfig       |   6 +-
->  drivers/mfd/rk808.c       | 218 +++++++++++++++++++++++++++++++++++++++++++++-
->  include/linux/mfd/rk808.h | 172 ++++++++++++++++++++++++++++++++++++
->  kernel/reboot.c           |   1 +
->  4 files changed, 391 insertions(+), 6 deletions(-)
+Update all in-kernel DT files using the pcf8523 to specify this property.
+And finally update the drivers to support the property.
 
-I just reviewed v4.
+NOTE:
+This has the side-effect that any users of the
+pcf8523 driver using out-of-tree DTS files needs to
+add the new property to get the same behaviour as before.
 
-It looks like the review comments are still relevant.
+	Sam
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Søren Andersen (5):
+      dt-binding: rtci-pcf8523: add binding with quartz_load property
+      dt-binding: rtc-pcf85063: add binding with quartz load property
+      dts: add nxp,quartz_load_12.5pf to all pcf8523 nodes
+      rtc: pcf8523: add quartz load configuration from DT
+      rtc: pcf85063: add quartz load configuration from DT
+
+ .../devicetree/bindings/rtc/nxp,pcf85063.txt       | 19 +++++++++++++
+ .../devicetree/bindings/rtc/nxp,pcf8523.txt        | 19 +++++++++++++
+ .../devicetree/bindings/trivial-devices.txt        |  2 --
+ arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts       |  1 +
+ arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts         |  1 +
+ arch/arm/boot/dts/imx6q-h100.dts                   |  1 +
+ arch/arm/boot/dts/imx6q-novena.dts                 |  1 +
+ arch/arm/boot/dts/imx6qdl-cubox-i.dtsi             |  1 +
+ arch/arm/boot/dts/imx6qdl-hummingboard.dtsi        |  1 +
+ arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi       |  1 +
+ drivers/rtc/rtc-pcf85063.c                         | 31 ++++++++++++++++++++++
+ drivers/rtc/rtc-pcf8523.c                          |  6 ++---
+ 12 files changed, 79 insertions(+), 5 deletions(-)
