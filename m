@@ -1,64 +1,104 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:47534 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725794AbeICSBe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 3 Sep 2018 14:01:34 -0400
-Date: Mon, 3 Sep 2018 14:41:01 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Tony Xie <tony.xie@rock-chips.com>
-Cc: heiko@sntech.de, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com
-Subject: Re: [PATCH v4 2/5] regulator: rk808: add RK809 and RK817 support.
-Message-ID: <20180903134101.GK10302@sirena.org.uk>
-References: <1535968829-19418-1-git-send-email-tony.xie@rock-chips.com>
- <1535968829-19418-3-git-send-email-tony.xie@rock-chips.com>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:33302 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727164AbeIHASb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 20:18:31 -0400
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?S=C3=B8ren=20Andersen?= <san@skov.dk>
+Subject: [PATCH v1 5/5] rtc: pcf85063: external capacitor configuration
+Date: Fri,  7 Sep 2018 21:35:08 +0200
+Message-Id: <20180907193508.24974-6-sam@ravnborg.org>
+In-Reply-To: <20180822183555.GA24084@ravnborg.org>
+References: <20180822183555.GA24084@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="LQ77YLfPrO/qF/pM"
-In-Reply-To: <1535968829-19418-3-git-send-email-tony.xie@rock-chips.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
+From: Søren Andersen <san@skov.dk>
 
---LQ77YLfPrO/qF/pM
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add support for specifying the quartz load in the DT node.
+The pcf85063 may use either a 7 pF or an 12.5 pF xtal.
+If the rtc has the wrong configuration the time will
+drift several hours/week.
 
-On Mon, Sep 03, 2018 at 06:00:26PM +0800, Tony Xie wrote:
+If nothing is specified in DT then the factory default of 7 pF is used.
 
->     Add support for the rk809 and rk817 regulator driver.
->     Their specifications are as follows=EF=BC=9A
->     1. The RK809 and RK809 consist of 5 DCDCs, 9 LDOs
->        and have the same registers for these components except dcdc5.
->     2. The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
->     3. The RK817 has one switch but The Rk809 has two.
->=20
->     The output voltages are configurable and are meant to supply power
->     to the main processor and other components.
+Signed-off-by: Søren Andersen <san@skov.dk>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-Acked-by: Mark Brown <broonie@kernel.org>
-
---LQ77YLfPrO/qF/pM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAluNOewACgkQJNaLcl1U
-h9ADqAf/ZUW93wVRWWiEtL3ZAFgbG3LHT8YSwyDBGPd7zduqbrKn2VqLjdPMXVy/
-aYXWD9347vawBVYwgds0Gu9/tHUNjZSfcyGDc0PVffN8Qy2iXFJmw8jK7skkchwx
-KbgUcTUz0fD1489R6VPhsUvFxLIdayLi+Qcvy8w0Tthf+8BGoM90QRirGGoLq9Tv
-z23z31c4TtsIrn9dMKRi8boRrTYRR+XXJqY+nNxg/Ft/Jr6aUUrjDKb8zT6G/wt5
-gzoCGbQHitXeTLubD9X+9FSFG+6/i2skIt6Wlo6TS7KDRGhwU4woQYjsmEJVtCtV
-R9ioVbUHtpfsp0dAS97EDfhC1uttig==
-=xh3s
------END PGP SIGNATURE-----
-
---LQ77YLfPrO/qF/pM--
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 283c2335b01b..38163446664f 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -27,6 +27,7 @@
+ */
+ 
+ #define PCF85063_REG_CTRL1		0x00 /* status */
++#define PCF85063_REG_CTRL1_CAP_SEL	BIT(0)
+ #define PCF85063_REG_CTRL1_STOP		BIT(5)
+ #define PCF85063_REG_CTRL2		0x01
+ 
+@@ -180,6 +181,31 @@ static const struct rtc_class_ops pcf85063_rtc_ops = {
+ 	.set_time	= pcf85063_rtc_set_time
+ };
+ 
++static int pcf85063_select_capacitance(struct i2c_client *client)
++{
++	int rc;
++	u8 reg;
++
++	rc = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
++	if (rc < 0) {
++		dev_err(&client->dev, "Failing to read Control1 reg\n");
++		return -EIO;
++	}
++
++	if (device_property_present(&client->dev, "nxp,quartz_load_12.5pf"))
++		reg = rc |= PCF85063_REG_CTRL1_CAP_SEL;
++	else
++		reg = rc &= ~PCF85063_REG_CTRL1_CAP_SEL;
++
++	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, reg);
++	if (rc < 0) {
++		dev_err(&client->dev, "Failing to configure device\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ static int pcf85063_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+@@ -197,6 +223,11 @@ static int pcf85063_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
++	err = pcf85063_select_capacitance(client);
++	if (err < 0)
++		dev_warn(&client->dev,
++			 "Capacitance  setup failed. Trying to continue\n");
++
+ 	rtc = devm_rtc_device_register(&client->dev,
+ 				       pcf85063_driver.driver.name,
+ 				       &pcf85063_rtc_ops, THIS_MODULE);
+-- 
+2.12.0
