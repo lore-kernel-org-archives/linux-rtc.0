@@ -1,21 +1,17 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:40896 "EHLO
+Received: from mail-it0-f68.google.com ([209.85.214.68]:51719 "EHLO
         mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbeIKCdh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Sep 2018 22:33:37 -0400
-Received: by mail-it0-f68.google.com with SMTP id h23-v6so30735269ita.5
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Sep 2018 14:37:35 -0700 (PDT)
+        with ESMTP id S1727621AbeIGT7O (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 15:59:14 -0400
+Received: by mail-it0-f68.google.com with SMTP id e14-v6so21035420itf.1
+        for <linux-rtc@vger.kernel.org>; Fri, 07 Sep 2018 08:17:52 -0700 (PDT)
 From: Jeremy Gebben <jgebben@sweptlaser.com>
 To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] rtc: abx80x: add basic watchdog support
-Date: Mon, 10 Sep 2018 15:36:54 -0600
-Message-Id: <20180910213654.26059-3-jgebben@sweptlaser.com>
-In-Reply-To: <20180910213654.26059-1-jgebben@sweptlaser.com>
-References: <20180910213654.26059-1-jgebben@sweptlaser.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: abx80x: add basic watchdog support
+Date: Fri,  7 Sep 2018 09:17:43 -0600
+Message-Id: <20180907151744.32634-1-jgebben@sweptlaser.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
@@ -24,11 +20,34 @@ function that can trigger an external reset.
 
 Signed-off-by: Jeremy Gebben <jgebben@sweptlaser.com>
 ---
- drivers/rtc/rtc-abx80x.c | 132 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 128 insertions(+), 4 deletions(-)
+ drivers/rtc/Kconfig      |  11 +++
+ drivers/rtc/rtc-abx80x.c | 160 ++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 159 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 7d7be60a2413..4771e3a89721 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -195,6 +195,17 @@ config RTC_DRV_ABX80X
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-abx80x.
+ 
++config RTC_DRV_ABX80X_WDT
++	bool "Abracon ABx80x Watchdog"
++	default y
++	depends on RTC_DRV_ABX80X
++	help
++	  If you say yes here you get watchdog support for Abracon ABX804 and ABX805
++	  clock chips. This watchdog supports timeouts up to 31 seconds with 1 second
++	  granularity.
++
++          This watchdog device is part of the rtc-abx80x module.
++
+ config RTC_DRV_AC100
+ 	tristate "X-Powers AC100"
+ 	depends on MFD_AC100
 diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 9d49054a0a4a..e1ec4cce093a 100644
+index 2cefa67a1132..fa558939e944 100644
 --- a/drivers/rtc/rtc-abx80x.c
 +++ b/drivers/rtc/rtc-abx80x.c
 @@ -17,6 +17,7 @@
@@ -62,7 +81,7 @@ index 9d49054a0a4a..e1ec4cce093a 100644
  #define ABX8XX_REG_CFG_KEY	0x1f
  #define ABX8XX_CFG_KEY_OSC	0xa1
  #define ABX8XX_CFG_KEY_MISC	0x9d
-@@ -80,23 +90,25 @@ enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
+@@ -80,20 +90,27 @@ enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
  struct abx80x_cap {
  	u16 pn;
  	bool has_tc;
@@ -85,14 +104,26 @@ index 9d49054a0a4a..e1ec4cce093a 100644
  	[ABX80X] = {.pn = 0}
  };
  
- struct abx80x_priv {
- 	struct rtc_device *rtc;
- 	struct i2c_client *client;
++struct abx80x_priv {
++	struct rtc_device *rtc;
++	struct i2c_client *client;
 +	struct watchdog_device wdog;
- };
- 
++};
++
  static int abx80x_is_rc_mode(struct i2c_client *client)
-@@ -234,6 +246,13 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
+ {
+ 	int flags = 0;
+@@ -218,7 +235,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
+ {
+ 	struct i2c_client *client = dev_id;
+-	struct rtc_device *rtc = i2c_get_clientdata(client);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
++	struct rtc_device *rtc = priv->rtc;
+ 	int status;
+ 
+ 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+@@ -228,6 +246,13 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
  	if (status & ABX8XX_STATUS_AF)
  		rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
  
@@ -101,16 +132,16 @@ index 9d49054a0a4a..e1ec4cce093a 100644
 +	 * reset kicks in.
 +	 */
 +	if (status & ABX8XX_STATUS_WDT)
-+		dev_alert(&client->dev, "watchdog timeout interrupt.\n");
++		dev_err(&client->dev, "watchdog timeout interrupt!\n");
 +
  	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
  
  	return IRQ_HANDLED;
-@@ -535,6 +554,105 @@ static void rtc_calib_remove_sysfs_group(void *_dev)
+@@ -529,11 +554,110 @@ static void rtc_calib_remove_sysfs_group(void *_dev)
  	sysfs_remove_group(&dev->kobj, &rtc_calib_attr_group);
  }
  
-+#ifdef CONFIG_WATCHDOG
++#ifdef CONFIG_RTC_DRV_ABX80X_WDT
 +
 +static inline u8 timeout_bits(unsigned int timeout)
 +{
@@ -212,18 +243,51 @@ index 9d49054a0a4a..e1ec4cce093a 100644
  static int abx80x_probe(struct i2c_client *client,
  			const struct i2c_device_id *id)
  {
-@@ -629,6 +747,12 @@ static int abx80x_probe(struct i2c_client *client,
+ 	struct device_node *np = client->dev.of_node;
+-	struct rtc_device *rtc;
++	struct abx80x_priv *priv;
+ 	int i, data, err, trickle_cfg = -EINVAL;
+ 	char buf[7];
+ 	unsigned int part = id->driver_data;
+@@ -610,13 +734,25 @@ static int abx80x_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
  
- 	i2c_set_clientdata(client, priv);
+-	rtc = devm_rtc_allocate_device(&client->dev);
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
++	priv = devm_kzalloc(&client->dev, sizeof(struct abx80x_priv),
++			    GFP_KERNEL);
++	if (priv == NULL)
++		return -ENOMEM;
++
++	priv->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(priv->rtc))
++		return PTR_ERR(priv->rtc);
  
+-	rtc->ops = &abx80x_rtc_ops;
++	priv->rtc->ops = &abx80x_rtc_ops;
++	priv->client = client;
+ 
+-	i2c_set_clientdata(client, rtc);
++	i2c_set_clientdata(client, priv);
++
 +	if (abx80x_caps[part].has_wdog) {
 +		err = abx80x_setup_watchdog(priv);
 +		if (err)
 +			return err;
 +	}
-+
+ 
  	if (client->irq > 0) {
  		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
- 		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+@@ -649,7 +785,7 @@ static int abx80x_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
+-	err = rtc_register_device(rtc);
++	err = rtc_register_device(priv->rtc);
+ 
+ 	return err;
+ }
 -- 
 2.17.1
