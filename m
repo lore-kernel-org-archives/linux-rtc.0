@@ -1,37 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:37495 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:58402 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726387AbeIKMhf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 11 Sep 2018 08:37:35 -0400
-Date: Tue, 11 Sep 2018 09:39:22 +0200
+        id S1726171AbeIHNC2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 8 Sep 2018 09:02:28 -0400
+Date: Sat, 8 Sep 2018 10:17:23 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jeremy Gebben <jgebben@sweptlaser.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc: abx80x: add basic watchdog support
-Message-ID: <20180911073922.GG2494@piout.net>
-References: <20180910213654.26059-1-jgebben@sweptlaser.com>
- <20180910213654.26059-3-jgebben@sweptlaser.com>
- <20180910232019.GA8439@roeck-us.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-rtc@vger.kernel.org, a.zummo@towertech.it,
+        keguang.zhang@gmail.com, y2038@lists.linaro.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matt Redfearn <matt.redfearn@mips.com>,
+        Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>,
+        linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] rtc: mips: default to rtc-cmos on mips
+Message-ID: <20180908081723.GB2598@piout.net>
+References: <20180828142724.4067857-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180910232019.GA8439@roeck-us.net>
+In-Reply-To: <20180828142724.4067857-1-arnd@arndb.de>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 10/09/2018 16:20:19-0700, Guenter Roeck wrote:
-> > +static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-> > +				unsigned int new_timeout)
+On 28/08/2018 16:26:30+0200, Arnd Bergmann wrote:
+> The old rtc driver is getting in the way of some compat_ioctl
+> simplification. Looking up the loongson64 git history, it seems
+> that everyone uses the more modern but compatible RTC_CMOS driver
+> anyway, so let's remove the special case for loongson64.
 > 
-> I'll leave multi-line alignment issues to the driver maintainer.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/mips/Kconfig    | 2 +-
+>  drivers/char/Kconfig | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-
-Indeed, I'd like those to be aligned on the parenthesis.
-
-Thank you for your review.
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
