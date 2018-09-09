@@ -1,44 +1,77 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33591 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:47055 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729902AbeISGwL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 19 Sep 2018 02:52:11 -0400
+        id S1726665AbeIJB3w (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 9 Sep 2018 21:29:52 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/2] rtc: test: Switch to SPDX identifier
-Date: Wed, 19 Sep 2018 03:16:32 +0200
-Message-Id: <20180919011632.4459-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180919011632.4459-1-alexandre.belloni@bootlin.com>
-References: <20180919011632.4459-1-alexandre.belloni@bootlin.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 3/3] rtc: pl031: switch to devm_rtc_allocate_device/rtc_register_device
+Date: Sun,  9 Sep 2018 22:38:48 +0200
+Message-Id: <20180909203848.3470-3-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
+References: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Replace the license boilerplate by an SPDX identifier
+Switch to devm_rtc_allocate_device to simplify the erro and driver removal
+paths.
 
+Cc: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-test.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/rtc/rtc-pl031.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 93f1638fb8c8..6c5f09c815e8 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -1,11 +1,8 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * An RTC test device/driver
-  * Copyright (C) 2005 Tower Technologies
-  * Author: Alessandro Zummo <a.zummo@towertech.it>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-  */
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index 82eb7da2c478..30943d200c5e 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -310,7 +310,6 @@ static int pl031_remove(struct amba_device *adev)
+ 	device_init_wakeup(&adev->dev, false);
+ 	if (adev->irq[0])
+ 		free_irq(adev->irq[0], ldata);
+-	rtc_device_unregister(ldata->rtc);
+ 	amba_release_regions(adev);
  
- #include <linux/module.h>
+ 	return 0;
+@@ -383,24 +382,25 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 	}
+ 
+ 	device_init_wakeup(&adev->dev, true);
+-	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
+-					THIS_MODULE);
+-	if (IS_ERR(ldata->rtc)) {
+-		ret = PTR_ERR(ldata->rtc);
++	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
++	if (IS_ERR(ldata->rtc))
++		return PTR_ERR(ldata->rtc);
++
++	ldata->rtc->ops = ops;
++
++	ret = rtc_register_device(ldata->rtc);
++	if (ret)
+ 		goto out;
+-	}
+ 
+ 	if (adev->irq[0]) {
+ 		ret = request_irq(adev->irq[0], pl031_interrupt,
+ 				  vendor->irqflags, "rtc-pl031", ldata);
+ 		if (ret)
+-			goto out_no_irq;
++			goto out;
+ 		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
+ 	}
+ 	return 0;
+ 
+-out_no_irq:
+-	rtc_device_unregister(ldata->rtc);
+ out:
+ 	amba_release_regions(adev);
+ err_req:
 -- 
-2.19.0
+2.19.0.rc2
