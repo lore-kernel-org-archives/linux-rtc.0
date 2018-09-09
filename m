@@ -1,92 +1,74 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:39931 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:47053 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727844AbeIMB3K (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 12 Sep 2018 21:29:10 -0400
+        id S1726658AbeIJB3w (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 9 Sep 2018 21:29:52 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: unexport non devm managed registration
-Date: Wed, 12 Sep 2018 22:22:45 +0200
-Message-Id: <20180912202245.14789-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/3] rtc: pl030: fix possible race condition
+Date: Sun,  9 Sep 2018 22:38:47 +0200
+Message-Id: <20180909203848.3470-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
+References: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Ensure the non managed version of the un/registration functions is not used
-anymore. No driver is using it anymore and they should not be necessary.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/class.c | 12 +++++-------
- include/linux/rtc.h |  5 -----
- 2 files changed, 5 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-pl030.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 0fca4d74c76b..3b43787f154b 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -286,9 +286,10 @@ static void rtc_device_get_offset(struct rtc_device *rtc)
-  *
-  * Returns the pointer to the new struct class device.
-  */
--struct rtc_device *rtc_device_register(const char *name, struct device *dev,
--					const struct rtc_class_ops *ops,
--					struct module *owner)
-+static struct rtc_device *rtc_device_register(const char *name,
-+					      struct device *dev,
-+					      const struct rtc_class_ops *ops,
-+					      struct module *owner)
- {
- 	struct rtc_device *rtc;
- 	struct rtc_wkalrm alrm;
-@@ -351,15 +352,13 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
- 			name, err);
- 	return ERR_PTR(err);
- }
--EXPORT_SYMBOL_GPL(rtc_device_register);
--
+diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
+index f85a1a93e669..343bb6ed1783 100644
+--- a/drivers/rtc/rtc-pl030.c
++++ b/drivers/rtc/rtc-pl030.c
+@@ -112,6 +112,13 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 		goto err_rtc;
+ 	}
  
- /**
-  * rtc_device_unregister - removes the previously registered RTC class device
-  *
-  * @rtc: the RTC class device to destroy
-  */
--void rtc_device_unregister(struct rtc_device *rtc)
-+static void rtc_device_unregister(struct rtc_device *rtc)
- {
- 	mutex_lock(&rtc->ops_lock);
- 	/*
-@@ -372,7 +371,6 @@ void rtc_device_unregister(struct rtc_device *rtc)
- 	mutex_unlock(&rtc->ops_lock);
- 	put_device(&rtc->dev);
- }
--EXPORT_SYMBOL_GPL(rtc_device_unregister);
++	rtc->rtc = devm_rtc_allocate_device(&dev->dev);
++	if (IS_ERR(rtc->rtc)) {
++		ret = PTR_ERR(rtc->rtc);
++		goto err_rtc;
++	}
++
++	rtc->rtc->ops = &pl030_ops;
+ 	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
+ 	if (!rtc->base) {
+ 		ret = -ENOMEM;
+@@ -128,12 +135,9 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 	if (ret)
+ 		goto err_irq;
  
- static void devm_rtc_device_release(struct device *dev, void *res)
- {
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 6aedc30003e7..faf00a1472d4 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -167,17 +167,12 @@ struct rtc_device {
- #define RTC_TIMESTAMP_BEGIN_2000	946684800LL /* 2000-01-01 00:00:00 */
- #define RTC_TIMESTAMP_END_2099		4102444799LL /* 2099-12-31 23:59:59 */
+-	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
+-				       THIS_MODULE);
+-	if (IS_ERR(rtc->rtc)) {
+-		ret = PTR_ERR(rtc->rtc);
++	ret = rtc_register_device(rtc->rtc);
++	if (ret)
+ 		goto err_reg;
+-	}
  
--extern struct rtc_device *rtc_device_register(const char *name,
--					struct device *dev,
--					const struct rtc_class_ops *ops,
--					struct module *owner);
- extern struct rtc_device *devm_rtc_device_register(struct device *dev,
- 					const char *name,
- 					const struct rtc_class_ops *ops,
- 					struct module *owner);
- struct rtc_device *devm_rtc_allocate_device(struct device *dev);
- int __rtc_register_device(struct module *owner, struct rtc_device *rtc);
--extern void rtc_device_unregister(struct rtc_device *rtc);
- extern void devm_rtc_device_unregister(struct device *dev,
- 					struct rtc_device *rtc);
+ 	return 0;
+ 
+@@ -154,7 +158,6 @@ static int pl030_remove(struct amba_device *dev)
+ 	writel(0, rtc->base + RTC_CR);
+ 
+ 	free_irq(dev->irq[0], rtc);
+-	rtc_device_unregister(rtc->rtc);
+ 	iounmap(rtc->base);
+ 	amba_release_regions(dev);
  
 -- 
 2.19.0.rc2
