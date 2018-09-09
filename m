@@ -1,80 +1,79 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:26043 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726563AbeIKQbe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Sep 2018 12:31:34 -0400
-Message-ID: <1536665546.25102.1.camel@mtksdaap41>
-Subject: Re: [PATCH 1/3] rtc: mt6397: fix possible race condition
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: <linux-rtc@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Sean Wang <sean.wang@mediatek.com>
-Date: Tue, 11 Sep 2018 19:32:26 +0800
-In-Reply-To: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
-References: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail.bootlin.com ([62.4.15.54]:47366 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726609AbeIJBkB (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 9 Sep 2018 21:40:01 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] mfd: menelaus: fix possible race condition and leak
+Date: Sun,  9 Sep 2018 22:48:58 +0200
+Message-Id: <20180909204858.4257-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Sun, 2018-09-09 at 22:38 +0200, Alexandre Belloni wrote:
-> The IRQ is requested before the struct rtc is allocated and registered, but
-> this struct is used in the IRQ handler. This may lead to a NULL pointer
-> dereference.
-> 
-> Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-> before requesting the IRQ.
-> 
-> Cc: Eddie Huang <eddie.huang@mediatek.com>
-> Cc: Sean Wang <sean.wang@mediatek.com>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  drivers/rtc/rtc-mt6397.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index 385f8303bb41..e9a25ec4d434 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -332,6 +332,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, rtc);
->  
-> +	rtc->rtc_dev = devm_rtc_allocate_device(rtc->dev);
-> +	if (IS_ERR(rtc->rtc_dev))
-> +		return PTR_ERR(rtc->rtc_dev);
-> +
->  	ret = request_threaded_irq(rtc->irq, NULL,
->  				   mtk_rtc_irq_handler_thread,
->  				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-> @@ -344,11 +348,11 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, 1);
->  
-> -	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
-> -					   &mtk_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(rtc->rtc_dev)) {
-> +	rtc->rtc_dev->ops = &mtk_rtc_ops;
-> +
-> +	ret = rtc_register_device(rtc->rtc_dev);
-> +	if (ret) {
->  		dev_err(&pdev->dev, "register rtc device failed\n");
-> -		ret = PTR_ERR(rtc->rtc_dev);
->  		goto out_free_irq;
->  	}
->  
-> @@ -365,7 +369,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
->  {
->  	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
->  
-> -	rtc_device_unregister(rtc->rtc_dev);
->  	free_irq(rtc->irq, rtc->rtc_dev);
->  	irq_dispose_mapping(rtc->irq);
->  
+The IRQ work is added before the struct rtc is allocated and registered,
+but this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before calling menelaus_add_irq_work.
+
+Also, this solves a possible leak as the RTC is never released.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+
+Lee,
+
+If that is ok with you, I would like to take this patch through the RTC
+tree. So I can have a follow up patch removing rtc_device_register().
 
 Thanks
 
-Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+ drivers/mfd/menelaus.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
+index 29b7164a823b..d28ebe7ecd21 100644
+--- a/drivers/mfd/menelaus.c
++++ b/drivers/mfd/menelaus.c
+@@ -1094,6 +1094,7 @@ static void menelaus_rtc_alarm_work(struct menelaus_chip *m)
+ static inline void menelaus_rtc_init(struct menelaus_chip *m)
+ {
+ 	int	alarm = (m->client->irq > 0);
++	int	err;
+ 
+ 	/* assume 32KDETEN pin is pulled high */
+ 	if (!(menelaus_read_reg(MENELAUS_OSC_CTRL) & 0x80)) {
+@@ -1101,6 +1102,12 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
+ 		return;
+ 	}
+ 
++	m->rtc = devm_rtc_allocate_device(&m->client->dev);
++	if (IS_ERR(m->rtc))
++		return;
++
++	m->rtc->ops = &menelaus_rtc_ops;
++
+ 	/* support RTC alarm; it can issue wakeups */
+ 	if (alarm) {
+ 		if (menelaus_add_irq_work(MENELAUS_RTCALM_IRQ,
+@@ -1125,10 +1132,8 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
+ 		menelaus_write_reg(MENELAUS_RTC_CTRL, m->rtc_control);
+ 	}
+ 
+-	m->rtc = rtc_device_register(DRIVER_NAME,
+-			&m->client->dev,
+-			&menelaus_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(m->rtc)) {
++	err = rtc_register_device(m->rtc);
++	if (err) {
+ 		if (alarm) {
+ 			menelaus_remove_irq_work(MENELAUS_RTCALM_IRQ);
+ 			device_init_wakeup(&m->client->dev, 0);
+-- 
+2.19.0.rc2
