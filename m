@@ -1,80 +1,99 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33545 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726887AbeISGsy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 19 Sep 2018 02:48:54 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: move rtc_add_group/s definitions
-Date: Wed, 19 Sep 2018 03:13:21 +0200
-Message-Id: <20180919011322.3985-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
+Received: from mail-io0-f194.google.com ([209.85.223.194]:42612 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726191AbeIKCdf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Sep 2018 22:33:35 -0400
+Received: by mail-io0-f194.google.com with SMTP id n18-v6so1902290ioa.9
+        for <linux-rtc@vger.kernel.org>; Mon, 10 Sep 2018 14:37:34 -0700 (PDT)
+From: Jeremy Gebben <jgebben@sweptlaser.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] rtc: abx80x: use a 'priv' struct for client data
+Date: Mon, 10 Sep 2018 15:36:53 -0600
+Message-Id: <20180910213654.26059-2-jgebben@sweptlaser.com>
+In-Reply-To: <20180910213654.26059-1-jgebben@sweptlaser.com>
+References: <20180910213654.26059-1-jgebben@sweptlaser.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Move rtc_add_group and rtc_add_groups definition to rtc.h that is available
-for all RTC drivers.
+This will allow additional data to be tracked, for future
+improvements.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Jeremy Gebben <jgebben@sweptlaser.com>
 ---
- drivers/rtc/rtc-core.h | 14 --------------
- include/linux/rtc.h    | 16 ++++++++++++++++
- 2 files changed, 16 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-abx80x.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-core.h b/drivers/rtc/rtc-core.h
-index ccc17a2e293d..0abf98983e13 100644
---- a/drivers/rtc/rtc-core.h
-+++ b/drivers/rtc/rtc-core.h
-@@ -40,23 +40,9 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index 2cefa67a1132..9d49054a0a4a 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -94,6 +94,11 @@ static struct abx80x_cap abx80x_caps[] = {
+ 	[ABX80X] = {.pn = 0}
+ };
  
- #ifdef CONFIG_RTC_INTF_SYSFS
- const struct attribute_group **rtc_get_dev_attribute_groups(void);
--int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp);
--int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps);
- #else
- static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
- {
- 	return NULL;
- }
--
--static inline
--int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
--{
--	return 0;
--}
--
--static inline
--int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
--{
--	return 0;
--}
- #endif
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index faf00a1472d4..c8bb4a2b48c3 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -272,4 +272,20 @@ static inline int rtc_nvmem_register(struct rtc_device *rtc,
- static inline void rtc_nvmem_unregister(struct rtc_device *rtc) {}
- #endif
- 
-+#ifdef CONFIG_RTC_INTF_SYSFS
-+int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp);
-+int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps);
-+#else
-+static inline
-+int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
-+{
-+	return 0;
-+}
++struct abx80x_priv {
++	struct rtc_device *rtc;
++	struct i2c_client *client;
++};
 +
-+static inline
-+int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
-+{
-+	return 0;
-+}
-+#endif
- #endif /* _LINUX_RTC_H_ */
+ static int abx80x_is_rc_mode(struct i2c_client *client)
+ {
+ 	int flags = 0;
+@@ -218,7 +223,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
+ {
+ 	struct i2c_client *client = dev_id;
+-	struct rtc_device *rtc = i2c_get_clientdata(client);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
++	struct rtc_device *rtc = priv->rtc;
+ 	int status;
+ 
+ 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+@@ -533,7 +539,7 @@ static int abx80x_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct device_node *np = client->dev.of_node;
+-	struct rtc_device *rtc;
++	struct abx80x_priv *priv;
+ 	int i, data, err, trickle_cfg = -EINVAL;
+ 	char buf[7];
+ 	unsigned int part = id->driver_data;
+@@ -610,13 +616,18 @@ static int abx80x_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
+-	rtc = devm_rtc_allocate_device(&client->dev);
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (priv == NULL)
++		return -ENOMEM;
++
++	priv->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(priv->rtc))
++		return PTR_ERR(priv->rtc);
+ 
+-	rtc->ops = &abx80x_rtc_ops;
++	priv->rtc->ops = &abx80x_rtc_ops;
++	priv->client = client;
+ 
+-	i2c_set_clientdata(client, rtc);
++	i2c_set_clientdata(client, priv);
+ 
+ 	if (client->irq > 0) {
+ 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
+@@ -649,7 +660,7 @@ static int abx80x_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
+-	err = rtc_register_device(rtc);
++	err = rtc_register_device(priv->rtc);
+ 
+ 	return err;
+ }
 -- 
-2.19.0
+2.17.1
