@@ -1,40 +1,37 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33588 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729926AbeISGwH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 19 Sep 2018 02:52:07 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/2] rtc: test: make license text and module license match.
-Date: Wed, 19 Sep 2018 03:16:31 +0200
-Message-Id: <20180919011632.4459-1-alexandre.belloni@bootlin.com>
+Received: from mail-io1-f66.google.com ([209.85.166.66]:43660 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727683AbeIJLhY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Sep 2018 07:37:24 -0400
+Received: by mail-io1-f66.google.com with SMTP id y10-v6so6131903ioa.10
+        for <linux-rtc@vger.kernel.org>; Sun, 09 Sep 2018 23:44:54 -0700 (PDT)
 MIME-Version: 1.0
+References: <20180909203848.3470-1-alexandre.belloni@bootlin.com> <20180909203848.3470-3-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180909203848.3470-3-alexandre.belloni@bootlin.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon, 10 Sep 2018 08:44:42 +0200
+Message-ID: <CACRpkdaVH7_eVGC+CRQqsA1Y1+oMkkVhVPJmpiE=k90qa23SQQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] rtc: pl031: switch to devm_rtc_allocate_device/rtc_register_device
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support"
+        <linux-mediatek@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The license text is specifying GPL v2 only but the MODULE_LICENSE is set to
-GPL which means GNU Public License v2 or later. When MODULE_LICENSE and
-boiler plate does not match, go for boiler plate license.
+On Sun, Sep 9, 2018 at 10:38 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Switch to devm_rtc_allocate_device to simplify the erro and driver removal
+> paths.
+>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index ade6a82709be..93f1638fb8c8 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -197,7 +197,7 @@ static void __exit test_exit(void)
- 
- MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
- MODULE_DESCRIPTION("RTC test driver/device");
--MODULE_LICENSE("GPL");
-+MODULE_LICENSE("GPL v2");
- 
- module_init(test_init);
- module_exit(test_exit);
--- 
-2.19.0
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
