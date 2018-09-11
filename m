@@ -1,79 +1,39 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:47366 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:37495 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726609AbeIJBkB (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 9 Sep 2018 21:40:01 -0400
+        id S1726387AbeIKMhf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 11 Sep 2018 08:37:35 -0400
+Date: Tue, 11 Sep 2018 09:39:22 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] mfd: menelaus: fix possible race condition and leak
-Date: Sun,  9 Sep 2018 22:48:58 +0200
-Message-Id: <20180909204858.4257-1-alexandre.belloni@bootlin.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jeremy Gebben <jgebben@sweptlaser.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] rtc: abx80x: add basic watchdog support
+Message-ID: <20180911073922.GG2494@piout.net>
+References: <20180910213654.26059-1-jgebben@sweptlaser.com>
+ <20180910213654.26059-3-jgebben@sweptlaser.com>
+ <20180910232019.GA8439@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180910232019.GA8439@roeck-us.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The IRQ work is added before the struct rtc is allocated and registered,
-but this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+On 10/09/2018 16:20:19-0700, Guenter Roeck wrote:
+> > +static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
+> > +				unsigned int new_timeout)
+> 
+> I'll leave multi-line alignment issues to the driver maintainer.
+> 
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before calling menelaus_add_irq_work.
+Indeed, I'd like those to be aligned on the parenthesis.
 
-Also, this solves a possible leak as the RTC is never released.
+Thank you for your review.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
-
-Lee,
-
-If that is ok with you, I would like to take this patch through the RTC
-tree. So I can have a follow up patch removing rtc_device_register().
-
-Thanks
-
- drivers/mfd/menelaus.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
-index 29b7164a823b..d28ebe7ecd21 100644
---- a/drivers/mfd/menelaus.c
-+++ b/drivers/mfd/menelaus.c
-@@ -1094,6 +1094,7 @@ static void menelaus_rtc_alarm_work(struct menelaus_chip *m)
- static inline void menelaus_rtc_init(struct menelaus_chip *m)
- {
- 	int	alarm = (m->client->irq > 0);
-+	int	err;
- 
- 	/* assume 32KDETEN pin is pulled high */
- 	if (!(menelaus_read_reg(MENELAUS_OSC_CTRL) & 0x80)) {
-@@ -1101,6 +1102,12 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
- 		return;
- 	}
- 
-+	m->rtc = devm_rtc_allocate_device(&m->client->dev);
-+	if (IS_ERR(m->rtc))
-+		return;
-+
-+	m->rtc->ops = &menelaus_rtc_ops;
-+
- 	/* support RTC alarm; it can issue wakeups */
- 	if (alarm) {
- 		if (menelaus_add_irq_work(MENELAUS_RTCALM_IRQ,
-@@ -1125,10 +1132,8 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
- 		menelaus_write_reg(MENELAUS_RTC_CTRL, m->rtc_control);
- 	}
- 
--	m->rtc = rtc_device_register(DRIVER_NAME,
--			&m->client->dev,
--			&menelaus_rtc_ops, THIS_MODULE);
--	if (IS_ERR(m->rtc)) {
-+	err = rtc_register_device(m->rtc);
-+	if (err) {
- 		if (alarm) {
- 			menelaus_remove_irq_work(MENELAUS_RTCALM_IRQ);
- 			device_init_wakeup(&m->client->dev, 0);
 -- 
-2.19.0.rc2
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
