@@ -1,82 +1,54 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:56952 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:50117 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726121AbeI1S2a (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 28 Sep 2018 14:28:30 -0400
-Date: Fri, 28 Sep 2018 14:04:51 +0200
+        id S1726574AbeILQW6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 12 Sep 2018 12:22:58 -0400
+Date: Wed, 12 Sep 2018 13:18:52 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Denis OSTERLAND <denis.osterland@diehl.com>
-Cc: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rtc: isl1208: access i2c client via rtc parent
-Message-ID: <20180928120451.GR16644@piout.net>
-References: <20180928114832.27383-1-Denis.Osterland@diehl.com>
+To: Jeremy Gebben <jgebben@sweptlaser.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/2] rtc: abx80x: add basic watchdog support
+Message-ID: <20180912111852.GD2760@piout.net>
+References: <20180911172826.7195-1-jgebben@sweptlaser.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180928114832.27383-1-Denis.Osterland@diehl.com>
+In-Reply-To: <20180911172826.7195-1-jgebben@sweptlaser.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Hello,
+On 11/09/2018 11:28:24-0600, Jeremy Gebben wrote:
+> This patch series adds watchdog support for abracon RTC chips which
+> include basic watchdog functionality.
+> 
+> Thank you for reviewing.
+> 
+> Changes in v3 (all in patch 2):
+> * fix CONFIG_WATCHDOG dependency again (hopefully correctly this time)
+> * don't start hardware when set_timeout is called
+> * remove unneeded WDOG_HW_RUNNING bit changes
+> * fix abx80x_setup_watchdog()
+> * fix formatting of multiline splits
+>  
+> Changes in v2:
+> * split out priv structure into a separate patch
+> * remove new Kconfig option
+> * fix CONFIG_WATCHDOG dependency
+> * fix WDT interrupt message
+> 
+> 
+> Jeremy Gebben (2):
+>   rtc: abx80x: use a 'priv' struct for client data
+>   rtc: abx80x: add basic watchdog support
+> 
+>  drivers/rtc/Kconfig      |   1 +
+>  drivers/rtc/rtc-abx80x.c | 143 +++++++++++++++++++++++++++++++++++----
+>  2 files changed, 132 insertions(+), 12 deletions(-)
+> 
 
-On 28/09/2018 11:51:17+0000, Denis OSTERLAND wrote:
-> From: Denis Osterland <Denis.Osterland@diehl.com>
-> 
-> The move of atrim, dtrim usr sysfs properties from i2c device
-> to rtc device require to access them via dev->parent.
-> This patch also aligns timestamp0.
-> 
-> Fixes: 03df75dd03301307ec578ccd4e8c1c0117b8e65c
-> Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
-> ---
->  drivers/rtc/rtc-isl1208.c | 16 +++++++++-------
->  1 file changed, 9 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-> index 15094df12985..ec5ef518a09b 100644
-> --- a/drivers/rtc/rtc-isl1208.c
-> +++ b/drivers/rtc/rtc-isl1208.c
-> @@ -517,7 +517,7 @@ static ssize_t timestamp0_store(struct device *dev,
->  				struct device_attribute *attr,
->  				const char *buf, size_t count)
->  {
-> -	struct i2c_client *client = dev_get_drvdata(dev);
-> +	struct i2c_client *client = to_i2c_client(dev->parent);
->  	int sr;
-> 
->  	sr = isl1208_i2c_get_sr(client);
-> @@ -539,7 +539,7 @@ static ssize_t timestamp0_store(struct device *dev,
->  static ssize_t timestamp0_show(struct device *dev,
->  			       struct device_attribute *attr, char *buf)
->  {
-> -	struct i2c_client *client = dev_get_drvdata(dev);
-> +	struct i2c_client *client = to_i2c_client(dev->parent);
->  	u8 regs[ISL1219_EVT_SECTION_LEN] = { 0, };
->  	struct rtc_time tm;
->  	int sr;
-> @@ -649,7 +649,7 @@ static ssize_t
->  isl1208_sysfs_show_atrim(struct device *dev,
->  			 struct device_attribute *attr, char *buf)
->  {
-> -	int atr = isl1208_i2c_get_atr(to_i2c_client(dev));
-> +	int atr = isl1208_i2c_get_atr(to_i2c_client(dev->parent));
->  	if (atr < 0)
->  		return atr;
-> 
-> @@ -662,7 +662,7 @@ static ssize_t
->  isl1208_sysfs_show_dtrim(struct device *dev,
->  			 struct device_attribute *attr, char *buf)
->  {
-> -	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev));
-> +	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev->parent));
-
-Oh right, I actually had that but somehow, I stashed the patch instead
-of squashing it.
-
-If that is fine for you, I'll fold that in the original patch (I'll ad
-your SoB).
-
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
