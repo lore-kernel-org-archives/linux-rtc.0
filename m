@@ -1,165 +1,91 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46781 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727153AbeIKRgc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Sep 2018 13:36:32 -0400
-Received: by mail-wr1-f65.google.com with SMTP id a108-v6so25856899wrc.13
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Sep 2018 05:37:23 -0700 (PDT)
-Date: Tue, 11 Sep 2018 13:37:19 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Tony Xie <tony.xie@rock-chips.com>
-Cc: heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com
-Subject: Re: [PATCH v3 3/5] dt-bindings: mfd: rk808: Add binding information
- for RK809 and RK817.
-Message-ID: <20180911123719.GM4185@dell>
-References: <1535081441-20718-1-git-send-email-tony.xie@rock-chips.com>
- <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
+Received: from mail.bootlin.com ([62.4.15.54]:52637 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727859AbeINAWw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 13 Sep 2018 20:22:52 -0400
+Date: Thu, 13 Sep 2018 21:11:50 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
+Subject: Re: [PATCH v1 2/5] dt-binding: rtc-pcf85063: add quartz load property
+Message-ID: <20180913191150.GH14988@piout.net>
+References: <20180822183555.GA24084@ravnborg.org>
+ <20180907193508.24974-3-sam@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1535081441-20718-4-git-send-email-tony.xie@rock-chips.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180907193508.24974-3-sam@ravnborg.org>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Fri, 24 Aug 2018, Tony Xie wrote:
+Hi,
 
-> Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
+You can remove 'rtc-' from the part name in the subject.
+
+On 07/09/2018 21:35:05+0200, Sam Ravnborg wrote:
+> From: S�ren Andersen <san@skov.dk>
 > 
-> Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> The NXP pcf85063 support two different quartz loads.
+> - 7 pF (default)
+> - 12.5 pF (minimum power consumption)
+> 
+> The pcf85063 needs to know the size of the external capacitor,
+> otherwise the RTC will have a bad precision (hours/week).
+> 
+> The power-on default is 7 pF
+> Add a property that tells if the external capacitor is 12.5 pF
+> 
+> Signed-off-by: S�ren Andersen <san@skov.dk>
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
 > ---
->  Documentation/devicetree/bindings/mfd/rk808.txt | 56 +++++++++++++++++++++++++
->  1 file changed, 56 insertions(+)
+>  .../devicetree/bindings/rtc/nxp,pcf85063.txt          | 19 +++++++++++++++++++
+>  Documentation/devicetree/bindings/trivial-devices.txt |  1 -
+>  2 files changed, 19 insertions(+), 1 deletion(-)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
-> index 91b6522..c025a99 100644
-> --- a/Documentation/devicetree/bindings/mfd/rk808.txt
-> +++ b/Documentation/devicetree/bindings/mfd/rk808.txt
-> @@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
->  The rk8xx family current members:
->  rk805
->  rk808
-> +rk809
-> +rk817
->  rk818
->  
->  Required properties:
->  - compatible: "rockchip,rk805"
->  - compatible: "rockchip,rk808"
-> +- compatible: "rockchip,rk809"
-> +- compatible: "rockchip,rk817"
->  - compatible: "rockchip,rk818"
->  - reg: I2C slave address
->  - interrupt-parent: The parent interrupt controller.
-> @@ -46,6 +50,28 @@ Optional RK808 properties:
->    the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
->    very quickly with no slow ramp time.
->  
-> +Optional RK809 properties:
-> +- vcc1-supply:  The input supply for DCDC_REG1
-> +- vcc2-supply:  The input supply for DCDC_REG2
-> +- vcc3-supply:  The input supply for DCDC_REG3
-> +- vcc4-supply:  The input supply for DCDC_REG4
-> +- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-> +- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-> +- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-> +- vcc8-supply:  The input supply for SWITCH_REG1
-> +- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
+> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+> new file mode 100644
+> index 000000000000..22ebb2ce52c1
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+> @@ -0,0 +1,19 @@
+> +* NXP PCF85063 Real Time Clock
 > +
-> +Optional RK817 properties:
-> +- vcc1-supply:  The input supply for DCDC_REG1
-> +- vcc2-supply:  The input supply for DCDC_REG2
-> +- vcc3-supply:  The input supply for DCDC_REG3
-> +- vcc4-supply:  The input supply for DCDC_REG4
-> +- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-> +- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-> +- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
-> +- vcc8-supply:  The input supply for BOOST
-> +- vcc9-supply:  The input supply for OTG_SWITCH
-
-I think I'd like to see these squashed down a bit.
-
-Something like:
-
-> +Optional shared RK809 and RK817 properties:
-> +- vcc1-supply:  The input supply for DCDC_REG1
-> +- vcc2-supply:  The input supply for DCDC_REG2
-> +- vcc3-supply:  The input supply for DCDC_REG3
-> +- vcc4-supply:  The input supply for DCDC_REG4
-> +- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
-> +- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
-> +- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
+> +NXP PCF85063 Real Time Clock
 > +
-> +Optional RK809 properties:
-> +- vcc8-supply:  The input supply for SWITCH_REG1
-> +- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
+> +Required properties:
+> +- compatible: Should contain "nxp,pcf85063".
+> +- reg: I2C address for chip.
 > +
-> +Optional RK817 properties:
-> +- vcc8-supply:  The input supply for BOOST
-> +- vcc9-supply:  The input supply for OTG_SWITCH
-
-That's if 1-7 are as identical as they look at first glance.
-
->  Optional RK818 properties:
->  - vcc1-supply:  The input supply for DCDC_REG1
->  - vcc2-supply:  The input supply for DCDC_REG2
-> @@ -87,6 +113,28 @@ number as described in RK808 datasheet.
->  	- SWITCH_REGn
->  		- valid values for n are 1 to 2
->  
-> +Following regulators of the RK809 PMIC block are supported. Note that
-> +the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-> +number as described in RK808 datasheet.
+> +Optional property:
+> +- nxp,quartz_load_12.5pF: The capacitive load on the quartz is 12.5 pF,
+> +  which differ from the default value of 7 pF
 > +
-> +	- DCDC_REGn
-> +		- valid values for n are 1 to 5.
-> +	- LDO_REGn
-> +		- valid values for n are 1 to 9.
-> +	- SWITCH_REGn
-> +		- valid values for n are 1 to 2.
+> +Example:
 > +
-> +Following regulators of the RK817 PMIC block are supported. Note that
-> +the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
-> +number as described in RK818 datasheet.
+> +pcf85063: pcf85063@51 {
+> +	compatible = "nxp,pcf85063";
+> +	reg = <0x51>;
+> +	nxp,quartz_load_12.5pF;
 
-Is there any need to keep saying the same thing over and over?
+Same comment as the previous patch, a value in fF is more useful. It
+could also probably be made a generic rtc property.
 
-Especially for something fairly obvious.
-
-> +	- DCDC_REGn
-> +		- valid values for n are 1 to 4.
-> +	- LDO_REGn
-> +		- valid values for n are 1 to 9.
-> +	- BOOST
-> +	- OTG_SWITCH
-> +
->  Following regulators of the RK818 PMIC block are supported. Note that
->  the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
->  number as described in RK818 datasheet.
-> @@ -99,6 +147,14 @@ number as described in RK818 datasheet.
->  	- HDMI_SWITCH
->  	- OTG_SWITCH
->  
-> +There are three pins needed to config for each of RK809 and RK817,
-> +named "gpio_ts" "gpio_gt" "gpio_slp".
-> +	The gpio_gt and gpio_ts pins support the gpio function.
-> +	The gpio_slp pin is for controlling the pmic states, as below:
-> +		- reset
-> +		- power down
-> +		- sleep
-> +
->  Standard regulator bindings are used inside regulator subnodes. Check
->    Documentation/devicetree/bindings/regulator/regulator.txt
->  for more details
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
