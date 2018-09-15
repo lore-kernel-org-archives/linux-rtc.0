@@ -1,136 +1,68 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:58467 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:34170 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726990AbeITUT3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 20 Sep 2018 16:19:29 -0400
+        id S1727009AbeIORIm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 15 Sep 2018 13:08:42 -0400
+Date: Sat, 15 Sep 2018 13:49:57 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: ds1307: use rtc_add_group
-Date: Thu, 20 Sep 2018 16:35:26 +0200
-Message-Id: <20180920143526.18704-1-alexandre.belloni@bootlin.com>
+To: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Denis Osterland <Denis.Osterland@diehl.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ldv-project@linuxtesting.org
+Subject: Re: [PATCH] rtc: isl1208: fix error handling in isl1208_probe()
+Message-ID: <20180915114957.GW14988@piout.net>
+References: <1533766387-30529-1-git-send-email-khoroshilov@ispras.ru>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1533766387-30529-1-git-send-email-khoroshilov@ispras.ru>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Register frequency test using rtc_add_group to avoid a possible race
-condition and simplify the code.
+Hello Alexey,
 
-This also moves the attribute to its proper location under the rtc device
-instead of the i2c parent device.
+On 09/08/2018 01:13:07+0300, Alexey Khoroshilov wrote:
+> After moving rtc_register_device() sysfs group is left unremoved
+> on the error path.
+> 
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> Fixes: 236b7187034e ("rtc: isl1208: switch to rtc_register_device")
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ds1307.c | 53 +++++++++++-----------------------------
- 1 file changed, 14 insertions(+), 39 deletions(-)
+Thank you for that report, I've fixed it that way which also avoid the
+sysfs race:
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index edccd0c0da25..982503a168d0 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1050,11 +1050,11 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
- 				  ctrl_reg);
- }
- 
--static ssize_t frequency_test_enable_store(struct device *dev,
--					   struct device_attribute *attr,
--					   const char *buf, size_t count)
-+static ssize_t frequency_test_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
- {
--	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev->parent);
- 	bool freq_test_en;
- 	int ret;
- 
-@@ -1070,11 +1070,11 @@ static ssize_t frequency_test_enable_store(struct device *dev,
- 	return count;
- }
- 
--static ssize_t frequency_test_enable_show(struct device *dev,
--					  struct device_attribute *attr,
--					  char *buf)
-+static ssize_t frequency_test_show(struct device *dev,
-+				   struct device_attribute *attr,
-+				   char *buf)
- {
--	struct ds1307 *ds1307 = dev_get_drvdata(dev);
-+	struct ds1307 *ds1307 = dev_get_drvdata(dev->parent);
- 	unsigned int ctrl_reg;
- 
- 	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
-@@ -1083,10 +1083,10 @@ static ssize_t frequency_test_enable_show(struct device *dev,
- 			"off\n");
- }
- 
--static DEVICE_ATTR_RW(frequency_test_enable);
-+static DEVICE_ATTR_RW(frequency_test);
- 
- static struct attribute *rtc_freq_test_attrs[] = {
--	&dev_attr_frequency_test_enable.attr,
-+	&dev_attr_frequency_test.attr,
- 	NULL,
- };
- 
-@@ -1094,13 +1094,6 @@ static const struct attribute_group rtc_freq_test_attr_group = {
- 	.attrs		= rtc_freq_test_attrs,
- };
- 
--static void rtc_calib_remove_sysfs_group(void *_dev)
--{
--	struct device *dev = _dev;
--
--	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
--}
--
- static int ds1307_add_frequency_test(struct ds1307 *ds1307)
- {
- 	int err;
-@@ -1109,27 +1102,9 @@ static int ds1307_add_frequency_test(struct ds1307 *ds1307)
- 	case m41t0:
- 	case m41t00:
- 	case m41t11:
--		/* Export sysfs entries */
--		err = sysfs_create_group(&(ds1307->dev)->kobj,
--					 &rtc_freq_test_attr_group);
--		if (err) {
--			dev_err(ds1307->dev,
--				"Failed to create sysfs group: %d\n",
--				err);
--			return err;
--		}
--
--		err = devm_add_action_or_reset(ds1307->dev,
--					       rtc_calib_remove_sysfs_group,
--					       ds1307->dev);
--		if (err) {
--			dev_err(ds1307->dev,
--				"Failed to add sysfs cleanup action: %d\n",
--				err);
--			sysfs_remove_group(&(ds1307->dev)->kobj,
--					   &rtc_freq_test_attr_group);
-+		err = rtc_add_group(ds1307->rtc, &rtc_freq_test_attr_group);
-+		if (err)
- 			return err;
--		}
- 		break;
- 	default:
- 		break;
-@@ -1876,11 +1851,11 @@ static int ds1307_probe(struct i2c_client *client,
- 	}
- 
- 	ds1307->rtc->ops = chip->rtc_ops ?: &ds13xx_rtc_ops;
--	err = rtc_register_device(ds1307->rtc);
-+	err = ds1307_add_frequency_test(ds1307);
- 	if (err)
- 		return err;
- 
--	err = ds1307_add_frequency_test(ds1307);
-+	err = rtc_register_device(ds1307->rtc);
- 	if (err)
- 		return err;
- 
+http://patchwork.ozlabs.org/patch/970216/
+
+> ---
+>  drivers/rtc/rtc-isl1208.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+> index 1a2c38cc0178..4b5df9bfb8d4 100644
+> --- a/drivers/rtc/rtc-isl1208.c
+> +++ b/drivers/rtc/rtc-isl1208.c
+> @@ -674,7 +674,12 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  		}
+>  	}
+>  
+> -	return rtc_register_device(rtc);
+> +	rc = rtc_register_device(rtc);
+> +	if (rc) {
+> +		sysfs_remove_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
+> +		return rc;
+> +	}
+> +	return 0;
+>  }
+>  
+>  static int
+> -- 
+> 2.7.4
+> 
+
 -- 
-2.19.0
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
