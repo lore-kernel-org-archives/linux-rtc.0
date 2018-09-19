@@ -1,145 +1,42 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:42303 "EHLO mail.bootlin.com"
+Received: from mail.bootlin.com ([62.4.15.54]:57224 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733159AbeIXUvl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 24 Sep 2018 16:51:41 -0400
+        id S1731460AbeISWpW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Sep 2018 18:45:22 -0400
+Date: Wed, 19 Sep 2018 19:06:18 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/3] rtc: ab8500: let the core handle range
-Date: Mon, 24 Sep 2018 16:49:01 +0200
-Message-Id: <20180924144902.607-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180924144902.607-1-alexandre.belloni@bootlin.com>
-References: <20180924144902.607-1-alexandre.belloni@bootlin.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Cc: a.zummo@towertech.it, andy.shevchenko@gmail.com, robh@kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v11 4/4] rtc: ds1307: add frequency_test_enable sysfs
+ attribute to check tick on m41txx
+Message-ID: <20180919170618.GC2479@piout.net>
+References: <20180725172605.108040-1-giulio.benetti@micronovasrl.com>
+ <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180725172605.108040-4-giulio.benetti@micronovasrl.com>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Let the core handle offsetting and windowing the RTC range.
-The RTC has a 24 bit counter for minutes plus a seconds counter.
-Keep the epoch at the beginning of 2000.
+On 25/07/2018 19:26:05+0200, Giulio Benetti wrote:
+> On m41txx you can enable open-drain OUT pin to check if offset is ok.
+> Enabling OUT pin with frequency_test_enable attribute, OUT pin will tick
+> 512 times faster than 1s tick base.
+> 
+> Enable or Disable FT bit on CONTROL register if freq_test is 1 or 0.
+> 
+> Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+> ---
+> V10 => V11:
+> * kstrtobool(): check error if (ret) avoiding checking specific error.
+> 
+>  drivers/rtc/rtc-ds1307.c | 94 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 94 insertions(+)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ab8500.c | 53 +++-------------------------------------
- 1 file changed, 4 insertions(+), 49 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ab8500.c b/drivers/rtc/rtc-ab8500.c
-index e97015e5c63e..2e2671b84ab0 100644
---- a/drivers/rtc/rtc-ab8500.c
-+++ b/drivers/rtc/rtc-ab8500.c
-@@ -46,7 +46,6 @@
- #define RTC_STATUS_DATA			0x01
- 
- #define COUNTS_PER_SEC			(0xF000 / 60)
--#define AB8500_RTC_EPOCH		2000
- 
- static const u8 ab8500_rtc_time_regs[] = {
- 	AB8500_RTC_WATCH_TMIN_HI_REG, AB8500_RTC_WATCH_TMIN_MID_REG,
-@@ -59,23 +58,6 @@ static const u8 ab8500_rtc_alarm_regs[] = {
- 	AB8500_RTC_ALRM_MIN_LOW_REG
- };
- 
--/* Calculate the seconds from 1970 to 01-01-2000 00:00:00 */
--static unsigned long get_elapsed_seconds(int year)
--{
--	unsigned long secs;
--	struct rtc_time tm = {
--		.tm_year = year - 1900,
--		.tm_mday = 1,
--	};
--
--	/*
--	 * This function calculates secs from 1970 and not from
--	 * 1900, even if we supply the offset from year 1900.
--	 */
--	rtc_tm_to_time(&tm, &secs);
--	return secs;
--}
--
- static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	unsigned long timeout = jiffies + HZ;
-@@ -118,9 +100,6 @@ static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	secs =	secs / COUNTS_PER_SEC;
- 	secs =	secs + (mins * 60);
- 
--	/* Add back the initially subtracted number of seconds */
--	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
--
- 	rtc_time_to_tm(secs, tm);
- 	return 0;
- }
-@@ -131,21 +110,8 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_time_regs)];
- 	unsigned long no_secs, no_mins, secs = 0;
- 
--	if (tm->tm_year < (AB8500_RTC_EPOCH - 1900)) {
--		dev_dbg(dev, "year should be equal to or greater than %d\n",
--				AB8500_RTC_EPOCH);
--		return -EINVAL;
--	}
--
--	/* Get the number of seconds since 1970 */
- 	rtc_tm_to_time(tm, &secs);
- 
--	/*
--	 * Convert it to the number of seconds since 01-01-2000 00:00:00, since
--	 * we only have a small counter in the RTC.
--	 */
--	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
--
- 	no_mins = secs / 60;
- 
- 	no_secs = secs % 60;
-@@ -202,9 +168,6 @@ static int ab8500_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	mins = (buf[0] << 16) | (buf[1] << 8) | (buf[2]);
- 	secs = mins * 60;
- 
--	/* Add back the initially subtracted number of seconds */
--	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
--
- 	rtc_time_to_tm(secs, &alarm->time);
- 
- 	return rtc_valid_tm(&alarm->time);
-@@ -224,12 +187,6 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	unsigned long mins, secs = 0, cursec = 0;
- 	struct rtc_time curtm;
- 
--	if (alarm->time.tm_year < (AB8500_RTC_EPOCH - 1900)) {
--		dev_dbg(dev, "year should be equal to or greater than %d\n",
--				AB8500_RTC_EPOCH);
--		return -EINVAL;
--	}
--
- 	/* Get the number of seconds since 1970 */
- 	rtc_tm_to_time(&alarm->time, &secs);
- 
-@@ -245,12 +202,6 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		return -EINVAL;
- 	}
- 
--	/*
--	 * Convert it to the number of seconds since 01-01-2000 00:00:00, since
--	 * we only have a small counter in the RTC.
--	 */
--	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
--
- 	mins = secs / 60;
- 
- 	buf[2] = mins & 0xFF;
-@@ -445,6 +396,10 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
- 
- 	rtc->uie_unsupported = 1;
- 
-+	rtc->range_max = (1ULL << 24) * 60 - 1; // 24-bit minutes + 59 secs
-+	rtc->start_secs = RTC_TIMESTAMP_BEGIN_2000;
-+	rtc->set_start_time = true;
-+
- 	err = rtc_add_group(rtc, &ab8500_rtc_sysfs_files);
- 	if (err)
- 		return err;
 -- 
-2.19.0
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
