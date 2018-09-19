@@ -1,35 +1,44 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it1-f196.google.com ([209.85.166.196]:40145 "EHLO
-        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbeIZNvN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Sep 2018 09:51:13 -0400
-Received: by mail-it1-f196.google.com with SMTP id h23-v6so1573158ita.5
-        for <linux-rtc@vger.kernel.org>; Wed, 26 Sep 2018 00:39:38 -0700 (PDT)
+Received: from mail.bootlin.com ([62.4.15.54]:33591 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729902AbeISGwL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Sep 2018 02:52:11 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: test: Switch to SPDX identifier
+Date: Wed, 19 Sep 2018 03:16:32 +0200
+Message-Id: <20180919011632.4459-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180919011632.4459-1-alexandre.belloni@bootlin.com>
+References: <20180919011632.4459-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-References: <20180924144902.607-1-alexandre.belloni@bootlin.com> <20180924144902.607-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180924144902.607-2-alexandre.belloni@bootlin.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 26 Sep 2018 09:39:26 +0200
-Message-ID: <CACRpkdYsuh2rXsW9KJz7Vaj_nH4ierpOE+G7tbrzkN2NDhgiuw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] rtc: ab8500: let the core handle range
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Mon, Sep 24, 2018 at 4:49 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
+Replace the license boilerplate by an SPDX identifier
 
-> Let the core handle offsetting and windowing the RTC range.
-> The RTC has a 24 bit counter for minutes plus a seconds counter.
-> Keep the epoch at the beginning of 2000.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-test.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 93f1638fb8c8..6c5f09c815e8 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -1,11 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * An RTC test device/driver
+  * Copyright (C) 2005 Tower Technologies
+  * Author: Alessandro Zummo <a.zummo@towertech.it>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+  */
+ 
+ #include <linux/module.h>
+-- 
+2.19.0
