@@ -1,96 +1,145 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Date: Wed, 5 Sep 2018 00:02:07 +0200
+Received: from mail.bootlin.com ([62.4.15.54]:58481 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731366AbeISXbU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Sep 2018 19:31:20 -0400
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>, Ales Novak <alnovak@suse.cz>,
-        a.zummo@towertech.it, akpm@linux-foundation.org,
-        rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: rtc: fix chardev initialization races
-Message-ID: <20180904220207.GK13888@piout.net>
-References: <1393410793-7315-1-git-send-email-alnovak@suse.cz>
- <20180521122509.GA4251@taurus.defre.kleine-koenig.org>
- <nycvar.YFH.7.76.1805221407100.27054@cbobk.fhfr.pm>
- <20180522133955.jrqijs7xj3cz2lr4@pengutronix.de>
- <nycvar.YFH.7.76.1805221726300.27054@cbobk.fhfr.pm>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: ds1685: drop RTC_DS1685_PROC_REGS
+Date: Wed, 19 Sep 2018 19:52:09 +0200
+Message-Id: <20180919175211.25150-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <nycvar.YFH.7.76.1805221726300.27054@cbobk.fhfr.pm>
 Sender: linux-rtc-owner@vger.kernel.org
-List-ID: <rtc-linux.googlegroups.com>
+List-ID: <linux-rtc.vger.kernel.org>
 
-On 22/05/2018 17:33:40+0200, Jiri Kosina wrote:
-> On Tue, 22 May 2018, Uwe Kleine-König wrote:
-> > [adding linux-rtc ML and Alexandre to Cc:]
-> > 
-> > Hello,
-> > 
-> > On Tue, May 22, 2018 at 02:09:36PM +0200, Jiri Kosina wrote:
-> > > On Mon, 21 May 2018, Uwe Kleine-König wrote:
-> > > 
-> > > > > The race looks like that (thanks Jiri):
-> > > > > 
-> > > > > CPU0:                                CPU1:
-> > > > > sys_load_module()
-> > > > >  do_init_module()
-> > > > >   do_one_initcall()
-> > > > >    cmos_do_probe()
-> > > > >     rtc_device_register()
-> > > > >      __register_chrdev()
-> > > > >      cdev->owner = struct module*
-> > > > >                                      open("/dev/rtc0")
-> > > > >     rtc_device_unregister()
-> > > > >   module_put()
-> > > > >   free_module()
-> > > > >    module_free(mod->module_core)
-> > > > >    /* struct module *module is now
-> > > > >       freed */
-> > > > >                                       chrdev_open()
-> > > > >                                        spin_lock(cdev_lock)
-> > > > >                                        cdev_get()
-> > > > >                                         try_module_get()
-> > > > >                                          module_is_live()
-> > > > >                                          /* dereferences already
-> > > > >                                             freed struct module* */
-> > > > 
-> > > > [Context: For a patch to rtc-pcf2127.c Alexandre Belloni asked not to
-> > > > fail after rtc_device_register successfully finished and pointed to this
-> > > > reasoning as explaination.]
-> > > > 
-> > > > If there is really such a race then (I hope) there is
-> > > > something in the cdev code that needs fixing. According to my
-> > > > understanding, when rtc_device_unregister returned, the cdev is gone and
-> > > > so chrdev_open is supposed to fail.
-> > > 
-> > > Oh wow, hello back to 4 years ago!
-> > 
-> > :-)
-> > 
-> 
-> > > Looking at the current code, I don't think there is no such race any more, 
-> > > as the last thing cmos_do_probe() -> __rtc_register_device() does that can 
-> > > potentially fail is the chardev creation itself.
-> > 
-> > OK, so you agree that it's also save to do something in a driver's probe
-> > after rtc_device_register() and call rtc_device_unregister() in the error
-> > path, right? 
-> 
-> Hmm, not really; that's what the code apparently did 4 years ago (judging 
-> from the scenario in the old mail, I of course forgot all the details), 
-> but doesn't do it any more.
-> 
-> Looking at the current code, if you call rtc_device_unregister() in the 
-> probe path, where is the guarantee that cdev_get() will not derefernce 
-> already freed struct module*?
-> 
+/proc is not the correct ABI to display debugging info. Remove
+RTC_DS1685_PROC_REGS as the driver hasn't seen any real development since
+it was included.
 
-I've also tried to produce it and couldn't. The whole magic happens in
-kobj_lookup. Freeing the module before ends up with the application
-opening the char dev getting -ENXIO. Freeing the module after
-kobj_lookup is not possible and ends up with -EBUSY.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/Kconfig      | 11 --------
+ drivers/rtc/rtc-ds1685.c | 61 ----------------------------------------
+ 2 files changed, 72 deletions(-)
 
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 4df9a3ec064b..a819ef07b7ec 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1008,17 +1008,6 @@ config RTC_DRV_DS17885
+ 
+ endchoice
+ 
+-config RTC_DS1685_PROC_REGS
+-	bool "Display register values in /proc"
+-	depends on RTC_DRV_DS1685_FAMILY && PROC_FS
+-	help
+-	  Enable this to display a readout of all of the RTC registers in
+-	  /proc/drivers/rtc.  Keep in mind that this can potentially lead
+-	  to lost interrupts, as reading Control Register C will clear
+-	  all pending IRQ flags.
+-
+-	  Unless you are debugging this driver, choose N.
+-
+ config RTC_DRV_DS1742
+ 	tristate "Maxim/Dallas DS1742/1743"
+ 	depends on HAS_IOMEM
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 6f39f683a98c..2bad1f50414f 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -770,33 +770,6 @@ static const char *ds1685_rtc_sqw_freq[16] = {
+ 	"512Hz", "256Hz", "128Hz", "64Hz", "32Hz", "16Hz", "8Hz", "4Hz", "2Hz"
+ };
+ 
+-#ifdef CONFIG_RTC_DS1685_PROC_REGS
+-/**
+- * ds1685_rtc_print_regs - helper function to print register values.
+- * @hex: hex byte to convert into binary bits.
+- * @dest: destination char array.
+- *
+- * This is basically a hex->binary function, just with extra spacing between
+- * the digits.  It only works on 1-byte values (8 bits).
+- */
+-static char*
+-ds1685_rtc_print_regs(u8 hex, char *dest)
+-{
+-	u32 i, j;
+-	char *tmp = dest;
+-
+-	for (i = 0; i < NUM_BITS; i++) {
+-		*tmp++ = ((hex & 0x80) != 0 ? '1' : '0');
+-		for (j = 0; j < NUM_SPACES; j++)
+-			*tmp++ = ' ';
+-		hex <<= 1;
+-	}
+-	*tmp++ = '\0';
+-
+-	return dest;
+-}
+-#endif
+-
+ /**
+  * ds1685_rtc_proc - procfs access function.
+  * @dev: pointer to device structure.
+@@ -809,9 +782,6 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	struct ds1685_priv *rtc = platform_get_drvdata(pdev);
+ 	u8 ctrla, ctrlb, ctrlc, ctrld, ctrl4a, ctrl4b, ssn[8];
+ 	char *model;
+-#ifdef CONFIG_RTC_DS1685_PROC_REGS
+-	char bits[NUM_REGS][(NUM_BITS * NUM_SPACES) + NUM_BITS + 1];
+-#endif
+ 
+ 	/* Read all the relevant data from the control registers. */
+ 	ds1685_rtc_switch_to_bank1(rtc);
+@@ -859,28 +829,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	   "Periodic IRQ\t: %s\n"
+ 	   "Periodic Rate\t: %s\n"
+ 	   "SQW Freq\t: %s\n"
+-#ifdef CONFIG_RTC_DS1685_PROC_REGS
+-	   "Serial #\t: %8phC\n"
+-	   "Register Status\t:\n"
+-	   "   Ctrl A\t: UIP  DV2  DV1  DV0  RS3  RS2  RS1  RS0\n"
+-	   "\t\t:  %s\n"
+-	   "   Ctrl B\t: SET  PIE  AIE  UIE  SQWE  DM  2412 DSE\n"
+-	   "\t\t:  %s\n"
+-	   "   Ctrl C\t: IRQF  PF   AF   UF  ---  ---  ---  ---\n"
+-	   "\t\t:  %s\n"
+-	   "   Ctrl D\t: VRT  ---  ---  ---  ---  ---  ---  ---\n"
+-	   "\t\t:  %s\n"
+-#if !defined(CONFIG_RTC_DRV_DS1685) && !defined(CONFIG_RTC_DRV_DS1689)
+-	   "   Ctrl 4A\t: VRT2 INCR BME  ---  PAB   RF   WF   KF\n"
+-#else
+-	   "   Ctrl 4A\t: VRT2 INCR ---  ---  PAB   RF   WF   KF\n"
+-#endif
+-	   "\t\t:  %s\n"
+-	   "   Ctrl 4B\t: ABE  E32k  CS  RCE  PRS  RIE  WIE  KSE\n"
+-	   "\t\t:  %s\n",
+-#else
+ 	   "Serial #\t: %8phC\n",
+-#endif
+ 	   model,
+ 	   ((ctrla & RTC_CTRL_A_DV1) ? "enabled" : "disabled"),
+ 	   ((ctrlb & RTC_CTRL_B_2412) ? "24-hour" : "12-hour"),
+@@ -894,17 +843,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	    ds1685_rtc_pirq_rate[(ctrla & RTC_CTRL_A_RS_MASK)] : "none"),
+ 	   (!((ctrl4b & RTC_CTRL_4B_E32K)) ?
+ 	    ds1685_rtc_sqw_freq[(ctrla & RTC_CTRL_A_RS_MASK)] : "32768Hz"),
+-#ifdef CONFIG_RTC_DS1685_PROC_REGS
+-	   ssn,
+-	   ds1685_rtc_print_regs(ctrla, bits[0]),
+-	   ds1685_rtc_print_regs(ctrlb, bits[1]),
+-	   ds1685_rtc_print_regs(ctrlc, bits[2]),
+-	   ds1685_rtc_print_regs(ctrld, bits[3]),
+-	   ds1685_rtc_print_regs(ctrl4a, bits[4]),
+-	   ds1685_rtc_print_regs(ctrl4b, bits[5]));
+-#else
+ 	   ssn);
+-#endif
+ 	return 0;
+ }
+ #else
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.19.0
