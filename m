@@ -1,70 +1,136 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.130]:42798 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727401AbeICOSW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 3 Sep 2018 10:18:22 -0400
-From: Tony Xie <tony.xie@rock-chips.com>
-To: heiko@sntech.de
-Cc: broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v4 0/5] support a new type of PMIC,including two chips(rk817 and rk809)
-Date: Mon,  3 Sep 2018 18:00:24 +0800
-Message-Id: <1535968829-19418-1-git-send-email-tony.xie@rock-chips.com>
+Received: from mail.bootlin.com ([62.4.15.54]:58467 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726990AbeITUT3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 20 Sep 2018 16:19:29 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: ds1307: use rtc_add_group
+Date: Thu, 20 Sep 2018 16:35:26 +0200
+Message-Id: <20180920143526.18704-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Most of functions and registers of the rk817 and rk808 are the same,
-so they can share allmost all codes.
+Register frequency test using rtc_add_group to avoid a possible race
+condition and simplify the code.
 
-Their specifications are as follows：
-  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
-     for these components except dcdc5.
-  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
-  3) The RK817 has one switch but The Rk809 has two.
+This also moves the attribute to its proper location under the rtc device
+instead of the i2c parent device.
 
-Changes in V2:
-1. initialize the pm_pwroff_fn to NULL. 
-2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
-3. change patch 2/3/4/5 subjects. 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1307.c | 53 +++++++++++-----------------------------
+ 1 file changed, 14 insertions(+), 39 deletions(-)
 
-Changes in V3：
-1. change patch 4 subjects
-2. replace pr_ with dev_ for printing in patch 2
-3. modify switch1 and switch2 configs in patch 2
-4. explain gpio information for rk809 and rk817 in patch 4
-
-Changes in V4：
-1. modify some codes for patch 2 and patch 5 according to comments 
-2. add reviewer mail lists for patch 3 and 4
-
-Tony Xie (5):
-  mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: add RK809 and RK817 support.
-  dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
-  rtc: rk808: add RK809 and RK817 support.
-  clk: RK808: add RK809 and RK817 support.
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  56 ++
- drivers/clk/Kconfig                             |   9 +-
- drivers/clk/clk-rk808.c                         |  64 ++-
- drivers/mfd/Kconfig                             |   6 +-
- drivers/mfd/rk808.c                             | 218 +++++++-
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 657 +++++++++++++++++++++++-
- drivers/rtc/Kconfig                             |   4 +-
- drivers/rtc/rtc-rk808.c                         |  68 ++-
- include/linux/mfd/rk808.h                       | 175 +++++++
- kernel/reboot.c                                 |   1 +
- 11 files changed, 1204 insertions(+), 58 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index edccd0c0da25..982503a168d0 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1050,11 +1050,11 @@ static int m41txx_rtc_set_offset(struct device *dev, long offset)
+ 				  ctrl_reg);
+ }
+ 
+-static ssize_t frequency_test_enable_store(struct device *dev,
+-					   struct device_attribute *attr,
+-					   const char *buf, size_t count)
++static ssize_t frequency_test_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t count)
+ {
+-	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	struct ds1307 *ds1307 = dev_get_drvdata(dev->parent);
+ 	bool freq_test_en;
+ 	int ret;
+ 
+@@ -1070,11 +1070,11 @@ static ssize_t frequency_test_enable_store(struct device *dev,
+ 	return count;
+ }
+ 
+-static ssize_t frequency_test_enable_show(struct device *dev,
+-					  struct device_attribute *attr,
+-					  char *buf)
++static ssize_t frequency_test_show(struct device *dev,
++				   struct device_attribute *attr,
++				   char *buf)
+ {
+-	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	struct ds1307 *ds1307 = dev_get_drvdata(dev->parent);
+ 	unsigned int ctrl_reg;
+ 
+ 	regmap_read(ds1307->regmap, M41TXX_REG_CONTROL, &ctrl_reg);
+@@ -1083,10 +1083,10 @@ static ssize_t frequency_test_enable_show(struct device *dev,
+ 			"off\n");
+ }
+ 
+-static DEVICE_ATTR_RW(frequency_test_enable);
++static DEVICE_ATTR_RW(frequency_test);
+ 
+ static struct attribute *rtc_freq_test_attrs[] = {
+-	&dev_attr_frequency_test_enable.attr,
++	&dev_attr_frequency_test.attr,
+ 	NULL,
+ };
+ 
+@@ -1094,13 +1094,6 @@ static const struct attribute_group rtc_freq_test_attr_group = {
+ 	.attrs		= rtc_freq_test_attrs,
+ };
+ 
+-static void rtc_calib_remove_sysfs_group(void *_dev)
+-{
+-	struct device *dev = _dev;
+-
+-	sysfs_remove_group(&dev->kobj, &rtc_freq_test_attr_group);
+-}
+-
+ static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+ {
+ 	int err;
+@@ -1109,27 +1102,9 @@ static int ds1307_add_frequency_test(struct ds1307 *ds1307)
+ 	case m41t0:
+ 	case m41t00:
+ 	case m41t11:
+-		/* Export sysfs entries */
+-		err = sysfs_create_group(&(ds1307->dev)->kobj,
+-					 &rtc_freq_test_attr_group);
+-		if (err) {
+-			dev_err(ds1307->dev,
+-				"Failed to create sysfs group: %d\n",
+-				err);
+-			return err;
+-		}
+-
+-		err = devm_add_action_or_reset(ds1307->dev,
+-					       rtc_calib_remove_sysfs_group,
+-					       ds1307->dev);
+-		if (err) {
+-			dev_err(ds1307->dev,
+-				"Failed to add sysfs cleanup action: %d\n",
+-				err);
+-			sysfs_remove_group(&(ds1307->dev)->kobj,
+-					   &rtc_freq_test_attr_group);
++		err = rtc_add_group(ds1307->rtc, &rtc_freq_test_attr_group);
++		if (err)
+ 			return err;
+-		}
+ 		break;
+ 	default:
+ 		break;
+@@ -1876,11 +1851,11 @@ static int ds1307_probe(struct i2c_client *client,
+ 	}
+ 
+ 	ds1307->rtc->ops = chip->rtc_ops ?: &ds13xx_rtc_ops;
+-	err = rtc_register_device(ds1307->rtc);
++	err = ds1307_add_frequency_test(ds1307);
+ 	if (err)
+ 		return err;
+ 
+-	err = ds1307_add_frequency_test(ds1307);
++	err = rtc_register_device(ds1307->rtc);
+ 	if (err)
+ 		return err;
+ 
 -- 
-1.9.1
+2.19.0
