@@ -1,70 +1,51 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:47526 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726708AbeIJCGS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 9 Sep 2018 22:06:18 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Matt Turner <mattst88@gmail.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:36345 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727776AbeIUQAV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Sep 2018 12:00:21 -0400
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] alpha: rtc: simplify alpha_rtc_init
-Date: Sun,  9 Sep 2018 23:15:04 +0200
-Message-Id: <20180909211504.11768-1-alexandre.belloni@bootlin.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>, linux-rtc@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: tegra: Propagate errors from platform_get_irq()
+Date: Fri, 21 Sep 2018 12:12:09 +0200
+Message-Id: <20180921101209.11895-1-thierry.reding@gmail.com>
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Use devm_rtc_allocate_device to simplify choosing the rtc_ops in
-alpha_rtc_init().
+From: Thierry Reding <treding@nvidia.com>
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Instead of confusingly returning -EBUSY on failure to obtain an
+interrupt, propagate the real error code. While at it, let the user know
+why the interrupt could not be acquired.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- arch/alpha/kernel/rtc.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-tegra.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/alpha/kernel/rtc.c b/arch/alpha/kernel/rtc.c
-index 1376a2867048..1b1d5963ac55 100644
---- a/arch/alpha/kernel/rtc.c
-+++ b/arch/alpha/kernel/rtc.c
-@@ -198,26 +198,24 @@ static const struct rtc_class_ops remote_rtc_ops = {
- static int __init
- alpha_rtc_init(void)
- {
--	const struct rtc_class_ops *ops;
- 	struct platform_device *pdev;
- 	struct rtc_device *rtc;
--	const char *name;
+diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
+index 8dc48fe7fc35..c9e77a83cd1b 100644
+--- a/drivers/rtc/rtc-tegra.c
++++ b/drivers/rtc/rtc-tegra.c
+@@ -322,9 +322,13 @@ static int __init tegra_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(info->rtc_base))
+ 		return PTR_ERR(info->rtc_base);
  
- 	init_rtc_epoch();
--	name = "rtc-alpha";
--	ops = &alpha_rtc_ops;
- 
--#ifdef HAVE_REMOTE_RTC
--	if (alpha_mv.rtc_boot_cpu_only)
--		ops = &remote_rtc_ops;
--#endif
--
--	pdev = platform_device_register_simple(name, -1, NULL, 0);
--	rtc = devm_rtc_device_register(&pdev->dev, name, ops, THIS_MODULE);
-+	pdev = platform_device_register_simple("rtc-alpha", -1, NULL, 0);
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
- 
- 	platform_set_drvdata(pdev, rtc);
--	return 0;
-+	rtc->ops = &alpha_rtc_ops;
+-	info->tegra_rtc_irq = platform_get_irq(pdev, 0);
+-	if (info->tegra_rtc_irq <= 0)
+-		return -EBUSY;
++	ret = platform_get_irq(pdev, 0);
++	if (ret <= 0) {
++		dev_err(&pdev->dev, "failed to get platform IRQ: %d\n", ret);
++		return ret;
++	}
 +
-+#ifdef HAVE_REMOTE_RTC
-+	if (alpha_mv.rtc_boot_cpu_only)
-+		rtc->ops = &remote_rtc_ops;
-+#endif
-+
-+	return rtc_register_device(rtc);
- }
- device_initcall(alpha_rtc_init);
++	info->tegra_rtc_irq = ret;
+ 
+ 	info->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(info->clk))
 -- 
-2.19.0.rc2
+2.19.0
