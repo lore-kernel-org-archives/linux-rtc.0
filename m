@@ -1,293 +1,97 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:51719 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727621AbeIGT7O (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 15:59:14 -0400
-Received: by mail-it0-f68.google.com with SMTP id e14-v6so21035420itf.1
-        for <linux-rtc@vger.kernel.org>; Fri, 07 Sep 2018 08:17:52 -0700 (PDT)
-From: Jeremy Gebben <jgebben@sweptlaser.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mail.bootlin.com ([62.4.15.54]:43352 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733208AbeIXVIC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 24 Sep 2018 17:08:02 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: abx80x: add basic watchdog support
-Date: Fri,  7 Sep 2018 09:17:43 -0600
-Message-Id: <20180907151744.32634-1-jgebben@sweptlaser.com>
+Subject: [PATCH 3/3] rtc: rs5c348: report error when time is invalid
+Date: Mon, 24 Sep 2018 17:05:09 +0200
+Message-Id: <20180924150509.2082-3-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180924150509.2082-1-alexandre.belloni@bootlin.com>
+References: <20180924150509.2082-1-alexandre.belloni@bootlin.com>
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-The abx804 and abx805 chips have support for a simple watchdog
-function that can trigger an external reset.
+Instead of resetting the RTC to an bogus valid time, let userspace know
+that the time is invalid when XSTP is set. Reset XSTP when setting the time
+again.
 
-Signed-off-by: Jeremy Gebben <jgebben@sweptlaser.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/Kconfig      |  11 +++
- drivers/rtc/rtc-abx80x.c | 160 ++++++++++++++++++++++++++++++++++++---
- 2 files changed, 159 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-rs5c348.c | 43 +++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 7d7be60a2413..4771e3a89721 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -195,6 +195,17 @@ config RTC_DRV_ABX80X
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-abx80x.
+diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
+index 7b9c7dc5b309..6582be707bd0 100644
+--- a/drivers/rtc/rtc-rs5c348.c
++++ b/drivers/rtc/rtc-rs5c348.c
+@@ -66,6 +66,17 @@ rs5c348_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	u8 txbuf[5+7], *txp;
+ 	int ret;
  
-+config RTC_DRV_ABX80X_WDT
-+	bool "Abracon ABx80x Watchdog"
-+	default y
-+	depends on RTC_DRV_ABX80X
-+	help
-+	  If you say yes here you get watchdog support for Abracon ABX804 and ABX805
-+	  clock chips. This watchdog supports timeouts up to 31 seconds with 1 second
-+	  granularity.
-+
-+          This watchdog device is part of the rtc-abx80x module.
-+
- config RTC_DRV_AC100
- 	tristate "X-Powers AC100"
- 	depends on MFD_AC100
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 2cefa67a1132..fa558939e944 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -17,6 +17,7 @@
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/rtc.h>
-+#include <linux/watchdog.h>
- 
- #define ABX8XX_REG_HTH		0x00
- #define ABX8XX_REG_SC		0x01
-@@ -37,6 +38,7 @@
- 
- #define ABX8XX_REG_STATUS	0x0f
- #define ABX8XX_STATUS_AF	BIT(2)
-+#define ABX8XX_STATUS_WDT	BIT(6)
- 
- #define ABX8XX_REG_CTRL1	0x10
- #define ABX8XX_CTRL_WRITE	BIT(0)
-@@ -61,6 +63,14 @@
- #define ABX8XX_OSS_OF		BIT(1)
- #define ABX8XX_OSS_OMODE	BIT(4)
- 
-+#define ABX8XX_REG_WDT		0x1b
-+#define ABX8XX_WDT_WDS		BIT(7)
-+#define ABX8XX_WDT_BMB_MASK	0x7c
-+#define ABX8XX_WDT_BMB_SHIFT	2
-+#define ABX8XX_WDT_MAX_TIME	(ABX8XX_WDT_BMB_MASK >> ABX8XX_WDT_BMB_SHIFT)
-+#define ABX8XX_WDT_WRB_MASK	0x03
-+#define ABX8XX_WDT_WRB_1HZ	0x02
-+
- #define ABX8XX_REG_CFG_KEY	0x1f
- #define ABX8XX_CFG_KEY_OSC	0xa1
- #define ABX8XX_CFG_KEY_MISC	0x9d
-@@ -80,20 +90,27 @@ enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
- struct abx80x_cap {
- 	u16 pn;
- 	bool has_tc;
-+	bool has_wdog;
- };
- 
- static struct abx80x_cap abx80x_caps[] = {
- 	[AB0801] = {.pn = 0x0801},
- 	[AB0803] = {.pn = 0x0803},
--	[AB0804] = {.pn = 0x0804, .has_tc = true},
--	[AB0805] = {.pn = 0x0805, .has_tc = true},
-+	[AB0804] = {.pn = 0x0804, .has_tc = true, .has_wdog = true},
-+	[AB0805] = {.pn = 0x0805, .has_tc = true, .has_wdog = true},
- 	[AB1801] = {.pn = 0x1801},
- 	[AB1803] = {.pn = 0x1803},
--	[AB1804] = {.pn = 0x1804, .has_tc = true},
--	[AB1805] = {.pn = 0x1805, .has_tc = true},
-+	[AB1804] = {.pn = 0x1804, .has_tc = true, .has_wdog = true},
-+	[AB1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
- 	[ABX80X] = {.pn = 0}
- };
- 
-+struct abx80x_priv {
-+	struct rtc_device *rtc;
-+	struct i2c_client *client;
-+	struct watchdog_device wdog;
-+};
-+
- static int abx80x_is_rc_mode(struct i2c_client *client)
- {
- 	int flags = 0;
-@@ -218,7 +235,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
- {
- 	struct i2c_client *client = dev_id;
--	struct rtc_device *rtc = i2c_get_clientdata(client);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
-+	struct rtc_device *rtc = priv->rtc;
- 	int status;
- 
- 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
-@@ -228,6 +246,13 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
- 	if (status & ABX8XX_STATUS_AF)
- 		rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
- 
-+	/*
-+	 * It is unclear if we'll get an interrupt before the external
-+	 * reset kicks in.
-+	 */
-+	if (status & ABX8XX_STATUS_WDT)
-+		dev_err(&client->dev, "watchdog timeout interrupt!\n");
-+
- 	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
- 
- 	return IRQ_HANDLED;
-@@ -529,11 +554,110 @@ static void rtc_calib_remove_sysfs_group(void *_dev)
- 	sysfs_remove_group(&dev->kobj, &rtc_calib_attr_group);
- }
- 
-+#ifdef CONFIG_RTC_DRV_ABX80X_WDT
-+
-+static inline u8 timeout_bits(unsigned int timeout)
-+{
-+	return ((timeout << ABX8XX_WDT_BMB_SHIFT) & ABX8XX_WDT_BMB_MASK) |
-+		 ABX8XX_WDT_WRB_1HZ;
-+}
-+
-+static int __abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-+				    unsigned int timeout)
-+{
-+	struct abx80x_priv *priv = watchdog_get_drvdata(wdog);
-+	u8 val = ABX8XX_WDT_WDS | timeout_bits(timeout);
-+
-+	/*
-+	 * Writing any timeout to the WDT register resets the watchdog timer.
-+	 * Writing 0 disables it.
-+	 */
-+	return i2c_smbus_write_byte_data(priv->client, ABX8XX_REG_WDT, val);
-+}
-+
-+static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-+				unsigned int new_timeout)
-+{
-+	int err = __abx80x_wdog_set_timeout(wdog, new_timeout);
-+
-+	if (err)
-+		return err;
-+
-+	wdog->timeout = new_timeout;
-+	return 0;
-+}
-+
-+static int abx80x_wdog_ping(struct watchdog_device *wdog)
-+{
-+	return __abx80x_wdog_set_timeout(wdog, wdog->timeout);
-+}
-+
-+static int abx80x_wdog_start(struct watchdog_device *wdog)
-+{
-+	int err = __abx80x_wdog_set_timeout(wdog, wdog->timeout);
-+
-+	if (err)
-+		return err;
-+
-+	set_bit(WDOG_HW_RUNNING, &wdog->status);
-+	return 0;
-+}
-+
-+static int abx80x_wdog_stop(struct watchdog_device *wdog)
-+{
-+	int err = __abx80x_wdog_set_timeout(wdog, 0);
-+
-+	if (err)
-+		return err;
-+
-+	clear_bit(WDOG_HW_RUNNING, &wdog->status);
-+	return 0;
-+}
-+
-+static const struct watchdog_info abx80x_wdog_info = {
-+	.identity = "abx80x watchdog",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops abx80x_wdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = abx80x_wdog_start,
-+	.stop = abx80x_wdog_stop,
-+	.ping = abx80x_wdog_ping,
-+	.set_timeout = abx80x_wdog_set_timeout,
-+};
-+
-+static int abx80x_setup_watchdog(struct abx80x_priv *priv)
-+{
-+	int err;
-+
-+	priv->wdog.ops = &abx80x_wdog_ops;
-+	priv->wdog.info = &abx80x_wdog_info;
-+	priv->wdog.min_timeout = 1;
-+	priv->wdog.max_timeout = ABX8XX_WDT_MAX_TIME;
-+
-+	err = devm_watchdog_register_device(&priv->client->dev,
-+					    &priv->wdog);
-+	if (err)
-+		return err;
-+
-+	watchdog_set_drvdata(&priv->wdog, priv);
-+	watchdog_init_timeout(&priv->wdog, ABX8XX_WDT_MAX_TIME,
-+			      &priv->client->dev);
-+	return 0;
-+}
-+#else
-+static int abx80x_setup_watchdog(struct abx80x_priv *priv)
-+{
-+	return 0;
-+}
-+#endif
-+
- static int abx80x_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
- 	struct device_node *np = client->dev.of_node;
--	struct rtc_device *rtc;
-+	struct abx80x_priv *priv;
- 	int i, data, err, trickle_cfg = -EINVAL;
- 	char buf[7];
- 	unsigned int part = id->driver_data;
-@@ -610,13 +734,25 @@ static int abx80x_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
--	rtc = devm_rtc_allocate_device(&client->dev);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	priv = devm_kzalloc(&client->dev, sizeof(struct abx80x_priv),
-+			    GFP_KERNEL);
-+	if (priv == NULL)
-+		return -ENOMEM;
-+
-+	priv->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(priv->rtc))
-+		return PTR_ERR(priv->rtc);
- 
--	rtc->ops = &abx80x_rtc_ops;
-+	priv->rtc->ops = &abx80x_rtc_ops;
-+	priv->client = client;
- 
--	i2c_set_clientdata(client, rtc);
-+	i2c_set_clientdata(client, priv);
-+
-+	if (abx80x_caps[part].has_wdog) {
-+		err = abx80x_setup_watchdog(priv);
-+		if (err)
-+			return err;
++	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL2));
++	if (ret < 0)
++		return ret;
++	if (ret & RS5C348_BIT_XSTP) {
++		txbuf[0] = RS5C348_CMD_W(RS5C348_REG_CTL2);
++		txbuf[1] = 0;
++		ret = spi_write_then_read(spi, txbuf, 2, NULL, 0);
++		if (ret < 0)
++			return ret;
 +	}
++
+ 	/* Transfer 5 bytes before writing SEC.  This gives 31us for carry. */
+ 	txp = txbuf;
+ 	txbuf[0] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
+@@ -102,6 +113,16 @@ rs5c348_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	u8 txbuf[5], rxbuf[7];
+ 	int ret;
  
- 	if (client->irq > 0) {
- 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
-@@ -649,7 +785,7 @@ static int abx80x_probe(struct i2c_client *client,
- 		return err;
- 	}
++	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL2));
++	if (ret < 0)
++		return ret;
++	if (ret & RS5C348_BIT_VDET)
++		dev_warn(&spi->dev, "voltage-low detected.\n");
++	if (ret & RS5C348_BIT_XSTP) {
++		dev_warn(&spi->dev, "oscillator-stop detected.\n");
++		return -EINVAL;
++	}
++
+ 	/* Transfer 5 byte befores reading SEC.  This gives 31us for carry. */
+ 	txbuf[0] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
+ 	txbuf[1] = 0;	/* dummy */
+@@ -165,28 +186,6 @@ static int rs5c348_probe(struct spi_device *spi)
+ 	dev_info(&spi->dev, "spiclk %u KHz.\n",
+ 		 (spi->max_speed_hz + 500) / 1000);
  
--	err = rtc_register_device(rtc);
-+	err = rtc_register_device(priv->rtc);
- 
- 	return err;
- }
+-	/* turn RTC on if it was not on */
+-	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL2));
+-	if (ret < 0)
+-		return ret;
+-	if (ret & (RS5C348_BIT_XSTP | RS5C348_BIT_VDET)) {
+-		u8 buf[2];
+-		struct rtc_time tm;
+-		if (ret & RS5C348_BIT_VDET)
+-			dev_warn(&spi->dev, "voltage-low detected.\n");
+-		if (ret & RS5C348_BIT_XSTP)
+-			dev_warn(&spi->dev, "oscillator-stop detected.\n");
+-		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
+-		ret = rs5c348_rtc_set_time(&spi->dev, &tm);
+-		if (ret < 0)
+-			return ret;
+-		buf[0] = RS5C348_CMD_W(RS5C348_REG_CTL2);
+-		buf[1] = 0;
+-		ret = spi_write_then_read(spi, buf, sizeof(buf), NULL, 0);
+-		if (ret < 0)
+-			return ret;
+-	}
+-
+ 	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL1));
+ 	if (ret < 0)
+ 		return ret;
 -- 
-2.17.1
+2.19.0
