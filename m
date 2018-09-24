@@ -1,61 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from asavdk3.altibox.net ([109.247.116.14]:57314 "EHLO
-        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726528AbeI0C5n (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Sep 2018 22:57:43 -0400
-Date: Wed, 26 Sep 2018 22:42:52 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v1 1/5] dt-binding: rtci-pcf8523: add quartz_load property
-Message-ID: <20180926204252.GA8654@ravnborg.org>
-References: <20180822183555.GA24084@ravnborg.org>
- <20180907193508.24974-2-sam@ravnborg.org>
- <20180913190516.GG14988@piout.net>
- <20180926154708.GA3264@bogus>
- <20180926185121.GF16644@piout.net>
+Received: from mail.bootlin.com ([62.4.15.54]:43351 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733102AbeIXVIA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 24 Sep 2018 17:08:00 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/3] rtc: rs5c348: remove forward declaration
+Date: Mon, 24 Sep 2018 17:05:08 +0200
+Message-Id: <20180924150509.2082-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180924150509.2082-1-alexandre.belloni@bootlin.com>
+References: <20180924150509.2082-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180926185121.GF16644@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On Wed, Sep 26, 2018 at 08:51:21PM +0200, Alexandre Belloni wrote:
-> On 26/09/2018 10:47:08-0500, Rob Herring wrote:
-> > > > +Optional property:
-> > > > +- nxp,quartz_load_12.5pF: The capacitive load on the quartz is 12.5 pF,
-> > > > +  which differ from the default value of 7 pF
-> > > > +
-> > > 
-> > > The boolean properties usually don't work well for RTCs because people
-> > > usually want to keep any previous configuration that may have been done
-> > > at the factory or in the bootloader so I would use:
-> > > 
-> > > nxp,quartz_load_fF and this would be either 7000 or 12500.
-> > 
-> > Use '-' rather than '_'.
-> > 
-> > There's already a defined unit suffix of '-picofarads'. If you need 
-> > '-femtofarads', then please add to property-units.txt. Though I'd prefer 
-> > not as wouldn't a value of 12 (or 13) be close enough for the needs 
-> > here?
-> > 
-> 
-> For that particular RTC, yes but the isl1208 has 0.5pF steps and the
-> x1205 has 0.25pf steps. I'd prefer having a single generic property for
-> all the RTCs: quartz-load-femtofarads.
+The name passed to devm_rtc_device_register is now unused. anyway, switch
+to devm_rtc_allocate_device to avoid forward declaring rs5c348_driver.
 
-I will change to use this, and update property-units.txt too, when I get
-back to the patch set in a week or so.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-rs5c348.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-	Sam
+diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
+index aeb14fc0175d..7b9c7dc5b309 100644
+--- a/drivers/rtc/rtc-rs5c348.c
++++ b/drivers/rtc/rtc-rs5c348.c
+@@ -143,8 +143,6 @@ static const struct rtc_class_ops rs5c348_rtc_ops = {
+ 	.set_time	= rs5c348_rtc_set_time,
+ };
+ 
+-static struct spi_driver rs5c348_driver;
+-
+ static int rs5c348_probe(struct spi_device *spi)
+ {
+ 	int ret;
+@@ -195,15 +193,15 @@ static int rs5c348_probe(struct spi_device *spi)
+ 	if (ret & RS5C348_BIT_24H)
+ 		pdata->rtc_24h = 1;
+ 
+-	rtc = devm_rtc_device_register(&spi->dev, rs5c348_driver.driver.name,
+-				  &rs5c348_rtc_ops, THIS_MODULE);
+-
++	rtc = devm_rtc_allocate_device(&spi->dev);
+ 	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
+ 
+ 	pdata->rtc = rtc;
+ 
+-	return 0;
++	rtc->ops = &rs5c348_rtc_ops;
++
++	return rtc_register_device(rtc);
+ }
+ 
+ static struct spi_driver rs5c348_driver = {
+-- 
+2.19.0
