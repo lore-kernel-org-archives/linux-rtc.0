@@ -1,99 +1,87 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:42612 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726191AbeIKCdf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 Sep 2018 22:33:35 -0400
-Received: by mail-io0-f194.google.com with SMTP id n18-v6so1902290ioa.9
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Sep 2018 14:37:34 -0700 (PDT)
-From: Jeremy Gebben <jgebben@sweptlaser.com>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] rtc: abx80x: use a 'priv' struct for client data
-Date: Mon, 10 Sep 2018 15:36:53 -0600
-Message-Id: <20180910213654.26059-2-jgebben@sweptlaser.com>
-In-Reply-To: <20180910213654.26059-1-jgebben@sweptlaser.com>
-References: <20180910213654.26059-1-jgebben@sweptlaser.com>
+Received: from mail.bootlin.com ([62.4.15.54]:43350 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731865AbeIXVIA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 24 Sep 2018 17:08:00 -0400
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: rs5c348: remove useless label
+Date: Mon, 24 Sep 2018 17:05:07 +0200
+Message-Id: <20180924150509.2082-1-alexandre.belloni@bootlin.com>
+MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-This will allow additional data to be tracked, for future
-improvements.
+Since commit 8fb1ecb36f7e ("rtc: rtc-rs5c348: use devm_*() functions") the
+kfree_exit label simply returns ret.
 
-Signed-off-by: Jeremy Gebben <jgebben@sweptlaser.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-abx80x.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-rs5c348.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 2cefa67a1132..9d49054a0a4a 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -94,6 +94,11 @@ static struct abx80x_cap abx80x_caps[] = {
- 	[ABX80X] = {.pn = 0}
- };
- 
-+struct abx80x_priv {
-+	struct rtc_device *rtc;
-+	struct i2c_client *client;
-+};
-+
- static int abx80x_is_rc_mode(struct i2c_client *client)
- {
- 	int flags = 0;
-@@ -218,7 +223,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
- {
- 	struct i2c_client *client = dev_id;
--	struct rtc_device *rtc = i2c_get_clientdata(client);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
-+	struct rtc_device *rtc = priv->rtc;
- 	int status;
- 
- 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
-@@ -533,7 +539,7 @@ static int abx80x_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
- 	struct device_node *np = client->dev.of_node;
--	struct rtc_device *rtc;
-+	struct abx80x_priv *priv;
- 	int i, data, err, trickle_cfg = -EINVAL;
- 	char buf[7];
- 	unsigned int part = id->driver_data;
-@@ -610,13 +616,18 @@ static int abx80x_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
--	rtc = devm_rtc_allocate_device(&client->dev);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
-+	if (priv == NULL)
-+		return -ENOMEM;
-+
-+	priv->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(priv->rtc))
-+		return PTR_ERR(priv->rtc);
- 
--	rtc->ops = &abx80x_rtc_ops;
-+	priv->rtc->ops = &abx80x_rtc_ops;
-+	priv->client = client;
- 
--	i2c_set_clientdata(client, rtc);
-+	i2c_set_clientdata(client, priv);
- 
- 	if (client->irq > 0) {
- 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
-@@ -649,7 +660,7 @@ static int abx80x_probe(struct i2c_client *client,
- 		return err;
+diff --git a/drivers/rtc/rtc-rs5c348.c b/drivers/rtc/rtc-rs5c348.c
+index f2de8b17e7e3..aeb14fc0175d 100644
+--- a/drivers/rtc/rtc-rs5c348.c
++++ b/drivers/rtc/rtc-rs5c348.c
+@@ -161,7 +161,7 @@ static int rs5c348_probe(struct spi_device *spi)
+ 	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_SECS));
+ 	if (ret < 0 || (ret & 0x80)) {
+ 		dev_err(&spi->dev, "not found.\n");
+-		goto kfree_exit;
++		return ret;
  	}
  
--	err = rtc_register_device(rtc);
-+	err = rtc_register_device(priv->rtc);
+ 	dev_info(&spi->dev, "spiclk %u KHz.\n",
+@@ -170,7 +170,7 @@ static int rs5c348_probe(struct spi_device *spi)
+ 	/* turn RTC on if it was not on */
+ 	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL2));
+ 	if (ret < 0)
+-		goto kfree_exit;
++		return ret;
+ 	if (ret & (RS5C348_BIT_XSTP | RS5C348_BIT_VDET)) {
+ 		u8 buf[2];
+ 		struct rtc_time tm;
+@@ -181,33 +181,29 @@ static int rs5c348_probe(struct spi_device *spi)
+ 		rtc_time_to_tm(0, &tm);	/* 1970/1/1 */
+ 		ret = rs5c348_rtc_set_time(&spi->dev, &tm);
+ 		if (ret < 0)
+-			goto kfree_exit;
++			return ret;
+ 		buf[0] = RS5C348_CMD_W(RS5C348_REG_CTL2);
+ 		buf[1] = 0;
+ 		ret = spi_write_then_read(spi, buf, sizeof(buf), NULL, 0);
+ 		if (ret < 0)
+-			goto kfree_exit;
++			return ret;
+ 	}
  
- 	return err;
+ 	ret = spi_w8r8(spi, RS5C348_CMD_R(RS5C348_REG_CTL1));
+ 	if (ret < 0)
+-		goto kfree_exit;
++		return ret;
+ 	if (ret & RS5C348_BIT_24H)
+ 		pdata->rtc_24h = 1;
+ 
+ 	rtc = devm_rtc_device_register(&spi->dev, rs5c348_driver.driver.name,
+ 				  &rs5c348_rtc_ops, THIS_MODULE);
+ 
+-	if (IS_ERR(rtc)) {
+-		ret = PTR_ERR(rtc);
+-		goto kfree_exit;
+-	}
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
+ 
+ 	pdata->rtc = rtc;
+ 
+ 	return 0;
+- kfree_exit:
+-	return ret;
  }
+ 
+ static struct spi_driver rs5c348_driver = {
 -- 
-2.17.1
+2.19.0
