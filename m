@@ -1,159 +1,110 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:52758 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbeINAZw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 13 Sep 2018 20:25:52 -0400
-Date: Thu, 13 Sep 2018 21:14:50 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v1 3/5] dts: add nxp,quartz_load_12.5pf to all pcf8523
- nodes
-Message-ID: <20180913191450.GI14988@piout.net>
-References: <20180822183555.GA24084@ravnborg.org>
- <20180907193508.24974-4-sam@ravnborg.org>
+Received: from mail-db5eur01on0087.outbound.protection.outlook.com ([104.47.2.87]:27232
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728236AbeIXRZz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 24 Sep 2018 13:25:55 -0400
+From: =?UTF-8?q?Urs=20F=C3=A4ssler?= <urs.fassler@bbv.ch>
+To: a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        lukas.stockmann@siemens.com, pascal.bach@siemens.com,
+        urs.fassler@bbv.ch
+Subject: [PATCH 2/2] rtc: pcf85063: add support for oscillator capacitor selection
+Date: Mon, 24 Sep 2018 13:23:40 +0200
+Message-Id: <20180924112340.2685-2-urs.fassler@bbv.ch>
+In-Reply-To: <20180924112340.2685-1-urs.fassler@bbv.ch>
+References: <20180924112340.2685-1-urs.fassler@bbv.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180907193508.24974-4-sam@ravnborg.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-On 07/09/2018 21:35:06+0200, Sam Ravnborg wrote:
-> From: Søren Andersen <san@skov.dk>
-> 
-> Add "nxp,quartz_load_12.5pf" to all pcf8523 nodes.
-> 
-> The device tree binding for the pcf8523 now includes
-> a property "nxp,quartz_load_12.5pf" to specify
-> that the connected x-tal has an internal capacitance
-> of 12.5 pF.
-> Add this to all pcf8523 nodes, because this was implicit before,
-> at least in the Linux kernel where the driver was hardcoded
-> to set the rtc to use 12.5 pF.
-> 
+Configure the oscillator capacitor selection if specified.
 
-Well, this patch is not needed as we should not break the DT ABI. See
-comment on the next patch...
+Co-developed-by: Lukas Stockmann <lukas.stockmann@siemens.com>
+Signed-off-by: Urs FÃ¤ssler <urs.fassler@bbv.ch>
+Signed-off-by: Lukas Stockmann <lukas.stockmann@siemens.com>
+Signed-off-by: Pascal Bach <pascal.bach@siemens.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 54 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 4 deletions(-)
 
-> Signed-off-by: Søren Andersen <san@skov.dk>
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Joel Stanley <joel@jms.id.au>
-> Cc: Andrew Jeffery <andrew@aj.id.au>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> Cc: Fabio Estevam <fabio.estevam@nxp.com>
-> Cc: Russell King <linux@armlinux.org.uk>
-> ---
->  arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts | 1 +
->  arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts   | 1 +
->  arch/arm/boot/dts/imx6q-h100.dts             | 1 +
->  arch/arm/boot/dts/imx6q-novena.dts           | 1 +
->  arch/arm/boot/dts/imx6qdl-cubox-i.dtsi       | 1 +
->  arch/arm/boot/dts/imx6qdl-hummingboard.dtsi  | 1 +
->  arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi | 1 +
->  7 files changed, 7 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts b/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-> index d598b6391362..d1a0e3521e2b 100644
-> --- a/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-> +++ b/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-> @@ -200,6 +200,7 @@
->  	rtc@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	tmp75@48 {
-> diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts b/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-> index 2c5aa90a546d..b5088414e610 100644
-> --- a/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-> +++ b/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-> @@ -201,6 +201,7 @@
->  	rtc@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	ucd90160@64 {
-> diff --git a/arch/arm/boot/dts/imx6q-h100.dts b/arch/arm/boot/dts/imx6q-h100.dts
-> index 714e09e04dcb..3b6116069b11 100644
-> --- a/arch/arm/boot/dts/imx6q-h100.dts
-> +++ b/arch/arm/boot/dts/imx6q-h100.dts
-> @@ -173,6 +173,7 @@
->  	rtc: pcf8523@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	sgtl5000: sgtl5000@a {
-> diff --git a/arch/arm/boot/dts/imx6q-novena.dts b/arch/arm/boot/dts/imx6q-novena.dts
-> index fcd824dc485b..6a2eaaa6e220 100644
-> --- a/arch/arm/boot/dts/imx6q-novena.dts
-> +++ b/arch/arm/boot/dts/imx6q-novena.dts
-> @@ -257,6 +257,7 @@
->  	rtc: pcf8523@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	sbs_battery: bq20z75@b {
-> diff --git a/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi b/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-> index 9332a31e6c8b..e0f601bce3d3 100644
-> --- a/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-> @@ -143,6 +143,7 @@
->  	rtc@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  };
->  
-> diff --git a/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi b/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-> index 0e64016e765f..7848b818078e 100644
-> --- a/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-> @@ -189,6 +189,7 @@
->  	rtc@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	/* Pro baseboard model */
-> diff --git a/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi b/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-> index c413f9c3540f..7bc264234085 100644
-> --- a/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-> @@ -222,6 +222,7 @@
->  	pcf8523: rtc@68 {
->  		compatible = "nxp,pcf8523";
->  		reg = <0x68>;
-> +		nxp,quartz_load_12.5pf;
->  	};
->  
->  	sgtl5000: codec@a {
-> -- 
-> 2.12.0
-> 
-
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 283c2335b01b..69ee72f00164 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -180,21 +180,67 @@ static const struct rtc_class_ops pcf85063_rtc_ops = {
+ 	.set_time	= pcf85063_rtc_set_time
+ };
+ 
++
++#ifdef CONFIG_OF
++static int setup_oscillator_capacitor(struct i2c_client *client, u8 ctrl1)
++{
++	int ret;
++	u32 cap_sel;
++
++	ret = of_property_read_u32(client->dev.of_node, "cap-sel", &cap_sel);
++	if (ret != 0) {
++		/* no capacitor selection defined, but that is ok */
++		return 0;
++	}
++
++	if ((cap_sel & 0xfe) != 0) {
++		dev_err(&client->dev,
++			 "Unsupported cap-sel value %u in dt\n", cap_sel);
++		return -EINVAL;
++	}
++
++	ctrl1 = (ctrl1 & 0xfe) | cap_sel;
++	ret = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
++
++	if (ret < 0) {
++		dev_err(&client->dev, "set oscillator capacitor failed\n");
++		return -EIO;
++	}
++
++	dev_info(&client->dev,
++		 "set oscillator capacitor selection to %u\n", cap_sel);
++
++	return 0;
++}
++#else
++static int setup_oscillator_capacitor(struct i2c_client *client, u8 ctrl1)
++{
++	return 0;
++}
++#endif
++
+ static int pcf85063_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+ 	struct rtc_device *rtc;
+-	int err;
++	int ret;
++	u8 ctrl1;
+ 
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -ENODEV;
+ 
+-	err = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+-	if (err < 0) {
++	ret = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
++	if (ret < 0) {
+ 		dev_err(&client->dev, "RTC chip is not present\n");
+-		return err;
++		return ret;
++	}
++	ctrl1 = ret;
++
++	ret = setup_oscillator_capacitor(client, ctrl1);
++	if (ret < 0) {
++		return ret;
+ 	}
+ 
+ 	rtc = devm_rtc_device_register(&client->dev,
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.18.0
