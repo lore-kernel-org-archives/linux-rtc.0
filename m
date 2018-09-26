@@ -1,147 +1,35 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:46648 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727164AbeIHAS1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Sep 2018 20:18:27 -0400
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-        =?UTF-8?q?S=C3=B8ren=20Andersen?= <san@skov.dk>
-Subject: [PATCH v1 3/5] dts: add nxp,quartz_load_12.5pf to all pcf8523 nodes
-Date: Fri,  7 Sep 2018 21:35:06 +0200
-Message-Id: <20180907193508.24974-4-sam@ravnborg.org>
-In-Reply-To: <20180822183555.GA24084@ravnborg.org>
-References: <20180822183555.GA24084@ravnborg.org>
+Received: from mail-it1-f196.google.com ([209.85.166.196]:40145 "EHLO
+        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbeIZNvN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Sep 2018 09:51:13 -0400
+Received: by mail-it1-f196.google.com with SMTP id h23-v6so1573158ita.5
+        for <linux-rtc@vger.kernel.org>; Wed, 26 Sep 2018 00:39:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+References: <20180924144902.607-1-alexandre.belloni@bootlin.com> <20180924144902.607-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180924144902.607-2-alexandre.belloni@bootlin.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 26 Sep 2018 09:39:26 +0200
+Message-ID: <CACRpkdYsuh2rXsW9KJz7Vaj_nH4ierpOE+G7tbrzkN2NDhgiuw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] rtc: ab8500: let the core handle range
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Søren Andersen <san@skov.dk>
+On Mon, Sep 24, 2018 at 4:49 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 
-Add "nxp,quartz_load_12.5pf" to all pcf8523 nodes.
+> Let the core handle offsetting and windowing the RTC range.
+> The RTC has a 24 bit counter for minutes plus a seconds counter.
+> Keep the epoch at the beginning of 2000.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-The device tree binding for the pcf8523 now includes
-a property "nxp,quartz_load_12.5pf" to specify
-that the connected x-tal has an internal capacitance
-of 12.5 pF.
-Add this to all pcf8523 nodes, because this was implicit before,
-at least in the Linux kernel where the driver was hardcoded
-to set the rtc to use 12.5 pF.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Signed-off-by: Søren Andersen <san@skov.dk>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Joel Stanley <joel@jms.id.au>
-Cc: Andrew Jeffery <andrew@aj.id.au>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Russell King <linux@armlinux.org.uk>
----
- arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts | 1 +
- arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts   | 1 +
- arch/arm/boot/dts/imx6q-h100.dts             | 1 +
- arch/arm/boot/dts/imx6q-novena.dts           | 1 +
- arch/arm/boot/dts/imx6qdl-cubox-i.dtsi       | 1 +
- arch/arm/boot/dts/imx6qdl-hummingboard.dtsi  | 1 +
- arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi | 1 +
- 7 files changed, 7 insertions(+)
-
-diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts b/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-index d598b6391362..d1a0e3521e2b 100644
---- a/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-opp-lanyang.dts
-@@ -200,6 +200,7 @@
- 	rtc@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	tmp75@48 {
-diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts b/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-index 2c5aa90a546d..b5088414e610 100644
---- a/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-opp-zaius.dts
-@@ -201,6 +201,7 @@
- 	rtc@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	ucd90160@64 {
-diff --git a/arch/arm/boot/dts/imx6q-h100.dts b/arch/arm/boot/dts/imx6q-h100.dts
-index 714e09e04dcb..3b6116069b11 100644
---- a/arch/arm/boot/dts/imx6q-h100.dts
-+++ b/arch/arm/boot/dts/imx6q-h100.dts
-@@ -173,6 +173,7 @@
- 	rtc: pcf8523@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	sgtl5000: sgtl5000@a {
-diff --git a/arch/arm/boot/dts/imx6q-novena.dts b/arch/arm/boot/dts/imx6q-novena.dts
-index fcd824dc485b..6a2eaaa6e220 100644
---- a/arch/arm/boot/dts/imx6q-novena.dts
-+++ b/arch/arm/boot/dts/imx6q-novena.dts
-@@ -257,6 +257,7 @@
- 	rtc: pcf8523@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	sbs_battery: bq20z75@b {
-diff --git a/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi b/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-index 9332a31e6c8b..e0f601bce3d3 100644
---- a/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-cubox-i.dtsi
-@@ -143,6 +143,7 @@
- 	rtc@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- };
- 
-diff --git a/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi b/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-index 0e64016e765f..7848b818078e 100644
---- a/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-hummingboard.dtsi
-@@ -189,6 +189,7 @@
- 	rtc@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	/* Pro baseboard model */
-diff --git a/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi b/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-index c413f9c3540f..7bc264234085 100644
---- a/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-hummingboard2.dtsi
-@@ -222,6 +222,7 @@
- 	pcf8523: rtc@68 {
- 		compatible = "nxp,pcf8523";
- 		reg = <0x68>;
-+		nxp,quartz_load_12.5pf;
- 	};
- 
- 	sgtl5000: codec@a {
--- 
-2.12.0
+Yours,
+Linus Walleij
