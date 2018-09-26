@@ -1,116 +1,61 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from enterprise02.smtp.diehl.com ([193.201.238.220]:14264 "EHLO
-        enterprise02.smtp.diehl.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726024AbeI1SYg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Sep 2018 14:24:36 -0400
-From: Denis OSTERLAND <denis.osterland@diehl.com>
-To: "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
-CC: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Denis OSTERLAND" <denis.osterland@diehl.com>
-Subject: [PATCH] rtc: isl1208: access i2c client via rtc parent
-Date: Fri, 28 Sep 2018 11:51:17 +0000
-Message-ID: <20180928114832.27383-1-Denis.Osterland@diehl.com>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from asavdk3.altibox.net ([109.247.116.14]:57314 "EHLO
+        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726528AbeI0C5n (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Sep 2018 22:57:43 -0400
+Date: Wed, 26 Sep 2018 22:42:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
+Subject: Re: [PATCH v1 1/5] dt-binding: rtci-pcf8523: add quartz_load property
+Message-ID: <20180926204252.GA8654@ravnborg.org>
+References: <20180822183555.GA24084@ravnborg.org>
+ <20180907193508.24974-2-sam@ravnborg.org>
+ <20180913190516.GG14988@piout.net>
+ <20180926154708.GA3264@bogus>
+ <20180926185121.GF16644@piout.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180926185121.GF16644@piout.net>
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-From: Denis Osterland <Denis.Osterland@diehl.com>
+On Wed, Sep 26, 2018 at 08:51:21PM +0200, Alexandre Belloni wrote:
+> On 26/09/2018 10:47:08-0500, Rob Herring wrote:
+> > > > +Optional property:
+> > > > +- nxp,quartz_load_12.5pF: The capacitive load on the quartz is 12.5 pF,
+> > > > +  which differ from the default value of 7 pF
+> > > > +
+> > > 
+> > > The boolean properties usually don't work well for RTCs because people
+> > > usually want to keep any previous configuration that may have been done
+> > > at the factory or in the bootloader so I would use:
+> > > 
+> > > nxp,quartz_load_fF and this would be either 7000 or 12500.
+> > 
+> > Use '-' rather than '_'.
+> > 
+> > There's already a defined unit suffix of '-picofarads'. If you need 
+> > '-femtofarads', then please add to property-units.txt. Though I'd prefer 
+> > not as wouldn't a value of 12 (or 13) be close enough for the needs 
+> > here?
+> > 
+> 
+> For that particular RTC, yes but the isl1208 has 0.5pF steps and the
+> x1205 has 0.25pf steps. I'd prefer having a single generic property for
+> all the RTCs: quartz-load-femtofarads.
 
-The move of atrim, dtrim usr sysfs properties from i2c device
-to rtc device require to access them via dev->parent.
-This patch also aligns timestamp0.
+I will change to use this, and update property-units.txt too, when I get
+back to the patch set in a week or so.
 
-Fixes: 03df75dd03301307ec578ccd4e8c1c0117b8e65c
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
----
- drivers/rtc/rtc-isl1208.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 15094df12985..ec5ef518a09b 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -517,7 +517,7 @@ static ssize_t timestamp0_store(struct device *dev,
- 				struct device_attribute *attr,
- 				const char *buf, size_t count)
- {
--	struct i2c_client *client = dev_get_drvdata(dev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
- 	int sr;
- 
- 	sr = isl1208_i2c_get_sr(client);
-@@ -539,7 +539,7 @@ static ssize_t timestamp0_store(struct device *dev,
- static ssize_t timestamp0_show(struct device *dev,
- 			       struct device_attribute *attr, char *buf)
- {
--	struct i2c_client *client = dev_get_drvdata(dev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
- 	u8 regs[ISL1219_EVT_SECTION_LEN] = { 0, };
- 	struct rtc_time tm;
- 	int sr;
-@@ -649,7 +649,7 @@ static ssize_t
- isl1208_sysfs_show_atrim(struct device *dev,
- 			 struct device_attribute *attr, char *buf)
- {
--	int atr = isl1208_i2c_get_atr(to_i2c_client(dev));
-+	int atr = isl1208_i2c_get_atr(to_i2c_client(dev->parent));
- 	if (atr < 0)
- 		return atr;
- 
-@@ -662,7 +662,7 @@ static ssize_t
- isl1208_sysfs_show_dtrim(struct device *dev,
- 			 struct device_attribute *attr, char *buf)
- {
--	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev));
-+	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev->parent));
- 	if (dtr < 0)
- 		return dtr;
- 
-@@ -675,7 +675,7 @@ static ssize_t
- isl1208_sysfs_show_usr(struct device *dev,
- 		       struct device_attribute *attr, char *buf)
- {
--	int usr = isl1208_i2c_get_usr(to_i2c_client(dev));
-+	int usr = isl1208_i2c_get_usr(to_i2c_client(dev->parent));
- 	if (usr < 0)
- 		return usr;
- 
-@@ -700,7 +700,10 @@ isl1208_sysfs_store_usr(struct device *dev,
- 	if (usr < 0 || usr > 0xffff)
- 		return -EINVAL;
- 
--	return isl1208_i2c_set_usr(to_i2c_client(dev), usr) ? -EIO : count;
-+	if (isl1208_i2c_set_usr(to_i2c_client(dev->parent), usr))
-+		return -EIO;
-+
-+	return count;
- }
- 
- static DEVICE_ATTR(usr, S_IRUGO | S_IWUSR, isl1208_sysfs_show_usr,
-@@ -764,7 +767,6 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	rtc->ops = &isl1208_rtc_ops;
- 
- 	i2c_set_clientdata(client, rtc);
--	dev_set_drvdata(&rtc->dev, client);
- 
- 	rc = isl1208_i2c_get_sr(client);
- 	if (rc < 0) {
--- 
-2.19.0
-
-
-
-Diehl Connectivity Solutions GmbH
-Geschäftsführung: Horst Leonberger
-Sitz der Gesellschaft: Nürnberg - Registergericht: Amtsgericht
-Nürnberg: HRB 32315
-___________________________________________________________________________________________________
-
-Der Inhalt der vorstehenden E-Mail ist nicht rechtlich bindend. Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen.
-Informieren Sie uns bitte, wenn Sie diese E-Mail faelschlicherweise erhalten haben. Bitte loeschen Sie in diesem Fall die Nachricht.
-Jede unerlaubte Form der Reproduktion, Bekanntgabe, Aenderung, Verteilung und/oder Publikation dieser E-Mail ist strengstens untersagt.
-The contents of the above mentioned e-mail is not legally binding. This e-mail contains confidential and/or legally protected information. Please inform us if you have received this e-mail by
-mistake and delete it in such a case. Each unauthorized reproduction, disclosure, alteration, distribution and/or publication of this e-mail is strictly prohibited. 
+	Sam
