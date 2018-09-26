@@ -1,77 +1,33 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:47055 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726665AbeIJB3w (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 9 Sep 2018 21:29:52 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 3/3] rtc: pl031: switch to devm_rtc_allocate_device/rtc_register_device
-Date: Sun,  9 Sep 2018 22:38:48 +0200
-Message-Id: <20180909203848.3470-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
-References: <20180909203848.3470-1-alexandre.belloni@bootlin.com>
+Received: from mail-io1-f66.google.com ([209.85.166.66]:38121 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726401AbeIZNuS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Sep 2018 09:50:18 -0400
+Received: by mail-io1-f66.google.com with SMTP id y3-v6so22527019ioc.5
+        for <linux-rtc@vger.kernel.org>; Wed, 26 Sep 2018 00:38:44 -0700 (PDT)
 MIME-Version: 1.0
+References: <20180924144902.607-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20180924144902.607-1-alexandre.belloni@bootlin.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 26 Sep 2018 09:38:32 +0200
+Message-ID: <CACRpkdYtU7J-0g8T9FzaGrbLkWEBPjn+xUZUq0AsJZcN=bvyXg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] rtc: ab8500: use rtc_add_group
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Switch to devm_rtc_allocate_device to simplify the erro and driver removal
-paths.
+On Mon, Sep 24, 2018 at 4:49 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-pl031.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+> Use rtc_add_group to add the sysfs group in a race free manner.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 82eb7da2c478..30943d200c5e 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -310,7 +310,6 @@ static int pl031_remove(struct amba_device *adev)
- 	device_init_wakeup(&adev->dev, false);
- 	if (adev->irq[0])
- 		free_irq(adev->irq[0], ldata);
--	rtc_device_unregister(ldata->rtc);
- 	amba_release_regions(adev);
- 
- 	return 0;
-@@ -383,24 +382,25 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 	}
- 
- 	device_init_wakeup(&adev->dev, true);
--	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
--					THIS_MODULE);
--	if (IS_ERR(ldata->rtc)) {
--		ret = PTR_ERR(ldata->rtc);
-+	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
-+	if (IS_ERR(ldata->rtc))
-+		return PTR_ERR(ldata->rtc);
-+
-+	ldata->rtc->ops = ops;
-+
-+	ret = rtc_register_device(ldata->rtc);
-+	if (ret)
- 		goto out;
--	}
- 
- 	if (adev->irq[0]) {
- 		ret = request_irq(adev->irq[0], pl031_interrupt,
- 				  vendor->irqflags, "rtc-pl031", ldata);
- 		if (ret)
--			goto out_no_irq;
-+			goto out;
- 		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	}
- 	return 0;
- 
--out_no_irq:
--	rtc_device_unregister(ldata->rtc);
- out:
- 	amba_release_regions(adev);
- err_req:
--- 
-2.19.0.rc2
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
