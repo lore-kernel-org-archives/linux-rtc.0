@@ -1,62 +1,129 @@
 Return-Path: <linux-rtc-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:45175 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726238AbeJBEbn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 2 Oct 2018 00:31:43 -0400
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
+Received: from eddie.linux-mips.org ([148.251.95.138]:34050 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726332AbeJBHtj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Oct 2018 03:49:39 -0400
+Date: Tue, 2 Oct 2018 02:09:05 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: vr41xx: switch to rtc_time64_to_tm/rtc_tm_to_time64
-Date: Mon,  1 Oct 2018 23:51:35 +0200
-Message-Id: <20181001215135.5831-1-alexandre.belloni@bootlin.com>
+cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] rtc: cmos: Remove the `use_acpi_alarm' module parameter
+ for !ACPI
+In-Reply-To: <alpine.LFD.2.21.1810020122330.20762@eddie.linux-mips.org>
+Message-ID: <alpine.LFD.2.21.1810020154530.20762@eddie.linux-mips.org>
+References: <alpine.LFD.2.21.1810020122330.20762@eddie.linux-mips.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 List-ID: <linux-rtc.vger.kernel.org>
 
-Call the 64bit versions of rtc_time_to_tm now that the range is enforced by
-the core.
-Also remove the open coded rtc_tm_to_time64.
+Fix a problem with commit 311ee9c151ad ("rtc: cmos: allow using ACPI for 
+RTC alarm instead of HPET") defining `use_acpi_alarm' module parameter 
+even for non-ACPI platforms, which ignore it.  Wrap the definition into 
+#ifdef CONFIG_ACPI and use a static inline wrapper function, hardcoded 
+to return 0 and consequently optimized away for !ACPI, following the 
+existing pattern with HPET handling functions.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Cc: stable@vger.kernel.org # 4.18+
 ---
- drivers/rtc/rtc-vr41xx.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-cmos.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
-index 70f013e692b0..e66d0f63cee2 100644
---- a/drivers/rtc/rtc-vr41xx.c
-+++ b/drivers/rtc/rtc-vr41xx.c
-@@ -136,8 +136,7 @@ static int vr41xx_rtc_set_time(struct device *dev, struct rtc_time *time)
- 	time64_t epoch_sec, current_sec;
+linux-rtc-cmos-use-acpi-alarm.diff
+Index: linux-20180812-4maxp64/drivers/rtc/rtc-cmos.c
+===================================================================
+--- linux-20180812-4maxp64.orig/drivers/rtc/rtc-cmos.c
++++ linux-20180812-4maxp64/drivers/rtc/rtc-cmos.c
+@@ -50,6 +50,7 @@
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <linux/mc146818rtc.h>
  
- 	epoch_sec = mktime64(epoch, 1, 1, 0, 0, 0);
--	current_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
--			     time->tm_hour, time->tm_min, time->tm_sec);
-+	current_sec = rtc_tm_to_time64(time);
++#ifdef CONFIG_ACPI
+ /*
+  * Use ACPI SCI to replace HPET interrupt for RTC Alarm event
+  *
+@@ -61,6 +62,18 @@
+ static bool use_acpi_alarm;
+ module_param(use_acpi_alarm, bool, 0444);
  
- 	write_elapsed_second(current_sec - epoch_sec);
++static inline int cmos_use_acpi_alarm(void)
++{
++	return use_acpi_alarm;
++}
++#else /* !CONFIG_ACPI */
++
++static inline int cmos_use_acpi_alarm(void)
++{
++	return 0;
++}
++#endif
++
+ struct cmos_rtc {
+ 	struct rtc_device	*rtc;
+ 	struct device		*dev;
+@@ -169,7 +182,7 @@ static inline int hpet_unregister_irq_ha
+ /* Don't use HPET for RTC Alarm event if ACPI Fixed event is used */
+ static inline int use_hpet_alarm(void)
+ {
+-	return is_hpet_enabled() && !use_acpi_alarm;
++	return is_hpet_enabled() && !cmos_use_acpi_alarm();
+ }
  
-@@ -158,7 +157,7 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ /*----------------------------------------------------------------*/
+@@ -340,7 +353,7 @@ static void cmos_irq_enable(struct cmos_
+ 	if (use_hpet_alarm())
+ 		hpet_set_rtc_irq_bit(mask);
  
+-	if ((mask & RTC_AIE) && use_acpi_alarm) {
++	if ((mask & RTC_AIE) && cmos_use_acpi_alarm()) {
+ 		if (cmos->wake_on)
+ 			cmos->wake_on(cmos->dev);
+ 	}
+@@ -358,7 +371,7 @@ static void cmos_irq_disable(struct cmos
+ 	if (use_hpet_alarm())
+ 		hpet_mask_rtc_irq_bit(mask);
+ 
+-	if ((mask & RTC_AIE) && use_acpi_alarm) {
++	if ((mask & RTC_AIE) && cmos_use_acpi_alarm()) {
+ 		if (cmos->wake_off)
+ 			cmos->wake_off(cmos->dev);
+ 	}
+@@ -980,7 +993,7 @@ static int cmos_suspend(struct device *d
+ 	}
  	spin_unlock_irq(&rtc_lock);
  
--	rtc_time_to_tm((high << 17) | (mid << 1) | (low >> 15), time);
-+	rtc_time64_to_tm((high << 17) | (mid << 1) | (low >> 15), time);
+-	if ((tmp & RTC_AIE) && !use_acpi_alarm) {
++	if ((tmp & RTC_AIE) && !cmos_use_acpi_alarm()) {
+ 		cmos->enabled_wake = 1;
+ 		if (cmos->wake_on)
+ 			cmos->wake_on(dev);
+@@ -1031,7 +1044,7 @@ static void cmos_check_wkalrm(struct dev
+ 	 * ACPI RTC wake event is cleared after resume from STR,
+ 	 * ACK the rtc irq here
+ 	 */
+-	if (t_now >= cmos->alarm_expires && use_acpi_alarm) {
++	if (t_now >= cmos->alarm_expires && cmos_use_acpi_alarm()) {
+ 		cmos_interrupt(0, (void *)cmos->rtc);
+ 		return;
+ 	}
+@@ -1053,7 +1066,7 @@ static int __maybe_unused cmos_resume(st
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+ 	unsigned char tmp;
  
- 	return 0;
- }
-@@ -166,10 +165,8 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- static int vr41xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- {
- 	time64_t alarm_sec;
--	struct rtc_time *time = &wkalrm->time;
- 
--	alarm_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
--			     time->tm_hour, time->tm_min, time->tm_sec);
-+	alarm_sec = rtc_tm_to_time64(&wkalrm->time);
- 
- 	spin_lock_irq(&rtc_lock);
- 
--- 
-2.19.0
+-	if (cmos->enabled_wake && !use_acpi_alarm) {
++	if (cmos->enabled_wake && !cmos_use_acpi_alarm()) {
+ 		if (cmos->wake_off)
+ 			cmos->wake_off(dev);
+ 		else
+@@ -1132,7 +1145,7 @@ static u32 rtc_handler(void *context)
+ 	 * Or else, ACPI SCI is enabled during suspend/resume only,
+ 	 * update rtc irq in that case.
+ 	 */
+-	if (use_acpi_alarm)
++	if (cmos_use_acpi_alarm())
+ 		cmos_interrupt(0, (void *)cmos->rtc);
+ 	else {
+ 		/* Fix me: can we use cmos_interrupt() here as well? */
