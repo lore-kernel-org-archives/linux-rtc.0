@@ -2,45 +2,44 @@ Return-Path: <SRS0=iFAC=MQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B7FC64EBC
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 12:56:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ED98C64EB8
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 13:07:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04F9120877
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 12:56:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 04F9120877
+	by mail.kernel.org (Postfix) with ESMTP id 440902084D
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 13:07:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 440902084D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbeJDTtz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Oct 2018 15:49:55 -0400
-Received: from gateway22.websitewelcome.com ([192.185.46.152]:36589 "EHLO
-        gateway22.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727264AbeJDTtz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Oct 2018 15:49:55 -0400
-X-Greylist: delayed 1278 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Oct 2018 15:49:55 EDT
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway22.websitewelcome.com (Postfix) with ESMTP id 901E324496
-        for <linux-rtc@vger.kernel.org>; Thu,  4 Oct 2018 07:35:31 -0500 (CDT)
+        id S1727380AbeJDUAS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Oct 2018 16:00:18 -0400
+Received: from gateway31.websitewelcome.com ([192.185.143.40]:15614 "EHLO
+        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727368AbeJDUAR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Oct 2018 16:00:17 -0400
+Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 23C898FB4
+        for <linux-rtc@vger.kernel.org>; Thu,  4 Oct 2018 08:07:05 -0500 (CDT)
 Received: from gator4166.hostgator.com ([108.167.133.22])
         by cmsmtp with SMTP
-        id 82qpgTuQrPvAd82qpgKOSF; Thu, 04 Oct 2018 07:35:31 -0500
+        id 83LNgBX7aBcCX83LNgVpic; Thu, 04 Oct 2018 08:07:05 -0500
 X-Authority-Reason: nr=8
-Received: from 174.206.93.92.rev.sfr.net ([92.93.206.174]:49794 helo=embeddedor)
+Received: from 174.206.93.92.rev.sfr.net ([92.93.206.174]:50284 helo=embeddedor)
         by gator4166.hostgator.com with esmtpa (Exim 4.91)
         (envelope-from <gustavo@embeddedor.com>)
-        id 1g82qo-001jZq-S7; Thu, 04 Oct 2018 07:35:31 -0500
-Date:   Thu, 4 Oct 2018 14:35:28 +0200
+        id 1g83LM-0026zF-Ex; Thu, 04 Oct 2018 08:07:04 -0500
+Date:   Thu, 4 Oct 2018 15:07:01 +0200
 From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] rtc: m41t80: fix fall-through annotation
-Message-ID: <20181004123528.GA27013@embeddedor.com>
+Subject: [PATCH v2] rtc: m41t80: mark expected switch fall-through
+Message-ID: <20181004130701.GA4539@embeddedor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -53,13 +52,13 @@ X-AntiAbuse: Sender Address Domain - embeddedor.com
 X-BWhitelist: no
 X-Source-IP: 92.93.206.174
 X-Source-L: No
-X-Exim-ID: 1g82qo-001jZq-S7
+X-Exim-ID: 1g83LM-0026zF-Ex
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 174.206.93.92.rev.sfr.net (embeddedor) [92.93.206.174]:49794
+X-Source-Sender: 174.206.93.92.rev.sfr.net (embeddedor) [92.93.206.174]:50284
 X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 3
+X-Email-Count: 7
 X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
 X-Local-Domain: yes
 Sender: linux-rtc-owner@vger.kernel.org
@@ -67,14 +66,18 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Replace "Fall" with a proper "Fall through" annotation.
+In preparation to enabling -Wimplicit-fallthrough, mark switch cases
+where we are expecting to fall through.
 
-This fix is part of the ongoing efforts to enabling
--Wimplicit-fallthrough
+Notice that in this particular case, I replaced "Fall" with a proper
+"Fall through" comment.
 
 Addresses-Coverity-ID: 1373875 ("Missing break in switch")
 Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
+Changes in v2:
+ - Change subject and commit log.
+
  drivers/rtc/rtc-m41t80.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
