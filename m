@@ -2,62 +2,82 @@ Return-Path: <SRS0=iFAC=MQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6388FC64EBC
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 10:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76E04C64EB8
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 12:53:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 331922098A
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 10:29:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 331922098A
+	by mail.kernel.org (Postfix) with ESMTP id 39D2720684
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Oct 2018 12:53:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 39D2720684
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727561AbeJDRWV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Oct 2018 13:22:21 -0400
-Received: from mail.bootlin.com ([62.4.15.54]:60787 "EHLO mail.bootlin.com"
+        id S1727322AbeJDTqx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Oct 2018 15:46:53 -0400
+Received: from mail.bootlin.com ([62.4.15.54]:37630 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727030AbeJDRWU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 4 Oct 2018 13:22:20 -0400
+        id S1727256AbeJDTqx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 4 Oct 2018 15:46:53 -0400
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 5D577209D6; Thu,  4 Oct 2018 12:29:40 +0200 (CEST)
-Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 32D8B207F3;
-        Thu,  4 Oct 2018 12:29:30 +0200 (CEST)
-Date:   Thu, 4 Oct 2018 12:29:30 +0200
+        id 4B88D207C4; Thu,  4 Oct 2018 14:53:41 +0200 (CEST)
+Received: from localhost (unknown [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 1E312207C4;
+        Thu,  4 Oct 2018 14:53:31 +0200 (CEST)
+Date:   Thu, 4 Oct 2018 14:53:31 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "Maciej W. Rozycki" <macro@linux-mips.org>
+To:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] rtc: cmos: Fix non-ACPI (non-x86) platform support
-Message-ID: <20181004102930.GQ4088@piout.net>
-References: <alpine.LFD.2.21.1810020122330.20762@eddie.linux-mips.org>
+Subject: Re: [PATCH] rtc: m41t80: fix fall-through annotation
+Message-ID: <20181004125331.GR4088@piout.net>
+References: <20181004123528.GA27013@embeddedor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1810020122330.20762@eddie.linux-mips.org>
+In-Reply-To: <20181004123528.GA27013@embeddedor.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 02/10/2018 02:08:37+0100, Maciej W. Rozycki wrote:
-> Hi,
+Hi,
+
+On 04/10/2018 14:35:28+0200, Gustavo A. R. Silva wrote:
+> Replace "Fall" with a proper "Fall through" annotation.
 > 
->  This mini patch series fixes issues introduced recently for non-ACPI 
-> platforms using `rtc-cmos'.  Please see individual change descriptions for 
-> details.
-> 
->  These have been run-time verified with the DECstation (arch/mips/dec).  
-> Please apply.
+> This fix is part of the ongoing efforts to enabling
+> -Wimplicit-fallthrough
 > 
 
-Both applied, thanks!
+Can we agree that this is absolutely not a fix? I don't wan't to have
+that needlessly backport on gazillion stable kernel.
 
->   Maciej
+> Addresses-Coverity-ID: 1373875 ("Missing break in switch")
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/rtc/rtc-m41t80.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+> index ad03e2f..a3fb235 100644
+> --- a/drivers/rtc/rtc-m41t80.c
+> +++ b/drivers/rtc/rtc-m41t80.c
+> @@ -745,7 +745,7 @@ static int wdt_ioctl(struct file *file, unsigned int cmd,
+>  			return -EINVAL;
+>  		wdt_margin = new_margin;
+>  		wdt_ping();
+> -		/* Fall */
+> +		/* Fall through */
+>  	case WDIOC_GETTIMEOUT:
+>  		return put_user(wdt_margin, (int __user *)arg);
+>  
+> -- 
+> 2.7.4
+> 
 
 -- 
 Alexandre Belloni, Bootlin
