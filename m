@@ -2,52 +2,46 @@ Return-Path: <SRS0=pp0f=MY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C632C43441
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Oct 2018 08:42:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AFB1C6783C
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Oct 2018 14:44:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F08920868
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Oct 2018 08:42:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4F08920868
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
+	by mail.kernel.org (Postfix) with ESMTP id 107212098A
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Oct 2018 14:44:14 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=thunk.org header.i=@thunk.org header.b="nwLXll9Z"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 107212098A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mit.edu
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727529AbeJLQOT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 12 Oct 2018 12:14:19 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:33092 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727151AbeJLQOT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 12 Oct 2018 12:14:19 -0400
-Received: by mail-qt1-f196.google.com with SMTP id q40-v6so13077940qte.0;
-        Fri, 12 Oct 2018 01:42:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FVTc9GMyO4KMDgHn2AwcyLnvejB7nu3G4J6uCPyXugA=;
-        b=uEjDZZjTIHcffonJ7AZEq65bVnWjHHLrPnCTDmnTpNhhOx8Wop3Ob9Off0bJ4CqXkw
-         4x6dYpzuv/7ly/fbmD9F1GSxZNCzxm7/h/6Y2A1YkTBy0GDWkF5gfhS33PRzqSbVozVL
-         Y+dGrj8oxcKs7JwlWWucvmRuspRK42hZGOKMYjM+15vk5OXiZ0Wxu8sfF8PpX+0/9tUK
-         TLblUhfQZ5IwOSUuKNAhWRkFtYK3ZNk9z5wtYIhNmpLC8OIYvjl+WLFGWfg160pEYeqg
-         isljHyb1pbZwqsQye/mLkduPSJTz+HFxKZ8FNsLNGSfmajCFptgs48hgSdHkIjZn1+5J
-         gAbA==
-X-Gm-Message-State: ABuFfojyzwlFlQQUAMCv568acWOSckdDVHF8fzyWvL2Ezvzm/tIl5iuw
-        ibq0RbqV6/9+4HZVAbpOXysqt4aOSsudHKD44fg=
-X-Google-Smtp-Source: ACcGV63AxG9fp3LcM+/I7F3rmu0mnOCK3HfKij5zqtlmzY/4IsTW0RdT+8tEoxurFrNT69QjensD9fL0PKRtsCV5zVc=
-X-Received: by 2002:ac8:2bf0:: with SMTP id n45-v6mr4908822qtn.152.1539333776301;
- Fri, 12 Oct 2018 01:42:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20181011225421.GA21093@beast>
-In-Reply-To: <20181011225421.GA21093@beast>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 12 Oct 2018 10:42:39 +0200
-Message-ID: <CAK8P3a3N6txZf8tzTdLvLwByrsWQvN_JSabV2TGe+zZenMWWxg@mail.gmail.com>
-Subject: Re: [PATCH] random: Move rand_initialize() earlier
-To:     Kees Cook <keescook@chromium.org>
-Cc:     "Theodore Ts'o" <tytso@mit.edu>,
+        id S1728938AbeJLWQu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 12 Oct 2018 18:16:50 -0400
+Received: from imap.thunk.org ([74.207.234.97]:39144 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728354AbeJLWQu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 12 Oct 2018 18:16:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=thunk.org;
+         s=ef5046eb; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=zML860ItB0gqPneybYVOtnk0sNr+MmFOXzCyTREAjPE=; b=nwLXll9Z+oIsBaKR66cIS1kG5O
+        Qh1rNwl3EK71YQgAwD/v+0k3uxK3v2Fm7+PvsD/YVwTcO0MwR+7j9DpBzxRPRjXYCW93kfUvC9xDi
+        ORdqFgjeHXe81Kc9CFP19og0H+JSIvJ16G0ehQ7BiRNZe1oqM1rWTWdwVx5ruBlbpRfI=;
+Received: from root (helo=callcc.thunk.org)
+        by imap.thunk.org with local-esmtp (Exim 4.89)
+        (envelope-from <tytso@thunk.org>)
+        id 1gAyfR-0007m4-SG; Fri, 12 Oct 2018 14:43:53 +0000
+Received: by callcc.thunk.org (Postfix, from userid 15806)
+        id AA7107A519B; Fri, 12 Oct 2018 10:43:52 -0400 (EDT)
+Date:   Fri, 12 Oct 2018 10:43:52 -0400
+From:   "Theodore Y. Ts'o" <tytso@mit.edu>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Kees Cook <keescook@chromium.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Laura Abbott <labbott@redhat.com>,
         Daniel Micay <danielmicay@gmail.com>,
@@ -59,60 +53,69 @@ Cc:     "Theodore Ts'o" <tytso@mit.edu>,
         Thomas Gleixner <tglx@linutronix.de>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] random: Move rand_initialize() earlier
+Message-ID: <20181012144352.GE2420@thunk.org>
+Mail-Followup-To: "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Laura Abbott <labbott@redhat.com>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>, tcharding <me@tobin.cc>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+References: <20181011225421.GA21093@beast>
+ <CAK8P3a3N6txZf8tzTdLvLwByrsWQvN_JSabV2TGe+zZenMWWxg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a3N6txZf8tzTdLvLwByrsWQvN_JSabV2TGe+zZenMWWxg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on imap.thunk.org); SAEximRunCond expanded to false
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Oct 12, 2018 at 12:54 AM Kees Cook <keescook@chromium.org> wrote:
->
-> Right now rand_initialize() is run as an early_initcall(), but it only
-> depends on timekeeping_init() (for mixing ktime_get_real() into the
-> pools). However, the call to boot_init_stack_canary() for stack canary
-> initialization runs earlier, which triggers a warning at boot:
->
-> random: get_random_bytes called from start_kernel+0x357/0x548 with crng_init=0
->
-> Instead, this moves rand_initialize() to after timekeeping_init(), and moves
-> canary initialization here as well.
->
-> Note that this warning may still remain for machines that do not have
-> UEFI RNG support (which initializes the RNG pools during setup_arch()),
-> or for x86 machines without RDRAND (or booting without "random.trust=on"
-> or CONFIG_RANDOM_TRUST_CPU=y).
->
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
-> Alternatively, ktime_get_real() could get mixed into the pools after
-> timekeeping_init(), and rand_initialize() could be run MUCH early,
-> like after setup_arch()...
+On Fri, Oct 12, 2018 at 10:42:39AM +0200, Arnd Bergmann wrote:
+> I wonder if mixing in ktime_get_real() is flawed to start with:
+> This depends on read_persistent_clock64() actually returning
+> a meaningful time, but in many cases it does not; x86 being
+> a notable exception.
+> 
+> We have three ways of setting the initial time:
+> 
+> * At early boot using read_persistent_clock64(). This may read
+>   the time from the hypervisor (if any), and on some older
+>   architectures that have a custom RTC abstraction, it
+>   reads from the RTC directly. We generally move away from
+>   the RTC method in favor of the proper rtc class interfaces
+>   (see below)
+> 
+> * At late_initcall time, in rtc_hctosys(). If an RTC driver has
+>   been loaded successfully at this time, it will be read from
+>   there. We also move away from this.
+> 
+> * From user space, which reads the RTC time or NTP,
+>   and then sets the system time from that.
+> 
+> The latter two end up in do_settimeofday64(), but there
+> is no mixing in of the time into the random seed that I can
+> see, and it's not clear whether there should be (it
+> can be called with arbitrary times from user space,
+> provided CAP_SYS_TIME permissions).
 
-I wonder if mixing in ktime_get_real() is flawed to start with:
-This depends on read_persistent_clock64() actually returning
-a meaningful time, but in many cases it does not; x86 being
-a notable exception.
+I think it adds some real value (although perhaps small) in the first
+two cases.  In all of the cases, though, since we don't add any
+entropy credit, it doesn't hurt to mix it in --- this is the same
+argument why it's fine that /dev/[u]random can be world-writeable.
+Mixing in user-controlled data is harmless, and if it's not visible to
+a remote attacker, it can be helpful.
 
-We have three ways of setting the initial time:
-
-* At early boot using read_persistent_clock64(). This may read
-  the time from the hypervisor (if any), and on some older
-  architectures that have a custom RTC abstraction, it
-  reads from the RTC directly. We generally move away from
-  the RTC method in favor of the proper rtc class interfaces
-  (see below)
-
-* At late_initcall time, in rtc_hctosys(). If an RTC driver has
-  been loaded successfully at this time, it will be read from
-  there. We also move away from this.
-
-* From user space, which reads the RTC time or NTP,
-  and then sets the system time from that.
-
-The latter two end up in do_settimeofday64(), but there
-is no mixing in of the time into the random seed that I can
-see, and it's not clear whether there should be (it
-can be called with arbitrary times from user space,
-provided CAP_SYS_TIME permissions).
-
-       Arnd
+						- Ted
