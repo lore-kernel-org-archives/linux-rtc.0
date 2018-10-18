@@ -4,63 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 710F6ECDE43
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93CEEC5ACCC
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 36EBF2098A
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AD5C2098A
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="jrmlzE8X"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 36EBF2098A
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="IBd11yo1"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5AD5C2098A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727489AbeJRQw6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 Oct 2018 12:52:58 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:39389 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727987AbeJRQw5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:57 -0400
-Received: by mail-pf1-f194.google.com with SMTP id c25-v6so14572423pfe.6
-        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:59 -0700 (PDT)
+        id S1727948AbeJRQww (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Oct 2018 12:52:52 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:39383 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727947AbeJRQwv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:51 -0400
+Received: by mail-pf1-f195.google.com with SMTP id c25-v6so14572328pfe.6
+        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :in-reply-to:references;
-        bh=F4klET77vpC5MSEg+hHmdmnyA+1l2CceneKVm/fwxIY=;
-        b=jrmlzE8X9PBk3QfRv1Cfp60C33vylp0lkBxz8T8RarUCjyKz6a1ADpSvyxlGTXcWeA
-         +C7BFa4VEqFP3Vyz+liAkIzoN/XnwIsIYagiL2aZINDGlAV3ltWKccQbbSjfY4yPsChx
-         kOFHxcL8czMaX07ElOvCBIR53cXdDby3bYxXA=
+        bh=wuTLNNFPtvGEn50eKaEyNEzBPZsJcfU/sfOOV2dCAmc=;
+        b=IBd11yo1pLxVL9pACURpAokeSMvwGB54pTZFTBDD8U5OhJPNp3MNjH0YCSLKPohgeh
+         yrDeKbJ/OYUvodz7eVGrF6ejRZf1J4ke0j10tG1jg9CufQfMuHkz9oxysyphJpDPDf5q
+         u4WAzthRr82U7sXz01PHWT3BVFCRPns9eZl7I=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:in-reply-to:references;
-        bh=F4klET77vpC5MSEg+hHmdmnyA+1l2CceneKVm/fwxIY=;
-        b=krsyXM74K+Gd9ZD3oktfiwK6bi13duyTdq4bLliATUA3ImcKcPNM4esem6GpwY6T1C
-         GVwXQkmQE5PnsPTNSx5MppqL1JbOcHLTX7y4amRd1iGUt1JCG7VGZflR3nq4X7sBtTPz
-         l4BpsOTOui+YKzC4pfjNOQfnfb197m65aqrY8hW4Cv78N7wFSDW2JOj0GH5jGu9HbJeb
-         55HhXDnO/vWymROkxY8tWIlUYXBb5WqJvYIKKAUGc3twVzXCBAIZv4PtNI9dnjtW1AjU
-         4/LNqXBZt2AvkNSQg+TAOYD9D7YHwS2pxIwIkjrECww1wkYPGD13qYYRFlSIDMVsUmuX
-         tK3w==
-X-Gm-Message-State: ABuFfogU/VQFQe+qJPtVyi02zn0SrSc5kVnQA5bPf1/Q68CS62kx9iUn
-        5uDP+HTiOWZBg6KUjPTshJpAxg==
-X-Google-Smtp-Source: ACcGV60C8xYduHyBN2V8RbwQaoV4Y1y1K0cdWqigcTFFD6tafafStdkrNnrtQ+uE4CzPVFThIMXcXQ==
-X-Received: by 2002:a63:e918:: with SMTP id i24-v6mr27451960pgh.64.1539852778961;
-        Thu, 18 Oct 2018 01:52:58 -0700 (PDT)
+        bh=wuTLNNFPtvGEn50eKaEyNEzBPZsJcfU/sfOOV2dCAmc=;
+        b=VXuOFU/vUcTPtzDQvkR75Ce2awd+M0z/R31Locznip8+SjpoEoo5W91Vwk8MCVM2fw
+         F1FVNqO0u3W+/W7KFPxC7HuGij4s5bc6kGN1BkkHnEvuOTc9rfFVIkTN2xfday+g0kNP
+         h9YP/KJnxcuZC6G9HrdME2AYiK330aBtJqi+cFqs+jwLZ2mQUS2FyB7DpmlIGDbWb+VC
+         c18YQOuDms3Sb/NyVzzMiiruXNYJCltfLqk+c0wE3b5gsGGpi4rbVSEfCzIcLGww/iVG
+         cUZ/GkUKiwfkPBrk8wSrcj5GiaKmQJSaggvPsgh7ea+ZhQVZXZCpppKSe77ULZpC2VNw
+         M4Yw==
+X-Gm-Message-State: ABuFfoiOJUT6LAF8Zg8EtpeEjvfmNwPBJv0jyfEuz6+z9A5OSozIrVDt
+        XNMr6xNMtk+FT3cW+vitHcD/IQ==
+X-Google-Smtp-Source: ACcGV63f5WlBH9BArZBXYsB0+bhJStMYdC6U/cnIgWi+r2aZVBIbW1w6kSn/pLi9HOLruEJhslZdaA==
+X-Received: by 2002:a63:5021:: with SMTP id e33-v6mr27572885pgb.306.1539852772874;
+        Thu, 18 Oct 2018 01:52:52 -0700 (PDT)
 Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.56
+        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.49
         (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 18 Oct 2018 01:52:58 -0700 (PDT)
+        Thu, 18 Oct 2018 01:52:51 -0700 (PDT)
 From:   Baolin Wang <baolin.wang@linaro.org>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     broonie@kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, baolin.wang@linaro.org
-Subject: [PATCH 5/5] rtc: sc27xx: Always read normal alarm when registering RTC device
-Date:   Thu, 18 Oct 2018 16:52:30 +0800
-Message-Id: <e3b4f8848cad42e5a2f4dfb34e342c69c8b95786.1539851865.git.baolin.wang@linaro.org>
+Subject: [PATCH 3/5] rtc: sc27xx: Remove interrupts disable and clear in probe()
+Date:   Thu, 18 Oct 2018 16:52:28 +0800
+Message-Id: <f3a3d5896e07dd6280d0bf450f01ad1bba6f9286.1539851865.git.baolin.wang@linaro.org>
 X-Mailer: git-send-email 1.7.9.5
 In-Reply-To: <cover.1539851865.git.baolin.wang@linaro.org>
 References: <cover.1539851865.git.baolin.wang@linaro.org>
@@ -71,37 +71,54 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When registering one RTC device, it will check to see if there is an
-alarm already set in RTC hardware by reading RTC alarm, at this time
-we should always read the normal alarm put in always-on region by
-checking the rtc->registered flag.
+When registering one rtc device, it will check to see if there is an
+alarm already set in rtc hardware by issuing __rtc_read_alarm(). So
+we should not disable the RTC interrupts and clear the interrupts
+status in probe() function.
 
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/rtc/rtc-sc27xx.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-sc27xx.c |   20 --------------------
+ 1 file changed, 20 deletions(-)
 
 diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index 72bb002..b4eb3b3 100644
+index 6ac5653..4ecabe6 100644
 --- a/drivers/rtc/rtc-sc27xx.c
 +++ b/drivers/rtc/rtc-sc27xx.c
-@@ -415,10 +415,14 @@ static int sprd_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 val;
+@@ -129,19 +129,6 @@ static int sprd_rtc_clear_alarm_ints(struct sprd_rtc *rtc)
+ 			    SPRD_RTC_ALM_INT_MASK);
+ }
  
- 	/*
--	 * If aie_timer is enabled, we should get the normal alarm time.
-+	 * Before RTC device is registered, it will check to see if there is an
-+	 * alarm already set in RTC hardware, and we always read the normal
-+	 * alarm at this time.
-+	 *
-+	 * Or if aie_timer is enabled, we should get the normal alarm time.
- 	 * Otherwise we should get auxiliary alarm time.
- 	 */
--	if (rtc->rtc && rtc->rtc->aie_timer.enabled == 0)
-+	if (rtc->rtc && rtc->rtc->registered && rtc->rtc->aie_timer.enabled == 0)
- 		return sprd_rtc_read_aux_alarm(dev, alrm);
+-static int sprd_rtc_disable_ints(struct sprd_rtc *rtc)
+-{
+-	int ret;
+-
+-	ret = regmap_update_bits(rtc->regmap, rtc->base + SPRD_RTC_INT_EN,
+-				 SPRD_RTC_INT_MASK, 0);
+-	if (ret)
+-		return ret;
+-
+-	return regmap_write(rtc->regmap, rtc->base + SPRD_RTC_INT_CLR,
+-			    SPRD_RTC_INT_MASK);
+-}
+-
+ static int sprd_rtc_lock_alarm(struct sprd_rtc *rtc, bool lock)
+ {
+ 	int ret;
+@@ -609,13 +596,6 @@ static int sprd_rtc_probe(struct platform_device *pdev)
+ 	rtc->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, rtc);
  
- 	ret = sprd_rtc_get_secs(rtc, SPRD_RTC_ALARM, &secs);
+-	/* clear all RTC interrupts and disable all RTC interrupts */
+-	ret = sprd_rtc_disable_ints(rtc);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to disable RTC interrupts\n");
+-		return ret;
+-	}
+-
+ 	/* check if RTC time values are valid */
+ 	ret = sprd_rtc_check_power_down(rtc);
+ 	if (ret) {
 -- 
 1.7.9.5
 
