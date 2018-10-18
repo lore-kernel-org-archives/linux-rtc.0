@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8A77C5ACCC
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29C8FECDE43
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A6B402098A
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E60C92098A
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="F0npjnwn"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A6B402098A
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="ia/bx3bj"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E60C92098A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727857AbeJRQws (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 Oct 2018 12:52:48 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:38224 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727856AbeJRQws (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:48 -0400
-Received: by mail-pl1-f195.google.com with SMTP id q19-v6so10946963pll.5
-        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:49 -0700 (PDT)
+        id S1727820AbeJRQwp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Oct 2018 12:52:45 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:34404 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727541AbeJRQwp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:45 -0400
+Received: by mail-pl1-f194.google.com with SMTP id f18-v6so14026410plr.1
+        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :in-reply-to:references;
-        bh=7f3p8DaD+OJHNqlVoz6G4mjpM3q6Pg5QN2ip5mfsPB0=;
-        b=F0npjnwn8iNGfJ7j+3osZduTcfk1BvnsV0b5S1jvevzglGfqx11GYx2jkrUFjOFfBk
-         aC5Tz0xe7fxBPWueVQa+pgp9OkIOiG4o9pVk1VFXjmpulESXea/fV6+AouxON2Jq6uRd
-         7pRn+6LdZE0J3wFoUxbAH+Uqd/oPozsF+NYTM=
+        bh=9kZYDpmsySRWfvSPa6Kfurc5wRQJDTAyv7Jhjoe/kD4=;
+        b=ia/bx3bj2+ZiSg36oHYXpcIdN64t31sLLMkBnf4K7Zu5H8yJ8nnU4M2KJ0jHpLTogS
+         ZeQqaH8smRzI0al7GLQ8xXfZbCH+5dLlNWlEBEBqCh1mTxqNbJPyAx6FjlQpmUbG22nu
+         91w6g+AUsUL8oQG0Qb2UNWq1y1S/RBzTHKCOU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:in-reply-to:references;
-        bh=7f3p8DaD+OJHNqlVoz6G4mjpM3q6Pg5QN2ip5mfsPB0=;
-        b=PRueJ91mn0HeauP+1ENRk51cAEib24CLzv0iRpGTleJFOnLiBSR64fdNXNYUT+OoOQ
-         +hAPyfOC4l+FFoNy+WGS+/GwuwfMQWAYN0qGDaP6YYjPcxWzHnFXaRlhq81oOIwk2RT1
-         j+bU7ffofNtlXecbwBTxem4ZudaxJBmeCY1RMmlo7KvIlmY/f1OBp6krqfY2kKvSolAO
-         2ICH4oBebnNn7+aE42vp/Z2/HETR2yNJ/aVEFNvqmlsxRNdrIhABaxP7cNsa9hkA3at1
-         71unUTWHAT8IqM7u/xqOfcH4PXmGWM26ZRa4Rp2I7JCgyIqhhFPqR2rAZyfTdXxpdppm
-         2/xw==
-X-Gm-Message-State: ABuFfojQ8s1QX2+MXrTerfvg3l0BusCcSENnMG7igm+GERKFOkjUK90+
-        7HZHB+5UDnNPALueoeKZfM5tqA==
-X-Google-Smtp-Source: ACcGV627hPrCKf4lsVo8UKgQ+nJdgvqZ04vaCdCyCqE3mXfOJLbhGKfm+4UpwooyWDYpv/+J7hUThg==
-X-Received: by 2002:a17:902:74c9:: with SMTP id f9-v6mr662553plt.99.1539852769501;
-        Thu, 18 Oct 2018 01:52:49 -0700 (PDT)
+        bh=9kZYDpmsySRWfvSPa6Kfurc5wRQJDTAyv7Jhjoe/kD4=;
+        b=rMTERJ0f6AzNUGnkRHRzgLvpBrjFY2Skb1kdPpP6QXL+SCLPkJO6VGDCcWCp6Ue0fi
+         BEr4FPLHXUGy3tHwGrg1OWf24arZAzXl5e3HUhYrtVv0QhT4UPqFGp5kV/DQyWCGzCqU
+         TPpLB2+ZyQU+OR/H7WUdfNygwySPjBLHB7TyCzH0IhFxpEZ1EdlaF9h6bHErctHm2BNC
+         EekXZv5GQHWuWevYCJbLPm/bCYLVgo1or5Ip4xva1OHVulYzRU6SBcDdj1SdzZ1W6faC
+         OjrX8msccJgsz0KKQIu+X0Q4303zbC9HxfVwQRg8nN4Ya8vDsXvvvTmRE4n4BSlq3F6P
+         nlNQ==
+X-Gm-Message-State: ABuFfohL5hAoKUn7HHKnpr69rasBsAvjvr28d32FZ6Ml8BqgpWMk10a4
+        BnsG7uqnhhDX/bpT348ak0D4VA==
+X-Google-Smtp-Source: ACcGV62FPmqJYXlbyV+KJ+eX7KvQFJMbIBaDS1eRAcVnBHjxHIlwUzRYzJXqxIxQfi2wMKkFJS+6Gg==
+X-Received: by 2002:a17:902:4583:: with SMTP id n3-v6mr29427180pld.255.1539852766364;
+        Thu, 18 Oct 2018 01:52:46 -0700 (PDT)
 Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.46
+        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.43
         (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 18 Oct 2018 01:52:48 -0700 (PDT)
+        Thu, 18 Oct 2018 01:52:45 -0700 (PDT)
 From:   Baolin Wang <baolin.wang@linaro.org>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     broonie@kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, baolin.wang@linaro.org
-Subject: [PATCH 2/5] rtc: sc27xx: Clear SPG value update interrupt status
-Date:   Thu, 18 Oct 2018 16:52:27 +0800
-Message-Id: <43a12635d57b134fc55d664af8f715b31bbc5f3b.1539851865.git.baolin.wang@linaro.org>
+Subject: [PATCH 1/5] rtc: sc27xx: Set wakeup capability before registering rtc device
+Date:   Thu, 18 Oct 2018 16:52:26 +0800
+Message-Id: <ffd988604d5c0e92ca759f19e76aeaf69a98e059.1539851865.git.baolin.wang@linaro.org>
 X-Mailer: git-send-email 1.7.9.5
 In-Reply-To: <cover.1539851865.git.baolin.wang@linaro.org>
 References: <cover.1539851865.git.baolin.wang@linaro.org>
@@ -71,28 +71,38 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-We should clear the SPG value update interrupt status once the SPG value
-is updated successfully, in case incorrect status validation for next time.
+Set wakeup capability before registering rtc device, in case the alarmtimer
+can find one available rtc device.
 
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/rtc/rtc-sc27xx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-sc27xx.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index 8afba12..6ac5653 100644
+index deea5c3..8afba12 100644
 --- a/drivers/rtc/rtc-sc27xx.c
 +++ b/drivers/rtc/rtc-sc27xx.c
-@@ -172,7 +172,8 @@ static int sprd_rtc_lock_alarm(struct sprd_rtc *rtc, bool lock)
+@@ -631,16 +631,18 @@ static int sprd_rtc_probe(struct platform_device *pdev)
  		return ret;
  	}
  
--	return 0;
-+	return regmap_write(rtc->regmap, rtc->base + SPRD_RTC_INT_CLR,
-+			    SPRD_RTC_SPG_UPD_EN);
++	device_init_wakeup(&pdev->dev, 1);
++
+ 	rtc->rtc->ops = &sprd_rtc_ops;
+ 	rtc->rtc->range_min = 0;
+ 	rtc->rtc->range_max = 5662310399LL;
+ 	ret = rtc_register_device(rtc->rtc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register rtc device\n");
++		device_init_wakeup(&pdev->dev, 0);
+ 		return ret;
+ 	}
+ 
+-	device_init_wakeup(&pdev->dev, 1);
+ 	return 0;
  }
  
- static int sprd_rtc_get_secs(struct sprd_rtc *rtc, enum sprd_rtc_reg_types type,
 -- 
 1.7.9.5
 
