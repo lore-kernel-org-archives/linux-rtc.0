@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93CEEC5ACCC
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8A77C5ACCC
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5AD5C2098A
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6B402098A
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Oct 2018 08:53:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="IBd11yo1"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5AD5C2098A
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="F0npjnwn"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A6B402098A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727948AbeJRQww (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 Oct 2018 12:52:52 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:39383 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727947AbeJRQwv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:51 -0400
-Received: by mail-pf1-f195.google.com with SMTP id c25-v6so14572328pfe.6
-        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:53 -0700 (PDT)
+        id S1727857AbeJRQws (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Oct 2018 12:52:48 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:38224 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727856AbeJRQws (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Oct 2018 12:52:48 -0400
+Received: by mail-pl1-f195.google.com with SMTP id q19-v6so10946963pll.5
+        for <linux-rtc@vger.kernel.org>; Thu, 18 Oct 2018 01:52:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :in-reply-to:references;
-        bh=wuTLNNFPtvGEn50eKaEyNEzBPZsJcfU/sfOOV2dCAmc=;
-        b=IBd11yo1pLxVL9pACURpAokeSMvwGB54pTZFTBDD8U5OhJPNp3MNjH0YCSLKPohgeh
-         yrDeKbJ/OYUvodz7eVGrF6ejRZf1J4ke0j10tG1jg9CufQfMuHkz9oxysyphJpDPDf5q
-         u4WAzthRr82U7sXz01PHWT3BVFCRPns9eZl7I=
+        bh=7f3p8DaD+OJHNqlVoz6G4mjpM3q6Pg5QN2ip5mfsPB0=;
+        b=F0npjnwn8iNGfJ7j+3osZduTcfk1BvnsV0b5S1jvevzglGfqx11GYx2jkrUFjOFfBk
+         aC5Tz0xe7fxBPWueVQa+pgp9OkIOiG4o9pVk1VFXjmpulESXea/fV6+AouxON2Jq6uRd
+         7pRn+6LdZE0J3wFoUxbAH+Uqd/oPozsF+NYTM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:in-reply-to:references;
-        bh=wuTLNNFPtvGEn50eKaEyNEzBPZsJcfU/sfOOV2dCAmc=;
-        b=VXuOFU/vUcTPtzDQvkR75Ce2awd+M0z/R31Locznip8+SjpoEoo5W91Vwk8MCVM2fw
-         F1FVNqO0u3W+/W7KFPxC7HuGij4s5bc6kGN1BkkHnEvuOTc9rfFVIkTN2xfday+g0kNP
-         h9YP/KJnxcuZC6G9HrdME2AYiK330aBtJqi+cFqs+jwLZ2mQUS2FyB7DpmlIGDbWb+VC
-         c18YQOuDms3Sb/NyVzzMiiruXNYJCltfLqk+c0wE3b5gsGGpi4rbVSEfCzIcLGww/iVG
-         cUZ/GkUKiwfkPBrk8wSrcj5GiaKmQJSaggvPsgh7ea+ZhQVZXZCpppKSe77ULZpC2VNw
-         M4Yw==
-X-Gm-Message-State: ABuFfoiOJUT6LAF8Zg8EtpeEjvfmNwPBJv0jyfEuz6+z9A5OSozIrVDt
-        XNMr6xNMtk+FT3cW+vitHcD/IQ==
-X-Google-Smtp-Source: ACcGV63f5WlBH9BArZBXYsB0+bhJStMYdC6U/cnIgWi+r2aZVBIbW1w6kSn/pLi9HOLruEJhslZdaA==
-X-Received: by 2002:a63:5021:: with SMTP id e33-v6mr27572885pgb.306.1539852772874;
-        Thu, 18 Oct 2018 01:52:52 -0700 (PDT)
+        bh=7f3p8DaD+OJHNqlVoz6G4mjpM3q6Pg5QN2ip5mfsPB0=;
+        b=PRueJ91mn0HeauP+1ENRk51cAEib24CLzv0iRpGTleJFOnLiBSR64fdNXNYUT+OoOQ
+         +hAPyfOC4l+FFoNy+WGS+/GwuwfMQWAYN0qGDaP6YYjPcxWzHnFXaRlhq81oOIwk2RT1
+         j+bU7ffofNtlXecbwBTxem4ZudaxJBmeCY1RMmlo7KvIlmY/f1OBp6krqfY2kKvSolAO
+         2ICH4oBebnNn7+aE42vp/Z2/HETR2yNJ/aVEFNvqmlsxRNdrIhABaxP7cNsa9hkA3at1
+         71unUTWHAT8IqM7u/xqOfcH4PXmGWM26ZRa4Rp2I7JCgyIqhhFPqR2rAZyfTdXxpdppm
+         2/xw==
+X-Gm-Message-State: ABuFfojQ8s1QX2+MXrTerfvg3l0BusCcSENnMG7igm+GERKFOkjUK90+
+        7HZHB+5UDnNPALueoeKZfM5tqA==
+X-Google-Smtp-Source: ACcGV627hPrCKf4lsVo8UKgQ+nJdgvqZ04vaCdCyCqE3mXfOJLbhGKfm+4UpwooyWDYpv/+J7hUThg==
+X-Received: by 2002:a17:902:74c9:: with SMTP id f9-v6mr662553plt.99.1539852769501;
+        Thu, 18 Oct 2018 01:52:49 -0700 (PDT)
 Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.49
+        by smtp.gmail.com with ESMTPSA id x186-v6sm18467528pfb.125.2018.10.18.01.52.46
         (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 18 Oct 2018 01:52:51 -0700 (PDT)
+        Thu, 18 Oct 2018 01:52:48 -0700 (PDT)
 From:   Baolin Wang <baolin.wang@linaro.org>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     broonie@kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, baolin.wang@linaro.org
-Subject: [PATCH 3/5] rtc: sc27xx: Remove interrupts disable and clear in probe()
-Date:   Thu, 18 Oct 2018 16:52:28 +0800
-Message-Id: <f3a3d5896e07dd6280d0bf450f01ad1bba6f9286.1539851865.git.baolin.wang@linaro.org>
+Subject: [PATCH 2/5] rtc: sc27xx: Clear SPG value update interrupt status
+Date:   Thu, 18 Oct 2018 16:52:27 +0800
+Message-Id: <43a12635d57b134fc55d664af8f715b31bbc5f3b.1539851865.git.baolin.wang@linaro.org>
 X-Mailer: git-send-email 1.7.9.5
 In-Reply-To: <cover.1539851865.git.baolin.wang@linaro.org>
 References: <cover.1539851865.git.baolin.wang@linaro.org>
@@ -71,54 +71,28 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When registering one rtc device, it will check to see if there is an
-alarm already set in rtc hardware by issuing __rtc_read_alarm(). So
-we should not disable the RTC interrupts and clear the interrupts
-status in probe() function.
+We should clear the SPG value update interrupt status once the SPG value
+is updated successfully, in case incorrect status validation for next time.
 
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/rtc/rtc-sc27xx.c |   20 --------------------
- 1 file changed, 20 deletions(-)
+ drivers/rtc/rtc-sc27xx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index 6ac5653..4ecabe6 100644
+index 8afba12..6ac5653 100644
 --- a/drivers/rtc/rtc-sc27xx.c
 +++ b/drivers/rtc/rtc-sc27xx.c
-@@ -129,19 +129,6 @@ static int sprd_rtc_clear_alarm_ints(struct sprd_rtc *rtc)
- 			    SPRD_RTC_ALM_INT_MASK);
+@@ -172,7 +172,8 @@ static int sprd_rtc_lock_alarm(struct sprd_rtc *rtc, bool lock)
+ 		return ret;
+ 	}
+ 
+-	return 0;
++	return regmap_write(rtc->regmap, rtc->base + SPRD_RTC_INT_CLR,
++			    SPRD_RTC_SPG_UPD_EN);
  }
  
--static int sprd_rtc_disable_ints(struct sprd_rtc *rtc)
--{
--	int ret;
--
--	ret = regmap_update_bits(rtc->regmap, rtc->base + SPRD_RTC_INT_EN,
--				 SPRD_RTC_INT_MASK, 0);
--	if (ret)
--		return ret;
--
--	return regmap_write(rtc->regmap, rtc->base + SPRD_RTC_INT_CLR,
--			    SPRD_RTC_INT_MASK);
--}
--
- static int sprd_rtc_lock_alarm(struct sprd_rtc *rtc, bool lock)
- {
- 	int ret;
-@@ -609,13 +596,6 @@ static int sprd_rtc_probe(struct platform_device *pdev)
- 	rtc->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, rtc);
- 
--	/* clear all RTC interrupts and disable all RTC interrupts */
--	ret = sprd_rtc_disable_ints(rtc);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to disable RTC interrupts\n");
--		return ret;
--	}
--
- 	/* check if RTC time values are valid */
- 	ret = sprd_rtc_check_power_down(rtc);
- 	if (ret) {
+ static int sprd_rtc_get_secs(struct sprd_rtc *rtc, enum sprd_rtc_reg_types type,
 -- 
 1.7.9.5
 
