@@ -2,48 +2,48 @@ Return-Path: <SRS0=vqqW=ND=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B0C5C46475
-	for <linux-rtc@archiver.kernel.org>; Tue, 23 Oct 2018 11:32:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52801C46475
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Oct 2018 11:34:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DFEDD20671
-	for <linux-rtc@archiver.kernel.org>; Tue, 23 Oct 2018 11:32:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DFEDD20671
+	by mail.kernel.org (Postfix) with ESMTP id 139E820671
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Oct 2018 11:34:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 139E820671
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=rock-chips.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728084AbeJWTy7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 23 Oct 2018 15:54:59 -0400
-Received: from lucky1.263xmail.com ([211.157.147.134]:38192 "EHLO
+        id S1728002AbeJWT54 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 23 Oct 2018 15:57:56 -0400
+Received: from lucky1.263xmail.com ([211.157.147.132]:39248 "EHLO
         lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728034AbeJWTy6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Oct 2018 15:54:58 -0400
-Received: from tony.xie?rock-chips.com (unknown [192.168.167.73])
-        by lucky1.263xmail.com (Postfix) with ESMTP id 5995C3EB;
-        Tue, 23 Oct 2018 19:31:44 +0800 (CST)
+        with ESMTP id S1727720AbeJWT54 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Oct 2018 15:57:56 -0400
+Received: from tony.xie?rock-chips.com (unknown [192.168.167.110])
+        by lucky1.263xmail.com (Postfix) with ESMTP id 57B8326E;
+        Tue, 23 Oct 2018 19:34:04 +0800 (CST)
 X-263anti-spam: KSV:0;
 X-MAIL-GRAY: 1
 X-MAIL-DELIVERY: 0
 X-KSVirus-check: 0
 X-ABS-CHECKED: 4
 Received: from localhost.localdomain (localhost [127.0.0.1])
-        by smtp.263.net (Postfix) with ESMTPA id D877F390;
-        Tue, 23 Oct 2018 19:31:37 +0800 (CST)
+        by smtp.263.net (Postfix) with ESMTPA id CF146359;
+        Tue, 23 Oct 2018 19:34:01 +0800 (CST)
 X-IP-DOMAINF: 1
 X-RL-SENDER: tony.xie@rock-chips.com
 X-FST-TO: heiko@sntech.de
 X-SENDER-IP: 58.22.7.114
 X-LOGIN-NAME: tony.xie@rock-chips.com
-X-UNIQUE-TAG: <f4448ed0684834f905828da3ca93c9ab>
+X-UNIQUE-TAG: <21fc710fcc232e7ee74ecfdcfc8aed39>
 X-ATTACHMENT-NUM: 0
 X-SENDER: xxx@rock-chips.com
 X-DNS-TYPE: 0
 Received: from localhost.localdomain (unknown [58.22.7.114])
-        by smtp.263.net (Postfix) whith ESMTP id 30768VN3LLL;
-        Tue, 23 Oct 2018 19:31:39 +0800 (CST)
+        by smtp.263.net (Postfix) whith ESMTP id 292016V1EKN;
+        Tue, 23 Oct 2018 19:34:03 +0800 (CST)
 From:   Tony Xie <tony.xie@rock-chips.com>
 To:     heiko@sntech.de
 Cc:     broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
@@ -55,68 +55,132 @@ Cc:     broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
         linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
         xsf@rock-chips.com, zhangqing@rock-chips.com,
         huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v5 0/5] support a new type of PMIC,including two chips(rk817 and rk809)
-Date:   Tue, 23 Oct 2018 19:34:22 +0800
-Message-Id: <1540294467-25813-1-git-send-email-tony.xie@rock-chips.com>
+Subject: [PATCH v5 5/5] clk: RK808: add RK809 and RK817 support.
+Date:   Tue, 23 Oct 2018 19:36:52 +0800
+Message-Id: <1540294612-25991-1-git-send-email-tony.xie@rock-chips.com>
 X-Mailer: git-send-email 1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1540294467-25813-1-git-send-email-tony.xie@rock-chips.com>
+References: <1540294467-25813-1-git-send-email-tony.xie@rock-chips.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Most of functions and registers of the rk817 and rk808 are the same,
-so they can share allmost all codes.
+RK809 and RK817 are power management IC chips for multimedia products.
+most of their functions and registers are same, including the clkout
+funciton.
 
-Their specifications are as follows£º
-  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same registers
-     for these components except dcdc5.
-  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
-  3) The RK817 has one switch but The Rk809 has two.
+Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+---
+ drivers/clk/Kconfig     |  9 ++++---
+ drivers/clk/clk-rk808.c | 64 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 67 insertions(+), 6 deletions(-)
 
-Changes in V2:
-1. initialize the pm_pwroff_fn to NULL. 
-2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
-3. change patch 2/3/4/5 subjects. 
-
-Changes in V3£º
-1. change patch 4 subjects
-2. replace pr_ with dev_ for printing in patch 2
-3. modify switch1 and switch2 configs in patch 2
-4. explain gpio information for rk809 and rk817 in patch 4
-
-Changes in V4:
-1. modify some codes for patch 2 and patch 5 according to comments 
-2. add reviewer mail lists for patch 3 and 4
-
-Changes in V5:
-modify some codes for patch 1 according to reveiw comments for v3.
- 1) remove the pm_power_off_prepare() and replace with shutdown call-back from syscore
- 2) move the macro REGMAP_IRQ_M into the regmap.h and rename it REGMAP_IRQ_LINE
- 3) make some dev_warn() log clear
-
-Tony Xie (5):
-  mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: add RK809 and RK817 support.
-  dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
-  rtc: rk808: add RK809 and RK817 support.
-  clk: RK808: add RK809 and RK817 support.
-
- Documentation/devicetree/bindings/mfd/rk808.txt |  44 ++
- drivers/clk/Kconfig                             |   9 +-
- drivers/clk/clk-rk808.c                         |  64 ++-
- drivers/mfd/Kconfig                             |   6 +-
- drivers/mfd/rk808.c                             | 225 +++++++-
- drivers/regulator/Kconfig                       |   4 +-
- drivers/regulator/rk808-regulator.c             | 657 +++++++++++++++++++++++-
- drivers/rtc/Kconfig                             |   4 +-
- drivers/rtc/rtc-rk808.c                         |  68 ++-
- include/linux/mfd/rk808.h                       | 175 +++++++
- include/linux/regmap.h                          |   6 +
- 11 files changed, 1193 insertions(+), 69 deletions(-)
-
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 721572a..92cf5ad 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -46,13 +46,12 @@ config COMMON_CLK_MAX77686
+ 	  clock.
+ 
+ config COMMON_CLK_RK808
+-	tristate "Clock driver for RK805/RK808/RK818"
++	tristate "Clock driver for RK805/RK808/RK809/RK817/RK818"
+ 	depends on MFD_RK808
+ 	---help---
+-	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
+-	  multi-function devices have two fixed-rate oscillators,
+-	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
+-	  by control register.
++	  This driver supports RK805, RK809 and RK817, RK808 and RK818 crystal oscillator clock.
++	  These multi-function devices have two fixed-rate oscillators, clocked at 32KHz each.
++	  Clkout1 is always on, Clkout2 can off by control register.
+ 
+ config COMMON_CLK_HI655X
+ 	tristate "Clock driver for Hi655x" if EXPERT
+diff --git a/drivers/clk/clk-rk808.c b/drivers/clk/clk-rk808.c
+index 6461f28..7f9a56b 100644
+--- a/drivers/clk/clk-rk808.c
++++ b/drivers/clk/clk-rk808.c
+@@ -96,6 +96,68 @@ static int rk808_clkout2_is_prepared(struct clk_hw *hw)
+ 	return idx ? &rk808_clkout->clkout2_hw : &rk808_clkout->clkout1_hw;
+ }
+ 
++static int rk817_clkout2_enable(struct clk_hw *hw, bool enable)
++{
++	struct rk808_clkout *rk808_clkout = container_of(hw,
++							 struct rk808_clkout,
++							 clkout2_hw);
++	struct rk808 *rk808 = rk808_clkout->rk808;
++
++	return regmap_update_bits(rk808->regmap, RK817_SYS_CFG(1),
++				  RK817_CLK32KOUT2_EN,
++				  enable ? RK817_CLK32KOUT2_EN : 0);
++}
++
++static int rk817_clkout2_prepare(struct clk_hw *hw)
++{
++	return rk817_clkout2_enable(hw, true);
++}
++
++static void rk817_clkout2_unprepare(struct clk_hw *hw)
++{
++	rk817_clkout2_enable(hw, false);
++}
++
++static int rk817_clkout2_is_prepared(struct clk_hw *hw)
++{
++	struct rk808_clkout *rk808_clkout = container_of(hw,
++							 struct rk808_clkout,
++							 clkout2_hw);
++	struct rk808 *rk808 = rk808_clkout->rk808;
++	unsigned int val;
++
++	int ret = regmap_read(rk808->regmap, RK817_SYS_CFG(1), &val);
++
++	if (ret < 0)
++		return 0;
++
++	return (val & RK817_CLK32KOUT2_EN) ? 1 : 0;
++}
++
++static const struct clk_ops rk817_clkout2_ops = {
++	.prepare = rk817_clkout2_prepare,
++	.unprepare = rk817_clkout2_unprepare,
++	.is_prepared = rk817_clkout2_is_prepared,
++	.recalc_rate = rk808_clkout_recalc_rate,
++};
++
++static const struct clk_ops *rkpmic_get_ops(long variant)
++{
++	switch (variant) {
++	case RK809_ID:
++	case RK817_ID:
++		return &rk817_clkout2_ops;
++	/*
++	 * For the default case, it match the following PMIC type.
++	 * RK805_ID
++	 * RK808_ID
++	 * RK818_ID
++	 */
++	default:
++		return &rk808_clkout2_ops;
++	}
++}
++
+ static int rk808_clkout_probe(struct platform_device *pdev)
+ {
+ 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
+@@ -127,7 +189,7 @@ static int rk808_clkout_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	init.name = "rk808-clkout2";
+-	init.ops = &rk808_clkout2_ops;
++	init.ops = rkpmic_get_ops(rk808->variant);
+ 	rk808_clkout->clkout2_hw.init = &init;
+ 
+ 	/* optional override of the clockname */
 -- 
 1.9.1
 
