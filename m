@@ -2,121 +2,216 @@ Return-Path: <SRS0=e7ET=NF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED333ECDE46
-	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 01:57:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD97AECDE46
+	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:34:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B381E20824
-	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 01:57:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7476E2082E
+	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:34:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="RAsiQYlL"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B381E20824
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="iCbWWcjU"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7476E2082E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727134AbeJYK1v (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 25 Oct 2018 06:27:51 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:43711 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726204AbeJYK1u (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 25 Oct 2018 06:27:50 -0400
-Received: by mail-lf1-f67.google.com with SMTP id p34-v6so5493023lfg.10
-        for <linux-rtc@vger.kernel.org>; Wed, 24 Oct 2018 18:57:16 -0700 (PDT)
+        id S1726652AbeJYSGQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 25 Oct 2018 14:06:16 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45029 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726674AbeJYSGL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 25 Oct 2018 14:06:11 -0400
+Received: by mail-wr1-f66.google.com with SMTP id q6-v6so8543094wrw.11
+        for <linux-rtc@vger.kernel.org>; Thu, 25 Oct 2018 02:34:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-         :cc;
-        bh=3MAOzR6LOCJt++ofCZuUAgfpHuME7Ee1ftRjmgI42/o=;
-        b=RAsiQYlLJj1gxv1EDYRjLlP5+Ti6HddKAwVMBGxWzgG6e0pz3VXv9eAgsDPA1caBRK
-         ulsSGuWAKMYYrlBwxqcVV2FeGqw5JPXPZk1D8HVT1h+3tnW2W8USBHIeNRt9ElUx0VDr
-         U/spS4xVycAfdh73k+Z0ldkwpzx7tDJPfiV+k=
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=mATkZbDGH8tn/fwT8hdNECKo6B3IconM8zxALC89/iY=;
+        b=iCbWWcjUzydYbSEdgRRthpmxOQ2BlmC7UemKMVPsurMSaQMu3nSLmJnweayuUFxLDm
+         DQGumdt4yrmkhVY1w5VMfEm5/dHs1Z74TTPS3+TzkthBxZ1MyNt4JfePrH0AbM54IMjS
+         Uwn5zyMn41mGqOtc/hD6VRR+m452nMjfQWNF8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
-         :message-id:subject:to:cc;
-        bh=3MAOzR6LOCJt++ofCZuUAgfpHuME7Ee1ftRjmgI42/o=;
-        b=QKNIPkRuCDAkECDYTnjpm/2KmhiQOyu2vHoXz8ZaMUmujQbT/Imt/C2JIMcdWj3JJ3
-         QbWvULt3cRJ7x2b8YMfs6zbItybw04m0/65lbDzcgqxFNbV5QplteJwvbnNGCKgulLP7
-         tXCcl2GsbqDtbHkNqupC4ZuGfrwOL8kTBa/GTXCIoe0U2u2t8njPWq+almE3T86UmWuV
-         BDguSrkhbPBhbKwsLikS3LvsA6ubKylxoXL66yVEoE9LMIIAzUWpxm+0CNPy7hg31Bb1
-         6erJqBglFe0iEumOdaeiU45fYLX1tz80lV3TTyIiemWdSg8SmZkPNxRPWL2oBhso6wMF
-         MrzA==
-X-Gm-Message-State: AGRZ1gL+p81C7A8jFt3qEYKpHgNFB8xwBSoKanHzf/sI3gaLCWHtx2Xf
-        7PhWqTf/FSoBEB7OKvGcsVOuanlF1hOGfyUyM3V5tQ==
-X-Google-Smtp-Source: AJdET5eEFR4NDyJIOLKzK7543zqc6tQ8W2qyRZvCI3hiyfhvduil3LcRpTlqPZH6/0aCkDXaE2C4m79FizSBBmPkZvs=
-X-Received: by 2002:a19:ca51:: with SMTP id h17mr81759lfj.126.1540432635951;
- Wed, 24 Oct 2018 18:57:15 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=mATkZbDGH8tn/fwT8hdNECKo6B3IconM8zxALC89/iY=;
+        b=qZfMPSs85r4vpTMGfc/ciTBV1q8UFUyCouRXKzWt3JDuijsbyjEtbaeeCmjSLPmeg7
+         ymaJ0EPWiVFJtCuN+EMVxJYWit6wdsna+WMOL/JRKzAu20fvUSfm00f9LFU35cXjB0yR
+         pFbZJoQ3TkC4GUCpMYv28bsVTd4S45GViiIuWpe97qn+lB4oGFhjailjrYIMcv2jufEm
+         lb+VyvsWolf66HL103jm2Kd9GQYXQskS1aZ6mHintlMI1UOMsQvhsRPunBAlt3JqvmPk
+         dvhbldyQeZPud+9k1nR9XIF+cIXfx/rW9km+xPWeh2IlFkMcCkTxRITuEpf97FMlwcid
+         ov2Q==
+X-Gm-Message-State: AGRZ1gL7O4KoC/3+qwK2hN/XlyIXL2MbB5ZB8N81h5l5ntssTX6ForPf
+        Qissom3b0IsgELdxtHf5lH/CSlPrspY=
+X-Google-Smtp-Source: AJdET5cMSislzd0h0slrcnd6RmqXqYtyKZMkQuyMcJHuiYQCilcwV0ld07eWOGossILI+OljjNjDEA==
+X-Received: by 2002:a5d:65d1:: with SMTP id e17-v6mr1054158wrw.149.1540460052703;
+        Thu, 25 Oct 2018 02:34:12 -0700 (PDT)
+Received: from dell ([2.31.167.182])
+        by smtp.gmail.com with ESMTPSA id y141-v6sm1246047wme.10.2018.10.25.02.33.59
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 25 Oct 2018 02:34:11 -0700 (PDT)
+Date:   Thu, 25 Oct 2018 10:33:55 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Tony Xie <tony.xie@rock-chips.com>
+Cc:     heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v5 1/5] mfd: rk808: Add RK817 and RK809 support
+Message-ID: <20181025093355.GN4939@dell>
+References: <1540294467-25813-1-git-send-email-tony.xie@rock-chips.com>
+ <1540294467-25813-2-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-Received: by 2002:a2e:95d7:0:0:0:0:0 with HTTP; Wed, 24 Oct 2018 18:57:15
- -0700 (PDT)
-In-Reply-To: <20181025003456.GB2737@piout.net>
-References: <cover.1539851865.git.baolin.wang@linaro.org> <e3b4f8848cad42e5a2f4dfb34e342c69c8b95786.1539851865.git.baolin.wang@linaro.org>
- <20181025003456.GB2737@piout.net>
-From:   Baolin Wang <baolin.wang@linaro.org>
-Date:   Thu, 25 Oct 2018 09:57:15 +0800
-Message-ID: <CAMz4ku+ObP5vUijEbzMFF3hBe+RaQoOv7O2JxhGbq6Qs-t+iCQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] rtc: sc27xx: Always read normal alarm when
- registering RTC device
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Brown <broonie@kernel.org>, linux-rtc@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1540294467-25813-2-git-send-email-tony.xie@rock-chips.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Alexandre,
+On Tue, 23 Oct 2018, Tony Xie wrote:
 
-On 25 October 2018 at 08:34, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> Hello,
->
-> On 18/10/2018 16:52:30+0800, Baolin Wang wrote:
->> When registering one RTC device, it will check to see if there is an
->> alarm already set in RTC hardware by reading RTC alarm, at this time
->> we should always read the normal alarm put in always-on region by
->> checking the rtc->registered flag.
->>
->> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
->> ---
->>  drivers/rtc/rtc-sc27xx.c |    8 ++++++--
->>  1 file changed, 6 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
->> index 72bb002..b4eb3b3 100644
->> --- a/drivers/rtc/rtc-sc27xx.c
->> +++ b/drivers/rtc/rtc-sc27xx.c
->> @@ -415,10 +415,14 @@ static int sprd_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->>       u32 val;
->>
->>       /*
->> -      * If aie_timer is enabled, we should get the normal alarm time.
->> +      * Before RTC device is registered, it will check to see if there is an
->> +      * alarm already set in RTC hardware, and we always read the normal
->> +      * alarm at this time.
->> +      *
->> +      * Or if aie_timer is enabled, we should get the normal alarm time.
->>        * Otherwise we should get auxiliary alarm time.
->>        */
->> -     if (rtc->rtc && rtc->rtc->aie_timer.enabled == 0)
->> +     if (rtc->rtc && rtc->rtc->registered && rtc->rtc->aie_timer.enabled == 0)
->
-> Note that the driver should not access rtc->registered and
-> rtc->aie_timer.enabled and this is a bit fragile.
-> But, on the other hand, I currently don't have anything better to
-> suggest. I was also planning to add an in-kernel API for multiple alarms
-> but I'm not sure it will actually help in your case.
+>     The rk809 and rk817 are a Power Management IC (PMIC) for multimedia
+>     and handheld devices. It contains the following components:
+> 
+>         - Regulators
+>         - RTC
+>         - Clocking
+> 
+>     Both RK809 and RK817 chips are using a similar register map,
+>     so we can reuse the RTC and Clocking and regulators functionality.
 
-Yes, I understand your concern. I will glad to help to test if you
-introduce new APIs for multiple alarms to see if they can help in our
-case. Thanks.
+What's with the odd tabbing at the start of every line?
+
+> Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> Acked-by: Stephen Boyd <sboyd@kernel.org>
+> ---
+>  drivers/mfd/Kconfig       |   6 +-
+>  drivers/mfd/rk808.c       | 225 +++++++++++++++++++++++++++++++++++++++++++---
+>  include/linux/mfd/rk808.h | 172 +++++++++++++++++++++++++++++++++++
+>  include/linux/regmap.h    |   6 ++
+>  4 files changed, 392 insertions(+), 17 deletions(-)
+
+[...]
+
+> +static struct resource rk817_rtc_resources[] = {
+> +	{
+> +		.start  = RK817_IRQ_RTC_ALARM,
+> +		.end    = RK817_IRQ_RTC_ALARM,
+> +		.flags  = IORESOURCE_IRQ,
+> +	}
+> +};
+
+There are MACROs for these.  Please consider converting to them.
+
+You don't need to do that for *this* patch though.
+
+[...]
+
+>  static const struct regmap_irq_chip rk818_irq_chip = {
+>  	.name = "rk818",
+>  	.irqs = rk818_irqs,
+> @@ -376,7 +489,7 @@ static void rk805_device_shutdown(void)
+>  
+>  	if (!rk808) {
+>  		dev_warn(&rk808_i2c_client->dev,
+> -			 "have no rk805, so do nothing here\n");
+> +			 "can not get the driver data of rk808!\n");
+
+Nit: "cannot"
+
+>  		return;
+>  	}
+>  
+> @@ -394,7 +507,7 @@ static void rk808_device_shutdown(void)
+>  
+>  	if (!rk808) {
+>  		dev_warn(&rk808_i2c_client->dev,
+> -			 "have no rk808, so do nothing here\n");
+> +			 "can not get the driver data of rk808!\n");
+
+As above (and below).
+
+>  		return;
+>  	}
+>  
+> @@ -412,7 +525,7 @@ static void rk818_device_shutdown(void)
+>  
+>  	if (!rk808) {
+>  		dev_warn(&rk808_i2c_client->dev,
+> -			 "have no rk818, so do nothing here\n");
+> +			 "can not get the driver data of rk808!\n");
+
+"RK808" in all prints and comments.
+
+>  		return;
+>  	}
+>  
+> @@ -423,9 +536,39 @@ static void rk818_device_shutdown(void)
+>  		dev_err(&rk808_i2c_client->dev, "power off error!\n");
+>  }
+>  
+> +static void rk8xx_syscore_shutdown(void)
+> +{
+> +	int ret;
+> +	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
+> +
+> +	if (!rk808) {
+> +		dev_warn(&rk808_i2c_client->dev,
+> +			 "can not get the driver data of rk808!\n");
+> +		return;
+> +	}
+> +
+> +	if (system_state == SYSTEM_POWER_OFF &&
+> +	    (rk808->variant == RK809_ID || rk808->variant == RK817_ID)) {
+> +		ret = regmap_update_bits(rk808->regmap,
+> +					 RK817_SYS_CFG(3),
+> +					 RK817_SLPPIN_FUNC_MSK,
+> +					 SLPPIN_DN_FUN);
+> +		if (ret) {
+> +			dev_warn(&rk808_i2c_client->dev,
+> +				 "the retset pin can not switch to power down function\n");
+
+Spellcheck.
+
+[...]
+
+> diff --git a/include/linux/regmap.h b/include/linux/regmap.h
+> index 4f38068..a468b81 100644
+> --- a/include/linux/regmap.h
+> +++ b/include/linux/regmap.h
+> @@ -1047,6 +1047,12 @@ struct regmap_irq {
+>  #define REGMAP_IRQ_REG(_irq, _off, _mask)		\
+>  	[_irq] = { .reg_offset = (_off), .mask = (_mask) }
+>  
+> +#define REGMAP_IRQ_REG_LINE(_id, _reg_bits) \
+> +	[_id] = {				\
+> +		.mask = BIT((_id) % (_reg_bits)),	\
+> +		.reg_offset = (_id) / (_reg_bits),	\
+> +	}
+> +
+>  /**
+>   * struct regmap_irq_chip - Description of a generic regmap irq_chip.
+>   *
+
+This needs to be a separate patch.
 
 -- 
-Baolin Wang
-Best Regards
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
