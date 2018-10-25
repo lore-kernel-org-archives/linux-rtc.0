@@ -2,61 +2,61 @@ Return-Path: <SRS0=e7ET=NF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9454EECDE46
-	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:36:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 265BDECDE46
+	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:38:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5330620834
-	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:36:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0DE12064A
+	for <linux-rtc@archiver.kernel.org>; Thu, 25 Oct 2018 09:38:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="bjCpr+MD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5330620834
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="a7lJOjQh"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E0DE12064A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726637AbeJYSIJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 25 Oct 2018 14:08:09 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:44234 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726640AbeJYSIJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 25 Oct 2018 14:08:09 -0400
-Received: by mail-wr1-f65.google.com with SMTP id q6-v6so8549600wrw.11
-        for <linux-rtc@vger.kernel.org>; Thu, 25 Oct 2018 02:36:11 -0700 (PDT)
+        id S1726804AbeJYSKb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 25 Oct 2018 14:10:31 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38839 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726900AbeJYSKb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 25 Oct 2018 14:10:31 -0400
+Received: by mail-wm1-f66.google.com with SMTP id b14-v6so800456wmj.3
+        for <linux-rtc@vger.kernel.org>; Thu, 25 Oct 2018 02:38:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to
          :user-agent;
-        bh=L3yOPiKnnDSVbWHjNCCawmdIYd0llXN182ss2W8PiR0=;
-        b=bjCpr+MDbX0Bsi60CVvDSNLhIZsPFitWM8qe5hYZ0fvnymuuKqJuk2iujhaGV0+ySG
-         AJuv88iB2pR0zsT4iN3on/0FwlYWUfdcAdc+nO0jIjQe46sevJ+qg+LYdUWdHX8m3jB+
-         P4H12zHSKFy2j7sIAcuUs08SCeZBqYelh3U/E=
+        bh=+HnnKwjZQssUkWhx+voXqgMEfZW8Kz+WvT1CBBer8XI=;
+        b=a7lJOjQhAqEFyJ+LTTccF0vyfUJcWHKSu8xpGg6Zy58Sj/6afJ1vONr5S5JYtIVUH/
+         iDNhb0GT5pqufAsqh6l+sRONGio4BHyGZ0WK+6vMxN9TGF66HIV7wW+uQ3SVJeOOeQJk
+         l/0QRVuRYOVxGlgIDRfXfiUl8WyT0suPEbfG4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to:user-agent;
-        bh=L3yOPiKnnDSVbWHjNCCawmdIYd0llXN182ss2W8PiR0=;
-        b=a2Fvsy0H6Xbi7WmxrJ8G+YpBRcPUNCyynh5YAlJYp3U72v550x1qEsMTMF4HmMe6bc
-         vyLIW5WSl4hkJNdb98Hyyh1NfPlJG3kG4lQ5z7mcAJPwMa+c1JHIl4C8S4rJWMUk7hdl
-         mdchk+jQywdXjPuNnLYm2bcnuE3hOkvyG6Te6IbwYaZ9uscB6qRPj6kuAOo3TA+hktu6
-         p1zOJqwbrMARMcsWk4hgQBtozNAAwEG+o58hnlgoq7Cppj24Tzo8gGuGkyvq7S49y0dx
-         flVjRsIfm8R9X0YWhHXoF7C+yDETNHsvn0AOFqPonT0ta/6xkFqSPQedEQBgCb2BkJIi
-         PMDA==
-X-Gm-Message-State: AGRZ1gKxZ7p8MJtEFsgoWQ4Q8Y3hHSAJUm21FR6T8GMHcdXOTCInDapW
-        dBqVpbAVhyQe34wd02+6zZ7F0g==
-X-Google-Smtp-Source: AJdET5fUVcveOVd/aiEohqTPWTlJJTkc+c6aUywXFNZFJlVfxooZBqOwB38MXA0HTmf/CX9jXxZIVQ==
-X-Received: by 2002:a5d:568b:: with SMTP id f11-v6mr1030993wrv.301.1540460170752;
-        Thu, 25 Oct 2018 02:36:10 -0700 (PDT)
+        bh=+HnnKwjZQssUkWhx+voXqgMEfZW8Kz+WvT1CBBer8XI=;
+        b=EC+WhI1/d59nRLrItCROExodWF6aqH19KEkldJQMXBrOrBKFPEEOu9PkutFxUo7aAy
+         PhVcEXRhDq/UxPz3p8RC0M4TCVHpNIFQCnxGxLf414srp4A0l4xqJSVzK6xoUdHdsKbj
+         lzVMoIw33cRNxF0Fbc1U1kSH0a1d00TMQraeUpzPdujuFsylVhGkkLIMnLAhU/ZhfX2z
+         WagnaF9HPh/NBHFzigOtaRP7Ely6OZG+AIZdranAo2e6ddWbfoxV3X7amiqoiTCB9P2C
+         ZBlWLkv2fymli0Y8GpA7ggm2H2BfeYNyums16PI7ouHkwH4AGng/1qSSDq1O6Mrg06MP
+         bq9g==
+X-Gm-Message-State: AGRZ1gIu+vojQNIYqCoy6bkm4aiz2FgDBvISqtUX7hCX7KxsE1p3ShKf
+        pil0oezNJWEdz8rVZZLx8KWC7A==
+X-Google-Smtp-Source: AJdET5dcrxQnLTyr6PNW9FquzlWa4TIvrm3JG12ofDpoZ9gxq2PEUaLU6v5y6kvba+hotIMHQ127iQ==
+X-Received: by 2002:a1c:3a92:: with SMTP id h140-v6mr1040460wma.69.1540460311058;
+        Thu, 25 Oct 2018 02:38:31 -0700 (PDT)
 Received: from dell ([2.31.167.182])
-        by smtp.gmail.com with ESMTPSA id s129-v6sm842687wmf.5.2018.10.25.02.36.09
+        by smtp.gmail.com with ESMTPSA id b143-v6sm1318839wma.28.2018.10.25.02.38.29
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 25 Oct 2018 02:36:09 -0700 (PDT)
-Date:   Thu, 25 Oct 2018 10:36:07 +0100
+        Thu, 25 Oct 2018 02:38:30 -0700 (PDT)
+Date:   Thu, 25 Oct 2018 10:38:27 +0100
 From:   Lee Jones <lee.jones@linaro.org>
 To:     Tony Xie <tony.xie@rock-chips.com>
 Cc:     heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
@@ -68,15 +68,16 @@ Cc:     heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
         linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
         xsf@rock-chips.com, zhangqing@rock-chips.com,
         huangtao@rock-chips.com
-Subject: Re: [PATCH v5 2/5] regulator: rk808: add RK809 and RK817 support.
-Message-ID: <20181025093607.GO4939@dell>
+Subject: Re: [PATCH v5 3/5] dt-bindings: mfd: rk808: Add binding information
+ for RK809 and RK817.
+Message-ID: <20181025093827.GP4939@dell>
 References: <1540294467-25813-1-git-send-email-tony.xie@rock-chips.com>
- <1540294467-25813-3-git-send-email-tony.xie@rock-chips.com>
+ <1540294467-25813-4-git-send-email-tony.xie@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1540294467-25813-3-git-send-email-tony.xie@rock-chips.com>
+In-Reply-To: <1540294467-25813-4-git-send-email-tony.xie@rock-chips.com>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -85,24 +86,105 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 On Tue, 23 Oct 2018, Tony Xie wrote:
 
->     Add support for the rk809 and rk817 regulator driver.
->     Their specifications are as follows：
->     1. The RK809 and RK809 consist of 5 DCDCs, 9 LDOs
->        and have the same registers for these components except dcdc5.
->     2. The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
->     3. The RK817 has one switch but The Rk809 has two.
-> 
->     The output voltages are configurable and are meant to supply power
->     to the main processor and other components.
+> Add device tree bindings documentation for Rockchip's RK809 & RK817 PMIC.
 > 
 > Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 > ---
->  drivers/regulator/Kconfig           |   4 +-
->  drivers/regulator/rk808-regulator.c | 657 ++++++++++++++++++++++++++++++++++--
+>  Documentation/devicetree/bindings/mfd/rk808.txt | 44 +++++++++++++++++++++++++
+>  1 file changed, 44 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/rk808.txt b/Documentation/devicetree/bindings/mfd/rk808.txt
+> index 91b6522..d575780 100644
+> --- a/Documentation/devicetree/bindings/mfd/rk808.txt
+> +++ b/Documentation/devicetree/bindings/mfd/rk808.txt
+> @@ -3,11 +3,15 @@ RK8XX Power Management Integrated Circuit
+>  The rk8xx family current members:
+>  rk805
+>  rk808
+> +rk809
+> +rk817
+>  rk818
+>  
+>  Required properties:
+>  - compatible: "rockchip,rk805"
+>  - compatible: "rockchip,rk808"
+> +- compatible: "rockchip,rk809"
+> +- compatible: "rockchip,rk817"
+>  - compatible: "rockchip,rk818"
+>  - reg: I2C slave address
+>  - interrupt-parent: The parent interrupt controller.
+> @@ -46,6 +50,23 @@ Optional RK808 properties:
+>    the gpio controller. If DVS GPIOs aren't present, voltage changes will happen
+>    very quickly with no slow ramp time.
+>  
+> +Optional shared RK809 and RK817 properties:
+> +- vcc1-supply:  The input supply for DCDC_REG1
+> +- vcc2-supply:  The input supply for DCDC_REG2
+> +- vcc3-supply:  The input supply for DCDC_REG3
+> +- vcc4-supply:  The input supply for DCDC_REG4
+> +- vcc5-supply:  The input supply for LDO_REG1, LDO_REG2, LDO_REG3
+> +- vcc6-supply:  The input supply for LDO_REG4, LDO_REG5, LDO_REG6
+> +- vcc7-supply:  The input supply for LDO_REG7, LDO_REG8, LDO_REG9
+> +
+> +Optional RK809 properties:
+> +- vcc8-supply:  The input supply for SWITCH_REG1
+> +- vcc9-supply:  The input supply for DCDC_REG5, SWITCH_REG2
+> +
+> +Optional RK817 properties:
+> +- vcc8-supply:  The input supply for BOOST
+> +- vcc9-supply:  The input supply for OTG_SWITCH
+> +
+>  Optional RK818 properties:
+>  - vcc1-supply:  The input supply for DCDC_REG1
+>  - vcc2-supply:  The input supply for DCDC_REG2
+> @@ -87,6 +108,21 @@ number as described in RK808 datasheet.
+>  	- SWITCH_REGn
+>  		- valid values for n are 1 to 2
+>  
+> +Following regulators of the RK809 and RK817 PMIC blocks are supported. Note that
+> +the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
+> +number as described in RK809 and RK817 datasheets.
+> +
+> +	- DCDC_REGn
+> +		- valid values for n are 1 to 5 for RK809.
+> +		- valid values for n are 1 to 4 for RK817.
+> +	- LDO_REGn
+> +		- valid values for n are 1 to 9 for RK809.
+> +		- valid values for n are 1 to 9 for RK817.
+> +	- SWITCH_REGn
+> +		- valid values for n are 1 to 2 for RK809.
+> +	- BOOST for RK817
+> +	- OTG_SWITCH for RK817
+> +
+>  Following regulators of the RK818 PMIC block are supported. Note that
+>  the 'n' in regulator name, as in DCDC_REGn or LDOn, represents the DCDC or LDO
+>  number as described in RK818 datasheet.
+> @@ -99,6 +135,14 @@ number as described in RK818 datasheet.
+>  	- HDMI_SWITCH
+>  	- OTG_SWITCH
+>  
+> +There are three pins needed to config for each of RK809 and RK817,
 
->  include/linux/mfd/rk808.h           |   3 +
+Nit: "configure" in full please.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Actually: "It is necessary to configure three pins for both the RK809 and RK817"
+
+> +named "gpio_ts" "gpio_gt" "gpio_slp".
+> +	The gpio_gt and gpio_ts pins support the gpio function.
+> +	The gpio_slp pin is for controlling the pmic states, as below:
+> +		- reset
+> +		- power down
+> +		- sleep
+> +
+>  Standard regulator bindings are used inside regulator subnodes. Check
+>    Documentation/devicetree/bindings/regulator/regulator.txt
+>  for more details
+
+Once that's fixed, please apply my:
+
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
 Lee Jones [李琼斯]
