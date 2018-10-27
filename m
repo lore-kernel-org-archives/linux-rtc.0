@@ -1,241 +1,88 @@
-Return-Path: <SRS0=Cwvs=NG=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=N8XL=NH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED38FECDE46
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Oct 2018 20:55:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B9B9C46475
+	for <linux-rtc@archiver.kernel.org>; Sat, 27 Oct 2018 16:26:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B2D462082B
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Oct 2018 20:55:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B2D462082B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
+	by mail.kernel.org (Postfix) with ESMTP id 2CA7920828
+	for <linux-rtc@archiver.kernel.org>; Sat, 27 Oct 2018 16:26:12 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="MvDJfxsf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2CA7920828
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726439AbeJ0Fdj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 27 Oct 2018 01:33:39 -0400
-Received: from mail.bootlin.com ([62.4.15.54]:54692 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725947AbeJ0Fdj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 27 Oct 2018 01:33:39 -0400
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 14123208F5; Fri, 26 Oct 2018 22:55:06 +0200 (CEST)
-Received: from localhost (unknown [88.191.26.124])
-        by mail.bootlin.com (Postfix) with ESMTPSA id DA91A207AB;
-        Fri, 26 Oct 2018 22:55:05 +0200 (CEST)
-Date:   Fri, 26 Oct 2018 22:55:06 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC for 4.20
-Message-ID: <20181026205506.GA14231@piout.net>
+        id S1728809AbeJ1BHl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 27 Oct 2018 21:07:41 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:38274 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728643AbeJ1BHl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 27 Oct 2018 21:07:41 -0400
+Received: by mail-lf1-f65.google.com with SMTP id p86so897264lfg.5
+        for <linux-rtc@vger.kernel.org>; Sat, 27 Oct 2018 09:26:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ZpbjKgFDxSJMX8InFdI7wu0DHZYYJkESAFKl0FVK5Xk=;
+        b=MvDJfxsfFADOF7UaNVqIBm4/rCcfGE4rGArUTWdAo5wdmq5VjgZS1O7K5SQeuoZPf9
+         7+OVU+IVtpHjoBegS/Ir4bY+0SpqyHqVhj+F+hs2mdoB9PrNDnEHTywqzFmgAo+Gw9u0
+         bcWUu4TKD+FN1Uw+brb5MwVW/1u5TzuOWo36I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZpbjKgFDxSJMX8InFdI7wu0DHZYYJkESAFKl0FVK5Xk=;
+        b=FJat3WYgW0wRFil3IhZHNTT28RuvnIaYzNlQTqjHrv8dU7sH+PaYOvU/hAQ+DsjI+G
+         ZiGGjmpi2EmOX1hAxJLvUeLaddOOJllNX97UmSUCSAyitz/Z943Qtam2P5gX7mDnQbRy
+         5ksYeY5vARynwmIHBKUfv8Fon/VIYeModxMnSuMFaSvTgWXDjpz6awVQrVyra5gHby4w
+         bkqhLS9l5YnIdjnRRg9CQIdx7VPr0JZU2lohpA6SKeoT0VU+yf9DCm+a5pjVbIRBSQ5Q
+         xkNuQQj0RxWQF1XQu30VCWmh1wZsRVFBi2CRrLPMbfFPb/6c0zlZqn9ohZ6SdPUcWHTb
+         IVSg==
+X-Gm-Message-State: AGRZ1gKUckR77GKLO5XPXQGbuS70VpMy9jEX2A2fXS/bEjqAHA7ZWXHd
+        p9QWXIfRibmTekW8Hu6ezkQ9GHy1lqqw+Q==
+X-Google-Smtp-Source: AJdET5elErZ0Fh68xBf/LZRHjnZYQss09piTjSUseG/Fap0tahIO+cfxngCjw6xPhvWgjgIZRfMAqg==
+X-Received: by 2002:a19:9dd1:: with SMTP id g200mr4153171lfe.127.1540657569086;
+        Sat, 27 Oct 2018 09:26:09 -0700 (PDT)
+Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
+        by smtp.gmail.com with ESMTPSA id b21-v6sm2242049lfi.17.2018.10.27.09.26.08
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 27 Oct 2018 09:26:08 -0700 (PDT)
+Received: by mail-lj1-f171.google.com with SMTP id f3-v6so3934172ljk.9
+        for <linux-rtc@vger.kernel.org>; Sat, 27 Oct 2018 09:26:08 -0700 (PDT)
+X-Received: by 2002:a2e:95c6:: with SMTP id y6-v6mr5046480ljh.59.1540657567675;
+ Sat, 27 Oct 2018 09:26:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20181026205506.GA14231@piout.net>
+In-Reply-To: <20181026205506.GA14231@piout.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sat, 27 Oct 2018 09:25:52 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiZJwUyss4-nUnG1B4dUx1rP+pL9-qHnZ=HGFhvax2L9Q@mail.gmail.com>
+Message-ID: <CAHk-=wiZJwUyss4-nUnG1B4dUx1rP+pL9-qHnZ=HGFhvax2L9Q@mail.gmail.com>
+Subject: Re: [GIT PULL] RTC for 4.20
+To:     alexandre.belloni@bootlin.com
+Cc:     linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On Fri, Oct 26, 2018 at 1:55 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> Here is the pull-request for the RTC subsystem for 4.20.
+>
+> This cycle, there were mostly non urgent fixes in drivers. I also
+> finally unexported the non managed registration.
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Pulled,
 
-Hi Linus,
-
-Here is the pull-request for the RTC subsystem for 4.20.
-
-This cycle, there were mostly non urgent fixes in drivers. I also
-finally unexported the non managed registration.
-
-The following changes since commit 5b394b2ddf0347bef56e50c69a58773c94343ff3:
-
-  Linux 4.19-rc1 (2018-08-26 14:11:59 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc=
--4.20
-
-for you to fetch changes up to 3822d1bb0df18aa28930f19bc46e0704aea1be0f:
-
-  rtc: sc27xx: Always read normal alarm when registering RTC device (2018-1=
-0-25 02:35:42 +0200)
-
-----------------------------------------------------------------
-RTC for 4.20
-
-Subsystem:
- - non devm managed registration is now removed from the driver API.
- - all the unnecessary rtc_valid_tm() calls have been removed
-
-Drivers:
- - abx80X: watchdog support
- - cmos: fix non ACPI support
- - sc27xx: fix alarm support
- - Remove a possible sysfs race condition for ab8500, ds1307, ds1685, isl12=
-08
- - Fix a possible race condition where an irq handler may be called before =
-the
-   rtc_device struct is allocated for mt6397, pl030, menelaus, armada38x
-
-----------------------------------------------------------------
-Alexandre Belloni (32):
-      rtc: rv8803: fix the rv8803 id in the OF table
-      rtc: rv8803: add Epson RX8803 support
-      rtc: mt6397: fix possible race condition
-      rtc: pl030: fix possible race condition
-      rtc: pl031: switch to devm_rtc_allocate_device/rtc_register_device
-      mfd: menelaus: Fix possible race condition and leak
-      Merge tag 'ib-mfd-rtc-v4.20' of git://git.kernel.org/.../lee/mfd into=
- rtc-next
-      rtc: unexport non devm managed registration
-      rtc: remove irq_task from kerneldoc
-      rtc: isl1208: avoid possible sysfs race
-      rtc: reorder Makefile entries
-      rtc: move rtc_add_group/s definitions
-      rtc: isl1208: don't include core header file
-      rtc: tx4939: fixup nvmem name and register size
-      rtc: test: make license text and module license match.
-      rtc: test: Switch to SPDX identifier
-      rtc: ds1685: drop RTC_DS1685_PROC_REGS
-      rtc: ds1685: use generic nvmem
-      rtc: ds1685: use rtc_add_group
-      rtc: ds1307: use rtc_add_group
-      rtc: lib: correct documentation typo
-      rtc: armada38x: fix possible race condition
-      rtc: armada38x: add range
-      rtc: armada38x: switch to rtc_time64_to_tm/rtc_tm_to_time64
-      rtc: rs5c348: remove useless label
-      rtc: rs5c348: remove forward declaration
-      rtc: rs5c348: report error when time is invalid
-      rtc: ab8500: use rtc_add_group
-      rtc: ab8500: let the core handle range
-      rtc: ab8500: remove useless check
-      rtc: vr41xx: switch to rtc_time64_to_tm/rtc_tm_to_time64
-      rtc: mv: let the core handle invalid alarms
-
-Arnd Bergmann (1):
-      rtc: mips: default to rtc-cmos on mips
-
-Baolin Wang (5):
-      rtc: sc27xx: Set wakeup capability before registering rtc device
-      rtc: sc27xx: Clear SPG value update interrupt status
-      rtc: sc27xx: Remove interrupts disable and clear in probe()
-      rtc: sc27xx: Add check to see if need to enable the alarm interrupt
-      rtc: sc27xx: Always read normal alarm when registering RTC device
-
-Dan Carpenter (1):
-      rtc: sysfs: fix NULL check in rtc_add_groups()
-
-Giulio Benetti (2):
-      rtc: ds1307: add offset sysfs for mt41txx chips.
-      rtc: ds1307: add frequency_test_enable  attribute on m41txx
-
-Gustavo A. R. Silva (2):
-      rtc: sun6i: Use struct_size() in kzalloc()
-      rtc: m41t80: mark expected switch fall-through
-
-Jeremy Gebben (2):
-      rtc: abx80x: use a 'priv' struct for client data
-      rtc: abx80x: add basic watchdog support
-
-Jia-Ju Bai (1):
-      rtc: rtc-mrst: Replace mdelay() with msleep() in mrst_read_time()
-
-Keerthy (2):
-      rtc: omap: use of_device_is_system_power_controller function
-      rtc: omap: Cut down the shutdown time from 2 seconds to 1 sec
-
-Maciej W. Rozycki (2):
-      rtc: cmos: Fix non-ACPI undefined reference to `hpet_rtc_interrupt'
-      rtc: cmos: Remove the `use_acpi_alarm' module parameter for !ACPI
-
-Nathan Chancellor (1):
-      rtc: s35390a: Change buf's type to u8 in s35390a_init
-
-Paul Cercueil (1):
-      rtc: jz4740: Drop dependency on MACH_INGENIC
-
-Soeren Moch (1):
-      rtc: ds1307: fix ds1339 wakealarm support
-
-Thierry Reding (1):
-      rtc: tegra: Propagate errors from platform_get_irq()
-
-Wolfram Sang (1):
-      rtc: ds1685: simplify getting .driver_data
-
-YueHaibing (1):
-      rtc: mrst: remove set but not used variable 'valid'
-
- arch/mips/Kconfig           |   2 +-
- drivers/char/Kconfig        |   2 +-
- drivers/mfd/menelaus.c      |  13 ++-
- drivers/rtc/Kconfig         |  14 +---
- drivers/rtc/Makefile        |  12 +--
- drivers/rtc/class.c         |  12 ++-
- drivers/rtc/interface.c     |   3 -
- drivers/rtc/rtc-ab8500.c    |  96 +++++-----------------
- drivers/rtc/rtc-abx80x.c    | 143 +++++++++++++++++++++++++++++---
- drivers/rtc/rtc-armada38x.c |  46 +++++------
- drivers/rtc/rtc-cmos.c      |  29 +++++--
- drivers/rtc/rtc-core.h      |  14 ----
- drivers/rtc/rtc-ds1307.c    | 145 ++++++++++++++++++++++++++++++++-
- drivers/rtc/rtc-ds1685.c    | 194 ++++++----------------------------------=
-----
- drivers/rtc/rtc-isl1208.c   |  34 +++-----
- drivers/rtc/rtc-lib.c       |   2 +-
- drivers/rtc/rtc-m41t80.c    |   2 +-
- drivers/rtc/rtc-mrst.c      |   5 +-
- drivers/rtc/rtc-mt6397.c    |  13 +--
- drivers/rtc/rtc-mv.c        |   8 +-
- drivers/rtc/rtc-omap.c      |  28 ++++---
- drivers/rtc/rtc-pl030.c     |  15 ++--
- drivers/rtc/rtc-pl031.c     |  18 ++--
- drivers/rtc/rtc-rs5c348.c   |  65 +++++++--------
- drivers/rtc/rtc-rv8803.c    |   7 +-
- drivers/rtc/rtc-s35390a.c   |   2 +-
- drivers/rtc/rtc-sc27xx.c    |  60 +++++++++-----
- drivers/rtc/rtc-sun6i.c     |   3 +-
- drivers/rtc/rtc-sysfs.c     |   4 +-
- drivers/rtc/rtc-tegra.c     |  10 ++-
- drivers/rtc/rtc-test.c      |   7 +-
- drivers/rtc/rtc-tx4939.c    |   4 +-
- drivers/rtc/rtc-vr41xx.c    |   9 +-
- include/linux/rtc.h         |  21 +++--
- 34 files changed, 556 insertions(+), 486 deletions(-)
-
---=20
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEXx9Viay1+e7J/aM4AyWl4gNJNJIFAlvTfx0ACgkQAyWl4gNJ
-NJIVXg/+N2aaHLF8KPjiRaHm7a+uLnopGRHJFYsG+3kr9po1bSG1M01vf/UdiTXk
-Q8f3TOYoR1uDcvOafzRNgNTP3A8473mvR9/5l2/GMW8inCkd4W8VWa/O08BMinTx
-THcDN7jwxCA/uYe/YlEzJMPVCZ8n1LIFy34nsLho7yJs87+dShGmww1/KuM6F2tE
-ARnAHRlJBAxbO1lrGHQp5piVTEuBR+QEPY3u+ORvLEiYCDC5tfLhwX1ZH88V8Hwz
-UgmvgXEhNqHZvLOku2P2T4pKngFX+GL72VDnWdDN5c8iLFMZwjA70Mpe5mfysWCc
-MISTfJq6PVxgVNQSsLBRT1KbODnHKbZjJRE2JDp/sqwNchN1umr0O8YpcMh2u9y3
-BEcitwymrpqpmg/Bx6WwGS8a5L48FWwdyJePYp9FxygdVB1dZ4if0OUnNQ3kUsXj
-/rwax+foE7DJ8vs5QgNu7JLQnHA0aF4C65ZnxN0CvvpH2m9t4Az0wSZEvOJvaIco
-iznxYCGgPMSkqu2fxdCS3UFVAq5Y3g329Slm8eGC/e/KOo9Wvulp6kI4GdlRCsGk
-2eG5x3zLd68Fv1DP0W+GGIYChiY+twwjajJDRSOa4oZhATEzo0SSk++z9z+Y0ds0
-5/uMgZh9l5zlE+TRNGy97E6oYYrdj5qsSwiHgJ1xtxosZte6gKU=
-=yLAq
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+               Linus
