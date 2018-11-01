@@ -1,44 +1,99 @@
-Return-Path: <SRS0=apvh=NM=linkscen.top=info4@kernel.org>
+Return-Path: <SRS0=7DUf=NM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: *
-X-Spam-Status: No, score=1.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MIME_HTML_ONLY,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB91C0044C
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Nov 2018 01:32:39 +0000 (UTC)
-X-Greylist: delayed 651 seconds by postgrey-1.34 at mail.kernel.org; Thu, 01 Nov 2018 01:32:30 UTC
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E115D204FD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=hikun.cn
-Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=info4@linkscen.top
-Received: from server1.osppcc.top (unknown [114.64.249.72])
-	by mail.kernel.org (Postfix) with ESMTP id E115D204FD
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Nov 2018 01:32:30 +0000 (UTC)
-Received: from DESKTOP-3THC5MT (183.17.124.172) by server1.osppcc.top id hr9br60e97cp for <linux-rtc@archiver.kernel.org>; Thu, 1 Nov 2018 09:21:40 +0800 (envelope-from <info4@linkscen.top>)
-From: "Lisa Gao" <lisa@hikun.cn>
-Subject: Re:Re:chargers and adapters in European Market.
-To: linux-rtc@archiver.kernel.org
-Content-Type: text/html; charset=UTF-8
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBE0AC0044C
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Nov 2018 14:53:55 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by mail.kernel.org (Postfix) with ESMTP id 6157A2064C
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Nov 2018 14:53:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6157A2064C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=canonical.com
+Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728646AbeKAX5N (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 1 Nov 2018 19:57:13 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:50820 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728264AbeKAX5M (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Nov 2018 19:57:12 -0400
+Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
+        (Exim 4.76)
+        (envelope-from <colin.king@canonical.com>)
+        id 1gIEM4-0000UR-Hg; Thu, 01 Nov 2018 14:53:52 +0000
+From:   Colin King <colin.king@canonical.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc:  clean up indentation issues, remove extraneous space, add missing tabs
+Date:   Thu,  1 Nov 2018 14:53:52 +0000
+Message-Id: <20181101145352.14104-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Sender: info4@linkscen.top
-Reply-To: lisa@hikun.cn
-Date: Thu, 1 Nov 2018 09:21:33 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.4913
-Content-Disposition: inline
-Message-Id: <20181101013230.E115D204FD@mail.kernel.org>
-List-Id: <linux-rtc.vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-rtc-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <linux-rtc.vger.kernel.org>
+X-Mailing-List: linux-rtc@vger.kernel.org
 
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgbmFtZT1HRU5FUkFUT1IgY29udGVudD0iTVNIVE1M
-IDExLjAwLjEwNTcwLjEwMDEiPjwvSEVBRD4NCjxCT0RZPg0KPFA+PEZPTlQgZmFjZT1BcmlhbD5I
-aSBtYW5hZ2Vy77yMPC9GT05UPjxGT05UIGZhY2U9QXJpYWw+PEJSPk5pY2UmbmJzcDtkYXkhIDxC
-Uj5XZSBhcmUmbmJzcDtjaGFyZ2VycyBhbmQgYWRhcHRvcnMmbmJzcDtzdXBwbGllcixhbmQgd2Ug
-aGF2ZSByZXNlYXJjaGVkICZhbXA7IGRlc2lnbmVkIHNvbWUgbmV3IHByb2R1Y3RzLjwvRk9OVD48
-Rk9OVCBmYWNlPUFyaWFsPjxCUj5JZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4sIEkgJ2xsIHNlbmQg
-eW91IG91ciBjYXRhbG9ndWUuJm5ic3A7PEJSPlRoYW5rcyBmb3IgeW91ciB2YWx1YWJsZSB0aW1l
-LiA8QlI+PEJSPlJlZ2FyZHMuPC9GT05UPiA8L1A+DQo8UD5MaXNhJm5ic3A7R2FvPC9QPg0KPFA+
-d3d3LmNucG93ZXJhZGFwdGVyLmNvbSA8L1A+PC9CT0RZPjwvSFRNTD4NCg==
+From: Colin Ian King <colin.king@canonical.com>
+
+Trivial fix to clean up indentation issues, remove spaces, add missing
+tabs
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/rtc/rtc-ep93xx.c  | 2 +-
+ drivers/rtc/rtc-max6916.c | 2 +-
+ drivers/rtc/rtc-rk808.c   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
+index 694038208745..1932a4f861d1 100644
+--- a/drivers/rtc/rtc-ep93xx.c
++++ b/drivers/rtc/rtc-ep93xx.c
+@@ -61,7 +61,7 @@ static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
+ 	unsigned long time;
+ 
+-	 time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
++	time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
+ 
+ 	rtc_time_to_tm(time, tm);
+ 	return 0;
+diff --git a/drivers/rtc/rtc-max6916.c b/drivers/rtc/rtc-max6916.c
+index 7e908a490cf6..9d4b407cc4b8 100644
+--- a/drivers/rtc/rtc-max6916.c
++++ b/drivers/rtc/rtc-max6916.c
+@@ -86,7 +86,7 @@ static int max6916_set_time(struct device *dev, struct rtc_time *dt)
+ 	if (dt->tm_year < 100 || dt->tm_year > 199) {
+ 		dev_err(&spi->dev, "Year must be between 2000 and 2099. It's %d.\n",
+ 			dt->tm_year + 1900);
+-	return -EINVAL;
++		return -EINVAL;
+ 	}
+ 
+ 	buf[0] = MAX6916_CLOCK_BURST & 0x7F;
+diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+index 739c0d42e835..b2f9e45e0298 100644
+--- a/drivers/rtc/rtc-rk808.c
++++ b/drivers/rtc/rtc-rk808.c
+@@ -400,7 +400,7 @@ static int rk808_rtc_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev,
+ 			"Failed to write RTC status: %d\n", ret);
+-			return ret;
++		return ret;
+ 	}
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+-- 
+2.19.1
+
