@@ -3,64 +3,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D08EC0044C
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22659C0044C
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5105820827
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5105820827
+	by mail.kernel.org (Postfix) with ESMTP id E89AB20827
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E89AB20827
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727627AbeKHByT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Nov 2018 20:54:19 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:35184 "EHLO mail.bootlin.com"
+        id S1731287AbeKHBzA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Nov 2018 20:55:00 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:35209 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727372AbeKHByT (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Nov 2018 20:54:19 -0500
+        id S1727546AbeKHBzA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 7 Nov 2018 20:55:00 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id C915C20741; Wed,  7 Nov 2018 17:23:14 +0100 (CET)
+        id 1C910224CD; Wed,  7 Nov 2018 17:23:55 +0100 (CET)
 Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 7ACC920736;
-        Wed,  7 Nov 2018 17:23:14 +0100 (CET)
-Date:   Wed, 7 Nov 2018 17:23:14 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id E6DEF20712;
+        Wed,  7 Nov 2018 17:23:54 +0100 (CET)
+Date:   Wed, 7 Nov 2018 17:23:54 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] rtc: hctosys: Add missing range error reporting
-Message-ID: <20181107162314.GD21694@piout.net>
-References: <alpine.LFD.2.21.1811050319150.20378@eddie.linux-mips.org>
+To:     Xulin Sun <xulin.sun@windriver.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, xulinsun@gmail.com
+Subject: Re: [PATCH] rtc: pcf2127: fix a kmemleak caused in
+ pcf2127_i2c_gather_write
+Message-ID: <20181107162354.GE21694@piout.net>
+References: <1541493739-85733-1-git-send-email-xulin.sun@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1811050319150.20378@eddie.linux-mips.org>
+In-Reply-To: <1541493739-85733-1-git-send-email-xulin.sun@windriver.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 05/11/2018 03:48:25+0000, Maciej W. Rozycki wrote:
-> Fix an issue with the 32-bit range error path in `rtc_hctosys' where no 
-> error code is set and consequently the successful preceding call result 
-> from `rtc_read_time' is propagated to `rtc_hctosys_ret'.  This in turn 
-> makes any subsequent call to `hctosys_show' incorrectly report in sysfs 
-> that the system time has been set from this RTC while it has not.
+On 06/11/2018 16:42:19+0800, Xulin Sun wrote:
+> pcf2127_i2c_gather_write() allocates memory as local variable
+> for i2c_master_send(), after finishing the master transfer,
+> the allocated memory should be freed. The kmemleak is reported:
 > 
-> Set the error to ERANGE then if we can't express the result due to an 
-> overflow.
+> unreferenced object 0xffff80231e7dba80 (size 64):
+>   comm "hwclock", pid 27762, jiffies 4296880075 (age 356.944s)
+>   hex dump (first 32 bytes):
+>     03 00 12 03 19 02 11 13 00 80 98 18 00 00 ff ff ................
+>     00 50 00 00 00 00 00 00 02 00 00 00 00 00 00 00 .P..............
+>   backtrace:
+>     [<ffff000008221398>] create_object+0xf8/0x278
+>     [<ffff000008a96264>] kmemleak_alloc+0x74/0xa0
+>     [<ffff00000821070c>] __kmalloc+0x1ac/0x348
+>     [<ffff0000087ed1dc>] pcf2127_i2c_gather_write+0x54/0xf8
+>     [<ffff0000085fd9d4>] _regmap_raw_write+0x464/0x850
+>     [<ffff0000085fe3f4>] regmap_bulk_write+0x1a4/0x348
+>     [<ffff0000087ed32c>] pcf2127_rtc_set_time+0xac/0xe8
+>     [<ffff0000087eaad8>] rtc_set_time+0x80/0x138
+>     [<ffff0000087ebfb0>] rtc_dev_ioctl+0x398/0x610
+>     [<ffff00000823f2c0>] do_vfs_ioctl+0xb0/0x848
+>     [<ffff00000823fae4>] SyS_ioctl+0x8c/0xa8
+>     [<ffff000008083ac0>] el0_svc_naked+0x34/0x38
+>     [<ffffffffffffffff>] 0xffffffffffffffff
 > 
-> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-> Fixes: b3a5ac42ab18 ("rtc: hctosys: Ensure system time doesn't overflow time_t")
-> Cc: stable@vger.kernel.org # 4.17+
+> Signed-off-by: Xulin Sun <xulin.sun@windriver.com>
 > ---
->  drivers/rtc/hctosys.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  drivers/rtc/rtc-pcf2127.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
+
 Applied, thanks.
 
 -- 
