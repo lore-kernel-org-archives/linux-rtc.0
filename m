@@ -1,91 +1,88 @@
-Return-Path: <SRS0=XMQR=NR=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=IPBj=NS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E6A2C32789
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Nov 2018 08:46:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C5C3C32789
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 02:40:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C36402085B
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Nov 2018 08:46:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C36402085B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=windriver.com
+	by mail.kernel.org (Postfix) with ESMTP id F235B20827
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 02:40:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F235B20827
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-mips.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729480AbeKFSK1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 6 Nov 2018 13:10:27 -0500
-Received: from mail5.windriver.com ([192.103.53.11]:58982 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbeKFSK0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Nov 2018 13:10:26 -0500
-Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com [147.11.189.40])
-        by mail5.wrs.com (8.15.2/8.15.2) with ESMTPS id wA68i3kv019618
-        (version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL);
-        Tue, 6 Nov 2018 00:44:19 -0800
-Received: from pek-lpggp4.wrs.com (128.224.153.77) by ALA-HCA.corp.ad.wrs.com
- (147.11.189.50) with Microsoft SMTP Server id 14.3.408.0; Tue, 6 Nov 2018
- 00:43:59 -0800
-From:   Xulin Sun <xulin.sun@windriver.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <xulinsun@gmail.com>
-Subject: [PATCH] rtc: pcf2127: fix a kmemleak caused in pcf2127_i2c_gather_write
-Date:   Tue, 6 Nov 2018 16:42:19 +0800
-Message-ID: <1541493739-85733-1-git-send-email-xulin.sun@windriver.com>
-X-Mailer: git-send-email 2.7.4
+        id S1730884AbeKGMIb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Nov 2018 07:08:31 -0500
+Received: from eddie.linux-mips.org ([148.251.95.138]:41150 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726089AbeKGMIb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Nov 2018 07:08:31 -0500
+Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
+        with ESMTP id S23992433AbeKGCjNNCDhO (ORCPT
+        <rfc822;stable@vger.kernel.org> + 2 others);
+        Wed, 7 Nov 2018 03:39:13 +0100
+Date:   Wed, 7 Nov 2018 02:39:13 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@linux-mips.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] rtc: m41t80: Correct alarm month range with RTC reads
+Message-ID: <alpine.LFD.2.21.1811070053580.20378@eddie.linux-mips.org>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-pcf2127_i2c_gather_write() allocates memory as local variable
-for i2c_master_send(), after finishing the master transfer,
-the allocated memory should be freed. The kmemleak is reported:
+Add the missing adjustment of the month range on alarm reads from the 
+RTC, correcting an issue coming from commit 9c6dfed92c3e ("rtc: m41t80: 
+add alarm functionality").  The range is 1-12 for hardware and 0-11 for 
+`struct rtc_time', and is already correctly handled on alarm writes to 
+the RTC.
 
-unreferenced object 0xffff80231e7dba80 (size 64):
-  comm "hwclock", pid 27762, jiffies 4296880075 (age 356.944s)
-  hex dump (first 32 bytes):
-    03 00 12 03 19 02 11 13 00 80 98 18 00 00 ff ff ................
-    00 50 00 00 00 00 00 00 02 00 00 00 00 00 00 00 .P..............
-  backtrace:
-    [<ffff000008221398>] create_object+0xf8/0x278
-    [<ffff000008a96264>] kmemleak_alloc+0x74/0xa0
-    [<ffff00000821070c>] __kmalloc+0x1ac/0x348
-    [<ffff0000087ed1dc>] pcf2127_i2c_gather_write+0x54/0xf8
-    [<ffff0000085fd9d4>] _regmap_raw_write+0x464/0x850
-    [<ffff0000085fe3f4>] regmap_bulk_write+0x1a4/0x348
-    [<ffff0000087ed32c>] pcf2127_rtc_set_time+0xac/0xe8
-    [<ffff0000087eaad8>] rtc_set_time+0x80/0x138
-    [<ffff0000087ebfb0>] rtc_dev_ioctl+0x398/0x610
-    [<ffff00000823f2c0>] do_vfs_ioctl+0xb0/0x848
-    [<ffff00000823fae4>] SyS_ioctl+0x8c/0xa8
-    [<ffff000008083ac0>] el0_svc_naked+0x34/0x38
-    [<ffffffffffffffff>] 0xffffffffffffffff
+It was correct up until commit 48e9766726eb ("drivers/rtc/rtc-m41t80.c: 
+remove disabled alarm functionality") too, which removed the previous 
+implementation of alarm support.
 
-Signed-off-by: Xulin Sun <xulin.sun@windriver.com>
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+Fixes: 9c6dfed92c3e ("rtc: m41t80: add alarm functionality")
+References: 48e9766726eb ("drivers/rtc/rtc-m41t80.c: remove disabled alarm functionality")
+Cc: stable@vger.kernel.org # 4.7+
 ---
- drivers/rtc/rtc-pcf2127.c | 3 +++
- 1 file changed, 3 insertions(+)
+Hi,
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index e83be18..598e56e 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -248,6 +248,9 @@ static int pcf2127_i2c_gather_write(void *context,
- 	memcpy(buf + 1, val, val_size);
- 
- 	ret = i2c_master_send(client, buf, val_size + 1);
-+
-+	kfree(buf);
-+
- 	if (ret != val_size + 1)
- 		return ret < 0 ? ret : -EIO;
- 
--- 
-2.7.4
+ I have no means to verify this change at run time as my M41T81 device, 
+which is the reason for me to use this driver, regrettably hasn't got its 
+IRQ line routed, due to historical reasons I gathered, as it replaced a 
+different RTC device, that didn't have an IRQ output at all, used with 
+earlier revisions of the Broadcom SiByte SWARM board I have been using 
+this code with.  However it should be obvious by code inspection.
 
+ Please apply and backport as appropriate.
+
+  Maciej
+---
+ drivers/rtc/rtc-m41t80.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+linux-rtc-m41t80-read-alarm-month.diff
+Index: linux-20181008-swarm64-eb/drivers/rtc/rtc-m41t80.c
+===================================================================
+--- linux-20181008-swarm64-eb.orig/drivers/rtc/rtc-m41t80.c
++++ linux-20181008-swarm64-eb/drivers/rtc/rtc-m41t80.c
+@@ -393,7 +393,7 @@ static int m41t80_read_alarm(struct devi
+ 	alrm->time.tm_min  = bcd2bin(alarmvals[3] & 0x7f);
+ 	alrm->time.tm_hour = bcd2bin(alarmvals[2] & 0x3f);
+ 	alrm->time.tm_mday = bcd2bin(alarmvals[1] & 0x3f);
+-	alrm->time.tm_mon  = bcd2bin(alarmvals[0] & 0x3f);
++	alrm->time.tm_mon  = bcd2bin(alarmvals[0] & 0x3f) - 1;
+ 
+ 	alrm->enabled = !!(alarmvals[0] & M41T80_ALMON_AFE);
+ 	alrm->pending = (flags & M41T80_FLAGS_AF) && alrm->enabled;
