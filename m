@@ -3,93 +3,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 504F0C0044C
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 15:08:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D08EC0044C
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 209DA20827
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 15:08:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 209DA20827
+	by mail.kernel.org (Postfix) with ESMTP id 5105820827
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 16:23:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5105820827
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727854AbeKHAjO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Nov 2018 19:39:14 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:60837 "EHLO mail.bootlin.com"
+        id S1727627AbeKHByT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Nov 2018 20:54:19 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:35184 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727775AbeKHAjO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 7 Nov 2018 19:39:14 -0500
+        id S1727372AbeKHByT (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 7 Nov 2018 20:54:19 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id AEAEE224E5; Wed,  7 Nov 2018 16:08:27 +0100 (CET)
+        id C915C20741; Wed,  7 Nov 2018 17:23:14 +0100 (CET)
 Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 7C22B224DE;
-        Wed,  7 Nov 2018 16:08:17 +0100 (CET)
-Date:   Wed, 7 Nov 2018 16:08:17 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 7ACC920736;
+        Wed,  7 Nov 2018 17:23:14 +0100 (CET)
+Date:   Wed, 7 Nov 2018 17:23:14 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: cmos: Do not export alarm rtc_ops when we do not
- support alarms
-Message-ID: <20181107150817.GB21694@piout.net>
-References: <20180904145129.17098-1-hdegoede@redhat.com>
- <20180908143735.GC2598@piout.net>
- <4fd4ff2f-41ad-4695-0c38-64c2bc0b936e@redhat.com>
+To:     "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] rtc: hctosys: Add missing range error reporting
+Message-ID: <20181107162314.GD21694@piout.net>
+References: <alpine.LFD.2.21.1811050319150.20378@eddie.linux-mips.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4fd4ff2f-41ad-4695-0c38-64c2bc0b936e@redhat.com>
+In-Reply-To: <alpine.LFD.2.21.1811050319150.20378@eddie.linux-mips.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 07/11/2018 13:49:06+0100, Hans de Goede wrote:
-> Hi,
+On 05/11/2018 03:48:25+0000, Maciej W. Rozycki wrote:
+> Fix an issue with the 32-bit range error path in `rtc_hctosys' where no 
+> error code is set and consequently the successful preceding call result 
+> from `rtc_read_time' is propagated to `rtc_hctosys_ret'.  This in turn 
+> makes any subsequent call to `hctosys_show' incorrectly report in sysfs 
+> that the system time has been set from this RTC while it has not.
 > 
-> On 08-09-18 16:37, Alexandre Belloni wrote:
-> > On 04/09/2018 16:51:29+0200, Hans de Goede wrote:
-> > > When there is no IRQ configured for the RTC, the rtc-cmos code does not
-> > > support alarms, all alarm rtc_ops fail with -EIO / -EINVAL.
-> > > 
-> > > The rtc-core expects a rtc driver which does not support rtc alarms to
-> > > not have alarm ops at all. Otherwise the wakealarm sysfs attr will read
-> > > as empty rather then returning an error, making it impossible for
-> > > userspace to find out beforehand if alarms are supported.
-> > > 
-> > > A system without an IRQ for the RTC before this patch:
-> > > [root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
-> > > [root@localhost ~]#
-> > > 
-> > > After this patch:
-> > > [root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
-> > > cat: /sys/class/rtc/rtc0/wakealarm: No such file or directory
-> > > [root@localhost ~]#
-> > > 
-> > > This fixes gnome-session + systemd trying to use suspend-then-hibernate,
-> > > which causes systemd to abort the suspend when writing the RTC alarm fails.
-> > > 
-> > > BugLink: https://github.com/systemd/systemd/issues/9988
-> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > > ---
-> > >   drivers/rtc/rtc-cmos.c | 16 ++++++++++++----
-> > >   1 file changed, 12 insertions(+), 4 deletions(-)
-> > > 
-> > Applied, thanks.
+> Set the error to ERANGE then if we can't express the result due to an 
+> overflow.
 > 
-> I'm not seeing this patch in 4.20-rc1 and it is not in
+> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+> Fixes: b3a5ac42ab18 ("rtc: hctosys: Ensure system time doesn't overflow time_t")
+> Cc: stable@vger.kernel.org # 4.17+
+> ---
+>  drivers/rtc/hctosys.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/log/?h=rtc-next
-> 
-> So it seems that this one has fallen through the cracks?
-> 
-
-Indeed, I don't what happened, I'll queue it as a fix for 4.20. I
-checked and this is the only one that was missing.
-
-Thanks for the warning.
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
