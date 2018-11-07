@@ -3,116 +3,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED2EAC32789
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 02:40:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6360C0044C
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 12:49:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD1D920827
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 02:40:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BD1D920827
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-mips.org
+	by mail.kernel.org (Postfix) with ESMTP id 991A420827
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Nov 2018 12:49:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 991A420827
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389303AbeKGMIe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Nov 2018 07:08:34 -0500
-Received: from eddie.linux-mips.org ([148.251.95.138]:41150 "EHLO
-        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389296AbeKGMIe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Nov 2018 07:08:34 -0500
-Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
-        with ESMTP id S23992820AbeKGCjvVMmyO (ORCPT
-        <rfc822;linux-kernel@vger.kernel.org> + 1 other);
-        Wed, 7 Nov 2018 03:39:51 +0100
-Date:   Wed, 7 Nov 2018 02:39:51 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-cc:     Matt Turner <mattst88@gmail.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: m41t80: Complete error propagation from SMBus calls
-Message-ID: <alpine.LFD.2.21.1811070142240.20378@eddie.linux-mips.org>
-User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
+        id S1727653AbeKGWTZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Nov 2018 17:19:25 -0500
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:37642 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726411AbeKGWTY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Nov 2018 17:19:24 -0500
+Received: by mail-ed1-f68.google.com with SMTP id y10-v6so6806832edr.4
+        for <linux-rtc@vger.kernel.org>; Wed, 07 Nov 2018 04:49:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:subject:to:references:cc:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FmDANElFIbEy7TQHE+o/v6joh4X/61XNuR88WPwGNOw=;
+        b=FTkoSLZT/9Y4kt4aW+MtqIGSWCnprf4uVsfpZlbref5krDzIg6QJzyO88lyWhklJtA
+         EHgo4MMph1ACnZlUIoIctwKfkVO/K0kqkcWfqhsc2BfqN/kgJrFB5W4IFZgBSvUNwtw8
+         OIixGDUo4PgGFuepwxJbApIBXBRqAt8pirw5KMEu+5P2aDOBWz4+MkcPryenOwzrWmOV
+         YgSz89MGqmryjIAPPXzIa3dQC122/NllAtVQovxtQXV/33xFrmdXa3K7MCc1YnJfeze/
+         H1Uu2Ea2m/SYv+aTGuaX+gy95gyyMSkw6Xacpnx7jN4+lS79EfjCusCnA/RFPEn0YClK
+         SQQw==
+X-Gm-Message-State: AGRZ1gIaOd4B6YKYicntRg3fSgepab2Dm7wJ2yAB74HjxrdOi5NEsEzn
+        v7T7AV2lxBaF/OC7WQFZMEv6GCQMLb4=
+X-Google-Smtp-Source: AJdET5eLiQ5WdeLp+OZA2bNIqTwQZcTmVZAvclj4CjKgzet/QO87f+KOHS454jkFrXRYpphlZ5+TRw==
+X-Received: by 2002:a50:9226:: with SMTP id i35-v6mr98627eda.50.1541594947439;
+        Wed, 07 Nov 2018 04:49:07 -0800 (PST)
+Received: from shalem.localdomain (546A5441.cm-12-3b.dynamic.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id br3-v6sm129707ejb.24.2018.11.07.04.49.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 07 Nov 2018 04:49:06 -0800 (PST)
+From:   Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] rtc: cmos: Do not export alarm rtc_ops when we do not
+ support alarms
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+References: <20180904145129.17098-1-hdegoede@redhat.com>
+ <20180908143735.GC2598@piout.net>
+Cc:     linux-rtc@vger.kernel.org
+Message-ID: <4fd4ff2f-41ad-4695-0c38-64c2bc0b936e@redhat.com>
+Date:   Wed, 7 Nov 2018 13:49:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20180908143735.GC2598@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Complement commit 85d77047c4ea ("drivers/rtc/rtc-m41t80.c: propagate 
-error value from smbus functions") and correct the remaining places that 
-fail to propagate the error code from SMBus calls.
-
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-References: 85d77047c4ea ("drivers/rtc/rtc-m41t80.c: propagate error value from smbus functions")
----
 Hi,
 
- I think this does not qualify for backporting, but please feel free to 
-decide otherwise.
+On 08-09-18 16:37, Alexandre Belloni wrote:
+> On 04/09/2018 16:51:29+0200, Hans de Goede wrote:
+>> When there is no IRQ configured for the RTC, the rtc-cmos code does not
+>> support alarms, all alarm rtc_ops fail with -EIO / -EINVAL.
+>>
+>> The rtc-core expects a rtc driver which does not support rtc alarms to
+>> not have alarm ops at all. Otherwise the wakealarm sysfs attr will read
+>> as empty rather then returning an error, making it impossible for
+>> userspace to find out beforehand if alarms are supported.
+>>
+>> A system without an IRQ for the RTC before this patch:
+>> [root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
+>> [root@localhost ~]#
+>>
+>> After this patch:
+>> [root@localhost ~]# cat /sys/class/rtc/rtc0/wakealarm
+>> cat: /sys/class/rtc/rtc0/wakealarm: No such file or directory
+>> [root@localhost ~]#
+>>
+>> This fixes gnome-session + systemd trying to use suspend-then-hibernate,
+>> which causes systemd to abort the suspend when writing the RTC alarm fails.
+>>
+>> BugLink: https://github.com/systemd/systemd/issues/9988
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/rtc/rtc-cmos.c | 16 ++++++++++++----
+>>   1 file changed, 12 insertions(+), 4 deletions(-)
+>>
+> Applied, thanks.
 
- This change I did verify at run time to the extent I was able to, but I 
-didn't try to trigger artificial errors.  Also the M41T81, which is the 
-device I've been using this driver with, does not have battery failure 
-indication implemented, so I could not execute the procfs handling path 
-(again without making some artificial changes).  These changes should be 
-obvious regardless.
+I'm not seeing this patch in 4.20-rc1 and it is not in
 
- I'll be posting further patches over the coming weeks, based on my 
-original effort as archived here: <https://lkml.org/lkml/2008/5/12/385>,
-<https://lore.kernel.org/patchwork/project/lkml/list/?series=73524&archive=both> 
-However I have just realised they'll need another iteration before I post 
-them.  So for now just these two obvious fixes.
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/log/?h=rtc-next
 
- Please apply.
+So it seems that this one has fallen through the cracks?
 
-  Maciej
----
- drivers/rtc/rtc-m41t80.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Regards,
 
-linux-rtc-m41t80-err.diff
-Index: linux-20181008-swarm64-eb/drivers/rtc/rtc-m41t80.c
-===================================================================
---- linux-20181008-swarm64-eb.orig/drivers/rtc/rtc-m41t80.c
-+++ linux-20181008-swarm64-eb/drivers/rtc/rtc-m41t80.c
-@@ -217,7 +217,7 @@ static int m41t80_rtc_read_time(struct d
- 					    sizeof(buf), buf);
- 	if (err < 0) {
- 		dev_err(&client->dev, "Unable to read date\n");
--		return -EIO;
-+		return err;
- 	}
- 
- 	tm->tm_sec = bcd2bin(buf[M41T80_REG_SEC] & 0x7f);
-@@ -274,10 +274,11 @@ static int m41t80_rtc_set_time(struct de
- 	if (flags < 0)
- 		return flags;
- 
--	if (i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS,
--				      flags & ~M41T80_FLAGS_OF)) {
-+	err = i2c_smbus_write_byte_data(client, M41T80_REG_FLAGS,
-+					flags & ~M41T80_FLAGS_OF);
-+	if (err < 0) {
- 		dev_err(&client->dev, "Unable to write flags register\n");
--		return -EIO;
-+		return err;
- 	}
- 
- 	return err;
-@@ -287,10 +288,12 @@ static int m41t80_rtc_proc(struct device
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct m41t80_data *clientdata = i2c_get_clientdata(client);
--	u8 reg;
-+	int reg;
- 
- 	if (clientdata->features & M41T80_FEATURE_BL) {
- 		reg = i2c_smbus_read_byte_data(client, M41T80_REG_FLAGS);
-+		if (reg < 0)
-+			return reg;
- 		seq_printf(seq, "battery\t\t: %s\n",
- 			   (reg & M41T80_FLAGS_BATT_LOW) ? "exhausted" : "ok");
- 	}
+Hans
+
