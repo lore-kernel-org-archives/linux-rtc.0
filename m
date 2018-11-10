@@ -2,91 +2,111 @@ Return-Path: <SRS0=ZtCv=NV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8217C43441
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 15:58:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 343D5C43441
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 20:26:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8B1EB20854
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 15:58:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B1EB20854
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTP id DFA7720840
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 20:26:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DFA7720840
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726352AbeKKBnj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 10 Nov 2018 20:43:39 -0500
-Received: from mga14.intel.com ([192.55.52.115]:8178 "EHLO mga14.intel.com"
+        id S1725815AbeKKGMN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 11 Nov 2018 01:12:13 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:40517 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726270AbeKKBnj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 10 Nov 2018 20:43:39 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Nov 2018 07:58:11 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.54,488,1534834800"; 
-   d="scan'208";a="280004410"
-Received: from lkp-server01.sh.intel.com (HELO lkp-server01) ([10.239.97.150])
-  by fmsmga006.fm.intel.com with ESMTP; 10 Nov 2018 07:58:09 -0800
-Received: from kbuild by lkp-server01 with local (Exim 4.89)
-        (envelope-from <lkp@intel.com>)
-        id 1gLVeD-0007NT-Di; Sat, 10 Nov 2018 23:58:09 +0800
-Date:   Sat, 10 Nov 2018 23:57:20 +0800
-From:   kbuild test robot <fengguang.wu@intel.com>
-To:     zoro <long17.cool@163.com>
-Cc:     kbuild-all@01.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        zoro <long17.cool@163.com>
-Subject: [PATCH] rtc: sd3078: fix ptr_ret.cocci warnings
-Message-ID: <20181110155720.GA122918@ivb43>
-References: <1541839433-28811-2-git-send-email-long17.cool@163.com>
+        id S1725772AbeKKGMN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 11 Nov 2018 01:12:13 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id A9382208EB; Sat, 10 Nov 2018 21:25:57 +0100 (CET)
+Received: from localhost (unknown [88.191.26.124])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 74FA920701;
+        Sat, 10 Nov 2018 21:25:47 +0100 (CET)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: class: remove devm_rtc_device_unregister
+Date:   Sat, 10 Nov 2018 21:25:44 +0100
+Message-Id: <20181110202544.17924-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1541839433-28811-2-git-send-email-long17.cool@163.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: kbuild test robot <fengguang.wu@intel.com>
+devm_rtc_device_unregister is not used by any driver and should not be used
+by any new driver.
 
-drivers/rtc/rtc-sd3078.c:248:1-3: WARNING: PTR_ERR_OR_ZERO can be used
-
-
- Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR
-
-Generated by: scripts/coccinelle/api/ptr_ret.cocci
-
-Fixes: e231edadd7fa ("rtc: sd3078: new driver.")
-CC: zoro <long17.cool@163.com>
-Signed-off-by: kbuild test robot <fengguang.wu@intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
+ drivers/rtc/class.c | 26 --------------------------
+ include/linux/rtc.h |  2 --
+ 2 files changed, 28 deletions(-)
 
-url:    https://github.com/0day-ci/linux/commits/zoro/dt-bindings-define-vendor-prefix-for-whwave-Inc/20181110-205048
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-
- rtc-sd3078.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
---- a/drivers/rtc/rtc-sd3078.c
-+++ b/drivers/rtc/rtc-sd3078.c
-@@ -245,10 +245,7 @@ static int sd3078_probe(struct i2c_clien
- 			sd3078_driver.driver.name,
- 			&sd3078_rtc_ops, THIS_MODULE);
- 
--	if (IS_ERR(sd3078->rtc))
--		return PTR_ERR(sd3078->rtc);
--
--	return 0;
-+	return PTR_ERR_OR_ZERO(sd3078->rtc);
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 3b43787f154b..6d364085bd86 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -380,13 +380,6 @@ static void devm_rtc_device_release(struct device *dev, void *res)
+ 	rtc_device_unregister(rtc);
  }
  
- static int sd3078_remove(struct i2c_client *client)
+-static int devm_rtc_device_match(struct device *dev, void *res, void *data)
+-{
+-	struct rtc **r = res;
+-
+-	return *r == data;
+-}
+-
+ /**
+  * devm_rtc_device_register - resource managed rtc_device_register()
+  * @dev: the device to register
+@@ -424,25 +417,6 @@ struct rtc_device *devm_rtc_device_register(struct device *dev,
+ }
+ EXPORT_SYMBOL_GPL(devm_rtc_device_register);
+ 
+-/**
+- * devm_rtc_device_unregister - resource managed devm_rtc_device_unregister()
+- * @dev: the device to unregister
+- * @rtc: the RTC class device to unregister
+- *
+- * Deallocated a rtc allocated with devm_rtc_device_register(). Normally this
+- * function will not need to be called and the resource management code will
+- * ensure that the resource is freed.
+- */
+-void devm_rtc_device_unregister(struct device *dev, struct rtc_device *rtc)
+-{
+-	int rc;
+-
+-	rc = devres_release(dev, devm_rtc_device_release,
+-				devm_rtc_device_match, rtc);
+-	WARN_ON(rc);
+-}
+-EXPORT_SYMBOL_GPL(devm_rtc_device_unregister);
+-
+ static void devm_rtc_release_device(struct device *dev, void *res)
+ {
+ 	struct rtc_device *rtc = *(struct rtc_device **)res;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 40ecdb5a369e..58147b057acd 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -172,8 +172,6 @@ extern struct rtc_device *devm_rtc_device_register(struct device *dev,
+ 					struct module *owner);
+ struct rtc_device *devm_rtc_allocate_device(struct device *dev);
+ int __rtc_register_device(struct module *owner, struct rtc_device *rtc);
+-extern void devm_rtc_device_unregister(struct device *dev,
+-					struct rtc_device *rtc);
+ 
+ extern int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm);
+ extern int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm);
+-- 
+2.19.1
+
