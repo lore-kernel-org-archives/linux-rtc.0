@@ -5,35 +5,35 @@ X-Spam-Level:
 X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E86E4C43441
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:57:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99296C43441
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:59:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A7DB620858
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:57:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F5F920858
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:59:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="dj8481+B"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A7DB620858
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="CpnmXcD+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5F5F920858
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=163.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728791AbeKJSlS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 10 Nov 2018 13:41:18 -0500
-Received: from m50-132.163.com ([123.125.50.132]:37662 "EHLO m50-132.163.com"
+        id S1728791AbeKJSoF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 10 Nov 2018 13:44:05 -0500
+Received: from m50-138.163.com ([123.125.50.138]:58796 "EHLO m50-138.163.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbeKJSlS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 10 Nov 2018 13:41:18 -0500
-X-Greylist: delayed 925 seconds by postgrey-1.27 at vger.kernel.org; Sat, 10 Nov 2018 13:41:17 EST
+        id S1728766AbeKJSoF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 10 Nov 2018 13:44:05 -0500
+X-Greylist: delayed 922 seconds by postgrey-1.27 at vger.kernel.org; Sat, 10 Nov 2018 13:44:03 EST
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
         s=s110527; h=From:Subject:Date:Message-Id; bh=VYMiLmPONxQsftIy7F
-        2iJGqQ57x5RPGI4vSw7FbMggE=; b=dj8481+BJKfaVwZI5TZrL71fRyLXC7taXQ
-        aa/yq4CPTvHcKp2tEcBf2Qz2buoILbGpDLu5ULMjZwQzn4Hlkcj8MR6UJvu9X4uT
-        9r7OkoAqYNJ5MYOGj6Xay9/1H+8TSw/X4pcByEmEKp6ZfiCTgiA1kAG4wKbpQDiK
-        F8/sj3H/U=
+        2iJGqQ57x5RPGI4vSw7FbMggE=; b=CpnmXcD+sh0Ega0ZwRl2Yn+7eIri8SZL6D
+        EYIJfDKfjdx9ngJqDbJJwtz/dYYTYWpPC2Xkty59MnmD4Cuz7b486Ia1XzXspdll
+        Yp88SX1RMMr7HB085jL+a2GqTiAXrUxPAaD29M2j5FKmpsD1VvTk1hNZqnBGm2QW
+        eldZx2cjo=
 Received: from localhost.localdomain (unknown [221.0.93.75])
-        by smtp2 (Coremail) with SMTP id DNGowAAX70KfmeZbl86zAA--.73S2;
-        Sat, 10 Nov 2018 16:41:17 +0800 (CST)
+        by smtp1 (Coremail) with SMTP id C9GowACH8wlKmuZbMGe2AA--.32S2;
+        Sat, 10 Nov 2018 16:44:13 +0800 (CST)
 From:   zoro <long17.cool@163.com>
 To:     a.zummo@towertech.it
 Cc:     alexandre.belloni@bootlin.com, robh+dt@kernel.org,
@@ -41,16 +41,16 @@ Cc:     alexandre.belloni@bootlin.com, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         zoro <long17.cool@163.com>
 Subject: [PATCH 1/3] dt-bindings: define vendor prefix for whwave, Inc.
-Date:   Sat, 10 Nov 2018 16:40:59 +0800
-Message-Id: <1541839261-28765-1-git-send-email-long17.cool@163.com>
+Date:   Sat, 10 Nov 2018 16:43:51 +0800
+Message-Id: <1541839433-28811-1-git-send-email-long17.cool@163.com>
 X-Mailer: git-send-email 1.7.9.5
-X-CM-TRANSID: DNGowAAX70KfmeZbl86zAA--.73S2
+X-CM-TRANSID: C9GowACH8wlKmuZbMGe2AA--.32S2
 X-Coremail-Antispam: 1Uf129KBjvdXoWrtF15GryDWF1DJFWUKF45KFg_yoWxKFc_Za
         1xJrWqvw45tF4Fgw4jyF47Gw1rJr1IkrW8u3WYq3Wvy3WfXFZxtayktay5ZF4xWF4xua45
-        Zr97GrZrXr17KjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUbRwZ3UUUUU==
+        Zr97GrZrXr17KjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU1M7K3UUUUU==
 X-Originating-IP: [221.0.93.75]
-X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/1tbizQ76F1c7DKJepAAAsW
+X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/xtbBFR36F1XldhU0vgAAs8
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -75,5 +75,4 @@ index 4b1a2a8..3d59d6a 100644
 +whwave	Shenzhen whwave Electronics crop
 -- 
 1.7.9.5
-
 
