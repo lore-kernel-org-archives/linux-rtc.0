@@ -5,74 +5,102 @@ X-Spam-Level:
 X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99296C43441
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:59:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9156C43441
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 09:00:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5F5F920858
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 08:59:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7382720858
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Nov 2018 09:00:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="CpnmXcD+"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5F5F920858
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="YmEHWKY5"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7382720858
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=163.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728791AbeKJSoF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 10 Nov 2018 13:44:05 -0500
-Received: from m50-138.163.com ([123.125.50.138]:58796 "EHLO m50-138.163.com"
+        id S1728842AbeKJSoP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 10 Nov 2018 13:44:15 -0500
+Received: from m50-138.163.com ([123.125.50.138]:58932 "EHLO m50-138.163.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbeKJSoF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 10 Nov 2018 13:44:05 -0500
-X-Greylist: delayed 922 seconds by postgrey-1.27 at vger.kernel.org; Sat, 10 Nov 2018 13:44:03 EST
+        id S1728791AbeKJSoP (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 10 Nov 2018 13:44:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id; bh=VYMiLmPONxQsftIy7F
-        2iJGqQ57x5RPGI4vSw7FbMggE=; b=CpnmXcD+sh0Ega0ZwRl2Yn+7eIri8SZL6D
-        EYIJfDKfjdx9ngJqDbJJwtz/dYYTYWpPC2Xkty59MnmD4Cuz7b486Ia1XzXspdll
-        Yp88SX1RMMr7HB085jL+a2GqTiAXrUxPAaD29M2j5FKmpsD1VvTk1hNZqnBGm2QW
-        eldZx2cjo=
+        s=s110527; h=From:Subject:Date:Message-Id; bh=qJJ0xktlNmFvR7cRWT
+        GJDZGiJ31I8wn+SuAFTKGsnVs=; b=YmEHWKY5qagnqV+y/i7IxyEZNwZqTg6eIX
+        kAmC3HDGF0CgzLqkvOkprurmrFjv6fzL9yvugsYBoJtl3jMgZISu9FTs94h0Rq0f
+        AtdqzJHtCyemiBmzNqBStnWw9m9yMgwumGLfQAZ8z6n3P6ScDy5g3Cs7lYI6ia0w
+        eAz2khQOU=
 Received: from localhost.localdomain (unknown [221.0.93.75])
-        by smtp1 (Coremail) with SMTP id C9GowACH8wlKmuZbMGe2AA--.32S2;
-        Sat, 10 Nov 2018 16:44:13 +0800 (CST)
+        by smtp1 (Coremail) with SMTP id C9GowACH8wlKmuZbMGe2AA--.32S4;
+        Sat, 10 Nov 2018 16:44:18 +0800 (CST)
 From:   zoro <long17.cool@163.com>
 To:     a.zummo@towertech.it
 Cc:     alexandre.belloni@bootlin.com, robh+dt@kernel.org,
         mark.rutland@arm.com, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         zoro <long17.cool@163.com>
-Subject: [PATCH 1/3] dt-bindings: define vendor prefix for whwave, Inc.
-Date:   Sat, 10 Nov 2018 16:43:51 +0800
-Message-Id: <1541839433-28811-1-git-send-email-long17.cool@163.com>
+Subject: [PATCH 3/3] dt-bindings: rtc: sd3078: add device tree documentation
+Date:   Sat, 10 Nov 2018 16:43:53 +0800
+Message-Id: <1541839433-28811-3-git-send-email-long17.cool@163.com>
 X-Mailer: git-send-email 1.7.9.5
-X-CM-TRANSID: C9GowACH8wlKmuZbMGe2AA--.32S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrtF15GryDWF1DJFWUKF45KFg_yoWxKFc_Za
-        1xJrWqvw45tF4Fgw4jyF47Gw1rJr1IkrW8u3WYq3Wvy3WfXFZxtayktay5ZF4xWF4xua45
-        Zr97GrZrXr17KjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU1M7K3UUUUU==
+In-Reply-To: <1541839433-28811-1-git-send-email-long17.cool@163.com>
+References: <1541839433-28811-1-git-send-email-long17.cool@163.com>
+X-CM-TRANSID: C9GowACH8wlKmuZbMGe2AA--.32S4
+X-Coremail-Antispam: 1Uf129KBjvJXoW7KF4DtFW3Xry8Cr1DuF4rKrg_yoW8JFW8pa
+        n7CryftryIqry3Gw47K3WIv3W5Xr1kC3W29Fn2yw4vgFn5Cas5tw13trn0yF1UGr48uFWY
+        qrZ8Cr15K340yr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jnR6wUUUUU=
 X-Originating-IP: [221.0.93.75]
-X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/xtbBFR36F1XldhU0vgAAs8
+X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/1tbizQP6F1c7DKJlVgAAsS
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Introduce vendor prefix for whwave, Inc.
-for SD3078 rtc device.
+The devicetree documentation for the SD3078 device tree
+binding is added with a short example.
 
 Signed-off-by: zoro <long17.cool@163.com>
 ---
- .../devicetree/bindings/vendor-prefixes.txt        |    1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/rtc/rtc-sd3078.txt         |   15 +++++++++++++++
+ MAINTAINERS                                        |    1 +
+ 2 files changed, 16 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index 4b1a2a8..3d59d6a 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -440,3 +440,4 @@ zidoo	Shenzhen Zidoo Technology Co., Ltd.
- zii	Zodiac Inflight Innovations
- zte	ZTE Corp.
- zyxel	ZyXEL Communications Corp.
-+whwave	Shenzhen whwave Electronics crop
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+new file mode 100644
+index 0000000..9b45c8e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+@@ -0,0 +1,15 @@
++SD3078 Real Time Clock
++============================
++
++Required properties:
++- compatible: Should contain "whwave,sd3078".
++- reg: I2C address for chip.
++
++Example:
++
++sd3078: sd3078@32 {
++       compatible = "whwave,sd3078";
++       reg = <0x32>;
++};
++
++
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 002fcd7..50c038d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16130,6 +16130,7 @@ M:	Zoro Li <long17.cool@163.com>
+ L:	linux-rtc@vger.kernel.org
+ S:	Maintained
+ F:	drivers/rtc/rtc-sd3078.c
++F:	Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+ 
+ WIIMOTE HID DRIVER
+ M:	David Herrmann <dh.herrmann@googlemail.com>
 -- 
 1.7.9.5
 
