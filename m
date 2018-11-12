@@ -2,85 +2,80 @@ Return-Path: <SRS0=zPJc=NX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9698EC43610
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 17:40:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EDC6C43441
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 18:19:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 68BEE224E0
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 17:40:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 68BEE224E0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
+	by mail.kernel.org (Postfix) with ESMTP id 1F78422419
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 18:19:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="S22mm35P"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F78422419
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=163.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727354AbeKMDe4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Nov 2018 22:34:56 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:54304 "EHLO mail.bootlin.com"
+        id S1729281AbeKMENh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Nov 2018 23:13:37 -0500
+Received: from m50-133.163.com ([123.125.50.133]:50817 "EHLO m50-133.163.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727185AbeKMDe4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Nov 2018 22:34:56 -0500
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 570D3208A0; Mon, 12 Nov 2018 18:40:40 +0100 (CET)
-Received: from localhost (unknown [88.191.26.124])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 2013320510;
-        Mon, 12 Nov 2018 18:40:40 +0100 (CET)
-Date:   Mon, 12 Nov 2018 18:40:40 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "long17.cool@163.com" <long17.cool@163.com>
-Cc:     "a.zummo" <a.zummo@towertech.it>,
-        "mark.rutland" <mark.rutland@arm.com>,
-        linux-rtc <linux-rtc@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [PATCH 3/4] dt-bindings: rtc: sd3078: add device tree
- documentation
-Message-ID: <20181112174040.GG29768@piout.net>
-References: <1542001514-8167-1-git-send-email-long17.cool@163.com>
- <1542001514-8167-3-git-send-email-long17.cool@163.com>
- <20181112154919.GB26341@piout.net>
- <201811130055486298716@163.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <201811130055486298716@163.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727976AbeKMENh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 12 Nov 2018 23:13:37 -0500
+X-Greylist: delayed 923 seconds by postgrey-1.27 at vger.kernel.org; Mon, 12 Nov 2018 23:13:36 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id; bh=eNjDgxNxK94FlpUWlU
+        xJYqyvAyZnHYY+ffr6ToADmNU=; b=S22mm35Pr3GityhX5e29oD3ZbipylrFnLv
+        njZqctVLv5zQ4P8aHCddoUQb78305otyFJRIsC48NK4FQmH8VMI+VXs/Ncebxs75
+        ILik6hj98wkHlqIeaNh0X+3ubuTjA2h8ZzHv0XLYROnEZOLY79RpD59yJYzbaLQT
+        C9xRxLCQY=
+Received: from localhost.localdomain (unknown [221.0.93.75])
+        by smtp3 (Coremail) with SMTP id DdGowAAn9rRxwOlbdDskAA--.3624S2;
+        Tue, 13 Nov 2018 02:03:37 +0800 (CST)
+From:   zoro <long17.cool@163.com>
+To:     alexandre.belloni@bootlin.com
+Cc:     a.zummo@towertech.it, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, zoro <long17.cool@163.com>
+Subject: [PATCH 1/3] dt-bindings: define vendor prefix for whwave, Inc.
+Date:   Tue, 13 Nov 2018 02:03:24 +0800
+Message-Id: <1542045806-32349-1-git-send-email-long17.cool@163.com>
+X-Mailer: git-send-email 1.7.9.5
+X-CM-TRANSID: DdGowAAn9rRxwOlbdDskAA--.3624S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrtF15GryDWF1DJFWUKF45KFg_yoW3Zrb_Xa
+        1xA34kZF45tF4Fgw4qyF4xGw1rGr1a9FW8u3Z0q3Z5A3W8Xasxtaykt3yUZrsruF4xua47
+        urn3GrZrWrnrKjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU8XzVUUUUUU==
+X-Originating-IP: [221.0.93.75]
+X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/1tbiVxn8F1etZpvktwAAsx
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 13/11/2018 00:55:49+0800, long17.cool@163.com wrote:
-> hello：
-> The patch of 4/4 is not used for this modules,  this is my problem.
-> 
-> I have a question : 
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -16130,6 +16130,7 @@ M: Zoro Li <long17.cool@163.com>
-> >  L: linux-rtc@vger.kernel.org
-> >  S: Maintained
-> >  F: drivers/rtc/rtc-sd3078.c
-> > +F: Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-> > 
-> 
-> There is no need to list this file here if it is only done to silence checkpatch.
-> What does it mean?
-> 
-> I found that if I didn't add that statement, when I checkpatch,
->  I would get the following warning.
-> WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
-> #16: 
-> new file mode 100644
-> Can I ignore this warning?
-> 
+Introduce vendor prefix for whwave, Inc.
+for SD3078 rtc device.
 
-Yes, you can.
+Signed-off-by: zoro <long17.cool@163.com>
+---
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ 1 file changed, 1 insertion(+)
 
-
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index 4b1a2a8..7d2e9b01 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -423,6 +423,7 @@ vot	Vision Optical Technology Co., Ltd.
+ wd	Western Digital Corp.
+ wetek	WeTek Electronics, limited.
+ wexler	Wexler
++whwave	Shenzhen whwave Electronics crop
+ wi2wi	Wi2Wi, Inc.
+ winbond Winbond Electronics corp.
+ winstar	Winstar Display Corp.
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+1.7.9.5
+
+
