@@ -2,91 +2,127 @@ Return-Path: <SRS0=zPJc=NX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 578A4C43441
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 18:19:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CCCEC43441
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 19:25:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2447E22419
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 18:19:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6D05224E0
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 19:25:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Gmwzv43G"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2447E22419
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=163.com
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="uWir2mnx"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C6D05224E0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=reject dis=none) header.from=google.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730211AbeKMENi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Nov 2018 23:13:38 -0500
-Received: from m50-133.163.com ([123.125.50.133]:50823 "EHLO m50-133.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbeKMENh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Nov 2018 23:13:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id; bh=1kAQBFjfC7Ws6N7Wm3
-        CSzo6eGWwBFWjKthgrD4evEeU=; b=Gmwzv43GLvipcae2AiMsTF89axLWIVSRES
-        fVkndunJ0M6uiUztM24CE6H+NAEXAk4HpZVpnbMO+Acg9BJfIuPSRCOktYJTX+6v
-        53YxbCiPngxDX91oeh7W5dfjkcjfnmAHa9s7coF6bvgbD7I+ef5tljhAV0UTTAj/
-        XAQ8nIGLk=
-Received: from localhost.localdomain (unknown [221.0.93.75])
-        by smtp3 (Coremail) with SMTP id DdGowAAn9rRxwOlbdDskAA--.3624S4;
-        Tue, 13 Nov 2018 02:03:42 +0800 (CST)
-From:   zoro <long17.cool@163.com>
-To:     alexandre.belloni@bootlin.com
-Cc:     a.zummo@towertech.it, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, zoro <long17.cool@163.com>
-Subject: [PATCH 3/3] dt-bindings: rtc: sd3078: add device tree documentation
-Date:   Tue, 13 Nov 2018 02:03:26 +0800
-Message-Id: <1542045806-32349-3-git-send-email-long17.cool@163.com>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <1542045806-32349-1-git-send-email-long17.cool@163.com>
-References: <1542045806-32349-1-git-send-email-long17.cool@163.com>
-X-CM-TRANSID: DdGowAAn9rRxwOlbdDskAA--.3624S4
-X-Coremail-Antispam: 1Uf129KBjvdXoWruFWxAFyxKF47XrWUXF1DKFg_yoWfWFbEka
-        1xZFWDJFsxXFyF9F9Yyr4ayry7Jr4IyFs7AayDKrnYy3yIv3yDKFWkX3srAr18GF4xuF98
-        ur18CryvqwnrKjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUnepB7UUUUU==
-X-Originating-IP: [221.0.93.75]
-X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/1tbivhz8F1ZcTPtvRQABsf
+        id S1726101AbeKMFUP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 13 Nov 2018 00:20:15 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:44709 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725834AbeKMFUP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Nov 2018 00:20:15 -0500
+Received: by mail-pg1-f195.google.com with SMTP id w3-v6so4478420pgs.11
+        for <linux-rtc@vger.kernel.org>; Mon, 12 Nov 2018 11:25:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VJxHabq1gPELeCOutnOM22abKANhwOVzDQ7GGs6a+fw=;
+        b=uWir2mnxZoLvlL7o6qaZ9URKm/XPa1TZdLtBRHUJJPtVyDc/zo3bAnORc0fwiQAnrj
+         J8POvFOsG7aL+I0InPYi6jXvlmPHA28HesBXx9FuTLOQy4FVUT8MrTpgG8C1Rfo0a82n
+         nHnedmksOre4FZ0TzQ3uPZYG4drHXKGJ84Y8l6w8pixoFWgX7sE89l/h3TnrZrMreuLu
+         iWYQMK8rDoHp14CBNEbS5Ofygks2UWdXJlBpd4c1t+vc9p6hO1p9c91PWrpw1P2GzBlD
+         mcjsLbM3Hmrts0v98Hzzx6if0XDs/zHRsds3R7RrgpYmIb6/kB5+m7ThvsXwJfLBW5W6
+         2xcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VJxHabq1gPELeCOutnOM22abKANhwOVzDQ7GGs6a+fw=;
+        b=KMMgBhs5OQP4ocwNiQQHeFT0Llfd+5oq1nfoUOTDgyIbKFMz+LSFVVQ1ZhKGHaux4f
+         trpOzNP7lyJkS8im+jlLmK61u1hZgPO2yNVQINOzD0rg/vrlKKkGLwHExYDyOhTD/ZP3
+         oJf8pvQxHsRiRLfKYIQfX/kjJbrmGMFxCs5l0TlnK/4CJF0syj0M1n5zoLycsTkmAq1V
+         JrwPN7UAdL17MsxKuiyKRJbjWz0u3HsFFNXe5dYc9CjvVJclFsEyow12Rf8jPsyl7rBb
+         /Ft1pKtiFZCaSYTZXhcuEucs2k+KD1vBCSDRKuV6OTjjIz0NEQ8bBZYUILOlUst9uuZw
+         LOEA==
+X-Gm-Message-State: AGRZ1gJOG0Z2ntjW2m3vmytmeCxxGvoLrVTCLOtShb4iMePkNGEH3jWG
+        vvNe0JLYH1LRPHDI6XwmEDVEDe6UexY118NOMF3KIJeoJQY=
+X-Google-Smtp-Source: AJdET5cyf2e+m2xO12K/WWTD7HROugWPeunMN5xsrBvevJKBsT72ignSAOGNF0t81EWpLSU+hqjWxuFLZOIasB/PnJ8=
+X-Received: by 2002:a63:a064:: with SMTP id u36mr1917241pgn.145.1542050737997;
+ Mon, 12 Nov 2018 11:25:37 -0800 (PST)
+MIME-Version: 1.0
+References: <20181101005502.9171-1-natechancellor@gmail.com>
+In-Reply-To: <20181101005502.9171-1-natechancellor@gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 12 Nov 2018 11:25:26 -0800
+Message-ID: <CAKwvOdm+Phwn7GdfVTf0UpBjShrN+vyfjhU3ctXqj3WBat9dVw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: omap: Use define directive for PIN_CONFIG_ACTIVE_HIGH
+To:     alexandre.belloni@bootlin.com, a.zummo@towertech.it
+Cc:     linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The devicetree documentation for the SD3078 device tree
-binding is added with a short example.
+On Wed, Oct 31, 2018 at 5:55 PM Nathan Chancellor
+<natechancellor@gmail.com> wrote:
+>
+> Clang warns when one enumerated type is implicitly converted to another:
+>
+> drivers/rtc/rtc-omap.c:574:21: warning: implicit conversion from
+> enumeration type 'enum rtc_pin_config_param' to different enumeration
+> type 'enum pin_config_param' [-Wenum-conversion]
+>         {"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
+>         ~                  ^~~~~~~~~~~~~~~~~~~~~~
+> drivers/rtc/rtc-omap.c:579:12: warning: implicit conversion from
+> enumeration type 'enum rtc_pin_config_param' to different enumeration
+> type 'enum pin_config_param' [-Wenum-conversion]
+>         PCONFDUMP(PIN_CONFIG_ACTIVE_HIGH, "input active high", NULL, false),
+>         ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> ./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
+> macro 'PCONFDUMP'
+>         .param = a, .display = b, .format = c, .has_arg = d     \
+>                  ^
+> 2 warnings generated.
+>
+> It is expected that pinctrl drivers can extend pin_config_param because
+> of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
+> isn't an issue. Most drivers that take advantage of this define the
+> PIN_CONFIG variables as constants, rather than enumerated values. Do the
+> same thing here so that Clang no longer warns.
+>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/144
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+>  drivers/rtc/rtc-omap.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 320b4a520eb3..bbff0e2deb84 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -566,9 +566,7 @@ static const struct pinctrl_ops rtc_pinctrl_ops = {
+>         .dt_free_map = pinconf_generic_dt_free_map,
+>  };
+>
+> -enum rtc_pin_config_param {
+> -       PIN_CONFIG_ACTIVE_HIGH = PIN_CONFIG_END + 1,
+> -};
+> +#define PIN_CONFIG_ACTIVE_HIGH         (PIN_CONFIG_END + 1)
+>
+>  static const struct pinconf_generic_params rtc_params[] = {
+>         {"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
+> --
+> 2.19.1
+>
 
-Signed-off-by: zoro <long17.cool@163.com>
----
- .../devicetree/bindings/rtc/rtc-sd3078.txt         |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+Bumping for review
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-new file mode 100644
-index 0000000..9b45c8e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-@@ -0,0 +1,15 @@
-+SD3078 Real Time Clock
-+============================
-+
-+Required properties:
-+- compatible: Should contain "whwave,sd3078".
-+- reg: I2C address for chip.
-+
-+Example:
-+
-+sd3078: sd3078@32 {
-+       compatible = "whwave,sd3078";
-+       reg = <0x32>;
-+};
-+
-+
 -- 
-1.7.9.5
-
-
+Thanks,
+~Nick Desaulniers
