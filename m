@@ -2,106 +2,83 @@ Return-Path: <SRS0=zPJc=NX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8F07C43441
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 15:49:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9698EC43610
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 17:40:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8AC3E223AE
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 15:49:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8AC3E223AE
+	by mail.kernel.org (Postfix) with ESMTP id 68BEE224E0
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Nov 2018 17:40:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 68BEE224E0
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbeKMBnJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Nov 2018 20:43:09 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:51430 "EHLO mail.bootlin.com"
+        id S1727354AbeKMDe4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Nov 2018 22:34:56 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:54304 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726385AbeKMBnJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 12 Nov 2018 20:43:09 -0500
+        id S1727185AbeKMDe4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 12 Nov 2018 22:34:56 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id B113B207CF; Mon, 12 Nov 2018 16:49:19 +0100 (CET)
-Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 8167E20701;
-        Mon, 12 Nov 2018 16:49:19 +0100 (CET)
-Date:   Mon, 12 Nov 2018 16:49:19 +0100
+        id 570D3208A0; Mon, 12 Nov 2018 18:40:40 +0100 (CET)
+Received: from localhost (unknown [88.191.26.124])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 2013320510;
+        Mon, 12 Nov 2018 18:40:40 +0100 (CET)
+Date:   Mon, 12 Nov 2018 18:40:40 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     zoro <long17.cool@163.com>
-Cc:     a.zummo@towertech.it, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] dt-bindings: rtc: sd3078: add device tree
+To:     "long17.cool@163.com" <long17.cool@163.com>
+Cc:     "a.zummo" <a.zummo@towertech.it>,
+        "mark.rutland" <mark.rutland@arm.com>,
+        linux-rtc <linux-rtc@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Re: [PATCH 3/4] dt-bindings: rtc: sd3078: add device tree
  documentation
-Message-ID: <20181112154919.GB26341@piout.net>
+Message-ID: <20181112174040.GG29768@piout.net>
 References: <1542001514-8167-1-git-send-email-long17.cool@163.com>
  <1542001514-8167-3-git-send-email-long17.cool@163.com>
+ <20181112154919.GB26341@piout.net>
+ <201811130055486298716@163.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1542001514-8167-3-git-send-email-long17.cool@163.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <201811130055486298716@163.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-
-This patch should come as 2/4 (BTW, I never got 4/4)
-
-On 12/11/2018 13:45:14+0800, zoro wrote:
-> The devicetree documentation for the SD3078 device tree
-> binding is added with a short example.
+On 13/11/2018 00:55:49+0800, long17.cool@163.com wrote:
+> hello：
+> The patch of 4/4 is not used for this modules,  this is my problem.
 > 
-> Signed-off-by: zoro <long17.cool@163.com>
-> ---
->  .../devicetree/bindings/rtc/rtc-sd3078.txt         |   15 +++++++++++++++
->  MAINTAINERS                                        |    1 +
->  2 files changed, 16 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+> I have a question : 
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -16130,6 +16130,7 @@ M: Zoro Li <long17.cool@163.com>
+> >  L: linux-rtc@vger.kernel.org
+> >  S: Maintained
+> >  F: drivers/rtc/rtc-sd3078.c
+> > +F: Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+> > 
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+> There is no need to list this file here if it is only done to silence checkpatch.
+> What does it mean?
+> 
+> I found that if I didn't add that statement, when I checkpatch,
+>  I would get the following warning.
+> WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
+> #16: 
 > new file mode 100644
-> index 0000000..9b45c8e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-> @@ -0,0 +1,15 @@
-> +SD3078 Real Time Clock
-> +============================
-> +
-> +Required properties:
-> +- compatible: Should contain "whwave,sd3078".
-> +- reg: I2C address for chip.
-> +
-> +Example:
-> +
-> +sd3078: sd3078@32 {
-> +       compatible = "whwave,sd3078";
-> +       reg = <0x32>;
-> +};
-> +
-> +
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 002fcd7..50c038d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -16130,6 +16130,7 @@ M:	Zoro Li <long17.cool@163.com>
->  L:	linux-rtc@vger.kernel.org
->  S:	Maintained
->  F:	drivers/rtc/rtc-sd3078.c
-> +F:	Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
->  
-
-There is no need to list this file here if it is only done to silence
-checkpatch.
-
->  WIIMOTE HID DRIVER
->  M:	David Herrmann <dh.herrmann@googlemail.com>
-> -- 
-> 1.7.9.5
+> Can I ignore this warning?
 > 
-> 
+
+Yes, you can.
+
 
 -- 
 Alexandre Belloni, Bootlin
