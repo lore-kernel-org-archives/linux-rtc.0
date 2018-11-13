@@ -2,36 +2,36 @@ Return-Path: <SRS0=UNq1=NY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CD67C43441
-	for <linux-rtc@archiver.kernel.org>; Tue, 13 Nov 2018 17:17:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6F35C0044C
+	for <linux-rtc@archiver.kernel.org>; Tue, 13 Nov 2018 17:17:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F8342082A
-	for <linux-rtc@archiver.kernel.org>; Tue, 13 Nov 2018 17:17:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6F8342082A
+	by mail.kernel.org (Postfix) with ESMTP id 7A37C22419
+	for <linux-rtc@archiver.kernel.org>; Tue, 13 Nov 2018 17:17:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7A37C22419
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731509AbeKNDQe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 13 Nov 2018 22:16:34 -0500
-Received: from mga14.intel.com ([192.55.52.115]:10689 "EHLO mga14.intel.com"
+        id S1732232AbeKNDQn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 13 Nov 2018 22:16:43 -0500
+Received: from mga14.intel.com ([192.55.52.115]:10705 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730730AbeKNDQe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 13 Nov 2018 22:16:34 -0500
+        id S1732200AbeKNDQm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 13 Nov 2018 22:16:42 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 09:17:34 -0800
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 09:17:42 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,228,1539673200"; 
-   d="scan'208";a="104048217"
+   d="scan'208";a="104048241"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga002.fm.intel.com with ESMTP; 13 Nov 2018 09:17:31 -0800
+  by fmsmga002.fm.intel.com with ESMTP; 13 Nov 2018 09:17:38 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id B09ED103; Tue, 13 Nov 2018 19:17:30 +0200 (EET)
+        id 98327B6A; Tue, 13 Nov 2018 19:17:31 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -42,11 +42,15 @@ To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Joe Perches <joe@perches.com>,
         Mark Salyzyn <salyzyn@android.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 00/20] lib, rtc: Print rtc_time via %ptR[dt][rv]
-Date:   Tue, 13 Nov 2018 19:17:09 +0200
-Message-Id: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>
+Subject: [PATCH v3 17/20] rtc: tegra: Switch to use %ptR
+Date:   Tue, 13 Nov 2018 19:17:26 +0200
+Message-Id: <20181113171729.19645-18-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
+References: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -54,97 +58,71 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-At some point I have noticed too many users of struct rtc_time that
-printing its content field by field.
+Use %ptR instead of open coded variant to print content of
+struct rtc_time in human readable format.
 
-In this series I introduce %ptR[dt][rv] specifier to make life a bit
-easier.
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/rtc/rtc-tegra.c | 30 +++---------------------------
+ 1 file changed, 3 insertions(+), 27 deletions(-)
 
-There are still users of detailed output of the struct rtc_time, but we
-can introduce an additional extension for them in the future if needed,
-otherwise they might be converted to the proposed output format.
-
-Some of the changes slightly modify the output. In those cases we are on
-the safe side since they are pure debug. Nevertheless I tried to leave
-numbers to be the same or quite close: in some cases year is printed +
-1900, though month is left in the range [0,11] instead of [1,12].
-
-I didn't compile everything there, though I did a basic smoke test on
-some x86 hardware. So, I rely on kbuild test robot as well :-)
-
-Most of the users currently are RTC drivers, thus the patch series is
-assumed to go via RTC tree.
-
-The patch series depends on earlier send clean up of lib/vsprintf [1].
-
-[1]: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1612716.html
-
-Changelog v3:
-- no one supported configuration option for new extension, so it's dropped
-- amend documentation (Geert)
-- optimize flags checking (Geert)
-- drop patch against non-existing anymore drivers
-  (due to massive architectures removal)
-- rebase on top of recent linux-next
-
-Changelog v2:
-- split out lib/vsprintf changes to separate series
-- build it optionally depending on introduced PRINTK_PEXT_TIMEDATE
-- for now support only struct rtc_time
-- make an additional letter for different time representations
-- make above letter capital to reduce confusion on %ptr vs. %ptR
-- drop kdb patch since it's a candidate for time64_t support
-
-Andy Shevchenko (20):
-  lib/vsprintf: Print time and date in human readable format via %pt
-  rtc: Switch to use %ptR
-  rtc: at91rm9200: Switch to use %ptR
-  rtc: at91sam9: Switch to use %ptR
-  rtc: m41t80: Switch to use %ptR
-  rtc: m48t59: Switch to use %ptR
-  rtc: mcp795: Switch to use %ptR
-  rtc: pcf50633: Switch to use %ptR
-  rtc: pic32: Switch to use %ptR
-  rtc: pm8xxx: Switch to use %ptR
-  rtc: puv3: Switch to use %ptR
-  rtc: rk808: Switch to use %ptR
-  rtc: rx6110: Switch to use %ptR
-  rtc: rx8025: Switch to use %ptR
-  rtc: s3c: Switch to use %ptR
-  rtc: s5m: Switch to use %ptR
-  rtc: tegra: Switch to use %ptR
-  Input: hp_sdc_rtc - Switch to use %ptR
-  mk68/mac: Switch to use %ptR
-  PM: Switch to use %ptR
-
- Documentation/core-api/printk-formats.rst |  20 ++++
- arch/m68k/mac/misc.c                      |   8 +-
- drivers/base/power/trace.c                |   4 +-
- drivers/char/rtc.c                        |   7 +-
- drivers/input/misc/hp_sdc_rtc.c           |   8 +-
- drivers/rtc/hctosys.c                     |   8 +-
- drivers/rtc/interface.c                   |   8 +-
- drivers/rtc/rtc-at91rm9200.c              |  15 +--
- drivers/rtc/rtc-at91sam9.c                |  16 +--
- drivers/rtc/rtc-m41t80.c                  |   6 +-
- drivers/rtc/rtc-m48t59.c                  |   8 +-
- drivers/rtc/rtc-mcp795.c                  |  18 +--
- drivers/rtc/rtc-pcf50633.c                |   8 +-
- drivers/rtc/rtc-pic32.c                   |  18 +--
- drivers/rtc/rtc-pm8xxx.c                  |  16 +--
- drivers/rtc/rtc-proc.c                    |  36 +-----
- drivers/rtc/rtc-puv3.c                    |  18 +--
- drivers/rtc/rtc-rk808.c                   |  20 +---
- drivers/rtc/rtc-rx6110.c                  |  12 +-
- drivers/rtc/rtc-rx8025.c                  |  19 +--
- drivers/rtc/rtc-s3c.c                     |  20 +---
- drivers/rtc/rtc-s5m.c                     |  27 +----
- drivers/rtc/rtc-sysfs.c                   |  16 +--
- drivers/rtc/rtc-tegra.c                   |  30 +----
- lib/test_printf.c                         |   6 +
- lib/vsprintf.c                            | 140 ++++++++++++++++++++++
- 26 files changed, 248 insertions(+), 264 deletions(-)
-
+diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
+index c9e77a83cd1b..c6b0a99aa3a9 100644
+--- a/drivers/rtc/rtc-tegra.c
++++ b/drivers/rtc/rtc-tegra.c
+@@ -125,15 +125,7 @@ static int tegra_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_time_to_tm(sec, tm);
+ 
+-	dev_vdbg(dev, "time read as %lu. %d/%d/%d %d:%02u:%02u\n",
+-		sec,
+-		tm->tm_mon + 1,
+-		tm->tm_mday,
+-		tm->tm_year + 1900,
+-		tm->tm_hour,
+-		tm->tm_min,
+-		tm->tm_sec
+-	);
++	dev_vdbg(dev, "time read as %lu. %ptR\n", sec, tm);
+ 
+ 	return 0;
+ }
+@@ -147,15 +139,7 @@ static int tegra_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	/* convert tm to seconds. */
+ 	rtc_tm_to_time(tm, &sec);
+ 
+-	dev_vdbg(dev, "time set to %lu. %d/%d/%d %d:%02u:%02u\n",
+-		sec,
+-		tm->tm_mon+1,
+-		tm->tm_mday,
+-		tm->tm_year+1900,
+-		tm->tm_hour,
+-		tm->tm_min,
+-		tm->tm_sec
+-	);
++	dev_vdbg(dev, "time set to %lu. %ptR\n", sec, tm);
+ 
+ 	/* seconds only written if wait succeeded. */
+ 	ret = tegra_rtc_wait_while_busy(dev);
+@@ -232,15 +216,7 @@ static int tegra_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	/* if successfully written and alarm is enabled ... */
+ 	if (sec) {
+ 		tegra_rtc_alarm_irq_enable(dev, 1);
+-
+-		dev_vdbg(dev, "alarm set as %lu. %d/%d/%d %d:%02u:%02u\n",
+-			sec,
+-			alarm->time.tm_mon+1,
+-			alarm->time.tm_mday,
+-			alarm->time.tm_year+1900,
+-			alarm->time.tm_hour,
+-			alarm->time.tm_min,
+-			alarm->time.tm_sec);
++		dev_vdbg(dev, "alarm set as %lu. %ptR\n", sec, &alarm->time);
+ 	} else {
+ 		/* disable alarm if 0 or write error. */
+ 		dev_vdbg(dev, "alarm disabled\n");
 -- 
 2.19.1
 
