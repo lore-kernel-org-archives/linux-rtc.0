@@ -2,84 +2,74 @@ Return-Path: <SRS0=uv83=NZ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C5BC43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36A88C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 16:50:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9AC7F208E7
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:50:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9AC7F208E7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-mips.org
+	by mail.kernel.org (Postfix) with ESMTP id E111922360
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 16:50:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E111922360
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=wanadoo.fr
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727755AbeKNWxR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Nov 2018 17:53:17 -0500
-Received: from eddie.linux-mips.org ([148.251.95.138]:54124 "EHLO
-        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727731AbeKNWxR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Nov 2018 17:53:17 -0500
-Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
-        with ESMTP id S23992408AbeKNMuGhQx2X (ORCPT
-        <rfc822;linux-kernel@vger.kernel.org> + 1 other);
-        Wed, 14 Nov 2018 13:50:06 +0100
-Date:   Wed, 14 Nov 2018 12:50:06 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Matt Turner <mattst88@gmail.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: m41t80: Complete error propagation from SMBus
- calls
-In-Reply-To: <20181114122005.GY29768@piout.net>
-Message-ID: <alpine.LFD.2.21.1811141234140.21654@eddie.linux-mips.org>
-References: <alpine.LFD.2.21.1811070142240.20378@eddie.linux-mips.org> <20181114095737.GV29768@piout.net> <alpine.LFD.2.21.1811141139450.21654@eddie.linux-mips.org> <20181114122005.GY29768@piout.net>
-User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S1733008AbeKOCyf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Nov 2018 21:54:35 -0500
+Received: from smtp07.smtpout.orange.fr ([80.12.242.129]:40645 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727972AbeKOCye (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Nov 2018 21:54:34 -0500
+Received: from localhost.localdomain ([77.136.87.23])
+        by mwinf5d14 with ME
+        id zsqY1y0080WD1Et03sqYkN; Wed, 14 Nov 2018 17:50:34 +0100
+X-ME-Helo: localhost.localdomain
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Wed, 14 Nov 2018 17:50:34 +0100
+X-ME-IP: 77.136.87.23
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] rtc: max8997: Fix the returned value in case of error in 'max8997_rtc_read_alarm()'
+Date:   Wed, 14 Nov 2018 17:50:25 +0100
+Message-Id: <20181114165025.2293-1-christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 14 Nov 2018, Alexandre Belloni wrote:
+In case of error, we return 0.
+This is spurious and not consistent with the other functions of the driver.
+Commit 22652ba72453 has modified more than what is said in the commit
+message and error should be propagated.
 
-> >  I think we can discuss that when I post the patches.  The m41t80 driver 
-> > currently does not work for me anyway and has to be fixed because of:
-> > 
-> > i2c /dev entries driver
-> > i2c-sibyte: i2c SMBus adapter module for SiByte board
-> > i2c i2c-1: doesn't support I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_I2C_BLOCK
-> > 
-> > and the persistent part is only one patch in the upcoming number of 
-> > changes.
-> 
-> Well, one of the solution for that (and tis is on my todo list) is to
-> convert the driver to use regmap which would take care of using the
-> proper i2c transfers. However, one of the concern when not having bock
-> accesses is that the registers are not latched (as you seem to know).
-> One thing I would like is then to avoid the multiple SEC register read
-> when not necessary.
+Fixes: 22652ba72453 ("rtc: stop validating rtc_time in .read_time")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+Not sure that the Fixes tag is the right one.
+It is related, but not 100% accurate IMHO.
+---
+ drivers/rtc/rtc-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Unfortunately the SMBus host does not give much choice here.  It does 
-have some extensions for block transfers, but writes are limited to 5 
-bytes and reads to 7 bytes.  The usual solution is to read repeatedly 
-until the seconds match.  For writes it is not a problem, because it 
-takes less than 1 second to write all the clock registers, so if you 
-start with seconds, then the data written will be consistent.
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index 08c661a332ec..20e50d9fdf88 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -215,7 +215,7 @@ static int max8997_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ out:
+ 	mutex_unlock(&info->lock);
+-	return 0;
++	return ret;
+ }
+ 
+ static int max8997_rtc_stop_alarm(struct max8997_rtc_info *info)
+-- 
+2.17.1
 
- The Xicor chip is worse as it uses 16-bit addresses and that is not 
-handled by SMBus support in our I2C core, however apparently that can be 
-simulated by byte writes with that particular chip.  The SMBus host 
-implements a protocol extension for 16-bit addressing, but I think it's 
-not worth the hassle adding to SMBus support in our I2C core given how 
-rare the Xicor setup are.
-
- Finally the SMBus host does support raw I2C transfers, but only with a 
-polled bit-banged interface, where you need to time the loop correctly 
-to get clocking of the individual bits right.  I don't think we want to 
-go down that path.
-
-  Maciej
