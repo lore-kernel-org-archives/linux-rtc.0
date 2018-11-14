@@ -2,89 +2,84 @@ Return-Path: <SRS0=uv83=NZ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CE37C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D702C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:47:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 637DC22419
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:19:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="cq1f3510"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 637DC22419
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=163.com
+	by mail.kernel.org (Postfix) with ESMTP id E0BEA206BA
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:47:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E0BEA206BA
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732483AbeKNTVK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Nov 2018 14:21:10 -0500
-Received: from m50-134.163.com ([123.125.50.134]:37072 "EHLO m50-134.163.com"
+        id S1727776AbeKNTuE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Nov 2018 14:50:04 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:58326 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732467AbeKNTVJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 14 Nov 2018 14:21:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id; bh=NhZM58T3+VKFam2l8+
-        /NZo+NTPvx7EQDhGqqaRZih78=; b=cq1f3510JDQ/7fRWYa89XbkeW//ziYyTzY
-        MEK0pXQ8Vr2zm/3TV97uX4saIl+ifngylvpYIt9kfxm90kSc97GBubVkWDPe/E4p
-        QbgczYQz/IoKawP6hoAmJuyuFpIQ6ouFOwNUhqCQks7i2QEA0rOns3vxjKElLbcK
-        vGAXCLMCs=
-Received: from localhost.localdomain (unknown [221.0.93.75])
-        by smtp4 (Coremail) with SMTP id DtGowAA3d+NH6Otbo1cIAA--.1752S4;
-        Wed, 14 Nov 2018 17:18:08 +0800 (CST)
-From:   zoro <long17.cool@163.com>
-To:     alexandre.belloni@bootlin.com
-Cc:     a.zummo@towertech.it, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, zoro <long17.cool@163.com>
-Subject: [PATCH 3/3] dt-bindings: rtc: sd3078: add device tree documentation
-Date:   Wed, 14 Nov 2018 17:17:57 +0800
-Message-Id: <1542187077-9488-3-git-send-email-long17.cool@163.com>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <1542187077-9488-1-git-send-email-long17.cool@163.com>
-References: <1542187077-9488-1-git-send-email-long17.cool@163.com>
-X-CM-TRANSID: DtGowAA3d+NH6Otbo1cIAA--.1752S4
-X-Coremail-Antispam: 1Uf129KBjvdXoWruFW3JF1Duw4fZr4rWr13twb_yoWfWrbEka
-        1xZFWDJFs8XFyF9Fyvyr43Ary3Ar4IyFs7AayDKrnYy3yIv3yDKFWkJ343Ar18Gr4xuF98
-        ur48CryvqwnrKjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU86MKJUUUUU==
-X-Originating-IP: [221.0.93.75]
-X-CM-SenderInfo: 5orqwi2xof00ro6rljoofrz/xtbBFRD+F1XldkhFBQAAsi
+        id S1727595AbeKNTuE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 14 Nov 2018 14:50:04 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 9BE5120791; Wed, 14 Nov 2018 10:47:32 +0100 (CET)
+Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 73AAC20510;
+        Wed, 14 Nov 2018 10:47:22 +0100 (CET)
+Date:   Wed, 14 Nov 2018 10:47:22 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] rtc: m41t80: Correct alarm month range with RTC reads
+Message-ID: <20181114094722.GT29768@piout.net>
+References: <alpine.LFD.2.21.1811070053580.20378@eddie.linux-mips.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.21.1811070053580.20378@eddie.linux-mips.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The devicetree documentation for the SD3078 device tree
-binding is added with a short example.
+On 07/11/2018 02:39:13+0000, Maciej W. Rozycki wrote:
+> Add the missing adjustment of the month range on alarm reads from the 
+> RTC, correcting an issue coming from commit 9c6dfed92c3e ("rtc: m41t80: 
+> add alarm functionality").  The range is 1-12 for hardware and 0-11 for 
+> `struct rtc_time', and is already correctly handled on alarm writes to 
+> the RTC.
+> 
+> It was correct up until commit 48e9766726eb ("drivers/rtc/rtc-m41t80.c: 
+> remove disabled alarm functionality") too, which removed the previous 
+> implementation of alarm support.
+> 
+> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+> Fixes: 9c6dfed92c3e ("rtc: m41t80: add alarm functionality")
+> References: 48e9766726eb ("drivers/rtc/rtc-m41t80.c: remove disabled alarm functionality")
+> Cc: stable@vger.kernel.org # 4.7+
+> ---
+> Hi,
+> 
+>  I have no means to verify this change at run time as my M41T81 device, 
+> which is the reason for me to use this driver, regrettably hasn't got its 
+> IRQ line routed, due to historical reasons I gathered, as it replaced a 
+> different RTC device, that didn't have an IRQ output at all, used with 
+> earlier revisions of the Broadcom SiByte SWARM board I have been using 
+> this code with.  However it should be obvious by code inspection.
+> 
+>  Please apply and backport as appropriate.
+> 
+>   Maciej
+> ---
+>  drivers/rtc/rtc-m41t80.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 
-Signed-off-by: zoro <long17.cool@163.com>
----
- .../devicetree/bindings/rtc/rtc-sd3078.txt         |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
+Applied (and tested), thanks.
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-new file mode 100644
-index 0000000..676cee8
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-sd3078.txt
-@@ -0,0 +1,13 @@
-+SD3078 Real Time Clock
-+============================
-+
-+Required properties:
-+- compatible: Should contain "whwave,sd3078".
-+- reg: I2C address for chip.
-+
-+Example:
-+
-+sd3078: sd3078@32 {
-+       compatible = "whwave,sd3078";
-+       reg = <0x32>;
-+};
 -- 
-1.7.9.5
-
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
