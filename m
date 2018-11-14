@@ -3,37 +3,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C26D1C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:48:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26618C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:57:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 91D3322419
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:48:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91D3322419
+	by mail.kernel.org (Postfix) with ESMTP id E27D7208A3
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 09:57:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E27D7208A3
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732446AbeKNTun (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Nov 2018 14:50:43 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:58350 "EHLO mail.bootlin.com"
+        id S1727598AbeKNUAW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Nov 2018 15:00:22 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:58528 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727595AbeKNTum (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 14 Nov 2018 14:50:42 -0500
+        id S1727558AbeKNUAW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 14 Nov 2018 15:00:22 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id D368520D8A; Wed, 14 Nov 2018 10:48:10 +0100 (CET)
+        id 39E1920D92; Wed, 14 Nov 2018 10:57:48 +0100 (CET)
 Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id A5DCD20D75;
-        Wed, 14 Nov 2018 10:48:00 +0100 (CET)
-Date:   Wed, 14 Nov 2018 10:48:00 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 0808220D7C;
+        Wed, 14 Nov 2018 10:57:38 +0100 (CET)
+Date:   Wed, 14 Nov 2018 10:57:37 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     "Maciej W. Rozycki" <macro@linux-mips.org>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Matt Turner <mattst88@gmail.com>, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] rtc: m41t80: Complete error propagation from SMBus calls
-Message-ID: <20181114094800.GU29768@piout.net>
+Message-ID: <20181114095737.GV29768@piout.net>
 References: <alpine.LFD.2.21.1811070142240.20378@eddie.linux-mips.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -71,14 +71,11 @@ On 07/11/2018 02:39:51+0000, Maciej W. Rozycki wrote:
 > However I have just realised they'll need another iteration before I post 
 > them.  So for now just these two obvious fixes.
 > 
->  Please apply.
-> 
->   Maciej
-> ---
->  drivers/rtc/rtc-m41t80.c |   13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
-> 
-Applied, thanks.
+
+Regarding the persistent part, do you really need more than what is
+provided? As far as I know, the timekeeping core is already taking care
+of using the best source to get the suspended time.
+
 
 -- 
 Alexandre Belloni, Bootlin
