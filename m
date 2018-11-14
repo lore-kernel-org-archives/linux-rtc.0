@@ -2,96 +2,84 @@ Return-Path: <SRS0=uv83=NZ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D11BC43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:20:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C5BC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:50:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E7A622360
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:20:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5E7A622360
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
+	by mail.kernel.org (Postfix) with ESMTP id 9AC7F208E7
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 12:50:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9AC7F208E7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-mips.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727722AbeKNWXJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Nov 2018 17:23:09 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:33575 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726823AbeKNWXJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 14 Nov 2018 17:23:09 -0500
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id A8BFB206FF; Wed, 14 Nov 2018 13:20:06 +0100 (CET)
-Received: from localhost (unknown [37.71.171.242])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 4218C20510;
-        Wed, 14 Nov 2018 13:20:06 +0100 (CET)
-Date:   Wed, 14 Nov 2018 13:20:05 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S1727755AbeKNWxR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Nov 2018 17:53:17 -0500
+Received: from eddie.linux-mips.org ([148.251.95.138]:54124 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727731AbeKNWxR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Nov 2018 17:53:17 -0500
+Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
+        with ESMTP id S23992408AbeKNMuGhQx2X (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org> + 1 other);
+        Wed, 14 Nov 2018 13:50:06 +0100
+Date:   Wed, 14 Nov 2018 12:50:06 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@linux-mips.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Matt Turner <mattst88@gmail.com>, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: m41t80: Complete error propagation from SMBus calls
-Message-ID: <20181114122005.GY29768@piout.net>
-References: <alpine.LFD.2.21.1811070142240.20378@eddie.linux-mips.org>
- <20181114095737.GV29768@piout.net>
- <alpine.LFD.2.21.1811141139450.21654@eddie.linux-mips.org>
+Subject: Re: [PATCH] rtc: m41t80: Complete error propagation from SMBus
+ calls
+In-Reply-To: <20181114122005.GY29768@piout.net>
+Message-ID: <alpine.LFD.2.21.1811141234140.21654@eddie.linux-mips.org>
+References: <alpine.LFD.2.21.1811070142240.20378@eddie.linux-mips.org> <20181114095737.GV29768@piout.net> <alpine.LFD.2.21.1811141139450.21654@eddie.linux-mips.org> <20181114122005.GY29768@piout.net>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1811141139450.21654@eddie.linux-mips.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 14/11/2018 12:05:14+0000, Maciej W. Rozycki wrote:
-> On Wed, 14 Nov 2018, Alexandre Belloni wrote:
-> 
-> > >  I'll be posting further patches over the coming weeks, based on my 
-> > > original effort as archived here: <https://lkml.org/lkml/2008/5/12/385>,
-> > > <https://lore.kernel.org/patchwork/project/lkml/list/?series=73524&archive=both> 
-> > > However I have just realised they'll need another iteration before I post 
-> > > them.  So for now just these two obvious fixes.
-> > > 
+On Wed, 14 Nov 2018, Alexandre Belloni wrote:
+
+> >  I think we can discuss that when I post the patches.  The m41t80 driver 
+> > currently does not work for me anyway and has to be fixed because of:
 > > 
-> > Regarding the persistent part, do you really need more than what is
-> > provided? As far as I know, the timekeeping core is already taking care
-> > of using the best source to get the suspended time.
+> > i2c /dev entries driver
+> > i2c-sibyte: i2c SMBus adapter module for SiByte board
+> > i2c i2c-1: doesn't support I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_I2C_BLOCK
+> > 
+> > and the persistent part is only one patch in the upcoming number of 
+> > changes.
 > 
->  For that we have platform code duplicating what the RTC framework 
-> already does.  Some of that cannot be made to work reasonably.  See e.g. 
-> arch/mips/dec/time.c or arch/mips/sibyte/swarm/rtc_*.c.
-> 
->  The DEC code is technically sound, but spreads the same function (RTC 
-> r/w access) across another place, in addition to drivers/rtc/rtc-cmos.c.  
-> The SiByte code bypasses the I2C driver and therefore cannot be 
-> converted to use I2C interrupts, which means system latency problems.  
-> The write part used for NTP can be removed right away by making it 
-> return -ENODEV, and I have separate patches to do that for these 
-> platforms.  The read part cannot AFAICT.
-> 
->  I think we can discuss that when I post the patches.  The m41t80 driver 
-> currently does not work for me anyway and has to be fixed because of:
-> 
-> i2c /dev entries driver
-> i2c-sibyte: i2c SMBus adapter module for SiByte board
-> i2c i2c-1: doesn't support I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_I2C_BLOCK
-> 
-> and the persistent part is only one patch in the upcoming number of 
-> changes.
-> 
+> Well, one of the solution for that (and tis is on my todo list) is to
+> convert the driver to use regmap which would take care of using the
+> proper i2c transfers. However, one of the concern when not having bock
+> accesses is that the registers are not latched (as you seem to know).
+> One thing I would like is then to avoid the multiple SEC register read
+> when not necessary.
 
-Well, one of the solution for that (and tis is on my todo list) is to
-convert the driver to use regmap which would take care of using the
-proper i2c transfers. However, one of the concern when not having bock
-accesses is that the registers are not latched (as you seem to know).
-One thing I would like is then to avoid the multiple SEC register read
-when not necessary.
+ Unfortunately the SMBus host does not give much choice here.  It does 
+have some extensions for block transfers, but writes are limited to 5 
+bytes and reads to 7 bytes.  The usual solution is to read repeatedly 
+until the seconds match.  For writes it is not a problem, because it 
+takes less than 1 second to write all the clock registers, so if you 
+start with seconds, then the data written will be consistent.
 
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+ The Xicor chip is worse as it uses 16-bit addresses and that is not 
+handled by SMBus support in our I2C core, however apparently that can be 
+simulated by byte writes with that particular chip.  The SMBus host 
+implements a protocol extension for 16-bit addressing, but I think it's 
+not worth the hassle adding to SMBus support in our I2C core given how 
+rare the Xicor setup are.
+
+ Finally the SMBus host does support raw I2C transfers, but only with a 
+polled bit-banged interface, where you need to time the loop correctly 
+to get clocking of the individual bits right.  I don't think we want to 
+go down that path.
+
+  Maciej
