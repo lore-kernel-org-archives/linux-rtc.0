@@ -2,72 +2,59 @@ Return-Path: <SRS0=uv83=NZ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-6.0 required=3.0 tests=MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 126D6C43610
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 17:20:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC5DCC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 20:00:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BA73421582
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 17:20:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA73421582
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=wanadoo.fr
+	by mail.kernel.org (Postfix) with ESMTP id AE6CA208A3
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Nov 2018 20:00:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AE6CA208A3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733000AbeKODYU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Nov 2018 22:24:20 -0500
-Received: from smtp04.smtpout.orange.fr ([80.12.242.126]:43064 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726823AbeKODYU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Nov 2018 22:24:20 -0500
-Received: from localhost.localdomain ([77.136.84.203])
-        by mwinf5d07 with ME
-        id ztLD1y00K4PD7S503tLDMx; Wed, 14 Nov 2018 18:20:15 +0100
-X-ME-Helo: localhost.localdomain
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Wed, 14 Nov 2018 18:20:15 +0100
-X-ME-IP: 77.136.84.203
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH v2] rtc: max8997: Fix the returned value in case of error in 'max8997_rtc_read_alarm()'
-Date:   Wed, 14 Nov 2018 18:19:51 +0100
-Message-Id: <20181114171951.4137-1-christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.17.1
+        id S1727885AbeKOGEk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Nov 2018 01:04:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725756AbeKOGEj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 15 Nov 2018 01:04:39 -0500
+Subject: Re: [GIT PULL] RTC fixes for 4.20
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D3E3E2243E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: mail.kernel.org; spf=fail smtp.mailfrom=pr-tracker-bot@kernel.org
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20181112220454.GA6189@piout.net>
+References: <20181112220454.GA6189@piout.net>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20181112220454.GA6189@piout.net>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+ tags/rtc-4.20-2
+X-PR-Tracked-Commit-Id: 9bde0afb7a906f1dabdba37162551565740b862d
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: b7bbf9935fb793ef8dc42c61a459d74e8606a799
+Message-Id: <20181114200002.14496.27349.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
+Date:   Wed, 14 Nov 2018 20:00:02 +0000
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In case of error, we return 0.
-This is spurious and not consistent with the other functions of the driver.
-Propagate the error code instead.
+The pull request you sent on Mon, 12 Nov 2018 23:04:54 +0100:
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
----
-v2: re-word changelog and remove Fixes tag.
-   (not sure if any should be provided, and which one would be the best)
----
- drivers/rtc/rtc-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-4.20-2
 
-diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-index 08c661a332ec..20e50d9fdf88 100644
---- a/drivers/rtc/rtc-max8997.c
-+++ b/drivers/rtc/rtc-max8997.c
-@@ -215,7 +215,7 @@ static int max8997_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- out:
- 	mutex_unlock(&info->lock);
--	return 0;
-+	return ret;
- }
- 
- static int max8997_rtc_stop_alarm(struct max8997_rtc_info *info)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/b7bbf9935fb793ef8dc42c61a459d74e8606a799
+
+Thank you!
+
 -- 
-2.17.1
-
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
