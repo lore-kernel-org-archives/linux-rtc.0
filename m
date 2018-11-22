@@ -7,46 +7,46 @@ X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50CCBC43610
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 19:59:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E976C43441
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 20:00:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0E4AF20892
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 19:59:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EAC920892
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 20:00:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="2p4sc+I0"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E4AF20892
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="gNFSgxpj"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EAC920892
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392457AbeKWGha (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 23 Nov 2018 01:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36176 "EHLO mail.kernel.org"
+        id S2407014AbeKWGgD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 23 Nov 2018 01:36:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733263AbeKWGh3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 23 Nov 2018 01:37:29 -0500
+        id S1733189AbeKWGgC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 23 Nov 2018 01:36:02 -0500
 Received: from sasha-vm.mshome.net (unknown [37.142.5.207])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6CE2087E;
-        Thu, 22 Nov 2018 19:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5138720866;
+        Thu, 22 Nov 2018 19:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1542916597;
-        bh=6/oyEoJmSApWIas6eQyDlT7P0sWlxAHgVgTRcF00b0k=;
+        s=default; t=1542916510;
+        bh=eMn/bQh9gN6/dFhmJyB0yR7tfx1uLBZsBC1De655cjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2p4sc+I0xXNkB3LbZt8udk5msj+WbjPUwSHc1iasixTN5WTGnzJyEgAoYcrHnFMdq
-         oq3yiAtyprIS+k4GNdbwSaCRRMWEmLb+/n25S1QiuyCx1AAoqN8w5Or4tcmRMvkW77
-         F4tkjmN4ArhsNgrk3OGq7lnF15M74+hQaUSGupd8=
+        b=gNFSgxpjyMmA2SLYyanEGNDXDUByr7nXYUjfCFlctmQSS4E1LgFThAy2yAD909GE7
+         u/Pwxwww9AbVys/1n+ugLo5I0B4ceNU2AzGwrpjo2fLCOipvl286Mc3Nc13jxS1RAA
+         9nmaDsW5a2+SrOGNfG4TwPk/gX+F7Ppmz7JILXmI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Xulin Sun <xulin.sun@windriver.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/15] rtc: pcf2127: fix a kmemleak caused in pcf2127_i2c_gather_write
-Date:   Thu, 22 Nov 2018 14:56:11 -0500
-Message-Id: <20181122195621.13776-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 05/21] rtc: pcf2127: fix a kmemleak caused in pcf2127_i2c_gather_write
+Date:   Thu, 22 Nov 2018 14:54:36 -0500
+Message-Id: <20181122195452.13520-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20181122195621.13776-1-sashal@kernel.org>
-References: <20181122195621.13776-1-sashal@kernel.org>
+In-Reply-To: <20181122195452.13520-1-sashal@kernel.org>
+References: <20181122195452.13520-1-sashal@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -88,10 +88,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 2bfdf638b673..8a3667e761dd 100644
+index f33447c5db85..9f1b14bf91ae 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -237,6 +237,9 @@ static int pcf2127_i2c_gather_write(void *context,
+@@ -248,6 +248,9 @@ static int pcf2127_i2c_gather_write(void *context,
  	memcpy(buf + 1, val, val_size);
  
  	ret = i2c_master_send(client, buf, val_size + 1);
