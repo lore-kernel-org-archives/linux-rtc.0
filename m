@@ -2,77 +2,105 @@ Return-Path: <SRS0=ug2M=OB=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 732F8C43441
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 17:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50CCBC43610
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 19:59:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4972220684
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 17:50:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4972220684
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tkos.co.il
+	by mail.kernel.org (Postfix) with ESMTP id 0E4AF20892
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Nov 2018 19:59:24 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="2p4sc+I0"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E4AF20892
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406498AbeKWEao (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Nov 2018 23:30:44 -0500
-Received: from guitar.tcltek.co.il ([192.115.133.116]:48896 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732157AbeKWEao (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 22 Nov 2018 23:30:44 -0500
-Received: from tarshish (unknown [10.0.8.6])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2392457AbeKWGha (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 23 Nov 2018 01:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36176 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733263AbeKWGh3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 23 Nov 2018 01:37:29 -0500
+Received: from sasha-vm.mshome.net (unknown [37.142.5.207])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx.tkos.co.il (Postfix) with ESMTPS id 8F7E0440069;
-        Thu, 22 Nov 2018 19:50:16 +0200 (IST)
-References: <03de7e5c04091b69c550be82420c6a8ce5bbb71f.1542630842.git.baruch@tkos.co.il> <20181122171819.GK12656@piout.net>
-User-agent: mu4e 1.0; emacs 25.2.2
-From:   Baruch Siach <baruch@tkos.co.il>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: dt-binding: abx80x: fix resistance scale
-In-reply-to: <20181122171819.GK12656@piout.net>
-Date:   Thu, 22 Nov 2018 19:50:16 +0200
-Message-ID: <87va4pdmsn.fsf@tkos.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C6CE2087E;
+        Thu, 22 Nov 2018 19:56:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542916597;
+        bh=6/oyEoJmSApWIas6eQyDlT7P0sWlxAHgVgTRcF00b0k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=2p4sc+I0xXNkB3LbZt8udk5msj+WbjPUwSHc1iasixTN5WTGnzJyEgAoYcrHnFMdq
+         oq3yiAtyprIS+k4GNdbwSaCRRMWEmLb+/n25S1QiuyCx1AAoqN8w5Or4tcmRMvkW77
+         F4tkjmN4ArhsNgrk3OGq7lnF15M74+hQaUSGupd8=
+From:   Sasha Levin <sashal@kernel.org>
+To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Xulin Sun <xulin.sun@windriver.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/15] rtc: pcf2127: fix a kmemleak caused in pcf2127_i2c_gather_write
+Date:   Thu, 22 Nov 2018 14:56:11 -0500
+Message-Id: <20181122195621.13776-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181122195621.13776-1-sashal@kernel.org>
+References: <20181122195621.13776-1-sashal@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Alexandre,
+From: Xulin Sun <xulin.sun@windriver.com>
 
-Alexandre Belloni writes:
-> On 19/11/2018 14:34:02+0200, Baruch Siach wrote:
->> The abracon,tc-resistor property value is in KOhm.
->> 
->> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
->> ---
->>  Documentation/devicetree/bindings/rtc/abracon,abx80x.txt | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->> 
->> diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
->> index be789685a1c2..e668b5f65314 100644
->> --- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
->> +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
->> @@ -27,4 +27,4 @@ and valid to enable charging:
->>  
->>   - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
->>   - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
->> -                          resistor, the other values are in ohm.
->> +                          resistor, the other values are in KOhm.
->
-> The correct SI prefix is k so this should be kOhm. If you agree, I can
-> fix this up.
+[ Upstream commit 9bde0afb7a906f1dabdba37162551565740b862d ]
 
-I am fine with that. Please fix the commit message as well.
+pcf2127_i2c_gather_write() allocates memory as local variable
+for i2c_master_send(), after finishing the master transfer,
+the allocated memory should be freed. The kmemleak is reported:
 
-Thanks,
-baruch
+unreferenced object 0xffff80231e7dba80 (size 64):
+  comm "hwclock", pid 27762, jiffies 4296880075 (age 356.944s)
+  hex dump (first 32 bytes):
+    03 00 12 03 19 02 11 13 00 80 98 18 00 00 ff ff ................
+    00 50 00 00 00 00 00 00 02 00 00 00 00 00 00 00 .P..............
+  backtrace:
+    [<ffff000008221398>] create_object+0xf8/0x278
+    [<ffff000008a96264>] kmemleak_alloc+0x74/0xa0
+    [<ffff00000821070c>] __kmalloc+0x1ac/0x348
+    [<ffff0000087ed1dc>] pcf2127_i2c_gather_write+0x54/0xf8
+    [<ffff0000085fd9d4>] _regmap_raw_write+0x464/0x850
+    [<ffff0000085fe3f4>] regmap_bulk_write+0x1a4/0x348
+    [<ffff0000087ed32c>] pcf2127_rtc_set_time+0xac/0xe8
+    [<ffff0000087eaad8>] rtc_set_time+0x80/0x138
+    [<ffff0000087ebfb0>] rtc_dev_ioctl+0x398/0x610
+    [<ffff00000823f2c0>] do_vfs_ioctl+0xb0/0x848
+    [<ffff00000823fae4>] SyS_ioctl+0x8c/0xa8
+    [<ffff000008083ac0>] el0_svc_naked+0x34/0x38
+    [<ffffffffffffffff>] 0xffffffffffffffff
 
+Signed-off-by: Xulin Sun <xulin.sun@windriver.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/rtc/rtc-pcf2127.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 2bfdf638b673..8a3667e761dd 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -237,6 +237,9 @@ static int pcf2127_i2c_gather_write(void *context,
+ 	memcpy(buf + 1, val, val_size);
+ 
+ 	ret = i2c_master_send(client, buf, val_size + 1);
++
++	kfree(buf);
++
+ 	if (ret != val_size + 1)
+ 		return ret < 0 ? ret : -EIO;
+ 
 -- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+2.17.1
+
