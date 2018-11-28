@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3839C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FBF3C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AC72920665
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC72920665
+	by mail.kernel.org (Postfix) with ESMTP id DE1AD20665
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DE1AD20665
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729492AbeK2GJW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 01:09:22 -0500
-Received: from mga05.intel.com ([192.55.52.43]:12106 "EHLO mga05.intel.com"
+        id S1729117AbeK2GI1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 29 Nov 2018 01:08:27 -0500
+Received: from mga09.intel.com ([134.134.136.24]:52472 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729284AbeK2GI1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1729280AbeK2GI1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Thu, 29 Nov 2018 01:08:27 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:48 -0800
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:42 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,291,1539673200"; 
-   d="scan'208";a="94558751"
+   d="scan'208";a="278381649"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 28 Nov 2018 11:05:45 -0800
+  by orsmga005.jf.intel.com with ESMTP; 28 Nov 2018 11:05:39 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 3AE3A743; Wed, 28 Nov 2018 21:05:39 +0200 (EET)
+        id 939962AD; Wed, 28 Nov 2018 21:05:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -43,9 +43,9 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 14/21] rtc: rx6110: Switch to use %ptR
-Date:   Wed, 28 Nov 2018 21:05:30 +0200
-Message-Id: <20181128190537.14074-15-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 03/21] rtc: Switch to use %ptR
+Date:   Wed, 28 Nov 2018 21:05:19 +0200
+Message-Id: <20181128190537.14074-4-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
 References: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
@@ -59,48 +59,165 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 Use %ptR instead of open coded variant to print content of
 struct rtc_time in human readable format.
 
+Note, we drop the validation option. This is only used in
+a deprecated ABI and is mostly wrong as many RTCs will still be valid
+after 2100.
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-rx6110.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/char/rtc.c      |  7 +++----
+ drivers/rtc/hctosys.c   |  8 ++------
+ drivers/rtc/interface.c |  8 ++------
+ drivers/rtc/rtc-proc.c  | 36 +++++-------------------------------
+ drivers/rtc/rtc-sysfs.c | 16 ++++++----------
+ 5 files changed, 18 insertions(+), 57 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-index 8e322d884cc2..5899ca368d59 100644
---- a/drivers/rtc/rtc-rx6110.c
-+++ b/drivers/rtc/rtc-rx6110.c
-@@ -114,9 +114,7 @@ struct rx6110_data {
-  */
- static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
- {
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
+diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
+index 4948c8bda6b1..0cde96822a87 100644
+--- a/drivers/char/rtc.c
++++ b/drivers/char/rtc.c
+@@ -1125,11 +1125,10 @@ static int rtc_proc_show(struct seq_file *seq, void *v)
+ 	 * time or for Universal Standard Time (GMT). Probably local though.
+ 	 */
+ 	seq_printf(seq,
+-		   "rtc_time\t: %02d:%02d:%02d\n"
+-		   "rtc_date\t: %04d-%02d-%02d\n"
++		   "rtc_time\t: %ptRt\n"
++		   "rtc_date\t: %ptRd\n"
+ 		   "rtc_epoch\t: %04lu\n",
+-		   tm.tm_hour, tm.tm_min, tm.tm_sec,
+-		   tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, epoch);
++		   &tm, &tm, epoch);
  
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -154,9 +152,7 @@ static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
- 	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
- 	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
+ 	get_rtc_alm_time(&tm);
  
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
+diff --git a/drivers/rtc/hctosys.c b/drivers/rtc/hctosys.c
+index b9ec4a16db1f..ff2092a0d38c 100644
+--- a/drivers/rtc/hctosys.c
++++ b/drivers/rtc/hctosys.c
+@@ -58,12 +58,8 @@ static int __init rtc_hctosys(void)
  
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -248,9 +244,7 @@ static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
- 	if (ret)
- 		return ret;
+ 	err = do_settimeofday64(&tv64);
  
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		tm->tm_sec, tm->tm_min, tm->tm_hour,
--		tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	dev_dbg(dev, "%s: date %ptRr\n", __func__, tm);
+-	dev_info(rtc->dev.parent,
+-		"setting system clock to "
+-		"%d-%02d-%02d %02d:%02d:%02d UTC (%lld)\n",
+-		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+-		tm.tm_hour, tm.tm_min, tm.tm_sec,
+-		(long long) tv64.tv_sec);
++	dev_info(rtc->dev.parent, "setting system clock to %ptR UTC (%lld)\n",
++		 &tm, (long long)tv64.tv_sec);
  
- 	return 0;
+ err_read:
+ 	rtc_class_close(rtc);
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 612a83d3ddcc..e8d77b1eaeb2 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -368,12 +368,8 @@ int __rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
+ 	err = rtc_valid_tm(&alarm->time);
+ 
+ done:
+-	if (err) {
+-		dev_warn(&rtc->dev, "invalid alarm value: %d-%d-%d %d:%d:%d\n",
+-			alarm->time.tm_year + 1900, alarm->time.tm_mon + 1,
+-			alarm->time.tm_mday, alarm->time.tm_hour, alarm->time.tm_min,
+-			alarm->time.tm_sec);
+-	}
++	if (err)
++		dev_warn(&rtc->dev, "invalid alarm value: %ptR\n", &alarm->time);
+ 
+ 	return err;
  }
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index a9dd9218fae2..98421f1ba6cd 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -50,41 +50,15 @@ static int rtc_proc_show(struct seq_file *seq, void *offset)
+ 	err = rtc_read_time(rtc, &tm);
+ 	if (err == 0) {
+ 		seq_printf(seq,
+-			"rtc_time\t: %02d:%02d:%02d\n"
+-			"rtc_date\t: %04d-%02d-%02d\n",
+-			tm.tm_hour, tm.tm_min, tm.tm_sec,
+-			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
++				"rtc_time\t: %ptRt\n"
++				"rtc_date\t: %ptRd\n",
++				&tm, &tm);
+ 	}
+ 
+ 	err = rtc_read_alarm(rtc, &alrm);
+ 	if (err == 0) {
+-		seq_printf(seq, "alrm_time\t: ");
+-		if ((unsigned int)alrm.time.tm_hour <= 24)
+-			seq_printf(seq, "%02d:", alrm.time.tm_hour);
+-		else
+-			seq_printf(seq, "**:");
+-		if ((unsigned int)alrm.time.tm_min <= 59)
+-			seq_printf(seq, "%02d:", alrm.time.tm_min);
+-		else
+-			seq_printf(seq, "**:");
+-		if ((unsigned int)alrm.time.tm_sec <= 59)
+-			seq_printf(seq, "%02d\n", alrm.time.tm_sec);
+-		else
+-			seq_printf(seq, "**\n");
+-
+-		seq_printf(seq, "alrm_date\t: ");
+-		if ((unsigned int)alrm.time.tm_year <= 200)
+-			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
+-		else
+-			seq_printf(seq, "****-");
+-		if ((unsigned int)alrm.time.tm_mon <= 11)
+-			seq_printf(seq, "%02d-", alrm.time.tm_mon + 1);
+-		else
+-			seq_printf(seq, "**-");
+-		if (alrm.time.tm_mday && (unsigned int)alrm.time.tm_mday <= 31)
+-			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
+-		else
+-			seq_printf(seq, "**\n");
++		seq_printf(seq, "alrm_time\t: %ptRt\n", &alrm.time);
++		seq_printf(seq, "alrm_date\t: %ptRd\n", &alrm.time);
+ 		seq_printf(seq, "alarm_IRQ\t: %s\n",
+ 				alrm.enabled ? "yes" : "no");
+ 		seq_printf(seq, "alrm_pending\t: %s\n",
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/rtc-sysfs.c
+index 9746c32eee2e..a8f22ee726bb 100644
+--- a/drivers/rtc/rtc-sysfs.c
++++ b/drivers/rtc/rtc-sysfs.c
+@@ -39,12 +39,10 @@ date_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	struct rtc_time tm;
+ 
+ 	retval = rtc_read_time(to_rtc_device(dev), &tm);
+-	if (retval == 0) {
+-		retval = sprintf(buf, "%04d-%02d-%02d\n",
+-			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+-	}
++	if (retval)
++		return retval;
+ 
+-	return retval;
++	return sprintf(buf, "%ptRd\n", &tm);
+ }
+ static DEVICE_ATTR_RO(date);
+ 
+@@ -55,12 +53,10 @@ time_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	struct rtc_time tm;
+ 
+ 	retval = rtc_read_time(to_rtc_device(dev), &tm);
+-	if (retval == 0) {
+-		retval = sprintf(buf, "%02d:%02d:%02d\n",
+-			tm.tm_hour, tm.tm_min, tm.tm_sec);
+-	}
++	if (retval)
++		return retval;
+ 
+-	return retval;
++	return sprintf(buf, "%ptRt\n", &tm);
+ }
+ static DEVICE_ATTR_RO(time);
+ 
 -- 
 2.19.2
 
