@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49575C04EBC
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC7F3C07E85
 	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12C0021104
+	by mail.kernel.org (Postfix) with ESMTP id 7EE812145D
 	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12C0021104
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7EE812145D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728179AbeK1Uih (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1728181AbeK1Uih (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 28 Nov 2018 15:38:37 -0500
-Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49540 "EHLO
+Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49532 "EHLO
         wens.csie.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728157AbeK1Uih (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1728154AbeK1Uih (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Wed, 28 Nov 2018 15:38:37 -0500
 Received: by wens.csie.org (Postfix, from userid 1000)
-        id 352325F725; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
+        id 6C328601CD; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
 From:   Chen-Yu Tsai <wens@csie.org>
 To:     Maxime Ripard <maxime.ripard@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -35,9 +35,9 @@ Cc:     Chen-Yu Tsai <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-sunxi@googlegroups.com
-Subject: [PATCH 01/15] dt-bindings: rtc: sun6i-rtc: Rewrite clock outputs as a list
-Date:   Wed, 28 Nov 2018 17:29:58 +0800
-Message-Id: <20181128093013.24442-2-wens@csie.org>
+Subject: [PATCH 07/15] rtc: sun6i: Add support for all known variants
+Date:   Wed, 28 Nov 2018 17:30:05 +0800
+Message-Id: <20181128093013.24442-9-wens@csie.org>
 X-Mailer: git-send-email 2.20.0.rc1
 In-Reply-To: <20181128093013.24442-1-wens@csie.org>
 References: <20181128093013.24442-1-wens@csie.org>
@@ -48,41 +48,86 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The clock output section for this binding describes the two outputs in
-the descriptions for both the #clock-cells and clock-output-names
-properties.
+There are different variants to the RTC hardware first seen on sun6i
+(A31). The differences we care about in this driver are the clock rate
+for the internal oscillator, prescalers, and the presence of an external
+clock output.
 
-Instead of overlapping information that is hard to read, rewrite the
-clock outputs as a list of indices and descriptions. The properies
-can reference this list instead. This will also make it easier to
-add notes or conditions to the clocks, and also for adding new outputs.
+This patch adds support for all the known base compatibles using the
+variants data structure previously introduced.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- Documentation/devicetree/bindings/rtc/sun6i-rtc.txt | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-sun6i.c | 49 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-index 12c083c1140a..d3e96459fc66 100644
---- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-@@ -10,10 +10,12 @@ Required properties:
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index d1866d90b9ef..0a635e9cc25f 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -312,6 +312,50 @@ static void __init sun6i_a31_rtc_clk_init(struct device_node *node)
+ CLK_OF_DECLARE_DRIVER(sun6i_a31_rtc_clk, "allwinner,sun6i-a31-rtc",
+ 		      sun6i_a31_rtc_clk_init);
  
- Required properties for new device trees
- - clocks	: phandle to the 32kHz external oscillator
--- clock-output-names : names of the LOSC and its external output clocks created
--- #clock-cells  : must be equals to 1. The RTC provides two clocks: the
--		  LOSC and its external output, with index 0 and 1
--		  respectively.
-+- clock-output-names : names of the two clock outputs. See below.
-+- #clock-cells  : must be equal to 1.
++static const struct sun6i_rtc_clk_data sun8i_a23_rtc_data = {
++	.rc_osc_rate = 667000, /* datasheet says 600 ~ 700 KHz */
++	.has_prescaler = 1,
++	.has_out_clk = 1,
++};
 +
-+The RTC provides the following clocks at the given indices:
-+- 0: LOSC
-+- 1: LOSC external output, known as X32KFOUT in the datasheet.
- 
- Example:
- 
++static void __init sun8i_a23_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun8i_a23_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun8i_a23_rtc_clk, "allwinner,sun8i-a23-rtc",
++		      sun8i_a23_rtc_clk_init);
++
++static const struct sun6i_rtc_clk_data sun8i_h3_rtc_data = {
++	.rc_osc_rate = 16000000,
++	.fixed_prescaler = 32,
++	.has_prescaler = 1,
++	.has_out_clk = 1,
++};
++
++static void __init sun8i_h3_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun8i_h3_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun8i_h3_rtc_clk, "allwinner,sun8i-h3-rtc",
++		      sun8i_h3_rtc_clk_init);
++/* As far as we are concerned, clocks for H5 and H6 are the same as H3 */
++CLK_OF_DECLARE_DRIVER(sun50i_h5_rtc_clk, "allwinner,sun50i-h5-rtc",
++		      sun8i_h3_rtc_clk_init);
++CLK_OF_DECLARE_DRIVER(sun50i_h6_rtc_clk, "allwinner,sun50i-h6-rtc",
++		      sun8i_h3_rtc_clk_init);
++
++static const struct sun6i_rtc_clk_data sun8i_v3_rtc_data = {
++	.rc_osc_rate = 32000,
++	.has_out_clk = 1,
++};
++
++static void __init sun8i_v3_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun8i_v3_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun8i_v3_rtc_clk, "allwinner,sun8i-v3-rtc",
++		      sun8i_v3_rtc_clk_init);
++
+ static irqreturn_t sun6i_rtc_alarmirq(int irq, void *id)
+ {
+ 	struct sun6i_rtc_dev *chip = (struct sun6i_rtc_dev *) id;
+@@ -625,6 +669,11 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+  */
+ static const struct of_device_id sun6i_rtc_dt_ids[] = {
+ 	{ .compatible = "allwinner,sun6i-a31-rtc" },
++	{ .compatible = "allwinner,sun8i-a23-rtc" },
++	{ .compatible = "allwinner,sun8i-h3-rtc" },
++	{ .compatible = "allwinner,sun8i-v3-rtc" },
++	{ .compatible = "allwinner,sun50i-h5-rtc" },
++	{ .compatible = "allwinner,sun50i-h6-rtc" },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, sun6i_rtc_dt_ids);
 -- 
-2.20.0.rc1
+2.19.1
 
