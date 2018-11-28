@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03276C43441
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48385C04EB8
 	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C9E7620665
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9E7620665
+	by mail.kernel.org (Postfix) with ESMTP id 1BD1920665
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1BD1920665
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729326AbeK2GJG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 01:09:06 -0500
-Received: from mga04.intel.com ([192.55.52.120]:9022 "EHLO mga04.intel.com"
+        id S1729330AbeK2GI2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 29 Nov 2018 01:08:28 -0500
+Received: from mga11.intel.com ([192.55.52.93]:36195 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729324AbeK2GI2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1729322AbeK2GI2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Thu, 29 Nov 2018 01:08:28 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:49 -0800
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:48 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,291,1539673200"; 
-   d="scan'208";a="114914428"
+   d="scan'208";a="288288319"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga002.fm.intel.com with ESMTP; 28 Nov 2018 11:05:46 -0800
+  by fmsmga005.fm.intel.com with ESMTP; 28 Nov 2018 11:05:45 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 5E8C5190; Wed, 28 Nov 2018 21:05:39 +0200 (EET)
+        id 54CAD7A3; Wed, 28 Nov 2018 21:05:39 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -42,11 +42,10 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH v4 17/21] rtc: s5m: Switch to use %ptR
-Date:   Wed, 28 Nov 2018 21:05:33 +0200
-Message-Id: <20181128190537.14074-18-andriy.shevchenko@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 16/21] rtc: s3c: Switch to use %ptR
+Date:   Wed, 28 Nov 2018 21:05:32 +0200
+Message-Id: <20181128190537.14074-17-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
 References: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
@@ -60,86 +59,65 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 Use %ptR instead of open coded variant to print content of
 struct rtc_time in human readable format.
 
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-s5m.c | 27 ++++++---------------------
- 1 file changed, 6 insertions(+), 21 deletions(-)
+ drivers/rtc/rtc-s3c.c | 20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 6495f84f7428..c7f1bf823ea0 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -406,9 +406,7 @@ static int s5m_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 58e03ac3578b..04c68178c42d 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -225,13 +225,9 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
+ 	s3c_rtc_disable_clk(info);
  
--	dev_dbg(dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec, tm->tm_wday);
-+	dev_dbg(dev, "%s: %ptR(%d)\n", __func__, tm, tm->tm_wday);
+ 	rtc_tm->tm_year += 100;
+-
+-	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
+-		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
+-		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
+-
+ 	rtc_tm->tm_mon -= 1;
  
++	dev_dbg(dev, "read time %ptR\n", rtc_tm);
  	return 0;
  }
-@@ -436,9 +434,7 @@ static int s5m_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	if (ret < 0)
- 		return ret;
  
--	dev_dbg(dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday,
--		tm->tm_hour, tm->tm_min, tm->tm_sec, tm->tm_wday);
-+	dev_dbg(dev, "%s: %ptR(%d)\n", __func__, tm, tm->tm_wday);
+@@ -241,9 +237,7 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+ 	int year = tm->tm_year - 100;
+ 	int ret;
  
- 	ret = regmap_raw_write(info->regmap, info->regs->time, data,
- 			info->regs->regs_count);
-@@ -490,11 +486,7 @@ static int s5m_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		return -EINVAL;
- 	}
+-	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "set time %ptR\n", tm);
  
--	dev_dbg(dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + alrm->time.tm_year, 1 + alrm->time.tm_mon,
--		alrm->time.tm_mday, alrm->time.tm_hour,
--		alrm->time.tm_min, alrm->time.tm_sec,
--		alrm->time.tm_wday);
-+	dev_dbg(dev, "%s: %ptR(%d)\n", __func__, &alrm->time, alrm->time.tm_wday);
+ 	/* we get around y2k by simply not supporting it */
  
- 	ret = s5m_check_peding_alarm_interrupt(info, alrm);
+@@ -292,10 +286,7 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
  
-@@ -513,9 +505,7 @@ static int s5m_rtc_stop_alarm(struct s5m_rtc_info *info)
- 		return ret;
+ 	alrm->enabled = (alm_en & S3C2410_RTCALM_ALMEN) ? 1 : 0;
  
- 	s5m8767_data_to_tm(data, &tm, info->rtc_24hr_mode);
--	dev_dbg(info->dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
--		tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_wday);
-+	dev_dbg(info->dev, "%s: %ptR(%d)\n", __func__, &tm, tm.tm_wday);
+-	dev_dbg(dev, "read alarm %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+-		alm_en,
+-		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
+-		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
++	dev_dbg(dev, "read alarm %d, %ptR\n", alm_en, alm_tm);
  
- 	switch (info->device_type) {
- 	case S5M8763X:
-@@ -558,9 +548,7 @@ static int s5m_rtc_start_alarm(struct s5m_rtc_info *info)
- 		return ret;
+ 	/* decode the alarm enable field */
+ 	if (alm_en & S3C2410_RTCALM_SECEN)
+@@ -328,10 +319,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	unsigned int alrm_en;
+ 	int ret;
  
- 	s5m8767_data_to_tm(data, &tm, info->rtc_24hr_mode);
--	dev_dbg(info->dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
--		tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_wday);
-+	dev_dbg(info->dev, "%s: %ptR(%d)\n", __func__, &tm, tm.tm_wday);
+-	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
+-		alrm->enabled,
+-		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "s3c_rtc_setalarm: %d, %ptR\n", alrm->enabled, tm);
  
- 	switch (info->device_type) {
- 	case S5M8763X:
-@@ -620,10 +608,7 @@ static int s5m_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		return -EINVAL;
- 	}
- 
--	dev_dbg(dev, "%s: %d/%d/%d %d:%d:%d(%d)\n", __func__,
--		1900 + alrm->time.tm_year, 1 + alrm->time.tm_mon,
--		alrm->time.tm_mday, alrm->time.tm_hour, alrm->time.tm_min,
--		alrm->time.tm_sec, alrm->time.tm_wday);
-+	dev_dbg(dev, "%s: %ptR(%d)\n", __func__, &alrm->time, alrm->time.tm_wday);
- 
- 	ret = s5m_rtc_stop_alarm(info);
- 	if (ret < 0)
+ 	ret = s3c_rtc_enable_clk(info);
+ 	if (ret)
 -- 
 2.19.2
 
