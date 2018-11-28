@@ -2,375 +2,186 @@ Return-Path: <SRS0=lKmk=OH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA899C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 18:16:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8217FC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 18:45:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97D5D206B2
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 18:16:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 97D5D206B2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTP id 409B8206B2
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 18:45:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qm9cbxBS"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 409B8206B2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726945AbeK2FS7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 00:18:59 -0500
-Received: from mga14.intel.com ([192.55.52.115]:43889 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725266AbeK2FS7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 29 Nov 2018 00:18:59 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 10:16:28 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.56,291,1539673200"; 
-   d="scan'208";a="95901999"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.72.86])
-  by fmsmga008.fm.intel.com with ESMTP; 28 Nov 2018 10:16:23 -0800
-Received: from andy by smile with local (Exim 4.91)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1gS4Np-0005VC-QB; Wed, 28 Nov 2018 20:16:21 +0200
-Date:   Wed, 28 Nov 2018 20:16:21 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org,
+        id S1727648AbeK2FsL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 29 Nov 2018 00:48:11 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51301 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725772AbeK2FsL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Nov 2018 00:48:11 -0500
+Received: by mail-wm1-f65.google.com with SMTP id s14so3499908wmh.1;
+        Wed, 28 Nov 2018 10:45:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=kA0EaRVco4/yVtEHc7rLURp/z2b/HxSi3M+1DLjPSII=;
+        b=Qm9cbxBS5epTU2LP6B6bQ2LJABOXpifNR7CpYwlxMs0FFbnvnW99UxLtX1yxpeXfKc
+         bEmf8N2woIWkSBg8ZoUZzR/NBvZ0jhu+2P3hXWfm7T9GumEv7qUZx6ouAOXVQOHOE0fF
+         keuqGl9U/8oOM3Vj0lMnl5ODMEQgsv8mRdtbv3UAjQ8eoplbkSAJTVgxmDHGUBioLT2c
+         s/qgXC/s0AAwsScXmgg1g6RrQMVC5UDknm5hnR5On2XmxpcmS6+LMtXHTuth23+zmhq8
+         SYDTKg+2HacAuymjf1ybo3mUQtIR9jc6gaK0BhRDDa5GoiFlHkN9X4K3F6eueQCLYNWg
+         kw/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=kA0EaRVco4/yVtEHc7rLURp/z2b/HxSi3M+1DLjPSII=;
+        b=ncSa3ESO6BzL+U/d2cZJGgXVBFajasBVKSfV7j/xWmjrry3rkqPigKEzjZ/unQ6pBm
+         i2Wd2MJGJDfL3e//syyFzyqnWp2nK312HsFDKLsrWS2gUlx/mCQOMYz+IOBLYwjC9oac
+         otteRUWIjjtePqFGWVZNBjs+Vh19/MKoFBoBKmRZsOASfQ1y0AV6lmSVoEI/eKWtdwvk
+         nKmUhSpmZXov0Plpx9oktXiSkT808+ybOx5rry8CgJM/m+dprNB6f5w7XXmKjNdL41lX
+         6T+0ogWD/fkZBsiDi09496XIeN6SXs+GuiwGyl1lPSFfQGGNzLJZXgAbKZvXjaznRIVl
+         xQYA==
+X-Gm-Message-State: AA+aEWbQFtAZ952wKdinwnrK0VGXAWekVy29uameR/Yl553hBs0WSSuv
+        F3NnKJfFkGhDGT4Iq/XVFcE=
+X-Google-Smtp-Source: AFSGD/XxOUKIwxAmkRcQZklzja3iUyoNqyO4Z5BZcH3XgsI9rtpXH3uGXeIuKYwdL2nZ6oDsRh8teg==
+X-Received: by 2002:a1c:3a8d:: with SMTP id h135-v6mr3808575wma.92.1543430732246;
+        Wed, 28 Nov 2018 10:45:32 -0800 (PST)
+Received: from Red ([2a01:cb1d:147:7200:2e56:dcff:fed2:c6d6])
+        by smtp.googlemail.com with ESMTPSA id v19sm11818698wrd.46.2018.11.28.10.45.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Nov 2018 10:45:31 -0800 (PST)
+Date:   Wed, 28 Nov 2018 19:45:28 +0100
+From:   Corentin Labbe <clabbe.montjoie@gmail.com>
+To:     Chen-Yu Tsai <wens@csie.org>
+Cc:     Maxime Ripard <maxime.ripard@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guan Xuetao <gxt@mprc.pku.edu.cn>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v3 01/20] lib/vsprintf: Print time and date in human
- readable format via %pt
-Message-ID: <20181128181621.GE10650@smile.fi.intel.com>
-References: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
- <20181113171729.19645-2-andriy.shevchenko@linux.intel.com>
- <20181120222756.GI8367@piout.net>
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [linux-sunxi] [PATCH 00/15] rtc: sun6i: clock rework and pre-H6
+ SoC support
+Message-ID: <20181128184528.GA22504@Red>
+References: <20181128093013.24442-1-wens@csie.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181120222756.GI8367@piout.net>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20181128093013.24442-1-wens@csie.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Nov 20, 2018 at 11:27:57PM +0100, Alexandre Belloni wrote:
-> Hello,
+On Wed, Nov 28, 2018 at 05:29:57PM +0800, Chen-Yu Tsai wrote:
+> Hi everyone,
 > 
-> (Please update my email address).
-
-I will follow all recommendations.
-New version coming soon...
-
-Thanks for review!
-
+> This series was started as part of enabling Bluetooth on various
+> Allwinner SBCs. The bluetooth controller requires a precise 32.768 kHz
+> clock fed to it to correctly detect the frequency of its main oscillator.
+> This clock signal is provided by the RTC, either directly from a special
+> pin on the SoC, or some clock output function from the clock controllers.
+> I found that the clock-related properties of the RTC on later SoCs were
+> incorrect or missing.
 > 
-> On 13/11/2018 19:17:10+0200, Andy Shevchenko wrote:
-> > There are users which print time and date represented by content of
-> > struct rtc_time in human readable format.
-> > 
-> > Instead of open coding that each time introduce %ptR[dt][rv] specifier.
-> > 
-> > Note, users have to select PRINTK_PEXT_TIMEDATE option in a Kconfig.
-> > 
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> > Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
-> > Cc: Ingo Molnar <mingo@kernel.org>
-> > Cc: Jason Wessel <jason.wessel@windriver.com>
-> > Cc: Jonathan Corbet <corbet@lwn.net>
-> > Cc: Jonathan Hunter <jonathanh@nvidia.com>
-> > Cc: Krzysztof Kozlowski <krzk@kernel.org>
-> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> > Cc: Thierry Reding <thierry.reding@gmail.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  Documentation/core-api/printk-formats.rst |  20 ++++
-> >  lib/test_printf.c                         |   6 +
-> >  lib/vsprintf.c                            | 140 ++++++++++++++++++++++
-> >  3 files changed, 166 insertions(+)
-> > 
-> > diff --git a/Documentation/core-api/printk-formats.rst b/Documentation/core-api/printk-formats.rst
-> > index ff48b55040ef..8342a65eab0b 100644
-> > --- a/Documentation/core-api/printk-formats.rst
-> > +++ b/Documentation/core-api/printk-formats.rst
-> > @@ -412,6 +412,26 @@ Examples::
-> >  
-> >  Passed by reference.
-> >  
-> > +Time and date (struct rtc_time)
-> > +-------------------------------
-> > +
-> > +::
-> > +
-> > +	%ptR		YYYY-mm-dd HH:MM:SS
-> > +	%ptRd		YYYY-mm-dd
-> > +	%ptRt		HH:MM:SS
-> > +	%ptR[dt][rv]
-> > +
-> > +For printing date and time as represented by struct rtc_time structure in
-> > +human readable format.
-> > +
-> > +By default year will be incremented by 1900 and month by 1. Use %ptRr (raw)
-> > +to suppress this behaviour. On the other hand when %ptRv is applied
-> > +validation mechanism will be in use, i.e. numbers out of range will be
-> > +replaced by ** or ****.
-> > +
-> > +Passed by reference.
-> > +
-> >  struct clk
-> >  ----------
-> >  
-> > diff --git a/lib/test_printf.c b/lib/test_printf.c
-> > index 53527ea822b5..97b7d14961d6 100644
-> > --- a/lib/test_printf.c
-> > +++ b/lib/test_printf.c
-> > @@ -418,6 +418,11 @@ struct_va_format(void)
-> >  {
-> >  }
-> >  
-> > +static void __init
-> > +struct_rtc_time(void)
-> > +{
-> > +}
-> > +
-> >  static void __init
-> >  struct_clk(void)
-> >  {
-> > @@ -529,6 +534,7 @@ test_pointer(void)
-> >  	uuid();
-> >  	dentry();
-> >  	struct_va_format();
-> > +	struct_rtc_time();
-> >  	struct_clk();
-> >  	bitmap();
-> >  	netdev_features();
-> > diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-> > index 37a54a6dd594..8455cbda8d6c 100644
-> > --- a/lib/vsprintf.c
-> > +++ b/lib/vsprintf.c
-> > @@ -30,6 +30,7 @@
-> >  #include <linux/ioport.h>
-> >  #include <linux/dcache.h>
-> >  #include <linux/cred.h>
-> > +#include <linux/rtc.h>
-> >  #include <linux/uuid.h>
-> >  #include <linux/of.h>
-> >  #include <net/addrconf.h>
-> > @@ -822,6 +823,20 @@ static const struct printf_spec default_dec_spec = {
-> >  	.precision = -1,
-> >  };
-> >  
-> > +static const struct printf_spec default_dec02_spec = {
-> > +	.base = 10,
-> > +	.field_width = 2,
-> > +	.precision = -1,
-> > +	.flags = ZEROPAD,
-> > +};
-> > +
-> > +static const struct printf_spec default_dec04_spec = {
-> > +	.base = 10,
-> > +	.field_width = 4,
-> > +	.precision = -1,
-> > +	.flags = ZEROPAD,
-> > +};
-> > +
-> >  static noinline_for_stack
-> >  char *resource_string(char *buf, char *end, struct resource *res,
-> >  		      struct printf_spec spec, const char *fmt)
-> > @@ -1549,6 +1564,127 @@ char *address_val(char *buf, char *end, const void *addr, const char *fmt)
-> >  	return special_hex_number(buf, end, num, size);
-> >  }
-> >  
-> > +static noinline_for_stack
-> > +char *date_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
-> > +{
-> > +	int year = tm->tm_year + (r ? 0 : 1900);
-> > +	int mon = tm->tm_mon + (r ? 0 : 1);
-> > +
-> > +	if (unlikely(v && (unsigned int)tm->tm_year > 200))
-> > +		buf = string(buf, end, "****", default_str_spec);
+> This series reworks the compatible strings and clock parts of the device
+> tree bindings for sun6i-rtc. Currently we assume most Allwinner SoCs use
+> the same sun6i-rtc variant, when in fact they do not. The differences
+> that matter with regards to clocks are a) the A31 does not have an extra
+> external output for the RTC 32K clock, while most of the others do;
+> b) the clock frequency of the internal RC oscillator is different on
+> some SoCs; c) on the H6 the RTC also handles the 24 MHz DCXO, which
+> feeds the system HOSC. The last difference, and by extension the H6, are
+> not covered in this series.
 > 
-> I think you should drop the validation option. This is only used in a
-> deprecated ABI and is mostly wrong as many RTCs will still be valid
-> after 2100.
+> Patch 1 cleans up the clock-related section of the RTC device tree
+> binding. This would make it easier to read and easier to add additional
+> clocks.
 > 
-> > +	else
-> > +		buf = number(buf, end, year, default_dec04_spec);
-> > +
-> > +	if (buf < end)
-> > +		*buf = '-';
-> > +	buf++;
-> > +
-> > +	if (unlikely(v && (unsigned int)tm->tm_mon > 11))
-> > +		buf = string(buf, end, "**", default_str_spec);
-> > +	else
-> > +		buf = number(buf, end, mon, default_dec02_spec);
-> > +
-> > +	if (buf < end)
-> > +		*buf = '-';
-> > +	buf++;
-> > +
-> > +	if (unlikely(v && (unsigned int)tm->tm_mday > 31))
-> > +		buf = string(buf, end, "**", default_str_spec);
+> Patch 2 adds compatible strings for all identified variants introduced
+> prior to the H6.
 > 
-> Same here, this doesn't protect February, April, June, September and
-> November. There is one RTC that think that 31st of November is valid.
+> Patch 3 deprecates the external clock output for the A31. The A31 does
+> not have this output, so it's introduction and usage was an error.
 > 
-> > +	else
-> > +		buf = number(buf, end, tm->tm_mday, default_dec02_spec);
-> > +
-> > +	return buf;
-> > +}
-> > +
-> > +static noinline_for_stack
-> > +char *time_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
-> > +{
-> > +	if (unlikely(v && (unsigned int)tm->tm_hour > 24))
-> > +		buf = string(buf, end, "**", default_str_spec);
-> > +	else
-> > +		buf = number(buf, end, tm->tm_hour, default_dec02_spec);
-> > +
-> > +	if (buf < end)
-> > +		*buf = ':';
-> > +	buf++;
-> > +
-> > +	if (unlikely(v && (unsigned int)tm->tm_min > 59))
-> > +		buf = string(buf, end, "**", default_str_spec);
-> > +	else
-> > +		buf = number(buf, end, tm->tm_min, default_dec02_spec);
-> > +
-> > +	if (buf < end)
-> > +		*buf = ':';
-> > +	buf++;
-> > +
-> > +	if (unlikely(v && (unsigned int)tm->tm_sec > 59))
-> > +		buf = string(buf, end, "**", default_str_spec);
+> Patch 4 adds a clock output for the RTC's internal oscillator to the
+> device tree binding. This feeds the PRCM in some SoCs.
 > 
-> Some RTCs will consider 60 valid. So, really, instead of fixing all of
-> those, I'd just get rid of the validation option.
+> Patch 5 adds a default clock name for the LOSC to the RTC driver.
 > 
-> > +	else
-> > +		buf = number(buf, end, tm->tm_sec, default_dec02_spec);
-> > +
-> > +	return buf;
-> > +}
-> > +
-> > +static noinline_for_stack
-> > +char *rtc_str(char *buf, char *end, const struct rtc_time *tm, const char *fmt)
-> > +{
-> > +	bool have_t = true, have_d = true;
-> > +	bool validate = false;
-> > +	bool raw = false;
-> > +	int count = 2;
-> > +	bool found;
-> > +
-> > +	switch (fmt[count]) {
-> > +	case 'd':
-> > +		have_t = false;
-> > +		count++;
-> > +		break;
-> > +	case 't':
-> > +		have_d = false;
-> > +		count++;
-> > +		break;
-> > +	}
-> > +
-> > +	found = true;
-> > +	do {
-> > +		switch (fmt[count++]) {
-> > +		case 'r':
-> > +			raw = true;
-> > +			break;
-> > +		case 'v':
-> > +			validate = true;
-> > +			break;
-> > +		default:
-> > +			found = false;
-> > +			break;
-> > +		}
-> > +	} while (found);
-> > +
-> > +	if (have_d)
-> > +		buf = date_str(buf, end, tm, validate, raw);
-> > +	if (have_d && have_t) {
-> > +		if (buf < end)
-> > +			*buf = ' ';
+> Patch 6 adds support for different hardware variants to the RTC driver.
 > 
-> I'd go for ISO 8601 and use a 'T' here.
+> Patch 7 adds support for all known pre-H6 variants.
 > 
-> > +		buf++;
-> > +	}
-> > +	if (have_t)
-> > +		buf = time_str(buf, end, tm, validate, raw);
-> > +
-> > +	return buf;
-> > +}
-> > +
-> > +static noinline_for_stack
-> > +char *timeanddate(char *buf, char *end, void *ptr, struct printf_spec spec,
-> > +		  const char *fmt)
-> > +{
-> > +	switch (fmt[1]) {
-> > +	case 'R':
-> > +		return rtc_str(buf, end, (const struct rtc_time *)ptr, fmt);
-> > +	default:
-> > +		return ptr_to_id(buf, end, ptr, spec);
-> > +	}
-> > +}
-> > +
-> >  static noinline_for_stack
-> >  char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
-> >  	    const char *fmt)
-> > @@ -1828,6 +1964,8 @@ char *device_node_string(char *buf, char *end, struct device_node *dn,
-> >   * - 'd[234]' For a dentry name (optionally 2-4 last components)
-> >   * - 'D[234]' Same as 'd' but for a struct file
-> >   * - 'g' For block_device name (gendisk + partition number)
-> > + * - 't[R][dt][rv]' For time and date as represented:
-> > + *      R    struct rtc_time
-> >   * - 'C' For a clock, it prints the name (Common Clock Framework) or address
-> >   *       (legacy clock framework) of the clock
-> >   * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
-> > @@ -1952,6 +2090,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-> >  		return address_val(buf, end, ptr, fmt);
-> >  	case 'd':
-> >  		return dentry_name(buf, end, ptr, spec, fmt);
-> > +	case 't':
-> > +		return timeanddate(buf, end, ptr, spec, fmt);
-> >  	case 'C':
-> >  		return clock(buf, end, ptr, spec, fmt);
-> >  	case 'D':
-> > -- 
-> > 2.19.1
-> > 
+> Patch 8 exposes the RTC's internal oscillator through the device tree.
+> 
+> Patch 9 makes the R40's CCU use the LOSC from the RTC module, instead of
+> its own internal oscillator.
+> 
+> Patch 10 through 15 adds an RTC node or fixes up the RTC device node
+> address ranges, clock properties, names of existing clocks, and adds
+> accuracy properties for the external fixed oscillators.
+> 
+> The clock names require fixing because the sunxi clock driver implicitly
+> depends on the HOSC and LOSC being named "osc24M" and "osc32k". The
+> "fixes" to the clock hierarchy introduced in this series means the names
+> must also be shuffled around or the in kernel representation would be
+> incorrect. This has been the case since the sunxi-ng drivers were
+> introduced. There are plans to address this, but the code is still in its
+> early stages.
+> 
+> Please have a look.
+> 
+> Thanks
+> ChenYu
+> 
+> Chen-Yu Tsai (15):
+>   dt-bindings: rtc: sun6i-rtc: Rewrite clock outputs as a list
+>   dt-bindings: rtc: sun6i-rtc: Add compatible strings for pre-H6
+>     variants
+>   dt-bindings: rtc: sun6i-rtc: Deprecate external clock output for A31
+>   dt-bindings: rtc: sun6i-rtc: Export internal RC oscillator
+>   rtc: sun6i: Add default clock name for LOSC
+>   rtc: sun6i: Add support for different variants
+>   rtc: sun6i: Add support for all known pre-H6 variants
+>   rtc: sun6i: Expose internal oscillator through device tree
+>   clk: sunxi-ng: r40: Force LOSC parent to RTC LOSC output
+>   ARM: dts: sun8i: a23/a33: Fix up RTC device node
+>   ARM: dts: sunxi: h3/h5: Add clock accuracy for external oscillators
+>   ARM: dts: sunxi: h3/h5: Fix up RTC device node and clock references
+>   ARM: dts: sun8i: r40: Add clock accuracy for external oscillators
+>   ARM: dts: sun8i: r40: Add RTC device node
+>   arm64: dts: allwinner: a64: Fix up RTC device node and clock
+>     references
+> 
+>  .../devicetree/bindings/rtc/sun6i-rtc.txt     |  31 ++++-
+>  arch/arm/boot/dts/sun8i-a23-a33.dtsi          |   6 +-
+>  arch/arm/boot/dts/sun8i-h3.dtsi               |   4 +
+>  arch/arm/boot/dts/sun8i-r40.dtsi              |  18 ++-
+>  arch/arm/boot/dts/sunxi-h3-h5.dtsi            |  28 ++---
+>  arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi |  22 ++--
+>  arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi  |   4 +
+>  drivers/clk/sunxi-ng/ccu-sun8i-r40.c          |  11 ++
+>  drivers/rtc/rtc-sun6i.c                       | 117 ++++++++++++++++--
+>  9 files changed, 188 insertions(+), 53 deletions(-)
 > 
 > -- 
-> Alexandre Belloni, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
 
--- 
-With Best Regards,
-Andy Shevchenko
+Hello
 
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-on: sun8i-r40-bananapi-m2-ultra
+Tested-on: sun50i-h5-nanopi-neo-plus2
 
+Regards
