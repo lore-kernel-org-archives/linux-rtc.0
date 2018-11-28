@@ -3,35 +3,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20C8BC04EBC
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:05:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A644C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E0E8E20832
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:05:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E0E8E20832
+	by mail.kernel.org (Postfix) with ESMTP id 1C9CE20665
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 19:06:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1C9CE20665
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729337AbeK2GI2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 01:08:28 -0500
-Received: from mga05.intel.com ([192.55.52.43]:12111 "EHLO mga05.intel.com"
+        id S1729352AbeK2GI3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 29 Nov 2018 01:08:29 -0500
+Received: from mga11.intel.com ([192.55.52.93]:36205 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729280AbeK2GI2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1729332AbeK2GI2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Thu, 29 Nov 2018 01:08:28 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:48 -0800
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Nov 2018 11:05:49 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,291,1539673200"; 
-   d="scan'208";a="94558753"
+   d="scan'208";a="95916719"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 28 Nov 2018 11:05:46 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 28 Nov 2018 11:05:46 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 47D84758; Wed, 28 Nov 2018 21:05:39 +0200 (EET)
+        id 8B994A9B; Wed, 28 Nov 2018 21:05:39 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -42,10 +42,11 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 15/21] rtc: rx8025: Switch to use %ptR
-Date:   Wed, 28 Nov 2018 21:05:31 +0200
-Message-Id: <20181128190537.14074-16-andriy.shevchenko@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-pm@vger.kernel.org
+Subject: [PATCH v4 21/21] PM: Switch to use %ptR
+Date:   Wed, 28 Nov 2018 21:05:37 +0200
+Message-Id: <20181128190537.14074-22-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
 References: <20181128190537.14074-1-andriy.shevchenko@linux.intel.com>
@@ -59,62 +60,28 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 Use %ptR instead of open coded variant to print content of
 struct rtc_time in human readable format.
 
+Cc: linux-pm@vger.kernel.org
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-rx8025.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/base/power/trace.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 41127adf5765..41de38acc570 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -193,10 +193,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- 	if (err)
- 		return err;
+diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
+index 1cda505d6a85..b11f47a1e819 100644
+--- a/drivers/base/power/trace.c
++++ b/drivers/base/power/trace.c
+@@ -118,9 +118,7 @@ static unsigned int read_magic_time(void)
+ 	unsigned int val;
  
--	dev_dbg(dev, "%s: read 0x%02x 0x%02x "
--		"0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
--		date[0], date[1], date[2], date[3], date[4],
--		date[5], date[6]);
-+	dev_dbg(dev, "%s: read %7ph\n", __func__, date);
- 
- 	dt->tm_sec = bcd2bin(date[RX8025_REG_SEC] & 0x7f);
- 	dt->tm_min = bcd2bin(date[RX8025_REG_MIN] & 0x7f);
-@@ -210,9 +207,7 @@ static int rx8025_get_time(struct device *dev, struct rtc_time *dt)
- 	dt->tm_mon = bcd2bin(date[RX8025_REG_MONTH] & 0x1f) - 1;
- 	dt->tm_year = bcd2bin(date[RX8025_REG_YEAR]) + 100;
- 
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		dt->tm_sec, dt->tm_min, dt->tm_hour,
--		dt->tm_mday, dt->tm_mon, dt->tm_year);
-+	dev_dbg(dev, "%s: date %ptRr\n", __func__, dt);
- 
- 	return 0;
- }
-@@ -243,10 +238,7 @@ static int rx8025_set_time(struct device *dev, struct rtc_time *dt)
- 	date[RX8025_REG_MONTH] = bin2bcd(dt->tm_mon + 1);
- 	date[RX8025_REG_YEAR] = bin2bcd(dt->tm_year - 100);
- 
--	dev_dbg(dev,
--		"%s: write 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
--		__func__,
--		date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
-+	dev_dbg(dev, "%s: write %7ph\n", __func__, date);
- 
- 	ret = rx8025_write_regs(rx8025->client, RX8025_REG_SEC, 7, date);
- 	if (ret < 0)
-@@ -319,10 +311,7 @@ static int rx8025_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		t->time.tm_hour = bcd2bin(ald[1] & 0x1f) % 12
- 			+ (ald[1] & 0x20 ? 12 : 0);
- 
--	dev_dbg(dev, "%s: date: %ds %dm %dh %dmd %dm %dy\n",
--		__func__,
--		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
--		t->time.tm_mday, t->time.tm_mon, t->time.tm_year);
-+	dev_dbg(dev, "%s: date: %ptRr\n", __func__, t);
- 	t->enabled = !!(rx8025->ctrl1 & RX8025_BIT_CTRL1_DALE);
- 	t->pending = (ctrl2 & RX8025_BIT_CTRL2_DAFG) && t->enabled;
- 
+ 	mc146818_get_time(&time);
+-	pr_info("RTC time: %2d:%02d:%02d, date: %02d/%02d/%02d\n",
+-		time.tm_hour, time.tm_min, time.tm_sec,
+-		time.tm_mon + 1, time.tm_mday, time.tm_year % 100);
++	pr_info("RTC time: %ptRt, date: %ptRd\n", &time, &time);
+ 	val = time.tm_year;				/* 100 years */
+ 	if (val > 100)
+ 		val -= 100;
 -- 
 2.19.2
 
