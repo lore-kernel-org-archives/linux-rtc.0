@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9855CC43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49575C04EBC
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 624A22145D
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 624A22145D
+	by mail.kernel.org (Postfix) with ESMTP id 12C0021104
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12C0021104
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728117AbeK1Uig (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 15:38:36 -0500
-Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49476 "EHLO
+        id S1728179AbeK1Uih (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 15:38:37 -0500
+Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49540 "EHLO
         wens.csie.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727541AbeK1Uig (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Nov 2018 15:38:36 -0500
+        id S1728157AbeK1Uih (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Nov 2018 15:38:37 -0500
 Received: by wens.csie.org (Postfix, from userid 1000)
-        id 75ACC60339; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
+        id 352325F725; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
 From:   Chen-Yu Tsai <wens@csie.org>
 To:     Maxime Ripard <maxime.ripard@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -35,9 +35,9 @@ Cc:     Chen-Yu Tsai <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-sunxi@googlegroups.com
-Subject: [PATCH 08/15] rtc: sun6i: Expose internal oscillator through device tree
-Date:   Wed, 28 Nov 2018 17:30:06 +0800
-Message-Id: <20181128093013.24442-10-wens@csie.org>
+Subject: [PATCH 01/15] dt-bindings: rtc: sun6i-rtc: Rewrite clock outputs as a list
+Date:   Wed, 28 Nov 2018 17:29:58 +0800
+Message-Id: <20181128093013.24442-2-wens@csie.org>
 X-Mailer: git-send-email 2.20.0.rc1
 In-Reply-To: <20181128093013.24442-1-wens@csie.org>
 References: <20181128093013.24442-1-wens@csie.org>
@@ -48,64 +48,40 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The bindings have been updated to expose the RTC's internal oscillator,
-for some SoCs that have it directly feeding the PRCM block. The changes
-include the index 2 for the clock outputs, as well as the clock output
-names.
+The clock output section for this binding describes the two outputs in
+the descriptions for both the #clock-cells and clock-output-names
+properties.
 
-This patch adds the internal oscillator to the list of clocks exposed
-through of_clk_add_hw_provider(), and also have the driver optionally
-fetch the name of the clock from the device tree if it's available.
+Instead of overlapping information that is hard to read, rewrite the
+clock outputs as a list of indices and descriptions. The properies
+can reference this list instead. This will also make it easier to
+add notes or conditions to the clocks, and also for adding new outputs.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/rtc/rtc-sun6i.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/rtc/sun6i-rtc.txt | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 62ed9ce53d8c..273ab7fbbbe3 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -220,6 +220,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 		.ops		= &sun6i_rtc_osc_ops,
- 		.name		= "losc",
- 	};
-+	const char *iosc_name = "rtc-int-osc";
- 	const char *clkout_name = "osc32k-out";
- 	const char *parents[2];
+diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+index 12c083c1140a..d3e96459fc66 100644
+--- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+@@ -10,10 +10,12 @@ Required properties:
  
-@@ -228,7 +229,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 		return;
+ Required properties for new device trees
+ - clocks	: phandle to the 32kHz external oscillator
+-- clock-output-names : names of the LOSC and its external output clocks created
+-- #clock-cells  : must be equals to 1. The RTC provides two clocks: the
+-		  LOSC and its external output, with index 0 and 1
+-		  respectively.
++- clock-output-names : names of the two clock outputs. See below.
++- #clock-cells  : must be equal to 1.
++
++The RTC provides the following clocks at the given indices:
++- 0: LOSC
++- 1: LOSC external output, known as X32KFOUT in the datasheet.
  
- 	rtc->data = data;
--	clk_data = kzalloc(struct_size(clk_data, hws, 2), GFP_KERNEL);
-+	clk_data = kzalloc(struct_size(clk_data, hws, 3), GFP_KERNEL);
- 	if (!clk_data) {
- 		kfree(rtc);
- 		return;
-@@ -253,8 +254,10 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 	if (!of_get_property(node, "clocks", NULL))
- 		goto err;
- 
-+	of_property_read_string_index(node, "clock-output-names", 2,
-+				      &iosc_name);
- 	rtc->int_osc = clk_hw_register_fixed_rate_with_accuracy(NULL,
--								"rtc-int-osc",
-+								iosc_name,
- 								NULL, 0,
- 								rtc->data->rc_osc_rate,
- 								300000000);
-@@ -290,9 +293,10 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 		return;
- 	}
- 
--	clk_data->num = 2;
-+	clk_data->num = 3;
- 	clk_data->hws[0] = &rtc->hw;
- 	clk_data->hws[1] = __clk_get_hw(rtc->ext_losc);
-+	clk_data->hws[2] = rtc->int_osc;
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	return;
+ Example:
  
 -- 
 2.20.0.rc1
