@@ -4,29 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4758C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C2BDC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:21:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 745AF20660
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:20:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 745AF20660
+	by mail.kernel.org (Postfix) with ESMTP id 6AD9820660
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:21:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6AD9820660
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728446AbeK1VVW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 16:21:22 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:47109 "EHLO mail.bootlin.com"
+        id S1728111AbeK1VW1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 16:22:27 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:47264 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728041AbeK1VVW (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Nov 2018 16:21:22 -0500
+        id S1727616AbeK1VW1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Nov 2018 16:22:27 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 03BC7206D8; Wed, 28 Nov 2018 11:20:11 +0100 (CET)
+        id 99A11207BD; Wed, 28 Nov 2018 11:21:16 +0100 (CET)
 Received: from localhost (aaubervilliers-681-1-94-205.w90-88.abo.wanadoo.fr [90.88.35.205])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 18394207BD;
-        Wed, 28 Nov 2018 11:19:06 +0100 (CET)
-Date:   Wed, 28 Nov 2018 11:19:06 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 306A3207AD;
+        Wed, 28 Nov 2018 11:21:00 +0100 (CET)
+Date:   Wed, 28 Nov 2018 11:21:00 +0100
 From:   Maxime Ripard <maxime.ripard@bootlin.com>
 To:     Chen-Yu Tsai <wens@csie.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -38,16 +38,15 @@ Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
         linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH 02/15] dt-bindings: rtc: sun6i-rtc: Add compatible
- strings for pre-H6 variants
-Message-ID: <20181128101906.xkqaoezxodz25c3x@flea>
+Subject: Re: [PATCH 05/15] rtc: sun6i: Add default clock name for LOSC
+Message-ID: <20181128102100.h3qkvnpbazpy2lbk@flea>
 References: <20181128093013.24442-1-wens@csie.org>
- <20181128093013.24442-3-wens@csie.org>
+ <20181128093013.24442-6-wens@csie.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="564j2t6jjeonxwuc"
+        protocol="application/pgp-signature"; boundary="vkawjol7kokps5ro"
 Content-Disposition: inline
-In-Reply-To: <20181128093013.24442-3-wens@csie.org>
+In-Reply-To: <20181128093013.24442-6-wens@csie.org>
 User-Agent: NeoMutt/20180716
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -55,28 +54,18 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---564j2t6jjeonxwuc
+--vkawjol7kokps5ro
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 28, 2018 at 05:29:59PM +0800, Chen-Yu Tsai wrote:
-> While doing Bluetooth enablement for various boards based on various
-> Allwinner SoCs, minor differences in the RTC modules were found. These
-> include a lack of an external clock output (A31), different internal
-> oscillator frequencies (H3/H5/A64/V3/V3s), different regulator voltage
-> settings (H5/H6), and the presence of miscellaneous registers unrelated
-> to the RTC (A64/R40/H5/H6). The datasheet also describes different number
-> of registers for non-volatile storage, though based on actual experiments
-> the actual number is the same across the board.
+On Wed, Nov 28, 2018 at 05:30:02PM +0800, Chen-Yu Tsai wrote:
+> The RTC's main clock, used internally and exported to the rest of the
+> SoC, is called "LOSC" (low speed oscillator) through the hardware
+> documentation.
 >=20
-> This patch adds a list of all pre-H6 variants, grouped by the internal
-> oscillator's clock rate, regulator settings, and the presence of the
-> external clock output. Combinations are introduced for the variants that
-> have miscellaneous registers.
->=20
-> The RTC block in the H6 also handles the 24 MHz DCXO. This will require
-> more device tree binding changes and will be done later.
+> This patch adds a default name for this clock, in case the device tree
+> does not provide one. This shouldn't happen, but lets play it safe.
 >=20
 > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 
@@ -89,15 +78,15 @@ Maxime Ripard, Bootlin
 Embedded Linux and Kernel engineering
 https://bootlin.com
 
---564j2t6jjeonxwuc
+--vkawjol7kokps5ro
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCW/5rmgAKCRDj7w1vZxhR
-xa1GAQCglQwtyy6YC53hEhaGjYC8rh4XPC4fW30urBIm/jOMPwEA1GGhJq2nWeGG
-Wn3Bdqj1P0UFNPamrR4GmRObi8AfAwk=
-=jNdp
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCW/5sDAAKCRDj7w1vZxhR
+xchAAP9D9sX2JqebZu0nLo/tY5r5Os+kBIoxd8Yw7LXZMfltPgEA0rXWVAq1b7jO
+oozrwSJJF0MfMGpwhVlanrzOnhfdHwI=
+=B497
 -----END PGP SIGNATURE-----
 
---564j2t6jjeonxwuc--
+--vkawjol7kokps5ro--
