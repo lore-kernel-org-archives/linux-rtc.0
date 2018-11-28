@@ -6,24 +6,23 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9C3BC4161B
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6410EC07E85
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AEE7B2145D
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AEE7B2145D
+	by mail.kernel.org (Postfix) with ESMTP id 2B1B321473
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B1B321473
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728123AbeK1Uig (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1728137AbeK1Uig (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 28 Nov 2018 15:38:36 -0500
-Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49474 "EHLO
+Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49468 "EHLO
         wens.csie.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728117AbeK1Uig (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1728052AbeK1Uig (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Wed, 28 Nov 2018 15:38:36 -0500
-X-Greylist: delayed 423 seconds by postgrey-1.27 at vger.kernel.org; Wed, 28 Nov 2018 15:38:34 EST
 Received: by wens.csie.org (Postfix, from userid 1000)
-        id 7B39A6035A; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
+        id A8B4F60553; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
 From:   Chen-Yu Tsai <wens@csie.org>
 To:     Maxime Ripard <maxime.ripard@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -36,9 +35,9 @@ Cc:     Chen-Yu Tsai <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-sunxi@googlegroups.com
-Subject: [PATCH 09/15] clk: sunxi-ng: r40: Force LOSC parent to RTC LOSC output
-Date:   Wed, 28 Nov 2018 17:30:07 +0800
-Message-Id: <20181128093013.24442-11-wens@csie.org>
+Subject: [PATCH 14/15] ARM: dts: sun8i: r40: Add RTC device node
+Date:   Wed, 28 Nov 2018 17:30:12 +0800
+Message-Id: <20181128093013.24442-16-wens@csie.org>
 X-Mailer: git-send-email 2.20.0.rc1
 In-Reply-To: <20181128093013.24442-1-wens@csie.org>
 References: <20181128093013.24442-1-wens@csie.org>
@@ -49,53 +48,60 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On the R40, in addition to a mux between the RTC's own RC oscillator and
-an external 32768 Hz crystal, which are muxed inside the RTC module, the
-CCU also has its own RC oscillator, which runs at around 2 MHz, and can
-be muxed with the LOSC output from the RTC. This muxed output is called
-"SYS 32K" in the module clock diagram, but otherwise referred to as the
-LOSC throughout the CCU documentation.
+The R40 has an RTC hardware block, which has additional registers
+that are not related to RTC or clock functions, and is otherwise
+compatible with the H3's RTC.
 
-The RC oscillator is not very accurate, even though it has an undocumented
-calibration function. We really want a precise clock at 32768 Hz,
-instead of something at around 32 KHz. This patch forces the SYS 32K
-clock to use the RTC output as its parent, and doesn't bother
-registering the internal oscillator nor a clock mux.
+Add a device node for it, and fix up any references to the LOSC.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun8i-r40.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/arm/boot/dts/sun8i-r40.dtsi | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-r40.c b/drivers/clk/sunxi-ng/ccu-sun8i-r40.c
-index 582ebd41d20d..a22d11aa38ba 100644
---- a/drivers/clk/sunxi-ng/ccu-sun8i-r40.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun8i-r40.c
-@@ -1284,6 +1284,9 @@ static struct regmap_config sun8i_r40_ccu_regmap_config = {
- 	.writeable_reg	= sun8i_r40_ccu_regmap_accessible_reg,
- };
+diff --git a/arch/arm/boot/dts/sun8i-r40.dtsi b/arch/arm/boot/dts/sun8i-r40.dtsi
+index a8917f8b1c80..89762dbefe42 100644
+--- a/arch/arm/boot/dts/sun8i-r40.dtsi
++++ b/arch/arm/boot/dts/sun8i-r40.dtsi
+@@ -70,7 +70,7 @@
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <32768>;
+ 			clock-accuracy = <20000>;
+-			clock-output-names = "osc32k";
++			clock-output-names = "ext-osc32k";
+ 		};
+ 	};
  
-+#define SUN8I_R40_SYS_32K_CLK_REG 0x310
-+#define SUN8I_R40_SYS_32K_CLK_KEY (0x16AA << 16)
-+
- static int sun8i_r40_ccu_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
-@@ -1312,6 +1315,14 @@ static int sun8i_r40_ccu_probe(struct platform_device *pdev)
- 	val &= ~GENMASK(25, 20);
- 	writel(val, reg + SUN8I_R40_USB_CLK_REG);
+@@ -315,17 +315,27 @@
+ 		ccu: clock@1c20000 {
+ 			compatible = "allwinner,sun8i-r40-ccu";
+ 			reg = <0x01c20000 0x400>;
+-			clocks = <&osc24M>, <&osc32k>;
++			clocks = <&osc24M>, <&rtc 0>;
+ 			clock-names = "hosc", "losc";
+ 			#clock-cells = <1>;
+ 			#reset-cells = <1>;
+ 		};
  
-+	/*
-+	 * Force SYS 32k (otherwise known as LOSC throughout the CCU)
-+	 * clock parent to LOSC output from RTC module instead of the
-+	 * CCU's internal RC oscillator divided output.
-+	 */
-+	writel(SUN8I_R40_SYS_32K_CLK_KEY | BIT(8),
-+	       reg + SUN8I_R40_SYS_32K_CLK_REG);
++		rtc: rtc@1c20400 {
++			compatible = "allwinner,sun8i-r40-rtc",
++				     "allwinner,sun8i-h3-rtc";
++			reg = <0x01c20400 0x400>;
++			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
++			clock-output-names = "osc32k", "osc32k-out";
++			clocks = <&osc32k>;
++			#clock-cells = <1>;
++		};
 +
- 	regmap = devm_regmap_init_mmio(&pdev->dev, reg,
- 				       &sun8i_r40_ccu_regmap_config);
- 	if (IS_ERR(regmap))
+ 		pio: pinctrl@1c20800 {
+ 			compatible = "allwinner,sun8i-r40-pinctrl";
+ 			reg = <0x01c20800 0x400>;
+ 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
++			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc 0>;
+ 			clock-names = "apb", "hosc", "losc";
+ 			gpio-controller;
+ 			interrupt-controller;
 -- 
 2.20.0.rc1
 
