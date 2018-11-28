@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE452C18E01
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D145C04EB8
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 80A6C21019
+	by mail.kernel.org (Postfix) with ESMTP id DCD3721019
 	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:37:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 80A6C21019
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DCD3721019
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728156AbeK1Uij (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 15:38:39 -0500
-Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49540 "EHLO
+        id S1728208AbeK1Uii (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 15:38:38 -0500
+Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:49542 "EHLO
         wens.csie.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728154AbeK1Uij (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Nov 2018 15:38:39 -0500
+        id S1728163AbeK1Uii (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Nov 2018 15:38:38 -0500
 Received: by wens.csie.org (Postfix, from userid 1000)
-        id B287B60560; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
+        id 3CE1B5FF44; Wed, 28 Nov 2018 17:30:28 +0800 (CST)
 From:   Chen-Yu Tsai <wens@csie.org>
 To:     Maxime Ripard <maxime.ripard@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -35,9 +35,9 @@ Cc:     Chen-Yu Tsai <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-sunxi@googlegroups.com
-Subject: [PATCH 15/15] arm64: dts: allwinner: a64: Fix up RTC device node and clock references
-Date:   Wed, 28 Nov 2018 17:30:13 +0800
-Message-Id: <20181128093013.24442-17-wens@csie.org>
+Subject: [PATCH 02/15] dt-bindings: rtc: sun6i-rtc: Add compatible strings for pre-H6 variants
+Date:   Wed, 28 Nov 2018 17:29:59 +0800
+Message-Id: <20181128093013.24442-3-wens@csie.org>
 X-Mailer: git-send-email 2.20.0.rc1
 In-Reply-To: <20181128093013.24442-1-wens@csie.org>
 References: <20181128093013.24442-1-wens@csie.org>
@@ -48,77 +48,55 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The RTC module on the A64 was claimed to be the same as on the A31, when
-in fact it is not. It is actually compatible to the H3's RTC. The A64's
-RTC has some extra crypto-related registers which the H3's does not, but
-the exact function of these is not clear.
+While doing Bluetooth enablement for various boards based on various
+Allwinner SoCs, minor differences in the RTC modules were found. These
+include a lack of an external clock output (A31), different internal
+oscillator frequencies (H3/H5/A64/V3/V3s), different regulator voltage
+settings (H5/H6), and the presence of miscellaneous registers unrelated
+to the RTC (A64/R40/H5/H6). The datasheet also describes different number
+of registers for non-volatile storage, though based on actual experiments
+the actual number is the same across the board.
 
-This patch fixes the compatible string and clock properties to conform
-to the updated bindings. The device node for the internal oscillator is
-removed, as it is internalized into the RTC device. Clock references to
-the IOSC and LOSC are also fixed.
+This patch adds a list of all pre-H6 variants, grouped by the internal
+oscillator's clock rate, regulator settings, and the presence of the
+external clock output. Combinations are introduced for the variants that
+have miscellaneous registers.
+
+The RTC block in the H6 also handles the 24 MHz DCXO. This will require
+more device tree binding changes and will be done later.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 22 ++++++-------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ .../devicetree/bindings/rtc/sun6i-rtc.txt        | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 384c417cb7a2..a729dcc63038 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -139,15 +139,7 @@
- 		#clock-cells = <0>;
- 		compatible = "fixed-clock";
- 		clock-frequency = <32768>;
--		clock-output-names = "osc32k";
--	};
--
--	iosc: internal-osc-clk {
--		#clock-cells = <0>;
--		compatible = "fixed-clock";
--		clock-frequency = <16000000>;
--		clock-accuracy = <300000000>;
--		clock-output-names = "iosc";
-+		clock-output-names = "ext-osc32k";
- 	};
+diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+index d3e96459fc66..b1eaa443347d 100644
+--- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+@@ -3,7 +3,21 @@
+ RTC controller for the Allwinner A31
  
- 	psci {
-@@ -514,7 +506,7 @@
- 		ccu: clock@1c20000 {
- 			compatible = "allwinner,sun50i-a64-ccu";
- 			reg = <0x01c20000 0x400>;
--			clocks = <&osc24M>, <&osc32k>;
-+			clocks = <&osc24M>, <&rtc 0>;
- 			clock-names = "hosc", "losc";
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
-@@ -944,11 +936,12 @@
- 		};
- 
- 		rtc: rtc@1f00000 {
--			compatible = "allwinner,sun6i-a31-rtc";
--			reg = <0x01f00000 0x54>;
-+			compatible = "allwinner,sun50i-a64-rtc",
-+				     "allwinner,sun8i-h3-rtc";
-+			reg = <0x01f00000 0x400>;
- 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
--			clock-output-names = "rtc-osc32k", "rtc-osc32k-out";
-+			clock-output-names = "osc32k", "osc32k-out", "iosc";
- 			clocks = <&osc32k>;
- 			#clock-cells = <1>;
- 		};
-@@ -965,8 +958,7 @@
- 		r_ccu: clock@1f01400 {
- 			compatible = "allwinner,sun50i-a64-r-ccu";
- 			reg = <0x01f01400 0x100>;
--			clocks = <&osc24M>, <&osc32k>, <&iosc>,
--				 <&ccu 11>;
-+			clocks = <&osc24M>, <&rtc 0>, <&rtc 2>, <&ccu 11>;
- 			clock-names = "hosc", "losc", "iosc", "pll-periph";
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
+ Required properties:
+-- compatible	: Should be "allwinner,sun6i-a31-rtc"
++- compatible	: Should be one of the following combinations:
++		    - "allwinner,sun6i-a31-rtc"
++		    - "allwinner,sun8i-a23-rtc"
++		    - "allwinner,sun8i-h3-rtc"
++		    - "allwinner,sun8i-r40-rtc", "allwinner,sun8i-h3-rtc"
++		    - "allwinner,sun8i-v3-rtc"
++		    - "allwinner,sun50i-a64-rtc", "allwinner,sun8i-h3-rtc"
++		    - "allwinner,sun50i-h5-rtc"
++
++		  Where there are two or more compatible strings, this
++		  denotes the hardware covered by the most specific one
++		  is backward-compatible with the latter ones, and the
++		  implementation for the latter ones can be used, albeit
++		  with reduced functionality.
++
+ - reg		: physical base address of the controller and length of
+ 		  memory mapped region.
+ - interrupts	: IRQ lines for the RTC alarm 0 and alarm 1, in that order.
 -- 
 2.20.0.rc1
 
