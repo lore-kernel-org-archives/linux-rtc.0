@@ -6,27 +6,27 @@ X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_NEOMUTT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97F2AC43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:18:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98647C43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:20:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 68B4620660
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:18:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 68B4620660
+	by mail.kernel.org (Postfix) with ESMTP id 6900320660
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 10:20:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6900320660
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728438AbeK1VTJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 16:19:09 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:46821 "EHLO mail.bootlin.com"
+        id S1728505AbeK1VVh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 16:21:37 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:47123 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727667AbeK1VTI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 28 Nov 2018 16:19:08 -0500
+        id S1728041AbeK1VVg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Nov 2018 16:21:36 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 0B317207BD; Wed, 28 Nov 2018 11:17:58 +0100 (CET)
+        id B74A1207B0; Wed, 28 Nov 2018 11:20:25 +0100 (CET)
 Received: from localhost (aaubervilliers-681-1-94-205.w90-88.abo.wanadoo.fr [90.88.35.205])
-        by mail.bootlin.com (Postfix) with ESMTPSA id CA3EF2039F;
-        Wed, 28 Nov 2018 11:17:47 +0100 (CET)
-Date:   Wed, 28 Nov 2018 11:17:47 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 82D97207AD;
+        Wed, 28 Nov 2018 11:20:15 +0100 (CET)
+Date:   Wed, 28 Nov 2018 11:20:15 +0100
 From:   Maxime Ripard <maxime.ripard@bootlin.com>
 To:     Chen-Yu Tsai <wens@csie.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -38,16 +38,16 @@ Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
         linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH 01/15] dt-bindings: rtc: sun6i-rtc: Rewrite clock outputs
- as a list
-Message-ID: <20181128101747.t2lcgesulh2rkwyi@flea>
+Subject: Re: [PATCH 03/15] dt-bindings: rtc: sun6i-rtc: Deprecate external
+ clock output for A31
+Message-ID: <20181128102015.jfzqgdlstkjmdfwl@flea>
 References: <20181128093013.24442-1-wens@csie.org>
- <20181128093013.24442-2-wens@csie.org>
+ <20181128093013.24442-4-wens@csie.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yoj3yp3ufe5a5hnf"
+        protocol="application/pgp-signature"; boundary="ig5bgrnyb7hl22gp"
 Content-Disposition: inline
-In-Reply-To: <20181128093013.24442-2-wens@csie.org>
+In-Reply-To: <20181128093013.24442-4-wens@csie.org>
 User-Agent: NeoMutt/20180716
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -55,24 +55,24 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---yoj3yp3ufe5a5hnf
+--ig5bgrnyb7hl22gp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 28, 2018 at 05:29:58PM +0800, Chen-Yu Tsai wrote:
-> The clock output section for this binding describes the two outputs in
-> the descriptions for both the #clock-cells and clock-output-names
-> properties.
+On Wed, Nov 28, 2018 at 05:30:00PM +0800, Chen-Yu Tsai wrote:
+> The A31 does not have an external clock output directly from the RTC.
+> Instead, it has four muxable clock outputs: three (A, B, C) are
+> controlled from the CCU, and the last (D) is controlled from the PRCM.
 >=20
-> Instead of overlapping information that is hard to read, rewrite the
-> clock outputs as a list of indices and descriptions. The properies
-> can reference this list instead. This will also make it easier to
-> add notes or conditions to the clocks, and also for adding new outputs.
+> Deprecate the usage of the external clock output for the A31 compatible.
 >=20
 > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 
 Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+
+I guess we should add a warning in the code as well if one tries to
+use it.
 
 Maxime
 
@@ -81,15 +81,15 @@ Maxime Ripard, Bootlin
 Embedded Linux and Kernel engineering
 https://bootlin.com
 
---yoj3yp3ufe5a5hnf
+--ig5bgrnyb7hl22gp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCW/5rSwAKCRDj7w1vZxhR
-xZ7zAP0Xipdixelu2rfeHGJBzFQXj02XPccPDU0s4Nw0RiSvgAEA6LkGzhdNZzIY
-IjV1yDK7QYzG0V309oRx5rzucmqsJQo=
-=jVFD
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCW/5r3wAKCRDj7w1vZxhR
+xSVJAQCSDPhEhjeWp2Iukhc30wSmUkCrv2iEJSoGHELi6muNnAD5ARbzBWC3TZhN
+VlFQIec7H4CLqVYtV52yUNg6ve2logo=
+=+F9b
 -----END PGP SIGNATURE-----
 
---yoj3yp3ufe5a5hnf--
+--ig5bgrnyb7hl22gp--
