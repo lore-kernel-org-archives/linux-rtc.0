@@ -2,116 +2,236 @@ Return-Path: <SRS0=lKmk=OH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=FROM_EXCESS_BASE64,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C669C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 11:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B12AC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 12:58:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6DF8220832
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 11:18:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6DF8220832
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
+	by mail.kernel.org (Postfix) with ESMTP id 1ED0F20832
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 12:58:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1ED0F20832
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=KARO-electronics.de
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbeK1WT7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 17:19:59 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:41603 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727678AbeK1WT7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Nov 2018 17:19:59 -0500
-Received: by mail-ed1-f67.google.com with SMTP id z28so21742251edi.8;
-        Wed, 28 Nov 2018 03:18:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mzxfgS9gsbjG2ZHUyJOEEkANG9BKskXeKiseFJ4pA/U=;
-        b=ObBlwtB1Lk6wqGrG9J2cdkncBruAI9rHW9xiusQ9zQoU/RJHcLKAn+p01bjLiq+9e3
-         Z6Ntlrg3bNHS2e4R3vhpWOM4fdPSIXcwtCZBFG2+xs3OSWJAJGWXmJ1vEqZrKpMfbvtQ
-         I+cmWhvAd8z2QZhFDSIdA9DGZrmNelFak8wX3v2feqSQ8w/owEMTw7maOZ6J5xkVakT6
-         8Eh6JukmWQO9ShCHOAVYK7v7r3trOFJf1yzifXFBlqZGkzg+Dq53HkjpqopLrtLLxMtc
-         zwUybUJw0ALhqtKI+1dlBGzzsznXo1HGT1Nnsp7HpsXt4DSDQjXkyRfjGivBUNSEL0ee
-         6eIA==
-X-Gm-Message-State: AGRZ1gLVqyVb/sB+rCJ36/DsprYysD7XRqa5r4IibVH1HPyZs0Kz3qtq
-        bxG3e83BDf19Ol/in6FKsv4VEMFrILE=
-X-Google-Smtp-Source: AJdET5dnvcS6UWX4s/j9pTX1Q/dpbirt0LTZqsDV10C/SRO8nIJNhjLZnyA4vQ8jb0o1OwNDH/cV0Q==
-X-Received: by 2002:a17:906:9154:: with SMTP id y20-v6mr26467881ejw.8.1543403918690;
-        Wed, 28 Nov 2018 03:18:38 -0800 (PST)
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com. [209.85.221.54])
-        by smtp.gmail.com with ESMTPSA id d5sm1752570edb.48.2018.11.28.03.18.38
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Nov 2018 03:18:38 -0800 (PST)
-Received: by mail-wr1-f54.google.com with SMTP id j2so25915643wrw.1;
-        Wed, 28 Nov 2018 03:18:38 -0800 (PST)
-X-Received: by 2002:adf:891a:: with SMTP id s26mr30420916wrs.44.1543403917598;
- Wed, 28 Nov 2018 03:18:37 -0800 (PST)
+        id S1727970AbeK2AAY convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 19:00:24 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.31.36]:12078 "EHLO
+        smtprelay02.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727823AbeK2AAY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Nov 2018 19:00:24 -0500
+Received: from [89.1.81.74] (helo=karo-electronics.de)
+        by smtprelay02.ispgateway.de with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.90_1)
+        (envelope-from <LW@KARO-electronics.de>)
+        id 1gRvi5-0007YK-Mk; Wed, 28 Nov 2018 10:00:41 +0100
+Date:   Wed, 28 Nov 2018 10:00:40 +0100
+From:   Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        Aisheng DONG <aisheng.dong@nxp.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "amit.kucheria@linaro.org" <amit.kucheria@linaro.org>,
+        "ezequiel@collabora.com" <ezequiel@collabora.com>,
+        "olof@lixom.net" <olof@lixom.net>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH V2 2/4] rtc: add i.MX system controller RTC support
+Message-ID: <20181128100040.4072d8e4@karo-electronics.de>
+In-Reply-To: <1543382119-2918-3-git-send-email-Anson.Huang@nxp.com>
+References: <1543382119-2918-1-git-send-email-Anson.Huang@nxp.com>
+        <1543382119-2918-3-git-send-email-Anson.Huang@nxp.com>
+Organization: Ka-Ro electronics GmbH
 MIME-Version: 1.0
-References: <20181128093013.24442-1-wens@csie.org> <20181128093013.24442-5-wens@csie.org>
- <20181128103219.b625lttcgoluhgz5@flea>
-In-Reply-To: <20181128103219.b625lttcgoluhgz5@flea>
-From:   Chen-Yu Tsai <wens@csie.org>
-Date:   Wed, 28 Nov 2018 19:18:26 +0800
-X-Gmail-Original-Message-ID: <CAGb2v67jPi-RFFkVrzHeh2XHeZV7ZN0tPCE=cOTpd6RQayH_Kg@mail.gmail.com>
-Message-ID: <CAGb2v67jPi-RFFkVrzHeh2XHeZV7ZN0tPCE=cOTpd6RQayH_Kg@mail.gmail.com>
-Subject: Re: [PATCH 04/15] dt-bindings: rtc: sun6i-rtc: Export internal RC oscillator
-To:     Maxime Ripard <maxime.ripard@bootlin.com>
-Cc:     alexandre.belloni@bootlin.com,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mike Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-rtc@vger.kernel.org, linux-clk <linux-clk@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Df-Sender: bHdAa2Fyby1lbGVjdHJvbmljcy5kZQ==
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Nov 28, 2018 at 6:33 PM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
->
-> On Wed, Nov 28, 2018 at 05:30:01PM +0800, Chen-Yu Tsai wrote:
-> > Experiments showed that on at least the H3/H5/A64 the RTC's internal
-> > oscillator also feeds the CPUS mux in the PRCM.
-> >
-> > Export this clock through the device tree, instead of having to use
-> > a dummy fixed-clock device node, for the PRCM to consume. This will
-> > properly describe the relationship between the clocks.
-> >
-> > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> > ---
-> >  Documentation/devicetree/bindings/rtc/sun6i-rtc.txt | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> > index 78c4fb472eb7..1bd37faadecb 100644
-> > --- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> > +++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
-> > @@ -24,7 +24,7 @@ Required properties:
-> >
-> >  Required properties for new device trees
-> >  - clocks     : phandle to the 32kHz external oscillator
-> > -- clock-output-names : names of the two clock outputs. See below.
-> > +- clock-output-names : names of the three clock outputs. See below.
-> >  - #clock-cells  : must be equal to 1.
-> >
-> >  The RTC provides the following clocks at the given indices:
-> > @@ -32,6 +32,7 @@ The RTC provides the following clocks at the given indices:
-> >  - 1: LOSC external output, known as X32KFOUT in the datasheet.
-> >       This clock is not available on the A31 and is deprecated for old
-> >       device trees still using the "allwinner,sun6i-a31-rtc" compatible.
-> > +- 2: InternalOSC, or internal RC oscillator
->
-> It seems to be required only for a few RTC though (H3, H5 and R40?)
+Hi,
 
-IMO there's no harm in exporting it for all SoCs. I still don't know
-if it's needed for the A31 either. And we don't have documents for the
-PRCM stuff for any of the SoCs involved.
+On Wed, 28 Nov 2018 05:21:11 +0000 Anson Huang wrote:
+> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
+> inside, the system controller is in charge of controlling power,
+> clock and secure rtc etc..
+> 
+> This patch adds i.MX system controller RTC driver support,
+> Linux kernel has to communicate with system controller via MU
+> (message unit) IPC to set/get RTC time and other alarm functions,
+> since the RTC set time needs to be done in secure EL3 mode (required
+> by system controller firmware) and alarm functions needs to be done
+> with general MU IRQ handle, these depend on other components which
+> are NOT ready, so this patch ONLY enables the RTC time read.
+> 
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> ---
+> changes since V1:
+> 	- sort module in Makefile alphabetically;
+> 	- remove boiler plate license text;
+> 	- use devm_rtc_allocate_device and rtc_register_device to register the RTC.
+>  drivers/rtc/Kconfig      |   6 +++
+>  drivers/rtc/Makefile     |   1 +
+>  drivers/rtc/rtc-imx-sc.c | 107 +++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 114 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-imx-sc.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index a819ef0..3b9642e 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1677,6 +1677,12 @@ config RTC_DRV_SNVS
+>  	   This driver can also be built as a module, if so, the module
+>  	   will be called "rtc-snvs".
+>  
+> +config RTC_DRV_IMX_SC
+> +	tristate "NXP i.MX System Controller RTC support"
+> +	help
+> +	   If you say yes here you get support for the NXP i.MX System
+> +	   Controller RTC module.
+> +
+>  config RTC_DRV_SIRFSOC
+>  	tristate "SiRFSOC RTC"
+>  	depends on ARCH_SIRF
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 290c173..f97c05e 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -75,6 +75,7 @@ obj-$(CONFIG_RTC_DRV_GOLDFISH)	+= rtc-goldfish.o
+>  obj-$(CONFIG_RTC_DRV_HID_SENSOR_TIME) += rtc-hid-sensor-time.o
+>  obj-$(CONFIG_RTC_DRV_HYM8563)	+= rtc-hym8563.o
+>  obj-$(CONFIG_RTC_DRV_IMXDI)	+= rtc-imxdi.o
+> +obj-$(CONFIG_RTC_DRV_IMX_SC)	+= rtc-imx-sc.o
+>  obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
+>  obj-$(CONFIG_RTC_DRV_ISL12026)	+= rtc-isl12026.o
+>  obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
+> diff --git a/drivers/rtc/rtc-imx-sc.c b/drivers/rtc/rtc-imx-sc.c
+> new file mode 100644
+> index 0000000..7212e38
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-imx-sc.c
+> @@ -0,0 +1,107 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Copyright 2018 NXP.
+> + */
+> +
+> +#include <linux/init.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/firmware/imx/sci.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/rtc.h>
+> +
+> +#define IMX_SC_TIMER_FUNC_GET_RTC_SEC1970	9
+> +#define IMX_SC_TIMER_FUNC_SET_RTC_TIME		6
+> +
+> +struct imx_sc_ipc *rtc_ipc_handle;
+> +struct rtc_device *rtc;
+> +
+Shouldn't these be static?
+A generic name like 'rtc' as a global variable name is definitely a very
+bad idea.
 
-ChenYu
+> +struct imx_sc_msg_req_timer_get_rtc_time {
+> +	struct imx_sc_rpc_msg hdr;
+> +} __packed;
+> +
+> +struct imx_sc_msg_resp_timer_get_rtc_time {
+> +	struct imx_sc_rpc_msg hdr;
+> +	u32 time;
+> +} __packed;
+> +
+> +static int imx_sc_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct imx_sc_msg_resp_timer_get_rtc_time *resp;
+> +	struct imx_sc_msg_req_timer_get_rtc_time msg;
+> +	struct imx_sc_rpc_msg *hdr = &msg.hdr;
+> +	int ret;
+> +
+> +	hdr->ver = IMX_SC_RPC_VERSION;
+> +	hdr->svc = IMX_SC_RPC_SVC_TIMER;
+> +	hdr->func = IMX_SC_TIMER_FUNC_GET_RTC_SEC1970;
+> +	hdr->size = 1;
+> +
+> +	ret = imx_scu_call_rpc(rtc_ipc_handle, &msg, true);
+> +	if (ret) {
+> +		pr_err("read rtc time failed, ret %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	resp = (struct imx_sc_msg_resp_timer_get_rtc_time *)&msg;
+> +	rtc_time_to_tm(resp->time, tm);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct rtc_class_ops imx_sc_rtc_ops = {
+> +	.read_time = imx_sc_rtc_read_time,
+> +};
+> +
+> +static int imx_sc_rtc_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +
+> +	ret = imx_scu_get_handle(&rtc_ipc_handle);
+> +	if (ret) {
+> +		if (ret == -EPROBE_DEFER)
+> +			return ret;
+> +
+> +		dev_err(&pdev->dev, "failed to get ipc handle: %d!\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	rtc = devm_rtc_allocate_device(&pdev->dev);
+> +	if (IS_ERR(rtc)) {
+> +		ret = PTR_ERR(rtc);
+> +		return ret;
+> +	}
+> +
+> +	rtc->ops = &imx_sc_rtc_ops;
+> +	rtc->range_min = 0;
+> +	rtc->range_max = U32_MAX;
+> +
+> +	ret = rtc_register_device(rtc);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id imx_sc_dt_ids[] = {
+> +	{ .compatible = "nxp,imx8qxp-sc-rtc", },
+> +	{},
+s/{},/{}/
+The trailing comma is usually added to make patches that add more
+entries to the array simpler and help avoid patch conflicts.
+Since the empty entry MUST be the LAST entry in this array the comma
+should NOT be added here. Without the comma, adding new entries after
+the EOL marker will generate a compile error.
+
+
+Lothar Waßmann
