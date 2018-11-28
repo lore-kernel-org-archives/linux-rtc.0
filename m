@@ -2,37 +2,35 @@ Return-Path: <SRS0=lKmk=OH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96EF7C43441
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:34:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 709CDC43441
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:36:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 674BB208E7
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:34:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 674BB208E7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=KARO-electronics.de
+	by mail.kernel.org (Postfix) with ESMTP id 44234208E7
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Nov 2018 09:36:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 44234208E7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727944AbeK1UfN convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Nov 2018 15:35:13 -0500
-Received: from smtprelay07.ispgateway.de ([134.119.228.105]:60824 "EHLO
-        smtprelay07.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727864AbeK1UfN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Nov 2018 15:35:13 -0500
-X-Greylist: delayed 1786 seconds by postgrey-1.27 at vger.kernel.org; Wed, 28 Nov 2018 15:35:12 EST
-Received: from [89.1.81.74] (helo=karo-electronics.de)
-        by smtprelay07.ispgateway.de with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <LW@KARO-electronics.de>)
-        id 1gRvle-0008K8-Vl; Wed, 28 Nov 2018 10:04:23 +0100
-Date:   Wed, 28 Nov 2018 10:04:20 +0100
-From:   Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+        id S1727667AbeK1UhG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Nov 2018 15:37:06 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:44302 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727623AbeK1UhG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 28 Nov 2018 15:37:06 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id C701E2125F; Wed, 28 Nov 2018 10:36:03 +0100 (CET)
+Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 5F94720D28;
+        Wed, 28 Nov 2018 10:33:45 +0100 (CET)
+Date:   Wed, 28 Nov 2018 10:33:45 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Anson Huang <anson.huang@nxp.com>
-Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+Cc:     Lothar =?utf-8?B?V2Hvv73vv71tYW5u?= <LW@KARO-electronics.de>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
@@ -56,44 +54,43 @@ Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
         dl-linux-imx <linux-imx@nxp.com>
 Subject: Re: [PATCH 4/4] ARM64: dts: imx: add i.MX8QXP system controller RTC
  support
-Message-ID: <20181128100420.0c9a721a@karo-electronics.de>
-In-Reply-To: <1543311334-8807-5-git-send-email-Anson.Huang@nxp.com>
+Message-ID: <20181128093345.GC8952@piout.net>
 References: <1543311334-8807-1-git-send-email-Anson.Huang@nxp.com>
-        <1543311334-8807-5-git-send-email-Anson.Huang@nxp.com>
-Organization: Ka-Ro electronics GmbH
+ <1543311334-8807-5-git-send-email-Anson.Huang@nxp.com>
+ <20181128100420.0c9a721a@karo-electronics.de>
+ <DB3PR0402MB3916FFD700313BF684CF32AAF5D10@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <20181128091943.GB8952@piout.net>
+ <DB3PR0402MB39168AC8DB69B81C51CE63C2F5D10@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Df-Sender: bHdAa2Fyby1lbGVjdHJvbmljcy5kZQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DB3PR0402MB39168AC8DB69B81C51CE63C2F5D10@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
-
-On Tue, 27 Nov 2018 09:41:46 +0000 Anson Huang wrote:
-> Add i.MX8QXP system controller RTC support.
+On 28/11/2018 09:21:56+0000, Anson Huang wrote:
+> > > This module is NOT depending on any board design, should it be enabled by
+> > default in soc dtsi?
+> > > Like wdog etc..
+> > >
+> > 
+> > I guess the point is that you may not want it enabled, even if it should always
+> > be working. enabling it by default would affect the RTC ordering for example.
 > 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
->  arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 4 ++++
->  1 file changed, 4 insertions(+)
+> i.MX SoCs ONLY have 1 RTC. And RTC are always enabled by default for all i.MX
+> SoCs, so do we have to disable it here and enable it in board dts?
 > 
-> diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-> index 9155d45..ef57db6 100644
-> --- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-> +++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-> @@ -433,4 +433,8 @@
->  		#size-cells = <1>;
->  		ranges = <0x5f000000 0x0 0x5f000000 0x1000000>;
->  	};
-> +
-> +	rtc: rtc {
-> +		compatible = "nxp,imx8qxp-sc-rtc";
-> +	};
->  };
-IMO this should be disabled by default.
 
+I would say that most of the i.MX based boards include another RTC
+because the SoC one consumes way too much power.
 
-Lothar Waßmann
+Note that I don't care too much whether it is enabled by default, I
+was simply explaining why you may want to disable it by default.
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
