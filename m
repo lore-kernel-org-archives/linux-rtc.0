@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EB6AC43441
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8161C43441
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F28422081B
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F28422081B
+	by mail.kernel.org (Postfix) with ESMTP id 7E96F2081B
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7E96F2081B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727221AbeK2WKF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 17:10:05 -0500
-Received: from mga01.intel.com ([192.55.52.88]:15235 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728332AbeK2WJp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1728235AbeK2WJp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Thu, 29 Nov 2018 17:09:45 -0500
+Received: from mga09.intel.com ([134.134.136.24]:17050 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728234AbeK2WJn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 29 Nov 2018 17:09:43 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:47 -0800
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:45 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,294,1539673200"; 
-   d="scan'208";a="118456093"
+   d="scan'208";a="116161041"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 29 Nov 2018 03:04:44 -0800
+  by fmsmga002.fm.intel.com with ESMTP; 29 Nov 2018 03:04:42 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 1C011DA9; Thu, 29 Nov 2018 13:04:39 +0200 (EET)
+        id 8CE786C9; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -42,11 +42,10 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>
-Subject: [PATCH v5 20/21] m68k/mac: Switch to use %ptR
-Date:   Thu, 29 Nov 2018 12:59:58 +0200
-Message-Id: <20181129105956.25933-21-andriy.shevchenko@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 09/21] rtc: pcf50633: Switch to use %ptR
+Date:   Thu, 29 Nov 2018 12:59:47 +0200
+Message-Id: <20181129105956.25933-10-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
 References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
@@ -60,33 +59,37 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 Use %ptR instead of open coded variant to print content of
 struct rtc_time in human readable format.
 
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-m68k <linux-m68k@lists.linux-m68k.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- arch/m68k/mac/misc.c | 8 ++------
+ drivers/rtc/rtc-pcf50633.c | 8 ++------
  1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/m68k/mac/misc.c b/arch/m68k/mac/misc.c
-index ebb3b6d169ea..71c4735a31ee 100644
---- a/arch/m68k/mac/misc.c
-+++ b/arch/m68k/mac/misc.c
-@@ -605,13 +605,9 @@ int mac_hwclk(int op, struct rtc_time *t)
- 		unmktime(now, 0,
- 			 &t->tm_year, &t->tm_mon, &t->tm_mday,
- 			 &t->tm_hour, &t->tm_min, &t->tm_sec);
--		pr_debug("%s: read %04d-%02d-%-2d %02d:%02d:%02d\n",
--		         __func__, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
--		         t->tm_hour, t->tm_min, t->tm_sec);
-+		pr_debug("%s: read %ptR\n", __func__, t);
- 	} else { /* write */
--		pr_debug("%s: tried to write %04d-%02d-%-2d %02d:%02d:%02d\n",
--		         __func__, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
--		         t->tm_hour, t->tm_min, t->tm_sec);
-+		pr_debug("%s: tried to write %ptR\n", __func__, t);
+diff --git a/drivers/rtc/rtc-pcf50633.c b/drivers/rtc/rtc-pcf50633.c
+index ef72b0c389d7..0eb05b1d0b94 100644
+--- a/drivers/rtc/rtc-pcf50633.c
++++ b/drivers/rtc/rtc-pcf50633.c
+@@ -131,9 +131,7 @@ static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
  
- 		switch (macintosh_config->adb_type) {
- 		case MAC_ADB_IOP:
+ 	pcf2rtc_time(tm, &pcf_tm);
+ 
+-	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
+-		tm->tm_mday, tm->tm_mon, tm->tm_year,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "RTC_TIME: %ptRr\n", tm);
+ 
+ 	return 0;
+ }
+@@ -146,9 +144,7 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc = dev_get_drvdata(dev);
+ 
+-	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
+-		tm->tm_mday, tm->tm_mon, tm->tm_year,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "RTC_TIME: %ptRr\n", tm);
+ 
+ 	rtc2pcf_time(&pcf_tm, tm);
+ 
 -- 
 2.19.2
 
