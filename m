@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10765C43441
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3524C04EBA
 	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:06:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C77A82081B
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:06:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C77A82081B
+	by mail.kernel.org (Postfix) with ESMTP id 850502081B
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:06:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 850502081B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728151AbeK2WJl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1728144AbeK2WJl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Thu, 29 Nov 2018 17:09:41 -0500
-Received: from mga05.intel.com ([192.55.52.43]:38624 "EHLO mga05.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:15235 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727114AbeK2WJk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1728137AbeK2WJk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Thu, 29 Nov 2018 17:09:40 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:41 -0800
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:42 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,294,1539673200"; 
-   d="scan'208";a="116126136"
+   d="scan'208";a="289684549"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga004.fm.intel.com with ESMTP; 29 Nov 2018 03:04:39 -0800
+  by fmsmga005.fm.intel.com with ESMTP; 29 Nov 2018 03:04:39 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 5C055325; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
+        id 4FA202A9; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -43,9 +43,9 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 06/21] rtc: m41t80: Switch to use %ptR
-Date:   Thu, 29 Nov 2018 12:59:44 +0200
-Message-Id: <20181129105956.25933-7-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 05/21] rtc: at91sam9: Switch to use %ptR
+Date:   Thu, 29 Nov 2018 12:59:43 +0200
+Message-Id: <20181129105956.25933-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
 References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
@@ -61,26 +61,57 @@ struct rtc_time in human readable format.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-m41t80.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/rtc/rtc-at91sam9.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index a39138932379..ebf50b1540f2 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -942,11 +942,7 @@ static int m41t80_probe(struct i2c_client *client,
- 		if (m41t80_data->features & M41T80_FEATURE_HT) {
- 			m41t80_rtc_read_time(&client->dev, &tm);
- 			dev_info(&client->dev, "HT bit was set!\n");
--			dev_info(&client->dev,
--				 "Power Down at %04i-%02i-%02i %02i:%02i:%02i\n",
--				 tm.tm_year + 1900,
--				 tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
--				 tm.tm_min, tm.tm_sec);
-+			dev_info(&client->dev, "Power Down at %ptR\n", &tm);
- 		}
- 		rc = i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_HOUR,
- 					       rc & ~M41T80_ALHOUR_HT);
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index ee71e647fd43..1d31c0ae6334 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -124,9 +124,7 @@ static int at91_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_time_to_tm(offset + secs, tm);
+ 
+-	dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "readtime",
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s: %ptR\n", __func__, tm);
+ 
+ 	return 0;
+ }
+@@ -141,9 +139,7 @@ static int at91_rtc_settime(struct device *dev, struct rtc_time *tm)
+ 	u32 offset, alarm, mr;
+ 	unsigned long secs;
+ 
+-	dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "settime",
+-		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s: %ptR\n", __func__, tm);
+ 
+ 	err = rtc_tm_to_time(tm, &secs);
+ 	if (err != 0)
+@@ -199,9 +195,7 @@ static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	if (alarm != ALARM_DISABLED && offset != 0) {
+ 		rtc_time_to_tm(offset + alarm, tm);
+ 
+-		dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "readalarm",
+-			1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
+-			tm->tm_hour, tm->tm_min, tm->tm_sec);
++		dev_dbg(dev, "%s: %ptR\n", __func__, tm);
+ 
+ 		if (rtt_readl(rtc, MR) & AT91_RTT_ALMIEN)
+ 			alrm->enabled = 1;
+@@ -242,9 +236,7 @@ static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	if (alrm->enabled)
+ 		rtt_writel(rtc, MR, mr | AT91_RTT_ALMIEN);
+ 
+-	dev_dbg(dev, "%s: %4d-%02d-%02d %02d:%02d:%02d\n", "setalarm",
+-		tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_hour,
+-		tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "%s: %ptR\n", __func__, tm);
+ 
+ 	return 0;
+ }
 -- 
 2.19.2
 
