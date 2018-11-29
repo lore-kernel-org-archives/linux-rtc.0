@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26C34C43441
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 340CAC43441
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E9C4A2081B
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E9C4A2081B
+	by mail.kernel.org (Postfix) with ESMTP id EEC812081B
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EEC812081B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727728AbeK2WKp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 17:10:45 -0500
-Received: from mga17.intel.com ([192.55.52.151]:7166 "EHLO mga17.intel.com"
+        id S1728206AbeK2WJm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 29 Nov 2018 17:09:42 -0500
+Received: from mga09.intel.com ([134.134.136.24]:17050 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728241AbeK2WJo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 29 Nov 2018 17:09:44 -0500
+        id S1728174AbeK2WJm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 29 Nov 2018 17:09:42 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:46 -0800
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:42 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,294,1539673200"; 
-   d="scan'208";a="113631705"
+   d="scan'208";a="289763033"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga001.jf.intel.com with ESMTP; 29 Nov 2018 03:04:42 -0800
+  by fmsmga006.fm.intel.com with ESMTP; 29 Nov 2018 03:04:40 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id D3DC9A5A; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
+        id 6C4AD43A; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -43,9 +43,9 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 14/21] rtc: rx6110: Switch to use %ptR
-Date:   Thu, 29 Nov 2018 12:59:52 +0200
-Message-Id: <20181129105956.25933-15-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 07/21] rtc: m48t59: Switch to use %ptR
+Date:   Thu, 29 Nov 2018 12:59:45 +0200
+Message-Id: <20181129105956.25933-8-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
 References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
@@ -61,46 +61,35 @@ struct rtc_time in human readable format.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/rtc/rtc-rx6110.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-m48t59.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-index 8e322d884cc2..5899ca368d59 100644
---- a/drivers/rtc/rtc-rx6110.c
-+++ b/drivers/rtc/rtc-rx6110.c
-@@ -114,9 +114,7 @@ struct rx6110_data {
-  */
- static int rx6110_rtc_tm_to_data(struct rtc_time *tm, u8 *data)
- {
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index ac9ca1042889..3c8ad1cdfd7c 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -99,9 +99,7 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
  
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -154,9 +152,7 @@ static int rx6110_data_to_rtc_tm(u8 *data, struct rtc_time *tm)
- 	tm->tm_mon = bcd2bin(data[RTC_MONTH] & 0x1f) - 1;
- 	tm->tm_year = bcd2bin(data[RTC_YEAR]) + 100;
- 
--	pr_debug("%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		 tm->tm_sec, tm->tm_min, tm->tm_hour,
--		 tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	pr_debug("%s: date %ptRr\n", __func__, tm);
- 
- 	/*
- 	 * The year in the RTC is a value between 0 and 99.
-@@ -248,9 +244,7 @@ static int rx6110_get_time(struct device *dev, struct rtc_time *tm)
- 	if (ret)
- 		return ret;
- 
--	dev_dbg(dev, "%s: date %ds %dm %dh %dmd %dm %dy\n", __func__,
--		tm->tm_sec, tm->tm_min, tm->tm_hour,
--		tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	dev_dbg(dev, "%s: date %ptRr\n", __func__, tm);
- 
+-	dev_dbg(dev, "RTC read time %04d-%02d-%02d %02d/%02d/%02d\n",
+-		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "RTC read time %ptR\n", tm);
  	return 0;
  }
+ 
+@@ -188,9 +186,7 @@ static int m48t59_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
+ 	spin_unlock_irqrestore(&m48t59->lock, flags);
+ 
+-	dev_dbg(dev, "RTC read alarm time %04d-%02d-%02d %02d/%02d/%02d\n",
+-		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
+-		tm->tm_hour, tm->tm_min, tm->tm_sec);
++	dev_dbg(dev, "RTC read alarm time %ptR\n", tm);
+ 	return rtc_valid_tm(tm);
+ }
+ 
 -- 
 2.19.2
 
