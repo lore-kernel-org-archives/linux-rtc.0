@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6207AC43441
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F094BC43441
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 33A922081B
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 33A922081B
+	by mail.kernel.org (Postfix) with ESMTP id B23672081C
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 11:05:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B23672081C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbeK2WKP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 17:10:15 -0500
-Received: from mga18.intel.com ([134.134.136.126]:63383 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728237AbeK2WJp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1728283AbeK2WJp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Thu, 29 Nov 2018 17:09:45 -0500
+Received: from mga01.intel.com ([192.55.52.88]:15235 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728174AbeK2WJn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 29 Nov 2018 17:09:43 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:46 -0800
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Nov 2018 03:04:45 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,294,1539673200"; 
-   d="scan'208";a="96699622"
+   d="scan'208";a="118456090"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga008.jf.intel.com with ESMTP; 29 Nov 2018 03:04:43 -0800
+  by fmsmga001.fm.intel.com with ESMTP; 29 Nov 2018 03:04:42 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 11915D8C; Thu, 29 Nov 2018 13:04:39 +0200 (EET)
+        id AE46A7D4; Thu, 29 Nov 2018 13:04:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -42,11 +42,10 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v5 19/21] Input: hp_sdc_rtc - Switch to use %ptR
-Date:   Thu, 29 Nov 2018 12:59:57 +0200
-Message-Id: <20181129105956.25933-20-andriy.shevchenko@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 11/21] rtc: pm8xxx: Switch to use %ptR
+Date:   Thu, 29 Nov 2018 12:59:49 +0200
+Message-Id: <20181129105956.25933-12-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
 References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
@@ -60,33 +59,52 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 Use %ptR instead of open coded variant to print content of
 struct rtc_time in human readable format.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/hp_sdc_rtc.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
-index 47eb8ca729fe..abca895a6156 100644
---- a/drivers/input/misc/hp_sdc_rtc.c
-+++ b/drivers/input/misc/hp_sdc_rtc.c
-@@ -441,12 +441,10 @@ static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
- 		seq_puts(m, "BBRTC\t\t: READ FAILED!\n");
- 	} else {
- 		seq_printf(m,
--			     "rtc_time\t: %02d:%02d:%02d\n"
--			     "rtc_date\t: %04d-%02d-%02d\n"
-+			     "rtc_time\t: %ptRt\n"
-+			     "rtc_date\t: %ptRd\n"
- 			     "rtc_epoch\t: %04lu\n",
--			     tm.tm_hour, tm.tm_min, tm.tm_sec,
--			     tm.tm_year + 1900, tm.tm_mon + 1, 
--			     tm.tm_mday, epoch);
-+			     &tm, &tm, epoch);
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 29358a045925..1074e3dbfc1d 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -217,9 +217,7 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	rtc_time_to_tm(secs, tm);
+ 
+-	dev_dbg(dev, "secs = %lu, h:m:s == %d:%d:%d, d/m/y = %d/%d/%d\n",
+-		secs, tm->tm_hour, tm->tm_min, tm->tm_sec,
+-		tm->tm_mday, tm->tm_mon, tm->tm_year);
++	dev_dbg(dev, "secs = %lu, h:m:s == %ptRt, y-m-d = %ptRdr\n", secs, tm, tm);
+ 
+ 	return 0;
+ }
+@@ -264,10 +262,8 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		goto rtc_rw_fail;
  	}
  
- 	if (hp_sdc_rtc_read_rt(&tv)) {
+-	dev_dbg(dev, "Alarm Set for h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
+-		alarm->time.tm_hour, alarm->time.tm_min,
+-		alarm->time.tm_sec, alarm->time.tm_mday,
+-		alarm->time.tm_mon, alarm->time.tm_year);
++	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
++		&alarm->time, &alarm->time);
+ rtc_rw_fail:
+ 	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 	return rc;
+@@ -298,10 +294,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		return rc;
+ 	}
+ 
+-	dev_dbg(dev, "Alarm set for - h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
+-		alarm->time.tm_hour, alarm->time.tm_min,
+-		alarm->time.tm_sec, alarm->time.tm_mday,
+-		alarm->time.tm_mon, alarm->time.tm_year);
++	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
++		&alarm->time, &alarm->time);
+ 
+ 	return 0;
+ }
 -- 
 2.19.2
 
