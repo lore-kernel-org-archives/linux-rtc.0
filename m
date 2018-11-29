@@ -2,178 +2,151 @@ Return-Path: <SRS0=Jagb=OI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8599CC43441
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 17:03:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 365EEC04EBA
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 19:57:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B48B20989
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 17:03:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B48B20989
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bp.renesas.com
+	by mail.kernel.org (Postfix) with ESMTP id EABF82145D
+	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 19:57:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="DH645j2J"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EABF82145D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730216AbeK3EJm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Nov 2018 23:09:42 -0500
-Received: from relmlor1.renesas.com ([210.160.252.171]:12977 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729682AbeK3EJW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Nov 2018 23:09:22 -0500
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 30 Nov 2018 02:03:19 +0900
-Received: from be1yocto.ree.adwin.renesas.com (unknown [172.29.43.62])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id D6A7E4000FBD;
-        Fri, 30 Nov 2018 02:03:16 +0900 (JST)
-From:   Biju Das <biju.das@bp.renesas.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
-        Simon Horman <horms@verge.net.au>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v2 2/4] rtc: pcf85363: Add support for NXP pcf85263 rtc
-Date:   Thu, 29 Nov 2018 16:54:44 +0000
-Message-Id: <1543510486-29532-3-git-send-email-biju.das@bp.renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1543510486-29532-1-git-send-email-biju.das@bp.renesas.com>
-References: <1543510486-29532-1-git-send-email-biju.das@bp.renesas.com>
+        id S1725883AbeK3HDq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 30 Nov 2018 02:03:46 -0500
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:35337 "EHLO
+        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726216AbeK3HDq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Nov 2018 02:03:46 -0500
+Received: by mail-qt1-f196.google.com with SMTP id v11so3437735qtc.2
+        for <linux-rtc@vger.kernel.org>; Thu, 29 Nov 2018 11:57:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:subject:to:references:from:organization:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=el2/ekc41aWY1xfXpezXjS5XXMk7zVkzQG1LQP2kbJA=;
+        b=DH645j2JRlqQv6JJNhdoWD1GEg1yDdrvmqo7eQJsF7DDNUnam6LM26ot4zyrAJqcJ5
+         KYZbVP8jI3+27UrY8TVL3Fig0JnqWbc60FWZ6rAoMo8aZ8LQoyqBuod+nqaff/b9sQ70
+         wz/AFBdKHAf84Qo1BWs+gcFfDSwp7hqNtPo+8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:cc:subject:to:references:from:organization
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=el2/ekc41aWY1xfXpezXjS5XXMk7zVkzQG1LQP2kbJA=;
+        b=lsHiRAC243i1bF108kOU7IKImrdCLINVPolFg6tCPr9pvhsmqq1EXrbWBjUvCl0ind
+         WjOW/5oDWEr4O45kpQbc/wrTd4Paq8wg5zkSIAClKqzX335Dfm9xvcsFP1TE0jgZfYOU
+         mVyqTgk66hvo+qbXDC6uJ+w0vVQJdezNKpQ7Qnn3ZDsVjnlcqR5F6y8WTwzT2ZZdsBAS
+         6/gFM9v7hK4VPwQdFcNvnC8XZvNEbPj7zAyJFV3MIo42HtFMYyaIjqs8zEGbfxx7f+0a
+         ftEun2sF4e1HvJUZWJj1luGFOnoF2Q5GI11wMacQPUObED5tg294aME6YJGVho0QHRX2
+         okCw==
+X-Gm-Message-State: AA+aEWbCTo0PurLwBHwyxNrqSnuuEcOwIVJjoPwNMW8RNxmRSCqb9xDk
+        T+nR0ZGEVwlfMM7FAC9YvSuWX2g/lqy/ZQ==
+X-Google-Smtp-Source: AFSGD/WIMXXtqO1X3ou1osTz4Me9lXjlz5Pr+2r1Blv4CVBDePub8GmpltpPLRXopQv2UUdrklnByQ==
+X-Received: by 2002:a0c:c389:: with SMTP id o9mr2840270qvi.90.1543521430582;
+        Thu, 29 Nov 2018 11:57:10 -0800 (PST)
+Received: from [192.168.49.18] ([138.204.25.29])
+        by smtp.gmail.com with ESMTPSA id d50sm1787542qta.31.2018.11.29.11.57.07
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 29 Nov 2018 11:57:09 -0800 (PST)
+Cc:     Rafael David Tinoco <rafael.tinoco@linaro.org>,
+        John Stultz <john.stultz@linaro.org>,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 1/4] selftests: timers: move PIE tests out of rtctest
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Shuah Khan <shuah@kernel.org>
+References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
+ <20180419125030.5076-2-alexandre.belloni@bootlin.com>
+From:   Rafael David Tinoco <rafael.tinoco@linaro.org>
+Organization: Linaro
+Message-ID: <a304b6f1-11db-543b-2cb3-372f34dc7697@linaro.org>
+Date:   Thu, 29 Nov 2018 17:57:05 -0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.1
+MIME-Version: 1.0
+In-Reply-To: <20180419125030.5076-2-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add support for NXP pcf85263 real-time clock. pcf85263 rtc is compatible
-with pcf85363,except that pcf85363 has additional 64 bytes of RAM.
+On 4/19/18 9:50 AM, Alexandre Belloni wrote:
+> Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
+> events"), PIE are completely handled using hrtimers, without actually using
+> any underlying hardware RTC.
+> 
+> Move PIE testing out of rtctest. It still depends on the presence of an RTC
+> (to access the device file) but doesn't depend on it actually working.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  tools/testing/selftests/timers/.gitignore |   1 +
+>  tools/testing/selftests/timers/Makefile   |   2 +-
+>  tools/testing/selftests/timers/rtcpie.c   | 132 ++++++++++++++++++++++
+>  tools/testing/selftests/timers/rtctest.c  |  83 +-------------
+>  4 files changed, 138 insertions(+), 80 deletions(-)
+>  create mode 100644 tools/testing/selftests/timers/rtcpie.c
+> 
+...
+> +	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
+> +	for (tmp=2; tmp<=64; tmp*=2) {
+> +
+> +		retval = ioctl(fd, RTC_IRQP_SET, tmp);
+> +		if (retval == -1) {
+> +			/* not all RTCs can change their periodic IRQ rate */
+> +			if (errno == EINVAL) {
+> +				fprintf(stderr,
+> +					"\n...Periodic IRQ rate is fixed\n");
+> +				goto done;
+> +			}
+> +			perror("RTC_IRQP_SET ioctl");
+> +			exit(errno);
+> +		}
 
-1 byte of nvmem is supported and exposed in sysfs (# is the instance
-number,starting with 0): /sys/bus/nvmem/devices/pcf85x63-#/nvmem
+Hello Alexandre,
 
-Signed-off-by: Biju Das <biju.das@bp.renesas.com>
----
- V1-->V2 Incorporated Alexandre and Geert's review comment.
----
- drivers/rtc/rtc-pcf85363.c | 72 ++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 57 insertions(+), 15 deletions(-)
+In our tests, having failures under 64Hz is quite common in embedded
+systems with few number of CPUs/Cores:
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index c04a1ed..9c567c8 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -311,7 +311,30 @@ static int pcf85363_nvram_write(void *priv, unsigned int offset, void *val,
- 				 val, bytes);
- }
- 
--static const struct regmap_config regmap_config = {
-+static int pcf85x63_nvram_read(void *priv, unsigned int offset, void *val,
-+			       size_t bytes)
-+{
-+	struct pcf85363 *pcf85363 = priv;
-+
-+	return regmap_read(pcf85363->regmap, CTRL_RAMBYTE, val);
-+}
-+
-+static int pcf85x63_nvram_write(void *priv, unsigned int offset, void *val,
-+				size_t bytes)
-+{
-+	struct pcf85363 *pcf85363 = priv;
-+
-+	return regmap_write(pcf85363->regmap, CTRL_RAMBYTE,
-+				*((unsigned int *)val));
-+}
-+
-+static const struct regmap_config pcf_85263_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = 0x2f,
-+};
-+
-+static const struct regmap_config pcf_85363_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
- 	.max_register = 0x7f,
-@@ -321,15 +344,25 @@ static int pcf85363_probe(struct i2c_client *client,
- 			  const struct i2c_device_id *id)
- {
- 	struct pcf85363 *pcf85363;
--	struct nvmem_config nvmem_cfg = {
--		.name = "pcf85363-",
--		.word_size = 1,
--		.stride = 1,
--		.size = NVRAM_SIZE,
--		.reg_read = pcf85363_nvram_read,
--		.reg_write = pcf85363_nvram_write,
-+	const struct regmap_config *regmap_config = &pcf_85363_regmap_config;
-+	struct nvmem_config nvmem_cfg[] = {
-+		{
-+			.name = "pcf85x63-",
-+			.word_size = 1,
-+			.stride = 1,
-+			.size = 1,
-+			.reg_read = pcf85x63_nvram_read,
-+			.reg_write = pcf85x63_nvram_write,
-+		}, {
-+			.name = "pcf85363-",
-+			.word_size = 1,
-+			.stride = 1,
-+			.size = NVRAM_SIZE,
-+			.reg_read = pcf85363_nvram_read,
-+			.reg_write = pcf85363_nvram_write,
-+		},
- 	};
--	int ret;
-+	int ret, i, num_nvmem = 2;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
- 		return -ENODEV;
-@@ -339,7 +372,13 @@ static int pcf85363_probe(struct i2c_client *client,
- 	if (!pcf85363)
- 		return -ENOMEM;
- 
--	pcf85363->regmap = devm_regmap_init_i2c(client, &regmap_config);
-+	if (of_device_get_match_data(&client->dev) ==
-+					&pcf_85263_regmap_config) {
-+		regmap_config = &pcf_85263_regmap_config;
-+		num_nvmem = 1;
-+	}
-+
-+	pcf85363->regmap = devm_regmap_init_i2c(client, regmap_config);
- 	if (IS_ERR(pcf85363->regmap)) {
- 		dev_err(&client->dev, "regmap allocation failed\n");
- 		return PTR_ERR(pcf85363->regmap);
-@@ -370,15 +409,18 @@ static int pcf85363_probe(struct i2c_client *client,
- 
- 	ret = rtc_register_device(pcf85363->rtc);
- 
--	nvmem_cfg.priv = pcf85363;
--	rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg);
-+	for (i = 0; i < num_nvmem ; i++) {
-+		nvmem_cfg[i].priv = pcf85363;
-+		rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
-+	}
- 
- 	return ret;
- }
- 
- static const struct of_device_id dev_ids[] = {
--	{ .compatible = "nxp,pcf85363" },
--	{}
-+	{ .compatible = "nxp,pcf85263", .data = &pcf_85263_regmap_config },
-+	{ .compatible = "nxp,pcf85363", .data = &pcf_85363_regmap_config },
-+	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, dev_ids);
- 
-@@ -393,5 +435,5 @@ static struct i2c_driver pcf85363_driver = {
- module_i2c_driver(pcf85363_driver);
- 
- MODULE_AUTHOR("Eric Nelson");
--MODULE_DESCRIPTION("pcf85363 I2C RTC driver");
-+MODULE_DESCRIPTION("pcf85263/pcf85363 I2C RTC driver");
- MODULE_LICENSE("GPL");
+--------
+root@bug3402:opt$ find /sys -name rtc0
+/sys/devices/platform/9010000.pl031/rtc/rtc0
+/sys/class/rtc/rtc0
+
+selftests: timers: rtcpie
+Periodic IRQ rate is 1Hz.
+Counting 20 interrupts at:
+2Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+4Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+8Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+16Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+32Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+64Hz:	
+PIE delta error: 0.017697 should be close to 0.015625
+not ok 1..9 selftests: timers: rtcpie [FAIL]
+--------
+
+Mainly because 64Hz gives us.. ~16ms in the test, and the variation
+being taken in consideration for an error, for this test, is 10%, which
+is ~1.6ms... pretty close to scheduler limit for lower number of CPUs in
+a functional testing environment.
+
+Would you mind if we change the default for up to 32Hz ? Or, do you have
+any other suggestion ?
+
+Best Rgds
+Rafael
+
 -- 
-2.7.4
-
+Rafael D. Tinoco
+Linaro - Kernel Validation
