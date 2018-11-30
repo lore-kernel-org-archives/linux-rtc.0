@@ -1,152 +1,97 @@
-Return-Path: <SRS0=Jagb=OI=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=hZ7y=OJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 365EEC04EBA
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 19:57:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D730AC04EB8
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Nov 2018 03:56:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EABF82145D
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Nov 2018 19:57:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="DH645j2J"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EABF82145D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTP id A5A232145D
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Nov 2018 03:56:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A5A232145D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbeK3HDq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 30 Nov 2018 02:03:46 -0500
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:35337 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbeK3HDq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Nov 2018 02:03:46 -0500
-Received: by mail-qt1-f196.google.com with SMTP id v11so3437735qtc.2
-        for <linux-rtc@vger.kernel.org>; Thu, 29 Nov 2018 11:57:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:subject:to:references:from:organization:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=el2/ekc41aWY1xfXpezXjS5XXMk7zVkzQG1LQP2kbJA=;
-        b=DH645j2JRlqQv6JJNhdoWD1GEg1yDdrvmqo7eQJsF7DDNUnam6LM26ot4zyrAJqcJ5
-         KYZbVP8jI3+27UrY8TVL3Fig0JnqWbc60FWZ6rAoMo8aZ8LQoyqBuod+nqaff/b9sQ70
-         wz/AFBdKHAf84Qo1BWs+gcFfDSwp7hqNtPo+8=
+        id S1726652AbeK3PDz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 30 Nov 2018 10:03:55 -0500
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:43918 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726161AbeK3PDz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Nov 2018 10:03:55 -0500
+Received: by mail-ed1-f68.google.com with SMTP id f4so3692494edq.10;
+        Thu, 29 Nov 2018 19:56:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:cc:subject:to:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=el2/ekc41aWY1xfXpezXjS5XXMk7zVkzQG1LQP2kbJA=;
-        b=lsHiRAC243i1bF108kOU7IKImrdCLINVPolFg6tCPr9pvhsmqq1EXrbWBjUvCl0ind
-         WjOW/5oDWEr4O45kpQbc/wrTd4Paq8wg5zkSIAClKqzX335Dfm9xvcsFP1TE0jgZfYOU
-         mVyqTgk66hvo+qbXDC6uJ+w0vVQJdezNKpQ7Qnn3ZDsVjnlcqR5F6y8WTwzT2ZZdsBAS
-         6/gFM9v7hK4VPwQdFcNvnC8XZvNEbPj7zAyJFV3MIo42HtFMYyaIjqs8zEGbfxx7f+0a
-         ftEun2sF4e1HvJUZWJj1luGFOnoF2Q5GI11wMacQPUObED5tg294aME6YJGVho0QHRX2
-         okCw==
-X-Gm-Message-State: AA+aEWbCTo0PurLwBHwyxNrqSnuuEcOwIVJjoPwNMW8RNxmRSCqb9xDk
-        T+nR0ZGEVwlfMM7FAC9YvSuWX2g/lqy/ZQ==
-X-Google-Smtp-Source: AFSGD/WIMXXtqO1X3ou1osTz4Me9lXjlz5Pr+2r1Blv4CVBDePub8GmpltpPLRXopQv2UUdrklnByQ==
-X-Received: by 2002:a0c:c389:: with SMTP id o9mr2840270qvi.90.1543521430582;
-        Thu, 29 Nov 2018 11:57:10 -0800 (PST)
-Received: from [192.168.49.18] ([138.204.25.29])
-        by smtp.gmail.com with ESMTPSA id d50sm1787542qta.31.2018.11.29.11.57.07
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rtVlvmxu/HbPwX1djWwZgBZo6Exl0kkMIvLIu0XvI7s=;
+        b=KLuqeSPYh6s8nqp6VO0Jst4pLFmzIpFxQXa3BVz1nJx8F3A953vqPfIN1r9JltgdMN
+         IMCYRsP9Fe5PazMQhdcwEjDA1Zcn6y1rpDzIsJX1WXcE0yJ+QMlEmLvpRJNKKYZ4go/1
+         8WQMlfqyVpFiXf4/WH0YG8QPmcxjCNJgDE96gdxLGF1GJRQJ7p2avlfK6K6sT8FRBiGy
+         nRK+JVcTjFJ9IeH6UketjgOE3QN/6dfgXOPeqWiRbtguT/AdQWGPaFdOx7b5dukQf3Jl
+         jxdIkzU5OrB8HB9Ve3lcVhXAo20KwgJGLnZSi6WCDDQHpZ+f0iYCHWy5XFTlbFHdPw2X
+         buUQ==
+X-Gm-Message-State: AA+aEWaoBEWHpJ0+QtayLU0d+2JGatBj4h2EJUSJNO4JF9CDmFsX4xt9
+        da8qglUq1ld3Qh6fE5kJ+XowAp1j+1M=
+X-Google-Smtp-Source: AFSGD/Vchm9qRnNZDBd1iQHnGhvoY69TR+eu+f8YwX7GMGugf/QzwcPH8nj4MXB1COurtmRCIpMZpw==
+X-Received: by 2002:a50:bb08:: with SMTP id y8mr3884467ede.10.1543550159225;
+        Thu, 29 Nov 2018 19:55:59 -0800 (PST)
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com. [209.85.128.49])
+        by smtp.gmail.com with ESMTPSA id f35sm1091926edd.80.2018.11.29.19.55.58
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Nov 2018 11:57:09 -0800 (PST)
-Cc:     Rafael David Tinoco <rafael.tinoco@linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/4] selftests: timers: move PIE tests out of rtctest
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shuah Khan <shuah@kernel.org>
-References: <20180419125030.5076-1-alexandre.belloni@bootlin.com>
- <20180419125030.5076-2-alexandre.belloni@bootlin.com>
-From:   Rafael David Tinoco <rafael.tinoco@linaro.org>
-Organization: Linaro
-Message-ID: <a304b6f1-11db-543b-2cb3-372f34dc7697@linaro.org>
-Date:   Thu, 29 Nov 2018 17:57:05 -0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.1
+        Thu, 29 Nov 2018 19:55:58 -0800 (PST)
+Received: by mail-wm1-f49.google.com with SMTP id g67so4281198wmd.2;
+        Thu, 29 Nov 2018 19:55:58 -0800 (PST)
+X-Received: by 2002:a1c:2382:: with SMTP id j124mr3896642wmj.14.1543550158329;
+ Thu, 29 Nov 2018 19:55:58 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180419125030.5076-2-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20181128093013.24442-1-wens@csie.org> <20181128093013.24442-11-wens@csie.org>
+ <154344054442.88331.8887745218976145062@swboyd.mtv.corp.google.com>
+In-Reply-To: <154344054442.88331.8887745218976145062@swboyd.mtv.corp.google.com>
+From:   Chen-Yu Tsai <wens@csie.org>
+Date:   Fri, 30 Nov 2018 11:55:44 +0800
+X-Gmail-Original-Message-ID: <CAGb2v64cER=qU2e_jnZemVfYbtQFNk+ev1MFBQDQu86f98X2dw@mail.gmail.com>
+Message-ID: <CAGb2v64cER=qU2e_jnZemVfYbtQFNk+ev1MFBQDQu86f98X2dw@mail.gmail.com>
+Subject: Re: [PATCH 09/15] clk: sunxi-ng: r40: Force LOSC parent to RTC LOSC output
+To:     Maxime Ripard <maxime.ripard@bootlin.com>
+Cc:     Stephen Boyd <sboyd@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        alexandre.belloni@bootlin.com, Mark Rutland <mark.rutland@arm.com>,
+        Mike Turquette <mturquette@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-rtc@vger.kernel.org, linux-clk <linux-clk@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-sunxi@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 4/19/18 9:50 AM, Alexandre Belloni wrote:
-> Since commit 6610e0893b8bc ("RTC: Rework RTC code to use timerqueue for
-> events"), PIE are completely handled using hrtimers, without actually using
-> any underlying hardware RTC.
-> 
-> Move PIE testing out of rtctest. It still depends on the presence of an RTC
-> (to access the device file) but doesn't depend on it actually working.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  tools/testing/selftests/timers/.gitignore |   1 +
->  tools/testing/selftests/timers/Makefile   |   2 +-
->  tools/testing/selftests/timers/rtcpie.c   | 132 ++++++++++++++++++++++
->  tools/testing/selftests/timers/rtctest.c  |  83 +-------------
->  4 files changed, 138 insertions(+), 80 deletions(-)
->  create mode 100644 tools/testing/selftests/timers/rtcpie.c
-> 
-...
-> +	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
-> +	for (tmp=2; tmp<=64; tmp*=2) {
-> +
-> +		retval = ioctl(fd, RTC_IRQP_SET, tmp);
-> +		if (retval == -1) {
-> +			/* not all RTCs can change their periodic IRQ rate */
-> +			if (errno == EINVAL) {
-> +				fprintf(stderr,
-> +					"\n...Periodic IRQ rate is fixed\n");
-> +				goto done;
-> +			}
-> +			perror("RTC_IRQP_SET ioctl");
-> +			exit(errno);
-> +		}
+On Thu, Nov 29, 2018 at 5:29 AM Stephen Boyd <sboyd@kernel.org> wrote:
+>
+> Quoting Chen-Yu Tsai (2018-11-28 01:30:07)
+> > On the R40, in addition to a mux between the RTC's own RC oscillator and
+> > an external 32768 Hz crystal, which are muxed inside the RTC module, the
+> > CCU also has its own RC oscillator, which runs at around 2 MHz, and can
+> > be muxed with the LOSC output from the RTC. This muxed output is called
+> > "SYS 32K" in the module clock diagram, but otherwise referred to as the
+> > LOSC throughout the CCU documentation.
+> >
+> > The RC oscillator is not very accurate, even though it has an undocumented
+> > calibration function. We really want a precise clock at 32768 Hz,
+> > instead of something at around 32 KHz. This patch forces the SYS 32K
+> > clock to use the RTC output as its parent, and doesn't bother
+> > registering the internal oscillator nor a clock mux.
+> >
+> > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> > ---
+>
+> Acked-by: Stephen Boyd <sboyd@kernel.org>
 
-Hello Alexandre,
-
-In our tests, having failures under 64Hz is quite common in embedded
-systems with few number of CPUs/Cores:
-
---------
-root@bug3402:opt$ find /sys -name rtc0
-/sys/devices/platform/9010000.pl031/rtc/rtc0
-/sys/class/rtc/rtc0
-
-selftests: timers: rtcpie
-Periodic IRQ rate is 1Hz.
-Counting 20 interrupts at:
-2Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-4Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-8Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-16Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-32Hz:	 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-64Hz:	
-PIE delta error: 0.017697 should be close to 0.015625
-not ok 1..9 selftests: timers: rtcpie [FAIL]
---------
-
-Mainly because 64Hz gives us.. ~16ms in the test, and the variation
-being taken in consideration for an error, for this test, is 10%, which
-is ~1.6ms... pretty close to scheduler limit for lower number of CPUs in
-a functional testing environment.
-
-Would you mind if we change the default for up to 32Hz ? Or, do you have
-any other suggestion ?
-
-Best Rgds
-Rafael
-
--- 
-Rafael D. Tinoco
-Linaro - Kernel Validation
+Merged with acks from Maxime and Stephen.
