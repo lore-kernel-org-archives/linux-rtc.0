@@ -1,147 +1,137 @@
-Return-Path: <SRS0=3DDw=OL=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=hmEX=OM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_NEOMUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 866C2C64EB4
-	for <linux-rtc@archiver.kernel.org>; Sun,  2 Dec 2018 22:09:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53B39C04EB9
+	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 09:06:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4A4A320834
-	for <linux-rtc@archiver.kernel.org>; Sun,  2 Dec 2018 22:09:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="K1tWG2B4"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A4A320834
-Authentication-Results: mail.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=googlemail.com
+	by mail.kernel.org (Postfix) with ESMTP id EACB120848
+	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 09:06:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EACB120848
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725792AbeLBWJB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 2 Dec 2018 17:09:01 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:39226 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725780AbeLBWJB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 2 Dec 2018 17:09:01 -0500
-Received: by mail-wm1-f67.google.com with SMTP id f81so1396061wmd.4;
-        Sun, 02 Dec 2018 14:08:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sVFm4iQFARb7LSpeEYqu6l+42fPoWzaNkx6zpzMl+0I=;
-        b=K1tWG2B4/2q6qBnbeh5tSNzG+hXAYd+XsWRhHn/ZtANd09DBEFd1fEPsPGOCBt59eO
-         toGQGVaeV6NgFtNOUhfL2kuWZIYTGyWB+wUxwPlaW5evhav1DKjDTuiP/Jc0Kmw4l5bq
-         Pg/gcxGBLq9351OUvlVoE0p+qqeyo7IyLzzfrMfe2XoY2xbugDzoLn5b3mnkYwoZYX0T
-         Maff9JbGsBxY4zqKAnaCpWMPKx2dYwKhcsLxU/yMaIbSywgQwonDg7nNNoQGPm4rbvGz
-         L3gQaHkjP2vXJanla3dz9TlTQjiJFFUNDe7TAS4BPNXPDgUAYBczBSIIhiiagAWETuMN
-         VGng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sVFm4iQFARb7LSpeEYqu6l+42fPoWzaNkx6zpzMl+0I=;
-        b=J6wrWgh5YFars0AfhVRPfVVzEQCVfg9c+R5ZMwkhJvhGrDhwlXc8mJYSgpUbChg+lw
-         eBnSAWfQ4prffHDymk/SgDvO8WmlHs8KxU1pQ0JqhQRDtopbP+WEgeP5WMo85HjS5w1u
-         Wq4gZf0z9pO2HTbg+GptnilsH8x80yPMdH9gab+De1mbIkbnhhPXFZPU+d2B4Ia0X1SW
-         rV84gXxXQWqgDMwAHHCATr3X0E3ZXc9bn0vJQEAhD4UGCYF/2jWOrt5OeYFFCNGfVbSC
-         hHm0Dge6QeAmLOkWIEHLTHJa9NDDPlJ8KiWLwuDZ1PDZIbNcL6ProsplyH0ylf12Nl6K
-         NTfQ==
-X-Gm-Message-State: AA+aEWbWeC3s7jvpAxwpfIlR4D4hjivPkV1Vj4bpfWm3Fkxv0311ccob
-        1pttMSdHadnre+IWT0Ui/xA=
-X-Google-Smtp-Source: AFSGD/VFDdu+XpEtmybrNxO2yDzk+pu1fJsQJjF2YxYrJy4CXKcyNH399hdbb18P2N6ydbzJyg6Mjw==
-X-Received: by 2002:a1c:cc3:: with SMTP id 186mr437276wmm.143.1543788536654;
-        Sun, 02 Dec 2018 14:08:56 -0800 (PST)
-Received: from blackbox.darklights.net (p200300DCD73FBA00B1CC0EB38CD20A4E.dip0.t-ipconnect.de. [2003:dc:d73f:ba00:b1cc:eb3:8cd2:a4e])
-        by smtp.googlemail.com with ESMTPSA id m15sm8503351wrr.95.2018.12.02.14.08.55
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 02 Dec 2018 14:08:56 -0800 (PST)
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-To:     linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
-        alexandre.belloni@bootlin.com, a.zummo@towertech.it
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        ben.dooks@codethink.co.uk, ccaione@baylibre.com,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Subject: [PATCH v5 0/2] Amlogic Meson6/8/8b/8m2 SoC RTC driver
-Date:   Sun,  2 Dec 2018 23:08:45 +0100
-Message-Id: <20181202220847.24364-1-martin.blumenstingl@googlemail.com>
-X-Mailer: git-send-email 2.19.2
+        id S1725867AbeLCJGj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 3 Dec 2018 04:06:39 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:52716 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725849AbeLCJGj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 3 Dec 2018 04:06:39 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 3623220787; Mon,  3 Dec 2018 10:06:28 +0100 (CET)
+Received: from localhost (aaubervilliers-681-1-63-158.w90-88.abo.wanadoo.fr [90.88.18.158])
+        by mail.bootlin.com (Postfix) with ESMTPSA id EEA002071D;
+        Mon,  3 Dec 2018 10:06:17 +0100 (CET)
+Date:   Mon, 3 Dec 2018 10:06:18 +0100
+From:   Maxime Ripard <maxime.ripard@bootlin.com>
+To:     Chen-Yu Tsai <wens@csie.org>
+Cc:     alexandre.belloni@bootlin.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Mike Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-rtc@vger.kernel.org, linux-clk <linux-clk@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-sunxi@googlegroups.com
+Subject: Re: [PATCH 04/15] dt-bindings: rtc: sun6i-rtc: Export internal RC
+ oscillator
+Message-ID: <20181203090618.u4bi3owfpk2kcqik@flea>
+References: <20181128093013.24442-1-wens@csie.org>
+ <20181128093013.24442-5-wens@csie.org>
+ <20181128103219.b625lttcgoluhgz5@flea>
+ <CAGb2v67jPi-RFFkVrzHeh2XHeZV7ZN0tPCE=cOTpd6RQayH_Kg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="krs5icnvo4odeegk"
+Content-Disposition: inline
+In-Reply-To: <CAGb2v67jPi-RFFkVrzHeh2XHeZV7ZN0tPCE=cOTpd6RQayH_Kg@mail.gmail.com>
+User-Agent: NeoMutt/20180716
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This series adds support for the RTC on the 32-bit Amlogic Meson SoCs.
 
-The series does not have any build dependencies, but does require
-device-tree entries for the relevant boards.
+--krs5icnvo4odeegk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The series is tested by myself on the Meson8b EC-100 board. Earlier
-versions of this series were tested on an Odroid-C1 board with a
-battery pack attached by Ben Dooks and Kevin Hilman.
+On Wed, Nov 28, 2018 at 07:18:26PM +0800, Chen-Yu Tsai wrote:
+> On Wed, Nov 28, 2018 at 6:33 PM Maxime Ripard <maxime.ripard@bootlin.com>=
+ wrote:
+> >
+> > On Wed, Nov 28, 2018 at 05:30:01PM +0800, Chen-Yu Tsai wrote:
+> > > Experiments showed that on at least the H3/H5/A64 the RTC's internal
+> > > oscillator also feeds the CPUS mux in the PRCM.
+> > >
+> > > Export this clock through the device tree, instead of having to use
+> > > a dummy fixed-clock device node, for the PRCM to consume. This will
+> > > properly describe the relationship between the clocks.
+> > >
+> > > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> > > ---
+> > >  Documentation/devicetree/bindings/rtc/sun6i-rtc.txt | 3 ++-
+> > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt b/Do=
+cumentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> > > index 78c4fb472eb7..1bd37faadecb 100644
+> > > --- a/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> > > +++ b/Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
+> > > @@ -24,7 +24,7 @@ Required properties:
+> > >
+> > >  Required properties for new device trees
+> > >  - clocks     : phandle to the 32kHz external oscillator
+> > > -- clock-output-names : names of the two clock outputs. See below.
+> > > +- clock-output-names : names of the three clock outputs. See below.
+> > >  - #clock-cells  : must be equal to 1.
+> > >
+> > >  The RTC provides the following clocks at the given indices:
+> > > @@ -32,6 +32,7 @@ The RTC provides the following clocks at the given =
+indices:
+> > >  - 1: LOSC external output, known as X32KFOUT in the datasheet.
+> > >       This clock is not available on the A31 and is deprecated for old
+> > >       device trees still using the "allwinner,sun6i-a31-rtc" compatib=
+le.
+> > > +- 2: InternalOSC, or internal RC oscillator
+> >
+> > It seems to be required only for a few RTC though (H3, H5 and R40?)
+>=20
+> IMO there's no harm in exporting it for all SoCs. I still don't know
+> if it's needed for the A31 either. And we don't have documents for the
+> PRCM stuff for any of the SoCs involved.
 
-I will send the DT changes in a second series so that they can be
-merged once the dependencies have been satisfied.
+I'm still a bit worried about this, since that means that we can't
+ever remove it from the DT interface, even though we find out it might
+cause some issues in the future.
 
+If we don't really have a need for it right now, I'd prefer not to
+expose it.
 
-Changes since v4 at [0]:
-- resurrected Ben's patches after 2 years: first I made it apply
-  onto linux-next again
-- I decided to update the author of the patch to my own name since I
-  made a lot of changes compared to Ben's implementation (list of
-  changes below, the diff-stat was: 223 insertions, 163 deletions)
-- make the dt-bindings file name (rtc-meson.txt) match the driver name
-- add a Meson8m2 compatible
-- add the clocks and vdd-supply properties to the match the actual IP
-  block implementation
-- make the resets and interrupts properties mandatory to match the
-  actual IP block implementation
-- removed the status property from the dt-bindings example
-- fix MODULE_LICENSE to match the actual license (GPL v2)
-- switch to SPDX-License-Identifier
-- sort the Kconfig option alphabetically
-- use BIT() and GENMASK() macros consistenly
-- replace #define RTC_REG(x) with actual #defines which match the names
-  from the public S805 datasheet
-- adjust existing #defines to align with the public S805 datasheet
-- add support for the 4x32bit NVMEM (regmem) data
-- implement regmap_bus to access the serial registers. this allows
-  getting rid of the custom locking code and makes the NVMEM
-  implementation much easier.
-- use regmap also for accessing the peripheral registers to make the
-  code shorter
-- add support for the vdd-supply regulator
-- switch from devm_rtc_device_register to devm_rtc_allocate_device and
-  rtc_register_device
-- set range_max to U32_MAX
-- use rtc_time64_to_tm and rtc_tm_to_time64
-- simplify timeout handling and use shorter timeouts (the driver from
-  the 3.10 BSP kernel uses udelay resolution (100us after the reset, 5us
-  for the "comm delay") as well as busy-looping from 0..40000 to wait
-  for "s_ready"
-- removed debug messages which are only printing register values (as
-  these can now be seen in
-  <debugfs>/regmap/c8100740.rtc-peripheral-registers/registers)
+Maxime
 
+--=20
+Maxime Ripard, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
-[0] https://www.spinics.net/lists/devicetree/msg135413.html
+--krs5icnvo4odeegk
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-Martin Blumenstingl (2):
-  dt-bindings: rtc: add device-tree bindings for the Amlogic Meson RTC
-  rtc: support for the Amlogic Meson RTC
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXATyCgAKCRDj7w1vZxhR
+xTq/AP9WIRb7HtqNFrFkdfV6uGu037o83NPO7KzWey4u31t85QEAvW7U3/PGul6i
+mu4yDZZYaKjr9keZ6pW1XNH0scK/MwY=
+=nsv4
+-----END PGP SIGNATURE-----
 
- .../devicetree/bindings/rtc/rtc-meson.txt     |  32 ++
- drivers/rtc/Kconfig                           |  11 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-meson.c                       | 409 ++++++++++++++++++
- 4 files changed, 453 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-meson.txt
- create mode 100644 drivers/rtc/rtc-meson.c
-
--- 
-2.19.2
-
+--krs5icnvo4odeegk--
