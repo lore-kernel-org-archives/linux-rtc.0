@@ -6,77 +6,105 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52BD3C04EB9
-	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 11:47:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C87C04EBF
+	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 14:58:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24BF220848
-	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 11:47:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 24BF220848
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=v3.sk
+	by mail.kernel.org (Postfix) with ESMTP id 8749A20850
+	for <linux-rtc@archiver.kernel.org>; Mon,  3 Dec 2018 14:58:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8749A20850
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbeLCLsc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 3 Dec 2018 06:48:32 -0500
-Received: from shell.v3.sk ([90.176.6.54]:37890 "EHLO shell.v3.sk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726174AbeLCLsb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 3 Dec 2018 06:48:31 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id 657E3C805C;
-        Mon,  3 Dec 2018 12:47:47 +0100 (CET)
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id gwh2D_Foacst; Mon,  3 Dec 2018 12:47:40 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id 8A10FC8125;
-        Mon,  3 Dec 2018 12:47:40 +0100 (CET)
-X-Virus-Scanned: amavisd-new at zimbra.v3.sk
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id yHJl7o5JEKvZ; Mon,  3 Dec 2018 12:47:40 +0100 (CET)
-Received: from belphegor.brq.redhat.com (nat-pool-brq-t.redhat.com [213.175.37.10])
-        by zimbra.v3.sk (Postfix) with ESMTPSA id C971CC8123;
-        Mon,  3 Dec 2018 12:47:39 +0100 (CET)
-From:   Lubomir Rintel <lkundrak@v3.sk>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        id S1726770AbeLCO6k (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 3 Dec 2018 09:58:40 -0500
+Received: from mirror2.csie.ntu.edu.tw ([140.112.30.76]:50916 "EHLO
+        wens.csie.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726456AbeLCO6j (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 3 Dec 2018 09:58:39 -0500
+Received: by wens.csie.org (Postfix, from userid 1000)
+        id 9FBC95FDD7; Mon,  3 Dec 2018 22:58:27 +0800 (CST)
+From:   Chen-Yu Tsai <wens@csie.org>
+To:     Maxime Ripard <maxime.ripard@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc:     Chen-Yu Tsai <wens@csie.org>, linux-arm-kernel@lists.infradead.org,
+        linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH] dt-bindings: rtc: use a generic node name for ds1307
-Date:   Mon,  3 Dec 2018 12:47:36 +0100
-Message-Id: <20181203114736.637012-1-lkundrak@v3.sk>
-X-Mailer: git-send-email 2.19.1
+        linux-sunxi@googlegroups.com,
+        Corentin Labbe <clabbe.montjoie@gmail.com>
+Subject: [PATCH v2 13/14] ARM: dts: sun8i: r40: Add RTC device node
+Date:   Mon,  3 Dec 2018 22:58:24 +0800
+Message-Id: <20181203145825.20511-14-wens@csie.org>
+X-Mailer: git-send-email 2.20.0.rc1
+In-Reply-To: <20181203145825.20511-1-wens@csie.org>
+References: <20181203145825.20511-1-wens@csie.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The example should follow the practice or using a generic node name
-instead of the precise programming model, as recommended by the DTSpec.
+The R40 has an RTC hardware block, which has additional registers
+that are not related to RTC or clock functions, and is otherwise
+compatible with the H3's RTC.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Add a device node for it, and fix up any references to the LOSC.
+
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sun8i-r40.dtsi | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Docum=
-entation/devicetree/bindings/rtc/rtc-ds1307.txt
-index eebfbe04207a..eaee19b60960 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
-@@ -35,7 +35,7 @@ Optional properties:
- 	Should be given if internal trickle charger diode should be disabled
-=20
- Example:
--	rtc1: ds1339@68 {
-+	ds1339: rtc@68 {
- 		compatible =3D "dallas,ds1339";
- 		reg =3D <0x68>;
- 		interrupt-parent =3D <&gpio4>;
---=20
-2.19.1
+diff --git a/arch/arm/boot/dts/sun8i-r40.dtsi b/arch/arm/boot/dts/sun8i-r40.dtsi
+index a8917f8b1c80..89762dbefe42 100644
+--- a/arch/arm/boot/dts/sun8i-r40.dtsi
++++ b/arch/arm/boot/dts/sun8i-r40.dtsi
+@@ -70,7 +70,7 @@
+ 			compatible = "fixed-clock";
+ 			clock-frequency = <32768>;
+ 			clock-accuracy = <20000>;
+-			clock-output-names = "osc32k";
++			clock-output-names = "ext-osc32k";
+ 		};
+ 	};
+ 
+@@ -315,17 +315,27 @@
+ 		ccu: clock@1c20000 {
+ 			compatible = "allwinner,sun8i-r40-ccu";
+ 			reg = <0x01c20000 0x400>;
+-			clocks = <&osc24M>, <&osc32k>;
++			clocks = <&osc24M>, <&rtc 0>;
+ 			clock-names = "hosc", "losc";
+ 			#clock-cells = <1>;
+ 			#reset-cells = <1>;
+ 		};
+ 
++		rtc: rtc@1c20400 {
++			compatible = "allwinner,sun8i-r40-rtc",
++				     "allwinner,sun8i-h3-rtc";
++			reg = <0x01c20400 0x400>;
++			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
++			clock-output-names = "osc32k", "osc32k-out";
++			clocks = <&osc32k>;
++			#clock-cells = <1>;
++		};
++
+ 		pio: pinctrl@1c20800 {
+ 			compatible = "allwinner,sun8i-r40-pinctrl";
+ 			reg = <0x01c20800 0x400>;
+ 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
++			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc 0>;
+ 			clock-names = "apb", "hosc", "losc";
+ 			gpio-controller;
+ 			interrupt-controller;
+-- 
+2.20.0.rc1
 
