@@ -2,115 +2,166 @@ Return-Path: <SRS0=Bl1J=ON=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6923C04EBF
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 09:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11892C04EB8
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 13:30:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AAB8320851
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 09:29:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="UeawtK66";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="b8U+8Xr8"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AAB8320851
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+	by mail.kernel.org (Postfix) with ESMTP id D39A62081C
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 13:30:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D39A62081C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725764AbeLDJ3E (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Dec 2018 04:29:04 -0500
-Received: from smtp.codeaurora.org ([198.145.29.96]:36264 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725767AbeLDJ3E (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Dec 2018 04:29:04 -0500
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 73C8861661; Tue,  4 Dec 2018 09:29:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1543915743;
-        bh=S4rnCLAEYzUqxRh1KMVkzX/Tmng5R/aHYsuksyr8VbY=;
-        h=Date:From:To:Cc:Subject:From;
-        b=UeawtK66cXsmcrj1LPU4pO1xmA4FS3HwcGvE+zhGwrPkmqwBmI9IHX4b218zZSYBm
-         GbZkeao2j0tmaRofeLv9ohv0ys2+wINVwzx7iemEfMfxPR2pmsUHE/lBS99ICdOlE6
-         keJRO2/zO2FLf5+HgcmHs/DV4tDfqiuzaJYvnIKg=
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by smtp.codeaurora.org (Postfix) with ESMTP id 70AED61657;
-        Tue,  4 Dec 2018 09:29:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1543915742;
-        bh=S4rnCLAEYzUqxRh1KMVkzX/Tmng5R/aHYsuksyr8VbY=;
-        h=Date:From:To:Cc:Subject:From;
-        b=b8U+8Xr8pjqQ7CmS+4y50jaJAylE9mHCCIhMP2xv9JFLS/JJgCcXzWbRN18vN7ELD
-         a1LACNWq3twMEE7KcPmxffnKaSxCFxCieslwj674W2o6lzr04YGxttYAG6glEMb77w
-         9pwpwkBD0dinMEvcPfLu9sXafOwdYYtRVfXJ67sk=
+        id S1726302AbeLDNaf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Dec 2018 08:30:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:39350 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725770AbeLDNaf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 4 Dec 2018 08:30:35 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 7CD32AE21;
+        Tue,  4 Dec 2018 13:30:30 +0000 (UTC)
+Date:   Tue, 4 Dec 2018 14:30:28 +0100
+From:   Petr Mladek <pmladek@suse.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-kernel@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v5 02/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+Message-ID: <20181204133028.xkdnc5bqtqlnb3zu@pathway.suse.cz>
+References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
+ <20181129105956.25933-3-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Tue, 04 Dec 2018 17:29:02 +0800
-From:   yuankuiz@codeaurora.org
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: proc: printf using alarm for alrm
-Message-ID: <b44225b8e243a70c6ab63a40a3de630d@codeaurora.org>
-X-Sender: yuankuiz@codeaurora.org
-User-Agent: Roundcube Webmail/1.2.5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181129105956.25933-3-andriy.shevchenko@linux.intel.com>
+User-Agent: NeoMutt/20170421 (1.8.2)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+On Thu 2018-11-29 12:59:40, Andy Shevchenko wrote:
+> There are users which print time and date represented by content of
+> struct rtc_time in human readable format.
+> 
+> Instead of open coding that each time introduce %ptR[dt][r] specifier.
+> 
+> diff --git a/lib/test_printf.c b/lib/test_printf.c
+> index 53527ea822b5..97b7d14961d6 100644
+> --- a/lib/test_printf.c
+> +++ b/lib/test_printf.c
+> @@ -418,6 +418,11 @@ struct_va_format(void)
+>  {
+>  }
+>  
+> +static void __init
+> +struct_rtc_time(void)
+> +{
+> +}
 
- From 549bae59445c5ec67dd6a46f3ea4f58966d40c9b
+Just by chance, do you have any plans to add the test code? ;-)
 
-Current the struct rtc_wkalrm is dumped as
-"alrm_" by printing converted from the struct
-name of "alrm.*" directly. Shall we use the
-"alarm *" to replace the "alrm_*" during this
-dumping?
+I understand that you did now want to spend time on it before
+the real change was accepted.
 
-Signed-off-by: John Zhao <yuankuiz@codeaurora.org>
----
-  drivers/rtc/rtc-proc.c | 8 ++++----
-  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index a9dd921..d4a3c91 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -58,7 +58,7 @@ static int rtc_proc_show(struct seq_file *seq, void 
-*offset)
+>  static void __init
+>  struct_clk(void)
+>  {
+> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+> index 37a54a6dd594..b7114799b91f 100644
+> --- a/lib/vsprintf.c
+> +++ b/lib/vsprintf.c
+> +static noinline_for_stack
+> +char *rtc_str(char *buf, char *end, const struct rtc_time *tm, const char *fmt)
+> +{
+> +	bool have_t = true, have_d = true;
+> +	bool raw = false;
+> +	int count = 2;
+> +	bool found;
+> +
+> +	switch (fmt[count]) {
+> +	case 'd':
+> +		have_t = false;
+> +		count++;
+> +		break;
+> +	case 't':
+> +		have_d = false;
+> +		count++;
+> +		break;
+> +	}
+> +
+> +	found = true;
+> +	do {
+> +		switch (fmt[count++]) {
+> +		case 'r':
+> +			raw = true;
+> +			break;
+> +		default:
+> +			found = false;
+> +			break;
+> +		}
+> +	} while (found);
 
-  	err = rtc_read_alarm(rtc, &alrm);
-  	if (err == 0) {
--		seq_printf(seq, "alrm_time\t: ");
-+		seq_printf(seq, "alarm time\t: ");
-  		if ((unsigned int)alrm.time.tm_hour <= 24)
-  			seq_printf(seq, "%02d:", alrm.time.tm_hour);
-  		else
-@@ -72,7 +72,7 @@ static int rtc_proc_show(struct seq_file *seq, void 
-*offset)
-  		else
-  			seq_printf(seq, "**\n");
+I guess that the while cycle is remainder from an older version and
+should not be here. It handles only the final 'r' now. 
 
--		seq_printf(seq, "alrm_date\t: ");
-+		seq_printf(seq, "alarm date\t: ");
-  		if ((unsigned int)alrm.time.tm_year <= 200)
-  			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
-  		else
-@@ -85,9 +85,9 @@ static int rtc_proc_show(struct seq_file *seq, void 
-*offset)
-  			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
-  		else
-  			seq_printf(seq, "**\n");
--		seq_printf(seq, "alarm_IRQ\t: %s\n",
-+		seq_printf(seq, "alarm IRQ\t: %s\n",
-  				alrm.enabled ? "yes" : "no");
--		seq_printf(seq, "alrm_pending\t: %s\n",
-+		seq_printf(seq, "alarm pending\t: %s\n",
-  				alrm.pending ? "yes" : "no");
-  		seq_printf(seq, "update IRQ enabled\t: %s\n",
-  			(rtc->uie_rtctimer.enabled) ? "yes" : "no");
--- 
-2.7.4
+
+> +	if (have_d)
+> +		buf = date_str(buf, end, tm, raw);
+> +	if (have_d && have_t) {
+> +		/* Respect ISO 8601 */
+> +		if (buf < end)
+> +			*buf = 'T';
+
+I checked several conversion patches and the original code did not use
+the ISO format. The change makes sense (even though I personally
+do not like the format much ;-)
+
+Anyway, people might expect that the conversion is 1:1. The change
+should get mentioned in the affected patches so that people are
+not later surprised.
+
+
+> +		buf++;
+> +	}
+> +	if (have_t)
+> +		buf = time_str(buf, end, tm, raw);
+> +
+> +	return buf;
+> +}
+> +
+> +static noinline_for_stack
+> +char *timeanddate(char *buf, char *end, void *ptr, struct printf_spec spec,
+> +		  const char *fmt)
+
+Please, rename the function to time_and_date(). It is the style used
+in this source file and it is much easier to read.
+
+Otherwise, the patch looks fine. It helps to remove the many variants
+of the code and unifies the output format.
+
+Best Regards,
+Petr
