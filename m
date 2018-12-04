@@ -2,54 +2,40 @@ Return-Path: <SRS0=Bl1J=ON=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49A99C04EB8
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 16:17:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4D77C04EBF
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 16:38:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 171BB20659
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 16:17:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 171BB20659
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	by mail.kernel.org (Postfix) with ESMTP id B47DC206B6
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Dec 2018 16:38:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B47DC206B6
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbeLDQRM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Dec 2018 11:17:12 -0500
-Received: from mail-vk1-f195.google.com ([209.85.221.195]:36733 "EHLO
-        mail-vk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726955AbeLDQRL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Dec 2018 11:17:11 -0500
-Received: by mail-vk1-f195.google.com with SMTP id t132so3918220vkc.3;
-        Tue, 04 Dec 2018 08:17:11 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AmLCf6BL4i554eG9ZXhoe0C9CpZOtNdcIRhAY38KKaM=;
-        b=KQBDRlyY5HoaNDvXURncwf3HBT4FRUGDJqddHvMYfHjUhO6k0QLIO8j24Z3och4wUf
-         BSlSyT2r6V699KeiX84CdHCvLzK6G8lisktI7ue+zP5pfBpUNsgJZeMTs4ultMpsdBsL
-         xuBq0Et5g2dcxa9SfG4iw2GEkDtjpYABE7j0l3Zo5DYOqtSoe2BSVygvPXTq37DQbOM+
-         UhFfiD5A5QRotbsrrMiv8GdIjU7y4tSg2hwCj4+PxvgZN62O52Kq0Xs2vl3Egotr+y2W
-         QZs5lk6hccThbxAV1Jhi8ImkCh5IX1R596XDOSNvcaATQv2Hrl1dRo4MS7Dz0/56uMS4
-         6kzQ==
-X-Gm-Message-State: AA+aEWZsqvbWZ41iVWUeYHEacChEHAKjdi5KTT+ST2qf1ONIf0qxdlfj
-        HoLUvjMozpEW1YS0M/PUcEgvOnJlkSpJUr2ndwU=
-X-Google-Smtp-Source: AFSGD/WSH3YyXuUZC935csxEIhTYqhWzzX0iw9YdA7nQliPBie3kG1/m1GloinLlWhkOLyOAyO391yh/nlN6oMegX2s=
-X-Received: by 2002:a1f:2145:: with SMTP id h66mr9229834vkh.65.1543940230538;
- Tue, 04 Dec 2018 08:17:10 -0800 (PST)
-MIME-Version: 1.0
-References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
- <20181129105956.25933-3-andriy.shevchenko@linux.intel.com>
- <20181204133028.xkdnc5bqtqlnb3zu@pathway.suse.cz> <20181204161242.GD10650@smile.fi.intel.com>
-In-Reply-To: <20181204161242.GD10650@smile.fi.intel.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 4 Dec 2018 17:16:58 +0100
-Message-ID: <CAMuHMdUXQX=Y6K5XZok38W75KSBM+5PNRMKMhavNG_JtbxoNAw@mail.gmail.com>
-Subject: Re: [PATCH v5 02/21] lib/vsprintf: Print time and date in human
- readable format via %pt
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+        id S1726461AbeLDQi6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Dec 2018 11:38:58 -0500
+Received: from mga06.intel.com ([134.134.136.31]:7130 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726226AbeLDQi6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 4 Dec 2018 11:38:58 -0500
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Dec 2018 08:38:57 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,314,1539673200"; 
+   d="scan'208";a="115902335"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.72.86])
+  by orsmga001.jf.intel.com with ESMTP; 04 Dec 2018 08:38:52 -0800
+Received: from andy by smile with local (Exim 4.91)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1gUDik-0003jU-02; Tue, 04 Dec 2018 18:38:50 +0200
+Date:   Tue, 4 Dec 2018 18:38:49 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
 Cc:     Petr Mladek <pmladek@suse.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -69,49 +55,62 @@ Cc:     Petr Mladek <pmladek@suse.com>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Thierry Reding <thierry.reding@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v5 02/21] lib/vsprintf: Print time and date in human
+ readable format via %pt
+Message-ID: <20181204163849.GE10650@smile.fi.intel.com>
+References: <20181129105956.25933-1-andriy.shevchenko@linux.intel.com>
+ <20181129105956.25933-3-andriy.shevchenko@linux.intel.com>
+ <20181204133028.xkdnc5bqtqlnb3zu@pathway.suse.cz>
+ <20181204161242.GD10650@smile.fi.intel.com>
+ <CAMuHMdUXQX=Y6K5XZok38W75KSBM+5PNRMKMhavNG_JtbxoNAw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUXQX=Y6K5XZok38W75KSBM+5PNRMKMhavNG_JtbxoNAw@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Andy,
-
-On Tue, Dec 4, 2018 at 5:12 PM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Tue, Dec 04, 2018 at 02:30:28PM +0100, Petr Mladek wrote:
-> > On Thu 2018-11-29 12:59:40, Andy Shevchenko wrote:
-> > > There are users which print time and date represented by content of
-> > > struct rtc_time in human readable format.
+On Tue, Dec 04, 2018 at 05:16:58PM +0100, Geert Uytterhoeven wrote:
+> On Tue, Dec 4, 2018 at 5:12 PM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Tue, Dec 04, 2018 at 02:30:28PM +0100, Petr Mladek wrote:
+> > > On Thu 2018-11-29 12:59:40, Andy Shevchenko wrote:
+> > > > There are users which print time and date represented by content of
+> > > > struct rtc_time in human readable format.
+> > > >
+> > > > Instead of open coding that each time introduce %ptR[dt][r] specifier.
+> >
+> > > > +static void __init
+> > > > +struct_rtc_time(void)
+> > > > +{
+> > > > +}
 > > >
-> > > Instead of open coding that each time introduce %ptR[dt][r] specifier.
->
-> > > +static void __init
-> > > +struct_rtc_time(void)
-> > > +{
-> > > +}
+> > > Just by chance, do you have any plans to add the test code? ;-)
+> > >
+> > > I understand that you did now want to spend time on it before
+> > > the real change was accepted.
 > >
-> > Just by chance, do you have any plans to add the test code? ;-)
+> > You see, there were several iterations with no consensus on everything:
+> > specifier format changed 3 times, for example.
 > >
-> > I understand that you did now want to spend time on it before
-> > the real change was accepted.
->
-> You see, there were several iterations with no consensus on everything:
-> specifier format changed 3 times, for example.
->
-> But it might be good idea to eventually add couple simple tests at some point.
->
-> Is it a show stopper?
+> > But it might be good idea to eventually add couple simple tests at some point.
+> >
+> > Is it a show stopper?
+> 
+> Can the user trigger formatting, and exploit a bug in the formatting code?
 
-Can the user trigger formatting, and exploit a bug in the formatting code?
+Might happen, it's a software at the end.
+Do we need to revisit all formatting specifiers right now?
 
-Gr{oetje,eeting}s,
-
-                        Geert
+In any case, to be productive out of this discussion, I would like to gather
+test cases you want to see.
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+With Best Regards,
+Andy Shevchenko
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
