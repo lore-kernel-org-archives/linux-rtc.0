@@ -2,534 +2,154 @@ Return-Path: <SRS0=MiQX=OO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3212BC04EB9
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 13:36:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BF9AC04EBF
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 13:42:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA47C2081B
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 13:36:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DA47C2081B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=codethink.co.uk
+	by mail.kernel.org (Postfix) with ESMTP id 9B1612081C
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 13:42:31 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=renesasgroup.onmicrosoft.com header.i=@renesasgroup.onmicrosoft.com header.b="YeL6KFb7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9B1612081C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bp.renesas.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727094AbeLENgr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Dec 2018 08:36:47 -0500
-Received: from imap1.codethink.co.uk ([176.9.8.82]:54247 "EHLO
-        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726918AbeLENgr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Dec 2018 08:36:47 -0500
-Received: from [78.40.148.180] (helo=[0.0.0.0])
-        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1gUXLz-0001Ek-5q; Wed, 05 Dec 2018 13:36:39 +0000
-Subject: Re: [PATCH v5 2/2] rtc: support for the Amlogic Meson RTC
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
-        alexandre.belloni@bootlin.com, a.zummo@towertech.it
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        ccaione@baylibre.com
-References: <20181202220847.24364-1-martin.blumenstingl@googlemail.com>
- <20181202220847.24364-3-martin.blumenstingl@googlemail.com>
-From:   Ben Dooks <ben.dooks@codethink.co.uk>
-Organization: Codethink Limited.
-Message-ID: <85aa8e12-0bca-6432-e1a8-0faceff1dd5e@codethink.co.uk>
-Date:   Wed, 5 Dec 2018 13:36:38 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.1
+        id S1727182AbeLENmb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 Dec 2018 08:42:31 -0500
+Received: from mail-eopbgr1400093.outbound.protection.outlook.com ([40.107.140.93]:9563
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727094AbeLENmb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 5 Dec 2018 08:42:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector1-bp-renesas-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Z4looWI4YxPbVyxNWUmlg7KT8/FfZyDnPMKaf4muRhU=;
+ b=YeL6KFb7OuafksuA1V3D1Z/wQEhOZQcRF7gIMznIsgMthG1MzXAjiO3IZgAsWs9TrKvEOF339mN7b/34/wpCI6K8Wv+YBhgtbR+ScZAxWjauOAcN0ZI+M2Olk9flgpMPXnJmz0EDcaWaQPeUHUqPi7bgTAGxxXkTsuHpg9w/sP0=
+Received: from OSBPR01MB2103.jpnprd01.prod.outlook.com (52.134.241.22) by
+ OSBPR01MB3319.jpnprd01.prod.outlook.com (20.178.5.148) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1404.19; Wed, 5 Dec 2018 13:42:26 +0000
+Received: from OSBPR01MB2103.jpnprd01.prod.outlook.com
+ ([fe80::f5b4:a8b6:2ad5:58b4]) by OSBPR01MB2103.jpnprd01.prod.outlook.com
+ ([fe80::f5b4:a8b6:2ad5:58b4%5]) with mapi id 15.20.1404.020; Wed, 5 Dec 2018
+ 13:42:24 +0000
+From:   Biju Das <biju.das@bp.renesas.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     Alessandro Zummo <a.zummo@towertech.it>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        Simon Horman <horms@verge.net.au>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Subject: RE: [PATCH v2 2/4] rtc: pcf85363: Add support for NXP pcf85263 rtc
+Thread-Topic: [PATCH v2 2/4] rtc: pcf85363: Add support for NXP pcf85263 rtc
+Thread-Index: AQHUiAVu7yCQEpKpyEW8KV5jYNpaxKVoKRoAgAAYS4CAAAXKAIAH5lxg
+Date:   Wed, 5 Dec 2018 13:42:23 +0000
+Message-ID: <OSBPR01MB2103838867CA5A733C9FE9C2B8A80@OSBPR01MB2103.jpnprd01.prod.outlook.com>
+References: <1543510486-29532-1-git-send-email-biju.das@bp.renesas.com>
+ <1543510486-29532-3-git-send-email-biju.das@bp.renesas.com>
+ <CAMuHMdXmS6cCZhX_b+oszDjt+t8zgAkCGApweOX-k0Uq05=AEg@mail.gmail.com>
+ <20181130123213.GM8952@piout.net>
+ <CAMuHMdW6=B5n8CEmqVEaqxtLD9tO3ue7_A1sTBVgi+2SPfVa8g@mail.gmail.com>
+In-Reply-To: <CAMuHMdW6=B5n8CEmqVEaqxtLD9tO3ue7_A1sTBVgi+2SPfVa8g@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=biju.das@bp.renesas.com; 
+x-originating-ip: [193.141.220.21]
+x-ms-publictraffictype: Email
+x-microsoft-exchange-diagnostics: 1;OSBPR01MB3319;20:dQP/9KfA27FVpCafVg6NFTWeQnsPdug0Ug+QT0yK+4LCTdbFCt8wTGecHi0YAscoKQgMuyE08A3SrogK+eO5BBwdsXSJ4nv/M+fF4LqigQ1hBWYzcqc102pm8b1ra/ZuibpK9+diXvWwuSv6ooGAMNE+ensCuyYDJkBzCcLW3IM=
+x-ms-exchange-antispam-srfa-diagnostics: SOS;SOR;
+x-ms-office365-filtering-correlation-id: 1e7e64f7-0689-4892-2454-08d65ab77d58
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390098)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600074)(711020)(4618075)(2017052603328)(7153060)(7193020);SRVR:OSBPR01MB3319;
+x-ms-traffictypediagnostic: OSBPR01MB3319:
+x-microsoft-antispam-prvs: <OSBPR01MB331945DA67A4EBD79BE005A3B8A80@OSBPR01MB3319.jpnprd01.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(8211001083)(6040522)(2401047)(8121501046)(5005006)(10201501046)(93006095)(93001095)(3231455)(999002)(944501520)(52105112)(3002001)(6055026)(148016)(149066)(150057)(6041310)(201703131423095)(201702281528075)(20161123555045)(201703061421075)(201703061406153)(20161123558120)(20161123564045)(20161123560045)(20161123562045)(201708071742011)(7699051)(76991095);SRVR:OSBPR01MB3319;BCL:0;PCL:0;RULEID:;SRVR:OSBPR01MB3319;
+x-forefront-prvs: 08770259B4
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(39860400002)(136003)(396003)(346002)(376002)(51914003)(199004)(189003)(11346002)(53936002)(446003)(68736007)(4326008)(55016002)(6436002)(476003)(486006)(186003)(44832011)(10126004)(7736002)(305945005)(25786009)(6116002)(33656002)(3846002)(26005)(71200400001)(71190400001)(74316002)(478600001)(86362001)(99286004)(102836004)(229853002)(2906002)(5660300001)(53546011)(14454004)(6506007)(106356001)(105586002)(66066001)(76176011)(6306002)(9686003)(8936002)(81166006)(81156014)(14444005)(7696005)(6246003)(93886005)(256004)(97736004)(8676002)(316002)(54906003)(110136005);DIR:OUT;SFP:1102;SCL:1;SRVR:OSBPR01MB3319;H:OSBPR01MB2103.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:0;MX:1;
+received-spf: None (protection.outlook.com: bp.renesas.com does not designate
+ permitted sender hosts)
+x-microsoft-antispam-message-info: bhRA3hRWPfPgT5b4z7GTTZc2I1FzILOGNib99FTfIlh67RpaxDpEbAnQ4zmpladlm/Wr4yT5SfmB3dbfrFIxIiIsf9C1w7bskCacN5U9h+r1KKal3vqiXo7egPCW9DzWwBE1xFlaM5+69MNh2bfqPeXeLG8gzpuaWI2iBgNh4PD7BuIq6CljhYatJuTK2ZdRl482tS9Ao6hJpN+Rz2p4zXJEE1bxuyuxBUBktwkdFF+vLYyWJqm2/8gCffgcPbmletvy4cVt7eoB2++kn20mZp+dIyrrrdIz5zvWvwBOTq4AkgCINcFspv2pNqu9VbmQEwBvdbLqL6hUXZej1UVDB3P9qD/ZQFvzxyUCVKckd70=
+spamdiagnosticoutput: 1:99
+spamdiagnosticmetadata: NSPM
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20181202220847.24364-3-martin.blumenstingl@googlemail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: bp.renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1e7e64f7-0689-4892-2454-08d65ab77d58
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Dec 2018 13:42:23.8740
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSBPR01MB3319
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 02/12/2018 22:08, Martin Blumenstingl wrote:
-> Add support for the RTC block on the 32-bit Amlogic Meson6, Meson8,
-> Meson8b and Meson8m2 SoCs.
-> 
-> The RTC is split in to two parts, which are both managed by this driver:
-> - the AHB front end
-> - and a simple serial connection to the actual registers
-> 
-> The RTC_COUNTER register which holds the time is 32-bits wide.
-> 
-> There are four 32-bit wide (in total: 16 bytes) "regmem" registers which
-> are exposed using nvmem. On Amlogic's 3.10 kernel this is used to store
-> data which needs to survive a suspend / resume cycle.
-> 
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-> [resurrected Ben's patches after 2 years]
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-
-Just checking if the change of author is deliberate?
-not sure how to do >1 author on patches like this.
-
-> ---
->   drivers/rtc/Kconfig     |  11 ++
->   drivers/rtc/Makefile    |   1 +
->   drivers/rtc/rtc-meson.c | 409 ++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 421 insertions(+)
->   create mode 100644 drivers/rtc/rtc-meson.c
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index a819ef07b7ec..d5d0e3affdc6 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1285,6 +1285,17 @@ config RTC_DRV_IMXDI
->   	   This driver can also be built as a module, if so, the module
->   	   will be called "rtc-imxdi".
->   
-> +config RTC_DRV_MESON
-> +	tristate "Amlogic Meson RTC"
-> +	depends on (ARM && ARCH_MESON) || COMPILE_TEST
-> +	select REGMAP_MMIO
-> +	help
-> +	   Support for the RTC block on the Amlogic Meson6, Meson8, Meson8b
-> +	   and Meson8m2 SoCs.
-> +
-> +	   This driver can also be built as a module, if so, the module
-> +	   will be called "rtc-meson".
-> +
->   config RTC_DRV_OMAP
->   	tristate "TI OMAP Real Time Clock"
->   	depends on ARCH_OMAP || ARCH_DAVINCI || COMPILE_TEST
-> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> index 290c1730fb0a..3b088e75149d 100644
-> --- a/drivers/rtc/Makefile
-> +++ b/drivers/rtc/Makefile
-> @@ -99,6 +99,7 @@ obj-$(CONFIG_RTC_DRV_MAX8997)	+= rtc-max8997.o
->   obj-$(CONFIG_RTC_DRV_MAX8998)	+= rtc-max8998.o
->   obj-$(CONFIG_RTC_DRV_MC13XXX)	+= rtc-mc13xxx.o
->   obj-$(CONFIG_RTC_DRV_MCP795)	+= rtc-mcp795.o
-> +obj-$(CONFIG_RTC_DRV_MESON)	+= rtc-meson.o
->   obj-$(CONFIG_RTC_DRV_MOXART)	+= rtc-moxart.o
->   obj-$(CONFIG_RTC_DRV_MPC5121)	+= rtc-mpc5121.o
->   obj-$(CONFIG_RTC_DRV_MSM6242)	+= rtc-msm6242.o
-> diff --git a/drivers/rtc/rtc-meson.c b/drivers/rtc/rtc-meson.c
-> new file mode 100644
-> index 000000000000..09d6849b804a
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-meson.c
-> @@ -0,0 +1,409 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * RTC driver for the interal RTC block in the Amlogic Meson6, Meson8,
-> + * Meson8b and Meson8m2 SoCs.
-> + *
-> + * The RTC is split in to two parts, the AHB front end and a simple serial
-> + * connection to the actual registers. This driver manages both parts.
-> + *
-> + * Copyright (c) 2018 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> + * Copyright (c) 2015 Ben Dooks <ben.dooks@codethink.co.uk> for Codethink Ltd
-> + * Based on origin by Carlo Caione <carlo@endlessm.com>
-> + */
-> +
-> +#include <linux/bitfield.h>
-> +#include <linux/delay.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/nvmem-provider.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/reset.h>
-> +#include <linux/rtc.h>
-> +
-> +/* registers accessed from cpu bus */
-> +#define RTC_ADDR0				0x00
-> +	#define RTC_ADDR0_LINE_SCLK		BIT(0)
-> +	#define RTC_ADDR0_LINE_SEN		BIT(1)
-> +	#define RTC_ADDR0_LINE_SDI		BIT(2)
-> +	#define RTC_ADDR0_START_SER		BIT(17)
-> +	#define RTC_ADDR0_WAIT_SER		BIT(22)
-> +	#define RTC_ADDR0_DATA			GENMASK(31, 24)
-> +
-> +#define RTC_ADDR1				0x04
-> +	#define RTC_ADDR1_SDO			BIT(0)
-> +	#define RTC_ADDR1_S_READY		BIT(1)
-> +
-> +#define RTC_ADDR2				0x08
-> +#define RTC_ADDR3				0x0c
-> +
-> +#define RTC_REG4				0x10
-> +	#define RTC_REG4_STATIC_VALUE		GENMASK(7, 0)
-> +
-> +/* rtc registers accessed via rtc-serial interface */
-> +#define RTC_COUNTER		(0)
-> +#define RTC_SEC_ADJ		(2)
-> +#define RTC_REGMEM_0		(4)
-> +#define RTC_REGMEM_1		(5)
-> +#define RTC_REGMEM_2		(6)
-> +#define RTC_REGMEM_3		(7)
-> +
-> +#define RTC_ADDR_BITS		(3)	/* number of address bits to send */
-> +#define RTC_DATA_BITS		(32)	/* number of data bits to tx/rx */
-> +
-> +#define MESON_STATIC_BIAS_CUR	(0x5 << 1)
-> +#define MESON_STATIC_VOLTAGE	(0x3 << 11)
-> +#define MESON_STATIC_DEFAULT    (MESON_STATIC_BIAS_CUR | MESON_STATIC_VOLTAGE)
-> +
-> +struct meson_rtc {
-> +	struct rtc_device	*rtc;		/* rtc device we created */
-> +	struct device		*dev;		/* device we bound from */
-> +	struct reset_control	*reset;		/* reset source */
-> +	struct regulator	*vdd;		/* voltage input */
-> +	struct regmap		*peripheral;	/* peripheral registers */
-> +	struct regmap		*serial;	/* serial registers */
-> +};
-> +
-> +static const struct regmap_config meson_rtc_peripheral_regmap_config = {
-> +	.name		= "peripheral-registers",
-> +	.reg_bits	= 8,
-> +	.val_bits	= 32,
-> +	.reg_stride	= 4,
-> +	.max_register	= RTC_REG4,
-> +	.fast_io	= true,
-> +};
-> +
-> +/* RTC front-end serialiser controls */
-> +
-> +static void meson_rtc_sclk_pulse(struct meson_rtc *rtc)
-> +{
-> +	udelay(5);
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SCLK, 0);
-> +	udelay(5);
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SCLK,
-> +			   RTC_ADDR0_LINE_SCLK);
-> +}
-> +
-> +static void meson_rtc_send_bit(struct meson_rtc *rtc, unsigned int bit)
-> +{
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SDI,
-> +			   bit ? RTC_ADDR0_LINE_SDI : 0);
-> +	meson_rtc_sclk_pulse(rtc);
-> +}
-> +
-> +static void meson_rtc_send_bits(struct meson_rtc *rtc, u32 data,
-> +				unsigned int nr)
-> +{
-> +	u32 bit = 1 << (nr - 1);
-> +
-> +	while (bit) {
-> +		meson_rtc_send_bit(rtc, data & bit);
-> +		bit >>= 1;
-> +	}
-> +}
-> +
-> +static void meson_rtc_set_dir(struct meson_rtc *rtc, u32 mode)
-> +{
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SEN, 0);
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SDI, 0);
-> +	meson_rtc_send_bit(rtc, mode);
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SDI, 0);
-> +}
-> +
-> +static u32 meson_rtc_get_data(struct meson_rtc *rtc)
-> +{
-> +	u32 tmp, val = 0;
-> +	int bit;
-> +
-> +	for (bit = 0; bit < RTC_DATA_BITS; bit++) {
-> +		meson_rtc_sclk_pulse(rtc);
-> +		val <<= 1;
-> +
-> +		regmap_read(rtc->peripheral, RTC_ADDR1, &tmp);
-> +		val |= tmp & RTC_ADDR1_SDO;
-> +	}
-> +
-> +	return val;
-> +}
-> +
-> +static int meson_rtc_get_bus(struct meson_rtc *rtc)
-> +{
-> +	int ret, retries = 3;
-> +	u32 val;
-> +
-> +	/* prepare bus for transfers, set all lines low */
-> +	val = RTC_ADDR0_LINE_SDI | RTC_ADDR0_LINE_SEN | RTC_ADDR0_LINE_SCLK;
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, val, 0);
-> +
-> +	for (retries = 0; retries < 3; retries++) {
-> +		/* wait for the bus to be ready */
-> +		if (!regmap_read_poll_timeout(rtc->peripheral, RTC_ADDR1, val,
-> +					      val & RTC_ADDR1_S_READY, 10,
-> +					      10000))
-> +			return 0;
-> +
-> +		dev_warn(rtc->dev, "failed to get bus, resetting RTC\n");
-> +
-> +		ret = reset_control_reset(rtc->reset);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	dev_err(rtc->dev, "bus is not ready\n");
-> +	return -ETIMEDOUT;
-> +}
-> +
-> +static int meson_rtc_serial_bus_reg_read(void *context, unsigned int reg,
-> +					 unsigned int *data)
-> +{
-> +	struct meson_rtc *rtc = context;
-> +	int ret;
-> +
-> +	ret = meson_rtc_get_bus(rtc);
-> +	if (ret)
-> +		return ret;
-> +
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SEN,
-> +			   RTC_ADDR0_LINE_SEN);
-> +	meson_rtc_send_bits(rtc, reg, RTC_ADDR_BITS);
-> +	meson_rtc_set_dir(rtc, 0);
-> +	*data = meson_rtc_get_data(rtc);
-> +
-> +	return 0;
-> +}
-> +
-> +static int meson_rtc_serial_bus_reg_write(void *context, unsigned int reg,
-> +					  unsigned int data)
-> +{
-> +	struct meson_rtc *rtc = context;
-> +	int ret;
-> +
-> +	ret = meson_rtc_get_bus(rtc);
-> +	if (ret)
-> +		return ret;
-> +
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0, RTC_ADDR0_LINE_SEN,
-> +			   RTC_ADDR0_LINE_SEN);
-> +	meson_rtc_send_bits(rtc, data, RTC_DATA_BITS);
-> +	meson_rtc_send_bits(rtc, reg, RTC_ADDR_BITS);
-> +	meson_rtc_set_dir(rtc, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct regmap_bus meson_rtc_serial_bus = {
-> +	.reg_read	= meson_rtc_serial_bus_reg_read,
-> +	.reg_write	= meson_rtc_serial_bus_reg_write,
-> +};
-> +
-> +static const struct regmap_config meson_rtc_serial_regmap_config = {
-> +	.name		= "serial-registers",
-> +	.reg_bits	= 4,
-> +	.reg_stride	= 1,
-> +	.val_bits	= 32,
-> +	.max_register	= RTC_REGMEM_3,
-> +	.fast_io	= false,
-> +};
-> +
-> +static int meson_rtc_write_static(struct meson_rtc *rtc, u32 data)
-> +{
-> +	u32 tmp;
-> +
-> +	regmap_write(rtc->peripheral, RTC_REG4,
-> +		     FIELD_PREP(RTC_REG4_STATIC_VALUE, (data >> 8)));
-> +
-> +	/* write the static value and start the auto serializer */
-> +	tmp = FIELD_PREP(RTC_ADDR0_DATA, (data & 0xff)) | RTC_ADDR0_START_SER;
-> +	regmap_update_bits(rtc->peripheral, RTC_ADDR0,
-> +			   RTC_ADDR0_DATA | RTC_ADDR0_START_SER, tmp);
-> +
-> +	/* wait for the auto serializer to complete */
-> +	return regmap_read_poll_timeout(rtc->peripheral, RTC_REG4, tmp,
-> +					!(tmp & RTC_ADDR0_WAIT_SER), 10,
-> +					10000);
-> +}
-> +
-> +/* RTC interface layer functions */
-> +
-> +static int meson_rtc_gettime(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct meson_rtc *rtc = dev_get_drvdata(dev);
-> +	u32 time;
-> +	int ret;
-> +
-> +	ret = regmap_read(rtc->serial, RTC_COUNTER, &time);
-> +	if (!ret)
-> +		rtc_time64_to_tm(time, tm);
-> +
-> +	return ret;
-> +}
-> +
-> +static int meson_rtc_settime(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct meson_rtc *rtc = dev_get_drvdata(dev);
-> +
-> +	return regmap_write(rtc->serial, RTC_COUNTER, rtc_tm_to_time64(tm));
-> +}
-> +
-> +static const struct rtc_class_ops meson_rtc_ops = {
-> +	.read_time	= meson_rtc_gettime,
-> +	.set_time	= meson_rtc_settime,
-> +};
-> +
-> +/* NVMEM interface layer functions */
-> +
-> +static int meson_rtc_regmem_read(void *context, unsigned int offset,
-> +				 void *buf, size_t bytes)
-> +{
-> +	struct meson_rtc *rtc = context;
-> +	unsigned int read_offset, read_size;
-> +
-> +	read_offset = RTC_REGMEM_0 + (offset / 4);
-> +	read_size = bytes / 4;
-> +
-> +	return regmap_bulk_read(rtc->serial, read_offset, buf, read_size);
-> +}
-> +
-> +static int meson_rtc_regmem_write(void *context, unsigned int offset,
-> +				  void *buf, size_t bytes)
-> +{
-> +	struct meson_rtc *rtc = context;
-> +	unsigned int write_offset, write_size;
-> +
-> +	write_offset = RTC_REGMEM_0 + (offset / 4);
-> +	write_size = bytes / 4;
-> +
-> +	return regmap_bulk_write(rtc->serial, write_offset, buf, write_size);
-> +}
-> +
-> +static int meson_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct nvmem_config meson_rtc_nvmem_config = {
-> +		.name = "meson-rtc-regmem",
-> +		.word_size = 4,
-> +		.stride = 4,
-> +		.size = SZ_16,
-> +		.reg_read = meson_rtc_regmem_read,
-> +		.reg_write = meson_rtc_regmem_write,
-> +	};
-> +	struct device *dev = &pdev->dev;
-> +	struct meson_rtc *rtc;
-> +	struct resource *res;
-> +	void __iomem *base;
-> +	int ret;
-> +	u32 tm;
-> +
-> +	rtc = devm_kzalloc(dev, sizeof(struct meson_rtc), GFP_KERNEL);
-> +	if (!rtc)
-> +		return -ENOMEM;
-> +
-> +	rtc->rtc = devm_rtc_allocate_device(dev);
-> +	if (IS_ERR(rtc->rtc))
-> +		return PTR_ERR(rtc->rtc);
-> +
-> +	platform_set_drvdata(pdev, rtc);
-> +
-> +	rtc->dev = dev;
-> +
-> +	rtc->rtc->ops = &meson_rtc_ops;
-> +	rtc->rtc->range_max = U32_MAX;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	base = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(base))
-> +		return PTR_ERR(base);
-> +
-> +	rtc->peripheral = devm_regmap_init_mmio(dev, base,
-> +					&meson_rtc_peripheral_regmap_config);
-> +	if (IS_ERR(rtc->peripheral)) {
-> +		dev_err(dev, "failed to create peripheral regmap\n");
-> +		return PTR_ERR(rtc->peripheral);
-> +	}
-> +
-> +	rtc->reset = devm_reset_control_get(dev, NULL);
-> +	if (IS_ERR(rtc->reset)) {
-> +		dev_err(dev, "missing reset line\n");
-> +		return PTR_ERR(rtc->reset);
-> +	}
-> +
-> +	rtc->vdd = devm_regulator_get(dev, "vdd");
-> +	if (IS_ERR(rtc->vdd)) {
-> +		dev_err(dev, "failed to get the vdd-supply\n");
-> +		return PTR_ERR(rtc->vdd);
-> +	}
-> +
-> +	ret = regulator_enable(rtc->vdd);
-> +	if (ret) {
-> +		dev_err(dev, "failed to enable vdd-supply\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = meson_rtc_write_static(rtc, MESON_STATIC_DEFAULT);
-> +	if (ret) {
-> +		dev_err(dev, "failed to set static values\n");
-> +		goto out_disable_vdd;
-> +	}
-> +
-> +	rtc->serial = devm_regmap_init(dev, &meson_rtc_serial_bus, rtc,
-> +				       &meson_rtc_serial_regmap_config);
-> +	if (IS_ERR(rtc->serial)) {
-> +		dev_err(dev, "failed to create serial regmap\n");
-> +		ret = PTR_ERR(rtc->serial);
-> +		goto out_disable_vdd;
-> +	}
-> +
-> +	/*
-> +	 * check if we can read RTC counter, if not then the RTC is probably
-> +	 * not functional. If it isn't probably best to not bind.
-> +	 */
-> +	ret = regmap_read(rtc->serial, RTC_COUNTER, &tm);
-> +	if (ret) {
-> +		dev_err(dev, "cannot read RTC counter, RTC not functional\n");
-> +		goto out_disable_vdd;
-> +	}
-> +
-> +	meson_rtc_nvmem_config.priv = rtc;
-> +	ret = rtc_nvmem_register(rtc->rtc, &meson_rtc_nvmem_config);
-> +	if (ret)
-> +		goto out_disable_vdd;
-> +
-> +	ret = rtc_register_device(rtc->rtc);
-> +	if (ret)
-> +		goto out_unregister_nvmem;
-> +
-> +	return 0;
-> +
-> +out_unregister_nvmem:
-> +	rtc_nvmem_unregister(rtc->rtc);
-> +
-> +out_disable_vdd:
-> +	regulator_disable(rtc->vdd);
-> +	return ret;
-> +}
-> +
-> +static const struct of_device_id meson_rtc_dt_match[] = {
-> +	{ .compatible = "amlogic,meson6-rtc", },
-> +	{ .compatible = "amlogic,meson8-rtc", },
-> +	{ .compatible = "amlogic,meson8b-rtc", },
-> +	{ .compatible = "amlogic,meson8m2-rtc", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, meson_rtc_dt_match);
-> +
-> +static struct platform_driver meson_rtc_driver = {
-> +	.probe		= meson_rtc_probe,
-> +	.driver		= {
-> +		.name	= "meson-rtc",
-> +		.of_match_table	= of_match_ptr(meson_rtc_dt_match),
-> +	},
-> +};
-> +module_platform_driver(meson_rtc_driver);
-> +
-> +MODULE_DESCRIPTION("Amlogic Meson RTC Driver");
-> +MODULE_AUTHOR("Ben Dooks <ben.doosk@codethink.co.uk>");
-> +MODULE_AUTHOR("Martin Blumenstingl <martin.blumenstingl@googlemail.com>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:meson-rtc");
-> 
-
-
--- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
-
-https://www.codethink.co.uk/privacy.html
+SGkgR2VlcnQgYW5kIEFsZXhhbmRyZSwNCg0KVGhhbmtzIGZvciB0aGUgZmVlZGJhY2suDQoNCj4g
+U3ViamVjdDogUmU6IFtQQVRDSCB2MiAyLzRdIHJ0YzogcGNmODUzNjM6IEFkZCBzdXBwb3J0IGZv
+ciBOWFAgcGNmODUyNjMgcnRjDQo+DQo+IEhpIEFsZXhhbmRyZSwNCj4NCj4gT24gRnJpLCBOb3Yg
+MzAsIDIwMTggYXQgMTozMiBQTSBBbGV4YW5kcmUgQmVsbG9uaQ0KPiA8YWxleGFuZHJlLmJlbGxv
+bmlAYm9vdGxpbi5jb20+IHdyb3RlOg0KPiA+IE9uIDMwLzExLzIwMTggMTI6MDU6MTYrMDEwMCwg
+R2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KPiA+ID4gT24gVGh1LCBOb3YgMjksIDIwMTggYXQg
+NjowMyBQTSBCaWp1IERhcyA8YmlqdS5kYXNAYnAucmVuZXNhcy5jb20+DQo+IHdyb3RlOg0KPiA+
+ID4gPiBBZGQgc3VwcG9ydCBmb3IgTlhQIHBjZjg1MjYzIHJlYWwtdGltZSBjbG9jay4gcGNmODUy
+NjMgcnRjIGlzDQo+ID4gPiA+IGNvbXBhdGlibGUgd2l0aCBwY2Y4NTM2MyxleGNlcHQgdGhhdCBw
+Y2Y4NTM2MyBoYXMgYWRkaXRpb25hbCA2NCBieXRlcw0KPiBvZiBSQU0uDQo+ID4gPiA+DQo+ID4g
+PiA+IDEgYnl0ZSBvZiBudm1lbSBpcyBzdXBwb3J0ZWQgYW5kIGV4cG9zZWQgaW4gc3lzZnMgKCMg
+aXMgdGhlDQo+ID4gPiA+IGluc3RhbmNlIG51bWJlcixzdGFydGluZyB3aXRoIDApOg0KPiA+ID4g
+PiAvc3lzL2J1cy9udm1lbS9kZXZpY2VzL3BjZjg1eDYzLSMvbnZtZW0NCj4gPiA+ID4NCj4gPiA+
+ID4gU2lnbmVkLW9mZi1ieTogQmlqdSBEYXMgPGJpanUuZGFzQGJwLnJlbmVzYXMuY29tPg0KPiA+
+ID4gPiAtLS0NCj4gPiA+ID4gIFYxLS0+VjIgSW5jb3Jwb3JhdGVkIEFsZXhhbmRyZSBhbmQgR2Vl
+cnQncyByZXZpZXcgY29tbWVudC4NCj4gPiA+DQo+ID4gPiBUaGFua3MgZm9yIHRoZSB1cGRhdGUh
+DQo+ID4gPg0KPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3J0Yy9ydGMtcGNmODUzNjMuYw0KPiA+ID4g
+PiArKysgYi9kcml2ZXJzL3J0Yy9ydGMtcGNmODUzNjMuYw0KPiA+ID4NCj4gPiA+ID4gQEAgLTMy
+MSwxNSArMzQ0LDI1IEBAIHN0YXRpYyBpbnQgcGNmODUzNjNfcHJvYmUoc3RydWN0IGkyY19jbGll
+bnQNCj4gKmNsaWVudCwNCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBz
+dHJ1Y3QgaTJjX2RldmljZV9pZCAqaWQpICB7DQo+ID4gPiA+ICAgICAgICAgc3RydWN0IHBjZjg1
+MzYzICpwY2Y4NTM2MzsNCj4gPiA+ID4gLSAgICAgICBzdHJ1Y3QgbnZtZW1fY29uZmlnIG52bWVt
+X2NmZyA9IHsNCj4gPiA+ID4gLSAgICAgICAgICAgICAgIC5uYW1lID0gInBjZjg1MzYzLSIsDQo+
+ID4gPiA+IC0gICAgICAgICAgICAgICAud29yZF9zaXplID0gMSwNCj4gPiA+ID4gLSAgICAgICAg
+ICAgICAgIC5zdHJpZGUgPSAxLA0KPiA+ID4gPiAtICAgICAgICAgICAgICAgLnNpemUgPSBOVlJB
+TV9TSVpFLA0KPiA+ID4gPiAtICAgICAgICAgICAgICAgLnJlZ19yZWFkID0gcGNmODUzNjNfbnZy
+YW1fcmVhZCwNCj4gPiA+ID4gLSAgICAgICAgICAgICAgIC5yZWdfd3JpdGUgPSBwY2Y4NTM2M19u
+dnJhbV93cml0ZSwNCj4gPiA+ID4gKyAgICAgICBjb25zdCBzdHJ1Y3QgcmVnbWFwX2NvbmZpZyAq
+cmVnbWFwX2NvbmZpZyA9DQo+ICZwY2ZfODUzNjNfcmVnbWFwX2NvbmZpZzsNCj4gPiA+ID4gKyAg
+ICAgICBzdHJ1Y3QgbnZtZW1fY29uZmlnIG52bWVtX2NmZ1tdID0gew0KPiA+ID4NCj4gPiA+IHN0
+YXRpYz8NCj4gPiA+DQo+ID4gPiBBbHRob3VnaCB0aGUgbnZtZW1fY29uZmlnIGlzIGNvcGllZCwg
+YW5kIHRodXMgc3RhdGljIGlzIG5vdCBuZWVkZWQsDQo+ID4gPiBJIGd1ZXNzIHVzaW5nIHN0YXRp
+YyB3aWxsIGRlY3JlYXNlIGtlcm5lbCBzaXplLg0KPiA+ID4NCj4gPg0KPiA+IEh1bSwgSSBkb24n
+dCB0aGluaywgdGhpcyBpcyBvbiB0aGUgc3RhY2sgYW55d2F5Lg0KPg0KPiBJZiB5b3UgbWFrZSBp
+dCBzdGF0aWMsIGl0J3Mgbm8gbG9uZ2VyIGFsbG9jYXRlZCBvbiB0aGUgc3RhY2ssIGFuZCBnY2Mg
+aGFzIG5vDQo+IGxvbmdlciB0byBlbWl0IGNvZGUgdG8gaW5pdGlhbGl6ZSBhbGwgbWVtYmVycy4N
+Cj4NCg0KSSBoYXZlIHVzZWQgInNpemUiIGNvbW1hbmQgdG8gY2hlY2sgdGhlIHNpemUgb2Ygdm1s
+aW51eCB3aXRoIGFuZCB3aXRob3V0IHN0YXRpYy4gUGxlYXNlIGZpbmQgdGhlIHJlc3VsdHMuDQoN
+CldpdGhvdXQgc3RhdGljDQo9PT09PT09PT09PQ0KJCBzaXplIHZtbGludXgNCiAgIHRleHQgICBk
+YXRhICAgIGJzcyAgICBkZWMgICAgaGV4ZmlsZW5hbWUNCjcxNDczNjAyNjI1OTgyIDI5MjYwODEw
+MDY1OTUwIDk5OTgxZXZtbGludXgNCg0KV2l0aCBzdGF0aWMgdmFyaWFibGUNCj09PT09PT09PT09
+PT09PT09PQ0KJCBzaXplIHZtbGludXgNCiAgIHRleHQgICBkYXRhICAgIGJzcyAgICBkZWMgICAg
+aGV4ZmlsZW5hbWUNCjcxNDcyMDAyNjI2MTEwIDI5MjYwODEwMDY1OTE4IDk5OTdmZXZtbGludXgN
+Cg0KU28gb3ZlcmFsbCB3aXRoIHN0YXRpYywgdGhlcmUgaXMgYSByZWR1Y3Rpb24gaW4ga2VybmVs
+IHNpemUuIEkgd2lsbCBzZW5kIFYzIHdpdGggZGVjbGFyaW5nIGl0IGFzIHN0YXRpYy4NCg0KUmVn
+YXJkcywNCkJpanUNCg0KDQpbaHR0cHM6Ly93d3cyLnJlbmVzYXMuZXUvbWVkaWEvZW1haWwvdW5p
+Y2VmLmpwZ10NCg0KVGhpcyBDaHJpc3RtYXMsIGluc3RlYWQgb2Ygc2VuZGluZyBvdXQgY2FyZHMs
+IFJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIGhhdmUgZGVjaWRlZCB0byBzdXBwb3J0IFVuaWNl
+ZiB3aXRoIGEgZG9uYXRpb24uIEZvciBmdXJ0aGVyIGRldGFpbHMgY2xpY2sgaGVyZTxodHRwczov
+L3d3dy51bmljZWYub3JnLz4gdG8gZmluZCBvdXQgYWJvdXQgdGhlIHZhbHVhYmxlIHdvcmsgdGhl
+eSBkbywgaGVscGluZyBjaGlsZHJlbiBhbGwgb3ZlciB0aGUgd29ybGQuDQpXZSB3b3VsZCBsaWtl
+IHRvIHRha2UgdGhpcyBvcHBvcnR1bml0eSB0byB3aXNoIHlvdSBhIE1lcnJ5IENocmlzdG1hcyBh
+bmQgYSBwcm9zcGVyb3VzIE5ldyBZZWFyLg0KDQoNCg0KUmVuZXNhcyBFbGVjdHJvbmljcyBFdXJv
+cGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3VybmUgRW5kLCBCdWNraW5n
+aGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xhbmQgJiBXYWxlcyB1bmRl
+ciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
