@@ -7,47 +7,47 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 723FBC04EBF
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 10:04:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5E8EC04EB9
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 10:11:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 233FA214C1
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 10:04:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98264206B7
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Dec 2018 10:11:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kt2F0atP"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 233FA214C1
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="m/RsNSIO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 98264206B7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729067AbeLEJoT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Dec 2018 04:44:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
+        id S1728138AbeLEJiH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 Dec 2018 04:38:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728604AbeLEJoS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 5 Dec 2018 04:44:18 -0500
+        id S1727251AbeLEJiH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 5 Dec 2018 04:38:07 -0500
 Received: from sasha-vm.mshome.net (unknown [213.57.143.11])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EB0F2133F;
-        Wed,  5 Dec 2018 09:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 847FA2084C;
+        Wed,  5 Dec 2018 09:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1544003056;
-        bh=6mwhuvqEcdqTm9mmVI+qLS6YTOaYceZDwFEzO9F50Zo=;
+        s=default; t=1544002685;
+        bh=LjxQo3QrJBCCSBND7Nec/3BUSZ1VAYQEsJCNLJJ2HDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kt2F0atPe2kxO5oKKcv5fvf4PZ7wf5ui+b1tNVTpvDP/inoYYFXgvXMXM7uXiyAPm
-         59S3eWysFz8fTrrXdyG/ykq80BbuPi0KE1zRWKCUE/XPKniIYDWhpdnmNtlQf9V4xE
-         PJpYxTRnVHV7pJ7UbPWEZ1AGYWTFg/e0kQKQTHS4=
+        b=m/RsNSIO452/ONOytC2xeNdZQKoNnvakR0Dhe9yNmdt1pQ8hs9M4VzVFDDQE+3FRt
+         sMEkmZOw7/t/FbANzO11fU7vrIPruSN+/xK9GJykfA2XMvVGVsD3JbBn/TjXe14v47
+         ko39Lq+SvXaHmjONNQoweXVXwW2Kcitpm8rKHBAo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
         linux-iio@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 16/69] iio/hid-sensors: Fix IIO_CHAN_INFO_RAW returning wrong values for signed numbers
-Date:   Wed,  5 Dec 2018 04:41:54 -0500
-Message-Id: <20181205094247.6556-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 038/123] iio/hid-sensors: Fix IIO_CHAN_INFO_RAW returning wrong values for signed numbers
+Date:   Wed,  5 Dec 2018 04:34:30 -0500
+Message-Id: <20181205093555.5386-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20181205094247.6556-1-sashal@kernel.org>
-References: <20181205094247.6556-1-sashal@kernel.org>
+In-Reply-To: <20181205093555.5386-1-sashal@kernel.org>
+References: <20181205093555.5386-1-sashal@kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -90,7 +90,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  13 files changed, 52 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index 0bcf041368c7..574126b649e9 100644
+index e8a114157f87..bb012bc032e0 100644
 --- a/drivers/hid/hid-sensor-custom.c
 +++ b/drivers/hid/hid-sensor-custom.c
 @@ -358,7 +358,7 @@ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
@@ -103,7 +103,7 @@ index 0bcf041368c7..574126b649e9 100644
  		value = sensor_inst->fields[field_index].attribute.units;
  	else if (!strncmp(name, "unit-expo", strlen("unit-expo")))
 diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index faba542d1b07..b5bd5cb7d532 100644
+index 2b63487057c2..4256fdc5cd6d 100644
 --- a/drivers/hid/hid-sensor-hub.c
 +++ b/drivers/hid/hid-sensor-hub.c
 @@ -299,7 +299,8 @@ EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
@@ -136,7 +136,7 @@ index faba542d1b07..b5bd5cb7d532 100644
  		case 4:
  			ret_val = *(u32 *)hsdev->pending.raw_data;
 diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index 2238a26aba63..f573d9c61fc3 100644
+index 41d97faf5013..38ff374a3ca4 100644
 --- a/drivers/iio/accel/hid-sensor-accel-3d.c
 +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
 @@ -149,6 +149,7 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
@@ -148,7 +148,7 @@ index 2238a26aba63..f573d9c61fc3 100644
  					accel_state->common_attributes.hsdev;
  
 @@ -158,12 +159,14 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
- 	case 0:
+ 	case IIO_CHAN_INFO_RAW:
  		hid_sensor_power_state(&accel_state->common_attributes, true);
  		report_id = accel_state->accel[chan->scan_index].report_id;
 +		min = accel_state->accel[chan->scan_index].logical_minimum;
@@ -164,7 +164,7 @@ index 2238a26aba63..f573d9c61fc3 100644
  			*val = 0;
  			hid_sensor_power_state(&accel_state->common_attributes,
 diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index c67ce2ac4715..d9192eb41131 100644
+index 36941e69f959..88e857c4baf4 100644
 --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
 +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
 @@ -111,6 +111,7 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
@@ -176,7 +176,7 @@ index c67ce2ac4715..d9192eb41131 100644
  	*val = 0;
  	*val2 = 0;
 @@ -118,13 +119,15 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
- 	case 0:
+ 	case IIO_CHAN_INFO_RAW:
  		hid_sensor_power_state(&gyro_state->common_attributes, true);
  		report_id = gyro_state->gyro[chan->scan_index].report_id;
 +		min = gyro_state->gyro[chan->scan_index].logical_minimum;
@@ -193,7 +193,7 @@ index c67ce2ac4715..d9192eb41131 100644
  			*val = 0;
  			hid_sensor_power_state(&gyro_state->common_attributes,
 diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 6e09c1acfe51..e53914d51ec3 100644
+index beab6d6fd6e1..4bc95f31c730 100644
 --- a/drivers/iio/humidity/hid-sensor-humidity.c
 +++ b/drivers/iio/humidity/hid-sensor-humidity.c
 @@ -75,7 +75,8 @@ static int humidity_read_raw(struct iio_dev *indio_dev,
@@ -207,7 +207,7 @@ index 6e09c1acfe51..e53914d51ec3 100644
  
  		return IIO_VAL_INT;
 diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 059d964772c7..95ca86f50434 100644
+index 406caaee9a3c..94f33250ba5a 100644
 --- a/drivers/iio/light/hid-sensor-als.c
 +++ b/drivers/iio/light/hid-sensor-als.c
 @@ -93,6 +93,7 @@ static int als_read_raw(struct iio_dev *indio_dev,
@@ -240,7 +240,7 @@ index 059d964772c7..95ca86f50434 100644
  						false);
  		} else {
 diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 73fced8a63b7..8c017abc4ee2 100644
+index 45107f7537b5..cf5a0c242609 100644
 --- a/drivers/iio/light/hid-sensor-prox.c
 +++ b/drivers/iio/light/hid-sensor-prox.c
 @@ -73,6 +73,7 @@ static int prox_read_raw(struct iio_dev *indio_dev,
@@ -273,7 +273,7 @@ index 73fced8a63b7..8c017abc4ee2 100644
  						false);
  		} else {
 diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index 0e791b02ed4a..b495107bd173 100644
+index d55c4885211a..f3c0d41e5a8c 100644
 --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
 +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
 @@ -163,21 +163,23 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
@@ -285,7 +285,7 @@ index 0e791b02ed4a..b495107bd173 100644
  	*val = 0;
  	*val2 = 0;
  	switch (mask) {
- 	case 0:
+ 	case IIO_CHAN_INFO_RAW:
  		hid_sensor_power_state(&magn_state->magn_flux_attributes, true);
 -		report_id =
 -			magn_state->magn[chan->address].report_id;
@@ -304,7 +304,7 @@ index 0e791b02ed4a..b495107bd173 100644
  			*val = 0;
  			hid_sensor_power_state(
 diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index fd1b3696ee42..16c744bef021 100644
+index 1e5451d1ff88..bdc5e4554ee4 100644
 --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
 +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
 @@ -111,21 +111,23 @@ static int incl_3d_read_raw(struct iio_dev *indio_dev,
@@ -335,7 +335,7 @@ index fd1b3696ee42..16c744bef021 100644
  			hid_sensor_power_state(&incl_state->common_attributes,
  						false);
 diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
-index 6848d8c80eff..1c49ef78f888 100644
+index 4c437918f1d2..d7b1c00ceb4d 100644
 --- a/drivers/iio/pressure/hid-sensor-press.c
 +++ b/drivers/iio/pressure/hid-sensor-press.c
 @@ -77,6 +77,7 @@ static int press_read_raw(struct iio_dev *indio_dev,
@@ -368,7 +368,7 @@ index 6848d8c80eff..1c49ef78f888 100644
  						false);
  		} else {
 diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
-index c01efeca4002..6ed5cd5742f1 100644
+index beaf6fd3e337..b592fc4f007e 100644
 --- a/drivers/iio/temperature/hid-sensor-temperature.c
 +++ b/drivers/iio/temperature/hid-sensor-temperature.c
 @@ -76,7 +76,8 @@ static int temperature_read_raw(struct iio_dev *indio_dev,
@@ -395,7 +395,7 @@ index 2751dba850c6..3e1abb455472 100644
  	ret = wait_for_completion_killable_timeout(
  			&time_state->comp_last_time, HZ*6);
 diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index fc7aae64dcde..000de6da3b1b 100644
+index 331dc377c275..dc12f5c4b076 100644
 --- a/include/linux/hid-sensor-hub.h
 +++ b/include/linux/hid-sensor-hub.h
 @@ -177,6 +177,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
