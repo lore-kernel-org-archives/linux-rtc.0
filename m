@@ -3,45 +3,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDDF8C04EB8
-	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E717CC04EB9
+	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B530420989
-	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B530420989
+	by mail.kernel.org (Postfix) with ESMTP id B6E1B20989
+	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B6E1B20989
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bp.renesas.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728566AbeLFJEk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 6 Dec 2018 04:04:40 -0500
+        id S1728764AbeLFJEn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 6 Dec 2018 04:04:43 -0500
 Received: from relmlor1.renesas.com ([210.160.252.171]:22481 "EHLO
         relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727783AbeLFJEk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Dec 2018 04:04:40 -0500
+        by vger.kernel.org with ESMTP id S1727763AbeLFJEn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Dec 2018 04:04:43 -0500
 X-IronPort-AV: E=Sophos;i="5.56,321,1539615600"; 
-   d="scan'208";a="2116548"
+   d="scan'208";a="2116556"
 Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie5.idc.renesas.com with ESMTP; 06 Dec 2018 18:04:39 +0900
+  by relmlie5.idc.renesas.com with ESMTP; 06 Dec 2018 18:04:41 +0900
 Received: from be1yocto.ree.adwin.renesas.com (unknown [172.29.43.62])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 7E0D6492FC2D;
-        Thu,  6 Dec 2018 18:04:36 +0900 (JST)
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id ABE2C492FC2D;
+        Thu,  6 Dec 2018 18:04:39 +0900 (JST)
 From:   Biju Das <biju.das@bp.renesas.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Cc:     Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, Simon Horman <horms@verge.net.au>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
+        Simon Horman <horms@verge.net.au>,
         Chris Paterson <Chris.Paterson2@renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v3 1/4] dt-bindings: rtc: pcf85363: Document pcf85263 real-time clock
-Date:   Thu,  6 Dec 2018 08:55:56 +0000
-Message-Id: <1544086559-47141-2-git-send-email-biju.das@bp.renesas.com>
+Subject: [PATCH v3 2/4] rtc: pcf85363: Add support for NXP pcf85263 rtc
+Date:   Thu,  6 Dec 2018 08:55:57 +0000
+Message-Id: <1544086559-47141-3-git-send-email-biju.das@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1544086559-47141-1-git-send-email-biju.das@bp.renesas.com>
 References: <1544086559-47141-1-git-send-email-biju.das@bp.renesas.com>
@@ -50,36 +48,158 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The pcf85263 RTC is compatible with the pcf85363 RTC.
+Add support for NXP pcf85263 real-time clock. pcf85263 rtc is compatible
+with pcf85363,except that pcf85363 has additional 64 bytes of RAM.
 
-The difference between the pcf85263 and pcf85363 RTC is that the latter has
-64 bytes more RAM. This renders them incompatible from a DT point of view.
+1 byte of nvmem is supported and exposed in sysfs (# is the instance
+number,starting with 0): /sys/bus/nvmem/devices/pcf85x63-#/nvmem
 
 Signed-off-by: Biju Das <biju.das@bp.renesas.com>
 ---
 V1-->V2
-	* Incorporated Simon's review comment.
+	* Incorporated Alexandre and Geert's review comment.
 V2-->V3
-	* No Change
+	* Incorporated Geert's review comment.
 ---
- Documentation/devicetree/bindings/rtc/pcf85363.txt | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 87 ++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 69 insertions(+), 18 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/pcf85363.txt b/Documentation/devicetree/bindings/rtc/pcf85363.txt
-index 76fdabc..94adc1c 100644
---- a/Documentation/devicetree/bindings/rtc/pcf85363.txt
-+++ b/Documentation/devicetree/bindings/rtc/pcf85363.txt
-@@ -1,8 +1,8 @@
--NXP PCF85363 Real Time Clock
-+NXP PCF85263/PCF85363 Real Time Clock
- ============================
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index c04a1ed..6a0a994 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -120,6 +120,11 @@ struct pcf85363 {
+ 	struct regmap		*regmap;
+ };
  
- Required properties:
--- compatible: Should contain "nxp,pcf85363".
-+- compatible: Should contain "nxp,pcf85263" or "nxp,pcf85363".
- - reg: I2C address for chip.
++struct pcf85x63_config {
++	struct regmap_config regmap;
++	unsigned int num_nvram;
++};
++
+ static int pcf85363_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
+@@ -311,25 +316,68 @@ static int pcf85363_nvram_write(void *priv, unsigned int offset, void *val,
+ 				 val, bytes);
+ }
  
- Optional properties:
+-static const struct regmap_config regmap_config = {
+-	.reg_bits = 8,
+-	.val_bits = 8,
+-	.max_register = 0x7f,
++static int pcf85x63_nvram_read(void *priv, unsigned int offset, void *val,
++			       size_t bytes)
++{
++	struct pcf85363 *pcf85363 = priv;
++
++	return regmap_read(pcf85363->regmap, CTRL_RAMBYTE, val);
++}
++
++static int pcf85x63_nvram_write(void *priv, unsigned int offset, void *val,
++				size_t bytes)
++{
++	struct pcf85363 *pcf85363 = priv;
++
++	return regmap_write(pcf85363->regmap, CTRL_RAMBYTE,
++				*((unsigned int *)val));
++}
++
++static const struct pcf85x63_config pcf_85263_config = {
++	{
++		.reg_bits = 8,
++		.val_bits = 8,
++		.max_register = 0x2f,
++	},
++	1
++};
++
++static const struct pcf85x63_config pcf_85363_config = {
++	{
++		.reg_bits = 8,
++		.val_bits = 8,
++		.max_register = 0x7f,
++	},
++	2
+ };
+ 
+ static int pcf85363_probe(struct i2c_client *client,
+ 			  const struct i2c_device_id *id)
+ {
+ 	struct pcf85363 *pcf85363;
+-	struct nvmem_config nvmem_cfg = {
+-		.name = "pcf85363-",
+-		.word_size = 1,
+-		.stride = 1,
+-		.size = NVRAM_SIZE,
+-		.reg_read = pcf85363_nvram_read,
+-		.reg_write = pcf85363_nvram_write,
++	const struct pcf85x63_config *config = &pcf_85363_config;
++	const void *data = of_device_get_match_data(&client->dev);
++	static struct nvmem_config nvmem_cfg[] = {
++		{
++			.name = "pcf85x63-",
++			.word_size = 1,
++			.stride = 1,
++			.size = 1,
++			.reg_read = pcf85x63_nvram_read,
++			.reg_write = pcf85x63_nvram_write,
++		}, {
++			.name = "pcf85363-",
++			.word_size = 1,
++			.stride = 1,
++			.size = NVRAM_SIZE,
++			.reg_read = pcf85363_nvram_read,
++			.reg_write = pcf85363_nvram_write,
++		},
+ 	};
+-	int ret;
++	int ret, i;
++
++	if (data)
++		config = data;
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -ENODEV;
+@@ -339,7 +387,7 @@ static int pcf85363_probe(struct i2c_client *client,
+ 	if (!pcf85363)
+ 		return -ENOMEM;
+ 
+-	pcf85363->regmap = devm_regmap_init_i2c(client, &regmap_config);
++	pcf85363->regmap = devm_regmap_init_i2c(client, &config->regmap);
+ 	if (IS_ERR(pcf85363->regmap)) {
+ 		dev_err(&client->dev, "regmap allocation failed\n");
+ 		return PTR_ERR(pcf85363->regmap);
+@@ -370,15 +418,18 @@ static int pcf85363_probe(struct i2c_client *client,
+ 
+ 	ret = rtc_register_device(pcf85363->rtc);
+ 
+-	nvmem_cfg.priv = pcf85363;
+-	rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg);
++	for (i = 0; i < config->num_nvram; i++) {
++		nvmem_cfg[i].priv = pcf85363;
++		rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
++	}
+ 
+ 	return ret;
+ }
+ 
+ static const struct of_device_id dev_ids[] = {
+-	{ .compatible = "nxp,pcf85363" },
+-	{}
++	{ .compatible = "nxp,pcf85263", .data = &pcf_85263_config },
++	{ .compatible = "nxp,pcf85363", .data = &pcf_85363_config },
++	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, dev_ids);
+ 
+@@ -393,5 +444,5 @@ static struct i2c_driver pcf85363_driver = {
+ module_i2c_driver(pcf85363_driver);
+ 
+ MODULE_AUTHOR("Eric Nelson");
+-MODULE_DESCRIPTION("pcf85363 I2C RTC driver");
++MODULE_DESCRIPTION("pcf85263/pcf85363 I2C RTC driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.7.4
 
