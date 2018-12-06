@@ -2,134 +2,84 @@ Return-Path: <SRS0=to0F=OP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBED3C04EB8
-	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 07:22:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE244C04EB8
+	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7475E20989
-	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 07:22:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="XPikO0kd";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="oj0XVGeA"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7475E20989
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+	by mail.kernel.org (Postfix) with ESMTP id 9ED6C20989
+	for <linux-rtc@archiver.kernel.org>; Thu,  6 Dec 2018 09:04:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9ED6C20989
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bp.renesas.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbeLFHW5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 6 Dec 2018 02:22:57 -0500
-Received: from smtp.codeaurora.org ([198.145.29.96]:35294 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728758AbeLFHW4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Dec 2018 02:22:56 -0500
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id E602C601C4; Thu,  6 Dec 2018 07:22:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1544080976;
-        bh=wz6qGcHWlFJDR0F7KbH9E1mxunYOg4RWT/B/5CAuHBs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=XPikO0kdgLwJe2SYlN9IE0d6Lw5uaVByNwR1rkrJyqbOGjBAT2xuvBl2/NoYgrrpR
-         sf6unXYnQpesc2ROWSeOgYe5/pEQFtY8B/XtrIxtzcmLFhetRJkZv2fo6RCwZj0w3W
-         bE1IeSP0M7hfYHex5Or1JVQ/bWAO6LSeAlwJBrUE=
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by smtp.codeaurora.org (Postfix) with ESMTP id 285E86028B;
-        Thu,  6 Dec 2018 07:22:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1544080971;
-        bh=wz6qGcHWlFJDR0F7KbH9E1mxunYOg4RWT/B/5CAuHBs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=oj0XVGeAnbHD9Kcl0UUiboOopq1cQ9kUZ3/ya1c2B+yOU3ZEqsvnETGkurKEypNs9
-         Dkbj3jJv36qaKBgT8BIdMa/ZYoL7acM7C/SKV0xGD/41lXdJvbcrAddWg+Yuo0HMON
-         78OPXxvutkATFBAAty9GbZrVfiyPagYZWCe8gU40=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 06 Dec 2018 15:22:51 +0800
-From:   yuankuiz@codeaurora.org
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc-owner@vger.kernel.org
-Subject: Re: [PATCH] rtc: proc: printf using alarm for alrm
-In-Reply-To: <b44225b8e243a70c6ab63a40a3de630d@codeaurora.org>
-References: <b44225b8e243a70c6ab63a40a3de630d@codeaurora.org>
-Message-ID: <acac27b279864ff8f938f79bcc49b238@codeaurora.org>
-X-Sender: yuankuiz@codeaurora.org
-User-Agent: Roundcube Webmail/1.2.5
+        id S1728391AbeLFJEi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 6 Dec 2018 04:04:38 -0500
+Received: from relmlor1.renesas.com ([210.160.252.171]:22481 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727783AbeLFJEi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Dec 2018 04:04:38 -0500
+X-IronPort-AV: E=Sophos;i="5.56,321,1539615600"; 
+   d="scan'208";a="2116541"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie5.idc.renesas.com with ESMTP; 06 Dec 2018 18:04:36 +0900
+Received: from be1yocto.ree.adwin.renesas.com (unknown [172.29.43.62])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 51236492FC2D;
+        Thu,  6 Dec 2018 18:04:33 +0900 (JST)
+From:   Biju Das <biju.das@bp.renesas.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc:     Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, Simon Horman <horms@verge.net.au>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v3 0/4] Add NXP pcf85263 real-time clock support
+Date:   Thu,  6 Dec 2018 08:55:55 +0000
+Message-Id: <1544086559-47141-1-git-send-email-biju.das@bp.renesas.com>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+This patch set aims to add support for NXP pcf85263 real-time clock.
+pcf85263 rtc is compatible with pcf85363 rtc except that pcf85363 has
+64 bytes additional RAM.
 
-     Kindly, this format change formats the rtc dump from:
-         alrm_time	: 00:00:00
-         alrm_date	: 1970-01-01
-         alarm_IRQ	: no
-         alrm_pending	: no
+1 byte of nvmem is supported in pcf85263 and is exposed through sysfs.
 
-     to:
-         alarm time	: 00:00:00
-         alarm date	: 1970-01-01
-         alarm IRQ	: no
-         alarm pending	: no
+The details of pcf85363 and pcf85263 can be found in the below data sheets.
 
-     Thanks,
-BR//John Zhao
+https://www.nxp.com/docs/en/data-sheet/PCF85363A.pdf
 
-On 2018-12-04 05:29 PM, yuankuiz@codeaurora.org wrote:
-> Hi,
-> 
-> From 549bae59445c5ec67dd6a46f3ea4f58966d40c9b
-> 
-> Current the struct rtc_wkalrm is dumped as
-> "alrm_" by printing converted from the struct
-> name of "alrm.*" directly. Shall we use the
-> "alarm *" to replace the "alrm_*" during this
-> dumping?
-> 
-> Signed-off-by: John Zhao <yuankuiz@codeaurora.org>
-> ---
->  drivers/rtc/rtc-proc.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-> index a9dd921..d4a3c91 100644
-> --- a/drivers/rtc/rtc-proc.c
-> +++ b/drivers/rtc/rtc-proc.c
-> @@ -58,7 +58,7 @@ static int rtc_proc_show(struct seq_file *seq, void 
-> *offset)
-> 
->  	err = rtc_read_alarm(rtc, &alrm);
->  	if (err == 0) {
-> -		seq_printf(seq, "alrm_time\t: ");
-> +		seq_printf(seq, "alarm time\t: ");
->  		if ((unsigned int)alrm.time.tm_hour <= 24)
->  			seq_printf(seq, "%02d:", alrm.time.tm_hour);
->  		else
-> @@ -72,7 +72,7 @@ static int rtc_proc_show(struct seq_file *seq, void 
-> *offset)
->  		else
->  			seq_printf(seq, "**\n");
-> 
-> -		seq_printf(seq, "alrm_date\t: ");
-> +		seq_printf(seq, "alarm date\t: ");
->  		if ((unsigned int)alrm.time.tm_year <= 200)
->  			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
->  		else
-> @@ -85,9 +85,9 @@ static int rtc_proc_show(struct seq_file *seq, void 
-> *offset)
->  			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
->  		else
->  			seq_printf(seq, "**\n");
-> -		seq_printf(seq, "alarm_IRQ\t: %s\n",
-> +		seq_printf(seq, "alarm IRQ\t: %s\n",
->  				alrm.enabled ? "yes" : "no");
-> -		seq_printf(seq, "alrm_pending\t: %s\n",
-> +		seq_printf(seq, "alarm pending\t: %s\n",
->  				alrm.pending ? "yes" : "no");
->  		seq_printf(seq, "update IRQ enabled\t: %s\n",
->  			(rtc->uie_rtctimer.enabled) ? "yes" : "no");
+https://www.nxp.com/docs/en/data-sheet/PCF85263A.pdf
+
+This patch is tested against linux-next.
+
+V1-->V2
+   * Incorporated simon's review comment for binding patch.
+   * Incorporated Geert and Alexandre's review comments.
+V2-->V3
+   * Incorporated Geert's review comments.
+
+Biju Das (4):
+  dt-bindings: rtc: pcf85363: Document pcf85263 real-time clock
+  rtc: pcf85363: Add support for NXP pcf85263 rtc
+  ARM: shmobile: Enable NXP pcf85363 rtc in shmobile_defconfig
+  ARM: dts: iwg23s-sbc: Enable RTC
+
+ Documentation/devicetree/bindings/rtc/pcf85363.txt |  4 +-
+ arch/arm/boot/dts/r8a77470-iwg23s-sbc.dts          | 18 +++++
+ arch/arm/configs/shmobile_defconfig                |  1 +
+ drivers/rtc/rtc-pcf85363.c                         | 87 +++++++++++++++++-----
+ 4 files changed, 90 insertions(+), 20 deletions(-)
+
+-- 
+2.7.4
+
