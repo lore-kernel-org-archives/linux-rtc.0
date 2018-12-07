@@ -2,63 +2,83 @@ Return-Path: <SRS0=ySH3=OQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC01BC07E85
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 09:29:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3101C64EB1
+	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 09:34:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B4E9A20838
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 09:29:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B4E9A20838
+	by mail.kernel.org (Postfix) with ESMTP id 840F720838
+	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 09:34:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 840F720838
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbeLGJ3A (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 7 Dec 2018 04:29:00 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:47655 "EHLO mail.bootlin.com"
+        id S1726006AbeLGJeJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 7 Dec 2018 04:34:09 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:48117 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbeLGJ3A (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 7 Dec 2018 04:29:00 -0500
+        id S1725985AbeLGJeI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 7 Dec 2018 04:34:08 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id E1E2620D23; Fri,  7 Dec 2018 10:28:57 +0100 (CET)
+        id 12DD420717; Fri,  7 Dec 2018 10:34:06 +0100 (CET)
 Received: from localhost (unknown [88.191.26.124])
-        by mail.bootlin.com (Postfix) with ESMTPSA id AEE9F20CC3;
-        Fri,  7 Dec 2018 10:28:47 +0100 (CET)
-Date:   Fri, 7 Dec 2018 10:28:48 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id D71C120717;
+        Fri,  7 Dec 2018 10:33:55 +0100 (CET)
+Date:   Fri, 7 Dec 2018 10:33:56 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Chen-Yu Tsai <wens@csie.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: rtc: sun6i-rtc: Fix register range in
- example
-Message-ID: <20181207092848.GF8952@piout.net>
-References: <20181207084719.2009-1-wens@csie.org>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Rob Herring <robh+dt@kernel.org>, linux-rtc@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: rtc: add generic bindings
+Message-ID: <20181207093356.GG8952@piout.net>
+References: <20181111193114.24307-1-alexandre.belloni@bootlin.com>
+ <CAMuHMdX9xZgAiBeXCXxLRSJYMefsFwhH3NGC7=EYteFd6kODMQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181207084719.2009-1-wens@csie.org>
+In-Reply-To: <CAMuHMdX9xZgAiBeXCXxLRSJYMefsFwhH3NGC7=EYteFd6kODMQ@mail.gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 07/12/2018 16:47:19+0800, Chen-Yu Tsai wrote:
-> The register range for the RTC extends beyond 0x54.
-> Use the size from the user manual's memory map instead.
+On 06/12/2018 11:36:59+0100, Geert Uytterhoeven wrote:
+> > +The following properties may not be supported by all drivers. However, if a
+> > +driver wants to support one of the below features, it should adapt the bindings
+> > +below.
+> > +- trickle-resistor-ohms : Selected resistor for trickle charger. Should be given
 > 
-> Fixes: 9765d2d94309 ("rtc: sun6i: Add sun6i RTC driver")
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> ---
->  Documentation/devicetree/bindings/rtc/sun6i-rtc.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-Applied, thanks.
+> Can this resistor be less than 1 ohm?
+> trickle-resistor-milli-ohms?
+> 
+
+Well, this is what current drivers already use so we are stuck with that
+for now.
+
+The value should be a few kOhm anyway. I think the lowest I know about
+is 250 Ohm.
+
+> > +                          if trickle charger should be enabled
+> > +- trickle-diode-disable : Do not use internal trickle charger diode Should be
+> > +                          given if internal trickle charger diode should be
+> > +                          disabled
+> > +- wakeup-source :         Enables wake up of host system on alarm
+> 
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+> 
+> -- 
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                 -- Linus Torvalds
 
 -- 
 Alexandre Belloni, Bootlin
