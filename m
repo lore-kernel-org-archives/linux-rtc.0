@@ -1,101 +1,393 @@
-Return-Path: <SRS0=ySH3=OQ=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=WBM2=OT=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,T_DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 745ABC07E85
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 23:19:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98CE3C04EB8
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 09:09:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 34EDE20838
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Dec 2018 23:19:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1544224761;
-	bh=DKyBMtHgH4RkLeXZbPw3OU6Yzi7Fli9fVJxfoq7XMyw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=oSVy5ZEcVyXf/znH3PdwNjD0M1gT7yPpnl+mY1ogin3iiXU/hNlK/v2NRNR+XubUw
-	 kYaj07FIgNanc1v6H59cnLmb1qUKoJ1CAs75B5PkkGDQjA8Ait0kR9O/TnQ93PQLo5
-	 tyBK8rs8TW4r+mUiiND13B9FS+MYW6W9aOlpXxDc=
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 34EDE20838
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTP id 544C22081F
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 09:09:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 544C22081F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbeLGXTU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 7 Dec 2018 18:19:20 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:38596 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbeLGXTU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Dec 2018 18:19:20 -0500
-Received: by mail-oi1-f195.google.com with SMTP id a77so4729455oii.5;
-        Fri, 07 Dec 2018 15:19:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=HNfRJAiRFxc1P8MQJ87MfpT7Sb6SzhIGgf2ybqBUVlA=;
-        b=hlNdnPGpmyfybxXowJotmQJfPa4RcC+Vb+86Muia/VjQWEhp7eWI3584KEsCOa9CA9
-         sxX8nFXiMA3V++YlADwQWjkT2CVITGQYjtIga/TLdpnts4pw/yUeP1vc0W33SVioWpAd
-         u8L9T+tUBXYy1YErsszvVVr0b6+yXFPmSuMmQMRU9d8BUqf+82/mVWYMNPULtiDPRbUV
-         RBc1WHk0HHURs9TMKomGnYlVRLTIH8yWzVMEe9PcxWXTNxtaQpAxn5Gf0kg07UXF0G1Y
-         7+dZn6MVHHiYRVOy87uYjQwTw8diqb4mwQ3vmRwtzhB5TWSwRp94qRe98Eu0PNpFsmEM
-         OdXQ==
-X-Gm-Message-State: AA+aEWbyLRXcE93ZDK7sj225yYdtO1XlyFLmLX6D9f5Q4anSMFyuGbsv
-        n2L936MQUi5ulMaQxJMbRg==
-X-Google-Smtp-Source: AFSGD/Vioncqm3R7P+ZYJm69rjshXtzK+/j9ZUnGRG/GgrCbVoeEE1Zvyo7vAB7+khj6rJbVNRZK9w==
-X-Received: by 2002:aca:c46:: with SMTP id i6mr2316045oiy.208.1544224759778;
-        Fri, 07 Dec 2018 15:19:19 -0800 (PST)
-Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id j11sm2084480oif.9.2018.12.07.15.19.19
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 07 Dec 2018 15:19:19 -0800 (PST)
-Date:   Fri, 7 Dec 2018 17:19:18 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Biju Das <biju.das@bp.renesas.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S1726872AbeLJJJS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 10 Dec 2018 04:09:18 -0500
+Received: from mga04.intel.com ([192.55.52.120]:46234 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726705AbeLJJJR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 10 Dec 2018 04:09:17 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Dec 2018 01:09:17 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,337,1539673200"; 
+   d="scan'208";a="300841836"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.72.86])
+  by fmsmga006.fm.intel.com with ESMTP; 10 Dec 2018 01:09:10 -0800
+Received: from andy by smile with local (Exim 4.91)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1gWHYq-0005Wp-C1; Mon, 10 Dec 2018 11:09:08 +0200
+Date:   Mon, 10 Dec 2018 11:09:08 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, Simon Horman <horms@verge.net.au>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v4 2/5] dt-bindings: rtc: pcf85363: Document pcf85263
- real-time clock
-Message-ID: <20181207231918.GA18691@bogus>
-References: <1544182066-31528-1-git-send-email-biju.das@bp.renesas.com>
- <1544182066-31528-3-git-send-email-biju.das@bp.renesas.com>
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-kernel@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH v6 01/20] lib/vsprintf: Print time and date in human
+ readable format via %pt
+Message-ID: <20181210090908.GZ10650@smile.fi.intel.com>
+References: <20181204212330.69515-1-andriy.shevchenko@linux.intel.com>
+ <20181204212330.69515-2-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1544182066-31528-3-git-send-email-biju.das@bp.renesas.com>
+In-Reply-To: <20181204212330.69515-2-andriy.shevchenko@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri,  7 Dec 2018 11:27:43 +0000, Biju Das wrote:
-> The pcf85263 RTC is compatible with the pcf85363 RTC.
+On Tue, Dec 04, 2018 at 11:23:11PM +0200, Andy Shevchenko wrote:
+> There are users which print time and date represented by content of
+> struct rtc_time in human readable format.
 > 
-> The difference between the pcf85263 and pcf85363 RTC is that the latter has
-> 64 bytes more RAM. This renders them incompatible from a DT point of view.
-> 
-> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
-> V1-->V2
-> 	* Incorporated Simon's review comment.
-> V2-->V3
-> 	* No Change.
-> V3-->V4
-> 	* No Change.
-> ---
->  Documentation/devicetree/bindings/rtc/pcf85363.txt | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Instead of open coding that each time introduce %ptR[dt][r] specifier.
 > 
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Petr, is it now looks good to you? Can you give a tag?
+
+Alexandre, it looks like Petr's Ack is missed and we would be fine to
+eventually proceed with it if you have no more comments. What do you think?
+
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+> Cc: Ingo Molnar <mingo@kernel.org>
+> Cc: Jason Wessel <jason.wessel@windriver.com>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Jonathan Hunter <jonathanh@nvidia.com>
+> Cc: Krzysztof Kozlowski <krzk@kernel.org>
+> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Petr Mladek <pmladek@suse.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  Documentation/core-api/printk-formats.rst |  18 ++++
+>  lib/test_printf.c                         |  61 ++++++++++++-
+>  lib/vsprintf.c                            | 100 ++++++++++++++++++++++
+>  3 files changed, 176 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/core-api/printk-formats.rst b/Documentation/core-api/printk-formats.rst
+> index ff48b55040ef..a7fae4538946 100644
+> --- a/Documentation/core-api/printk-formats.rst
+> +++ b/Documentation/core-api/printk-formats.rst
+> @@ -412,6 +412,24 @@ Examples::
+>  
+>  Passed by reference.
+>  
+> +Time and date (struct rtc_time)
+> +-------------------------------
+> +
+> +::
+> +
+> +	%ptR		YYYY-mm-ddTHH:MM:SS
+> +	%ptRd		YYYY-mm-dd
+> +	%ptRt		HH:MM:SS
+> +	%ptR[dt][r]
+> +
+> +For printing date and time as represented by struct rtc_time structure in
+> +human readable format.
+> +
+> +By default year will be incremented by 1900 and month by 1. Use %ptRr (raw)
+> +to suppress this behaviour.
+> +
+> +Passed by reference.
+> +
+>  struct clk
+>  ----------
+>  
+> diff --git a/lib/test_printf.c b/lib/test_printf.c
+> index 53527ea822b5..659b6cc0d483 100644
+> --- a/lib/test_printf.c
+> +++ b/lib/test_printf.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/module.h>
+>  #include <linux/printk.h>
+>  #include <linux/random.h>
+> +#include <linux/rtc.h>
+>  #include <linux/slab.h>
+>  #include <linux/string.h>
+>  
+> @@ -249,12 +250,11 @@ plain_format(void)
+>  #endif	/* BITS_PER_LONG == 64 */
+>  
+>  static int __init
+> -plain_hash(void)
+> +plain_hash_to_buffer(const void *p, char *buf, size_t len)
+>  {
+> -	char buf[PLAIN_BUF_SIZE];
+>  	int nchars;
+>  
+> -	nchars = snprintf(buf, PLAIN_BUF_SIZE, "%p", PTR);
+> +	nchars = snprintf(buf, len, "%p", p);
+>  
+>  	if (nchars != PTR_WIDTH)
+>  		return -1;
+> @@ -265,6 +265,20 @@ plain_hash(void)
+>  		return 0;
+>  	}
+>  
+> +	return 0;
+> +}
+> +
+> +
+> +static int __init
+> +plain_hash(void)
+> +{
+> +	char buf[PLAIN_BUF_SIZE];
+> +	int ret;
+> +
+> +	ret = plain_hash_to_buffer(PTR, buf, PLAIN_BUF_SIZE);
+> +	if (ret)
+> +		return ret;
+> +
+>  	if (strncmp(buf, PTR_STR, PTR_WIDTH) == 0)
+>  		return -1;
+>  
+> @@ -294,6 +308,23 @@ plain(void)
+>  	}
+>  }
+>  
+> +static void __init
+> +test_hashed(const char *fmt, const void *p)
+> +{
+> +	char buf[PLAIN_BUF_SIZE];
+> +	int ret;
+> +
+> +	/*
+> +	 * No need to increase failed test counter since this is assumed
+> +	 * to be called after plain().
+> +	 */
+> +	ret = plain_hash_to_buffer(p, buf, PLAIN_BUF_SIZE);
+> +	if (ret)
+> +		return;
+> +
+> +	test(buf, fmt, p);
+> +}
+> +
+>  static void __init
+>  symbol_ptr(void)
+>  {
+> @@ -418,6 +449,29 @@ struct_va_format(void)
+>  {
+>  }
+>  
+> +static void __init
+> +struct_rtc_time(void)
+> +{
+> +	/* 1543210543 */
+> +	const struct rtc_time tm = {
+> +		.tm_sec = 43,
+> +		.tm_min = 35,
+> +		.tm_hour = 5,
+> +		.tm_mday = 26,
+> +		.tm_mon = 10,
+> +		.tm_year = 118,
+> +	};
+> +
+> +	test_hashed("%pt", &tm);
+> +
+> +	test("2018-11-26T05:35:43", "%ptR", &tm);
+> +	test("0118-10-26T05:35:43", "%ptRr", &tm);
+> +	test("05:35:43|2018-11-26", "%ptRt|%ptRd", &tm, &tm);
+> +	test("05:35:43|0118-10-26", "%ptRtr|%ptRdr", &tm, &tm);
+> +	test("05:35:43|2018-11-26", "%ptRttr|%ptRdtr", &tm, &tm);
+> +	test("05:35:43 tr|2018-11-26 tr", "%ptRt tr|%ptRd tr", &tm, &tm);
+> +}
+> +
+>  static void __init
+>  struct_clk(void)
+>  {
+> @@ -529,6 +583,7 @@ test_pointer(void)
+>  	uuid();
+>  	dentry();
+>  	struct_va_format();
+> +	struct_rtc_time();
+>  	struct_clk();
+>  	bitmap();
+>  	netdev_features();
+> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+> index 37a54a6dd594..3add92329bae 100644
+> --- a/lib/vsprintf.c
+> +++ b/lib/vsprintf.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/ioport.h>
+>  #include <linux/dcache.h>
+>  #include <linux/cred.h>
+> +#include <linux/rtc.h>
+>  #include <linux/uuid.h>
+>  #include <linux/of.h>
+>  #include <net/addrconf.h>
+> @@ -822,6 +823,20 @@ static const struct printf_spec default_dec_spec = {
+>  	.precision = -1,
+>  };
+>  
+> +static const struct printf_spec default_dec02_spec = {
+> +	.base = 10,
+> +	.field_width = 2,
+> +	.precision = -1,
+> +	.flags = ZEROPAD,
+> +};
+> +
+> +static const struct printf_spec default_dec04_spec = {
+> +	.base = 10,
+> +	.field_width = 4,
+> +	.precision = -1,
+> +	.flags = ZEROPAD,
+> +};
+> +
+>  static noinline_for_stack
+>  char *resource_string(char *buf, char *end, struct resource *res,
+>  		      struct printf_spec spec, const char *fmt)
+> @@ -1549,6 +1564,87 @@ char *address_val(char *buf, char *end, const void *addr, const char *fmt)
+>  	return special_hex_number(buf, end, num, size);
+>  }
+>  
+> +static noinline_for_stack
+> +char *date_str(char *buf, char *end, const struct rtc_time *tm, bool r)
+> +{
+> +	int year = tm->tm_year + (r ? 0 : 1900);
+> +	int mon = tm->tm_mon + (r ? 0 : 1);
+> +
+> +	buf = number(buf, end, year, default_dec04_spec);
+> +	if (buf < end)
+> +		*buf = '-';
+> +	buf++;
+> +
+> +	buf = number(buf, end, mon, default_dec02_spec);
+> +	if (buf < end)
+> +		*buf = '-';
+> +	buf++;
+> +
+> +	return number(buf, end, tm->tm_mday, default_dec02_spec);
+> +}
+> +
+> +static noinline_for_stack
+> +char *time_str(char *buf, char *end, const struct rtc_time *tm, bool r)
+> +{
+> +	buf = number(buf, end, tm->tm_hour, default_dec02_spec);
+> +	if (buf < end)
+> +		*buf = ':';
+> +	buf++;
+> +
+> +	buf = number(buf, end, tm->tm_min, default_dec02_spec);
+> +	if (buf < end)
+> +		*buf = ':';
+> +	buf++;
+> +
+> +	return number(buf, end, tm->tm_sec, default_dec02_spec);
+> +}
+> +
+> +static noinline_for_stack
+> +char *rtc_str(char *buf, char *end, const struct rtc_time *tm, const char *fmt)
+> +{
+> +	bool have_t = true, have_d = true;
+> +	bool raw = false;
+> +	int count = 2;
+> +
+> +	switch (fmt[count]) {
+> +	case 'd':
+> +		have_t = false;
+> +		count++;
+> +		break;
+> +	case 't':
+> +		have_d = false;
+> +		count++;
+> +		break;
+> +	}
+> +
+> +	raw = fmt[count] == 'r';
+> +
+> +	if (have_d)
+> +		buf = date_str(buf, end, tm, raw);
+> +	if (have_d && have_t) {
+> +		/* Respect ISO 8601 */
+> +		if (buf < end)
+> +			*buf = 'T';
+> +		buf++;
+> +	}
+> +	if (have_t)
+> +		buf = time_str(buf, end, tm, raw);
+> +
+> +	return buf;
+> +}
+> +
+> +static noinline_for_stack
+> +char *time_and_date(char *buf, char *end, void *ptr, struct printf_spec spec,
+> +		    const char *fmt)
+> +{
+> +	switch (fmt[1]) {
+> +	case 'R':
+> +		return rtc_str(buf, end, (const struct rtc_time *)ptr, fmt);
+> +	default:
+> +		return ptr_to_id(buf, end, ptr, spec);
+> +	}
+> +}
+> +
+>  static noinline_for_stack
+>  char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+>  	    const char *fmt)
+> @@ -1828,6 +1924,8 @@ char *device_node_string(char *buf, char *end, struct device_node *dn,
+>   * - 'd[234]' For a dentry name (optionally 2-4 last components)
+>   * - 'D[234]' Same as 'd' but for a struct file
+>   * - 'g' For block_device name (gendisk + partition number)
+> + * - 't[R][dt][r]' For time and date as represented:
+> + *      R    struct rtc_time
+>   * - 'C' For a clock, it prints the name (Common Clock Framework) or address
+>   *       (legacy clock framework) of the clock
+>   * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
+> @@ -1952,6 +2050,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+>  		return address_val(buf, end, ptr, fmt);
+>  	case 'd':
+>  		return dentry_name(buf, end, ptr, spec, fmt);
+> +	case 't':
+> +		return time_and_date(buf, end, ptr, spec, fmt);
+>  	case 'C':
+>  		return clock(buf, end, ptr, spec, fmt);
+>  	case 'D':
+> -- 
+> 2.19.2
+> 
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
