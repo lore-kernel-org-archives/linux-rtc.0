@@ -6,54 +6,58 @@ X-Spam-Status: No, score=-5.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4620C04EB8
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 23:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A33BC5CFFE
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 23:47:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 93D8A2082F
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 23:35:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 93D8A2082F
+	by mail.kernel.org (Postfix) with ESMTP id 5B0042084C
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 Dec 2018 23:47:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B0042084C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728082AbeLJXf7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 10 Dec 2018 18:35:59 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:58478 "EHLO mail.bootlin.com"
+        id S1729107AbeLJXr3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 10 Dec 2018 18:47:29 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:58608 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726607AbeLJXf7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 10 Dec 2018 18:35:59 -0500
+        id S1726261AbeLJXr3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 10 Dec 2018 18:47:29 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 9BE7420757; Tue, 11 Dec 2018 00:35:56 +0100 (CET)
+        id AEDB820DC0; Tue, 11 Dec 2018 00:47:26 +0100 (CET)
 Received: from localhost (unknown [88.191.26.124])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 7655820734;
-        Tue, 11 Dec 2018 00:35:46 +0100 (CET)
-Date:   Tue, 11 Dec 2018 00:35:46 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 808AB20741;
+        Tue, 11 Dec 2018 00:47:16 +0100 (CET)
+Date:   Tue, 11 Dec 2018 00:47:16 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Lubomir Rintel <lkundrak@v3.sk>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: rtc: use a generic node name for ds1307
-Message-ID: <20181210233546.GL8952@piout.net>
-References: <20181203114736.637012-1-lkundrak@v3.sk>
+To:     Baruch Siach <baruch@tkos.co.il>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        Jon Nettleton <jon@solid-run.com>,
+        Erik =?utf-8?Q?=C4=8Cuk?= <erik.cuk@domel.com>
+Subject: Re: [PATCH] rtc: pcf8523: don't return invalid date when battery is
+ low
+Message-ID: <20181210234716.GM8952@piout.net>
+References: <35660d21e523f535ac959dc9276f61104820f1bf.1544022009.git.baruch@tkos.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20181203114736.637012-1-lkundrak@v3.sk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <35660d21e523f535ac959dc9276f61104820f1bf.1544022009.git.baruch@tkos.co.il>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 03/12/2018 12:47:36+0100, Lubomir Rintel wrote:
-> The example should follow the practice or using a generic node name
-> instead of the precise programming model, as recommended by the DTSpec.
+On 05/12/2018 17:00:09+0200, Baruch Siach wrote:
+> The RTC_VL_READ ioctl reports the low battery condition. Still,
+> pcf8523_rtc_read_time() happily returns invalid dates in this case.
+> Check the battery health on pcf8523_rtc_read_time() to avoid that.
 > 
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> Reported-by: Erik Čuk <erik.cuk@domel.com>
+> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 > ---
->  Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/rtc/rtc-pcf8523.c | 32 ++++++++++++++++++++++++--------
+>  1 file changed, 24 insertions(+), 8 deletions(-)
+> 
 Applied, thanks.
 
 -- 
