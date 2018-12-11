@@ -2,109 +2,101 @@ Return-Path: <SRS0=kYQR=OU=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C1D7C5CFFE
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 19:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93DC5C67839
+	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 21:37:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 417F020879
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 19:13:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 417F020879
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=the-dreams.de
+	by mail.kernel.org (Postfix) with ESMTP id 5381A20849
+	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 21:37:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1544564232;
+	bh=/AMXk41S2ZZ0E2VDM4S48TFxNG7ffF6XfR40/HANBcE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=IxJeg1KFIa/LxehEkUCpg2Wd8vHyC9Jq6L6R7jucsA9Ku+N+rGmbboENraD7ghFgk
+	 1lnOfDWm4/pI42e42now1x+AQuT4ffGGoaF5JsBTvamfOMCpmikhtjEmumIxliA8jT
+	 kJHZyiphLA1ShsRr4iVKhIigoba/gwiWXE6/EAWA=
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5381A20849
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726965AbeLKTNh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 11 Dec 2018 14:13:37 -0500
-Received: from sauhun.de ([88.99.104.3]:44834 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726398AbeLKTNg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 11 Dec 2018 14:13:36 -0500
-Received: from localhost (p54B334A7.dip0.t-ipconnect.de [84.179.52.167])
-        by pokefinder.org (Postfix) with ESMTPSA id EFC324C0E8F;
-        Tue, 11 Dec 2018 20:13:32 +0100 (CET)
-Date:   Tue, 11 Dec 2018 20:13:16 +0100
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-i2c@vger.kernel.org, groeck@chromium.org,
-        kernel@collabora.com, linux-rtc@vger.kernel.org,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Benson Leung <bleung@chromium.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        devicetree@vger.kernel.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
- sub-drivers
-Message-ID: <20181211191316.asshpucnnhkd43mc@ninjato>
-References: <20181211190953.13626-1-enric.balletbo@collabora.com>
+        id S1726209AbeLKVhM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 11 Dec 2018 16:37:12 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:46242 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726134AbeLKVhL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Dec 2018 16:37:11 -0500
+Received: by mail-ot1-f68.google.com with SMTP id w25so15544492otm.13;
+        Tue, 11 Dec 2018 13:37:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PepBXr+qANNJfFZ6zQcKph6OwyVGdNYika4wYLc3n/Y=;
+        b=br59yK5x0l3qCcVfV16FOqJm7A2JgC5uinHcoA+62rEL/hCZ0dXC0w7LCZsb/8qUl8
+         NWJZ/PGHZ6EfPHBsUVZtJuCyza4iEZVQq4Eb6FvtyzUDP4QTQNfnxfP0fX3SrAnzR09I
+         qqlai3dM9/Ao2YI+GJSrxzE8y6xXCg/WEvLCDIEs7RNhmqL3wOu9FWDtvrIfs8WgtxcY
+         VhQJRiUg82zn5tOaeZlZ0YuRplEJGLELKUPiMGbXcnXx0ogXKkUER/IbYw/ArO00pLrz
+         gq2Ai4cvYfc2KldsvvaCQn6VYmdHFRMzZnGvYomP2nKYx5ld/0NAna00kQEMiX3WRaUQ
+         pn3A==
+X-Gm-Message-State: AA+aEWap5346dq4OAKnxvir4WlFBBJK/T7vljStBh0mgLZhGRVpP80Ix
+        /AcjPaKclY82xZEsA3/GsQ==
+X-Google-Smtp-Source: AFSGD/XndeJWS+oy4Guvpj36jnU2qGNnRVkZFhMHEbH4IX7mqLr5mir3A9PSNGupVqM+q0GZ81/79Q==
+X-Received: by 2002:a9d:67ce:: with SMTP id c14mr11669567otn.341.1544564230975;
+        Tue, 11 Dec 2018 13:37:10 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id m89sm8110357otc.35.2018.12.11.13.37.10
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 11 Dec 2018 13:37:10 -0800 (PST)
+Date:   Tue, 11 Dec 2018 15:37:08 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     zoro <long17.cool@163.com>
+Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
+        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: define vendor prefix for whwave, Inc.
+Message-ID: <20181211213708.GA15257@bogus>
+References: <1542968084-3982-1-git-send-email-long17.cool@163.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rlh4qplpe7ewwylv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <1542968084-3982-1-git-send-email-long17.cool@163.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On Fri, Nov 23, 2018 at 06:14:42PM +0800, zoro wrote:
+> Introduce vendor prefix for whwave, Inc.
+> for SD3078 rtc device.
+> 
+> Signed-off-by: zoro <long17.cool@163.com>
 
---rlh4qplpe7ewwylv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Need a full name.
 
-On Tue, Dec 11, 2018 at 08:09:52PM +0100, Enric Balletbo i Serra wrote:
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
->=20
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> index 4b1a2a8..7d2e9b01 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -423,6 +423,7 @@ vot	Vision Optical Technology Co., Ltd.
+>  wd	Western Digital Corp.
+>  wetek	WeTek Electronics, limited.
+>  wexler	Wexler
+> +whwave	Shenzhen whwave Electronics crop
 
-Great, thanks!
+crop or Corp?
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---rlh4qplpe7ewwylv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQDEgACgkQFA3kzBSg
-Kbbujw//Rmg6CpKq42FYw7tg/uyJ56KZ1p403nkc1fz9EFCBV3sN2AoGGKBPp23Q
-dXwKE41n7jE8IJLMTBC5AcNWZ2YeZL53V38cnaQEn4wiKxuh8H5V51QyBlhAwa9B
-/C4Ch3fwmEpI1gkIm11EaV/1jpSeTVPZh86bVlk2iC1gwChpIai2eU5kqu4jl0oo
-sNeU3eBS6zYvP9Af7FIstAWSfiXX23dAdI9rYq3flE/UdjGYuJnN8/HrrRyvhXWt
-Hv+LYeY3MATPs7nBbu6z6ujqc+RGu8Jku+SAzK9fHk9mWn1RB6y5nI07flEuHs2U
-Hzhqa5ohTZpdb0Jda0hhBW8+IEo9WYPTAWf8ATFx7KlCt4Xdbk05kb6l8javuwS1
-+k5vAiIglMgJqEnFcnW0uUqukcmvJrtF9bKet5LvTN0mIAjP6/FGmAU78tJuT1bd
-CwBcV+HmUjry9XIE/jQC0aAgse5/2x4uY5MN6veISFPBj06AMvb9sIk0zK7d+P/g
-KV6dJbxYhkNBXYYunx80ThNT6WPSxsL0+xNJutwmPefpoD5+T+N6G8O66kC6qCrF
-aulUu2E2He4Ed7D55XUMBibD4ykKyI7L43b1aZbQi8iXf+T7rW3Hwcd7709pLGB/
-l4ekPPCzAHZjf9lbbcyX7ltwHuJ/fTjHESO2DTPDRUdZT/Jy6cQ=
-=A/iL
------END PGP SIGNATURE-----
-
---rlh4qplpe7ewwylv--
+>  wi2wi	Wi2Wi, Inc.
+>  winbond Winbond Electronics corp.
+>  winstar	Winstar Display Corp.
+> -- 
+> 1.7.9.5
+> 
+> 
