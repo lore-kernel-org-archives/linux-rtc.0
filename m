@@ -2,123 +2,113 @@ Return-Path: <SRS0=kYQR=OU=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.9 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 202C6C07E85
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 12:29:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D9DAC67839
+	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 19:01:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF40B2081B
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 12:29:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dekquo6w"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CF40B2081B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id 22A642084E
+	for <linux-rtc@archiver.kernel.org>; Tue, 11 Dec 2018 19:01:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 22A642084E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=collabora.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726176AbeLKM3d (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 11 Dec 2018 07:29:33 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43213 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbeLKM3d (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Dec 2018 07:29:33 -0500
-Received: by mail-pg1-f194.google.com with SMTP id v28so6570534pgk.10;
-        Tue, 11 Dec 2018 04:29:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fviaOuLg+5HEMbPXn/VS/NYB3t6jd2kDqQAWBGUaYng=;
-        b=Dekquo6wvz5BaqNZU5998jEuQIl+pkeA4x5SG7LayWDmzOU1kk78YadfkHbvC5lygc
-         7zVmcXqnW3M8mclYodsAHUg2Eo8/strNvg9202ZaOHBYEpdaF5bEvSv6yEJMh7xmI2Za
-         I/2xSeWuvQCIVh9vlh7j8SgtMFfo5/InDhZQI5doX9nFOQTEtz006mJjmyDeZQa44Nbn
-         SNfKTj8armty9fiaGKOWpYNQnxik0pfDiN3m7VzmYvM6fzM8MrkWVwZkU1rXvZ2Jls1k
-         luXLjPWL7I+vIknFEjCZ6zSp6CDrlQL0CZ9cp+JneFk84EkGTm1VcNsvmLp6ZE+vUPhT
-         XSWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fviaOuLg+5HEMbPXn/VS/NYB3t6jd2kDqQAWBGUaYng=;
-        b=CLpNNg67p8ki+2yv+98UbMvab/8hjSuZ1uUkO72f0vXUfbX9sJs8g5P6kXHIK5j7Cg
-         hgCFTNMnJFC4S4bvmxl0x7kkPJGtHgAo86pDIOntK3/gZ+T6mRWD8j9biiT2InGj0LnH
-         2UeaNVdmuveI0Fx43CZJkefoLx47kteYu1nnx/c44RqsTot3QzZE7VJ67CFu5zlv0B4q
-         WTfvSNRM+wveBxuUD8k+baBDg/JDSIqeLZaRKQV2ybec0AGcVfi9Z+56J84Q/tW72pWp
-         XEdlCqzbd18nlDtFvCFZBMZw+QzNYobdVtkU0Lg3PGaNILraG7YcbAyqVyeGVJ5tn86S
-         Rt1g==
-X-Gm-Message-State: AA+aEWaXDAh9wXVpgjFAAERBgyYUuSUkxAMf9Abag2NkoZ0Y2mZtGEzC
-        Y8PW79k1X1Gr8dpjqJIxnx9lWoaKIP7hqZIbbcQ=
-X-Google-Smtp-Source: AFSGD/W4XUD/v2nqk8ciGeefGAgIch9OsxIUDREMnbZpfjySavASDlLOKPxf4CN5e+oPGP9hSKF0V0cYWbf6uDrnStc=
-X-Received: by 2002:a63:d450:: with SMTP id i16mr14176351pgj.246.1544531372284;
- Tue, 11 Dec 2018 04:29:32 -0800 (PST)
-MIME-Version: 1.0
-References: <20181204212330.69515-1-andriy.shevchenko@linux.intel.com>
- <20181204212330.69515-21-andriy.shevchenko@linux.intel.com> <8224399.K2TIF5fxr2@aspire.rjw.lan>
-In-Reply-To: <8224399.K2TIF5fxr2@aspire.rjw.lan>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 11 Dec 2018 14:29:20 +0200
-Message-ID: <CAHp75Vc_vQE60UQQWGHJ8BvZSCK-VoU6n76pE-=SDKpkz2MU5w@mail.gmail.com>
-Subject: Re: [PATCH v6 20/20] PM: Switch to use %ptR
-To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1726539AbeLKTBJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 11 Dec 2018 14:01:09 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:49014 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbeLKTBJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 Dec 2018 14:01:09 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: eballetbo)
+        with ESMTPSA id 09183260976
+From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org,
+        linux-iio@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Joe Perches <joe@perches.com>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        linux-i2c@vger.kernel.org, groeck@chromium.org,
+        kernel@collabora.com, linux-rtc@vger.kernel.org,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        devicetree@vger.kernel.org,
+        Thierry Reding <thierry.reding@gmail.com>,
+        linux-pm@vger.kernel.org, Benson Leung <bleung@chromiumg.org>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux PM <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
+Date:   Tue, 11 Dec 2018 20:00:53 +0100
+Message-Id: <20181211190053.9997-1-enric.balletbo@collabora.com>
+X-Mailer: git-send-email 2.19.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Dec 11, 2018 at 2:12 PM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->
-> On Tuesday, December 4, 2018 10:23:30 PM CET Andy Shevchenko wrote:
-> > Use %ptR instead of open coded variant to print content of
-> > struct rtc_time in human readable format.
-> >
-> > Cc: linux-pm@vger.kernel.org
-> > Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->
-> Do you want me to take this patch?
+There are multiple ChromeOS EC sub-drivers spread in different
+subsystems, as all of them are related to the Chrome stuff add
+Benson and myself as a maintainers for all these sub-drivers.
 
-Alexandre took all of them, thanks!
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
 
->
-> > ---
-> >  drivers/base/power/trace.c | 4 +---
-> >  1 file changed, 1 insertion(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
-> > index 1cda505d6a85..b11f47a1e819 100644
-> > --- a/drivers/base/power/trace.c
-> > +++ b/drivers/base/power/trace.c
-> > @@ -118,9 +118,7 @@ static unsigned int read_magic_time(void)
-> >       unsigned int val;
-> >
-> >       mc146818_get_time(&time);
-> > -     pr_info("RTC time: %2d:%02d:%02d, date: %02d/%02d/%02d\n",
-> > -             time.tm_hour, time.tm_min, time.tm_sec,
-> > -             time.tm_mon + 1, time.tm_mday, time.tm_year % 100);
-> > +     pr_info("RTC time: %ptRt, date: %ptRd\n", &time, &time);
-> >       val = time.tm_year;                             /* 100 years */
-> >       if (val > 100)
-> >               val -= 100;
-> >
->
->
+ MAINTAINERS | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a24129b0b043..2f24f5c977ca 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3625,6 +3625,30 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+ F:	drivers/platform/chrome/
+ 
++CHROMEOS EC SUBDRIVERS
++M:	Benson Leung <bleung@chromiumg.org>
++M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
++S:	Maintained
++F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
++F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
++F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
++F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
++F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
++F:	drivers/extcon/extcon-usbc-cros-ec.c
++F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
++F:	drivers/iio/accel/cros_ec*
++F:	drivers/iio/common/cros_ec_sensors/
++F:	drivers/iio/light/cros_ec*
++F:	drivers/iio/pressure/cros_ec*
++F:	drivers/input/keyboard/cros_ec*
++F:	drivers/mfd/cros_ec*
++F:	drivers/power/supply/cros_usbpd-charger.c
++F:	drivers/pwm/pwm-cros-ec.c
++F:	drivers/rtc/rtc-cros-ec.c
++F:	include/linux/iio/common/cros_ec_sensors_core.h
++F:	include/linux/mfd/cros_ec*
++
+ CIRRUS LOGIC AUDIO CODEC DRIVERS
+ M:	Brian Austin <brian.austin@cirrus.com>
+ M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
 -- 
-With Best Regards,
-Andy Shevchenko
+2.19.2
+
