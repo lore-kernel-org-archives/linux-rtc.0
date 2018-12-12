@@ -2,69 +2,37 @@ Return-Path: <SRS0=X236=OV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.4 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE5E8C65BAF
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 18:21:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 405A0C67839
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 22:30:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6EC6C20851
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 18:21:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IfSe19RV"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6EC6C20851
-Authentication-Results: mail.kernel.org; dmarc=fail (p=reject dis=none) header.from=google.com
+	by mail.kernel.org (Postfix) with ESMTP id 0E5A720672
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 22:30:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E5A720672
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727990AbeLLSVb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 Dec 2018 13:21:31 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:37768 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727888AbeLLSVb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Dec 2018 13:21:31 -0500
-Received: by mail-pf1-f194.google.com with SMTP id y126so9258202pfb.4
-        for <linux-rtc@vger.kernel.org>; Wed, 12 Dec 2018 10:21:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=TfLMIUPsQ/Tgdv+Bv726oQuQKjEmkzwS3S5+Q0SXy0w=;
-        b=IfSe19RVaymu1st2qL9C6diCoHQYYPVSiCLwNqTUfeCPRZyZcTDZ1f45hw4kJxi8cU
-         pFIJtplnxzPq7VfBNSPX1bUPSGUBYMrDZIM4aCT24MyDy3F3LXCMMy2zq6+m+Gj/JM2o
-         5IL64FI5M/shFeiE9/blOuLcyFACwxVMhDA9IgpDen0PNWeXp8URDe3Lya2hlWwBhmzT
-         Q8URhtGnKR/YX+POsHNb1lmOBQsLMsvVnrtOkWmjJ5NK8T8Vnxsp9wIaxch36tYtzIqt
-         RfATu6tf52UMNROK0Z9qpeg5n3tz1/KTfnpz2NVpYctGRy5XcJZBfdLU03Pk7Ur/801x
-         hSqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=TfLMIUPsQ/Tgdv+Bv726oQuQKjEmkzwS3S5+Q0SXy0w=;
-        b=HB5Q3tUWvkgQEKmy8oDSDELhobR9bKpUNQZboPGA6h7rUqsmdgerMaYAekyUAaEDFy
-         oBy2aa6bPNhRjm6ZsV8E4ci9NPTCitJIfYpU58D7bMqDTlvFY1uAmOdRMmZBkgTAFNWF
-         XcwuOmJh/94/b+nMBvVpmPFY9yFsv4hffVCa2e/dB6GZVe2FiX0lXmIKSdtixNghS3zs
-         g3yFX901jh1wy3yivTK3SEHKcxPrLmVB6QPcSDyeBtIUrS2B7Q8aZf2uPckmDt0Y4vN8
-         IKMhXFQ0PlhaOqDcpIXSF8X1iaMznZbSedS4vuB3jV5FxbOozmaGuRCn3+B+GqpAHNtQ
-         H3kg==
-X-Gm-Message-State: AA+aEWYVjiA8bjz+XrGdzhYqOn9YZ/iE6E2zATZ88PTt90sUK1rO5TME
-        S6ClwfqAngGfIaipE0dxZJwpVQ==
-X-Google-Smtp-Source: AFSGD/UpjeUUSYdhb5PJESFeg0in8R362Dy6KcFRoaER8BUwAT+yZ/4aTS2l/jkkjQ+kWvArZJpwAQ==
-X-Received: by 2002:a63:fb10:: with SMTP id o16mr19077222pgh.211.1544638889697;
-        Wed, 12 Dec 2018 10:21:29 -0800 (PST)
-Received: from google.com ([2620:15c:202:1:c562:226a:6d78:2ae4])
-        by smtp.gmail.com with ESMTPSA id b2sm25738206pgg.87.2018.12.12.10.21.27
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 12 Dec 2018 10:21:28 -0800 (PST)
-Date:   Wed, 12 Dec 2018 10:21:26 -0800
-From:   Benson Leung <bleung@google.com>
+        id S1728337AbeLLWaY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 12 Dec 2018 17:30:24 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:52881 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726297AbeLLWaY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 12 Dec 2018 17:30:24 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 3E8ED20797; Wed, 12 Dec 2018 23:30:21 +0100 (CET)
+Received: from localhost (unknown [88.191.26.124])
+        by mail.bootlin.com (Postfix) with ESMTPSA id DC9DE20E37;
+        Wed, 12 Dec 2018 23:29:36 +0100 (CET)
+Date:   Wed, 12 Dec 2018 23:29:37 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Cc:     linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-i2c@vger.kernel.org, groeck@chromium.org,
         kernel@collabora.com, linux-rtc@vger.kernel.org,
         Chanwoo Choi <cw00.choi@samsung.com>,
@@ -90,11 +58,10 @@ Cc:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
  sub-drivers
-Message-ID: <20181212182126.GA32052@google.com>
+Message-ID: <20181212222937.GL19816@piout.net>
 References: <20181211190953.13626-1-enric.balletbo@collabora.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -103,40 +70,36 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Dec 11, 2018 at 08:09:52PM +0100, Enric Balletbo i Serra wrote:
+On 11/12/2018 20:09:52+0100, Enric Balletbo i Serra wrote:
 > There are multiple ChromeOS EC sub-drivers spread in different
 > subsystems, as all of them are related to the Chrome stuff add
 > Benson and myself as a maintainers for all these sub-drivers.
->=20
+> 
 > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
+You definitively don't need my ack to get that applied but anyway:
 
-Thanks for sending this, Enric.
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+However, you should probably indicate which tree do you expect that to
+go through ;)
 
 > ---
->=20
+> 
 > Changes in v2:
 > - Fix typo in Benson email address.
->=20
+> 
 >  MAINTAINERS | 24 ++++++++++++++++++++++++
 >  1 file changed, 24 insertions(+)
->=20
+> 
 > diff --git a/MAINTAINERS b/MAINTAINERS
 > index a24129b0b043..bbe7180e2851 100644
 > --- a/MAINTAINERS
 > +++ b/MAINTAINERS
 > @@ -3625,6 +3625,30 @@ S:	Maintained
->  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platf=
-orm.git
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
 >  F:	drivers/platform/chrome/
-> =20
+>  
 > +CHROMEOS EC SUBDRIVERS
 > +M:	Benson Leung <bleung@chromium.org>
 > +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
@@ -164,37 +127,11 @@ orm.git
 >  CIRRUS LOGIC AUDIO CODEC DRIVERS
 >  M:	Brian Austin <brian.austin@cirrus.com>
 >  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
-> --=20
+> -- 
 > 2.19.2
->=20
+> 
 
---=20
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlwRUaYACgkQHwn1ewov
-5ljVzA/+LrEt1Rm2OOw/34K53k7jK/9/Y8LDf9Wp9RZ/BeOeZScECxRYkfKN9XL6
-LUzgBp+z/BgBOy4BYOjAeH5rknXpVieJkH/3I8AIi33oEpeWC0KxkyyNJIWjj7D1
-fq5Cz+DI9GKF4a/onTVsMYRoYftRLYTm+L/z3hJzLAYkqcwShs9ak15M/qDeFlZ8
-KF/Im4yeInCBHg6giScg72tMV7zh40pBOTopcMbzXAHch56OzXE4i0PueJJFhhCb
-BHesObxRHQEe+2TiijJRE1aoXKqKCwLwhz2uqo7qhnX+OItMUI2FQLkO0H8GrvZh
-+9ZrENqy1rpLjYRWF92nHfv1FSXRhYHbidXHh045nSMdOElQqSQXDYa1JX9MNAZ5
-IU1LXMkNRwOz717JgSe2SszlkOw9fQK2mHhxkbqhwzvxh50TX2QHIfcSDW3wiSQT
-BW4sxqv8+DWKsOO2yPnq2wsG/AmaKDBSCUTif1U7e12G33etvychk1eN+4Dv8Fni
-fGu416RC9xcUe8vqXi8fDfFEpgqu5NyIiVnZQ/MTnoyFjV7u1nut38FQQmfRbOUM
-NMKLgGirJrY+ar4P/uyZvuakHpXEb0rZ7QGlWDcdtuoqMLlvSM8m35y9XTzhsVC3
-B0NfMIoxmuw7FQiGK7tI8eCdF8/+aCPxmpcM49SQWF9SUu+tmPk=
-=WY6c
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
