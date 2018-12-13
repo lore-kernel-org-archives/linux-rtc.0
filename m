@@ -1,38 +1,68 @@
-Return-Path: <SRS0=X236=OV=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=4/eB=OW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 405A0C67839
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 22:30:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAAE5C67839
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Dec 2018 09:22:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0E5A720672
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Dec 2018 22:30:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E5A720672
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=bootlin.com
+	by mail.kernel.org (Postfix) with ESMTP id AFAA220849
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Dec 2018 09:22:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="Y/s7opV3"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AFAA220849
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=linux-rtc-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728337AbeLLWaY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 Dec 2018 17:30:24 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:52881 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726297AbeLLWaY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 12 Dec 2018 17:30:24 -0500
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 3E8ED20797; Wed, 12 Dec 2018 23:30:21 +0100 (CET)
-Received: from localhost (unknown [88.191.26.124])
-        by mail.bootlin.com (Postfix) with ESMTPSA id DC9DE20E37;
-        Wed, 12 Dec 2018 23:29:36 +0100 (CET)
-Date:   Wed, 12 Dec 2018 23:29:37 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+        id S1727897AbeLMJWZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Dec 2018 04:22:25 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:52175 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727986AbeLMJWZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Dec 2018 04:22:25 -0500
+Received: by mail-wm1-f68.google.com with SMTP id s14so1557384wmh.1
+        for <linux-rtc@vger.kernel.org>; Thu, 13 Dec 2018 01:22:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=bgqqR6CJkBdeUFkK/RQK0X0uJzxJluUBBR/puxA4ge0=;
+        b=Y/s7opV3sD/wfz4FYv94a2QBPBd32r48SGL8SVskgiUsKqW7cGDLSujDVd/c2NUxTq
+         RC/q/TPEJpFPIG0U6MmPc5/ZYWVWud/87k1WYylYadvNdtVTPR/P3KFwoLx5QEntBccU
+         hM6yCJhkrJMyWnnHnU2S4Ins/s1jtG0jC1M88=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=bgqqR6CJkBdeUFkK/RQK0X0uJzxJluUBBR/puxA4ge0=;
+        b=jyy5hshOrLYtXAP1jGo/nU5AqTtznUz5+0pChrTz6zMnkMMQ3w4tPxcb2Mba4Z/3oK
+         4GrhjPagDmdUsAtaXGe7le3dIuMZ3pOPQE3RfWW+wd66x5km9GG5p4mNTUSShOX1xc+s
+         Nz3gL6Zgc4jiF4rm+BuF+SZTkK6Lq/pBjJ6YUu9WduYLYz1WAusiswVnt/0dARvK4JxG
+         LHDVIlOt6T4hc27ctbhEym5yXVnvd+Rc530SBWVCMpudDC63DF77DyBDnmcib4Qs7XJz
+         tjpLQU2FdSS6YeF/TkqbVEqEMD/DgujHvs9vhKCuUrl/78XHAzc6vzRTLcEyP5WE7Xyt
+         jeHg==
+X-Gm-Message-State: AA+aEWbQI3JRePntuFVryBJYM1aEWHUy/Rn+NWAz4iaDlCGOz2y7E+QK
+        Pd8g8JjfYAUrWPEx22JYn1ZelA==
+X-Google-Smtp-Source: AFSGD/Ve3MF5ZMj19IVquckJ2GS4bAde/O3MRZmotGmSenLuJgVRt5Ml+kvsV7lxdJOeyneY9nIS+Q==
+X-Received: by 2002:a1c:4c10:: with SMTP id z16mr9836133wmf.117.1544692942352;
+        Thu, 13 Dec 2018 01:22:22 -0800 (PST)
+Received: from dell (host109-155-202-221.range109-155.btcentralplus.com. [109.155.202.221])
+        by smtp.gmail.com with ESMTPSA id k128sm1609608wmd.37.2018.12.13.01.22.20
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 13 Dec 2018 01:22:21 -0800 (PST)
+Date:   Thu, 13 Dec 2018 09:22:19 +0000
+From:   Lee Jones <lee.jones@linaro.org>
 To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Cc:     linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-i2c@vger.kernel.org, groeck@chromium.org,
         kernel@collabora.com, linux-rtc@vger.kernel.org,
         Chanwoo Choi <cw00.choi@samsung.com>,
@@ -45,7 +75,6 @@ Cc:     linux-kernel@vger.kernel.org,
         devicetree@vger.kernel.org,
         Thierry Reding <thierry.reding@gmail.com>,
         linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
         Hartmut Knaack <knaack.h@gmx.de>,
         Rob Herring <robh+dt@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -58,32 +87,26 @@ Cc:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
  sub-drivers
-Message-ID: <20181212222937.GL19816@piout.net>
+Message-ID: <20181213092219.GM4497@dell>
 References: <20181211190953.13626-1-enric.balletbo@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 11/12/2018 20:09:52+0100, Enric Balletbo i Serra wrote:
+On Tue, 11 Dec 2018, Enric Balletbo i Serra wrote:
+
 > There are multiple ChromeOS EC sub-drivers spread in different
 > subsystems, as all of them are related to the Chrome stuff add
 > Benson and myself as a maintainers for all these sub-drivers.
 > 
 > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-
-You definitively don't need my ack to get that applied but anyway:
-
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
-However, you should probably indicate which tree do you expect that to
-go through ;)
-
 > ---
 > 
 > Changes in v2:
@@ -108,7 +131,6 @@ go through ;)
 > +F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
 > +F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
 > +F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
-> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
 > +F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
 > +F:	drivers/extcon/extcon-usbc-cros-ec.c
 > +F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
@@ -117,21 +139,20 @@ go through ;)
 > +F:	drivers/iio/light/cros_ec*
 > +F:	drivers/iio/pressure/cros_ec*
 > +F:	drivers/input/keyboard/cros_ec*
-> +F:	drivers/mfd/cros_ec*
 > +F:	drivers/power/supply/cros_usbpd-charger.c
 > +F:	drivers/pwm/pwm-cros-ec.c
 > +F:	drivers/rtc/rtc-cros-ec.c
 > +F:	include/linux/iio/common/cros_ec_sensors_core.h
+
+
+> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
+> +F:	drivers/mfd/cros_ec*
 > +F:	include/linux/mfd/cros_ec*
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:	Brian Austin <brian.austin@cirrus.com>
->  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
-> -- 
-> 2.19.2
-> 
+
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
