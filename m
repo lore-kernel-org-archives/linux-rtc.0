@@ -3,34 +3,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E578C43387
-	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07342C43387
+	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:16:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 61993217D9
-	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:11:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BED37217D9
+	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:16:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726600AbeLRVLp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 18 Dec 2018 16:11:45 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:43264 "EHLO mail.bootlin.com"
+        id S1726789AbeLRVQO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 18 Dec 2018 16:16:14 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:43330 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726570AbeLRVLp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 18 Dec 2018 16:11:45 -0500
+        id S1726588AbeLRVQO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 18 Dec 2018 16:16:14 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id BE46F20824; Tue, 18 Dec 2018 22:11:41 +0100 (CET)
+        id 5C2F2207D9; Tue, 18 Dec 2018 22:16:11 +0100 (CET)
 Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 8F605207BE;
-        Tue, 18 Dec 2018 22:11:31 +0100 (CET)
+        by mail.bootlin.com (Postfix) with ESMTPSA id 2D2BC206FF;
+        Tue, 18 Dec 2018 22:16:01 +0100 (CET)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] rtc: enforce rtc_timer_init private_data type
-Date:   Tue, 18 Dec 2018 22:11:26 +0100
-Message-Id: <20181218211126.12613-1-alexandre.belloni@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: class: reimplement devm_rtc_device_register
+Date:   Tue, 18 Dec 2018 22:15:58 +0100
+Message-Id: <20181218211558.13136-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -39,138 +38,201 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-All the remaining users of rtc_timers are passing the rtc_device as private
-data. Enforce that and rename private_data to rtc.
+Implement devm_rtc_device_register using devm_rtc_allocate_device and
+__rtc_register_device so there is only one path left to register rtc
+devices.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Also mark it as deprecated so new drivers will hopefully use
+devm_rtc_allocate_device and rtc_register_device that are less race prone
+and allow avoiding the 2038, 2070, 2100 and 2106 bugs properly.
+
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/class.c     |  4 ++--
- drivers/rtc/interface.c | 19 +++++++++----------
- include/linux/rtc.h     | 14 ++++++++------
- 3 files changed, 19 insertions(+), 18 deletions(-)
+ drivers/rtc/class.c | 157 ++++++++++----------------------------------
+ 1 file changed, 36 insertions(+), 121 deletions(-)
 
 diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 6d364085bd86..8d9b65d54f4f 100644
+index 6d364085bd86..8a878fbeb2f0 100644
 --- a/drivers/rtc/class.c
 +++ b/drivers/rtc/class.c
-@@ -178,9 +178,9 @@ static struct rtc_device *rtc_allocate_device(void)
- 	timerqueue_init_head(&rtc->timerqueue);
- 	INIT_WORK(&rtc->irqwork, rtc_timer_do_work);
- 	/* Init aie timer */
--	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, (void *)rtc);
-+	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, rtc);
- 	/* Init uie timer */
--	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, (void *)rtc);
-+	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, rtc);
- 	/* Init pie timer */
- 	hrtimer_init(&rtc->pie_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	rtc->pie_timer.function = rtc_pie_update_irq;
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index e8d77b1eaeb2..98d9c87b0d1b 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -609,26 +609,24 @@ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode)
- 
- /**
-  * rtc_aie_update_irq - AIE mode rtctimer hook
-- * @private: pointer to the rtc_device
-+ * @rtc: pointer to the rtc_device
-  *
-  * This functions is called when the aie_timer expires.
-  */
--void rtc_aie_update_irq(void *private)
-+void rtc_aie_update_irq(struct rtc_device *rtc)
- {
--	struct rtc_device *rtc = (struct rtc_device *)private;
- 	rtc_handle_legacy_irq(rtc, 1, RTC_AF);
+@@ -277,82 +277,6 @@ static void rtc_device_get_offset(struct rtc_device *rtc)
+ 		rtc->offset_secs = 0;
  }
  
- 
- /**
-  * rtc_uie_update_irq - UIE mode rtctimer hook
-- * @private: pointer to the rtc_device
-+ * @rtc: pointer to the rtc_device
-  *
-  * This functions is called when the uie_timer expires.
-  */
--void rtc_uie_update_irq(void *private)
-+void rtc_uie_update_irq(struct rtc_device *rtc)
- {
--	struct rtc_device *rtc = (struct rtc_device *)private;
- 	rtc_handle_legacy_irq(rtc, 1,  RTC_UF);
- }
- 
-@@ -908,7 +906,7 @@ void rtc_timer_do_work(struct work_struct *work)
- 		trace_rtc_timer_dequeue(timer);
- 		timer->enabled = 0;
- 		if (timer->func)
--			timer->func(timer->private_data);
-+			timer->func(timer->rtc);
- 
- 		trace_rtc_timer_fired(timer);
- 		/* Re-add/fwd periodic timers */
-@@ -955,16 +953,17 @@ void rtc_timer_do_work(struct work_struct *work)
- /* rtc_timer_init - Initializes an rtc_timer
-  * @timer: timer to be intiialized
-  * @f: function pointer to be called when timer fires
-- * @data: private data passed to function pointer
-+ * @rtc: pointer to the rtc_device
-  *
-  * Kernel interface to initializing an rtc_timer.
-  */
--void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data)
-+void rtc_timer_init(struct rtc_timer *timer, void (*f)(struct rtc_device *r),
-+		    struct rtc_device *rtc)
- {
- 	timerqueue_init(&timer->node);
- 	timer->enabled = 0;
- 	timer->func = f;
--	timer->private_data = data;
-+	timer->rtc = rtc;
- }
- 
- /* rtc_timer_start - Sets an rtc_timer to fire in the future
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 58147b057acd..c1089fe5344a 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -87,15 +87,16 @@ struct rtc_class_ops {
- 	int (*set_offset)(struct device *, long offset);
- };
- 
-+struct rtc_device;
-+
- struct rtc_timer {
- 	struct timerqueue_node node;
- 	ktime_t period;
--	void (*func)(void *private_data);
--	void *private_data;
-+	void (*func)(struct rtc_device *rtc);
-+	struct rtc_device *rtc;
- 	int enabled;
- };
- 
+-/**
+- * rtc_device_register - register w/ RTC class
+- * @dev: the device to register
+- *
+- * rtc_device_unregister() must be called when the class device is no
+- * longer needed.
+- *
+- * Returns the pointer to the new struct class device.
+- */
+-static struct rtc_device *rtc_device_register(const char *name,
+-					      struct device *dev,
+-					      const struct rtc_class_ops *ops,
+-					      struct module *owner)
+-{
+-	struct rtc_device *rtc;
+-	struct rtc_wkalrm alrm;
+-	int id, err;
 -
- /* flags */
- #define RTC_DEV_BUSY 0
+-	id = rtc_device_get_id(dev);
+-	if (id < 0) {
+-		err = id;
+-		goto exit;
+-	}
+-
+-	rtc = rtc_allocate_device();
+-	if (!rtc) {
+-		err = -ENOMEM;
+-		goto exit_ida;
+-	}
+-
+-	rtc->id = id;
+-	rtc->ops = ops;
+-	rtc->owner = owner;
+-	rtc->dev.parent = dev;
+-
+-	dev_set_name(&rtc->dev, "rtc%d", id);
+-
+-	rtc_device_get_offset(rtc);
+-
+-	/* Check to see if there is an ALARM already set in hw */
+-	err = __rtc_read_alarm(rtc, &alrm);
+-
+-	if (!err && !rtc_valid_tm(&alrm.time))
+-		rtc_initialize_alarm(rtc, &alrm);
+-
+-	rtc_dev_prepare(rtc);
+-
+-	err = cdev_device_add(&rtc->char_dev, &rtc->dev);
+-	if (err) {
+-		dev_warn(&rtc->dev, "%s: failed to add char device %d:%d\n",
+-			 name, MAJOR(rtc->dev.devt), rtc->id);
+-
+-		/* This will free both memory and the ID */
+-		put_device(&rtc->dev);
+-		goto exit;
+-	} else {
+-		dev_dbg(&rtc->dev, "%s: dev (%d:%d)\n", name,
+-			MAJOR(rtc->dev.devt), rtc->id);
+-	}
+-
+-	rtc_proc_add_device(rtc);
+-
+-	dev_info(dev, "rtc core: registered %s as %s\n",
+-			name, dev_name(&rtc->dev));
+-
+-	return rtc;
+-
+-exit_ida:
+-	ida_simple_remove(&rtc_ida, id);
+-
+-exit:
+-	dev_err(dev, "rtc core: unable to register %s, err = %d\n",
+-			name, err);
+-	return ERR_PTR(err);
+-}
+-
+ /**
+  * rtc_device_unregister - removes the previously registered RTC class device
+  *
+@@ -372,51 +296,6 @@ static void rtc_device_unregister(struct rtc_device *rtc)
+ 	put_device(&rtc->dev);
+ }
  
-@@ -197,11 +198,12 @@ extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
- 						unsigned int enabled);
+-static void devm_rtc_device_release(struct device *dev, void *res)
+-{
+-	struct rtc_device *rtc = *(struct rtc_device **)res;
+-
+-	rtc_nvmem_unregister(rtc);
+-	rtc_device_unregister(rtc);
+-}
+-
+-/**
+- * devm_rtc_device_register - resource managed rtc_device_register()
+- * @dev: the device to register
+- * @name: the name of the device
+- * @ops: the rtc operations structure
+- * @owner: the module owner
+- *
+- * @return a struct rtc on success, or an ERR_PTR on error
+- *
+- * Managed rtc_device_register(). The rtc_device returned from this function
+- * are automatically freed on driver detach. See rtc_device_register()
+- * for more information.
+- */
+-
+-struct rtc_device *devm_rtc_device_register(struct device *dev,
+-					const char *name,
+-					const struct rtc_class_ops *ops,
+-					struct module *owner)
+-{
+-	struct rtc_device **ptr, *rtc;
+-
+-	ptr = devres_alloc(devm_rtc_device_release, sizeof(*ptr), GFP_KERNEL);
+-	if (!ptr)
+-		return ERR_PTR(-ENOMEM);
+-
+-	rtc = rtc_device_register(name, dev, ops, owner);
+-	if (!IS_ERR(rtc)) {
+-		*ptr = rtc;
+-		devres_add(dev, ptr);
+-	} else {
+-		devres_free(ptr);
+-	}
+-
+-	return rtc;
+-}
+-EXPORT_SYMBOL_GPL(devm_rtc_device_register);
+-
+ static void devm_rtc_release_device(struct device *dev, void *res)
+ {
+ 	struct rtc_device *rtc = *(struct rtc_device **)res;
+@@ -503,6 +382,42 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
+ }
+ EXPORT_SYMBOL_GPL(__rtc_register_device);
  
- void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode);
--void rtc_aie_update_irq(void *private);
--void rtc_uie_update_irq(void *private);
-+void rtc_aie_update_irq(struct rtc_device *rtc);
-+void rtc_uie_update_irq(struct rtc_device *rtc);
- enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer);
- 
--void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
-+void rtc_timer_init(struct rtc_timer *timer, void (*f)(struct rtc_device *r),
-+		    struct rtc_device *rtc);
- int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
- 		    ktime_t expires, ktime_t period);
- void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer);
++/**
++ * devm_rtc_device_register - resource managed rtc_device_register()
++ * @dev: the device to register
++ * @name: the name of the device (unused)
++ * @ops: the rtc operations structure
++ * @owner: the module owner
++ *
++ * @return a struct rtc on success, or an ERR_PTR on error
++ *
++ * Managed rtc_device_register(). The rtc_device returned from this function
++ * are automatically freed on driver detach.
++ * This function is deprecated, use devm_rtc_allocate_device and
++ * rtc_register_device instead
++ */
++struct rtc_device *devm_rtc_device_register(struct device *dev,
++					const char *name,
++					const struct rtc_class_ops *ops,
++					struct module *owner)
++{
++	struct rtc_device *rtc;
++	int err;
++
++	rtc = devm_rtc_allocate_device(dev);
++	if (IS_ERR(rtc))
++		return rtc;
++
++	rtc->ops = ops;
++
++	err = __rtc_register_device(owner, rtc);
++	if (err)
++		return ERR_PTR(err);
++
++	return rtc;
++}
++EXPORT_SYMBOL_GPL(devm_rtc_device_register);
++
+ static int __init rtc_init(void)
+ {
+ 	rtc_class = class_create(THIS_MODULE, "rtc");
 -- 
 2.20.0
 
