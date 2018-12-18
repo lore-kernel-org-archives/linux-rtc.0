@@ -1,100 +1,176 @@
-Return-Path: <SRS0=aqJQ=O2=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=aFRh=O3=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 011B7C43387
-	for <linux-rtc@archiver.kernel.org>; Mon, 17 Dec 2018 23:48:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E578C43387
+	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:11:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B82242145D
-	for <linux-rtc@archiver.kernel.org>; Mon, 17 Dec 2018 23:48:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="LnP2TPxd"
+	by mail.kernel.org (Postfix) with ESMTP id 61993217D9
+	for <linux-rtc@archiver.kernel.org>; Tue, 18 Dec 2018 21:11:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726276AbeLQXsR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 17 Dec 2018 18:48:17 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:34556 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726260AbeLQXsR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Dec 2018 18:48:17 -0500
-Received: by mail-ot1-f68.google.com with SMTP id t5so13999771otk.1;
-        Mon, 17 Dec 2018 15:48:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rt7CdRQssFR6XPEPPXiILF4IcZMbBsZnZ/kJsmQYXDs=;
-        b=LnP2TPxdt7Tual/++38WGq5Y7xCiAY8oRDzCDoH7fo+aw5XbfLmfqSligXTECc9WER
-         i6SUD0p0eoxdrcGvniU6JzjCwdS+cPa4A4EY1M8oENIfTAOOhgEpjbNyO6Z5zpcizagp
-         W55Ovf1E3Jy6iomn23NZabRyEc93k2EDZDveeLSukEWjv7xB6PnKcSEtBcSVYZdCLfgU
-         NP2yzh8mpHrPMLn9C+5jJ9Wb+LgEKXi6grW6Y/3DSZJHGRb84io1D0bFPZTEcZ/U7O9k
-         421QmfExwvYLKZz0mYJ0AAZm+DIT87yc/PrWTiYVCNuKamRS9gX5b3McaunpnniNKfDR
-         6cFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rt7CdRQssFR6XPEPPXiILF4IcZMbBsZnZ/kJsmQYXDs=;
-        b=F8AAgWdY46aMFLxw7y1XzYIfTs0HMryZtxwbHl8t+AuigGe8/M+H0wjMs3PAPxDpMZ
-         elxTHg3tYTKb4/glXz2PpAMIZ4u9okS6/cCiqDTOLMtrJsKSPZv1/eGateGqEu6+YK0O
-         5jsTo9jvBpHaHpdDG/zHosYuzdjLq/dApIw4M0T0wTVc+/Rf7nolJ6JHkq6P9CUoEuzX
-         3JjJs1pI+qu7eO75pAn6YCTqJRPRNIGntxJ/FZI27sfhTxFYVtqXhNCmAtNsJHKx/Aay
-         AmR+oHONL1iODPSDrGf1hlAIl82WDLw96wGFre1R9t7DpBdgfhUQ2+qG5swc+69L0Nsd
-         kYwg==
-X-Gm-Message-State: AA+aEWaWIruBGKEYoVL5CubpC13nLBWcx0NQPIiSsVlaPPqxXBD3HqC3
-        dMVsX6BUdyMv2CbEoZ1oD3cGJ25lA3sVjB1THLY=
-X-Google-Smtp-Source: AFSGD/WgOUrjzw3r7cF0wdB9sAFysppeNnwH1UIZjLX5ZG2xx0bUQIN6nohG5gztj/9cysAu5C7Ipj2FwmLigttYsSo=
-X-Received: by 2002:a9d:7749:: with SMTP id t9mr11457998otl.342.1545090496291;
- Mon, 17 Dec 2018 15:48:16 -0800 (PST)
+        id S1726600AbeLRVLp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 18 Dec 2018 16:11:45 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:43264 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726570AbeLRVLp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 18 Dec 2018 16:11:45 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id BE46F20824; Tue, 18 Dec 2018 22:11:41 +0100 (CET)
+Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 8F605207BE;
+        Tue, 18 Dec 2018 22:11:31 +0100 (CET)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] rtc: enforce rtc_timer_init private_data type
+Date:   Tue, 18 Dec 2018 22:11:26 +0100
+Message-Id: <20181218211126.12613-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-References: <20181202220847.24364-1-martin.blumenstingl@googlemail.com>
- <20181202220847.24364-3-martin.blumenstingl@googlemail.com>
- <85aa8e12-0bca-6432-e1a8-0faceff1dd5e@codethink.co.uk> <CAFBinCBDUxTc+ofCYm-zEeiFdU90U6DQOkX4B659q=MvRK64fg@mail.gmail.com>
-In-Reply-To: <CAFBinCBDUxTc+ofCYm-zEeiFdU90U6DQOkX4B659q=MvRK64fg@mail.gmail.com>
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date:   Tue, 18 Dec 2018 00:48:05 +0100
-Message-ID: <CAFBinCAY7+-zA5-hY6oXmFz2i8aj9wFJsb-HBbKt_Swn9BtMMg@mail.gmail.com>
-Subject: Re: [PATCH v5 2/2] rtc: support for the Amlogic Meson RTC
-To:     ben.dooks@codethink.co.uk
-Cc:     linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
-        alexandre.belloni@bootlin.com, a.zummo@towertech.it,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        ccaione@baylibre.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Ben,
+All the remaining users of rtc_timers are passing the rtc_device as private
+data. Enforce that and rename private_data to rtc.
 
-On Wed, Dec 5, 2018 at 11:15 PM Martin Blumenstingl
-<martin.blumenstingl@googlemail.com> wrote:
-[...]
-> > > Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-> > > [resurrected Ben's patches after 2 years]
-> > > Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> >
-> > Just checking if the change of author is deliberate?
-> > not sure how to do >1 author on patches like this.
-> I changed the author on purpose after seeing how much I changed
-> (compared to your v4). this is also why I added you to the CC list
-> however, I left in your copyright (just like you kept Carlo's
-> copyright note) and MODULE_AUTHOR
-please let me know:
-1. whether you want to be the author of the patch or if you're fine
-with my name in there
-2. if you are fine with both of us being listed as Signed-off-by or if
-you want me to switch to Co-authored-by
-3. about any other concerns you have
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/class.c     |  4 ++--
+ drivers/rtc/interface.c | 19 +++++++++----------
+ include/linux/rtc.h     | 14 ++++++++------
+ 3 files changed, 19 insertions(+), 18 deletions(-)
 
-I would like to update this patch next weekend so it can be reviewed
-(and merged once all is fine) for v4.22
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 6d364085bd86..8d9b65d54f4f 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -178,9 +178,9 @@ static struct rtc_device *rtc_allocate_device(void)
+ 	timerqueue_init_head(&rtc->timerqueue);
+ 	INIT_WORK(&rtc->irqwork, rtc_timer_do_work);
+ 	/* Init aie timer */
+-	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, (void *)rtc);
++	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, rtc);
+ 	/* Init uie timer */
+-	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, (void *)rtc);
++	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, rtc);
+ 	/* Init pie timer */
+ 	hrtimer_init(&rtc->pie_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	rtc->pie_timer.function = rtc_pie_update_irq;
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index e8d77b1eaeb2..98d9c87b0d1b 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -609,26 +609,24 @@ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode)
+ 
+ /**
+  * rtc_aie_update_irq - AIE mode rtctimer hook
+- * @private: pointer to the rtc_device
++ * @rtc: pointer to the rtc_device
+  *
+  * This functions is called when the aie_timer expires.
+  */
+-void rtc_aie_update_irq(void *private)
++void rtc_aie_update_irq(struct rtc_device *rtc)
+ {
+-	struct rtc_device *rtc = (struct rtc_device *)private;
+ 	rtc_handle_legacy_irq(rtc, 1, RTC_AF);
+ }
+ 
+ 
+ /**
+  * rtc_uie_update_irq - UIE mode rtctimer hook
+- * @private: pointer to the rtc_device
++ * @rtc: pointer to the rtc_device
+  *
+  * This functions is called when the uie_timer expires.
+  */
+-void rtc_uie_update_irq(void *private)
++void rtc_uie_update_irq(struct rtc_device *rtc)
+ {
+-	struct rtc_device *rtc = (struct rtc_device *)private;
+ 	rtc_handle_legacy_irq(rtc, 1,  RTC_UF);
+ }
+ 
+@@ -908,7 +906,7 @@ void rtc_timer_do_work(struct work_struct *work)
+ 		trace_rtc_timer_dequeue(timer);
+ 		timer->enabled = 0;
+ 		if (timer->func)
+-			timer->func(timer->private_data);
++			timer->func(timer->rtc);
+ 
+ 		trace_rtc_timer_fired(timer);
+ 		/* Re-add/fwd periodic timers */
+@@ -955,16 +953,17 @@ void rtc_timer_do_work(struct work_struct *work)
+ /* rtc_timer_init - Initializes an rtc_timer
+  * @timer: timer to be intiialized
+  * @f: function pointer to be called when timer fires
+- * @data: private data passed to function pointer
++ * @rtc: pointer to the rtc_device
+  *
+  * Kernel interface to initializing an rtc_timer.
+  */
+-void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data)
++void rtc_timer_init(struct rtc_timer *timer, void (*f)(struct rtc_device *r),
++		    struct rtc_device *rtc)
+ {
+ 	timerqueue_init(&timer->node);
+ 	timer->enabled = 0;
+ 	timer->func = f;
+-	timer->private_data = data;
++	timer->rtc = rtc;
+ }
+ 
+ /* rtc_timer_start - Sets an rtc_timer to fire in the future
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 58147b057acd..c1089fe5344a 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -87,15 +87,16 @@ struct rtc_class_ops {
+ 	int (*set_offset)(struct device *, long offset);
+ };
+ 
++struct rtc_device;
++
+ struct rtc_timer {
+ 	struct timerqueue_node node;
+ 	ktime_t period;
+-	void (*func)(void *private_data);
+-	void *private_data;
++	void (*func)(struct rtc_device *rtc);
++	struct rtc_device *rtc;
+ 	int enabled;
+ };
+ 
+-
+ /* flags */
+ #define RTC_DEV_BUSY 0
+ 
+@@ -197,11 +198,12 @@ extern int rtc_dev_update_irq_enable_emul(struct rtc_device *rtc,
+ 						unsigned int enabled);
+ 
+ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode);
+-void rtc_aie_update_irq(void *private);
+-void rtc_uie_update_irq(void *private);
++void rtc_aie_update_irq(struct rtc_device *rtc);
++void rtc_uie_update_irq(struct rtc_device *rtc);
+ enum hrtimer_restart rtc_pie_update_irq(struct hrtimer *timer);
+ 
+-void rtc_timer_init(struct rtc_timer *timer, void (*f)(void *p), void *data);
++void rtc_timer_init(struct rtc_timer *timer, void (*f)(struct rtc_device *r),
++		    struct rtc_device *rtc);
+ int rtc_timer_start(struct rtc_device *rtc, struct rtc_timer *timer,
+ 		    ktime_t expires, ktime_t period);
+ void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer);
+-- 
+2.20.0
 
-
-Kind Regards
-Martin
