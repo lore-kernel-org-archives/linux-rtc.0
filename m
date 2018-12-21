@@ -1,81 +1,58 @@
-Return-Path: <SRS0=AWqx=O5=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=ELV/=O6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACC65C43387
-	for <linux-rtc@archiver.kernel.org>; Thu, 20 Dec 2018 20:26:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11FF1C43387
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Dec 2018 09:23:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 809D821906
-	for <linux-rtc@archiver.kernel.org>; Thu, 20 Dec 2018 20:26:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1545337566;
-	bh=yO4dy+AX6VQ7Ihg7s5Rh1CcZrCQSSY4NXYnjlkhXVMI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=1R+va2jW38JYrxCQGEvfJEJ1epXdGoeYOxrDY4AtUr+hUl3U0cJgBYFWGI3Er5rVC
-	 9n/r7SH7o0V6+p/EEu1wzNDg/J8KE9QmdcnHq8089Plewdy+D5Plqe6vJPvv7KbuY4
-	 2pjX5nKgvdrlLxcTvejnttSBmSALiiJpphM/2hs4=
+	by mail.kernel.org (Postfix) with ESMTP id D8B0921906
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Dec 2018 09:23:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732326AbeLTU0G (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 20 Dec 2018 15:26:06 -0500
-Received: from mail-it1-f195.google.com ([209.85.166.195]:40958 "EHLO
-        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732120AbeLTU0F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Dec 2018 15:26:05 -0500
-Received: by mail-it1-f195.google.com with SMTP id h193so3600038ita.5;
-        Thu, 20 Dec 2018 12:26:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=8G0KYzIHv+RUJ0ji1PLz+66pQ5Esn66QVouITPflBxo=;
-        b=OGloEE6bbbLee4zXfmGHazA5CfQmfPkqFRLvUkFuHKWX8IXR+5UEKmm9vfVMEfihJG
-         49LbUfYmT0OzCGs7bOWUDvUmHWySrHCz6uA2FPk9a9qem3oKH5nyuLjxwrB3Z4bo14NV
-         WsDTE9mGcQgzUS7I+ErprzlzPW4WRWNiIChHOKhVOaNVX9s16VF2z4gilI3tooqy7e+T
-         YcKOkJjayAhprQCd8Mbxs9MKQ6esVgT7DFbbnxS+dnp3ko0v5VTVHQS7uUupO3+Ux1Ov
-         79m5Hkq1E+sTkQZKV7DcD6tErZC0FST5vvzRcEK/33NqlCfzGPn98U7pMgwmTPefNBRi
-         TchA==
-X-Gm-Message-State: AA+aEWZ4Pv97i1nxP01821pFSgXyP3Mhot50nGBorzCElZ1ws3tEOAYj
-        x8/L6tfVmkX/zYeTzMED+Q==
-X-Google-Smtp-Source: AFSGD/UF/TgvcVb0i7dxE1MIBV4D30LZNUQIhUPxTk7VXlq9aHZ7rYcaQ0aEcEy4osAuV3hnJKuzEg==
-X-Received: by 2002:a24:6c12:: with SMTP id w18mr147885itb.14.1545337564104;
-        Thu, 20 Dec 2018 12:26:04 -0800 (PST)
-Received: from localhost ([2607:fb90:20d2:a5e2:49af:e73e:5a36:3b50])
-        by smtp.gmail.com with ESMTPSA id v19sm5545072itb.0.2018.12.20.12.26.02
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 20 Dec 2018 12:26:03 -0800 (PST)
-Date:   Thu, 20 Dec 2018 14:26:01 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Dianlong Li <long17.cool@163.com>
-Cc:     robh@kernel.org, alexandre.belloni@bootlin.com,
-        a.zummo@towertech.it, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Dianlong Li <long17.cool@163.com>
-Subject: Re: [PATCH 2/3] dt-bindings: rtc: sd3078: add device tree
- documentation
-Message-ID: <20181220202601.GA3381@bogus>
-References: <1544696030-17159-1-git-send-email-long17.cool@163.com>
- <1544696030-17159-2-git-send-email-long17.cool@163.com>
+        id S1726382AbeLUJXr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 21 Dec 2018 04:23:47 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:54406 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726361AbeLUJXr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 21 Dec 2018 04:23:47 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id A9AFF20763; Fri, 21 Dec 2018 10:23:44 +0100 (CET)
+Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 7A57A20747;
+        Fri, 21 Dec 2018 10:23:44 +0100 (CET)
+Date:   Fri, 21 Dec 2018 10:23:44 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: abx80x: Implement RTC_VL_READ,CLR ioctls
+Message-ID: <20181221092344.GK2188@piout.net>
+References: <20181207174053.10669-1-marex@denx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1544696030-17159-2-git-send-email-long17.cool@163.com>
+In-Reply-To: <20181207174053.10669-1-marex@denx.de>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 13 Dec 2018 18:13:49 +0800, Dianlong Li wrote:
-> The devicetree documentation for the SD3078 device tree.
+On 07/12/2018 18:40:53+0100, Marek Vasut wrote:
+> Implement standard ioctls for polling the battery status and clearing
+> the battery low indication from userspace.
 > 
-> Signed-off-by: Dianlong Li <long17.cool@163.com>
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > ---
->  Documentation/devicetree/bindings/rtc/rtc.txt |    1 +
->  1 file changed, 1 insertion(+)
+>  drivers/rtc/rtc-abx80x.c | 38 ++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
 > 
+Applied, thanks.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
