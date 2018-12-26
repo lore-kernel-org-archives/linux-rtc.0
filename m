@@ -4,113 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0CF6C43387
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 02:44:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A00AC43444
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 03:09:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8116F214D8
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 02:44:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC9C02070D
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 03:09:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=umn.edu header.i=@umn.edu header.b="FOTHh5e4"
+	dkim=pass (2048-bit key) header.d=umn.edu header.i=@umn.edu header.b="WJJGdwN7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725924AbeLZCoC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 25 Dec 2018 21:44:02 -0500
-Received: from mta-p7.oit.umn.edu ([134.84.196.207]:38350 "EHLO
-        mta-p7.oit.umn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbeLZCoB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 25 Dec 2018 21:44:01 -0500
+        id S1725891AbeLZDJo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 25 Dec 2018 22:09:44 -0500
+Received: from mta-p6.oit.umn.edu ([134.84.196.206]:45918 "EHLO
+        mta-p6.oit.umn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725889AbeLZDJk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 25 Dec 2018 22:09:40 -0500
 Received: from localhost (unknown [127.0.0.1])
-        by mta-p7.oit.umn.edu (Postfix) with ESMTP id A5E6F5BF
-        for <linux-rtc@vger.kernel.org>; Wed, 26 Dec 2018 02:44:00 +0000 (UTC)
+        by mta-p6.oit.umn.edu (Postfix) with ESMTP id 8096C6D8
+        for <linux-rtc@vger.kernel.org>; Wed, 26 Dec 2018 03:09:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at umn.edu
-Received: from mta-p7.oit.umn.edu ([127.0.0.1])
-        by localhost (mta-p7.oit.umn.edu [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 8xvM6Ojtqp1w for <linux-rtc@vger.kernel.org>;
-        Tue, 25 Dec 2018 20:44:00 -0600 (CST)
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+Received: from mta-p6.oit.umn.edu ([127.0.0.1])
+        by localhost (mta-p6.oit.umn.edu [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id WO14S0jNyg-V for <linux-rtc@vger.kernel.org>;
+        Tue, 25 Dec 2018 21:09:38 -0600 (CST)
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
         (using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mta-p7.oit.umn.edu (Postfix) with ESMTPS id 769515B1
-        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 20:44:00 -0600 (CST)
-Received: by mail-io1-f72.google.com with SMTP id q23so18032802ior.6
-        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 18:44:00 -0800 (PST)
+        by mta-p6.oit.umn.edu (Postfix) with ESMTPS id 51A135AF
+        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 21:09:38 -0600 (CST)
+Received: by mail-io1-f69.google.com with SMTP id l10so1947156iok.9
+        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 19:09:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=umn.edu; s=google;
         h=from:to:cc:subject:date:message-id;
-        bh=gkg7uHvncdT2WNv9hvr6ppmnMbQBq4T0rfrlJwBoncc=;
-        b=FOTHh5e4n/SNN7xcY5M77el+DNyPSNzxNcuT1l1BiEerKLqlnaq9tJeCfF2p1wMXpk
-         y0Mg76DMg2Q06Cg3n5l4cQg+HIg5X7O7LEGMeltfi6geNAiasuEtlqrGcXCGzb0aID2v
-         JmrqYKpGSvtFM+Y42CMzqkrODFSCdSZXml3rpGfiQKhdPczF3mUK7TwpyrexuppP43Bu
-         gQBpWluHbhj/t+9f567WXOagk4YtxtJl8Aprs89g1q8fYI8V0KQ78GOaeFmTnKNnbOOh
-         H/NxWuZcQmafc9ZNqbGEhD6iAF3qnHNlmjwsfFjGehN0Go3xXOYimfQq1pcAVFcVfe7/
-         IgNg==
+        bh=FIK1HRX1Wbbvae4jUifypk3LnHOa0FRphY/12zrKTeY=;
+        b=WJJGdwN7RUnbTSx38holh0g4cxqTxAPE3vAhaM+qv68Kcv00YiB1LsT+/6w2RCN2q+
+         S3vZrCwIE/KmZeTTuq4KtCW7jlhefrxbdYWkIRu66muo+jXVcZtqphTDqktt6cb1A6Ra
+         uMeKVs8hwKs7UXD0S+6eappb4sE2Ue0gcbZFM6D/y5pm3trmeYFEkSNc1ND5tM8l5uyh
+         RXC9ke2Qy/9rjS2tA2B8yfjESwQ0JGa2xCRJoLqoQT6Yc4byBdURi742yLLmveOQAmXo
+         mYgNqY4I3XwAABktlns6teNwqrYWu8kyzVEzIPeLbApqugItaQ90hLERid2yUXZGf99R
+         I9qA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=gkg7uHvncdT2WNv9hvr6ppmnMbQBq4T0rfrlJwBoncc=;
-        b=LRFadMtH5RLSjx+e4wbzxeIyFKss/2HujaMCe4DyBJcDcSJinI9YSavoj/aePIrpFU
-         Ll+Q5ljsSImHbSSUAk8zraINVacSF4lcxpoZuWWAKiJ+Neb20g0YF403HNOKaWof+fAp
-         E+rjjcZ1//Bpi39zxG9CJjV5mwc5SJjfXF9xqAU8tQvFnNouVe3ZsFoFQCoN1rUXGBUt
-         YN2zbLUMDZmK/tmx0RskRx3nVLTnpYvXNxCK4vTJrxoT/XFdsgX6qT7OON77UoqZUu7L
-         Stfp1u1EJ6c+KNgyNpuGDa6916VoJKpIgom3CGZoozsxjk6yyHykDEFeaIRI39Jp+lKT
-         5dFQ==
-X-Gm-Message-State: AA+aEWZHjFmrVzNqauIZy4yIoMfyK0WozLK8FL64whZw89WjWR3Jrmlc
-        QAm/DTFtorE1J8GLdhZoiy0pxjdMx/DAGp/CgqFvWbHthwag36swDZ8QOqUzq0obt3mSjQVo+Fk
-        OlTTQtBVj5iZnUivSnFCqPyqJ
-X-Received: by 2002:a02:8a1c:: with SMTP id j28mr12029130jak.49.1545792240046;
-        Tue, 25 Dec 2018 18:44:00 -0800 (PST)
-X-Google-Smtp-Source: AFSGD/U1RPn8FcC66zod/Zxjt8q/PyRqLZOnsnaOfpwiLxAooO7GoL5DWkhUlGa6IITWGFnb9pdCSA==
-X-Received: by 2002:a02:8a1c:: with SMTP id j28mr12029124jak.49.1545792239820;
-        Tue, 25 Dec 2018 18:43:59 -0800 (PST)
+        bh=FIK1HRX1Wbbvae4jUifypk3LnHOa0FRphY/12zrKTeY=;
+        b=TwWFaA4xUj9oBgGUjw8lAw6OiKaYru2vqKaymrqIRn1197xb7uROBvYa9zRLx2kU35
+         r3dNgAjvVCJ8o+rCHo5pxq1OBVNcr5ZSwm6+vGEg/jldjw4B4xD1yX4xHmOEBF0AwXNe
+         Q3ElhQPCAKMQbofU15NahE+EcBza4iBjpbkguDnVBrfc4MlBpc8GfjrfgcT2i2JQoyob
+         UY+3tDdkpRKqwBzBxHu+6jQ/kendlz9t3RzkzHIem9iJQmMGi+VmvAmdEaXE6dOGt207
+         XJWzT5Rd4MqVetL10MHFgP1iatZkWzPqwrEZRNmlyLFO3aiTNimt3rwQuaRju6sTFGQf
+         yALw==
+X-Gm-Message-State: AJcUukcT9MrXDQZMR2rqIMau8ZXVgatfhwCiOwDg4eyrRSzzdezHCGKm
+        Lf96PN8v0VmrEKAfQermBUdJcC1DMDarsymVbM0y3J3CoCimmPUVjcqaJHIIChRF/QsIbN3jC2m
+        kAhXxHAt//QwOmw10suKjNoUP
+X-Received: by 2002:a05:660c:12c7:: with SMTP id k7mr11232040itd.148.1545793777962;
+        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
+X-Google-Smtp-Source: ALg8bN4mYu3kTm4tGXoTcQnnrPFFDtpGZQdhq9wEPM9CGCPg7ThKlzfTQ4AY2aXodq3+SAGuEecdgA==
+X-Received: by 2002:a05:660c:12c7:: with SMTP id k7mr11232033itd.148.1545793777712;
+        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
 Received: from localhost.localdomain (host-173-230-104-22.mnmigsc.mn.minneapolis.us.clients.pavlovmedia.net. [173.230.104.22])
-        by smtp.gmail.com with ESMTPSA id q1sm709491ion.45.2018.12.25.18.43.58
+        by smtp.gmail.com with ESMTPSA id m37sm12233667iti.6.2018.12.25.19.09.36
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 25 Dec 2018 18:43:58 -0800 (PST)
+        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
 From:   Kangjie Lu <kjlu@umn.edu>
 To:     kjlu@umn.edu
-Cc:     pakki001@umn.edu, Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Cc:     pakki001@umn.edu, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: fix a missing check of clk_prepare
-Date:   Tue, 25 Dec 2018 20:43:33 -0600
-Message-Id: <20181226024333.72236-1-kjlu@umn.edu>
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: fix a missing check of block data read
+Date:   Tue, 25 Dec 2018 21:09:11 -0600
+Message-Id: <20181226030911.72845-1-kjlu@umn.edu>
 X-Mailer: git-send-email 2.17.2 (Apple Git-113)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-clk_prepare() could fail, so let's check its status and if it fails
-return its error code upstream.
+When i2c_smbus_read_i2c_block_data() fails, the read data in "buf" could
+be incorrect and should not be used. The fix checks if
+i2c_smbus_read_i2c_block_data fails, and if so, return its error code
+upstream.
 
 Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 ---
- drivers/rtc/rtc-coh901331.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-hym8563.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-coh901331.c b/drivers/rtc/rtc-coh901331.c
-index fc5cf5c44ae7..0b232c84f674 100644
---- a/drivers/rtc/rtc-coh901331.c
-+++ b/drivers/rtc/rtc-coh901331.c
-@@ -235,9 +235,13 @@ static int coh901331_suspend(struct device *dev)
+diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
+index e5ad527cb75e..d03f5d212eea 100644
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -109,6 +109,8 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	}
  
- static int coh901331_resume(struct device *dev)
- {
-+	int ret;
- 	struct coh901331_port *rtap = dev_get_drvdata(dev);
- 
--	clk_prepare(rtap->clk);
-+	ret = clk_prepare(rtap->clk);
-+	if (ret)
+ 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
++	if (ret < 0)
 +		return ret;
-+
- 	if (device_may_wakeup(dev)) {
- 		disable_irq_wake(rtap->irq);
- 	} else {
+ 
+ 	tm->tm_sec = bcd2bin(buf[0] & HYM8563_SEC_MASK);
+ 	tm->tm_min = bcd2bin(buf[1] & HYM8563_MIN_MASK);
 -- 
 2.17.2 (Apple Git-113)
 
