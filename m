@@ -2,109 +2,95 @@ Return-Path: <SRS0=XqKi=PD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A00AC43444
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 03:09:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A2CBC43387
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 11:46:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC9C02070D
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 03:09:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68605214C6
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 Dec 2018 11:46:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=umn.edu header.i=@umn.edu header.b="WJJGdwN7"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=crashcourse.ca header.i=@crashcourse.ca header.b="nk4qrdSj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725891AbeLZDJo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 25 Dec 2018 22:09:44 -0500
-Received: from mta-p6.oit.umn.edu ([134.84.196.206]:45918 "EHLO
-        mta-p6.oit.umn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725889AbeLZDJk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 25 Dec 2018 22:09:40 -0500
-Received: from localhost (unknown [127.0.0.1])
-        by mta-p6.oit.umn.edu (Postfix) with ESMTP id 8096C6D8
-        for <linux-rtc@vger.kernel.org>; Wed, 26 Dec 2018 03:09:38 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at umn.edu
-Received: from mta-p6.oit.umn.edu ([127.0.0.1])
-        by localhost (mta-p6.oit.umn.edu [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id WO14S0jNyg-V for <linux-rtc@vger.kernel.org>;
-        Tue, 25 Dec 2018 21:09:38 -0600 (CST)
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
-        (using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mta-p6.oit.umn.edu (Postfix) with ESMTPS id 51A135AF
-        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 21:09:38 -0600 (CST)
-Received: by mail-io1-f69.google.com with SMTP id l10so1947156iok.9
-        for <linux-rtc@vger.kernel.org>; Tue, 25 Dec 2018 19:09:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=umn.edu; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=FIK1HRX1Wbbvae4jUifypk3LnHOa0FRphY/12zrKTeY=;
-        b=WJJGdwN7RUnbTSx38holh0g4cxqTxAPE3vAhaM+qv68Kcv00YiB1LsT+/6w2RCN2q+
-         S3vZrCwIE/KmZeTTuq4KtCW7jlhefrxbdYWkIRu66muo+jXVcZtqphTDqktt6cb1A6Ra
-         uMeKVs8hwKs7UXD0S+6eappb4sE2Ue0gcbZFM6D/y5pm3trmeYFEkSNc1ND5tM8l5uyh
-         RXC9ke2Qy/9rjS2tA2B8yfjESwQ0JGa2xCRJoLqoQT6Yc4byBdURi742yLLmveOQAmXo
-         mYgNqY4I3XwAABktlns6teNwqrYWu8kyzVEzIPeLbApqugItaQ90hLERid2yUXZGf99R
-         I9qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=FIK1HRX1Wbbvae4jUifypk3LnHOa0FRphY/12zrKTeY=;
-        b=TwWFaA4xUj9oBgGUjw8lAw6OiKaYru2vqKaymrqIRn1197xb7uROBvYa9zRLx2kU35
-         r3dNgAjvVCJ8o+rCHo5pxq1OBVNcr5ZSwm6+vGEg/jldjw4B4xD1yX4xHmOEBF0AwXNe
-         Q3ElhQPCAKMQbofU15NahE+EcBza4iBjpbkguDnVBrfc4MlBpc8GfjrfgcT2i2JQoyob
-         UY+3tDdkpRKqwBzBxHu+6jQ/kendlz9t3RzkzHIem9iJQmMGi+VmvAmdEaXE6dOGt207
-         XJWzT5Rd4MqVetL10MHFgP1iatZkWzPqwrEZRNmlyLFO3aiTNimt3rwQuaRju6sTFGQf
-         yALw==
-X-Gm-Message-State: AJcUukcT9MrXDQZMR2rqIMau8ZXVgatfhwCiOwDg4eyrRSzzdezHCGKm
-        Lf96PN8v0VmrEKAfQermBUdJcC1DMDarsymVbM0y3J3CoCimmPUVjcqaJHIIChRF/QsIbN3jC2m
-        kAhXxHAt//QwOmw10suKjNoUP
-X-Received: by 2002:a05:660c:12c7:: with SMTP id k7mr11232040itd.148.1545793777962;
-        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
-X-Google-Smtp-Source: ALg8bN4mYu3kTm4tGXoTcQnnrPFFDtpGZQdhq9wEPM9CGCPg7ThKlzfTQ4AY2aXodq3+SAGuEecdgA==
-X-Received: by 2002:a05:660c:12c7:: with SMTP id k7mr11232033itd.148.1545793777712;
-        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
-Received: from localhost.localdomain (host-173-230-104-22.mnmigsc.mn.minneapolis.us.clients.pavlovmedia.net. [173.230.104.22])
-        by smtp.gmail.com with ESMTPSA id m37sm12233667iti.6.2018.12.25.19.09.36
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 25 Dec 2018 19:09:37 -0800 (PST)
-From:   Kangjie Lu <kjlu@umn.edu>
-To:     kjlu@umn.edu
-Cc:     pakki001@umn.edu, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: fix a missing check of block data read
-Date:   Tue, 25 Dec 2018 21:09:11 -0600
-Message-Id: <20181226030911.72845-1-kjlu@umn.edu>
-X-Mailer: git-send-email 2.17.2 (Apple Git-113)
+        id S1726770AbeLZLqw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 26 Dec 2018 06:46:52 -0500
+Received: from cpanel4.indieserve.net ([199.212.143.9]:49332 "EHLO
+        cpanel4.indieserve.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726549AbeLZLqv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Dec 2018 06:46:51 -0500
+X-Greylist: delayed 1658 seconds by postgrey-1.27 at vger.kernel.org; Wed, 26 Dec 2018 06:46:51 EST
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=crashcourse.ca; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:
+        cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=NcTN7symjP5w+ghFCXtJtTWmcn2Q1kvMEacqNRH0Pac=; b=nk4qrdSjSdPcokFS37TFhLBBhB
+        7D3G2gMjxoGNJbdLR+gWYtOBMB9hH6ug7l1ZkBqWd4PMs1nBBQo61MDZYDlpKVlZk9rcQ369tGBh4
+        Cf/YjRTufHINHx1TT4drTlpp/CImalj2HurdvIcK7eAedH6+Ur1leQQXUvJvXVr+y0dBexCkjTgfg
+        p+niieJX5d3nAD33a2QbdBw7IUT0F+7/2I56wjxUfeeez6fuGkyewofRiOlFo3X1O6t5tjbp45E7F
+        I3rURmKhczitwHbOq/KQ+j7HLdomAn0hq8q3c5tniAVNi0gKB7JbZgNMGmjqxjHQy7LKxl/KLRH5J
+        +zlj05pQ==;
+Received: from wnpgmb0903w-ds01-77-135.dynamic.bellmts.net ([207.161.77.135]:59354 helo=IT-590-06364)
+        by cpanel4.indieserve.net with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.91)
+        (envelope-from <rpjday@crashcourse.ca>)
+        id 1gc7DS-001A9A-Ue; Wed, 26 Dec 2018 06:19:11 -0500
+Date:   Wed, 26 Dec 2018 05:18:33 -0600 (CST)
+From:   "Robert P. J. Day" <rpjday@crashcourse.ca>
+X-X-Sender: rpjday@IT-590-06364.gateway.2wire.net
+To:     linux-rtc@vger.kernel.org
+cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Subject: [PATCH] RTC: fix erroneous kerneldoc comment
+Message-ID: <alpine.LFD.2.21.1812260516220.31274@IT-590-06364.gateway.2wire.net>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+X-OutGoing-Spam-Status: No, score=-0.2
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cpanel4.indieserve.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - crashcourse.ca
+X-Get-Message-Sender-Via: cpanel4.indieserve.net: authenticated_id: rpjday+crashcourse.ca/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: cpanel4.indieserve.net: rpjday@crashcourse.ca
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When i2c_smbus_read_i2c_block_data() fails, the read data in "buf" could
-be incorrect and should not be used. The fix checks if
-i2c_smbus_read_i2c_block_data fails, and if so, return its error code
-upstream.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Clearly a copy-and paste error.
+
+Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+
 ---
- drivers/rtc/rtc-hym8563.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
-index e5ad527cb75e..d03f5d212eea 100644
---- a/drivers/rtc/rtc-hym8563.c
-+++ b/drivers/rtc/rtc-hym8563.c
-@@ -109,6 +109,8 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	}
- 
- 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
-+	if (ret < 0)
-+		return ret;
- 
- 	tm->tm_sec = bcd2bin(buf[0] & HYM8563_SEC_MASK);
- 	tm->tm_min = bcd2bin(buf[1] & HYM8563_MIN_MASK);
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 3b43787f154b..df45d9a01ff2 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -425,7 +425,7 @@ struct rtc_device *devm_rtc_device_register(struct device *dev,
+ EXPORT_SYMBOL_GPL(devm_rtc_device_register);
+
+ /**
+- * devm_rtc_device_unregister - resource managed devm_rtc_device_unregister()
++ * devm_rtc_device_unregister - resource managed rtc_device_unregister()
+  * @dev: the device to unregister
+  * @rtc: the RTC class device to unregister
+  *
+
 -- 
-2.17.2 (Apple Git-113)
 
+========================================================================
+Robert P. J. Day                                 Ottawa, Ontario, CANADA
+                  http://crashcourse.ca/dokuwiki
+
+Twitter:                                       http://twitter.com/rpjday
+LinkedIn:                               http://ca.linkedin.com/in/rpjday
+========================================================================
