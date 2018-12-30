@@ -1,102 +1,98 @@
-Return-Path: <SRS0=R9za=PF=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=ZqB5=PH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6691C43387
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Dec 2018 00:46:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED690C43387
+	for <linux-rtc@archiver.kernel.org>; Sun, 30 Dec 2018 23:56:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 85EC621741
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Dec 2018 00:46:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B289620663
+	for <linux-rtc@archiver.kernel.org>; Sun, 30 Dec 2018 23:56:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730246AbeL1AqI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 27 Dec 2018 19:46:08 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:39773 "EHLO mail.bootlin.com"
+        id S1725862AbeL3X4K (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 30 Dec 2018 18:56:10 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:41458 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726859AbeL1AqI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 27 Dec 2018 19:46:08 -0500
+        id S1725792AbeL3X4K (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 30 Dec 2018 18:56:10 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 1045C20A02; Fri, 28 Dec 2018 01:46:06 +0100 (CET)
-Received: from localhost (sar95-h02-176-184-10-235.dsl.sta.abo.bbox.fr [176.184.10.235])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 8E30320729;
-        Fri, 28 Dec 2018 01:46:05 +0100 (CET)
-Date:   Fri, 28 Dec 2018 01:46:04 +0100
+        id 157C1207AE; Mon, 31 Dec 2018 00:56:08 +0100 (CET)
+Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
+        by mail.bootlin.com (Postfix) with ESMTPSA id DBE0C206A6;
+        Mon, 31 Dec 2018 00:55:57 +0100 (CET)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Kangjie Lu <kjlu@umn.edu>
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rtc: rv8803: Check return value of rv8803_write_reg
-Message-ID: <20181228004604.GX2188@piout.net>
-References: <20181227202856.27408-1-pakki001@umn.edu>
- <ab4c081a-82d7-4a50-5c2a-4dbb4ba79223@gmail.com>
- <CAK8KejrntOUb7Q2MrPR6mYDKyHKc=pzO5hOYv=ZfLaP_xg0Zsw@mail.gmail.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH] rtc: nvmem: fix possible use after free
+Date:   Mon, 31 Dec 2018 00:55:53 +0100
+Message-Id: <20181230235553.31266-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8KejrntOUb7Q2MrPR6mYDKyHKc=pzO5hOYv=ZfLaP_xg0Zsw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 27/12/2018 17:28:33-0600, Kangjie Lu wrote:
-> On Thu, Dec 27, 2018 at 4:31 PM Heiner Kallweit <hkallweit1@gmail.com>
-> wrote:
-> 
-> > On 27.12.2018 21:28, Aditya Pakki wrote:
-> > > In rv8803_handle_irq, rv8803_write_reg can return a failed return
-> > > value when attempting to write to the bus. The fix checks the output
-> > > and throws a dev_warn notifying of the failure.
-> > >
-> > > Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-> > > ---
-> > >  drivers/rtc/rtc-rv8803.c | 9 +++++++--
-> > >  1 file changed, 7 insertions(+), 2 deletions(-)
-> > >
-> > You seem to submit the same type of changes throughout very
-> > different subsystems. And you do it w/o thinking and testing.
-> > If you would have looked at rv8803_write_reg() you would have
-> > seen that it prints an error in case of failure. So your
-> > patch achieves nothing.
-> > You got David Miller upset already and it looks like you
-> > want to achieve the same with other maintainers too.
-> > I'd strongly suggest that you stop sending patches until
-> > you better understand the kernel code.
-> >
-> 
-> Hello Heiner,
-> 
-> Thanks for your suggestion. Sure, we will try to better understand
-> how the kernel works when we are preparing other patches. We recently
-> found a lot of potential bugs; due to the significant workload but
-> limited labor force, we may make some mistakes, but yes, we will try
-> to avoid them.
-> 
-> One main reason we submit the patches is to seek feedback from Linux
-> maintainers who know how the kernel works best.  We hope to get: (1)
-> confirmation: if this is indeed a bug;
+In cas of probe failure, devres may free the memory allocated for
+rtc->nvram before devm_rtc_release_device() is called. This leads to
+rtc_nvram_unregister using it after being freed which may lead to a crash.
 
-Come on, this is your job, not the maintainer job to check whether there
-is indeed a bug. Else, the maintainer may as well just remove your
-authorship because he did all the real work.
+This has been shown to happen after commit 461e557b9727 ("rtc: nvmem: use
+devm_nvmem_register()")
 
-> (2) improvement feedback: if
-> it is a bug and our fix is problematic, how can we improve it?
-> 
-> Taking the case in this email as an example, rv8803_write_reg could
-> fail, so returning IRQ_HANDLED even when it failed doesn't seem to be
-> a good practice. Would "returning IRQ_NONE upon failure" be a better
-> fix?
-> 
-> Thanks again for your suggestion.
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/nvmem.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
+index ebdfe8e3a1a0..dce518d5e50e 100644
+--- a/drivers/rtc/nvmem.c
++++ b/drivers/rtc/nvmem.c
+@@ -12,6 +12,7 @@
+ #include <linux/types.h>
+ #include <linux/nvmem-consumer.h>
+ #include <linux/rtc.h>
++#include <linux/slab.h>
+ #include <linux/sysfs.h>
+ 
+ /*
+@@ -45,9 +46,7 @@ static int rtc_nvram_register(struct rtc_device *rtc,
+ {
+ 	int err;
+ 
+-	rtc->nvram = devm_kzalloc(rtc->dev.parent,
+-				sizeof(struct bin_attribute),
+-				GFP_KERNEL);
++	rtc->nvram = kzalloc(sizeof(struct bin_attribute), GFP_KERNEL);
+ 	if (!rtc->nvram)
+ 		return -ENOMEM;
+ 
+@@ -64,7 +63,7 @@ static int rtc_nvram_register(struct rtc_device *rtc,
+ 	err = sysfs_create_bin_file(&rtc->dev.parent->kobj,
+ 				    rtc->nvram);
+ 	if (err) {
+-		devm_kfree(rtc->dev.parent, rtc->nvram);
++		kfree(rtc->nvram);
+ 		rtc->nvram = NULL;
+ 	}
+ 
+@@ -74,6 +73,8 @@ static int rtc_nvram_register(struct rtc_device *rtc,
+ static void rtc_nvram_unregister(struct rtc_device *rtc)
+ {
+ 	sysfs_remove_bin_file(&rtc->dev.parent->kobj, rtc->nvram);
++	kfree(rtc->nvram);
++	rtc->nvram = NULL;
+ }
+ 
+ /*
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
