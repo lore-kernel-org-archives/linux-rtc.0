@@ -1,4 +1,4 @@
-Return-Path: <SRS0=ZqB5=PH=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=fVwM=PI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -6,31 +6,30 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED690C43387
-	for <linux-rtc@archiver.kernel.org>; Sun, 30 Dec 2018 23:56:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5890C43387
+	for <linux-rtc@archiver.kernel.org>; Mon, 31 Dec 2018 17:15:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B289620663
-	for <linux-rtc@archiver.kernel.org>; Sun, 30 Dec 2018 23:56:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F19721019
+	for <linux-rtc@archiver.kernel.org>; Mon, 31 Dec 2018 17:15:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725862AbeL3X4K (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 30 Dec 2018 18:56:10 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:41458 "EHLO mail.bootlin.com"
+        id S1727345AbeLaRP6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 31 Dec 2018 12:15:58 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:49491 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725792AbeL3X4K (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 30 Dec 2018 18:56:10 -0500
+        id S1727335AbeLaRP5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 31 Dec 2018 12:15:57 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 157C1207AE; Mon, 31 Dec 2018 00:56:08 +0100 (CET)
+        id 66E6D20A44; Mon, 31 Dec 2018 18:15:55 +0100 (CET)
 Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
-        by mail.bootlin.com (Postfix) with ESMTPSA id DBE0C206A6;
-        Mon, 31 Dec 2018 00:55:57 +0100 (CET)
+        by mail.bootlin.com (Postfix) with ESMTPSA id 383B6207A8;
+        Mon, 31 Dec 2018 18:15:45 +0100 (CET)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH] rtc: nvmem: fix possible use after free
-Date:   Mon, 31 Dec 2018 00:55:53 +0100
-Message-Id: <20181230235553.31266-1-alexandre.belloni@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: rename core files
+Date:   Mon, 31 Dec 2018 18:15:42 +0100
+Message-Id: <20181231171542.15111-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -39,60 +38,64 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In cas of probe failure, devres may free the memory allocated for
-rtc->nvram before devm_rtc_release_device() is called. This leads to
-rtc_nvram_unregister using it after being freed which may lead to a crash.
+Rename core files so there is a clearer separation between the RTC core and
+the RTC drivers.
 
-This has been shown to happen after commit 461e557b9727 ("rtc: nvmem: use
-devm_nvmem_register()")
-
-Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/nvmem.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/rtc/Makefile                 | 8 ++++----
+ drivers/rtc/{rtc-dev.c => dev.c}     | 0
+ drivers/rtc/{rtc-lib.c => lib.c}     | 0
+ drivers/rtc/{rtc-proc.c => proc.c}   | 0
+ drivers/rtc/{rtc-sysfs.c => sysfs.c} | 0
+ 5 files changed, 4 insertions(+), 4 deletions(-)
+ rename drivers/rtc/{rtc-dev.c => dev.c} (100%)
+ rename drivers/rtc/{rtc-lib.c => lib.c} (100%)
+ rename drivers/rtc/{rtc-proc.c => proc.c} (100%)
+ rename drivers/rtc/{rtc-sysfs.c => sysfs.c} (100%)
 
-diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
-index ebdfe8e3a1a0..dce518d5e50e 100644
---- a/drivers/rtc/nvmem.c
-+++ b/drivers/rtc/nvmem.c
-@@ -12,6 +12,7 @@
- #include <linux/types.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/rtc.h>
-+#include <linux/slab.h>
- #include <linux/sysfs.h>
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index f97c05ef99db..df022d820bee 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -5,7 +5,7 @@
  
- /*
-@@ -45,9 +46,7 @@ static int rtc_nvram_register(struct rtc_device *rtc,
- {
- 	int err;
+ ccflags-$(CONFIG_RTC_DEBUG)	:= -DDEBUG
  
--	rtc->nvram = devm_kzalloc(rtc->dev.parent,
--				sizeof(struct bin_attribute),
--				GFP_KERNEL);
-+	rtc->nvram = kzalloc(sizeof(struct bin_attribute), GFP_KERNEL);
- 	if (!rtc->nvram)
- 		return -ENOMEM;
+-obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
++obj-$(CONFIG_RTC_LIB)		+= lib.o
+ obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
+ obj-$(CONFIG_RTC_SYSTOHC)	+= systohc.o
+ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
+@@ -17,9 +17,9 @@ rtc-core-y			+= rtc-efi-platform.o
+ endif
  
-@@ -64,7 +63,7 @@ static int rtc_nvram_register(struct rtc_device *rtc,
- 	err = sysfs_create_bin_file(&rtc->dev.parent->kobj,
- 				    rtc->nvram);
- 	if (err) {
--		devm_kfree(rtc->dev.parent, rtc->nvram);
-+		kfree(rtc->nvram);
- 		rtc->nvram = NULL;
- 	}
+ rtc-core-$(CONFIG_RTC_NVMEM)		+= nvmem.o
+-rtc-core-$(CONFIG_RTC_INTF_DEV)		+= rtc-dev.o
+-rtc-core-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
+-rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
++rtc-core-$(CONFIG_RTC_INTF_DEV)		+= dev.o
++rtc-core-$(CONFIG_RTC_INTF_PROC)	+= proc.o
++rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= sysfs.o
  
-@@ -74,6 +73,8 @@ static int rtc_nvram_register(struct rtc_device *rtc,
- static void rtc_nvram_unregister(struct rtc_device *rtc)
- {
- 	sysfs_remove_bin_file(&rtc->dev.parent->kobj, rtc->nvram);
-+	kfree(rtc->nvram);
-+	rtc->nvram = NULL;
- }
+ # Keep the list ordered.
  
- /*
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/dev.c
+similarity index 100%
+rename from drivers/rtc/rtc-dev.c
+rename to drivers/rtc/dev.c
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/lib.c
+similarity index 100%
+rename from drivers/rtc/rtc-lib.c
+rename to drivers/rtc/lib.c
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/proc.c
+similarity index 100%
+rename from drivers/rtc/rtc-proc.c
+rename to drivers/rtc/proc.c
+diff --git a/drivers/rtc/rtc-sysfs.c b/drivers/rtc/sysfs.c
+similarity index 100%
+rename from drivers/rtc/rtc-sysfs.c
+rename to drivers/rtc/sysfs.c
 -- 
 2.20.1
 
