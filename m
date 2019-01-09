@@ -1,122 +1,138 @@
-Return-Path: <SRS0=ZGF4=PQ=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=RkCM=PR=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E037FC43444
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Jan 2019 18:55:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78690C43387
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Jan 2019 10:59:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B34AE20827
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Jan 2019 18:55:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P2PJPX3A"
+	by mail.kernel.org (Postfix) with ESMTP id 515452063F
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Jan 2019 10:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbfAHSyi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Jan 2019 13:54:38 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:45017 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728484AbfAHSyh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Jan 2019 13:54:37 -0500
-Received: by mail-lf1-f66.google.com with SMTP id z13so3718216lfe.11;
-        Tue, 08 Jan 2019 10:54:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iIyMFrKKnJtCr4+UG3XDWbJIrUHHBxWAs0IWQlXyGCY=;
-        b=P2PJPX3AlloznB2GOMvGpEQq6iC53nNOcuB2QQjEOq90PVbnIo09a6sZIeIjfZ0/g2
-         bs8Fy2MAKjDJVtOi83KCWMmlT8Kw0K4tiBoZCV0dDmFuBR72nOreF4uJCWkIRRrsuGXj
-         JN0E9q9CiaKPC8GOPKbAchXReZwufVunp94IVn5BSec7HmTngCEm4WK9RhfW3rZmcUiI
-         nYwJW3xroFpHqPcGmOE99jnSuoiwQ3sqSq1ioDo30C5+JVwqzJjIxduNvFap1c60enyk
-         RXfqgo66smBsneqDs+pPX1LwedLGfkngWSK7jUPzV4uuxH8X9xvOMJihEaZ/UMe+eibH
-         vgAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=iIyMFrKKnJtCr4+UG3XDWbJIrUHHBxWAs0IWQlXyGCY=;
-        b=eUeRItD+ePwzfisOIqNmhAlXb80lXg8fmUL/aAoXVczzND7H8jRrP9iSZ1LVVtJU/t
-         C6pgDl7uQkWDkbgcY16XEooAd3QBSwi3pP7ey/Dh2dSdTSfzhjcK73j6crDPWOlr49ZA
-         VFOZytmBa2ZMiikju9UWnYuIP4sZSJXYynnSeEGXyjS3VYgM922riu8mwcbMqn2HeMJA
-         cnU7XE/SdEQ2RzAfOHAlk9lOCcmfEmQCPJEBwinAsu8WXFe9nFr0TVjR0KQ5v8SqDF5u
-         YIEQ5xWUdpeuhAp3YMqY3DNxlpzNZvVLS38q2gNzSwlQZ//LAd+EoQUG1ztjjAyjjcsW
-         vauw==
-X-Gm-Message-State: AJcUukeig0KXszPqU+aSqoBwTaGjw/GdOu06nKb4xSO4baePp9kMfegq
-        u3ZbI94DrYq5jv1hNKOFsckM49m3hgU=
-X-Google-Smtp-Source: ALg8bN536E3Jo5RQwHMV/owTX235e3MaK9eeEhW38FftR6GGBNEy44RuclwHG2AqRBXJMGd8T2/emQ==
-X-Received: by 2002:a19:3b9c:: with SMTP id d28mr1817178lfl.30.1546973675098;
-        Tue, 08 Jan 2019 10:54:35 -0800 (PST)
-Received: from jupiter.lan (18.158-248-194.customer.lyse.net. [158.248.194.18])
-        by smtp.gmail.com with ESMTPSA id a11sm13321648lff.68.2019.01.08.10.54.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Jan 2019 10:54:33 -0800 (PST)
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        =?UTF-8?q?Urs=20F=C3=A4ssler?= <urs.fassler@bbv.ch>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc:     Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH v2 0/5] add quartz load support to NXP rtc drivers 
-Date:   Tue,  8 Jan 2019 19:54:09 +0100
-Message-Id: <20190108185414.26922-1-sam@ravnborg.org>
-X-Mailer: git-send-email 2.12.0
+        id S1730570AbfAIK7p convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Jan 2019 05:59:45 -0500
+Received: from mail1.bemta26.messagelabs.com ([85.158.142.114]:43478 "EHLO
+        mail1.bemta26.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729752AbfAIK7p (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Jan 2019 05:59:45 -0500
+Received: from [85.158.142.201] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-3.bemta.az-b.eu-central-1.aws.symcld.net id B3/D1-19000-D14D53C5; Wed, 09 Jan 2019 10:59:41 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprBKsWRWlGSWpSXmKPExsVy8+3OTbqyV0x
+  jDF6dVbRYcvEqu0X7u2XsFpd3zWGzOLb6CpsDi8e8NdUe0+f9ZPL4vEkugDmKNTMvKb8igTWj
+  /dcd1oJdAhW/V7QyNzA+4+1i5OIQEpjFKLFx8X2WLkZODjYBGYnfz2+yg9giAtYSnVMnMYLYz
+  AIREhdfbgarERZwlTgyfRcjRI2XRPufR1C2nsSylg6mLkYODhYBFYkNsxVBwrwCzhItjw6AjW
+  QUEJP4fmoNE8RIcYlbT+aD2RICAhJL9pxnhrBFJV4+/scKMkZCQEFidZsCRNhQYtW0AywQtrT
+  Em551bBC2qcThm4dZIEbqSdyYOoUNwtaWWLbwNTPECYISJ2c+YZnAKDILyeZZSFpmIWmZhaRl
+  ASPLKkbLpKLM9IyS3MTMHF1DAwNdQ0NjXTMgaaaXWKWbpJdaqpucmldSlAiU1UssL9YrrsxNz
+  knRy0st2cQIjLGUQraSHYyLlqcfYpTkYFIS5U3ZZxojxJeUn1KZkVicEV9UmpNafIhRhoNDSY
+  J34WWgnGBRanpqRVpmDjDaYdISHDxKIrz3LgGleYsLEnOLM9MhUqcYFaXEeX+AJARAEhmleXB
+  tsARziVFWSpiXkYGBQYinILUoN7MEVf4VozgHo5IwbzvIFJ7MvBK46a+AFjMBLT7EaAKyuCQR
+  ISXVwJj9fdsv2yNZSp9FpER+fw1/8mNtdOzX2/JTUrfVZDdMZ90qEto9SVVUS1fiof1SuxX3W
+  2YuvhlxtqlhQ/48bw3+x19yD317c/Ykh/+Vo0rv9KV1w7z254p5Pcw7mrysVaPMqHtq5bqN83
+  d+ZtK9rXJhcqrq0Sk/t85gbX9U5nyvStHN9Ino1adKLMUZiYZazEXFiQAN812nKwMAAA==
+X-Env-Sender: Oliver.Rohe@wago.com
+X-Msg-Ref: server-8.tower-246.messagelabs.com!1547031581!82250!1
+X-Originating-IP: [217.237.185.178]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.31.5; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 8093 invoked from network); 9 Jan 2019 10:59:41 -0000
+Received: from unknown (HELO SVEX01005.wago.local) (217.237.185.178)
+  by server-8.tower-246.messagelabs.com with AES128-SHA encrypted SMTP; 9 Jan 2019 10:59:41 -0000
+Received: from SVEX01006.wago.local ([10.1.101.122]) by SVEX01005.wago.local
+ ([169.254.1.23]) with mapi id 14.03.0415.000; Wed, 9 Jan 2019 11:59:40 +0100
+From:   <Oliver.Rohe@wago.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <Oliver.Rohe@wago.com>
+Subject: [PATCH] rtc: rs5c372: r2221: fix to use the correct XSTP bit
+Thread-Topic: [PATCH] rtc: rs5c372: r2221: fix to use the correct XSTP bit
+Thread-Index: AQHUqAprCBGfFZN+P06IC9NgtvqzIg==
+Date:   Wed, 9 Jan 2019 10:59:40 +0000
+Message-ID: <1547031572-7097-1-git-send-email-oliver.rohe@wago.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.1.101.133]
+x-kse-antivirus-interceptor-info: scan successful
+x-kse-antivirus-info: Clean
+x-pp-proceessed: 8707ce24-8c4e-4a04-80f2-2a31f9152b06
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-pcf8523 hardcode the quartz load to 12.5pF
-pcf85063 uses the reset default of 7pF
+The Ricoh chips have slightly different register layouts
+and the r2221 chip uses bit 5 as the oscillator halt sensor bit.
 
-Introduce a new generic property "quartz-load-femtofarad"
-to specify the quartz load.
-The default value is selected to match the current Linux
-drivers, so there are no behavior changes if a binding do not
-specify the quarts-load.
-The unit is femtofarads because several RTC's define the quarts load
-in steps of 0.5 pF.
+Signed-off-by: Olive Rohe <oliver.rohe@wago.com>
+---
+ drivers/rtc/rtc-rs5c372.c | 32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-The two drivers rtc-pcf8523 and rtc-pcf85063 are both
-updated to use the new binding.
-The fix is tested on a proprietary board for both
-RTC variants.
-
-v2:
-- Introduce a generic property "quartz-load-femtofarads"
-- Add femtofarads to property-units.txt
-- Make the changes backward compatible
-- Reduced logging
-- Warn, when we continue with a default value
-- Tested, by Søren Andersen, on real HW
-- Rebased on top of v5.0-rc1
-
-	Sam
-
-Sam Ravnborg (5):
-      devicetree: property-units: Add femtofarads unit
-      dt-binding: pcf8523: add xtal load capacitance
-      dt-binding: pcf85063: add xtal load capacitance
-      rtc: pcf8523: set xtal load capacitance from DT
-      rtc: pcf85063: set xtal load capacitance from DT
-
- .../devicetree/bindings/property-units.txt         |  1 +
- .../devicetree/bindings/rtc/nxp,pcf85063.txt       | 18 ++++++++++
- .../devicetree/bindings/rtc/nxp,pcf8523.txt        | 18 ++++++++++
- Documentation/devicetree/bindings/rtc/rtc.txt      |  2 --
- drivers/rtc/rtc-pcf85063.c                         | 39 ++++++++++++++++++++++
- drivers/rtc/rtc-pcf8523.c                          | 28 +++++++++++-----
- 6 files changed, 96 insertions(+), 10 deletions(-)
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index c503832..ff35dce 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -52,8 +52,8 @@
+ #	define RS5C_CTRL1_CT4		(4 << 0)	/* 1 Hz level irq */
+ #define RS5C_REG_CTRL2		15
+ #	define RS5C372_CTRL2_24		(1 << 5)
+-#	define R2025_CTRL2_XST		(1 << 5)
+-#	define RS5C_CTRL2_XSTP		(1 << 4)	/* only if !R2025S/D */
++#	define R2x2x_CTRL2_XSTP		(1 << 5)	/* only if R2x2x */
++#	define RS5C_CTRL2_XSTP		(1 << 4)	/* only if !R2x2x */
+ #	define RS5C_CTRL2_CTFG		(1 << 2)
+ #	define RS5C_CTRL2_AAFG		(1 << 1)	/* or WAFG */
+ #	define RS5C_CTRL2_BAFG		(1 << 0)	/* or DAFG */
+@@ -519,20 +519,30 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
+ 	unsigned char buf[2];
+ 	int addr, i, ret = 0;
+ 
+-	if (rs5c372->type == rtc_r2025sd) {
+-		if (rs5c372->regs[RS5C_REG_CTRL2] & R2025_CTRL2_XST)
++	addr   = RS5C_ADDR(RS5C_REG_CTRL1);
++	buf[0] = rs5c372->regs[RS5C_REG_CTRL1];
++	buf[1] = rs5c372->regs[RS5C_REG_CTRL2];
++
++	/* handle xstp bit */
++	switch (rs5c372->type) {
++	case rtc_r2025sd:
++		if (buf[1] & R2x2x_CTRL2_XSTP)
+ 			return ret;
+-		rs5c372->regs[RS5C_REG_CTRL2] |= R2025_CTRL2_XST;
+-	} else {
+-		if (!(rs5c372->regs[RS5C_REG_CTRL2] & RS5C_CTRL2_XSTP))
++		rs5c372->regs[RS5C_REG_CTRL2] |= R2x2x_CTRL2_XSTP;
++		break;
++	case rtc_r2221tl:
++		if (!(buf[1] & R2x2x_CTRL2_XSTP))
++			return ret;
++		rs5c372->regs[RS5C_REG_CTRL2] &= ~R2x2x_CTRL2_XSTP;
++		break;
++
++	default:
++		if (!(buf[1] & RS5C_CTRL2_XSTP))
+ 			return ret;
+ 		rs5c372->regs[RS5C_REG_CTRL2] &= ~RS5C_CTRL2_XSTP;
++		break;
+ 	}
+ 
+-	addr   = RS5C_ADDR(RS5C_REG_CTRL1);
+-	buf[0] = rs5c372->regs[RS5C_REG_CTRL1];
+-	buf[1] = rs5c372->regs[RS5C_REG_CTRL2];
+-
+ 	/* use 24hr mode */
+ 	switch (rs5c372->type) {
+ 	case rtc_rs5c372a:
+-- 
+2.7.4
