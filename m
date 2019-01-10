@@ -4,59 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6C96C43387
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Jan 2019 20:57:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57EB0C43387
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Jan 2019 21:03:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AEF6D20685
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Jan 2019 20:57:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 307E5208E3
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Jan 2019 21:03:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729477AbfAJU5D (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Jan 2019 15:57:03 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:33135 "EHLO mail.bootlin.com"
+        id S1728742AbfAJVDv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 10 Jan 2019 16:03:51 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:33289 "EHLO mail.bootlin.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730349AbfAJU5D (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 10 Jan 2019 15:57:03 -0500
+        id S1727846AbfAJVDv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 10 Jan 2019 16:03:51 -0500
 Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 26914207B6; Thu, 10 Jan 2019 21:57:01 +0100 (CET)
+        id E8ADC20898; Thu, 10 Jan 2019 22:03:49 +0100 (CET)
 Received: from localhost (lfbn-1-17122-186.w86-248.abo.wanadoo.fr [86.248.186.186])
-        by mail.bootlin.com (Postfix) with ESMTPSA id F37CB206A6;
-        Thu, 10 Jan 2019 21:57:00 +0100 (CET)
-Date:   Thu, 10 Jan 2019 21:57:01 +0100
+        by mail.bootlin.com (Postfix) with ESMTPSA id 8627D206DC;
+        Thu, 10 Jan 2019 22:03:49 +0100 (CET)
+Date:   Thu, 10 Jan 2019 22:03:49 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Dianlong Li <long17.cool@163.com>
-Cc:     robh@kernel.org, a.zummo@towertech.it, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] rtc: sd3078: new driver.
-Message-ID: <20190110205701.GA2362@piout.net>
-References: <1544696030-17159-1-git-send-email-long17.cool@163.com>
- <1544696030-17159-3-git-send-email-long17.cool@163.com>
+To:     ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: Fix UBSAN overflow warning
+Message-ID: <20190110210349.GB2362@piout.net>
+References: <1545298616-62881-1-git-send-email-zhangxiaoxu5@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1544696030-17159-3-git-send-email-long17.cool@163.com>
+In-Reply-To: <1545298616-62881-1-git-send-email-zhangxiaoxu5@huawei.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 13/12/2018 18:13:50+0800, Dianlong Li wrote:
-> The sd3078 is a combination RTC and SRAM device with I2C interface.
+On 20/12/2018 17:36:56+0800, ZhangXiaoxu wrote:
+> Users may call 'ioctl' and pass a very big value on 'tm->tm_year'.
+> It can be overflowed in 'int' after add 1900.
+> In function 'rtc_month_days' and 'mktime64', also treated it as an
+> 'unsigned' parameter.
 > 
-> Signed-off-by: Dianlong Li <long17.cool@163.com>
+> UBSAN: Undefined behaviour in drivers/rtc/rtc-lib.c:103:59
+> signed integer overflow:
+> 2147483647 + 1900 cannot be represented in type 'int'
+> 
+> UBSAN: Undefined behaviour in drivers/rtc/rtc-lib.c:119:30
+> signed integer overflow:
+> 2147483647 + 1900 cannot be represented in type 'int'
+> 
+> So, covert it to 'unsigned' explicitly.
+> 
+> Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
 > ---
->  MAINTAINERS              |    6 ++
->  drivers/rtc/Kconfig      |    9 ++
->  drivers/rtc/Makefile     |    1 +
->  drivers/rtc/rtc-sd3078.c |  232 ++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 248 insertions(+)
->  create mode 100644 drivers/rtc/rtc-sd3078.c
+>  drivers/rtc/rtc-lib.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-
-All applied, thanks.
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
