@@ -3,61 +3,60 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69587C43387
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Jan 2019 10:39:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE419C43387
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Jan 2019 13:15:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 36EF620874
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Jan 2019 10:39:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 861BE2084C
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Jan 2019 13:15:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731867AbfAKKjh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Jan 2019 05:39:37 -0500
-Received: from mail1.bemta25.messagelabs.com ([195.245.230.1]:27408 "EHLO
+        id S1731991AbfAKNPo convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Jan 2019 08:15:44 -0500
+Received: from mail1.bemta25.messagelabs.com ([195.245.230.67]:6755 "EHLO
         mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728596AbfAKKjg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Jan 2019 05:39:36 -0500
-Received: from [46.226.52.98] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-1.bemta.az-a.eu-west-1.aws.symcld.net id FA/1D-31049-562783C5; Fri, 11 Jan 2019 10:39:33 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrEKsWRWlGSWpSXmKPExsVy8+3OTbopRRY
-  xBu9eGlosuXiV3aL93TJ2i8u75rBZHFt9hc2BxWPemmqP6fN+Mnl83iQXwBzFmpmXlF+RwJrR
-  /3Ure8Fq5YpTn6eyNjB+UOpi5OIQEpjNKHHv7GamLkZODjYBGYnfz2+yg9giAsoSBw+3sIHYz
-  AIREu2bp4LVCAt4Ssxa9JgRosZLov3PIyjbSqKv6zCYzSKgKtHX/g2snlfAWuLFpmvMILaQQJ
-  rEhcOXWUBsTgE9iaNf/4DVMAqISXw/tYYJYpe4xK0n88FsCQEBiSV7zjND2KISLx//Y+1i5AC
-  yFSRWtylAhA0lVk07wAJhS0u86VnHBmGbShy+eZgFpJxZQFNi/S59iOnmEhePnoT6SlFiSvdD
-  dogrBSVOznzCMoFRfBaSI2YhdM9C0j0LSfcsJN0LGFlXMVokFWWmZ5TkJmbm6BoaGOgaGhrpG
-  loaA7GZXmKVbqJeaqlueWpxia6hXmJ5sV5xZW5yTopeXmrJJkZg/KYUHDyyg3HDivRDjJIcTE
-  qivCk2FjFCfEn5KZUZicUZ8UWlOanFhxhlODiUJHjZC4BygkWp6akVaZk5wEQCk5bg4FES4b0
-  OkuYtLkjMLc5Mh0idYtTleHvw+VxmIZa8/LxUKXFe3kKgIgGQoozSPLgRsKR2iVFWSpiXkYGB
-  QYinILUoN7MEVf4VozgHo5Iwrx7IKp7MvBK4Ta+AjmACOiL4mznIESWJCCmpBkbOdLHFOt1yO
-  o+4Pnt5PvxY9tLvK0vnfZFf+nrpIlrFMV/uOfwpj93alf3pbtXSVRYFk2qNtyyc7Jzg/jRNZd
-  Hbgw+25jKcr/a67TdPiGetTNyr7mO/925Z9GmT5CrhuTeT6qcsX81eY3rd8OPCgMhX7x7typE
-  +efp6pd3W5X+amH5/ni+tkj1DiaU4I9FQi7moOBEAGExfUmUDAAA=
+        by vger.kernel.org with ESMTP id S1731970AbfAKNPo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Jan 2019 08:15:44 -0500
+Received: from [46.226.52.200] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-3.bemta.az-b.eu-west-1.aws.symcld.net id 4A/C9-01171-CF6983C5; Fri, 11 Jan 2019 13:15:40 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprBKsWRWlGSWpSXmKPExsVy8+3OTbp/pln
+  EGGzdJm6x5OJVdov2d8vYLS7vmsNmcWz1FTYHFo95a6o9ps/7yeTxeZNcAHMUa2ZeUn5FAmtG
+  b9sUtoLDShVvdt1na2C8JNPFyMUhJDCbUWJi11HmLkZODjYBGYnfz2+yg9giAtYSb/o+s4HYz
+  AIREhdfbmYBsYUFIiWWrZ4GVRMnMe3iZCYIW0/i0LdWsBoWAVWJhhmzwWxeAReJC8cegs1nFB
+  CT+H5qDRPETHGJW0/mg9kSAgISS/acZ4awRSVePv7H2sXIAWQrSKxuU4AIG0qsmnaABcKWlnj
+  Ts44NwjaVOHzzMAvESD2JG1OnQJ2sLbFs4WtmiBMEJU7OfMIygVFkFpLNs5C0zELSMgtJywJG
+  llWMFklFmekZJbmJmTm6hgYGuoaGRrqGlma6RoZmeolVukl6qaW65anFJbqGeonlxXrFlbnJO
+  Sl6eaklmxiBMZZScOTGDsYvy9MPMUpyMCmJ8v6ebBEjxJeUn1KZkVicEV9UmpNafIhRhoNDSY
+  LXbSpQTrAoNT21Ii0zBxjtMGkJDh4lEV4ekDRvcUFibnFmOkTqFKOilDhvM0hCACSRUZoH1wZ
+  LMJcYZaWEeRkZGBiEeApSi3IzS1DlXzGKczAqCfOWg0zhycwrgZv+CmgxE9Di4G/mIItLEhFS
+  Ug2MIUxqoqE2qq/ZckSEf99mZjNbv/zzi8Da5EyLWTEvxCsDj8eekTy06Hp0y7rDhpuUp+pLP
+  Dtybkvug5rnn1v3SK/ZHX1++4Xr1lkbQpcXrj227/vVezH/Xlp+OtZ603DdkqkL2BIm6x2Z4r
+  D++w2TR9psb5wXbGf9ZW6qVJpy9dSVA0surjl3/YgSS3FGoqEWc1FxIgAG0I9zKwMAAA==
 X-Env-Sender: Oliver.Rohe@wago.com
-X-Msg-Ref: server-3.tower-262.messagelabs.com!1547203172!1314394!1
+X-Msg-Ref: server-12.tower-288.messagelabs.com!1547212539!332796!1
 X-Originating-IP: [217.237.185.178]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.31.5; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 21552 invoked from network); 11 Jan 2019 10:39:32 -0000
+Received: (qmail 6526 invoked from network); 11 Jan 2019 13:15:40 -0000
 Received: from unknown (HELO SVEX01005.wago.local) (217.237.185.178)
-  by server-3.tower-262.messagelabs.com with AES128-SHA encrypted SMTP; 11 Jan 2019 10:39:32 -0000
+  by server-12.tower-288.messagelabs.com with AES128-SHA encrypted SMTP; 11 Jan 2019 13:15:40 -0000
 Received: from SVEX01006.wago.local ([10.1.101.122]) by SVEX01005.wago.local
- ([169.254.1.23]) with mapi id 14.03.0415.000; Fri, 11 Jan 2019 11:39:32 +0100
+ ([169.254.1.23]) with mapi id 14.03.0415.000; Fri, 11 Jan 2019 14:15:39 +0100
 From:   <Oliver.Rohe@wago.com>
-To:     <alexandre.belloni@bootlin.com>
-CC:     <a.zummo@towertech.it>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rtc: rs5c372: r2221: fix to use the correct XSTP bit
-Thread-Topic: [PATCH] rtc: rs5c372: r2221: fix to use the correct XSTP bit
-Thread-Index: AQHUqAprCBGfFZN+P06IC9NgtvqzIqWpyZMAgAAJcQA=
-Date:   Fri, 11 Jan 2019 10:39:30 +0000
-Message-ID: <ffd4cd8c-b6f6-8462-bf4c-f93141b9b97a@wago.com>
-References: <1547031572-7097-1-git-send-email-oliver.rohe@wago.com>
- <20190111100542.GA2547@piout.net>
-In-Reply-To: <20190111100542.GA2547@piout.net>
+To:     <alexandre.belloni@bootlin.com>, <a.zummo@towertech.it>
+CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <Oliver.Rohe@wago.com>
+Subject: [PATCH] rtc: rs5c372: Fix reading from rtc when the oscillator got
+ interrupted.
+Thread-Topic: [PATCH] rtc: rs5c372: Fix reading from rtc when the oscillator
+ got interrupted.
+Thread-Index: AQHUqa+/rXqeQIxzX0+LFpkiw+8xxQ==
+Date:   Fri, 11 Jan 2019 13:15:39 +0000
+Message-ID: <1547212521-14871-1-git-send-email-oliver.rohe@wago.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -66,71 +65,137 @@ x-originating-ip: [10.1.101.133]
 x-kse-antivirus-interceptor-info: scan successful
 x-kse-antivirus-info: Clean
 x-pp-proceessed: 8707ce24-8c4e-4a04-80f2-2a31f9152b06
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <DDA2BD1D5C85454DABA8FD1236E5D71E@WAGO.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-SGkgQWxleGFuZHJlLA0KDQpPbiAxMS4wMS4xOSAxMTowNSwgQWxleGFuZHJlIEJlbGxvbmkgd3Jv
-dGU6DQo+IEhlbGxvLA0KPiANCj4gT24gMDkvMDEvMjAxOSAxMDo1OTo0MCswMDAwLCBPbGl2ZXIu
-Um9oZUB3YWdvLmNvbSB3cm90ZToNCj4+IFRoZSBSaWNvaCBjaGlwcyBoYXZlIHNsaWdodGx5IGRp
-ZmZlcmVudCByZWdpc3RlciBsYXlvdXRzDQo+PiBhbmQgdGhlIHIyMjIxIGNoaXAgdXNlcyBiaXQg
-NSBhcyB0aGUgb3NjaWxsYXRvciBoYWx0IHNlbnNvciBiaXQuDQo+Pg0KPj4gU2lnbmVkLW9mZi1i
-eTogT2xpdmUgUm9oZSA8b2xpdmVyLnJvaGVAd2Fnby5jb20+DQo+PiAtLS0NCj4+ICBkcml2ZXJz
-L3J0Yy9ydGMtcnM1YzM3Mi5jIHwgMzIgKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0N
-Cj4+ICAxIGZpbGUgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pDQo+
-Pg0KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1yczVjMzcyLmMgYi9kcml2ZXJzL3J0
-Yy9ydGMtcnM1YzM3Mi5jDQo+PiBpbmRleCBjNTAzODMyLi5mZjM1ZGNlIDEwMDY0NA0KPj4gLS0t
-IGEvZHJpdmVycy9ydGMvcnRjLXJzNWMzNzIuYw0KPj4gKysrIGIvZHJpdmVycy9ydGMvcnRjLXJz
-NWMzNzIuYw0KPj4gQEAgLTUyLDggKzUyLDggQEANCj4+ICAjCWRlZmluZSBSUzVDX0NUUkwxX0NU
-NAkJKDQgPDwgMCkJLyogMSBIeiBsZXZlbCBpcnEgKi8NCj4+ICAjZGVmaW5lIFJTNUNfUkVHX0NU
-UkwyCQkxNQ0KPj4gICMJZGVmaW5lIFJTNUMzNzJfQ1RSTDJfMjQJCSgxIDw8IDUpDQo+PiAtIwlk
-ZWZpbmUgUjIwMjVfQ1RSTDJfWFNUCQkoMSA8PCA1KQ0KPj4gLSMJZGVmaW5lIFJTNUNfQ1RSTDJf
-WFNUUAkJKDEgPDwgNCkJLyogb25seSBpZiAhUjIwMjVTL0QgKi8NCj4+ICsjCWRlZmluZSBSMngy
-eF9DVFJMMl9YU1RQCQkoMSA8PCA1KQkvKiBvbmx5IGlmIFIyeDJ4ICovDQo+IA0KPiBJIHdvdWxk
-bid0IHJlbmFtZSB0aGF0IGRlZmluZSBhcyBsYXRlciBvbiwgaXQgbWF5IGJlIHVzZWQgZm9yIFJU
-Q3MgdGhhdA0KPiBkb2Vzbid0IG1hdGNoIFIyeDJ4IChhcyBpcyB0aGUgY2FzZSBmb3IgUlY1QzM4
-N19DVFJMMV8yNCBmb3IgZXhhbXBsZSkuDQo+IHRoZSBiaXQgZG9lc24ndCBldmVuIGhhdmUgdGhl
-IHNhbWUgbWVhbmluZyBvbiBSMjAyNSBhbmQgUjIyMjEuDQpZZXMsIGJ1dCBSMjAyNSBhbmQgUjIy
-MjEgaGF2ZSBhIGZldyByZWdpc3RlcnMgaW4gY29tbW9uIChQT04sIFZERVQpLiBUaGUgbWVhbmlu
-Zw0Kb2YgWFNUIGFuZCBYU1RQIEkgdGhpbmsgYXJlIHRoZSBzYW1lLCBldmVuIHRob3VnaCB0aGV5
-IGhhdmUgZmxpcHBlZCBsb2dpYy4NCj4gDQo+PiArIwlkZWZpbmUgUlM1Q19DVFJMMl9YU1RQCQko
-MSA8PCA0KQkvKiBvbmx5IGlmICFSMngyeCAqLw0KPj4gICMJZGVmaW5lIFJTNUNfQ1RSTDJfQ1RG
-RwkJKDEgPDwgMikNCj4+ICAjCWRlZmluZSBSUzVDX0NUUkwyX0FBRkcJCSgxIDw8IDEpCS8qIG9y
-IFdBRkcgKi8NCj4+ICAjCWRlZmluZSBSUzVDX0NUUkwyX0JBRkcJCSgxIDw8IDApCS8qIG9yIERB
-RkcgKi8NCj4+IEBAIC01MTksMjAgKzUxOSwzMCBAQCBzdGF0aWMgaW50IHJzNWNfb3NjaWxsYXRv
-cl9zZXR1cChzdHJ1Y3QgcnM1YzM3MiAqcnM1YzM3MikNCj4+ICAJdW5zaWduZWQgY2hhciBidWZb
-Ml07DQo+PiAgCWludCBhZGRyLCBpLCByZXQgPSAwOw0KPj4gIA0KPj4gLQlpZiAocnM1YzM3Mi0+
-dHlwZSA9PSBydGNfcjIwMjVzZCkgew0KPj4gLQkJaWYgKHJzNWMzNzItPnJlZ3NbUlM1Q19SRUdf
-Q1RSTDJdICYgUjIwMjVfQ1RSTDJfWFNUKQ0KPj4gKwlhZGRyICAgPSBSUzVDX0FERFIoUlM1Q19S
-RUdfQ1RSTDEpOw0KPj4gKwlidWZbMF0gPSByczVjMzcyLT5yZWdzW1JTNUNfUkVHX0NUUkwxXTsN
-Cj4+ICsJYnVmWzFdID0gcnM1YzM3Mi0+cmVnc1tSUzVDX1JFR19DVFJMMl07DQo+PiArDQo+PiAr
-CS8qIGhhbmRsZSB4c3RwIGJpdCAqLw0KPj4gKwlzd2l0Y2ggKHJzNWMzNzItPnR5cGUpIHsNCj4+
-ICsJY2FzZSBydGNfcjIwMjVzZDoNCj4+ICsJCWlmIChidWZbMV0gJiBSMngyeF9DVFJMMl9YU1RQ
-KQ0KPj4gIAkJCXJldHVybiByZXQ7DQo+PiAtCQlyczVjMzcyLT5yZWdzW1JTNUNfUkVHX0NUUkwy
-XSB8PSBSMjAyNV9DVFJMMl9YU1Q7DQo+PiAtCX0gZWxzZSB7DQo+PiAtCQlpZiAoIShyczVjMzcy
-LT5yZWdzW1JTNUNfUkVHX0NUUkwyXSAmIFJTNUNfQ1RSTDJfWFNUUCkpDQo+PiArCQlyczVjMzcy
-LT5yZWdzW1JTNUNfUkVHX0NUUkwyXSB8PSBSMngyeF9DVFJMMl9YU1RQOw0KPj4gKwkJYnJlYWs7
-DQo+PiArCWNhc2UgcnRjX3IyMjIxdGw6DQo+PiArCQlpZiAoIShidWZbMV0gJiBSMngyeF9DVFJM
-Ml9YU1RQKSkNCj4+ICsJCQlyZXR1cm4gcmV0Ow0KPj4gKwkJcnM1YzM3Mi0+cmVnc1tSUzVDX1JF
-R19DVFJMMl0gJj0gflIyeDJ4X0NUUkwyX1hTVFA7DQo+PiArCQlicmVhazsNCj4+ICsNCj4+ICsJ
-ZGVmYXVsdDoNCj4+ICsJCWlmICghKGJ1ZlsxXSAmIFJTNUNfQ1RSTDJfWFNUUCkpDQo+PiAgCQkJ
-cmV0dXJuIHJldDsNCj4+ICAJCXJzNWMzNzItPnJlZ3NbUlM1Q19SRUdfQ1RSTDJdICY9IH5SUzVD
-X0NUUkwyX1hTVFA7DQo+PiArCQlicmVhazsNCj4+ICAJfQ0KPj4gIA0KPiANCj4gTm90ZSB0aGF0
-IHRoaXMgaXMgYWN0dWFsbHkgcXVpdGUgYmFkIHRvIHJlc3RhcnQgdGhlIG9zY2lsbGF0b3Igb24g
-cHJvYmUuDQo+IFRoZSBiZXN0IHdvdWxkIGJlIHRvIGRvIHRoYXQgb25seSBpbiByczVjMzcyX3J0
-Y19zZXRfdGltZSBvbmNlIHlvdSBrbm93DQo+IHRoZSBzZXQgdGltZSBpcyBnb29kLiB0aGVuIHlv
-dSBjYW4gcmV0dXJuIC1FSU5WQUwgZnJvbQ0KPiByczVjMzcyX3J0Y19yZWFkX3RpbWUgd2hlbiB5
-b3Uga25vdyB0aGUgb3NjaWxsYXRvciBpcyBzdG9wcGVkIHNvDQo+IHVzZXJzcGFjZSBrbm93IHRo
-ZSBSVEMgdGltZSBpcyBiYWQuIFRoaXMgY291bGQgYmUgZG9uZSBhcyBhIGZvbGx3IHVwDQo+IHBh
-dGNoLg0KWWVzLCBJIGFncmVlLiBJIGhhdmUgYW5vdGhlciBwYXRjaCB0aGF0IGRvZXMgZXhhY3Rs
-eSB3aGF0IHlvdSBzdWdnZXN0LiBXZSByZXNldA0KdGhlIGRpZmZlcmVudCBiaXRzIChYU1RQLCBQ
-T04sIFZERVQpIGluIHNldCB0aW1lIGFuZCByZXR1cm4gYW4gZXJyb3IgaW4gcmVhZA0KdGltZSBp
-ZiB0aGUgeHN0cCBiaXQgaXMgc2V0LiBJIHdpbGwgc2VuZCBpdCB0byB5b3UuDQoNCj4gVGhlcmUg
-aXMgYWxzbyBtb3JlIHdvcmsgbmVlZGVkIHRvIGNsZWFuIHVwIHRoYXQgZHJpdmVyIGlmIHlvdSBo
-YXZlIHRpbWUNCj4gYW5kIGFyZSB3aWxsaW5nIHRvLg0KWWVzIHN1cmUuIFdpdGggc29tZSBoZWxw
-LCBvciBleGFtcGxlcyBmcm9tIHlvdSBndXlzIEkgY2FuIGRvIHRoYXQu
+When the oscillator of the rtc gets interrupted,
+e.g. due to an empty battery, reading from the rtc will now return an error
+and the oscillator bit will be cleared, once the rtc is successfully reset.
+
+Signed-off-by: Oliver Rohe <oliver.rohe@wago.com>
+---
+ drivers/rtc/rtc-rs5c372.c | 60 ++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 52 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index ff35dce..91d1475 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -52,8 +52,10 @@
+ #	define RS5C_CTRL1_CT4		(4 << 0)	/* 1 Hz level irq */
+ #define RS5C_REG_CTRL2		15
+ #	define RS5C372_CTRL2_24		(1 << 5)
+-#	define R2x2x_CTRL2_XSTP		(1 << 5)	/* only if R2x2x */
+-#	define RS5C_CTRL2_XSTP		(1 << 4)	/* only if !R2x2x */
++#	define RS5C_CTRL2_XSTP          (1 << 4)        /* only if !R2x2x */
++#	define R2x2x_CTRL2_VDET		(1 << 6)	/* only if  R2x2x */
++#	define R2x2x_CTRL2_XSTP		(1 << 5)	/* only if  R2x2x */
++#	define R2x2x_CTRL2_PON		(1 << 4)	/* only if  R2x2x */
+ #	define RS5C_CTRL2_CTFG		(1 << 2)
+ #	define RS5C_CTRL2_AAFG		(1 << 1)	/* or WAFG */
+ #	define RS5C_CTRL2_BAFG		(1 << 0)	/* or DAFG */
+@@ -212,10 +214,31 @@ static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
+ 	int		status = rs5c_get_regs(rs5c);
++	unsigned char ctrl2 = rs5c->regs[RS5C_REG_CTRL2];
+ 
+ 	if (status < 0)
+ 		return status;
+ 
++	switch (rs5c->type) {
++	case rtc_r2025sd:
++	case rtc_r2221tl:
++		if (ctrl2 & R2x2x_CTRL2_VDET)
++			dev_warn(&client->dev, "rtc battery voltage drop below threshold detected.\n");
++		if (ctrl2 & R2x2x_CTRL2_PON)
++			dev_warn(&client->dev, "rtc battery voltage drop to zero detected.\n");
++		if ((rs5c->type == rtc_r2025sd && !(ctrl2 & R2x2x_CTRL2_XSTP)) ||
++		    (rs5c->type == rtc_r2221tl &&  (ctrl2 & R2x2x_CTRL2_XSTP))) {
++			dev_warn(&client->dev, "rtc oscillator interruption detected. Please reset the rtc clock.\n");
++			return -EIO;
++		}
++		break;
++	default:
++		if (ctrl2 & RS5C_CTRL2_XSTP) {
++			dev_warn(&client->dev, "rtc oscillator interruption detected. Please reset the rtc clock.\n");
++			return -EIO;
++		}
++	}
++
+ 	tm->tm_sec = bcd2bin(rs5c->regs[RS5C372_REG_SECS] & 0x7f);
+ 	tm->tm_min = bcd2bin(rs5c->regs[RS5C372_REG_MINS] & 0x7f);
+ 	tm->tm_hour = rs5c_reg2hr(rs5c, rs5c->regs[RS5C372_REG_HOURS]);
+@@ -243,6 +266,7 @@ static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct rs5c372	*rs5c = i2c_get_clientdata(client);
+ 	unsigned char	buf[7];
++	unsigned char	ctrl2;
+ 	int		addr;
+ 
+ 	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d "
+@@ -261,7 +285,32 @@ static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[6] = bin2bcd(tm->tm_year - 100);
+ 
+ 	if (i2c_smbus_write_i2c_block_data(client, addr, sizeof(buf), buf) < 0) {
+-		dev_err(&client->dev, "%s: write error\n", __func__);
++		dev_dbg(&client->dev, "%s: write error in line %i\n",
++			__func__, __LINE__);
++		return -EIO;
++	}
++
++	addr = RS5C_ADDR(RS5C_REG_CTRL2);
++	ctrl2 = i2c_smbus_read_byte_data(client, addr);
++
++	/* clear rtc warning bits */
++	switch (rs5c->type) {
++	case rtc_r2025sd:
++	case rtc_r2221tl:
++		ctrl2 &= ~(R2x2x_CTRL2_VDET | R2x2x_CTRL2_PON);
++		if (rs5c->type == rtc_r2025sd)
++			ctrl2 |= R2x2x_CTRL2_XSTP;
++		else
++			ctrl2 &= ~R2x2x_CTRL2_XSTP;
++		break;
++	default:
++		ctrl2 &= ~RS5C_CTRL2_XSTP;
++		break;
++	}
++
++	if (i2c_smbus_write_byte_data(client, addr, ctrl2) < 0) {
++		dev_dbg(&client->dev, "%s: write error in line %i\n",
++			__func__, __LINE__);
+ 		return -EIO;
+ 	}
+ 
+@@ -523,23 +572,18 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
+ 	buf[0] = rs5c372->regs[RS5C_REG_CTRL1];
+ 	buf[1] = rs5c372->regs[RS5C_REG_CTRL2];
+ 
+-	/* handle xstp bit */
+ 	switch (rs5c372->type) {
+ 	case rtc_r2025sd:
+ 		if (buf[1] & R2x2x_CTRL2_XSTP)
+ 			return ret;
+-		rs5c372->regs[RS5C_REG_CTRL2] |= R2x2x_CTRL2_XSTP;
+ 		break;
+ 	case rtc_r2221tl:
+ 		if (!(buf[1] & R2x2x_CTRL2_XSTP))
+ 			return ret;
+-		rs5c372->regs[RS5C_REG_CTRL2] &= ~R2x2x_CTRL2_XSTP;
+ 		break;
+-
+ 	default:
+ 		if (!(buf[1] & RS5C_CTRL2_XSTP))
+ 			return ret;
+-		rs5c372->regs[RS5C_REG_CTRL2] &= ~RS5C_CTRL2_XSTP;
+ 		break;
+ 	}
+ 
+-- 
+2.7.4
