@@ -2,54 +2,54 @@ Return-Path: <SRS0=n0hO=PX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-9.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A96CBC43387
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 21:07:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB3FBC43387
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 21:08:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 74470205C9
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 21:07:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4759205C9
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 21:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1547586426;
-	bh=iiRSQ6/YXWsrg7QNRO9LiN4tuhzIuCt4w419aI3LojM=;
+	s=default; t=1547586510;
+	bh=yevKcF954BE7mM3Xu241ckLM3kiOZ7uqMctA8K/2sqo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=wJ9HfT9BEcGDYdNlBwmE9hidcRxuh3mphFfNc9KJ3rbK6NhQUJw14cyJ+WeoNIX86
-	 nVcOnvBojVnQtfrpOh2eZooasqFuDs5j6Z29D6m+kcgZiimSYVmsoaeqzXeL6mmekn
-	 Lx9EDn7QuEvskbBNHfmMoEqG7KUn7kOjRPcslAaA=
+	b=l8C8U2oOpCeJ8Htu0XXMby7Gi83kJ1XrSR7FAXaX6z99YftJgrzyCxB9iZxqN0xUp
+	 pxE7Z/kJhrlWzsKvXN7m/Mb9zyOgPA6y5E7UJt8TMKo/AQlceN3TaMIgy8ffVmTH4V
+	 iM1g7fcJaslrfOZkMEzD1sAu9FcwmuDmI00gaAx8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390178AbfAOVHA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Jan 2019 16:07:00 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:39678 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732849AbfAOVHA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Jan 2019 16:07:00 -0500
-Received: by mail-oi1-f195.google.com with SMTP id i6so3293472oia.6;
-        Tue, 15 Jan 2019 13:07:00 -0800 (PST)
+        id S1732858AbfAOVIa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 15 Jan 2019 16:08:30 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:38484 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730505AbfAOVIa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Jan 2019 16:08:30 -0500
+Received: by mail-ot1-f68.google.com with SMTP id e12so3902380otl.5;
+        Tue, 15 Jan 2019 13:08:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to:user-agent;
-        bh=BsLyQbaZ+Ul9+xTqL9g8Pc8gXDyIS2lUCf1BJjiDfmc=;
-        b=ntNMQw3RG5KNgG5cDH4XMSaACdBaEKxuoH6AuXDJH8PHJIvvqP3VKT9bU73b4duPah
-         DIA4fiEy2b78aKu2Astb0dbieVU79kvlkecTx3Rg1I/ejZelNaN1L4sovXo6nuKDVgjJ
-         G5fZFyhaSKq6/ladCgzr8UdqqECNHuqHW8Nkm90lKuEu3F2em5qrq2/W2IphvWg+LmJG
-         PgZ7sep+V/c35E7fzdYqB+5czf11QVTbUZOsmyE75ny79Uq4HIHEZEEP3iDcb6TB9IFA
-         0zBhrnOM9BbodRaMhJJEvYiVHj477qx5YTa/aQ0G84yO5vXiKVOH7RaccNHrHBZXROFZ
-         tnrQ==
-X-Gm-Message-State: AJcUukezdB5smVShUCEGkf0Ocg99bFG4g54cuvZcMmu5W6WqdfPgkoqR
-        daN8osADUf8vBT4oEOk8dQ==
-X-Google-Smtp-Source: ALg8bN7M4ZAfEs+MlesDeGgyJlsb32vlzY8SZGxCX6dbWcReacVtMbMuR+waPg6jPwwLgmk7dy6N5Q==
-X-Received: by 2002:aca:cc:: with SMTP id 195mr3011216oia.297.1547586419771;
-        Tue, 15 Jan 2019 13:06:59 -0800 (PST)
+        bh=ief8Sahwz9dleuFZ1PF7fq768QfDizjpb918XybQ2RY=;
+        b=i4UUp4LJpmH/fgwk6ElJ5OxnOUEWa9uj3d/34X0tbUqoDT0t4LB9hlvBitefczau1U
+         wCWW7uIbzFC677Iti5BBIKLXyqLs7SSIflTlVA/WXGqF96kO2qSIG0ZYZLlBqb3oWGZ4
+         Ornx0pDma+YYCatpWGVTIYZUBiP5LXFxkBw6ll/1xyFhz5ye298/trWTmuuie9UPzvI1
+         +A+3r2xbcacpO9A62dteFxXa3IanoBn02CA18La1HMtziR4vK7sL7e1p4qH1IvoGDZvD
+         VGSqBeA3oj4i8AbytFu022EjRCRBt1G6OfHl4IytqGV2Q4usAKnv3+vDMeGSbdlvWIO6
+         12YQ==
+X-Gm-Message-State: AJcUukf5/q1rS/ds17IoRHjtCpsAdLZR3mHSleFgnZwJt3eetkiULXyj
+        6h2eqcp3/8EwS7aG5rFvgA==
+X-Google-Smtp-Source: ALg8bN5xnPASuqM9X7l7AlaWtkvR9n7xo0E4HvL2pBfHvPB1gLhCPGnfWehNEKzkAUwq3Lzr1Hl1cA==
+X-Received: by 2002:a05:6830:1c5:: with SMTP id r5mr3564589ota.356.1547586509003;
+        Tue, 15 Jan 2019 13:08:29 -0800 (PST)
 Received: from localhost ([70.231.7.113])
-        by smtp.gmail.com with ESMTPSA id m89sm1949659otc.35.2019.01.15.13.06.58
+        by smtp.gmail.com with ESMTPSA id q131sm2022121oih.1.2019.01.15.13.08.28
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 15 Jan 2019 13:06:59 -0800 (PST)
-Date:   Tue, 15 Jan 2019 15:06:57 -0600
+        Tue, 15 Jan 2019 13:08:28 -0800 (PST)
+Date:   Tue, 15 Jan 2019 15:08:27 -0600
 From:   Rob Herring <robh@kernel.org>
 To:     Sam Ravnborg <sam@ravnborg.org>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
@@ -58,30 +58,33 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Fabio Estevam <fabio.estevam@nxp.com>,
         Joel Stanley <joel@jms.id.au>,
         Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Urs =?iso-8859-1?Q?F=E4ssler?= <urs.fassler@bbv.ch>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
         =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v2 2/5] dt-binding: pcf8523: add xtal load capacitance
-Message-ID: <20190115210657.GA24662@bogus>
+Subject: Re: [PATCH v2 3/5] dt-binding: pcf85063: add xtal load capacitance
+Message-ID: <20190115210827.GA25046@bogus>
 References: <20190108185414.26922-1-sam@ravnborg.org>
- <20190108185414.26922-3-sam@ravnborg.org>
+ <20190108185414.26922-4-sam@ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190108185414.26922-3-sam@ravnborg.org>
+In-Reply-To: <20190108185414.26922-4-sam@ravnborg.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue,  8 Jan 2019 19:54:11 +0100, Sam Ravnborg wrote:
-> The NXP pcf8523 supports two different xtal load capacitance
-> - 7000fF  (7pF)    HW default
-> - 12500fF (12.5pF) Minimum power consumption, driver default
+On Tue, Jan 08, 2019 at 07:54:12PM +0100, Sam Ravnborg wrote:
+> The NXP pcf85063 supports two different xtal load capacitance
+> - 7000fF  (7pF)    HW default, Linux driver default
+> - 12500fF (12.5pF) Minimum power consumption
 > 
-> To obtain a precise RTC the pcf8523 must be configured
+> To obtain a precise RTC the pcf85063 must be configured
 > with the correct capacitance load of the xtal.
 > 
 > Add a property to specify the xtal capacitance load.
@@ -95,11 +98,55 @@ On Tue,  8 Jan 2019 19:54:11 +0100, Sam Ravnborg wrote:
 > Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
 > Cc: Rob Herring <robh+dt@kernel.org>
 > Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Urs Fässler <urs.fassler@bbv.ch>
 > ---
->  Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt | 18 ++++++++++++++++++
->  Documentation/devicetree/bindings/rtc/rtc.txt         |  1 -
+>  Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt | 18 ++++++++++++++++++
+>  Documentation/devicetree/bindings/rtc/rtc.txt          |  1 -
 >  2 files changed, 18 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
+>  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
 > 
+> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+> new file mode 100644
+> index 000000000000..ad5e8eaa370e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+> @@ -0,0 +1,18 @@
+> +* NXP PCF85063 Real Time Clock
+> +
+> +Required properties:
+> +- compatible: Should contain "nxp,pcf85063".
+> +- reg: I2C address for chip.
+> +
+> +Optional property:
+> +- quartz-load-femtofarads: The capacitive load of the quartz(x-tal),
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Probably should put this in rtc.txt so it can be shared.
+
+> +  expressed in femto Farad (fF). Valid values are 7000 and 12500.
+> +  Default value (if no value is specified) is 7000fF.
+> +
+> +Example:
+> +
+> +pcf85063: pcf85063@51 {
+
+rtc@51
+
+> +	compatible = "nxp,pcf85063";
+> +	reg = <0x51>;
+> +	quartz-load-femtofarads = <12500>;
+> +};
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt b/Documentation/devicetree/bindings/rtc/rtc.txt
+> index e07b15d151ac..efac6dc5b914 100644
+> --- a/Documentation/devicetree/bindings/rtc/rtc.txt
+> +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
+> @@ -52,7 +52,6 @@ microcrystal,rv3029	Real Time Clock Module with I2C-Bus
+>  nxp,pcf2127		Real-time clock
+>  nxp,pcf2129		Real-time clock
+>  nxp,pcf8563		Real-time clock/calendar
+> -nxp,pcf85063		Tiny Real-Time Clock
+>  pericom,pt7c4338	Real-time Clock Module
+>  ricoh,r2025sd		I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+>  ricoh,r2221tl		I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+> -- 
+> 2.12.0
+> 
