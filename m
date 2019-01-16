@@ -2,116 +2,148 @@ Return-Path: <SRS0=yQZy=PY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42FEFC43387
-	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:08:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DB61C43387
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:11:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0DA1F20652
-	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:08:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1547672894;
-	bh=M9ENv+WrHUYH9nX+r1c75NNRa1eiEiBPU5CzPf72wNY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=H69gtYVbRj2hEpV4z0pe1KMGxfr5o296UwRTuZ012vtBr+5e22gqfvqkpbe/xD02X
-	 ZW5/wQDbxqtMzRdKvRE940tsrHa/8E6E5zUuNtBdQxtF0T1BHw4xVH1h5QjbmLrCzQ
-	 y9rhM1YE6V/Zu9BpDEcYMiW/Ibg1fVubYgWRJjqE=
+	by mail.kernel.org (Postfix) with ESMTP id ED36D20652
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:11:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726385AbfAPVII (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 16 Jan 2019 16:08:08 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:43670 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725943AbfAPVII (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Jan 2019 16:08:08 -0500
-Received: by mail-ot1-f65.google.com with SMTP id a11so9071070otr.10;
-        Wed, 16 Jan 2019 13:08:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wMvltuEb67wibfY2D2ojfW+tDYLhRAe2UHf8TZ4RuI0=;
-        b=rApDNUSYuVLJ2ZaRNdEtfR6ijf4qUzkHqScqjSP3Dxf0uFqsYEcwZGl+N0X2TG385L
-         jQYl64D1G1q+9FZZDfKkqMEgHpTfpySTeV8evUxOoNkYQ7TcLmq52l1w0pjG/ercXx8e
-         +0eMrz2bWSQzE5p5Ye/oUfFxNbDJN9z7/8S5uXDzuGQFeNS4yYU2bwRaZcvyz27i011/
-         qul/vF56qMjuVf3WPlNsY2Z3cXVmuqBn2BY03dcmHFTXRq0WFBEx/wA1FtuYjCKPIgmk
-         PyuflWmhqBC6UOYuLzmf82i9xuf8i1bFiGV0+tXP8z1Iccf1htEQxCn4BZ1papIsCL63
-         dDwg==
-X-Gm-Message-State: AJcUukcUAYt8XDCD81KO7BmujySrUVLEK4GZByKRAH68YzMtX/tmEbkz
-        63YtuVWUhrc///dTvVF80A==
-X-Google-Smtp-Source: ALg8bN4DvfD2O/xk0VZPhQ+44SgsduOyCG2/57/0kIBroNOMBg5LPr1zhaVKEnY8G0wB09U7COP86g==
-X-Received: by 2002:a05:6830:134a:: with SMTP id r10mr6741543otq.195.1547672887417;
-        Wed, 16 Jan 2019 13:08:07 -0800 (PST)
-Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id j5sm4371074otc.54.2019.01.16.13.08.06
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 16 Jan 2019 13:08:06 -0800 (PST)
-Date:   Wed, 16 Jan 2019 15:08:06 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Jan Kotas <jank@cadence.com>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] dt-bindings: rtc: Add bindings for Cadence RTC
-Message-ID: <20190116210806.GA21535@bogus>
-References: <20190111151401.25047-1-jank@cadence.com>
- <20190111151401.25047-2-jank@cadence.com>
+        id S1728127AbfAPVLu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 16 Jan 2019 16:11:50 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:46261 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726924AbfAPVLt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 16 Jan 2019 16:11:49 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 758D7207B0; Wed, 16 Jan 2019 22:11:47 +0100 (CET)
+Received: from localhost (lfbn-lyo-1-59-119.w86-202.abo.wanadoo.fr [86.202.150.119])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 4BAEE207AC;
+        Wed, 16 Jan 2019 22:11:47 +0100 (CET)
+Date:   Wed, 16 Jan 2019 22:11:47 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Sam Ravnborg <sam@ravnborg.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Urs =?iso-8859-1?Q?F=E4ssler?= <urs.fassler@bbv.ch>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 5/5] rtc: pcf85063: set xtal load capacitance from DT
+Message-ID: <20190116211147.GF2627@piout.net>
+References: <20190108185414.26922-1-sam@ravnborg.org>
+ <20190108185414.26922-6-sam@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190111151401.25047-2-jank@cadence.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190108185414.26922-6-sam@ravnborg.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Jan 11, 2019 at 03:14:00PM +0000, Jan Kotas wrote:
-> This patch adds a DT binding documentation for
-> Cadence RTC controller.
+On 08/01/2019 19:54:14+0100, Sam Ravnborg wrote:
+> Add support for specifying the xtal load capacitance in the DT node.
+> The pcf85063 supports xtal load capacitance of 7pF or 12.5pF.
+> If the rtc has the wrong configuration the time will
+> drift several hours/week.
 > 
-> Signed-off-by: Jan Kotas <jank@cadence.com>
+> The driver use the default value 7pF.
+> 
+> The DT may specify either 7000fF or 12500fF.
+> (The DT uses femto Farad to avoid decimal numbers).
+> Other values are warned and the driver uses the default value.
+> 
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Urs Fässler <urs.fassler@bbv.ch>
 > ---
->  Documentation/devicetree/bindings/rtc/cdns,rtc.txt | 25 ++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cdns,rtc.txt
+>  drivers/rtc/rtc-pcf85063.c | 39 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 39 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/cdns,rtc.txt b/Documentation/devicetree/bindings/rtc/cdns,rtc.txt
-> new file mode 100644
-> index 000000000..40713bbbe
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/cdns,rtc.txt
-> @@ -0,0 +1,25 @@
-> +Cadence Real Time Clock
+> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> index 283c2335b01b..0c0b6030627e 100644
+> --- a/drivers/rtc/rtc-pcf85063.c
+> +++ b/drivers/rtc/rtc-pcf85063.c
+> @@ -27,6 +27,7 @@
+>  */
+>  
+>  #define PCF85063_REG_CTRL1		0x00 /* status */
+> +#define PCF85063_REG_CTRL1_CAP_SEL	BIT(0)
+>  #define PCF85063_REG_CTRL1_STOP		BIT(5)
+>  #define PCF85063_REG_CTRL2		0x01
+>  
+> @@ -180,6 +181,39 @@ static const struct rtc_class_ops pcf85063_rtc_ops = {
+>  	.set_time	= pcf85063_rtc_set_time
+>  };
+>  
+> +static int pcf85063_load_capacitance(struct i2c_client *client)
+> +{
+> +	u32 load;
+> +	int rc;
+> +	u8 reg;
 > +
-> +The Cadence RTC controller with date, time and alarm capabilities.
-> +The alarm may wake the system from low-power state.
+> +	rc = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+> +	if (rc < 0)
+> +		return rc;
 > +
-> +Required properties:
-> +- compatible: Should be "cdns,rtc-r109v3"
-> +- reg: Specifies base physical address and size of the register area.
-> +- interrupts: A single interrupt specifier.
-> +- clocks: Must contain two entries:
-> +	- pclk: APB registers clock
-> +	- ref_clk: reference 1Hz of 100Hz clock, depending on IP configuration
+> +	reg = rc;
+> +	load = 7000;
+> +	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
+> +			     &load);
+> +
+> +	switch (load) {
+> +	default:
+> +		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 7000",
+> +			load);
 
-1Hz OR 100Hz?
+Alignment is not correct
 
-> +	See ../clocks/clock-bindings.txt for details.
+> +		/* fall through */
+> +	case 7000:
+> +		reg &= ~PCF85063_REG_CTRL1_CAP_SEL;
+> +		break;
+> +	case 12500:
+> +		reg |= PCF85063_REG_CTRL1_CAP_SEL;
+> +		break;
+> +	}
 > +
-> +Example:
-> +        rtc0: rtc@fd080000 {
-> +        	compatible = "cdns,rtc-r109v3";
-> +        	reg = <0xfd080000 0x1000>;
+> +	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, reg);
 > +
-> +        	clock-names = "pclk", "ref_clk";
-> +        	clocks = <&sysclock>, <&refclock>;
+> +	return rc;
+> +}
 > +
-> +        	interrupt-parent = <&gic>;
-> +        	interrupts = <0 6 IRQ_TYPE_LEVEL_HIGH>;
-> +        };
-> -- 
-> 2.15.0
-> 
+>  static int pcf85063_probe(struct i2c_client *client,
+>  				const struct i2c_device_id *id)
+>  {
+> @@ -197,6 +231,11 @@ static int pcf85063_probe(struct i2c_client *client,
+>  		return err;
+>  	}
+>  
+> +	err = pcf85063_load_capacitance(client);
+> +	if (err < 0)
+> +		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
+> +		         err);
+
+This should be using more tabs.
+
+As you can see, I don't have much to add and I'm quite pleased with the
+series.
+
+As Rob pointed out, quartz-load-femtofarads should be added in rtc.txt
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
