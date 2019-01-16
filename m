@@ -1,83 +1,73 @@
-Return-Path: <SRS0=n0hO=PX=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=yQZy=PY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19A95C43444
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 22:30:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0752C43387
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 02:55:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DC7A220866
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Jan 2019 22:30:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C163B20859
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 02:55:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390993AbfAOWae (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Jan 2019 17:30:34 -0500
-Received: from asavdk4.altibox.net ([109.247.116.15]:35311 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390983AbfAOWae (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Jan 2019 17:30:34 -0500
-X-Greylist: delayed 483 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jan 2019 17:30:33 EST
-Received: from ravnborg.org (unknown [158.248.194.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 11E528044E;
-        Tue, 15 Jan 2019 23:22:25 +0100 (CET)
-Date:   Tue, 15 Jan 2019 23:22:23 +0100
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Urs =?iso-8859-1?Q?F=E4ssler?= <urs.fassler@bbv.ch>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v2 3/5] dt-binding: pcf85063: add xtal load capacitance
-Message-ID: <20190115222223.GA558@ravnborg.org>
-References: <20190108185414.26922-1-sam@ravnborg.org>
- <20190108185414.26922-4-sam@ravnborg.org>
- <20190115210827.GA25046@bogus>
+        id S1728772AbfAPCze (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 15 Jan 2019 21:55:34 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:17554 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727883AbfAPCze (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 15 Jan 2019 21:55:34 -0500
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id B8C05D94F53618E396D3;
+        Wed, 16 Jan 2019 10:55:22 +0800 (CST)
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
+ 14.3.408.0; Wed, 16 Jan 2019 10:55:14 +0800
+From:   Wei Yongjun <weiyongjun1@huawei.com>
+To:     Dianlong Li <long17.cool@163.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     Wei Yongjun <weiyongjun1@huawei.com>, <linux-rtc@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>
+Subject: [PATCH -next] rtc: sd3078: make symbol 'sd3078_driver' static
+Date:   Wed, 16 Jan 2019 03:01:21 +0000
+Message-ID: <1547607681-5873-1-git-send-email-weiyongjun1@huawei.com>
+X-Mailer: git-send-email 1.8.3.1
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190115210827.GA25046@bogus>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=UpRNyd4B c=1 sm=1 tr=0
-        a=UWs3HLbX/2nnQ3s7vZ42gw==:117 a=UWs3HLbX/2nnQ3s7vZ42gw==:17
-        a=kj9zAlcOel0A:10 a=VS2a7EESzNgYQ6qa8v0A:9 a=CjuIK1q_8ugA:10
+X-Originating-IP: [10.175.113.25]
+X-CFilter-Loop: Reflected
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Rob.
+Fixes the following sparse warning:
 
-> > +
-> > +Optional property:
-> > +- quartz-load-femtofarads: The capacitive load of the quartz(x-tal),
-> 
-> Probably should put this in rtc.txt so it can be shared.
+drivers/rtc/rtc-sd3078.c:218:19: warning:
+ symbol 'sd3078_driver' was not declared. Should it be static?
 
-Good point - will do and respin the patchset.
+Fixes: 1d67a232105b ("rtc: sd3078: new driver.")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+---
+ drivers/rtc/rtc-sd3078.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> > +  expressed in femto Farad (fF). Valid values are 7000 and 12500.
-> > +  Default value (if no value is specified) is 7000fF.
-> > +
-> > +Example:
-> > +
-> > +pcf85063: pcf85063@51 {
-> 
-> rtc@51
+diff --git a/drivers/rtc/rtc-sd3078.c b/drivers/rtc/rtc-sd3078.c
+index a70d7311..704844f 100644
+--- a/drivers/rtc/rtc-sd3078.c
++++ b/drivers/rtc/rtc-sd3078.c
+@@ -215,7 +215,7 @@ static int sd3078_probe(struct i2c_client *client,
+ };
+ MODULE_DEVICE_TABLE(of, rtc_dt_match);
+ 
+-struct i2c_driver sd3078_driver = {
++static struct i2c_driver sd3078_driver = {
+ 	.driver     = {
+ 		.name   = "sd3078",
+ 		.owner  = THIS_MODULE,
 
-OK, will change.
 
-	Sam
+
