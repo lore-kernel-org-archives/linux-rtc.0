@@ -2,143 +2,116 @@ Return-Path: <SRS0=yQZy=PY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9391C43387
-	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:04:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42FEFC43387
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:08:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9959C20652
-	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:04:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DA1F20652
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Jan 2019 21:08:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1547672894;
+	bh=M9ENv+WrHUYH9nX+r1c75NNRa1eiEiBPU5CzPf72wNY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=H69gtYVbRj2hEpV4z0pe1KMGxfr5o296UwRTuZ012vtBr+5e22gqfvqkpbe/xD02X
+	 ZW5/wQDbxqtMzRdKvRE940tsrHa/8E6E5zUuNtBdQxtF0T1BHw4xVH1h5QjbmLrCzQ
+	 y9rhM1YE6V/Zu9BpDEcYMiW/Ibg1fVubYgWRJjqE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727012AbfAPVEp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 16 Jan 2019 16:04:45 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:45893 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726803AbfAPVEp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 16 Jan 2019 16:04:45 -0500
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id 92D2D207B0; Wed, 16 Jan 2019 22:04:41 +0100 (CET)
-Received: from localhost (lfbn-lyo-1-59-119.w86-202.abo.wanadoo.fr [86.202.150.119])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 5E22E206A6;
-        Wed, 16 Jan 2019 22:04:41 +0100 (CET)
-Date:   Wed, 16 Jan 2019 22:04:41 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Urs =?iso-8859-1?Q?F=E4ssler?= <urs.fassler@bbv.ch>,
-        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 4/5] rtc: pcf8523: set xtal load capacitance from DT
-Message-ID: <20190116210441.GE2627@piout.net>
-References: <20190108185414.26922-1-sam@ravnborg.org>
- <20190108185414.26922-5-sam@ravnborg.org>
+        id S1726385AbfAPVII (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 16 Jan 2019 16:08:08 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:43670 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725943AbfAPVII (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Jan 2019 16:08:08 -0500
+Received: by mail-ot1-f65.google.com with SMTP id a11so9071070otr.10;
+        Wed, 16 Jan 2019 13:08:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wMvltuEb67wibfY2D2ojfW+tDYLhRAe2UHf8TZ4RuI0=;
+        b=rApDNUSYuVLJ2ZaRNdEtfR6ijf4qUzkHqScqjSP3Dxf0uFqsYEcwZGl+N0X2TG385L
+         jQYl64D1G1q+9FZZDfKkqMEgHpTfpySTeV8evUxOoNkYQ7TcLmq52l1w0pjG/ercXx8e
+         +0eMrz2bWSQzE5p5Ye/oUfFxNbDJN9z7/8S5uXDzuGQFeNS4yYU2bwRaZcvyz27i011/
+         qul/vF56qMjuVf3WPlNsY2Z3cXVmuqBn2BY03dcmHFTXRq0WFBEx/wA1FtuYjCKPIgmk
+         PyuflWmhqBC6UOYuLzmf82i9xuf8i1bFiGV0+tXP8z1Iccf1htEQxCn4BZ1papIsCL63
+         dDwg==
+X-Gm-Message-State: AJcUukcUAYt8XDCD81KO7BmujySrUVLEK4GZByKRAH68YzMtX/tmEbkz
+        63YtuVWUhrc///dTvVF80A==
+X-Google-Smtp-Source: ALg8bN4DvfD2O/xk0VZPhQ+44SgsduOyCG2/57/0kIBroNOMBg5LPr1zhaVKEnY8G0wB09U7COP86g==
+X-Received: by 2002:a05:6830:134a:: with SMTP id r10mr6741543otq.195.1547672887417;
+        Wed, 16 Jan 2019 13:08:07 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id j5sm4371074otc.54.2019.01.16.13.08.06
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 16 Jan 2019 13:08:06 -0800 (PST)
+Date:   Wed, 16 Jan 2019 15:08:06 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Jan Kotas <jank@cadence.com>
+Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: rtc: Add bindings for Cadence RTC
+Message-ID: <20190116210806.GA21535@bogus>
+References: <20190111151401.25047-1-jank@cadence.com>
+ <20190111151401.25047-2-jank@cadence.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190108185414.26922-5-sam@ravnborg.org>
+In-Reply-To: <20190111151401.25047-2-jank@cadence.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 08/01/2019 19:54:13+0100, Sam Ravnborg wrote:
-> Add support for specifying the xtal load capacitance in the DT node.
-> The pcf8523 supports xtal load capacitance of 7pF or 12.5pF.
-> If the rtc has the wrong configuration the time will
-> drift several hours/week.
+On Fri, Jan 11, 2019 at 03:14:00PM +0000, Jan Kotas wrote:
+> This patch adds a DT binding documentation for
+> Cadence RTC controller.
 > 
-> The driver use the default value 12.5pF.
-> 
-> The DT may specify either 7000fF or 12500fF.
-> (The DT uses femto Farad to avoid decimal numbers).
-> Other values are warned and the driver uses the default value.
-> 
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Signed-off-by: Jan Kotas <jank@cadence.com>
 > ---
->  drivers/rtc/rtc-pcf8523.c | 28 ++++++++++++++++++++--------
->  1 file changed, 20 insertions(+), 8 deletions(-)
+>  Documentation/devicetree/bindings/rtc/cdns,rtc.txt | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/cdns,rtc.txt
 > 
-> diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-> index 3fcd2cbafc84..dbbc00b53b50 100644
-> --- a/drivers/rtc/rtc-pcf8523.c
-> +++ b/drivers/rtc/rtc-pcf8523.c
-> @@ -97,8 +97,9 @@ static int pcf8523_voltage_low(struct i2c_client *client)
->  	return !!(value & REG_CONTROL3_BLF);
->  }
->  
-> -static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
-> +static int pcf8523_load_capacitance(struct i2c_client *client)
->  {
-> +	u32 load;
->  	u8 value;
->  	int err;
->  
-> @@ -106,14 +107,24 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
->  	if (err < 0)
->  		return err;
->  
-> -	if (!high)
-> -		value &= ~REG_CONTROL1_CAP_SEL;
-> -	else
-> +	load = 12500;
-> +	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
-> +			     &load);
+> diff --git a/Documentation/devicetree/bindings/rtc/cdns,rtc.txt b/Documentation/devicetree/bindings/rtc/cdns,rtc.txt
+> new file mode 100644
+> index 000000000..40713bbbe
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/cdns,rtc.txt
+> @@ -0,0 +1,25 @@
+> +Cadence Real Time Clock
 > +
-> +	switch (load) {
-> +	default:
-> +		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 12500",
-> +			load);
+> +The Cadence RTC controller with date, time and alarm capabilities.
+> +The alarm may wake the system from low-power state.
+> +
+> +Required properties:
+> +- compatible: Should be "cdns,rtc-r109v3"
+> +- reg: Specifies base physical address and size of the register area.
+> +- interrupts: A single interrupt specifier.
+> +- clocks: Must contain two entries:
+> +	- pclk: APB registers clock
+> +	- ref_clk: reference 1Hz of 100Hz clock, depending on IP configuration
 
-This alignment is not correct, as you will be respinning for the DT doc,
-please fix ;)
+1Hz OR 100Hz?
 
-> +		/* fall through */
-> +	case 12500:
->  		value |= REG_CONTROL1_CAP_SEL;
-> +		break;
-> +	case 7000:
-> +		value &= ~REG_CONTROL1_CAP_SEL;
-> +		break;
-> +	}
->  
->  	err = pcf8523_write(client, REG_CONTROL1, value);
-> -	if (err < 0)
-> -		return err;
->  
->  	return err;
->  }
-> @@ -347,9 +358,10 @@ static int pcf8523_probe(struct i2c_client *client,
->  	if (!pcf)
->  		return -ENOMEM;
->  
-> -	err = pcf8523_select_capacitance(client, true);
-> +	err = pcf8523_load_capacitance(client);
->  	if (err < 0)
-> -		return err;
-> +		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
-> +			err);
-Ditto
-
->  
->  	err = pcf8523_set_pm(client, 0);
->  	if (err < 0)
+> +	See ../clocks/clock-bindings.txt for details.
+> +
+> +Example:
+> +        rtc0: rtc@fd080000 {
+> +        	compatible = "cdns,rtc-r109v3";
+> +        	reg = <0xfd080000 0x1000>;
+> +
+> +        	clock-names = "pclk", "ref_clk";
+> +        	clocks = <&sysclock>, <&refclock>;
+> +
+> +        	interrupt-parent = <&gic>;
+> +        	interrupts = <0 6 IRQ_TYPE_LEVEL_HIGH>;
+> +        };
 > -- 
-> 2.12.0
+> 2.15.0
 > 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
