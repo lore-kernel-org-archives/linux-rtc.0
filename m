@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BEC0C43387
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Jan 2019 13:28:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F187FC43387
+	for <linux-rtc@archiver.kernel.org>; Fri, 18 Jan 2019 13:28:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 29F1B20883
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Jan 2019 13:28:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C04852087E
+	for <linux-rtc@archiver.kernel.org>; Fri, 18 Jan 2019 13:28:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="bIZhk2X1"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="Kko2/4n9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbfARN2a (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 18 Jan 2019 08:28:30 -0500
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:39659 "EHLO
+        id S1726873AbfARN2s (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 18 Jan 2019 08:28:48 -0500
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:39753 "EHLO
         mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726065AbfARN2a (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Jan 2019 08:28:30 -0500
+        with ESMTP id S1726065AbfARN2s (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Jan 2019 08:28:48 -0500
 Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20190118132828euoutp02d1a496c2618d749e279760f47f4fd83c~69F5py7-k1541315413euoutp02V;
-        Fri, 18 Jan 2019 13:28:28 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20190118132828euoutp02d1a496c2618d749e279760f47f4fd83c~69F5py7-k1541315413euoutp02V
+        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20190118132847euoutp0289d6cf30ed8a24ba8e4c1d55ad357c18~69GLI4sLv1541315413euoutp02f;
+        Fri, 18 Jan 2019 13:28:47 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20190118132847euoutp0289d6cf30ed8a24ba8e4c1d55ad357c18~69GLI4sLv1541315413euoutp02f
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1547818108;
-        bh=9T7pDl1m4NIwx32hT3P+SHtwJ/zWjl57FsWGKtR9Pf4=;
+        s=mail20170921; t=1547818127;
+        bh=L6FPGWfIKhhmcvf+DKkC4G1EAjrk+deIgEZEBlDM8C0=;
         h=From:To:Cc:Subject:Date:References:From;
-        b=bIZhk2X16MiryfwdMR9hhl3/1iYbAWlh1Dg/mnR/v/depIwAQhdwIbYu+8Lmu/oHr
-         c9m/YrZFook7+7+xns93cgK8BM1oJb0Gxrb1GHw7PCoX8UJijdkG6AMNungTgDMGBY
-         y9Ye961qJ/shrqmx21BpAw7NiDeYWsDKhSohnkls=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20190118132827eucas1p128572742fe9ec35c728ae9b49f00047a~69F41SKTp1790717907eucas1p1e;
-        Fri, 18 Jan 2019 13:28:27 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges3new.samsung.com (EUCPMTA) with SMTP id 15.90.04806.B74D14C5; Fri, 18
-        Jan 2019 13:28:27 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        b=Kko2/4n9s5gPCBUNY5M1A3DGQAfPSJwE51UiAXzerKe96jnnTiUSyVrgtZ/3gDE3b
+         xNhNRuMYAZsVn0YjB2AIGLYd9LPDoJUbsznsfTRFiKHcuzJMOqbk/BrhUrJ/boOZe+
+         ol1OWq+64Y3UyAFrnjk/S3G/z2K1EgubwDrV5qO8=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
         eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20190118132826eucas1p2b158579e05c57a4e73edfaf376b0108c~69F37JiQL0858808588eucas1p2c;
-        Fri, 18 Jan 2019 13:28:26 +0000 (GMT)
-X-AuditID: cbfec7f5-367ff700000012c6-e3-5c41d47b242c
+        20190118132846eucas1p2fe6f95e420886392b186e7f76c51607c~69GKdf16q0282402824eucas1p2E;
+        Fri, 18 Jan 2019 13:28:46 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges2new.samsung.com (EUCPMTA) with SMTP id 0A.26.04294.D84D14C5; Fri, 18
+        Jan 2019 13:28:46 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20190118132845eucas1p2c3e5f6dadb6af90a3701fca03599e094~69GJxQnmA0861308613eucas1p2i;
+        Fri, 18 Jan 2019 13:28:45 +0000 (GMT)
+X-AuditID: cbfec7f4-835ff700000010c6-9a-5c41d48df859
 Received: from eusync3.samsung.com ( [203.254.199.213]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id BC.A6.04128.A74D14C5; Fri, 18
-        Jan 2019 13:28:26 +0000 (GMT)
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id FD.60.04284.D84D14C5; Fri, 18
+        Jan 2019 13:28:45 +0000 (GMT)
 Received: from AMDC2765.digital.local ([106.116.147.25]) by
         eusync3.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0 64bit
-        (built May  5 2014)) with ESMTPA id <0PLJ00HN642XSW40@eusync3.samsung.com>;
-        Fri, 18 Jan 2019 13:28:26 +0000 (GMT)
+        (built May  5 2014)) with ESMTPA id <0PLJ0099K43TMY40@eusync3.samsung.com>;
+        Fri, 18 Jan 2019 13:28:45 +0000 (GMT)
 From:   Marek Szyprowski <m.szyprowski@samsung.com>
 To:     linux-rtc@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
@@ -58,201 +58,88 @@ Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH] rtc: s3c: Rewrite clock handling
-Date:   Fri, 18 Jan 2019 14:27:54 +0100
-Message-id: <20190118132754.15660-1-m.szyprowski@samsung.com>
+Subject: [PATCH] rtc: s3c: Use generic helper to get driver data
+Date:   Fri, 18 Jan 2019 14:28:37 +0100
+Message-id: <20190118132837.15713-1-m.szyprowski@samsung.com>
 X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprHIsWRmVeSWpSXmKPExsWy7djP87rVVxxjDNY+YrFYcvEqu0X7u2Xs
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprLIsWRmVeSWpSXmKPExsWy7djP87p9VxxjDCZ2MFosuXiV3aL93TJ2
+        i40z1rNanD+/gd3i2OorbBYzzu9jslh75C67A7vHvDXVHptWdbJ59G1Zxegxfd5PJo/Pm+QC
+        WKO4bFJSczLLUov07RK4Mo4s62Eq+M1VcW7KAdYGxhmcXYwcHBICJhJPbqh1MXJxCAmsYJR4
+        vHstM4TzmVHi/pdDTF2MnGBFsx8uhUosY5R48XEzO4TTwCRxZUUjK0gVm4ChRNfbLjYQW0TA
+        QeLrn7csIEXMAu8YJfasXcMCkhAGSmy92AE2lkVAVaJn5jd2EJtXwFbi8snzUOvkJVZvOAC2
+        TkLgLavE+ZMr2CASLhJvWrexQ9jCEq+Ob4GyZSQ6Ow4yQTQ0M0q0z5jFDuH0MEpsnbMDqtta
+        4vDxi2C3MgvwSUzaNp0ZEgS8Eh1tQhAlHhKr501gBrGFBGIlLj+5zTSBUWIBI8MqRvHU0uLc
+        9NRio7zUcr3ixNzi0rx0veT83E2MwEg7/e/4lx2Mu/4kHWIU4GBU4uGdsMUhRog1say4MvcQ
+        owQHs5IIL9cKxxgh3pTEyqrUovz4otKc1OJDjNIcLErivNUMD6KFBNITS1KzU1MLUotgskwc
+        nFINjI1s0ZGVngs+/+4+8v1939/tD1W2x5o/PcKzwCYoIGF+2St39987eJ9vkqvp55059xST
+        Q4NZyjIxi+xPPXeu1lY+UT+88bfx0xDDdLu0W//ds6LrrFNn3M/nytt3atNyIaHE8ttP9edO
+        z7z5b0P7E8c9SV47HyySfff6f9AxDvslvHePHFh2VleJpTgj0VCLuag4EQBpQGc+sAIAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrPJMWRmVeSWpSXmKPExsVy+t/xq7q9VxxjDNZ+FLFYcvEqu0X7u2Xs
         FhtnrGe1OH9+A7vFsdVX2CxmnN/HZLH2yF12B3aPeWuqPTat6mTz6NuyitFj+ryfTB6fN8kF
-        sEZx2aSk5mSWpRbp2yVwZSzt2MBUcEWxYvadX8wNjKukuxg5OSQETCQ2fFjC1sXIxSEksIJR
-        4uyeJ1DOZ0aJhm8PmWCqzj5bwgSRWMYosXt5NzuE08AkMXvuO0aQKjYBQ4mut11sILaIgIPE
-        1z9vWUCKmAXeMUrsWbuGBSQhDFS0dxZEEYuAqsTRZz+ZQWxeAVuJ4493MUOsk5dYveEAM0iz
-        hMBLVokrr05D3eEisercB1YIW1ji1fEt7BC2jMTlyd0sEA3NjBLtM2axQzg9jBJb5+xgg6iy
-        ljh8/CJYN7MAn8SkbdOBVnAAxXklOtqEIEo8JJZd+Q52qZBArMTXLW2MExglFjAyrGIUTy0t
-        zk1PLTbOSy3XK07MLS7NS9dLzs/dxAiMtdP/jn/dwbjvT9IhRgEORiUe3hfbHGKEWBPLiitz
-        DzFKcDArifByrXCMEeJNSaysSi3Kjy8qzUktPsQozcGiJM5bzfAgWkggPbEkNTs1tSC1CCbL
-        xMEp1cB4OdvzEktXl8ut+bu+Op15/bpv4Ta3pKC7Om0hmlW753gG2s0yDF0y/1XkG/v6zJoW
-        l3jViaKJay4WTdBbml+24EvQ8xb/S9q8TmtjZpZOiNCWyK4SZ3CW3T93dtOfDQ9XsTarJIfp
-        cB7g/ftNcu3ZaRsn7fwi1OSy/lyyj0nU94DbLau/qX9TYinOSDTUYi4qTgQAKHc+6bECAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrPJMWRmVeSWpSXmKPExsVy+t/xq7pVVxxjDC7MY7NYcvEqu0X7u2Xs
-        FhtnrGe1OH9+A7vFsdVX2CxmnN/HZLH2yF12B3aPeWuqPTat6mTz6NuyitFj+ryfTB6fN8kF
-        sEZx2aSk5mSWpRbp2yVwZSzt2MBUcEWxYvadX8wNjKukuxg5OSQETCTOPlvC1MXIxSEksIRR
-        4se/lWwQThOTxJR5i9lAqtgEDCW63naB2SICDhJf/7xlASliFvjAKLHkwhlmkIQwUNHeWRBF
-        LAKqEkef/QSL8wrYShx/vIsZYp28xOoNB5gnMHItYGRYxSiSWlqcm55bbKRXnJhbXJqXrpec
-        n7uJERgM24793LKDsetd8CFGAQ5GJR7eF9scYoRYE8uKK3MPMUpwMCuJ8HKtcIwR4k1JrKxK
-        LcqPLyrNSS0+xCjNwaIkznveoDJKSCA9sSQ1OzW1ILUIJsvEwSnVwDhfYP/1HNN5d8xnnXq6
-        /7H0c/OEhR533/4Xu7J0o2ZM5Z3oQzoLgvTnTK1+UZQj8aIy7HPFDise9d031qk97J7TYNW9
-        98IGU46vrWbPL5/12uQl4pkx+7HL5RKnFoOPLc9TWDaU3hZ6+HLqOYMdO/7N21ukueUo19S2
-        qY2WW8rjbiaxduhIyW5QYinOSDTUYi4qTgQAERf2tAICAAA=
-X-CMS-MailID: 20190118132826eucas1p2b158579e05c57a4e73edfaf376b0108c
+        sEZx2aSk5mSWpRbp2yVwZRxZ1sNU8Jur4tyUA6wNjDM4uxg5OSQETCRmP1zK3MXIxSEksIRR
+        Yt/dtVBOE5PEqafTWUCq2AQMJbredrGB2CICDhJf/7xlASliFvjAKLHkwhlmkIQwUGLrxQ4m
+        EJtFQFWiZ+Y3dhCbV8BW4vLJ80wQ6+QlVm84wDyBkWsBI8MqRpHU0uLc9NxiQ73ixNzi0rx0
+        veT83E2MwGDYduzn5h2MlzYGH2IU4GBU4uF9sc0hRog1say4MvcQowQHs5IIL9cKxxgh3pTE
+        yqrUovz4otKc1OJDjNIcLErivOcNKqOEBNITS1KzU1MLUotgskwcnFINjDYHa6/9YZso0D7/
+        /onezgl+jEvEeheV+p15uEW95ELJ1YU2ahtvCn28mF0gF93eoPiSw3RXd8KeJ1wWv21i5BPV
+        b+00Czp9YvanSQsa+W9Nq78SNJGz5IOzx89PZp2fP4stPzu/zCclQ+fJ9N/tkvzBExccuHV8
+        i6q43i1H7kX7uz4+9/D6ka/EUpyRaKjFXFScCAC0O4/0AgIAAA==
+X-CMS-MailID: 20190118132845eucas1p2c3e5f6dadb6af90a3701fca03599e094
 X-Msg-Generator: CA
 CMS-TYPE: 201P
-X-CMS-RootMailID: 20190118132826eucas1p2b158579e05c57a4e73edfaf376b0108c
-References: <CGME20190118132826eucas1p2b158579e05c57a4e73edfaf376b0108c@eucas1p2.samsung.com>
+X-CMS-RootMailID: 20190118132845eucas1p2c3e5f6dadb6af90a3701fca03599e094
+References: <CGME20190118132845eucas1p2c3e5f6dadb6af90a3701fca03599e094@eucas1p2.samsung.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-s3c_rtc_enable/disable_clk() functions were designed to be called multiple
-times without reference counting, because they were initially used in
-alarm setting/clearing functions, which can be called both when alarm is
-already set or not. Later however, calls to those functions have been added to
-other places in the driver - like time and /proc reading callbacks, what
-results in broken alarm if any of such events happens after the alarm has
-been set. Fix this by simplifying s3c_rtc_enable/disable_clk() functions
-to rely on proper reference counting in clock core and move alarm enable
-counter to s3c_rtc_setaie() function.
+Replace of_match_node() with of_device_get_match_data(), which removes a
+few lines of code from the driver.
 
 Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
- drivers/rtc/rtc-s3c.c | 67 ++++++++++++++++++-------------------------
- 1 file changed, 28 insertions(+), 39 deletions(-)
+ drivers/rtc/rtc-s3c.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 04c68178c42d..e682977b4f6e 100644
+index e682977b4f6e..2904b872db88 100644
 --- a/drivers/rtc/rtc-s3c.c
 +++ b/drivers/rtc/rtc-s3c.c
-@@ -39,7 +39,7 @@ struct s3c_rtc {
- 	void __iomem *base;
- 	struct clk *rtc_clk;
- 	struct clk *rtc_src_clk;
--	bool clk_disabled;
-+	bool alarm_enabled;
+@@ -26,6 +26,7 @@
+ #include <linux/log2.h>
+ #include <linux/slab.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/uaccess.h>
+ #include <linux/io.h>
  
- 	const struct s3c_rtc_data *data;
- 
-@@ -47,7 +47,7 @@ struct s3c_rtc {
- 	int irq_tick;
- 
- 	spinlock_t pie_lock;
--	spinlock_t alarm_clk_lock;
-+	spinlock_t alarm_lock;
- 
- 	int ticnt_save;
- 	int ticnt_en_save;
-@@ -70,44 +70,28 @@ struct s3c_rtc_data {
- 
- static int s3c_rtc_enable_clk(struct s3c_rtc *info)
- {
--	unsigned long irq_flags;
- 	int ret = 0;
- 
--	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
-+	ret = clk_enable(info->rtc_clk);
-+	if (ret)
-+		goto out;
- 
--	if (info->clk_disabled) {
--		ret = clk_enable(info->rtc_clk);
--		if (ret)
-+	if (info->data->needs_src_clk) {
-+		ret = clk_enable(info->rtc_src_clk);
-+		if (ret) {
-+			clk_disable(info->rtc_clk);
- 			goto out;
--
--		if (info->data->needs_src_clk) {
--			ret = clk_enable(info->rtc_src_clk);
--			if (ret) {
--				clk_disable(info->rtc_clk);
--				goto out;
--			}
- 		}
--		info->clk_disabled = false;
- 	}
--
- out:
--	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
--
- 	return ret;
- }
- 
- static void s3c_rtc_disable_clk(struct s3c_rtc *info)
- {
--	unsigned long irq_flags;
--
--	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
--	if (!info->clk_disabled) {
--		if (info->data->needs_src_clk)
--			clk_disable(info->rtc_src_clk);
--		clk_disable(info->rtc_clk);
--		info->clk_disabled = true;
--	}
--	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
-+	if (info->data->needs_src_clk)
-+		clk_disable(info->rtc_src_clk);
-+	clk_disable(info->rtc_clk);
- }
- 
- /* IRQ Handlers */
-@@ -135,6 +119,7 @@ static irqreturn_t s3c_rtc_alarmirq(int irq, void *id)
- static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
-+	unsigned long flags;
- 	unsigned int tmp;
- 	int ret;
- 
-@@ -151,17 +136,19 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- 
- 	writeb(tmp, info->base + S3C2410_RTCALM);
- 
--	s3c_rtc_disable_clk(info);
-+	spin_lock_irqsave(&info->alarm_lock, flags);
- 
--	if (enabled) {
--		ret = s3c_rtc_enable_clk(info);
--		if (ret)
--			return ret;
--	} else {
-+	if (info->alarm_enabled && !enabled)
- 		s3c_rtc_disable_clk(info);
--	}
-+	else if (!info->alarm_enabled && enabled)
-+		ret = s3c_rtc_enable_clk(info);
- 
--	return 0;
-+	info->alarm_enabled = enabled;
-+	spin_unlock_irqrestore(&info->alarm_lock, flags);
-+
-+	s3c_rtc_disable_clk(info);
-+
-+	return ret;
- }
- 
- /* Set RTC frequency */
-@@ -357,10 +344,10 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	writeb(alrm_en, info->base + S3C2410_RTCALM);
- 
--	s3c_rtc_disable_clk(info);
--
- 	s3c_rtc_setaie(dev, alrm->enabled);
- 
-+	s3c_rtc_disable_clk(info);
-+
+@@ -443,16 +444,6 @@ static int s3c_rtc_remove(struct platform_device *pdev)
  	return 0;
  }
  
-@@ -491,7 +478,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+-static const struct of_device_id s3c_rtc_dt_match[];
+-
+-static const struct s3c_rtc_data *s3c_rtc_get_data(struct platform_device *pdev)
+-{
+-	const struct of_device_id *match;
+-
+-	match = of_match_node(s3c_rtc_dt_match, pdev->dev.of_node);
+-	return match->data;
+-}
+-
+ static int s3c_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct s3c_rtc *info = NULL;
+@@ -472,7 +463,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	info->dev = &pdev->dev;
+-	info->data = s3c_rtc_get_data(pdev);
++	info->data = of_device_get_match_data(&pdev->dev);
+ 	if (!info->data) {
+ 		dev_err(&pdev->dev, "failed getting s3c_rtc_data\n");
  		return -EINVAL;
- 	}
- 	spin_lock_init(&info->pie_lock);
--	spin_lock_init(&info->alarm_clk_lock);
-+	spin_lock_init(&info->alarm_lock);
- 
- 	platform_set_drvdata(pdev, info);
- 
-@@ -591,6 +578,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 
- 	s3c_rtc_setfreq(info, 1);
- 
-+	s3c_rtc_disable_clk(info);
-+
- 	return 0;
- 
- err_nortc:
 -- 
 2.17.1
 
