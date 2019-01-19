@@ -7,53 +7,52 @@ X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83987C61CE4
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75C64C6369F
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 543BA2086D
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 47B542087E
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fkk4BRzw"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tw6X/Uc0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727942AbfASJBb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 19 Jan 2019 04:01:31 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:42556 "EHLO
+        id S1727764AbfASJBG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 19 Jan 2019 04:01:06 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42552 "EHLO
         mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727733AbfASJBH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Jan 2019 04:01:07 -0500
-Received: by mail-lj1-f194.google.com with SMTP id l15-v6so13586186lja.9;
-        Sat, 19 Jan 2019 01:01:05 -0800 (PST)
+        with ESMTP id S1727699AbfASJBG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Jan 2019 04:01:06 -0500
+Received: by mail-lj1-f194.google.com with SMTP id l15-v6so13586138lja.9;
+        Sat, 19 Jan 2019 01:01:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=1pudjFZm7a1TG8b705J5+DLKWhWvGwPk11vg4nopYJk=;
-        b=fkk4BRzw835xS+GyYaXXi+h/P94dO8Ss8mevsxlSA/BuAAe+GIf1U893vJhhNI2i02
-         tcfYFbcduwycjK/q5S7KZmBHuuNxwzAfF+ylj+OSTN9uLKhKQ0FP3AaqNHYs6i6aWH7w
-         +oeG2g6DwoD0/R0Vpxs78yscBmPo/BXEFcGIwF5mMz5CTBAaosCOFZmhLdgnAlnhzSXr
-         ghU/Ge9i4niAZrNSbDn2hT1iKItKHAeCT/ylusv29lbU6/pQL51noWX81ME0cZrsGiIF
-         AJ6NrHgef9B95/O7FmFkR6th6Warm4g8kRd4VM/xoTQ6sQquFAa3HuIrWEBsmPL65z+g
-         auUA==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=3OMj0V3WJlVkkkCXQcxklvPa9pcGHx9O1wUkkzb/B9s=;
+        b=Tw6X/Uc0MUuK+PT73msgsRYGPY+ozTfKqL1QOFm9Cn1I+w5Pplr+NUSCWafA+9TXC2
+         3YPBGa1ID9agIZPoXCcsWz7RVW7/RoB8K9JayCe/XbHRqFDHsVGlarq1NRRTm4K50oCX
+         Gql/oy8Oz5ArBD3xNR+7NYHS3Ard/u2TgCW+d2s03c92ZmbAq8aZQ6bwBOawP0H+DDa+
+         xVinIVy6tG1aZrCz2lxiS3s0ccDcco06Jnr0GPrnZYXu9+jB4oFEw0tmsELxmTC4pXUH
+         W5H0hnGfpjYBNK/t9tzYZLdYuEBga9XourFMY64dhvjMb9fExP++LdVBSdcWX4r/EyRs
+         LP6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=1pudjFZm7a1TG8b705J5+DLKWhWvGwPk11vg4nopYJk=;
-        b=SOzRrlbxA5VjQxVw/F60VT5jlPqATXKVo6QDFQM5QyiFYauL//tOYOTccExvdRM1xX
-         FERg4w3YoYuyJoA67qxWMQZWDSrmMfPbLocPns/8OEA7zHtYAt1h55aV7Kwnigczs07n
-         6WEk/8cRmjJ3TwQh1OS7A6aFn5BpaIeSf4m6A+47UWqW9QcXj7oYxT/KVO4RwGR0lZE9
-         on849aLBq+guHFjtxsYqNWmrXZtfeZfzIcMju1IoTPayFdxqzRZnHsVgLhFPZuc7FKov
-         W4WFSYp0umSGdlAuFIpT4PIdY94Cq705qScJgpopJgLE6gV0v5T8HJUEdw/YGHTXfnh6
-         oXPg==
-X-Gm-Message-State: AJcUukcarmFwU8HhNWD/FRCVuIUUm8L1GtlhQxmNEr85xY4bKnj13PSs
-        RZoLInpDvjUf2Bzc/DxIua4=
-X-Google-Smtp-Source: ALg8bN72OQaBPsFJgD/k6pNJAUvUZIOHB+1axILf3JhkGhzV7kUTLBkDdjcybobihzmmmf2UGGMZ/Q==
-X-Received: by 2002:a2e:5703:: with SMTP id l3-v6mr15189174ljb.106.1547888465056;
-        Sat, 19 Jan 2019 01:01:05 -0800 (PST)
+         :in-reply-to:references;
+        bh=3OMj0V3WJlVkkkCXQcxklvPa9pcGHx9O1wUkkzb/B9s=;
+        b=mdAhaEz29gYZ8pgsAtBoDCEL+XgTVw22BPy/BXOaZficAfJZDuwGC4SJqCGfBUCJOz
+         5GDmO+S7YvTjdWl161+er552q+rfDA2al52B3+joVb8U3NyjlotTPFzbCzvXW+mKr276
+         yr2np/IC3GCKf7+tjxo0MQWem00S5Kk2LPXuBaf4mGpxFXMiE1A6rtLbnuuSMSyEAt0d
+         sxAEgsE/N9MMbVvu3Bw4PWx1T2npvIa3HfgIEfjr2qW9KuPa++CERYJ87o5pldg6C88P
+         82mx1C55LPS9WWmXj1yScMVTuArfir06BHXYAQMCZkVvKXAJd1Dp9O+vIbolzxmN6DVG
+         2EzA==
+X-Gm-Message-State: AJcUukfTDHhTrguBhSp9NBcuqTMicarWxNTyHYK6UFZpbeOIyPJF+Ibo
+        yybM+kEd86BLFuCRw/bc1k8=
+X-Google-Smtp-Source: ALg8bN75d8KF6zxVqbHsI+CxWM2wPItbUYip48+WFfPJZvUf0l+8fJTi7R6wWv+PSPdWNHFFYEz44w==
+X-Received: by 2002:a2e:5152:: with SMTP id b18-v6mr12418732lje.88.1547888463852;
+        Sat, 19 Jan 2019 01:01:03 -0800 (PST)
 Received: from jupiter.lan (18.158-248-194.customer.lyse.net. [158.248.194.18])
-        by smtp.gmail.com with ESMTPSA id h22-v6sm1254995lji.45.2019.01.19.01.01.03
+        by smtp.gmail.com with ESMTPSA id h22-v6sm1254995lji.45.2019.01.19.01.01.02
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 19 Jan 2019 01:01:04 -0800 (PST)
+        Sat, 19 Jan 2019 01:01:03 -0800 (PST)
 From:   Sam Ravnborg <sam@ravnborg.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
@@ -67,82 +66,59 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         =?UTF-8?q?Urs=20F=C3=A4ssler?= <urs.fassler@bbv.ch>,
         Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Sam Ravnborg <sam@ravnborg.org>,
-        =?UTF-8?q?S=C3=B8ren=20Andersen?= <san@skov.dk>
-Subject: [PATCH v3 3/6] dt-binding: pcf8523: add xtal load capacitance
-Date:   Sat, 19 Jan 2019 10:00:28 +0100
-Message-Id: <20190119090031.29147-4-sam@ravnborg.org>
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH v3 2/6] dt-bindings: rtc: Add quartz-load-femtofarads property
+Date:   Sat, 19 Jan 2019 10:00:27 +0100
+Message-Id: <20190119090031.29147-3-sam@ravnborg.org>
 X-Mailer: git-send-email 2.12.0
 In-Reply-To: <20190119090031.29147-1-sam@ravnborg.org>
 References: <20190119090031.29147-1-sam@ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The NXP pcf8523 supports two different xtal load capacitance
-- 7000fF  (7pF)    HW default
-- 12500fF (12.5pF) Minimum power consumption, driver default
+The quartz-load-femtofarads are relevant for
+several users. Add it as a common property in rtc.
+Note that valid values and default values must be documented.
 
-To obtain a precise RTC the pcf8523 must be configured
-with the correct capacitance load of the xtal.
-
-Add a property to specify the xtal capacitance load.
-The default value matches that of the current Linux driver.
-
-With a dedicated binding remove the entry in rtc.txt
-
-Signed-off-by: Søren Andersen <san@skov.dk>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Suggested-by: Rob Herring <robh+dt@kernel.org>
 Cc: Alessandro Zummo <a.zummo@towertech.it>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com>
 ---
- Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt | 18 ++++++++++++++++++
- Documentation/devicetree/bindings/rtc/rtc.txt         |  1 -
- 2 files changed, 18 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
+ Documentation/devicetree/bindings/rtc/rtc.txt | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
-new file mode 100644
-index 000000000000..0b1080c60f63
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8523.txt
-@@ -0,0 +1,18 @@
-+* NXP PCF8523 Real Time Clock
-+
-+Required properties:
-+- compatible: Should contain "nxp,pcf8523".
-+- reg: I2C address for chip.
-+
-+Optional property:
-+- quartz-load-femtofarads: The capacitive load of the quartz(x-tal),
-+  expressed in femto Farad (fF). Valid values are 7000 and 12500.
-+  Default value (if no value is specified) is 12500fF.
-+
-+Example:
-+
-+pcf8523: rtc@68 {
-+	compatible = "nxp,pcf8523";
-+	reg = <0x68>;
-+	quartz-load-femtofarads = <7000>;
-+};
 diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt b/Documentation/devicetree/bindings/rtc/rtc.txt
-index 41eb335ea816..6d726a801d21 100644
+index 7c8da6926095..41eb335ea816 100644
 --- a/Documentation/devicetree/bindings/rtc/rtc.txt
 +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
-@@ -55,7 +55,6 @@ isil,isl12022		Intersil ISL12022 Real-time Clock
- microcrystal,rv3029	Real Time Clock Module with I2C-Bus
- nxp,pcf2127		Real-time clock
- nxp,pcf2129		Real-time clock
--nxp,pcf8523		Real-time Clock
- nxp,pcf8563		Real-time clock/calendar
- nxp,pcf85063		Tiny Real-Time Clock
- pericom,pt7c4338	Real-time Clock Module
+@@ -21,12 +21,16 @@ Optional properties
+ The following properties may not be supported by all drivers. However, if a
+ driver wants to support one of the below features, it should adapt the bindings
+ below.
+-- trickle-resistor-ohms : Selected resistor for trickle charger. Should be given
+-                          if trickle charger should be enabled
+-- trickle-diode-disable : Do not use internal trickle charger diode Should be
+-                          given if internal trickle charger diode should be
+-                          disabled
+-- wakeup-source :         Enables wake up of host system on alarm
++- trickle-resistor-ohms :   Selected resistor for trickle charger. Should be given
++                            if trickle charger should be enabled
++- trickle-diode-disable :   Do not use internal trickle charger diode Should be
++                            given if internal trickle charger diode should be
++                            disabled
++- wakeup-source :           Enables wake up of host system on alarm
++- quartz-load-femtofarads : The capacitive load of the quartz(x-tal),
++                            expressed in femto Farad (fF).
++                            The default value shall be listed (if optional),
++                            and likewise all valid values.
+ 
+ Trivial RTCs
+ ------------
 -- 
 2.12.0
 
