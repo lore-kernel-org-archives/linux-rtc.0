@@ -2,372 +2,134 @@ Return-Path: <SRS0=3b/R=P3=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65AD8C5AE5E
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 00:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02F08C61CE4
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 234FA2086A
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 00:14:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFDFF2086D
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Jan 2019 09:01:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Q8g2CYvF"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IImAnO6Z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730333AbfASAOi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 18 Jan 2019 19:14:38 -0500
-Received: from mail-it1-f194.google.com ([209.85.166.194]:53932 "EHLO
-        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730327AbfASAOh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Jan 2019 19:14:37 -0500
-Received: by mail-it1-f194.google.com with SMTP id g85so9254231ita.3
-        for <linux-rtc@vger.kernel.org>; Fri, 18 Jan 2019 16:14:37 -0800 (PST)
+        id S1727632AbfASJBD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 19 Jan 2019 04:01:03 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:47005 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725910AbfASJBD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Jan 2019 04:01:03 -0500
+Received: by mail-lf1-f68.google.com with SMTP id y14so12171919lfg.13;
+        Sat, 19 Jan 2019 01:01:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=U4/11qBya9eW0TJulgY+pL3W8mKOzagyoDohcwhv/7A=;
-        b=Q8g2CYvFZ2UYeUj77LcTL3vkxcfxEPoIB439S9+EqUmuDAbzYtgWiQ3jf05hkXWD/6
-         3tY1MKyy89MkZIZkVM3yrADfnvnVYnMglnZp65eslvKy3dEhH0v1NNjVOy9uOrinJfOG
-         5uHQArlFqJFNUefh4kwNC9K9gefzHtxXA15hg=
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Yww/q1jFw3l6TVcJi8RYti1Nuo+2WwuCQ/8CHa9h/xk=;
+        b=IImAnO6ZZMTWiEbSRkqx9BNmmB7fObKCe72pn8iHCLVUYAzjcmQ29P1an97BXEkIZc
+         LcrCMyXNBA2ZVV8JP5C/4qHXoAtJazqZA3TkVooMo/vf/HvaMK6gXcu9yChB+L+okfmS
+         DVeX83vvr47ixU5Zy9CvU+YG2YGDIl92ac95YwDFL9frmIaxB3L9XmFYmYssv5pVWXJf
+         ujiwa7/YH3mxi+hqOk6boOYDq5dGxzvpdV/3lbPXekUDJwlqMFsV5CoTY0ivo9nykOa+
+         mWYgZuvdzxfsyQ9y8xc+loL6Kx7oTk7dNM5DlTP2EZ3glWWVvmbS/5xuCWIko4xzC0uR
+         z+UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=U4/11qBya9eW0TJulgY+pL3W8mKOzagyoDohcwhv/7A=;
-        b=nqN1YVvrbDNl/Gk4cEGSxKV38P2/OFg07611DBqq9Cp1q2bZiDhMHeO4hj+eSTM07Y
-         sdBv1LLxI5KcRwlC3Zu1PrdvvHr/CR8EnJq17CdjvKq5IaMA/p0xEm2/4jbDHJBnOY1F
-         CLHR/zPkd4mz5bYgpZWMGwC+pRbyslt76QAyCh8I6raqnoDVjKllL5SWQDbU/Q5kQl97
-         apV+Hrl1eNStQUaohUxc49P5FhGUsbw15+g6iLRwHSysRQUpLV7LSbklHf6GxDGBbjgY
-         JHmCNhNWBuG7b3Z/nRSOb8tFb+M9VXVv16ifQH0X5M654NQWgsmVXTb9E9rm8KO0pFsX
-         tOGA==
-X-Gm-Message-State: AJcUukcXlQfmZVIEWYqaaAQ0XBqDoKfz3Cg1ASrO1JAHGwwQOQ3WaZAB
-        DWGplYai5PHU53h2snWU2NvA6A==
-X-Google-Smtp-Source: ALg8bN5OLnie6P7lkZw7Wk3ioFnDPCuK3kz7rz69+eDYmQ1WCsYXa3i1dJLSCYctkAXGhzsS6brFug==
-X-Received: by 2002:a24:9a01:: with SMTP id l1mr1265823ite.113.1547856876495;
-        Fri, 18 Jan 2019 16:14:36 -0800 (PST)
-Received: from ncrews2.bld.corp.google.com ([2620:15c:183:200:8140:8e3f:aea5:bcdf])
-        by smtp.gmail.com with ESMTPSA id e22sm2382062iod.47.2019.01.18.16.14.35
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=Yww/q1jFw3l6TVcJi8RYti1Nuo+2WwuCQ/8CHa9h/xk=;
+        b=VSK2N8sawOIgEGnFEsLcTWIJjYqvazHv0M0v5UKF2l4ppRCkJU1ceTmfTYb8GZcAV6
+         QDwswoxQrkCwPoz65EoxZVUxCrFlplpeAqu4HP5ByXQUUrCrKCj+IaubXnlXvTSj5w9T
+         R+dSnF/A5f+8HFC//eCdAXRRTpjVf3bASLfJHFiiFO1W1/mL3iZTy77CHcu/xdA5f+kT
+         GfdKLabKRH9bS9uRCv9ExKWd099kN4q12rl6xlLtkTI6YnshHPbxm/aXm2+YxdrJSWNj
+         dWcKZZ6V6i+o1KJzIQZwOAMB7xLVySiSzHQkNVYUuVy5yT0kHMKbC7RlRb6BASV/uAtL
+         ASjA==
+X-Gm-Message-State: AJcUukcjTlUPCeaZ8eBHAaYjxU0YqTn02vF6rf3yeauhqAWL5FLQ3i+c
+        taNjtpZDWEeYJNVuhF1dPL4=
+X-Google-Smtp-Source: ALg8bN6aWa3Zvf92+23UEemYuBgYau3IsAgzLgIWadqrHPgoGkCyt0AOqa7jBcS4rxM6MO0AwY9tTw==
+X-Received: by 2002:a19:a60c:: with SMTP id p12mr15234796lfe.63.1547888460683;
+        Sat, 19 Jan 2019 01:01:00 -0800 (PST)
+Received: from jupiter.lan (18.158-248-194.customer.lyse.net. [158.248.194.18])
+        by smtp.gmail.com with ESMTPSA id h22-v6sm1254995lji.45.2019.01.19.01.00.59
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Jan 2019 16:14:35 -0800 (PST)
-From:   Nick Crews <ncrews@chromium.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     groeck@chromium.org, sjg@chromium.org, djkurtz@google.com,
-        dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>,
-        Nick Crews <ncrews@chromium.org>, linux-rtc@vger.kernel.org,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>,
-        Nick Crews <ncrews@google.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 5/9] platform/chrome: rtc: Add RTC driver
-Date:   Fri, 18 Jan 2019 17:14:18 -0700
-Message-Id: <20190119001422.48186-6-ncrews@chromium.org>
-X-Mailer: git-send-email 2.20.1.321.g9e740568ce-goog
-In-Reply-To: <20190119001422.48186-1-ncrews@chromium.org>
-References: <20190119001422.48186-1-ncrews@chromium.org>
+        Sat, 19 Jan 2019 01:01:00 -0800 (PST)
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        =?UTF-8?q?Urs=20F=C3=A4ssler?= <urs.fassler@bbv.ch>,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH v3 0/6] add quartz load support to NXP rtc drivers
+Date:   Sat, 19 Jan 2019 10:00:25 +0100
+Message-Id: <20190119090031.29147-1-sam@ravnborg.org>
+X-Mailer: git-send-email 2.12.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Duncan Laurie <dlaurie@google.com>
+Respin of patchset on top of v5.0-rc2 with feedback addressed (thanks!)
 
-This Embedded Controller has an internal RTC that is exposed
-as a standard RTC class driver with read/write functionality.
+Introduce a new generic property "quartz-load-femtofarad"
+to specify the quartz load.
+The default value is selected to match the current Linux
+drivers, so there are no behavior changes if a binding do not
+specify the quarts-load.
+The unit is femtofarads because several RTC's define the quarts load
+in steps of 0.5 pF.
 
-The driver is added to the drivers/rtc/ so that the maintainer of that
-directory will be able to comment on this change, as that maintainer is
-the expert on this system. In addition, the driver code is called
-indirectly after a corresponding device is registered from core.c,
-as opposed to core.c registering the driver callbacks directly.
+The two drivers rtc-pcf8523 and rtc-pcf85063 are both
+updated to use the new binding.
+Previously pcf8523 hardcoded the quartz load to 12.5pF, and
+pcf85063 used the reset default of 7pF.
+With this patchset it can now be specified in the DT,
+if the defaults are not OK.
 
-> hwclock --show --rtc /dev/rtc1
-2007-12-31 16:01:20.460959-08:00
-> hwclock --systohc --rtc /dev/rtc1
-> hwclock --show --rtc /dev/rtc1
-2018-11-29 17:08:00.780793-08:00
+The patch-set is tested on a proprietary board for both
+RTC variants (v2 variant only as there was only trivial changes in v3).
 
-Signed-off-by: Duncan Laurie <dlaurie@google.com>
-Signed-off-by: Nick Crews <ncrews@chromium.org>
----
+	Sam
 
-Changes in v3:
-- rm #define for driver name
-- Don't compute weekday when reading from RTC.
-  Still set weekday when writing, as RTC needs this
-  to control advanced power scheduling
-- rm check for invalid month data
-- Set range_min and range_max on rtc_device
+v3:
+- Document generic property "quartz-load-femtofarads" in rtc.txt (Rob)
+- Fix indent several places - ups (Alexandre)
+- Use the simpler name "rtc" in DT examples (Rob)
+- Collected "Reviewed by's"
 
-Changes in v2:
-- rm license boiler plate
-- rm "wilco_ec_rtc -" prefix in docstring
-- Make rtc driver its own module within the drivers/rtc/ directory
-- Register a rtc device from core.c that is picked up by this driver
+v2:
+- Introduce a generic property "quartz-load-femtofarads"
+- Add femtofarads to property-units.txt
+- Make the changes backward compatible
+- Reduced logging
+- Warn, when we continue with a default value
+- Tested, by Søren Andersen, on real HW
+- Rebased on top of v5.0-rc1
 
- drivers/platform/chrome/wilco_ec/core.c |  17 +++
- drivers/rtc/Kconfig                     |  11 ++
- drivers/rtc/Makefile                    |   1 +
- drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
- 4 files changed, 206 insertions(+)
- create mode 100644 drivers/rtc/rtc-wilco-ec.c
+        Sam
 
-diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
-index 9b4a25e63b56..dd8b896b3833 100644
---- a/drivers/platform/chrome/wilco_ec/core.c
-+++ b/drivers/platform/chrome/wilco_ec/core.c
-@@ -34,6 +34,7 @@ static int wilco_ec_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct wilco_ec_device *ec;
-+	struct platform_device *child_pdev;
- 	int ret;
- 
- 	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
-@@ -76,8 +77,24 @@ static int wilco_ec_probe(struct platform_device *pdev)
- 		goto rm_debugfs;
- 	}
- 
-+	/*
-+	 * Register a RTC platform device that will get picked up by the RTC
-+	 * subsystem. This platform device will get freed when its parent device
-+	 * dev is unregistered.
-+	 */
-+	child_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
-+						   PLATFORM_DEVID_AUTO,
-+						   NULL, 0);
-+	if (IS_ERR(child_pdev)) {
-+		dev_err(dev, "Failed to create RTC platform device\n");
-+		ret = PTR_ERR(child_pdev);
-+		goto remove_sysfs;
-+	}
-+
- 	return 0;
- 
-+remove_sysfs:
-+	wilco_ec_sysfs_remove(ec);
- rm_debugfs:
- 	wilco_ec_debugfs_remove(ec);
- destroy_mec:
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 225b0b8516f3..d5063c791515 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
- 	  Goldfish is a code name for the virtual platform developed by Google
- 	  for Android emulation.
- 
-+config RTC_DRV_WILCO_EC
-+	tristate "Wilco EC RTC"
-+	depends on WILCO_EC
-+	default m
-+	help
-+	  If you say yes here, you get read/write support for the Real Time
-+	  Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
-+
-+	  This can also be built as a module. If so, the module will
-+	  be named "rtc_wilco_ec".
-+
- endif # RTC_CLASS
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index df022d820bee..6255ea78da25 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
- obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
- obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
-+obj-$(CONFIG_RTC_DRV_WILCO_EC)	+= rtc-wilco-ec.o
- obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
- obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
-diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
-new file mode 100644
-index 000000000000..b721cc3f17f0
---- /dev/null
-+++ b/drivers/rtc/rtc-wilco-ec.c
-@@ -0,0 +1,177 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * RTC interface for Wilco Embedded Controller with R/W abilities
-+ *
-+ * Copyright 2018 Google LLC
-+ *
-+ * The corresponding platform device is typically registered in
-+ * drivers/platform/chrome/wilco_ec/core.c
-+ */
-+
-+#include <linux/bcd.h>
-+#include <linux/err.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/platform_data/wilco-ec.h>
-+#include <linux/rtc.h>
-+#include <linux/timekeeping.h>
-+
-+#define EC_COMMAND_CMOS			0x7c
-+#define EC_CMOS_TOD_WRITE		0x02
-+#define EC_CMOS_TOD_READ		0x08
-+
-+/**
-+ * struct ec_rtc_read - Format of RTC returned by EC.
-+ * @second: Second value (0..59)
-+ * @minute: Minute value (0..59)
-+ * @hour: Hour value (0..23)
-+ * @day: Day value (1..31)
-+ * @month: Month value (1..12)
-+ * @year: Year value (full year % 100)
-+ * @century: Century value (full year / 100)
-+ *
-+ * All values are presented in binary (not BCD).
-+ */
-+struct ec_rtc_read {
-+	u8 second;
-+	u8 minute;
-+	u8 hour;
-+	u8 day;
-+	u8 month;
-+	u8 year;
-+	u8 century;
-+} __packed;
-+
-+/**
-+ * struct ec_rtc_write - Format of RTC sent to the EC.
-+ * @param: EC_CMOS_TOD_WRITE
-+ * @century: Century value (full year / 100)
-+ * @year: Year value (full year % 100)
-+ * @month: Month value (1..12)
-+ * @day: Day value (1..31)
-+ * @hour: Hour value (0..23)
-+ * @minute: Minute value (0..59)
-+ * @second: Second value (0..59)
-+ * @weekday: Day of the week (0=Saturday)
-+ *
-+ * All values are presented in BCD.
-+ */
-+struct ec_rtc_write {
-+	u8 param;
-+	u8 century;
-+	u8 year;
-+	u8 month;
-+	u8 day;
-+	u8 hour;
-+	u8 minute;
-+	u8 second;
-+	u8 weekday;
-+} __packed;
-+
-+int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
-+{
-+	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-+	u8 param = EC_CMOS_TOD_READ;
-+	struct ec_rtc_read rtc;
-+	struct wilco_ec_message msg = {
-+		.type = WILCO_EC_MSG_LEGACY,
-+		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-+		.command = EC_COMMAND_CMOS,
-+		.request_data = &param,
-+		.request_size = sizeof(param),
-+		.response_data = &rtc,
-+		.response_size = sizeof(rtc),
-+	};
-+	int ret;
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	tm->tm_sec	= rtc.second;
-+	tm->tm_min	= rtc.minute;
-+	tm->tm_hour	= rtc.hour;
-+	tm->tm_mday	= rtc.day;
-+	tm->tm_mon	= rtc.month - 1;
-+	tm->tm_year	= rtc.year + (rtc.century * 100) - 1900;
-+	tm->tm_yday	= rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
-+
-+	/* Don't compute day of week, we don't need it. */
-+	tm->tm_wday = -1;
-+
-+	return 0;
-+}
-+
-+int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
-+{
-+	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-+	struct ec_rtc_write rtc;
-+	struct wilco_ec_message msg = {
-+		.type = WILCO_EC_MSG_LEGACY,
-+		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-+		.command = EC_COMMAND_CMOS,
-+		.request_data = &rtc,
-+		.request_size = sizeof(rtc),
-+	};
-+	int year = tm->tm_year + 1900;
-+	/*
-+	 * Convert from 0=Sunday to 0=Saturday for the EC
-+	 * We DO need to set weekday because the EC controls battery charging
-+	 * schedules that depend on the day of the week.
-+	 */
-+	int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
-+	int ret;
-+
-+	rtc.param	= EC_CMOS_TOD_WRITE;
-+	rtc.century	= bin2bcd(year / 100);
-+	rtc.year	= bin2bcd(year % 100);
-+	rtc.month	= bin2bcd(tm->tm_mon + 1);
-+	rtc.day		= bin2bcd(tm->tm_mday);
-+	rtc.hour	= bin2bcd(tm->tm_hour);
-+	rtc.minute	= bin2bcd(tm->tm_min);
-+	rtc.second	= bin2bcd(tm->tm_sec);
-+	rtc.weekday	= bin2bcd(wday);
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops wilco_ec_rtc_ops = {
-+	.read_time = wilco_ec_rtc_read,
-+	.set_time = wilco_ec_rtc_write,
-+};
-+
-+static int wilco_ec_rtc_probe(struct platform_device *pdev)
-+{
-+	struct rtc_device *rtc;
-+
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
-+	rtc->ops = &wilco_ec_rtc_ops;
-+	/* EC only supports this century */
-+	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	rtc->owner = THIS_MODULE;
-+
-+	return rtc_register_device(rtc);
-+}
-+
-+static struct platform_driver wilco_ec_rtc_driver = {
-+	.driver = {
-+		.name = "rtc-wilco-ec",
-+	},
-+	.probe = wilco_ec_rtc_probe,
-+};
-+
-+module_platform_driver(wilco_ec_rtc_driver);
-+
-+MODULE_ALIAS("platform:rtc-wilco-ec");
-+MODULE_AUTHOR("Nick Crews <ncrews@google.com>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Wilco EC RTC driver");
--- 
-2.20.1.321.g9e740568ce-goog
+Sam Ravnborg (6):
+      devicetree: property-units: Add femtofarads unit
+      dt-bindings: rtc: Add quartz-load-femtofarads property
+      dt-binding: pcf8523: add xtal load capacitance
+      dt-binding: pcf85063: add xtal load capacitance
+      rtc: pcf8523: set xtal load capacitance from DT
+      rtc: pcf85063: set xtal load capacitance from DT
 
+ .../devicetree/bindings/property-units.txt         |  1 +
+ .../devicetree/bindings/rtc/nxp,pcf85063.txt       | 18 ++++++++++
+ .../devicetree/bindings/rtc/nxp,pcf8523.txt        | 18 ++++++++++
+ Documentation/devicetree/bindings/rtc/rtc.txt      | 18 +++++-----
+ drivers/rtc/rtc-pcf85063.c                         | 39 ++++++++++++++++++++++
+ drivers/rtc/rtc-pcf8523.c                          | 28 +++++++++++-----
+ 6 files changed, 106 insertions(+), 16 deletions(-)
