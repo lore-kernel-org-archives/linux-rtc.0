@@ -2,91 +2,76 @@ Return-Path: <SRS0=tSN2=P5=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E3C0C2F42E
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:36:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ABD9C31681
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 17:10:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C8D572085A
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:36:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 328C720663
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 17:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548085012;
-	bh=9cyEbVO5d0ARsaoiIm48WG0y40ADcrfc6vsGyvP4QcY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=li8KYpcYN5rELN68XPTIgb/iTQ5r1IXHKYDhMcw/0rFmSuEbg11jp/7BngCkar/Iq
-	 U7K9QWdvLI7jffazvasFw45CIcOdlaG4bylFDqLOjgAFfhQNasReyLzguh9ys9KGQh
-	 otB9VOo3dU5M7sei6qL8HtlK6c8O5YRoNtQBoOFQ=
+	s=default; t=1548090642;
+	bh=qDPFEDsWraJr4Cb6PqCIVk10em9q+cqXPbV2PXWsQ4w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=RDslP7Qjj2PMgBFZg9MJbtCK8gbEfSiWPDgerGLbrGrquqDr7XJMPZ723fmMtZ5du
+	 uxeb3KdxRnsuNCu4UIghVNFOvjXVx1WcS7FJRqlWCGAeaRN+7o+QLJVnjkWaViwA7r
+	 9gaLBVKjArTf07EeEeI7l4RceGlwu2RPzioxHsPQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728664AbfAUPgw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 21 Jan 2019 10:36:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729813AbfAUPeN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 21 Jan 2019 10:34:13 -0500
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAB532089F;
-        Mon, 21 Jan 2019 15:34:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1548084853;
-        bh=9cyEbVO5d0ARsaoiIm48WG0y40ADcrfc6vsGyvP4QcY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=uVF/6+lO7t9YcUkLJFF5vYTo4PfbSw5ZQzMIdGElO9sYwDbWtCRBZjPoU+9vCI1Bn
-         GULiMYl+fjQ9B2xbTd49V+i+lsz3dKOGcxdP05S+alDEB7D4zYSeZtCHhoS+fAltjM
-         Om400i/DUbOE98LlsrqMN3uuE1JVuL1dAhgWjmqM=
-Received: by mail-lf1-f43.google.com with SMTP id a8so15807021lfk.5;
-        Mon, 21 Jan 2019 07:34:12 -0800 (PST)
-X-Gm-Message-State: AJcUukdKueGEtUjuZBDvrf7TMHLMUePtAK6a4c3WgM+6/OJ4wIxfhNgF
-        /FKAZE5RH6Wes+xhfyC6GbxesCyNS1jDmPtk2Z4=
-X-Google-Smtp-Source: ALg8bN5tdmm6XujrwmZCk8uB39gt2w5h01nQQfx/AjbE/YcYkWqawxTf2titGeobAhgDvODqZaA0dqGM2W2I06DZKZo=
-X-Received: by 2002:a19:10a4:: with SMTP id 36mr18619607lfq.60.1548084850953;
- Mon, 21 Jan 2019 07:34:10 -0800 (PST)
-MIME-Version: 1.0
-References: <CGME20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463@eucas1p2.samsung.com>
- <20190121110930.8290-1-m.szyprowski@samsung.com>
-In-Reply-To: <20190121110930.8290-1-m.szyprowski@samsung.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Mon, 21 Jan 2019 16:33:59 +0100
-X-Gmail-Original-Message-ID: <CAJKOXPc46a1geNMizYFLjE+TZMtmPVNG-1eki_FPVCxhgKoXkQ@mail.gmail.com>
-Message-ID: <CAJKOXPc46a1geNMizYFLjE+TZMtmPVNG-1eki_FPVCxhgKoXkQ@mail.gmail.com>
-Subject: Re: [PATCH v2] rtc: s3c: Rewrite clock handling
-To:     Marek Szyprowski <m.szyprowski@samsung.com>
-Cc:     linux-rtc@vger.kernel.org,
-        "linux-samsung-soc@vger.kernel.org" 
-        <linux-samsung-soc@vger.kernel.org>,
+        id S1726857AbfAURKm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 21 Jan 2019 12:10:42 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:40371 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725879AbfAURKl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Jan 2019 12:10:41 -0500
+Received: by mail-ot1-f67.google.com with SMTP id s5so21137232oth.7;
+        Mon, 21 Jan 2019 09:10:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=9f3AcdeKbIIxo8MjXtpjRk0EhYAlYFtGMddivzLvCdo=;
+        b=pXGT5lKW8KPVa34H2vJWXdeILvlP6wT6tb4jIp4NVPoFa+fzsuoRVmDToj4IyQwcVN
+         HBdSqWLtH65bvmhPBMejzN8By5eONjek7CkMx8/XlT6V9ygCA6J/E87B9BbGNUeWVXcl
+         xTWSZDmsRtqz1HrTrvd6Aw2enyosEtFugQtdP4tKx/OeKP/ri2FY1rA00JhCZNUC8L2R
+         q/huv6ihkNPxkUaagTNJEa0uqfUyZLS0ckAwhlS0/4drS3uSBu0anQYyNbzLgTBsmtBn
+         D/G9GPttWnH+5CI2SjYa7YNcDUTviF6cb62a2LFwuT/IBF+epv4joE6Nx4T0jQZk3jr+
+         Jh2Q==
+X-Gm-Message-State: AJcUukeKVAB3Fq/v2ILEW3v7QHbhnbW/+dbpw7fokJ1Aa30hjcRhrqvt
+        K432mTY59tPfSwpoaSgc95u+7wc=
+X-Google-Smtp-Source: ALg8bN7wt6lPH8gm0ZHSbaKj1cMB2paHXusqNJTnNL/tsQHW4Q5pO7QvouD32MhwP3wBR8080ReSLA==
+X-Received: by 2002:a9d:4:: with SMTP id 4mr21042946ota.174.1548090641033;
+        Mon, 21 Jan 2019 09:10:41 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id g25sm6017517otr.30.2019.01.21.09.10.40
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 21 Jan 2019 09:10:40 -0800 (PST)
+Date:   Mon, 21 Jan 2019 11:10:40 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Artem Panfilov <panfilov.artyom@gmail.com>
+Cc:     panfilov.artyom@gmail.com, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Content-Type: text/plain; charset="UTF-8"
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] dt-bindings: rtc: add ABEOZ9 support
+Message-ID: <20190121171040.GA3603@bogus>
+References: <20190117184755.21179-1-panfilov.artyom@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190117184755.21179-1-panfilov.artyom@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 21 Jan 2019 at 12:09, Marek Szyprowski <m.szyprowski@samsung.com> wrote:
->
-> s3c_rtc_enable/disable_clk() functions were designed to be called multiple
-> times without reference counting, because they were initially only used in
-> alarm setting/clearing functions, which can be called both when alarm is
-> already set or not. Later however, calls to those functions have been added to
-> other places in the driver - like time and /proc reading callbacks, what
-> results in broken alarm if any of such events happens after the alarm has
-> been set. Fix this by simplifying s3c_rtc_enable/disable_clk() functions
-> to rely on proper reference counting in clock core and move alarm enable
-> counter to s3c_rtc_setaie() function.
->
-> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+On Thu, 17 Jan 2019 21:47:54 +0300, Artem Panfilov wrote:
+> Signed-off-by: Artem Panfilov <panfilov.artyom@gmail.com>
 > ---
-> v2:
-> - simplified code as suggested by Krzysztof
-> ---
->  drivers/rtc/rtc-s3c.c | 74 ++++++++++++++++++-------------------------
->  1 file changed, 31 insertions(+), 43 deletions(-)
+>  Documentation/devicetree/bindings/rtc/rtc.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-
-Best regards,
-Krzysztof
+Reviewed-by: Rob Herring <robh@kernel.org>
