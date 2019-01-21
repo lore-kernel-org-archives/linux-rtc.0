@@ -2,260 +2,262 @@ Return-Path: <SRS0=tSN2=P5=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63B79C65C17
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 10:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43F26C7112F
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 11:09:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2C32A2089F
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 10:00:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548064816;
-	bh=0bGFfZVE62ixRN9NDfwWeMWEPj2l21w1BEYJ54rnCPk=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=z9P2K0jmBh+zWjOS2T4JBOxUxAmXO4Eg66QSfz3AYqa5aEthRMkXhnawEQFR3vmDZ
-	 f7T5lmbcfCEyy6q0u/7h9sOJJD1H9cS2ye55SV7L07NoGln4pvKgacTwEkRJdX5VPL
-	 CpFpYJ8pipWc0YHel3dnM7ejeVHBUrnLrjUp8+F8=
+	by mail.kernel.org (Postfix) with ESMTP id DA60020870
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 11:09:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="LxcF2dav"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726003AbfAUKAP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 21 Jan 2019 05:00:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725977AbfAUKAO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 21 Jan 2019 05:00:14 -0500
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98E1320663;
-        Mon, 21 Jan 2019 10:00:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1548064812;
-        bh=0bGFfZVE62ixRN9NDfwWeMWEPj2l21w1BEYJ54rnCPk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=pGAFvSp42jVuCFsQ+/A/pF976ZKWvPQfO6V5kP5GB9R9mz3aE4r/jIwUHPDzXWDcq
-         wlnS78BmWrDLbKJyCDr1WnEtFqYLuk2Hx6HzdPVz3lR9PYICj9zJYYJAwv1Ah4f+Ce
-         dCaG8a8yOy+1XRnsz5GIKVIsKZJb0a7spmJDJMRk=
-Received: by mail-lf1-f43.google.com with SMTP id u18so15011039lff.10;
-        Mon, 21 Jan 2019 02:00:12 -0800 (PST)
-X-Gm-Message-State: AJcUukcCd9ABH+IL558nvJAG5V9pBT8MhJObpH9oAJM7jOrKb3yRvG8D
-        zwlTV/wxD4jhtAukzrajHhLYb5mRM4Ad8oC3oaQ=
-X-Google-Smtp-Source: ALg8bN4zzr5zaJEpC/GEb/WCKV4hqCxuHYJtwf7HHOxHJTrT9wXgS8YsDqSJf7nS7wA0LyGADwHs56PC0cLWyayFk78=
-X-Received: by 2002:a19:2d16:: with SMTP id k22mr17367263lfj.12.1548064810647;
- Mon, 21 Jan 2019 02:00:10 -0800 (PST)
-MIME-Version: 1.0
-References: <CGME20190118132826eucas1p2b158579e05c57a4e73edfaf376b0108c@eucas1p2.samsung.com>
- <20190118132754.15660-1-m.szyprowski@samsung.com> <20190119201702.GA3590@kozik-lap>
- <a2bbd0c1-826c-f55a-5c33-488794cf8574@samsung.com>
-In-Reply-To: <a2bbd0c1-826c-f55a-5c33-488794cf8574@samsung.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Mon, 21 Jan 2019 10:59:59 +0100
-X-Gmail-Original-Message-ID: <CAJKOXPcgdubsBuRuDeU6MBCPv7NCoC70bAMBi==uB4gVYym-cg@mail.gmail.com>
-Message-ID: <CAJKOXPcgdubsBuRuDeU6MBCPv7NCoC70bAMBi==uB4gVYym-cg@mail.gmail.com>
-Subject: Re: [PATCH] rtc: s3c: Rewrite clock handling
-To:     Marek Szyprowski <m.szyprowski@samsung.com>
-Cc:     linux-rtc@vger.kernel.org,
-        "linux-samsung-soc@vger.kernel.org" 
-        <linux-samsung-soc@vger.kernel.org>,
+        id S1727580AbfAULJm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 21 Jan 2019 06:09:42 -0500
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:44474 "EHLO
+        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727553AbfAULJm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Jan 2019 06:09:42 -0500
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20190121110940euoutp01f1a447b85a72b225b92a42b4d4db6ddf~72IkRY_RV1592015920euoutp01V;
+        Mon, 21 Jan 2019 11:09:40 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20190121110940euoutp01f1a447b85a72b225b92a42b4d4db6ddf~72IkRY_RV1592015920euoutp01V
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1548068980;
+        bh=0vfVcGFfmUZgvArZi89i+iFkcf7k24uC3n1fG0CJzVk=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=LxcF2dav21uWaEdfISLVzs1KTLGFuXHYAeDjPmEdyvKdly1r/ivTi4tLuR9jjFRZX
+         nLIo9+iQQCtl3HvLsut9XK0yMcyOx4qSZrD8z5mNqrsxTGVEH89L0Jc3MdPIqjEu5L
+         +mlCEDTv9orXDWgEa60JlkezFt/hJpYlkAPKZm5M=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20190121110939eucas1p2a0c0cbe39628a7cc353ed85397c44ec5~72Ijxo0oh0920609206eucas1p2T;
+        Mon, 21 Jan 2019 11:09:39 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges3new.samsung.com (EUCPMTA) with SMTP id 7B.50.04806.378A54C5; Mon, 21
+        Jan 2019 11:09:39 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463~72IjDihTl2507625076eucas1p2L;
+        Mon, 21 Jan 2019 11:09:38 +0000 (GMT)
+X-AuditID: cbfec7f5-34dff700000012c6-f7-5c45a873320b
+Received: from eusync1.samsung.com ( [203.254.199.211]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 58.02.04284.278A54C5; Mon, 21
+        Jan 2019 11:09:38 +0000 (GMT)
+Received: from AMDC2765.digital.local ([106.116.147.25]) by
+        eusync1.samsung.com (Oracle Communications Messaging Server 7.0.5.31.0 64bit
+        (built May  5 2014)) with ESMTPA id <0PLO005PIHNZ4850@eusync1.samsung.com>;
+        Mon, 21 Jan 2019 11:09:38 +0000 (GMT)
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+To:     linux-rtc@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v2] rtc: s3c: Rewrite clock handling
+Date:   Mon, 21 Jan 2019 12:09:30 +0100
+Message-id: <20190121110930.8290-1-m.szyprowski@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprIIsWRmVeSWpSXmKPExsWy7djP87rFK1xjDDbNF7ZYcvEqu0X7u2Xs
+        FhtnrGe1OH9+A7vFsdVX2CxmnN/HZLH2yF12B3aPeWuqPTat6mTz6NuyitFj+ryfTB6fN8kF
+        sEZx2aSk5mSWpRbp2yVwZUzYd5mxYI9SxaepzxgbGH9LdzFyckgImEhMWPyavYuRi0NIYAWj
+        xKflu9ggnM+MEn+udjPBVPWsPcAIkVjGKHF36gRWCKeBSaLv7XQWkCo2AUOJrrddbCC2iICD
+        xNc/b1lAipgF3jFK7Fm7BqxIGGhU94VXQDYHB4uAqsSNBlaQMK+AjcTDCdNYIbbJS6zecIAZ
+        pFdC4C2rxKEFf1ggEi4S0w50M0LYMhKdHQeZIIqaGSXaZ8xih3B6GCW2ztnBBlFlLXH4+EWw
+        scwCfBKTtk1nBtksIcAr0dEmBFHiIbF94WewP4UEYiU2X9rAPoFRfAEjwypG8dTS4tz01GLj
+        vNRyveLE3OLSvHS95PzcTYzAiDr97/jXHYz7/iQdYhTgYFTi4f1xzyVGiDWxrLgy9xCjBAez
+        kgjva3fXGCHelMTKqtSi/Pii0pzU4kOM0hwsSuK81QwPooUE0hNLUrNTUwtSi2CyTBycUg2M
+        GvWtR/45GvDF/jm3J3zG5p//lj/ffvzwrKlT5yy8bmp46JXlyxa5OzkzDh9YzuVtvPWcux+/
+        pPU9j9BP2/+ZW70W4f+ZwpnQv1Jlyawqd8M18k8T55vcLd1RYvQo9WzOIT3eatuH3MWik0W4
+        pkQcvRq3wNJfLKB73tZylyubvB6kLd7xZ8qjaCWW4oxEQy3mouJEAI4SCAKkAgAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHJMWRmVeSWpSXmKPExsVy+t/xy7pFK1xjDPY/MLBYcvEqu0X7u2Xs
+        FhtnrGe1OH9+A7vFsdVX2CxmnN/HZLH2yF12B3aPeWuqPTat6mTz6NuyitFj+ryfTB6fN8kF
+        sEZx2aSk5mSWpRbp2yVwZUzYd5mxYI9SxaepzxgbGH9LdzFyckgImEj0rD3A2MXIxSEksIRR
+        Yu+J66wQThOTRNeqmewgVWwChhJdb7vYQGwRAQeJr3/esoAUMQt8YJRYcuEMM0hCGGhU94VX
+        QAkODhYBVYkbDawgYV4BG4mHE6axQmyTl1i94QDzBEauBYwMqxhFUkuLc9Nziw31ihNzi0vz
+        0vWS83M3MQJDYduxn5t3MF7aGHyIUYCDUYmH98c9lxgh1sSy4srcQ4wSHMxKIryv3V1jhHhT
+        EiurUovy44tKc1KLDzFKc7AoifOeN6iMEhJITyxJzU5NLUgtgskycXBKNTA2ST051z1jqszl
+        zSvdIrbpuzUevP6o79a95Ys/ynw0K9dlfbOuY+8O8xUbBN0a8+Zx8Mz03cLgGXNX++vVYGb/
+        HdOXszwKUTb2+Kqv1yjkyBYi7uTH5vAgWLYtoUdnT+Xcr7uDVsVJSje8DVJcdDM5u7x4UvYy
+        GT3hBQznql52XrXNLLv33VSJpTgj0VCLuag4EQCyODJQAQIAAA==
+X-CMS-MailID: 20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463
+References: <CGME20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463@eucas1p2.samsung.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 21 Jan 2019 at 09:39, Marek Szyprowski <m.szyprowski@samsung.com> wrote:
->
-> Hi Krzysztof,
->
-> On 2019-01-19 21:17, Krzysztof Kozlowski wrote:
-> > On Fri, Jan 18, 2019 at 02:27:54PM +0100, Marek Szyprowski wrote:
-> >> s3c_rtc_enable/disable_clk() functions were designed to be called multiple
-> >> times without reference counting, because they were initially used in
-> > s/used/used only/
-> > (if I understand correctly the logic)
-> >
-> >> alarm setting/clearing functions, which can be called both when alarm is
-> >> already set or not. Later however, calls to those functions have been added to
-> >> other places in the driver - like time and /proc reading callbacks, what
-> >> results in broken alarm if any of such events happens after the alarm has
-> >> been set. Fix this by simplifying s3c_rtc_enable/disable_clk() functions
-> >> to rely on proper reference counting in clock core and move alarm enable
-> >> counter to s3c_rtc_setaie() function.
-> >>
-> >> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> >> ---
-> >>  drivers/rtc/rtc-s3c.c | 67 ++++++++++++++++++-------------------------
-> >>  1 file changed, 28 insertions(+), 39 deletions(-)
-> >>
-> >> diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-> >> index 04c68178c42d..e682977b4f6e 100644
-> >> --- a/drivers/rtc/rtc-s3c.c
-> >> +++ b/drivers/rtc/rtc-s3c.c
-> >> @@ -39,7 +39,7 @@ struct s3c_rtc {
-> >>      void __iomem *base;
-> >>      struct clk *rtc_clk;
-> >>      struct clk *rtc_src_clk;
-> >> -    bool clk_disabled;
-> >> +    bool alarm_enabled;
-> >>
-> >>      const struct s3c_rtc_data *data;
-> >>
-> >> @@ -47,7 +47,7 @@ struct s3c_rtc {
-> >>      int irq_tick;
-> >>
-> >>      spinlock_t pie_lock;
-> >> -    spinlock_t alarm_clk_lock;
-> >> +    spinlock_t alarm_lock;
-> > Maybe add short comment that it protects only "alarm_enabled" property?
-> >
-> >>
-> >>      int ticnt_save;
-> >>      int ticnt_en_save;
-> >> @@ -70,44 +70,28 @@ struct s3c_rtc_data {
-> >>
-> >>  static int s3c_rtc_enable_clk(struct s3c_rtc *info)
-> >>  {
-> >> -    unsigned long irq_flags;
-> >>      int ret = 0;
-> >>
-> >> -    spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
-> >> +    ret = clk_enable(info->rtc_clk);
-> >> +    if (ret)
-> >> +            goto out;
-> > The out label is now empty so just "return ret". It is easier to read -
-> > no need to jump anywhere to see the simple return.
-> >
-> >>
-> >> -    if (info->clk_disabled) {
-> >> -            ret = clk_enable(info->rtc_clk);
-> >> -            if (ret)
-> >> +    if (info->data->needs_src_clk) {
-> >> +            ret = clk_enable(info->rtc_src_clk);
-> >> +            if (ret) {
-> >> +                    clk_disable(info->rtc_clk);
-> >>                      goto out;
-> >> -
-> >> -            if (info->data->needs_src_clk) {
-> >> -                    ret = clk_enable(info->rtc_src_clk);
-> >> -                    if (ret) {
-> >> -                            clk_disable(info->rtc_clk);
-> >> -                            goto out;
-> >> -                    }
-> >>              }
-> >> -            info->clk_disabled = false;
-> >>      }
-> >> -
-> >>  out:
-> >> -    spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
-> >> -
-> >>      return ret;
-> >>  }
-> >>
-> >>  static void s3c_rtc_disable_clk(struct s3c_rtc *info)
-> >>  {
-> >> -    unsigned long irq_flags;
-> >> -
-> >> -    spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
-> >> -    if (!info->clk_disabled) {
-> >> -            if (info->data->needs_src_clk)
-> >> -                    clk_disable(info->rtc_src_clk);
-> >> -            clk_disable(info->rtc_clk);
-> >> -            info->clk_disabled = true;
-> >> -    }
-> >> -    spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
-> >> +    if (info->data->needs_src_clk)
-> >> +            clk_disable(info->rtc_src_clk);
-> >> +    clk_disable(info->rtc_clk);
-> >>  }
-> >>
-> >>  /* IRQ Handlers */
-> >> @@ -135,6 +119,7 @@ static irqreturn_t s3c_rtc_alarmirq(int irq, void *id)
-> >>  static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
-> >>  {
-> >>      struct s3c_rtc *info = dev_get_drvdata(dev);
-> >> +    unsigned long flags;
-> >>      unsigned int tmp;
-> >>      int ret;
-> >>
-> >> @@ -151,17 +136,19 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
-> >>
-> >>      writeb(tmp, info->base + S3C2410_RTCALM);
-> >>
-> >> -    s3c_rtc_disable_clk(info);
-> >> +    spin_lock_irqsave(&info->alarm_lock, flags);
-> >>
-> >> -    if (enabled) {
-> >> -            ret = s3c_rtc_enable_clk(info);
-> >> -            if (ret)
-> >> -                    return ret;
-> >> -    } else {
-> >> +    if (info->alarm_enabled && !enabled)
-> >>              s3c_rtc_disable_clk(info);
-> >> -    }
-> >> +    else if (!info->alarm_enabled && enabled)
-> >> +            ret = s3c_rtc_enable_clk(info);
-> >>
-> >> -    return 0;
-> >> +    info->alarm_enabled = enabled;
-> >> +    spin_unlock_irqrestore(&info->alarm_lock, flags);
-> >> +
-> >> +    s3c_rtc_disable_clk(info);
-> >> +
-> >> +    return ret;
-> >>  }
-> >>
-> >>  /* Set RTC frequency */
-> >> @@ -357,10 +344,10 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >>
-> >>      writeb(alrm_en, info->base + S3C2410_RTCALM);
-> >>
-> >> -    s3c_rtc_disable_clk(info);
-> >> -
-> >>      s3c_rtc_setaie(dev, alrm->enabled);
-> >>
-> >> +    s3c_rtc_disable_clk(info);
-> > I do not understand this change - why do you have to move the disable
-> > clk? The s3c_rtc_setaie() takes care about clock enabling/disabling for
-> > the time of accessing registers.
->
-> This was micro optimization, s3c_rtc_setaie() increases clock enable
-> count, so by changing the call order we can avoid one disable/enable
-> sequence.
+s3c_rtc_enable/disable_clk() functions were designed to be called multiple
+times without reference counting, because they were initially only used in
+alarm setting/clearing functions, which can be called both when alarm is
+already set or not. Later however, calls to those functions have been added to
+other places in the driver - like time and /proc reading callbacks, what
+results in broken alarm if any of such events happens after the alarm has
+been set. Fix this by simplifying s3c_rtc_enable/disable_clk() functions
+to rely on proper reference counting in clock core and move alarm enable
+counter to s3c_rtc_setaie() function.
 
-OK.
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+v2:
+- simplified code as suggested by Krzysztof
+---
+ drivers/rtc/rtc-s3c.c | 74 ++++++++++++++++++-------------------------
+ 1 file changed, 31 insertions(+), 43 deletions(-)
 
-> >> +
-> >>      return 0;
-> >>  }
-> >>
-> >> @@ -491,7 +478,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
-> >>              return -EINVAL;
-> >>      }
-> >>      spin_lock_init(&info->pie_lock);
-> >> -    spin_lock_init(&info->alarm_clk_lock);
-> >> +    spin_lock_init(&info->alarm_lock);
-> >>
-> >>      platform_set_drvdata(pdev, info);
-> >>
-> >> @@ -591,6 +578,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
-> >>
-> >>      s3c_rtc_setfreq(info, 1);
-> >>
-> >> +    s3c_rtc_disable_clk(info);
-> > I cannot find the reason why this is related to this particular change.
-> > I mean, it looks reasonable because previously the clock looked like it
-> > was enabled all the time... but maybe this should be separate pach?
->
-> It wasn't enabled all the time, because the call to s3c_rtc_setfreq()
-> disabled it (remember there was no clock enable reference counting!).
-> Now once we have enable/disable reference counting, we need to keep them
-> balanced.
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index 04c68178c42d..ea82efba6f94 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -39,7 +39,7 @@ struct s3c_rtc {
+ 	void __iomem *base;
+ 	struct clk *rtc_clk;
+ 	struct clk *rtc_src_clk;
+-	bool clk_disabled;
++	bool alarm_enabled;
+ 
+ 	const struct s3c_rtc_data *data;
+ 
+@@ -47,7 +47,7 @@ struct s3c_rtc {
+ 	int irq_tick;
+ 
+ 	spinlock_t pie_lock;
+-	spinlock_t alarm_clk_lock;
++	spinlock_t alarm_lock;
+ 
+ 	int ticnt_save;
+ 	int ticnt_en_save;
+@@ -70,44 +70,27 @@ struct s3c_rtc_data {
+ 
+ static int s3c_rtc_enable_clk(struct s3c_rtc *info)
+ {
+-	unsigned long irq_flags;
+-	int ret = 0;
++	int ret;
+ 
+-	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
++	ret = clk_enable(info->rtc_clk);
++	if (ret)
++		return ret;
+ 
+-	if (info->clk_disabled) {
+-		ret = clk_enable(info->rtc_clk);
+-		if (ret)
+-			goto out;
+-
+-		if (info->data->needs_src_clk) {
+-			ret = clk_enable(info->rtc_src_clk);
+-			if (ret) {
+-				clk_disable(info->rtc_clk);
+-				goto out;
+-			}
++	if (info->data->needs_src_clk) {
++		ret = clk_enable(info->rtc_src_clk);
++		if (ret) {
++			clk_disable(info->rtc_clk);
++			return ret;
+ 		}
+-		info->clk_disabled = false;
+ 	}
+-
+-out:
+-	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static void s3c_rtc_disable_clk(struct s3c_rtc *info)
+ {
+-	unsigned long irq_flags;
+-
+-	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
+-	if (!info->clk_disabled) {
+-		if (info->data->needs_src_clk)
+-			clk_disable(info->rtc_src_clk);
+-		clk_disable(info->rtc_clk);
+-		info->clk_disabled = true;
+-	}
+-	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
++	if (info->data->needs_src_clk)
++		clk_disable(info->rtc_src_clk);
++	clk_disable(info->rtc_clk);
+ }
+ 
+ /* IRQ Handlers */
+@@ -135,6 +118,7 @@ static irqreturn_t s3c_rtc_alarmirq(int irq, void *id)
+ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+ {
+ 	struct s3c_rtc *info = dev_get_drvdata(dev);
++	unsigned long flags;
+ 	unsigned int tmp;
+ 	int ret;
+ 
+@@ -151,17 +135,19 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
+ 
+ 	writeb(tmp, info->base + S3C2410_RTCALM);
+ 
+-	s3c_rtc_disable_clk(info);
++	spin_lock_irqsave(&info->alarm_lock, flags);
+ 
+-	if (enabled) {
+-		ret = s3c_rtc_enable_clk(info);
+-		if (ret)
+-			return ret;
+-	} else {
++	if (info->alarm_enabled && !enabled)
+ 		s3c_rtc_disable_clk(info);
+-	}
++	else if (!info->alarm_enabled && enabled)
++		ret = s3c_rtc_enable_clk(info);
+ 
+-	return 0;
++	info->alarm_enabled = enabled;
++	spin_unlock_irqrestore(&info->alarm_lock, flags);
++
++	s3c_rtc_disable_clk(info);
++
++	return ret;
+ }
+ 
+ /* Set RTC frequency */
+@@ -357,10 +343,10 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	writeb(alrm_en, info->base + S3C2410_RTCALM);
+ 
+-	s3c_rtc_disable_clk(info);
+-
+ 	s3c_rtc_setaie(dev, alrm->enabled);
+ 
++	s3c_rtc_disable_clk(info);
++
+ 	return 0;
+ }
+ 
+@@ -491,7 +477,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 	spin_lock_init(&info->pie_lock);
+-	spin_lock_init(&info->alarm_clk_lock);
++	spin_lock_init(&info->alarm_lock);
+ 
+ 	platform_set_drvdata(pdev, info);
+ 
+@@ -591,6 +577,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 
+ 	s3c_rtc_setfreq(info, 1);
+ 
++	s3c_rtc_disable_clk(info);
++
+ 	return 0;
+ 
+ err_nortc:
+-- 
+2.17.1
 
-I get it, thanks!
-
-Best regards,
-Krzysztof
