@@ -2,104 +2,91 @@ Return-Path: <SRS0=tSN2=P5=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44969C2F42E
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:25:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E3C0C2F42E
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:36:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 116F92085A
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:25:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8D572085A
+	for <linux-rtc@archiver.kernel.org>; Mon, 21 Jan 2019 15:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548084316;
-	bh=fvM+QgS8uckq47UGXWNzrw/rqzBOoT6/XNjq/kZX/Cs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=whM55QY1PAPUwzjN2txgHIV6xie+EveW/WbwX9vN3+kR5AxDgaqiI6VDjarvL2l/h
-	 xuVegl+Tt7JRKJBfG+SHUjFYW7hsLCj5x//RDjzG6xPt33YeK+h166qW5PvEQ0gLys
-	 kLHv/hojfHuPTfdodsr63JvX9cu/2tVr7KIDygYs=
+	s=default; t=1548085012;
+	bh=9cyEbVO5d0ARsaoiIm48WG0y40ADcrfc6vsGyvP4QcY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=li8KYpcYN5rELN68XPTIgb/iTQ5r1IXHKYDhMcw/0rFmSuEbg11jp/7BngCkar/Iq
+	 U7K9QWdvLI7jffazvasFw45CIcOdlaG4bylFDqLOjgAFfhQNasReyLzguh9ys9KGQh
+	 otB9VOo3dU5M7sei6qL8HtlK6c8O5YRoNtQBoOFQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728561AbfAUPZP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 21 Jan 2019 10:25:15 -0500
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:40319 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728551AbfAUPZP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Jan 2019 10:25:15 -0500
-Received: by mail-ot1-f66.google.com with SMTP id s5so20825111oth.7;
-        Mon, 21 Jan 2019 07:25:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=X4+H9UPEzKgdDygsarEeI3EG7SNOo1HwXgFWdEUdE4s=;
-        b=skBOBZi7FHbPlMu/APTlz8SHBsa7I2soCagSLca0XfhEi7YibWNelFU2Cu7TJmpcuB
-         q9xhQEy81nLkW9OZVwDqQdNr+Adxeef+5ALJaAx/TDCduetJ3Wfbvwt8KHlGZJIl/Lwg
-         PpuSX0sRKqoDobmw6nnqWu+qCsAGoZ7yriBfZmwwbmnVFEl8BxEzRiE+PrcmExMRaIYy
-         qjRnCyCndw7NiNM6EBHNCPv19evmklEqgmiAr7XBETU8ZXi3uvDoHscG+shyR4coMkiy
-         MdDedhhHrX5PtHCxJH4kWXpsAm0p4lHn2w/zOjy1zToE9hp6zUi9Eu43Byq0KGqmVFRl
-         neMQ==
-X-Gm-Message-State: AJcUukcDgsChMyY8beVdsSamgZ646uxH/UeiHZBAmXImLLX64J6WDwnt
-        9d5Ru4UBeG/IBdyho+qa5Q==
-X-Google-Smtp-Source: ALg8bN6DFIDRnHTkeVGXuHuqVTPmKXUDFxfo/FruXT/cIiCXOn3L/plO3FwyDIrf/LdhMdwtIwSyAA==
-X-Received: by 2002:a05:6830:1689:: with SMTP id k9mr18286019otr.129.1548084314755;
-        Mon, 21 Jan 2019 07:25:14 -0800 (PST)
-Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id l6sm5653675otk.51.2019.01.21.07.25.14
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 21 Jan 2019 07:25:14 -0800 (PST)
-Date:   Mon, 21 Jan 2019 09:25:13 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        =?iso-8859-1?Q?S=F8ren?= Andersen <san@skov.dk>
-Subject: Re: [PATCH v3 4/6] dt-binding: pcf85063: add xtal load capacitance
-Message-ID: <20190121152513.GA29037@bogus>
-References: <20190119090031.29147-1-sam@ravnborg.org>
- <20190119090031.29147-5-sam@ravnborg.org>
+        id S1728664AbfAUPgw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 21 Jan 2019 10:36:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729813AbfAUPeN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 21 Jan 2019 10:34:13 -0500
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAB532089F;
+        Mon, 21 Jan 2019 15:34:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1548084853;
+        bh=9cyEbVO5d0ARsaoiIm48WG0y40ADcrfc6vsGyvP4QcY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=uVF/6+lO7t9YcUkLJFF5vYTo4PfbSw5ZQzMIdGElO9sYwDbWtCRBZjPoU+9vCI1Bn
+         GULiMYl+fjQ9B2xbTd49V+i+lsz3dKOGcxdP05S+alDEB7D4zYSeZtCHhoS+fAltjM
+         Om400i/DUbOE98LlsrqMN3uuE1JVuL1dAhgWjmqM=
+Received: by mail-lf1-f43.google.com with SMTP id a8so15807021lfk.5;
+        Mon, 21 Jan 2019 07:34:12 -0800 (PST)
+X-Gm-Message-State: AJcUukdKueGEtUjuZBDvrf7TMHLMUePtAK6a4c3WgM+6/OJ4wIxfhNgF
+        /FKAZE5RH6Wes+xhfyC6GbxesCyNS1jDmPtk2Z4=
+X-Google-Smtp-Source: ALg8bN5tdmm6XujrwmZCk8uB39gt2w5h01nQQfx/AjbE/YcYkWqawxTf2titGeobAhgDvODqZaA0dqGM2W2I06DZKZo=
+X-Received: by 2002:a19:10a4:: with SMTP id 36mr18619607lfq.60.1548084850953;
+ Mon, 21 Jan 2019 07:34:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190119090031.29147-5-sam@ravnborg.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CGME20190121110938eucas1p2e008ce6dabb0e5c62fdac19dc1491463@eucas1p2.samsung.com>
+ <20190121110930.8290-1-m.szyprowski@samsung.com>
+In-Reply-To: <20190121110930.8290-1-m.szyprowski@samsung.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+Date:   Mon, 21 Jan 2019 16:33:59 +0100
+X-Gmail-Original-Message-ID: <CAJKOXPc46a1geNMizYFLjE+TZMtmPVNG-1eki_FPVCxhgKoXkQ@mail.gmail.com>
+Message-ID: <CAJKOXPc46a1geNMizYFLjE+TZMtmPVNG-1eki_FPVCxhgKoXkQ@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: s3c: Rewrite clock handling
+To:     Marek Szyprowski <m.szyprowski@samsung.com>
+Cc:     linux-rtc@vger.kernel.org,
+        "linux-samsung-soc@vger.kernel.org" 
+        <linux-samsung-soc@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sat, 19 Jan 2019 10:00:29 +0100, Sam Ravnborg wrote:
-> The NXP pcf85063 supports two different xtal load capacitance
-> - 7000fF  (7pF)    HW default, Linux driver default
-> - 12500fF (12.5pF) Minimum power consumption
-> 
-> To obtain a precise RTC the pcf85063 must be configured
-> with the correct capacitance load of the xtal.
-> 
-> Add a property to specify the xtal capacitance load.
-> The default value matches that of the current Linux driver.
-> 
-> With a dedicated binding remove the entry in rtc.txt
-> 
-> Signed-off-by: Søren Andersen <san@skov.dk>
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Urs Fässler <urs.fassler@bbv.ch>
+On Mon, 21 Jan 2019 at 12:09, Marek Szyprowski <m.szyprowski@samsung.com> wrote:
+>
+> s3c_rtc_enable/disable_clk() functions were designed to be called multiple
+> times without reference counting, because they were initially only used in
+> alarm setting/clearing functions, which can be called both when alarm is
+> already set or not. Later however, calls to those functions have been added to
+> other places in the driver - like time and /proc reading callbacks, what
+> results in broken alarm if any of such events happens after the alarm has
+> been set. Fix this by simplifying s3c_rtc_enable/disable_clk() functions
+> to rely on proper reference counting in clock core and move alarm enable
+> counter to s3c_rtc_setaie() function.
+>
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 > ---
->  Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt | 18 ++++++++++++++++++
->  Documentation/devicetree/bindings/rtc/rtc.txt          |  1 -
->  2 files changed, 18 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
-> 
+> v2:
+> - simplified code as suggested by Krzysztof
+> ---
+>  drivers/rtc/rtc-s3c.c | 74 ++++++++++++++++++-------------------------
+>  1 file changed, 31 insertions(+), 43 deletions(-)
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+
+Best regards,
+Krzysztof
