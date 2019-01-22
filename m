@@ -2,968 +2,380 @@ Return-Path: <SRS0=37S+=P6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06766C282C3
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 14:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1974C282C3
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 14:56:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9CEEB21019
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 14:51:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 890C721019
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 14:56:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QcqduiMZ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C82kitik"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728959AbfAVOvc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Jan 2019 09:51:32 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:35078 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728318AbfAVOva (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Jan 2019 09:51:30 -0500
-Received: by mail-pf1-f195.google.com with SMTP id z9so11888771pfi.2;
-        Tue, 22 Jan 2019 06:51:29 -0800 (PST)
+        id S1728915AbfAVO4J (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 22 Jan 2019 09:56:09 -0500
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:43630 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728836AbfAVO4J (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Jan 2019 09:56:09 -0500
+Received: by mail-qt1-f195.google.com with SMTP id i7so27806347qtj.10;
+        Tue, 22 Jan 2019 06:56:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=9OdsWnx8oCwzprqQB43qlI+xMjVzXNS5lFriDvNkEog=;
-        b=QcqduiMZzGmjnGnTXiocAU4cBrhUKgj8AmVlA8B2+pVA6q7GsDevxYy2UU6M+iQnqy
-         NTdHnYYviKKOqICCbrA+BsPhaONyBUN1w9diXHGt8QqS12myCBl+RKscLPWIiBybA/wK
-         Zv8AuwPakZJbfgbo3gFsodMyW/5pj6/BvwnSAHnXt6U3ePsfVOD1eigtOLB2A8s7Z8S3
-         Gjl2gXCvDZw0/YP6ve+NdwmnqigKU/5p0DsTeA7rKNfio3RY1RJ99tU4u48DCLLb0eYF
-         NmrxA7XNHY+S3OWGCPttvNU1Udt6p5hdA9DFkEqWFuokdY0iNwUHqGs4fvvYS0d3Vsee
-         sKpQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=K+2zfFSibbg190l5BiqRyileh2/rBR4aXcPonbfilMU=;
+        b=C82kitik7fUqGHHOUPGruIWahZy3kw97dMhkOBRMkVnBYaSn1avhaJrMHP8lNxLGtW
+         pget1rtHcEcAZGiVWjJcZ53TJaGHPExeJx3oeyPVwVoAyT6OSRxDzntrqyI10TafTVwl
+         xBMD9vWx1MqknlTpl+hFt6qd4AtVSwvJ/EDQek++ri7UN+nYGL8kqS/9gpTPnKnGOIUP
+         nuf/hA+drfXADQlFpYWGpWq2Nr/kC9nHXS8Q+JkzPy/7SOmo8R65QhJHKO797J+JNDZ1
+         eXuNt9hcJ6SRgQ6nw3uZ/xRSHCuLrkt9qZjQdv27wHsz0BPXiXG9ZLpDlZCUU/J6ZDs5
+         60FQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9OdsWnx8oCwzprqQB43qlI+xMjVzXNS5lFriDvNkEog=;
-        b=N5/7FNQLo2xxe5dRgAZyQmRZnpsulbdXRdd8aDnjhBm28wO0Jzj/K4MKcJ6vyDgE9u
-         0ryMFTNezl2fLlPwSPz4V2ucdUmat/q5EDbQj+ptRD7tzWH0G4zKf4MheUvnI9+/Z8Qt
-         xlHzQxnBG+RARRmU7+7U/JkbHEZaVlJyZX+r5IAwUHaZXikUgv+9LdzAeJKykL4evhwq
-         StUTJ4MdKjdbXUtuLxhGvVvUe4P/ZGuDeKcNpbpo/2+GjUw4V8eLMxPIyyaYLEBboGS0
-         scW2xa7NQH3lVV1PPuKdQ71TYqEUKdi2HE5j/1tu264QYQ4acNdefwhguDOI8aCTY8eY
-         35+g==
-X-Gm-Message-State: AJcUuke/F+iYoEgx+EnjTYzi54Lrtzhg1hE5qNTVx/oTElCsBOrVqNqc
-        X2XSkL51B+i6+/w7NPOo7Zw=
-X-Google-Smtp-Source: ALg8bN4CtxS4gXuBI69CRtLa+LJehIMUaXYrQRSoVdVnKBlmp7mNuc6HjNa+ewiP1Yl6+qWeURVg1A==
-X-Received: by 2002:a63:dc54:: with SMTP id f20mr32619913pgj.410.1548168689242;
-        Tue, 22 Jan 2019 06:51:29 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x28sm35807958pge.66.2019.01.22.06.51.27
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 22 Jan 2019 06:51:28 -0800 (PST)
-Subject: Re: [RFC PATCH v1 05/13] mfd: bd70528: Support ROHM bd70528 PMIC -
- core
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        mazziesaccount@gmail.com
-Cc:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        lgirdwood@gmail.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com,
-        heikki.haikola@fi.rohmeurope.com
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <fea02522fe54190cfc7f3500f4e6540c8af82453.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9abdc69e-6aea-e1a5-c170-ebcba7f5b20f@roeck-us.net>
-Date:   Tue, 22 Jan 2019 06:51:26 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=K+2zfFSibbg190l5BiqRyileh2/rBR4aXcPonbfilMU=;
+        b=PeGfGbGesIFCu3XQnS0Pzl9NKR76XLLyyjzGZ4v4Z8rweZ9msZk/i42Qi0UWTiqc+p
+         /vro0XuEchYcTnZoIUve3z0C/PRfLYYqn4AJbCU+w+zBggWHqo8dGr2l1DrFR1TjFAXa
+         k0HjbE2FKLd0dN1vK/LlGis2HFmAw5q2+MXSnFdV3MK86ith975NBGRNWnQIXkJMPK7I
+         /1dPl9McqOpa35tyy5wAZdKLMvTVelps0ecC04TwgYZ1iS9H3DOpaRh1XdkeRK8p4+Tf
+         oWFHLZv8RhDCMN2F3zWdnDyVma63TAVhHWteLsmdWtVU6YGgN9DQbEW9dSFFeEJvkrTu
+         B7Ew==
+X-Gm-Message-State: AJcUuke8pYDT5z04dBCbdoy/Ptm1cFROsqLdnA5u8AA3O0EWCdfMxnUp
+        krUC959epV3O8LvH7nR8O6o0CKYijlz3nCXqfaE=
+X-Google-Smtp-Source: ALg8bN5ma0qY+l5k267L+RT+FsCmVVer5VsFsZq0p5BAdDMenVVrQAx2rCy2uTCCVq3x2dnkr8oSFUI+8FEVYI427Iw=
+X-Received: by 2002:ac8:2585:: with SMTP id e5mr31667294qte.233.1548168967318;
+ Tue, 22 Jan 2019 06:56:07 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <fea02522fe54190cfc7f3500f4e6540c8af82453.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190119001422.48186-1-ncrews@chromium.org> <20190119001422.48186-6-ncrews@chromium.org>
+In-Reply-To: <20190119001422.48186-6-ncrews@chromium.org>
+From:   Enric Balletbo Serra <eballetbo@gmail.com>
+Date:   Tue, 22 Jan 2019 15:55:55 +0100
+Message-ID: <CAFqH_53QwY74L1uxqt+cMUwKqUb4Agn8GwBvmALN3qG5t1rW8g@mail.gmail.com>
+Subject: Re: [PATCH v3 5/9] platform/chrome: rtc: Add RTC driver
+To:     Nick Crews <ncrews@chromium.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Simon Glass <sjg@chromium.org>,
+        Daniel Kurtz <djkurtz@google.com>, dlaurie@chromium.org,
+        Duncan Laurie <dlaurie@google.com>, linux-rtc@vger.kernel.org,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Benson Leung <bleung@chromium.org>,
+        Nick Crews <ncrews@google.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 1/22/19 1:44 AM, Matti Vaittinen wrote:
-> ROHM BD70528MWV is an ultra-low quiescent current general
-> purpose single-chip power management IC for battery-powered
-> portable devices.
-> 
-> Add MFD core which enables chip access for following subdevices:
-> 	- regulators/LED drivers
-> 	- battery-charger
-> 	- gpios
-> 	- 32.768kHz clk
-> 	- RTC
-> 	- watchdog
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Hi Nick,
+
+Missatge de Nick Crews <ncrews@chromium.org> del dia ds., 19 de gen.
+2019 a les 1:17:
+>
+> From: Duncan Laurie <dlaurie@google.com>
+>
+> This Embedded Controller has an internal RTC that is exposed
+> as a standard RTC class driver with read/write functionality.
+>
+> The driver is added to the drivers/rtc/ so that the maintainer of that
+> directory will be able to comment on this change, as that maintainer is
+> the expert on this system. In addition, the driver code is called
+> indirectly after a corresponding device is registered from core.c,
+> as opposed to core.c registering the driver callbacks directly.
+>
+> > hwclock --show --rtc /dev/rtc1
+> 2007-12-31 16:01:20.460959-08:00
+> > hwclock --systohc --rtc /dev/rtc1
+> > hwclock --show --rtc /dev/rtc1
+> 2018-11-29 17:08:00.780793-08:00
+>
+> Signed-off-by: Duncan Laurie <dlaurie@google.com>
+> Signed-off-by: Nick Crews <ncrews@chromium.org>
 > ---
->   drivers/mfd/Kconfig              |  17 ++
->   drivers/mfd/Makefile             |   1 +
->   drivers/mfd/rohm-bd70528.c       | 409 +++++++++++++++++++++++++++++++++++++++
->   include/linux/mfd/rohm-bd70528.h | 392 +++++++++++++++++++++++++++++++++++++
->   4 files changed, 819 insertions(+)
->   create mode 100644 drivers/mfd/rohm-bd70528.c
->   create mode 100644 include/linux/mfd/rohm-bd70528.h
-> 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 8c5dfdce4326..d47eca440ece 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -1846,6 +1846,23 @@ config MFD_ROHM_BD718XX
->   	  NXP i.MX8. It contains 8 BUCK outputs and 7 LDOs, voltage monitoring
->   	  and emergency shut down as well as 32,768KHz clock output.
->   
-> +config MFD_ROHM_BD70528
-> +	tristate "ROHM BD70528 Power Management IC"
-> +	depends on I2C=y
-> +	depends on OF
-> +	select REGMAP_I2C
-> +	select REGMAP_IRQ
-> +	select MFD_CORE
-> +	help
-> +	  Select this option to get support for the ROHM BD70528 Power
-> +	  Management IC. BD71837 is general purpose single-chip power
-> +	  management IC for battery-powered portable devices. It contains
-> +	  3 ultra-low current consumption buck converters, 3 LDOs and 2 LED
-> +	  Drivers. Also included are 4 GPIOs, a real-time clock (RTC), a 32kHz
-> +	  crystal oscillator, high-accuracy VREF for use with an external ADC,
-> +	  10 bits SAR ADC for battery temperature monitor and 1S battery
-> +	  charger.
-> +
->   config MFD_STM32_LPTIMER
->   	tristate "Support for STM32 Low-Power Timer"
->   	depends on (ARCH_STM32 && OF) || COMPILE_TEST
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 12980a4ad460..fc9b1408e39b 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -241,4 +241,5 @@ obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
->   obj-$(CONFIG_MFD_SC27XX_PMIC)	+= sprd-sc27xx-spi.o
->   obj-$(CONFIG_RAVE_SP_CORE)	+= rave-sp.o
->   obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
-> +obj-$(CONFIG_MFD_ROHM_BD70528)	+= rohm-bd70528.o
->   
-> diff --git a/drivers/mfd/rohm-bd70528.c b/drivers/mfd/rohm-bd70528.c
-> new file mode 100644
-> index 000000000000..c2bf6c1a7136
-> --- /dev/null
-> +++ b/drivers/mfd/rohm-bd70528.c
-> @@ -0,0 +1,409 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +//
-> +// Copyright (C) 2018 ROHM Semiconductors
-> +//
-> +// ROHM BD70528 PMIC driver
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/irq.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/rohm-bd70528.h>
-> +#include <linux/module.h>
-> +#include <linux/of_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/types.h>
-> +
-> +#define BD70528_INT_RES(_reg, _name)		\
-> +	{					\
-> +		.start = (_reg),		\
-> +		.end = (_reg),			\
-> +		.name = (_name),		\
-> +		.flags = IORESOURCE_IRQ,	\
-> +	}
-> +
-> +static DEFINE_MUTEX(rtc_timer_mutex);
-> +
-> +static const struct resource rtc_irqs[] = {
-> +	BD70528_INT_RES(BD70528_INT_RTC_ALARM, "bd70528-rtc-alm"),
-> +	BD70528_INT_RES(BD70528_INT_ELPS_TIM, "bd70528-elapsed-timer"),
-> +};
-> +
-> +static const struct resource charger_irqs[] = {
-> +	BD70528_INT_RES(BD70528_INT_BAT_OV_RES, "bd70528-bat-ov-res"),
-> +	BD70528_INT_RES(BD70528_INT_BAT_OV_DET, "bd70528-bat-ov-det"),
-> +	BD70528_INT_RES(BD70528_INT_DBAT_DET, "bd70528-bat-dead"),
-> +	BD70528_INT_RES(BD70528_INT_BATTSD_COLD_RES, "bd70528-bat-warmed"),
-> +	BD70528_INT_RES(BD70528_INT_BATTSD_COLD_DET, "bd70528-bat-cold"),
-> +	BD70528_INT_RES(BD70528_INT_BATTSD_HOT_RES, "bd70528-bat-cooled"),
-> +	BD70528_INT_RES(BD70528_INT_BATTSD_HOT_DET, "bd70528-bat-hot"),
-> +	BD70528_INT_RES(BD70528_INT_CHG_TSD, "bd70528-chg-tshd"),
-> +	BD70528_INT_RES(BD70528_INT_BAT_RMV, "bd70528-bat-removed"),
-> +	BD70528_INT_RES(BD70528_INT_BAT_DET, "bd70528-bat-detected"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN2_OV_RES, "bd70528-dcin2-ov-res"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN2_OV_DET, "bd70528-dcin2-ov-det"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN2_RMV, "bd70528-dcin2-removed"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN2_DET, "bd70528-dcin2-detected"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN1_RMV, "bd70528-dcin1-removed"),
-> +	BD70528_INT_RES(BD70528_INT_DCIN1_DET, "bd70528-dcin1-detected"),
-> +};
-> +
-> +static struct mfd_cell bd70528_mfd_cells[] = {
-> +	{ .name = "bd70528-pmic", },
-> +	{ .name = "bd70528-gpio", },
-> +	/*
-> +	 * We use BD71837 driver to drive the clk block. Only differences to
-> +	 * BD70528 clock gate are the register address and mask.
-> +	 */
-> +	{ .name = "bd718xx-clk", },
-> +	{ .name = "bd70528-wdt", },
-> +	{
-> +		.name = "bd70528-power",
-> +		.resources = &charger_irqs[0],
-> +		.num_resources = ARRAY_SIZE(charger_irqs),
-> +	},
-> +	{
-> +		.name = "bd70528-rtc",
-> +		.resources = &rtc_irqs[0],
-> +		.num_resources = ARRAY_SIZE(rtc_irqs),
-> +	},
-> +};
-> +
-> +static const struct regmap_range volatile_ranges[] = {
-> +	/* IRQ regs */
-> +	{
-> +		.range_min = BD70528_REG_INT_MAIN,
-> +		.range_max = BD70528_REG_INT_OP_FAIL,
-> +	},
-> +	/* RTC regs */
-> +	{
-> +		.range_min = BD70528_REG_RTC_COUNT_H,
-> +		.range_max = BD70528_REG_RTC_ALM_REPEAT,
-> +	},
-> +	/*
-> +	 * WDT control reg is special. Magic values must be
-> +	 * written to it in order to change the control. Should
-> +	 * not be cached.
-> +	 */
-> +	{
-> +		.range_min = BD70528_REG_WDT_CTRL,
-> +		.range_max = BD70528_REG_WDT_CTRL,
-> +	},
-> +	/*
-> +	 * bd70528 contains also few other registers which require
-> +	 * magic sequence to be written in order to update the value.
-> +	 * At least SHIPMODE, HWRESET, WARMRESET,and STANDBY
-> +	 */
-> +	{
-> +		.range_min = BD70528_REG_SHIPMODE,
-> +		.range_max = BD70528_REG_STANDBY,
-> +	},
-> +};
-> +
-> +static const struct regmap_access_table volatile_regs = {
-> +	.yes_ranges = &volatile_ranges[0],
-> +	.n_yes_ranges = ARRAY_SIZE(volatile_ranges),
-> +};
-> +
-> +static struct regmap_config bd70528_regmap = {
-> +	.reg_bits = 8,
-> +	.val_bits = 8,
-> +	.volatile_table = &volatile_regs,
-> +	.max_register = BD70528_MAX_REGISTER,
-> +	.cache_type = REGCACHE_RBTREE,
-> +};
-> +/* bit [0] - Shutdown register */
-> +unsigned int bit0_offsets[] = {0};
-> +/* bit [1] - Power failure register */
-> +unsigned int bit1_offsets[] = {1};
-> +/* bit [2] - VR FAULT register */
-> +unsigned int bit2_offsets[] = {2};
-> +/* bit [3] - PMU register interrupts */
-> +unsigned int bit3_offsets[] = {3};
-> +/* bit [4] - Charger 1 and Charger 2 registers */
-> +unsigned int bit4_offsets[] = {4, 5};
-> +/* bit [5] - RTC register */
-> +unsigned int bit5_offsets[] = {6};
-> +/* bit [6] - GPIO register */
-> +unsigned int bit6_offsets[] = {7};
-> +/* bit [7] - Invalid operation register */
-> +unsigned int bit7_offsets[] = {8};
-> +
-> +static struct regmap_irq_sub_irq_map bd70528_sub_irq_offsets[] = {
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit0_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit1_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit2_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit3_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit4_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit5_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit6_offsets),
-> +	REGMAP_IRQ_MAIN_REG_OFFSET(bit7_offsets),
-> +};
-> +
-> +static struct regmap_irq irqs[] = {
-> +	REGMAP_IRQ_REG(BD70528_INT_LONGPUSH, 0, BD70528_INT_LONGPUSH_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_WDT, 0, BD70528_INT_WDT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_HWRESET, 0, BD70528_INT_HWRESET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_RSTB_FAULT, 0, BD70528_INT_RSTB_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_VBAT_UVLO, 0, BD70528_INT_VBAT_UVLO_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_TSD, 0, BD70528_INT_TSD_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_RSTIN, 0, BD70528_INT_RSTIN_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK1_FAULT, 1,
-> +		       BD70528_INT_BUCK1_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK2_FAULT, 1,
-> +		       BD70528_INT_BUCK2_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK3_FAULT, 1,
-> +		       BD70528_INT_BUCK3_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LDO1_FAULT, 1, BD70528_INT_LDO1_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LDO2_FAULT, 1, BD70528_INT_LDO2_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LDO3_FAULT, 1, BD70528_INT_LDO3_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED1_FAULT, 1, BD70528_INT_LED1_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED2_FAULT, 1, BD70528_INT_LED2_FAULT_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK1_OCP, 2, BD70528_INT_BUCK1_OCP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK2_OCP, 2, BD70528_INT_BUCK2_OCP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK3_OCP, 2, BD70528_INT_BUCK3_OCP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED1_OCP, 2, BD70528_INT_LED1_OCP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED2_OCP, 2, BD70528_INT_LED2_OCP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK1_FULLON, 2,
-> +		       BD70528_INT_BUCK1_FULLON_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK2_FULLON, 2,
-> +		       BD70528_INT_BUCK2_FULLON_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_SHORTPUSH, 3, BD70528_INT_SHORTPUSH_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_AUTO_WAKEUP, 3,
-> +		       BD70528_INT_AUTO_WAKEUP_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_STATE_CHANGE, 3,
-> +		       BD70528_INT_STATE_CHANGE_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BAT_OV_RES, 4, BD70528_INT_BAT_OV_RES_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BAT_OV_DET, 4, BD70528_INT_BAT_OV_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DBAT_DET, 4, BD70528_INT_DBAT_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BATTSD_COLD_RES, 4,
-> +		       BD70528_INT_BATTSD_COLD_RES_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BATTSD_COLD_DET, 4,
-> +		       BD70528_INT_BATTSD_COLD_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BATTSD_HOT_RES, 4,
-> +		       BD70528_INT_BATTSD_HOT_RES_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BATTSD_HOT_DET, 4,
-> +		       BD70528_INT_BATTSD_HOT_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_CHG_TSD, 4, BD70528_INT_CHG_TSD_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BAT_RMV, 5, BD70528_INT_BAT_RMV_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BAT_DET, 5, BD70528_INT_BAT_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN2_OV_RES, 5,
-> +		       BD70528_INT_DCIN2_OV_RES_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN2_OV_DET, 5,
-> +		       BD70528_INT_DCIN2_OV_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN2_RMV, 5, BD70528_INT_DCIN2_RMV_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN2_DET, 5, BD70528_INT_DCIN2_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN1_RMV, 5, BD70528_INT_DCIN1_RMV_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_DCIN1_DET, 5, BD70528_INT_DCIN1_DET_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_RTC_ALARM, 6, BD70528_INT_RTC_ALARM_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_ELPS_TIM, 6, BD70528_INT_ELPS_TIM_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_GPIO0, 7, BD70528_INT_GPIO0_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_GPIO1, 7, BD70528_INT_GPIO1_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_GPIO2, 7, BD70528_INT_GPIO2_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_GPIO3, 7, BD70528_INT_GPIO3_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK1_DVS_OPFAIL, 8,
-> +		       BD70528_INT_BUCK1_DVS_OPFAIL_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK2_DVS_OPFAIL, 8,
-> +		       BD70528_INT_BUCK2_DVS_OPFAIL_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_BUCK3_DVS_OPFAIL, 8,
-> +		       BD70528_INT_BUCK3_DVS_OPFAIL_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED1_VOLT_OPFAIL, 8,
-> +		       BD70528_INT_LED1_VOLT_OPFAIL_MASK),
-> +	REGMAP_IRQ_REG(BD70528_INT_LED2_VOLT_OPFAIL, 8,
-> +		       BD70528_INT_LED2_VOLT_OPFAIL_MASK),
-> +};
-> +
-> +static struct regmap_irq_chip bd70528_irq_chip = {
-> +	.name = "bd70528_irq",
-> +	.main_status = BD70528_REG_INT_MAIN,
-> +	.irqs = &irqs[0],
-> +	.num_irqs = ARRAY_SIZE(irqs),
-> +	.status_base = BD70528_REG_INT_SHDN,
-> +	.mask_base = BD70528_REG_INT_SHDN_MASK,
-> +	.ack_base = BD70528_REG_INT_SHDN,
-> +	.type_base = BD70528_REG_GPIO1_IN,
-> +	.init_ack_masked = true,
-> +	.num_regs = 9,
-> +	.num_main_regs = 1,
-> +	.num_type_reg = 4,
-> +	.sub_reg_offsets = &bd70528_sub_irq_offsets[0],
-> +	.num_main_status_bits = 8,
-> +	.irq_reg_stride = 1,
-> +};
-> +
-> +#define WD_CTRL_MAGIC1 0x55
-> +#define WD_CTRL_MAGIC2 0xAA
-> +
-> +static int bd70528_wdt_set(struct bd70528 *bd70528, int enable, int *old_state)
-> +{
-> +	int ret, i;
-> +	unsigned int tmp;
-> +	u8 wd_ctrl_arr[3] = { WD_CTRL_MAGIC1, WD_CTRL_MAGIC2, 0 };
-> +	u8 *wd_ctrl = &wd_ctrl_arr[2];
-> +
-> +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WDT_CTRL, &tmp);
-> +	if (ret)
-> +		return ret;
-> +
-> +	*wd_ctrl = (u8)tmp;
-> +
-> +	if (old_state) {
-> +		if (*wd_ctrl & BD70528_MASK_WDT_EN)
-> +			*old_state |= BD70528_WDT_STATE_BIT;
-> +		else
-> +			*old_state &= ~BD70528_WDT_STATE_BIT;
-> +		if ((!enable) == (!(*old_state & BD70528_WDT_STATE_BIT)))
-> +			return 0;
-> +	}
-> +
-> +	if (enable) {
-> +		if (*wd_ctrl & BD70528_MASK_WDT_EN)
-> +			return 0;
-> +		*wd_ctrl |= BD70528_MASK_WDT_EN;
-> +	} else {
-> +		if (*wd_ctrl & BD70528_MASK_WDT_EN)
-> +			*wd_ctrl &= ~BD70528_MASK_WDT_EN;
-> +		else
-> +			return 0;
-> +	}
-> +
-> +	for (i = 0; i < 3; i++) {
-> +		ret = regmap_write(bd70528->chip.regmap, BD70528_REG_WDT_CTRL,
-> +				   wd_ctrl_arr[i]);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WDT_CTRL, &tmp);
-> +	if ((tmp & BD70528_MASK_WDT_EN) != (*wd_ctrl & BD70528_MASK_WDT_EN)) {
-> +		dev_err(bd70528->chip.dev,
-> +			"Watchdog ctrl mismatch (hw) 0x%x (set) 0x%x\n",
-> +			tmp, *wd_ctrl);
-> +		ret = -EIO;
-> +	}
-> +	return ret;
-> +}
-> +
-> +static int bd70528_i2c_probe(struct i2c_client *i2c,
-> +			    const struct i2c_device_id *id)
-> +{
-> +	struct bd70528 *bd70528;
-> +	struct regmap_irq_chip_data *irq_data;
-> +	int ret, i;
-> +
-> +	if (!i2c->irq) {
-> +		dev_err(&i2c->dev, "No IRQ configured\n");
-> +		return -EINVAL;
-> +	}
-> +	bd70528 = devm_kzalloc(&i2c->dev, sizeof(*bd70528), GFP_KERNEL);
-> +
-> +	if (!bd70528)
-> +		return -ENOMEM;
-> +
-> +	dev_set_drvdata(&i2c->dev, bd70528);
-> +	bd70528->rtc_timer_lock = &rtc_timer_mutex;
+>
+> Changes in v3:
+> - rm #define for driver name
+> - Don't compute weekday when reading from RTC.
+>   Still set weekday when writing, as RTC needs this
+>   to control advanced power scheduling
+> - rm check for invalid month data
+> - Set range_min and range_max on rtc_device
+>
+> Changes in v2:
+> - rm license boiler plate
+> - rm "wilco_ec_rtc -" prefix in docstring
+> - Make rtc driver its own module within the drivers/rtc/ directory
+> - Register a rtc device from core.c that is picked up by this driver
+>
+>  drivers/platform/chrome/wilco_ec/core.c |  17 +++
 
-One global mutex for all instances of this driver is odd.
-Why isn't this just part of struct bd70528 ?
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-> +	bd70528->chip.chip_type = ROHM_CHIP_TYPE_BD70528;
-> +	bd70528->wdt_set = bd70528_wdt_set;
-> +	bd70528->chip.regmap = devm_regmap_init_i2c(i2c, &bd70528_regmap);
-> +	if (IS_ERR(bd70528->chip.regmap)) {
-> +		dev_err(&i2c->dev, "regmap initialization failed\n");
-> +		return PTR_ERR(bd70528->chip.regmap);
-> +	}
+>  drivers/rtc/Kconfig                     |  11 ++
+>  drivers/rtc/Makefile                    |   1 +
+>  drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
+>  4 files changed, 206 insertions(+)
+>  create mode 100644 drivers/rtc/rtc-wilco-ec.c
+>
+> diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
+> index 9b4a25e63b56..dd8b896b3833 100644
+> --- a/drivers/platform/chrome/wilco_ec/core.c
+> +++ b/drivers/platform/chrome/wilco_ec/core.c
+> @@ -34,6 +34,7 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>  {
+>         struct device *dev = &pdev->dev;
+>         struct wilco_ec_device *ec;
+> +       struct platform_device *child_pdev;
+>         int ret;
+>
+>         ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
+> @@ -76,8 +77,24 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>                 goto rm_debugfs;
+>         }
+>
+> +       /*
+> +        * Register a RTC platform device that will get picked up by the RTC
+> +        * subsystem. This platform device will get freed when its parent device
+> +        * dev is unregistered.
+> +        */
+> +       child_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
+> +                                                  PLATFORM_DEVID_AUTO,
+> +                                                  NULL, 0);
+> +       if (IS_ERR(child_pdev)) {
+> +               dev_err(dev, "Failed to create RTC platform device\n");
+> +               ret = PTR_ERR(child_pdev);
+> +               goto remove_sysfs;
+> +       }
 > +
-> +	/*
-> +	 * Disallow type setting for all IRQs by default as
-> +	 *  most of them do not support setting type.
-> +	 */
-> +	for (i = 0; i < ARRAY_SIZE(irqs); i++)
-> +		irqs[i].type.types_supported = 0;
+>         return 0;
+>
+> +remove_sysfs:
+> +       wilco_ec_sysfs_remove(ec);
+>  rm_debugfs:
+>         wilco_ec_debugfs_remove(ec);
+>  destroy_mec:
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 225b0b8516f3..d5063c791515 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
+>           Goldfish is a code name for the virtual platform developed by Google
+>           for Android emulation.
+>
+> +config RTC_DRV_WILCO_EC
+> +       tristate "Wilco EC RTC"
+> +       depends on WILCO_EC
+> +       default m
+> +       help
+> +         If you say yes here, you get read/write support for the Real Time
+> +         Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
 > +
-> +	irqs[BD70528_INT_GPIO0].type.type_reg_offset = 0;
-> +	irqs[BD70528_INT_GPIO0].type.type_rising_val = 0x20;
-> +	irqs[BD70528_INT_GPIO0].type.type_falling_val = 0x10;
-> +	irqs[BD70528_INT_GPIO0].type.type_level_high_val = 0x40;
-> +	irqs[BD70528_INT_GPIO0].type.type_level_low_val = 0x50;
-> +	irqs[BD70528_INT_GPIO0].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
-> +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
-> +	irqs[BD70528_INT_GPIO1].type.type_reg_offset = 2;
-> +	irqs[BD70528_INT_GPIO1].type.type_rising_val = 0x20;
-> +	irqs[BD70528_INT_GPIO1].type.type_falling_val = 0x10;
-> +	irqs[BD70528_INT_GPIO1].type.type_level_high_val = 0x40;
-> +	irqs[BD70528_INT_GPIO1].type.type_level_low_val = 0x50;
-> +	irqs[BD70528_INT_GPIO1].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
-> +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
-> +	irqs[BD70528_INT_GPIO2].type.type_reg_offset = 4;
-> +	irqs[BD70528_INT_GPIO2].type.type_rising_val = 0x20;
-> +	irqs[BD70528_INT_GPIO2].type.type_falling_val = 0x10;
-> +	irqs[BD70528_INT_GPIO2].type.type_level_high_val = 0x40;
-> +	irqs[BD70528_INT_GPIO2].type.type_level_low_val = 0x50;
-> +	irqs[BD70528_INT_GPIO2].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
-> +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
-> +	irqs[BD70528_INT_GPIO3].type.type_reg_offset = 6;
-> +	irqs[BD70528_INT_GPIO3].type.type_rising_val = 0x20;
-> +	irqs[BD70528_INT_GPIO3].type.type_falling_val = 0x10;
-> +	irqs[BD70528_INT_GPIO3].type.type_level_high_val = 0x40;
-> +	irqs[BD70528_INT_GPIO3].type.type_level_low_val = 0x50;
-> +	irqs[BD70528_INT_GPIO3].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
-> +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> +         This can also be built as a module. If so, the module will
+> +         be named "rtc_wilco_ec".
 > +
-> +	ret = devm_regmap_add_irq_chip(&i2c->dev, bd70528->chip.regmap,
-> +				       i2c->irq, IRQF_ONESHOT, 0,
-> +				       &bd70528_irq_chip, &irq_data);
-> +	if (ret) {
-> +		dev_err(&i2c->dev, "Failed to add irq_chip\n");
-> +		return ret;
-> +	}
-> +	dev_dbg(&i2c->dev, "Registered %d irqs for chip\n",
-> +			bd70528_irq_chip.num_irqs);
-> +
-> +	/*
-> +	 * BD70528 irq controller is not touching the main mask register.
-> +	 * So enable the GPIO block interrupts at main level. We can just
-> +	 * leave them enabled as irq-controller should disable irqs
-> +	 * from sub-registers when IRQ is disabled or freed.
-> +	 */
-> +	ret = regmap_update_bits(bd70528->chip.regmap,
-> +				 BD70528_REG_INT_MAIN_MASK,
-> +				 BD70528_INT_GPIO_MASK, 0);
-> +
-> +	ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_AUTO,
-> +				   bd70528_mfd_cells,
-> +				   ARRAY_SIZE(bd70528_mfd_cells), NULL, 0,
-> +				   regmap_irq_get_domain(irq_data));
-> +	if (ret)
-> +		dev_err(&i2c->dev, "Failed to create subdevices\n");
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct of_device_id bd70528_of_match[] = {
-> +	{
-> +		.compatible = "rohm,bd70528",
-> +	},
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, bd70528_of_match);
-> +
-> +static struct i2c_driver bd70528_drv = {
-> +	.driver = {
-> +		.name = "rohm-bd70528",
-> +		.of_match_table = bd70528_of_match,
-> +	},
-> +	.probe = &bd70528_i2c_probe,
-> +};
-> +
-> +static int __init bd70528_init(void)
-> +{
-> +	return i2c_add_driver(&bd70528_drv);
-> +}
-> +subsys_initcall(bd70528_init);
-> +
-> +static void __exit bd70528_exit(void)
-> +{
-> +	i2c_del_driver(&bd70528_drv);
-> +}
-> +module_exit(bd70528_exit);
-> +
-> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-> +MODULE_DESCRIPTION("ROHM BD70528 Power Management IC driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/linux/mfd/rohm-bd70528.h b/include/linux/mfd/rohm-bd70528.h
+>  endif # RTC_CLASS
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index df022d820bee..6255ea78da25 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020) += rtc-v3020.o
+>  obj-$(CONFIG_RTC_DRV_VR41XX)   += rtc-vr41xx.o
+>  obj-$(CONFIG_RTC_DRV_VRTC)     += rtc-mrst.o
+>  obj-$(CONFIG_RTC_DRV_VT8500)   += rtc-vt8500.o
+> +obj-$(CONFIG_RTC_DRV_WILCO_EC) += rtc-wilco-ec.o
+>  obj-$(CONFIG_RTC_DRV_WM831X)   += rtc-wm831x.o
+>  obj-$(CONFIG_RTC_DRV_WM8350)   += rtc-wm8350.o
+>  obj-$(CONFIG_RTC_DRV_X1205)    += rtc-x1205.o
+> diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
 > new file mode 100644
-> index 000000000000..2ac0701309b8
+> index 000000000000..b721cc3f17f0
 > --- /dev/null
-> +++ b/include/linux/mfd/rohm-bd70528.h
-> @@ -0,0 +1,392 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +/* Copyright (C) 2018 ROHM Semiconductors */
-> +
-> +#ifndef __LINUX_MFD_BD70528_H__
-> +#define __LINUX_MFD_BD70528_H__
-> +
-> +#include <linux/device.h>
-> +#include <linux/mfd/rohm-generic.h>
-> +#include <linux/regmap.h>
-> +
-> +struct bd70528 {
-> +	/*
-> +	 * Please keep this as the first member here as some
-> +	 * drivers (clk) supporting more than one chip may only know this
-> +	 * generic struct 'struct rohm_regmap_dev' and assume it is
-> +	 * the first chunk of parent device's private data.
-> +	 */
-> +	struct rohm_regmap_dev chip;
-> +	/* wdt_set must be called rtc_timer_lock held */
-> +	int (*wdt_set)(struct bd70528 *bd70528, int enable, int *old_state);
-> +	struct mutex *rtc_timer_lock;
-> +};
-> +
-> +enum {
-> +	BD70528_BUCK1,
-> +	BD70528_BUCK2,
-> +	BD70528_BUCK3,
-> +	BD70528_LDO1,
-> +	BD70528_LDO2,
-> +	BD70528_LDO3,
-> +	BD70528_LED1,
-> +	BD70528_LED2,
-> +};
-> +
-> +#define BD70528_BUCK_VOLTS 17
-> +#define BD70528_BUCK_VOLTS 17
-> +#define BD70528_BUCK_VOLTS 17
-> +#define BD70528_LDO_VOLTS 0x20
-> +
-> +#define BD70528_REG_BUCK1_EN	0x0F
-> +#define BD70528_REG_BUCK1_VOLT	0x15
-> +#define BD70528_REG_BUCK2_EN	0x10
-> +#define BD70528_REG_BUCK2_VOLT	0x16
-> +#define BD70528_REG_BUCK3_EN	0x11
-> +#define BD70528_REG_BUCK3_VOLT	0x17
-> +#define BD70528_REG_LDO1_EN	0x1b
-> +#define BD70528_REG_LDO1_VOLT	0x1e
-> +#define BD70528_REG_LDO2_EN	0x1c
-> +#define BD70528_REG_LDO2_VOLT	0x1f
-> +#define BD70528_REG_LDO3_EN	0x1d
-> +#define BD70528_REG_LDO3_VOLT	0x20
-> +#define BD70528_REG_LED_CTRL	0x2b
-> +#define BD70528_REG_LED_VOLT	0x29
-> +#define BD70528_REG_LED_EN	0x2a
-> +
-> +/* main irq registers */
-> +#define BD70528_REG_INT_MAIN	0x7E
-> +#define BD70528_REG_INT_MAIN_MASK 0x74
-> +
-> +/* 'sub irq' registers */
-> +#define BD70528_REG_INT_SHDN	0x7F
-> +#define BD70528_REG_INT_PWR_FLT	0x80
-> +#define BD70528_REG_INT_VR_FLT	0x81
-> +#define BD70528_REG_INT_MISC	0x82
-> +#define BD70528_REG_INT_BAT1	0x83
-> +#define BD70528_REG_INT_BAT2	0x84
-> +#define BD70528_REG_INT_RTC	0x85
-> +#define BD70528_REG_INT_GPIO	0x86
-> +#define BD70528_REG_INT_OP_FAIL	0x87
-> +
-> +#define BD70528_REG_INT_SHDN_MASK	0x75
-> +#define BD70528_REG_INT_PWR_FLT_MASK	0x76
-> +#define BD70528_REG_INT_VR_FLT_MASK	0x77
-> +#define BD70528_REG_INT_MISC_MASK	0x78
-> +#define BD70528_REG_INT_BAT1_MASK	0x79
-> +#define BD70528_REG_INT_BAT2_MASK	0x7a
-> +#define BD70528_REG_INT_RTC_MASK	0x7b
-> +#define BD70528_REG_INT_GPIO_MASK	0x7c
-> +#define BD70528_REG_INT_OP_FAIL_MASK	0x7d
-> +
-> +/* Reset related 'magic' registers */
-> +#define BD70528_REG_SHIPMODE	0x03
-> +#define BD70528_REG_HWRESET	0x04
-> +#define BD70528_REG_WARMRESET	0x05
-> +#define BD70528_REG_STANDBY	0x06
-> +
-> +/* GPIO registers */
-> +#define BD70528_REG_GPIO_STATE	0x8F
-> +
-> +#define BD70528_REG_GPIO1_IN	0x4d
-> +#define BD70528_REG_GPIO2_IN	0x4f
-> +#define BD70528_REG_GPIO3_IN	0x51
-> +#define BD70528_REG_GPIO4_IN	0x53
-> +#define BD70528_REG_GPIO1_OUT	0x4e
-> +#define BD70528_REG_GPIO2_OUT	0x50
-> +#define BD70528_REG_GPIO3_OUT	0x52
-> +#define BD70528_REG_GPIO4_OUT	0x54
-> +
-> +/* clk control */
-> +
-> +#define BD70528_REG_CLK_OUT	0x2c
-> +
-> +/* RTC */
-> +
-> +#define BD70528_REG_RTC_COUNT_H		0x2d
-> +#define BD70528_REG_RTC_COUNT_L		0x2e
-> +#define BD70528_REG_RTC_SEC		0x2f
-> +#define BD70528_REG_RTC_MINUTE		0x30
-> +#define BD70528_REG_RTC_HOUR		0x31
-> +#define BD70528_REG_RTC_WEEK		0x32
-> +#define BD70528_REG_RTC_DAY		0x33
-> +#define BD70528_REG_RTC_MONTH		0x34
-> +#define BD70528_REG_RTC_YEAR		0x35
-> +
-> +#define BD70528_REG_RTC_ALM_SEC		0x36
-> +#define BD70528_REG_RTC_ALM_START	BD70528_REG_RTC_ALM_SEC
-> +#define BD70528_REG_RTC_ALM_MINUTE	0x37
-> +#define BD70528_REG_RTC_ALM_HOUR	0x38
-> +#define BD70528_REG_RTC_ALM_WEEK	0x39
-> +#define BD70528_REG_RTC_ALM_DAY		0x3a
-> +#define BD70528_REG_RTC_ALM_MONTH	0x3b
-> +#define BD70528_REG_RTC_ALM_YEAR	0x3c
-> +#define BD70528_REG_RTC_ALM_MASK	0x3d
-> +#define BD70528_REG_RTC_ALM_REPEAT	0x3e
-> +#define BD70528_REG_RTC_START		BD70528_REG_RTC_SEC
-> +
-> +#define BD70528_REG_RTC_WAKE_SEC	0x43
-> +#define BD70528_REG_RTC_WAKE_START	BD70528_REG_RTC_WAKE_SEC
-> +#define BD70528_REG_RTC_WAKE_MIN	0x44
-> +#define BD70528_REG_RTC_WAKE_HOUR	0x45
-> +#define BD70528_REG_RTC_WAKE_CTRL	0x46
-> +
-> +#define BD70528_REG_ELAPSED_TIMER_EN	0x42
-> +#define BD70528_REG_WAKE_EN		0x46
-> +
-> +/* WDT registers */
-> +#define BD70528_REG_WDT_CTRL		0x4A
-> +#define BD70528_REG_WDT_HOUR		0x49
-> +#define BD70528_REG_WDT_MINUTE		0x48
-> +#define BD70528_REG_WDT_SEC		0x47
-> +
-> +/* Charger / Battery */
-> +#define BD70528_REG_CHG_CURR_STAT	0x59
-> +#define BD70528_REG_CHG_BAT_STAT	0x57
-> +#define BD70528_REG_CHG_BAT_TEMP	0x58
-> +#define BD70528_REG_CHG_IN_STAT		0x56
-> +#define BD70528_REG_CHG_DCIN_ILIM	0x5d
-> +#define BD70528_REG_CHG_CHG_CURR_WARM	0x61
-> +#define BD70528_REG_CHG_CHG_CURR_COLD	0x62
-> +
-> +
-> +/* Masks for main IRQ register bits */
-> +enum {
-> +	BD70528_INT_SHDN,
-> +#define BD70528_INT_SHDN_MASK (1<<BD70528_INT_SHDN)
-> +	BD70528_INT_PWR_FLT,
-> +#define BD70528_INT_PWR_FLT_MASK (1<<BD70528_INT_PWR_FLT)
-> +	BD70528_INT_VR_FLT,
-> +#define BD70528_INT_VR_FLT_MASK (1<<BD70528_INT_VR_FLT)
-> +	BD70528_INT_MISC,
-> +#define BD70528_INT_MISC_MASK (1<<BD70528_INT_MISC)
-> +	BD70528_INT_BAT1,
-> +#define BD70528_INT_BAT1_MASK (1<<BD70528_INT_BAT1)
-> +	BD70528_INT_RTC,
-> +#define BD70528_INT_RTC_MASK (1<<BD70528_INT_RTC)
-> +	BD70528_INT_GPIO,
-> +#define BD70528_INT_GPIO_MASK (1<<BD70528_INT_GPIO)
-> +	BD70528_INT_OP_FAIL,
-> +#define BD70528_INT_OP_FAIL_MASK (1<<BD70528_INT_OP_FAIL)
-> +};
-> +
-> +/* IRQs */
-> +enum {
-> +	/* Shutdown register IRQs */
-> +	BD70528_INT_LONGPUSH,
-> +	BD70528_INT_WDT,
-> +	BD70528_INT_HWRESET,
-> +	BD70528_INT_RSTB_FAULT,
-> +	BD70528_INT_VBAT_UVLO,
-> +	BD70528_INT_TSD,
-> +	BD70528_INT_RSTIN,
-> +	/* Power failure register IRQs */
-> +	BD70528_INT_BUCK1_FAULT,
-> +	BD70528_INT_BUCK2_FAULT,
-> +	BD70528_INT_BUCK3_FAULT,
-> +	BD70528_INT_LDO1_FAULT,
-> +	BD70528_INT_LDO2_FAULT,
-> +	BD70528_INT_LDO3_FAULT,
-> +	BD70528_INT_LED1_FAULT,
-> +	BD70528_INT_LED2_FAULT,
-> +	/* VR FAULT register IRQs */
-> +	BD70528_INT_BUCK1_OCP,
-> +	BD70528_INT_BUCK2_OCP,
-> +	BD70528_INT_BUCK3_OCP,
-> +	BD70528_INT_LED1_OCP,
-> +	BD70528_INT_LED2_OCP,
-> +	BD70528_INT_BUCK1_FULLON,
-> +	BD70528_INT_BUCK2_FULLON,
-> +	/* PMU register interrupts */
-> +	BD70528_INT_SHORTPUSH,
-> +	BD70528_INT_AUTO_WAKEUP,
-> +	BD70528_INT_STATE_CHANGE,
-> +	/* Charger 1 register IRQs */
-> +	BD70528_INT_BAT_OV_RES,
-> +	BD70528_INT_BAT_OV_DET,
-> +	BD70528_INT_DBAT_DET,
-> +	BD70528_INT_BATTSD_COLD_RES,
-> +	BD70528_INT_BATTSD_COLD_DET,
-> +	BD70528_INT_BATTSD_HOT_RES,
-> +	BD70528_INT_BATTSD_HOT_DET,
-> +	BD70528_INT_CHG_TSD,
-> +	/* Charger 2 register IRQs */
-> +	BD70528_INT_BAT_RMV,
-> +	BD70528_INT_BAT_DET,
-> +	BD70528_INT_DCIN2_OV_RES,
-> +	BD70528_INT_DCIN2_OV_DET,
-> +	BD70528_INT_DCIN2_RMV,
-> +	BD70528_INT_DCIN2_DET,
-> +	BD70528_INT_DCIN1_RMV,
-> +	BD70528_INT_DCIN1_DET,
-> +	/* RTC register IRQs */
-> +	BD70528_INT_RTC_ALARM,
-> +	BD70528_INT_ELPS_TIM,
-> +	/* GPIO register IRQs */
-> +	BD70528_INT_GPIO0,
-> +	BD70528_INT_GPIO1,
-> +	BD70528_INT_GPIO2,
-> +	BD70528_INT_GPIO3,
-> +	/* Invalid operation register IRQs */
-> +	BD70528_INT_BUCK1_DVS_OPFAIL,
-> +	BD70528_INT_BUCK2_DVS_OPFAIL,
-> +	BD70528_INT_BUCK3_DVS_OPFAIL,
-> +	BD70528_INT_LED1_VOLT_OPFAIL,
-> +	BD70528_INT_LED2_VOLT_OPFAIL,
-> +};
-> +
-> +/* Masks */
-> +#define BD70528_INT_LONGPUSH_MASK 0x1
-> +#define BD70528_INT_WDT_MASK 0x2
-> +#define BD70528_INT_HWRESET_MASK 0x4
-> +#define BD70528_INT_RSTB_FAULT_MASK 0x8
-> +#define BD70528_INT_VBAT_UVLO_MASK 0x10
-> +#define BD70528_INT_TSD_MASK 0x20
-> +#define BD70528_INT_RSTIN_MASK 0x40
-> +
-> +#define BD70528_INT_BUCK1_FAULT_MASK 0x1
-> +#define BD70528_INT_BUCK2_FAULT_MASK 0x2
-> +#define BD70528_INT_BUCK3_FAULT_MASK 0x4
-> +#define BD70528_INT_LDO1_FAULT_MASK 0x8
-> +#define BD70528_INT_LDO2_FAULT_MASK 0x10
-> +#define BD70528_INT_LDO3_FAULT_MASK 0x20
-> +#define BD70528_INT_LED1_FAULT_MASK 0x40
-> +#define BD70528_INT_LED2_FAULT_MASK 0x80
-> +
-> +#define BD70528_INT_BUCK1_OCP_MASK 0x1
-> +#define BD70528_INT_BUCK2_OCP_MASK 0x2
-> +#define BD70528_INT_BUCK3_OCP_MASK 0x4
-> +#define BD70528_INT_LED1_OCP_MASK 0x8
-> +#define BD70528_INT_LED2_OCP_MASK 0x10
-> +#define BD70528_INT_BUCK1_FULLON_MASK 0x20
-> +#define BD70528_INT_BUCK2_FULLON_MASK 0x40
-> +
-> +#define BD70528_INT_SHORTPUSH_MASK 0x1
-> +#define BD70528_INT_AUTO_WAKEUP_MASK 0x2
-> +#define BD70528_INT_STATE_CHANGE_MASK 0x10
-> +
-> +#define BD70528_INT_BAT_OV_RES_MASK 0x1
-> +#define BD70528_INT_BAT_OV_DET_MASK 0x2
-> +#define BD70528_INT_DBAT_DET_MASK 0x4
-> +#define BD70528_INT_BATTSD_COLD_RES_MASK 0x8
-> +#define BD70528_INT_BATTSD_COLD_DET_MASK 0x10
-> +#define BD70528_INT_BATTSD_HOT_RES_MASK 0x20
-> +#define BD70528_INT_BATTSD_HOT_DET_MASK 0x40
-> +#define BD70528_INT_CHG_TSD_MASK 0x80
-> +
-> +#define BD70528_INT_BAT_RMV_MASK 0x1
-> +#define BD70528_INT_BAT_DET_MASK 0x2
-> +#define BD70528_INT_DCIN2_OV_RES_MASK 0x4
-> +#define BD70528_INT_DCIN2_OV_DET_MASK 0x8
-> +#define BD70528_INT_DCIN2_RMV_MASK 0x10
-> +#define BD70528_INT_DCIN2_DET_MASK 0x20
-> +#define BD70528_INT_DCIN1_RMV_MASK 0x40
-> +#define BD70528_INT_DCIN1_DET_MASK 0x80
-> +
-> +#define BD70528_INT_RTC_ALARM_MASK 0x1
-> +#define BD70528_INT_ELPS_TIM_MASK 0x2
-> +
-> +#define BD70528_INT_GPIO0_MASK 0x1
-> +#define BD70528_INT_GPIO1_MASK 0x2
-> +#define BD70528_INT_GPIO2_MASK 0x4
-> +#define BD70528_INT_GPIO3_MASK 0x8
-> +
-> +#define BD70528_INT_BUCK1_DVS_OPFAIL_MASK 0x1
-> +#define BD70528_INT_BUCK2_DVS_OPFAIL_MASK 0x2
-> +#define BD70528_INT_BUCK3_DVS_OPFAIL_MASK 0x4
-> +#define BD70528_INT_LED1_VOLT_OPFAIL_MASK 0x10
-> +#define BD70528_INT_LED2_VOLT_OPFAIL_MASK 0x20
-> +
-> +#define BD70528_DEBOUNCE_MASK 0x3
-> +
-> +#define BD70528_DEBOUNCE_DISABLE 0
-> +#define BD70528_DEBOUNCE_15MS 1
-> +#define BD70528_DEBOUNCE_30MS 2
-> +#define BD70528_DEBOUNCE_50MS 3
-> +
-> +#define BD70528_GPIO_DRIVE_MASK 0x2
-> +#define BD70528_GPIO_PUSH_PULL 0x0
-> +#define BD70528_GPIO_OPEN_DRAIN 0x2
-> +
-> +#define BD70528_GPIO_OUT_EN_MASK 0x80
-> +#define BD70528_GPIO_OUT_ENABLE 0x80
-> +#define BD70528_GPIO_OUT_DISABLE 0x0
-> +
-> +#define BD70528_GPIO_OUT_HI 0x1
-> +#define BD70528_GPIO_OUT_LO 0x0
-> +#define BD70528_GPIO_OUT_MASK 0x1
-> +
-> +#define BD70528_GPIO_IN_STATE_BASE 1
-> +
-> +#define BD70528_CLK_OUT_EN_MASK 0x1
-> +
-> +/* RTC masks to mask out reserved bits */
-> +
-> +#define BD70528_MASK_RTC_SEC		0x7f
-> +#define BD70528_MASK_RTC_MINUTE		0x7f
-> +#define BD70528_MASK_RTC_HOUR_24H	0x80
-> +#define BD70528_MASK_RTC_HOUR_PM	0x20
-> +#define BD70528_MASK_RTC_HOUR		0x1f
-> +#define BD70528_MASK_RTC_DAY		0x3f
-> +#define BD70528_MASK_RTC_WEEK		0x07
-> +#define BD70528_MASK_RTC_MONTH		0x1f
-> +#define BD70528_MASK_RTC_YEAR		0xff
-> +#define BD70528_MASK_RTC_COUNT_L	0x7f
-> +
-> +#define BD70528_MASK_ELAPSED_TIMER_EN	0x1
-> +/* Mask second, min and hour fields
-> + * HW would support ALM irq for over 24h
-> + * (by setting day, month and year too)
-> + * but as we wish to keep this same as for
-> + * wake-up we limit ALM to 24H and only
-> + * unmask sec, min and hour
-> + */
-> +#define BD70528_MASK_ALM_EN		0x7
-> +#define BD70528_MASK_WAKE_EN		0x1
-> +
-> +/* WDT masks */
-> +#define BD70528_MASK_WDT_EN		0x1
-> +#define BD70528_MASK_WDT_HOUR		0x1
-> +#define BD70528_MASK_WDT_MINUTE		0x7f
-> +#define BD70528_MASK_WDT_SEC		0x7f
-> +
-> +#define BD70528_WDT_STATE_BIT		0x1
-> +#define BD70528_ELAPSED_STATE_BIT	0x2
-> +#define BD70528_WAKE_STATE_BIT		0x4
-> +
-> +/* Charger masks */
-> +#define BD70528_MASK_CHG_STAT		0x7f
-> +#define BD70528_MASK_CHG_BAT_TIMER	0x20
-> +#define BD70528_MASK_CHG_BAT_OVERVOLT	0x10
-> +#define BD70528_MASK_CHG_BAT_DETECT	0x1
-> +#define BD70528_MASK_CHG_DCIN1_UVLO	0x1
-> +#define BD70528_MASK_CHG_DCIN_ILIM	0x3f
-> +#define BD70528_MASK_CHG_CHG_CURR	0x1f
-> +#define BD70528_MASK_CHG_TRICKLE_CURR	0x10
-> +
+> +++ b/drivers/rtc/rtc-wilco-ec.c
+> @@ -0,0 +1,177 @@
+> +// SPDX-License-Identifier: GPL-2.0
 > +/*
-> + * Note, external battery register is the lonely rider at
-> + * address 0xc5. See how to stuff that in the regmap
+> + * RTC interface for Wilco Embedded Controller with R/W abilities
+> + *
+> + * Copyright 2018 Google LLC
+> + *
+> + * The corresponding platform device is typically registered in
+> + * drivers/platform/chrome/wilco_ec/core.c
 > + */
-> +#define BD70528_MAX_REGISTER 0x94
 > +
-> +/* Buck control masks */
-> +#define BD70528_MASK_RUN_EN	0x4
-> +#define BD70528_MASK_STBY_EN	0x2
-> +#define BD70528_MASK_IDLE_EN	0x1
-> +#define BD70528_MASK_LED1_EN	0x1
-> +#define BD70528_MASK_LED2_EN	0x10
+> +#include <linux/bcd.h>
+> +#include <linux/err.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/platform_data/wilco-ec.h>
+> +#include <linux/rtc.h>
+> +#include <linux/timekeeping.h>
 > +
-> +#define BD70528_MASK_BUCK_VOLT	0xf
-> +#define BD70528_MASK_LDO_VOLT	0x1f
-> +#define BD70528_MASK_LED1_VOLT	0x1
-> +#define BD70528_MASK_LED2_VOLT	0x10
+> +#define EC_COMMAND_CMOS                        0x7c
+> +#define EC_CMOS_TOD_WRITE              0x02
+> +#define EC_CMOS_TOD_READ               0x08
 > +
-> +/* Misc irq masks */
-> +#define BD70528_INT_MASK_SHORT_PUSH	1
-> +#define BD70528_INT_MASK_AUTO_WAKE	2
-> +#define BD70528_INT_MASK_POWER_STATE	4
+> +/**
+> + * struct ec_rtc_read - Format of RTC returned by EC.
+> + * @second: Second value (0..59)
+> + * @minute: Minute value (0..59)
+> + * @hour: Hour value (0..23)
+> + * @day: Day value (1..31)
+> + * @month: Month value (1..12)
+> + * @year: Year value (full year % 100)
+> + * @century: Century value (full year / 100)
+> + *
+> + * All values are presented in binary (not BCD).
+> + */
+> +struct ec_rtc_read {
+> +       u8 second;
+> +       u8 minute;
+> +       u8 hour;
+> +       u8 day;
+> +       u8 month;
+> +       u8 year;
+> +       u8 century;
+> +} __packed;
 > +
-> +#define BD70528_MASK_BUCK_RAMP 0x10
-> +#define BD70528_SIFT_BUCK_RAMP 4
+> +/**
+> + * struct ec_rtc_write - Format of RTC sent to the EC.
+> + * @param: EC_CMOS_TOD_WRITE
+> + * @century: Century value (full year / 100)
+> + * @year: Year value (full year % 100)
+> + * @month: Month value (1..12)
+> + * @day: Day value (1..31)
+> + * @hour: Hour value (0..23)
+> + * @minute: Minute value (0..59)
+> + * @second: Second value (0..59)
+> + * @weekday: Day of the week (0=Saturday)
+> + *
+> + * All values are presented in BCD.
+> + */
+> +struct ec_rtc_write {
+> +       u8 param;
+> +       u8 century;
+> +       u8 year;
+> +       u8 month;
+> +       u8 day;
+> +       u8 hour;
+> +       u8 minute;
+> +       u8 second;
+> +       u8 weekday;
+> +} __packed;
 > +
-> +#endif /* __LINUX_MFD_BD70528_H__ */
-> 
-
+> +int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
+> +{
+> +       struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
+> +       u8 param = EC_CMOS_TOD_READ;
+> +       struct ec_rtc_read rtc;
+> +       struct wilco_ec_message msg = {
+> +               .type = WILCO_EC_MSG_LEGACY,
+> +               .flags = WILCO_EC_FLAG_RAW_RESPONSE,
+> +               .command = EC_COMMAND_CMOS,
+> +               .request_data = &param,
+> +               .request_size = sizeof(param),
+> +               .response_data = &rtc,
+> +               .response_size = sizeof(rtc),
+> +       };
+> +       int ret;
+> +
+> +       ret = wilco_ec_mailbox(ec, &msg);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       tm->tm_sec      = rtc.second;
+> +       tm->tm_min      = rtc.minute;
+> +       tm->tm_hour     = rtc.hour;
+> +       tm->tm_mday     = rtc.day;
+> +       tm->tm_mon      = rtc.month - 1;
+> +       tm->tm_year     = rtc.year + (rtc.century * 100) - 1900;
+> +       tm->tm_yday     = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
+> +
+> +       /* Don't compute day of week, we don't need it. */
+> +       tm->tm_wday = -1;
+> +
+> +       return 0;
+> +}
+> +
+> +int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
+> +{
+> +       struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
+> +       struct ec_rtc_write rtc;
+> +       struct wilco_ec_message msg = {
+> +               .type = WILCO_EC_MSG_LEGACY,
+> +               .flags = WILCO_EC_FLAG_RAW_RESPONSE,
+> +               .command = EC_COMMAND_CMOS,
+> +               .request_data = &rtc,
+> +               .request_size = sizeof(rtc),
+> +       };
+> +       int year = tm->tm_year + 1900;
+> +       /*
+> +        * Convert from 0=Sunday to 0=Saturday for the EC
+> +        * We DO need to set weekday because the EC controls battery charging
+> +        * schedules that depend on the day of the week.
+> +        */
+> +       int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
+> +       int ret;
+> +
+> +       rtc.param       = EC_CMOS_TOD_WRITE;
+> +       rtc.century     = bin2bcd(year / 100);
+> +       rtc.year        = bin2bcd(year % 100);
+> +       rtc.month       = bin2bcd(tm->tm_mon + 1);
+> +       rtc.day         = bin2bcd(tm->tm_mday);
+> +       rtc.hour        = bin2bcd(tm->tm_hour);
+> +       rtc.minute      = bin2bcd(tm->tm_min);
+> +       rtc.second      = bin2bcd(tm->tm_sec);
+> +       rtc.weekday     = bin2bcd(wday);
+> +
+> +       ret = wilco_ec_mailbox(ec, &msg);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct rtc_class_ops wilco_ec_rtc_ops = {
+> +       .read_time = wilco_ec_rtc_read,
+> +       .set_time = wilco_ec_rtc_write,
+> +};
+> +
+> +static int wilco_ec_rtc_probe(struct platform_device *pdev)
+> +{
+> +       struct rtc_device *rtc;
+> +
+> +       rtc = devm_rtc_allocate_device(&pdev->dev);
+> +       if (IS_ERR(rtc))
+> +               return PTR_ERR(rtc);
+> +
+> +       rtc->ops = &wilco_ec_rtc_ops;
+> +       /* EC only supports this century */
+> +       rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> +       rtc->range_max = RTC_TIMESTAMP_END_2099;
+> +       rtc->owner = THIS_MODULE;
+> +
+> +       return rtc_register_device(rtc);
+> +}
+> +
+> +static struct platform_driver wilco_ec_rtc_driver = {
+> +       .driver = {
+> +               .name = "rtc-wilco-ec",
+> +       },
+> +       .probe = wilco_ec_rtc_probe,
+> +};
+> +
+> +module_platform_driver(wilco_ec_rtc_driver);
+> +
+> +MODULE_ALIAS("platform:rtc-wilco-ec");
+> +MODULE_AUTHOR("Nick Crews <ncrews@google.com>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DESCRIPTION("Wilco EC RTC driver");
+> --
+> 2.20.1.321.g9e740568ce-goog
+>
