@@ -2,117 +2,61 @@ Return-Path: <SRS0=37S+=P6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2168C282C5
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 16:29:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D64C282C3
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 16:53:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CCD182085A
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 16:29:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C98921726
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 16:53:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729037AbfAVQ3k (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Jan 2019 11:29:40 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:35375 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728580AbfAVQ3k (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Jan 2019 11:29:40 -0500
-Received: by mail-lj1-f194.google.com with SMTP id x85-v6so21217997ljb.2;
-        Tue, 22 Jan 2019 08:29:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=t9n/5sXdoTPr3CpWzcc788OMKiVQhMebV1SwmFqOkDM=;
-        b=kc4ImfRHJ2aMVsf55zZP8lUCmmJ37QbdjsKPhci54UIIqIlRGs2wRGzNv8ZhlB3wI5
-         hM9ZIo0+HzErsWrrJ/YTQtSObY6+YEHYaC+renfJVgV2301Rw7y+coMkk+Xf504OVmDM
-         FI1nlLzULKU/ipD3z3/oqzUMbifHQcX5IDin5WlVPEGtEvK56tsxtV8Gu2s8xIXUEUUQ
-         IALpk/uGeHl/0XuTIMaURd02vRx+GIIQRcE3nF17RxvZNOq6LRXkuoTigclJD92bnJfd
-         CtwnhSLEZ22YZJsUxilESOQ3XDL9daL4nBJSmDQ30+KUVx5jOyUhRTwIssclrwa9m+5w
-         YdvA==
-X-Gm-Message-State: AJcUukeDof6kSjknN4fYDyk+y0kBgniHQ3V5AkbxjgWSt0SdHXXgf4xq
-        rQ9vKRz6nTvmaGKZWG67ghg=
-X-Google-Smtp-Source: ALg8bN5YUVS7ySRm9No2eyYMF5Ufbs7NAJdPtgs1BAemEDk2cT7J3LmrPSOqxFA2z0aqGFT6E7LeOA==
-X-Received: by 2002:a2e:914b:: with SMTP id q11-v6mr8884858ljg.164.1548174576827;
-        Tue, 22 Jan 2019 08:29:36 -0800 (PST)
-Received: from localhost.localdomain (82-203-157-3.bb.dnainternet.fi. [82.203.157.3])
-        by smtp.gmail.com with ESMTPSA id h22-v6sm87861lji.45.2019.01.22.08.29.34
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 22 Jan 2019 08:29:36 -0800 (PST)
-Date:   Tue, 22 Jan 2019 18:29:31 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com,
-        heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 11/13] rtc: bd70528: Initial support for ROHM
- bd70528 RTC
-Message-ID: <20190122162931.GB2559@localhost.localdomain>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <ebe1618710baf7cf59622c878e40052ca48cc7c3.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <390e9379-329b-02dc-13f6-763aeae703e1@roeck-us.net>
+        id S1729400AbfAVQx6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 22 Jan 2019 11:53:58 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:44023 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729233AbfAVQx6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 22 Jan 2019 11:53:58 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 73DF72078F; Tue, 22 Jan 2019 17:53:56 +0100 (CET)
+Received: from localhost (unknown [80.12.58.130])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 17C86206A6;
+        Tue, 22 Jan 2019 17:53:56 +0100 (CET)
+Date:   Tue, 22 Jan 2019 17:53:55 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Wei Yongjun <weiyongjun1@huawei.com>
+Cc:     Dianlong Li <long17.cool@163.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH -next] rtc: sd3078: make symbol 'sd3078_driver' static
+Message-ID: <20190122165355.GA16702@piout.net>
+References: <1547607681-5873-1-git-send-email-weiyongjun1@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <390e9379-329b-02dc-13f6-763aeae703e1@roeck-us.net>
-User-Agent: Mutt/1.9.2 (2017-12-15)
+In-Reply-To: <1547607681-5873-1-git-send-email-weiyongjun1@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Jan 22, 2019 at 06:48:21AM -0800, Guenter Roeck wrote:
-> On 1/22/19 1:47 AM, Matti Vaittinen wrote:
-> > +
-> > +static int bd70528_set_rtc_based_timers(struct bd70528 *bd70528, int new_state,
-> > +							int *old_state)
+On 16/01/2019 03:01:21+0000, Wei Yongjun wrote:
+> Fixes the following sparse warning:
 > 
-> Passed parameter is an int, not int *. I'd be quite surprised if this compiles
-> without warning.
+> drivers/rtc/rtc-sd3078.c:218:19: warning:
+>  symbol 'sd3078_driver' was not declared. Should it be static?
 > 
-> > +static int bd70528_re_enable_rtc_based_timers(struct bd70528 *bd70528,
-> > +							int old_state)
-// snip
-> > +	return bd70528_set_rtc_based_timers(bd70528, old_state, NULL);
-
-and
-
-> > +static int bd70528_disable_rtc_based_timers(struct bd70528 *bd70528,
-> > +							int *old_state)
-// snip
-> > +	return bd70528_set_rtc_based_timers(bd70528, 0, old_state);
-
-I'm not quite sure I understand what you mean by that. Second parameter is int,
-third one is is int *.
-
-> > +static int bd70528_re_enable_rtc_based_timers(struct bd70528 *bd70528,
-> > +							int old_state)
-> > +{
-> > +	if (bd70528->rtc_timer_lock)
-> > +		mutex_unlock(bd70528->rtc_timer_lock);
-> > +
-> Unlock before calling bd70528_set_rtc_based_timers is odd, especially since it
-> is called after locking below.
+> Fixes: 1d67a232105b ("rtc: sd3078: new driver.")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> ---
+>  drivers/rtc/rtc-sd3078.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-
-Yet another brainfart. Thanks for pointing this out! Will be fixed as
-well.
-
-Br,
-	Matti Vaittinen
+Applied, thanks.
 
 -- 
-Matti Vaittinen
-ROHM Semiconductors
-
-~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
