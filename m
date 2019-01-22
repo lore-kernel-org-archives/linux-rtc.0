@@ -2,295 +2,339 @@ Return-Path: <SRS0=37S+=P6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 997ACC282C3
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 15:26:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55612C282C4
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 15:48:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 60806217D8
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 15:26:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 174BC20844
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 15:48:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cHI2EPPL"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="azj0Gmly"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729387AbfAVP0T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Jan 2019 10:26:19 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:46348 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729908AbfAVP0T (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Jan 2019 10:26:19 -0500
-Received: by mail-qk1-f194.google.com with SMTP id q1so14399160qkf.13;
-        Tue, 22 Jan 2019 07:26:18 -0800 (PST)
+        id S1728933AbfAVPry (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 22 Jan 2019 10:47:54 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:44121 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728628AbfAVPrx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Jan 2019 10:47:53 -0500
+Received: by mail-pg1-f195.google.com with SMTP id t13so11234877pgr.11;
+        Tue, 22 Jan 2019 07:47:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ji37CWdDOCHmNeK85MzVTCmguGJDIIO9lJ5bDy4pIys=;
-        b=cHI2EPPLnRXOx0B6RXuXIgmMeQFpyesIcDZWcryea/++abq4OMzFdgJGCSUBjJDoQK
-         z1E2M8d44cQ28eWYJ38mq8bw4E8fqmy01UTXOSZxZVKQIfEjEf7hBIqb/nHd6LSrkOXg
-         n50avVj2V0Y1DVh5Sw5cm0bBe5+M2Dw3PTn2yXKgdiOpVBN5b1JTCktlVJdN2j7AF6Zd
-         IXr8E1KILnD1iLz5VKPVCUABmiAfXd7UZB5uEDoNqv5CL5QtRkkrEKDcQxdkIHIAIE1g
-         XaWHw+Q/MY7qgx604FI6WURQqnsHUv2A4NCfCVhKnqsw/O0djHr9LYGavSTMd2Qs4ABS
-         cPcQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mcC7LXCq6CxoCHt9D7WztGbI29I1Rncv9urSd7VtNX0=;
+        b=azj0GmlyQqRIUzKjS3leGl484rAwFq22bnjLKde8tV57L85b8HaoLViFLJ2uRrb0mX
+         xsknQPNoWAFESV9CiJJM0oz2RZJ1N+VckPAs5y2WAi5feaXXP9czUfjGfHjM6wR5bArB
+         4YlZdOH8p7anDMxyRzvya63CzIgtXHyb2OaGB2MJHrhg2+UkZuAvtSu36h+EcDYgtR8G
+         1WhuUyZIUT85Gg1vJCnHh4ZL/5WS+F6nfJ3TtefGlHbfSH4JUWiuzuSBX7NDQKYrT7xX
+         XUJ9OkvLj2Dmj6LF7EqnJrGWHSpciSAWA3ox3aKremEu6I5X743eHjaNOzebbyOjtpbT
+         48GA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ji37CWdDOCHmNeK85MzVTCmguGJDIIO9lJ5bDy4pIys=;
-        b=D+KHHXO5/Z4sG1iUqrnDZ8nxsw8ebEMDdxzfhgHXi+IKgb3gJnAudlnZB2p2iPXcB8
-         BUPrOn8CeOO5sS4wktgMdnWNVb1QQMFq6x8LM0WdbsHMU1hK76DwQo0g1hAfLrC+qv7T
-         d6R+bqqkMblrcKR5b9cPGVvooPCP3qbOQAkhvjbZ+VFtnCZYcvlKJBKJERbtPmdhtXLd
-         ZkbcZ0zN9mQBjj3TT8QfPHShJRYe+k6Lq7/VzbutEWvDZGbG5meglLDp3cVpRvoiLRGH
-         tVSiNuzhbaen+soTXBKaMXHTX80NGt6+/8hF9jsPrInU7O6P+2mhVTMIavKG/VzFLtM+
-         vLtQ==
-X-Gm-Message-State: AJcUukclpBTtR2KLBitUIlQGFvCLRIDSprnDUPXqt9pZYemw9MO0CKW5
-        ELGhUYPq7/6Gfi0Syg8ytfpdLgo/Q3CSK5SJuhI=
-X-Google-Smtp-Source: ALg8bN6qofZDOnP0YG5xVKc+QYUR7slb8VXvH04gRlXTXWvVgabtzsFR46YT9/0LB6UieWooR/GQtHFX23VyvJcLX6A=
-X-Received: by 2002:a37:cf9b:: with SMTP id v27mr28020588qkl.160.1548170777589;
- Tue, 22 Jan 2019 07:26:17 -0800 (PST)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mcC7LXCq6CxoCHt9D7WztGbI29I1Rncv9urSd7VtNX0=;
+        b=YWFiC7m3Di891fUkYJMXcm3+ey3O498/Z9Yg0vEPqggs5eqYng3R49fvl+6jJLuUxy
+         RgozH8spI5960Dn6Q0kBqNGKiFpiOXmfAS3uDRb++37zBUSsk04Hviny0I66MkogDYi3
+         I+Walyt39xRaTfwvPT53AfAVparzvtzKFYZFgeXO3EPOkE37FfJnHC2Eap7qhgnS3e+b
+         rfOzSNCtH59tfX7CMxfvW9sQRSL6+V7aVO0c75fPAmc8pQ5cIgpKNEB1X2f6N76R0+Fz
+         ct5h9G/v6PhJsJl8iFie37R7G6hheatXwDL0S6FSy5DtVTwIsAufrvhtHCRROYDWcyHr
+         Fm6Q==
+X-Gm-Message-State: AJcUukekcQVtKpMQKKoS5tMnDE4DAZMQxsYz4hTghD3BWB3iNPAIqBVX
+        37mrBFwnUkSnFJGZj4Rv2FJ5qVtVAXs=
+X-Google-Smtp-Source: ALg8bN6FuKBCGmT7rxW4nLp3yb6UuMbjIs2BSE1NcylEMJjwqCSWCpUt20FkNZq3KzKOSzLRTJMVCg==
+X-Received: by 2002:a63:e84c:: with SMTP id a12mr32091378pgk.241.1548172072430;
+        Tue, 22 Jan 2019 07:47:52 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y5sm24999951pge.49.2019.01.22.07.47.51
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 22 Jan 2019 07:47:51 -0800 (PST)
+Date:   Tue, 22 Jan 2019 07:47:50 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com,
+        heikki.haikola@fi.rohmeurope.com
+Subject: Re: [RFC PATCH v1 13/13] watchdog: bd70528: Initial support for ROHM
+ BD70528 watchdog block
+Message-ID: <20190122154750.GB1705@roeck-us.net>
+References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <ec70833179d1953dbc91e01901b79d3319ff013d.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-References: <20190119001422.48186-1-ncrews@chromium.org>
-In-Reply-To: <20190119001422.48186-1-ncrews@chromium.org>
-From:   Enric Balletbo Serra <eballetbo@gmail.com>
-Date:   Tue, 22 Jan 2019 16:26:06 +0100
-Message-ID: <CAFqH_50P7Acx0Y0_YLq2o04B7fn08H-ES4-Mqew=KEsR2By0qQ@mail.gmail.com>
-Subject: Re: [PATCH v3 0/9] platform/chrome: rtc: Add support for Wilco EC
-To:     Nick Crews <ncrews@chromium.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Simon Glass <sjg@chromium.org>,
-        Daniel Kurtz <djkurtz@google.com>, dlaurie@chromium.org,
-        linux-rtc@vger.kernel.org,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>,
-        Nick Crews <ncrews@google.com>,
-        Duncan Laurie <dlaurie@google.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ec70833179d1953dbc91e01901b79d3319ff013d.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Nick,
+On Tue, Jan 22, 2019 at 11:48:36AM +0200, Matti Vaittinen wrote:
+> Initial support for watchdog block included in ROHM BD70528
+> power management IC.
+> 
+> Configurations for low power states are still to be checked.
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
+>  drivers/watchdog/Kconfig       |  12 +++
+>  drivers/watchdog/Makefile      |   1 +
+>  drivers/watchdog/bd70528_wdt.c | 161 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 174 insertions(+)
+>  create mode 100644 drivers/watchdog/bd70528_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 57f017d74a97..f30e3a3e886e 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
+>  	  watchdog. Be aware that governors might affect the watchdog because it
+>  	  is purely software, e.g. the panic governor will stall it!
+>  
+> +config BD70528_WATCHDOG
+> +	tristate "ROHM BD70528 PMIC Watchdog"
+> +	depends on MFD_ROHM_BD70528
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
+> +	  cause system reset.
+> +
+> +	  Say Y here to include support for the ROHM BD70528 watchdog.
+> +	  Alternatively say M to compile the driver as a module,
+> +	  which will be called bd70528_wdt.
+> +
+>  config DA9052_WATCHDOG
+>  	tristate "Dialog DA9052 Watchdog"
+>  	depends on PMIC_DA9052 || COMPILE_TEST
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index a0917ef28e07..1ce87a3b1172 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
+>  obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+>  
+>  # Architecture Independent
+> +obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
+>  obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+>  obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
+>  obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
+> diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
+> new file mode 100644
+> index 000000000000..e9a32566f595
+> --- /dev/null
+> +++ b/drivers/watchdog/bd70528_wdt.c
+> @@ -0,0 +1,161 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (C) 2018 ROHM Semiconductors
+> +// ROHM BD70528MWV watchdog driver
+> +
+> +#include <linux/bcd.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/rohm-bd70528.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/watchdog.h>
+> +
+> +static int bd70528_wdt_set(struct bd70528 *bd70528, int enable)
+> +{
+> +	int ret;
+> +
+> +	if (bd70528->rtc_timer_lock)
+> +		mutex_lock(bd70528->rtc_timer_lock);
 
-Missatge de Nick Crews <ncrews@chromium.org> del dia ds., 19 de gen.
-2019 a les 1:17:
->
->
-> There is a new chromebook that contains a different Embedded Controller
-> (codename Wilco) than the rest of the chromebook series. Thus the kernel
-> requires a different driver than the already existing and generalized
-> cros_ec_* drivers. Specifically, this driver adds support for getting
-> and setting the RTC on the EC, adding a binary sysfs attribute
-> that receives ACPI events from the EC, adding a binary sysfs
-> attribute to request telemetry data from the EC (useful for enterprise
-> applications), adding a debugfs interface for sending/receiving raw byte
-> sequesnces to the EC, and adding normal sysfs attributes to get/set various
-> other properties on the EC. The core of the communication with the EC
-> is implemented in wilco_ec/mailbox.c, using a simple byte-level protocol
-> with a checksum, transmitted over an eSPI bus. For debugging purposes,
-> a raw attribute is also provided which can write/read arbitrary
-> bytes to/from the eSPI bus.
->
-> We attempted to adhere to the sysfs principles of "one piece of data per
-> attribute" as much as possible, and mostly succeded. However, with the
-> wilco_ec/adv_power.h attributes, which deal with scheduling power usage,
-> we found it most elegant to bundle setting event times for an entire day
-> into a single attribute, so at most you are using attributes formatted
-> as "%d %d %d %d %d %d". With the telemetry attribute, we had to use a
-> binary attribute, instead of the preferable human-readable ascii, in
-> order to keep secure the information which is proprietary to the
-> enterprise service provider. This opaque binary data will be read and
-> sent using a proprietary daemon running on the OS.
->
+This looks awkward. I don't think the if() is necessary.
 
-I reviewed some patches of these series and I think that some of them
-are already close to be accepted, however, I still have several doubts
-regarding the bunch of sysfs attributes/properties. It is clear for me
-that some of them (like the version ones) fit into the sysfs, but I
-have several doubts with the power and telemetry attributes, looks to
-me that we're abusing of the sysfs interface. I am wondering if
-wouldn't be better use a simple ioctl functions that reads and writes
-to a chardev (/dev/wilco_ec). Did you think on that possibility? What
-people think?
+> +
+> +	ret = bd70528->wdt_set(bd70528, enable, NULL);
+> +
+> +	if (bd70528->rtc_timer_lock)
+> +		mutex_unlock(bd70528->rtc_timer_lock);
+> +	return ret;
+> +}
+> +
+> +static int bd70528_wdt_start(struct watchdog_device *wdt)
+> +{
+> +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
+> +
+> +	return bd70528_wdt_set(bd70528, 1);
+> +}
+> +
+> +static int bd70528_wdt_stop(struct watchdog_device *wdt)
+> +{
+> +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
+> +
+> +	return bd70528_wdt_set(bd70528, 0);
+> +}
+> +
+> +static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
+> +				    unsigned int timeout)
+> +{
+> +	unsigned int hours;
+> +	unsigned int minutes;
+> +	unsigned int seconds;
+> +	int ret;
+> +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
+> +
+> +	seconds = timeout;
+> +	hours = timeout / (60 * 60);
+> +	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
+> +	if (hours)
+> +		seconds -= (60 * 60);
+> +	minutes = seconds / 60;
+> +	seconds = seconds % 60;
+> +
+> +	if (bd70528->rtc_timer_lock)
+> +		mutex_lock(bd70528->rtc_timer_lock);
+> +
+> +	ret = bd70528->wdt_set(bd70528, 0, NULL);
+> +	if (ret)
+> +		goto out_unlock;
+> +
+> +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_HOUR,
+> +				 BD70528_MASK_WDT_HOUR, hours);
+> +	if (ret) {
+> +		dev_err(bd70528->chip.dev, "Failed to set WDT hours\n");
+> +		goto out_en_unlock;
+> +	}
+> +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_MINUTE,
+> +				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
+> +	if (ret) {
+> +		dev_err(bd70528->chip.dev, "Failed to set WDT minutes\n");
+> +		goto out_en_unlock;
+> +	}
+> +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_SEC,
+> +				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
+> +	if (ret) {
+> +		dev_err(bd70528->chip.dev, "Failed to set WDT seconds\n");
+> +		goto out_en_unlock;
 
-Thanks,
- Enric
+Unnecessary goto.
 
-> The RTC driver is exposed as a standard RTC driver with
-> read/write functionality.
->
-> For event notification, the Wilco EC can return extended events that
-> are not handled by standard ACPI objects. These events can
-> include hotkeys which map to standard functions like brightness
-> controls, or information about EC controlled features like the
-> charger or battery. These events are triggered with an
-> ACPI Notify(0x90) and the event data buffer is read through an ACPI
-> method provided by the BIOS which reads the event buffer from EC RAM.
-> These events are then processed, with hotkey events being sent
-> to the input subsystem and other events put into a queue which
-> can be read by a userspace daemon via a sysfs attribute.
->
-> The rest of the attributes are categorized as either "properties" or
-> "legacy". "legacy" implies that the attribute existed on the EC before it
-> was modified for ChromeOS, and "properties" implies that the attribute
-> exposes functionality that was added to the EC specifically for
-> ChromeOS. They are mostly boolean flags or percentages.
->
-> A full thread of the development of these patches can be found at
-> https://chromium-review.googlesource.com/c/1371034. This thread contains
-> comments and revisions that could be helpful in understanding how the
-> driver arrived at the state it is in now. The thread also contains some
-> ChromeOS specific patches that actually enable the driver. If you want
-> to test the patch yourself, you would have to install the ChromeOS SDK
-> and cherry pick in these patches.
->
-> I also wrote some integration tests using the Tast testing framework that
-> ChromeOS uses. It would require a full ChromeOS SDK to actually run the
-> tests, but the source of the tests, written in Go, are useful for
-> understanding what the desired behavior is. You can view the tests here:
-> https://chromium-review.googlesource.com/c/1372575
->
-> Thank you for your comments!
->
-> Changes in v3:
-> - Change <= to >= in mec_in_range()
-> - Add " - EC_HOST_CMD_REGION0" to offset arg for io_bytes_mec()
-> - remove unused ret in probe()
-> - Add newline spacer in probe()
-> - rm unnecessary res in get_resource()
-> - s/8bit/8-bit
-> - rm first sleep when sending command to EC
-> - Move the attribute to the debugfs system
-> - Move the implementation to debugfs.c
-> - Improve the raw hex parsing
-> - Encapsulate global variables in one object
-> - Add safety check when passing less than 3 bytes
-> - Move documentation to debugfs-wilco-ec
-> - explicitly define toplevel_groups from the start,
-> so adding telem later makes sense
-> - Break version attribute into individual attributes
-> - rm unused WILCO_EC_ATTR_RW macro
-> - Moved some #defines from legacy.h to legacy.c
-> - rm #define for driver name
-> - Don't compute weekday when reading from RTC.
->   Still set weekday when writing, as RTC needs this
->   to control advanced power scheduling
-> - rm check for invalid month data
-> - Set range_min and range_max on rtc_device
-> - change err check from "if (ret < 0)" to "if (ret)"
-> - Now bubble up error codes from within sysfs_init()
-> - Add comment that PID means Property ID
-> - rm some useless references to internal docs from documentation
-> - add err check on returned data size
-> - add check on read request offset and size
->
-> Changes in v2:
-> - Fixed kernel-doc comments
-> - Fixed include of linux/mfd/cros_ec_lpc_mec.h
-> - cros_ec_lpc_mec_in_range() returns -EINVAL on error
-> - Added parens around macro variables
-> - Remove COMPILE_TEST from Kconfig because inb()/outb()
-> won't work on anything but X86
-> - Add myself as module author
-> - Tweak mailbox()
-> - Add sysfs documentation
-> - rm duplicate EC_MAILBOX_DATA_SIZE defs
-> - Make docstrings follow kernel style
-> - Fix tags in commit msg
-> - Move Kconfig to subdirectory
-> - Reading raw now includes ASCII translation
-> - Remove license boiler plate
-> - Remove "wilco_ec_sysfs -" docstring prefix
-> - Fix accidental Makefile deletion
-> - Add documentation for sysfs entries
-> - Change "enable ? 0 : 1" to "!enable"
-> - No longer override error code from sysfs_init()
-> - Put attributes in the legacy file to begin with, don't move later
-> - Remove duplicate error messages when init()ing sysfs
-> - rm license boiler plate
-> - rm "wilco_ec_rtc -" prefix in docstring
-> - Make rtc driver its own module within the drivers/rtc/ directory
-> - Register a rtc device from core.c that is picked up by this driver
-> - rm "wilco_ec_event -" prefix from docstring
-> - rm license boiler plate
-> - Add sysfs directory documentation
-> - Fix cosmetics
-> - events are init()ed before subdrivers now
-> - rm license boiler plate
-> - rm "wilco_ec_properties -" prefix from docstring
-> - Add documentation
-> - rm license boiler plate
-> - rm "wilco_ec_adv_power - " prefix from docstring
-> - Add documentation
-> - make format strings in read() and store() functions static
->
-> Duncan Laurie (6):
->   platform/chrome: Remove cros_ec dependency in lpc_mec
->   platform/chrome: Add new driver for Wilco EC
->   platform/chrome: Add support for raw commands in debugfs
->   platform/chrome: Add sysfs attributes
->   platform/chrome: rtc: Add RTC driver
->   platform/chrome: Add event handling
->
-> Nick Crews (3):
->   platform/chrome: Add EC properties
->   platform/chrome: Add peakshift and adv_batt_charging
->   platform/chrome: Add binary telemetry attributes
->
->  Documentation/ABI/testing/debugfs-wilco-ec    |  23 +
->  .../ABI/testing/sysfs-platform-wilco-ec       | 196 +++++++
->  drivers/platform/chrome/Kconfig               |   4 +-
->  drivers/platform/chrome/Makefile              |   2 +
->  drivers/platform/chrome/cros_ec_lpc_mec.c     |  52 +-
->  drivers/platform/chrome/cros_ec_lpc_mec.h     |  43 +-
->  drivers/platform/chrome/cros_ec_lpc_reg.c     |  47 +-
->  drivers/platform/chrome/wilco_ec/Kconfig      |  33 ++
->  drivers/platform/chrome/wilco_ec/Makefile     |   6 +
->  drivers/platform/chrome/wilco_ec/adv_power.c  | 544 ++++++++++++++++++
->  drivers/platform/chrome/wilco_ec/adv_power.h  | 183 ++++++
->  drivers/platform/chrome/wilco_ec/core.c       | 154 +++++
->  drivers/platform/chrome/wilco_ec/debugfs.c    | 218 +++++++
->  drivers/platform/chrome/wilco_ec/event.c      | 347 +++++++++++
->  drivers/platform/chrome/wilco_ec/legacy.c     | 103 ++++
->  drivers/platform/chrome/wilco_ec/legacy.h     |  79 +++
->  drivers/platform/chrome/wilco_ec/mailbox.c    | 236 ++++++++
->  drivers/platform/chrome/wilco_ec/properties.c | 344 +++++++++++
->  drivers/platform/chrome/wilco_ec/properties.h | 180 ++++++
->  drivers/platform/chrome/wilco_ec/sysfs.c      | 245 ++++++++
->  drivers/platform/chrome/wilco_ec/telemetry.c  |  73 +++
->  drivers/platform/chrome/wilco_ec/telemetry.h  |  41 ++
->  drivers/platform/chrome/wilco_ec/util.h       |  38 ++
->  drivers/rtc/Kconfig                           |  11 +
->  drivers/rtc/Makefile                          |   1 +
->  drivers/rtc/rtc-wilco-ec.c                    | 177 ++++++
->  include/linux/platform_data/wilco-ec.h        | 189 ++++++
->  27 files changed, 3509 insertions(+), 60 deletions(-)
->  create mode 100644 Documentation/ABI/testing/debugfs-wilco-ec
->  create mode 100644 Documentation/ABI/testing/sysfs-platform-wilco-ec
->  create mode 100644 drivers/platform/chrome/wilco_ec/Kconfig
->  create mode 100644 drivers/platform/chrome/wilco_ec/Makefile
->  create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.h
->  create mode 100644 drivers/platform/chrome/wilco_ec/core.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/debugfs.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/event.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/legacy.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/legacy.h
->  create mode 100644 drivers/platform/chrome/wilco_ec/mailbox.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/properties.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/properties.h
->  create mode 100644 drivers/platform/chrome/wilco_ec/sysfs.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.c
->  create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.h
->  create mode 100644 drivers/platform/chrome/wilco_ec/util.h
->  create mode 100644 drivers/rtc/rtc-wilco-ec.c
->  create mode 100644 include/linux/platform_data/wilco-ec.h
->
-> --
-> 2.20.1.321.g9e740568ce-goog
->
+> +	}
+> +
+> +out_en_unlock:
+> +	ret = bd70528->wdt_set(bd70528, 1, NULL);
+> +out_unlock:
+> +	if (bd70528->rtc_timer_lock)
+> +		mutex_lock(bd70528->rtc_timer_lock);
+
+I don't think this code was ever tested.
+
+> +
+> +	return ret;
+> +}
+> +
+> +static const struct watchdog_info bd70528_wdt_info = {
+> +	.identity = "bd70528-wdt",
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +};
+> +
+> +static const struct watchdog_ops bd70528_wdt_ops = {
+> +	.start		= bd70528_wdt_start,
+> +	.stop		= bd70528_wdt_stop,
+> +	/*
+> +	 *  bd70528 WDT ping is same as enable. Eg, writing 'enable' to enabled
+> +	 * WDT will restart the timeout
+> +	 */
+Unnecessary comment.
+
+> +	.ping		= bd70528_wdt_start,
+> +	.set_timeout	= bd70528_wdt_set_timeout,
+> +};
+> +
+> +/* Max time we can set is 1 hour, 59 minutes and 59 seconds */
+> +#define WDT_MAX_MS ((2 * 60 * 60 - 1) * 1000)
+> +/* Minimum time is 1 second */
+> +#define WDT_MIN_MS 1000
+> +static struct watchdog_device bd70528_wd = {
+> +	.info = &bd70528_wdt_info,
+> +	.ops =  &bd70528_wdt_ops,
+> +	.min_hw_heartbeat_ms = WDT_MIN_MS,
+> +	.max_hw_heartbeat_ms = WDT_MAX_MS,
+> +};
+> +
+> +static int bd70528_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct bd70528 *tmp;
+> +	struct bd70528 *bd70528;
+> +	int ret;
+> +
+> +	tmp = dev_get_drvdata(pdev->dev.parent);
+> +	if (!tmp) {
+> +		dev_err(&pdev->dev, "No MFD driver data\n");
+> +		return -EINVAL;
+> +	}
+> +	bd70528 = devm_kzalloc(&pdev->dev, sizeof(*bd70528), GFP_KERNEL);
+> +	if (!bd70528)
+> +		return -ENOMEM;
+> +
+> +	*bd70528 = *tmp;
+> +	bd70528->chip.dev = &pdev->dev;
+
+This is wrong.
+You should not copy the parent's driver data but have local driver
+data as needed which then points to the parent's driver data if
+needed. I assume this is why the mutex is a pointer, but that
+just shows that the whole approach is wrong.
+
+> +
+> +	/*
+> +	 * TODO: Set the initial state and timeout.
+
+Confused. Why don't you just do it ?
+
+> +	 * See whether the low power states require special handling
+> +	 */
+> +	watchdog_set_drvdata(&bd70528_wd, bd70528);
+
+At least in theory there can be more than one of those devices
+in the system, since it is an i2c device. With that in mind, bd70528_wd
+should be locally allocated.
+
+Also, bd70528_wd should be fully initialized. For example, the parent
+device is not set.
+
+> +	ret = devm_watchdog_register_device(&pdev->dev, &bd70528_wd);
+> +	if (ret < 0)
+> +		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +static struct platform_driver bd70528_wdt = {
+> +	.driver = {
+> +		.name = "bd70528-wdt"
+> +	},
+> +	.probe = bd70528_wdt_probe,
+> +};
+> +
+> +module_platform_driver(bd70528_wdt);
+> +
+> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
+> +MODULE_DESCRIPTION("BD70528 watchdog driver");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 2.14.3
+> 
+> 
+> -- 
+> Matti Vaittinen
+> ROHM Semiconductors
+> 
+> ~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
