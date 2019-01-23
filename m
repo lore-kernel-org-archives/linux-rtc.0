@@ -1,71 +1,71 @@
-Return-Path: <SRS0=37S+=P6=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Jz/g=P7=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA590C282C3
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 18:19:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C021AC282C0
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 12:38:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C6F5520870
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jan 2019 18:19:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 905A421019
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 12:38:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726604AbfAVSTL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Jan 2019 13:19:11 -0500
-Received: from mail.bootlin.com ([62.4.15.54]:46484 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726008AbfAVSTL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 22 Jan 2019 13:19:11 -0500
-Received: by mail.bootlin.com (Postfix, from userid 110)
-        id C7B2D2084E; Tue, 22 Jan 2019 19:19:08 +0100 (CET)
-Received: from localhost (unknown [80.12.58.130])
-        by mail.bootlin.com (Postfix) with ESMTPSA id 6CA9A20654;
-        Tue, 22 Jan 2019 19:18:58 +0100 (CET)
-Date:   Tue, 22 Jan 2019 19:18:57 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Jan Kotas <jank@cadence.com>
-Cc:     a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/2] rtc: Add a driver for Cadence RTC
-Message-ID: <20190122181857.GH16702@piout.net>
-References: <20190122104216.12077-1-jank@cadence.com>
+        id S1726229AbfAWMi5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Jan 2019 07:38:57 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:2220 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726200AbfAWMi5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 23 Jan 2019 07:38:57 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 5EE11CC9A657EDFB7AFD;
+        Wed, 23 Jan 2019 20:38:55 +0800 (CST)
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
+ 14.3.408.0; Wed, 23 Jan 2019 20:38:48 +0800
+From:   YueHaibing <yuehaibing@huawei.com>
+To:     Dianlong Li <long17.cool@163.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     YueHaibing <yuehaibing@huawei.com>, <linux-rtc@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>
+Subject: [PATCH -next] rtc: sd3078: fix platform_no_drv_owner.cocci warnings
+Date:   Wed, 23 Jan 2019 12:44:32 +0000
+Message-ID: <1548247472-49937-1-git-send-email-yuehaibing@huawei.com>
+X-Mailer: git-send-email 1.8.3.1
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190122104216.12077-1-jank@cadence.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Originating-IP: [10.175.113.25]
+X-CFilter-Loop: Reflected
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 22/01/2019 10:42:14+0000, Jan Kotas wrote:
-> This patchset adds a driver support for Cadence RTC IP.
-> It supports time, date and wakeups from sleep.
-> 
-> Changes since v2:
-> 	Fixed a typo in the bindings documentation.
-> 
-> Changes since v1:
-> 	Added devm_rtc_allocate_device before requesting an IRQ
-> 	Added range_min, range_max values
-> 	Return -EINVAL for read_time() if RTC is disabled
-> 	Fixed some typos
-> 
-> Jan Kotas (2):
->  dt-bindings: rtc: Add bindings for Cadence RTC
->  rtc: Add Cadence RTC driver
-> 
-> Jan Kotas (2):
->   dt-bindings: rtc: Add bindings for Cadence RTC
->   rtc: Add Cadence RTC driver
-> 
-Both applied, thanks (only once ;))
+Remove .owner field if calls are used which set it automatically
+Generated by: scripts/coccinelle/api/platform_no_drv_owner.cocci
 
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ drivers/rtc/rtc-sd3078.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-sd3078.c b/drivers/rtc/rtc-sd3078.c
+index 704844f..42cb90d 100644
+--- a/drivers/rtc/rtc-sd3078.c
++++ b/drivers/rtc/rtc-sd3078.c
+@@ -218,7 +218,6 @@ static int sd3078_probe(struct i2c_client *client,
+ static struct i2c_driver sd3078_driver = {
+ 	.driver     = {
+ 		.name   = "sd3078",
+-		.owner  = THIS_MODULE,
+ 		.of_match_table = of_match_ptr(rtc_dt_match),
+ 	},
+ 	.probe      = sd3078_probe,
+
+
+
+
+
