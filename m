@@ -2,71 +2,71 @@ Return-Path: <SRS0=Jz/g=P7=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C33E1C282C0
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9064EC282C2
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8A46221872
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BEA321872
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Lu3Hv9Ef"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="XbOvJBam"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726661AbfAWSgP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 23 Jan 2019 13:36:15 -0500
-Received: from mail-it1-f196.google.com ([209.85.166.196]:38807 "EHLO
-        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbfAWSgN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Jan 2019 13:36:13 -0500
-Received: by mail-it1-f196.google.com with SMTP id z20so590672itc.3
-        for <linux-rtc@vger.kernel.org>; Wed, 23 Jan 2019 10:36:12 -0800 (PST)
+        id S1726843AbfAWSgJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Jan 2019 13:36:09 -0500
+Received: from mail-it1-f193.google.com ([209.85.166.193]:53564 "EHLO
+        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726213AbfAWSgJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Jan 2019 13:36:09 -0500
+Received: by mail-it1-f193.google.com with SMTP id g85so699292ita.3
+        for <linux-rtc@vger.kernel.org>; Wed, 23 Jan 2019 10:36:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Otv22ARhWch1v2LLN/dGqVfhIIfGRtdqkSL65FemqNQ=;
-        b=Lu3Hv9Ef8yeu/m0+gjbOjyMrj0eLkBoFBhdnXuMeG9HtTn/VldLjr6m6QgwEp5pZX+
-         7P3ZD9lXs87mga2uWhasm/oeFv9AkRHeTfk7DwCP06NJXc5DMxAxtOE8Txyn4NFSrWWj
-         rnIgutTOBaxzdA5qtBebv8/kHua0P8ud+tOhs=
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1VGPh8VDM+yuHbXXZ4MyKFgxV4xXMz/NDnKfBW13d34=;
+        b=XbOvJBamw/RoDKOuwcRDP3ax8oTU8ZZWNWyN8Jz9UB6Mw38u+22EtoJeWk+nB1Webx
+         C9Q8XBVeKZsaWn2IMbcmz7Bu/vqFqEkIVW50GljJ0VKp66xJRlsL8SgSeNP8lSZNQxs5
+         k296/D1h3IgkjRIBYaum/wuhCK95VRps/73+U=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Otv22ARhWch1v2LLN/dGqVfhIIfGRtdqkSL65FemqNQ=;
-        b=OueB6ab7Y5R5Pq3FtoWesYtq0RTy55TfHf2aS/jZII0lML5Q+U0yd/M2RDuYd0jl6J
-         9Df8K445T434IGHBV824bK6B5RNFGTKJ7KaKI2g9xS1Y7v9c0wDRxrJjxdBAxW6qx4E8
-         XPK+KghoOCr4RMehSCC3yhoaovPRvC7XPhSnHs5SjG4tYiny0UTf72D6MaD+URVvAA2T
-         VqcnMV5cxFBtpCm7kU6ZJwgG1g8Vb9fG10t+rhUT/aVn9XlW0MfhQal6HAIG6Vc96u6u
-         8L40iiD+k/UQyDp1E/vMD3dBbammBuCfWdD5/sbupn0ZrpLRYUANR4l8DIbtoFpa7zM6
-         jIfQ==
-X-Gm-Message-State: AJcUukePW7F5fpBAEV8z5Md+qcaTCLbdbjNsVM2vaO8CoWNSHG1RfV/m
-        MFZKp8uwLNtgCU49ja8y5w2DhA==
-X-Google-Smtp-Source: ALg8bN7M7t6AanRmjU8RWajSbghD3vLWpGwNMXDsHBA793+R+GISN8Xlq2kRtioOdcdopgoBV9Uzcg==
-X-Received: by 2002:a02:a484:: with SMTP id d4mr2163835jam.77.1548268572146;
-        Wed, 23 Jan 2019 10:36:12 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1VGPh8VDM+yuHbXXZ4MyKFgxV4xXMz/NDnKfBW13d34=;
+        b=Fmc2PZtlyDeVfo5tjV5eYYeUa+bwfF1JvNh87F8wDDzZKRZKoB8LB/rzJsaw55sib8
+         +e08fMXb7yUrpJrT6flHwSyKgdXWrdSiAt4QYX7ME+KCKadOWn03sUomE1vOZWX2rtlq
+         IeYUfbGW+9IaFBAz0gpU49MeLN7An1izvGTsr+7YdBRSSILybZE4shRs6MUgOx7thJN5
+         gcCs5hLWq98eDHEZuf2J9QU8bfZ75Q5whWefuAaJcYzh+bOFEdWXUx0SBDyqSWxO6Gwq
+         7CynEogNryPMYvWIwkx7q2vCJbPWht/uZVxTXBeLTJCFJ2TV0SRToBCCCPBuwDoCS4MT
+         xrMw==
+X-Gm-Message-State: AJcUukc+submwAIBjPQxzqryUABM5DyzLlsBqyotgwn5GlUzNpFkBsNf
+        JztTGeqpzfcrrxW95CYApxAEVQ==
+X-Google-Smtp-Source: ALg8bN6m0q4Olqc3y72eZrmFD9EuxPPEHuMh6LzP51+rAyRKvDjFy5EsYcANQevztpSZx/BTrvicUg==
+X-Received: by 2002:a24:6fc4:: with SMTP id x187mr2671257itb.93.1548268566846;
+        Wed, 23 Jan 2019 10:36:06 -0800 (PST)
 Received: from ncrews2.bld.corp.google.com ([2620:15c:183:200:8140:8e3f:aea5:bcdf])
-        by smtp.gmail.com with ESMTPSA id 189sm9537577itw.33.2019.01.23.10.36.10
+        by smtp.gmail.com with ESMTPSA id 189sm9537577itw.33.2019.01.23.10.36.05
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Jan 2019 10:36:11 -0800 (PST)
+        Wed, 23 Jan 2019 10:36:05 -0800 (PST)
 From:   Nick Crews <ncrews@chromium.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     sjg@chromium.org, dmitry.torokhov@gmail.com, sre@kernel.org,
         linux-input@vger.kernel.org, groeck@chromium.org,
-        dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>,
+        dlaurie@chromium.org, Nick Crews <ncrews@chromium.org>,
+        linux-rtc@vger.kernel.org,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Nick Crews <ncrews@chromium.org>, linux-rtc@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         Benson Leung <bleung@chromium.org>,
+        Nick Crews <ncrews@google.com>,
+        Duncan Laurie <dlaurie@google.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v4 4/9] platform/chrome: rtc: Add RTC driver
-Date:   Wed, 23 Jan 2019 11:33:20 -0700
-Message-Id: <20190123183325.92946-5-ncrews@chromium.org>
+Subject: [PATCH v4 0/9] platform/chrome: rtc: Add support for Wilco EC
+Date:   Wed, 23 Jan 2019 11:33:16 -0700
+Message-Id: <20190123183325.92946-1-ncrews@chromium.org>
 X-Mailer: git-send-email 2.20.1.321.g9e740568ce-goog
-In-Reply-To: <20190123183325.92946-1-ncrews@chromium.org>
-References: <20190123183325.92946-1-ncrews@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -74,294 +74,226 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Duncan Laurie <dlaurie@google.com>
 
-This Embedded Controller has an internal RTC that is exposed
-as a standard RTC class driver with read/write functionality.
+There is a new chromebook that contains a different Embedded Controller
+(codename Wilco) than the rest of the chromebook series. Thus the kernel
+requires a different driver than the already existing and generalized
+cros_ec_* drivers. Specifically, this driver adds support for getting
+and setting the RTC on the EC, adding a binary sysfs attribute
+that receives ACPI events from the EC, adding a binary sysfs
+attribute to request telemetry data from the EC (useful for enterprise
+applications), adding a debugfs interface for sending/receiving raw byte
+sequesnces to the EC, and adding normal sysfs attributes to get/set various
+other properties on the EC. The core of the communication with the EC
+is implemented in wilco_ec/mailbox.c, using a simple byte-level protocol
+with a checksum, transmitted over an eSPI bus. For debugging purposes,
+a raw attribute is also provided via debugfs which can write/read
+arbitrary bytes to/from the eSPI bus.
 
-The driver is added to the drivers/rtc/ so that the maintainer of that
-directory will be able to comment on this change, as that maintainer is
-the expert on this system. In addition, the driver code is called
-indirectly after a corresponding device is registered from core.c,
-as opposed to core.c registering the driver callbacks directly.
+The entry point of the driver is wilco_ec/core.c,
+which is responsible for several tasks:
+- Initialize the register interface that is used by wilco_ec_mailbox()
+- Create a platform device which is picked up by the debugfs driver
+- Create a platform device which is picked up by the RTC driver
+- Initialize the sysfs entries
+- Set up event handling
 
-> hwclock --show --rtc /dev/rtc1
-2007-12-31 16:01:20.460959-08:00
-> hwclock --systohc --rtc /dev/rtc1
-> hwclock --show --rtc /dev/rtc1
-2018-11-29 17:08:00.780793-08:00
+We attempted to adhere to the sysfs principles of "one piece of data per
+attribute" as much as possible, and mostly succeded. However, with the
+wilco_ec/adv_power.h attributes, which deal with scheduling power usage,
+we found it most elegant to bundle setting event times for an entire day
+into a single attribute, so at most you are using attributes formatted
+as "%d %d %d %d %d %d". With the telemetry attribute, we had to use a
+binary attribute, instead of the preferable human-readable ascii, in
+order to keep secure the information which is proprietary to the
+enterprise service provider. This opaque binary data will be read and
+sent using a proprietary daemon running on the OS.
 
-Signed-off-by: Duncan Laurie <dlaurie@google.com>
-Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Nick Crews <ncrews@chromium.org>
----
+The RTC driver is exposed as a standard RTC driver with
+read/write functionality.
+
+For event notification, the Wilco EC can return extended events that
+are not handled by standard ACPI objects. These events can
+include hotkeys which map to standard functions like brightness
+controls, or information about EC controlled features like the
+charger or battery. These events are triggered with an
+ACPI Notify(0x90) and the event data buffer is read through an ACPI
+method provided by the BIOS which reads the event buffer from EC RAM.
+These events are then processed, with hotkey events being sent
+to the input subsystem and other events put into a queue which
+can be read by a userspace daemon via a sysfs attribute.
+
+The rest of the attributes are categorized as either "properties" or
+"legacy". "legacy" implies that the attribute existed on the EC before it
+was modified for ChromeOS, and "properties" implies that the attribute
+exposes functionality that was added to the EC specifically for
+ChromeOS. They are mostly boolean flags or percentages.
+
+A full thread of the development of these patches can be found at
+https://chromium-review.googlesource.com/c/1371034. This thread contains
+comments and revisions that could be helpful in understanding how the
+driver arrived at the state it is in now. The thread also contains some
+ChromeOS specific patches that actually enable the driver. If you want
+to test the patch yourself, you would have to install the ChromeOS SDK
+and cherry pick in these patches.
+
+I also wrote some integration tests using the Tast testing framework that
+ChromeOS uses. It would require a full ChromeOS SDK to actually run the
+tests, but the source of the tests, written in Go, are useful for
+understanding what the desired behavior is. You can view the tests here:
+https://chromium-review.googlesource.com/c/1372575
+
+Thank you for your comments!
 
 Changes in v4:
+- add #define DRV_NAME
+- remove redundant Kconfig nesting
+- changed my email to @chromium.org
+- Add better explanation of what core.c does
+- Change debugfs driver to be a separate module
 - Change me email to @chromium.org from @google.com
+- Change CONFIG_WILCO_EC_SYSFS_RAW to
+  CONFIG_WILCO_EC_DEBUGFS
+- Change me email to @chromium.org from @google.com
+- Move "Add RTC driver" before "Add sysfs attributes" so that
+  it could get accepted earlier, since it is less contentious
 - Move "Add RTC driver" before "Add sysfs attributes" so that
   it could get accepted earlier, since it is less contentious
 
 Changes in v3:
+- Change <= to >= in mec_in_range()
+- Add " - EC_HOST_CMD_REGION0" to offset arg for io_bytes_mec()
+- remove unused ret in probe()
+- Add newline spacer in probe()
+- rm unnecessary res in get_resource()
+- s/8bit/8-bit
+- rm first sleep when sending command to EC
+- Move the attribute to the debugfs system
+- Move the implementation to debugfs.c
+- Improve the raw hex parsing
+- Encapsulate global variables in one object
+- Add safety check when passing less than 3 bytes
+- Move documentation to debugfs-wilco-ec
 - rm #define for driver name
 - Don't compute weekday when reading from RTC.
   Still set weekday when writing, as RTC needs this
   to control advanced power scheduling
 - rm check for invalid month data
 - Set range_min and range_max on rtc_device
+- explicitly define toplevel_groups from the start,
+so adding telem later makes sense
+- Break version attribute into individual attributes
+- rm unused WILCO_EC_ATTR_RW macro
+- Moved some #defines from legacy.h to legacy.c
+- change err check from "if (ret < 0)" to "if (ret)"
+- Now bubble up error codes from within sysfs_init()
+- Add comment that PID means Property ID
+- rm some useless references to internal docs from documentation
+- add err check on returned data size
+- add check on read request offset and size
 
 Changes in v2:
+- Fixed kernel-doc comments
+- Fixed include of linux/mfd/cros_ec_lpc_mec.h
+- cros_ec_lpc_mec_in_range() returns -EINVAL on error
+- Added parens around macro variables
+- Remove COMPILE_TEST from Kconfig because inb()/outb()
+won't work on anything but X86
+- Add myself as module author
+- Tweak mailbox()
+- Add sysfs documentation
+- rm duplicate EC_MAILBOX_DATA_SIZE defs
+- Make docstrings follow kernel style
+- Fix tags in commit msg
+- Move Kconfig to subdirectory
+- Reading raw now includes ASCII translation
 - rm license boiler plate
 - rm "wilco_ec_rtc -" prefix in docstring
 - Make rtc driver its own module within the drivers/rtc/ directory
 - Register a rtc device from core.c that is picked up by this driver
+- Remove license boiler plate
+- Remove "wilco_ec_sysfs -" docstring prefix
+- Fix accidental Makefile deletion
+- Add documentation for sysfs entries
+- Change "enable ? 0 : 1" to "!enable"
+- No longer override error code from sysfs_init()
+- Put attributes in the legacy file to begin with, don't move later
+- Remove duplicate error messages when init()ing sysfs
+- rm "wilco_ec_event -" prefix from docstring
+- rm license boiler plate
+- Add sysfs directory documentation
+- Fix cosmetics
+- events are init()ed before subdrivers now
+- rm license boiler plate
+- rm "wilco_ec_properties -" prefix from docstring
+- Add documentation
+- rm license boiler plate
+- rm "wilco_ec_adv_power - " prefix from docstring
+- Add documentation
+- make format strings in read() and store() functions static
 
- drivers/platform/chrome/wilco_ec/core.c |  14 ++
- drivers/rtc/Kconfig                     |  11 ++
- drivers/rtc/Makefile                    |   1 +
- drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
- 4 files changed, 203 insertions(+)
+Duncan Laurie (6):
+  cros_ec: Remove cros_ec dependency in lpc_mec
+  platform/chrome: Add new driver for Wilco EC
+  platform/chrome: Add support for raw commands in debugfs
+  platform/chrome: rtc: Add RTC driver
+  platform/chrome: Add sysfs attributes
+  platform/chrome: Add event handling
+
+Nick Crews (3):
+  platform/chrome: Add EC properties
+  platform/chrome: Add peakshift and adv_batt_charging
+  platform/chrome: Add binary telemetry attributes
+
+ Documentation/ABI/testing/debugfs-wilco-ec    |  23 +
+ .../ABI/testing/sysfs-platform-wilco-ec       | 196 +++++++
+ drivers/platform/chrome/Kconfig               |   4 +-
+ drivers/platform/chrome/Makefile              |   2 +
+ drivers/platform/chrome/cros_ec_lpc_mec.c     |  52 +-
+ drivers/platform/chrome/cros_ec_lpc_mec.h     |  43 +-
+ drivers/platform/chrome/cros_ec_lpc_reg.c     |  47 +-
+ drivers/platform/chrome/wilco_ec/Kconfig      |  20 +
+ drivers/platform/chrome/wilco_ec/Makefile     |   8 +
+ drivers/platform/chrome/wilco_ec/adv_power.c  | 544 ++++++++++++++++++
+ drivers/platform/chrome/wilco_ec/adv_power.h  | 183 ++++++
+ drivers/platform/chrome/wilco_ec/core.c       | 164 ++++++
+ drivers/platform/chrome/wilco_ec/debugfs.c    | 226 ++++++++
+ drivers/platform/chrome/wilco_ec/event.c      | 347 +++++++++++
+ drivers/platform/chrome/wilco_ec/legacy.c     | 103 ++++
+ drivers/platform/chrome/wilco_ec/legacy.h     |  79 +++
+ drivers/platform/chrome/wilco_ec/mailbox.c    | 236 ++++++++
+ drivers/platform/chrome/wilco_ec/properties.c | 344 +++++++++++
+ drivers/platform/chrome/wilco_ec/properties.h | 180 ++++++
+ drivers/platform/chrome/wilco_ec/sysfs.c      | 245 ++++++++
+ drivers/platform/chrome/wilco_ec/telemetry.c  |  73 +++
+ drivers/platform/chrome/wilco_ec/telemetry.h  |  41 ++
+ drivers/platform/chrome/wilco_ec/util.h       |  38 ++
+ drivers/rtc/Kconfig                           |  11 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-wilco-ec.c                    | 177 ++++++
+ include/linux/platform_data/wilco-ec.h        | 186 ++++++
+ 27 files changed, 3513 insertions(+), 60 deletions(-)
+ create mode 100644 Documentation/ABI/testing/debugfs-wilco-ec
+ create mode 100644 Documentation/ABI/testing/sysfs-platform-wilco-ec
+ create mode 100644 drivers/platform/chrome/wilco_ec/Kconfig
+ create mode 100644 drivers/platform/chrome/wilco_ec/Makefile
+ create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.h
+ create mode 100644 drivers/platform/chrome/wilco_ec/core.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/debugfs.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/event.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/legacy.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/legacy.h
+ create mode 100644 drivers/platform/chrome/wilco_ec/mailbox.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/properties.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/properties.h
+ create mode 100644 drivers/platform/chrome/wilco_ec/sysfs.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.c
+ create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.h
+ create mode 100644 drivers/platform/chrome/wilco_ec/util.h
  create mode 100644 drivers/rtc/rtc-wilco-ec.c
+ create mode 100644 include/linux/platform_data/wilco-ec.h
 
-diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
-index e036d88b6dd8..7cfb047e2c89 100644
---- a/drivers/platform/chrome/wilco_ec/core.c
-+++ b/drivers/platform/chrome/wilco_ec/core.c
-@@ -87,6 +87,20 @@ static int wilco_ec_probe(struct platform_device *pdev)
- 		goto destroy_mec;
- 	}
- 
-+	/*
-+	 * Register a RTC platform device that will get picked up by the RTC
-+	 * subsystem. This platform device will get freed when its parent device
-+	 * dev is unregistered.
-+	 */
-+	child_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
-+						   PLATFORM_DEVID_AUTO,
-+						   NULL, 0);
-+	if (IS_ERR(child_pdev)) {
-+		dev_err(dev, "Failed to create RTC platform device\n");
-+		ret = PTR_ERR(child_pdev);
-+		goto destroy_mec;
-+	}
-+
- 	return 0;
- 
- destroy_mec:
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 225b0b8516f3..d5063c791515 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
- 	  Goldfish is a code name for the virtual platform developed by Google
- 	  for Android emulation.
- 
-+config RTC_DRV_WILCO_EC
-+	tristate "Wilco EC RTC"
-+	depends on WILCO_EC
-+	default m
-+	help
-+	  If you say yes here, you get read/write support for the Real Time
-+	  Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
-+
-+	  This can also be built as a module. If so, the module will
-+	  be named "rtc_wilco_ec".
-+
- endif # RTC_CLASS
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index df022d820bee..6255ea78da25 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
- obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
- obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
-+obj-$(CONFIG_RTC_DRV_WILCO_EC)	+= rtc-wilco-ec.o
- obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
- obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
-diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
-new file mode 100644
-index 000000000000..35cc56114c1c
---- /dev/null
-+++ b/drivers/rtc/rtc-wilco-ec.c
-@@ -0,0 +1,177 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * RTC interface for Wilco Embedded Controller with R/W abilities
-+ *
-+ * Copyright 2018 Google LLC
-+ *
-+ * The corresponding platform device is typically registered in
-+ * drivers/platform/chrome/wilco_ec/core.c
-+ */
-+
-+#include <linux/bcd.h>
-+#include <linux/err.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/platform_data/wilco-ec.h>
-+#include <linux/rtc.h>
-+#include <linux/timekeeping.h>
-+
-+#define EC_COMMAND_CMOS			0x7c
-+#define EC_CMOS_TOD_WRITE		0x02
-+#define EC_CMOS_TOD_READ		0x08
-+
-+/**
-+ * struct ec_rtc_read - Format of RTC returned by EC.
-+ * @second: Second value (0..59)
-+ * @minute: Minute value (0..59)
-+ * @hour: Hour value (0..23)
-+ * @day: Day value (1..31)
-+ * @month: Month value (1..12)
-+ * @year: Year value (full year % 100)
-+ * @century: Century value (full year / 100)
-+ *
-+ * All values are presented in binary (not BCD).
-+ */
-+struct ec_rtc_read {
-+	u8 second;
-+	u8 minute;
-+	u8 hour;
-+	u8 day;
-+	u8 month;
-+	u8 year;
-+	u8 century;
-+} __packed;
-+
-+/**
-+ * struct ec_rtc_write - Format of RTC sent to the EC.
-+ * @param: EC_CMOS_TOD_WRITE
-+ * @century: Century value (full year / 100)
-+ * @year: Year value (full year % 100)
-+ * @month: Month value (1..12)
-+ * @day: Day value (1..31)
-+ * @hour: Hour value (0..23)
-+ * @minute: Minute value (0..59)
-+ * @second: Second value (0..59)
-+ * @weekday: Day of the week (0=Saturday)
-+ *
-+ * All values are presented in BCD.
-+ */
-+struct ec_rtc_write {
-+	u8 param;
-+	u8 century;
-+	u8 year;
-+	u8 month;
-+	u8 day;
-+	u8 hour;
-+	u8 minute;
-+	u8 second;
-+	u8 weekday;
-+} __packed;
-+
-+int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
-+{
-+	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-+	u8 param = EC_CMOS_TOD_READ;
-+	struct ec_rtc_read rtc;
-+	struct wilco_ec_message msg = {
-+		.type = WILCO_EC_MSG_LEGACY,
-+		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-+		.command = EC_COMMAND_CMOS,
-+		.request_data = &param,
-+		.request_size = sizeof(param),
-+		.response_data = &rtc,
-+		.response_size = sizeof(rtc),
-+	};
-+	int ret;
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	tm->tm_sec	= rtc.second;
-+	tm->tm_min	= rtc.minute;
-+	tm->tm_hour	= rtc.hour;
-+	tm->tm_mday	= rtc.day;
-+	tm->tm_mon	= rtc.month - 1;
-+	tm->tm_year	= rtc.year + (rtc.century * 100) - 1900;
-+	tm->tm_yday	= rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
-+
-+	/* Don't compute day of week, we don't need it. */
-+	tm->tm_wday = -1;
-+
-+	return 0;
-+}
-+
-+int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
-+{
-+	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-+	struct ec_rtc_write rtc;
-+	struct wilco_ec_message msg = {
-+		.type = WILCO_EC_MSG_LEGACY,
-+		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-+		.command = EC_COMMAND_CMOS,
-+		.request_data = &rtc,
-+		.request_size = sizeof(rtc),
-+	};
-+	int year = tm->tm_year + 1900;
-+	/*
-+	 * Convert from 0=Sunday to 0=Saturday for the EC
-+	 * We DO need to set weekday because the EC controls battery charging
-+	 * schedules that depend on the day of the week.
-+	 */
-+	int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
-+	int ret;
-+
-+	rtc.param	= EC_CMOS_TOD_WRITE;
-+	rtc.century	= bin2bcd(year / 100);
-+	rtc.year	= bin2bcd(year % 100);
-+	rtc.month	= bin2bcd(tm->tm_mon + 1);
-+	rtc.day		= bin2bcd(tm->tm_mday);
-+	rtc.hour	= bin2bcd(tm->tm_hour);
-+	rtc.minute	= bin2bcd(tm->tm_min);
-+	rtc.second	= bin2bcd(tm->tm_sec);
-+	rtc.weekday	= bin2bcd(wday);
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops wilco_ec_rtc_ops = {
-+	.read_time = wilco_ec_rtc_read,
-+	.set_time = wilco_ec_rtc_write,
-+};
-+
-+static int wilco_ec_rtc_probe(struct platform_device *pdev)
-+{
-+	struct rtc_device *rtc;
-+
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
-+	rtc->ops = &wilco_ec_rtc_ops;
-+	/* EC only supports this century */
-+	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	rtc->owner = THIS_MODULE;
-+
-+	return rtc_register_device(rtc);
-+}
-+
-+static struct platform_driver wilco_ec_rtc_driver = {
-+	.driver = {
-+		.name = "rtc-wilco-ec",
-+	},
-+	.probe = wilco_ec_rtc_probe,
-+};
-+
-+module_platform_driver(wilco_ec_rtc_driver);
-+
-+MODULE_ALIAS("platform:rtc-wilco-ec");
-+MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Wilco EC RTC driver");
 -- 
 2.20.1.321.g9e740568ce-goog
 
