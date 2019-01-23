@@ -2,131 +2,366 @@ Return-Path: <SRS0=Jz/g=P7=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34FA3C282C0
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 15:55:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C33E1C282C0
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04A8421726
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 15:55:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548258948;
-	bh=4XiF7XB6j/3r3YmS3LSqBWnY8A/uK9xGTJhL4sUFnJ4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=q/xb04rkwkmq9cFZ80pI1cOx6irPvsK9fKzRymdwqJjXLCUGn1552Xb83CEzr4KUc
-	 rllzaiYHnkr02mpPcxuGqmp4aNoZp22nLXIk7x4rn5o4Bzu61XRjMWLrlorWb3L/K1
-	 9ZC/Z8/UbhovEk4oO3VlZdKe5dz5L6Ldz7nOPhAw=
+	by mail.kernel.org (Postfix) with ESMTP id 8A46221872
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Jan 2019 18:37:07 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Lu3Hv9Ef"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbfAWPzr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 23 Jan 2019 10:55:47 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:38494 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725871AbfAWPzr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Jan 2019 10:55:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=qCb2cfVsJ18RrAwohqaEffdA2F77n5lDC7o3AK/BZHM=; b=mps/FHoYLmktEb7TKgx7CrBPm
-        w6qMI8j0IcY3UJ2d1isBCMfrPChpZVej0SBylFxCiBCF1gVdikz95KxNbJA3IX0kBJ9TWjfVneyyS
-        bKsmqxSbSjdetg6nnzRz70qk9Tx7OmFQ0s/iJA6HssqIkoAYOOxzv7MxOjGrACMNHmy7U=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1gmKsF-0005rq-Q7; Wed, 23 Jan 2019 15:55:31 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id 6C47C1127ABA; Wed, 23 Jan 2019 15:55:31 +0000 (GMT)
-Date:   Wed, 23 Jan 2019 15:55:31 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 01/13] regmap: regmap-irq: Add main status
- register support
-Message-ID: <20190123155531.GC7503@sirena.org.uk>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <a5a3cdb00b9181897fc675f4a6900064d9289fdc.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+        id S1726661AbfAWSgP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Jan 2019 13:36:15 -0500
+Received: from mail-it1-f196.google.com ([209.85.166.196]:38807 "EHLO
+        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726887AbfAWSgN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Jan 2019 13:36:13 -0500
+Received: by mail-it1-f196.google.com with SMTP id z20so590672itc.3
+        for <linux-rtc@vger.kernel.org>; Wed, 23 Jan 2019 10:36:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Otv22ARhWch1v2LLN/dGqVfhIIfGRtdqkSL65FemqNQ=;
+        b=Lu3Hv9Ef8yeu/m0+gjbOjyMrj0eLkBoFBhdnXuMeG9HtTn/VldLjr6m6QgwEp5pZX+
+         7P3ZD9lXs87mga2uWhasm/oeFv9AkRHeTfk7DwCP06NJXc5DMxAxtOE8Txyn4NFSrWWj
+         rnIgutTOBaxzdA5qtBebv8/kHua0P8ud+tOhs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Otv22ARhWch1v2LLN/dGqVfhIIfGRtdqkSL65FemqNQ=;
+        b=OueB6ab7Y5R5Pq3FtoWesYtq0RTy55TfHf2aS/jZII0lML5Q+U0yd/M2RDuYd0jl6J
+         9Df8K445T434IGHBV824bK6B5RNFGTKJ7KaKI2g9xS1Y7v9c0wDRxrJjxdBAxW6qx4E8
+         XPK+KghoOCr4RMehSCC3yhoaovPRvC7XPhSnHs5SjG4tYiny0UTf72D6MaD+URVvAA2T
+         VqcnMV5cxFBtpCm7kU6ZJwgG1g8Vb9fG10t+rhUT/aVn9XlW0MfhQal6HAIG6Vc96u6u
+         8L40iiD+k/UQyDp1E/vMD3dBbammBuCfWdD5/sbupn0ZrpLRYUANR4l8DIbtoFpa7zM6
+         jIfQ==
+X-Gm-Message-State: AJcUukePW7F5fpBAEV8z5Md+qcaTCLbdbjNsVM2vaO8CoWNSHG1RfV/m
+        MFZKp8uwLNtgCU49ja8y5w2DhA==
+X-Google-Smtp-Source: ALg8bN7M7t6AanRmjU8RWajSbghD3vLWpGwNMXDsHBA793+R+GISN8Xlq2kRtioOdcdopgoBV9Uzcg==
+X-Received: by 2002:a02:a484:: with SMTP id d4mr2163835jam.77.1548268572146;
+        Wed, 23 Jan 2019 10:36:12 -0800 (PST)
+Received: from ncrews2.bld.corp.google.com ([2620:15c:183:200:8140:8e3f:aea5:bcdf])
+        by smtp.gmail.com with ESMTPSA id 189sm9537577itw.33.2019.01.23.10.36.10
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 23 Jan 2019 10:36:11 -0800 (PST)
+From:   Nick Crews <ncrews@chromium.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     sjg@chromium.org, dmitry.torokhov@gmail.com, sre@kernel.org,
+        linux-input@vger.kernel.org, groeck@chromium.org,
+        dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Nick Crews <ncrews@chromium.org>, linux-rtc@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Benson Leung <bleung@chromium.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v4 4/9] platform/chrome: rtc: Add RTC driver
+Date:   Wed, 23 Jan 2019 11:33:20 -0700
+Message-Id: <20190123183325.92946-5-ncrews@chromium.org>
+X-Mailer: git-send-email 2.20.1.321.g9e740568ce-goog
+In-Reply-To: <20190123183325.92946-1-ncrews@chromium.org>
+References: <20190123183325.92946-1-ncrews@chromium.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZwgA9U+XZDXt4+m+"
-Content-Disposition: inline
-In-Reply-To: <a5a3cdb00b9181897fc675f4a6900064d9289fdc.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
-X-Cookie: A couch is as good as a chair.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+From: Duncan Laurie <dlaurie@google.com>
 
---ZwgA9U+XZDXt4+m+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This Embedded Controller has an internal RTC that is exposed
+as a standard RTC class driver with read/write functionality.
 
-On Tue, Jan 22, 2019 at 11:42:24AM +0200, Matti Vaittinen wrote:
+The driver is added to the drivers/rtc/ so that the maintainer of that
+directory will be able to comment on this change, as that maintainer is
+the expert on this system. In addition, the driver code is called
+indirectly after a corresponding device is registered from core.c,
+as opposed to core.c registering the driver callbacks directly.
 
-> There is bunch of devices with multiple logical blocks which
-> can generate interrupts. It's not a rare case that the interrupt
-> reason registers are arranged so that there is own status/ack/mask
-> register for each logical block. In some devices there is also a
-> 'main interrupt register(s)' which can indicate what sub blocks
-> have interrupts pending.
+> hwclock --show --rtc /dev/rtc1
+2007-12-31 16:01:20.460959-08:00
+> hwclock --systohc --rtc /dev/rtc1
+> hwclock --show --rtc /dev/rtc1
+2018-11-29 17:08:00.780793-08:00
 
-The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
+Signed-off-by: Duncan Laurie <dlaurie@google.com>
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Nick Crews <ncrews@chromium.org>
+---
 
-  Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
+Changes in v4:
+- Change me email to @chromium.org from @google.com
+- Move "Add RTC driver" before "Add sysfs attributes" so that
+  it could get accepted earlier, since it is less contentious
 
-are available in the Git repository at:
+Changes in v3:
+- rm #define for driver name
+- Don't compute weekday when reading from RTC.
+  Still set weekday when writing, as RTC needs this
+  to control advanced power scheduling
+- rm check for invalid month data
+- Set range_min and range_max on rtc_device
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git tags/regmap-irq-main-status
+Changes in v2:
+- rm license boiler plate
+- rm "wilco_ec_rtc -" prefix in docstring
+- Make rtc driver its own module within the drivers/rtc/ directory
+- Register a rtc device from core.c that is picked up by this driver
 
-for you to fetch changes up to a2d21848d9211dad5e786aa7368709ca8938834e:
+ drivers/platform/chrome/wilco_ec/core.c |  14 ++
+ drivers/rtc/Kconfig                     |  11 ++
+ drivers/rtc/Makefile                    |   1 +
+ drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
+ 4 files changed, 203 insertions(+)
+ create mode 100644 drivers/rtc/rtc-wilco-ec.c
 
-  regmap: regmap-irq: Add main status register support (2019-01-23 15:52:15 +0000)
+diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
+index e036d88b6dd8..7cfb047e2c89 100644
+--- a/drivers/platform/chrome/wilco_ec/core.c
++++ b/drivers/platform/chrome/wilco_ec/core.c
+@@ -87,6 +87,20 @@ static int wilco_ec_probe(struct platform_device *pdev)
+ 		goto destroy_mec;
+ 	}
+ 
++	/*
++	 * Register a RTC platform device that will get picked up by the RTC
++	 * subsystem. This platform device will get freed when its parent device
++	 * dev is unregistered.
++	 */
++	child_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
++						   PLATFORM_DEVID_AUTO,
++						   NULL, 0);
++	if (IS_ERR(child_pdev)) {
++		dev_err(dev, "Failed to create RTC platform device\n");
++		ret = PTR_ERR(child_pdev);
++		goto destroy_mec;
++	}
++
+ 	return 0;
+ 
+ destroy_mec:
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 225b0b8516f3..d5063c791515 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
+ 	  Goldfish is a code name for the virtual platform developed by Google
+ 	  for Android emulation.
+ 
++config RTC_DRV_WILCO_EC
++	tristate "Wilco EC RTC"
++	depends on WILCO_EC
++	default m
++	help
++	  If you say yes here, you get read/write support for the Real Time
++	  Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
++
++	  This can also be built as a module. If so, the module will
++	  be named "rtc_wilco_ec".
++
+ endif # RTC_CLASS
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index df022d820bee..6255ea78da25 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
+ obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
+ obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
+ obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
++obj-$(CONFIG_RTC_DRV_WILCO_EC)	+= rtc-wilco-ec.o
+ obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
+ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
+new file mode 100644
+index 000000000000..35cc56114c1c
+--- /dev/null
++++ b/drivers/rtc/rtc-wilco-ec.c
+@@ -0,0 +1,177 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * RTC interface for Wilco Embedded Controller with R/W abilities
++ *
++ * Copyright 2018 Google LLC
++ *
++ * The corresponding platform device is typically registered in
++ * drivers/platform/chrome/wilco_ec/core.c
++ */
++
++#include <linux/bcd.h>
++#include <linux/err.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/platform_data/wilco-ec.h>
++#include <linux/rtc.h>
++#include <linux/timekeeping.h>
++
++#define EC_COMMAND_CMOS			0x7c
++#define EC_CMOS_TOD_WRITE		0x02
++#define EC_CMOS_TOD_READ		0x08
++
++/**
++ * struct ec_rtc_read - Format of RTC returned by EC.
++ * @second: Second value (0..59)
++ * @minute: Minute value (0..59)
++ * @hour: Hour value (0..23)
++ * @day: Day value (1..31)
++ * @month: Month value (1..12)
++ * @year: Year value (full year % 100)
++ * @century: Century value (full year / 100)
++ *
++ * All values are presented in binary (not BCD).
++ */
++struct ec_rtc_read {
++	u8 second;
++	u8 minute;
++	u8 hour;
++	u8 day;
++	u8 month;
++	u8 year;
++	u8 century;
++} __packed;
++
++/**
++ * struct ec_rtc_write - Format of RTC sent to the EC.
++ * @param: EC_CMOS_TOD_WRITE
++ * @century: Century value (full year / 100)
++ * @year: Year value (full year % 100)
++ * @month: Month value (1..12)
++ * @day: Day value (1..31)
++ * @hour: Hour value (0..23)
++ * @minute: Minute value (0..59)
++ * @second: Second value (0..59)
++ * @weekday: Day of the week (0=Saturday)
++ *
++ * All values are presented in BCD.
++ */
++struct ec_rtc_write {
++	u8 param;
++	u8 century;
++	u8 year;
++	u8 month;
++	u8 day;
++	u8 hour;
++	u8 minute;
++	u8 second;
++	u8 weekday;
++} __packed;
++
++int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
++{
++	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
++	u8 param = EC_CMOS_TOD_READ;
++	struct ec_rtc_read rtc;
++	struct wilco_ec_message msg = {
++		.type = WILCO_EC_MSG_LEGACY,
++		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
++		.command = EC_COMMAND_CMOS,
++		.request_data = &param,
++		.request_size = sizeof(param),
++		.response_data = &rtc,
++		.response_size = sizeof(rtc),
++	};
++	int ret;
++
++	ret = wilco_ec_mailbox(ec, &msg);
++	if (ret < 0)
++		return ret;
++
++	tm->tm_sec	= rtc.second;
++	tm->tm_min	= rtc.minute;
++	tm->tm_hour	= rtc.hour;
++	tm->tm_mday	= rtc.day;
++	tm->tm_mon	= rtc.month - 1;
++	tm->tm_year	= rtc.year + (rtc.century * 100) - 1900;
++	tm->tm_yday	= rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
++
++	/* Don't compute day of week, we don't need it. */
++	tm->tm_wday = -1;
++
++	return 0;
++}
++
++int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
++{
++	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
++	struct ec_rtc_write rtc;
++	struct wilco_ec_message msg = {
++		.type = WILCO_EC_MSG_LEGACY,
++		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
++		.command = EC_COMMAND_CMOS,
++		.request_data = &rtc,
++		.request_size = sizeof(rtc),
++	};
++	int year = tm->tm_year + 1900;
++	/*
++	 * Convert from 0=Sunday to 0=Saturday for the EC
++	 * We DO need to set weekday because the EC controls battery charging
++	 * schedules that depend on the day of the week.
++	 */
++	int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
++	int ret;
++
++	rtc.param	= EC_CMOS_TOD_WRITE;
++	rtc.century	= bin2bcd(year / 100);
++	rtc.year	= bin2bcd(year % 100);
++	rtc.month	= bin2bcd(tm->tm_mon + 1);
++	rtc.day		= bin2bcd(tm->tm_mday);
++	rtc.hour	= bin2bcd(tm->tm_hour);
++	rtc.minute	= bin2bcd(tm->tm_min);
++	rtc.second	= bin2bcd(tm->tm_sec);
++	rtc.weekday	= bin2bcd(wday);
++
++	ret = wilco_ec_mailbox(ec, &msg);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static const struct rtc_class_ops wilco_ec_rtc_ops = {
++	.read_time = wilco_ec_rtc_read,
++	.set_time = wilco_ec_rtc_write,
++};
++
++static int wilco_ec_rtc_probe(struct platform_device *pdev)
++{
++	struct rtc_device *rtc;
++
++	rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	rtc->ops = &wilco_ec_rtc_ops;
++	/* EC only supports this century */
++	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rtc->range_max = RTC_TIMESTAMP_END_2099;
++	rtc->owner = THIS_MODULE;
++
++	return rtc_register_device(rtc);
++}
++
++static struct platform_driver wilco_ec_rtc_driver = {
++	.driver = {
++		.name = "rtc-wilco-ec",
++	},
++	.probe = wilco_ec_rtc_probe,
++};
++
++module_platform_driver(wilco_ec_rtc_driver);
++
++MODULE_ALIAS("platform:rtc-wilco-ec");
++MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Wilco EC RTC driver");
+-- 
+2.20.1.321.g9e740568ce-goog
 
-----------------------------------------------------------------
-regmap: Main status register support
-
-Add support for a main status register, used by chips on slower buses
-with many interrupt sources to improve performance in interrupt
-handling.
-
-----------------------------------------------------------------
-Matti Vaittinen (1):
-      regmap: regmap-irq: Add main status register support
-
- drivers/base/regmap/regmap-irq.c | 99 ++++++++++++++++++++++++++++++++++++++--
- include/linux/regmap.h           | 31 +++++++++++++
- 2 files changed, 126 insertions(+), 4 deletions(-)
-
---ZwgA9U+XZDXt4+m+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxIjnIACgkQJNaLcl1U
-h9A6Dwf6A9lsIBpD+TiAoijbdEzoXqd/cmk7XgSy/A667LTDjzbi5yBhrjhOGwkz
-83o5oE/oS6bba5hgVls8QO4C3sGrPhdtDPF+Q6LpGS4uNxq/o6Mv3KRbZU8RAPzZ
-F0znv/m2UqJa67vx20iiS72+oZEyFfuaihQRjMBP+nP4nFu/dmnmLZegh3h6R/z6
-xliTfo5ljMjCb2h379hdmlbv4FUJ9d4A7ARvs49AB6Wt/br0WWVdINBPQiVRWYY7
-bTLeY9HglV2z2UL72NNMRU5ie1vhiLGDwCkEbiVWVXscay3sLl3xyBUJHFfLbc4D
-kIE6YXfIVU52U/5gIucvj4wN2qz+Qg==
-=kp0o
------END PGP SIGNATURE-----
-
---ZwgA9U+XZDXt4+m+--
