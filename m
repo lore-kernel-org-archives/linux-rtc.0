@@ -1,169 +1,205 @@
-Return-Path: <SRS0=HmEa=QA=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=r6Xw=QB=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE543C282C5
-	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jan 2019 14:37:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6B0BC282C0
+	for <linux-rtc@archiver.kernel.org>; Fri, 25 Jan 2019 11:01:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A19522184B
-	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jan 2019 14:37:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qyVlWGPt"
+	by mail.kernel.org (Postfix) with ESMTP id A6FDC2184B
+	for <linux-rtc@archiver.kernel.org>; Fri, 25 Jan 2019 11:01:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbfAXOhw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 24 Jan 2019 09:37:52 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:41421 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727649AbfAXOhw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Jan 2019 09:37:52 -0500
-Received: by mail-pl1-f195.google.com with SMTP id u6so2975672plm.8;
-        Thu, 24 Jan 2019 06:37:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Xn1VVko+etvUCk3QL1sGUoOD3oCOAgP6osfKszYJpfI=;
-        b=qyVlWGPt7BgrlHIwfwCyah+Tb7njLbSWStyGjl9zS2a9VIVzAQPDRIj3ICsXgA9ZzE
-         LMHXCzOCuJ1CT8kwhpewgmqTmuMeV91NtmJVluhq7s0RHml39tXAJy/Fsz1HVevdyGPY
-         LhYppSkqrCQIEMmk9aVZa5UaOkIfm43mb4MjEjDtWjxmgGXIyoj/xPaYot/o0kEHZbyc
-         e/n8NwHDT1pDI20uqmzYCZVpa5y6OR5hHcHtOgEpNGdz89NdkNjY+SGYRa5tXHPaHeOH
-         IGlf2CjQQhWFCxWx1imljj/WVesqAH/0PDh1DEJBQMmhm2dG8XOQxMy6b5kgfwoZZ1AV
-         92ug==
+        id S1726347AbfAYLB2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 25 Jan 2019 06:01:28 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:45507 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbfAYLB1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Jan 2019 06:01:27 -0500
+Received: by mail-lf1-f68.google.com with SMTP id b20so6605185lfa.12;
+        Fri, 25 Jan 2019 03:01:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Xn1VVko+etvUCk3QL1sGUoOD3oCOAgP6osfKszYJpfI=;
-        b=H7nD+59cQWIqP9zghfKJpgU61RVfzuT7g85Ep2GiY58e/K2DhbkwAvvYPgDmzwrOMq
-         d/yUDcdlgntzr7xBDPXYpyFHkVYnajoKa1UVMIXjztTvFbotBduiW/oBGFOXoo8L2AUb
-         LaCMzCajIs4CxSlwS5saCY2/F3FvLgiiw3Pfa3MuYUu9soTYq4YH4TSwicAw/wtiW+vg
-         OhjyeYifVRGbsm/5btv4Z+BJOyxItsSDwIt5Qy7y3hAAGikT7mWXo9+sZwadhKo8a43c
-         ydhTX+q15BCA/VgmYfK4ZEEAQsgmCvKZUi4wkgvQzk5BxiqNti4wV6+R4Mhq4xcQpw1Q
-         bScw==
-X-Gm-Message-State: AJcUukcayF08IOlWRTx/uJ/eDM3ZGKXOmc9/aCEbXoBomzrFyEwopUdJ
-        us/lEzG2zTLTHs/Nyck3XU0=
-X-Google-Smtp-Source: ALg8bN77Y5oJvELoKgchO19nGc14m7zKUHPvxmSzFaQd3zvm+Okd/8Vo1YYljulVtHkE4n6MWTlRkA==
-X-Received: by 2002:a17:902:981:: with SMTP id 1mr6650745pln.142.1548340670826;
-        Thu, 24 Jan 2019 06:37:50 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o66sm37808457pgo.75.2019.01.24.06.37.48
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 24 Jan 2019 06:37:49 -0800 (PST)
-Date:   Thu, 24 Jan 2019 06:37:47 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Sebastian Reichel <sre@kernel.org>, mazziesaccount@gmail.com,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=vDcc9rE4hmCM95tpj5K+bYvYQu10NrgI2SfNzGflwvQ=;
+        b=YOS12tBBowAc3/MS8GqvE+A2pWfdSCKKv6G6x6Q2AyUUJ+HaDbOjcF6y7/072cq+A2
+         2QvBLQhWGhFAMZ9JwXdmxGwOnsmJ18DezdFSGR9YEm7RuXFJx67QPs6xyTWJZH3sRpn5
+         aInfrR7DWMb2A4n4mdKVWd/0+QLNTi1BywiVRCgkHyLZk3D7r8shSJdZRZEIGly0im4M
+         hRtVw+w2H1sx4KEx27/wf2CIOQDPvkimGhUhJ050a7rGkT0IXT0bmiKu8sc4r2qRGiq8
+         AqqQSbQZwG6FVKFpNai0PGBpeY3Huw3uLExKWLf2fcbNfyOp2CJFFU8DX0fiHqYtow69
+         kxvg==
+X-Gm-Message-State: AJcUukcVtrXs04nc1dqeYteFOgJMUtyfR7FIxbFgqTu3eDCT3mNM6HGl
+        ebANxaR/xxlFw8w9nEdg8Sd5MnLFwmg=
+X-Google-Smtp-Source: ALg8bN4V/HDQX4p8O9VT5ztZdyt0JqFV5DrqLDEY3hGu6hJt5NeDiJgHDoRx6AyzMQirCIKt8Qpfjg==
+X-Received: by 2002:a19:d486:: with SMTP id l128mr8272405lfg.114.1548414083905;
+        Fri, 25 Jan 2019 03:01:23 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id y23-v6sm1456337ljk.95.2019.01.25.03.01.22
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 25 Jan 2019 03:01:23 -0800 (PST)
+Date:   Fri, 25 Jan 2019 13:01:10 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     mazziesaccount@gmail.com, matti.vaittinen@fi.rohmeurope.com
+Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        lgirdwood@gmail.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
+        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
         mturquette@baylibre.com, sboyd@kernel.org,
         linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        wim@linux-watchdog.org, devicetree@vger.kernel.org,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 13/13] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-Message-ID: <20190124143747.GA29002@roeck-us.net>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <ec70833179d1953dbc91e01901b79d3319ff013d.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <20190122154750.GB1705@roeck-us.net>
- <20190122171023.GC2559@localhost.localdomain>
- <20190122174056.GB4964@roeck-us.net>
- <20190122180309.GD2559@localhost.localdomain>
- <20190123174728.uu7zhno5xea2bga7@earth.universe>
- <20190124104434.GF2559@localhost.localdomain>
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: [RFC PATCH v2 00/10] support ROHM BD70528 PMIC
+Message-ID: <20190125110110.GA29171@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190124104434.GF2559@localhost.localdomain>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Jan 24, 2019 at 12:44:35PM +0200, Matti Vaittinen wrote:
-> On Wed, Jan 23, 2019 at 06:47:28PM +0100, Sebastian Reichel wrote:
-> > Hi,
-> > 
-> > On Tue, Jan 22, 2019 at 08:03:09PM +0200, Matti Vaittinen wrote:
-> > > On Tue, Jan 22, 2019 at 09:40:56AM -0800, Guenter Roeck wrote:
-> > > > On Tue, Jan 22, 2019 at 07:10:23PM +0200, Matti Vaittinen wrote:
-> > > > > On Tue, Jan 22, 2019 at 07:47:50AM -0800, Guenter Roeck wrote:
-> > > > > > On Tue, Jan 22, 2019 at 11:48:36AM +0200, Matti Vaittinen wrote:
-> > > > > > > +static int bd70528_wdt_probe(struct platform_device *pdev)
-> > > > > > > +{
-> > > > > > > +	struct bd70528 *tmp;
-> > > > > > > +	struct bd70528 *bd70528;
-> > > > > > > +	int ret;
-> > > > > > > +
-> > > > > > > +	tmp = dev_get_drvdata(pdev->dev.parent);
-> > > > > > > +	if (!tmp) {
-> > > > > > > +		dev_err(&pdev->dev, "No MFD driver data\n");
-> > > > > > > +		return -EINVAL;
-> > > > > > > +	}
-> > > > > > > +	bd70528 = devm_kzalloc(&pdev->dev, sizeof(*bd70528), GFP_KERNEL);
-> > > > > > > +	if (!bd70528)
-> > > > > > > +		return -ENOMEM;
-> > > > > > > +
-> > > > > > > +	*bd70528 = *tmp;
-> > > > > > > +	bd70528->chip.dev = &pdev->dev;
-> > > > > > 
-> > > > > > This is wrong.
-> > > > > > You should not copy the parent's driver data but have local driver
-> > > > > > data as needed which then points to the parent's driver data if
-> > > > > > needed. I assume this is why the mutex is a pointer, but that
-> > > > > > just shows that the whole approach is wrong.
-> > > > > 
-> > > > > Mutex is a pointer because we want to use same mutex from WDT and RTC.
-> > > > > We can sure point to parent data but then we still need our own dev
-> > > > > pointer. So we can have a struct with pointer to parent data and dev
-> > > > > pointer - but I'm not at all sure it is any clearer.
-> > > > 
-> > > > As I said, that is wrong. To say it in plaintext, I won't accept
-> > > > the driver if it copies the parent's driver data. The driver should
-> > > > have and use its own driver data, and only maintain a pointer to
-> > > > its parent's driver data. And most definitely you don't want to
-> > > > copy and use any device data structure from the parent.
-> > > 
-> > > Allright. At the moment the WDT driver only needs regmap pointer from
-> > > parent. I'm not sure if it will later need DT or "chip type" - but I
-> > > will change this.
-> > 
-> > You probably want to use this:
-> > 
-> > dev_get_regmap(pdev->dev.parent, NULL);
-> 
-> Thanks a bunch Sebastian. All help is highly appreciated!! =)
-> 
-> Unfortunately I forgot to mention the key thing - the RTC mutex. We also
-> need that because RTC needs to stop WDT when RTC is adjusted as the WDT
-> uses RTC as counter - and jumping the RTC WDT enabled might trigger WDT
-> or have other consequences.
-> 
-> Se even if we used dev_get_regmap (which is slightly heavier than
-> accessing direct pointer) - we would still need at least the mutex from
-> parent data, possibly also the chip type and if we want to avoid code
-> dublication - then also the WDT start/stop function.
-> 
-> Thus I guess we can as well keep the regmap in parent data because we
-> need the parent data anyways, right?
-> 
+Patch series introducing support for ROHM BD70528 PMIC
 
-You are free to _use_ the parent data. Just not copy it.
+Please note that patch 1 breaks compilation without patches 2 and 3
 
-Another possibility would be for the parent to provide platform
-data for the rtc driver to use, and that platform data would
-include pointers to the regmap and to the rtc mutex.
+ROHM BD70528 is a programmable Power Management IC for battery
+powered 'ultra low power' systems like the pre-announced NXP
+i.MX7 ULP. This patch series introduces support for the PMIC.
 
-However, again, the one thing you can _not_ do is to copy the parent's
-driver data.
+I send this a RFC now as I would like to receive comments from
+Lee, Mark and Stephen regarding splitting the existing
+include/linux/mfd/bd718x7.h into ROHM generic and chip specific
+portions. Benefit is that for example the clk sub-driver does
+not need to be aware of chip specific structure(s) (struct
+bd718x7 and struct bd70528) as it only needs to derefernce the
+generic struct rohm_regmap_dev. Thus same clk subdriver can
+support both the bd718x7 and bd70528 as long as MFD driver
+data has this generic structure in the beginning of allocated
+data. But knowing the bd718x7 driver is already in upstream,
+it might be good if this change went through single tree, right?
 
-Guenter
+RTC block of the bd70528 can support 'wake' irq which wakes PMIC
+from standby state. Wake irq's can be armed to wake up system up
+to 24 hours from arming. bd70528 can also generate alarm interrupts
+which can be armed to occur years after triggering. The RTC driver
+does always arm both the waker and alarm irqs and does not utilize
+longer period of alarm interrupts. All the RTC timers are limited
+to occur within the next 24 hours. Any suggestions on more elegant
+timer support are welcome =)
+
+GPIO portion of bd70528 driver adds I/O support for driving GPIO
+pins or reading the state. The interrupt functionality is provided
+by regmap-irq. Current GPIO driver is not aware of whether the pin(s)
+are used for I/O or interrupts and it is up-to driver user to
+ensure there is no misconfiguration or "double use".
+
+Currently only MFD core, clk, RTC and regulator portions are
+somehow tested. The RFC series also include initial gpio, power-supply
+and watchdog patches in order to provide better overview on chip
+and to collect initial feedback. Reset and ADC are not supported by
+this series.
+
+Changelog v2: Mainly feedback from Guenter Roeck:
+- patches 1, 2, 3, 5, 7, 9 are unchanged.
+- mfd: own mutex for each bd70528 instance - embed in struct bd70528
+- watchdog: do not copy parent device data
+- watchdog: fix deadlock caused by double locked mutex
+- watchdog: set initial timeouts and WDT parent information
+- watchdog: remove unnecessary ping function from ops
+- watchdog: and the comment regarding it
+- watchdog: allocate watchdog struct in order to allow multiple WDG
+  instances
+- rtc: bd70528 fix the order of mutex unlock and re-enabling RTC based
+  timers
+- rtc: fix the irq mask register address
+- power: fix the irq mask register address
+- regulator/regmap-irq: Drop the patches 1, 8 and 9 from original series
+  as those were already applied by Mark 
+
+Patch 1:
+	split the bd718x7.h to generic and chip specific portions.
+	(breaks compilation without patch 2 and 3)
+Patch 2:
+	adapt bd718x7.h changes to bd718x7 regulator driver
+Patch 3:
+	adapt bd718x7.h changes to bd718x7 clk driver
+Patch 4:
+	add MFD core support for bd70528
+Patch 5:
+	support bd70528 clk using bd718x7 clk driver
+Patch 6:
+	document DT bindings for BD70528
+Patch 7:
+	support BD70528 GPIO block
+Patch 8:
+	support BD70528 RTC
+Patch 9:
+	support BD70528 battery charger
+Patch 10:
+	support BD70528 watchdog
+
+This patch series is based on Mark's regulator/for-next branch
+
+---
+
+Matti Vaittinen (10):
+  mfd: bd718x7.h split to ROHM common and bd718x7 specific parts
+  regulator: bd718x7 use chip specific and generic data structs
+  clk: bd718x7: use chip specific and generic data structs
+  mfd: bd70528: Support ROHM bd70528 PMIC - core
+  clk: bd718x7: Support ROHM BD70528 clk block
+  devicetree: bindings: Document first ROHM BD70528 bindings
+  gpio: Initial support for ROHM bd70528 GPIO block
+  rtc: bd70528: Initial support for ROHM bd70528 RTC
+  power: supply: Initial support for ROHM BD70528 PMIC charger block
+  watchdog: bd70528: Initial support for ROHM BD70528 watchdog block
+
+ .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 104 ++++
+ drivers/clk/Kconfig                                |   6 +-
+ drivers/clk/clk-bd718x7.c                          |  25 +-
+ drivers/gpio/Kconfig                               |  11 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-bd70528.c                        | 192 ++++++
+ drivers/mfd/Kconfig                                |  17 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/rohm-bd70528.c                         | 410 +++++++++++++
+ drivers/mfd/rohm-bd718x7.c                         |  23 +-
+ drivers/power/supply/Kconfig                       |   9 +
+ drivers/power/supply/Makefile                      |   1 +
+ drivers/power/supply/bd70528-charger.c             | 670 +++++++++++++++++++++
+ drivers/regulator/bd718x7-regulator.c              |  22 +-
+ drivers/rtc/Kconfig                                |   8 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-bd70528.c                          | 451 ++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/bd70528_wdt.c                     | 183 ++++++
+ include/linux/mfd/rohm-bd70528.h                   | 392 ++++++++++++
+ include/linux/mfd/rohm-bd718x7.h                   |  22 +-
+ include/linux/mfd/rohm-generic.h                   |  20 +
+ 23 files changed, 2537 insertions(+), 45 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+ create mode 100644 drivers/gpio/gpio-bd70528.c
+ create mode 100644 drivers/mfd/rohm-bd70528.c
+ create mode 100644 drivers/power/supply/bd70528-charger.c
+ create mode 100644 drivers/rtc/rtc-bd70528.c
+ create mode 100644 drivers/watchdog/bd70528_wdt.c
+ create mode 100644 include/linux/mfd/rohm-bd70528.h
+ create mode 100644 include/linux/mfd/rohm-generic.h
+
+-- 
+2.14.3
+
+
+-- 
+Matti Vaittinen
+ROHM Semiconductors
+
+~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
