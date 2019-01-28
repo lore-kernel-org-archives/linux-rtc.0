@@ -2,60 +2,58 @@ Return-Path: <SRS0=mCwx=QE=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86B77C282C8
-	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 12:49:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31384C282C8
+	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 12:56:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4CF5F214DA
-	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 12:49:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02E52214DA
+	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 12:56:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="KHeCElCT"
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="cBR6t+WC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726735AbfA1MtT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 28 Jan 2019 07:49:19 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:32863 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726647AbfA1MtS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Jan 2019 07:49:18 -0500
-Received: by mail-lj1-f194.google.com with SMTP id v1-v6so14140098ljd.0
-        for <linux-rtc@vger.kernel.org>; Mon, 28 Jan 2019 04:49:17 -0800 (PST)
+        id S1726825AbfA1M4D (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 28 Jan 2019 07:56:03 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:32995 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726803AbfA1M4D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Jan 2019 07:56:03 -0500
+Received: by mail-lf1-f66.google.com with SMTP id i26so11786454lfc.0
+        for <linux-rtc@vger.kernel.org>; Mon, 28 Jan 2019 04:56:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=DRhHTshRy93ZavvcEIkGkkKleavHMBYy/IVRyHzjjYk=;
-        b=KHeCElCTAUQULHQkI6+LqXf1i+bdWtjRu+/A7TRxBL2YFMoufazuDbKR4fWzPJeBLa
-         n1I3k8+JqMDDvERYpjK+Ya8Gx4L1HLbxVozIPVoQYsIoA2Lkdd65tOXs5HL5zvHq2XLv
-         v5+j/MNwpoY1A0lAVUJEuGI7sUKT6vtAemA6g=
+        bh=KtYsgjFGu6fAODHL+RAHV/6ZYs/aiT/WhaxSVGIhloY=;
+        b=cBR6t+WC2Ukh0PB0s//+SgVjRTKp7lnA/rRGXo03WZVKUuHGu6/DLdFX2AkSL4ybNi
+         iMYuiCnYZLpqX6fv57yFvC7Asckg/d4M5WtacC9LVEr8iUmpDKgD8fCcOoIHIC961lYu
+         dKUfbEUelx4JnDjVjjZeRk8GcHlnWF2xSXfmc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=DRhHTshRy93ZavvcEIkGkkKleavHMBYy/IVRyHzjjYk=;
-        b=nI9oNDl2T7+yEVU16siGHmJYcpkaiDYheO5bC51qEVorsnalt86S7SPZAn4+53H1eg
-         EZR/xHVeHfImzgiMpzozeDd5UHpswcCN14qzVLGUSCg8tJHR48TsK9D9qOyY9wC6MOuz
-         BgLs+6F2FIR/OSQCIBHNBGfw6f2OV7sisKmQ6LCYTi41HGEgn70EFQagtb9leJG7YWNF
-         VDdqiK50gRxkp4o5FqZNS/ICwAUuZvI2pjzHoV0CcqWeGLYXCnwFxFbrraiGwYTSn1Cy
-         4i6SHktdf9NheJFhMaLxkOeqG5anlRWjJmrwiGirAEFTYiSd+11PFCE8B/FXZyOujmy9
-         FYnA==
-X-Gm-Message-State: AJcUukfWk3sK1GHfb2h9K+R9k/8oPsme74dJ115qnyiDzG/V8lb+AW+o
-        HIrwchrOXXeC/K8/Q1ASqZ+ffXxrJTRLiqrU5WYkcg==
-X-Google-Smtp-Source: ALg8bN6hHc81mWUi5OEd/I/TqPaIgQATp+cVW3qkdu0pa8pQotv3LN8Y3OYJ8XT41iZ7yI1vFjaRM8paCX4pxAZwmOQ=
-X-Received: by 2002:a2e:131a:: with SMTP id 26-v6mr16554297ljt.107.1548679756442;
- Mon, 28 Jan 2019 04:49:16 -0800 (PST)
+        bh=KtYsgjFGu6fAODHL+RAHV/6ZYs/aiT/WhaxSVGIhloY=;
+        b=qdRu++XUAwWz/1XXvpdDDG8E9nom+eZioDOQTFq7iF3uJ+t0TOxCk2LGl7RQYu/C6d
+         kor88HPdLXzQO5NUDbmJktj8ElZMkw6ICo5ROuhxu7fXWyW45eFUqrVSHQI32zgycws6
+         onpKm7Utwu0C9yhpPvRN+596vTh4JPz8+8GPcVTzp9IqkzrqCCf3UTCOg+UQ8sbnw+mV
+         tjKfXUYMa0hlc0OJ7knmbDvRKbqpg4oZFIjra4RIYLOF3X4MC8iPZdSoLHa/z8S99GGS
+         vs8AUyoc9e83WBeJK0XkWRbKeVjN9KPtYo7Yf0e2coUKyynclJJys+BfQo8mZiFhp+dI
+         670A==
+X-Gm-Message-State: AJcUukf7xpLSufRNa1Amj0+4x5LjckIQgk2kSqWGz79T+h+Oyf1gm49E
+        DSVQ67kHXBkWGDCLVD8SmZA3nmmBNb/7KSVDbJBkmg==
+X-Google-Smtp-Source: ALg8bN4Lnb5MlosMti7CxpmKM3ix2ZEAcCkA3F0gobYMeVRgLDOQw63GJDaJubA7rFK8iKZqQyzebGdCxn+kPCGWyjA=
+X-Received: by 2002:a19:db82:: with SMTP id t2mr16199018lfi.130.1548680161599;
+ Mon, 28 Jan 2019 04:56:01 -0800 (PST)
 MIME-Version: 1.0
-References: <20190125110600.GA29332@localhost.localdomain>
-In-Reply-To: <20190125110600.GA29332@localhost.localdomain>
+References: <20190125110509.GA29310@localhost.localdomain>
+In-Reply-To: <20190125110509.GA29310@localhost.localdomain>
 From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Mon, 28 Jan 2019 13:49:04 +0100
-Message-ID: <CACRpkdYTCgXo8FeitEfRujeWdshnsR3Kn57cKUZsA3CsZ5Cnrw@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 09/10] power: supply: Initial support for ROHM
- BD70528 PMIC charger block
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Baolin Wang <baolin.wang@linaro.org>
+Date:   Mon, 28 Jan 2019 13:55:48 +0100
+Message-ID: <CACRpkdYTUB8vPiCF=s5-TARhv=DsPDQHVyCwP7fMc27gyDvKSg@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 07/10] gpio: Initial support for ROHM bd70528 GPIO block
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         Lee Jones <lee.jones@linaro.org>,
@@ -89,105 +87,63 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 Hi Matti!
 
-Thanks for your patch.
+Thanks for your patch!
 
-We are going to have a problem with the power subsystem.
-
-These charging drivers are growing wild. This is starting to get out
-of hand, we need some more framework for properly handling charging
-state machines the kernel. Not specifically your problem, but
-when working on the driver try to keep generic support in mind.
-
-On Fri, Jan 25, 2019 at 12:06 PM Matti Vaittinen
+On Fri, Jan 25, 2019 at 12:05 PM Matti Vaittinen
 <matti.vaittinen@fi.rohmeurope.com> wrote:
 
-> +#define CHG_STAT_SUSPEND       0x0
-> +#define CHG_STAT_TRICKLE       0x1
-> +#define CHG_STAT_FAST          0x3
-> +#define CHG_STAT_TOPOFF                0xe
-> +#define CHG_STAT_DONE          0xf
-> +#define CHG_STAT_OTP_TRICKLE   0x10
-> +#define CHG_STAT_OTP_FAST      0x11
-> +#define CHG_STAT_OTP_DONE      0x12
-> +#define CHG_STAT_TSD_TRICKLE   0x20
-> +#define CHG_STAT_TSD_FAST      0x21
-> +#define CHG_STAT_TSD_TOPOFF    0x22
-> +#define CHG_STAT_BAT_ERR       0x7f
+> ROHM BD70528 PMIC has 4 GPIO pins. Allow them to be
+> controlled by GPIO framework.
+>
+> IRQs are handled by regmap-irq and GPIO driver is not
+> aware of the irq usage.
+>
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 
-So what I am seeing is that these states are starting to turn up in more
-and more drivers, so we really need to think about a central management
-component for charging state machines. I do not think they are all
-that different after all.
+This is overall a very nicely written driver.
 
-> +BD_ERR_IRQ_HND(BAT_OV_DET, "Battery overvoltage detected\n");
-> +BD_ERR_IRQ_HND(DBAT_DET, "Dead battery detected\n");
-> +BD_ERR_IRQ_HND(COLD_DET, "Battery cold\n");
-> +BD_ERR_IRQ_HND(HOT_DET, "Battery hot\n");
-> +BD_ERR_IRQ_HND(CHG_TSD, "Charger thermal shutdown\n");
-> +BD_ERR_IRQ_HND(DCIN2_OV_DET, "DCIN2 overvoltage detected\n");
-> +
-> +BD_INFO_IRQ_HND(BAT_OV_RES, "Battery voltage back to normal\n");
-> +BD_INFO_IRQ_HND(COLD_RES, "Battery temperature back to normal\n");
-> +BD_INFO_IRQ_HND(HOT_RES, "Battery temperature back to normal\n");
-> +BD_INFO_IRQ_HND(BAT_RMV, "Battery removed\n");
-> +BD_INFO_IRQ_HND(BAT_DET, "Battery detected\n");
-> +BD_INFO_IRQ_HND(DCIN2_OV_RES, "DCIN2 voltage back to normal\n");
-> +BD_INFO_IRQ_HND(DCIN2_RMV, "DCIN2 removed\n");
-> +BD_INFO_IRQ_HND(DCIN2_DET, "DCIN2 detected\n");
-> +BD_INFO_IRQ_HND(DCIN1_RMV, "DCIN1 removed\n");
-> +BD_INFO_IRQ_HND(DCIN1_DET, "DCIN1 detected\n");
+Just small comments:
 
-So we have states and events, and these events form edges
-between the states, right?
+> +#include <linux/gpio/driver.h>
+> +#include <linux/interrupt.h>
 
-I am certain you must have a graphical picture of this state
-machine somewhere, it seems to be how charging hardware people
-do their thinking.
+Why interrupt? You do not use it.
 
-> +/*
-> + * For BD70528 voltage/current limits we happily accept any value which
-> + * belongs the range. We could check if value matching the selector is
-> + * desired by computing the range min + (sel - sel_low) * range step - but
-> + * I guess it is enough if we use voltage/current which is closest (below)
-> + * the requested?
-> + */
-> +static int find_selector_for_value_low(struct linear_range *r, int selectors,
-> +                                      unsigned int val, unsigned int *sel,
-> +                                      bool *found)
+> +static int bd70528_get_direction(struct gpio_chip *chip, unsigned int offset)
 > +{
-> +       int i;
-> +       int ret = -EINVAL;
+> +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
+> +       int val, ret;
 > +
-> +       *found = false;
-> +       for (i = 0; i < selectors; i++) {
-> +               if (r[i].min <= val) {
-> +                       if (r[i].min + r[i].step * r[i].vals >= val) {
-> +                               *found = true;
-> +                               *sel = r[i].low_sel + (val - r[i].min) /
-> +                                      r[i].step;
-> +                               ret = 0;
-> +                               break;
-> +                       }
-> +                       /*
-> +                        * If the range max is smaller than requested
-> +                        * we can set the max supported value from range
-> +                        */
-> +                       *sel = r[i].low_sel + r[i].vals;
-> +                       ret = 0;
-> +               }
+> +       /* Do we need to do something to IRQs here? */
+
+Well you don't support IRQs yet so no problem as long as they're masked?
+
+> +       ret = regmap_read(bdgpio->chip.regmap, GPIO_OUT_REG(offset), &val);
+> +       if (ret) {
+> +               dev_err(bdgpio->chip.dev, "Could not read gpio direction\n");
+> +               return ret;
 > +       }
-> +       return ret;
+> +
+> +       return !(val & BD70528_GPIO_OUT_EN_MASK);
 > +}
+> +
+> +static int bd70528_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
+> +                                  unsigned long config)
 
-If I'm not mistaken this is yet another instance of linear interpolation
-from a table?
+This is very nice. With Thomas Petazzoni's ongoing work you will be
+able to also support pull up/down if you need it.
 
-We really need to think about abstracting this. Last time this
-duplication appeared I suggested adding linear interpolation
-primitives to:
-include/linux/fixp-arith.h
+> +static int bd70528_direction_input(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
+> +
+> +       /* Do we need to do something to IRQs here? */
 
-I don't know what others say though?
+Hmmm?
+
+Apart from that it looks good. Feel free to add:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+on the next iteration.
 
 Yours,
 Linus Walleij
