@@ -2,78 +2,81 @@ Return-Path: <SRS0=mCwx=QE=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 100C2C282C8
-	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 20:57:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70E2CC282CD
+	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 21:20:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CA26A21473
-	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 20:57:54 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="WQHUHSZl"
+	by mail.kernel.org (Postfix) with ESMTP id 416F82175B
+	for <linux-rtc@archiver.kernel.org>; Mon, 28 Jan 2019 21:20:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfA1U5y (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 28 Jan 2019 15:57:54 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:54134 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726984AbfA1U5y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Jan 2019 15:57:54 -0500
-X-Greylist: delayed 571 seconds by postgrey-1.27 at vger.kernel.org; Mon, 28 Jan 2019 15:57:54 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1548708500; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WtFF1XuTGe1bbx2x5U4Z7q4HHOW6EENS8+arBA44m9g=;
-        b=WQHUHSZlO3uCVhCQJIo7HTWAhR5NN5kpfqNN5VlZQxTSogpdAO8dP8ZlgtaiG8KN4k8o0O
-        HXO1Jdm5qr7uDc3bLydPsarwzfbe+VQAVyMV3/fz2wVrQi0uOOesRm7eoBuFL1gvjuyyfg
-        idVaK96uXjDG+Ho+ekYeJk4l44sEgCs=
-Date:   Mon, 28 Jan 2019 17:48:04 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: Add Ingenic X1000 RTC support.
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Zhou Yanjie <zhouyanjie@zoho.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        a.zummo@towertech.it, robh+dt@kernel.org, paul.burton@mips.com,
-        mark.rutland@arm.com, syq@debian.org, jiaxun.yang@flygoat.com,
-        772753199@qq.com
-Message-Id: <1548708484.7511.3@crapouillou.net>
-In-Reply-To: <20190128201014.GB18309@piout.net>
-References: <1548696599-53639-1-git-send-email-zhouyanjie@zoho.com>
-        <20190128201014.GB18309@piout.net>
+        id S1727395AbfA1VUS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 28 Jan 2019 16:20:18 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:46333 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726744AbfA1VUR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 28 Jan 2019 16:20:17 -0500
+X-Originating-IP: 86.202.150.119
+Received: from localhost (lfbn-lyo-1-59-119.w86-202.abo.wanadoo.fr [86.202.150.119])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id C8CD424000F;
+        Mon, 28 Jan 2019 21:20:10 +0000 (UTC)
+Date:   Mon, 28 Jan 2019 22:20:09 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
+        mikko.mutanen@fi.rohmeurope.com, lee.jones@linaro.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [RFC PATCH v2 08/10] rtc: bd70528: Initial support for ROHM
+ bd70528 RTC
+Message-ID: <20190128212009.GE18309@piout.net>
+References: <20190125110536.GA29321@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190125110536.GA29321@localhost.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+Hello,
 
-> Hello,
-> 
-> This seems like a useless renaming to me, can you elaborate a bit 
-> more?
-> 
-> I'd also like to have Paul and Lars-Peter comment.
+On 25/01/2019 13:05:36+0200, Matti Vaittinen wrote:
+> +static const struct rtc_class_ops bd70528_rtc_ops = {
+> +	.read_time	= bd70528_get_time,
+> +	.set_time	= bd70528_set_time,
+> +	.read_alarm	= bd70528_read_alarm,
+> +	.set_alarm	= bd70528_set_alarm,
 
-According to the patchset, the RTC in the X1000 does not behave any 
-different
-than the one in the JZ4780 SoC. Therefore patches 1/2 should be dropped.
-In your devicetree bindings, just use the "ingenic,jz4780-rtc" 
-compatible
-string instead. The same goes for all the drivers (e.g. the uart one).
+You actually need to provide a .alarm_irq_enable callback, else there is
+no way to disable a set alarm.
 
-I don't really mind the renaming, maybe replace "Ingenic JZ47xx SoCs" 
-with
-just "Ingenic SoCs" since XBurst is just the name of the CPU inside 
-these
-SoCs.
+> +	rtc = devm_rtc_device_register(&pdev->dev, "bd70528-rtc",
+> +				       &bd70528_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(rtc)) {
+> +		dev_err(&pdev->dev, "Registering RTC failed\n");
+> +		return PTR_ERR(rtc);
+> +	}
 
-Regards,
--Paul
+Please use devm_rtc_allocate_device() and set rtc->range_min and
+rtc->range_max before registering with rtc_register_device() (which can
+be done after trying to request the irq).
 
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
