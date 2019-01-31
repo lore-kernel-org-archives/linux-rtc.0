@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B65EC169C4
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61F48C169C4
+	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:07:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4CC46218AF
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:06:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36800218AF
+	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:07:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="AKQ8oBPm"
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="jPUEQFSS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726082AbfAaPG5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 31 Jan 2019 10:06:57 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:39045 "EHLO
+        id S1727150AbfAaPHA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 31 Jan 2019 10:07:00 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:37597 "EHLO
         mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725787AbfAaPG4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Jan 2019 10:06:56 -0500
-Received: by mail-lf1-f65.google.com with SMTP id n18so2567394lfh.6
-        for <linux-rtc@vger.kernel.org>; Thu, 31 Jan 2019 07:06:55 -0800 (PST)
+        with ESMTP id S1726060AbfAaPHA (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Jan 2019 10:07:00 -0500
+Received: by mail-lf1-f65.google.com with SMTP id u188so613937lff.4
+        for <linux-rtc@vger.kernel.org>; Thu, 31 Jan 2019 07:06:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ELV9R5dzc3QWtNGPdgByoUd6LbKlFXrTe/vKF1qU9OQ=;
-        b=AKQ8oBPmhgIpq3dBUD6Xt97i8W2/wViNspm26Q4AwncBxrN9qe1vD5syQ22iDuJDla
-         LRP+JmeWXd0jFA4Hav1lUtUJckOcudqqoiXmSzDgURxJctMyRHkDsAHagIB7ssWuvnvY
-         fSfEFuoDKtw9GfnCY4jJaz6qAjuvjhOENsFpk=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=OrBYAdDHoe9pzzUUjlJ27M7UFbgZmNW8eTvGMtTwssA=;
+        b=jPUEQFSSWCdUIb3jNmCnU2XAhiF0b54Qq1yGngEyw8Si/kKnkF5dkjCRbcuyVZgzLz
+         AdVVuPm5aBSjrVruJe7sm4Y4h0kFDUJAWXjaZSA64ZYfn7HUvNyibuPqdjcinGVpaQkL
+         ZZHtxoiJCEuTq0pkzkWRX7XbB8dDOrh7jNINA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ELV9R5dzc3QWtNGPdgByoUd6LbKlFXrTe/vKF1qU9OQ=;
-        b=lnz4OlejZCtNd2Iyt7cc9UMmzPScmL6Hd7f0fpLymqhKDUB44xTq77UpAFsLtY07Ur
-         kQ8HNIHq98vxdZ/gQLhJ63RVXv3JgeYEhvXjvQkWs5HHInv8R01RXEEowKKjl/DDhuI5
-         YRoAafsOQE3QuQjHrORKmPCMVcFf1Xv+yXEmhq/EmcJlHDxFCmORSPrL7/m8gd7+lPXt
-         qrgxYuSUVSDcmBOymyov7175ybQDcw/Dd+QmTWb5uuF3kloj9Q4uXE8fI76wHY2u4131
-         MMiKigklj5f9JwXYdHONFVWh8UVa13bJ760fF1a0y0enWj84TmpZ1XmODoD8k0D7tqBF
-         xfYg==
-X-Gm-Message-State: AHQUAub1ca+fhYH4QoRMLz4TMhJTh41UMaetV1oZNtg/bSVebP9KnpyF
-        NmTrHa1kjBGzufxF0CUTs1aTFA==
-X-Google-Smtp-Source: AHgI3Iam47J0S5a3qZy64sau7geNltPsY+Q7UeEMj8Vcwi4gYqBtXIVlI2uy5zrtVIewahHrOkbydQ==
-X-Received: by 2002:ac2:5382:: with SMTP id g2mr4104382lfh.159.1548947214197;
-        Thu, 31 Jan 2019 07:06:54 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=OrBYAdDHoe9pzzUUjlJ27M7UFbgZmNW8eTvGMtTwssA=;
+        b=LbSaiJogWi5iRx0vtr1k2vvsPmnToCJ97+OtzcvLHp6t1X8mOUrrRQwv2sbG/mvvYB
+         GeO+zan56XyAFJJ+zRi3BarT8Hmkd8/8OI4yqJoDmlVoQ2vaxZQ8964t/PrZ4h6XuGIY
+         YcSKEWBRVpE2ZNHsUlRz/GK+oCku6appJVwaGgey9M8ylKy4kg23AZO7yxVBiFimIA0U
+         5gZ0ffE6sKMKoZHFp+mKs5YXR2d+a0QF37BuQv2MiNZ4+mCwvTHtRaqzkwOkWO2BE2QJ
+         pnRATnyWOpqWwTk+H4BWDqVoAm8l4HDmVsuVjvMKmRuiae4nj5JapaCWG6D2nC8vzwa5
+         /7Ug==
+X-Gm-Message-State: AJcUukfOwZmtkfEVj3964YwnbgLqJ1hVBWMRio/INUSA18+yo8OvN0Nm
+        KUQRmNrEYGpWcxoMkmvTSMJWcQ==
+X-Google-Smtp-Source: ALg8bN4h9MInQxCBCn8lAq/hUl8AZBxjwfxKvNxAZKJBapeEgyYPJr7WLI65/n7uLllX60lhG66LTg==
+X-Received: by 2002:a19:d242:: with SMTP id j63mr28971072lfg.26.1548947217739;
+        Thu, 31 Jan 2019 07:06:57 -0800 (PST)
 Received: from linux.local (c-ae7b71d5.014-348-6c756e10.bbcust.telenor.se. [213.113.123.174])
-        by smtp.gmail.com with ESMTPSA id t22sm936508lfb.0.2019.01.31.07.06.52
+        by smtp.gmail.com with ESMTPSA id t22sm936508lfb.0.2019.01.31.07.06.56
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 31 Jan 2019 07:06:52 -0800 (PST)
+        Thu, 31 Jan 2019 07:06:56 -0800 (PST)
 From:   Linus Walleij <linus.walleij@linaro.org>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH 1/2] rtx: x1205: Add DT bindings
-Date:   Thu, 31 Jan 2019 16:06:41 +0100
-Message-Id: <20190131150642.26289-1-linus.walleij@linaro.org>
+Cc:     linux-rtc@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 2/2] rtc: x1205: Add DT probing support
+Date:   Thu, 31 Jan 2019 16:06:42 +0100
+Message-Id: <20190131150642.26289-2-linus.walleij@linaro.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190131150642.26289-1-linus.walleij@linaro.org>
+References: <20190131150642.26289-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -68,34 +68,35 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This adds device tree bindings for the Xircom X1205 RTC found
-in the Linksys NSLU2.
+This makes it possible to probe the X1205 RTC from the
+device tree. This is needed when adding device tree boot
+support for the IXP4xx-based NSLU2 which has this RTC.
 
-Cc: devicetree@vger.kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- .../devicetree/bindings/rtc/xircom,x1205.txt         | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/xircom,x1205.txt
+ drivers/rtc/rtc-x1205.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/xircom,x1205.txt b/Documentation/devicetree/bindings/rtc/xircom,x1205.txt
-new file mode 100644
-index 000000000000..3e3102a32728
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/xircom,x1205.txt
-@@ -0,0 +1,12 @@
-+* Xircom X1205 I2C RTC
-+
-+Required properties:
-+- compatible: Should be "xircom,x1205"
-+- reg: I2C address
-+
-+Example:
-+
-+rtc@6f {
-+	compatible = "xicor,x1205";
-+	reg = <0x6f>;
+diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
+index f08f18e4fcdf..c2b64c9363da 100644
+--- a/drivers/rtc/rtc-x1205.c
++++ b/drivers/rtc/rtc-x1205.c
+@@ -673,9 +673,15 @@ static const struct i2c_device_id x1205_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, x1205_id);
+ 
++static const struct of_device_id x1205_dt_ids[] = {
++	{ .compatible = "xircom,x1205", },
 +};
++MODULE_DEVICE_TABLE(of, x1205_dt_ids);
++
+ static struct i2c_driver x1205_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-x1205",
++		.of_match_table = x1205_dt_ids,
+ 	},
+ 	.probe		= x1205_probe,
+ 	.remove		= x1205_remove,
 -- 
 2.20.1
 
