@@ -2,86 +2,99 @@ Return-Path: <SRS0=M17z=QH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFE22C169C4
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:30:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81C19C282DA
+	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 21:09:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B81342085B
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 15:30:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F510218AC
+	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 21:09:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1548968971;
+	bh=GzsjJG3Us8wxzLmCdLryEZZCm17bjKCIQn905dcb9PY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=JzkVS9EfVL2uV5Y7djwDv0tm4UKXlEnloRe08296h8XXFzYAI5JklvylS53Jz4UY0
+	 s+zpupgczUIxk09Ih1cLJhoRXicpzZ7TXbsrczAR6n5h2q30ikj6L5LAXVTD4NfS/r
+	 du+bbcAy+OYyOR2IAXYQ290xvgqTGhiPzYMn/VgQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbfAaPaU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 31 Jan 2019 10:30:20 -0500
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:48495 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbfAaPaU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Jan 2019 10:30:20 -0500
-X-Originating-IP: 109.213.13.254
-Received: from localhost (alyon-652-1-30-254.w109-213.abo.wanadoo.fr [109.213.13.254])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 17778E0002;
-        Thu, 31 Jan 2019 15:30:15 +0000 (UTC)
-Date:   Thu, 31 Jan 2019 16:30:12 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc: x1205: Add DT probing support
-Message-ID: <20190131153012.GA15115@piout.net>
-References: <20190131150642.26289-1-linus.walleij@linaro.org>
- <20190131150642.26289-2-linus.walleij@linaro.org>
+        id S1729216AbfAaVJZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 31 Jan 2019 16:09:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726880AbfAaVJZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 31 Jan 2019 16:09:25 -0500
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 272A1218AF;
+        Thu, 31 Jan 2019 21:09:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1548968964;
+        bh=GzsjJG3Us8wxzLmCdLryEZZCm17bjKCIQn905dcb9PY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=giDBVy/hs5D6eicAzqRmWqyeLWGrErakKcL4TotxJB3788tXTJ2+XMuJ3Yr7ekFUY
+         ZPea6SEnaCNUgyRHeYy7BcVa60qNkYFBF6LmA+yCSHXJ7K12nfReYyHm1j1UyFCWFL
+         dt+2KwPRAjIeDdpve0M3UNC27vBcn82B1KugrpJA=
+Received: by mail-qt1-f173.google.com with SMTP id k12so5127722qtf.7;
+        Thu, 31 Jan 2019 13:09:24 -0800 (PST)
+X-Gm-Message-State: AJcUukccMcq+n4ppqh5YBnKonFMFVZrCuY3QoO7TfM3KvLC/NB9F14j2
+        Ck40AX2K4UgC6LkPsjn02+MtBEQEnF0dO0A9Ew==
+X-Google-Smtp-Source: ALg8bN6DWHHa3I0PzEntbrwDH0d7qeQ2qnJHOM8ChZHiEMjRe3lKkiUgCxYFAk0k27BS33j5IHhIX+tyxN+9KleKkQ4=
+X-Received: by 2002:a0c:9e05:: with SMTP id p5mr33687286qve.246.1548968963338;
+ Thu, 31 Jan 2019 13:09:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190131150642.26289-2-linus.walleij@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <cover.1548935790.git.matti.vaittinen@fi.rohmeurope.com> <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Thu, 31 Jan 2019 15:09:12 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJVpVto59MQ7jwgCe2Ohem4EomqqNaUg17F1ahz_DjBNQ@mail.gmail.com>
+Message-ID: <CAL_JsqJVpVto59MQ7jwgCe2Ohem4EomqqNaUg17F1ahz_DjBNQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 06/10] devicetree: bindings: Document first ROHM
+ BD70528 bindings
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:THERMAL" <linux-pm@vger.kernel.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Linus,
-
-On 31/01/2019 16:06:42+0100, Linus Walleij wrote:
-> This makes it possible to probe the X1205 RTC from the
-> device tree. This is needed when adding device tree boot
-> support for the IXP4xx-based NSLU2 which has this RTC.
-> 
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+On Thu, Jan 31, 2019 at 6:05 AM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
+>
+> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> drivers) and 4 GPIO pins which can be configured for I/O or
+> as interrupt sources withe configurable trigger levels.
+>
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 > ---
->  drivers/rtc/rtc-x1205.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
-> index f08f18e4fcdf..c2b64c9363da 100644
-> --- a/drivers/rtc/rtc-x1205.c
-> +++ b/drivers/rtc/rtc-x1205.c
-> @@ -673,9 +673,15 @@ static const struct i2c_device_id x1205_id[] = {
->  };
->  MODULE_DEVICE_TABLE(i2c, x1205_id);
->  
-> +static const struct of_device_id x1205_dt_ids[] = {
-> +	{ .compatible = "xircom,x1205", },
-> +};
-> +MODULE_DEVICE_TABLE(of, x1205_dt_ids);
-> +
+>  .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 102 +++++++++++++++++++++
+>  1 file changed, 102 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
 
-I think this is not necessary and this will probe without the
-of_match_table but it doesn't hurt either.
-
->  static struct i2c_driver x1205_driver = {
->  	.driver		= {
->  		.name	= "rtc-x1205",
-> +		.of_match_table = x1205_dt_ids,
->  	},
->  	.probe		= x1205_probe,
->  	.remove		= x1205_remove,
-> -- 
-> 2.20.1
-> 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Reviewed-by: Rob Herring <robh@kernel.org>
