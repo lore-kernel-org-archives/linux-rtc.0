@@ -1,100 +1,124 @@
-Return-Path: <SRS0=M17z=QH=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=fWeB=QI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81C19C282DA
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 21:09:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76637C282D8
+	for <linux-rtc@archiver.kernel.org>; Fri,  1 Feb 2019 12:23:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F510218AC
-	for <linux-rtc@archiver.kernel.org>; Thu, 31 Jan 2019 21:09:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548968971;
-	bh=GzsjJG3Us8wxzLmCdLryEZZCm17bjKCIQn905dcb9PY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=JzkVS9EfVL2uV5Y7djwDv0tm4UKXlEnloRe08296h8XXFzYAI5JklvylS53Jz4UY0
-	 s+zpupgczUIxk09Ih1cLJhoRXicpzZ7TXbsrczAR6n5h2q30ikj6L5LAXVTD4NfS/r
-	 du+bbcAy+OYyOR2IAXYQ290xvgqTGhiPzYMn/VgQ=
+	by mail.kernel.org (Postfix) with ESMTP id 2BEDD218F0
+	for <linux-rtc@archiver.kernel.org>; Fri,  1 Feb 2019 12:23:12 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="ACVTDDaO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfAaVJZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 31 Jan 2019 16:09:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726880AbfAaVJZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 31 Jan 2019 16:09:25 -0500
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 272A1218AF;
-        Thu, 31 Jan 2019 21:09:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1548968964;
-        bh=GzsjJG3Us8wxzLmCdLryEZZCm17bjKCIQn905dcb9PY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=giDBVy/hs5D6eicAzqRmWqyeLWGrErakKcL4TotxJB3788tXTJ2+XMuJ3Yr7ekFUY
-         ZPea6SEnaCNUgyRHeYy7BcVa60qNkYFBF6LmA+yCSHXJ7K12nfReYyHm1j1UyFCWFL
-         dt+2KwPRAjIeDdpve0M3UNC27vBcn82B1KugrpJA=
-Received: by mail-qt1-f173.google.com with SMTP id k12so5127722qtf.7;
-        Thu, 31 Jan 2019 13:09:24 -0800 (PST)
-X-Gm-Message-State: AJcUukccMcq+n4ppqh5YBnKonFMFVZrCuY3QoO7TfM3KvLC/NB9F14j2
-        Ck40AX2K4UgC6LkPsjn02+MtBEQEnF0dO0A9Ew==
-X-Google-Smtp-Source: ALg8bN6DWHHa3I0PzEntbrwDH0d7qeQ2qnJHOM8ChZHiEMjRe3lKkiUgCxYFAk0k27BS33j5IHhIX+tyxN+9KleKkQ4=
-X-Received: by 2002:a0c:9e05:: with SMTP id p5mr33687286qve.246.1548968963338;
- Thu, 31 Jan 2019 13:09:23 -0800 (PST)
+        id S1726618AbfBAMXM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 1 Feb 2019 07:23:12 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:40959 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726621AbfBAMXL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 1 Feb 2019 07:23:11 -0500
+Received: by mail-lf1-f65.google.com with SMTP id v5so4900491lfe.7
+        for <linux-rtc@vger.kernel.org>; Fri, 01 Feb 2019 04:23:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+O+qgXvEEWxsKX/e4PNl7wBRh6fKqx1G/yRp4dSHzwM=;
+        b=ACVTDDaOzLFtQ9EiKV6MhwTb2W0ib4FvjRrsgrM/KrcWYU506pT2gGMzu0LSDZd+Mn
+         YF7ihkmuE6a6bB7CxZeAxfJqZyaRFLho9cgaT0QiVif3TY2rGudwxs8z1h1LfkHzht4E
+         LdG4aqvqhVNy5ijeuA97ufpvH6pWdUYGAhyPU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+O+qgXvEEWxsKX/e4PNl7wBRh6fKqx1G/yRp4dSHzwM=;
+        b=cgzA2hde2xzu7VW/kbRFevWAVLx44E9SiMWOMG3XzFAlGsKUxGgNDt/5nB0GVZZxJa
+         BZz/WBgVCWb48T34fxlYA2f5/A3JPR+uyz+sO+XlnFkPrdxutKmX8rD7oLRZKDZm6wUc
+         bIIWpD38XIJWf0CEx60TCSX9jPMi1aOun/8OT4ahGO5HW1LdsGksdNkPo0uN4N//XiSN
+         UpmhmYsXXPRixjuVQzRKniECzK4LLi37WkaJMO+65hzxTztjXyOwFRkHYIlmPGiNUwlb
+         UBd6Gy46UR1+CPzHKEUAOGga42uAOEcFxnHWxHxMyk3p81sSM5ROqA3eJM0ufU3tDV7R
+         l1FQ==
+X-Gm-Message-State: AJcUukfc0yMWke5l6LVpf18r7WY6ZM0f9ZipQM/KzG97gGps3EHjrb4M
+        HzJC35gmajcit/mis0C2RkWQ3yqDhAuJvo+WEzSWq0Rt
+X-Google-Smtp-Source: ALg8bN5ppFCM0K/d3EVuoTSZBn/+DSbiIiSrZ32LMlsde+1e9qQpkLgnGPzi3CTNCNCJCoKYMh53xxSZrPmtB9F+Gho=
+X-Received: by 2002:a19:8096:: with SMTP id b144mr29679262lfd.8.1549023789552;
+ Fri, 01 Feb 2019 04:23:09 -0800 (PST)
 MIME-Version: 1.0
-References: <cover.1548935790.git.matti.vaittinen@fi.rohmeurope.com> <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
-In-Reply-To: <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Thu, 31 Jan 2019 15:09:12 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJVpVto59MQ7jwgCe2Ohem4EomqqNaUg17F1ahz_DjBNQ@mail.gmail.com>
-Message-ID: <CAL_JsqJVpVto59MQ7jwgCe2Ohem4EomqqNaUg17F1ahz_DjBNQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 06/10] devicetree: bindings: Document first ROHM
- BD70528 bindings
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "open list:THERMAL" <linux-pm@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+References: <20190131150642.26289-1-linus.walleij@linaro.org>
+ <20190131150642.26289-2-linus.walleij@linaro.org> <20190131153012.GA15115@piout.net>
+In-Reply-To: <20190131153012.GA15115@piout.net>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 1 Feb 2019 13:22:57 +0100
+Message-ID: <CACRpkdZY9jnJMx=oMnmG4Kj+kUmziiJ8D3M85awnAC=jNDt50g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] rtc: x1205: Add DT probing support
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Jan 31, 2019 at 6:05 AM Matti Vaittinen
-<matti.vaittinen@fi.rohmeurope.com> wrote:
->
-> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> drivers) and 4 GPIO pins which can be configured for I/O or
-> as interrupt sources withe configurable trigger levels.
->
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
->  .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 102 +++++++++++++++++++++
->  1 file changed, 102 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+On Thu, Jan 31, 2019 at 4:30 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+> On 31/01/2019 16:06:42+0100, Linus Walleij wrote:
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+> > This makes it possible to probe the X1205 RTC from the
+> > device tree. This is needed when adding device tree boot
+> > support for the IXP4xx-based NSLU2 which has this RTC.
+> >
+> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+> >  drivers/rtc/rtc-x1205.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
+> > index f08f18e4fcdf..c2b64c9363da 100644
+> > --- a/drivers/rtc/rtc-x1205.c
+> > +++ b/drivers/rtc/rtc-x1205.c
+> > @@ -673,9 +673,15 @@ static const struct i2c_device_id x1205_id[] = {
+> >  };
+> >  MODULE_DEVICE_TABLE(i2c, x1205_id);
+> >
+> > +static const struct of_device_id x1205_dt_ids[] = {
+> > +     { .compatible = "xircom,x1205", },
+> > +};
+> > +MODULE_DEVICE_TABLE(of, x1205_dt_ids);
+> > +
+>
+> I think this is not necessary and this will probe without the
+> of_match_table but it doesn't hurt either.
+
+In the earlier implementations of device tree it was done
+such that the device node would match the i2c name and
+then the device would probe, such that if I in my device
+tree name it:
+
+x1205@6f {
+    reg = <>;
+};
+
+Then the core will see match that node name to the i2c
+device name. (I think this goes way back, possibly to the
+earliest Open Firmware.)
+
+However the DT maintainers have more and more pushed
+for DT nodes to have functional name, so this would then
+be named:
+
+rtc@6f {
+    reg = <>;
+};
+
+And then it stops working.
+
+I think Lee Jones added the compatible probing to a bunch
+of I2C devices for this reason.
+
+Yours,
+Linus Walleij
