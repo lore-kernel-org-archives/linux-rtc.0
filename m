@@ -1,65 +1,76 @@
-Return-Path: <SRS0=fWeB=QI=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=roqJ=QK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 255B9C282D8
-	for <linux-rtc@archiver.kernel.org>; Fri,  1 Feb 2019 21:29:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 293E1C282D7
+	for <linux-rtc@archiver.kernel.org>; Sun,  3 Feb 2019 00:47:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E608120869
-	for <linux-rtc@archiver.kernel.org>; Fri,  1 Feb 2019 21:29:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E001820856
+	for <linux-rtc@archiver.kernel.org>; Sun,  3 Feb 2019 00:47:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="RKT0O4T9"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jck2l/Up"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726116AbfBAV3j (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 1 Feb 2019 16:29:39 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:38631 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725797AbfBAV3j (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 1 Feb 2019 16:29:39 -0500
-Received: by mail-lf1-f68.google.com with SMTP id a8so6140965lfk.5
-        for <linux-rtc@vger.kernel.org>; Fri, 01 Feb 2019 13:29:36 -0800 (PST)
+        id S1727101AbfBCAg6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 2 Feb 2019 19:36:58 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:40834 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726746AbfBCAg6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 2 Feb 2019 19:36:58 -0500
+Received: by mail-lf1-f67.google.com with SMTP id v5so7749202lfe.7;
+        Sat, 02 Feb 2019 16:36:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FtDWYmsxT4kwUM3LS8H9BUoDfHtJKV77JwRZlR/rdyw=;
-        b=RKT0O4T9lxQfrQ2pHjyHWYXcuzrobtfomIiYylJxbg0aYqV7BNbSbeRGF5xkye/YI9
-         G+I2rpdEDs9F0tcevmcH/In0WsJTht3VAHdETAF6Rkd6XL5/6tDJokRxnAI0Ir/6mEMC
-         AEDw9bsLU+fjYDK4MXoIwWED1h4ZwOwtWMAVQ=
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=0u0X+GYIZOXZ1SluuXNLGs3oL3brnqBksi+JHca++8g=;
+        b=Jck2l/UpZhr2EQEYsK7kuf3qWE9Wln0a/UNHXEdt0gJMTEe6AYm/1a7yzAYAwfiXht
+         4wV7YpMpCFYeW+eSLrweFzNjdmdZc2UXeS9HvhfhsAxX9tXkipP3i0cwgyRGh0VyfTbV
+         +XIjzx+BPgvTF40ZP7isnn6Fz+Oj+rWSCEGtXJ8XoPbDXtGpxabx/Z4UfKBfwWNm3ONL
+         OkhYSHAFIxHhj3YRxDf3dO/lYCyW7oYW+5jLKYrejakDsnjiTS31L5AnyFMh9KE4OCbR
+         15HvkqydMxAaepQxgXzTvF7JH/NtFGqsGKLn/mqgAmyj3HXhXpoSVhNhCqcP1s5pkEAM
+         j+3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FtDWYmsxT4kwUM3LS8H9BUoDfHtJKV77JwRZlR/rdyw=;
-        b=oeuK/dxDxovRx43PHYXKyEXnnpMcaL+7D8s0wumwvNMZw0GAhJLZE9djHz4SJ9dB97
-         VbgkC0NAwy4pasimfrCe6ONRDfzOFwI3CnzbPbzZiyIvcmHCnpePKMV32Q+bcVCq8FTS
-         OeHOFR15aTpd9WjeWlqywtisuPjEKvGo92d+eeG6EoxwoKntjBj4baWGvTKks1dNg2PO
-         XbNhE2ruaPhSboRN2laVhUEZLbF2+mG0x5Ny5RxATXOFIsQFGDSKP2O3Kz/ytdLPR5O1
-         OuWxo/KFnp5rvBpHeFqq0ZL6lt6Px8nrwF3sgsT/+4RS3cgIeK5rd69appIHIW7Hd0t3
-         zkBg==
-X-Gm-Message-State: AHQUAuaDrxLFQlisRNowp2yrhG1UkJxUXuZAmCE/N4dG6+dp0fXphyw5
-        sFN8W4zezBhnAZQ7BiTEYsdsFV7k+LUxD+8lrqG74w==
-X-Google-Smtp-Source: AHgI3IaY8T/kle5a7njLZ5A9F/irSnc6QzAL+Jahhx5CFMw9sj/6nPyN61nSCOdlEgaVjEjBrZfZcijd83BBatqV+ME=
-X-Received: by 2002:ac2:4343:: with SMTP id o3mr880002lfl.129.1549056575988;
- Fri, 01 Feb 2019 13:29:35 -0800 (PST)
-MIME-Version: 1.0
-References: <20190131150642.26289-1-linus.walleij@linaro.org>
- <20190131150642.26289-2-linus.walleij@linaro.org> <20190131153012.GA15115@piout.net>
- <CACRpkdZY9jnJMx=oMnmG4Kj+kUmziiJ8D3M85awnAC=jNDt50g@mail.gmail.com> <20190201141306.GA3289@piout.net>
-In-Reply-To: <20190201141306.GA3289@piout.net>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 1 Feb 2019 22:29:23 +0100
-Message-ID: <CACRpkdac8KUifhyvEqBMea974sM4kRmC8g_PJ-Z2zKkPsPTtEA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] rtc: x1205: Add DT probing support
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0u0X+GYIZOXZ1SluuXNLGs3oL3brnqBksi+JHca++8g=;
+        b=A5j17dgXqjGaxvzTWUC0MMAhfDsd9bFzKd2OCvUjXWVoyccdW7sxLcTmMU6Ht4AhVj
+         Iqe5DMqWEsFMM+bTi974Kl1V+unY2nvYuDrpjhI5P24xAY/DqCYf4Ex70v8zMKpz/5SH
+         tYNe+nm3nuKt7zIR9rWfUPjeEEsDGv/SfMQI7AkLIrLWD6E+f/UMIp6Y3OeT6yaqfIUE
+         2ieQMzE4X82351xfEQOYKDCCLcvKWZI4BFrUdMFm23KeIE4S5ZqmIon2VXPU9e2OKdQE
+         To6W4VHqy35uasWr2ZHWgJv7nssymg901eWqw7TPzCKMUKlBRS/XZKFC7zIliWCXkhsK
+         7JiQ==
+X-Gm-Message-State: AJcUukckIA87a+toCfcchSvEvkL4mcCc6zjCaNJJNwCrD3S17KWGojFE
+        ZHDuPsuBNrouw+JrrRdGTOLuecjzseyMaiM5
+X-Google-Smtp-Source: ALg8bN4RPpfY4xXSpGZhUFz8aiFinKkE9zf9m2WxOSTTSAffh0zXZxEB1TJLGu1pykVXToEQnVUfPw==
+X-Received: by 2002:a19:200b:: with SMTP id g11mr34252025lfg.58.1549154215778;
+        Sat, 02 Feb 2019 16:36:55 -0800 (PST)
+Received: from [192.168.1.36] ([31.134.130.226])
+        by smtp.gmail.com with ESMTPSA id y131sm2159145lfc.43.2019.02.02.16.36.54
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 02 Feb 2019 16:36:55 -0800 (PST)
+Subject: Re: [PATCH v2 1/2] rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC support
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+References: <20190117184608.20987-1-panfilov.artyom@gmail.com>
+ <20190130214828.GK19959@piout.net>
+From:   Artem Panfilov <panfilov.artyom@gmail.com>
+Message-ID: <58b5d6e0-a1a5-59c5-3994-87852d62891e@gmail.com>
+Date:   Sun, 3 Feb 2019 03:36:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
+MIME-Version: 1.0
+In-Reply-To: <20190130214828.GK19959@piout.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -67,59 +78,12 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 Hi Alexandre,
 
-On Fri, Feb 1, 2019 at 3:13 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> On 01/02/2019 13:22:57+0100, Linus Walleij wrote:
+On 31.01.2019 0:48, Alexandre Belloni wrote:
 
-> > In the earlier implementations of device tree it was done
-> > such that the device node would match the i2c name and
-> > then the device would probe, such that if I in my device
-> > tree name it:
-> >
-> > x1205@6f {
-> >     reg = <>;
-> > };
-> >
-> > Then the core will see match that node name to the i2c
-> > device name. (I think this goes way back, possibly to the
-> > earliest Open Firmware.)
-> >
-> > However the DT maintainers have more and more pushed
-> > for DT nodes to have functional name, so this would then
-> > be named:
-> >
-> > rtc@6f {
-> >     reg = <>;
-> > };
-> >
-> > And then it stops working.
-> >
-> > I think Lee Jones added the compatible probing to a bunch
-> > of I2C devices for this reason.
-> >
->
-> Well, that is not what I was referring to.
+>> +#endif /* CONFIG_RTC_DRV_ABEOZ9_HWMON */
+> This comment is not correct
 
-Oh sorry for my ignorance, it's the only mechanism I ever
-heard of...
+Thank you for your remarks. Can I add HMON support as Kconfig build option?
 
-> You could use:
->
-> rtc@6f {
->      compatible = "xircom,x1205";
->      reg = <0x6f>;
-> };
->
-> And this would already probe without having an of_device_id table
-> because the i2c core is matching the compatibles with the i2c_device_id
-> table.
-
-Oh interesting! There is some code in i2c-core-of.c that strips the "vendor,"
-part and matches on the last part of the compatible, but it is named
-i2c_of_match_device_sysfs() so one think it only apply to devices
-added through sysfs. But indeed seems to be used for everything.
-
-That's a neat trick!
-
-Yours,
-Linus Walleij
+Regards,
+Artem
