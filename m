@@ -1,89 +1,119 @@
-Return-Path: <SRS0=roqJ=QK=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=BbLS=QL=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 293E1C282D7
-	for <linux-rtc@archiver.kernel.org>; Sun,  3 Feb 2019 00:47:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E6A4C282CC
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Feb 2019 11:26:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E001820856
-	for <linux-rtc@archiver.kernel.org>; Sun,  3 Feb 2019 00:47:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2CE1420815
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Feb 2019 11:26:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jck2l/Up"
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="OyoJQUVl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727101AbfBCAg6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 2 Feb 2019 19:36:58 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:40834 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726746AbfBCAg6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 2 Feb 2019 19:36:58 -0500
-Received: by mail-lf1-f67.google.com with SMTP id v5so7749202lfe.7;
-        Sat, 02 Feb 2019 16:36:57 -0800 (PST)
+        id S1728298AbfBDLZ5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 4 Feb 2019 06:25:57 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:37622 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728290AbfBDLZ4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Feb 2019 06:25:56 -0500
+Received: by mail-lj1-f193.google.com with SMTP id t18-v6so11248914ljd.4
+        for <linux-rtc@vger.kernel.org>; Mon, 04 Feb 2019 03:25:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0u0X+GYIZOXZ1SluuXNLGs3oL3brnqBksi+JHca++8g=;
-        b=Jck2l/UpZhr2EQEYsK7kuf3qWE9Wln0a/UNHXEdt0gJMTEe6AYm/1a7yzAYAwfiXht
-         4wV7YpMpCFYeW+eSLrweFzNjdmdZc2UXeS9HvhfhsAxX9tXkipP3i0cwgyRGh0VyfTbV
-         +XIjzx+BPgvTF40ZP7isnn6Fz+Oj+rWSCEGtXJ8XoPbDXtGpxabx/Z4UfKBfwWNm3ONL
-         OkhYSHAFIxHhj3YRxDf3dO/lYCyW7oYW+5jLKYrejakDsnjiTS31L5AnyFMh9KE4OCbR
-         15HvkqydMxAaepQxgXzTvF7JH/NtFGqsGKLn/mqgAmyj3HXhXpoSVhNhCqcP1s5pkEAM
-         j+3w==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wRYfuP7oYobYTBvy6aIr+v9XulGm0xPZTNCq3iUqj+k=;
+        b=OyoJQUVlHhFQSKp34oawUzjkkJD20j0DGfRc8AUsiwOh6L47Iq47rbho1DAC6JojOK
+         8mdMAyYBzAuUpKy5aCmpgsA/pGdfSIm2Bwhu8w0vxuDCrVE8Y6nyXLMFaGqgCVZLxapX
+         z3iL1LeErLJ6w5QXPD21yv8wYjA1U8A4zy8Y4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0u0X+GYIZOXZ1SluuXNLGs3oL3brnqBksi+JHca++8g=;
-        b=A5j17dgXqjGaxvzTWUC0MMAhfDsd9bFzKd2OCvUjXWVoyccdW7sxLcTmMU6Ht4AhVj
-         Iqe5DMqWEsFMM+bTi974Kl1V+unY2nvYuDrpjhI5P24xAY/DqCYf4Ex70v8zMKpz/5SH
-         tYNe+nm3nuKt7zIR9rWfUPjeEEsDGv/SfMQI7AkLIrLWD6E+f/UMIp6Y3OeT6yaqfIUE
-         2ieQMzE4X82351xfEQOYKDCCLcvKWZI4BFrUdMFm23KeIE4S5ZqmIon2VXPU9e2OKdQE
-         To6W4VHqy35uasWr2ZHWgJv7nssymg901eWqw7TPzCKMUKlBRS/XZKFC7zIliWCXkhsK
-         7JiQ==
-X-Gm-Message-State: AJcUukckIA87a+toCfcchSvEvkL4mcCc6zjCaNJJNwCrD3S17KWGojFE
-        ZHDuPsuBNrouw+JrrRdGTOLuecjzseyMaiM5
-X-Google-Smtp-Source: ALg8bN4RPpfY4xXSpGZhUFz8aiFinKkE9zf9m2WxOSTTSAffh0zXZxEB1TJLGu1pykVXToEQnVUfPw==
-X-Received: by 2002:a19:200b:: with SMTP id g11mr34252025lfg.58.1549154215778;
-        Sat, 02 Feb 2019 16:36:55 -0800 (PST)
-Received: from [192.168.1.36] ([31.134.130.226])
-        by smtp.gmail.com with ESMTPSA id y131sm2159145lfc.43.2019.02.02.16.36.54
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 02 Feb 2019 16:36:55 -0800 (PST)
-Subject: Re: [PATCH v2 1/2] rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC support
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-References: <20190117184608.20987-1-panfilov.artyom@gmail.com>
- <20190130214828.GK19959@piout.net>
-From:   Artem Panfilov <panfilov.artyom@gmail.com>
-Message-ID: <58b5d6e0-a1a5-59c5-3994-87852d62891e@gmail.com>
-Date:   Sun, 3 Feb 2019 03:36:54 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wRYfuP7oYobYTBvy6aIr+v9XulGm0xPZTNCq3iUqj+k=;
+        b=fA5LTZDuDTqtPNgpiulZPOzevgsdn/GvlaTPwxU9Wsg6XOdUTeriAp/nwfr/XYeD0L
+         F595kdhd1Aw1Xvteqip6NR5J2uN+z9okv+++g+TzyRpVkQlrqKNvLR7fUM5O7ZH003pf
+         HIgwexsgOY8XMPJfubcjq3oSOBXd1sMbsSjxMkjk6LSzEXSJRULfS1x65pPpa6Vxe81s
+         kbBX17KHEctb69Zcc23lHqoSUKPp3XZEzZPM8e+lAALJedy/RzoNcftxgbaUiuhHhHTU
+         NGpHgDGB9UxgdRt/EzqusRRryeSHz98yZWfyfHYMa2F4C7DeBgtk/vppVj7eUaJiMpFy
+         9jtA==
+X-Gm-Message-State: AJcUukeAoZl+cK/MFwf8rVXQZkj2Zsa1PSEyi7RPALrwwy0C+2VITOGP
+        7sDfh+34G67SKh/wbexoQR9mE6Qbr9U8IXLU4R3nog==
+X-Google-Smtp-Source: ALg8bN7nx6sXITFyoPuFfw23CVvKBGmyEoL5ZFGpk6r4uHCrK3mNJtdnoravyOf/yoASu8/EqQzyBvCsgA2Xe1ImuZE=
+X-Received: by 2002:a2e:9356:: with SMTP id m22-v6mr39242047ljh.135.1549279554049;
+ Mon, 04 Feb 2019 03:25:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20190130214828.GK19959@piout.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <cover.1548935790.git.matti.vaittinen@fi.rohmeurope.com> <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 4 Feb 2019 12:25:41 +0100
+Message-ID: <CACRpkdZOzacQ5Myb_wsHz5wUGvwQ1avhfY5gaR+3oqhNtArH-A@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 06/10] devicetree: bindings: Document first ROHM
+ BD70528 bindings
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Alexandre,
+On Thu, Jan 31, 2019 at 1:04 PM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
 
-On 31.01.2019 0:48, Alexandre Belloni wrote:
+> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> drivers) and 4 GPIO pins which can be configured for I/O or
+> as interrupt sources withe configurable trigger levels.
+>
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+(...)
+> +Required properties:
+> + - compatible          : Should be "rohm,bd70528"
+> + - reg                 : I2C slave address.
+> + - interrupts          : The interrupt line the device is connected to.
+> + - interrupt-controller        : To indicate bd70528 acts as an interrupt controller.
+> + - #interrupt-cells    : Should be 2. usage is compliant to the 2 cells
+> +                         variant of ../interrupt-controller/interrupts.txt
+> + - gpio-controller     : To indicate bd70528 acts as a gpio controller.
+> + - #gpio-cells         : Should be 2. The first cell is the pin number and
+> +                         the second cell is used to specify flags. See
+> +                         ../gpio/gpio.txt for more information.
+> + - #clock-cells                : Should be 0.
+> + - regulators:         : List of child nodes that specify the regulators.
+> +                         Please see ../regulator/rohm,bd70528-regulator.txt
 
->> +#endif /* CONFIG_RTC_DRV_ABEOZ9_HWMON */
-> This comment is not correct
+So if I understand correctly, the clocks and GPIO does not spawn any
+child nodes but are attached directly to the MFD node.
+This works!
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Thank you for your remarks. Can I add HMON support as Kconfig build option?
-
-Regards,
-Artem
+Yours,
+Linus Walleij
