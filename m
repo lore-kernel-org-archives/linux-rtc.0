@@ -3,62 +3,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0BBC282CB
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 21:59:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8CE2C282CB
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 22:10:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 435A720823
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 21:59:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BDCB02184B
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 22:10:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727347AbfBEV7y (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Feb 2019 16:59:54 -0500
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:39857 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725921AbfBEV7y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Feb 2019 16:59:54 -0500
+        id S1729956AbfBEWKx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Feb 2019 17:10:53 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:41411 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726742AbfBEWKx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Feb 2019 17:10:53 -0500
 X-Originating-IP: 86.202.150.119
 Received: from localhost (lfbn-lyo-1-59-119.w86-202.abo.wanadoo.fr [86.202.150.119])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 636C0240004;
-        Tue,  5 Feb 2019 21:59:48 +0000 (UTC)
-Date:   Tue, 5 Feb 2019 22:59:39 +0100
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id CD2271BF204;
+        Tue,  5 Feb 2019 22:10:48 +0000 (UTC)
+Date:   Tue, 5 Feb 2019 23:10:34 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Colin King <colin.king@canonical.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: rtc-ds1672: fix unintended sign extension
-Message-ID: <20190205215939.GJ24598@piout.net>
-References: <20190205180449.28749-1-colin.king@canonical.com>
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH] rtc: snvs: make sure clock is enabled for interrupt
+ handle
+Message-ID: <20190205221034.GK24598@piout.net>
+References: <1547190255-9388-1-git-send-email-Anson.Huang@nxp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190205180449.28749-1-colin.king@canonical.com>
+In-Reply-To: <1547190255-9388-1-git-send-email-Anson.Huang@nxp.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 05/02/2019 18:04:49+0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On 11/01/2019 07:09:02+0000, Anson Huang wrote:
+> During system suspend, the SNVS RTC's clock will be disabled in
+> noirq suspend phase, but SNVS RTC's alarm interrupt could still
+> arrive, system will hang if SNVS RTC driver tries to access register
+> without clock enabled, this patch fixes the issue of this scenario.
 > 
-> Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-> the top bit of the u8 is set then the following conversion to an unsigned
-> long will sign extend the value causing the upper 32 bits to be set in
-> the result.
-> 
-> Fix this by casting the u8 value to an unsigned long before the shift.
-> 
-> Detected by CoverityScan, CID#138801 ("Unintended sign extension")
-> 
-> Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 > ---
->  drivers/rtc/rtc-ds1672.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
+>  drivers/rtc/rtc-snvs.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 Applied, thanks.
 
 -- 
