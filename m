@@ -2,347 +2,197 @@ Return-Path: <SRS0=fZ1A=QM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35DC2C282CC
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 15:14:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAD60C282CB
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 17:42:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E594A20811
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 15:14:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D5942081B
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Feb 2019 17:42:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C6bXHjCT"
+	dkim=pass (1024-bit key) header.d=impinj.com header.i=@impinj.com header.b="pLs2kCUY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbfBEPOX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Feb 2019 10:14:23 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:43645 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729499AbfBEPOX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Feb 2019 10:14:23 -0500
-Received: by mail-pl1-f196.google.com with SMTP id gn14so1602207plb.10;
-        Tue, 05 Feb 2019 07:14:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=EnNbfDymy3z49X8lufa7TsEcH7z15yYEcuta2uFe46I=;
-        b=C6bXHjCTw0mW4OTZXvQYC9dCWfqZJIOoCBq0eGwXHUfDoEsJHgzipA/Ll+cXDP6Qaq
-         WmLe/5W1zvVLbPupqeeZpHhfjtarx6TeHcg3Ro9jDiQ0EWY/3y4w+5TY7f+87DgITI+g
-         HjoOxGfdcwVTLu9Ff5KeFuvBD2HX6aGNinOnRxWl0qbJ4lUHkwe6uqnNpSFyVH2jSEXs
-         guw5iYtblWpIwUOP9JXk40i05jo5UzsQ5rAPG09VoQOfV/AVY0nESViyJ7U1BELgWzRz
-         aCt/NUYGBli6+XioLb0wZABd4xof2r1L83kdKwbRkZjp3Tbc2OtnxVIOafzQrAzbtfQK
-         YrRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=EnNbfDymy3z49X8lufa7TsEcH7z15yYEcuta2uFe46I=;
-        b=e1ukShUllICydIv6EJ8lcWtFzZ0s4l+v07MqDaob0P6aeEeFmYtRkZHDVZcKyFwhgV
-         x2L7GbVAArydD7O7+gO/RShiAKJ18UxDOuLS6WuTocXdIS1rsujgfA97rM8PXa5427Xa
-         fZVLCyAcdTO+L5PGucsy3c8xTSxLDuFRLIv97bmJ3Qtt+qNpwi7T4hAoZyFealm0A4Lh
-         w2iRf1yBtJOiJmTRIEGQwl4rAD3RzB1fxTkXJiSVYD/zhuJ3+F6HmfIGhBfvtjv5j0n5
-         mQ/zf5WVHf5wiXlsJjucPz7fKlw2uaQYPjPx5KB8eNa8vZ3rDRnnHTZjXyOREouxB2sY
-         yazw==
-X-Gm-Message-State: AHQUAuZTgGX1cLujLftpriSLwXmGtaA4W0jtU6P1t3uSRy24BKJZDuB2
-        QMYYCUbjokHrqOOKG8hEnaAtXWK4
-X-Google-Smtp-Source: AHgI3IbreHVdbRreR172zi9cUYL28hP7o00JN5QkpYozArGAJV2A/8U+IAeCpSTz6IW5yGG+93XQdA==
-X-Received: by 2002:a17:902:1122:: with SMTP id d31mr5600439pla.246.1549379662094;
-        Tue, 05 Feb 2019 07:14:22 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r6sm4828547pgk.91.2019.02.05.07.14.19
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 05 Feb 2019 07:14:21 -0800 (PST)
-Subject: Re: [PATCH v6 10/10] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        mazziesaccount@gmail.com
-Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-References: <cover.1549356505.git.matti.vaittinen@fi.rohmeurope.com>
- <a0079e8a89a770933062c14cab82d24c1370266e.1549356505.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <58a0eafc-96d5-7f9e-dbe9-efcd66f06d51@roeck-us.net>
-Date:   Tue, 5 Feb 2019 07:14:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
-MIME-Version: 1.0
-In-Reply-To: <a0079e8a89a770933062c14cab82d24c1370266e.1549356505.git.matti.vaittinen@fi.rohmeurope.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S1726334AbfBERmb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Feb 2019 12:42:31 -0500
+Received: from mail-eopbgr800091.outbound.protection.outlook.com ([40.107.80.91]:12256
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726534AbfBERmb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Feb 2019 12:42:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=impinj.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h76c0DmBwrkp7romsuIdcUix/os8fxowkY8U46NmxBI=;
+ b=pLs2kCUYXeL2fTzqdfFFmK3Tv4z7ZqrPyvUS8vlHU0i8QASjxOYai2LLe6gng56p9i7YcApvzgLxoQrIPcT708EucCEyafD+ytalvJYOgfYRelUoPBTQjLjgE4uGR+JDpQgJe/ul7jVt2+G1sYs8541lCFous2Va1GpicR7nlHY=
+Received: from CY4PR0601MB3697.namprd06.prod.outlook.com (52.132.101.36) by
+ CY4PR0601MB3697.namprd06.prod.outlook.com (52.132.101.36) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1580.17; Tue, 5 Feb 2019 17:41:49 +0000
+Received: from CY4PR0601MB3697.namprd06.prod.outlook.com
+ ([fe80::680a:27a3:4516:979c]) by CY4PR0601MB3697.namprd06.prod.outlook.com
+ ([fe80::680a:27a3:4516:979c%5]) with mapi id 15.20.1580.019; Tue, 5 Feb 2019
+ 17:41:49 +0000
+From:   Trent Piepho <tpiepho@impinj.com>
+To:     "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC:     Trent Piepho <tpiepho@impinj.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v2] rtc: isl1208: Add new style nvmem support to driver
+Thread-Topic: [PATCH v2] rtc: isl1208: Add new style nvmem support to driver
+Thread-Index: AQHUvXoSc2gMK4brREeC0pysUPdidw==
+Date:   Tue, 5 Feb 2019 17:41:49 +0000
+Message-ID: <20190205174139.1383-1-tpiepho@impinj.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR03CA0007.namprd03.prod.outlook.com
+ (2603:10b6:a02:a8::20) To CY4PR0601MB3697.namprd06.prod.outlook.com
+ (2603:10b6:910:91::36)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=tpiepho@impinj.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: git-send-email 2.14.4
+x-originating-ip: [216.207.205.253]
+x-ms-publictraffictype: Email
+x-microsoft-exchange-diagnostics: 1;CY4PR0601MB3697;6:2iZgETca1gqOt+mjimtCyFWB03BgK0Je0SzrypBbdqTlqYxWbHUaGHqJf+lnt/YhHTkaRZ7hbWZinbQyJaZj/auReKRrAoFNcVaFjhcjlSIx1OKTb3HD6bw4mhWFPpYUEFGpkdJqp/sueIznnZ9ubkmy21xvmih/N5pYWB1whJC4euAA6WqTCdwVZdONg2twnj0bwmbZT7ucxlEC7Al2b2TCV1+2R39dk0CFtLXPdBcu/c1xesRGO9EUCBFuWWb/Bj+ls5JkCeSyE9ba7NE58K2PbDQ5cP1Kz6uoRkBxb86mq+Rj3NucqVU0D+LT0947gsrEXItLOPOf8iXX0aq1e1TRqwLeLDvgQrCzSxRbFshnBdn+vBA4Tr5GteK7swls0HgBWciLzUN91gjboZ/dGkznrKa2RDbEpsaNePUs8f4FpZ6snXd4DQhHPFpcKhZ+8ekOS+oHz6L1wz7ZCw+4qg==;5:sXgQspWv/kbP1NuCAMowSY0HcAt/IEvnzrP48/yV+AZAPInJTZZ00iW7I4YzIzuf3vn+OtokZROQJcM2P7vijqzbQ9cwxaDpSCSv9Sswv2TJ8RDo5C1dZ5K4UVzPIIW4RwHMN1P/Nxzxp0DlZjr4x+KUkSdceI3uFXNo2DtigQnZuMt22bFxbmeu+NRnwODr0yBQEuwqye2DoEINDUXw3Q==;7:SYVUCFIJOMlCbH8x9AjW0Vhottq7C1+QcPhMFH0XaMXUBh/8ZY3Pk+1Pq095XfssvvkZJ0ubgGj22TOhLk4HY04C/3OaYl3rI0jnvVCA68Vd+3zcz8gp3A3XX0tvumaLwIt+Dc30DD87ZhEJPHdDEA==
+x-ms-office365-filtering-correlation-id: 1bf9eeef-64c9-4108-2b63-08d68b9134a9
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(2017052603328)(7153060)(7193020);SRVR:CY4PR0601MB3697;
+x-ms-traffictypediagnostic: CY4PR0601MB3697:
+x-microsoft-antispam-prvs: <CY4PR0601MB36971F08850CCCF1060B164AD36E0@CY4PR0601MB3697.namprd06.prod.outlook.com>
+x-forefront-prvs: 0939529DE2
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(136003)(376002)(366004)(396003)(39850400004)(189003)(199004)(2616005)(476003)(486006)(5640700003)(68736007)(97736004)(6512007)(52116002)(6436002)(2906002)(71190400001)(71200400001)(66066001)(6486002)(478600001)(54906003)(36756003)(1076003)(26005)(14454004)(102836004)(186003)(25786009)(86362001)(2501003)(53936002)(386003)(6506007)(8936002)(4326008)(316002)(2351001)(99286004)(14444005)(256004)(50226002)(305945005)(3846002)(6116002)(8676002)(105586002)(81166006)(106356001)(81156014)(7736002)(6916009);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR0601MB3697;H:CY4PR0601MB3697.namprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: impinj.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: E4YjBkH9fAWbkE+AVUmDJ0bC0EcWOYjKE4mamMucZQ20czLV7/BXinkc4F0Bbu0uwi8UNSC4V/Av0XQEuThJT7OSjPTuQcz1xgXJ55ljCwVY2CMhm+Zh4sl5hMJkiYJGJ3RebT/Xb72457t52P3oOD5zmTdXKPi28T56s4zOQfzZ2Htg64BPeUYlcEMHFGuVyiXaYu/VtA/2NTzzjtT1VJ1FoZgisjASidLKSabhNEudy3DL5eVgoHsUOcjSD18aGrtwRu+7p1tmy5DiV7fDr6G5ZuwGYBJ0S/o3V1U+qgobCcZlqF4MjV3bkAiljula8ULXytc8pC6VFGyJZa8dOd1ygIHttHNMgi+SgAyXJYtnlUrIHCAtcH4EuyN91ABWbqSs+QpKY0Jb5h6dVqoh9L5WB+zHrDbVeBnznQXg3dE=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: impinj.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1bf9eeef-64c9-4108-2b63-08d68b9134a9
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Feb 2019 17:41:48.6542
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-id: 6de70f0f-7357-4529-a415-d8cbb7e93e5e
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR0601MB3697
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 2/5/19 1:09 AM, Matti Vaittinen wrote:
-> Initial support for watchdog block included in ROHM BD70528
-> power management IC.
-> 
-> Configurations for low power states are still to be checked.
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> 
-> Please note that I translated following comment:
-> 
-> "Otherwise I am ok with the patch." from Guenter into an acked-by
-> above. Please let me know if that's not Ok.
+Add support for the RTC's NVRAM using the standard nvmem support that is
+part of the Linux RTC framework.
 
-That is ok.
+This driver already has a sysfs attribute that provides access to the
+RTC's NVRAM as a single 16-bit value.  Some chips have more than two
+bytes of NVRAM, so this will not work for them.  It's also non-standard.
 
-Thanks,
-Guenter
+This sysfs attribute is left in for backward compatibility, but will only
+be able to read the first two bytes of NVRAM.  The nvmem interface will
+allow access to all NVRAM, e.g. eight bytes on the isl1218.
 
-> 
->   drivers/watchdog/Kconfig       |  12 +++
->   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/bd70528_wdt.c | 190 +++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 203 insertions(+)
->   create mode 100644 drivers/watchdog/bd70528_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 57f017d74a97..f30e3a3e886e 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
->   	  watchdog. Be aware that governors might affect the watchdog because it
->   	  is purely software, e.g. the panic governor will stall it!
->   
-> +config BD70528_WATCHDOG
-> +	tristate "ROHM BD70528 PMIC Watchdog"
-> +	depends on MFD_ROHM_BD70528
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
-> +	  cause system reset.
-> +
-> +	  Say Y here to include support for the ROHM BD70528 watchdog.
-> +	  Alternatively say M to compile the driver as a module,
-> +	  which will be called bd70528_wdt.
-> +
->   config DA9052_WATCHDOG
->   	tristate "Dialog DA9052 Watchdog"
->   	depends on PMIC_DA9052 || COMPILE_TEST
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index a0917ef28e07..1ce87a3b1172 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
->   obj-$(CONFIG_XEN_WDT) += xen_wdt.o
->   
->   # Architecture Independent
-> +obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
->   obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
->   obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
->   obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-> diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
-> new file mode 100644
-> index 000000000000..cab802ddde06
-> --- /dev/null
-> +++ b/drivers/watchdog/bd70528_wdt.c
-> @@ -0,0 +1,190 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) 2018 ROHM Semiconductors
-> +// ROHM BD70528MWV watchdog driver
-> +
-> +#include <linux/bcd.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/rohm-bd70528.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/watchdog.h>
-> +
-> +/*
-> + * Max time we can set is 1 hour, 59 minutes and 59 seconds
-> + * and Minimum time is 1 second
-> + */
-> +#define WDT_MAX_MS	((2 * 60 * 60 - 1) * 1000)
-> +#define WDT_MIN_MS	1000
-> +#define DEFAULT_TIMEOUT	60
-> +
-> +struct wdtbd70528 {
-> +	struct device *dev;
-> +	struct regmap *regmap;
-> +	struct mutex *rtc_lock;
-> +	struct watchdog_device wdt;
-> +};
-> +
-> +static int bd70528_wdt_set_locked(struct wdtbd70528 *w, int enable)
-> +{
-> +	struct bd70528 *bd70528;
-> +
-> +	bd70528 = container_of(w->rtc_lock, struct bd70528, rtc_timer_lock);
-> +	return bd70528->wdt_set(bd70528, enable, NULL);
-> +}
-> +
-> +static int bd70528_wdt_set(struct wdtbd70528 *w, int enable)
-> +{
-> +	int ret;
-> +
-> +	mutex_lock(w->rtc_lock);
-> +	ret = bd70528_wdt_set_locked(w, enable);
-> +	mutex_unlock(w->rtc_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int bd70528_wdt_start(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT ping...\n");
-> +	return bd70528_wdt_set(w, 1);
-> +}
-> +
-> +static int bd70528_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT stopping...\n");
-> +	return bd70528_wdt_set(w, 0);
-> +}
-> +
-> +static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
-> +				    unsigned int timeout)
-> +{
-> +	unsigned int hours;
-> +	unsigned int minutes;
-> +	unsigned int seconds;
-> +	int ret;
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	seconds = timeout;
-> +	hours = timeout / (60 * 60);
-> +	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
-> +	if (hours)
-> +		seconds -= (60 * 60);
-> +	minutes = seconds / 60;
-> +	seconds = seconds % 60;
-> +
-> +	mutex_lock(w->rtc_lock);
-> +
-> +	ret = bd70528_wdt_set_locked(w, 0);
-> +	if (ret)
-> +		goto out_unlock;
-> +
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_HOUR,
-> +				 BD70528_MASK_WDT_HOUR, hours);
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT hours\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_MINUTE,
-> +				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT minutes\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_SEC,
-> +				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
-> +	if (ret)
-> +		dev_err(w->dev, "Failed to set WDT seconds\n");
-> +	else
-> +		dev_dbg(w->dev, "WDT tmo set to %u\n", timeout);
-> +
-> +out_en_unlock:
-> +	ret = bd70528_wdt_set_locked(w, 1);
-> +out_unlock:
-> +	mutex_unlock(w->rtc_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct watchdog_info bd70528_wdt_info = {
-> +	.identity = "bd70528-wdt",
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-> +};
-> +
-> +static const struct watchdog_ops bd70528_wdt_ops = {
-> +	.start		= bd70528_wdt_start,
-> +	.stop		= bd70528_wdt_stop,
-> +	.set_timeout	= bd70528_wdt_set_timeout,
-> +};
-> +
-> +static int bd70528_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct bd70528 *bd70528;
-> +	struct wdtbd70528 *w;
-> +	int ret;
-> +	unsigned int reg;
-> +
-> +	bd70528 = dev_get_drvdata(pdev->dev.parent);
-> +	if (!bd70528) {
-> +		dev_err(&pdev->dev, "No MFD driver data\n");
-> +		return -EINVAL;
-> +	}
-> +	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
-> +	if (!w)
-> +		return -ENOMEM;
-> +
-> +	w->regmap = bd70528->chip.regmap;
-> +	w->rtc_lock = &bd70528->rtc_timer_lock;
-> +	w->dev = &pdev->dev;
-> +
-> +	w->wdt.info = &bd70528_wdt_info;
-> +	w->wdt.ops =  &bd70528_wdt_ops;
-> +	w->wdt.min_hw_heartbeat_ms = WDT_MIN_MS;
-> +	w->wdt.max_hw_heartbeat_ms = WDT_MAX_MS;
-> +	w->wdt.parent = pdev->dev.parent;
-> +	w->wdt.timeout = DEFAULT_TIMEOUT;
-> +	watchdog_set_drvdata(&w->wdt, w);
-> +	watchdog_init_timeout(&w->wdt, 0, pdev->dev.parent);
-> +
-> +	ret = bd70528_wdt_set_timeout(&w->wdt, w->wdt.timeout);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
-> +		return ret;
-> +	}
-> +
-> +	mutex_lock(w->rtc_lock);
-> +	ret = regmap_read(w->regmap, BD70528_REG_WDT_CTRL, &reg);
-> +	mutex_unlock(w->rtc_lock);
-> +
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to get the watchdog state\n");
-> +		return ret;
-> +	}
-> +	if (reg & BD70528_MASK_WDT_EN) {
-> +		dev_dbg(&pdev->dev, "watchdog was running during probe\n");
-> +		set_bit(WDOG_HW_RUNNING, &w->wdt.status);
-> +	}
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, &w->wdt);
-> +	if (ret < 0)
-> +		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +static struct platform_driver bd70528_wdt = {
-> +	.driver = {
-> +		.name = "bd70528-wdt"
-> +	},
-> +	.probe = bd70528_wdt_probe,
-> +};
-> +
-> +module_platform_driver(bd70528_wdt);
-> +
-> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-> +MODULE_DESCRIPTION("BD70528 watchdog driver");
-> +MODULE_LICENSE("GPL");
-> 
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Trent Piepho <tpiepho@impinj.com>
+---
+
+Changes from v1:
+  Add call to register nvmem that got dropped while rebasing.
+
+ drivers/rtc/rtc-isl1208.c | 50 +++++++++++++++++++++++++++++++++++++++++++=
+++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index 77912ee58011..92c48349e359 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -114,6 +114,7 @@ MODULE_DEVICE_TABLE(of, isl1208_of_match);
+=20
+ /* Device state */
+ struct isl1208_state {
++	struct nvmem_config nvmem_config;
+ 	struct rtc_device *rtc;
+ 	const struct isl1208_config *config;
+ };
+@@ -741,6 +742,46 @@ static const struct attribute_group isl1219_rtc_sysfs_=
+files =3D {
+ 	.attrs	=3D isl1219_rtc_attrs,
+ };
+=20
++static int isl1208_nvmem_read(void *priv, unsigned int off, void *buf,
++			      size_t count)
++{
++	struct isl1208_state *isl1208 =3D priv;
++	struct i2c_client *client =3D to_i2c_client(isl1208->rtc->dev.parent);
++	int ret;
++
++	/* nvmem sanitizes offset/count for us, but count=3D=3D0 is possible */
++	if (!count)
++		return count;
++	ret =3D isl1208_i2c_read_regs(client, ISL1208_REG_USR1 + off, buf,
++				    count);
++	return ret =3D=3D 0 ? count : ret;
++}
++
++static int isl1208_nvmem_write(void *priv, unsigned int off, void *buf,
++			       size_t count)
++{
++	struct isl1208_state *isl1208 =3D priv;
++	struct i2c_client *client =3D to_i2c_client(isl1208->rtc->dev.parent);
++	int ret;
++
++	/* nvmem sanitizes off/count for us, but count=3D=3D0 is possible */
++	if (!count)
++		return count;
++	ret =3D isl1208_i2c_set_regs(client, ISL1208_REG_USR1 + off, buf,
++				   count);
++
++	return ret =3D=3D 0 ? count : ret;
++}
++
++static const struct nvmem_config isl1208_nvmem_config =3D {
++	.name =3D "isl1208_nvram",
++	.word_size =3D 1,
++	.stride =3D 1,
++	/* .size from chip specific config */
++	.reg_read =3D isl1208_nvmem_read,
++	.reg_write =3D isl1208_nvmem_write,
++};
++
+ static int isl1208_setup_irq(struct i2c_client *client, int irq)
+ {
+ 	int rc =3D devm_request_threaded_irq(&client->dev, irq, NULL,
+@@ -797,6 +838,11 @@ isl1208_probe(struct i2c_client *client, const struct =
+i2c_device_id *id)
+=20
+ 	isl1208->rtc->ops =3D &isl1208_rtc_ops;
+=20
++	/* Setup nvmem configuration in driver state struct */
++	isl1208->nvmem_config =3D isl1208_nvmem_config;
++	isl1208->nvmem_config.size =3D isl1208->config->nvmem_length;
++	isl1208->nvmem_config.priv =3D isl1208;
++
+ 	rc =3D isl1208_i2c_get_sr(client);
+ 	if (rc < 0) {
+ 		dev_err(&client->dev, "reading status failed\n");
+@@ -850,6 +896,10 @@ isl1208_probe(struct i2c_client *client, const struct =
+i2c_device_id *id)
+ 	if (rc)
+ 		return rc;
+=20
++	rc =3D rtc_nvmem_register(isl1208->rtc, &isl1208->nvmem_config);
++	if (rc)
++		return rc;
++
+ 	return rtc_register_device(isl1208->rtc);
+ }
+=20
+--=20
+2.14.4
 
