@@ -2,122 +2,78 @@ Return-Path: <SRS0=mbWS=QN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D30E7C169C4
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 09:51:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9180C169C4
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 09:58:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AFA0120B1F
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 09:51:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 905562175B
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 09:58:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbfBFJu6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Feb 2019 04:50:58 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:48415 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727103AbfBFJu6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Feb 2019 04:50:58 -0500
-Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
-        (Exim 4.76)
-        (envelope-from <colin.king@canonical.com>)
-        id 1grJr4-0008BE-1z; Wed, 06 Feb 2019 09:50:54 +0000
-From:   Colin King <colin.king@canonical.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: 88pm860x: fix unintended sign extension
-Date:   Wed,  6 Feb 2019 09:50:53 +0000
-Message-Id: <20190206095053.12894-1-colin.king@canonical.com>
-X-Mailer: git-send-email 2.20.1
+        id S1727633AbfBFJ6O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Feb 2019 04:58:14 -0500
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:49963 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726804AbfBFJ6O (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Feb 2019 04:58:14 -0500
+X-Originating-IP: 109.213.164.40
+Received: from localhost (alyon-652-1-53-40.w109-213.abo.wanadoo.fr [109.213.164.40])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 8074AC0009;
+        Wed,  6 Feb 2019 09:58:11 +0000 (UTC)
+Date:   Wed, 6 Feb 2019 10:58:10 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Oliver.Rohe@wago.com
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: rs5c372: Fix reading from rtc when the oscillator
+ got interrupted.
+Message-ID: <20190206095810.GL24598@piout.net>
+References: <1547212521-14871-1-git-send-email-oliver.rohe@wago.com>
+ <20190205215552.GH24598@piout.net>
+ <0b5372eb-a921-44e9-2bed-2f7582f64329@wago.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0b5372eb-a921-44e9-2bed-2f7582f64329@wago.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On 06/02/2019 06:33:39+0000, Oliver.Rohe@wago.com wrote:
+> >> +	switch (rs5c->type) {
+> >> +	case rtc_r2025sd:
+> >> +	case rtc_r2221tl:
+> >> +		if (ctrl2 & R2x2x_CTRL2_VDET)
+> >> +			dev_warn(&client->dev, "rtc battery voltage drop below threshold detected.\n");
+> > 
+> > VDET doesn't mean anything specific regarding timekeeping so I wouldn't warn here.
+> 
+> VDET means in case the chip is powered by a battery, that is about to die sometime soon, it gives you heads up.
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+Yes but my statement stands true, this doesn't have any direct
+implication regarding timekeeping.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
+There is the RTC_VL_READ ioctl to check voltage low. It is not weel
+designed but this is what we have now.
 
-Detected by CoverityScan, CID#144925-144928 ("Unintended sign extension")
+> > 
+> >> +		if (ctrl2 & R2x2x_CTRL2_PON)
+> >> +			dev_warn(&client->dev, "rtc battery voltage drop to zero detected.\n");
+> > 
+> > You should return -EINVAL directly here
+> 
+> The PON implies the XSTP bit, so I only return from there, just to print all the warning messages, but I can return directly from here if you want.
 
-Fixes: 008b30408c40 ("mfd: Add rtc support to 88pm860x")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/rtc/rtc-88pm860x.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+As you said, PON implies XSTP so I'm not sure it is valuable to have both
+warnings.
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 01ffc0ef8033..d25282b4a7dd 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -115,11 +115,13 @@ static int pm860x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
- 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
- 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
--	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
-+	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
-+		(buf[5] << 8) | buf[7];
- 
- 	/* load 32-bit read-only counter */
- 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -145,7 +147,8 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	/* load 32-bit read-only counter */
- 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	base = ticks - data;
- 	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -170,10 +173,12 @@ static int pm860x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
- 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
- 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
--	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
-+	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
-+		(buf[5] << 8) | buf[7];
- 
- 	pm860x_bulk_read(info->i2c, PM8607_RTC_EXPIRE1, 4, buf);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -198,11 +203,13 @@ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
- 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
- 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
--	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
-+	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
-+		(buf[5] << 8) | buf[7];
- 
- 	/* load 32-bit read-only counter */
- 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
+
 -- 
-2.20.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
