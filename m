@@ -2,41 +2,41 @@ Return-Path: <SRS0=mbWS=QN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 412A9C282C2
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D06DAC282CC
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0EAEC218B0
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F9C1218B0
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1549474260;
-	bh=HrEKY9+pMnoHMuWxSVzFwM4XrO9kfffNcP++QDX3QAE=;
+	s=default; t=1549474294;
+	bh=HGubEtjIHhsvq9MuLdRsz8HHicpY8WIhrCPqCiQFXTk=;
 	h=Cc:Subject:In-Reply-To:From:To:References:Date:List-ID:From;
-	b=fxpH0YPoG027B55nL8dzJbCS983NH3dNYIxc5TMeCqxWzfIYnkIjGLkCsCHUdizyZ
-	 WZB97NaX3sndWG7XHofkypY1VpMViy0dD7kzpBA8kFOo+Rtu8BHI89KER2HYLwfoSH
-	 Gb7Tq4qEVEw6SAgEy9Vbjj6tsjnU7uQpHcWGl5/U=
+	b=JzzGn/OHyEtj2O8cWW/XnAl2ibq+THfmgMnTkN5NuK1/3OWxxXQ2JU3783lMMsOzh
+	 4HN43Ota/3BrHAhwMYlnOML+kqlqw6NmWdu/55oNlhc22LlVWchPU0z9UwLubxhvAr
+	 zGlx48UeZy/vqyOJjxCHuqeKYm2o/JmpeovutfAk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729115AbfBFRat (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Feb 2019 12:30:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        id S1729769AbfBFRb3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Feb 2019 12:31:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726727AbfBFRat (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 6 Feb 2019 12:30:49 -0500
+        id S1726727AbfBFRb3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 6 Feb 2019 12:31:29 -0500
 Received: from localhost (unknown [104.132.0.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 626F22186A;
-        Wed,  6 Feb 2019 17:30:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D1822186A;
+        Wed,  6 Feb 2019 17:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1549474248;
-        bh=HrEKY9+pMnoHMuWxSVzFwM4XrO9kfffNcP++QDX3QAE=;
+        s=default; t=1549474288;
+        bh=HGubEtjIHhsvq9MuLdRsz8HHicpY8WIhrCPqCiQFXTk=;
         h=Cc:Subject:In-Reply-To:From:To:References:Date:From;
-        b=HtPAZC1WAH/HnyHWrRpa2Z7j/0QMcgzp05yVGQEfGlH3Ikb+adlM4IAxU5IW5RMek
-         Lvi+eZEJn1Ee5tLifnqC9YzsviiU8s8CZrbuZbTrGYCVpYyhsDtdms+S1i3ajpikk/
-         ItzDOJv2gr50ThMM82Iyf/JqMRqWQhwB0D0+aZCo=
+        b=Reyug6fd3OUcYvbvFhTk+MfA57kNbREfhXEYkoxak7jkY7uD/y+gxJyv89r3ESgHv
+         4o1btrZ7IvQ2sJuYUgAmsT4n48npD4z8a6gEuYLiSHOq1Zgo7muTg5grLEdY4OYq8a
+         rHv0njcYEvx6bM1hfQflDa7UgvHI4tmW1gu6pvfs=
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -52,26 +52,46 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v7 03/10] clk: bd718x7: use chip specific and generic data structs
-In-Reply-To: <d30e869929638cb4907e52222124df8250b0980c.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: Re: [PATCH v7 05/10] clk: bd718x7: Support ROHM BD70528 clk block
+In-Reply-To: <88c49b30bbb4b1f3ecc24d333647585e2c82f4e4.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
 From:   Stephen Boyd <sboyd@kernel.org>
-Message-ID: <154947424775.74891.14167975959188860194@swboyd.mtv.corp.google.com>
+Message-ID: <154947428734.74891.4523492147164733315@swboyd.mtv.corp.google.com>
 To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
         mazziesaccount@gmail.com
-References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com> <d30e869929638cb4907e52222124df8250b0980c.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
-Date:   Wed, 06 Feb 2019 09:30:47 -0800
+References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com> <88c49b30bbb4b1f3ecc24d333647585e2c82f4e4.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+Date:   Wed, 06 Feb 2019 09:31:27 -0800
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Quoting Matti Vaittinen (2019-02-06 01:38:54)
-> Header rohm-bd718x7.h was split to generic and component specific
-> parts. This changed the struct bd718x7. Adapt the clk driver to
-> these changes.
->=20
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
+Quoting Matti Vaittinen (2019-02-06 01:39:38)
+> @@ -86,9 +87,21 @@ static int bd71837_clk_probe(struct platform_device *p=
+dev)
+>                 dev_err(&pdev->dev, "No parent clk found\n");
+>                 return -EINVAL;
+>         }
+> -
+> -       c->reg =3D BD718XX_REG_OUT32K;
+> -       c->mask =3D BD718XX_OUT32K_EN;
+> +       switch (mfd->chip_type) {
+> +       case ROHM_CHIP_TYPE_BD71837:
+> +       case ROHM_CHIP_TYPE_BD71847:
+> +
 
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+Nitpick: why the extra newline above?
 
+> +               c->reg =3D BD718XX_REG_OUT32K;
+> +               c->mask =3D BD718XX_OUT32K_EN;
+> +               break;
+> +       case ROHM_CHIP_TYPE_BD70528:
+> +               c->reg =3D BD70528_REG_CLK_OUT;
+> +               c->mask =3D BD70528_CLK_OUT_EN_MASK;
+> +               break;
+> +       default:
+> +               dev_err(&pdev->dev, "Unknown clk chip\n");
+> +               return -EINVAL;
+> +       }
+>         c->mfd =3D mfd;
+>         c->pdev =3D pdev;
+>         c->hw.init =3D &init;
