@@ -2,85 +2,76 @@ Return-Path: <SRS0=mbWS=QN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7772C169C4
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 412A9C282C2
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E3F2B206C2
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:31:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0EAEC218B0
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1549474260;
+	bh=HrEKY9+pMnoHMuWxSVzFwM4XrO9kfffNcP++QDX3QAE=;
+	h=Cc:Subject:In-Reply-To:From:To:References:Date:List-ID:From;
+	b=fxpH0YPoG027B55nL8dzJbCS983NH3dNYIxc5TMeCqxWzfIYnkIjGLkCsCHUdizyZ
+	 WZB97NaX3sndWG7XHofkypY1VpMViy0dD7kzpBA8kFOo+Rtu8BHI89KER2HYLwfoSH
+	 Gb7Tq4qEVEw6SAgEy9Vbjj6tsjnU7uQpHcWGl5/U=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbfBFKbF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Feb 2019 05:31:05 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:49043 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726728AbfBFKbF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Feb 2019 05:31:05 -0500
-Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
-        (Exim 4.76)
-        (envelope-from <colin.king@canonical.com>)
-        id 1grKTu-0002JW-Hb; Wed, 06 Feb 2019 10:31:02 +0000
-From:   Colin King <colin.king@canonical.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: pm8xxx: fix unintended sign extension
-Date:   Wed,  6 Feb 2019 10:31:02 +0000
-Message-Id: <20190206103102.19345-1-colin.king@canonical.com>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
+        id S1729115AbfBFRat (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Feb 2019 12:30:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726727AbfBFRat (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 6 Feb 2019 12:30:49 -0500
+Received: from localhost (unknown [104.132.0.74])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 626F22186A;
+        Wed,  6 Feb 2019 17:30:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1549474248;
+        bh=HrEKY9+pMnoHMuWxSVzFwM4XrO9kfffNcP++QDX3QAE=;
+        h=Cc:Subject:In-Reply-To:From:To:References:Date:From;
+        b=HtPAZC1WAH/HnyHWrRpa2Z7j/0QMcgzp05yVGQEfGlH3Ikb+adlM4IAxU5IW5RMek
+         Lvi+eZEJn1Ee5tLifnqC9YzsviiU8s8CZrbuZbTrGYCVpYyhsDtdms+S1i3ajpikk/
+         ItzDOJv2gr50ThMM82Iyf/JqMRqWQhwB0D0+aZCo=
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+User-Agent: alot/0.8
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, linus.walleij@linaro.org,
+        bgolaszewski@baylibre.com, sre@kernel.org, lgirdwood@gmail.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        wim@linux-watchdog.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v7 03/10] clk: bd718x7: use chip specific and generic data structs
+In-Reply-To: <d30e869929638cb4907e52222124df8250b0980c.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+From:   Stephen Boyd <sboyd@kernel.org>
+Message-ID: <154947424775.74891.14167975959188860194@swboyd.mtv.corp.google.com>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        mazziesaccount@gmail.com
+References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com> <d30e869929638cb4907e52222124df8250b0980c.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+Date:   Wed, 06 Feb 2019 09:30:47 -0800
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+Quoting Matti Vaittinen (2019-02-06 01:38:54)
+> Header rohm-bd718x7.h was split to generic and component specific
+> parts. This changed the struct bd718x7. Adapt the clk driver to
+> these changes.
+>=20
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
-
-Fix this by casting the u8 value to an unsigned long before the shift.
-
-Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/rtc/rtc-pm8xxx.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 1074e3dbfc1d..cda020700744 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -213,7 +213,8 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		}
- 	}
- 
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, tm);
- 
-@@ -284,7 +285,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		return rc;
- 	}
- 
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, &alarm->time);
- 
--- 
-2.20.1
+Acked-by: Stephen Boyd <sboyd@kernel.org>
 
