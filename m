@@ -4,33 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5327C169C4
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7772C169C4
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:31:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 95BC32175B
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:08:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3F2B206C2
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Feb 2019 10:31:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbfBFKIP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Feb 2019 05:08:15 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:48640 "EHLO
+        id S1729184AbfBFKbF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Feb 2019 05:31:05 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:49043 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726598AbfBFKIP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Feb 2019 05:08:15 -0500
+        with ESMTP id S1726728AbfBFKbF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Feb 2019 05:31:05 -0500
 Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
         by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
         (Exim 4.76)
         (envelope-from <colin.king@canonical.com>)
-        id 1grK7n-0001Ag-V6; Wed, 06 Feb 2019 10:08:12 +0000
+        id 1grKTu-0002JW-Hb; Wed, 06 Feb 2019 10:31:02 +0000
 From:   Colin King <colin.king@canonical.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-rtc@vger.kernel.org
 Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: 88pm80x: fix unintended sign extension
-Date:   Wed,  6 Feb 2019 10:08:11 +0000
-Message-Id: <20190206100811.13315-1-colin.king@canonical.com>
+Subject: [PATCH] rtc: pm8xxx: fix unintended sign extension
+Date:   Wed,  6 Feb 2019 10:31:02 +0000
+Message-Id: <20190206103102.19345-1-colin.king@canonical.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -49,78 +49,38 @@ the result.
 
 Fix this by casting the u8 value to an unsigned long before the shift.
 
-Detected by CoverityScan, CID#714646-714649 ("Unintended sign extension")
+Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
 
-Fixes: 2985c29c1964 ("rtc: Add rtc support to 88PM80X PMIC")
+Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/rtc/rtc-88pm80x.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index cab293cb2bf0..1fc48ebd3cd0 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -114,12 +114,14 @@ static int pm80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	unsigned char buf[4];
- 	unsigned long ticks, base, data;
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 1074e3dbfc1d..cda020700744 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -213,7 +213,8 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		}
+ 	}
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -137,7 +139,8 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	base = ticks - data;
- 	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -158,11 +161,13 @@ static int pm80x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	int ret;
+ 	rtc_time_to_tm(secs, tm);
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+@@ -284,7 +285,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		return rc;
+ 	}
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE1_1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -185,12 +190,14 @@ static int pm80x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_ALARM1_EN, 0);
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+ 	rtc_time_to_tm(secs, &alarm->time);
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
 -- 
 2.20.1
 
