@@ -2,415 +2,234 @@ Return-Path: <SRS0=knh/=QP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 695EFC169C4
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E65C282D7
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:41:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2CA53217D8
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:18:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43EA02177B
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:41:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbfBHMSq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 8 Feb 2019 07:18:46 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:54400 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726230AbfBHMSq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 8 Feb 2019 07:18:46 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: eballetbo)
-        with ESMTPSA id D7A2027F107
-Subject: Re: [PATCH v6 4/4] platform/chrome: rtc: Add RTC driver
-To:     Nick Crews <ncrews@chromium.org>, linux-kernel@vger.kernel.org
-Cc:     alexandre.belloni@bootlin.com, eballetbo@gmail.com,
-        sjg@chromium.org, dmitry.torokhov@gmail.com, groeck@chromium.org,
-        dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>
-References: <20190208012312.105259-1-ncrews@chromium.org>
- <20190208012312.105259-5-ncrews@chromium.org>
-From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Message-ID: <4620e71f-9579-0d4e-2cf8-7851e77e81fc@collabora.com>
-Date:   Fri, 8 Feb 2019 13:18:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1726747AbfBHMlT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 8 Feb 2019 07:41:19 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:39187 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726547AbfBHMlT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 8 Feb 2019 07:41:19 -0500
+Received: by mail-lj1-f194.google.com with SMTP id t9-v6so2869229ljh.6;
+        Fri, 08 Feb 2019 04:41:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=MYYX3nvhH/TE/2mBRrykd8I/EPQXR3M9hsNKLt/o/nU=;
+        b=sX4acyTnnsMJAnQbxxd40n1b3AklzP3zCa9+NkPrf7cliEdMVLhd6lLVdjJnnbMEwb
+         KJWWiC6zKknEGU36/VLkCiuwcT2NWwB2I5wk13cWm1rWe8Egno4WBCmn6jPIvFWR/RFS
+         38v5UZh671Ia0GuzVr8fm8JyjCSqHB6RWC+HgtyZNAu6vVSoRydCkMXZBqr0FXd+exgc
+         CEw6usmRFj62pFVRXymS8+xC5Roc6Jc8KWVs2bvvzh1/RkPr7JyOaGT0+oZlPIQhbzGT
+         hFhStxPse2UW33eNrhDjL0y2Q04aUmxSk7zJOGdaDISuPLFW120yWvSkBK8K2yUaiXsy
+         fgbg==
+X-Gm-Message-State: AHQUAuaanS2mY9zkBoAOC/JkzC7iVJMuZN9BMQV0Kc6BV1hk1s80dTjZ
+        fm33L+vRmeY5Hna6vEfIN4w=
+X-Google-Smtp-Source: AHgI3IbyebGG4FdZQtbz+u70BQ9MrGJBHgZmbTazJoKftkMcU50LER8UdI+n1qYK6IZi6czg0ET3xw==
+X-Received: by 2002:a2e:858e:: with SMTP id b14-v6mr5938716lji.43.1549629675146;
+        Fri, 08 Feb 2019 04:41:15 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id t81sm341881lfe.84.2019.02.08.04.41.13
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 08 Feb 2019 04:41:14 -0800 (PST)
+Date:   Fri, 8 Feb 2019 14:41:11 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v8 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190208124111.GB3012@localhost.localdomain>
+References: <cover.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <50d1debf03bbd07f49b2c5a85cf9672439cbd0ac.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190207140053.GG20638@dell>
+ <20190207162807.GB1920@localhost.localdomain>
+ <20190208105743.GI20638@dell>
 MIME-Version: 1.0
-In-Reply-To: <20190208012312.105259-5-ncrews@chromium.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190208105743.GI20638@dell>
+User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+Hello Lee,
 
-On 8/2/19 2:23, Nick Crews wrote:
-> This Embedded Controller has an internal RTC that is exposed
-> as a standard RTC class driver with read/write functionality.
+On Fri, Feb 08, 2019 at 10:57:43AM +0000, Lee Jones wrote:
+> > 
+> > This is needed by both RTC and WDT drivers as RTC driver must stop the
+> > WDT when it sets RTC. WDT HW is using RTC counter and might trigger
+> > timeout/reset when RTC is set. Options are to dublicate the
+> > enable/disable to both drivers or to export a function or share a
+> > function pointer. I didn't want dublication or dependency between RTC
+> > and WDT drivers. Thus I thought that MFD is best place for this code as
+> > both RTC and WDT require it anyways. Perhaps this should be commented
+> > here?
 > 
-> The driver is added to the drivers/rtc/ so that the maintainer of that
-> directory will be able to comment on this change, as that maintainer is
-> the expert on this system. In addition, the driver code is called
-> indirectly after a corresponding device is registered from core.c,
-> as opposed to core.c registering the driver callbacks directly.
-> 
-> To test:
->> hwclock --show --rtc /dev/rtc1
-> 2007-12-31 16:01:20.460959-08:00
->> hwclock --systohc --rtc /dev/rtc1
->> hwclock --show --rtc /dev/rtc1
-> 2018-11-29 17:08:00.780793-08:00
-> 
->> hwclock --show --rtc /dev/rtc1
-> 2007-12-31 16:01:20.460959-08:00
->> hwclock --systohc --rtc /dev/rtc1
->> hwclock --show --rtc /dev/rtc1
-> 2018-11-29 17:08:00.780793-08:00
-> 
-> Signed-off-by: Duncan Laurie <dlaurie@google.com>
-> Signed-off-by: Nick Crews <ncrews@chromium.org>
+> I think an exported function with comments would be better.
 
-I think that you missed :)
+So do you mean you would prefer exported function over the pointer from
+MFD? I guess I can do it but I would still like to keep the code in the
+MFD as I would rather not introduce dependency from WDT driver to RTC or
+other way around. I can easily think of cases where WDT or RTC drivers
+would be unnecessary and user might want to drop one of them out of
+configuration. And I wonder if export actually makes any real
+improvement as we need to share the mutex between RTC and WDT anyways.
 
-Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> 
+> [...]
+> 
+> > > > +	irqs[BD70528_INT_GPIO3].type.type_reg_offset = 6;
+> > > > +	irqs[BD70528_INT_GPIO3].type.type_rising_val = 0x20;
+> > > > +	irqs[BD70528_INT_GPIO3].type.type_falling_val = 0x10;
+> > > > +	irqs[BD70528_INT_GPIO3].type.type_level_high_val = 0x40;
+> > > > +	irqs[BD70528_INT_GPIO3].type.type_level_low_val = 0x50;
+> > > > +	irqs[BD70528_INT_GPIO3].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
+> > > > +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> > > 
+> > > Could you please explain:
+> > > 
+> > > a) what you're doing here
+> > 
+> > Regmap-irq gained support for type-setting. On bd70528 the type setting
+> > makes sense only for GPIO interrupts - so we must not populate type
+> > setting information for the rest of the IRQs. The macro REGMAP_IRQ_REG
+> > is nice and makes the irq struct initialization cleaner. Thus it is used.
+> > It does not allow populating the type information - hence we do it here.
+> > 
+> > I can change this if you think some other way would be cleaner?
+> 
+> It's pretty fugly.  Can the REGMAP_IRQ_REG be expanded upon?
 
-> ---
-> 
-> Changes in v6:
-> - In the core, actually unregister the RTC child platform_device.
-> 
-> Changes in v5: None
-> Changes in v4:
-> - Change me email to @chromium.org from @google.com
-> - Move "Add RTC driver" before "Add sysfs attributes" so that
->   it could get accepted earlier, since it is less contentious
-> 
-> Changes in v3:
-> - rm #define for driver name
-> - Don't compute weekday when reading from RTC.
->   Still set weekday when writing, as RTC needs this
->   to control advanced power scheduling
-> - rm check for invalid month data
-> - Set range_min and range_max on rtc_device
-> 
-> Changes in v2:
-> - rm license boiler plate
-> - rm "wilco_ec_rtc -" prefix in docstring
-> - Make rtc driver its own module within the drivers/rtc/ directory
-> - Register a rtc device from core.c that is picked up by this driver
-> 
->  drivers/platform/chrome/wilco_ec/core.c |  22 ++-
+I was thinking of that but for vast majority of REGMAP_IRQ_REG users
+initializing type regs would be just unnecessary burden (giving 6
+zeroes for unsupported fields for each IRQ gets dull quite soon) I
+was also thinking of adding another macro to be used in cases where
+we have type setting supported - but macros with 9 parameters won't fit
+on a line and (in my opinion) will not bring much improvement over
+plain assignment.
 
-Alexandre, this specific patch depends on the patches of the series to apply,
-and the first patches of the series also conflicts/depends on some patches
-queued in chrome-platform-5.1 branch [1]. Is it fine with you if I create an
-immutable branch and all go via your tree? Or what do you think? I am new here
-and I am not sure how to manage that.
-
-Thanks,
-  Enric
-
-[1]
-https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git/log/?h=chrome-platform-5.1
-
->  drivers/rtc/Kconfig                     |  11 ++
->  drivers/rtc/Makefile                    |   1 +
->  drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
->  include/linux/platform_data/wilco-ec.h  |   2 +
->  5 files changed, 211 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/rtc/rtc-wilco-ec.c
+> > > b) why you don't mass assign them
+> > >     - seeing as most of the data is identical.
+> > 
+> > Maybe I am a bit slow today - but I don't know how the 'mass assignment'
+> > should be done?
 > 
-> diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
-> index ae86cae216fd..e67385ec5103 100644
-> --- a/drivers/platform/chrome/wilco_ec/core.c
-> +++ b/drivers/platform/chrome/wilco_ec/core.c
-> @@ -42,6 +42,7 @@ static int wilco_ec_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
->  	struct wilco_ec_device *ec;
-> +	int ret;
->  
->  	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
->  	if (!ec)
-> @@ -70,21 +71,38 @@ static int wilco_ec_probe(struct platform_device *pdev)
->  			     ec->io_packet->start + EC_MAILBOX_DATA_SIZE);
->  
->  	/*
-> -	 * Register a debugfs platform device that will get picked up by the
-> -	 * debugfs driver. Ignore failure.
-> +	 * Register a child device that will be found by the RTC driver.
-> +	 * Ignore failure.
->  	 */
->  	ec->debugfs_pdev = platform_device_register_data(dev,
->  							 "wilco-ec-debugfs",
->  							 PLATFORM_DEVID_AUTO,
->  							 NULL, 0);
->  
-> +	/* Register a child device that will be found by the RTC driver. */
-> +	ec->rtc_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
-> +						     PLATFORM_DEVID_AUTO,
-> +						     NULL, 0);
-> +	if (IS_ERR(ec->rtc_pdev)) {
-> +		dev_err(dev, "Failed to create RTC platform device\n");
-> +		ret = PTR_ERR(ec->rtc_pdev);
-> +		goto unregister_debugfs;
-> +	}
-> +
->  	return 0;
-> +
-> +unregister_debugfs:
-> +	if (ec->debugfs_pdev)
-> +		platform_device_unregister(ec->debugfs_pdev);
-> +	cros_ec_lpc_mec_destroy();
-> +	return ret;
->  }
->  
->  static int wilco_ec_remove(struct platform_device *pdev)
->  {
->  	struct wilco_ec_device *ec = platform_get_drvdata(pdev);
->  
-> +	platform_device_unregister(ec->rtc_pdev);
->  	if (ec->debugfs_pdev)
->  		platform_device_unregister(ec->debugfs_pdev);
->  
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 225b0b8516f3..d5063c791515 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
->  	  Goldfish is a code name for the virtual platform developed by Google
->  	  for Android emulation.
->  
-> +config RTC_DRV_WILCO_EC
-> +	tristate "Wilco EC RTC"
-> +	depends on WILCO_EC
-> +	default m
-> +	help
-> +	  If you say yes here, you get read/write support for the Real Time
-> +	  Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
-> +
-> +	  This can also be built as a module. If so, the module will
-> +	  be named "rtc_wilco_ec".
-> +
->  endif # RTC_CLASS
-> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-> index df022d820bee..6255ea78da25 100644
-> --- a/drivers/rtc/Makefile
-> +++ b/drivers/rtc/Makefile
-> @@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
->  obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
->  obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
->  obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
-> +obj-$(CONFIG_RTC_DRV_WILCO_EC)	+= rtc-wilco-ec.o
->  obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
->  obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
->  obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
-> diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
-> new file mode 100644
-> index 000000000000..35cc56114c1c
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-wilco-ec.c
-> @@ -0,0 +1,177 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * RTC interface for Wilco Embedded Controller with R/W abilities
-> + *
-> + * Copyright 2018 Google LLC
-> + *
-> + * The corresponding platform device is typically registered in
-> + * drivers/platform/chrome/wilco_ec/core.c
-> + */
-> +
-> +#include <linux/bcd.h>
-> +#include <linux/err.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/platform_data/wilco-ec.h>
-> +#include <linux/rtc.h>
-> +#include <linux/timekeeping.h>
-> +
-> +#define EC_COMMAND_CMOS			0x7c
-> +#define EC_CMOS_TOD_WRITE		0x02
-> +#define EC_CMOS_TOD_READ		0x08
-> +
-> +/**
-> + * struct ec_rtc_read - Format of RTC returned by EC.
-> + * @second: Second value (0..59)
-> + * @minute: Minute value (0..59)
-> + * @hour: Hour value (0..23)
-> + * @day: Day value (1..31)
-> + * @month: Month value (1..12)
-> + * @year: Year value (full year % 100)
-> + * @century: Century value (full year / 100)
-> + *
-> + * All values are presented in binary (not BCD).
-> + */
-> +struct ec_rtc_read {
-> +	u8 second;
-> +	u8 minute;
-> +	u8 hour;
-> +	u8 day;
-> +	u8 month;
-> +	u8 year;
-> +	u8 century;
-> +} __packed;
-> +
-> +/**
-> + * struct ec_rtc_write - Format of RTC sent to the EC.
-> + * @param: EC_CMOS_TOD_WRITE
-> + * @century: Century value (full year / 100)
-> + * @year: Year value (full year % 100)
-> + * @month: Month value (1..12)
-> + * @day: Day value (1..31)
-> + * @hour: Hour value (0..23)
-> + * @minute: Minute value (0..59)
-> + * @second: Second value (0..59)
-> + * @weekday: Day of the week (0=Saturday)
-> + *
-> + * All values are presented in BCD.
-> + */
-> +struct ec_rtc_write {
-> +	u8 param;
-> +	u8 century;
-> +	u8 year;
-> +	u8 month;
-> +	u8 day;
-> +	u8 hour;
-> +	u8 minute;
-> +	u8 second;
-> +	u8 weekday;
-> +} __packed;
-> +
-> +int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-> +	u8 param = EC_CMOS_TOD_READ;
-> +	struct ec_rtc_read rtc;
-> +	struct wilco_ec_message msg = {
-> +		.type = WILCO_EC_MSG_LEGACY,
-> +		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-> +		.command = EC_COMMAND_CMOS,
-> +		.request_data = &param,
-> +		.request_size = sizeof(param),
-> +		.response_data = &rtc,
-> +		.response_size = sizeof(rtc),
-> +	};
-> +	int ret;
-> +
-> +	ret = wilco_ec_mailbox(ec, &msg);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	tm->tm_sec	= rtc.second;
-> +	tm->tm_min	= rtc.minute;
-> +	tm->tm_hour	= rtc.hour;
-> +	tm->tm_mday	= rtc.day;
-> +	tm->tm_mon	= rtc.month - 1;
-> +	tm->tm_year	= rtc.year + (rtc.century * 100) - 1900;
-> +	tm->tm_yday	= rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
-> +
-> +	/* Don't compute day of week, we don't need it. */
-> +	tm->tm_wday = -1;
-> +
-> +	return 0;
-> +}
-> +
-> +int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
-> +	struct ec_rtc_write rtc;
-> +	struct wilco_ec_message msg = {
-> +		.type = WILCO_EC_MSG_LEGACY,
-> +		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
-> +		.command = EC_COMMAND_CMOS,
-> +		.request_data = &rtc,
-> +		.request_size = sizeof(rtc),
-> +	};
-> +	int year = tm->tm_year + 1900;
-> +	/*
-> +	 * Convert from 0=Sunday to 0=Saturday for the EC
-> +	 * We DO need to set weekday because the EC controls battery charging
-> +	 * schedules that depend on the day of the week.
-> +	 */
-> +	int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
-> +	int ret;
-> +
-> +	rtc.param	= EC_CMOS_TOD_WRITE;
-> +	rtc.century	= bin2bcd(year / 100);
-> +	rtc.year	= bin2bcd(year % 100);
-> +	rtc.month	= bin2bcd(tm->tm_mon + 1);
-> +	rtc.day		= bin2bcd(tm->tm_mday);
-> +	rtc.hour	= bin2bcd(tm->tm_hour);
-> +	rtc.minute	= bin2bcd(tm->tm_min);
-> +	rtc.second	= bin2bcd(tm->tm_sec);
-> +	rtc.weekday	= bin2bcd(wday);
-> +
-> +	ret = wilco_ec_mailbox(ec, &msg);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct rtc_class_ops wilco_ec_rtc_ops = {
-> +	.read_time = wilco_ec_rtc_read,
-> +	.set_time = wilco_ec_rtc_write,
-> +};
-> +
-> +static int wilco_ec_rtc_probe(struct platform_device *pdev)
-> +{
-> +	struct rtc_device *rtc;
-> +
-> +	rtc = devm_rtc_allocate_device(&pdev->dev);
-> +	if (IS_ERR(rtc))
-> +		return PTR_ERR(rtc);
-> +
-> +	rtc->ops = &wilco_ec_rtc_ops;
-> +	/* EC only supports this century */
-> +	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-> +	rtc->range_max = RTC_TIMESTAMP_END_2099;
-> +	rtc->owner = THIS_MODULE;
-> +
-> +	return rtc_register_device(rtc);
-> +}
-> +
-> +static struct platform_driver wilco_ec_rtc_driver = {
-> +	.driver = {
-> +		.name = "rtc-wilco-ec",
-> +	},
-> +	.probe = wilco_ec_rtc_probe,
-> +};
-> +
-> +module_platform_driver(wilco_ec_rtc_driver);
-> +
-> +MODULE_ALIAS("platform:rtc-wilco-ec");
-> +MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_DESCRIPTION("Wilco EC RTC driver");
-> diff --git a/include/linux/platform_data/wilco-ec.h b/include/linux/platform_data/wilco-ec.h
-> index 5344975afa1a..446473a46b88 100644
-> --- a/include/linux/platform_data/wilco-ec.h
-> +++ b/include/linux/platform_data/wilco-ec.h
-> @@ -35,6 +35,7 @@
->   *               is used to hold the request and the response.
->   * @data_size: Size of the data buffer used for EC communication.
->   * @debugfs_pdev: The child platform_device used by the debugfs sub-driver.
-> + * @rtc_pdev: The child platform_device used by the RTC sub-driver.
->   */
->  struct wilco_ec_device {
->  	struct device *dev;
-> @@ -45,6 +46,7 @@ struct wilco_ec_device {
->  	void *data_buffer;
->  	size_t data_size;
->  	struct platform_device *debugfs_pdev;
-> +	struct platform_device *rtc_pdev;
->  };
->  
->  /**
+> Something like (completely untested):
 > 
+> unsigned int type_reg_offset_inc = 0;
+> for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
+> 	irqs[i].type.type_reg_offset     = type_reg_offset_inc;
+> 	irqs[i].type.type_rising_val     = 0x20;
+> 	irqs[i].type.type_falling_val    = 0x10;
+> 	irqs[i].type.type_level_high_val = 0x40;
+> 	irqs[i].type.type_level_low_val  = 0x50;
+> 	irqs[i].type.types_supported =
+> 		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> 	type_reg_offset_inc += 2;
+> }
+
+Right. I did this this morning =)
+
+> It's still fugly though.
+
+Agree.
+
+> If we can do this via MACROs, it would be better.
+
+I just dont see how to do a nice macro for this. Truth is that there is
+6 fields to initialize - and the values can't be guessed so each value
+needs to be given. In best case the macro can somewhat shorten the
+assignment (but no way it'd still fit nicely on one row) - in worst
+case it just hides the meaning of values we are passing as arguments.
+With raw assignment we at least have some idea what the 0x40 or 0x20 are
+referring to =)
+
+> [...]
+> 
+> > > > +subsys_initcall(bd70528_init);
+> > > 
+> > > Does it need to be initialised this early?
+> > 
+> > I think it may be required on some board(s). Is it a problem? I guess I
+> > can change this for my purposes but guess it may become a problem later.
+> 
+> If you do this normally, you can use MACROs (see other drivers) and
+> remove the boilerplate init code you have here.
+
+Ok. I can change this. We can change it back if we need something
+(regulators or GPIO or clk) to be ready at early stage. Currently my
+setup does not require this.
+
+> > > > +struct bd70528 {
+> > > > +	/*
+> > > > +	 * Please keep this as the first member here as some
+> > > > +	 * drivers (clk) supporting more than one chip may only know this
+> > > > +	 * generic struct 'struct rohm_regmap_dev' and assume it is
+> > > > +	 * the first chunk of parent device's private data.
+> > > > +	 */
+> > > > +	struct rohm_regmap_dev chip;
+> > > > +	/* wdt_set must be called rtc_timer_lock held */
+> > > 
+> > > This doesn't make sense.
+> > 
+> > Umm.. The comment does not make sense? Maybe I can explain it further.
+> 
+> "wdt_set must be called when the rtc_timer_lock is held"
+
+Yes. I wanted to say that who-ever is calling the wdt_set function
+below, should have locked the rtc_timer_lock mutex (last in this
+struct). The function does not do locking inside because we want the RTC
+to be able to perform:
+
+lock
+disable wdt (store original state)
+set RTC
+return wdt original state
+unlock
+
+Locking is needed so that we can exclude the watchdog enabling or
+disabling the WDT timer between moments when RTC is getting the original
+WDT state and re-turning back the old state. Without the lock we have a
+risk that WDT-driver enables or disables the timer when RTC is being
+set, and RTC overwrites the watchdog driver changes when writing back
+the old state. I hope this makes sense now... Any suggestions how to
+explain this nicely in english?
+
+> 
+> -- 
+> Lee Jones [李琼斯]
+> Linaro Services Technical Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
