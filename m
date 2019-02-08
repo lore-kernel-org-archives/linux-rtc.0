@@ -2,232 +2,104 @@ Return-Path: <SRS0=knh/=QP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D930C169C4
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:57:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65656C169C4
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:58:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E876206A3
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:57:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28D08206A3
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:58:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="iK1+kJGk"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="RDf3csYf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727134AbfBHK5t (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 8 Feb 2019 05:57:49 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:43067 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727742AbfBHK5t (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 8 Feb 2019 05:57:49 -0500
-Received: by mail-wr1-f67.google.com with SMTP id r2so3032483wrv.10
-        for <linux-rtc@vger.kernel.org>; Fri, 08 Feb 2019 02:57:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=W47bbTh6o9Yws6Hl6mzMoRtX36k2CVuI8Yvz2iSr9q0=;
-        b=iK1+kJGk3dsg88FlfyhsNxfekbqV5eIa1WCkCsw3fMdrD1IaHxJU76I6xc+aPIP56i
-         zB5c/E66yApHblki83G8jgMKywpJerAOfhNNrxnOdqmkogiFrDCnLmZPypBc7OIzbukT
-         mIjpv24PewR+z9kmZbIJrXzXTOYwqv1v3olWn9547enVRqh4Ry1tDQzupLreobRXKQmv
-         FWebumFSC4ZAzX1Wfe93HhoImVdbKfbuzSi87zPE9RzXCFwVqHuq1R4309yLhOPeWicE
-         gArFPRwD9KgkRb433ov66VqEYHxwYdKupHVptmkcdRAdgkXAXcWIHzE9McPiFbZcRgu/
-         kPkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=W47bbTh6o9Yws6Hl6mzMoRtX36k2CVuI8Yvz2iSr9q0=;
-        b=LLIkqLeL/drh2EIIFoTR1IKsR806tHrf8mVwsqdMKwMk8TeOAPPcFvqd8autzmgYEm
-         xUjYvSc/tDpbNq+wjB07SSa49XQ0OL+LRnSxPBVDW82g4sTSvs5qo+lccHoANeC+YYbf
-         nhbAsTlsbHbUmt5o4ofKz1mmC+caonPkx5CtBNuoRC6A9E5tzyafc71wdq59EGNTQoeb
-         BiIgDgHkS0ZI/34o37TcHVlJbkCBRYyeuighg4ezD9PQ+SQ44IuiONTpPtOTX9cRiHnm
-         s9k7wWgeit+7r15W/uydFnVKUA8YIxFoWaid2p6r7hmBpAa9mL+Wa9s24VwV52LKrv3w
-         4shg==
-X-Gm-Message-State: AHQUAuYmx2FQxgurcGuDn4TxmD9F/ziyrztDn9femVjBPBL4/qU91Pcq
-        TB304SpBT9leIWzxrE5Jz0rT8g==
-X-Google-Smtp-Source: AHgI3IasWk7rNzqk4EurdoT9iqiLURJx1MIBwS3akPsiY4atwav1S5DfPqKga3b0Cbw7W8upv5WASA==
-X-Received: by 2002:adf:e98e:: with SMTP id h14mr16397609wrm.115.1549623466809;
-        Fri, 08 Feb 2019 02:57:46 -0800 (PST)
-Received: from dell ([2.27.35.171])
-        by smtp.gmail.com with ESMTPSA id g25sm1720738wmh.25.2019.02.08.02.57.44
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 08 Feb 2019 02:57:45 -0800 (PST)
-Date:   Fri, 8 Feb 2019 10:57:43 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v8 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190208105743.GI20638@dell>
-References: <cover.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
- <50d1debf03bbd07f49b2c5a85cf9672439cbd0ac.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
- <20190207140053.GG20638@dell>
- <20190207162807.GB1920@localhost.localdomain>
+        id S1727768AbfBHK6p (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 8 Feb 2019 05:58:45 -0500
+Received: from mail-eopbgr10048.outbound.protection.outlook.com ([40.107.1.48]:51363
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726524AbfBHK6p (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 8 Feb 2019 05:58:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=87hdJgEuPKx4Z9fg+p6yY338IKP9MvyI//9aFYtJot4=;
+ b=RDf3csYf89QoZEhIyGJQnAavifwIvvir9Ttn2mV+WIVpGLxQnZiQaMHQ5GvaMDp2/Sfm0QJF+jN8VLVUEAlM6PBzF7GReAHrbujmC4oUbsMxYOQlVcLjUfguP9HZ0dBlPwHzPPgbIPrLXIkSIhVa+VQhEAba4WCEmi10RzjAF7k=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3723.eurprd04.prod.outlook.com (52.134.72.20) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1601.19; Fri, 8 Feb 2019 10:58:41 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::14e8:6d2e:fe21:4fd5]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::14e8:6d2e:fe21:4fd5%3]) with mapi id 15.20.1601.016; Fri, 8 Feb 2019
+ 10:58:41 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] rtc: imx-sc: depend on HAVE_ARM_SMCCC
+Thread-Topic: [PATCH] rtc: imx-sc: depend on HAVE_ARM_SMCCC
+Thread-Index: AQHUv5XWqj44llWn9E6iZtZbP9h8raXVuwBg
+Date:   Fri, 8 Feb 2019 10:58:41 +0000
+Message-ID: <DB3PR0402MB3916931E7D13EB0657A5C226F5690@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <20190208100530.21872-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20190208100530.21872-1-alexandre.belloni@bootlin.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-originating-ip: [183.192.23.231]
+x-ms-publictraffictype: Email
+x-microsoft-exchange-diagnostics: 1;DB3PR0402MB3723;6:nW6IqnUrEiVeZ/D0m/93g5YgtMOaiLaAEY1GQi1GcbxwJIMnLOIRTotAa9zNC6iaycn6GjvNR1s+51CnT1j4TCpxaZkIZ78QbvS7NJapU0clHPVhuL1oPAaHIzzNk9Ebjw5zJo4+0NTLDTrsRZxLii5r3qD4k6pwhUeGSa63SIy5wytp3EupSSUD2wYEBNw5nSpiTw0D5W4zfedZic5GBPOWl21y3zNVjWVn1yB//wmzLfbDlGDTpOMfu+CP8lSNSzLsSulpYgnb2kaXVjkVTbPDGJniIXC0ciSViH32xEIjw4ISF90VbuYlAva/jxot+lWwRbqXBNbPkLDeJl7daYBoV+tY/UG/WRgjiYRQB6O3waLVxJuZjgIG8spkJEDUz51mEhZe6X+GnoAYWmJIg88XCEIxuBcA4myIidscAnOPv0ldyIEB03BVnEMLZtpqPupW9byvrLGczBaNonkoag==;5:u5Nxlca2lisV9k5+JDMsI8hHRWy9a1G5QFAene0lu/GfQa7EyDN+3sC2aY7l3r9ZeaC2w6XlKR4Z48wS283p8xk/W3WHYe+EZuM1MKKvWStdj4gnfZOF80UFmQ9lAk3zmK5WnE/WKW9vel29S0eVCF1K9ZllMt0xMRVCW0gRMN+M9dTRAuwID2sA5p+Pt/khNgiswAL9RE0ZAAIJjtXuHw==;7:ezCc4EWRFDjTK4krZi85dKE9zhz7Hss4pWeios0fArN8zGWivkL2U4tHGZSLpPQrLF3CV/DKwVTD6odUjRhadBllbKHae5aj8uCL0H2fQfaqAP7LmCjUwtiGTp+zQdAw6tvhh5e13eI9DZy/pRC2aQ==
+x-ms-office365-filtering-correlation-id: 9da15248-a504-44e2-28d8-08d68db462eb
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3723;
+x-ms-traffictypediagnostic: DB3PR0402MB3723:
+x-microsoft-antispam-prvs: <DB3PR0402MB37239A777DE5C86F2B103332F5690@DB3PR0402MB3723.eurprd04.prod.outlook.com>
+x-forefront-prvs: 094213BFEA
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(396003)(136003)(39860400002)(366004)(376002)(346002)(13464003)(189003)(199004)(55016002)(7696005)(305945005)(9686003)(6436002)(86362001)(7736002)(68736007)(14454004)(76176011)(26005)(97736004)(8936002)(6116002)(3846002)(8676002)(186003)(2906002)(81156014)(81166006)(256004)(102836004)(478600001)(66066001)(110136005)(316002)(4326008)(53546011)(6246003)(33656002)(25786009)(486006)(53936002)(6506007)(44832011)(446003)(11346002)(99286004)(74316002)(476003)(71190400001)(2501003)(106356001)(105586002)(71200400001)(229853002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3723;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: +Fl5CwuyWgFH1w53iUNjeAOTlQu0rScpKpyXVj7q3HPzWne4t0HpXeMt9jA1EfHUMqolYl4Ncemm4hp8qNTcpZOI2BaXLpDaT9OpDGpjfVSDU0EPsPMl8jTzvS6QRaYCtl1cvqmZSr+pXUD4YngdYStw0ia+Un+U2QaXWBZy47kOShW3vteivEMwOZgpHkad44tX95CWthYcN28BBnLnGzQde8m3alAi8e5xRu0R7F19/6xPFg/nMTW7CWxrfWYRB/l7yYQ8Xm4z8RpW2qXQdjsKji6eSVsHipua9WUvqlxHBGL7W4yjs4DPivbUWXQE10eW5Bh668p7SJFn8EDZrYv76j6aT+ZFvGI2Bfls8Fi9hCIJwI1HLFB6HhzB3F2d70/xlTWnU3lbgN0aFQuGp1MH60w4aBW4ho4EHzGnxac=
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190207162807.GB1920@localhost.localdomain>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9da15248-a504-44e2-28d8-08d68db462eb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Feb 2019 10:58:41.1521
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3723
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Mark,
-
-Something for you:
-
-> > > +/* bit [0] - Shutdown register */
-> > > +unsigned int bit0_offsets[] = {0};
-> > > +/* bit [1] - Power failure register */
-> > > +unsigned int bit1_offsets[] = {1};
-> > > +/* bit [2] - VR FAULT register */
-> > > +unsigned int bit2_offsets[] = {2};
-> > > +/* bit [3] - PMU register interrupts */
-> > > +unsigned int bit3_offsets[] = {3};
-> > > +/* bit [4] - Charger 1 and Charger 2 registers */
-> > > +unsigned int bit4_offsets[] = {4, 5};
-> > > +/* bit [5] - RTC register */
-> > > +unsigned int bit5_offsets[] = {6};
-> > > +/* bit [6] - GPIO register */
-> > > +unsigned int bit6_offsets[] = {7};
-> > > +/* bit [7] - Invalid operation register */
-> > > +unsigned int bit7_offsets[] = {8};
-> > 
-> > What on earth is this?
-> 
-> That's the mapping from main IRQ register bits to sub IRQ registers. The
-> RFC version 1 had the patch which brough main irq register support. But
-> good that you asked as I missed the fact that this commit is now only at
-> the regmap tree - and this one depends on that.
->  
-> > > +static struct regmap_irq_sub_irq_map bd70528_sub_irq_offsets[] = {
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit0_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit1_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit2_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit3_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit4_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit5_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit6_offsets),
-> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit7_offsets),
-> > > +};
-> > 
-> > This looks totally hairy.  What is it mean to look like?
-> 
-> Yes. Sorry. As explained above - this requires commit from regmap tree:
-> https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commit/include/linux/regmap.h?h=for-next&id=66fb181d6f824f7695417e8c19560c5b57dc8c2d
-
-Mark, is this how this should be implemented?
-
-The global arrays are hideous!
-
-> > Shouldn't this be one in the WDT driver?
-> 
-> This is needed by both RTC and WDT drivers as RTC driver must stop the
-> WDT when it sets RTC. WDT HW is using RTC counter and might trigger
-> timeout/reset when RTC is set. Options are to dublicate the
-> enable/disable to both drivers or to export a function or share a
-> function pointer. I didn't want dublication or dependency between RTC
-> and WDT drivers. Thus I thought that MFD is best place for this code as
-> both RTC and WDT require it anyways. Perhaps this should be commented
-> here?
-
-I think an exported function with comments would be better.
-
-[...]
-
-> > > +	irqs[BD70528_INT_GPIO3].type.type_reg_offset = 6;
-> > > +	irqs[BD70528_INT_GPIO3].type.type_rising_val = 0x20;
-> > > +	irqs[BD70528_INT_GPIO3].type.type_falling_val = 0x10;
-> > > +	irqs[BD70528_INT_GPIO3].type.type_level_high_val = 0x40;
-> > > +	irqs[BD70528_INT_GPIO3].type.type_level_low_val = 0x50;
-> > > +	irqs[BD70528_INT_GPIO3].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
-> > > +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
-> > 
-> > Could you please explain:
-> > 
-> > a) what you're doing here
-> 
-> Regmap-irq gained support for type-setting. On bd70528 the type setting
-> makes sense only for GPIO interrupts - so we must not populate type
-> setting information for the rest of the IRQs. The macro REGMAP_IRQ_REG
-> is nice and makes the irq struct initialization cleaner. Thus it is used.
-> It does not allow populating the type information - hence we do it here.
-> 
-> I can change this if you think some other way would be cleaner?
-
-It's pretty fugly.  Can the REGMAP_IRQ_REG be expanded upon?
-
-> > b) why you don't mass assign them
-> >     - seeing as most of the data is identical.
-> 
-> Maybe I am a bit slow today - but I don't know how the 'mass assignment'
-> should be done?
-
-Something like (completely untested):
-
-unsigned int type_reg_offset_inc = 0;
-for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
-	irqs[i].type.type_reg_offset     = type_reg_offset_inc;
-	irqs[i].type.type_rising_val     = 0x20;
-	irqs[i].type.type_falling_val    = 0x10;
-	irqs[i].type.type_level_high_val = 0x40;
-	irqs[i].type.type_level_low_val  = 0x50;
-	irqs[i].type.types_supported =
-		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
-	type_reg_offset_inc += 2;
-}
-
-It's still fugly though.
-
-If we can do this via MACROs, it would be better.
-
-[...]
-
-> > > +subsys_initcall(bd70528_init);
-> > 
-> > Does it need to be initialised this early?
-> 
-> I think it may be required on some board(s). Is it a problem? I guess I
-> can change this for my purposes but guess it may become a problem later.
-
-If you do this normally, you can use MACROs (see other drivers) and
-remove the boilerplate init code you have here.
-
-> > > +struct bd70528 {
-> > > +	/*
-> > > +	 * Please keep this as the first member here as some
-> > > +	 * drivers (clk) supporting more than one chip may only know this
-> > > +	 * generic struct 'struct rohm_regmap_dev' and assume it is
-> > > +	 * the first chunk of parent device's private data.
-> > > +	 */
-> > > +	struct rohm_regmap_dev chip;
-> > > +	/* wdt_set must be called rtc_timer_lock held */
-> > 
-> > This doesn't make sense.
-> 
-> Umm.. The comment does not make sense? Maybe I can explain it further.
-
-"wdt_set must be called when the rtc_timer_lock is held"
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+DQoNCkJlc3QgUmVnYXJkcyENCkFuc29uIEh1YW5nDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
+LS0tLS0NCj4gRnJvbTogQWxleGFuZHJlIEJlbGxvbmkgW21haWx0bzphbGV4YW5kcmUuYmVsbG9u
+aUBib290bGluLmNvbV0NCj4gU2VudDogMjAxOcTqMtTCOMjVIDE4OjA2DQo+IFRvOiBsaW51eC1y
+dGNAdmdlci5rZXJuZWwub3JnDQo+IENjOiBBbnNvbiBIdWFuZyA8YW5zb24uaHVhbmdAbnhwLmNv
+bT47IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IEFsZXhhbmRyZSBCZWxsb25pIDxh
+bGV4YW5kcmUuYmVsbG9uaUBib290bGluLmNvbT4NCj4gU3ViamVjdDogW1BBVENIXSBydGM6IGlt
+eC1zYzogZGVwZW5kIG9uIEhBVkVfQVJNX1NNQ0NDDQo+IA0KPiBGaXggdGhlIGZvbGxvd2luZyBi
+dWlsZCBpc3N1ZToNCj4gDQo+IGRyaXZlcnMvcnRjL3J0Yy1pbXgtc2MubzogSW4gZnVuY3Rpb24g
+YGlteF9zY19ydGNfc2V0X3RpbWUnOg0KPiA+PiBydGMtaW14LXNjLmM6KC50ZXh0KzB4MjEyKTog
+dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgX19hcm1fc21jY2Nfc21jJw0KPiANCj4gRml4ZXM6IDEz
+YTkyOWYzOGFkNyAoInJ0YzogaW14LXNjOiBhZGQgcnRjIHNldCB0aW1lIHN1cHBvcnQiKQ0KPiBT
+aWduZWQtb2ZmLWJ5OiBBbGV4YW5kcmUgQmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxp
+bi5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ydGMvS2NvbmZpZyB8IDEgKw0KPiAgMSBmaWxlIGNo
+YW5nZWQsIDEgaW5zZXJ0aW9uKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ydGMvS2Nv
+bmZpZyBiL2RyaXZlcnMvcnRjL0tjb25maWcgaW5kZXgNCj4gZmFhOWFlMWEzMDYyLi44ZjY3MzVl
+MGZmMTQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvcnRjL0tjb25maWcNCj4gKysrIGIvZHJpdmVy
+cy9ydGMvS2NvbmZpZw0KPiBAQCAtMTY5OCw2ICsxNjk4LDcgQEAgY29uZmlnIFJUQ19EUlZfU05W
+Uw0KPiANCj4gIGNvbmZpZyBSVENfRFJWX0lNWF9TQw0KPiAgCWRlcGVuZHMgb24gSU1YX1NDVQ0K
+PiArCWRlcGVuZHMgb24gSEFWRV9BUk1fU01DQ0MNCj4gIAl0cmlzdGF0ZSAiTlhQIGkuTVggU3lz
+dGVtIENvbnRyb2xsZXIgUlRDIHN1cHBvcnQiDQo+ICAJaGVscA0KPiAgCSAgIElmIHlvdSBzYXkg
+eWVzIGhlcmUgeW91IGdldCBzdXBwb3J0IGZvciB0aGUgTlhQIGkuTVggU3lzdGVtDQo+IC0tDQo+
+IDIuMjAuMQ0KDQpTb3JyeSBmb3IgdGhlIG1pc3Rha2UuDQoNClJldmlld2VkLWJ5OiBBbnNvbiBI
+dWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCg0K
