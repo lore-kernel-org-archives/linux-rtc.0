@@ -2,104 +2,415 @@ Return-Path: <SRS0=knh/=QP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65656C169C4
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:58:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 695EFC169C4
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:18:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 28D08206A3
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 10:58:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="RDf3csYf"
+	by mail.kernel.org (Postfix) with ESMTP id 2CA53217D8
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Feb 2019 12:18:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbfBHK6p (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 8 Feb 2019 05:58:45 -0500
-Received: from mail-eopbgr10048.outbound.protection.outlook.com ([40.107.1.48]:51363
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726524AbfBHK6p (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 8 Feb 2019 05:58:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=87hdJgEuPKx4Z9fg+p6yY338IKP9MvyI//9aFYtJot4=;
- b=RDf3csYf89QoZEhIyGJQnAavifwIvvir9Ttn2mV+WIVpGLxQnZiQaMHQ5GvaMDp2/Sfm0QJF+jN8VLVUEAlM6PBzF7GReAHrbujmC4oUbsMxYOQlVcLjUfguP9HZ0dBlPwHzPPgbIPrLXIkSIhVa+VQhEAba4WCEmi10RzjAF7k=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3723.eurprd04.prod.outlook.com (52.134.72.20) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1601.19; Fri, 8 Feb 2019 10:58:41 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::14e8:6d2e:fe21:4fd5]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::14e8:6d2e:fe21:4fd5%3]) with mapi id 15.20.1601.016; Fri, 8 Feb 2019
- 10:58:41 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] rtc: imx-sc: depend on HAVE_ARM_SMCCC
-Thread-Topic: [PATCH] rtc: imx-sc: depend on HAVE_ARM_SMCCC
-Thread-Index: AQHUv5XWqj44llWn9E6iZtZbP9h8raXVuwBg
-Date:   Fri, 8 Feb 2019 10:58:41 +0000
-Message-ID: <DB3PR0402MB3916931E7D13EB0657A5C226F5690@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <20190208100530.21872-1-alexandre.belloni@bootlin.com>
-In-Reply-To: <20190208100530.21872-1-alexandre.belloni@bootlin.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-originating-ip: [183.192.23.231]
-x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;DB3PR0402MB3723;6:nW6IqnUrEiVeZ/D0m/93g5YgtMOaiLaAEY1GQi1GcbxwJIMnLOIRTotAa9zNC6iaycn6GjvNR1s+51CnT1j4TCpxaZkIZ78QbvS7NJapU0clHPVhuL1oPAaHIzzNk9Ebjw5zJo4+0NTLDTrsRZxLii5r3qD4k6pwhUeGSa63SIy5wytp3EupSSUD2wYEBNw5nSpiTw0D5W4zfedZic5GBPOWl21y3zNVjWVn1yB//wmzLfbDlGDTpOMfu+CP8lSNSzLsSulpYgnb2kaXVjkVTbPDGJniIXC0ciSViH32xEIjw4ISF90VbuYlAva/jxot+lWwRbqXBNbPkLDeJl7daYBoV+tY/UG/WRgjiYRQB6O3waLVxJuZjgIG8spkJEDUz51mEhZe6X+GnoAYWmJIg88XCEIxuBcA4myIidscAnOPv0ldyIEB03BVnEMLZtpqPupW9byvrLGczBaNonkoag==;5:u5Nxlca2lisV9k5+JDMsI8hHRWy9a1G5QFAene0lu/GfQa7EyDN+3sC2aY7l3r9ZeaC2w6XlKR4Z48wS283p8xk/W3WHYe+EZuM1MKKvWStdj4gnfZOF80UFmQ9lAk3zmK5WnE/WKW9vel29S0eVCF1K9ZllMt0xMRVCW0gRMN+M9dTRAuwID2sA5p+Pt/khNgiswAL9RE0ZAAIJjtXuHw==;7:ezCc4EWRFDjTK4krZi85dKE9zhz7Hss4pWeios0fArN8zGWivkL2U4tHGZSLpPQrLF3CV/DKwVTD6odUjRhadBllbKHae5aj8uCL0H2fQfaqAP7LmCjUwtiGTp+zQdAw6tvhh5e13eI9DZy/pRC2aQ==
-x-ms-office365-filtering-correlation-id: 9da15248-a504-44e2-28d8-08d68db462eb
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3723;
-x-ms-traffictypediagnostic: DB3PR0402MB3723:
-x-microsoft-antispam-prvs: <DB3PR0402MB37239A777DE5C86F2B103332F5690@DB3PR0402MB3723.eurprd04.prod.outlook.com>
-x-forefront-prvs: 094213BFEA
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(396003)(136003)(39860400002)(366004)(376002)(346002)(13464003)(189003)(199004)(55016002)(7696005)(305945005)(9686003)(6436002)(86362001)(7736002)(68736007)(14454004)(76176011)(26005)(97736004)(8936002)(6116002)(3846002)(8676002)(186003)(2906002)(81156014)(81166006)(256004)(102836004)(478600001)(66066001)(110136005)(316002)(4326008)(53546011)(6246003)(33656002)(25786009)(486006)(53936002)(6506007)(44832011)(446003)(11346002)(99286004)(74316002)(476003)(71190400001)(2501003)(106356001)(105586002)(71200400001)(229853002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3723;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: +Fl5CwuyWgFH1w53iUNjeAOTlQu0rScpKpyXVj7q3HPzWne4t0HpXeMt9jA1EfHUMqolYl4Ncemm4hp8qNTcpZOI2BaXLpDaT9OpDGpjfVSDU0EPsPMl8jTzvS6QRaYCtl1cvqmZSr+pXUD4YngdYStw0ia+Un+U2QaXWBZy47kOShW3vteivEMwOZgpHkad44tX95CWthYcN28BBnLnGzQde8m3alAi8e5xRu0R7F19/6xPFg/nMTW7CWxrfWYRB/l7yYQ8Xm4z8RpW2qXQdjsKji6eSVsHipua9WUvqlxHBGL7W4yjs4DPivbUWXQE10eW5Bh668p7SJFn8EDZrYv76j6aT+ZFvGI2Bfls8Fi9hCIJwI1HLFB6HhzB3F2d70/xlTWnU3lbgN0aFQuGp1MH60w4aBW4ho4EHzGnxac=
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+        id S1726522AbfBHMSq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 8 Feb 2019 07:18:46 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:54400 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726230AbfBHMSq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 8 Feb 2019 07:18:46 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: eballetbo)
+        with ESMTPSA id D7A2027F107
+Subject: Re: [PATCH v6 4/4] platform/chrome: rtc: Add RTC driver
+To:     Nick Crews <ncrews@chromium.org>, linux-kernel@vger.kernel.org
+Cc:     alexandre.belloni@bootlin.com, eballetbo@gmail.com,
+        sjg@chromium.org, dmitry.torokhov@gmail.com, groeck@chromium.org,
+        dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Benson Leung <bleung@chromium.org>
+References: <20190208012312.105259-1-ncrews@chromium.org>
+ <20190208012312.105259-5-ncrews@chromium.org>
+From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Message-ID: <4620e71f-9579-0d4e-2cf8-7851e77e81fc@collabora.com>
+Date:   Fri, 8 Feb 2019 13:18:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9da15248-a504-44e2-28d8-08d68db462eb
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Feb 2019 10:58:41.1521
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3723
+In-Reply-To: <20190208012312.105259-5-ncrews@chromium.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-DQoNCkJlc3QgUmVnYXJkcyENCkFuc29uIEh1YW5nDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
-LS0tLS0NCj4gRnJvbTogQWxleGFuZHJlIEJlbGxvbmkgW21haWx0bzphbGV4YW5kcmUuYmVsbG9u
-aUBib290bGluLmNvbV0NCj4gU2VudDogMjAxOcTqMtTCOMjVIDE4OjA2DQo+IFRvOiBsaW51eC1y
-dGNAdmdlci5rZXJuZWwub3JnDQo+IENjOiBBbnNvbiBIdWFuZyA8YW5zb24uaHVhbmdAbnhwLmNv
-bT47IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IEFsZXhhbmRyZSBCZWxsb25pIDxh
-bGV4YW5kcmUuYmVsbG9uaUBib290bGluLmNvbT4NCj4gU3ViamVjdDogW1BBVENIXSBydGM6IGlt
-eC1zYzogZGVwZW5kIG9uIEhBVkVfQVJNX1NNQ0NDDQo+IA0KPiBGaXggdGhlIGZvbGxvd2luZyBi
-dWlsZCBpc3N1ZToNCj4gDQo+IGRyaXZlcnMvcnRjL3J0Yy1pbXgtc2MubzogSW4gZnVuY3Rpb24g
-YGlteF9zY19ydGNfc2V0X3RpbWUnOg0KPiA+PiBydGMtaW14LXNjLmM6KC50ZXh0KzB4MjEyKTog
-dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgX19hcm1fc21jY2Nfc21jJw0KPiANCj4gRml4ZXM6IDEz
-YTkyOWYzOGFkNyAoInJ0YzogaW14LXNjOiBhZGQgcnRjIHNldCB0aW1lIHN1cHBvcnQiKQ0KPiBT
-aWduZWQtb2ZmLWJ5OiBBbGV4YW5kcmUgQmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxp
-bi5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ydGMvS2NvbmZpZyB8IDEgKw0KPiAgMSBmaWxlIGNo
-YW5nZWQsIDEgaW5zZXJ0aW9uKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ydGMvS2Nv
-bmZpZyBiL2RyaXZlcnMvcnRjL0tjb25maWcgaW5kZXgNCj4gZmFhOWFlMWEzMDYyLi44ZjY3MzVl
-MGZmMTQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvcnRjL0tjb25maWcNCj4gKysrIGIvZHJpdmVy
-cy9ydGMvS2NvbmZpZw0KPiBAQCAtMTY5OCw2ICsxNjk4LDcgQEAgY29uZmlnIFJUQ19EUlZfU05W
-Uw0KPiANCj4gIGNvbmZpZyBSVENfRFJWX0lNWF9TQw0KPiAgCWRlcGVuZHMgb24gSU1YX1NDVQ0K
-PiArCWRlcGVuZHMgb24gSEFWRV9BUk1fU01DQ0MNCj4gIAl0cmlzdGF0ZSAiTlhQIGkuTVggU3lz
-dGVtIENvbnRyb2xsZXIgUlRDIHN1cHBvcnQiDQo+ICAJaGVscA0KPiAgCSAgIElmIHlvdSBzYXkg
-eWVzIGhlcmUgeW91IGdldCBzdXBwb3J0IGZvciB0aGUgTlhQIGkuTVggU3lzdGVtDQo+IC0tDQo+
-IDIuMjAuMQ0KDQpTb3JyeSBmb3IgdGhlIG1pc3Rha2UuDQoNClJldmlld2VkLWJ5OiBBbnNvbiBI
-dWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCg0K
+Hi,
+
+On 8/2/19 2:23, Nick Crews wrote:
+> This Embedded Controller has an internal RTC that is exposed
+> as a standard RTC class driver with read/write functionality.
+> 
+> The driver is added to the drivers/rtc/ so that the maintainer of that
+> directory will be able to comment on this change, as that maintainer is
+> the expert on this system. In addition, the driver code is called
+> indirectly after a corresponding device is registered from core.c,
+> as opposed to core.c registering the driver callbacks directly.
+> 
+> To test:
+>> hwclock --show --rtc /dev/rtc1
+> 2007-12-31 16:01:20.460959-08:00
+>> hwclock --systohc --rtc /dev/rtc1
+>> hwclock --show --rtc /dev/rtc1
+> 2018-11-29 17:08:00.780793-08:00
+> 
+>> hwclock --show --rtc /dev/rtc1
+> 2007-12-31 16:01:20.460959-08:00
+>> hwclock --systohc --rtc /dev/rtc1
+>> hwclock --show --rtc /dev/rtc1
+> 2018-11-29 17:08:00.780793-08:00
+> 
+> Signed-off-by: Duncan Laurie <dlaurie@google.com>
+> Signed-off-by: Nick Crews <ncrews@chromium.org>
+
+I think that you missed :)
+
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+> ---
+> 
+> Changes in v6:
+> - In the core, actually unregister the RTC child platform_device.
+> 
+> Changes in v5: None
+> Changes in v4:
+> - Change me email to @chromium.org from @google.com
+> - Move "Add RTC driver" before "Add sysfs attributes" so that
+>   it could get accepted earlier, since it is less contentious
+> 
+> Changes in v3:
+> - rm #define for driver name
+> - Don't compute weekday when reading from RTC.
+>   Still set weekday when writing, as RTC needs this
+>   to control advanced power scheduling
+> - rm check for invalid month data
+> - Set range_min and range_max on rtc_device
+> 
+> Changes in v2:
+> - rm license boiler plate
+> - rm "wilco_ec_rtc -" prefix in docstring
+> - Make rtc driver its own module within the drivers/rtc/ directory
+> - Register a rtc device from core.c that is picked up by this driver
+> 
+>  drivers/platform/chrome/wilco_ec/core.c |  22 ++-
+
+Alexandre, this specific patch depends on the patches of the series to apply,
+and the first patches of the series also conflicts/depends on some patches
+queued in chrome-platform-5.1 branch [1]. Is it fine with you if I create an
+immutable branch and all go via your tree? Or what do you think? I am new here
+and I am not sure how to manage that.
+
+Thanks,
+  Enric
+
+[1]
+https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git/log/?h=chrome-platform-5.1
+
+>  drivers/rtc/Kconfig                     |  11 ++
+>  drivers/rtc/Makefile                    |   1 +
+>  drivers/rtc/rtc-wilco-ec.c              | 177 ++++++++++++++++++++++++
+>  include/linux/platform_data/wilco-ec.h  |   2 +
+>  5 files changed, 211 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/rtc/rtc-wilco-ec.c
+> 
+> diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
+> index ae86cae216fd..e67385ec5103 100644
+> --- a/drivers/platform/chrome/wilco_ec/core.c
+> +++ b/drivers/platform/chrome/wilco_ec/core.c
+> @@ -42,6 +42,7 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+>  	struct wilco_ec_device *ec;
+> +	int ret;
+>  
+>  	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
+>  	if (!ec)
+> @@ -70,21 +71,38 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>  			     ec->io_packet->start + EC_MAILBOX_DATA_SIZE);
+>  
+>  	/*
+> -	 * Register a debugfs platform device that will get picked up by the
+> -	 * debugfs driver. Ignore failure.
+> +	 * Register a child device that will be found by the RTC driver.
+> +	 * Ignore failure.
+>  	 */
+>  	ec->debugfs_pdev = platform_device_register_data(dev,
+>  							 "wilco-ec-debugfs",
+>  							 PLATFORM_DEVID_AUTO,
+>  							 NULL, 0);
+>  
+> +	/* Register a child device that will be found by the RTC driver. */
+> +	ec->rtc_pdev = platform_device_register_data(dev, "rtc-wilco-ec",
+> +						     PLATFORM_DEVID_AUTO,
+> +						     NULL, 0);
+> +	if (IS_ERR(ec->rtc_pdev)) {
+> +		dev_err(dev, "Failed to create RTC platform device\n");
+> +		ret = PTR_ERR(ec->rtc_pdev);
+> +		goto unregister_debugfs;
+> +	}
+> +
+>  	return 0;
+> +
+> +unregister_debugfs:
+> +	if (ec->debugfs_pdev)
+> +		platform_device_unregister(ec->debugfs_pdev);
+> +	cros_ec_lpc_mec_destroy();
+> +	return ret;
+>  }
+>  
+>  static int wilco_ec_remove(struct platform_device *pdev)
+>  {
+>  	struct wilco_ec_device *ec = platform_get_drvdata(pdev);
+>  
+> +	platform_device_unregister(ec->rtc_pdev);
+>  	if (ec->debugfs_pdev)
+>  		platform_device_unregister(ec->debugfs_pdev);
+>  
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 225b0b8516f3..d5063c791515 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1814,4 +1814,15 @@ config RTC_DRV_GOLDFISH
+>  	  Goldfish is a code name for the virtual platform developed by Google
+>  	  for Android emulation.
+>  
+> +config RTC_DRV_WILCO_EC
+> +	tristate "Wilco EC RTC"
+> +	depends on WILCO_EC
+> +	default m
+> +	help
+> +	  If you say yes here, you get read/write support for the Real Time
+> +	  Clock on the Wilco Embedded Controller (Wilco is a kind of Chromebook)
+> +
+> +	  This can also be built as a module. If so, the module will
+> +	  be named "rtc_wilco_ec".
+> +
+>  endif # RTC_CLASS
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index df022d820bee..6255ea78da25 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -172,6 +172,7 @@ obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
+>  obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
+>  obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
+>  obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
+> +obj-$(CONFIG_RTC_DRV_WILCO_EC)	+= rtc-wilco-ec.o
+>  obj-$(CONFIG_RTC_DRV_WM831X)	+= rtc-wm831x.o
+>  obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+>  obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+> diff --git a/drivers/rtc/rtc-wilco-ec.c b/drivers/rtc/rtc-wilco-ec.c
+> new file mode 100644
+> index 000000000000..35cc56114c1c
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-wilco-ec.c
+> @@ -0,0 +1,177 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * RTC interface for Wilco Embedded Controller with R/W abilities
+> + *
+> + * Copyright 2018 Google LLC
+> + *
+> + * The corresponding platform device is typically registered in
+> + * drivers/platform/chrome/wilco_ec/core.c
+> + */
+> +
+> +#include <linux/bcd.h>
+> +#include <linux/err.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/platform_data/wilco-ec.h>
+> +#include <linux/rtc.h>
+> +#include <linux/timekeeping.h>
+> +
+> +#define EC_COMMAND_CMOS			0x7c
+> +#define EC_CMOS_TOD_WRITE		0x02
+> +#define EC_CMOS_TOD_READ		0x08
+> +
+> +/**
+> + * struct ec_rtc_read - Format of RTC returned by EC.
+> + * @second: Second value (0..59)
+> + * @minute: Minute value (0..59)
+> + * @hour: Hour value (0..23)
+> + * @day: Day value (1..31)
+> + * @month: Month value (1..12)
+> + * @year: Year value (full year % 100)
+> + * @century: Century value (full year / 100)
+> + *
+> + * All values are presented in binary (not BCD).
+> + */
+> +struct ec_rtc_read {
+> +	u8 second;
+> +	u8 minute;
+> +	u8 hour;
+> +	u8 day;
+> +	u8 month;
+> +	u8 year;
+> +	u8 century;
+> +} __packed;
+> +
+> +/**
+> + * struct ec_rtc_write - Format of RTC sent to the EC.
+> + * @param: EC_CMOS_TOD_WRITE
+> + * @century: Century value (full year / 100)
+> + * @year: Year value (full year % 100)
+> + * @month: Month value (1..12)
+> + * @day: Day value (1..31)
+> + * @hour: Hour value (0..23)
+> + * @minute: Minute value (0..59)
+> + * @second: Second value (0..59)
+> + * @weekday: Day of the week (0=Saturday)
+> + *
+> + * All values are presented in BCD.
+> + */
+> +struct ec_rtc_write {
+> +	u8 param;
+> +	u8 century;
+> +	u8 year;
+> +	u8 month;
+> +	u8 day;
+> +	u8 hour;
+> +	u8 minute;
+> +	u8 second;
+> +	u8 weekday;
+> +} __packed;
+> +
+> +int wilco_ec_rtc_read(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
+> +	u8 param = EC_CMOS_TOD_READ;
+> +	struct ec_rtc_read rtc;
+> +	struct wilco_ec_message msg = {
+> +		.type = WILCO_EC_MSG_LEGACY,
+> +		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
+> +		.command = EC_COMMAND_CMOS,
+> +		.request_data = &param,
+> +		.request_size = sizeof(param),
+> +		.response_data = &rtc,
+> +		.response_size = sizeof(rtc),
+> +	};
+> +	int ret;
+> +
+> +	ret = wilco_ec_mailbox(ec, &msg);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	tm->tm_sec	= rtc.second;
+> +	tm->tm_min	= rtc.minute;
+> +	tm->tm_hour	= rtc.hour;
+> +	tm->tm_mday	= rtc.day;
+> +	tm->tm_mon	= rtc.month - 1;
+> +	tm->tm_year	= rtc.year + (rtc.century * 100) - 1900;
+> +	tm->tm_yday	= rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
+> +
+> +	/* Don't compute day of week, we don't need it. */
+> +	tm->tm_wday = -1;
+> +
+> +	return 0;
+> +}
+> +
+> +int wilco_ec_rtc_write(struct device *dev, struct rtc_time *tm)
+> +{
+> +	struct wilco_ec_device *ec = dev_get_drvdata(dev->parent);
+> +	struct ec_rtc_write rtc;
+> +	struct wilco_ec_message msg = {
+> +		.type = WILCO_EC_MSG_LEGACY,
+> +		.flags = WILCO_EC_FLAG_RAW_RESPONSE,
+> +		.command = EC_COMMAND_CMOS,
+> +		.request_data = &rtc,
+> +		.request_size = sizeof(rtc),
+> +	};
+> +	int year = tm->tm_year + 1900;
+> +	/*
+> +	 * Convert from 0=Sunday to 0=Saturday for the EC
+> +	 * We DO need to set weekday because the EC controls battery charging
+> +	 * schedules that depend on the day of the week.
+> +	 */
+> +	int wday = tm->tm_wday == 6 ? 0 : tm->tm_wday + 1;
+> +	int ret;
+> +
+> +	rtc.param	= EC_CMOS_TOD_WRITE;
+> +	rtc.century	= bin2bcd(year / 100);
+> +	rtc.year	= bin2bcd(year % 100);
+> +	rtc.month	= bin2bcd(tm->tm_mon + 1);
+> +	rtc.day		= bin2bcd(tm->tm_mday);
+> +	rtc.hour	= bin2bcd(tm->tm_hour);
+> +	rtc.minute	= bin2bcd(tm->tm_min);
+> +	rtc.second	= bin2bcd(tm->tm_sec);
+> +	rtc.weekday	= bin2bcd(wday);
+> +
+> +	ret = wilco_ec_mailbox(ec, &msg);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct rtc_class_ops wilco_ec_rtc_ops = {
+> +	.read_time = wilco_ec_rtc_read,
+> +	.set_time = wilco_ec_rtc_write,
+> +};
+> +
+> +static int wilco_ec_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct rtc_device *rtc;
+> +
+> +	rtc = devm_rtc_allocate_device(&pdev->dev);
+> +	if (IS_ERR(rtc))
+> +		return PTR_ERR(rtc);
+> +
+> +	rtc->ops = &wilco_ec_rtc_ops;
+> +	/* EC only supports this century */
+> +	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> +	rtc->range_max = RTC_TIMESTAMP_END_2099;
+> +	rtc->owner = THIS_MODULE;
+> +
+> +	return rtc_register_device(rtc);
+> +}
+> +
+> +static struct platform_driver wilco_ec_rtc_driver = {
+> +	.driver = {
+> +		.name = "rtc-wilco-ec",
+> +	},
+> +	.probe = wilco_ec_rtc_probe,
+> +};
+> +
+> +module_platform_driver(wilco_ec_rtc_driver);
+> +
+> +MODULE_ALIAS("platform:rtc-wilco-ec");
+> +MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DESCRIPTION("Wilco EC RTC driver");
+> diff --git a/include/linux/platform_data/wilco-ec.h b/include/linux/platform_data/wilco-ec.h
+> index 5344975afa1a..446473a46b88 100644
+> --- a/include/linux/platform_data/wilco-ec.h
+> +++ b/include/linux/platform_data/wilco-ec.h
+> @@ -35,6 +35,7 @@
+>   *               is used to hold the request and the response.
+>   * @data_size: Size of the data buffer used for EC communication.
+>   * @debugfs_pdev: The child platform_device used by the debugfs sub-driver.
+> + * @rtc_pdev: The child platform_device used by the RTC sub-driver.
+>   */
+>  struct wilco_ec_device {
+>  	struct device *dev;
+> @@ -45,6 +46,7 @@ struct wilco_ec_device {
+>  	void *data_buffer;
+>  	size_t data_size;
+>  	struct platform_device *debugfs_pdev;
+> +	struct platform_device *rtc_pdev;
+>  };
+>  
+>  /**
+> 
