@@ -2,55 +2,67 @@ Return-Path: <SRS0=RSfM=QR=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15CD4C282C2
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:18:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 992A4C282C2
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:21:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D924620855
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:18:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 668EA2145D
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:21:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726008AbfBJVSx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Feb 2019 16:18:53 -0500
-Received: from relay10.mail.gandi.net ([217.70.178.230]:51865 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725973AbfBJVSx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Feb 2019 16:18:53 -0500
+        id S1726005AbfBJVVj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 10 Feb 2019 16:21:39 -0500
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:51795 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725973AbfBJVVj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Feb 2019 16:21:39 -0500
+X-Originating-IP: 86.202.231.219
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 93B81240003;
-        Sun, 10 Feb 2019 21:18:51 +0000 (UTC)
-Date:   Sun, 10 Feb 2019 22:18:51 +0100
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id C73EA60003;
+        Sun, 10 Feb 2019 21:21:35 +0000 (UTC)
+Date:   Sun, 10 Feb 2019 22:21:35 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Trent Piepho <tpiepho@impinj.com>
-Cc:     "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [PATCH v2] rtc: isl1208: Add new style nvmem support to driver
-Message-ID: <20190210211851.GI23062@piout.net>
-References: <20190205174139.1383-1-tpiepho@impinj.com>
+To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc:     linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
+        a.zummo@towertech.it, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, ben.dooks@codethink.co.uk,
+        ccaione@baylibre.com
+Subject: Re: [PATCH v7 1/2] dt-bindings: rtc: add device-tree bindings for
+ the Amlogic Meson RTC
+Message-ID: <20190210212135.GJ23062@piout.net>
+References: <20190209001813.6792-1-martin.blumenstingl@googlemail.com>
+ <20190209001813.6792-2-martin.blumenstingl@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190205174139.1383-1-tpiepho@impinj.com>
+In-Reply-To: <20190209001813.6792-2-martin.blumenstingl@googlemail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
-
-On 05/02/2019 17:41:49+0000, Trent Piepho wrote:
-> +static const struct nvmem_config isl1208_nvmem_config = {
-> +	.name = "isl1208_nvram",
-> +	.word_size = 1,
-> +	.stride = 1,
-> +	/* .size from chip specific config */
-> +	.reg_read = isl1208_nvmem_read,
-> +	.reg_write = isl1208_nvmem_write,
-Can you also set .type here?
+On 09/02/2019 01:18:12+0100, Martin Blumenstingl wrote:
+> The 32-bit Amlogic Meson SoCs (Meson6, Meson8, Meson8b and Meson8m2)
+> have a built-in RTC block.
+> It has the following inputs:
+> - an 32.768kHz crystal oscillator
+> - an interrupt line
+> - a reset line
+> - 0.9V voltage input
+> 
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+> [resurrected patches from Ben after 2 years]
+> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> ---
+>  .../devicetree/bindings/rtc/rtc-meson.txt     | 35 +++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-meson.txt
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
