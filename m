@@ -1,76 +1,70 @@
-Return-Path: <SRS0=RSfM=QR=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=WeVf=QS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 099AAC282CC
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:22:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 320B3C169C4
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Feb 2019 10:33:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D2D052145D
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Feb 2019 21:22:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CC9220821
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Feb 2019 10:33:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726152AbfBJVWF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Feb 2019 16:22:05 -0500
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:54925 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725973AbfBJVWF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Feb 2019 16:22:05 -0500
-X-Originating-IP: 86.202.231.219
-Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        id S1726821AbfBKKd3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Feb 2019 05:33:29 -0500
+Received: from relay10.mail.gandi.net ([217.70.178.230]:50991 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726391AbfBKKd3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Feb 2019 05:33:29 -0500
+Received: from localhost (alyon-652-1-53-40.w109-213.abo.wanadoo.fr [109.213.164.40])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 3F402C0004;
-        Sun, 10 Feb 2019 21:22:00 +0000 (UTC)
-Date:   Sun, 10 Feb 2019 22:21:59 +0100
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 18E99240018;
+        Mon, 11 Feb 2019 10:33:26 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
-        a.zummo@towertech.it, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, ben.dooks@codethink.co.uk,
-        ccaione@baylibre.com
-Subject: Re: [PATCH v7 2/2] rtc: support for the Amlogic Meson RTC
-Message-ID: <20190210212159.GK23062@piout.net>
-References: <20190209001813.6792-1-martin.blumenstingl@googlemail.com>
- <20190209001813.6792-3-martin.blumenstingl@googlemail.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: meson: remove useless rtc_nvmem_unregister call
+Date:   Mon, 11 Feb 2019 11:33:24 +0100
+Message-Id: <20190211103324.643-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190209001813.6792-3-martin.blumenstingl@googlemail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 09/02/2019 01:18:13+0100, Martin Blumenstingl wrote:
-> Add support for the RTC block on the 32-bit Amlogic Meson6, Meson8,
-> Meson8b and Meson8m2 SoCs.
-> 
-> The RTC is split in to two parts, which are both managed by this driver:
-> - the AHB front end
-> - and a simple serial connection to the actual registers
-> 
-> The RTC_COUNTER register which holds the time is 32-bits wide.
-> 
-> There are four 32-bit wide (in total: 16 bytes) "regmem" registers which
-> are exposed using nvmem. On Amlogic's 3.10 kernel this is used to store
-> data which needs to survive a suspend / resume cycle.
-> 
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-> [resurrected Ben's patches after 2 years]
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> ---
->  drivers/rtc/Kconfig     |  11 ++
->  drivers/rtc/Makefile    |   1 +
->  drivers/rtc/rtc-meson.c | 410 ++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 422 insertions(+)
->  create mode 100644 drivers/rtc/rtc-meson.c
-> 
-Applied, thanks.
+rtc_nvmem_unregister() is called on rtc_device release so it is not
+necessary to call it from the driver.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-meson.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/rtc/rtc-meson.c b/drivers/rtc/rtc-meson.c
+index 6fc4b09e7ebd..e08b981dfc21 100644
+--- a/drivers/rtc/rtc-meson.c
++++ b/drivers/rtc/rtc-meson.c
+@@ -373,13 +373,10 @@ static int meson_rtc_probe(struct platform_device *pdev)
+ 
+ 	ret = rtc_register_device(rtc->rtc);
+ 	if (ret)
+-		goto out_unregister_nvmem;
++		goto out_disable_vdd;
+ 
+ 	return 0;
+ 
+-out_unregister_nvmem:
+-	rtc_nvmem_unregister(rtc->rtc);
+-
+ out_disable_vdd:
+ 	regulator_disable(rtc->vdd);
+ 	return ret;
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
