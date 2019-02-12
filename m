@@ -2,204 +2,268 @@ Return-Path: <SRS0=6w/U=QT=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26ABDC282CE
-	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D774C282C4
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 09:17:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DEB62206BB
-	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF1C421773
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 09:17:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=impinj.com header.i=@impinj.com header.b="SQrdKYqV"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QXVtARHq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727549AbfBLCeQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Feb 2019 21:34:16 -0500
-Received: from mail-eopbgr680127.outbound.protection.outlook.com ([40.107.68.127]:17120
-        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727265AbfBLCeQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 11 Feb 2019 21:34:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=impinj.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J8LFiNkX0U/XnOi3qGo3BShAspHFVqPZTuX+fAEYujw=;
- b=SQrdKYqVwbGG8BBXqU9AszyKm0dyUSkQj5y7wDpi8U2X2mS46bDvx3pqSDdlWQ9Rqyj0/4UNT8gidr7abfqpl+A98ESbWAbTaC5ugdX7nqRm/ztQyosDVaFYn9MeQLnYg4Yfy/EsaMvJbrlSCkJtYokxqz+3GDXiJF7kgNwynbU=
-Received: from MWHPR0601MB3708.namprd06.prod.outlook.com (10.167.236.38) by
- MWHPR0601MB3659.namprd06.prod.outlook.com (10.167.236.25) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1601.21; Tue, 12 Feb 2019 02:34:06 +0000
-Received: from MWHPR0601MB3708.namprd06.prod.outlook.com
- ([fe80::ac0c:a03e:77c7:fa85]) by MWHPR0601MB3708.namprd06.prod.outlook.com
- ([fe80::ac0c:a03e:77c7:fa85%5]) with mapi id 15.20.1601.023; Tue, 12 Feb 2019
- 02:34:05 +0000
-From:   Trent Piepho <tpiepho@impinj.com>
-To:     "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-CC:     Trent Piepho <tpiepho@impinj.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: [PATCH v3 4/4] dt-bindings: rtc: Update for new chip in isl1208
- series
-Thread-Topic: [PATCH v3 4/4] dt-bindings: rtc: Update for new chip in isl1208
- series
-Thread-Index: AQHUwntsBuiUcMEfN0WYyQ0U2/vr3w==
-Date:   Tue, 12 Feb 2019 02:34:05 +0000
-Message-ID: <20190212023225.2710-4-tpiepho@impinj.com>
-References: <20190212023225.2710-1-tpiepho@impinj.com>
-In-Reply-To: <20190212023225.2710-1-tpiepho@impinj.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: BYAPR01CA0055.prod.exchangelabs.com (2603:10b6:a03:94::32)
- To MWHPR0601MB3708.namprd06.prod.outlook.com (2603:10b6:301:7c::38)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=tpiepho@impinj.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.14.4
-x-originating-ip: [216.207.205.253]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 31d4f93b-b01a-4a90-4878-08d690928ed0
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(2017052603328)(7153060)(7193020);SRVR:MWHPR0601MB3659;
-x-ms-traffictypediagnostic: MWHPR0601MB3659:
-x-microsoft-exchange-diagnostics: 1;MWHPR0601MB3659;20:wvzJV3bQDfw/6KZj09LF9S6Te9qr7K7RZcjosQmhVpLuOtO07XHfJjFPwiXXVRjs03wfR7+E/3AeXIZQI+DQmbZPhSBzQJcUPdq1iBwQbUmkZC7QgNFaSWa4xvG1fdfvyCp/RWp+wYQyyadbRHqT3jFcYeRU/6EiUyNz7FUvBuc=
-x-microsoft-antispam-prvs: <MWHPR0601MB3659AE7E3E094CC113B2CD92D3650@MWHPR0601MB3659.namprd06.prod.outlook.com>
-x-forefront-prvs: 0946DC87A1
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(39850400004)(396003)(376002)(136003)(366004)(189003)(199004)(316002)(102836004)(66066001)(6486002)(25786009)(86362001)(6116002)(53936002)(1076003)(2351001)(26005)(386003)(6506007)(5640700003)(7736002)(3846002)(305945005)(106356001)(97736004)(50226002)(6512007)(6436002)(105586002)(4326008)(11346002)(446003)(52116002)(14454004)(8676002)(2501003)(2906002)(476003)(2616005)(256004)(6916009)(99286004)(71200400001)(36756003)(54906003)(68736007)(81156014)(478600001)(8936002)(76176011)(14444005)(486006)(186003)(71190400001)(81166006);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR0601MB3659;H:MWHPR0601MB3708.namprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: impinj.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: zlJchX8EGYq+cOhv6l10cM9QgmoFS4N3UaE+EEI/iOc67eaRB2SnipKK+pG9VupLQC9pi1eOn50x8b/QQ0Xvb8DtHJ/yGAAdwNclS8KYU71hIx7k5/FPogZeRSyQ6wPa5VM4U1Qr9TZeAjsqnG9SRk+UZ6Z65i84qoiTMIDD9EPWk5SUih9rFCzQwIP/H/nqisfZTEBZtBTB8jEkrivYCLBYj8V1kgxDDusL3YZ9GFh8Y63uR0BrTulCkR8v0+MJ7E+5JKbu97sSV5d+2jm1paawe9S4DFb+vFpLSjQi/WeAVX33b/xmSQN/cActjVeWL0gJZbJILVaz4tPmjqwY1G8bJ0SOAj7T6+ga6X1eTIQbBwGp/+H/Aue/mwDxMNbFzzeFdcRdb0RPBdxIdJhSad4f6YyATQDfOUKjQBlvEVY=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1728660AbfBLJR3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 12 Feb 2019 04:17:29 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:50648 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728352AbfBLJR2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Feb 2019 04:17:28 -0500
+Received: by mail-wm1-f68.google.com with SMTP id x7so2084473wmj.0
+        for <linux-rtc@vger.kernel.org>; Tue, 12 Feb 2019 01:17:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=BIlukBkWgO/vLzXp5KG1DCh7TVf7ODhIgkv1+/aaxNc=;
+        b=QXVtARHqEVBOSHcRbIL7ikz41kCKzIXCVqpgzoYQFu4q0yc0fozm5syJ0jiYLuBpCe
+         5/jH+fBBsxPqKV8r2BGKc7lbLNFYbPqKc/1VM3i+yGK5/EuqXutHVRBZW8Kwn/l8XXUh
+         aFV8qA4ovBGIZ3M0wEbgmaGpBM7wLORllWV+hdiWVB/H5ZhWDkHE786lydgBIE8XrcwU
+         R+IpbovbguIrSB1rtwwnXOu2K0+5ZZiyvBkQ565aX5ttCbVaj24MZRaoMXQzrFCJsOuQ
+         /DyhV1zWmpmEjhgJ2cYRM7d7nG6UzNPQBppNFNmaqKPh3g0t7qZGdGh6PLq4NbJwijc6
+         P7Ow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=BIlukBkWgO/vLzXp5KG1DCh7TVf7ODhIgkv1+/aaxNc=;
+        b=gYZzlVhTO2TIdvACiwk/42Bcou74fCBf9Wol80ZovBc6aBjYw/2WRsQQCZ+CLstSIE
+         Cw8C1x2Lh8/2ALGF6pSguGi98NWBfQ8PMsyfaCmsWP+sOdWMADcgEczfqMm4UUNt8tLz
+         fgpvOSzu9mtODxmLq0mSgEpMvT2OOM7JSti4p99Phwac4sfmLAKi1Mxqonf8FYKlOCzl
+         /Spwyiz1pZm6XBTTpvsQXdCA+RiMH1FjUbVINjGNdH+1Y1vih4O2UvllTiAGDyWlnos0
+         vRH9LAqjrfAWSIlPyJnCnQv+Ri4gnkaWWIXOHcadVhQHZKSLkREnaBHbucYgQUM7T8iJ
+         t+2g==
+X-Gm-Message-State: AHQUAuZrMX+Z5kyEBlO/YQHj6w8HPqpfN2jGaiWhqs6/xFr4PfUXLAvZ
+        HcdXbAnjpJehNyvwdeQ+ZMkR4g==
+X-Google-Smtp-Source: AHgI3IaPKltqNWl0RUv+mWC7l8rNTP66q5LmtAKMoFXaxeVbWV41QA8eBzt6DLyHT0ht3R3dnZ4T8A==
+X-Received: by 2002:a1c:2d42:: with SMTP id t63mr2155120wmt.9.1549963046246;
+        Tue, 12 Feb 2019 01:17:26 -0800 (PST)
+Received: from dell ([2.27.35.171])
+        by smtp.gmail.com with ESMTPSA id l19sm988376wme.21.2019.02.12.01.17.24
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 12 Feb 2019 01:17:25 -0800 (PST)
+Date:   Tue, 12 Feb 2019 09:17:23 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v8 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190212091723.GZ20638@dell>
+References: <cover.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <50d1debf03bbd07f49b2c5a85cf9672439cbd0ac.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190207140053.GG20638@dell>
+ <20190207162807.GB1920@localhost.localdomain>
+ <20190208105743.GI20638@dell>
+ <20190208124111.GB3012@localhost.localdomain>
 MIME-Version: 1.0
-X-OriginatorOrg: impinj.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 31d4f93b-b01a-4a90-4878-08d690928ed0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2019 02:34:05.1250
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-id: 6de70f0f-7357-4529-a415-d8cbb7e93e5e
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR0601MB3659
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190208124111.GB3012@localhost.localdomain>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Since this documents multiple chips controlled by the isl1208 driver,
-name it isil,isl1208.txt, as the convention is to use the base driver
-name in the bindings document for drivers with multiple devices.
+On Fri, 08 Feb 2019, Matti Vaittinen wrote:
 
-Include all chips supported by this driver in the docs.  Make it
-clear which properties apply to which chips.
+> Hello Lee,
+> 
+> On Fri, Feb 08, 2019 at 10:57:43AM +0000, Lee Jones wrote:
+> > > 
+> > > This is needed by both RTC and WDT drivers as RTC driver must stop the
+> > > WDT when it sets RTC. WDT HW is using RTC counter and might trigger
+> > > timeout/reset when RTC is set. Options are to dublicate the
+> > > enable/disable to both drivers or to export a function or share a
+> > > function pointer. I didn't want dublication or dependency between RTC
+> > > and WDT drivers. Thus I thought that MFD is best place for this code as
+> > > both RTC and WDT require it anyways. Perhaps this should be commented
+> > > here?
+> > 
+> > I think an exported function with comments would be better.
+> 
+> So do you mean you would prefer exported function over the pointer from
 
-Expand documentation for existing isil,evienb property to explain
-operation in more detail.  Existing docs just describe it in terms of
-setting a bit in a register.
+Yes please.  Call-back pointers for non-subsystem level actions are a
+bit messy IMHO.
 
-CC: Alessandro Zummo <a.zummo@towertech.it>
-CC: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
-CC: devicetree@vger.kernel.org
-Signed-off-by: Trent Piepho <tpiepho@impinj.com>
----
- .../devicetree/bindings/rtc/isil,isl1208.txt       | 38 ++++++++++++++++++=
-++++
- .../devicetree/bindings/rtc/isil,isl1219.txt       | 29 -----------------
- 2 files changed, 38 insertions(+), 29 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1208.txt
- delete mode 100644 Documentation/devicetree/bindings/rtc/isil,isl1219.txt
+> MFD? I guess I can do it but I would still like to keep the code in the
+> MFD as I would rather not introduce dependency from WDT driver to RTC or
+> other way around. I can easily think of cases where WDT or RTC drivers
+> would be unnecessary and user might want to drop one of them out of
 
-diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1208.txt b/Docum=
-entation/devicetree/bindings/rtc/isil,isl1208.txt
-new file mode 100644
-index 000000000000..51f003006f04
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/isil,isl1208.txt
-@@ -0,0 +1,38 @@
-+Intersil ISL1209/19 I2C RTC/Alarm chip with event in
-+
-+ISL12X9 have additional pins EVIN and #EVDET for tamper detection, while t=
-he
-+ISL1208 and ISL1218 do not.  They are all use the same driver with the bin=
-dings
-+described here, with chip specific properties as noted.
-+
-+Required properties supported by the device:
-+ - "compatible": Should be one of the following:
-+		- "isil,isl1208"
-+		- "isil,isl1209"
-+		- "isil,isl1218"
-+		- "isil,isl1219"
-+ - "reg": I2C bus address of the device
-+
-+Optional properties:
-+ - "interrupt-names": list which may contains "irq" and "evdet"
-+	evdet applies to isl1209 and isl1219 only
-+ - "interrupts": list of interrupts for "irq" and "evdet"
-+	evdet applies to isl1209 and isl1219 only
-+ - "isil,ev-evienb": Enable or disable internal pull on EVIN pin
-+	Applies to isl1209 and isl1219 only
-+	Possible values are 0 and 1
-+	Value 0 enables internal pull-up on evin pin, 1 disables it.
-+	Default will leave the non-volatile configuration of the pullup
-+	as is.
-+
-+Example isl1219 node with #IRQ pin connected to SoC gpio1 pin12 and #EVDET=
- pin
-+connected to SoC gpio2 pin 24 and internal pull-up enabled in EVIN pin.
-+
-+	isl1219: rtc@68 {
-+		compatible =3D "isil,isl1219";
-+		reg =3D <0x68>;
-+		interrupt-names =3D "irq", "evdet";
-+		interrupts-extended =3D <&gpio1 12 IRQ_TYPE_EDGE_FALLING>,
-+			<&gpio2 24 IRQ_TYPE_EDGE_FALLING>;
-+		isil,ev-evienb =3D <1>;
-+	};
-+
-diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1219.txt b/Docum=
-entation/devicetree/bindings/rtc/isil,isl1219.txt
-deleted file mode 100644
-index c3efd48e91c2..000000000000
---- a/Documentation/devicetree/bindings/rtc/isil,isl1219.txt
-+++ /dev/null
-@@ -1,29 +0,0 @@
--Intersil ISL1219 I2C RTC/Alarm chip with event in
--
--ISL1219 has additional pins EVIN and #EVDET for tamper detection.
--
--Required properties supported by the device:
--
-- - "compatible": must be "isil,isl1219"
-- - "reg": I2C bus address of the device
--
--Optional properties:
--
-- - "interrupt-names": list which may contains "irq" and "evdet"
-- - "interrupts": list of interrupts for "irq" and "evdet"
-- - "isil,ev-evienb": if present EV.EVIENB bit is set to the specified
--                     value for proper operation.
--
--
--Example isl1219 node with #IRQ pin connected to SoC gpio1 pin12
-- and #EVDET pin connected to SoC gpio2 pin 24:
--
--	isl1219: rtc@68 {
--		compatible =3D "isil,isl1219";
--		reg =3D <0x68>;
--		interrupt-names =3D "irq", "evdet";
--		interrupts-extended =3D <&gpio1 12 IRQ_TYPE_EDGE_FALLING>,
--			<&gpio2 24 IRQ_TYPE_EDGE_FALLING>;
--		isil,ev-evienb =3D <1>;
--	};
--
---=20
-2.14.4
+Sounds fine.
 
+> configuration. And I wonder if export actually makes any real
+> improvement as we need to share the mutex between RTC and WDT anyways.
+
+They all (parent (MFD), RTC and WDT) have shared data anyway.
+
+> > [...]
+> > 
+> > > > > +	irqs[BD70528_INT_GPIO3].type.type_reg_offset = 6;
+> > > > > +	irqs[BD70528_INT_GPIO3].type.type_rising_val = 0x20;
+> > > > > +	irqs[BD70528_INT_GPIO3].type.type_falling_val = 0x10;
+> > > > > +	irqs[BD70528_INT_GPIO3].type.type_level_high_val = 0x40;
+> > > > > +	irqs[BD70528_INT_GPIO3].type.type_level_low_val = 0x50;
+> > > > > +	irqs[BD70528_INT_GPIO3].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
+> > > > > +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> > > > 
+> > > > Could you please explain:
+> > > > 
+> > > > a) what you're doing here
+> > > 
+> > > Regmap-irq gained support for type-setting. On bd70528 the type setting
+> > > makes sense only for GPIO interrupts - so we must not populate type
+> > > setting information for the rest of the IRQs. The macro REGMAP_IRQ_REG
+> > > is nice and makes the irq struct initialization cleaner. Thus it is used.
+> > > It does not allow populating the type information - hence we do it here.
+> > > 
+> > > I can change this if you think some other way would be cleaner?
+> > 
+> > It's pretty fugly.  Can the REGMAP_IRQ_REG be expanded upon?
+> 
+> I was thinking of that but for vast majority of REGMAP_IRQ_REG users
+> initializing type regs would be just unnecessary burden (giving 6
+> zeroes for unsupported fields for each IRQ gets dull quite soon) I
+
+No, I don't mean edit REGMAP_IRQ_REG directly.  I'm proposing to
+create another, separate MACRO based on REGMAP_IRQ_REG.
+
+> was also thinking of adding another macro to be used in cases where
+> we have type setting supported - but macros with 9 parameters won't fit
+> on a line and (in my opinion) will not bring much improvement over
+> plain assignment.
+
+I think a 2 line MACRO is better than the current imp.
+
+> > > > b) why you don't mass assign them
+> > > >     - seeing as most of the data is identical.
+> > > 
+> > > Maybe I am a bit slow today - but I don't know how the 'mass assignment'
+> > > should be done?
+> > 
+> > Something like (completely untested):
+> > 
+> > unsigned int type_reg_offset_inc = 0;
+> > for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
+> > 	irqs[i].type.type_reg_offset     = type_reg_offset_inc;
+> > 	irqs[i].type.type_rising_val     = 0x20;
+> > 	irqs[i].type.type_falling_val    = 0x10;
+> > 	irqs[i].type.type_level_high_val = 0x40;
+> > 	irqs[i].type.type_level_low_val  = 0x50;
+> > 	irqs[i].type.types_supported =
+> > 		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> > 	type_reg_offset_inc += 2;
+> > }
+> 
+> Right. I did this this morning =)
+> 
+> > It's still fugly though.
+> 
+> Agree.
+> 
+> > If we can do this via MACROs, it would be better.
+> 
+> I just dont see how to do a nice macro for this. Truth is that there is
+> 6 fields to initialize - and the values can't be guessed so each value
+> needs to be given. In best case the macro can somewhat shorten the
+> assignment (but no way it'd still fit nicely on one row) - in worst
+
+Don't get hung up on MACROS existing on a single line.
+
+> case it just hides the meaning of values we are passing as arguments.
+> With raw assignment we at least have some idea what the 0x40 or 0x20 are
+> referring to =)
+
+Well I do agree with your last comment.
+
+Maybe doing the following would help with the ugliness (i.e. the shear
+number of chars):
+
+ unsigned int type_reg_offset_inc = 0;
+ for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
+        <blar> *t = irqs[i].type;
+        t->type_reg_offset     = type_reg_offset_inc;
+ 	t->type_rising_val     = 0x20;
+ 	t->type_falling_val    = 0x10;
+ 	t->type_level_high_val = 0x40;
+ 	t->type_level_low_val  = 0x50;
+ 	t->types_supported =
+ 		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+ 	type_reg_offset_inc += 2;
+ }
+
+> > > > > +struct bd70528 {
+> > > > > +	/*
+> > > > > +	 * Please keep this as the first member here as some
+> > > > > +	 * drivers (clk) supporting more than one chip may only know this
+> > > > > +	 * generic struct 'struct rohm_regmap_dev' and assume it is
+> > > > > +	 * the first chunk of parent device's private data.
+> > > > > +	 */
+> > > > > +	struct rohm_regmap_dev chip;
+> > > > > +	/* wdt_set must be called rtc_timer_lock held */
+> > > > 
+> > > > This doesn't make sense.
+> > > 
+> > > Umm.. The comment does not make sense? Maybe I can explain it further.
+> > 
+> > "wdt_set must be called when the rtc_timer_lock is held"
+> 
+> Yes. I wanted to say that who-ever is calling the wdt_set function
+> below, should have locked the rtc_timer_lock mutex (last in this
+> struct). The function does not do locking inside because we want the RTC
+> to be able to perform:
+> 
+> lock
+> disable wdt (store original state)
+> set RTC
+> return wdt original state
+> unlock
+> 
+> Locking is needed so that we can exclude the watchdog enabling or
+> disabling the WDT timer between moments when RTC is getting the original
+> WDT state and re-turning back the old state. Without the lock we have a
+> risk that WDT-driver enables or disables the timer when RTC is being
+> set, and RTC overwrites the watchdog driver changes when writing back
+> the old state. I hope this makes sense now... Any suggestions how to
+> explain this nicely in english?
+
+I think I did already:
+
+ "wdt_set must be called when the rtc_timer_lock is held"
+
+Actually, this is a little ambiguous.  A better sentence could read:
+
+ "rtc_timer_lock must be taken before calling wdt_set()"
+ 
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
