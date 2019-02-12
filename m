@@ -7,44 +7,47 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B6ACC282CE
-	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A38D1C169C4
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 43503206BB
-	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60D9F206BB
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Feb 2019 02:34:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=impinj.com header.i=@impinj.com header.b="XIJiXXx8"
+	dkim=pass (1024-bit key) header.d=impinj.com header.i=@impinj.com header.b="HY6G9Bge"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727656AbfBLCeM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Feb 2019 21:34:12 -0500
+        id S1727745AbfBLCeO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Feb 2019 21:34:14 -0500
 Received: from mail-eopbgr680127.outbound.protection.outlook.com ([40.107.68.127]:17120
         "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727466AbfBLCeL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 11 Feb 2019 21:34:11 -0500
+        id S1727549AbfBLCeN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 11 Feb 2019 21:34:13 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=impinj.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uCaVxUSzpXxTL0Uo1f08DMU4HmbOEsCvW0edwBIhk4A=;
- b=XIJiXXx8sYErV9FTmAG6vR9Fgk2+6AQwCDTCenc8Wra7kewPq5N8po/2Sz51VSWGBQktVe4Xub0c+VaAdHRa89uQ9wUnIZ1t165OkaaLKrD8i6MHafbrUb3mTUdfmbvBQhWXmzwlF62hipiaq0abVBleqHIoGIFCOs+pLIDdNno=
+ bh=MWDeJjAcyrjUmJYwe/VtZ7kon14mhqTpBqy/rvhHanQ=;
+ b=HY6G9BgeFjGMsW+aiOHWMrzS1hBp4Zu7nj7loNy3CJr0wcI5EB86PboW1rVC0Yp1mbxNkABtmuyZaSm/lZHZvzE9i4NB7m/EVB5evddhA5U6Z+Dh9xPEETT4FBG7h3UmA++dyneFipAoK5/kMcTZEc974bqBiwWNp7mz2ya5VIQ=
 Received: from MWHPR0601MB3708.namprd06.prod.outlook.com (10.167.236.38) by
  MWHPR0601MB3659.namprd06.prod.outlook.com (10.167.236.25) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1601.21; Tue, 12 Feb 2019 02:34:03 +0000
+ 15.20.1601.21; Tue, 12 Feb 2019 02:34:05 +0000
 Received: from MWHPR0601MB3708.namprd06.prod.outlook.com
  ([fe80::ac0c:a03e:77c7:fa85]) by MWHPR0601MB3708.namprd06.prod.outlook.com
  ([fe80::ac0c:a03e:77c7:fa85%5]) with mapi id 15.20.1601.023; Tue, 12 Feb 2019
- 02:34:03 +0000
+ 02:34:05 +0000
 From:   Trent Piepho <tpiepho@impinj.com>
 To:     "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
 CC:     Trent Piepho <tpiepho@impinj.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 1/4] rtc: isl1208: Introduce driver state struct
-Thread-Topic: [PATCH v3 1/4] rtc: isl1208: Introduce driver state struct
-Thread-Index: AQHUwntrzagbFruyeEy3EKwxfTvHQg==
-Date:   Tue, 12 Feb 2019 02:34:03 +0000
-Message-ID: <20190212023225.2710-1-tpiepho@impinj.com>
+Subject: [PATCH v3 3/4] rtc: isl1208: Add new style nvmem support to driver
+Thread-Topic: [PATCH v3 3/4] rtc: isl1208: Add new style nvmem support to
+ driver
+Thread-Index: AQHUwntst0ucCLwYTE2N6SGR2Pg1kQ==
+Date:   Tue, 12 Feb 2019 02:34:05 +0000
+Message-ID: <20190212023225.2710-3-tpiepho@impinj.com>
+References: <20190212023225.2710-1-tpiepho@impinj.com>
+In-Reply-To: <20190212023225.2710-1-tpiepho@impinj.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -57,23 +60,23 @@ x-ms-exchange-messagesentrepresentingtype: 1
 x-mailer: git-send-email 2.14.4
 x-originating-ip: [216.207.205.253]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6abb16dd-e169-47be-4e8c-08d690928d48
+x-ms-office365-filtering-correlation-id: 2cd8b201-6969-4879-98e9-08d690928e54
 x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(2017052603328)(7153060)(7193020);SRVR:MWHPR0601MB3659;
 x-ms-traffictypediagnostic: MWHPR0601MB3659:
-x-microsoft-exchange-diagnostics: 1;MWHPR0601MB3659;20:umac7nBLuyQCudv1f9ZiCcSuFQtLsK6Ubo+qwmaIp4hLYY79Kulr3SHGYGImYICw6VGv0ZslOYs7VOXppd1uQDy22cvphVL4gQmtEjcqnPQ+8b9uMO9sAxw3sc2+JcUVm7qlEDJqeH6enzQw3KhpVdk1Tf+o89sX20M/aeOXvzY=
-x-microsoft-antispam-prvs: <MWHPR0601MB3659D1116AD0DAEB93D1809CD3650@MWHPR0601MB3659.namprd06.prod.outlook.com>
+x-microsoft-exchange-diagnostics: 1;MWHPR0601MB3659;20:vhXnqdDeK6VkBZxOPI6NfylYrb02H7HBfTIGxKyVxCTSghIB/bO3CChXLBd+zGYbH4dHWdi5PEliRvzi3rO3EHQF6Ff7trra+PeIptwQ1KwV6GLzz1kur8YCRBU3+9qJkbCWvxtsUYaNuCgem3xm5Vh6iiuiGitPinYN2IY3qJk=
+x-microsoft-antispam-prvs: <MWHPR0601MB365910F9C840D54DDAAC1B7ED3650@MWHPR0601MB3659.namprd06.prod.outlook.com>
 x-forefront-prvs: 0946DC87A1
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(39850400004)(396003)(376002)(136003)(366004)(189003)(199004)(316002)(102836004)(66066001)(6486002)(25786009)(86362001)(6116002)(53936002)(1076003)(2351001)(26005)(386003)(6506007)(5640700003)(7736002)(3846002)(305945005)(106356001)(97736004)(50226002)(6512007)(6436002)(105586002)(4326008)(52116002)(14454004)(8676002)(2501003)(2906002)(476003)(2616005)(256004)(6916009)(99286004)(71200400001)(36756003)(54906003)(68736007)(81156014)(478600001)(8936002)(14444005)(486006)(186003)(71190400001)(81166006);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR0601MB3659;H:MWHPR0601MB3708.namprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(39850400004)(396003)(376002)(136003)(366004)(189003)(199004)(316002)(102836004)(66066001)(6486002)(25786009)(86362001)(6116002)(53936002)(1076003)(2351001)(26005)(386003)(6506007)(5640700003)(7736002)(3846002)(305945005)(106356001)(97736004)(50226002)(6512007)(6436002)(105586002)(4326008)(11346002)(446003)(52116002)(14454004)(8676002)(2501003)(2906002)(476003)(2616005)(256004)(6916009)(99286004)(71200400001)(36756003)(54906003)(68736007)(81156014)(478600001)(8936002)(76176011)(14444005)(486006)(186003)(71190400001)(81166006);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR0601MB3659;H:MWHPR0601MB3708.namprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
 received-spf: None (protection.outlook.com: impinj.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: CabvvmYiu9Ff1AteYGw59df+25jJ6tp0pZGXaT9PdDUjp4hPjMWz/Jv4oRUSfSi63XhTbd8upDZCut2muJXMbOnBiI2sp+gjUyPSX9LLvZvpba/UnlRZWTF9dJQ2gCkRkWRTh/Fif0c6tWE8vYAvIn6+viZ+k/V+HdHp0GHxUTe7xe1y6t+3zaXED1YRT3UnGdPnwwPGWaeWZoYhFI8Kcrrry2FUShG5sEcKlg+2xJTfbOBozFHk6/34qzahdSi801JCD12/Rej8PoEGRE8ok5S0zN1I2jBtatnw4QPPbKQrR/2iW4Gp5VBJgDYEmEuQ5m6GLOqbLd8EEsdm8J/W5ccLEm8jrIsmUWaxSOS5EE20icMKE+MGpuUGcG8NGfpOa3G2pwvAx9absnYcbAy8in+RKh3gdB2ExQ67Qr85FQs=
+x-microsoft-antispam-message-info: Hd3zszrEDBDiVUoijX9u6HqK29CGUHuRvxSEaqeHmrCxZx4RpRoTZcf5/263c38OJqS7+iH5ONg3pHF5OwszGure+ix89+n+0uAkhdqlI9QVX1OQEbT0Iy7DmpjpBcK8F/Wm2SsC2b7J7efxDyOl63cWu0fFu6Q0KwH5anmV2byQf335oB2+9IN5Q7l8bLaANiaG7B8roWvQPXiQ9AzW/L/6raQmyNcbP3fxGPnQLahYonkIMhsaeIcoazLG67TSJw4Y4yBTzAQ6hg67BhVM2II0kTK0taN2AZ/+BQlv96AQxfTEzr9LijGhvb9KmuOWc+GGZy//lYXLaK/a3pfXEraw8IQQLdLidObx3mJgXCexjiqco4zYfg7V1+I3FG4FZL727CYiH0MLpFJLYxSTq2wxUrquxRX6yKMU7yXtnT0=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: impinj.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6abb16dd-e169-47be-4e8c-08d690928d48
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2019 02:34:02.6843
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2cd8b201-6969-4879-98e9-08d690928e54
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2019 02:34:04.4425
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
@@ -84,122 +87,110 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This driver has no state of its own, depending entirely on what is in
-the generic rtc device.
+Add support for the RTC's NVRAM using the standard nvmem support that is
+part of the Linux RTC framework.
 
-Intoduce a state struct.  For now it only contains a pointer to the rtc
-device struct, but future patches will add more data.
+This driver already has a sysfs attribute that provides access to the
+RTC's NVRAM as a single 16-bit value.  Some chips have more than two
+bytes of NVRAM, so this will not work for them.  It's also non-standard.
+
+This sysfs attribute is left in for backward compatibility, but will only
+be able to read the first two bytes of NVRAM.  The nvmem interface will
+allow access to all NVRAM, e.g. eight bytes on the isl1218.
 
 Cc: Alessandro Zummo <a.zummo@towertech.it>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Trent Piepho <tpiepho@impinj.com>
 ---
- drivers/rtc/rtc-isl1208.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-isl1208.c | 50 +++++++++++++++++++++++++++++++++++++++++++=
+++++
+ 1 file changed, 50 insertions(+)
 
 diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 263af3d8cd9f..d8e0670e12fc 100644
+index 036e5fc148d4..471e395b20db 100644
 --- a/drivers/rtc/rtc-isl1208.c
 +++ b/drivers/rtc/rtc-isl1208.c
-@@ -79,6 +79,11 @@ enum {
- 	TYPE_ISL1219,
+@@ -115,6 +115,7 @@ MODULE_DEVICE_TABLE(of, isl1208_of_match);
+=20
+ /* Device state */
+ struct isl1208_state {
++	struct nvmem_config nvmem_config;
+ 	struct rtc_device *rtc;
+ 	const struct isl1208_config *config;
+ };
+@@ -742,6 +743,46 @@ static const struct attribute_group isl1219_rtc_sysfs_=
+files =3D {
+ 	.attrs	=3D isl1219_rtc_attrs,
  };
 =20
-+/* Device state */
-+struct isl1208_state {
-+	struct rtc_device *rtc;
++static int isl1208_nvmem_read(void *priv, unsigned int off, void *buf,
++			      size_t count)
++{
++	struct isl1208_state *isl1208 =3D priv;
++	struct i2c_client *client =3D to_i2c_client(isl1208->rtc->dev.parent);
++	int ret;
++
++	/* nvmem sanitizes offset/count for us, but count=3D=3D0 is possible */
++	if (!count)
++		return count;
++	ret =3D isl1208_i2c_read_regs(client, ISL1208_REG_USR1 + off, buf,
++				    count);
++	return ret =3D=3D 0 ? count : ret;
++}
++
++static int isl1208_nvmem_write(void *priv, unsigned int off, void *buf,
++			       size_t count)
++{
++	struct isl1208_state *isl1208 =3D priv;
++	struct i2c_client *client =3D to_i2c_client(isl1208->rtc->dev.parent);
++	int ret;
++
++	/* nvmem sanitizes off/count for us, but count=3D=3D0 is possible */
++	if (!count)
++		return count;
++	ret =3D isl1208_i2c_set_regs(client, ISL1208_REG_USR1 + off, buf,
++				   count);
++
++	return ret =3D=3D 0 ? count : ret;
++}
++
++static const struct nvmem_config isl1208_nvmem_config =3D {
++	.name =3D "isl1208_nvram",
++	.word_size =3D 1,
++	.stride =3D 1,
++	/* .size from chip specific config */
++	.reg_read =3D isl1208_nvmem_read,
++	.reg_write =3D isl1208_nvmem_write,
 +};
 +
- /* block read */
- static int
- isl1208_i2c_read_regs(struct i2c_client *client, u8 reg, u8 buf[],
-@@ -557,7 +562,7 @@ isl1208_rtc_interrupt(int irq, void *data)
+ static int isl1208_setup_irq(struct i2c_client *client, int irq)
  {
- 	unsigned long timeout =3D jiffies + msecs_to_jiffies(1000);
- 	struct i2c_client *client =3D data;
--	struct rtc_device *rtc =3D i2c_get_clientdata(client);
-+	struct isl1208_state *isl1208 =3D i2c_get_clientdata(client);
- 	int handled =3D 0, sr, err;
+ 	int rc =3D devm_request_threaded_irq(&client->dev, irq, NULL,
+@@ -796,6 +837,11 @@ isl1208_probe(struct i2c_client *client, const struct =
+i2c_device_id *id)
 =20
- 	/*
-@@ -580,7 +585,7 @@ isl1208_rtc_interrupt(int irq, void *data)
- 	if (sr & ISL1208_REG_SR_ALM) {
- 		dev_dbg(&client->dev, "alarm!\n");
+ 	isl1208->rtc->ops =3D &isl1208_rtc_ops;
 =20
--		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
-+		rtc_update_irq(isl1208->rtc, 1, RTC_IRQF | RTC_AF);
-=20
- 		/* Clear the alarm */
- 		sr &=3D ~ISL1208_REG_SR_ALM;
-@@ -598,7 +603,7 @@ isl1208_rtc_interrupt(int irq, void *data)
- 	}
-=20
- 	if (sr & ISL1208_REG_SR_EVT) {
--		sysfs_notify(&rtc->dev.kobj, NULL,
-+		sysfs_notify(&isl1208->rtc->dev.kobj, NULL,
- 			     dev_attr_timestamp0.attr.name);
- 		dev_warn(&client->dev, "event detected");
- 		handled =3D 1;
-@@ -723,7 +728,7 @@ static int
- isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
- 	int rc =3D 0;
--	struct rtc_device *rtc;
-+	struct isl1208_state *isl1208;
- 	int evdet_irq =3D -1;
-=20
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-@@ -732,13 +737,17 @@ isl1208_probe(struct i2c_client *client, const struct=
- i2c_device_id *id)
- 	if (isl1208_i2c_validate_client(client) < 0)
- 		return -ENODEV;
-=20
--	rtc =3D devm_rtc_allocate_device(&client->dev);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
-+	/* Allocate driver state, point i2c client data to it */
-+	isl1208 =3D devm_kzalloc(&client->dev, sizeof(*isl1208), GFP_KERNEL);
-+	if (!isl1208)
-+		return -ENOMEM;
-+	i2c_set_clientdata(client, isl1208);
-=20
--	rtc->ops =3D &isl1208_rtc_ops;
-+	isl1208->rtc =3D devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(isl1208->rtc))
-+		return PTR_ERR(isl1208->rtc);
-=20
--	i2c_set_clientdata(client, rtc);
-+	isl1208->rtc->ops =3D &isl1208_rtc_ops;
-=20
++	/* Setup nvmem configuration in driver state struct */
++	isl1208->nvmem_config =3D isl1208_nvmem_config;
++	isl1208->nvmem_config.size =3D isl1208->config->nvmem_length;
++	isl1208->nvmem_config.priv =3D isl1208;
++
  	rc =3D isl1208_i2c_get_sr(client);
  	if (rc < 0) {
-@@ -771,13 +780,13 @@ isl1208_probe(struct i2c_client *client, const struct=
- i2c_device_id *id)
- 			dev_err(&client->dev, "could not enable tamper detection\n");
- 			return rc;
- 		}
--		rc =3D rtc_add_group(rtc, &isl1219_rtc_sysfs_files);
-+		rc =3D rtc_add_group(isl1208->rtc, &isl1219_rtc_sysfs_files);
- 		if (rc)
- 			return rc;
- 		evdet_irq =3D of_irq_get_byname(np, "evdet");
- 	}
-=20
--	rc =3D rtc_add_group(rtc, &isl1208_rtc_sysfs_files);
-+	rc =3D rtc_add_group(isl1208->rtc, &isl1208_rtc_sysfs_files);
+ 		dev_err(&client->dev, "reading status failed\n");
+@@ -849,6 +895,10 @@ isl1208_probe(struct i2c_client *client, const struct =
+i2c_device_id *id)
  	if (rc)
  		return rc;
 =20
-@@ -791,7 +800,7 @@ isl1208_probe(struct i2c_client *client, const struct i=
-2c_device_id *id)
- 	if (rc)
- 		return rc;
-=20
--	return rtc_register_device(rtc);
-+	return rtc_register_device(isl1208->rtc);
++	rc =3D rtc_nvmem_register(isl1208->rtc, &isl1208->nvmem_config);
++	if (rc)
++		return rc;
++
+ 	return rtc_register_device(isl1208->rtc);
  }
 =20
- static const struct i2c_device_id isl1208_id[] =3D {
 --=20
 2.14.4
 
