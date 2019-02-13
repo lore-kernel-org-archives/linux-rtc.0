@@ -2,75 +2,89 @@ Return-Path: <SRS0=hLTa=QU=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=BIGNUM_EMAILS,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40CA3C282CA
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 17:43:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDCACC282C2
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 17:51:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0BBCD222CF
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 17:43:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550079824;
-	bh=TbfWk5CfHlkm9v5iLC16NXhclESuNrAJ56dy9GYwMmI=;
-	h=To:In-Reply-To:Subject:References:Cc:From:Date:List-ID:From;
-	b=mY/FuNlmGXuARruv81+abrngF9EaIoBvHxx0E4V/ltVAhaJmOZm0JFpjuutxuenzl
-	 lVLOrX47pujKiZZ2blTbtctvC1H+UDB2YquHzF0oyqbAW8vKdjEpYi574EHlbBqqrn
-	 ZYCcKoLFZM291AycVIqy27EUQ17Lq5H2OIyciMe4=
+	by mail.kernel.org (Postfix) with ESMTP id C8CF62086C
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 17:51:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391079AbfBMRnn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Feb 2019 12:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730494AbfBMRnn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 13 Feb 2019 12:43:43 -0500
-Received: from localhost (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C9820700;
-        Wed, 13 Feb 2019 17:43:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1550079822;
-        bh=TbfWk5CfHlkm9v5iLC16NXhclESuNrAJ56dy9GYwMmI=;
-        h=To:In-Reply-To:Subject:References:Cc:From:Date:From;
-        b=pZBCA6sGaKZr4s7ygA+8LOrA2p3OhQceZzJtsRqVpoev7O1oJefwe3Guw2+QM3/4Z
-         qO40GkNqEW7xK6oCI7lbF/qDcx32qgUQeKC/EHmPy2WJiJkg/ds7nJ5uOCqvxNdtOk
-         9UkejubmzUCH1gJBhFN8TSWCGuvHhoxNwlULGN/k=
-Content-Type: text/plain; charset="utf-8"
+        id S2387572AbfBMRv2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 13 Feb 2019 12:51:28 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:37895 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387546AbfBMRv2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Feb 2019 12:51:28 -0500
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1gtygw-0001Wi-KU; Wed, 13 Feb 2019 18:51:26 +0100
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1gtygv-0007uQ-UJ; Wed, 13 Feb 2019 18:51:25 +0100
+Date:   Wed, 13 Feb 2019 18:51:25 +0100
+From:   Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     linux-rtc@vger.kernel.org
+Subject: Re: [bug report] rtc: ds1307: rx8130: honor Voltage Loss Flag when
+ reading the time
+Message-ID: <20190213175125.bpwwi2slm6lvjg3x@pengutronix.de>
+References: <20190213131731.GA29774@kadam>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-In-Reply-To: <f3d5163067e97426a9bb00991d200f04bcd0058b.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: alot/0.8
-Subject: Re: [PATCH v9 3/8] clk: bd718x7: Support ROHM BD70528 clk block
-Message-ID: <155007982166.115909.16929990408175018819@swboyd.mtv.corp.google.com>
-References: <cover.1550063882.git.matti.vaittinen@fi.rohmeurope.com> <f3d5163067e97426a9bb00991d200f04bcd0058b.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, sre@kernel.org, lgirdwood@gmail.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        wim@linux-watchdog.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-From:   Stephen Boyd <sboyd@kernel.org>
-Date:   Wed, 13 Feb 2019 09:43:41 -0800
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190213131731.GA29774@kadam>
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Quoting Matti Vaittinen (2019-02-13 05:29:55)
-> ROHM BD70528 is an ultra low power PMIC with similar 32K clk as
-> bd718x7. Only difference (from clk perspective) is register address.
-> Add support for controlling BD70528 clk using bd718x7 driver.
->=20
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
+Hello Dan,
 
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+On Wed, Feb 13, 2019 at 04:17:31PM +0300, Dan Carpenter wrote:
+> The patch 501f98266cad: "rtc: ds1307: rx8130: honor Voltage Loss Flag
+> when reading the time" from Jan 25, 2019, leads to the following
+> static checker warning:
+> 
+> 	drivers/rtc/rtc-ds1307.c:314 ds1307_set_time()
+> 	warn: this cast is a no-op
+> 
+> drivers/rtc/rtc-ds1307.c
+>     304 	result = regmap_bulk_write(ds1307->regmap, chip->offset, regs,
+>     305 				   sizeof(regs));
+>     306 	if (result) {
+>     307 		dev_err(dev, "%s error %d\n", "write", result);
+>     308 		return result;
+>     309 	}
+>     310 
+>     311 	if (ds1307->type == rx_8130) {
+>     312 		/* clear Voltage Loss Flag as data is available now */
+>     313 		result = regmap_write(ds1307->regmap, RX8130_REG_FLAG,
+> --> 314 				      ~(u8)RX8130_REG_FLAG_VLF);
+>                                                ^^^^^^^^^^^^^^^^^^^^^^^^
+> RX8130_REG_FLAG_VLF is 0x2.  The cast to u8 doesn't change anything
+> because it gets type promoted to int.  I don't know what was intended.
 
+This reasoning looks right, yes. I don't remember why I added it.
+Probably because I intended to create the value 0xfd and not 0xfffffffd
+(aka -3).
+
+Feel free to fix this in a patch blaming me.
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
