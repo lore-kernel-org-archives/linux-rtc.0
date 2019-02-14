@@ -1,114 +1,149 @@
-Return-Path: <SRS0=hLTa=QU=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=dJnC=QV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=BIGNUM_EMAILS,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-3.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 198E2C282C2
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 19:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20411C43381
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 03:44:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D16AA2083B
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Feb 2019 19:43:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DDD022089F
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 03:44:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="2aVjnUr+"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="GPPBZvp/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389214AbfBMTnp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Feb 2019 14:43:45 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:51296 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730422AbfBMTnp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Feb 2019 14:43:45 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x1DJhenA088631;
-        Wed, 13 Feb 2019 19:43:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=corp-2018-07-02;
- bh=MDNowYW8gWtoVHJsQyyzS6MgU5vUeVZcnFQjmaXovz8=;
- b=2aVjnUr+2A1GdNkPbxfx+FMrHhzrfG+MRGsBPq83HYWV4hxmFLYqo66Oi8SvQAxNHltt
- Yh8MqUyxJUFd4eT5Vf+dcoxRQyIqjrOlJznfbeist5e0XSVr5e9VgeroQBaLUTBFXN4S
- 9VEM+P5S+H54fQkTMtrJ2aDWvaR3rQs8+Z5kPMl8bwK9+dD6abi32SPeGuUk8M3aBqEH
- Cj7WTKnR8s/zTn3fLOfUVIJRkHoSrfpm7Ix+YJuEuTqEwMaslOK3/kFR0PYQ/o5wiSiF
- YWA4JlFBOb8NghT6rf9wJH/ahCw4nfHC8Beli8/Pd1UoM8wPxK7nVnU9wnLfoBd54DNP 9g== 
-Received: from aserv0022.oracle.com (aserv0022.oracle.com [141.146.126.234])
-        by userp2130.oracle.com with ESMTP id 2qhrekm3fr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Feb 2019 19:43:40 +0000
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserv0022.oracle.com (8.14.4/8.14.4) with ESMTP id x1DJhdKQ013956
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Feb 2019 19:43:39 GMT
-Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x1DJhcBo026599;
-        Wed, 13 Feb 2019 19:43:39 GMT
-Received: from kadam (/41.202.241.28)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 13 Feb 2019 19:43:38 +0000
-Date:   Wed, 13 Feb 2019 22:43:32 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     linux-rtc@vger.kernel.org
-Subject: Re: [bug report] rtc: ds1307: rx8130: honor Voltage Loss Flag when
- reading the time
-Message-ID: <20190213193847.GI5458@kadam>
-References: <20190213131731.GA29774@kadam>
- <20190213175125.bpwwi2slm6lvjg3x@pengutronix.de>
+        id S2391183AbfBNDoY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 13 Feb 2019 22:44:24 -0500
+Received: from mail-eopbgr20071.outbound.protection.outlook.com ([40.107.2.71]:34821
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388138AbfBNDoY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 13 Feb 2019 22:44:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QPygySHmkC7eXwxZ6Pyq4nSejjUZiX2FJoXK35RAhlg=;
+ b=GPPBZvp/xyzq63e2U+KNZ+fx0mISS2AzSk8KwnZjlJOuhxAGVnwdmHrwxAQaluooR1Tsfq6znwm/0kOxFCf8kgHsAzHXSlb2iZH3ojOTDgfJYtbt/+EM5oLBBMRnOPICKIEIM96PUBE7Wi3N8CHl9ElTB45o11hDUmkM5J40sxI=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3659.eurprd04.prod.outlook.com (52.134.66.160) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1601.21; Thu, 14 Feb 2019 03:44:20 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::14e8:6d2e:fe21:4fd5]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::14e8:6d2e:fe21:4fd5%3]) with mapi id 15.20.1601.023; Thu, 14 Feb 2019
+ 03:44:19 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        "sboyd@kernel.org" <sboyd@kernel.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: [PATCH V2 0/4] Add i.MX SCU general interrupt support
+Thread-Topic: [PATCH V2 0/4] Add i.MX SCU general interrupt support
+Thread-Index: AQHUxBeRAJF0COhDkUKIcKizfFbw6g==
+Date:   Thu, 14 Feb 2019 03:44:19 +0000
+Message-ID: <1550115535-14488-1-git-send-email-Anson.Huang@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.7.4
+x-clientproxiedby: HK0P153CA0020.APCP153.PROD.OUTLOOK.COM
+ (2603:1096:203:18::32) To DB3PR0402MB3916.eurprd04.prod.outlook.com
+ (2603:10a6:8:10::18)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 68acc746-078d-41c4-8a45-08d6922eb337
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3659;
+x-ms-traffictypediagnostic: DB3PR0402MB3659:
+x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;DB3PR0402MB3659;23:ksjkRwsMNBjMPURrcHv1YFNSvRsT94HRmGFAr?=
+ =?iso-8859-1?Q?Ku1wpYWGIbmVsGmh2Ls8xWIDadyh8CFalCsyGljBIczvazAV+7jesHUExU?=
+ =?iso-8859-1?Q?b8tq7uUGEm+HEqM3s3ENt6fbb50rj7GFtcsZsTxAE05O52oghi30KQMFg+?=
+ =?iso-8859-1?Q?m+7kqYoI/HDHjcQ9LV+XZjhIKD19plXwDoWfZB3RSjfDOkO6zJSpNHAMz3?=
+ =?iso-8859-1?Q?+Fba56pwuC1xd9LGcZJYbggLkXIahpptNaoJOFOspW5wCYdXjEI9LsTEvT?=
+ =?iso-8859-1?Q?/dBaDE/X5JDaWBc3yyo2S4/n/4leBXnP2ijHalkuhhXa32wSEVXSxkzeQS?=
+ =?iso-8859-1?Q?hzzcOrLQuOiWGkgec+G48la+ll0kkAQHsM7eRPCgPXQ0UOziEiZKupx4m6?=
+ =?iso-8859-1?Q?ygOm67o8QBP/cGfCN0GTgoCm509veHYFgcCMPPpZAmvvqWAIwkeqySYXPn?=
+ =?iso-8859-1?Q?mEj9UKw8dRzhbVaSLm0gypkU9C8Tyi2DBqea8HghTAChQCSI/VJ8cKqoxZ?=
+ =?iso-8859-1?Q?e0EWaD9m5VH/YXHcjDt6MMWwN/i6a/Yz/QLTyfYQ0rJ0EROdN8rASvWQyP?=
+ =?iso-8859-1?Q?KryFlJb1ped5kX7TQ0qPW4ufXcGi2yFlQGNo3Y+mqI7ZuRUh8nrR1p9YsU?=
+ =?iso-8859-1?Q?RoRb3K0cZiCpqL5eih41W362vkd4PYdHhP4bgbRvUdC8YubMCRyQQIFEWG?=
+ =?iso-8859-1?Q?tzATS9VyfGVpdMzI3X/nvSYhTzywtd8fllGpGOc1U4sJUnwiBV29/ntJ1G?=
+ =?iso-8859-1?Q?n/cDOHwLP0vTzmtFm39UnEmQJmKMSRLEXmpbJAI8INEanrwE3baF6FWBrD?=
+ =?iso-8859-1?Q?GbHNMEOio2N8WFMiMo1IL0KNnHRmQFf2JvEaGzx64N2GTPf8dYjUfgjeko?=
+ =?iso-8859-1?Q?zE2bpf0q0ppf51maqENslnt/70oxU6sW5wiR8ASo6g7Ys14vqWrSoP+mrL?=
+ =?iso-8859-1?Q?IZ12M1KDPBU0yluaxYBWZUThKX7pa+NxzbBtAUDzqsyWkpnw0/10RSsNYv?=
+ =?iso-8859-1?Q?hFbH9tkVGxxF5prioDx6nNZUc1VX6uAD/AGflICmqS2/cC391NiNMUAx8q?=
+ =?iso-8859-1?Q?YyKJ1yzI643jrm3ARDLfoJYTJOXu/tKQV4UneV4hNswVKcky98Y62P5YuK?=
+ =?iso-8859-1?Q?nummuPC/IYWDI8DKsBoCjcvT2QzwXuixzRj3re+laWZFolgOJ9Q8dvVxSX?=
+ =?iso-8859-1?Q?v2RRlzWaN5jHfL9YE/C8i/FGgZUWpGNxZmdTc6P/ClqoCa9OAlgfaxno?=
+ =?iso-8859-1?Q?=3D?=
+x-microsoft-antispam-prvs: <DB3PR0402MB365984CBD18CB83A37956DCDF5670@DB3PR0402MB3659.eurprd04.prod.outlook.com>
+x-forefront-prvs: 09480768F8
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(346002)(39860400002)(376002)(396003)(136003)(199004)(189003)(476003)(2616005)(68736007)(53936002)(52116002)(66066001)(14454004)(486006)(86362001)(50226002)(4326008)(26005)(6512007)(2201001)(478600001)(71200400001)(6436002)(8936002)(6486002)(25786009)(8676002)(71190400001)(81156014)(81166006)(186003)(2501003)(105586002)(3846002)(6116002)(386003)(6506007)(99286004)(102836004)(7416002)(316002)(2906002)(305945005)(110136005)(97736004)(7736002)(14444005)(106356001)(256004)(36756003)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3659;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: tcTzajP2Mu2j8MsrsRyGTCALNcu2BoOCnro8ykHL19DD5w1l2lCut9i6y99BkvTRCGFGhKUmCNcIs5r3piw8MNbXd4JjVbyTwZSVGpzBUI1E+sFVR6TpSUGqQHZH4A3eByW0UJfFB4UxDh1kES7kV0WX4eTn8y5uIz4KCg/lpSyKMPgZSiZY+0Fxk+Ll674QhgwPWHERRK54AqRp/33z7OLDlGwvmqwtjEvQuUuHt9rbhCLSuaC5JQkmedGCCrdw+wP68tpgpWKVoXUWxBhIcEV8nDeq7skJueGIINotQDAGUAQEbAGbSjs6xCz+A9bwuQTaMf3C85FH6PU6DyPJtbEnK3+fgVRE/hehxB6zja0z1jAC9NJj/pf2qfAUGDZ4ygTB8i45zx03JhuuH9QU98or/WGfZzQYyTK5nEO/Jxs=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190213175125.bpwwi2slm6lvjg3x@pengutronix.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9166 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1902130134
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 68acc746-078d-41c4-8a45-08d6922eb337
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Feb 2019 03:44:14.0949
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3659
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Feb 13, 2019 at 06:51:25PM +0100, Uwe Kleine-König wrote:
-> Hello Dan,
-> 
-> On Wed, Feb 13, 2019 at 04:17:31PM +0300, Dan Carpenter wrote:
-> > The patch 501f98266cad: "rtc: ds1307: rx8130: honor Voltage Loss Flag
-> > when reading the time" from Jan 25, 2019, leads to the following
-> > static checker warning:
-> > 
-> > 	drivers/rtc/rtc-ds1307.c:314 ds1307_set_time()
-> > 	warn: this cast is a no-op
-> > 
-> > drivers/rtc/rtc-ds1307.c
-> >     304 	result = regmap_bulk_write(ds1307->regmap, chip->offset, regs,
-> >     305 				   sizeof(regs));
-> >     306 	if (result) {
-> >     307 		dev_err(dev, "%s error %d\n", "write", result);
-> >     308 		return result;
-> >     309 	}
-> >     310 
-> >     311 	if (ds1307->type == rx_8130) {
-> >     312 		/* clear Voltage Loss Flag as data is available now */
-> >     313 		result = regmap_write(ds1307->regmap, RX8130_REG_FLAG,
-> > --> 314 				      ~(u8)RX8130_REG_FLAG_VLF);
-> >                                                ^^^^^^^^^^^^^^^^^^^^^^^^
-> > RX8130_REG_FLAG_VLF is 0x2.  The cast to u8 doesn't change anything
-> > because it gets type promoted to int.  I don't know what was intended.
-> 
-> This reasoning looks right, yes. I don't remember why I added it.
-> Probably because I intended to create the value 0xfd and not 0xfffffffd
-> (aka -3).
-> 
-> Feel free to fix this in a patch blaming me.
+This patch series adds i.MX SCU general interrupt support, the SCU general
+interrupt supports RTC alarm, wdog, thermal alarm etc., e.g. RTC alarm
+irq is controlled by system controller and when RTC alarm fires, system
+controller will general SCU MU general interrupt rather than RTC IRQ, so
+need to use notification for RTC driver to handle the alarm event.
 
-If it's working as-is then I'm not going to be the one to break it...  :P
+RTC alarm function patch depends on i.MX SCU general interrupt support,
+so put it into same series for review.
 
-regards,
-dan carpenter
+Anson Huang (4):
+  dt-bindings: fsl: scu: add general interrupt support
+  firmware: imx: enable imx scu general irq function
+  arm64: dts: freescale: imx8qxp: enable scu general irq channel
+  rtc: imx-sc: add rtc alarm support
+
+ .../devicetree/bindings/arm/freescale/fsl,scu.txt  |  18 ++--
+ arch/arm64/boot/dts/freescale/imx8qxp.dtsi         |   6 +-
+ drivers/firmware/imx/imx-scu.c                     | 101 +++++++++++++++++=
+++++
+ drivers/rtc/rtc-imx-sc.c                           | 100 +++++++++++++++++=
++++
+ include/linux/firmware/imx/sci.h                   |   3 +
+ 5 files changed, 220 insertions(+), 8 deletions(-)
+
+--=20
+2.7.4
 
