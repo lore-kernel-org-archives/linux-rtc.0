@@ -2,197 +2,147 @@ Return-Path: <SRS0=dJnC=QV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F282C43381
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 03:45:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF8DDC10F04
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 08:00:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 265C7222D2
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 03:45:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B75F5222CF
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 08:00:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="sVjV+lEi"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="iCSov9E2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395426AbfBNDor (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Feb 2019 22:44:47 -0500
-Received: from mail-eopbgr20064.outbound.protection.outlook.com ([40.107.2.64]:55461
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2388138AbfBNDoq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 13 Feb 2019 22:44:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WVP1fyT2RmfrHwiLQ+dv6YOi7fm0E00J3Hr8/iBwVhw=;
- b=sVjV+lEiAoRWy5yQI7ok+j7QRenbmhwou3E1Bf0L9Dg80fO4VtjEWqY6zhJWOOwk4JAWvz6jwFCqgFbq4Kzy8SIsE8YIltokeTBdUVIikGmyyIelM2t25OVElcGvVX7hgityR94p9xC4qwRokxjNxhGaNjg88FGHRakd1/DmEtU=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3659.eurprd04.prod.outlook.com (52.134.66.160) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1601.21; Thu, 14 Feb 2019 03:44:25 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::14e8:6d2e:fe21:4fd5]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::14e8:6d2e:fe21:4fd5%3]) with mapi id 15.20.1601.023; Thu, 14 Feb 2019
- 03:44:25 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: [PATCH V2 1/4] dt-bindings: fsl: scu: add general interrupt support
-Thread-Topic: [PATCH V2 1/4] dt-bindings: fsl: scu: add general interrupt
- support
-Thread-Index: AQHUxBeU4OYcP5Aoy0y86uY2s/lN0g==
-Date:   Thu, 14 Feb 2019 03:44:25 +0000
-Message-ID: <1550115535-14488-2-git-send-email-Anson.Huang@nxp.com>
-References: <1550115535-14488-1-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1550115535-14488-1-git-send-email-Anson.Huang@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.7.4
-x-clientproxiedby: HK0P153CA0020.APCP153.PROD.OUTLOOK.COM
- (2603:1096:203:18::32) To DB3PR0402MB3916.eurprd04.prod.outlook.com
- (2603:10a6:8:10::18)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: f98dfc00-ec06-4adc-dffe-08d6922eb6df
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3659;
-x-ms-traffictypediagnostic: DB3PR0402MB3659:
-x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;DB3PR0402MB3659;23:paqdxpeB0UHq69oLAS3ii7PMfo5XTSNGDkVNe?=
- =?iso-8859-1?Q?W6OHcQGI6cqhOOAwVf1QYDqK/4rKxChAJSHQKdghZNHq036BWht6O0kMaH?=
- =?iso-8859-1?Q?g0WoUlWINs17K4zKRU6cL/FnUX8OppS7mccrMG0I0+K/wpLknCrTh8QshE?=
- =?iso-8859-1?Q?1iOEQZuopztnOVr0shKIL6TZ5KyOhW/i/04S8HHsKVoYy/nRJgjVGgYwLL?=
- =?iso-8859-1?Q?1LDyYlwpluXId7k6/O/Z/WoaqL654aw24DMbXD+ZP5E3Y+JZUTkAO2kKYQ?=
- =?iso-8859-1?Q?QDcpTv6mDG2l2u9hOvEYMzmKZ7P+xkh3DeKTK1HHjm/uroLW9tuLLKeDmI?=
- =?iso-8859-1?Q?PE10NLO3RHYSXkG2QL2e6EhyXKX2ekFQw/u6Sq+RuMX04vRPl4OeJAN9Je?=
- =?iso-8859-1?Q?FwhDp6O3Zq99skk4CPOZQpFSCCDWJNGjFre6JUu6InKNISkByadSqx9LYt?=
- =?iso-8859-1?Q?vSnGBHKj7Vi7FeFLKhd47Jt2/7KtphXdhuqf7eYbyS6jZNAEWku1WYlZLa?=
- =?iso-8859-1?Q?X/0Xpc1vJbtnYwCCd+u/5VcSEN6V1av56mmnZs0nv3tQtCEQ4rGY4zHYdm?=
- =?iso-8859-1?Q?o9X8/x5rbFzQFlrfWbjiUpubZI36NliwNfb8Wujndubbxmzd5V8kasY4yK?=
- =?iso-8859-1?Q?zwt8TqK6N6zffUzVhd5SZMfqzPsU+Q7JeVqLv9VmOhedLl6IukeSKrD2Yo?=
- =?iso-8859-1?Q?Vyv4efxjeSztr7HnOOdxVgzgl0srSJcKgCWm+YufBY+G3kLe4Cte6tQsOY?=
- =?iso-8859-1?Q?7XauZ2QRyXc5prf41LWxG08frErKZVgRqZzgzUlyFeSy9oVf43BnVKsrVw?=
- =?iso-8859-1?Q?3xIstRtgjoHJp/0dDfbOzP5u6L+i73OrL8klOoq8TlX0XaQ1xWg/6gZrBP?=
- =?iso-8859-1?Q?7IeUtkdUYqhRTIPWsjjgAJ9xsPygXPnWq49YcvOfMYYzxW33aA9gWRtmpe?=
- =?iso-8859-1?Q?fJbBykZLLk/TUk77vSHget5Pmu1LKRNhIIMPrrTeUfolqjkos+PoVJQPLN?=
- =?iso-8859-1?Q?W31V7yA8oGWMVLdnVMobuREZUUOtqaifeGzQzZ3/bdz62TswYaCPO2g4h5?=
- =?iso-8859-1?Q?f+NEhUPMEil7WKbFUOGsxcc0I+ACai5+TYOSr4y0FVPdVw/fAWGRa0184Y?=
- =?iso-8859-1?Q?obOwbrCSZasqjiRg/EHccBEohSFZKsOu9Sb6D2cx3DqeQMAmd9ur15wToG?=
- =?iso-8859-1?Q?gEQq1SUdme7KbgqisvqI5zq/CV44r11nVDuyenDM0Osmz3QkEZsYaucJ+/?=
- =?iso-8859-1?Q?vEn8DK80KbS6G5BB4a5cPlqokaIqUqThF5ApdePhguheBp8kghoLpoDx/P?=
- =?iso-8859-1?Q?AwTc=3D?=
-x-microsoft-antispam-prvs: <DB3PR0402MB36596013870C748455ACEB37F5670@DB3PR0402MB3659.eurprd04.prod.outlook.com>
-x-forefront-prvs: 09480768F8
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(346002)(39860400002)(376002)(396003)(136003)(199004)(189003)(476003)(2616005)(68736007)(53936002)(52116002)(66066001)(14454004)(76176011)(486006)(86362001)(50226002)(4326008)(26005)(6512007)(2201001)(478600001)(71200400001)(6436002)(8936002)(6486002)(25786009)(446003)(8676002)(71190400001)(81156014)(81166006)(11346002)(186003)(2501003)(105586002)(3846002)(6116002)(386003)(6506007)(99286004)(102836004)(7416002)(316002)(2906002)(305945005)(110136005)(97736004)(7736002)(14444005)(106356001)(256004)(36756003)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3659;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: sAnhMXeu+iR4uwdeGSMewJBXFK/bAZv8gSxkb2+Vj3ua5jB01vUliHITO2jan9BV+N1Mm5pcL0y3bDx679cg0xLj0dpCZZWanHfA+5iPaanfk0moOUh++foOFbBRqgRGyrfz/iSHDTOtopY2IJ/rZPeLPnBGOOuN8g0b275e+TBQsJn7I4PbI3QH/8lqXNXFOp7Fppauqs8mEKoSCf60HyL3VcxtnpSKFbQStC/HLjNRCy97wq8UXQ20JGUKJu5KVixRIOLl8upI5K2FEzmfNag26rRsY2+zRy9hOk3pKnhTL9kil9ebZ04MUQW9lS4A+uoyG48Q8CS2qmhh0Hk53JTeRSJzR3CXB4bisVYzfUDnXAWiqeDwpjcgVr28xNBQknE+xxz4xWP6QYFJH56Xa2zRSxmYYUlcg+J+2Ra54F8=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S2393314AbfBNIAr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 14 Feb 2019 03:00:47 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:43268 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728018AbfBNIAq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Feb 2019 03:00:46 -0500
+Received: by mail-lf1-f66.google.com with SMTP id j1so3813962lfb.10
+        for <linux-rtc@vger.kernel.org>; Thu, 14 Feb 2019 00:00:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=R+L0uutjU0v77oZKF4hFog6fNq1jSpgLPOCZjedtCco=;
+        b=iCSov9E2bQXkxP36zv4os/WDjwAfqs6XUhG75IYQU0p4p8NaPLou0+WJYlZ2aR50nI
+         nVUaj5lAR4YBfPErtwvaLue5BIsbWWCri1Fv9kT244izFGVcZ8tzcUz8K2dgl2uhd7Pd
+         8s5zWCCAP2PXD5Tj5di0Ee7Ds+Y64LL82bX5xRkYqcZePWpZwDLXf9GdnRdhk7GisuP8
+         Pgg4d9Qk8Ssbb/Ok2g5Jx9TReTr48sUkuSYLq9yxzDd1WNzcy895XAfBgMMizho3tr4d
+         2TvITrbH5oHKKDsWHL7tYgcCAg10/3qlXYL3Hu/NZSwoHS0rrrvLCD+2AlVgdqu51MCy
+         b66w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=R+L0uutjU0v77oZKF4hFog6fNq1jSpgLPOCZjedtCco=;
+        b=iP53MVDN2NQyjDQVl1sYM1b0U6vkIOv3dMKGUlGDkxOPLcf/kuy/ezr57XcTewS1DW
+         UMwjARkd+3LAzNnMwyYgPcNtQQi1nt+r3PRXno4BxW2znxqSOAFfYYIXpg13hp4itPIm
+         wJr/s25zNIYnlTskeEFIvXNY/Bw4SNay6Q2kWXS18w99tZkyOVnUCVc4q5283T+0CZBS
+         IP+DYPxGL70F97r5UFYmzl910hdW6ANzz0JmZYjTJfq7JSVxnnMLsJlY+oJUwdwI9fwg
+         3iYib3BWTNnYpRaOAIQPNiYbO940POByw3mfdlkgrrCHC0XH8iXSPodQsoXA5d09d+GC
+         joDQ==
+X-Gm-Message-State: AHQUAuY/O1QH+B7PTOenIm5JL8IAjX7UyaXVaU1Bq6dWoWflmYsmaxmg
+        bpQ5/Sqt5KWMgkEW82VjXSYlu2TPS9ouUaEke7JL3A==
+X-Google-Smtp-Source: AHgI3IapfV1/YDbAnxxptRM2o7gNF3qGLxevZNy2Vi8LGAnuaJACKbLArrBvLRuxMxzWdmXJTbCFerVaKnDwqQFj2tA=
+X-Received: by 2002:a19:5209:: with SMTP id m9mr1375265lfb.51.1550131244554;
+ Thu, 14 Feb 2019 00:00:44 -0800 (PST)
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f98dfc00-ec06-4adc-dffe-08d6922eb6df
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Feb 2019 03:44:20.2393
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3659
+References: <cover.1550063882.git.matti.vaittinen@fi.rohmeurope.com> <8334d6064575249e871e88aa6057b134795232e3.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <8334d6064575249e871e88aa6057b134795232e3.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 14 Feb 2019 09:00:33 +0100
+Message-ID: <CACRpkdYqSyWGSy6OKukE_SQWi1r0uOQD91JwpqUgrbJq28gbUQ@mail.gmail.com>
+Subject: Re: [PATCH v9 5/8] gpio: Initial support for ROHM bd70528 GPIO block
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        bogdan-petru.chircu-mare@nxp.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add scu general interrupt function support.
+On Wed, Feb 13, 2019 at 2:34 PM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-Changes since V1:
-	no change, just update the patch based on latest next branch.
----
- .../devicetree/bindings/arm/freescale/fsl,scu.txt      | 18 ++++++++++++--=
-----
- 1 file changed, 12 insertions(+), 6 deletions(-)
+> ROHM BD70528 PMIC has 4 GPIO pins. Allow them to be
+> controlled by GPIO framework.
+>
+> IRQs are handled by regmap-irq and GPIO driver is not
+> aware of the irq usage.
+>
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/=
-Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-index 72d481c..8acdce1 100644
---- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-+++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-@@ -22,9 +22,11 @@ Required properties:
- -------------------
- - compatible:	should be "fsl,imx-scu".
- - mbox-names:	should include "tx0", "tx1", "tx2", "tx3",
--			       "rx0", "rx1", "rx2", "rx3".
--- mboxes:	List of phandle of 4 MU channels for tx and 4 MU channels
--		for rx. All 8 MU channels must be in the same MU instance.
-+			       "rx0", "rx1", "rx2", "rx3",
-+			       "gi3".
-+- mboxes:	List of phandle of 4 MU channels for tx, 4 MU channels for
-+		rx, and 1 MU channel for general interrupt. All 9 MU channels
-+		must be in the same MU instance.
- 		Cross instances are not allowed. The MU instance can only
- 		be one of LSIO MU0~M4 for imx8qxp and imx8qm. Users need
- 		to make sure use the one which is not conflict with other
-@@ -34,6 +36,7 @@ Required properties:
- 		Channel 1 must be "tx1" or "rx1".
- 		Channel 2 must be "tx2" or "rx2".
- 		Channel 3 must be "tx3" or "rx3".
-+		General interrupt channel must be "gi3".
- 		e.g.
- 		mboxes =3D <&lsio_mu1 0 0
- 			  &lsio_mu1 0 1
-@@ -42,7 +45,8 @@ Required properties:
- 			  &lsio_mu1 1 0
- 			  &lsio_mu1 1 1
- 			  &lsio_mu1 1 2
--			  &lsio_mu1 1 3>;
-+			  &lsio_mu1 1 3
-+			  &lsio_mu1 3 3>;
- 		See Documentation/devicetree/bindings/mailbox/fsl,mu.txt
- 		for detailed mailbox binding.
-=20
-@@ -133,7 +137,8 @@ firmware {
- 	scu {
- 		compatible =3D "fsl,imx-scu";
- 		mbox-names =3D "tx0", "tx1", "tx2", "tx3",
--			     "rx0", "rx1", "rx2", "rx3";
-+			     "rx0", "rx1", "rx2", "rx3",
-+			     "gi3";
- 		mboxes =3D <&lsio_mu1 0 0
- 			  &lsio_mu1 0 1
- 			  &lsio_mu1 0 2
-@@ -141,7 +146,8 @@ firmware {
- 			  &lsio_mu1 1 0
- 			  &lsio_mu1 1 1
- 			  &lsio_mu1 1 2
--			  &lsio_mu1 1 3>;
-+			  &lsio_mu1 1 3
-+			  &lsio_mu1 3 3>;
-=20
- 		clk: clk {
- 			compatible =3D "fsl,imx8qxp-clk", "fsl,scu-clk";
---=20
-2.7.4
+(...)
 
+Just spotted this:
+
+> +#include <linux/gpio/driver.h>
+> +#include <linux/gpio.h>
+
+A driver should only need <linux/gpio/driver.h>
+the <linux/gpio.h> should not be used at all in new code,
+it is a legacy header.
+
+> +static int bd70528_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
+> +                                  unsigned long config)
+> +{
+> +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
+> +
+> +       switch (pinconf_to_config_param(config)) {
+> +       case PIN_CONFIG_DRIVE_OPEN_DRAIN:
+> +               return regmap_update_bits(bdgpio->chip.regmap,
+> +                                         GPIO_OUT_REG(offset),
+> +                                         BD70528_GPIO_DRIVE_MASK,
+> +                                         BD70528_GPIO_OPEN_DRAIN);
+> +               break;
+> +       case PIN_CONFIG_DRIVE_PUSH_PULL:
+> +               return regmap_update_bits(bdgpio->chip.regmap,
+> +                                         GPIO_OUT_REG(offset),
+> +                                         BD70528_GPIO_DRIVE_MASK,
+> +                                         BD70528_GPIO_PUSH_PULL);
+> +               break;
+> +       case PIN_CONFIG_INPUT_DEBOUNCE:
+> +               return bd70528_set_debounce(bdgpio, offset,
+> +                                           pinconf_to_config_argument(config));
+> +               break;
+> +       default:
+> +               break;
+> +       }
+> +       return -ENOTSUPP;
+> +}
+
+BTW I just merged code from Thomas Petazzoni that make it possible to
+also support pull-up and pull-down from GPIO here if you want to enable
+it.
+
+Yours,
+Linus Walleij
