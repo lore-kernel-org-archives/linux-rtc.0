@@ -1,339 +1,189 @@
-Return-Path: <SRS0=dJnC=QV=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=wFP9=QW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F9EFC4360F
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 14:16:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17CBFC10F04
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Feb 2019 02:34:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2BDDA222B6
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 Feb 2019 14:16:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VT8pkhkb"
+	by mail.kernel.org (Postfix) with ESMTP id DBB7520675
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Feb 2019 02:34:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1550198060;
+	bh=a2XlMNwkxCqbKdEk2qYjdpGrEODXQvqJMMiqtzQmxC0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=cOECXzlQcsABTxcH8tAA38U5oTeRovTRDIL8cr9b+SsjRGJu7hUsKLyJTYDAqN6Pu
+	 6fvWEp/ei8FU+jHtFWuIvb/Py4fy6eLcxfdmXIuf5GUtATe36A8KvcGxPlJye+X4OF
+	 LxNMNyL6X1KFSmFpx4Pq5X5Q4poq9AEsQhvpba/c=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393197AbfBNOQ0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 14 Feb 2019 09:16:26 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:32778 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726213AbfBNOQZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 Feb 2019 09:16:25 -0500
-Received: by mail-pf1-f194.google.com with SMTP id c123so3188272pfb.0;
-        Thu, 14 Feb 2019 06:16:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2WKf2wLPNOtZj+tz7hWG5zDw6cecW0Aeb0XL4cCmrlM=;
-        b=VT8pkhkbPWzFzlEDZJftpO7BrWGLpiLsd9v4KaKpVJJuQ6MNVONfOmal2WIYsL5osR
-         24b5ten/kdQXFn/CVQFvi8QtoKj4UN2RSINRTyT7wW6INnBzo8f058aeHsNN7kyY0yXC
-         HXUn7VpJzLevZQDKxGWqv86S0I4Cw6ZLBTTQcZfzk6d72CWgn5bCoSwQKpdEi3DwaPtQ
-         HJfl3fIaClg/0z2YV8gWTe9iwb8mj0CbQQ0/RKbu+kPiUKmcCOp+mpDDjTPgo3b7NDSO
-         pU1VMH6wDVN3mTMC7qimmtWzq11s96JO6PsxJtcB3A6ywCXq+XTc3p1Ht2+ZY3iS4IQ2
-         YsAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2WKf2wLPNOtZj+tz7hWG5zDw6cecW0Aeb0XL4cCmrlM=;
-        b=SsunWHq59Y024STqZWl7CuL1lrWvS/v/IKzC21TodM/yTnYGeno9F4F1j6dBx9NDi0
-         Wa4Mzd/DXZ3Qz2Lnp22tvZ5unrRoGef13YWnpefoqdQZ7nybi4S6S39o5FeZVBQvJ77J
-         yj/5Xj7120KQMPsxMPaQfBWtDNSJDv9cA1JptSdDPNDzx0TZ2sLtDAfMtny9CxaqCgpw
-         luaLAsYgiCw4sWEb7n+3sDBHxEVivmHe/lq8SwDpkDnhK6RnkpwXFnVR2g67DTuGuoFq
-         kAZ9fQzfuPXUwAlgzwR2HY5Eqfq9hmuQlJbLYHfFDiefqIsmyu4hDqAUfnRh0KXhC9IP
-         0yZg==
-X-Gm-Message-State: AHQUAubbXDJM/nijQ5O72hpvXbx82fSrR3cDmRWx1kpwVmJPkCubCtGu
-        dpgt/19aIg51WOcfE6e4nz8=
-X-Google-Smtp-Source: AHgI3IaDvqHWThIXm+8Ddjy7mfO6gbbC5cRwcKAEPFnqJuJMNnKR7Ha9110lnlplS0mrTqMTdLUGww==
-X-Received: by 2002:a62:be0b:: with SMTP id l11mr4427114pff.52.1550153783985;
-        Thu, 14 Feb 2019 06:16:23 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e26sm3114294pfi.70.2019.02.14.06.16.19
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 14 Feb 2019 06:16:22 -0800 (PST)
-Subject: Re: [PATCH v10 8/9] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        mazziesaccount@gmail.com
-Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
- <30eca0108663a382fd3bfceb04ba35577ec569bd.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <81412eeb-c6d2-2042-9d89-e5dd7b87dda3@roeck-us.net>
-Date:   Thu, 14 Feb 2019 06:16:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+        id S2388574AbfBOCeI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 14 Feb 2019 21:34:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51746 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403968AbfBOCLo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 14 Feb 2019 21:11:44 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B329E2229F;
+        Fri, 15 Feb 2019 02:11:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1550196703;
+        bh=a2XlMNwkxCqbKdEk2qYjdpGrEODXQvqJMMiqtzQmxC0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qWLibVqify1LlFZmMQtC3W4VIGx7d6vLo3oXSoxmTpOil05ukODqpNEaVguj+RVv1
+         ppHXuukgmqPO6CGmUNR1lUJJUnmpXCGfhbh0OrId4/MCz0ZB1X9Jd/mcKdT6L/zZix
+         V5p52NljrK2UzH2byaa1UBhBSxPiHYKeA2tYMHyQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-rtc@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/65] selftests: rtc: rtctest: add alarm test on minute boundary
+Date:   Thu, 14 Feb 2019 21:10:29 -0500
+Message-Id: <20190215021121.177674-13-sashal@kernel.org>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20190215021121.177674-1-sashal@kernel.org>
+References: <20190215021121.177674-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <30eca0108663a382fd3bfceb04ba35577ec569bd.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 2/14/19 5:12 AM, Matti Vaittinen wrote:
-> Initial support for watchdog block included in ROHM BD70528
-> power management IC.
-> 
-> Configurations for low power states are still to be checked.
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+[ Upstream commit 7b3027728f4d4f6763f4d7e771acfc9424cdd0e6 ]
 
-> ---
-> 
-> I dropped the Ack from Guenter as removal of struct bd70528
-> somewhat changed the code
-> 
->   drivers/watchdog/Kconfig       |  12 +++
->   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/bd70528_wdt.c | 187 +++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 200 insertions(+)
->   create mode 100644 drivers/watchdog/bd70528_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 57f017d74a97..f30e3a3e886e 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
->   	  watchdog. Be aware that governors might affect the watchdog because it
->   	  is purely software, e.g. the panic governor will stall it!
->   
-> +config BD70528_WATCHDOG
-> +	tristate "ROHM BD70528 PMIC Watchdog"
-> +	depends on MFD_ROHM_BD70528
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
-> +	  cause system reset.
-> +
-> +	  Say Y here to include support for the ROHM BD70528 watchdog.
-> +	  Alternatively say M to compile the driver as a module,
-> +	  which will be called bd70528_wdt.
-> +
->   config DA9052_WATCHDOG
->   	tristate "Dialog DA9052 Watchdog"
->   	depends on PMIC_DA9052 || COMPILE_TEST
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index a0917ef28e07..1ce87a3b1172 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
->   obj-$(CONFIG_XEN_WDT) += xen_wdt.o
->   
->   # Architecture Independent
-> +obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
->   obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
->   obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
->   obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-> diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
-> new file mode 100644
-> index 000000000000..c014c915932a
-> --- /dev/null
-> +++ b/drivers/watchdog/bd70528_wdt.c
-> @@ -0,0 +1,187 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) 2018 ROHM Semiconductors
-> +// ROHM BD70528MWV watchdog driver
-> +
-> +#include <linux/bcd.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/rohm-bd70528.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/watchdog.h>
-> +
-> +/*
-> + * Max time we can set is 1 hour, 59 minutes and 59 seconds
-> + * and Minimum time is 1 second
-> + */
-> +#define WDT_MAX_MS	((2 * 60 * 60 - 1) * 1000)
-> +#define WDT_MIN_MS	1000
-> +#define DEFAULT_TIMEOUT	60
-> +
-> +struct wdtbd70528 {
-> +	struct device *dev;
-> +	struct regmap *regmap;
-> +	struct rohm_regmap_dev *mfd;
-> +	struct watchdog_device wdt;
-> +};
-> +
-> +static int bd70528_wdt_set_locked(struct wdtbd70528 *w, int enable)
-> +{
-> +	return bd70528_wdt_set(w->mfd, enable, NULL);
-> +}
-> +
-> +static int bd70528_wdt_change(struct wdtbd70528 *w, int enable)
-> +{
-> +	int ret;
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +	ret = bd70528_wdt_set_locked(w, enable);
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	return ret;
-> +}
-> +
-> +static int bd70528_wdt_start(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT ping...\n");
-> +	return bd70528_wdt_change(w, 1);
-> +}
-> +
-> +static int bd70528_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT stopping...\n");
-> +	return bd70528_wdt_change(w, 0);
-> +}
-> +
-> +static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
-> +				    unsigned int timeout)
-> +{
-> +	unsigned int hours;
-> +	unsigned int minutes;
-> +	unsigned int seconds;
-> +	int ret;
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	seconds = timeout;
-> +	hours = timeout / (60 * 60);
-> +	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
-> +	if (hours)
-> +		seconds -= (60 * 60);
-> +	minutes = seconds / 60;
-> +	seconds = seconds % 60;
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +
-> +	ret = bd70528_wdt_set_locked(w, 0);
-> +	if (ret)
-> +		goto out_unlock;
-> +
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_HOUR,
-> +				 BD70528_MASK_WDT_HOUR, hours);
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT hours\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_MINUTE,
-> +				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT minutes\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_SEC,
-> +				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
-> +	if (ret)
-> +		dev_err(w->dev, "Failed to set WDT seconds\n");
-> +	else
-> +		dev_dbg(w->dev, "WDT tmo set to %u\n", timeout);
-> +
-> +out_en_unlock:
-> +	ret = bd70528_wdt_set_locked(w, 1);
-> +out_unlock:
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct watchdog_info bd70528_wdt_info = {
-> +	.identity = "bd70528-wdt",
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-> +};
-> +
-> +static const struct watchdog_ops bd70528_wdt_ops = {
-> +	.start		= bd70528_wdt_start,
-> +	.stop		= bd70528_wdt_stop,
-> +	.set_timeout	= bd70528_wdt_set_timeout,
-> +};
-> +
-> +static int bd70528_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct rohm_regmap_dev *bd70528;
-> +	struct wdtbd70528 *w;
-> +	int ret;
-> +	unsigned int reg;
-> +
-> +	bd70528 = dev_get_drvdata(pdev->dev.parent);
-> +	if (!bd70528) {
-> +		dev_err(&pdev->dev, "No MFD driver data\n");
-> +		return -EINVAL;
-> +	}
-> +	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
-> +	if (!w)
-> +		return -ENOMEM;
-> +
-> +	w->regmap = bd70528->regmap;
-> +	w->mfd = bd70528;
-> +	w->dev = &pdev->dev;
-> +
-> +	w->wdt.info = &bd70528_wdt_info;
-> +	w->wdt.ops =  &bd70528_wdt_ops;
-> +	w->wdt.min_hw_heartbeat_ms = WDT_MIN_MS;
-> +	w->wdt.max_hw_heartbeat_ms = WDT_MAX_MS;
-> +	w->wdt.parent = pdev->dev.parent;
-> +	w->wdt.timeout = DEFAULT_TIMEOUT;
-> +	watchdog_set_drvdata(&w->wdt, w);
-> +	watchdog_init_timeout(&w->wdt, 0, pdev->dev.parent);
-> +
-> +	ret = bd70528_wdt_set_timeout(&w->wdt, w->wdt.timeout);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
-> +		return ret;
-> +	}
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +	ret = regmap_read(w->regmap, BD70528_REG_WDT_CTRL, &reg);
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to get the watchdog state\n");
-> +		return ret;
-> +	}
-> +	if (reg & BD70528_MASK_WDT_EN) {
-> +		dev_dbg(&pdev->dev, "watchdog was running during probe\n");
-> +		set_bit(WDOG_HW_RUNNING, &w->wdt.status);
-> +	}
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, &w->wdt);
-> +	if (ret < 0)
-> +		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +static struct platform_driver bd70528_wdt = {
-> +	.driver = {
-> +		.name = "bd70528-wdt"
-> +	},
-> +	.probe = bd70528_wdt_probe,
-> +};
-> +
-> +module_platform_driver(bd70528_wdt);
-> +
-> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-> +MODULE_DESCRIPTION("BD70528 watchdog driver");
-> +MODULE_LICENSE("GPL");
-> 
+Unfortunately, some RTC don't have a second resolution for alarm so also
+test for alarm on a minute boundary.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ tools/testing/selftests/rtc/rtctest.c | 102 ++++++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
+
+diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+index dea4e3d6d9e1..b2065536d407 100644
+--- a/tools/testing/selftests/rtc/rtctest.c
++++ b/tools/testing/selftests/rtc/rtctest.c
+@@ -211,6 +211,108 @@ TEST_F(rtc, alarm_wkalm_set) {
+ 	ASSERT_EQ(new, secs);
+ }
+ 
++TEST_F(rtc, alarm_alm_set_minute) {
++	struct timeval tv = { .tv_sec = 62 };
++	unsigned long data;
++	struct rtc_time tm;
++	fd_set readfds;
++	time_t secs, new;
++	int rc;
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	secs = timegm((struct tm *)&tm) + 60 - tm.tm_sec;
++	gmtime_r(&secs, (struct tm *)&tm);
++
++	rc = ioctl(self->fd, RTC_ALM_SET, &tm);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip alarms are not supported.");
++		return;
++	}
++
++	rc = ioctl(self->fd, RTC_ALM_READ, &tm);
++	ASSERT_NE(-1, rc);
++
++	TH_LOG("Alarm time now set to %02d:%02d:%02d.",
++	       tm.tm_hour, tm.tm_min, tm.tm_sec);
++
++	/* Enable alarm interrupts */
++	rc = ioctl(self->fd, RTC_AIE_ON, 0);
++	ASSERT_NE(-1, rc);
++
++	FD_ZERO(&readfds);
++	FD_SET(self->fd, &readfds);
++
++	rc = select(self->fd + 1, &readfds, NULL, NULL, &tv);
++	ASSERT_NE(-1, rc);
++	ASSERT_NE(0, rc);
++
++	/* Disable alarm interrupts */
++	rc = ioctl(self->fd, RTC_AIE_OFF, 0);
++	ASSERT_NE(-1, rc);
++
++	rc = read(self->fd, &data, sizeof(unsigned long));
++	ASSERT_NE(-1, rc);
++	TH_LOG("data: %lx", data);
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	new = timegm((struct tm *)&tm);
++	ASSERT_EQ(new, secs);
++}
++
++TEST_F(rtc, alarm_wkalm_set_minute) {
++	struct timeval tv = { .tv_sec = 62 };
++	struct rtc_wkalrm alarm = { 0 };
++	struct rtc_time tm;
++	unsigned long data;
++	fd_set readfds;
++	time_t secs, new;
++	int rc;
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &alarm.time);
++	ASSERT_NE(-1, rc);
++
++	secs = timegm((struct tm *)&alarm.time) + 60 - alarm.time.tm_sec;
++	gmtime_r(&secs, (struct tm *)&alarm.time);
++
++	alarm.enabled = 1;
++
++	rc = ioctl(self->fd, RTC_WKALM_SET, &alarm);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip alarms are not supported.");
++		return;
++	}
++
++	rc = ioctl(self->fd, RTC_WKALM_RD, &alarm);
++	ASSERT_NE(-1, rc);
++
++	TH_LOG("Alarm time now set to %02d/%02d/%02d %02d:%02d:%02d.",
++	       alarm.time.tm_mday, alarm.time.tm_mon + 1,
++	       alarm.time.tm_year + 1900, alarm.time.tm_hour,
++	       alarm.time.tm_min, alarm.time.tm_sec);
++
++	FD_ZERO(&readfds);
++	FD_SET(self->fd, &readfds);
++
++	rc = select(self->fd + 1, &readfds, NULL, NULL, &tv);
++	ASSERT_NE(-1, rc);
++	ASSERT_NE(0, rc);
++
++	rc = read(self->fd, &data, sizeof(unsigned long));
++	ASSERT_NE(-1, rc);
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	new = timegm((struct tm *)&tm);
++	ASSERT_EQ(new, secs);
++}
++
+ static void __attribute__((constructor))
+ __constructor_order_last(void)
+ {
+-- 
+2.19.1
 
