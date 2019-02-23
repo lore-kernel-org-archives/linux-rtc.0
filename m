@@ -1,238 +1,219 @@
-Return-Path: <SRS0=ssRk=Q4=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Y0+k=Q6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 957F3C43381
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 Feb 2019 09:46:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3885C10F00
+	for <linux-rtc@archiver.kernel.org>; Sat, 23 Feb 2019 00:30:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6ECDF20880
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 Feb 2019 09:46:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5A582077B
+	for <linux-rtc@archiver.kernel.org>; Sat, 23 Feb 2019 00:30:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1550881848;
+	bh=QX5uUdByjiiWq59lOPox1ugOK6t4CcL2NDP3rUjVtqQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=DRRz9K1wD9l5hoKz9gaKufZ1bmIyyUPLiME7J3R62SS0z9IScviVeyeYBEnugG7eD
+	 Hk/RzDE5UM5WXkwmGgi5xdAWyJJbwVbJtCUyHD+z7rcj7lyExJh7lG2O7t29YonHPh
+	 APPdkG8VAi/MuUI/tgFChDUyjyTct08u5s784HO4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbfBUJqb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 21 Feb 2019 04:46:31 -0500
-Received: from relmlor2.renesas.com ([210.160.252.172]:8082 "EHLO
-        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725385AbfBUJqb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Feb 2019 04:46:31 -0500
-X-IronPort-AV: E=Sophos;i="5.58,394,1544454000"; 
-   d="scan'208";a="8271408"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 21 Feb 2019 18:46:29 +0900
-Received: from be1yocto.ree.adwin.renesas.com (unknown [172.29.43.62])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 4D6374322CC0;
-        Thu, 21 Feb 2019 18:46:27 +0900 (JST)
-From:   Biju Das <biju.das@bp.renesas.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Biju Das <biju.das@bp.renesas.com>, linux-rtc@vger.kernel.org,
-        Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 3/5] rtc: rx8581: Add support for Epson rx8571 RTC
-Date:   Thu, 21 Feb 2019 09:40:46 +0000
-Message-Id: <1550742048-28068-4-git-send-email-biju.das@bp.renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1550742048-28068-1-git-send-email-biju.das@bp.renesas.com>
-References: <1550742048-28068-1-git-send-email-biju.das@bp.renesas.com>
+        id S1726080AbfBWAao (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Feb 2019 19:30:44 -0500
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:35317 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725774AbfBWAao (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Feb 2019 19:30:44 -0500
+Received: by mail-oi1-f196.google.com with SMTP id u128so3172324oie.2;
+        Fri, 22 Feb 2019 16:30:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mj2zpxbrV3m06WEbub19SHYmtQa20P4XRmG7bK+Mjbs=;
+        b=XxK82EtFsXU68IRCpo7V+iy4EG3bjrkfipmBauy4Zgc8vIGpPH3hpaNioQT5tI3j4Y
+         43RhUzEynlWOa+wmnMHRdFEUNhFA/ockwB5lsKdxb7f0bfJG50O5Udvwsr+btnhT4jnp
+         yQfoGqR2f/5oATCv6zdw0JC7sjsMOiq0HxQbZit+5r2v9kKxc0GSwVr7W7+fo7ea2BBr
+         nVVDeGDa1iSFhEs7CI2Yno4RtQccEUgGA0M1hjOrUeK4Ukb6uaj4yHokC5fc7bMSLRMe
+         u2TubQS19GxiMD1hdemGTKaNhytaw6+CAXAJW5ocYlC9urCQ7KykWaBhah1bZtmvUnTW
+         mjdg==
+X-Gm-Message-State: AHQUAua9+X9Xl0uv5avfADu9byLy2yuZQDEf7IxLei7lNNrrVd7zjWmL
+        o+Kpx2KhUTNOUE/eYxYogg==
+X-Google-Smtp-Source: AHgI3IZIFbKG9LmWSTtxCInD2vwNyddirZjOsIU49Y/DbcMTCyBhZRB/VdSyNFTaSWg92TKy38tyfQ==
+X-Received: by 2002:aca:dbc4:: with SMTP id s187mr4030761oig.124.1550881842825;
+        Fri, 22 Feb 2019 16:30:42 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id m89sm1208979otc.7.2019.02.22.16.30.41
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 22 Feb 2019 16:30:42 -0800 (PST)
+Date:   Fri, 22 Feb 2019 18:30:41 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org,
+        mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+Subject: Re: [RFC PATCH v1 07/13] devicetree: bindings: Document first ROHM
+ BD70528 bindings
+Message-ID: <20190223003041.GA16670@bogus>
+References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add support for Epson rx8571 real-time clock. rx8571 rtc is compatible
-with rx8581,except that rx8571 has additional 16 bytes of RAM.
+On Tue, Jan 22, 2019 at 11:45:38AM +0200, Matti Vaittinen wrote:
+> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> drivers) and 4 GPIO pins which can be configured for I/O or
+> as interrupt sources withe configurable trigger levels.
 
-16 bytes of nvmem is supported and exposed in sysfs (# is the instance
-number,starting with 0): /sys/bus/nvmem/devices/rx8571-#/nvmem
+'dt-bindings: mfd: ...' for the subject.
 
-Signed-off-by: Biju Das <biju.das@bp.renesas.com>
----
- drivers/rtc/rtc-rx8581.c | 114 +++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 105 insertions(+), 9 deletions(-)
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
+>  .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 104 +++++++++++++++++++++
+>  1 file changed, 104 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> new file mode 100644
+> index 000000000000..21801440a53a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> @@ -0,0 +1,104 @@
+> +* ROHM BD70528 Power Management Integrated Circuit bindings
+> +
+> +BD70528MWV is an ultra-low Iq general purpose single-chip power management IC
+> +for battery-powered portable devices. The IC integrates 3 ultra-low current
+> +consumption buck converters, 3 LDOs and 2 LED Drivers. Also included are 4
+> +GPIOs, a real-time clock (RTC), a 32kHz clock gate, high-accuracy VREF
+> +for use with an external ADC, flexible dual-input power path, 10 bits SAR ADC
+> +for battery temperature monitor and 1S battery charger with scalable charge
+> +currents.
+> +
+> +Required properties:
+> + - compatible		: Should be "rohm,bd70528"
+> + - reg			: I2C slave address.
+> + - interrupt-parent	: Phandle to the parent interrupt controller.
 
-diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
-index eac8821..d962b87 100644
---- a/drivers/rtc/rtc-rx8581.c
-+++ b/drivers/rtc/rtc-rx8581.c
-@@ -15,6 +15,8 @@
- #include <linux/module.h>
- #include <linux/i2c.h>
- #include <linux/bcd.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
- #include <linux/log2.h>
-@@ -51,11 +53,19 @@
- #define RX8581_CTRL_STOP	0x02 /* STOP bit */
- #define RX8581_CTRL_RESET	0x01 /* RESET bit */
- 
-+#define RX8571_USER_RAM		0x10
-+#define RX8571_NVRAM_SIZE	0x10
-+
- struct rx8581 {
- 	struct regmap		*regmap;
- 	struct rtc_device	*rtc;
- };
- 
-+struct rx85x1_config {
-+	struct regmap_config regmap;
-+	unsigned int num_nvram;
-+};
-+
- /*
-  * In the routines that deal directly with the rx8581 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-@@ -181,25 +191,103 @@ static const struct rtc_class_ops rx8581_rtc_ops = {
- 	.set_time	= rx8581_rtc_set_time,
- };
- 
--static int rx8581_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int rx8571_nvram_read(void *priv, unsigned int offset, void *val,
-+			       size_t bytes)
- {
--	struct rx8581	  *rx8581;
--	static const struct regmap_config config = {
-+	struct rx8581 *rx8581 = priv;
-+
-+	return regmap_bulk_read(rx8581->regmap, RX8571_USER_RAM + offset,
-+				val, bytes);
-+}
-+
-+static int rx8571_nvram_write(void *priv, unsigned int offset, void *val,
-+				size_t bytes)
-+{
-+	struct rx8581 *rx8581 = priv;
-+
-+	return regmap_bulk_write(rx8581->regmap, RX8571_USER_RAM + offset,
-+				 val, bytes);
-+}
-+
-+static int rx85x1_nvram_read(void *priv, unsigned int offset, void *val,
-+			       size_t bytes)
-+{
-+	struct rx8581 *rx8581 = priv;
-+	unsigned int tmp_val;
-+	int ret;
-+
-+	ret = regmap_read(rx8581->regmap, RX8581_REG_RAM, &tmp_val);
-+	(*(unsigned char *) val) = (unsigned char) tmp_val;
-+
-+	return ret;
-+}
-+
-+static int rx85x1_nvram_write(void *priv, unsigned int offset, void *val,
-+				size_t bytes)
-+{
-+	struct rx8581 *rx8581 = priv;
-+	unsigned char tmp_val;
-+
-+	tmp_val = *((unsigned char *)val);
-+	return regmap_write(rx8581->regmap, RX8581_REG_RAM,
-+				(unsigned int)tmp_val);
-+}
-+
-+static const struct rx85x1_config rx8581_config = {
-+	.regmap = {
- 		.reg_bits = 8,
- 		.val_bits = 8,
- 		.max_register = 0xf,
-+	},
-+	.num_nvram = 1
-+};
-+
-+static const struct rx85x1_config rx8571_config = {
-+	.regmap = {
-+		.reg_bits = 8,
-+		.val_bits = 8,
-+		.max_register = 0x1f,
-+	},
-+	.num_nvram = 2
-+};
-+
-+static int rx8581_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct rx8581 *rx8581;
-+	const struct rx85x1_config *config = &rx8581_config;
-+	const void *data = of_device_get_match_data(&client->dev);
-+	static struct nvmem_config nvmem_cfg[] = {
-+		{
-+			.name = "rx85x1-",
-+			.word_size = 1,
-+			.stride = 1,
-+			.size = 1,
-+			.reg_read = rx85x1_nvram_read,
-+			.reg_write = rx85x1_nvram_write,
-+		}, {
-+			.name = "rx8571-",
-+			.word_size = 1,
-+			.stride = 1,
-+			.size = RX8571_NVRAM_SIZE,
-+			.reg_read = rx8571_nvram_read,
-+			.reg_write = rx8571_nvram_write,
-+		},
- 	};
-+	int ret, i;
- 
- 	dev_dbg(&client->dev, "%s\n", __func__);
- 
-+	if (data)
-+		config = data;
-+
- 	rx8581 = devm_kzalloc(&client->dev, sizeof(struct rx8581), GFP_KERNEL);
- 	if (!rx8581)
- 		return -ENOMEM;
- 
- 	i2c_set_clientdata(client, rx8581);
- 
--	rx8581->regmap = devm_regmap_init_i2c(client, &config);
-+	rx8581->regmap = devm_regmap_init_i2c(client, &config->regmap);
- 	if (IS_ERR(rx8581->regmap))
- 		return PTR_ERR(rx8581->regmap);
- 
-@@ -213,7 +301,14 @@ static int rx8581_probe(struct i2c_client *client,
- 	rx8581->rtc->start_secs = 0;
- 	rx8581->rtc->set_start_time = true;
- 
--	return rtc_register_device(rx8581->rtc);
-+	ret = rtc_register_device(rx8581->rtc);
-+
-+	for (i = 0; i < config->num_nvram; i++) {
-+		nvmem_cfg[i].priv = rx8581;
-+		rtc_nvmem_register(rx8581->rtc, &nvmem_cfg[i]);
-+	}
-+
-+	return ret;
- }
- 
- static const struct i2c_device_id rx8581_id[] = {
-@@ -223,8 +318,9 @@ static const struct i2c_device_id rx8581_id[] = {
- MODULE_DEVICE_TABLE(i2c, rx8581_id);
- 
- static const struct of_device_id rx8581_of_match[] = {
--	{ .compatible = "epson,rx8581" },
--	{ }
-+	{ .compatible = "epson,rx8571", .data = &rx8571_config },
-+	{ .compatible = "epson,rx8581", .data = &rx8581_config },
-+	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, rx8581_of_match);
- 
-@@ -240,5 +336,5 @@ static struct i2c_driver rx8581_driver = {
- module_i2c_driver(rx8581_driver);
- 
- MODULE_AUTHOR("Martyn Welch <martyn.welch@ge.com>");
--MODULE_DESCRIPTION("Epson RX-8581 RTC driver");
-+MODULE_DESCRIPTION("Epson RX-8571/RX-8581 RTC driver");
- MODULE_LICENSE("GPL");
--- 
-2.7.4
+Don't need to document this. It is implied and could be in the parent.
 
+> + - interrupts		: The interrupt line the device is connected to.
+> + - interrupt-controller	: To indicate bd70528 acts as an interrupt controller.
+> + - #interrupt-cells	: Should be 2. usage is compliant to the 2 cells
+> +			  variant of ../interrupt-controller/interrupts.txt
+> + - gpio-controller	: To indicate bd70528 acts as a gpio controller.
+> + - #gpio-cells		: Should be 2. The first cell is the pin number and
+> +			  the second cell is used to specify flags. See
+> +			  ../gpio/gpio.txt for more information.
+> + - clock-frequency	: Should be 32768
+> + - #clock-cells		: Should be 0.
+> + - regulators:		: List of child nodes that specify the regulators.
+> +			  Please see ../regulator/rohm,bd70528-regulator.txt
+> +
+> +Optional properties:
+> + - clock-output-names	: Should contain name for output clock.
+> +
+> +Example:
+> +/* external oscillator */
+> +osc: oscillator {
+> +	compatible = "fixed-clock";
+> +	#clock-cells = <1>;
+> +	clock-frequency  = <32768>;
+> +	clock-output-names = "osc";
+> +};
+> +
+> +pmic: bd70528@4b {
+
+pmic@4b
+
+> +	compatible = "rohm,bd70528";
+> +	reg = <0x4b>;
+> +	interrupt-parent = <&gpio1>;
+> +	interrupts = <29 GPIO_ACTIVE_LOW>;
+> +	clocks = <&osc 0>;
+> +	#clock-cells = <0>;
+> +	clock-output-names = "bd70528-32k-out";
+> +	#gpio-cells = <2>;
+> +	gpio-controller;
+> +	interrupt-controller;
+> +	#interrupt-cells = <2>;
+> +
+> +	regulators {
+> +		buck1: BUCK1 {
+> +			regulator-name = "buck1";
+> +			regulator-min-microvolt = <1200000>;
+> +			regulator-max-microvolt = <3400000>;
+> +			regulator-boot-on;
+> +			regulator-ramp-delay = <125>;
+> +		};
+> +		buck2: BUCK2 {
+> +			regulator-name = "buck2";
+> +			regulator-min-microvolt = <1200000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +			regulator-ramp-delay = <125>;
+> +		};
+> +		buck3: BUCK3 {
+> +			regulator-name = "buck3";
+> +			regulator-min-microvolt = <800000>;
+> +			regulator-max-microvolt = <1800000>;
+> +			regulator-boot-on;
+> +			regulator-ramp-delay = <250>;
+> +		};
+> +		ldo1: LDO1 {
+> +			regulator-name = "ldo1";
+> +			regulator-min-microvolt = <1650000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +		};
+> +		ldo2: LDO2 {
+> +			regulator-name = "ldo2";
+> +			regulator-min-microvolt = <1650000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +		};
+> +
+> +		ldo3: LDO3 {
+> +			regulator-name = "ldo3";
+> +			regulator-min-microvolt = <1650000>;
+> +			regulator-max-microvolt = <3300000>;
+> +		};
+> +		led_ldo1: LED_LDO1 {
+> +			regulator-name = "led_ldo1";
+> +			regulator-min-microvolt = <200000>;
+> +			regulator-max-microvolt = <300000>;
+> +		};
+> +		led_ldo2: LED_LDO2 {
+> +			regulator-name = "led_ldo2";
+> +			regulator-min-microvolt = <200000>;
+> +			regulator-max-microvolt = <300000>;
+> +		};
+> +	};
+> +};
+> -- 
+> 2.14.3
+> 
+> 
+> -- 
+> Matti Vaittinen
+> ROHM Semiconductors
+> 
+> ~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
