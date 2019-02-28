@@ -2,111 +2,117 @@ Return-Path: <SRS0=/zCe=RD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 763D1C4360F
-	for <linux-rtc@archiver.kernel.org>; Thu, 28 Feb 2019 11:41:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3779C4360F
+	for <linux-rtc@archiver.kernel.org>; Thu, 28 Feb 2019 15:37:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 47C0F21850
-	for <linux-rtc@archiver.kernel.org>; Thu, 28 Feb 2019 11:41:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B363A218D0
+	for <linux-rtc@archiver.kernel.org>; Thu, 28 Feb 2019 15:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1551354062;
-	bh=zorMPTfb1TPeO4nwA4T4qEy8dDYyeF8JQMspHx5/z3U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=WZ9QRug0bohU8ocYCAdafNLIWI6tBfwv8RHZk61jCI50kgirbYlMBA46RgAr4XcvB
-	 r0IN/mAZGAgSsEgopZ2x5tDCZXiR0Tt8Khcj4Y+ZQpdmwGtbB5ZgMK0ML7Gk3X5umB
-	 umTPnMnMgySJDMqOOj5fhVyjFN6ijvYKSd5Wm3UU=
+	s=default; t=1551368277;
+	bh=d9Fnt7h8JVsgePf/Xp/5197DVDsk15WNv/erwfjZqyI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=nlIhlVDRyqm6TIJGG8SzBSWpemdNf4cvl3dpV66SXCPIRYUlnTMxcy0QpNAQjMFSZ
+	 Umw/gTj9b8CWhtcdkLmIYwtq/vNBcVhpmcBeWkS6FF5FsD4rKfjxs4wNF9u+enLu9U
+	 TEkHaJZBNVf1osBmB/SagxFaeStz7gQCKWUkeBSM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732069AbfB1Lk5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 28 Feb 2019 06:40:57 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:49356 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731013AbfB1Lk4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 28 Feb 2019 06:40:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=LLiNH4oIr4+JwdwcpJ+DDQQsoNcU24lAEfaNV3Etzf0=; b=um/mSy8gXDP3Bi4q2X0zs4/KY
-        ovato2EYhXlJMgy405qMYClvzMZQTbCYqXAEuDVJMe+82ZwPbq8e0YvsQFKn4K7yDGLBtGYSYgh1c
-        monHmeuu0SplBQmXvsXqnWw9fME5DAZ8LRFcsLSX5TlsludkIncTDtx+bH16GH22hAlH8=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1gzK3E-0005kG-Dr; Thu, 28 Feb 2019 11:40:32 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id 74BA21126E9D; Thu, 28 Feb 2019 11:40:26 +0000 (GMT)
-Date:   Thu, 28 Feb 2019 11:40:26 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-Subject: Re: [PATCH v10 0/9] support ROHM BD70528 PMIC
-Message-ID: <20190228114026.GA6802@sirena.org.uk>
-References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
- <20190228070450.GB3773@localhost.localdomain>
+        id S1732897AbfB1Ph5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 28 Feb 2019 10:37:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732208AbfB1Ph4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 28 Feb 2019 10:37:56 -0500
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75FA5218D9;
+        Thu, 28 Feb 2019 15:37:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1551368275;
+        bh=d9Fnt7h8JVsgePf/Xp/5197DVDsk15WNv/erwfjZqyI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=qatioSbEHWqtsTDpJORUjJz0D1kSBOB6Os61XglmPXRR5qhbi9rp2Ig0mzG7Kr6nT
+         dVtrfMNFfnLygjqmUJGKKiY+lJYCxboroT3zqrEBLr/Ep6K/FYbYNB0lDRd0nwH1gE
+         8Dhi4HtdQxRF/xU8uydpdfhXXKz6wF6R0+GfeGwY=
+Received: by mail-qt1-f170.google.com with SMTP id u7so14751027qtg.9;
+        Thu, 28 Feb 2019 07:37:55 -0800 (PST)
+X-Gm-Message-State: APjAAAVuZq9FsqWhE8a1EtDbe9WgmuciCk+P1xFDHKJX2bzrcQ/BLJY6
+        xcQfGwqDIcA1o/OwklhpStPeHu1ZU4Rmg5buAg==
+X-Google-Smtp-Source: APXvYqx9QcG+QKclLDKNC4bwxAoXMtgqvzvQbLRUOLlwSeWtXHH49hDWkAeqxI8e2DKOMhViR3JpoVBytrPjYs1/cpw=
+X-Received: by 2002:a0c:ecc5:: with SMTP id o5mr6962500qvq.106.1551368274651;
+ Thu, 28 Feb 2019 07:37:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-Content-Disposition: inline
-In-Reply-To: <20190228070450.GB3773@localhost.localdomain>
-X-Cookie: You must be present to win.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190223003041.GA16670@bogus> <20190228064923.GA3773@localhost.localdomain>
+In-Reply-To: <20190228064923.GA3773@localhost.localdomain>
+From:   Rob Herring <robh@kernel.org>
+Date:   Thu, 28 Feb 2019 09:37:43 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqKBUyygGu9FRb+hye+1DyRgdATm_64+XfsvwEa8AvZhJg@mail.gmail.com>
+Message-ID: <CAL_JsqKBUyygGu9FRb+hye+1DyRgdATm_64+XfsvwEa8AvZhJg@mail.gmail.com>
+Subject: Re: [RFC PATCH v1 07/13] devicetree: bindings: Document first ROHM
+ BD70528 bindings
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:THERMAL" <linux-pm@vger.kernel.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On Thu, Feb 28, 2019 at 12:49 AM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
+>
+> Hello Rob, All
+>
+> Sorry for long delay - I was ill for a few days. Back at the business
+> now =)
+>
+> Rob, maybe dropping the RFC tag has messed your book keeping? This
+> is the latest version:
+> https://lore.kernel.org/lkml/90c3b820baf072a7cc3a21aa50c661774a045158.1550148989.git.matti.vaittinen@fi.rohmeurope.com/
+> and I thought it already had the Reviewed-by tag from you :)
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I thought I ignored RFC tag, but could be that. My script (and memory)
+aren't perfect.
 
-On Thu, Feb 28, 2019 at 09:04:50AM +0200, Matti Vaittinen wrote:
-> On Thu, Feb 14, 2019 at 03:02:37PM +0200, Matti Vaittinen wrote:
+> On Fri, Feb 22, 2019 at 06:30:41PM -0600, Rob Herring wrote:
+> > On Tue, Jan 22, 2019 at 11:45:38AM +0200, Matti Vaittinen wrote:
+> > > Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> > > drivers) and 4 GPIO pins which can be configured for I/O or
+> > > as interrupt sources withe configurable trigger levels.
+> >
+> > 'dt-bindings: mfd: ...' for the subject.
+>
+> I see at least the patch subject comment is still valid though. Do you
+> want me to change it and resubmit the series?
 
->> Patch series introducing support for ROHM BD70528 PMIC
->=20
-> I was wondering if there is anything that could be done to allow the MFD
-> part of this series to end up in upstream without having to wait the
-> regmap-irq changes
-> (https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commi=
-t/?h=3Dtopic/irq)
->  to be merged from Linus' tree to MFD tree? If I see it correctly, the
-> regmap-irq (main-irq-reg support) changes are not targeted to linux 5.1.
-> To me it looks like getting them to MFD via Linus' tree will take a while.
+No, if that's the only thing, it's not important.
 
-They're targeted for v5.1 and I sent a pull request to Lee for that
-branch IIRC.
-
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlx3yKcACgkQJNaLcl1U
-h9D7LQgAgBAtFp4ti3bwtZh4iVfn9N4nYX2Sy8YynfGs/Nfwxm+m+KAl+IiOOo6C
-S1kWALtElOcido6myPacabi0EAyre1Q+Ne7tqUITOb4HQL0dGDpi/a1llthziX7d
-ZG6Slh0JGjOlPVZ8dMyxqXzySEjtwbKUMY4FqMd9LpkQ64FCmo5WdI9R6dnu0BZn
-DJjdUbHmqAbgNoxJ9M/U6mqDTXEviO2eqPhUCAnISc6GvabHA7UdRUxIzi770HjM
-Zi+AFlBE8mWAGvzn3C5u0h+4dnZxCMxMpSpyGokXkL25v5MzHB7lXOpi7a37Zpvo
-VBkTW0n5LezH7ejhsiqf90PtqfUptQ==
-=/nOu
------END PGP SIGNATURE-----
-
---ibTvN161/egqYuK8--
+Rob
