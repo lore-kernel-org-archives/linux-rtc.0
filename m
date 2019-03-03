@@ -6,28 +6,29 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36302C43381
-	for <linux-rtc@archiver.kernel.org>; Sun,  3 Mar 2019 21:14:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26068C43381
+	for <linux-rtc@archiver.kernel.org>; Sun,  3 Mar 2019 21:45:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0484B2070B
-	for <linux-rtc@archiver.kernel.org>; Sun,  3 Mar 2019 21:14:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E800520830
+	for <linux-rtc@archiver.kernel.org>; Sun,  3 Mar 2019 21:45:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726626AbfCCVOv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 3 Mar 2019 16:14:51 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:60339 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726621AbfCCVOv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 3 Mar 2019 16:14:51 -0500
+        id S1726639AbfCCVpV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 3 Mar 2019 16:45:21 -0500
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:57975 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726631AbfCCVpV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 3 Mar 2019 16:45:21 -0500
+X-Originating-IP: 82.246.155.60
 Received: from localhost (hy283-1-82-246-155-60.fbx.proxad.net [82.246.155.60])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 31834200003;
-        Sun,  3 Mar 2019 21:14:48 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id AFBA9FF805;
+        Sun,  3 Mar 2019 21:45:18 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: imx-sc: use rtc_time64_to_tm
-Date:   Sun,  3 Mar 2019 22:14:45 +0100
-Message-Id: <20190303211445.12712-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: zynqmp: fix possible race condition
+Date:   Sun,  3 Mar 2019 22:45:02 +0100
+Message-Id: <20190303214503.17400-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -36,27 +37,46 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The imx-sc driver properly sets range_max, use rtc_time64_to_tm() instead
-of the deprecated rtc_time_to_tm()
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+struct before requesting the IRQ.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-imx-sc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-zynqmp.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-imx-sc.c b/drivers/rtc/rtc-imx-sc.c
-index 60570a278bb0..19642bfd913a 100644
---- a/drivers/rtc/rtc-imx-sc.c
-+++ b/drivers/rtc/rtc-imx-sc.c
-@@ -41,7 +41,7 @@ static int imx_sc_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		return ret;
- 	}
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index c532bd13fbe5..f0dd20785b54 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -222,6 +222,12 @@ static int xlnx_rtc_probe(struct platform_device *pdev)
  
--	rtc_time_to_tm(msg.time, tm);
-+	rtc_time64_to_tm(msg.time, tm);
+ 	platform_set_drvdata(pdev, xrtcdev);
  
- 	return 0;
++	xrtcdev->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(xrtcdev->rtc))
++		return PTR_ERR(xrtcdev->rtc);
++
++	xrtcdev->rtc->ops = &xlnx_rtc_ops;
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 
+ 	xrtcdev->reg_base = devm_ioremap_resource(&pdev->dev, res);
+@@ -263,9 +269,7 @@ static int xlnx_rtc_probe(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	xrtcdev->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					 &xlnx_rtc_ops, THIS_MODULE);
+-	return PTR_ERR_OR_ZERO(xrtcdev->rtc);
++	return rtc_register_device(xrtcdev->rtc);
  }
+ 
+ static int xlnx_rtc_remove(struct platform_device *pdev)
 -- 
 2.20.1
 
