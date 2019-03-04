@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAF1EC4360F
-	for <linux-rtc@archiver.kernel.org>; Mon,  4 Mar 2019 10:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03B3CC43381
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Mar 2019 10:20:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B105E2082F
-	for <linux-rtc@archiver.kernel.org>; Mon,  4 Mar 2019 10:05:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D023820823
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Mar 2019 10:20:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbfCDKFB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 4 Mar 2019 05:05:01 -0500
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:47685 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726094AbfCDKFB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Mar 2019 05:05:01 -0500
+        id S1726066AbfCDKUV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 4 Mar 2019 05:20:21 -0500
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:37699 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726046AbfCDKUV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Mar 2019 05:20:21 -0500
 X-Originating-IP: 82.246.155.60
 Received: from localhost (hy283-1-82-246-155-60.fbx.proxad.net [82.246.155.60])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 0A4F324000A;
-        Mon,  4 Mar 2019 10:04:58 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 499FFC0008;
+        Mon,  4 Mar 2019 10:20:18 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: rv8803: let the core handle range
-Date:   Mon,  4 Mar 2019 11:04:56 +0100
-Message-Id: <20190304100456.28483-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/2] rtc: pic32: convert to devm_rtc_allocate_device
+Date:   Mon,  4 Mar 2019 11:20:13 +0100
+Message-Id: <20190304102014.529-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -37,36 +37,39 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Let the core handle the RTC range instead of open coding it.
+This allows further improvement of the driver.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv8803.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-pic32.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 450a0b831a2d..df000a68d6b1 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -236,9 +236,6 @@ static int rv8803_set_time(struct device *dev, struct rtc_time *tm)
- 	u8 date[7];
- 	int ctrl, flags, ret;
+diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
+index d7ef0a6f8931..43bd701daef2 100644
+--- a/drivers/rtc/rtc-pic32.c
++++ b/drivers/rtc/rtc-pic32.c
+@@ -348,13 +348,15 @@ static int pic32_rtc_probe(struct platform_device *pdev)
  
--	if ((tm->tm_year < 100) || (tm->tm_year > 199))
--		return -EINVAL;
--
- 	ctrl = rv8803_read_reg(rv8803->client, RV8803_CTRL);
- 	if (ctrl < 0)
- 		return ctrl;
-@@ -602,6 +599,8 @@ static int rv8803_probe(struct i2c_client *client,
+ 	device_init_wakeup(&pdev->dev, 1);
  
- 	rv8803->rtc->ops = &rv8803_rtc_ops;
- 	rv8803->rtc->nvram_old_abi = true;
-+	rv8803->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	rv8803->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 	err = rtc_register_device(rv8803->rtc);
- 	if (err)
- 		return err;
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-						 &pic32_rtcops,
+-						 THIS_MODULE);
+-	if (IS_ERR(pdata->rtc)) {
+-		ret = PTR_ERR(pdata->rtc);
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
++
++	pdata->rtc->ops = &pic32_rtcops;
++
++	ret = rtc_register_device(pdata->rtc);
++	if (ret)
+ 		goto err_nortc;
+-	}
+ 
+ 	pdata->rtc->max_user_freq = 128;
+ 
 -- 
 2.20.1
 
