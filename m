@@ -2,73 +2,105 @@ Return-Path: <SRS0=JgwP=RJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C03C10F0F
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Mar 2019 09:51:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E28C10F00
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Mar 2019 10:38:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBDDE20661
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 Mar 2019 09:51:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9FF520675
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 Mar 2019 10:38:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729754AbfCFJvn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Mar 2019 04:51:43 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:34403 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729817AbfCFJvm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Mar 2019 04:51:42 -0500
-Received: from localhost (alyon-652-1-90-156.w90-42.abo.wanadoo.fr [90.42.94.156])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 328CA20000A;
-        Wed,  6 Mar 2019 09:51:39 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/3] rtc: abx80x: remove useless .remove
-Date:   Wed,  6 Mar 2019 10:51:34 +0100
-Message-Id: <20190306095134.18550-3-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190306095134.18550-1-alexandre.belloni@bootlin.com>
-References: <20190306095134.18550-1-alexandre.belloni@bootlin.com>
+        id S1729174AbfCFKi3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Mar 2019 05:38:29 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:44220 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727367AbfCFKi3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Mar 2019 05:38:29 -0500
+Received: by mail-lj1-f196.google.com with SMTP id q128so10392790ljb.11;
+        Wed, 06 Mar 2019 02:38:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=pkbGJnzrNQWp1Q//kyZcWCjFglxOFBhl6nZ3Kk0wE3I=;
+        b=s34ODNwagVp0VTyp0Vs2Rnuq552D+19dWobMZe7NNYeWxEoitSbXKDCaMxlxsO1bNz
+         ouT38fJtiWBhI8jKmiK5rQpjWFKfFWZtDzlwi/GqllID+gtOHq7/jkDuhVjiToOaKiMH
+         d6kgSJ/Y6USAkc7a12havjabBUHjOhBel81c0aNAsK4upsXQ7X65R7QNQPv0BG5EHLOn
+         SdYMNujDHx2f1fQcxhbXBYmhyzGgct6nnWQnkDUBM6wGts0iUjeiEffPn6QyaC7nuPSy
+         6/8BlNbwF5Ih3usZEnl5o7g048IHQYj/yTcXBqYKUc/unD2I5GnN7J0faZCOm2D6xvjK
+         6UDg==
+X-Gm-Message-State: APjAAAX/Vev4X726cZ8ktZMXh+1Z7tBkhlMhDHjb0e67YEO/KPrGJ/sa
+        QI6umalJLcRHKi0dKGjy2FY=
+X-Google-Smtp-Source: APXvYqwSZpXNqawZCxqpf81sWMEG0ADqPGL3hCmeo+GD8l0NCKMHdZx32634V7xuAqXy+DDZ8gZo6w==
+X-Received: by 2002:a2e:97ce:: with SMTP id m14mr2022026ljj.162.1551868705751;
+        Wed, 06 Mar 2019 02:38:25 -0800 (PST)
+Received: from localhost.localdomain (dyvyhqw8krmdp3vv9p36y-4.rev.dnainternet.fi. [2001:14bb:440:66cb:8872:86cb:c63d:65f4])
+        by smtp.gmail.com with ESMTPSA id b64sm259421ljf.82.2019.03.06.02.38.23
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 06 Mar 2019 02:38:24 -0800 (PST)
+Date:   Wed, 6 Mar 2019 12:38:16 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
+Subject: Re: [PATCH v10 0/9] support ROHM BD70528 PMIC
+Message-ID: <20190306103816.GA23959@localhost.localdomain>
+References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190228070450.GB3773@localhost.localdomain>
+ <20190228114026.GA6802@sirena.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190228114026.GA6802@sirena.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-.remove is empty, remove it.
+On Thu, Feb 28, 2019 at 11:40:26AM +0000, Mark Brown wrote:
+> On Thu, Feb 28, 2019 at 09:04:50AM +0200, Matti Vaittinen wrote:
+> > On Thu, Feb 14, 2019 at 03:02:37PM +0200, Matti Vaittinen wrote:
+> 
+> >> Patch series introducing support for ROHM BD70528 PMIC
+> > 
+> > I was wondering if there is anything that could be done to allow the MFD
+> > part of this series to end up in upstream without having to wait the
+> > regmap-irq changes
+> > (https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commit/?h=topic/irq)
+> >  to be merged from Linus' tree to MFD tree? If I see it correctly, the
+> > regmap-irq (main-irq-reg support) changes are not targeted to linux 5.1.
+> > To me it looks like getting them to MFD via Linus' tree will take a while.
+> 
+> They're targeted for v5.1 and I sent a pull request to Lee for that
+> branch IIRC.
+Thanks Mark. I think I have misunderstood how you deliver changes to 5.1
+- or then I have done some other mistake. I thought these changes were
+  not going to 5.1 as I did not see them in your for-5.1 branch. But I
+probably did some error there. Thanks for explaining this :)
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-abx80x.c | 6 ------
- 1 file changed, 6 deletions(-)
+Br,
+	Matti Vaittinen
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 90f25ac78abc..73830670a41f 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -851,11 +851,6 @@ static int abx80x_probe(struct i2c_client *client,
- 	return rtc_register_device(priv->rtc);
- }
- 
--static int abx80x_remove(struct i2c_client *client)
--{
--	return 0;
--}
--
- static const struct i2c_device_id abx80x_id[] = {
- 	{ "abx80x", ABX80X },
- 	{ "ab0801", AB0801 },
-@@ -876,7 +871,6 @@ static struct i2c_driver abx80x_driver = {
- 		.name	= "rtc-abx80x",
- 	},
- 	.probe		= abx80x_probe,
--	.remove		= abx80x_remove,
- 	.id_table	= abx80x_id,
- };
- 
+
+
 -- 
-2.20.1
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
 
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
