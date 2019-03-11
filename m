@@ -2,146 +2,127 @@ Return-Path: <SRS0=VvY+=RO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1291C43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 06:10:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B824AC43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 07:55:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C21E420657
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 06:10:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8587820643
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 07:55:52 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oPbZSo/v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725870AbfCKGKf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 02:10:35 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:64694 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725866AbfCKGKf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 02:10:35 -0400
-X-UUID: 38f12cbe4e1d4ba9bf5976d5633a568c-20190311
-X-UUID: 38f12cbe4e1d4ba9bf5976d5633a568c-20190311
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
-        (envelope-from <eddie.huang@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 1005944272; Mon, 11 Mar 2019 14:10:23 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Mon, 11 Mar 2019 14:10:22 +0800
-Received: from [172.21.77.4] (172.21.77.4) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Mon, 11 Mar 2019 14:10:22 +0800
-Message-ID: <1552284619.28295.3.camel@mtksdaap41>
-Subject: Re: [PATCH v2 9/9] rtc: Add support for the MediaTek MT6358 RTC
-From:   Eddie Huang <eddie.huang@mediatek.com>
-To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-CC:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        srv_heupstream <srv_heupstream@mediatek.com>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Sean Wang <Sean.Wang@mediatek.com>,
+        id S1726623AbfCKHzw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 03:55:52 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37131 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726682AbfCKHzw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 03:55:52 -0400
+Received: by mail-pg1-f194.google.com with SMTP id q206so3428575pgq.4
+        for <linux-rtc@vger.kernel.org>; Mon, 11 Mar 2019 00:55:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ft2UN5cLlD5VuHU5OgpRG9HuzgvY/xGUcyXH1HE1OW4=;
+        b=oPbZSo/viIJe8sbM72giRyXtRCSg5/jyuo3Kgt6UcDWFCmTlLcQSzeim1B0yGzWluY
+         qt39B2EiL8HZgQFQF+0EjJHHz12LZrMLavOhEW4pThlK8K9HV9L1Pth02YYcvlAzaWgr
+         tEO/Eq82wKrEHXKBSfIR+w/zg4TF+KuQJfZFY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ft2UN5cLlD5VuHU5OgpRG9HuzgvY/xGUcyXH1HE1OW4=;
+        b=eQZh9fNuL+oSaU2KH4re9W2oomd7UwbV0kUK4zYmm+Ia7rLr5BDeOaTuoPi3uREbsn
+         fYkPUdxl+A8A02kxdwyn3TWGd4n2vIXgWMtNGa++KP4npetFRjfjjofgyJ3EOxdIgnU6
+         rIKoNahbXYkLn0B109pHkwDUEWieUmMN67DAEKwqr7OhafiDhDSqANW6lJDPgsxNyOFX
+         9tEa41dbnS/kuIpfnPpptf2ynXKAjoapsM8bq4fDseqc/9eARqpfBu3OwhKPU/WF6Zww
+         Tsp3SpoWwjLTII0KYTJFZSTuqUkLIPAyjkX1gWfO3VjVYF9Q3FpIHn9Sn75zTU74Ceco
+         I2nw==
+X-Gm-Message-State: APjAAAVQO+txqBo/rIvNJ/PuvinMooTek8RXpt/ciH92SdkxtvFFLSob
+        o+qWBCNs4+fFc7i5GiWK2ZEf/A==
+X-Google-Smtp-Source: APXvYqxQRedsJtxDZw+mhEF4kaD/iko7UVJ4HMEN7+v9kKKoVQwgNfBFtMb1CeCxxwNzewrDL9B8+g==
+X-Received: by 2002:a17:902:284b:: with SMTP id e69mr31738471plb.11.1552290951066;
+        Mon, 11 Mar 2019 00:55:51 -0700 (PDT)
+Received: from pihsun-z840.tpe.corp.google.com ([2401:fa00:1:10:7889:7a43:f899:134c])
+        by smtp.googlemail.com with ESMTPSA id y7sm6534145pgf.42.2019.03.11.00.55.48
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 11 Mar 2019 00:55:50 -0700 (PDT)
+From:   Pi-Hsun Shih <pihsun@chromium.org>
+Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ran Bi =?UTF-8?Q?=28=E6=AF=95=E5=86=89=29?= 
-        <Ran.Bi@mediatek.com>
-Date:   Mon, 11 Mar 2019 14:10:19 +0800
-In-Reply-To: <1552275991-34648-10-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-         <1552275991-34648-10-git-send-email-hsin-hsiung.wang@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek RTC
+        DRIVER),
+        linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek RTC
+        DRIVER),
+        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] mfd: mt6397: Don't call irq_dispose_mapping.
+Date:   Mon, 11 Mar 2019 15:55:40 +0800
+Message-Id: <20190311075540.26117-1-pihsun@chromium.org>
+X-Mailer: git-send-email 2.21.0.360.g471c308f928-goog
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 2019-03-11 at 11:46 +0800, Hsin-Hsiung Wang wrote:
-> From: Ran Bi <ran.bi@mediatek.com>
-> 
-> This add support for the MediaTek MT6358 RTC. MT6397 mfd will pass
-> RTC_WRTGR address offset to RTC driver.
-> 
-> Signed-off-by: Ran Bi <ran.bi@mediatek.com>
-> ---
->  drivers/rtc/rtc-mt6397.c | 16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index f85f1fc..c8a0090 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -27,7 +27,7 @@
->  #define RTC_BBPU		0x0000
->  #define RTC_BBPU_CBUSY		BIT(6)
->  
-> -#define RTC_WRTGR		0x003c
-> +#define RTC_WRTGR_DEFAULT	0x003c
->  
->  #define RTC_IRQ_STA		0x0002
->  #define RTC_IRQ_STA_AL		BIT(0)
-> @@ -78,6 +78,7 @@ struct mt6397_rtc {
->  	struct regmap		*regmap;
->  	int			irq;
->  	u32			addr_base;
-> +	u32			wrtgr_offset;
+The IRQ mapping was changed to not being created in the rtc-mt6397
+driver, so the irq_dispose_mapping is no longer needed.
+Also the dev_id passed to free_irq should be the same as the last
+argument passed to request_threaded_irq.
+This prevents a "Trying to free already-free IRQ 274" warning when
+unbinding the driver.
 
-It is strange that hardware change trigger register offset, I think we
-have no choice to add a field to describe it.
+Fixes: e695d3a0b3b3 ("mfd: mt6397: Create irq mappings in mfd core driver")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
 
->  };
->  
->  static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
-> @@ -86,7 +87,8 @@ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
->  	int ret;
->  	u32 data;
->  
-> -	ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_WRTGR, 1);
-> +	ret = regmap_write(rtc->regmap,
-> +			   rtc->addr_base + rtc->wrtgr_offset, 1);
->  	if (ret < 0)
->  		return ret;
->  
-> @@ -341,6 +343,15 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	rtc->addr_base = res->start;
->  
-> +	res = platform_get_resource(pdev, IORESOURCE_REG, 0);
-> +	if (res) {
-> +		rtc->wrtgr_offset = res->start;
-> +		dev_info(&pdev->dev, "register offset:%d\n", rtc->wrtgr_offset);
+---
+ drivers/rtc/rtc-mt6397.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-Nit: useless log
-
-> +	} else {
-> +		rtc->wrtgr_offset = RTC_WRTGR_DEFAULT;
-> +		dev_err(&pdev->dev, "Failed to get register offset\n");
-> +	}
-> +
->  	rtc->irq = platform_get_irq(pdev, 0);
->  	if (rtc->irq < 0)
->  		return rtc->irq;
-> @@ -420,6 +431,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
->  			mt6397_rtc_resume);
->  
->  static const struct of_device_id mt6397_rtc_of_match[] = {
-> +	{ .compatible = "mediatek,mt6358-rtc", },
->  	{ .compatible = "mediatek,mt6397-rtc", },
->  	{ }
->  };
-
-Without the log, you can my get 
-Acked-by: Eddie Huang <eddie.huang@mediatekcom>
-
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index e9a25ec4d434..c06cf5202e02 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -343,7 +343,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			rtc->irq, ret);
+-		goto out_dispose_irq;
++		return ret;
+ 	}
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+@@ -359,9 +359,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ out_free_irq:
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-out_dispose_irq:
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 	return ret;
+ }
+ 
+@@ -369,8 +367,7 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
+ 
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 
+ 	return 0;
+ }
+-- 
+2.21.0.360.g471c308f928-goog
 
