@@ -2,31 +2,30 @@ Return-Path: <SRS0=VvY+=RO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8C6BC10F0C
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E07C43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C0C7820880
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F35532084F
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbfCKDsZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Mar 2019 23:48:25 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:22717 "EHLO
+        id S1727296AbfCKDsQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 10 Mar 2019 23:48:16 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:29574 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727367AbfCKDsY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Mar 2019 23:48:24 -0400
-X-UUID: e244d0509a914145b256456208f515bf-20190311
-X-UUID: e244d0509a914145b256456208f515bf-20190311
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        with ESMTP id S1727028AbfCKDsP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Mar 2019 23:48:15 -0400
+X-UUID: 46008fe1903c4d55a7f222371891aa97-20190311
+X-UUID: 46008fe1903c4d55a7f222371891aa97-20190311
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 1377849975; Mon, 11 Mar 2019 11:48:15 +0800
+        with ESMTP id 1501552983; Mon, 11 Mar 2019 11:48:09 +0800
 Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ mtkmbs03n1.mediatek.inc (172.21.101.181) with Microsoft SMTP Server (TLS) id
  15.0.1395.4; Mon, 11 Mar 2019 11:48:07 +0800
 Received: from mtkslt302.mediatek.inc (10.21.14.115) by MTKCAS06.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
@@ -46,75 +45,65 @@ CC:     Marc Zyngier <marc.zyngier@arm.com>, <srv_heupstream@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Subject: [PATCH v2 1/9] mfd: mt6397: clean up code
-Date:   Mon, 11 Mar 2019 11:46:23 +0800
-Message-ID: <1552275991-34648-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v2 0/9] Add Support for MediaTek PMIC MT6358
+Date:   Mon, 11 Mar 2019 11:46:22 +0800
+Message-ID: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-TM-SNTS-SMTP: 84217CD1F6B95900AED6305B6076435ED06913CDDA7492809B3DFFBEC30FFD2B2000:8
 X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-clean up code
+This patchset including refactoring interrupt add support to MT6358 PMIC.
+MT6358 is the primary PMIC for MT8183 platform.
 
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
----
- drivers/mfd/mt6397-core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+changes since v1:
+- refine for better code quality.
+- remove of_match_table in the MT6358 regulator driver.
+- some minor bug fix of mfd driver, like getting pmic id flow.
+- add support for the MediaTek MT6358 RTC.
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 77b64bd..acb9812 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -18,17 +18,17 @@
- #include <linux/of_irq.h>
- #include <linux/regmap.h>
- #include <linux/mfd/core.h>
--#include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6323/core.h>
--#include <linux/mfd/mt6397/registers.h>
-+#include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6323/registers.h>
-+#include <linux/mfd/mt6397/registers.h>
- 
- #define MT6397_RTC_BASE		0xe000
- #define MT6397_RTC_SIZE		0x3e
- 
--#define MT6323_CID_CODE		0x23
--#define MT6391_CID_CODE		0x91
--#define MT6397_CID_CODE		0x97
-+#define MT6323_CHIP_ID		0x23
-+#define MT6391_CHIP_ID		0x91
-+#define MT6397_CHIP_ID		0x97
- 
- static const struct resource mt6397_rtc_resources[] = {
- 	{
-@@ -298,7 +298,7 @@ static int mt6397_probe(struct platform_device *pdev)
- 		return pmic->irq;
- 
- 	switch (id & 0xff) {
--	case MT6323_CID_CODE:
-+	case MT6323_CHIP_ID:
- 		pmic->int_con[0] = MT6323_INT_CON0;
- 		pmic->int_con[1] = MT6323_INT_CON1;
- 		pmic->int_status[0] = MT6323_INT_STATUS0;
-@@ -312,8 +312,8 @@ static int mt6397_probe(struct platform_device *pdev)
- 					   0, pmic->irq_domain);
- 		break;
- 
--	case MT6397_CID_CODE:
--	case MT6391_CID_CODE:
-+	case MT6391_CHIP_ID:
-+	case MT6397_CHIP_ID:
- 		pmic->int_con[0] = MT6397_INT_CON0;
- 		pmic->int_con[1] = MT6397_INT_CON1;
- 		pmic->int_status[0] = MT6397_INT_STATUS0;
+Hsin-Hsiung Wang (7):
+  mfd: mt6397: clean up code
+  mfd: mt6397: extract irq related code from core driver
+  dt-bindings: mfd: Add compatible for the MediaTek MT6358 PMIC
+  regulator: Add document for MT6358 regulator
+  mfd: Add support for the MediaTek MT6358 PMIC
+  regulator: mt6358: Add support for MT6358 regulator
+  arm64: dts: mt6358: add PMIC MT6358 related nodes
+
+Ran Bi (2):
+  rtc: mt6397: fix alarm register overwrite
+  rtc: Add support for the MediaTek MT6358 RTC
+
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |   11 +-
+ .../bindings/regulator/mt6358-regulator.txt        |  318 ++++
+ arch/arm64/boot/dts/mediatek/mt6358.dtsi           |  318 ++++
+ drivers/mfd/Makefile                               |    2 +-
+ drivers/mfd/mt6358-irq.c                           |  236 +++
+ drivers/mfd/mt6397-core.c                          |  289 +--
+ drivers/mfd/mt6397-irq.c                           |  214 +++
+ drivers/regulator/Kconfig                          |    9 +
+ drivers/regulator/Makefile                         |    1 +
+ drivers/regulator/mt6358-regulator.c               |  600 ++++++
+ drivers/rtc/rtc-mt6397.c                           |   63 +-
+ include/linux/mfd/mt6358/core.h                    |  158 ++
+ include/linux/mfd/mt6358/registers.h               | 1926 ++++++++++++++++++++
+ include/linux/mfd/mt6397/core.h                    |   15 +
+ include/linux/regulator/mt6358-regulator.h         |   56 +
+ 15 files changed, 4000 insertions(+), 216 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/mt6358-regulator.txt
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6358.dtsi
+ create mode 100644 drivers/mfd/mt6358-irq.c
+ create mode 100644 drivers/mfd/mt6397-irq.c
+ create mode 100644 drivers/regulator/mt6358-regulator.c
+ create mode 100644 include/linux/mfd/mt6358/core.h
+ create mode 100644 include/linux/mfd/mt6358/registers.h
+ create mode 100644 include/linux/regulator/mt6358-regulator.h
+
 -- 
 1.9.1
 
