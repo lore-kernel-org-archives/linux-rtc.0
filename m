@@ -2,127 +2,265 @@ Return-Path: <SRS0=VvY+=RO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B824AC43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 07:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB096C43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 08:22:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8587820643
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 07:55:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93C9220643
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 08:22:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oPbZSo/v"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="U4b7NnVF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726623AbfCKHzw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 03:55:52 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:37131 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726682AbfCKHzw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 03:55:52 -0400
-Received: by mail-pg1-f194.google.com with SMTP id q206so3428575pgq.4
-        for <linux-rtc@vger.kernel.org>; Mon, 11 Mar 2019 00:55:51 -0700 (PDT)
+        id S1726631AbfCKIWR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 04:22:17 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:45726 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725839AbfCKIWR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 04:22:17 -0400
+Received: by mail-qt1-f195.google.com with SMTP id v20so776492qtv.12
+        for <linux-rtc@vger.kernel.org>; Mon, 11 Mar 2019 01:22:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ft2UN5cLlD5VuHU5OgpRG9HuzgvY/xGUcyXH1HE1OW4=;
-        b=oPbZSo/viIJe8sbM72giRyXtRCSg5/jyuo3Kgt6UcDWFCmTlLcQSzeim1B0yGzWluY
-         qt39B2EiL8HZgQFQF+0EjJHHz12LZrMLavOhEW4pThlK8K9HV9L1Pth02YYcvlAzaWgr
-         tEO/Eq82wKrEHXKBSfIR+w/zg4TF+KuQJfZFY=
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J+r5jSBU0PvEF+EoRYAnovk2UG54T5z8ivE5G6JkOrY=;
+        b=U4b7NnVF07eSZyc6Pm23toTw3/6ivjUVZnVOc9uyaXZXhEKwssDQulPBXGoDNPDndd
+         BjDCkoYBvERuAWA3k29D4U+w9pKiasmf4uAWWYJAs/OTmPifVqD1UWZXj8bAfZmjHrqu
+         w3+qg7Q+ob0J7/CHVfAROo+dSqDK4BNEMqE40=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ft2UN5cLlD5VuHU5OgpRG9HuzgvY/xGUcyXH1HE1OW4=;
-        b=eQZh9fNuL+oSaU2KH4re9W2oomd7UwbV0kUK4zYmm+Ia7rLr5BDeOaTuoPi3uREbsn
-         fYkPUdxl+A8A02kxdwyn3TWGd4n2vIXgWMtNGa++KP4npetFRjfjjofgyJ3EOxdIgnU6
-         rIKoNahbXYkLn0B109pHkwDUEWieUmMN67DAEKwqr7OhafiDhDSqANW6lJDPgsxNyOFX
-         9tEa41dbnS/kuIpfnPpptf2ynXKAjoapsM8bq4fDseqc/9eARqpfBu3OwhKPU/WF6Zww
-         Tsp3SpoWwjLTII0KYTJFZSTuqUkLIPAyjkX1gWfO3VjVYF9Q3FpIHn9Sn75zTU74Ceco
-         I2nw==
-X-Gm-Message-State: APjAAAVQO+txqBo/rIvNJ/PuvinMooTek8RXpt/ciH92SdkxtvFFLSob
-        o+qWBCNs4+fFc7i5GiWK2ZEf/A==
-X-Google-Smtp-Source: APXvYqxQRedsJtxDZw+mhEF4kaD/iko7UVJ4HMEN7+v9kKKoVQwgNfBFtMb1CeCxxwNzewrDL9B8+g==
-X-Received: by 2002:a17:902:284b:: with SMTP id e69mr31738471plb.11.1552290951066;
-        Mon, 11 Mar 2019 00:55:51 -0700 (PDT)
-Received: from pihsun-z840.tpe.corp.google.com ([2401:fa00:1:10:7889:7a43:f899:134c])
-        by smtp.googlemail.com with ESMTPSA id y7sm6534145pgf.42.2019.03.11.00.55.48
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 Mar 2019 00:55:50 -0700 (PDT)
-From:   Pi-Hsun Shih <pihsun@chromium.org>
-Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J+r5jSBU0PvEF+EoRYAnovk2UG54T5z8ivE5G6JkOrY=;
+        b=lx4fcdzV+ibDBL0d/aqbjI9NVyMGBroUVKb7LjusDhz5gd8s/raBn4gyNkGtWGfV9E
+         zB9iw6kpeQhS2jLKjxjJUwTDccl8ZNQrG5BnmpgOV5FEXR0jjBkirIK6XqCKDrD8TowA
+         yrb+3/hmmhKfR/7wmv47cyBpU8URW9wPWupCcUDAmqaQkOF4qqe3HvU6lc1NftFPtra+
+         DbuKEIgU3dj3XVxs3YoK90UxdMUYYPWqKaUAj12pFmVwwD2B+G6e8vrom6G+H2o9VEeS
+         rwgB7c/GKKAjqpftAck3Pb5vi+WkPMsxRMkRxVayVxAIJkXwgOE1QFegNgwL1jFRTVVS
+         EenA==
+X-Gm-Message-State: APjAAAXpgd61Gg0I9W0/DyuhjL8h8dGMKo4OfAmp9337j4wuGICbN+kV
+        RtzzjE+V7JcdSCBSpSHxGgIGdkCC5wceNSQA7xK2MQ==
+X-Google-Smtp-Source: APXvYqzXorQHJB+dO/2gp3fUns0rQbfmQs64q2YZBueFfLPc1sU+K5eIFrMg+Zn/BsBLZ1BY33N5i72CBIB6UBPyVpU=
+X-Received: by 2002:ac8:2847:: with SMTP id 7mr24221204qtr.335.1552292536089;
+ Mon, 11 Mar 2019 01:22:16 -0700 (PDT)
+MIME-Version: 1.0
+References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-6-git-send-email-hsin-hsiung.wang@mediatek.com>
+In-Reply-To: <1552275991-34648-6-git-send-email-hsin-hsiung.wang@mediatek.com>
+From:   Nicolas Boichat <drinkcat@chromium.org>
+Date:   Mon, 11 Mar 2019 16:22:05 +0800
+Message-ID: <CANMq1KDPPuDC4O3W1EjqoLAzfwitx-pqX0Aq8zycomsigcHLFw@mail.gmail.com>
+Subject: Re: [PATCH v2 5/9] mfd: Add support for the MediaTek MT6358 PMIC
+To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Eddie Huang <eddie.huang@mediatek.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        srv_heupstream <srv_heupstream@mediatek.com>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>, linux-rtc@vger.kernel.org,
+        lkml <linux-kernel@vger.kernel.org>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        devicetree@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Sean Wang <sean.wang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek RTC
-        DRIVER),
-        linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek RTC
-        DRIVER),
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] mfd: mt6397: Don't call irq_dispose_mapping.
-Date:   Mon, 11 Mar 2019 15:55:40 +0800
-Message-Id: <20190311075540.26117-1-pihsun@chromium.org>
-X-Mailer: git-send-email 2.21.0.360.g471c308f928-goog
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The IRQ mapping was changed to not being created in the rtc-mt6397
-driver, so the irq_dispose_mapping is no longer needed.
-Also the dev_id passed to free_irq should be the same as the last
-argument passed to request_threaded_irq.
-This prevents a "Trying to free already-free IRQ 274" warning when
-unbinding the driver.
+On Mon, Mar 11, 2019 at 11:48 AM Hsin-Hsiung Wang
+<hsin-hsiung.wang@mediatek.com> wrote:
+>
+> This adds support for the MediaTek MT6358 PMIC. This is a
+> multifunction device with the following sub modules:
+>
+> - Regulator
+> - RTC
+> - Codec
+> - Interrupt
+>
+> It is interfaced to the host controller using SPI interface
+> by a proprietary hardware called PMIC wrapper or pwrap.
+> MT6358 MFD is a child device of the pwrap.
+>
+> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> ---
+>  drivers/mfd/Makefile                 |    2 +-
+>  drivers/mfd/mt6358-irq.c             |  236 +++++
+>  drivers/mfd/mt6397-core.c            |   63 +-
+>  include/linux/mfd/mt6358/core.h      |  158 +++
+>  include/linux/mfd/mt6358/registers.h | 1926 ++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/mt6397/core.h      |    3 +
+>  6 files changed, 2386 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/mfd/mt6358-irq.c
+>  create mode 100644 include/linux/mfd/mt6358/core.h
+>  create mode 100644 include/linux/mfd/mt6358/registers.h
+>
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 088e249..50be021 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -230,7 +230,7 @@ obj-$(CONFIG_INTEL_SOC_PMIC)        += intel-soc-pmic.o
+>  obj-$(CONFIG_INTEL_SOC_PMIC_BXTWC)     += intel_soc_pmic_bxtwc.o
+>  obj-$(CONFIG_INTEL_SOC_PMIC_CHTWC)     += intel_soc_pmic_chtwc.o
+>  obj-$(CONFIG_INTEL_SOC_PMIC_CHTDC_TI)  += intel_soc_pmic_chtdc_ti.o
+> -obj-$(CONFIG_MFD_MT6397)       += mt6397-core.o mt6397-irq.o
+> +obj-$(CONFIG_MFD_MT6397)       += mt6397-core.o mt6397-irq.o mt6358-irq.o
+>
+>  obj-$(CONFIG_MFD_ALTERA_A10SR) += altera-a10sr.o
+>  obj-$(CONFIG_MFD_SUN4I_GPADC)  += sun4i-gpadc.o
+> diff --git a/drivers/mfd/mt6358-irq.c b/drivers/mfd/mt6358-irq.c
+> new file mode 100644
+> index 0000000..2941d87
+> --- /dev/null
+> +++ b/drivers/mfd/mt6358-irq.c
+> @@ -0,0 +1,236 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +//
+> +// Copyright (c) 2019 MediaTek Inc.
+> +
+> +#include <linux/interrupt.h>
+> +#include <linux/mfd/mt6358/core.h>
+> +#include <linux/mfd/mt6358/registers.h>
+> +#include <linux/mfd/mt6397/core.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +
+> +static struct irq_top_t mt6358_ints[] = {
+> +       MT6358_TOP_GEN(BUCK),
+> +       MT6358_TOP_GEN(LDO),
+> +       MT6358_TOP_GEN(PSC),
+> +       MT6358_TOP_GEN(SCK),
+> +       MT6358_TOP_GEN(BM),
+> +       MT6358_TOP_GEN(HK),
+> +       MT6358_TOP_GEN(AUD),
+> +       MT6358_TOP_GEN(MISC),
+> +};
+> +
+> +static int parsing_hwirq_to_top_group(unsigned int hwirq)
 
-Fixes: e695d3a0b3b3 ("mfd: mt6397: Create irq mappings in mfd core driver")
-Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+I think mka@ already told you that, but I'd rename to something like
+get_hwirq_top_group.
 
----
- drivers/rtc/rtc-mt6397.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+> +{
+> +       int top_group;
+> +
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index e9a25ec4d434..c06cf5202e02 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -343,7 +343,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
- 			rtc->irq, ret);
--		goto out_dispose_irq;
-+		return ret;
- 	}
- 
- 	device_init_wakeup(&pdev->dev, 1);
-@@ -359,9 +359,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 	return 0;
- 
- out_free_irq:
--	free_irq(rtc->irq, rtc->rtc_dev);
--out_dispose_irq:
--	irq_dispose_mapping(rtc->irq);
-+	free_irq(rtc->irq, rtc);
- 	return ret;
- }
- 
-@@ -369,8 +367,7 @@ static int mtk_rtc_remove(struct platform_device *pdev)
- {
- 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
- 
--	free_irq(rtc->irq, rtc->rtc_dev);
--	irq_dispose_mapping(rtc->irq);
-+	free_irq(rtc->irq, rtc);
- 
- 	return 0;
- }
--- 
-2.21.0.360.g471c308f928-goog
+Should we also add this? (I know that MT6358_TOP_GEN(BUCK).hwirq_base
+== 0, but nothing really guarantees that.
+if (mt6358_ints[0].hwirq_base < hwirq)
+   return -1;
 
+> +       for (top_group = 1; top_group < ARRAY_SIZE(mt6358_ints); top_group++) {
+> +               if (mt6358_ints[top_group].hwirq_base > hwirq) {
+> +                       top_group--;
+> +                       break;
+
+More simply:
+return top_group-1;
+
+> +               }
+> +       }
+> +       return top_group;
+
+return -1 on error, and check for errors in the code below. If you
+don't do that, you run the risk of accessing some array out of bounds.
+
+> +}
+> +
+> +static void pmic_irq_enable(struct irq_data *data)
+> +{
+> +       unsigned int hwirq = irqd_to_hwirq(data);
+> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
+> +       struct pmic_irq_data *irqd = chip->irq_data;
+> +
+> +       irqd->enable_hwirq[hwirq] = true;
+> +}
+> +
+> +static void pmic_irq_disable(struct irq_data *data)
+> +{
+> +       unsigned int hwirq = irqd_to_hwirq(data);
+> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
+> +       struct pmic_irq_data *irqd = chip->irq_data;
+> +
+> +       irqd->enable_hwirq[hwirq] = false;
+> +}
+> +
+> +static void pmic_irq_lock(struct irq_data *data)
+> +{
+> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
+> +
+> +       mutex_lock(&chip->irqlock);
+> +}
+> +
+> +static void pmic_irq_sync_unlock(struct irq_data *data)
+> +{
+> +       unsigned int i, top_gp, en_reg, int_regs, shift;
+> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
+> +       struct pmic_irq_data *irqd = chip->irq_data;
+> +
+> +       for (i = 0; i < irqd->num_pmic_irqs; i++) {
+> +               if (irqd->enable_hwirq[i] ==
+> +                               irqd->cache_hwirq[i])
+
+I think this fits in 80 chars.
+
+> +                       continue;
+> +
+> +               top_gp = parsing_hwirq_to_top_group(i);
+
+This is quite inefficient: you keep going through mt6358_ints for all
+i. Can you just figure out (and remember) which group we are currently
+in in this loop?
+
+outside the loop:
+top_gp = 0;
+
+here:
+while ((top_gp+1) < ARRAY_SIZE(mt6358_ints) && i >=
+mt6358_ints[top_gp+1].hwirq_base)
+   top_gp++;
+
+> +               int_regs = mt6358_ints[top_gp].num_int_bits / MT6358_REG_WIDTH;
+> +               en_reg = mt6358_ints[top_gp].en_reg +
+> +                       mt6358_ints[top_gp].en_reg_shift * int_regs;
+> +               shift = (i - mt6358_ints[top_gp].hwirq_base) % MT6358_REG_WIDTH;
+> +               regmap_update_bits(chip->regmap, en_reg, BIT(shift),
+> +                                  irqd->enable_hwirq[i] << shift);
+> +               irqd->cache_hwirq[i] = irqd->enable_hwirq[i];
+> +       }
+> +       mutex_unlock(&chip->irqlock);
+> +}
+> +
+> +static int pmic_irq_set_type(struct irq_data *data, unsigned int type)
+> +{
+> +       return 0;
+> +}
+
+Why do you need to stub this function out? I think the core will
+already check if the irq_chip supports this function or not. I think
+you can just leave it as NULL in the struct below.
+
+> +
+> +static struct irq_chip mt6358_irq_chip = {
+> +       .name = "mt6358-irq",
+> +       .irq_enable = pmic_irq_enable,
+> +       .irq_disable = pmic_irq_disable,
+> +       .irq_bus_lock = pmic_irq_lock,
+> +       .irq_bus_sync_unlock = pmic_irq_sync_unlock,
+> +       .irq_set_type = pmic_irq_set_type,
+> +};
+> +
+[snip]
