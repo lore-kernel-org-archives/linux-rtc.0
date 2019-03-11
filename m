@@ -3,264 +3,144 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB096C43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 08:22:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F3EBC43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 19:02:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 93C9220643
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 08:22:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="U4b7NnVF"
+	by mail.kernel.org (Postfix) with ESMTP id 165892147A
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 19:02:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1552330933;
+	bh=B3BGqfVJfoI+9HcuLNBFky9i71Oc5Sd5wE2NVIAeHzM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=tFx7kZo4jjCeyG57zwenHsEyxa1HdzBukDbBKXmPB2B+Gca64Jns79BQ3hn7TxYHj
+	 6zMzCJgPcdo6T7H78Er2fwLxNQRwCedU+/9v1Lpf181avLiWarrprMfCFrDA3r/l81
+	 v4keCjreUaPeF99ugpWW9Mx+ofRYMlINb/Cs4QcA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726631AbfCKIWR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 04:22:17 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:45726 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbfCKIWR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 04:22:17 -0400
-Received: by mail-qt1-f195.google.com with SMTP id v20so776492qtv.12
-        for <linux-rtc@vger.kernel.org>; Mon, 11 Mar 2019 01:22:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=J+r5jSBU0PvEF+EoRYAnovk2UG54T5z8ivE5G6JkOrY=;
-        b=U4b7NnVF07eSZyc6Pm23toTw3/6ivjUVZnVOc9uyaXZXhEKwssDQulPBXGoDNPDndd
-         BjDCkoYBvERuAWA3k29D4U+w9pKiasmf4uAWWYJAs/OTmPifVqD1UWZXj8bAfZmjHrqu
-         w3+qg7Q+ob0J7/CHVfAROo+dSqDK4BNEMqE40=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=J+r5jSBU0PvEF+EoRYAnovk2UG54T5z8ivE5G6JkOrY=;
-        b=lx4fcdzV+ibDBL0d/aqbjI9NVyMGBroUVKb7LjusDhz5gd8s/raBn4gyNkGtWGfV9E
-         zB9iw6kpeQhS2jLKjxjJUwTDccl8ZNQrG5BnmpgOV5FEXR0jjBkirIK6XqCKDrD8TowA
-         yrb+3/hmmhKfR/7wmv47cyBpU8URW9wPWupCcUDAmqaQkOF4qqe3HvU6lc1NftFPtra+
-         DbuKEIgU3dj3XVxs3YoK90UxdMUYYPWqKaUAj12pFmVwwD2B+G6e8vrom6G+H2o9VEeS
-         rwgB7c/GKKAjqpftAck3Pb5vi+WkPMsxRMkRxVayVxAIJkXwgOE1QFegNgwL1jFRTVVS
-         EenA==
-X-Gm-Message-State: APjAAAXpgd61Gg0I9W0/DyuhjL8h8dGMKo4OfAmp9337j4wuGICbN+kV
-        RtzzjE+V7JcdSCBSpSHxGgIGdkCC5wceNSQA7xK2MQ==
-X-Google-Smtp-Source: APXvYqzXorQHJB+dO/2gp3fUns0rQbfmQs64q2YZBueFfLPc1sU+K5eIFrMg+Zn/BsBLZ1BY33N5i72CBIB6UBPyVpU=
-X-Received: by 2002:ac8:2847:: with SMTP id 7mr24221204qtr.335.1552292536089;
- Mon, 11 Mar 2019 01:22:16 -0700 (PDT)
+        id S1728431AbfCKTCH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 15:02:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44620 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727138AbfCKTCH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 11 Mar 2019 15:02:07 -0400
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B0B12147A;
+        Mon, 11 Mar 2019 19:02:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1552330925;
+        bh=B3BGqfVJfoI+9HcuLNBFky9i71Oc5Sd5wE2NVIAeHzM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=ba5bSQnHZOUDkjZHQ/KFuqnRNR4K2sOL6fZaObjTDAP80VEKDzyKslsXM9zi+XuUN
+         9WyuX/2XL5OLuXyvWPD3jLjGUGpUys47fTvb+PzjUDl4TP0iLEH4ndu5LuHbZJ+HSl
+         3G9iNxy7kuBfzBSNYLieT6nIbiL09Gy/i6LH3MkA=
+Received: by mail-wm1-f52.google.com with SMTP id 4so202435wmf.5;
+        Mon, 11 Mar 2019 12:02:05 -0700 (PDT)
+X-Gm-Message-State: APjAAAWmi3JH2PmWgeRWmh42tEikLeY86m00Ybd5X97acalXmOneZVZ9
+        gH8OoYrjo39+BniduYeLcpyN/j7vq2QbiHxuu1A=
+X-Google-Smtp-Source: APXvYqwYQePj7WlHSYpRoBr83aP5VcxvocoBjWcLtc+ubKVWYhWjqZYmahcnSJiVvXfhxGRNj7/bqXLYkGRaiXjDIXA=
+X-Received: by 2002:a7b:cbcd:: with SMTP id n13mr113518wmi.92.1552330923855;
+ Mon, 11 Mar 2019 12:02:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-6-git-send-email-hsin-hsiung.wang@mediatek.com>
-In-Reply-To: <1552275991-34648-6-git-send-email-hsin-hsiung.wang@mediatek.com>
-From:   Nicolas Boichat <drinkcat@chromium.org>
-Date:   Mon, 11 Mar 2019 16:22:05 +0800
-Message-ID: <CANMq1KDPPuDC4O3W1EjqoLAzfwitx-pqX0Aq8zycomsigcHLFw@mail.gmail.com>
-Subject: Re: [PATCH v2 5/9] mfd: Add support for the MediaTek MT6358 PMIC
+References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+In-Reply-To: <1552275991-34648-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+From:   Sean Wang <sean.wang@kernel.org>
+Date:   Mon, 11 Mar 2019 12:01:52 -0700
+X-Gmail-Original-Message-ID: <CAGp9Lzo77XsggYZuhoTO20rh68PQrET1CSVB3GO4fpBzgWKPEw@mail.gmail.com>
+Message-ID: <CAGp9Lzo77XsggYZuhoTO20rh68PQrET1CSVB3GO4fpBzgWKPEw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/9] mfd: mt6397: clean up code
 To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Eddie Huang <eddie.huang@mediatek.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         srv_heupstream <srv_heupstream@mediatek.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>, linux-rtc@vger.kernel.org,
-        lkml <linux-kernel@vger.kernel.org>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        devicetree@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        linux-kernel@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        linux-mediatek@lists.infradead.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-kernel@lists.infradead.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Mar 11, 2019 at 11:48 AM Hsin-Hsiung Wang
+Hi,
+
+On Sun, Mar 10, 2019 at 8:48 PM Hsin-Hsiung Wang
 <hsin-hsiung.wang@mediatek.com> wrote:
 >
-> This adds support for the MediaTek MT6358 PMIC. This is a
-> multifunction device with the following sub modules:
->
-> - Regulator
-> - RTC
-> - Codec
-> - Interrupt
->
-> It is interfaced to the host controller using SPI interface
-> by a proprietary hardware called PMIC wrapper or pwrap.
-> MT6358 MFD is a child device of the pwrap.
+> clean up code
 >
 > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 > ---
->  drivers/mfd/Makefile                 |    2 +-
->  drivers/mfd/mt6358-irq.c             |  236 +++++
->  drivers/mfd/mt6397-core.c            |   63 +-
->  include/linux/mfd/mt6358/core.h      |  158 +++
->  include/linux/mfd/mt6358/registers.h | 1926 ++++++++++++++++++++++++++++++++++
->  include/linux/mfd/mt6397/core.h      |    3 +
->  6 files changed, 2386 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/mfd/mt6358-irq.c
->  create mode 100644 include/linux/mfd/mt6358/core.h
->  create mode 100644 include/linux/mfd/mt6358/registers.h
+>  drivers/mfd/mt6397-core.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
 >
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 088e249..50be021 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -230,7 +230,7 @@ obj-$(CONFIG_INTEL_SOC_PMIC)        += intel-soc-pmic.o
->  obj-$(CONFIG_INTEL_SOC_PMIC_BXTWC)     += intel_soc_pmic_bxtwc.o
->  obj-$(CONFIG_INTEL_SOC_PMIC_CHTWC)     += intel_soc_pmic_chtwc.o
->  obj-$(CONFIG_INTEL_SOC_PMIC_CHTDC_TI)  += intel_soc_pmic_chtdc_ti.o
-> -obj-$(CONFIG_MFD_MT6397)       += mt6397-core.o mt6397-irq.o
-> +obj-$(CONFIG_MFD_MT6397)       += mt6397-core.o mt6397-irq.o mt6358-irq.o
->
->  obj-$(CONFIG_MFD_ALTERA_A10SR) += altera-a10sr.o
->  obj-$(CONFIG_MFD_SUN4I_GPADC)  += sun4i-gpadc.o
-> diff --git a/drivers/mfd/mt6358-irq.c b/drivers/mfd/mt6358-irq.c
-> new file mode 100644
-> index 0000000..2941d87
-> --- /dev/null
-> +++ b/drivers/mfd/mt6358-irq.c
-> @@ -0,0 +1,236 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +//
-> +// Copyright (c) 2019 MediaTek Inc.
-> +
-> +#include <linux/interrupt.h>
-> +#include <linux/mfd/mt6358/core.h>
-> +#include <linux/mfd/mt6358/registers.h>
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 77b64bd..acb9812 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -18,17 +18,17 @@
+>  #include <linux/of_irq.h>
+>  #include <linux/regmap.h>
+>  #include <linux/mfd/core.h>
+> -#include <linux/mfd/mt6397/core.h>
+>  #include <linux/mfd/mt6323/core.h>
+> -#include <linux/mfd/mt6397/registers.h>
 > +#include <linux/mfd/mt6397/core.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +
-> +static struct irq_top_t mt6358_ints[] = {
-> +       MT6358_TOP_GEN(BUCK),
-> +       MT6358_TOP_GEN(LDO),
-> +       MT6358_TOP_GEN(PSC),
-> +       MT6358_TOP_GEN(SCK),
-> +       MT6358_TOP_GEN(BM),
-> +       MT6358_TOP_GEN(HK),
-> +       MT6358_TOP_GEN(AUD),
-> +       MT6358_TOP_GEN(MISC),
-> +};
-> +
-> +static int parsing_hwirq_to_top_group(unsigned int hwirq)
+>  #include <linux/mfd/mt6323/registers.h>
+> +#include <linux/mfd/mt6397/registers.h>
+>
+>  #define MT6397_RTC_BASE                0xe000
+>  #define MT6397_RTC_SIZE                0x3e
+>
+> -#define MT6323_CID_CODE                0x23
+> -#define MT6391_CID_CODE                0x91
+> -#define MT6397_CID_CODE                0x97
+> +#define MT6323_CHIP_ID         0x23
+> +#define MT6391_CHIP_ID         0x91
+> +#define MT6397_CHIP_ID         0x97
+>
 
-I think mka@ already told you that, but I'd rename to something like
-get_hwirq_top_group.
+It would be not necessary to simply rename the definition or do you
+have a strong reason to do that?
 
-> +{
-> +       int top_group;
-> +
-
-Should we also add this? (I know that MT6358_TOP_GEN(BUCK).hwirq_base
-== 0, but nothing really guarantees that.
-if (mt6358_ints[0].hwirq_base < hwirq)
-   return -1;
-
-> +       for (top_group = 1; top_group < ARRAY_SIZE(mt6358_ints); top_group++) {
-> +               if (mt6358_ints[top_group].hwirq_base > hwirq) {
-> +                       top_group--;
-> +                       break;
-
-More simply:
-return top_group-1;
-
-> +               }
-> +       }
-> +       return top_group;
-
-return -1 on error, and check for errors in the code below. If you
-don't do that, you run the risk of accessing some array out of bounds.
-
-> +}
-> +
-> +static void pmic_irq_enable(struct irq_data *data)
-> +{
-> +       unsigned int hwirq = irqd_to_hwirq(data);
-> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
-> +       struct pmic_irq_data *irqd = chip->irq_data;
-> +
-> +       irqd->enable_hwirq[hwirq] = true;
-> +}
-> +
-> +static void pmic_irq_disable(struct irq_data *data)
-> +{
-> +       unsigned int hwirq = irqd_to_hwirq(data);
-> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
-> +       struct pmic_irq_data *irqd = chip->irq_data;
-> +
-> +       irqd->enable_hwirq[hwirq] = false;
-> +}
-> +
-> +static void pmic_irq_lock(struct irq_data *data)
-> +{
-> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
-> +
-> +       mutex_lock(&chip->irqlock);
-> +}
-> +
-> +static void pmic_irq_sync_unlock(struct irq_data *data)
-> +{
-> +       unsigned int i, top_gp, en_reg, int_regs, shift;
-> +       struct mt6397_chip *chip = irq_data_get_irq_chip_data(data);
-> +       struct pmic_irq_data *irqd = chip->irq_data;
-> +
-> +       for (i = 0; i < irqd->num_pmic_irqs; i++) {
-> +               if (irqd->enable_hwirq[i] ==
-> +                               irqd->cache_hwirq[i])
-
-I think this fits in 80 chars.
-
-> +                       continue;
-> +
-> +               top_gp = parsing_hwirq_to_top_group(i);
-
-This is quite inefficient: you keep going through mt6358_ints for all
-i. Can you just figure out (and remember) which group we are currently
-in in this loop?
-
-outside the loop:
-top_gp = 0;
-
-here:
-while ((top_gp+1) < ARRAY_SIZE(mt6358_ints) && i >=
-mt6358_ints[top_gp+1].hwirq_base)
-   top_gp++;
-
-> +               int_regs = mt6358_ints[top_gp].num_int_bits / MT6358_REG_WIDTH;
-> +               en_reg = mt6358_ints[top_gp].en_reg +
-> +                       mt6358_ints[top_gp].en_reg_shift * int_regs;
-> +               shift = (i - mt6358_ints[top_gp].hwirq_base) % MT6358_REG_WIDTH;
-> +               regmap_update_bits(chip->regmap, en_reg, BIT(shift),
-> +                                  irqd->enable_hwirq[i] << shift);
-> +               irqd->cache_hwirq[i] = irqd->enable_hwirq[i];
-> +       }
-> +       mutex_unlock(&chip->irqlock);
-> +}
-> +
-> +static int pmic_irq_set_type(struct irq_data *data, unsigned int type)
-> +{
-> +       return 0;
-> +}
-
-Why do you need to stub this function out? I think the core will
-already check if the irq_chip supports this function or not. I think
-you can just leave it as NULL in the struct below.
-
-> +
-> +static struct irq_chip mt6358_irq_chip = {
-> +       .name = "mt6358-irq",
-> +       .irq_enable = pmic_irq_enable,
-> +       .irq_disable = pmic_irq_disable,
-> +       .irq_bus_lock = pmic_irq_lock,
-> +       .irq_bus_sync_unlock = pmic_irq_sync_unlock,
-> +       .irq_set_type = pmic_irq_set_type,
-> +};
-> +
-[snip]
+>  static const struct resource mt6397_rtc_resources[] = {
+>         {
+> @@ -298,7 +298,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>                 return pmic->irq;
+>
+>         switch (id & 0xff) {
+> -       case MT6323_CID_CODE:
+> +       case MT6323_CHIP_ID:
+>                 pmic->int_con[0] = MT6323_INT_CON0;
+>                 pmic->int_con[1] = MT6323_INT_CON1;
+>                 pmic->int_status[0] = MT6323_INT_STATUS0;
+> @@ -312,8 +312,8 @@ static int mt6397_probe(struct platform_device *pdev)
+>                                            0, pmic->irq_domain);
+>                 break;
+>
+> -       case MT6397_CID_CODE:
+> -       case MT6391_CID_CODE:
+> +       case MT6391_CHIP_ID:
+> +       case MT6397_CHIP_ID:
+>                 pmic->int_con[0] = MT6397_INT_CON0;
+>                 pmic->int_con[1] = MT6397_INT_CON1;
+>                 pmic->int_status[0] = MT6397_INT_STATUS0;
+> --
+> 1.9.1
+>
+>
+> _______________________________________________
+> Linux-mediatek mailing list
+> Linux-mediatek@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-mediatek
