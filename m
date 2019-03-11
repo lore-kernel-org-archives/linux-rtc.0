@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E061C43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:23:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 510BEC43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:50:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B5DD12147C
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:23:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16FAC2064A
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1552335832;
-	bh=Q0UiOH0KPnSrhFAeHfE0aKf5g/hkXpjqgDXSIjEFaII=;
+	s=default; t=1552337436;
+	bh=WmnWnvhH8xU87ulSyPbAeUXZlyUM3QlsDz8cNEfmt0s=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=nj0W3cxmjiR9V04SOiY08hm3tKjw1zSCQttMe5pRMPM6EOWO23RVZOVFObRUeYfl6
-	 M/XlRl3Dud79s6LqQLSfGHNpO3QEJZrc8rv1a1x/Lr7aIVn55hSq+1BypY6EHSm2aX
-	 bMTCBgOJPnjPikwsJkXfj64OybgZ4P74ORv5IkPg=
+	b=AIDbwAWHSq1hvphMteQo2qTuAlpDCHt5Y1aAkx3RZSH1kIa1qwtAKYi8FIyEF4AQt
+	 Wbogr6peEUPGJp3Fui+DzqvIy69LkmZ/AwPu3bksRl9ViJjzTE8id8OpbUKbbN8oKl
+	 hzZO/MIph3EAJkHQNrEMPOMkQbnyDZRp9bwR8qto=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727708AbfCKUXr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 16:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52130 "EHLO mail.kernel.org"
+        id S1728117AbfCKUuf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 16:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727548AbfCKUXr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 11 Mar 2019 16:23:47 -0400
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+        id S1728067AbfCKUuf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 11 Mar 2019 16:50:35 -0400
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACD982147C;
-        Mon, 11 Mar 2019 20:23:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13EF221741;
+        Mon, 11 Mar 2019 20:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1552335825;
-        bh=Q0UiOH0KPnSrhFAeHfE0aKf5g/hkXpjqgDXSIjEFaII=;
+        s=default; t=1552337434;
+        bh=WmnWnvhH8xU87ulSyPbAeUXZlyUM3QlsDz8cNEfmt0s=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=edKOMQYvskXfIZntNn4g+mJySGxlRGog0XYLcrJry9VEHASyjk8Ub0WaY2EafCzve
-         3AIN8Y5TXTUNO0nIVcVl16cvbHFNGIRFq4A7q59A/u7TjGdE9pG4ltYgr6UUccI0CF
-         +mwrdttJNuTKN7yE9mVRRv3FVjEpQG2X5qDBO42s=
-Received: by mail-wr1-f45.google.com with SMTP id p8so298142wrq.6;
-        Mon, 11 Mar 2019 13:23:44 -0700 (PDT)
-X-Gm-Message-State: APjAAAVAQljeNgl0MC3RJUrEyP/AR/rDoDzfqjbCAcUY0jjwst35LZug
-        2Nxl398r2c9zuqUuDJy2dGDbnhEtTv9WvljCO0Y=
-X-Google-Smtp-Source: APXvYqzS3+6rk29KSch680SDptrJpjHJaKCreEoxv3soKGgarXldZacmv1JOBe4WSuJaCU8AN1T5deQdiRu9Lz6AYGs=
-X-Received: by 2002:adf:e3c9:: with SMTP id k9mr20637077wrm.291.1552335823148;
- Mon, 11 Mar 2019 13:23:43 -0700 (PDT)
+        b=f2b7cfq4PQ89SN1Xoi9Ha237YKmHKyacm71MLg50GMSyBhl9qOSATAWSh5ZyuS7GG
+         jY/vEUQWyoFxwjRhDcL48lcZkHhFEZvPUklyhycHtsEq6HF8chQhaBGtmXBdnPj5tr
+         +tUsZzm/aqFKsuTLjt723hDkW+gpYzA0cIkeOKEw=
+Received: by mail-wm1-f46.google.com with SMTP id a188so481860wmf.3;
+        Mon, 11 Mar 2019 13:50:34 -0700 (PDT)
+X-Gm-Message-State: APjAAAUpL9/LdspRdlpWjhnKCn/Oxc3p55vS6ACI73f3/k6735FG6zJp
+        Gn6u6J8m1b79AASm9F/T97STRJ+hWQfkqH5P0nc=
+X-Google-Smtp-Source: APXvYqzDai9Dyx9OsaBigd7uYRVJCW6GOdcbvE+paemXRGcNrJ+R1kr5bCHNJ9SRIWPwk12NyZA9cJsY5qaDadIwr6U=
+X-Received: by 2002:a1c:234d:: with SMTP id j74mr75208wmj.130.1552337432486;
+ Mon, 11 Mar 2019 13:50:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-8-git-send-email-hsin-hsiung.wang@mediatek.com>
-In-Reply-To: <1552275991-34648-8-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-9-git-send-email-hsin-hsiung.wang@mediatek.com>
+In-Reply-To: <1552275991-34648-9-git-send-email-hsin-hsiung.wang@mediatek.com>
 From:   Sean Wang <sean.wang@kernel.org>
-Date:   Mon, 11 Mar 2019 13:23:31 -0700
-X-Gmail-Original-Message-ID: <CAGp9LzrHq3Ey2ZqKBa6sk1WsOPtuViOc5KUGV-FF7kPXNXkm6Q@mail.gmail.com>
-Message-ID: <CAGp9LzrHq3Ey2ZqKBa6sk1WsOPtuViOc5KUGV-FF7kPXNXkm6Q@mail.gmail.com>
-Subject: Re: [PATCH v2 7/9] arm64: dts: mt6358: add PMIC MT6358 related nodes
+Date:   Mon, 11 Mar 2019 13:50:21 -0700
+X-Gmail-Original-Message-ID: <CAGp9Lzq4D56PbivbHkQd41-TCoGACTiBqLz+Jyiqiog=YMvEbQ@mail.gmail.com>
+Message-ID: <CAGp9Lzq4D56PbivbHkQd41-TCoGACTiBqLz+Jyiqiog=YMvEbQ@mail.gmail.com>
+Subject: Re: [PATCH v2 8/9] rtc: mt6397: fix alarm register overwrite
 To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -62,6 +62,7 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         srv_heupstream <srv_heupstream@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Marc Zyngier <marc.zyngier@arm.com>,
+        Ran Bi <ran.bi@mediatek.com>,
         Sean Wang <sean.wang@mediatek.com>,
         linux-kernel@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
         linux-mediatek@lists.infradead.org,
@@ -78,359 +79,110 @@ Hi,
 On Sun, Mar 10, 2019 at 8:49 PM Hsin-Hsiung Wang
 <hsin-hsiung.wang@mediatek.com> wrote:
 >
-> add PMIC MT6358 related nodes which is for mt8183 platform
+> From: Ran Bi <ran.bi@mediatek.com>
+>
+> Alarm registers high byte was reserved for other functions.
+> This add mask in alarm registers operation functions.
+> This also fix error condition in interrupt handler.
+>
+> Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
 >
 
-s/MT8183/mt8183/
+add a  Cc: stable@vger.kernel.org  here to apply to all stable kernels
+for the critical fixup patch.
 
-> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> Signed-off-by: Ran Bi <ran.bi@mediatek.com>
 > ---
->  arch/arm64/boot/dts/mediatek/mt6358.dtsi | 318 +++++++++++++++++++++++++++++++
->  1 file changed, 318 insertions(+)
->  create mode 100644 arch/arm64/boot/dts/mediatek/mt6358.dtsi
+>  drivers/rtc/rtc-mt6397.c | 47 +++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 33 insertions(+), 14 deletions(-)
 >
-> diff --git a/arch/arm64/boot/dts/mediatek/mt6358.dtsi b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
-> new file mode 100644
-> index 0000000..a7c02ab
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
-> @@ -0,0 +1,318 @@
-> +// SPDX-License-Identifier: (GPL-2.0 OR MIT)
-> +/*
-> + * Copyright (c) 2019 MediaTek Inc.
-> + */
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index e9a25ec..f85f1fc 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -55,6 +55,14 @@
+>
+>  #define RTC_AL_SEC             0x0018
+>
+> +#define RTC_AL_SEC_MASK                0x003f
+> +#define RTC_AL_MIN_MASK                0x003f
+> +#define RTC_AL_HOU_MASK                0x001f
+> +#define RTC_AL_DOM_MASK                0x001f
+> +#define RTC_AL_DOW_MASK                0x0007
+> +#define RTC_AL_MTH_MASK                0x000f
+> +#define RTC_AL_YEA_MASK                0x007f
 > +
-> +&pwrap {
-> +       pmic: mt6358 {
-
-use a generic name
-
-pmic {
-
-> +               compatible = "mediatek,mt6358";
-> +               interrupt-controller;
-> +               interrupt-parent = <&pio>;
-> +               interrupts = <182 IRQ_TYPE_LEVEL_HIGH 190 0>;
-> +               #interrupt-cells = <2>;
+>  #define RTC_PDN2               0x002e
+>  #define RTC_PDN2_PWRON_ALARM   BIT(4)
+>
+> @@ -111,7 +119,7 @@ static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
+>                 irqen = irqsta & ~RTC_IRQ_EN_AL;
+>                 mutex_lock(&rtc->lock);
+>                 if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
+> -                                irqen) < 0)
+> +                                irqen) == 0)
+>                         mtk_rtc_write_trigger(rtc);
+>                 mutex_unlock(&rtc->lock);
+>
+> @@ -233,12 +241,12 @@ static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>         alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
+>         mutex_unlock(&rtc->lock);
+>
+> -       tm->tm_sec = data[RTC_OFFSET_SEC];
+> -       tm->tm_min = data[RTC_OFFSET_MIN];
+> -       tm->tm_hour = data[RTC_OFFSET_HOUR];
+> -       tm->tm_mday = data[RTC_OFFSET_DOM];
+> -       tm->tm_mon = data[RTC_OFFSET_MTH];
+> -       tm->tm_year = data[RTC_OFFSET_YEAR];
+> +       tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_AL_SEC_MASK;
+> +       tm->tm_min = data[RTC_OFFSET_MIN] & RTC_AL_MIN_MASK;
+> +       tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_AL_HOU_MASK;
+> +       tm->tm_mday = data[RTC_OFFSET_DOM] & RTC_AL_DOM_MASK;
+> +       tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
+> +       tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
+>
+>         tm->tm_year += RTC_MIN_YEAR_OFFSET;
+>         tm->tm_mon--;
+> @@ -259,14 +267,25 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>         tm->tm_year -= RTC_MIN_YEAR_OFFSET;
+>         tm->tm_mon++;
+>
+> -       data[RTC_OFFSET_SEC] = tm->tm_sec;
+> -       data[RTC_OFFSET_MIN] = tm->tm_min;
+> -       data[RTC_OFFSET_HOUR] = tm->tm_hour;
+> -       data[RTC_OFFSET_DOM] = tm->tm_mday;
+> -       data[RTC_OFFSET_MTH] = tm->tm_mon;
+> -       data[RTC_OFFSET_YEAR] = tm->tm_year;
+> -
+>         mutex_lock(&rtc->lock);
+> +       ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
+> +                              data, RTC_OFFSET_COUNT);
+> +       if (ret < 0)
+> +               goto exit;
 > +
-> +               mt6358codec: mt6358codec {
 
-use a generic name
+Why did we need an additional regmap_bulk_read here? I would suppose
+data[RTC_OFFSET_*] & ~(RTC_AL_*_MASK) is always equal to 0.
 
-audio-codec {
+It might be another fixup since change is not being mentioned in the
+git message.
 
-> +                       compatible = "mediatek,mt6358-sound";
-> +               };
+> +       data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
+> +                               (tm->tm_sec & RTC_AL_SEC_MASK));
+> +       data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
+> +                               (tm->tm_min & RTC_AL_MIN_MASK));
+> +       data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
+> +                               (tm->tm_hour & RTC_AL_HOU_MASK));
+> +       data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
+> +                               (tm->tm_mday & RTC_AL_DOM_MASK));
+> +       data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
+> +                               (tm->tm_mon & RTC_AL_MTH_MASK));
+> +       data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
+> +                               (tm->tm_year & RTC_AL_YEA_MASK));
 > +
-> +               mt6358regulator: mt6358regulator {
-
-use a generic name
-
-regulators {
-
-> +                       compatible = "mediatek,mt6358-regulator";
-> +
-> +                       mt6358_vdram1_reg: buck_vdram1 {
-> +                               regulator-compatible = "buck_vdram1";
-> +                               regulator-name = "vdram1";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <2087500>;
-> +                               regulator-ramp-delay = <12500>;
-> +                               regulator-enable-ramp-delay = <0>;
-> +                               regulator-always-on;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-
-add a blank line here and for all below occurrences
-
-> +                       mt6358_vcore_reg: buck_vcore {
-> +                               regulator-name = "vcore";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <200>;
-> +                               regulator-always-on;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vpa_reg: buck_vpa {
-> +                               regulator-name = "vpa";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <3650000>;
-> +                               regulator-ramp-delay = <50000>;
-> +                               regulator-enable-ramp-delay = <250>;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vproc11_reg: buck_vproc11 {
-> +                               regulator-name = "vproc11";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <200>;
-> +                               regulator-always-on;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vproc12_reg: buck_vproc12 {
-> +                               regulator-name = "vproc12";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <200>;
-> +                               regulator-always-on;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vgpu_reg: buck_vgpu {
-> +                               regulator-name = "vgpu";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <200>;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vs2_reg: buck_vs2 {
-> +                               regulator-name = "vs2";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <2087500>;
-> +                               regulator-ramp-delay = <12500>;
-> +                               regulator-enable-ramp-delay = <0>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vmodem_reg: buck_vmodem {
-> +                               regulator-name = "vmodem";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <900>;
-> +                               regulator-always-on;
-> +                               regulator-allowed-modes = <0 1>;
-> +                       };
-> +                       mt6358_vs1_reg: buck_vs1 {
-> +                               regulator-name = "vs1";
-> +                               regulator-min-microvolt = <1000000>;
-> +                               regulator-max-microvolt = <2587500>;
-> +                               regulator-ramp-delay = <12500>;
-> +                               regulator-enable-ramp-delay = <0>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vdram2_reg: ldo_vdram2 {
-> +                               regulator-name = "vdram2";
-> +                               regulator-min-microvolt = <600000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <3300>;
-> +                       };
-> +                       mt6358_vsim1_reg: ldo_vsim1 {
-> +                               regulator-name = "vsim1";
-> +                               regulator-min-microvolt = <1700000>;
-> +                               regulator-max-microvolt = <3100000>;
-> +                               regulator-enable-ramp-delay = <540>;
-> +                       };
-> +                       mt6358_vibr_reg: ldo_vibr {
-> +                               regulator-name = "vibr";
-> +                               regulator-min-microvolt = <1200000>;
-> +                               regulator-max-microvolt = <3300000>;
-> +                               regulator-enable-ramp-delay = <60>;
-> +                       };
-> +                       mt6358_vrf12_reg: ldo_vrf12 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vrf12";
-> +                               regulator-min-microvolt = <1200000>;
-> +                               regulator-max-microvolt = <1200000>;
-> +                               regulator-enable-ramp-delay = <120>;
-> +                       };
-> +                       mt6358_vio18_reg: ldo_vio18 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vio18";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <2700>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vusb_reg: ldo_vusb {
-> +                               regulator-name = "vusb";
-> +                               regulator-min-microvolt = <3000000>;
-> +                               regulator-max-microvolt = <3100000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vcamio_reg: ldo_vcamio {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vcamio";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vcamd_reg: ldo_vcamd {
-> +                               regulator-name = "vcamd";
-> +                               regulator-min-microvolt = <900000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vcn18_reg: ldo_vcn18 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vcn18";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vfe28_reg: ldo_vfe28 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vfe28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <2800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vsram_proc11_reg: ldo_vsram_proc11 {
-> +                               regulator-name = "vsram_proc11";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <240>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vcn28_reg: ldo_vcn28 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vcn28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <2800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vsram_others_reg: ldo_vsram_others {
-> +                               regulator-name = "vsram_others";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <240>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vsram_gpu_reg: ldo_vsram_gpu {
-> +                               regulator-name = "vsram_gpu";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <240>;
-> +                       };
-> +                       mt6358_vxo22_reg: ldo_vxo22 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vxo22";
-> +                               regulator-min-microvolt = <2200000>;
-> +                               regulator-max-microvolt = <2200000>;
-> +                               regulator-enable-ramp-delay = <120>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vefuse_reg: ldo_vefuse {
-> +                               regulator-name = "vefuse";
-> +                               regulator-min-microvolt = <1700000>;
-> +                               regulator-max-microvolt = <1900000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vaux18_reg: ldo_vaux18 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vaux18";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vmch_reg: ldo_vmch {
-> +                               regulator-name = "vmch";
-> +                               regulator-min-microvolt = <2900000>;
-> +                               regulator-max-microvolt = <3300000>;
-> +                               regulator-enable-ramp-delay = <60>;
-> +                       };
-> +                       mt6358_vbif28_reg: ldo_vbif28 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vbif28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <2800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vsram_proc12_reg: ldo_vsram_proc12 {
-> +                               regulator-name = "vsram_proc12";
-> +                               regulator-min-microvolt = <500000>;
-> +                               regulator-max-microvolt = <1293750>;
-> +                               regulator-ramp-delay = <6250>;
-> +                               regulator-enable-ramp-delay = <240>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vcama1_reg: ldo_vcama1 {
-> +                               regulator-name = "vcama1";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <3000000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vemc_reg: ldo_vemc {
-> +                               regulator-name = "vemc";
-> +                               regulator-min-microvolt = <2900000>;
-> +                               regulator-max-microvolt = <3300000>;
-> +                               regulator-enable-ramp-delay = <60>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vio28_reg: ldo_vio28 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vio28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <2800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_va12_reg: ldo_va12 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "va12";
-> +                               regulator-min-microvolt = <1200000>;
-> +                               regulator-max-microvolt = <1200000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                               regulator-always-on;
-> +                       };
-> +                       mt6358_vrf18_reg: ldo_vrf18 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vrf18";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <1800000>;
-> +                               regulator-enable-ramp-delay = <120>;
-> +                       };
-> +                       mt6358_vcn33_bt_reg: ldo_vcn33_bt {
-> +                               regulator-name = "vcn33_bt";
-> +                               regulator-min-microvolt = <3300000>;
-> +                               regulator-max-microvolt = <3500000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vcn33_wifi_reg: ldo_vcn33_wifi {
-> +                               regulator-name = "vcn33_wifi";
-> +                               regulator-min-microvolt = <3300000>;
-> +                               regulator-max-microvolt = <3500000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vcama2_reg: ldo_vcama2 {
-> +                               regulator-name = "vcama2";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <3000000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vmc_reg: ldo_vmc {
-> +                               regulator-name = "vmc";
-> +                               regulator-min-microvolt = <1800000>;
-> +                               regulator-max-microvolt = <3300000>;
-> +                               regulator-enable-ramp-delay = <60>;
-> +                       };
-> +                       mt6358_vldo28_reg: ldo_vldo28 {
-> +                               regulator-name = "vldo28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <3000000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vaud28_reg: ldo_vaud28 {
-> +                               compatible = "regulator-fixed";
-> +                               regulator-name = "vaud28";
-> +                               regulator-min-microvolt = <2800000>;
-> +                               regulator-max-microvolt = <2800000>;
-> +                               regulator-enable-ramp-delay = <270>;
-> +                       };
-> +                       mt6358_vsim2_reg: ldo_vsim2 {
-> +                               regulator-name = "vsim2";
-> +                               regulator-min-microvolt = <1700000>;
-> +                               regulator-max-microvolt = <3100000>;
-> +                               regulator-enable-ramp-delay = <540>;
-> +                       };
-> +               };
-> +       };
-> +};
+>         if (alm->enabled) {
+>                 ret = regmap_bulk_write(rtc->regmap,
+>                                         rtc->addr_base + RTC_AL_SEC,
 > --
 > 1.9.1
 >
