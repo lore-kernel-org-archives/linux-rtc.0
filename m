@@ -2,106 +2,90 @@ Return-Path: <SRS0=VvY+=RO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9749C43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EC06C43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 06:05:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A4CD22084D
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 03:49:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67EC820657
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 06:05:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727050AbfCKDsP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Mar 2019 23:48:15 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:1817 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726998AbfCKDsO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Mar 2019 23:48:14 -0400
-X-UUID: a6405421c25e4071843856b2937c95a9-20190311
-X-UUID: a6405421c25e4071843856b2937c95a9-20190311
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        id S1726527AbfCKGFN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 02:05:13 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:22839 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725932AbfCKGFN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 02:05:13 -0400
+X-UUID: 13bac23f7a824a24b928c997eeef8e86-20190311
+X-UUID: 13bac23f7a824a24b928c997eeef8e86-20190311
+Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw01.mediatek.com
+        (envelope-from <eddie.huang@mediatek.com>)
         (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 151241580; Mon, 11 Mar 2019 11:48:09 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs08n1.mediatek.inc (172.21.101.55) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Mon, 11 Mar 2019 11:48:08 +0800
-Received: from mtkslt302.mediatek.inc (10.21.14.115) by MTKCAS06.mediatek.inc
+        with ESMTP id 648818602; Mon, 11 Mar 2019 14:05:04 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Mon, 11 Mar 2019 14:05:02 +0800
+Received: from [172.21.77.4] (172.21.77.4) by mtkcas07.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Mon, 11 Mar 2019 11:48:08 +0800
-From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+ Transport; Mon, 11 Mar 2019 14:05:01 +0800
+Message-ID: <1552284302.19917.2.camel@mtksdaap41>
+Subject: Re: [PATCH v2 8/9] rtc: mt6397: fix alarm register overwrite
+From:   Eddie Huang <eddie.huang@mediatek.com>
+To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+CC:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>
-CC:     Marc Zyngier <marc.zyngier@arm.com>, <srv_heupstream@mediatek.com>,
-        <linux-mediatek@lists.infradead.org>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        srv_heupstream <srv_heupstream@mediatek.com>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
         <linux-arm-kernel@lists.infradead.org>,
-        <devicetree@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        Sean Wang <Sean.Wang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Subject: [PATCH v2 3/9] dt-bindings: mfd: Add compatible for the MediaTek MT6358 PMIC
-Date:   Mon, 11 Mar 2019 11:46:25 +0800
-Message-ID: <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+        Ran Bi =?UTF-8?Q?=28=E6=AF=95=E5=86=89=29?= 
+        <Ran.Bi@mediatek.com>
+Date:   Mon, 11 Mar 2019 14:05:02 +0800
+In-Reply-To: <1552275991-34648-9-git-send-email-hsin-hsiung.wang@mediatek.com>
 References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+         <1552275991-34648-9-git-send-email-hsin-hsiung.wang@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-TM-SNTS-SMTP: 2F95C3DC0626900E3474B178BD1D9567E4A8BEB8CDC8C2FFDE03DD70E9CAD2162000:8
 X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This adds compatible for the MediaTek MT6358 PMIC.
+On Mon, 2019-03-11 at 11:46 +0800, Hsin-Hsiung Wang wrote:
+> From: Ran Bi <ran.bi@mediatek.com>
+> 
+> Alarm registers high byte was reserved for other functions.
+> This add mask in alarm registers operation functions.
+> This also fix error condition in interrupt handler.
+> 
+> Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+> 
+> Signed-off-by: Ran Bi <ran.bi@mediatek.com>
+> ---
+>  drivers/rtc/rtc-mt6397.c | 47 +++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 33 insertions(+), 14 deletions(-)
+> 
 
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
----
- Documentation/devicetree/bindings/mfd/mt6397.txt | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+Thanks your interrupt and race condition fix
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 0ebd08a..62f1c17 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -17,22 +17,27 @@ Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
- This document describes the binding for MFD device and its sub module.
- 
- Required properties:
--compatible: "mediatek,mt6397" or "mediatek,mt6323"
-+compatible:
-+	"mediatek,mt6323" for PMIC MT6323
-+	"mediatek,mt6358" for PMIC MT6358
-+	"mediatek,mt6397" for PMIC MT6397
- 
- Optional subnodes:
- 
- - rtc
- 	Required properties:
--		- compatible: "mediatek,mt6397-rtc"
-+		- compatible: "mediatek,mt6397-rtc" or "mediatek,mt6358-rtc"
- - regulators
- 	Required properties:
- 		- compatible: "mediatek,mt6397-regulator"
- 	see Documentation/devicetree/bindings/regulator/mt6397-regulator.txt
-+		- compatible: "mediatek,mt6358-regulator"
-+	see Documentation/devicetree/bindings/regulator/mt6358-regulator.txt
- 		- compatible: "mediatek,mt6323-regulator"
- 	see Documentation/devicetree/bindings/regulator/mt6323-regulator.txt
- - codec
- 	Required properties:
--		- compatible: "mediatek,mt6397-codec"
-+		- compatible: "mediatek,mt6397-codec" or "mediatek,mt6358-sound"
- - clk
- 	Required properties:
- 		- compatible: "mediatek,mt6397-clk"
--- 
-1.9.1
+Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+
+
 
