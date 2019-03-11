@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A55AC43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 19:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E061C43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:23:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DACB620643
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 19:43:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5DD12147C
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 20:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1552333426;
-	bh=sA3Iff64BT1gnF7fQ0T23QZEMB+Hn2JgzhJZjtUbD3Y=;
+	s=default; t=1552335832;
+	bh=Q0UiOH0KPnSrhFAeHfE0aKf5g/hkXpjqgDXSIjEFaII=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=TgqwUs1fy7qzI/r/mR4pMaivf/WaPzttkyTOjeJkVTwSjCCIeZTt3QQuZ80HcoEUQ
-	 31GySWgbJHZhxN9vbbcmYYSSphrcmJ1z+h3C+fJCRXMvnfo6bdch90yM0NarN9s25X
-	 TDbqxDEjGY/hyTSnH3Z5uy5Tina/mV+iHwU1zEMU=
+	b=nj0W3cxmjiR9V04SOiY08hm3tKjw1zSCQttMe5pRMPM6EOWO23RVZOVFObRUeYfl6
+	 M/XlRl3Dud79s6LqQLSfGHNpO3QEJZrc8rv1a1x/Lr7aIVn55hSq+1BypY6EHSm2aX
+	 bMTCBgOJPnjPikwsJkXfj64OybgZ4P74ORv5IkPg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727500AbfCKTnp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 15:43:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
+        id S1727708AbfCKUXr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 16:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbfCKTnp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 11 Mar 2019 15:43:45 -0400
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+        id S1727548AbfCKUXr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 11 Mar 2019 16:23:47 -0400
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4A4620643;
-        Mon, 11 Mar 2019 19:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACD982147C;
+        Mon, 11 Mar 2019 20:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1552333423;
-        bh=sA3Iff64BT1gnF7fQ0T23QZEMB+Hn2JgzhJZjtUbD3Y=;
+        s=default; t=1552335825;
+        bh=Q0UiOH0KPnSrhFAeHfE0aKf5g/hkXpjqgDXSIjEFaII=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=iHXNiZIcv2gxdVzz1wxKPUtdiQ9Z2/dPlQoj5mFFEuX7/J92rfChJ/EGEiC659NM/
-         ti2DMRq3H8Fy3PuofN/mLRqvULOGVVdTKWCf2bM0F4h9AqkM59sCicNWb9jQdJBqq5
-         jPKSYeDQA8Hor94qJoJUyZSmMshePS1ZvDHhAfR8=
-Received: by mail-wr1-f49.google.com with SMTP id d17so160042wre.10;
-        Mon, 11 Mar 2019 12:43:42 -0700 (PDT)
-X-Gm-Message-State: APjAAAVhIyal7STDDDZACu79aplBbuu1TLO2Br31MBHWPgf0V17gGhum
-        4f2apKMYHHzw8c015gILuB2hprrvgwt1X6u9ck0=
-X-Google-Smtp-Source: APXvYqzxG/QqVcPpQUY3GItYPEk17KvzW7g6S0Z5kygN0tzev0OgfusH7lmhwt8YufrLiPjtFfegf2PgSksGVm+j8Po=
-X-Received: by 2002:adf:e84a:: with SMTP id d10mr993018wrn.78.1552333421255;
- Mon, 11 Mar 2019 12:43:41 -0700 (PDT)
+        b=edKOMQYvskXfIZntNn4g+mJySGxlRGog0XYLcrJry9VEHASyjk8Ub0WaY2EafCzve
+         3AIN8Y5TXTUNO0nIVcVl16cvbHFNGIRFq4A7q59A/u7TjGdE9pG4ltYgr6UUccI0CF
+         +mwrdttJNuTKN7yE9mVRRv3FVjEpQG2X5qDBO42s=
+Received: by mail-wr1-f45.google.com with SMTP id p8so298142wrq.6;
+        Mon, 11 Mar 2019 13:23:44 -0700 (PDT)
+X-Gm-Message-State: APjAAAVAQljeNgl0MC3RJUrEyP/AR/rDoDzfqjbCAcUY0jjwst35LZug
+        2Nxl398r2c9zuqUuDJy2dGDbnhEtTv9WvljCO0Y=
+X-Google-Smtp-Source: APXvYqzS3+6rk29KSch680SDptrJpjHJaKCreEoxv3soKGgarXldZacmv1JOBe4WSuJaCU8AN1T5deQdiRu9Lz6AYGs=
+X-Received: by 2002:adf:e3c9:: with SMTP id k9mr20637077wrm.291.1552335823148;
+ Mon, 11 Mar 2019 13:23:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-5-git-send-email-hsin-hsiung.wang@mediatek.com>
-In-Reply-To: <1552275991-34648-5-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1552275991-34648-8-git-send-email-hsin-hsiung.wang@mediatek.com>
+In-Reply-To: <1552275991-34648-8-git-send-email-hsin-hsiung.wang@mediatek.com>
 From:   Sean Wang <sean.wang@kernel.org>
-Date:   Mon, 11 Mar 2019 12:43:29 -0700
-X-Gmail-Original-Message-ID: <CAGp9Lzorq1QVncvQ56Mu1R+ZyDqXC-=D4X4O9M=KHzjBpuMeFQ@mail.gmail.com>
-Message-ID: <CAGp9Lzorq1QVncvQ56Mu1R+ZyDqXC-=D4X4O9M=KHzjBpuMeFQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/9] regulator: Add document for MT6358 regulator
+Date:   Mon, 11 Mar 2019 13:23:31 -0700
+X-Gmail-Original-Message-ID: <CAGp9LzrHq3Ey2ZqKBa6sk1WsOPtuViOc5KUGV-FF7kPXNXkm6Q@mail.gmail.com>
+Message-ID: <CAGp9LzrHq3Ey2ZqKBa6sk1WsOPtuViOc5KUGV-FF7kPXNXkm6Q@mail.gmail.com>
+Subject: Re: [PATCH v2 7/9] arm64: dts: mt6358: add PMIC MT6358 related nodes
 To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -73,73 +73,62 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
- Hi,
+Hi,
 
-add a dt-bindings prefix and move the patch to the first order in the series.
-
-On Sun, Mar 10, 2019 at 9:03 PM Hsin-Hsiung Wang
+On Sun, Mar 10, 2019 at 8:49 PM Hsin-Hsiung Wang
 <hsin-hsiung.wang@mediatek.com> wrote:
 >
-> add dt-binding document for MediaTek MT6358 PMIC
+> add PMIC MT6358 related nodes which is for mt8183 platform
 >
+
+s/MT8183/mt8183/
+
 > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 > ---
->  .../bindings/regulator/mt6358-regulator.txt        | 318 +++++++++++++++++++++
+>  arch/arm64/boot/dts/mediatek/mt6358.dtsi | 318 +++++++++++++++++++++++++++++++
 >  1 file changed, 318 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/regulator/mt6358-regulator.txt
+>  create mode 100644 arch/arm64/boot/dts/mediatek/mt6358.dtsi
 >
-> diff --git a/Documentation/devicetree/bindings/regulator/mt6358-regulator.txt b/Documentation/devicetree/bindings/regulator/mt6358-regulator.txt
+> diff --git a/arch/arm64/boot/dts/mediatek/mt6358.dtsi b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
 > new file mode 100644
-> index 0000000..3ea8073
+> index 0000000..a7c02ab
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/regulator/mt6358-regulator.txt
+> +++ b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
 > @@ -0,0 +1,318 @@
-> +Mediatek MT6358 Regulator
-
-MediaTek
-
+> +// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+> +/*
+> + * Copyright (c) 2019 MediaTek Inc.
+> + */
 > +
-> +Required properties:
-> +- compatible: "mediatek,mt6358-regulator"
-> +- mt6358regulator: List of regulators provided by this controller. It is named
+> +&pwrap {
+> +       pmic: mt6358 {
 
-mt6358regulator is not a required property, it is just a node alias.
+use a generic name
 
-> +  according to its regulator type, buck_<name> and ldo_<name>.
-> +  The definition for each of these nodes is defined using the standard binding
-> +  for regulators at Documentation/devicetree/bindings/regulator/regulator.txt.
-> +
-> +The valid names for regulators are::
-> +BUCK:
-> +  buck_vdram1, buck_vcore, buck_vpa, buck_vproc11, buck_vproc12, buck_vgpu,
-> +  buck_vs2, buck_vmodem, buck_vs1
-> +LDO:
-> +  ldo_vdram2, ldo_vsim1, ldo_vibr, ldo_vrf12, ldo_vio18, ldo_vusb, ldo_vcamio,
-> +  ldo_vcamd, ldo_vcn18, ldo_vfe28, ldo_vsram_proc11, ldo_vcn28, ldo_vsram_others,
-> +  ldo_vsram_gpu, ldo_vxo22, ldo_vefuse, ldo_vaux18, ldo_vmch, ldo_vbif28,
-> +  ldo_vsram_proc12, ldo_vcama1, ldo_vemc, ldo_vio28, ldo_va12, ldo_vrf18,
-> +  ldo_vcn33_bt, ldo_vcn33_wifi, ldo_vcama2, ldo_vmc, ldo_vldo28, ldo_vaud28,
-> +  ldo_vsim2
-> +
-> +Example:
-> +       pmic {
+pmic {
+
 > +               compatible = "mediatek,mt6358";
+> +               interrupt-controller;
+> +               interrupt-parent = <&pio>;
+> +               interrupts = <182 IRQ_TYPE_LEVEL_HIGH 190 0>;
+> +               #interrupt-cells = <2>;
+> +
+> +               mt6358codec: mt6358codec {
 
-it is not necessary to document the PMIC part in the regulator binding
+use a generic name
 
-and you can refer to mt6380-regulator.txt or mt6323-regulator.txt
-first to make the
-style about the PMIC description and example be more consistent.
+audio-codec {
 
+> +                       compatible = "mediatek,mt6358-sound";
+> +               };
 > +
 > +               mt6358regulator: mt6358regulator {
+
+use a generic name
+
+regulators {
+
 > +                       compatible = "mediatek,mt6358-regulator";
-
-use a generic node, regulators, something like
-
-        regulators {
-                compatible = "mediatek,mt6358-regulator";
-
 > +
 > +                       mt6358_vdram1_reg: buck_vdram1 {
 > +                               regulator-compatible = "buck_vdram1";
@@ -149,9 +138,10 @@ use a generic node, regulators, something like
 > +                               regulator-ramp-delay = <12500>;
 > +                               regulator-enable-ramp-delay = <0>;
 > +                               regulator-always-on;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 
-add a blank line between subnodes which includes all below occurrences
+add a blank line here and for all below occurrences
 
 > +                       mt6358_vcore_reg: buck_vcore {
 > +                               regulator-name = "vcore";
@@ -160,6 +150,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-ramp-delay = <6250>;
 > +                               regulator-enable-ramp-delay = <200>;
 > +                               regulator-always-on;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vpa_reg: buck_vpa {
 > +                               regulator-name = "vpa";
@@ -167,6 +158,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-max-microvolt = <3650000>;
 > +                               regulator-ramp-delay = <50000>;
 > +                               regulator-enable-ramp-delay = <250>;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vproc11_reg: buck_vproc11 {
 > +                               regulator-name = "vproc11";
@@ -175,6 +167,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-ramp-delay = <6250>;
 > +                               regulator-enable-ramp-delay = <200>;
 > +                               regulator-always-on;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vproc12_reg: buck_vproc12 {
 > +                               regulator-name = "vproc12";
@@ -183,6 +176,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-ramp-delay = <6250>;
 > +                               regulator-enable-ramp-delay = <200>;
 > +                               regulator-always-on;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vgpu_reg: buck_vgpu {
 > +                               regulator-name = "vgpu";
@@ -190,6 +184,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-max-microvolt = <1293750>;
 > +                               regulator-ramp-delay = <6250>;
 > +                               regulator-enable-ramp-delay = <200>;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vs2_reg: buck_vs2 {
 > +                               regulator-name = "vs2";
@@ -206,6 +201,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                               regulator-ramp-delay = <6250>;
 > +                               regulator-enable-ramp-delay = <900>;
 > +                               regulator-always-on;
+> +                               regulator-allowed-modes = <0 1>;
 > +                       };
 > +                       mt6358_vs1_reg: buck_vs1 {
 > +                               regulator-name = "vs1";
@@ -434,6 +430,7 @@ add a blank line between subnodes which includes all below occurrences
 > +                       };
 > +               };
 > +       };
+> +};
 > --
 > 1.9.1
 >
