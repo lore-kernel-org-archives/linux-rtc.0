@@ -1,56 +1,61 @@
-Return-Path: <SRS0=VvY+=RO=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=QIZv=RP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFE39C4360F
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 22:06:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96349C43381
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Mar 2019 02:25:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9B88D2087C
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Mar 2019 22:06:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66F2F205C9
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Mar 2019 02:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1552341997;
-	bh=nM3KQnBbqpIc2+gMCyMyh2uahYO2VlWfsXrh8CkNld8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=nzOd4BTS6A19iKHOG+9GizDCeDvQowjmhTZGyipS4EbxKG9r3Z+dTVA9olTHMmeHn
-	 KVRdy39ysMLtDxqNYkcCnio83kpfyFv5EbWganFqDYESW3S4YqpatrBnBIzmoxwViS
-	 hGnz5/w8XEngZntjAjxDDzRcmX0S3OzCW5t3OkKw=
+	s=default; t=1552357536;
+	bh=MfZWIGk+NBpb2uuvOdluvqM5AoFk78k5Oo1O/12JqmM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=v70a4BqwWAoNnyfSYaCQTr71UDXX1vnQG3feaa3msSbtCos1ZZjV6olI07lfFKZ9Z
+	 DszMdqKrVZOWiqYG9uGIjP43421Fg9+iBQEMyCMFvPZMTGaug2XUtFOqt0zL/m7BeD
+	 Yi+yzLDU06YPW2UUrTgC0Vs2ATfKFdQsvkymdRkk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbfCKWGd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Mar 2019 18:06:33 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:45425 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727527AbfCKWGc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Mar 2019 18:06:32 -0400
-Received: by mail-ot1-f68.google.com with SMTP id i12so621391otp.12;
-        Mon, 11 Mar 2019 15:06:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=KZfuW/QqHqpiwbbZDSR+JEf1pjvJkZeqOnESC9a6lwg=;
-        b=YTWN6FTsd4w8+IKiRgNy4lfMi/x6+66R9IocIW7xpi1dw2sWR8WrC6jjHaBadYqRkM
-         bahW0OIsovRFbpLasAl9bDcmX5vSwUQL7DKjqHe7LaIwE5SBzBC+SuRa1/5/MY7unmIb
-         GBKRZHR58mOADwSyyyXpg3NuiGQRxFkShiVQ+0hm0xO2eXZW23flTfisWxkIsTEyha1e
-         +vsbfRsrrL+a6h1hrF867EYBSMcGEq2RLsYJnvoDWXu9bTlh2hO/6qGKSSH5F4dXwbo0
-         zo/byCWj5wRtU4+TnH+XkgRsRh5nbP3xJn8ICAdwVhC/1WPMuAdVCo8cTvBWH/s4tQqB
-         toXQ==
-X-Gm-Message-State: APjAAAXkxvJt/TpMtvml+mMtaDgwRDQ/jPfuGRUJO8zZ08jDg7NbV9sK
-        InI4GmSVHgrFxYbqZOIibg==
-X-Google-Smtp-Source: APXvYqzlKrSBQCY0b1JmlCt33ZSwqW/5ziF1xsV/d+ZWhc+BTdGRAenpbmk8vKnC57O1WLGaABK06g==
-X-Received: by 2002:a05:6830:11c9:: with SMTP id v9mr8980767otq.288.1552341991779;
-        Mon, 11 Mar 2019 15:06:31 -0700 (PDT)
-Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id k15sm3031631otj.26.2019.03.11.15.06.30
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 11 Mar 2019 15:06:31 -0700 (PDT)
-Date:   Mon, 11 Mar 2019 17:06:30 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Sean Wang <sean.wang@kernel.org>
+        id S1726657AbfCLCZg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Mar 2019 22:25:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726536AbfCLCZf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 11 Mar 2019 22:25:35 -0400
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14C8E205C9;
+        Tue, 12 Mar 2019 02:25:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1552357534;
+        bh=MfZWIGk+NBpb2uuvOdluvqM5AoFk78k5Oo1O/12JqmM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=YJ7dqgX3lWnNXgN1WlYCYk4gmzORpWhvu78x0V7vZMTyymOKLSnYjpuOOEeKKIW7o
+         cF9w6U/bXr8moZERmj4qBTIfaZnEMDmxYfvfuB0ByxHzP0tK6k0g4OYhqFIbfd28O8
+         z/FAH+6Jhqh1xMGxRK8kULLBb167oMZbYmX9DGYA=
+Received: by mail-wr1-f52.google.com with SMTP id y15so950369wro.4;
+        Mon, 11 Mar 2019 19:25:34 -0700 (PDT)
+X-Gm-Message-State: APjAAAU6g25hUY5t9J9UzGAZSERuIwAYNxbMc+CrdNB4n3Q57BPltMYr
+        KCIDt7coaxkO+1QTX1MBbwG6f7BbrQ8BEmhcXuY=
+X-Google-Smtp-Source: APXvYqzUI4mfm2xEx2Vg1HaZbnaXcFJs26MPck0MpVq/q9ujojyfoqOVeiNDDRRu8zFtMrGBZWMnVEGpCO+djQOcBjk=
+X-Received: by 2002:adf:ec41:: with SMTP id w1mr22966858wrn.184.1552357532567;
+ Mon, 11 Mar 2019 19:25:32 -0700 (PDT)
+MIME-Version: 1.0
+References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <CAGp9LzrWawWy+mX5VpLeqdV85f0iEdRv6JtJbjS5pamN5xfKjA@mail.gmail.com> <20190311220630.GA4082@bogus>
+In-Reply-To: <20190311220630.GA4082@bogus>
+From:   Sean Wang <sean.wang@kernel.org>
+Date:   Mon, 11 Mar 2019 19:25:26 -0700
+X-Gmail-Original-Message-ID: <CAGp9LzoCdCNLwr_6ufmox2Oqf3S87N4wyTZM-jU_XkUS+mA0hA@mail.gmail.com>
+Message-ID: <CAGp9LzoCdCNLwr_6ufmox2Oqf3S87N4wyTZM-jU_XkUS+mA0hA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: Add compatible for the MediaTek
+ MT6358 PMIC
+To:     Rob Herring <robh@kernel.org>
 Cc:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
         Lee Jones <lee.jones@linaro.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -66,54 +71,49 @@ Cc:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
         linux-mediatek@lists.infradead.org,
         Mark Rutland <mark.rutland@arm.com>,
         linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: Add compatible for the MediaTek
- MT6358 PMIC
-Message-ID: <20190311220630.GA4082@bogus>
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
- <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
- <CAGp9LzrWawWy+mX5VpLeqdV85f0iEdRv6JtJbjS5pamN5xfKjA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGp9LzrWawWy+mX5VpLeqdV85f0iEdRv6JtJbjS5pamN5xfKjA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Mar 11, 2019 at 12:19:32PM -0700, Sean Wang wrote:
-> Hi,
-> 
-> Always put the patches about dt-binding changes at the head of the
-> series to let the related maintainer more easily find them.
-> 
-> On Sun, Mar 10, 2019 at 8:48 PM Hsin-Hsiung Wang
-> <hsin-hsiung.wang@mediatek.com> wrote:
+On Mon, Mar 11, 2019 at 3:06 PM Rob Herring <robh@kernel.org> wrote:
+>
+> On Mon, Mar 11, 2019 at 12:19:32PM -0700, Sean Wang wrote:
+> > Hi,
 > >
-> > This adds compatible for the MediaTek MT6358 PMIC.
+> > Always put the patches about dt-binding changes at the head of the
+> > series to let the related maintainer more easily find them.
 > >
-> > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-> > ---
-> >  Documentation/devicetree/bindings/mfd/mt6397.txt | 11 ++++++++---
-> >  1 file changed, 8 insertions(+), 3 deletions(-)
+> > On Sun, Mar 10, 2019 at 8:48 PM Hsin-Hsiung Wang
+> > <hsin-hsiung.wang@mediatek.com> wrote:
+> > >
+> > > This adds compatible for the MediaTek MT6358 PMIC.
+> > >
+> > > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> > > ---
+> > >  Documentation/devicetree/bindings/mfd/mt6397.txt | 11 ++++++++---
+> > >  1 file changed, 8 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+> > > index 0ebd08a..62f1c17 100644
+> > > --- a/Documentation/devicetree/bindings/mfd/mt6397.txt
+> > > +++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+> > > @@ -17,22 +17,27 @@ Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
+> > >  This document describes the binding for MFD device and its sub module.
+> > >
+> > >  Required properties:
+> > > -compatible: "mediatek,mt6397" or "mediatek,mt6323"
+> > > +compatible:
+> > > +       "mediatek,mt6323" for PMIC MT6323
+> > > +       "mediatek,mt6358" for PMIC MT6358
+> > > +       "mediatek,mt6397" for PMIC MT6397
 > >
-> > diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-> > index 0ebd08a..62f1c17 100644
-> > --- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-> > +++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-> > @@ -17,22 +17,27 @@ Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-> >  This document describes the binding for MFD device and its sub module.
-> >
-> >  Required properties:
-> > -compatible: "mediatek,mt6397" or "mediatek,mt6323"
-> > +compatible:
-> > +       "mediatek,mt6323" for PMIC MT6323
-> > +       "mediatek,mt6358" for PMIC MT6358
-> > +       "mediatek,mt6397" for PMIC MT6397
-> 
-> don't change anything not related MT6358
+> > don't change anything not related MT6358
+>
+> Reformatting like this is preferred.
+>
 
-Reformatting like this is preferred.
+Sure, it's fine to me for the purpose.
 
-Rob
+> Rob
