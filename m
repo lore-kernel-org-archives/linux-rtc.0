@@ -6,30 +6,32 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83463C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 21:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01D94C10F03
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 21:05:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5A4962070D
+	by mail.kernel.org (Postfix) with ESMTP id C2ABD2070D
 	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 21:05:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727140AbfCMVFB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1727154AbfCMVFB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 13 Mar 2019 17:05:01 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:38013 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726263AbfCMVFB (ORCPT
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:48811 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727095AbfCMVFB (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Mar 2019 17:05:01 -0400
 X-Originating-IP: 86.202.231.219
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id EA0B660006;
-        Wed, 13 Mar 2019 21:04:58 +0000 (UTC)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 73C231C0003;
+        Wed, 13 Mar 2019 21:04:59 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/5] rtc: ab-b5ze-s3: remove mutex
-Date:   Wed, 13 Mar 2019 22:04:52 +0100
-Message-Id: <20190313210456.8495-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/5] rtc: ab-b5ze-s3: remove unnecessary gotos
+Date:   Wed, 13 Mar 2019 22:04:53 +0100
+Message-Id: <20190313210456.8495-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190313210456.8495-1-alexandre.belloni@bootlin.com>
+References: <20190313210456.8495-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -37,118 +39,312 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The rtc_ops are already called with the RTC mutex locked so there is no
-need to have a separate lock, unless it is used in the irq handler.
+Rework error handling to remove unnecessary gotos.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ab-b5ze-s3.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ drivers/rtc/rtc-ab-b5ze-s3.c | 93 +++++++++++++++---------------------
+ 1 file changed, 38 insertions(+), 55 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
-index 2233601761ac..1b7314843dc8 100644
+index 1b7314843dc8..223e0124b087 100644
 --- a/drivers/rtc/rtc-ab-b5ze-s3.c
 +++ b/drivers/rtc/rtc-ab-b5ze-s3.c
-@@ -22,7 +22,6 @@
-  */
+@@ -227,14 +227,12 @@ static int _abb5zes3_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	if (ret) {
+ 		dev_err(dev, "%s: reading RTC time failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
  
- #include <linux/module.h>
--#include <linux/mutex.h>
- #include <linux/rtc.h>
- #include <linux/i2c.h>
- #include <linux/bcd.h>
-@@ -128,7 +127,6 @@
- struct abb5zes3_rtc_data {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
--	struct mutex lock;
+ 	/* If clock integrity is not guaranteed, do not return a time value */
+-	if (regs[ABB5ZES3_REG_RTC_SC] & ABB5ZES3_REG_RTC_SC_OSC) {
+-		ret = -ENODATA;
+-		goto err;
+-	}
++	if (regs[ABB5ZES3_REG_RTC_SC] & ABB5ZES3_REG_RTC_SC_OSC)
++		return -ENODATA;
  
- 	int irq;
+ 	tm->tm_sec = bcd2bin(regs[ABB5ZES3_REG_RTC_SC] & 0x7F);
+ 	tm->tm_min = bcd2bin(regs[ABB5ZES3_REG_RTC_MN]);
+@@ -252,7 +250,6 @@ static int _abb5zes3_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	tm->tm_mon  = bcd2bin(regs[ABB5ZES3_REG_RTC_MO]) - 1; /* starts at 1 */
+ 	tm->tm_year = bcd2bin(regs[ABB5ZES3_REG_RTC_YR]) + 100;
  
-@@ -138,8 +136,7 @@ struct abb5zes3_rtc_data {
- 
- /*
-  * Try and match register bits w/ fixed null values to see whether we
-- * are dealing with an ABB5ZES3. Note: this function is called early
-- * during init and hence does need mutex protection.
-+ * are dealing with an ABB5ZES3.
-  */
- static int abb5zes3_i2c_validate_chip(struct regmap *regmap)
- {
-@@ -273,12 +270,9 @@ static int abb5zes3_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	regs[ABB5ZES3_REG_RTC_MO] = bin2bcd(tm->tm_mon + 1);
- 	regs[ABB5ZES3_REG_RTC_YR] = bin2bcd(tm->tm_year - 100);
- 
--	mutex_lock(&data->lock);
- 	ret = regmap_bulk_write(data->regmap, ABB5ZES3_REG_RTC_SC,
- 				regs + ABB5ZES3_REG_RTC_SC,
- 				ABB5ZES3_RTC_SEC_LEN);
--	mutex_unlock(&data->lock);
--
- 
+-err:
  	return ret;
  }
-@@ -447,12 +441,10 @@ static int abb5zes3_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
- 	int ret;
  
--	mutex_lock(&data->lock);
- 	if (data->timer_alarm)
- 		ret = _abb5zes3_rtc_read_timer(dev, alarm);
- 	else
- 		ret = _abb5zes3_rtc_read_alarm(dev, alarm);
--	mutex_unlock(&data->lock);
+@@ -326,23 +323,23 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 	if (ret) {
+ 		dev_err(dev, "%s: reading Timer A section failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
  
- 	return ret;
- }
-@@ -590,7 +582,6 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	struct rtc_time rtc_tm;
- 	int ret;
- 
--	mutex_lock(&data->lock);
+ 	/* get current time ... */
  	ret = _abb5zes3_rtc_read_time(dev, &rtc_tm);
  	if (ret)
- 		goto err;
-@@ -630,8 +621,6 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+-		goto err;
++		return ret;
+ 
+ 	/* ... convert to seconds ... */
+ 	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	/* ... add remaining timer A time ... */
+ 	ret = sec_from_timer_a(&timer_secs, regs[1], regs[2]);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	/* ... and convert back. */
+ 	rtc_time_to_tm(rtc_secs + timer_secs, alarm_tm);
+@@ -351,13 +348,12 @@ static int _abb5zes3_rtc_read_timer(struct device *dev,
+ 	if (ret) {
+ 		dev_err(dev, "%s: reading ctrl reg failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	alarm->enabled = !!(reg & ABB5ZES3_REG_CTRL2_WTAIE);
+ 
+-err:
+-	return ret;
++	return 0;
+ }
+ 
+ /* Read alarm currently configured via a RTC alarm registers. */
+@@ -376,7 +372,7 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 	if (ret) {
+ 		dev_err(dev, "%s: reading alarm section failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	alarm_tm->tm_sec  = 0;
+@@ -392,18 +388,18 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 	 */
+ 	ret = _abb5zes3_rtc_read_time(dev, &rtc_tm);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	alarm_tm->tm_year = rtc_tm.tm_year;
+ 	alarm_tm->tm_mon = rtc_tm.tm_mon;
+ 
+ 	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	if (alarm_secs < rtc_secs) {
+ 		if (alarm_tm->tm_mon == 11) {
+@@ -418,13 +414,12 @@ static int _abb5zes3_rtc_read_alarm(struct device *dev,
+ 	if (ret) {
+ 		dev_err(dev, "%s: reading ctrl reg failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	alarm->enabled = !!(reg & ABB5ZES3_REG_CTRL1_AIE);
+ 
+-err:
+-	return ret;
++	return 0;
+ }
+ 
+ /*
+@@ -465,15 +460,15 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 	ret = _abb5zes3_rtc_read_time(dev, &rtc_tm);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	/* If alarm time is before current time, disable the alarm */
+ 	if (!alarm->enabled || alarm_secs <= rtc_secs) {
+@@ -494,13 +489,12 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 		ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 
+ 		if (alarm_secs > rtc_secs) {
+ 			dev_err(dev, "%s: alarm maximum is one month in the "
+ 				"future (%d)\n", __func__, ret);
+-			ret = -EINVAL;
+-			goto err;
++			return -EINVAL;
+ 		}
+ 	}
+ 
+@@ -518,17 +512,14 @@ static int _abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: writing ALARM section failed (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	/* Record currently configured alarm is not a timer */
+ 	data->timer_alarm = 0;
+ 
+ 	/* Enable or disable alarm interrupt generation */
+-	ret = _abb5zes3_rtc_update_alarm(dev, enable);
+-
+-err:
+-	return ret;
++	return _abb5zes3_rtc_update_alarm(dev, enable);
+ }
+ 
+ /*
+@@ -549,7 +540,7 @@ static int _abb5zes3_rtc_set_timer(struct device *dev, struct rtc_wkalrm *alarm,
+ 				ABB5ZES3_TIMA_SEC_LEN);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: writing timer section failed\n", __func__);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	/* Configure Timer A as a watchdog timer */
+@@ -562,10 +553,7 @@ static int _abb5zes3_rtc_set_timer(struct device *dev, struct rtc_wkalrm *alarm,
+ 	data->timer_alarm = 1;
+ 
+ 	/* Enable or disable timer interrupt generation */
+-	ret = _abb5zes3_rtc_update_timer(dev, alarm->enabled);
+-
+-err:
+-	return ret;
++	return _abb5zes3_rtc_update_timer(dev, alarm->enabled);
+ }
+ 
+ /*
+@@ -584,28 +572,28 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 	ret = _abb5zes3_rtc_read_time(dev, &rtc_tm);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	ret = rtc_tm_to_time(&rtc_tm, &rtc_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	ret = rtc_tm_to_time(alarm_tm, &alarm_secs);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	/* Let's first disable both the alarm and the timer interrupts */
+ 	ret = _abb5zes3_rtc_update_alarm(dev, false);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: unable to disable alarm (%d)\n", __func__,
+ 			ret);
+-		goto err;
++		return ret;
+ 	}
+ 	ret = _abb5zes3_rtc_update_timer(dev, false);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: unable to disable timer (%d)\n", __func__,
+ 			ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	data->timer_alarm = 0;
+@@ -620,7 +608,6 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	else
  		ret = _abb5zes3_rtc_set_alarm(dev, alarm);
  
-  err:
--	mutex_unlock(&data->lock);
--
+- err:
  	if (ret)
  		dev_err(dev, "%s: unable to configure alarm (%d)\n", __func__,
  			ret);
-@@ -650,8 +639,7 @@ static inline int _abb5zes3_rtc_battery_low_irq_enable(struct regmap *regmap,
+@@ -871,42 +858,38 @@ static int abb5zes3_probe(struct i2c_client *client,
  
- /*
-  * Check current RTC status and enable/disable what needs to be. Return 0 if
-- * everything went ok and a negative value upon error. Note: this function
-- * is called early during init and hence does need mutex protection.
-+ * everything went ok and a negative value upon error.
-  */
- static int abb5zes3_rtc_check_setup(struct device *dev)
- {
-@@ -788,12 +776,10 @@ static int abb5zes3_rtc_alarm_irq_enable(struct device *dev,
- 	int ret = 0;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
+ 				     I2C_FUNC_SMBUS_BYTE_DATA |
+-				     I2C_FUNC_SMBUS_I2C_BLOCK)) {
+-		ret = -ENODEV;
+-		goto err;
+-	}
++				     I2C_FUNC_SMBUS_I2C_BLOCK))
++		return -ENODEV;
  
- 	if (rtc_data->irq) {
--		mutex_lock(&rtc_data->lock);
- 		if (rtc_data->timer_alarm)
- 			ret = _abb5zes3_rtc_update_timer(dev, enable);
- 		else
- 			ret = _abb5zes3_rtc_update_alarm(dev, enable);
--		mutex_unlock(&rtc_data->lock);
+ 	regmap = devm_regmap_init_i2c(client, &abb5zes3_rtc_regmap_config);
+ 	if (IS_ERR(regmap)) {
+ 		ret = PTR_ERR(regmap);
+ 		dev_err(dev, "%s: regmap allocation failed: %d\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
  	}
  
- 	return ret;
-@@ -908,7 +894,6 @@ static int abb5zes3_probe(struct i2c_client *client,
- 		goto err;
- 	}
+ 	ret = abb5zes3_i2c_validate_chip(regmap);
+ 	if (ret)
+-		goto err;
++		return ret;
  
--	mutex_init(&data->lock);
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+-	if (!data) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
++	if (!data)
++		return -ENOMEM;
+ 
  	data->regmap = regmap;
  	dev_set_drvdata(dev, data);
  
+ 	ret = abb5zes3_rtc_check_setup(dev);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+ 	data->rtc = devm_rtc_allocate_device(dev);
+ 	ret = PTR_ERR_OR_ZERO(data->rtc);
+ 	if (ret) {
+ 		dev_err(dev, "%s: unable to allocate RTC device (%d)\n",
+ 			__func__, ret);
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	if (client->irq > 0) {
+@@ -943,7 +926,7 @@ static int abb5zes3_probe(struct i2c_client *client,
+ 	ret = rtc_register_device(data->rtc);
+ 
+ err:
+-	if (ret && data && data->irq)
++	if (ret && data->irq)
+ 		device_init_wakeup(dev, false);
+ 	return ret;
+ }
 -- 
 2.20.1
 
