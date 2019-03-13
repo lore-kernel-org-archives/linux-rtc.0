@@ -2,173 +2,153 @@ Return-Path: <SRS0=47cv=RQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D7A1C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 15:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83463C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 21:05:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1A36A214AE
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 15:02:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1552489321;
-	bh=8DDiM1eWGUAU4tuDVuZfKc088UEDnaZhWRIvS7K/tCM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=fdkz7TjnFnd0k8Rz6+uuipN/A3Tc7POmVc+cVJjVoGyTImG5e7AmxNkZP+fXW1GJX
-	 0jEgZGAW6QPV2EJEqWtdZMBMyHDZO4mh2gFKkrh9rmo9aZsAlFMMZBkTgrXja2oz4R
-	 JRs9TpYua4vm08lVt94GXOz/ADaMXXAeYwsncG6Y=
+	by mail.kernel.org (Postfix) with ESMTP id 5A4962070D
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Mar 2019 21:05:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726125AbfCMPCA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Mar 2019 11:02:00 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:43842 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbfCMPCA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Mar 2019 11:02:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=hSugnqnoJFSNcvCBKdbaU7QD11ItzVJo4CVY/LKjPw8=; b=ZbJPTAbwiih08LWJ34FlQHgN2
-        9gIG41WG7joyBJE17zW+bp2hFygf0eiC5xiYy29kdH9bUnmspY8nVv0/LkmYeCdX7NQAImJruJFnz
-        UsRLvaDi2FzMUa/uW1jfuwU3VwJv0ruY9SCoulM5Tbh1Te81WNrNtQYvX6/knjgtp+Reo=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1h45Nt-0003Ii-AX; Wed, 13 Mar 2019 15:01:33 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id 8EF9A1128B97; Wed, 13 Mar 2019 15:01:32 +0000 (GMT)
-Date:   Wed, 13 Mar 2019 15:01:32 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v2 6/9] regulator: mt6358: Add support for MT6358
- regulator
-Message-ID: <20190313150132.GA5951@sirena.org.uk>
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
- <1552275991-34648-7-git-send-email-hsin-hsiung.wang@mediatek.com>
+        id S1727140AbfCMVFB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 13 Mar 2019 17:05:01 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:38013 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbfCMVFB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Mar 2019 17:05:01 -0400
+X-Originating-IP: 86.202.231.219
+Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id EA0B660006;
+        Wed, 13 Mar 2019 21:04:58 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/5] rtc: ab-b5ze-s3: remove mutex
+Date:   Wed, 13 Mar 2019 22:04:52 +0100
+Message-Id: <20190313210456.8495-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-In-Reply-To: <1552275991-34648-7-git-send-email-hsin-hsiung.wang@mediatek.com>
-X-Cookie: Availability is limited.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+The rtc_ops are already called with the RTC mutex locked so there is no
+need to have a separate lock, unless it is used in the irq handler.
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ab-b5ze-s3.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-On Mon, Mar 11, 2019 at 11:46:28AM +0800, Hsin-Hsiung Wang wrote:
+diff --git a/drivers/rtc/rtc-ab-b5ze-s3.c b/drivers/rtc/rtc-ab-b5ze-s3.c
+index 2233601761ac..1b7314843dc8 100644
+--- a/drivers/rtc/rtc-ab-b5ze-s3.c
++++ b/drivers/rtc/rtc-ab-b5ze-s3.c
+@@ -22,7 +22,6 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/mutex.h>
+ #include <linux/rtc.h>
+ #include <linux/i2c.h>
+ #include <linux/bcd.h>
+@@ -128,7 +127,6 @@
+ struct abb5zes3_rtc_data {
+ 	struct rtc_device *rtc;
+ 	struct regmap *regmap;
+-	struct mutex lock;
+ 
+ 	int irq;
+ 
+@@ -138,8 +136,7 @@ struct abb5zes3_rtc_data {
+ 
+ /*
+  * Try and match register bits w/ fixed null values to see whether we
+- * are dealing with an ABB5ZES3. Note: this function is called early
+- * during init and hence does need mutex protection.
++ * are dealing with an ABB5ZES3.
+  */
+ static int abb5zes3_i2c_validate_chip(struct regmap *regmap)
+ {
+@@ -273,12 +270,9 @@ static int abb5zes3_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	regs[ABB5ZES3_REG_RTC_MO] = bin2bcd(tm->tm_mon + 1);
+ 	regs[ABB5ZES3_REG_RTC_YR] = bin2bcd(tm->tm_year - 100);
+ 
+-	mutex_lock(&data->lock);
+ 	ret = regmap_bulk_write(data->regmap, ABB5ZES3_REG_RTC_SC,
+ 				regs + ABB5ZES3_REG_RTC_SC,
+ 				ABB5ZES3_RTC_SEC_LEN);
+-	mutex_unlock(&data->lock);
+-
+ 
+ 	return ret;
+ }
+@@ -447,12 +441,10 @@ static int abb5zes3_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	struct abb5zes3_rtc_data *data = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
+ 	if (data->timer_alarm)
+ 		ret = _abb5zes3_rtc_read_timer(dev, alarm);
+ 	else
+ 		ret = _abb5zes3_rtc_read_alarm(dev, alarm);
+-	mutex_unlock(&data->lock);
+ 
+ 	return ret;
+ }
+@@ -590,7 +582,6 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	struct rtc_time rtc_tm;
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
+ 	ret = _abb5zes3_rtc_read_time(dev, &rtc_tm);
+ 	if (ret)
+ 		goto err;
+@@ -630,8 +621,6 @@ static int abb5zes3_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		ret = _abb5zes3_rtc_set_alarm(dev, alarm);
+ 
+  err:
+-	mutex_unlock(&data->lock);
+-
+ 	if (ret)
+ 		dev_err(dev, "%s: unable to configure alarm (%d)\n", __func__,
+ 			ret);
+@@ -650,8 +639,7 @@ static inline int _abb5zes3_rtc_battery_low_irq_enable(struct regmap *regmap,
+ 
+ /*
+  * Check current RTC status and enable/disable what needs to be. Return 0 if
+- * everything went ok and a negative value upon error. Note: this function
+- * is called early during init and hence does need mutex protection.
++ * everything went ok and a negative value upon error.
+  */
+ static int abb5zes3_rtc_check_setup(struct device *dev)
+ {
+@@ -788,12 +776,10 @@ static int abb5zes3_rtc_alarm_irq_enable(struct device *dev,
+ 	int ret = 0;
+ 
+ 	if (rtc_data->irq) {
+-		mutex_lock(&rtc_data->lock);
+ 		if (rtc_data->timer_alarm)
+ 			ret = _abb5zes3_rtc_update_timer(dev, enable);
+ 		else
+ 			ret = _abb5zes3_rtc_update_alarm(dev, enable);
+-		mutex_unlock(&rtc_data->lock);
+ 	}
+ 
+ 	return ret;
+@@ -908,7 +894,6 @@ static int abb5zes3_probe(struct i2c_client *client,
+ 		goto err;
+ 	}
+ 
+-	mutex_init(&data->lock);
+ 	data->regmap = regmap;
+ 	dev_set_drvdata(dev, data);
+ 
+-- 
+2.20.1
 
-> +static const u32 vefuse_voltages[] = {
-> +	1700000, 1800000, 1900000,
-> +};
-
-This and a bunch of the other regulators look like they're just linear
-ranges and could use the linear range helpers.
-
-> +static const u32 vcn33_bt_voltages[] = {
-> +	3300000, 3400000, 3500000,
-> +};
-> +
-> +static const u32 vcn33_wifi_voltages[] = {
-> +	3300000, 3400000, 3500000,
-> +};
-
-These also have the same range so no matter which helpers are used I'd
-expect the data to be shared, I think some of the other regulators might
-have shared tables but didn't confirm.
-
-> +static inline unsigned int mt6358_map_mode(unsigned int mode)
-> +{
-> +	return mode == MT6358_BUCK_MODE_FORCE_PWM ?
-> +		REGULATOR_MODE_FAST : REGULATOR_MODE_NORMAL;
-> +}
-
-Please write normal if statements, it makes the code more readable.
-
-> +static int mt6358_set_voltage_sel(struct regulator_dev *rdev,
-> +				  unsigned int selector)
-> +{
-> +	int idx, ret;
-> +	const u32 *pvol;
-> +	struct mt6358_regulator_info *info = rdev_get_drvdata(rdev);
-> +
-> +	pvol = (const u32 *)info->index_table;
-> +
-> +	idx = pvol[selector];
-> +	ret = regmap_update_bits(rdev->regmap, info->desc.vsel_reg,
-> +				 info->desc.vsel_mask,
-> +				 idx << info->vsel_shift);
-> +
-> +	return ret;
-> +}
-
-This looks like something other devices might do - rather than implement
-it in the driver it would be a bit better to add it to helpers.c as a
-reusable function.
-
-> +static int mt6358_get_buck_voltage_sel(struct regulator_dev *rdev)
-> +{
-> +	int ret, regval;
-> +	struct mt6358_regulator_info *info = rdev_get_drvdata(rdev);
-> +
-> +	ret = regmap_read(rdev->regmap, info->da_vsel_reg, &regval);
-> +	if (ret != 0) {
-> +		dev_info(&rdev->dev,
-> +			 "Failed to get mt6358 Buck %s vsel reg: %d\n",
-> +			 info->desc.name, ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = (regval >> info->da_vsel_shift) & info->da_vsel_mask;
-> +
-> +	return ret;
-> +}
-
-This is just the generic get_voltage_sel() as far as I can see?
-
-> +	/* Read PMIC chip revision to update constraints and voltage table */
-> +	if (regmap_read(mt6397->regmap, MT6358_SWCID, &reg_value) < 0) {
-> +		dev_err(&pdev->dev, "Failed to read Chip ID\n");
-> +		return -EIO;
-> +	}
-
-We never use the value we read here?
-
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlyJG0kACgkQJNaLcl1U
-h9Bqcwf/cBs7hTJMGSxxGTMQXuOiF7spWZKUwkRLK+rWiYzZv7xUeHEoUoSLZzm/
-d1xUkLNQ48R3p7Ey4aVzFf3HltiH9RGj+3g8OszIJS6SdTybiZYhJqMsAMnqfX/x
-tIbiu6NhlLrtm6qfKEEjHHnYSu1dIhMm6Y6JJ4D/yjpxWBed6xR0LlGTk7s3b3Gs
-xf1hGjBU2Hl0CE4TiamypPcVTzEIx4mzw1VpB2qBXwCoDLG1wnJKwjAmFVFNyWLo
-jpEeWmmqBboKOiRw+LfVXPW7CF35a3smalwrzBhIYToBop3b95kY5Pza/r7Vmr84
-203AJzm4IdIG7xe56xcuLu3AOOQqaA==
-=Aw1h
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--
