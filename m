@@ -2,126 +2,150 @@ Return-Path: <SRS0=pWyL=RS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.2 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DFE8C43381
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Mar 2019 18:51:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 710BCC43381
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Mar 2019 21:18:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4570221871
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Mar 2019 18:51:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 335342186A
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Mar 2019 21:18:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Ij7uFC2S"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="J4O1Tlmq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726372AbfCOSvP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 15 Mar 2019 14:51:15 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:44270 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726213AbfCOSvP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Mar 2019 14:51:15 -0400
-Received: by mail-pg1-f195.google.com with SMTP id h34so7045474pgh.11
-        for <linux-rtc@vger.kernel.org>; Fri, 15 Mar 2019 11:51:15 -0700 (PDT)
+        id S1726218AbfCOVSy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 15 Mar 2019 17:18:54 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38897 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726204AbfCOVSy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Mar 2019 17:18:54 -0400
+Received: by mail-pf1-f193.google.com with SMTP id n125so7177760pfn.5
+        for <linux-rtc@vger.kernel.org>; Fri, 15 Mar 2019 14:18:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rleyCUv6zQUmYM5LbtOOGEEQ+pnIQViUngiyeG0e1xI=;
-        b=Ij7uFC2S6gp37t9ClA6PMDztNFMLbpvzZpp9It5z6YdN1WnSnuNs+AjuLcvb2qz0Zt
-         i4tBALQsUU1wcESUQq7gOLX2u0AYwv4ouF/QQg1C3helQyDN4lRQfotSek6xQ6Tm0MJy
-         NGX/+U8qhlwR12iovGZB/TQ3CCAUFoYnzMWnA=
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=qhaACbu283jkmNCTeYJ352N38Gmocor9TOUev/P1Zxo=;
+        b=J4O1Tlmq/BXgbPVMHDNJJMAYHav4mH5MGqH8IaBrbeqzUMPqk3Bg1BV4D//AJicu4b
+         03+ySXf8AvPo4jl+noQGo7/+snZeHY40XwEiV5+nHZBSlcWrGywfelTjw/0XkDnj9ev9
+         Z1dbuS23AOzM135myhVZRe0B/Moh83NQvEXuGRa1wB/oNMKQvwIM1WXxPSxomn9+Ctd/
+         3uyGGUsIkc+ZUVwtNwBhSCOAchc2MrrUtlV+uAzy2weVQe64FL6G+71CR2xOaPNiAkvV
+         Bj/3lPDOHvMsw4MlFZ+VcLpxiMRasyH/qnwDt32SSur7+P7RDHL2+mQ1erDgUGIVdh66
+         2sbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rleyCUv6zQUmYM5LbtOOGEEQ+pnIQViUngiyeG0e1xI=;
-        b=ieYPt4trqRYoib3LGNWT588v5l2cDuE863T7yN7oD3FNGuzVy40KTpMVxkV25d0v+T
-         XOx+pdxS9qitX97+loz6K06zkHJAgTEv/qkTQ6N9seRlPJ+je9WocIU5y0FAmxcPcZGD
-         kmw+lpMBwldob2tvDApOmw4VPVnZk8hY2SPlF3BgfETMqT4LlUN7Ib416AgM3ukExOba
-         hzLXR4vi5va8X7AvqDZ6cMEWbPVctInXSVVqHQ51NJsC1wgm0f5byRz7QLzR04lS1D4A
-         73FTP73dbOXX5o7rFDqwH/K6DlbARz+U8P0XWNcSI0HaZ7RCZThfS/SsIPoCcDYzCoSB
-         6iXQ==
-X-Gm-Message-State: APjAAAWKg98fHGRQDXuGrDcdu85tJrq8bciQ2jJfKq9qVavzmmoUNYF8
-        La/k5EWCKh0df55l9qRdnQbMGg==
-X-Google-Smtp-Source: APXvYqyXh+RREvquWLWqBmX3XGPbzDmkHenQuZYqf1TV5CnW3Xmk3iapY8mACUH7kSERD8TxzqUXRA==
-X-Received: by 2002:a62:3282:: with SMTP id y124mr5536379pfy.209.1552675874544;
-        Fri, 15 Mar 2019 11:51:14 -0700 (PDT)
-Received: from smtp.gmail.com ([2620:15c:202:1:fa53:7765:582b:82b9])
-        by smtp.gmail.com with ESMTPSA id f16sm7560352pga.71.2019.03.15.11.51.13
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 Mar 2019 11:51:13 -0700 (PDT)
-From:   Stephen Boyd <swboyd@chromium.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=qhaACbu283jkmNCTeYJ352N38Gmocor9TOUev/P1Zxo=;
+        b=LI43UpGClOa39NZv3PCxQdd/i2zYyT0xgdRQofdP9QkB+a7EY3nKCpAjv97C1jZNBi
+         3LOczew0/MPvQo6S71Pu+6rHqnLWRSkv3llutKpEJoe0YxPTtH9cw6qy0yKe7v+faySY
+         Ib5uIs6Y+EtKRwCtEwYGCCSbJ1jDQePrf2sDtYmO/zV65Lp68e7ce6RUcrnJ7dId4R4z
+         UC0RlHoxyvXQjGDg+VJJy1MWrZXmoslclJxOmsUPwmIpGj7DbaDyNec1Ghfp/HLK7CoX
+         2CLjtzuSbr8iXBs7CfwVc+uxT1diRTAV5agvwvkCtpD/cNigNAmMhzrxtg4ZV8cf8CJE
+         ToZQ==
+X-Gm-Message-State: APjAAAVqNPVRyyFQau7Sok4C5BTqkFpwRqWytJDyaifwl7w4xW7JwygD
+        95dJM8eZBCklR1+SkStQYK86lA==
+X-Google-Smtp-Source: APXvYqzzQIYOkz+Bj6GwOoHfUhF0BLdKdPLVmnnE7NqrBxBjPcuDH25K64fSVhjd0LNEw+Wgnj/Diw==
+X-Received: by 2002:a17:902:9b98:: with SMTP id y24mr6383746plp.167.1552684732828;
+        Fri, 15 Mar 2019 14:18:52 -0700 (PDT)
+Received: from google.com ([2620:15c:202:1:c562:226a:6d78:2ae4])
+        by smtp.gmail.com with ESMTPSA id m20sm9590418pfj.142.2019.03.15.14.18.49
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 15 Mar 2019 14:18:50 -0700 (PDT)
+Date:   Fri, 15 Mar 2019 14:18:45 -0700
+From:   Benson Leung <bleung@google.com>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Evan Green <evgreen@chromium.org>,
         Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>
-Subject: [PATCH] rtc: cros-ec: Fail suspend/resume if wake IRQ can't be configured
-Date:   Fri, 15 Mar 2019 11:51:12 -0700
-Message-Id: <20190315185112.97699-1-swboyd@chromium.org>
-X-Mailer: git-send-email 2.21.0.225.g810b269d1ac-goog
+        Guenter Roeck <groeck@chromium.org>, bleung@google.com
+Subject: Re: [PATCH] rtc: cros-ec: Fail suspend/resume if wake IRQ can't be
+ configured
+Message-ID: <20190315211845.GA165708@google.com>
+References: <20190315185112.97699-1-swboyd@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+In-Reply-To: <20190315185112.97699-1-swboyd@chromium.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-If we encounter a failure during suspend where this RTC was programmed
-to wakeup the system from suspend, but that wakeup couldn't be
-configured because the system didn't support wakeup interrupts, we'll
-run into the following warning:
 
-	Unbalanced IRQ 166 wake disable
-	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This happens because the suspend process isn't aborted when the RTC
-fails to configure the wakeup IRQ. Instead, we continue suspending the
-system and then another suspend callback fails the suspend process and
-"unwinds" the previously suspended drivers by calling their resume
-callbacks. When we get back to resuming this RTC driver, we'll call
-disable_irq_wake() on an IRQ that hasn't been configured for wake.
+Hi Stephen,
 
-Let's just fail suspend/resume here if we can't configure the system to
-wake and the user has chosen to wakeup with this device. This fixes this
-warning and makes the code more robust in case there are systems out
-there that can't wakeup from suspend on this line but the user has
-chosen to do so.
+On Fri, Mar 15, 2019 at 11:51:12AM -0700, Stephen Boyd wrote:
+> If we encounter a failure during suspend where this RTC was programmed
+> to wakeup the system from suspend, but that wakeup couldn't be
+> configured because the system didn't support wakeup interrupts, we'll
+> run into the following warning:
+>=20
+> 	Unbalanced IRQ 166 wake disable
+> 	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x=
+108/0x278
+>=20
+> This happens because the suspend process isn't aborted when the RTC
+> fails to configure the wakeup IRQ. Instead, we continue suspending the
+> system and then another suspend callback fails the suspend process and
+> "unwinds" the previously suspended drivers by calling their resume
+> callbacks. When we get back to resuming this RTC driver, we'll call
+> disable_irq_wake() on an IRQ that hasn't been configured for wake.
+>=20
+> Let's just fail suspend/resume here if we can't configure the system to
+> wake and the user has chosen to wakeup with this device. This fixes this
+> warning and makes the code more robust in case there are systems out
+> there that can't wakeup from suspend on this line but the user has
+> chosen to do so.
+>=20
+> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Cc: Evan Green <evgreen@chromium.org>
+> Cc: Benson Leung <bleung@chromium.org>
+> Cc: Guenter Roeck <groeck@chromium.org>
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Evan Green <evgreen@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
-Cc: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/rtc/rtc-cros-ec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Acked-By: Benson Leung <bleung@chromium.org>
 
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index e5444296075e..4d6bf9304ceb 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -298,7 +298,7 @@ static int cros_ec_rtc_suspend(struct device *dev)
- 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
- 
- 	if (device_may_wakeup(dev))
--		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+		return enable_irq_wake(cros_ec_rtc->cros_ec->irq);
- 
- 	return 0;
- }
-@@ -309,7 +309,7 @@ static int cros_ec_rtc_resume(struct device *dev)
- 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
- 
- 	if (device_may_wakeup(dev))
--		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+		return disable_irq_wake(cros_ec_rtc->cros_ec->irq);
- 
- 	return 0;
- }
--- 
-Sent by a computer through tubes
 
+--=20
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlyMFrMACgkQHwn1ewov
+5liCbQ//csr76yg/XYgehOEgHVm4eOYVsF7AYJ2B/pdlWtCl+vXh95VOX5AeaUlt
+L67dOSZ6HBE3Z/4dh5qQcec4+l7SMsqR0GhW4kv/aaPB7oJuCWpIz9MGa3tjhMec
+NgnwzdXoV4Rrbq5I9Bd4uX9MNGw2DC15BhFTureDEd/TNpAPHB3a3T48mNdMqMcS
+xldgkcCvesf/o87bl33NotOu4QGhK4T0EdKVKOrX+oYlA1DkF+TpEx43LvRnuIhM
+hOuLNW8ocJQycJJVq8TQHvl7BmMGAPyTs3b5vg17MI7Uq+27Q9w6vK/wDWmfjC7L
+PPBlYQw+lAEW96wMCtG3eqahEEx0ULVlnNuwgxIhXCfiYSFLdawPrYGfaeDl7wl8
+DXXjOwGCZqF0WRsp/aOf81kXrclpunAuQlePTnq1Nv6jq2i2fXw4yPi9895eoJaF
+qUjHlxEX9nyxeaR7n/8uWhJBDTxrKZZKdL4sXJqIOvJbk/cJe1xcRoi41zxwlUhk
+qA3RYdF5o2+KM7YmB+Y1X0l4H5epSrkA/DJKHueDhuehIW6IWrP7mUv44hN2Lkff
+bzW8JmzQy8ilitQs91oJ7J9i8HnoVmKnUdZj8/LHM+EqRQg/pCJJuOdRK1LorLhL
+NzbtXLZLzoHy2Rsz8YMTj2NUDVNju8UFanPiR5uvr4M7VXZroLg=
+=dNaK
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--
