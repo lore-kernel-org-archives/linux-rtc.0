@@ -2,119 +2,77 @@ Return-Path: <SRS0=4iP+=RV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08FF9C43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C413DC43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 15:57:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CCD6F20811
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96E4220854
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 15:57:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbfCRMo4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 18 Mar 2019 08:44:56 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:41583 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726678AbfCRMo4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Mar 2019 08:44:56 -0400
-Received: from localhost (unknown [182.72.246.220])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 3EA24200008;
-        Mon, 18 Mar 2019 12:44:45 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     Keerthy <j-keerthy@ti.com>, linux-arm-kernel@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: omap: let the core handle range
-Date:   Mon, 18 Mar 2019 13:44:38 +0100
-Message-Id: <20190318124438.26327-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190318124438.26327-1-alexandre.belloni@bootlin.com>
-References: <20190318124438.26327-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727507AbfCRP5j (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 18 Mar 2019 11:57:39 -0400
+Received: from sauhun.de ([88.99.104.3]:36946 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726765AbfCRP5j (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 18 Mar 2019 11:57:39 -0400
+Received: from localhost (p54B330C6.dip0.t-ipconnect.de [84.179.48.198])
+        by pokefinder.org (Postfix) with ESMTPSA id 5C49B2C2817;
+        Mon, 18 Mar 2019 16:57:37 +0100 (CET)
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-input@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 0/4] da9063: convert to SPDX
+Date:   Mon, 18 Mar 2019 16:57:23 +0100
+Message-Id: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.11.0
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Let the core handle the RTC range instead of open coding it.
+When working with this driver while debugging something else, I noticed a typo
+in one of the file headers and decided that it could be converted to SPDX while
+I am at it anyhow.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-omap.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+These patches were "tested" on a Renesas Lager board (R-Car H2). No regressions
+encountered. buildbot was happy, too.
 
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index bbff0e2deb84..ea0eb48f3bb9 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -271,7 +271,7 @@ static int omap_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- }
- 
- /* this hardware doesn't support "don't care" alarm fields */
--static int tm2bcd(struct rtc_time *tm)
-+static void tm2bcd(struct rtc_time *tm)
- {
- 	tm->tm_sec = bin2bcd(tm->tm_sec);
- 	tm->tm_min = bin2bcd(tm->tm_min);
-@@ -279,13 +279,7 @@ static int tm2bcd(struct rtc_time *tm)
- 	tm->tm_mday = bin2bcd(tm->tm_mday);
- 
- 	tm->tm_mon = bin2bcd(tm->tm_mon + 1);
--
--	/* epoch == 1900 */
--	if (tm->tm_year < 100 || tm->tm_year > 199)
--		return -EINVAL;
- 	tm->tm_year = bin2bcd(tm->tm_year - 100);
--
--	return 0;
- }
- 
- static void bcd2tm(struct rtc_time *tm)
-@@ -328,8 +322,7 @@ static int omap_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 
--	if (tm2bcd(tm) < 0)
--		return -EINVAL;
-+	tm2bcd(tm);
- 
- 	local_irq_disable();
- 	rtc_wait_not_busy(rtc);
-@@ -378,8 +371,7 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	struct omap_rtc *rtc = dev_get_drvdata(dev);
- 	u8 reg, irqwake_reg = 0;
- 
--	if (tm2bcd(&alm->time) < 0)
--		return -EINVAL;
-+	tm2bcd(&alm->time);
- 
- 	local_irq_disable();
- 	rtc_wait_not_busy(rtc);
-@@ -444,11 +436,7 @@ static void omap_rtc_power_off(void)
- 	rtc_tm_to_time(&tm, &now);
- 	rtc_time_to_tm(now + 1, &tm);
- 
--	if (tm2bcd(&tm) < 0) {
--		dev_err(&rtc->rtc->dev, "power off failed\n");
--		rtc->type->lock(rtc);
--		return;
--	}
-+	tm2bcd(&tm);
- 
- 	rtc_wait_not_busy(rtc);
- 
-@@ -845,6 +833,8 @@ static int omap_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	rtc->rtc->ops = &omap_rtc_ops;
-+	rtc->rtc->range_min = RTC_TIMESTAMP_BEGIN_1900;
-+	rtc->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 	omap_rtc_nvmem_config.priv = rtc;
- 
- 	/* handle periodic and alarm irqs */
+The patches are based on v5.1-rc1. I'd think they can be picked up per
+subsystem but am also fine with everything going via MFD. There is no
+dependency or merge conflict with my platform_data removal series which I sent
+a few minutes ago.
+
+Looking forward to comments!
+
+   Wolfram
+
+
+
+
+Wolfram Sang (4):
+  mfd: da9063: convert headers to SPDX
+  regulator: da9063: convert header to SPDX
+  input: da9063_onkey: convert header to SPDX
+  rtc: da9063: convert header to SPDX
+
+ drivers/input/misc/da9063_onkey.c    | 11 +----------
+ drivers/mfd/da9063-core.c            |  8 ++------
+ drivers/mfd/da9063-i2c.c             |  9 ++-------
+ drivers/mfd/da9063-irq.c             |  9 ++-------
+ drivers/regulator/da9063-regulator.c |  8 +-------
+ drivers/rtc/rtc-da9063.c             | 14 +++-----------
+ include/linux/mfd/da9063/core.h      |  7 +------
+ include/linux/mfd/da9063/registers.h |  7 +------
+ 8 files changed, 13 insertions(+), 60 deletions(-)
+
 -- 
-2.20.1
+2.11.0
 
