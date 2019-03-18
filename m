@@ -3,34 +3,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7DDC43381
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08FF9C43381
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 08CB520811
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCD6F20811
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 12:44:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbfCRMop (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 18 Mar 2019 08:44:45 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:47543 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726678AbfCRMop (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Mar 2019 08:44:45 -0400
-X-Originating-IP: 182.72.246.220
+        id S1726788AbfCRMo4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 18 Mar 2019 08:44:56 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:41583 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726678AbfCRMo4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Mar 2019 08:44:56 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id A859EFF808;
-        Mon, 18 Mar 2019 12:44:42 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 3EA24200008;
+        Mon, 18 Mar 2019 12:44:45 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Keerthy <j-keerthy@ti.com>, linux-arm-kernel@lists.infradead.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Subject: [PATCH] rtc: omap: let the core handle range
-Date:   Mon, 18 Mar 2019 13:44:37 +0100
-Message-Id: <20190318124438.26327-1-alexandre.belloni@bootlin.com>
+Date:   Mon, 18 Mar 2019 13:44:38 +0100
+Message-Id: <20190318124438.26327-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190318124438.26327-1-alexandre.belloni@bootlin.com>
+References: <20190318124438.26327-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
