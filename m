@@ -2,110 +2,120 @@ Return-Path: <SRS0=7wLf=RW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF8A6C10F03
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 07:40:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96223C43381
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 10:08:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9D65F2083D
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 07:40:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="W3JmbvYt"
+	by mail.kernel.org (Postfix) with ESMTP id 6FDDD2077B
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 10:08:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbfCSHkV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Mar 2019 03:40:21 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:39689 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725934AbfCSHkV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Mar 2019 03:40:21 -0400
-Received: by mail-lf1-f66.google.com with SMTP id m13so13642096lfb.6
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Mar 2019 00:40:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4L++Yl5e7QSNKsYjnhjy+1jhPG5KFyBaZyeMU59pxPA=;
-        b=W3JmbvYtdjxiecPm9M2hAGUR2gQytRt4AT3LIvc6MlD/IhnSr2WeUguz8Bgnr2yNAe
-         tL7miSyl5bK7Gn7O/zmpnMze0CBDg1y59Lp27WPepzXpvhJIq6DwZZrQGjz0/8xhnyPs
-         lJIVIfbjM97apFy5AeC4IBxyDntJ0zvZIx8dLdvlW+xouhM4qgQuMULUJFk+FByLaTb5
-         sRqVzM60uYEgb19l3LAF9MixyfuBeS3BsP0X+Rm6OvSLQ8QnpTg/VQEPvDxSY0SwO9pL
-         +8Y4XfUUyBWvyig//J7FRPpgasQvXebbGoqYO+/9kU9g1UeOCSkhdP8AljoBw9qThxej
-         TShg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4L++Yl5e7QSNKsYjnhjy+1jhPG5KFyBaZyeMU59pxPA=;
-        b=tzYcol4Fe65tlZyubD/WQIegaKjViJSRC3Lsgv8mngewP+ViSOCTchMdTxwWTqwayr
-         5C2gCjXJs9oRw+ZkXLHbDmQXZKkWA49ZIuanaOp4bJ1LVLeQu74iKqDhoFTEkphQJcdr
-         JgNWWHvDdVSeqT0kcp4Lz4BfY5sTl/4RtfzVY0VZJl+RUvqCzRjabHCc1JF6As8E4gCi
-         sE3/72xseW/M5rRtVeUpaBhnPuLAJFaGaDld+0ZiZ7R2FMLQv1VOMUypOr6Eq+ZtxTyH
-         twHJqPKz/+Yvf2uo0qs4rbIhllVJRO3KRsX0Jtqv7QH66jEqdtjyqPeXMZAHY09p7vHN
-         Gb3w==
-X-Gm-Message-State: APjAAAV36u9wCqCbrzZTsx/l4bhbNPzXKd4OOMjS7zq5hQuMt+sdVRqn
-        kpCsXNXn6tkEIxMZXlb+FWiSPg==
-X-Google-Smtp-Source: APXvYqz/n8Ky99d4EZsg54wDRd8IQfmEUGTfwclRKI7SfqvMi9zGMTXbTPb0W+D5uYci4zVp1khYrQ==
-X-Received: by 2002:ac2:548f:: with SMTP id t15mr12444690lfk.166.1552981219310;
-        Tue, 19 Mar 2019 00:40:19 -0700 (PDT)
-Received: from linux.local (c-ae7b71d5.014-348-6c756e10.bbcust.telenor.se. [213.113.123.174])
-        by smtp.gmail.com with ESMTPSA id m23sm751650lfj.89.2019.03.19.00.40.18
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 19 Mar 2019 00:40:18 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 2/2 v2] rtc: x1205: Add DT probing support
-Date:   Tue, 19 Mar 2019 08:40:14 +0100
-Message-Id: <20190319074014.20616-2-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190319074014.20616-1-linus.walleij@linaro.org>
-References: <20190319074014.20616-1-linus.walleij@linaro.org>
+        id S1726763AbfCSKIs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Mar 2019 06:08:48 -0400
+Received: from gloria.sntech.de ([185.11.138.130]:57530 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725978AbfCSKIs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 19 Mar 2019 06:08:48 -0400
+Received: from ip5f5a6320.dynamic.kabel-deutschland.de ([95.90.99.32] helo=diego.localnet)
+        by gloria.sntech.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <heiko@sntech.de>)
+        id 1h6Bfe-0005eJ-Up; Tue, 19 Mar 2019 11:08:34 +0100
+From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To:     Tony Xie <tony.xie@rock-chips.com>, lee.jones@linaro.org
+Cc:     broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        sboyd@kernel.org, linux-clk@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v7 0/6] support a new type of PMIC,including two chips(rk817 and rk809)
+Date:   Tue, 19 Mar 2019 11:08:33 +0100
+Message-ID: <36121846.smLYK4jT4q@diego>
+In-Reply-To: <20190102102002.29245-1-tony.xie@rock-chips.com>
+References: <20190102102002.29245-1-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This makes it possible to probe the X1205 RTC from the
-device tree. This is needed when adding device tree boot
-support for the IXP4xx-based NSLU2 which has this RTC.
+Hi Lee,
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Add terminating {} to DT compatible list.
-- Rebase on v5.1-rc1
-- Resend
----
- drivers/rtc/rtc-x1205.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Am Mittwoch, 2. Januar 2019, 11:19:56 CET schrieb Tony Xie:
+> Most of functions and registers of the rk817 and rk808 are the same,
+> so they can share allmost all codes.
 
-diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
-index f08f18e4fcdf..ad2ae2f0536e 100644
---- a/drivers/rtc/rtc-x1205.c
-+++ b/drivers/rtc/rtc-x1205.c
-@@ -673,9 +673,16 @@ static const struct i2c_device_id x1205_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, x1205_id);
- 
-+static const struct of_device_id x1205_dt_ids[] = {
-+	{ .compatible = "xircom,x1205", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, x1205_dt_ids);
-+
- static struct i2c_driver x1205_driver = {
- 	.driver		= {
- 		.name	= "rtc-x1205",
-+		.of_match_table = x1205_dt_ids,
- 	},
- 	.probe		= x1205_probe,
- 	.remove		= x1205_remove,
--- 
-2.20.1
+do you have this series on your radar somewhere or should Tony
+resend the series? As it looks like it fell through the cracks somehow.
+
+
+Thanks
+Heiko
+
+
+> Their specifications are as follows:
+>   1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same
+> registers
+>      for these components except dcdc5.
+>   2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
+>   3) The RK817 has one switch but The Rk809 has two.
+> 
+> Changes in V2:
+> 1. initialize the pm_pwroff_fn to NULL.
+> 2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
+> 3. change patch 2/3/4/5 subjects.
+> 
+> Changes in V3
+> 1. change patch 4 subjects
+> 2. replace pr_ with dev_ for printing in patch 2
+> 3. modify switch1 and switch2 configs in patch 2
+> 4. explain gpio information for rk809 and rk817 in patch 4
+> 
+> Changes in V4:
+> 1. modify some codes for patch 2 and patch 5 according to comments
+> 2. add reviewer mail lists for patch 3 and 4
+> 
+> Changes in V5:
+> modify some codes for patch 1 according to reveiw comments for v3.
+>  1) remove the pm_power_off_prepare() and replace with shutdown
+> call-back from syscore
+>  2) move the macro REGMAP_IRQ_M into the regmap.h and rename it
+> REGMAP_IRQ_LINE
+>  3) make some dev_warn() log clear
+> 
+> Changes in V6:
+> modify some codes according to reveiw comments for v5.
+> 
+> Changes in V7:
+> modify some codes for patch 2 according to reveiw comments.
+> 
+> Tony Xie (6):
+>   mfd: rk808: remove the id_table
+>   mfd: rk808: Add RK817 and RK809 support
+>   regulator: rk808: add RK809 and RK817 support.
+>   dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
+>   rtc: rk808: add RK809 and RK817 support.
+>   clk: RK808: add RK809 and RK817 support.
+> 
+>  .../devicetree/bindings/mfd/rk808.txt         |  44 ++
+>  drivers/clk/Kconfig                           |   9 +-
+>  drivers/clk/clk-rk808.c                       |  64 +-
+>  drivers/mfd/Kconfig                           |   6 +-
+>  drivers/mfd/rk808.c                           | 199 +++++-
+>  drivers/regulator/Kconfig                     |   4 +-
+>  drivers/regulator/rk808-regulator.c           | 657 +++++++++++++++++-
+>  drivers/rtc/Kconfig                           |   4 +-
+>  drivers/rtc/rtc-rk808.c                       |  68 +-
+>  include/linux/mfd/rk808.h                     | 175 +++++
+>  10 files changed, 1164 insertions(+), 66 deletions(-)
+
+
+
 
