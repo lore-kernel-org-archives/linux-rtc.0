@@ -2,99 +2,73 @@ Return-Path: <SRS0=7wLf=RW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB8AFC43381
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 14:47:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E9A2C43381
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 15:25:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8CBF12083D
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 14:47:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="puQOKMZ0"
+	by mail.kernel.org (Postfix) with ESMTP id 5545D20811
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 15:25:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727382AbfCSOrX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Mar 2019 10:47:23 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:38712 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727755AbfCSOrV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Mar 2019 10:47:21 -0400
-Received: by mail-wm1-f68.google.com with SMTP id a188so16734679wmf.3
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Mar 2019 07:47:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=YzjCpRmDA9wR1xnyZxcnZ23puQ+O+dahoaacjFD0+qo=;
-        b=puQOKMZ0IH4UlmFsa1rH5QgDMBI84tDQy/feHxhesTqYUVtnxCXbbiBawDzEGXCtWH
-         meiT7fs8tFknGtl65jxRSiYPvmdhOmdyMipizwMkoblW6v6JbE6vimFXsxyeroRQX8ri
-         M576S2t1Nv1o/3OoAYiNtvSaCyoplpoo4X+HM3NrZy0x0IFzxBcMNbKZ4MlIvjx5iz2n
-         KAZVE9zaOR3SvA+HbZRvOc64v2vwKadrIYVZno+azCjRYlSLgkq9nk/9DUKs4sQW8rhR
-         NywGtkS7kvLiCpVJd836howA4pbwXeNZiHokrMVxgjs0rLekFBuISHbmy/VheBAGLJ8E
-         Tp+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=YzjCpRmDA9wR1xnyZxcnZ23puQ+O+dahoaacjFD0+qo=;
-        b=DdU7GkHH5X4fmCatmgTC/kt3eOrGdMjtsseUiQYRj6xQZC9xynCJbyF8040SrtUbNg
-         7jctSiX6jsGBrDAwPfEBe1SpSBTO3s8R9U5Jfxdsry1HCvIpX75YvuQtv9zPZUg0zFcf
-         VL/Tiy9WPhFbW3FnCf9Wx8rrVn2/AjzeCrsGk/jZDfKGlioner9C2zr2ooLAHUKZl/Wr
-         ja63MRUB+P8h0JfFkraXOVk/8GBmVDyvofquAZO0ufkezzj25FHiZjiY0bTeHJIEQFed
-         w4OZZUSfC5i6BYR6+qQKhfyNW6L5RItDlLtzfZHmx8HquHH9iWcF7lyhnOv89UK5MiZF
-         I2lg==
-X-Gm-Message-State: APjAAAX8HFTv6+WYYgOiV4g2URC6Qr8olXVoS7oCK2cgfvSMTgWmUbnD
-        9SRVgVbfiaurv7/4OOvCHlyCEA==
-X-Google-Smtp-Source: APXvYqxcNtjhQ0z3cetH6v1VZ6VuFLNCn9gYpf9j1i7ObgC46aGf6b75xKQFHEKb3Sy18IszK26IzA==
-X-Received: by 2002:a7b:ce83:: with SMTP id q3mr3895176wmj.108.1553006839764;
-        Tue, 19 Mar 2019 07:47:19 -0700 (PDT)
-Received: from dell ([2.31.167.140])
-        by smtp.gmail.com with ESMTPSA id z20sm2812630wma.48.2019.03.19.07.47.18
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 19 Mar 2019 07:47:18 -0700 (PDT)
-Date:   Tue, 19 Mar 2019 14:47:17 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc:     Tony Xie <tony.xie@rock-chips.com>, broonie@kernel.org,
-        robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com
-Subject: Re: [PATCH v7 0/6] support a new type of PMIC,including two
- chips(rk817 and rk809)
-Message-ID: <20190319144717.GG4731@dell>
-References: <20190102102002.29245-1-tony.xie@rock-chips.com>
- <36121846.smLYK4jT4q@diego>
+        id S1727184AbfCSPZs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Mar 2019 11:25:48 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:5707 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726466AbfCSPZs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 19 Mar 2019 11:25:48 -0400
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id E44BD2B1ED33F61F569E;
+        Tue, 19 Mar 2019 23:25:45 +0800 (CST)
+Received: from localhost (10.177.31.96) by DGGEMS409-HUB.china.huawei.com
+ (10.3.19.209) with Microsoft SMTP Server id 14.3.408.0; Tue, 19 Mar 2019
+ 23:25:37 +0800
+From:   Yue Haibing <yuehaibing@huawei.com>
+To:     <benh@kernel.crashing.org>, <paulus@samba.org>,
+        <mpe@ellerman.id.au>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>
+CC:     <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linuxppc-dev@lists.ozlabs.org>, YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH -next] rtc: opal: Make opal_tpo_alarm_irq_enable static
+Date:   Tue, 19 Mar 2019 23:25:31 +0800
+Message-ID: <20190319152531.10380-1-yuehaibing@huawei.com>
+X-Mailer: git-send-email 2.10.2.windows.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <36121846.smLYK4jT4q@diego>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain
+X-Originating-IP: [10.177.31.96]
+X-CFilter-Loop: Reflected
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 19 Mar 2019, Heiko Stübner wrote:
-> Am Mittwoch, 2. Januar 2019, 11:19:56 CET schrieb Tony Xie:
-> > Most of functions and registers of the rk817 and rk808 are the same,
-> > so they can share allmost all codes.
-> 
-> do you have this series on your radar somewhere or should Tony
-> resend the series? As it looks like it fell through the cracks somehow.
+From: YueHaibing <yuehaibing@huawei.com>
 
-It wasn't, but it is now, thanks.
+Fix sparse warning:
 
+drivers/rtc/rtc-opal.c:227:5:
+ warning: symbol 'opal_tpo_alarm_irq_enable' was not declared. Should it be static?
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ drivers/rtc/rtc-opal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-opal.c b/drivers/rtc/rtc-opal.c
+index 60f2250..3dd9d26 100644
+--- a/drivers/rtc/rtc-opal.c
++++ b/drivers/rtc/rtc-opal.c
+@@ -224,7 +224,7 @@ static int opal_set_tpo_time(struct device *dev, struct rtc_wkalrm *alarm)
+ 	return rc;
+ }
+ 
+-int opal_tpo_alarm_irq_enable(struct device *dev, unsigned int enabled)
++static int opal_tpo_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct rtc_wkalrm alarm = { .enabled = 0 };
+ 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.7.4
+
+
