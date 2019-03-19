@@ -2,94 +2,99 @@ Return-Path: <SRS0=7wLf=RW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9750CC43381
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 12:10:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB8AFC43381
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 14:47:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 62F6320643
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 12:10:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CBF12083D
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 14:47:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=verge.net.au header.i=@verge.net.au header.b="nUflnx3+"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="puQOKMZ0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727210AbfCSMKS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Mar 2019 08:10:18 -0400
-Received: from kirsty.vergenet.net ([202.4.237.240]:46764 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbfCSMKR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Mar 2019 08:10:17 -0400
-Received: from reginn.horms.nl (watermunt.horms.nl [80.127.179.77])
-        by kirsty.vergenet.net (Postfix) with ESMTPA id 5E39E25AD6C;
-        Tue, 19 Mar 2019 23:10:15 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=verge.net.au; s=mail;
-        t=1552997415; bh=PuwLl0A3medSXUZ++Nd4QeHyR2xWOZiqFGsbBtJq3vE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nUflnx3+s2bmROCE7G3KkTiTjQNfAqdhaFMjuR3niEW7PpTVcyaveM8krFHpYyxQ6
-         sQgppg8Ltu3FtNFNHmM9VtQTC5ilOxJfcuaFq+vPdnjt5VzbkLZd8imw2b8Q+vF3PO
-         GwcKBW6mCLCLubHMt/Gs84fg5VkEp26EaaB+boEc=
-Received: by reginn.horms.nl (Postfix, from userid 7100)
-        id BD379940663; Tue, 19 Mar 2019 13:10:13 +0100 (CET)
-Date:   Tue, 19 Mar 2019 13:10:13 +0100
-From:   Simon Horman <horms@verge.net.au>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 4/4] rtc: da9063: convert header to SPDX
-Message-ID: <20190319121013.taiqygfo7ybgzpbt@verge.net.au>
-References: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
- <20190318155728.28365-5-wsa+renesas@sang-engineering.com>
+        id S1727382AbfCSOrX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Mar 2019 10:47:23 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:38712 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727755AbfCSOrV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Mar 2019 10:47:21 -0400
+Received: by mail-wm1-f68.google.com with SMTP id a188so16734679wmf.3
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Mar 2019 07:47:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=YzjCpRmDA9wR1xnyZxcnZ23puQ+O+dahoaacjFD0+qo=;
+        b=puQOKMZ0IH4UlmFsa1rH5QgDMBI84tDQy/feHxhesTqYUVtnxCXbbiBawDzEGXCtWH
+         meiT7fs8tFknGtl65jxRSiYPvmdhOmdyMipizwMkoblW6v6JbE6vimFXsxyeroRQX8ri
+         M576S2t1Nv1o/3OoAYiNtvSaCyoplpoo4X+HM3NrZy0x0IFzxBcMNbKZ4MlIvjx5iz2n
+         KAZVE9zaOR3SvA+HbZRvOc64v2vwKadrIYVZno+azCjRYlSLgkq9nk/9DUKs4sQW8rhR
+         NywGtkS7kvLiCpVJd836howA4pbwXeNZiHokrMVxgjs0rLekFBuISHbmy/VheBAGLJ8E
+         Tp+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=YzjCpRmDA9wR1xnyZxcnZ23puQ+O+dahoaacjFD0+qo=;
+        b=DdU7GkHH5X4fmCatmgTC/kt3eOrGdMjtsseUiQYRj6xQZC9xynCJbyF8040SrtUbNg
+         7jctSiX6jsGBrDAwPfEBe1SpSBTO3s8R9U5Jfxdsry1HCvIpX75YvuQtv9zPZUg0zFcf
+         VL/Tiy9WPhFbW3FnCf9Wx8rrVn2/AjzeCrsGk/jZDfKGlioner9C2zr2ooLAHUKZl/Wr
+         ja63MRUB+P8h0JfFkraXOVk/8GBmVDyvofquAZO0ufkezzj25FHiZjiY0bTeHJIEQFed
+         w4OZZUSfC5i6BYR6+qQKhfyNW6L5RItDlLtzfZHmx8HquHH9iWcF7lyhnOv89UK5MiZF
+         I2lg==
+X-Gm-Message-State: APjAAAX8HFTv6+WYYgOiV4g2URC6Qr8olXVoS7oCK2cgfvSMTgWmUbnD
+        9SRVgVbfiaurv7/4OOvCHlyCEA==
+X-Google-Smtp-Source: APXvYqxcNtjhQ0z3cetH6v1VZ6VuFLNCn9gYpf9j1i7ObgC46aGf6b75xKQFHEKb3Sy18IszK26IzA==
+X-Received: by 2002:a7b:ce83:: with SMTP id q3mr3895176wmj.108.1553006839764;
+        Tue, 19 Mar 2019 07:47:19 -0700 (PDT)
+Received: from dell ([2.31.167.140])
+        by smtp.gmail.com with ESMTPSA id z20sm2812630wma.48.2019.03.19.07.47.18
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 19 Mar 2019 07:47:18 -0700 (PDT)
+Date:   Tue, 19 Mar 2019 14:47:17 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc:     Tony Xie <tony.xie@rock-chips.com>, broonie@kernel.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v7 0/6] support a new type of PMIC,including two
+ chips(rk817 and rk809)
+Message-ID: <20190319144717.GG4731@dell>
+References: <20190102102002.29245-1-tony.xie@rock-chips.com>
+ <36121846.smLYK4jT4q@diego>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190318155728.28365-5-wsa+renesas@sang-engineering.com>
-Organisation: Horms Solutions BV
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <36121846.smLYK4jT4q@diego>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Mar 18, 2019 at 04:57:27PM +0100, Wolfram Sang wrote:
-> Covnert the header of the source file to SPDX.
+On Tue, 19 Mar 2019, Heiko Stübner wrote:
+> Am Mittwoch, 2. Januar 2019, 11:19:56 CET schrieb Tony Xie:
+> > Most of functions and registers of the rk817 and rk808 are the same,
+> > so they can share allmost all codes.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> do you have this series on your radar somewhere or should Tony
+> resend the series? As it looks like it fell through the cracks somehow.
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+It wasn't, but it is now, thanks.
 
-> ---
->  drivers/rtc/rtc-da9063.c | 14 +++-----------
->  1 file changed, 3 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-> index b4e054c64bad..73b38d207d7e 100644
-> --- a/drivers/rtc/rtc-da9063.c
-> +++ b/drivers/rtc/rtc-da9063.c
-> @@ -1,15 +1,7 @@
-> -/* rtc-da9063.c - Real time clock device driver for DA9063
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Real time clock device driver for DA9063
->   * Copyright (C) 2013-2015  Dialog Semiconductor Ltd.
-> - *
-> - * This program is free software; you can redistribute it and/or
-> - * modify it under the terms of the GNU General Public License
-> - * as published by the Free Software Foundation; either version 2
-> - * of the License, or (at your option) any later version.
-> - *
-> - * This program is distributed in the hope that it will be useful,
-> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> - * GNU General Public License for more details.
->   */
->  
->  #include <linux/delay.h>
-> -- 
-> 2.11.0
-> 
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
