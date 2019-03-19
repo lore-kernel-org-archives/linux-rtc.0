@@ -1,77 +1,108 @@
-Return-Path: <SRS0=4iP+=RV=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=7wLf=RW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C9C0C10F00
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 15:57:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5096CC43381
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 07:40:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D65020989
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Mar 2019 15:57:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D1D42083D
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Mar 2019 07:40:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Z2aGIzZl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727650AbfCRP5m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 18 Mar 2019 11:57:42 -0400
-Received: from sauhun.de ([88.99.104.3]:36994 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727620AbfCRP5m (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 18 Mar 2019 11:57:42 -0400
-Received: from localhost (p54B330C6.dip0.t-ipconnect.de [84.179.48.198])
-        by pokefinder.org (Postfix) with ESMTPSA id 4F1F84A1348;
-        Mon, 18 Mar 2019 16:57:40 +0100 (CET)
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH 4/4] rtc: da9063: convert header to SPDX
-Date:   Mon, 18 Mar 2019 16:57:27 +0100
-Message-Id: <20190318155728.28365-5-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
-References: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
+        id S1726916AbfCSHkT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Mar 2019 03:40:19 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:34792 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726506AbfCSHkT (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Mar 2019 03:40:19 -0400
+Received: by mail-lf1-f66.google.com with SMTP id y18so13668694lfe.1
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Mar 2019 00:40:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/Krb4lvgEUmQBaeJqExnSd0PSKtC32SBEI1LvUN2a8U=;
+        b=Z2aGIzZln4sMYCS78oVZTPVa6WVBq+WXeJhSTKAzqlyVU4VkE5P0saObatJQrnsiVr
+         IvjNWCPbgSwQtW3qRzsA1QhFtyPI4GnCxHf6ETPCZdJlknHR/+z391N5oBd9Z0SNTm8h
+         Ng2WW2XDFRKjN3Psz6l58WGwv89W6ixlJzoGQat2gHcAtNDjHvxLNepTY6gSIjaRkz4d
+         bU7OcAWSAM3Rm2FIUk4+a87DrRh/Pll4DhL1Lm9AWEGFBde8HPARDcra0B1el6gzz7RV
+         iha1rt8Bqy4ezD1lEWk3tcWNYnkhDM7JPpBUM3sPlpz2E2w4Z/PQcvyjVqNfCfBZoy8A
+         SPqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/Krb4lvgEUmQBaeJqExnSd0PSKtC32SBEI1LvUN2a8U=;
+        b=MGJU5GZJYbtHmRTUovNp6fSRNtlJ+ffww6ZtHaY2QC7U680PFg8RZWewSKxPgakzzm
+         bYJNKts5z8HDltq8pjpVbCFI84DNpmdpLYrbFdeTrkz+L0yRd4uWEATiJBa6CebSqZgq
+         wz4QBHO2G0pINFQ0ZebwsMoWDA+y4GKYnZSxunRVrQAhu2vEMHVyFc1tQyVSoHY9wlkM
+         gO08ZWDrF80KNEJJgi11/XRu7E4kU2s3MDpRc+lpzCRj/xOQOAFmP3xW1pb8p1cw9E+n
+         qrwkDPkQdqXr/SjwdzPscx0mXwFRMzck/3aaUSAyDCXr49+7BkiSmYuuE4sE8RShBX/J
+         B2hw==
+X-Gm-Message-State: APjAAAWUzLue5m++qVxSLRdqSwDcDTJFHWlW46pRsRUsSUNuIDQJide7
+        v6PD/RBL2pAf7yFbwuw+s3hZ3w==
+X-Google-Smtp-Source: APXvYqzsipAL6j+WUlfjNTS/Q3MJ1Fr1x/2XLSNoJo7p/GNzJHSaKbJpA3gXyzWq6njaZ7IRTUGzjw==
+X-Received: by 2002:a19:f008:: with SMTP id p8mr11907006lfc.134.1552981217377;
+        Tue, 19 Mar 2019 00:40:17 -0700 (PDT)
+Received: from linux.local (c-ae7b71d5.014-348-6c756e10.bbcust.telenor.se. [213.113.123.174])
+        by smtp.gmail.com with ESMTPSA id m23sm751650lfj.89.2019.03.19.00.40.16
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 19 Mar 2019 00:40:16 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH 1/2 v2] rtc: x1205: Add DT bindings
+Date:   Tue, 19 Mar 2019 08:40:13 +0100
+Message-Id: <20190319074014.20616-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Covnert the header of the source file to SPDX.
+This adds device tree bindings for the Xircom X1205 RTC found
+in the Linksys NSLU2.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/rtc/rtc-da9063.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ChangeLog v1->v2:
+- Rebase on v5.1-rc1
+- Resend
+---
+ .../devicetree/bindings/rtc/xircom,x1205.txt         | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/xircom,x1205.txt
 
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index b4e054c64bad..73b38d207d7e 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -1,15 +1,7 @@
--/* rtc-da9063.c - Real time clock device driver for DA9063
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Real time clock device driver for DA9063
-  * Copyright (C) 2013-2015  Dialog Semiconductor Ltd.
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version 2
-- * of the License, or (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-  */
- 
- #include <linux/delay.h>
+diff --git a/Documentation/devicetree/bindings/rtc/xircom,x1205.txt b/Documentation/devicetree/bindings/rtc/xircom,x1205.txt
+new file mode 100644
+index 000000000000..3e3102a32728
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/xircom,x1205.txt
+@@ -0,0 +1,12 @@
++* Xircom X1205 I2C RTC
++
++Required properties:
++- compatible: Should be "xircom,x1205"
++- reg: I2C address
++
++Example:
++
++rtc@6f {
++	compatible = "xicor,x1205";
++	reg = <0x6f>;
++};
 -- 
-2.11.0
+2.20.1
 
