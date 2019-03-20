@@ -2,83 +2,74 @@ Return-Path: <SRS0=1ScD=RX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CCB9C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 13:32:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCD2C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 15:56:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CFA4A213F2
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 13:32:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553088721;
-	bh=1ZzFq1q8c4hJrzDVsFTmc1Txh4+0yVeduw2as9aaa2M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=UBTJAZvsRVR3NZ4KqjFp+G2M3V0VsLkUVX3XA4g5RACt0JaqTIGIVqQBBkKpNXTKe
-	 oirjolahW4UoX3F+TT6KJUmJbaKjk91Zu3iJQ6frazfF/njzzfTbPFhN0RUrFFwsKL
-	 m6unAmOvylpH4UkThZuI7gNF8QKVUwxc9Ts2TtR4=
+	by mail.kernel.org (Postfix) with ESMTP id B0C502183E
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 15:56:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726303AbfCTNcB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 09:32:01 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34244 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725905AbfCTNcB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 09:32:01 -0400
-Received: by mail-lj1-f196.google.com with SMTP id j89so2288522ljb.1;
-        Wed, 20 Mar 2019 06:32:00 -0700 (PDT)
+        id S1726437AbfCTP4O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 11:56:14 -0400
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:43698 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726295AbfCTP4O (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 11:56:14 -0400
+Received: by mail-vk1-f194.google.com with SMTP id e131so652686vkf.10;
+        Wed, 20 Mar 2019 08:56:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=1ZzFq1q8c4hJrzDVsFTmc1Txh4+0yVeduw2as9aaa2M=;
-        b=kQBY213nCxB09xtfKMcD/ct2SHU3mDR5azhhuJfbM/q5Epu0dEUHm5G0d+uEcKfrI8
-         KbyCVdBlw1aGoFy9+6EiYHXOC+++NiqyhcdcI5GLfpG/x1/AqBQeIVH3GKVEFkra/muD
-         IAbB+WUY9Xt9rJ/ABCMNaPW7srKxApS7DFqCXFzhixwLErK2U5CyAAhXEgR0WH1SdQHV
-         JEu/Z9WLEZJR7lOiJii1N72H2W1kG0yi328LDJ7qqMam+Cg32fh0yrXwAKExtXc+xyhp
-         nFsj/6i/S5Eh/K7fbCa26PAtZhLrYkd62RF09SCVitSEkZaekwmIgOELEEsiHjdicPwE
-         kV+Q==
-X-Gm-Message-State: APjAAAUg4MEMn2IbK+DskFlRrx3U9SJhKkrh4BlHgDUahnjXFXmYYHwg
-        WgLI2YxjxR9Zd4ZIriACEhkjay8w
-X-Google-Smtp-Source: APXvYqxRMii98cq3YH8ALWQrA0i4VqdQnk2KJ0enAJ7UdkXFJUcmLsDB+ic1AykUZ62QLy2KD3vy7A==
-X-Received: by 2002:a2e:8117:: with SMTP id d23mr17394104ljg.32.1553088718155;
-        Wed, 20 Mar 2019 06:31:58 -0700 (PDT)
-Received: from xi.terra (c-74bee655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.190.116])
-        by smtp.gmail.com with ESMTPSA id a11sm347838ljf.68.2019.03.20.06.31.57
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Mar 2019 06:31:57 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.91)
-        (envelope-from <johan@kernel.org>)
-        id 1h6bJx-000808-Lf; Wed, 20 Mar 2019 14:31:53 +0100
-Date:   Wed, 20 Mar 2019 14:31:53 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] rtc: omap: checkpatch cleanup
-Message-ID: <20190320133153.GH15782@localhost>
-References: <20190320124535.14606-1-alexandre.belloni@bootlin.com>
- <20190320124535.14606-3-alexandre.belloni@bootlin.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+Mdb+oQgc4x5axwACdaPzWbiRFbuV1WVXpmEIipZ8gA=;
+        b=qXX6WWbgtjwvI8qnaXNiFBE/QWDjd9awj/5gfiAAWyw7Z5sEXvHzsjVbc36GBmJtMA
+         cTZ91AC1j6J5qFo1KuoXoM+oPbuFpudRROsoSdwipVIgUJxJH+0kJtzCX1nkhH+gu2Zl
+         aFECrDjnLZ4ZH9XdICKCebeNwTz6KhvTB4oES8xRjvMMj1Uh7RcYUdJSFy15LPMWJMGP
+         XKrSXW4l81budBX13s1Xpb+6qgS88cnxEaqwOxrFqxRX+igglGM5/OWzAqQ2z3lwsJZ7
+         Qf0umxVabU3AquxGorxU2a7ApcBubtyli2ll4kI+0mj5nNqyta0VFP+E3Wa41P3a1I2W
+         hzhQ==
+X-Gm-Message-State: APjAAAXGtZnGdyW2bwC0h7I0geuE630WXdA0gFz71C7H6CX1wukBFUbk
+        es7cfsh/7yAUw5CoCD+jeTTM3kjeV5JDdr5W8HtB84Sv
+X-Google-Smtp-Source: APXvYqz9Wmj5TDklQBDDckh16W9dImbO+OZgWEOBnP3chD1aK+e2/TjElG2GLK3NxRO9MVsHHBOPqQDttNttCNg3myE=
+X-Received: by 2002:a1f:be81:: with SMTP id o123mr5216993vkf.83.1553097373061;
+ Wed, 20 Mar 2019 08:56:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190320124535.14606-3-alexandre.belloni@bootlin.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190320124428.14445-1-alexandre.belloni@bootlin.com> <20190320124428.14445-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <20190320124428.14445-2-alexandre.belloni@bootlin.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 20 Mar 2019 16:56:01 +0100
+Message-ID: <CAMuHMdUV6Vd8DqRLwQFwsCRWR=Jy_-LWvKjXXyRGKC0j5JgtgQ@mail.gmail.com>
+Subject: Re: [PATCH 2/4] rtc: ps3: convert to SPDX identifier
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Mar 20, 2019 at 01:45:35PM +0100, Alexandre Belloni wrote:
-> Properly align code with opening parenthesis.
+On Wed, Mar 20, 2019 at 1:46 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+> Use SPDX-License-Identifier instead of a verbose license text.
+>
+> The original text refers to version 2 so also update MODULE_LICENSE() to
+> "GPL v2" instead of "GPL".
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-FWIW, this is a checkpatch --strict warning you're addressing, and not
-something that is enforced by the coding standard.
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Indenting continuation lines at least two tabs further conforms with the
-coding style which says to indent lines substantially to the right (and
-you don't have to run around realigning things should a function call be
-renamed, etc).
+Gr{oetje,eeting}s,
 
-But your call.
+                        Geert
 
-Johan
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
