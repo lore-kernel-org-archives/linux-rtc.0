@@ -4,31 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F2DAC43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E032DC43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EDC6E2184D
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE5232184D
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbfCTMdJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 08:33:09 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:46383 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727524AbfCTMdI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:33:08 -0400
+        id S1727867AbfCTMdG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 08:33:06 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:34855 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727524AbfCTMdF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:33:05 -0400
+X-Originating-IP: 182.72.246.220
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id E11BA100009;
-        Wed, 20 Mar 2019 12:33:05 +0000 (UTC)
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id A804BE0007;
+        Wed, 20 Mar 2019 12:33:02 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 7/7] rtc: xgene: use .set_time
-Date:   Wed, 20 Mar 2019 13:32:33 +0100
-Message-Id: <20190320123233.13519-7-alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/7] rtc: xgene: switch to rtc_time64_to_tm/rtc_tm_to_time64
+Date:   Wed, 20 Mar 2019 13:32:32 +0100
+Message-Id: <20190320123233.13519-6-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190320123233.13519-1-alexandre.belloni@bootlin.com>
 References: <20190320123233.13519-1-alexandre.belloni@bootlin.com>
@@ -39,44 +40,48 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use .set_time instead of the deprecated .set_mmss.
+Call the 64bit versions of rtc_tm time conversion as the range is enforced
+by the core.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-xgene.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-xgene.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-index aef338428668..9888383f0088 100644
+index 6f7d7648a9bd..aef338428668 100644
 --- a/drivers/rtc/rtc-xgene.c
 +++ b/drivers/rtc/rtc-xgene.c
-@@ -49,7 +49,7 @@ static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int xgene_rtc_set_mmss(struct device *dev, unsigned long secs)
-+static int xgene_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -45,7 +45,7 @@ static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
  	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
  
-@@ -57,7 +57,7 @@ static int xgene_rtc_set_mmss(struct device *dev, unsigned long secs)
- 	 * NOTE: After the following write, the RTC_CCVR is only reflected
- 	 *       after the update cycle of 1 seconds.
- 	 */
--	writel((u32)secs, pdata->csr_base + RTC_CLR);
-+	writel((u32)rtc_tm_to_time64(tm), pdata->csr_base + RTC_CLR);
- 	readl(pdata->csr_base + RTC_CLR); /* Force a barrier */
+-	rtc_time_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
++	rtc_time64_to_tm(readl(pdata->csr_base + RTC_CCVR), tm);
+ 	return 0;
+ }
+ 
+@@ -68,7 +68,7 @@ static int xgene_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+ 
+ 	/* If possible, CMR should be read here */
+-	rtc_time_to_tm(0, &alrm->time);
++	rtc_time64_to_tm(0, &alrm->time);
+ 	alrm->enabled = readl(pdata->csr_base + RTC_CCR) & RTC_CCR_IE;
  
  	return 0;
-@@ -112,7 +112,7 @@ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -102,10 +102,8 @@ static int xgene_rtc_alarm_irq_enabled(struct device *dev)
+ static int xgene_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+-	unsigned long alarm_time;
  
- static const struct rtc_class_ops xgene_rtc_ops = {
- 	.read_time	= xgene_rtc_read_time,
--	.set_mmss	= xgene_rtc_set_mmss,
-+	.set_time	= xgene_rtc_set_time,
- 	.read_alarm	= xgene_rtc_read_alarm,
- 	.set_alarm	= xgene_rtc_set_alarm,
- 	.alarm_irq_enable = xgene_rtc_alarm_irq_enable,
+-	rtc_tm_to_time(&alrm->time, &alarm_time);
+-	writel((u32)alarm_time, pdata->csr_base + RTC_CMR);
++	writel((u32)rtc_tm_to_time64(&alrm->time), pdata->csr_base + RTC_CMR);
+ 
+ 	xgene_rtc_alarm_irq_enable(dev, alrm->enabled);
+ 
 -- 
 2.20.1
 
