@@ -3,33 +3,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0612EC43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:43:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5300C4360F
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:43:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D2014213F2
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:43:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E797213F2
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:43:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbfCTMnl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 08:43:41 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:48677 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbfCTMnl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:43:41 -0400
+        id S1727361AbfCTMnv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 08:43:51 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:40643 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726239AbfCTMnv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:43:51 -0400
+X-Originating-IP: 182.72.246.220
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id D9EF9240004;
-        Wed, 20 Mar 2019 12:43:38 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 5F5D724000D;
+        Wed, 20 Mar 2019 12:43:48 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/4] rtc: dm355evm: convert to devm_rtc_allocate_device
-Date:   Wed, 20 Mar 2019 13:43:32 +0100
-Message-Id: <20190320124335.14330-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/4] rtc: dm355evm: convert to SPDX identifier
+Date:   Wed, 20 Mar 2019 13:43:35 +0100
+Message-Id: <20190320124335.14330-4-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190320124335.14330-1-alexandre.belloni@bootlin.com>
+References: <20190320124335.14330-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -37,40 +40,31 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver.
+Use SPDX-License-Identifier instead of a verbose license text
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-dm355evm.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-dm355evm.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
-index 97d8259b9494..d44bf3929898 100644
+index 3fee96c19a5d..cd947a20843b 100644
 --- a/drivers/rtc/rtc-dm355evm.c
 +++ b/drivers/rtc/rtc-dm355evm.c
-@@ -127,16 +127,15 @@ static int dm355evm_rtc_probe(struct platform_device *pdev)
- {
- 	struct rtc_device *rtc;
- 
--	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&dm355evm_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc)) {
--		dev_err(&pdev->dev, "can't register RTC device, err %ld\n",
--			PTR_ERR(rtc));
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
--	}
-+
- 	platform_set_drvdata(pdev, rtc);
- 
--	return 0;
-+	rtc->ops = &dm355evm_rtc_ops;
-+
-+	return rtc_register_device(rtc);
- }
- 
+@@ -1,12 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0+
  /*
+  * rtc-dm355evm.c - access battery-backed counter in MSP430 firmware
+  *
+  * Copyright (c) 2008 by David Brownell
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+  */
+ #include <linux/kernel.h>
+ #include <linux/init.h>
 -- 
 2.20.1
 
