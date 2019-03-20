@@ -3,36 +3,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B592C4360F
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DCF6C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:34:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE0B12184D
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:33:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EFB02184D
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 12:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727701AbfCTMcz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 08:32:55 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:44465 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727524AbfCTMcy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:32:54 -0400
-X-Originating-IP: 182.72.246.220
+        id S1727222AbfCTMeY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 08:34:24 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:49149 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727028AbfCTMeY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 08:34:24 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id F28991BF206;
-        Wed, 20 Mar 2019 12:32:51 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id C3317200013;
+        Wed, 20 Mar 2019 12:34:21 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/7] rtc: xgene: convert to SPDX identifier
-Date:   Wed, 20 Mar 2019 13:32:29 +0100
-Message-Id: <20190320123233.13519-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/6] rtc: goldfish: convert to devm_rtc_allocate_device
+Date:   Wed, 20 Mar 2019 13:34:12 +0100
+Message-Id: <20190320123417.13724-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190320123233.13519-1-alexandre.belloni@bootlin.com>
-References: <20190320123233.13519-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -40,42 +37,41 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use SPDX-License-Identifier instead of a verbose license text.
+This allows further improvement of the driver.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-xgene.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ drivers/rtc/rtc-goldfish.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-index e360f8917556..ba9121d02f02 100644
---- a/drivers/rtc/rtc-xgene.c
-+++ b/drivers/rtc/rtc-xgene.c
-@@ -1,23 +1,10 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * APM X-Gene SoC Real Time Clock Driver
-  *
-  * Copyright (c) 2014, Applied Micro Circuits Corporation
-  * Author: Rameshwar Prasad Sahu <rsahu@apm.com>
-  *         Loc Ho <lho@apm.com>
-- *
-- * This program is free software; you can redistribute  it and/or modify it
-- * under  the terms of  the GNU General  Public License as published by the
-- * Free Software Foundation;  either version 2 of the  License, or (at your
-- * option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-- *
-  */
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index a1c44d0c8557..d4cb33f209fb 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -205,19 +205,19 @@ static int goldfish_rtc_probe(struct platform_device *pdev)
+ 	if (rtcdrv->irq < 0)
+ 		return -ENODEV;
  
- #include <linux/init.h>
+-	rtcdrv->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					       &goldfish_rtc_ops,
+-					       THIS_MODULE);
++	rtcdrv->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtcdrv->rtc))
+ 		return PTR_ERR(rtcdrv->rtc);
+ 
++	rtcdrv->rtc->ops = &goldfish_rtc_ops;
++
+ 	err = devm_request_irq(&pdev->dev, rtcdrv->irq,
+ 			       goldfish_rtc_interrupt,
+ 			       0, pdev->name, rtcdrv);
+ 	if (err)
+ 		return err;
+ 
+-	return 0;
++	return rtc_register_device(rtcdrv->rtc);
+ }
+ 
+ static const struct of_device_id goldfish_rtc_of_match[] = {
 -- 
 2.20.1
 
