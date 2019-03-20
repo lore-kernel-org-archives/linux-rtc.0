@@ -2,74 +2,61 @@ Return-Path: <SRS0=1ScD=RX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCD2C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 15:56:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A105C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 19:20:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0C502183E
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 15:56:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09D2B21873
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 19:19:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbfCTP4O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 11:56:14 -0400
-Received: from mail-vk1-f194.google.com ([209.85.221.194]:43698 "EHLO
-        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726295AbfCTP4O (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 11:56:14 -0400
-Received: by mail-vk1-f194.google.com with SMTP id e131so652686vkf.10;
-        Wed, 20 Mar 2019 08:56:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+Mdb+oQgc4x5axwACdaPzWbiRFbuV1WVXpmEIipZ8gA=;
-        b=qXX6WWbgtjwvI8qnaXNiFBE/QWDjd9awj/5gfiAAWyw7Z5sEXvHzsjVbc36GBmJtMA
-         cTZ91AC1j6J5qFo1KuoXoM+oPbuFpudRROsoSdwipVIgUJxJH+0kJtzCX1nkhH+gu2Zl
-         aFECrDjnLZ4ZH9XdICKCebeNwTz6KhvTB4oES8xRjvMMj1Uh7RcYUdJSFy15LPMWJMGP
-         XKrSXW4l81budBX13s1Xpb+6qgS88cnxEaqwOxrFqxRX+igglGM5/OWzAqQ2z3lwsJZ7
-         Qf0umxVabU3AquxGorxU2a7ApcBubtyli2ll4kI+0mj5nNqyta0VFP+E3Wa41P3a1I2W
-         hzhQ==
-X-Gm-Message-State: APjAAAXGtZnGdyW2bwC0h7I0geuE630WXdA0gFz71C7H6CX1wukBFUbk
-        es7cfsh/7yAUw5CoCD+jeTTM3kjeV5JDdr5W8HtB84Sv
-X-Google-Smtp-Source: APXvYqz9Wmj5TDklQBDDckh16W9dImbO+OZgWEOBnP3chD1aK+e2/TjElG2GLK3NxRO9MVsHHBOPqQDttNttCNg3myE=
-X-Received: by 2002:a1f:be81:: with SMTP id o123mr5216993vkf.83.1553097373061;
- Wed, 20 Mar 2019 08:56:13 -0700 (PDT)
+        id S1726830AbfCTTT7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 15:19:59 -0400
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:39685 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726823AbfCTTT7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 15:19:59 -0400
+X-Originating-IP: 202.65.158.108
+Received: from localhost (unknown [202.65.158.108])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id E0D631C0005;
+        Wed, 20 Mar 2019 19:19:55 +0000 (UTC)
+Date:   Wed, 20 Mar 2019 20:19:53 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 4/4] rtc: da9063: convert header to SPDX
+Message-ID: <20190320191953.GR29054@piout.net>
+References: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
+ <20190318155728.28365-5-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-References: <20190320124428.14445-1-alexandre.belloni@bootlin.com> <20190320124428.14445-2-alexandre.belloni@bootlin.com>
-In-Reply-To: <20190320124428.14445-2-alexandre.belloni@bootlin.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 20 Mar 2019 16:56:01 +0100
-Message-ID: <CAMuHMdUV6Vd8DqRLwQFwsCRWR=Jy_-LWvKjXXyRGKC0j5JgtgQ@mail.gmail.com>
-Subject: Re: [PATCH 2/4] rtc: ps3: convert to SPDX identifier
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190318155728.28365-5-wsa+renesas@sang-engineering.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Mar 20, 2019 at 1:46 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> Use SPDX-License-Identifier instead of a verbose license text.
->
-> The original text refers to version 2 so also update MODULE_LICENSE() to
-> "GPL v2" instead of "GPL".
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
+On 18/03/2019 16:57:27+0100, Wolfram Sang wrote:
+> Covnert the header of the source file to SPDX.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/rtc/rtc-da9063.c | 14 +++-----------
+>  1 file changed, 3 insertions(+), 11 deletions(-)
+> 
+Applied, thanks.
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
