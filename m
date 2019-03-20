@@ -6,76 +6,62 @@ X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B310C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 10:38:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90485C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 10:38:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F0C602184E
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 10:38:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B2852186A
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Mar 2019 10:38:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbfCTKiM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Mar 2019 06:38:12 -0400
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:50109 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726506AbfCTKiM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 06:38:12 -0400
-X-Originating-IP: 182.72.246.220
+        id S1727867AbfCTKie (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Mar 2019 06:38:34 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:38991 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727828AbfCTKid (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Mar 2019 06:38:33 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 16496C0013;
-        Wed, 20 Mar 2019 10:38:08 +0000 (UTC)
-Date:   Wed, 20 Mar 2019 11:38:05 +0100
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 94FAC100012;
+        Wed, 20 Mar 2019 10:38:30 +0000 (UTC)
+Date:   Wed, 20 Mar 2019 11:38:27 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Stephen Boyd <swboyd@chromium.org>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Evan Green <evgreen@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>
-Subject: Re: [PATCH] rtc: cros-ec: Fail suspend/resume if wake IRQ can't be
- configured
-Message-ID: <20190320103805.GN29054@piout.net>
-References: <20190315185112.97699-1-swboyd@chromium.org>
+        Chris Brandt <chris.brandt@renesas.com>,
+        linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] rtc: sh: Fix invalid alarm warning for non-enabled alarm
+Message-ID: <20190320103827.GO29054@piout.net>
+References: <20190320103214.20394-1-geert+renesas@glider.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190315185112.97699-1-swboyd@chromium.org>
+In-Reply-To: <20190320103214.20394-1-geert+renesas@glider.be>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 15/03/2019 11:51:12-0700, Stephen Boyd wrote:
-> If we encounter a failure during suspend where this RTC was programmed
-> to wakeup the system from suspend, but that wakeup couldn't be
-> configured because the system didn't support wakeup interrupts, we'll
-> run into the following warning:
+On 20/03/2019 11:32:14+0100, Geert Uytterhoeven wrote:
+> When no alarm has been programmed on RSK-RZA1, an error message is
+> printed during boot:
 > 
-> 	Unbalanced IRQ 166 wake disable
-> 	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
+>     rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
 > 
-> This happens because the suspend process isn't aborted when the RTC
-> fails to configure the wakeup IRQ. Instead, we continue suspending the
-> system and then another suspend callback fails the suspend process and
-> "unwinds" the previously suspended drivers by calling their resume
-> callbacks. When we get back to resuming this RTC driver, we'll call
-> disable_irq_wake() on an IRQ that hasn't been configured for wake.
+> sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
+> field that is not enabled.  __rtc_read_alarm() validates the received
+> alarm values, and fills in missing fields when needed.
+> While 0xff is handled fine for the year, month, and day fields, and
+> corrected as considered being out-of-range, this is not the case for the
+> hour, minute, and second fields, where -1 is expected for missing
+> fields.
 > 
-> Let's just fail suspend/resume here if we can't configure the system to
-> wake and the user has chosen to wakeup with this device. This fixes this
-> warning and makes the code more robust in case there are systems out
-> there that can't wakeup from suspend on this line but the user has
-> chosen to do so.
+> Fix this by returning -1 instead, as this value is handled fine for all
+> fields.
 > 
-> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Cc: Evan Green <evgreen@chromium.org>
-> Cc: Benson Leung <bleung@chromium.org>
-> Cc: Guenter Roeck <groeck@chromium.org>
-> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > ---
->  drivers/rtc/rtc-cros-ec.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/rtc/rtc-sh.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 Applied, thanks.
 
