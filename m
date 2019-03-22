@@ -4,31 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D796C4360F
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 369ABC43381
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D928821916
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F32F22190A
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727578AbfCVHNt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Mar 2019 03:13:49 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:41617 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727680AbfCVHNr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:13:47 -0400
+        id S1727711AbfCVHNq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Mar 2019 03:13:46 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:50135 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728043AbfCVHNn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:13:43 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id B7F5D240004;
-        Fri, 22 Mar 2019 07:13:44 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 5CDC5200003;
+        Fri, 22 Mar 2019 07:13:41 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/4] rtc: wm831x: convert to SPDX identifier
-Date:   Fri, 22 Mar 2019 08:13:28 +0100
-Message-Id: <20190322071328.16123-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 3/4] rtc: wm831x: switch to rtc_time64_to_tm/rtc_tm_to_time64
+Date:   Fri, 22 Mar 2019 08:13:27 +0100
+Message-Id: <20190322071328.16123-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190322071328.16123-1-alexandre.belloni@bootlin.com>
 References: <20190322071328.16123-1-alexandre.belloni@bootlin.com>
@@ -39,34 +39,62 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use SPDX-License-Identifier instead of a verbose license text.
+Call the 64bit versions of rtc_tm time conversion now that the range is
+enforced by the core.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-wm831x.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/rtc/rtc-wm831x.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
-index d286dd1dfcf9..6a0defd16088 100644
+index 1b0c3b3f63e8..d286dd1dfcf9 100644
 --- a/drivers/rtc/rtc-wm831x.c
 +++ b/drivers/rtc/rtc-wm831x.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  *	Real Time Clock driver for Wolfson Microelectronics WM831x
-  *
-@@ -5,11 +6,6 @@
-  *
-  *  Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
-  *
-- *  This program is free software; you can redistribute  it and/or modify it
-- *  under  the terms of  the GNU General  Public License as published by the
-- *  Free Software Foundation;  either version 2 of the  License, or (at your
-- *  option) any later version.
-- *
-  */
+@@ -155,7 +155,7 @@ static int wm831x_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ 		if (memcmp(time1, time2, sizeof(time1)) == 0) {
+ 			u32 time = (time1[0] << 16) | time1[1];
  
- #include <linux/module.h>
+-			rtc_time_to_tm(time, tm);
++			rtc_time64_to_tm(time, tm);
+ 			return 0;
+ 		}
+ 
+@@ -215,11 +215,7 @@ static int wm831x_rtc_set_mmss(struct device *dev, unsigned long time)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = rtc_tm_to_time(&new_tm, &new_time);
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to convert time: %d\n", ret);
+-		return ret;
+-	}
++	new_time = rtc_tm_to_time64(&new_tm);
+ 
+ 	/* Allow a second of change in case of tick */
+ 	if (new_time - time > 1) {
+@@ -249,7 +245,7 @@ static int wm831x_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	time = (data[0] << 16) | data[1];
+ 
+-	rtc_time_to_tm(time, &alrm->time);
++	rtc_time64_to_tm(time, &alrm->time);
+ 
+ 	ret = wm831x_reg_read(wm831x_rtc->wm831x, WM831X_RTC_CONTROL);
+ 	if (ret < 0) {
+@@ -288,11 +284,7 @@ static int wm831x_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	int ret;
+ 	unsigned long time;
+ 
+-	ret = rtc_tm_to_time(&alrm->time, &time);
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to convert time: %d\n", ret);
+-		return ret;
+-	}
++	time = rtc_tm_to_time64(&alrm->time);
+ 
+ 	ret = wm831x_rtc_stop_alarm(wm831x_rtc);
+ 	if (ret < 0) {
 -- 
 2.20.1
 
