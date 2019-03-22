@@ -2,65 +2,74 @@ Return-Path: <SRS0=8ZG9=RZ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67406C43381
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 06:35:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86EA4C43381
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3821521902
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 06:35:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FFEB218FE
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:13:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727429AbfCVGfW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Mar 2019 02:35:22 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:56249 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726460AbfCVGfV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 02:35:21 -0400
+        id S1726091AbfCVHNm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Mar 2019 03:13:42 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:35073 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727716AbfCVHNl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:13:41 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id E3B1D100006;
-        Fri, 22 Mar 2019 06:35:18 +0000 (UTC)
-Date:   Fri, 22 Mar 2019 07:35:13 +0100
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 26748200003;
+        Fri, 22 Mar 2019 07:13:37 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] rtc: omap: checkpatch cleanup
-Message-ID: <20190322063513.GX29054@piout.net>
-References: <20190320124535.14606-1-alexandre.belloni@bootlin.com>
- <20190320124535.14606-3-alexandre.belloni@bootlin.com>
- <20190320133153.GH15782@localhost>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/4] rtc: wm831x: remove unnecessary goto
+Date:   Fri, 22 Mar 2019 08:13:26 +0100
+Message-Id: <20190322071328.16123-2-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190322071328.16123-1-alexandre.belloni@bootlin.com>
+References: <20190322071328.16123-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190320133153.GH15782@localhost>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 20/03/2019 14:31:53+0100, Johan Hovold wrote:
-> On Wed, Mar 20, 2019 at 01:45:35PM +0100, Alexandre Belloni wrote:
-> > Properly align code with opening parenthesis.
-> 
-> FWIW, this is a checkpatch --strict warning you're addressing, and not
-> something that is enforced by the coding standard.
-> 
-> Indenting continuation lines at least two tabs further conforms with the
-> coding style which says to indent lines substantially to the right (and
-> you don't have to run around realigning things should a function call be
-> renamed, etc).
-> 
-> But your call.
-> 
+There is no specific handling in the error path of wm831x_rtc_probe, remove
+the unnecessary goto and label.
 
-That's fine, I can drop that one.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-wm831x.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-> Johan
-
+diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
+index deaffe0eaf2f..1b0c3b3f63e8 100644
+--- a/drivers/rtc/rtc-wm831x.c
++++ b/drivers/rtc/rtc-wm831x.c
+@@ -429,7 +429,7 @@ static int wm831x_rtc_probe(struct platform_device *pdev)
+ 	ret = wm831x_reg_read(wm831x, WM831X_RTC_CONTROL);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Failed to read RTC control: %d\n", ret);
+-		goto err;
++		return ret;
+ 	}
+ 	if (ret & WM831X_RTC_ALM_ENA)
+ 		wm831x_rtc->alarm_enabled = 1;
+@@ -459,9 +459,6 @@ static int wm831x_rtc_probe(struct platform_device *pdev)
+ 	wm831x_rtc_add_randomness(wm831x);
+ 
+ 	return 0;
+-
+-err:
+-	return ret;
+ }
+ 
+ static const struct dev_pm_ops wm831x_rtc_pm_ops = {
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
