@@ -4,32 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE31C43381
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:14:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 554EBC43381
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:16:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0413820830
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:14:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 31E3420830
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:16:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728029AbfCVHNj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Mar 2019 03:13:39 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:58103 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727931AbfCVHNi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:13:38 -0400
-X-Originating-IP: 182.72.246.220
+        id S1727763AbfCVHQS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Mar 2019 03:16:18 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:54979 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727574AbfCVHQS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:16:18 -0400
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id BD19120004;
-        Fri, 22 Mar 2019 07:13:34 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id BF233100002;
+        Fri, 22 Mar 2019 07:16:15 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
+Cc:     linux-kernel@vger.kernel.org, patches@opensource.cirrus.com,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Subject: [PATCH 1/4] rtc: wm831x: set range
-Date:   Fri, 22 Mar 2019 08:13:25 +0100
-Message-Id: <20190322071328.16123-1-alexandre.belloni@bootlin.com>
+Date:   Fri, 22 Mar 2019 08:16:08 +0100
+Message-Id: <20190322071611.16407-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
