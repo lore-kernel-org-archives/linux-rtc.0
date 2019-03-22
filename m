@@ -6,33 +6,31 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6580DC43381
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:16:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69365C43381
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:23:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 40B73218FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:16:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 344DC206C0
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Mar 2019 07:23:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727844AbfCVHQh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Mar 2019 03:16:37 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:34261 "EHLO
+        id S1726091AbfCVHXE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Mar 2019 03:23:04 -0400
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:52047 "EHLO
         relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727574AbfCVHQh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:16:37 -0400
+        with ESMTP id S1726054AbfCVHXD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Mar 2019 03:23:03 -0400
 X-Originating-IP: 182.72.246.220
 Received: from localhost (unknown [182.72.246.220])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 0FC9C4000A;
-        Fri, 22 Mar 2019 07:16:34 +0000 (UTC)
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id EAA0E40008;
+        Fri, 22 Mar 2019 07:23:00 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, patches@opensource.cirrus.com,
+To:     linux-rtc@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/4] rtc: wm831x: convert to SPDX identifier
-Date:   Fri, 22 Mar 2019 08:16:11 +0100
-Message-Id: <20190322071611.16407-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: sun4v: switch to rtc_time64_to_tm/rtc_tm_to_time64
+Date:   Fri, 22 Mar 2019 08:22:54 +0100
+Message-Id: <20190322072256.17108-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190322071611.16407-1-alexandre.belloni@bootlin.com>
-References: <20190322071611.16407-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -40,34 +38,43 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use SPDX-License-Identifier instead of a verbose license text.
+Call the 64bit versions of rtc_tm time conversion as the hypervisor handles
+64bit values.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-wm831x.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/rtc/rtc-sun4v.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
-index d286dd1dfcf9..6a0defd16088 100644
---- a/drivers/rtc/rtc-wm831x.c
-+++ b/drivers/rtc/rtc-wm831x.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  *	Real Time Clock driver for Wolfson Microelectronics WM831x
-  *
-@@ -5,11 +6,6 @@
-  *
-  *  Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
-  *
-- *  This program is free software; you can redistribute  it and/or modify it
-- *  under  the terms of  the GNU General  Public License as published by the
-- *  Free Software Foundation;  either version 2 of the  License, or (at your
-- *  option) any later version.
-- *
-  */
+diff --git a/drivers/rtc/rtc-sun4v.c b/drivers/rtc/rtc-sun4v.c
+index 11bc562eba5d..378081fffa91 100644
+--- a/drivers/rtc/rtc-sun4v.c
++++ b/drivers/rtc/rtc-sun4v.c
+@@ -39,7 +39,7 @@ static unsigned long hypervisor_get_time(void)
  
- #include <linux/module.h>
+ static int sun4v_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	rtc_time_to_tm(hypervisor_get_time(), tm);
++	rtc_time64_to_tm(hypervisor_get_time(), tm);
+ 	return 0;
+ }
+ 
+@@ -66,14 +66,7 @@ static int hypervisor_set_time(unsigned long secs)
+ 
+ static int sun4v_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	unsigned long secs;
+-	int err;
+-
+-	err = rtc_tm_to_time(tm, &secs);
+-	if (err)
+-		return err;
+-
+-	return hypervisor_set_time(secs);
++	return hypervisor_set_time(rtc_tm_to_time64(tm));
+ }
+ 
+ static const struct rtc_class_ops sun4v_rtc_ops = {
 -- 
 2.20.1
 
