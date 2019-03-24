@@ -2,53 +2,57 @@ Return-Path: <SRS0=Wt1T=R3=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57EB2C4360F
-	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 01:34:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3BF4C43381
+	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:25:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F4E52171F
-	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 01:34:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2288222D0
+	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:25:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbfCXBe4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 23 Mar 2019 21:34:56 -0400
-Received: from shards.monkeyblade.net ([23.128.96.9]:35172 "EHLO
-        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727628AbfCXBe4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 23 Mar 2019 21:34:56 -0400
-Received: from localhost (unknown [50.233.106.125])
-        (using TLSv1 with cipher AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id EC10114B479D1;
-        Sat, 23 Mar 2019 18:34:55 -0700 (PDT)
-Date:   Sat, 23 Mar 2019 21:34:55 -0400 (EDT)
-Message-Id: <20190323.213455.801840519766050309.davem@davemloft.net>
-To:     alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] rtc: sun4v: switch to SPDX identifier
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20190322072256.17108-3-alexandre.belloni@bootlin.com>
-References: <20190322072256.17108-1-alexandre.belloni@bootlin.com>
-        <20190322072256.17108-3-alexandre.belloni@bootlin.com>
-X-Mailer: Mew version 6.8 on Emacs 26.1
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Sat, 23 Mar 2019 18:34:56 -0700 (PDT)
+        id S1726743AbfCXNZU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 24 Mar 2019 09:25:20 -0400
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:50559 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726090AbfCXNZU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 24 Mar 2019 09:25:20 -0400
+X-Originating-IP: 86.202.231.219
+Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 86DC31C0003;
+        Sun, 24 Mar 2019 13:25:17 +0000 (UTC)
+Date:   Sun, 24 Mar 2019 14:25:17 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: Fix timestamp value for RTC_TIMESTAMP_BEGIN_1900
+Message-ID: <20190324132517.GF30105@piout.net>
+References: <20190322072612.27637-1-geert+renesas@glider.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190322072612.27637-1-geert+renesas@glider.be>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Date: Fri, 22 Mar 2019 08:22:56 +0100
-
-> Use SPDX-License-Identifier to be clearer on the license. Choose the v2
-> only as this is the default Linux license.
+On 22/03/2019 08:26:12+0100, Geert Uytterhoeven wrote:
+> Printing "mktime64(1900, 1, 1, 0, 0, 0)" gives -2208988800.
 > 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Fixes: 83bbc5ac63326433 ("rtc: Add useful timestamp definitions")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  include/linux/rtc.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+Applied, thanks.
 
-Acked-by: David S. Miller <davem@davemloft.net>
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
