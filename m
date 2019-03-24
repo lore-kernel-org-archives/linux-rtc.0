@@ -3,57 +3,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DC92C43381
-	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10E59C43381
+	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:39:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 047CC222D6
-	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:36:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DACAB222D6
+	for <linux-rtc@archiver.kernel.org>; Sun, 24 Mar 2019 13:39:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbfCXNgI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 24 Mar 2019 09:36:08 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:43143 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726963AbfCXNgI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 24 Mar 2019 09:36:08 -0400
-X-Originating-IP: 86.202.231.219
+        id S1727249AbfCXNji (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 24 Mar 2019 09:39:38 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:42595 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726970AbfCXNji (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 24 Mar 2019 09:39:38 -0400
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id BB5B920005;
-        Sun, 24 Mar 2019 13:36:03 +0000 (UTC)
-Date:   Sun, 24 Mar 2019 14:36:03 +0100
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 95527100004;
+        Sun, 24 Mar 2019 13:39:34 +0000 (UTC)
+Date:   Sun, 24 Mar 2019 14:39:34 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Yue Haibing <yuehaibing@huawei.com>
-Cc:     benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au,
-        a.zummo@towertech.it, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH -next] rtc: opal: Make opal_tpo_alarm_irq_enable static
-Message-ID: <20190324133603.GG30105@piout.net>
-References: <20190319152531.10380-1-yuehaibing@huawei.com>
+To:     Pi-Hsun Shih <pihsun@chromium.org>
+Cc:     Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "moderated list:ARM/Mediatek RTC DRIVER" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek RTC DRIVER" 
+        <linux-mediatek@lists.infradead.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mfd: mt6397: Don't call irq_dispose_mapping.
+Message-ID: <20190324133934.GH30105@piout.net>
+References: <20190311075540.26117-1-pihsun@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190319152531.10380-1-yuehaibing@huawei.com>
+In-Reply-To: <20190311075540.26117-1-pihsun@chromium.org>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 19/03/2019 23:25:31+0800, Yue Haibing wrote:
-> From: YueHaibing <yuehaibing@huawei.com>
+On 11/03/2019 15:55:40+0800, Pi-Hsun Shih wrote:
+> The IRQ mapping was changed to not being created in the rtc-mt6397
+> driver, so the irq_dispose_mapping is no longer needed.
+> Also the dev_id passed to free_irq should be the same as the last
+> argument passed to request_threaded_irq.
+> This prevents a "Trying to free already-free IRQ 274" warning when
+> unbinding the driver.
 > 
-> Fix sparse warning:
+> Fixes: e695d3a0b3b3 ("mfd: mt6397: Create irq mappings in mfd core driver")
+> Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
 > 
-> drivers/rtc/rtc-opal.c:227:5:
->  warning: symbol 'opal_tpo_alarm_irq_enable' was not declared. Should it be static?
-> 
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 > ---
->  drivers/rtc/rtc-opal.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/rtc/rtc-mt6397.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
 > 
 Applied, thanks.
 
