@@ -2,83 +2,92 @@ Return-Path: <SRS0=dQwf=R6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF7A8C43381
-	for <linux-rtc@archiver.kernel.org>; Wed, 27 Mar 2019 01:01:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC59C43381
+	for <linux-rtc@archiver.kernel.org>; Wed, 27 Mar 2019 01:02:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 72DF2213A2
-	for <linux-rtc@archiver.kernel.org>; Wed, 27 Mar 2019 01:01:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C20B52075D
+	for <linux-rtc@archiver.kernel.org>; Wed, 27 Mar 2019 01:02:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=jms.id.au header.i=@jms.id.au header.b="ek5Myra+"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sF8zuIRl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731619AbfC0BBK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 26 Mar 2019 21:01:10 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:36026 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727483AbfC0BBK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Mar 2019 21:01:10 -0400
-Received: by mail-qt1-f193.google.com with SMTP id s15so1314223qtn.3;
-        Tue, 26 Mar 2019 18:01:09 -0700 (PDT)
+        id S1731579AbfC0BC1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Mar 2019 21:02:27 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37163 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727483AbfC0BC1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Mar 2019 21:02:27 -0400
+Received: by mail-pl1-f195.google.com with SMTP id q6so2455606pll.4;
+        Tue, 26 Mar 2019 18:02:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4CYNiiTq27LSC7CmrQxd8C5l8JugQDNFvrmLLbjg0BY=;
-        b=ek5Myra+P+7avo3KGo29GiTQrn9iTHcMPnbyyPrWWwMzcP/I7RLpiCy7DzInQ6Rgs3
-         jG2EAYlwlttbJ22hW5x2S07zMHSlbV/KzvLMsi0Q6AOIzklyCZRZzkjfoWdR7T/TSFC+
-         MyEA/Addi1grtOngu/6qLyafzuWLOIvU9haiQ=
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=rNANlHwOGEgCnrWo9ynabKqHn9FlqsmS+h6Qq3AFCHE=;
+        b=sF8zuIRlxeUPfduxRC33yGpETr6K61hgOFS8YZqLt/G7SLLC/pZuqjsaIs1FdzzsSP
+         yJuEAg21qqghxKapvUGSP8+pbYLVn9RjXA7zk0RFKhjXM/4QqW+mVHn3Fng0taTqwSTh
+         H8C92EzDo5kkVJVf1hV/2uZmrDYCOZXvXPiAiS5MjGF60LJv298Qf9BblINpdf7J1DRO
+         sjBTIMJaON/u8KpikcCIvMxCOOeCupK60YhmDiX5yvRKcQy6eZQb/zqSBjto2CFFq/6D
+         erIIAoC3uIbkOKhHib48bXZv/mEfCH4U3g0MyqojPhdsKhd9lrGMX/KYBWH8fgCOTy/b
+         oGNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4CYNiiTq27LSC7CmrQxd8C5l8JugQDNFvrmLLbjg0BY=;
-        b=hAxI4wY5zZYp4xxgELxxlDbVY+uHnpv2kygO2SKxL8SOQF7CdeprqiERA8r7KRE3TU
-         7Beay0EfZaKdQJl4cnR3UmtfOlzuIIktMGlR2AsZi3djNSaTbCb3W3C+7cAe84cH74B+
-         t8JUdvN0fzbZrCm+ecPKuQbkZOYXQ2lV1w3TtsEzkdAw8yYP2JlaxngUOlprVxbp0BBp
-         N+m24dClRTF+2NxMSSu+p+oFO1RuXM2JUKyZSIEHv48P9Z1W3GG5wx5TguP6lYHpCKOM
-         i1gPmRPB/TYGZOnOr7JXJCsIYa5tXekDEuNX6TvvpUdzlsVCGZvS1FBHCTY+Tvc7VIrI
-         6W3Q==
-X-Gm-Message-State: APjAAAWC4iYoleCRKjs0eC8Ib4tKhP08/ojYuKZn2CClKM6LDlEag3s4
-        439hCIz8laJ5SzcFtTfcqCT6LCiMVsKOOy2SIaCfDg==
-X-Google-Smtp-Source: APXvYqxXr51L2F0+NOWbsTEL9c/otLHChqmS0PMLpIek6dAcDjLKD3idnT4OpFspsu55i9UkiR8ZvsBYPaQIs5shccY=
-X-Received: by 2002:ac8:26e7:: with SMTP id 36mr28781689qtp.37.1553648469211;
- Tue, 26 Mar 2019 18:01:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190325133159.10653-1-joel@jms.id.au> <20190325133159.10653-3-joel@jms.id.au>
- <20190325145954.GM30105@piout.net> <CACPK8XfFTF2hDzwO33gE=fotEEC-CZztThoaYj98Le9JAsAQ-w@mail.gmail.com>
- <20190325161010.GP30105@piout.net>
-In-Reply-To: <20190325161010.GP30105@piout.net>
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=rNANlHwOGEgCnrWo9ynabKqHn9FlqsmS+h6Qq3AFCHE=;
+        b=nGjFk4yqxLVMyHO3kE2S3Eu/sqEKv8g0GljkofOeKekr5qvhWzfo3zfJbpnVmO8HRs
+         itgk0yl6ozSwYT0nEBqvwSTR8keGbLDQQuoLPWACWPuVIv+szV6PAZRkjf/dj4WvLDtX
+         4mdXB24gAUXoAf4Zs27sBlDOmQ4i+Y2jN1hx2fUXWa8wZXM3p/pUymJIEEga1rnTx3fF
+         ID9xeOFzBBFUHVIMQtK1KOO2UmZsF0AI0mptxVRAz9dBSMMsJKkrjeJyw14Yz+t7qX4O
+         O+ssGyml7RO+uOUZLZ93TrACy7DSZQVEyX+slcWfFtj2QjYaQWl7t63x8DOsZlDaARet
+         AKDg==
+X-Gm-Message-State: APjAAAVymha+64vUgjDc2UCeqIildj1z/gFRxA4IJsMlKhBCVZu4laZS
+        WtJr655kuDlzgwNY2IWCGiU=
+X-Google-Smtp-Source: APXvYqzIanJX2S/MsEyVYCq6vakUIID8Big/EEwLLJ89oOMTQDCu2jkwaHjIHHGwstmF/1Hj143kvQ==
+X-Received: by 2002:a17:902:2865:: with SMTP id e92mr34786538plb.312.1553648546673;
+        Tue, 26 Mar 2019 18:02:26 -0700 (PDT)
+Received: from voyager.jms.id.au ([45.124.203.18])
+        by smtp.gmail.com with ESMTPSA id h11sm21990780pgq.57.2019.03.26.18.02.21
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 26 Mar 2019 18:02:26 -0700 (PDT)
+Received: by voyager.jms.id.au (sSMTP sendmail emulation); Wed, 27 Mar 2019 11:32:17 +1030
 From:   Joel Stanley <joel@jms.id.au>
-Date:   Wed, 27 Mar 2019 01:00:56 +0000
-Message-ID: <CACPK8Xe0h2iVbuXApccrZD8Qxo4QEpe5Y4OgW1i7GsPfmJKbvQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] rtc: Add ASPEED RTC driver
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jeffery <andrew@aj.id.au>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc:     Andrew Jeffery <andrew@aj.id.au>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-aspeed@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v3 0/2] rtc: Add ASPEED RTC driver
+Date:   Wed, 27 Mar 2019 11:32:13 +1030
+Message-Id: <20190327010215.10231-1-joel@jms.id.au>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 25 Mar 2019 at 16:10, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:> >
-> While doing that change, I relaized that the whole locking is probably
-> unnecessary as all the rtc_ops are called with the rtc lock taken. If
-> you are not planning to add alarm support, the lock can be removed.
+v3: Remove unnecessary locking, use ptR
+v2: Address review from Alexandre
 
-I had a stab at alarm support, but the select() tests in rtctest.c
-were failing. I will submit a v3 without the locking so we can get
-that out of the way, and defer adding alarm support for now.
+Joel Stanley (2):
+  dt-bindings: rtc: Add on-chip ASPEED RTC documentation
+  rtc: Add ASPEED RTC driver
 
-Cheers,
+ .../devicetree/bindings/rtc/rtc-aspeed.txt    |  22 +++
+ drivers/rtc/Kconfig                           |  11 ++
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-aspeed.c                      | 138 ++++++++++++++++++
+ 4 files changed, 172 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-aspeed.txt
+ create mode 100644 drivers/rtc/rtc-aspeed.c
 
-Joel
+-- 
+2.20.1
+
