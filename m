@@ -2,83 +2,85 @@ Return-Path: <SRS0=n38N=SD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7739C10F05
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4DD1C43381
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:59:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 877D020828
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:43:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7AFD02084B
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:59:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725839AbfDAInH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 04:43:07 -0400
-Received: from sauhun.de ([88.99.104.3]:49474 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725932AbfDAInH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 1 Apr 2019 04:43:07 -0400
-Received: from localhost (p54B331B1.dip0.t-ipconnect.de [84.179.49.177])
-        by pokefinder.org (Postfix) with ESMTPSA id 4C81E2C7BF4;
-        Mon,  1 Apr 2019 10:43:05 +0200 (CEST)
-Date:   Mon, 1 Apr 2019 10:43:04 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1726879AbfDAI7p (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 04:59:45 -0400
+Received: from mail-vs1-f65.google.com ([209.85.217.65]:44967 "EHLO
+        mail-vs1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725843AbfDAI7p (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 04:59:45 -0400
+Received: by mail-vs1-f65.google.com with SMTP id j184so5005872vsd.11;
+        Mon, 01 Apr 2019 01:59:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=D49yr3gZZboTSYdQC0cV56BtNASxZXIvfMEoEhib5m0=;
+        b=p10bJ4onjC+5hYkSSc/QUJFRhuxHL7FlznNXMjei/BvLN9cz3CJeMiscxmG2mKAFc3
+         xat/VTK+vAot4aXYFns2c9l8Tm6Vu3fj2p9HFceHEpMk0mef0nuZqN2yP8LpzOTMVgow
+         0/Y72eW/kDhicd1oUTePvBYlYB7O83NoLfdH8AFqO2FGUpnelsS641KHXbfRQZyxD/tK
+         +xIqOPKDimdlx9ijoZfnZpj3P9G8HAmvCQFWkDLDDk2wa9v4819uYQRv6gc6P+xtCDdI
+         ZNWgJDcRBqbQBrYkHKETD1J7UOa1h6tvnYbdO+2HGSrLHrTBZOIMhjc61/mCLlwbD77d
+         Xk6A==
+X-Gm-Message-State: APjAAAXJ5hMorGSTGhBh8jsHM9RV6ARzea0njsMvBjI5/ivYyrtmgVWB
+        rB+dmjSSYObCiuWjH65OeR1l9gK6NPSh0mHsRY9QEw==
+X-Google-Smtp-Source: APXvYqxkJl3q+A9OdgkOXc+cbZxHO495tPa2DT9LcuEV7OS8MTUzeR6MW3ydeNuYYNN6YZDCPJN2jXGvj0EUxgiTHuw=
+X-Received: by 2002:a67:8546:: with SMTP id h67mr18610848vsd.11.1554109183762;
+ Mon, 01 Apr 2019 01:59:43 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190321101557.26857-1-alexandre.belloni@bootlin.com> <20190401084143.uqbiktkt2vltgrxa@ninjato>
+In-Reply-To: <20190401084143.uqbiktkt2vltgrxa@ninjato>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 1 Apr 2019 10:59:32 +0200
+Message-ID: <CAMuHMdW_Gz4qaRXFeW-h7vNxJ5RwjDXDP4oZZcUaYHcqEC75bA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] rtc: da9063: set range
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Support Opensource <support.opensource@diasemi.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc: da9063: switch to
- rtc_time64_to_tm/rtc_tm_to_time64
-Message-ID: <20190401084304.pt7psdvp5kupwpol@ninjato>
-References: <20190321101557.26857-1-alexandre.belloni@bootlin.com>
- <20190321101557.26857-2-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nz63zlo56blhlsxs"
-Content-Disposition: inline
-In-Reply-To: <20190321101557.26857-2-alexandre.belloni@bootlin.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Hi Wolfram,
 
---nz63zlo56blhlsxs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Apr 1, 2019 at 10:43 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Thu, Mar 21, 2019 at 11:15:56AM +0100, Alexandre Belloni wrote:
+> > The DA9062 and DA9063 have a year register that can go up to 0x3F.
+> >
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+>
+> Thanks for this patch! Didn't know about the devm_rtc_device_register()
+> conversion going on. Glad I learned about it.
+>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> I couldn't test the upper limit (DA9063 hooked to a 32bit system here),
+> but lower limit works and RTC in general works.
 
-On Thu, Mar 21, 2019 at 11:15:57AM +0100, Alexandre Belloni wrote:
-> Call the 64bit versions of rtc_tm time conversion now that the range is
-> enforced by the core.
->=20
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+BTW, does the RTC alarm interrupt work for you?
 
-FWIW, RTC still works on my 32bit system:
+Gr{oetje,eeting}s,
 
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+                        Geert
 
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---nz63zlo56blhlsxs
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyhzxgACgkQFA3kzBSg
-KbYz4g//dIRF8keT4mvB44rXOv5VgFqC/ROR8CiGK5jzGDRZadsFajQzV+Kur8sC
-ZW8mPFbKfKYsa7/u7OyMaNP9MjF0aZo8Z8N0qZVTTat6+ns8goLEYscLfne9EbCG
-5UngacjzRmiZy4B6xGg9k/sWOu3FOycTC3R0iuAf3cyYLZvi4DMNCwiGXWS7U5Yl
-kNI57PtddIMxAEyVoJGLeM6389d530yMDuiz6nB52fxdDK4dbWqo8LpgTu+SWVzu
-LZdKjj73JDt1Gb0+7E1tQXyfC42iPqGS/hQZ0QbjVPNCA8zjmJnbYLf7K/mGz89U
-RCXsrFqgncKyQdCpwinXYDhYBxZwE6MeqmhHVgGOj3CkD5myZaEArNH2wgJGk/PA
-BVAU67j1TINWLJMT8dKzy8U7X4TzpYBWpI9+NXmlQ7jCXXYv3Z1GN8f1UvKgFoak
-Dq/0uaDg/dZxn2KQpfHhvCJ4T6nppQVgiqBUHtmd6kKGjA4tYC4QjRHA00w0c6Dm
-DcLzb/EXLbynCtn23bDPKJH9NbfIwk8Mya1flYPMBU9R7AMA9NdsNvNDQHe2fXTz
-T2QxNcS4owSWfYNzxu3CuKyxbI86JfIdTDkOMNqZiYXbrprfGI1CIkupVza6Iutu
-fS4did4Q0quXIFCwyeM7EphPSdkrbb24zV0w7Fle6wB6odxbY7c=
-=8Hfr
------END PGP SIGNATURE-----
-
---nz63zlo56blhlsxs--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
