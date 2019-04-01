@@ -3,32 +3,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB6FC43381
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BAF2C10F05
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ADD2A2133D
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BECC2133D
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728040AbfDAQJK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 12:09:10 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:49569 "EHLO
+        id S1728736AbfDAQIi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 12:08:38 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:52891 "EHLO
         relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728733AbfDAQIi (ORCPT
+        with ESMTP id S1728724AbfDAQIi (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:08:38 -0400
 Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id B847E10000A;
-        Mon,  1 Apr 2019 16:08:36 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 4131F100003;
+        Mon,  1 Apr 2019 16:08:34 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 08/12] rtc: pcf85063: add alarm support
-Date:   Mon,  1 Apr 2019 18:08:12 +0200
-Message-Id: <20190401160816.17859-8-alexandre.belloni@bootlin.com>
+Subject: [PATCH 06/12] rtc: pcf85063: switch to regmap
+Date:   Mon,  1 Apr 2019 18:08:10 +0200
+Message-Id: <20190401160816.17859-6-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
 References: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
@@ -39,188 +39,276 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add support for the alarms. The match on the weekday is not used as it it
-not necessarily properly set.
-
-The tested RTC shows a behaviour where setting an alarm on the second right
-after an alarm that fired is not working, probably because of the circuit
-that ensures an alarm only fires once. This is why uie_unsupported is set.
+Switch to regmap to simplify register accesses and remove the need for
+pcf85063_stop_clock/pcf85063_start_clock.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 121 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 121 insertions(+)
+ drivers/rtc/Kconfig        |   1 +
+ drivers/rtc/rtc-pcf85063.c | 154 +++++++++++++++----------------------
+ 2 files changed, 62 insertions(+), 93 deletions(-)
 
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index d00f1aefaaad..7b8e156dbf38 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -439,6 +439,7 @@ config RTC_DRV_PCF8523
+ 
+ config RTC_DRV_PCF85063
+ 	tristate "NXP PCF85063"
++	select REGMAP_I2C
+ 	help
+ 	  If you say yes here you get support for the PCF85063 RTC chip
+ 
 diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 7519da905128..536db43c84ee 100644
+index 5e993162c5b2..632e1c8a3957 100644
 --- a/drivers/rtc/rtc-pcf85063.c
 +++ b/drivers/rtc/rtc-pcf85063.c
-@@ -11,6 +11,7 @@
+@@ -10,6 +10,8 @@
+ #include <linux/bcd.h>
  #include <linux/rtc.h>
  #include <linux/module.h>
- #include <linux/of_device.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/regmap.h>
++#include <linux/of_device.h>
++#include <linux/regmap.h>
  
  /*
-@@ -27,11 +28,19 @@
- #define PCF85063_REG_CTRL1_CAP_SEL	BIT(0)
- #define PCF85063_REG_CTRL1_STOP		BIT(5)
- 
-+#define PCF85063_REG_CTRL2		0x01
-+#define PCF85063_CTRL2_AF		BIT(6)
-+#define PCF85063_CTRL2_AIE		BIT(7)
-+
+  * Information for this driver was pulled from the following datasheets.
+@@ -28,50 +30,14 @@
  #define PCF85063_REG_SC			0x04 /* datetime */
  #define PCF85063_REG_SC_OS		0x80
  
-+#define PCF85063_REG_ALM_S		0x0b
-+#define PCF85063_AEN			BIT(7)
-+
- struct pcf85063_config {
- 	struct regmap_config regmap;
-+	unsigned has_alarms:1;
- };
+-static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
+-{
+-	int rc;
+-	u8 reg;
+-
+-	rc = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+-	if (rc < 0) {
+-		dev_err(&client->dev, "Failing to stop the clock\n");
+-		return -EIO;
+-	}
+-
+-	/* stop the clock */
+-	reg = rc | PCF85063_REG_CTRL1_STOP;
+-
+-	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, reg);
+-	if (rc < 0) {
+-		dev_err(&client->dev, "Failing to stop the clock\n");
+-		return -EIO;
+-	}
+-
+-	*ctrl1 = reg;
+-
+-	return 0;
+-}
+-
+-static int pcf85063_start_clock(struct i2c_client *client, u8 ctrl1)
+-{
+-	int rc;
+-
+-	/* start the clock */
+-	ctrl1 &= ~PCF85063_REG_CTRL1_STOP;
+-
+-	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, ctrl1);
+-	if (rc < 0) {
+-		dev_err(&client->dev, "Failing to start the clock\n");
+-		return -EIO;
+-	}
+-
+-	return 0;
+-}
++struct pcf85063 {
++	struct rtc_device	*rtc;
++	struct regmap		*regmap;
++};
  
- struct pcf85063 {
-@@ -123,11 +132,103 @@ static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 				  PCF85063_REG_CTRL1_STOP, 0);
+ static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct i2c_client *client = to_i2c_client(dev);
++	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
+ 	int rc;
+ 	u8 regs[7];
+ 
+@@ -81,16 +47,14 @@ static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	 * event, the access must be finished within one second. So, read all
+ 	 * time/date registers in one turn.
+ 	 */
+-	rc = i2c_smbus_read_i2c_block_data(client, PCF85063_REG_SC,
+-					   sizeof(regs), regs);
+-	if (rc != sizeof(regs)) {
+-		dev_err(&client->dev, "date/time register read error\n");
+-		return -EIO;
+-	}
++	rc = regmap_bulk_read(pcf85063->regmap, PCF85063_REG_SC, regs,
++			      sizeof(regs));
++	if (rc)
++		return rc;
+ 
+ 	/* if the clock has lost its power it makes no sense to use its time */
+ 	if (regs[0] & PCF85063_REG_SC_OS) {
+-		dev_warn(&client->dev, "Power loss detected, invalid time\n");
++		dev_warn(&pcf85063->rtc->dev, "Power loss detected, invalid time\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -108,17 +72,18 @@ static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct i2c_client *client = to_i2c_client(dev);
++	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
+ 	int rc;
+ 	u8 regs[7];
+-	u8 ctrl1;
+ 
+ 	/*
+ 	 * to accurately set the time, reset the divider chain and keep it in
+ 	 * reset state until all time/date registers are written
+ 	 */
+-	rc = pcf85063_stop_clock(client, &ctrl1);
+-	if (rc != 0)
++	rc = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL1,
++				PCF85063_REG_CTRL1_STOP,
++				PCF85063_REG_CTRL1_STOP);
++	if (rc)
+ 		return rc;
+ 
+ 	/* hours, minutes and seconds */
+@@ -140,23 +105,18 @@ static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	regs[6] = bin2bcd(tm->tm_year - 100);
+ 
+ 	/* write all registers at once */
+-	rc = i2c_smbus_write_i2c_block_data(client, PCF85063_REG_SC,
+-					    sizeof(regs), regs);
+-	if (rc < 0) {
+-		dev_err(&client->dev, "date/time register write error\n");
++	rc = regmap_bulk_write(pcf85063->regmap, PCF85063_REG_SC,
++			       regs, sizeof(regs));
++	if (rc)
+ 		return rc;
+-	}
+ 
+ 	/*
+ 	 * Write the control register as a separate action since the size of
+ 	 * the register space is different between the PCF85063TP and
+ 	 * PCF85063A devices.  The rollover point can not be used.
+ 	 */
+-	rc = pcf85063_start_clock(client, ctrl1);
+-	if (rc != 0)
+-		return rc;
+-
+-	return 0;
++	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL1,
++				  PCF85063_REG_CTRL1_STOP, 0);
  }
  
-+static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	u8 buf[4];
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_bulk_read(pcf85063->regmap, PCF85063_REG_ALM_S,
-+			       buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	alrm->time.tm_sec = bcd2bin(buf[0]);
-+	alrm->time.tm_min = bcd2bin(buf[1]);
-+	alrm->time.tm_hour = bcd2bin(buf[2]);
-+	alrm->time.tm_mday = bcd2bin(buf[3]);
-+
-+	ret = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &val);
-+	if (ret)
-+		return ret;
-+
-+	alrm->enabled =  !!(val & PCF85063_CTRL2_AIE);
-+
-+	return 0;
-+}
-+
-+static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	u8 buf[5];
-+	int ret;
-+
-+	buf[0] = bin2bcd(alrm->time.tm_sec);
-+	buf[1] = bin2bcd(alrm->time.tm_min);
-+	buf[2] = bin2bcd(alrm->time.tm_hour);
-+	buf[3] = bin2bcd(alrm->time.tm_mday);
-+	buf[4] = PCF85063_AEN; /* Do not match on week day */
-+
-+	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+				 PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF, 0);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_write(pcf85063->regmap, PCF85063_REG_ALM_S,
-+				buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
-+				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
-+}
-+
-+static int pcf85063_rtc_alarm_irq_enable(struct device *dev,
-+					 unsigned int enabled)
-+{
-+	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+
-+	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+				  PCF85063_CTRL2_AIE,
-+				  enabled ? PCF85063_CTRL2_AIE : 0);
-+}
-+
-+static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
-+{
-+	struct pcf85063 *pcf85063 = dev_id;
-+	unsigned int val;
-+	int err;
-+
-+	err = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &val);
-+	if (err)
-+		return IRQ_NONE;
-+
-+	if (val & PCF85063_CTRL2_AF) {
-+		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
-+		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
-+				   0);
-+		return IRQ_HANDLED;
-+	}
-+
-+	return IRQ_NONE;
-+}
-+
  static const struct rtc_class_ops pcf85063_rtc_ops = {
- 	.read_time	= pcf85063_rtc_read_time,
+@@ -164,66 +124,74 @@ static const struct rtc_class_ops pcf85063_rtc_ops = {
  	.set_time	= pcf85063_rtc_set_time
  };
  
-+static const struct rtc_class_ops pcf85063_rtc_ops_alarm = {
-+	.read_time	= pcf85063_rtc_read_time,
-+	.set_time	= pcf85063_rtc_set_time,
-+	.read_alarm	= pcf85063_rtc_read_alarm,
-+	.set_alarm	= pcf85063_rtc_set_alarm,
-+	.alarm_irq_enable = pcf85063_rtc_alarm_irq_enable,
+-static int pcf85063_load_capacitance(struct i2c_client *client)
++static int pcf85063_load_capacitance(struct pcf85063 *pcf85063,
++				     const struct device_node *np)
+ {
+-	u32 load;
+-	int rc;
+-	u8 reg;
+-
+-	rc = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+-	if (rc < 0)
+-		return rc;
+-
+-	reg = rc;
+-	load = 7000;
+-	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
+-			     &load);
++	u32 load = 7000;
++	u8 reg = 0;
+ 
++	of_property_read_u32(np, "quartz-load-femtofarads", &load);
+ 	switch (load) {
+ 	default:
+-		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 7000",
++		dev_warn(&pcf85063->rtc->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 7000",
+ 			 load);
+ 		/* fall through */
+ 	case 7000:
+-		reg &= ~PCF85063_REG_CTRL1_CAP_SEL;
+ 		break;
+ 	case 12500:
+-		reg |= PCF85063_REG_CTRL1_CAP_SEL;
++		reg = PCF85063_REG_CTRL1_CAP_SEL;
+ 		break;
+ 	}
+ 
+-	rc = i2c_smbus_write_byte_data(client, PCF85063_REG_CTRL1, reg);
+-
+-	return rc;
++	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL1,
++				  PCF85063_REG_CTRL1_CAP_SEL, reg);
+ }
+ 
++static const struct regmap_config regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = 0x11,
 +};
 +
- static int pcf85063_load_capacitance(struct pcf85063 *pcf85063,
- 				     const struct device_node *np)
+ static int pcf85063_probe(struct i2c_client *client)
  {
-@@ -157,6 +258,7 @@ static const struct pcf85063_config pcf85063a_config = {
- 		.val_bits = 8,
- 		.max_register = 0x11,
- 	},
-+	.has_alarms = 1,
- };
+-	struct rtc_device *rtc;
++	struct pcf85063 *pcf85063;
++	unsigned int tmp;
+ 	int err;
  
- static const struct pcf85063_config pcf85063tp_config = {
-@@ -209,6 +311,25 @@ static int pcf85063_probe(struct i2c_client *client)
- 	pcf85063->rtc->ops = &pcf85063_rtc_ops;
- 	pcf85063->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	pcf85063->rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	pcf85063->rtc->uie_unsupported = 1;
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+-	err = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+-	if (err < 0) {
++	pcf85063 = devm_kzalloc(&client->dev, sizeof(struct pcf85063),
++				GFP_KERNEL);
++	if (!pcf85063)
++		return -ENOMEM;
 +
-+	if (config->has_alarms && client->irq > 0) {
-+		err = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, pcf85063_rtc_handle_irq,
-+						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+						"pcf85063", pcf85063);
-+		if (err) {
-+			dev_warn(&pcf85063->rtc->dev,
-+				 "unable to request IRQ, alarms disabled\n");
-+		} else {
-+			pcf85063->rtc->ops = &pcf85063_rtc_ops_alarm;
-+			device_init_wakeup(&client->dev, true);
-+			err = dev_pm_set_wake_irq(&client->dev, client->irq);
-+			if (err)
-+				dev_err(&pcf85063->rtc->dev,
-+					"failed to enable irq wake\n");
-+		}
-+	}
++	pcf85063->regmap = devm_regmap_init_i2c(client, &regmap_config);
++	if (IS_ERR(pcf85063->regmap))
++		return PTR_ERR(pcf85063->regmap);
++
++	i2c_set_clientdata(client, pcf85063);
++
++	err = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL1, &tmp);
++	if (err) {
+ 		dev_err(&client->dev, "RTC chip is not present\n");
+ 		return err;
+ 	}
  
- 	return rtc_register_device(pcf85063->rtc);
+-	err = pcf85063_load_capacitance(client);
++	pcf85063->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(pcf85063->rtc))
++		return PTR_ERR(pcf85063->rtc);
++
++	err = pcf85063_load_capacitance(pcf85063, client->dev.of_node);
+ 	if (err < 0)
+ 		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
+ 			 err);
+ 
+-	rtc = devm_rtc_allocate_device(&client->dev);
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
+-
+-	rtc->ops = &pcf85063_rtc_ops;
+-	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+-	rtc->range_max = RTC_TIMESTAMP_END_2099;
++	pcf85063->rtc->ops = &pcf85063_rtc_ops;
++	pcf85063->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	pcf85063->rtc->range_max = RTC_TIMESTAMP_END_2099;
+ 
+-	return rtc_register_device(rtc);
++	return rtc_register_device(pcf85063->rtc);
  }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.20.1
 
