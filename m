@@ -3,33 +3,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CBB9C4360F
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:08:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D88B9C43381
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E9B3E208E4
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:08:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B11DC2133D
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728777AbfDAQIn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 12:08:43 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:41011 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728772AbfDAQIm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:08:42 -0400
-X-Originating-IP: 109.213.83.19
+        id S1728818AbfDAQIy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 12:08:54 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:50631 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728758AbfDAQIk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:08:40 -0400
 Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id D60CD1BF20D;
-        Mon,  1 Apr 2019 16:08:39 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id B5887100003;
+        Mon,  1 Apr 2019 16:08:38 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 11/12] rtc: pcf85063: add offset correction support
-Date:   Mon,  1 Apr 2019 18:08:15 +0200
-Message-Id: <20190401160816.17859-11-alexandre.belloni@bootlin.com>
+Subject: [PATCH 10/12] rtc: pcf85063: add nvram support
+Date:   Mon,  1 Apr 2019 18:08:14 +0200
+Message-Id: <20190401160816.17859-10-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
 References: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
@@ -40,108 +39,69 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The PCF850363 has an offset correction with two modes:
-
-With mode 0, the correction is triggered once every two hours and then
-correction pulses are applied once per minute until the programmed
-correction values have been implemented. This gives a step of 4.34 ppm.
-
-With mode 1, the correction is triggered once every four minutes and then
-correction pulses are applied once per second up to a maximum of 60 pulses.
-When correction values greater than 60 pulses are used, additional
-correction pulses are made in the 59 th second. This gives a step of 4.069
-ppm.
-
-Use the correction closest to the requested value.
+The pcf85063 has one byte of nvram.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 58 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 57 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf85063.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
 diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 04aaa83a5431..1bce53f8a7da 100644
+index 0ac763c10744..04aaa83a5431 100644
 --- a/drivers/rtc/rtc-pcf85063.c
 +++ b/drivers/rtc/rtc-pcf85063.c
-@@ -38,6 +38,12 @@
+@@ -38,6 +38,8 @@
  #define PCF85063_CTRL2_AF		BIT(6)
  #define PCF85063_CTRL2_AIE		BIT(7)
  
-+#define PCF85063_REG_OFFSET		0x02
-+#define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
-+#define PCF85063_OFFSET_MODE		BIT(7)
-+#define PCF85063_OFFSET_STEP0		4340
-+#define PCF85063_OFFSET_STEP1		4069
++#define PCF85063_REG_RAM		0x03
 +
- #define PCF85063_REG_RAM		0x03
- 
  #define PCF85063_REG_SC			0x04 /* datetime */
-@@ -225,14 +231,64 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
- 	return IRQ_NONE;
- }
+ #define PCF85063_REG_SC_OS		0x80
  
-+static int pcf85063_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	long val;
-+	u32 reg;
-+	int ret;
-+
-+	ret = regmap_read(pcf85063->regmap, PCF85063_REG_OFFSET, &reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	val = sign_extend32(reg & ~PCF85063_OFFSET_MODE,
-+			    PCF85063_OFFSET_SIGN_BIT);
-+
-+	if (reg & PCF85063_OFFSET_MODE)
-+		*offset = val * PCF85063_OFFSET_STEP1;
-+	else
-+		*offset = val * PCF85063_OFFSET_STEP0;
-+
-+	return 0;
-+}
-+
-+static int pcf85063_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	s8 mode0, mode1, reg;
-+	unsigned int error0, error1;
-+
-+	if (offset > PCF85063_OFFSET_STEP0 * 63)
-+		return -ERANGE;
-+	if (offset < PCF85063_OFFSET_STEP0 * -64)
-+		return -ERANGE;
-+
-+	mode0 = DIV_ROUND_CLOSEST(offset, PCF85063_OFFSET_STEP0);
-+	mode1 = DIV_ROUND_CLOSEST(offset, PCF85063_OFFSET_STEP1);
-+
-+	error0 = abs(offset - (mode0 * PCF85063_OFFSET_STEP0));
-+	error1 = abs(offset - (mode1 * PCF85063_OFFSET_STEP1));
-+	if (mode1 > 63 || mode1 < -64 || error0 < error1)
-+		reg = mode0 & ~PCF85063_OFFSET_MODE;
-+	else
-+		reg = mode1 | PCF85063_OFFSET_MODE;
-+
-+	return regmap_write(pcf85063->regmap, PCF85063_REG_OFFSET, reg);
-+}
-+
- static const struct rtc_class_ops pcf85063_rtc_ops = {
- 	.read_time	= pcf85063_rtc_read_time,
--	.set_time	= pcf85063_rtc_set_time
-+	.set_time	= pcf85063_rtc_set_time,
-+	.read_offset	= pcf85063_read_offset,
-+	.set_offset	= pcf85063_set_offset,
+@@ -236,6 +238,18 @@ static const struct rtc_class_ops pcf85063_rtc_ops_alarm = {
+ 	.alarm_irq_enable = pcf85063_rtc_alarm_irq_enable,
  };
  
- static const struct rtc_class_ops pcf85063_rtc_ops_alarm = {
- 	.read_time	= pcf85063_rtc_read_time,
- 	.set_time	= pcf85063_rtc_set_time,
-+	.read_offset	= pcf85063_read_offset,
-+	.set_offset	= pcf85063_set_offset,
- 	.read_alarm	= pcf85063_rtc_read_alarm,
- 	.set_alarm	= pcf85063_rtc_set_alarm,
- 	.alarm_irq_enable = pcf85063_rtc_alarm_irq_enable,
++static int pcf85063_nvmem_read(void *priv, unsigned int offset,
++			       void *val, size_t bytes)
++{
++	return regmap_read(priv, PCF85063_REG_RAM, val);
++}
++
++static int pcf85063_nvmem_write(void *priv, unsigned int offset,
++				void *val, size_t bytes)
++{
++	return regmap_write(priv, PCF85063_REG_RAM, *(u8 *)val);
++}
++
+ static int pcf85063_load_capacitance(struct pcf85063 *pcf85063,
+ 				     const struct device_node *np,
+ 				     unsigned int force_cap)
+@@ -298,6 +312,13 @@ static int pcf85063_probe(struct i2c_client *client)
+ 	int err;
+ 	const struct pcf85063_config *config = &pcf85063tp_config;
+ 	const void *data = of_device_get_match_data(&client->dev);
++	struct nvmem_config nvmem_cfg = {
++		.name = "pcf85063_nvram",
++		.reg_read = pcf85063_nvmem_read,
++		.reg_write = pcf85063_nvmem_write,
++		.type = NVMEM_TYPE_BATTERY_BACKED,
++		.size = 1,
++	};
+ 
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+@@ -354,6 +375,9 @@ static int pcf85063_probe(struct i2c_client *client)
+ 		}
+ 	}
+ 
++	nvmem_cfg.priv = pcf85063->regmap;
++	rtc_nvmem_register(pcf85063->rtc, &nvmem_cfg);
++
+ 	return rtc_register_device(pcf85063->rtc);
+ }
+ 
 -- 
 2.20.1
 
