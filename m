@@ -3,33 +3,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E82C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB467C10F05
 	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A1BFD2133D
+	by mail.kernel.org (Postfix) with ESMTP id C4143213F2
 	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:09:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728782AbfDAQJT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 12:09:19 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:49583 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727403AbfDAQIe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:08:34 -0400
+        id S1728499AbfDAQId (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 12:08:33 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:37249 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726854AbfDAQId (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:08:33 -0400
 X-Originating-IP: 109.213.83.19
 Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 0261A60005;
-        Mon,  1 Apr 2019 16:08:31 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 0D98B240005;
+        Mon,  1 Apr 2019 16:08:30 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 04/12] rtc: pcf85063: convert to devm_rtc_allocate_device
-Date:   Mon,  1 Apr 2019 18:08:08 +0200
-Message-Id: <20190401160816.17859-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 03/12] rtc: pcf85063: remove bogus i2c functionality check
+Date:   Mon,  1 Apr 2019 18:08:07 +0200
+Message-Id: <20190401160816.17859-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
 References: <20190401160816.17859-1-alexandre.belloni@bootlin.com>
@@ -40,44 +40,28 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver.
+Only smbus reads and write are done in the driver, plain i2c functionality
+is not required.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85063.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-pcf85063.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index c4cc0abe37cb..afd98e863482 100644
+index 95aae84f7dc3..c4cc0abe37cb 100644
 --- a/drivers/rtc/rtc-pcf85063.c
 +++ b/drivers/rtc/rtc-pcf85063.c
-@@ -28,8 +28,6 @@
- #define PCF85063_REG_SC			0x04 /* datetime */
- #define PCF85063_REG_SC_OS		0x80
+@@ -209,9 +209,6 @@ static int pcf85063_probe(struct i2c_client *client)
  
--static struct i2c_driver pcf85063_driver;
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+-		return -ENODEV;
 -
- static int pcf85063_stop_clock(struct i2c_client *client, u8 *ctrl1)
- {
- 	int rc;
-@@ -220,11 +218,13 @@ static int pcf85063_probe(struct i2c_client *client)
- 		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
- 			 err);
- 
--	rtc = devm_rtc_device_register(&client->dev,
--				       pcf85063_driver.driver.name,
--				       &pcf85063_rtc_ops, THIS_MODULE);
-+	rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
-+	rtc->ops = &pcf85063_rtc_ops;
- 
--	return PTR_ERR_OR_ZERO(rtc);
-+	return rtc_register_device(rtc);
- }
- 
- #ifdef CONFIG_OF
+ 	err = i2c_smbus_read_byte_data(client, PCF85063_REG_CTRL1);
+ 	if (err < 0) {
+ 		dev_err(&client->dev, "RTC chip is not present\n");
 -- 
 2.20.1
 
