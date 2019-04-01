@@ -2,73 +2,76 @@ Return-Path: <SRS0=n38N=SD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31AD3C43381
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:33:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB3C9C43381
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 17:52:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04E4D21473
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 16:33:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AAF82208E4
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 17:52:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbfDAQdx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 12:33:53 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:35165 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbfDAQdx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 12:33:53 -0400
-X-Originating-IP: 109.213.83.19
-Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 89F5220003;
-        Mon,  1 Apr 2019 16:33:51 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v2 02/12] rtc: pcf85063: convert to SPDX identifier
-Date:   Mon,  1 Apr 2019 18:33:49 +0200
-Message-Id: <20190401163349.19844-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190401160816.17859-2-alexandre.belloni@bootlin.com>
-References: <20190401160816.17859-2-alexandre.belloni@bootlin.com>
+        id S1732565AbfDARwu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 13:52:50 -0400
+Received: from muru.com ([72.249.23.125]:43806 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732539AbfDARwt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 1 Apr 2019 13:52:49 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id 9D80080C0;
+        Mon,  1 Apr 2019 17:53:02 +0000 (UTC)
+Date:   Mon, 1 Apr 2019 10:52:45 -0700
+From:   Tony Lindgren <tony@atomide.com>
+To:     Keerthy <j-keerthy@ti.com>
+Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
+        t-kristo@ti.com, ssantosh@kernel.org, d-gerlach@ti.com,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 3/5] arm: mach-omap2: pm33xx: Add support for rtc+ddr in
+ self refresh mode
+Message-ID: <20190401175245.GJ49658@atomide.com>
+References: <20190322171619.4180-1-j-keerthy@ti.com>
+ <20190322171619.4180-4-j-keerthy@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190322171619.4180-4-j-keerthy@ti.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use SPDX-License-Identifier instead of a verbose license text.
+Hi,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-pcf85063.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+* Keerthy <j-keerthy@ti.com> [190322 17:16]:
+> +static int am43xx_check_off_mode_enable(void)
+> +{
+> +	/*
+> +	 * Check for am437x-sk-evm which due to HW design cannot support
+> +	 * this mode reliably.
+> +	 */
+> +	if (of_machine_is_compatible("ti,am437x-sk-evm") && enable_off_mode) {
+> +		pr_warn("WARNING: This platform does not support off-mode, entering DeepSleep suspend.\n");
+> +		return 0;
+> +	}
+> +
+> +	return enable_off_mode;
+> +}
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 14a81fa916ca..ba65aa4a3040 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -1,15 +1,10 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * An I2C driver for the PCF85063 RTC
-  * Copyright 2014 Rose Technology
-  *
-  * Author: Søren Andersen <san@rosetechnology.dk>
-  * Maintainers: http://www.nslu2-linux.org/
-- *
-- * based on the other drivers in this same directory.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-  */
- #include <linux/i2c.h>
- #include <linux/bcd.h>
--- 
-2.20.1
+Considering off-mode suspend depends on how the board is
+wired for various things such as memory, PMIC and the related
+signal lines, I agree using the machine compatible is the best
+check we can do here.
 
+But since the device can hang during suspend unless things are
+configured right for the board, I suggest you rather list allowed
+boards here that are known to work with off-mode.
+
+Otherwise many out-of-tree boards might hang during suspend
+mysteriously.
+
+Regards,
+
+Tony
