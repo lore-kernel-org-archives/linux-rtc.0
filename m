@@ -6,36 +6,38 @@ X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F63AC43381
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7739C10F05
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:43:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 19CDE2086C
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:41:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 877D020828
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 08:43:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725866AbfDAIlu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 04:41:50 -0400
-Received: from sauhun.de ([88.99.104.3]:49444 "EHLO pokefinder.org"
+        id S1725839AbfDAInH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 04:43:07 -0400
+Received: from sauhun.de ([88.99.104.3]:49474 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725880AbfDAIlt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 1 Apr 2019 04:41:49 -0400
+        id S1725932AbfDAInH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 1 Apr 2019 04:43:07 -0400
 Received: from localhost (p54B331B1.dip0.t-ipconnect.de [84.179.49.177])
-        by pokefinder.org (Postfix) with ESMTPSA id CA0F12C7BF4;
-        Mon,  1 Apr 2019 10:41:46 +0200 (CEST)
-Date:   Mon, 1 Apr 2019 10:41:43 +0200
+        by pokefinder.org (Postfix) with ESMTPSA id 4C81E2C7BF4;
+        Mon,  1 Apr 2019 10:43:05 +0200 (CEST)
+Date:   Mon, 1 Apr 2019 10:43:04 +0200
 From:   Wolfram Sang <wsa@the-dreams.de>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Support Opensource <support.opensource@diasemi.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH 1/2] rtc: da9063: set range
-Message-ID: <20190401084143.uqbiktkt2vltgrxa@ninjato>
+Subject: Re: [PATCH 2/2] rtc: da9063: switch to
+ rtc_time64_to_tm/rtc_tm_to_time64
+Message-ID: <20190401084304.pt7psdvp5kupwpol@ninjato>
 References: <20190321101557.26857-1-alexandre.belloni@bootlin.com>
+ <20190321101557.26857-2-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="b3rvplhtfnempyen"
+        protocol="application/pgp-signature"; boundary="nz63zlo56blhlsxs"
 Content-Disposition: inline
-In-Reply-To: <20190321101557.26857-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20190321101557.26857-2-alexandre.belloni@bootlin.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -43,45 +45,40 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---b3rvplhtfnempyen
+--nz63zlo56blhlsxs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 21, 2019 at 11:15:56AM +0100, Alexandre Belloni wrote:
-> The DA9062 and DA9063 have a year register that can go up to 0x3F.
+On Thu, Mar 21, 2019 at 11:15:57AM +0100, Alexandre Belloni wrote:
+> Call the 64bit versions of rtc_tm time conversion now that the range is
+> enforced by the core.
 >=20
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Thanks for this patch! Didn't know about the devm_rtc_device_register()
-conversion going on. Glad I learned about it.
-
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-I couldn't test the upper limit (DA9063 hooked to a 32bit system here),
-but lower limit works and RTC in general works.
+FWIW, RTC still works on my 32bit system:
 
 Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---b3rvplhtfnempyen
+--nz63zlo56blhlsxs
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyhzsIACgkQFA3kzBSg
-KbYQtg/9FQ6u1OHsikX0RGFF3u6dcvdV5e2S+GjGfuRxydrHSCvAq60cWhyM4Fp7
-rLQwgjexZWD8akfTpjLaWGJUf6tMN1nqVzK7iHMZnHXr+QWEu0QFk5nPdpKPc3Gf
-FFM/a7gr68mI/AvwU0Dv3Ma3fzKIcC3qIdjgGOu/6c1lj3BGK5y+GkuAanJYZ5YU
-leYiDqMpqvTlWI9X6vkdY2+JyfQqdpwZ1q5ONar11U9+ZH4vnQ7f63WylapoHcr/
-n6ve35kUJ+RUqozsw8aAjdlAhMBElzRASV/2bXFu6+zcMdINZD6D47kr6SiRb6U3
-ciav2yFsC+2/CiDFMng9aYffA+kYlD+T7vAa//6v6bRN3zsd2vtGWZjpAZQCpZtI
-NOCUCXCAWEQBLr+P6NQm3n1gI8jSF7p70YDOnusl66QZ4TVniUn111J+QYTDmu01
-M42St57hVMx8CQJEXOpinxHzUtix9XzHosRBZktD3HtZlV4gDevPYDc4Et0O2LL1
-4QcbHz9XREHnAJwDqp9At1wC/NPzkXC7+cxn8XfN6MmASyVffwdRD+FfryBXvyQ8
-+YGSlJsYm0Psj4Qkll1FQROtd4G2k/5X9e8cF1XrCXB+7swDx7Oj/wjO3sLo4I0t
-6e1HYcbDX/Ho2h3C45htgJp7ltMULJ/rzbWlWNHqCsQ+DY/XCAk=
-=a3tQ
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyhzxgACgkQFA3kzBSg
+KbYz4g//dIRF8keT4mvB44rXOv5VgFqC/ROR8CiGK5jzGDRZadsFajQzV+Kur8sC
+ZW8mPFbKfKYsa7/u7OyMaNP9MjF0aZo8Z8N0qZVTTat6+ns8goLEYscLfne9EbCG
+5UngacjzRmiZy4B6xGg9k/sWOu3FOycTC3R0iuAf3cyYLZvi4DMNCwiGXWS7U5Yl
+kNI57PtddIMxAEyVoJGLeM6389d530yMDuiz6nB52fxdDK4dbWqo8LpgTu+SWVzu
+LZdKjj73JDt1Gb0+7E1tQXyfC42iPqGS/hQZ0QbjVPNCA8zjmJnbYLf7K/mGz89U
+RCXsrFqgncKyQdCpwinXYDhYBxZwE6MeqmhHVgGOj3CkD5myZaEArNH2wgJGk/PA
+BVAU67j1TINWLJMT8dKzy8U7X4TzpYBWpI9+NXmlQ7jCXXYv3Z1GN8f1UvKgFoak
+Dq/0uaDg/dZxn2KQpfHhvCJ4T6nppQVgiqBUHtmd6kKGjA4tYC4QjRHA00w0c6Dm
+DcLzb/EXLbynCtn23bDPKJH9NbfIwk8Mya1flYPMBU9R7AMA9NdsNvNDQHe2fXTz
+T2QxNcS4owSWfYNzxu3CuKyxbI86JfIdTDkOMNqZiYXbrprfGI1CIkupVza6Iutu
+fS4did4Q0quXIFCwyeM7EphPSdkrbb24zV0w7Fle6wB6odxbY7c=
+=8Hfr
 -----END PGP SIGNATURE-----
 
---b3rvplhtfnempyen--
+--nz63zlo56blhlsxs--
