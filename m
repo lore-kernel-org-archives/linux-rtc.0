@@ -2,117 +2,187 @@ Return-Path: <SRS0=n38N=SD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F01FC43381
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 05:50:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8178FC43381
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 05:58:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E03F20850
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 05:50:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5087D2084B
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 05:58:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="XnsujHgE";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="JOWyT+Dx"
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="xQO6MkLA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726284AbfDAFub (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 01:50:31 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:36512 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725911AbfDAFua (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 01:50:30 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 15E71607C6; Mon,  1 Apr 2019 05:50:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554097830;
-        bh=CVk3947aZDf0VDC7kHmg6Cdx5x3CAOuoEiyyVElhuK8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=XnsujHgE/TCLRS0ZDhPvWQncXVeb7q87uzjC2C9++aup3S1UySU4IyjscfQIAVBu1
-         RxTbx++NuBgLXt11BG19sm5zIcvV91O6FA4ktGRrmRbHX4dlKzwmQqmIwfffbutC4b
-         SLMkZjPDiB0U766I84ftH2/Q9l8/NqXKdgYmd7rM=
-Received: from [10.204.79.83] (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: mojha@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id C0183607C6;
-        Mon,  1 Apr 2019 05:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554097829;
-        bh=CVk3947aZDf0VDC7kHmg6Cdx5x3CAOuoEiyyVElhuK8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=JOWyT+DxMVjhboFScia9g6UeRgvBGY9Dr4RGPrYqRDZCQs5tlRWkYsmzLkf5vbhKZ
-         75Vgf/tM6zuCswyLmTQcqrGi76Vn6CwP166JdERO+Cc6BXSWCNBKkOLSZhQdeUorD4
-         DmTtgXTRR18Nf4ZTG8nrZokAR5CuBAdikpC2wzIA=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org C0183607C6
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
-Subject: Re: [PATCH 3/7] rtc: xgene: convert to SPDX identifier
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-References: <20190320123233.13519-1-alexandre.belloni@bootlin.com>
- <20190320123233.13519-3-alexandre.belloni@bootlin.com>
-From:   Mukesh Ojha <mojha@codeaurora.org>
-Message-ID: <6dc833be-ed4b-a090-2df7-846ac1c59fc4@codeaurora.org>
-Date:   Mon, 1 Apr 2019 11:20:23 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726708AbfDAF6z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 01:58:55 -0400
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:55132 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726530AbfDAF6y (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 01:58:54 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id x315wFqc055383;
+        Mon, 1 Apr 2019 00:58:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1554098295;
+        bh=sD39J3s/mKQ7g58XCeAwtoZKuFsVty86T254h6/BVXI=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=xQO6MkLAwG9CILtalyBtVg6JaoYs2ONTJyUKGiXufixaVm+jDViyj5GSNCubXZnnF
+         CyoQeK0VYhzUwoJpxJU6he0m8qkDqS9z6HO1fRdVdCXn0vL9NMGNnXh6L9scZ2E4uo
+         KHWdgYgQYcja5CUtOolK2iOajZlR3ka8H0jbNc0o=
+Received: from DFLE107.ent.ti.com (dfle107.ent.ti.com [10.64.6.28])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x315wFGI043472
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 1 Apr 2019 00:58:15 -0500
+Received: from DFLE104.ent.ti.com (10.64.6.25) by DFLE107.ent.ti.com
+ (10.64.6.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Mon, 1 Apr
+ 2019 00:58:14 -0500
+Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE104.ent.ti.com
+ (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Mon, 1 Apr 2019 00:58:14 -0500
+Received: from [172.24.191.45] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id x315wBJU085533;
+        Mon, 1 Apr 2019 00:58:12 -0500
+Subject: Re: [PATCH 1/5] rtc: OMAP: Add support for rtc-only mode
+To:     <tony@atomide.com>, <alexandre.belloni@bootlin.com>,
+        <a.zummo@towertech.it>, <t-kristo@ti.com>
+CC:     <ssantosh@kernel.org>, <d-gerlach@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+References: <20190322171619.4180-1-j-keerthy@ti.com>
+ <20190322171619.4180-2-j-keerthy@ti.com>
+From:   Keerthy <j-keerthy@ti.com>
+Message-ID: <63153288-85a3-6fee-c8ff-67d9470cf396@ti.com>
+Date:   Mon, 1 Apr 2019 11:28:38 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-In-Reply-To: <20190320123233.13519-3-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20190322171619.4180-2-j-keerthy@ti.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
-On 3/20/2019 6:02 PM, Alexandre Belloni wrote:
-> Use SPDX-License-Identifier instead of a verbose license text.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com
 
+On 22/03/19 10:46 PM, Keerthy wrote:
+> Prepare rtc driver for rtc-only with DDR in self-refresh mode.
+> omap_rtc_power_off now should cater to two features:
 
-Please refer https://lkml.org/lkml/2019/2/13/570 for more discussion on 
-this.
-once you fix that in all your SPDX license patches,you can take mine.,
+Hi Alexandre,
 
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Any feedback on this?
 
-Cheers,
--Mukesh
-
+Thanks,
+Keerthy
+> 
+> 1) RTC plus DDR in self-refresh is power a saving mode where in the
+> entire system including the different voltage rails from PMIC are
+> shutdown except the ones feeding on to RTC and DDR. DDR is kept in
+> self-refresh hence the contents are preserved. RTC ALARM2 is connected
+> to PMIC_EN line once we the ALARM2 is triggered we enter the mode with
+> DDR in self-refresh and RTC Ticking. After a predetermined time an RTC
+> ALARM1 triggers waking up the system[1]. The control goes to bootloader.
+> The bootloader then checks RTC scratchpad registers to confirm it was an
+> rtc_only wakeup and follows a different path, configure bare minimal
+> clocks for ddr and then jumps to the resume address in another RTC
+> scratchpad registers and transfers the control to Kernel. Kernel then
+> restores the saved context. omap_rtc_power_off_program does the ALARM2
+> programming part.
+> 
+>       [1] http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884
+> 
+> 2) Power-off: This is usual poweroff mode. omap_rtc_power_off calls the
+> above omap_rtc_power_off_program function and in addition to that
+> programs the OMAP_RTC_PMIC_REG for any external wake ups for PMIC like
+> the pushbutton and shuts off the PMIC.
+> 
+> Hence the split in omap_rtc_power_off.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
 > ---
->   drivers/rtc/rtc-xgene.c | 15 +--------------
->   1 file changed, 1 insertion(+), 14 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-> index e360f8917556..ba9121d02f02 100644
-> --- a/drivers/rtc/rtc-xgene.c
-> +++ b/drivers/rtc/rtc-xgene.c
-> @@ -1,23 +1,10 @@
-> +// SPDX-License-Identifier: GPL-2.0+
->   /*
->    * APM X-Gene SoC Real Time Clock Driver
->    *
->    * Copyright (c) 2014, Applied Micro Circuits Corporation
->    * Author: Rameshwar Prasad Sahu <rsahu@apm.com>
->    *         Loc Ho <lho@apm.com>
-> - *
-> - * This program is free software; you can redistribute  it and/or modify it
-> - * under  the terms of  the GNU General  Public License as published by the
-> - * Free Software Foundation;  either version 2 of the  License, or (at your
-> - * option) any later version.
-> - *
-> - * This program is distributed in the hope that it will be useful,
-> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> - * GNU General Public License for more details.
-> - *
-> - * You should have received a copy of the GNU General Public License
-> - * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-> - *
->    */
+>   drivers/rtc/rtc-omap.c | 48 +++++++++++++++++++++++++++++++++++-------
+>   1 file changed, 40 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+> index 2f28e21ee016..9b58c933e37d 100644
+> --- a/drivers/rtc/rtc-omap.c
+> +++ b/drivers/rtc/rtc-omap.c
+> @@ -407,15 +407,12 @@ static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 >   
->   #include <linux/init.h>
+>   static struct omap_rtc *omap_rtc_power_off_rtc;
+>   
+> -/*
+> - * omap_rtc_poweroff: RTC-controlled power off
+> - *
+> - * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+> - * which can be configured to transition to OFF on ALARM2 events.
+> - *
+> - * Called with local interrupts disabled.
+> +/**
+> + * omap_rtc_power_off_program: Set the pmic power off sequence. The RTC
+> + * generates pmic_pwr_enable control, which can be used to control an external
+> + * PMIC.
+>    */
+> -static void omap_rtc_power_off(void)
+> +static int omap_rtc_power_off_program(struct device *dev)
+>   {
+>   	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+>   	struct rtc_time tm;
+> @@ -429,6 +426,9 @@ static void omap_rtc_power_off(void)
+>   	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val | OMAP_RTC_PMIC_POWER_EN_EN);
+>   
+>   again:
+> +	/* Clear any existing ALARM2 event */
+> +	rtc_writel(rtc, OMAP_RTC_STATUS_REG, OMAP_RTC_STATUS_ALARM2);
+> +
+>   	/* set alarm one second from now */
+>   	omap_rtc_read_time_raw(rtc, &tm);
+>   	seconds = tm.tm_sec;
+> @@ -465,6 +465,38 @@ static void omap_rtc_power_off(void)
+>   
+>   	rtc->type->lock(rtc);
+>   
+> +	return 0;
+> +}
+> +
+> +/*
+> + * omap_rtc_poweroff: RTC-controlled power off
+> + *
+> + * The RTC can be used to control an external PMIC via the pmic_power_en pin,
+> + * which can be configured to transition to OFF on ALARM2 events.
+> + *
+> + * Notes:
+> + * The one-second alarm offset is the shortest offset possible as the alarm
+> + * registers must be set before the next timer update and the offset
+> + * calculation is too heavy for everything to be done within a single access
+> + * period (~15 us).
+> + *
+> + * Called with local interrupts disabled.
+> + */
+> +static void omap_rtc_power_off(void)
+> +{
+> +	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
+> +	u32 val;
+> +
+> +	omap_rtc_power_off_program(rtc->dev.parent);
+> +
+> +	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
+> +	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
+> +	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
+> +	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
+> +			OMAP_RTC_PMIC_EXT_WKUP_EN(0);
+> +	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
+> +	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
+> +
+>   	/*
+>   	 * Wait for alarm to trigger (within one second) and external PMIC to
+>   	 * power off the system. Add a 500 ms margin for external latencies
+> 
