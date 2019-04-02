@@ -2,106 +2,159 @@ Return-Path: <SRS0=5rMO=SE=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FB06C43381
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 07:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F93DC4360F
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 08:53:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6E190206BA
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 07:00:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="XqahE8ek"
+	by mail.kernel.org (Postfix) with ESMTP id D825620857
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 08:53:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbfDBHAQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Apr 2019 03:00:16 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:38050 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbfDBHAP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Apr 2019 03:00:15 -0400
-Received: by mail-pg1-f194.google.com with SMTP id j26so6063735pgl.5
-        for <linux-rtc@vger.kernel.org>; Tue, 02 Apr 2019 00:00:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=lG7q6x9bOATHtEAjfI+YGWaPNzgsxOn7kFCqmU7RA24=;
-        b=XqahE8ekqUVFS4tzTGLzmL74ptchRVDTW9nkVV58ffVsP9BKCdg2INqdSOiiC9SjQD
-         A1ugBwXu2E6MCucD4mUzKUFkzggMLo/BYZviJ+KD2XdmcDj5nFz933zBh9iicsR6O6rq
-         Hz+9Vs3b/KmqdrWV1KWmYVwkCw9QsK/h/6D5Lv+M7DS0OgHWNupLDH9hNhvZMd1eNkK8
-         xoVPrcceQ25WBMu0My92CJCK3O5h3z9zJhCIfs0CgluUkNlzi6vpYOFNYnNzhxb1ji9c
-         3RvIDBZ3rWmNLAxnYcail7f+tn0CYOhEXpEqp0A52FZ/9z8rPUwf1um9LGF9CYnHyUR0
-         w9QA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=lG7q6x9bOATHtEAjfI+YGWaPNzgsxOn7kFCqmU7RA24=;
-        b=ZD4jaGTdO1Ij9HUaYHlceosAZiu4ksSf0J6X2AVT8ByeFvT/bVqz5j8lt2UN+3M8su
-         I9sG1j8TEJxcEzs2W26qx6380VkjoP+lxgZ8v6ZJ0Vi+cWsAV2gLUvyu5MAz9cq3fUxh
-         acblSv/rArLmwi6lYvSF0hkjD++LfQj+Kf96hDUFsZSldFO51p4xVVnYB/ZNCA7mTRFX
-         Qv05JlJi0k7gpZbourIVgv3/WgiP8hIrtSAJree3+2gYrfGPtmzoAEby6ifKW/pP+WWP
-         pOzfW1PhRRIbM/XWBcg0ceOIJPrQynNOAMiEciREVLuk0d5FmkQnc3uz5CcVfFDMh5dF
-         Ax6w==
-X-Gm-Message-State: APjAAAWXGBuMSWr7QW5Nos9e4FbYbrThiW2RCynsUftdkeDWPNqkEs7M
-        fhk8LJboWj9bqL+a/kkxMPF67g==
-X-Google-Smtp-Source: APXvYqzTFEZ6Qlqz/GH8bk2tKD5L8rc0DmuRjI2qt8hubuCpxemLu19AP3S4u4E8ZhDqCUEBxfo5BQ==
-X-Received: by 2002:aa7:8c84:: with SMTP id p4mr28442799pfd.164.1554188415241;
-        Tue, 02 Apr 2019 00:00:15 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id v188sm17945692pgb.7.2019.04.02.00.00.09
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 02 Apr 2019 00:00:14 -0700 (PDT)
-Date:   Tue, 2 Apr 2019 08:00:07 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        srv_heupstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: Add compatible for the MediaTek
- MT6358 PMIC
-Message-ID: <20190402070007.GC4187@dell>
-References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
- <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
+        id S1726337AbfDBIx3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Apr 2019 04:53:29 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:44423 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725863AbfDBIx3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Apr 2019 04:53:29 -0400
+X-Originating-IP: 109.213.83.19
+Received: from localhost (alyon-652-1-60-19.w109-213.abo.wanadoo.fr [109.213.83.19])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id C969520006;
+        Tue,  2 Apr 2019 08:53:25 +0000 (UTC)
+Date:   Tue, 2 Apr 2019 10:53:25 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Subject: Re: [PATCH 1/2] rtc: da9063: set range
+Message-ID: <20190402085325.GT3430@piout.net>
+References: <CAMuHMdW_Gz4qaRXFeW-h7vNxJ5RwjDXDP4oZZcUaYHcqEC75bA@mail.gmail.com>
+ <VI1PR10MB235254A7A95F4045A5410D1EFE550@VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM>
+ <CAMuHMdVsp86n_1+c6NZpCG1MwcAzEH7rgaESHfYESb5YcLk6zw@mail.gmail.com>
+ <20190401132109.GA4570@kunai>
+ <CAMuHMdV79HAn8jpodQcripAViCqBh3rFGZ39oEiSiP8nC+UyTA@mail.gmail.com>
+ <20190401150741.vwqzzngnma4jvkid@ninjato>
+ <20190401151628.GK3430@piout.net>
+ <20190401155204.GA5964@kunai>
+ <20190401185346.GP3430@piout.net>
+ <20190401193424.sqnapthocznhjqok@ninjato>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20190401193424.sqnapthocznhjqok@ninjato>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 11 Mar 2019, Hsin-Hsiung Wang wrote:
-
-> This adds compatible for the MediaTek MT6358 PMIC.
+On 01/04/2019 21:34:25+0200, Wolfram Sang wrote:
 > 
-> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-> ---
->  Documentation/devicetree/bindings/mfd/mt6397.txt | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
+> > Well, seeing the code, I actually remembered that this test is still
+> > there to ensure the core will properly block. If you remove that test,
+> > the other ones should all timeout.
+> 
+> Thanks for your assistance! What I did just now was to make use of the
+> 'uie_unsupported' flag. This is the outcome:
+> 
+> 
+> [==========] Running 7 tests from 2 test cases.
+> [ RUN      ] rtc.date_read
+> rtctest.c:49:rtc.date_read:Current RTC date/time is 01/01/2000 00:13:23.
+> [       OK ] rtc.date_read
+> [ RUN      ] rtc.uie_read
+> [       OK ] rtc.uie_read
+> [ RUN      ] rtc.uie_select
+> [       OK ] rtc.uie_select
+> [ RUN      ] rtc.alarm_alm_set
+> rtctest.c:137:rtc.alarm_alm_set:Alarm time now set to 00:13:32.
+> rtctest.c:148:rtc.alarm_alm_set:Expected 0 (0) != rc (0)
+> rtc.alarm_alm_set: Test terminated by assertion
+> [     FAIL ] rtc.alarm_alm_set
+> [ RUN      ] rtc.alarm_wkalm_set
+> rtctest.c:195:rtc.alarm_wkalm_set:Alarm time now set to 01/01/2000
+> 00:13:37.
+> rtctest.c:202:rtc.alarm_wkalm_set:Expected 0 (0) != rc (0)
+> rtc.alarm_wkalm_set: Test terminated by assertion
+> [     FAIL ] rtc.alarm_wkalm_set
+> [ RUN      ] rtc.alarm_alm_set_minute
+> rtctest.c:239:rtc.alarm_alm_set_minute:Alarm time now set to 00:14:00.
+> rtctest.c:258:rtc.alarm_alm_set_minute:data: 1a0
+> [       OK ] rtc.alarm_alm_set_minute
+> [ RUN      ] rtc.alarm_wkalm_set_minute
+> rtctest.c:297:rtc.alarm_wkalm_set_minute:Alarm time now set to
+> 01/01/2000 00:15:00.
+> [       OK ] rtc.alarm_wkalm_set_minute
+> [==========] 5 / 7 tests passed.
+> [  FAILED  ]
+> 
+> I wonder why the_set_minute tests pass, but the other ones fail. I also
+> wonder why I need the uie_unsupported flag? It's been a while since I
+> dug into the RTC subsystem, I may be missing something. But I see the
+> UIE code finally calling into set_alarm for some codepath. We have that
+> for DA9063, but it is not executed for the UIE test of rtctest. However,
+> it seems the driver doesn't support this in an optimal way, because
+> there is a currently unused update interrupt which should be used for
+> UIE, or? I also wonder why all this works fine for Steve.
+> 
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+I had a look at the driver and I guess you have a 9063AD while Steve
+uses another model.
+
+That explains why you need the uie_unsupported flag. The 9063AD can only
+do alarms on a minute boundary.
+
+Since the move to hr_timer, the uie are done using the classic alarm or
+they are emulated by the core. This improved the situation for many RTCs
+that don't have a separate UIE but this made it worse for a few (and
+this is an example). I have plan to work on this but didn't have the
+time yet.
+
+I suggest the following patch:
+
+===
+
+From 37b2ab7d537e76e42bde64cf4b57701b0ed8e8cd Mon Sep 17 00:00:00 2001
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Tue, 2 Apr 2019 10:06:46 +0200
+Subject: [PATCH] rtc: da9063: set uie_unsupported when relevant
+
+The DA9063AD doesn't support alarms on any seconds and its granularity is
+the minute. Set uie_unsupported in that case.
+
+Reported-by: Wolfram Sang <wsa@the-dreams.de>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-da9063.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index 1b792bcea3c7..53e690b0f3a2 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -475,6 +475,9 @@ static int da9063_rtc_probe(struct platform_device *pdev)
+ 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+ 	rtc->rtc_sync = false;
+ 
++	if (config->rtc_data_start != RTC_SEC)
++		rtc->rtc_dev->uie_unsupported = 1;
++
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
+-- 
+2.20.1
+
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
