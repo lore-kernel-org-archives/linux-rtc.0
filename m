@@ -1,102 +1,115 @@
-Return-Path: <SRS0=n38N=SD=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=5rMO=SE=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 287F5C43381
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 20:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C35C3C43381
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 03:43:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E578420880
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Apr 2019 20:40:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 940332084C
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 03:43:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="O+9DY1Kv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726845AbfDAUki (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 16:40:38 -0400
-Received: from muru.com ([72.249.23.125]:43972 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725878AbfDAUkh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 1 Apr 2019 16:40:37 -0400
-Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id BF58180C0;
-        Mon,  1 Apr 2019 20:40:50 +0000 (UTC)
-Date:   Mon, 1 Apr 2019 13:40:33 -0700
-From:   Tony Lindgren <tony@atomide.com>
-To:     Andreas Kemnade <andreas@kemnade.info>
-Cc:     Keerthy <j-keerthy@ti.com>, alexandre.belloni@bootlin.com,
-        a.zummo@towertech.it, t-kristo@ti.com, ssantosh@kernel.org,
-        d-gerlach@ti.com, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 3/5] arm: mach-omap2: pm33xx: Add support for rtc+ddr in
- self refresh mode
-Message-ID: <20190401204033.GK49658@atomide.com>
-References: <20190322171619.4180-1-j-keerthy@ti.com>
- <20190322171619.4180-4-j-keerthy@ti.com>
- <20190401175245.GJ49658@atomide.com>
- <20190401203854.3b6ec1a2@kemnade.info>
+        id S1728998AbfDBDnB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Apr 2019 23:43:01 -0400
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:54132 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726501AbfDBDnB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 23:43:01 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id x323gefM112498;
+        Mon, 1 Apr 2019 22:42:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1554176561;
+        bh=Tph+O+cLTIQxRmULTRZl3ZFK9nJKoXWtLL54Ev+masQ=;
+        h=From:To:CC:Subject:Date;
+        b=O+9DY1Kv4nnLCL0mAcvQVkAi0q7ROHAI7GPcR7H7991dnuulbC8tBBtsHsFQnfrta
+         R6nV67S1mQowoiVev+TV+n0XDaFmzwHetpVQ9LGAo1S20Rv3V/kG/s9mjSw9+dzGoa
+         A4zxfO07U2ujY3wusXv2dXJKmesO6qR72SimILqw=
+Received: from DFLE100.ent.ti.com (dfle100.ent.ti.com [10.64.6.21])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x323geEX081901
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 1 Apr 2019 22:42:40 -0500
+Received: from DFLE100.ent.ti.com (10.64.6.21) by DFLE100.ent.ti.com
+ (10.64.6.21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Mon, 1 Apr
+ 2019 22:42:40 -0500
+Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE100.ent.ti.com
+ (10.64.6.21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Mon, 1 Apr 2019 22:42:40 -0500
+Received: from a0393675ula.india.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id x323gb9E070613;
+        Mon, 1 Apr 2019 22:42:37 -0500
+From:   Keerthy <j-keerthy@ti.com>
+To:     <tony@atomide.com>, <alexandre.belloni@bootlin.com>,
+        <a.zummo@towertech.it>, <t-kristo@ti.com>
+CC:     <ssantosh@kernel.org>, <d-gerlach@ti.com>,
+        <linux-omap@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-rtc@vger.kernel.org>, <j-keerthy@ti.com>
+Subject: [PATCH v2 0/5] AM437x: Add rtc-only + DDR mode support
+Date:   Tue, 2 Apr 2019 09:12:48 +0530
+Message-ID: <20190402034253.4928-1-j-keerthy@ti.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190401203854.3b6ec1a2@kemnade.info>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-* Andreas Kemnade <andreas@kemnade.info> [190401 18:39]:
-> On Mon, 1 Apr 2019 10:52:45 -0700
-> Tony Lindgren <tony@atomide.com> wrote:
-> 
-> > Hi,
-> > 
-> > * Keerthy <j-keerthy@ti.com> [190322 17:16]:
-> > > +static int am43xx_check_off_mode_enable(void)
-> > > +{
-> > > +	/*
-> > > +	 * Check for am437x-sk-evm which due to HW design cannot support
-> > > +	 * this mode reliably.
-> > > +	 */
-> > > +	if (of_machine_is_compatible("ti,am437x-sk-evm") && enable_off_mode) {
-> > > +		pr_warn("WARNING: This platform does not support off-mode, entering DeepSleep suspend.\n");
-> > > +		return 0;
-> > > +	}
-> > > +
-> > > +	return enable_off_mode;
-> > > +}  
-> > 
-> > Considering off-mode suspend depends on how the board is
-> > wired for various things such as memory, PMIC and the related
-> > signal lines, I agree using the machine compatible is the best
-> > check we can do here.
-> > 
-> > But since the device can hang during suspend unless things are
-> > configured right for the board, I suggest you rather list allowed
-> > boards here that are known to work with off-mode.
-> > 
-> Could we somehow describe this property of the hardware
-> (is-offmode-capable or is-wired-for-offmode) as a separate devicetree
-> property of the soc?
-> 
-> In mmc we have for example "cap-power-off-card" for
-> indicating some is-wired-suitable-for thing.
+RTC plus DDR in self-refresh is a power saving mode where in the entire
+system including the different voltage rails from PMIC are shutdown except
+the ones feeding on to RTC and DDR. DDR is kept in self-refresh hence the
+contents are preserved.
 
-And we also have "regulator-off-in-suspend".
+RTC ALARM2 is connected to PMIC_EN line. TPS65218 PMIC has granular voltage rail
+control. The voltage rail feeding RTC is kept on while the rest of the PMIC
+regulators are powered off.
 
-How about "soc-off-in-suspend" for the generic name?
+Once the ALARM2 is triggered we enter the mode with DDR in self-refresh
+and RTC Ticking. After a predetermined time an RTC ALARM1 triggers
+waking up the system. The control goes to bootloader. The bootloader then checks
+RTC scratchpad registers to confirm it was an rtc_only wakeup and follows
+a different path, configure bare minimal clocks for ddr and then jumps to
+the resume address in another RTC scratchpad registers and transfers the
+control to Kernel. Kernel then restores the saved context.
 
-> That looks to be clearer as looking for some strange conditions
-> derived from something.
-> 
-> I have still my offmode patch os the boilerplate...
+The patch series adds rtc-only + DDR mode support am am437x
+Tested DS0, rtc+ddr back and forth on am437x-gp-evm board.
 
-Care to send a binding patch to devicetree@vger.kernel.org
-for that?
+This mode works only with u-boot built with am43xx_evm_rtconly_defconfig
 
-And then when it gets acked, we can just start using it :)
+Additional patch is needed for omap-gpio save restore which will
+come as fixes later. 
 
-Regards,
+Hardware Description of this mode can be found here:
 
-Tony
+http://www.ti.com/lit/ug/spruhl7h/spruhl7h.pdf Page 2884. 
+
+Keerthy (5):
+  rtc: OMAP: Add support for rtc-only mode
+  rtc: interface: Add power_off_program to rtc_class_ops
+  arm: mach-omap2: pm33xx: Add support for rtc+ddr in self  refresh mode
+  soc: ti: pm33xx: Push the am33xx_push_sram_idle to the top
+  soc: ti: pm33xx: AM437X: Add rtc_only with ddr in self-refresh support
+
+ arch/arm/mach-omap2/pm33xx-core.c    |  76 +++++++-
+ drivers/rtc/interface.c              |  12 ++
+ drivers/rtc/rtc-omap.c               |  49 ++++-
+ drivers/soc/ti/Kconfig               |   5 +-
+ drivers/soc/ti/pm33xx.c              | 272 ++++++++++++++++++++++-----
+ include/linux/platform_data/pm33xx.h |   5 +
+ include/linux/rtc.h                  |   2 +
+ 7 files changed, 360 insertions(+), 61 deletions(-)
+
+-- 
+2.17.1
 
