@@ -2,419 +2,100 @@ Return-Path: <SRS0=5rMO=SE=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CDF0C4360F
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 03:43:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B695C10F00
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 06:30:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12F0D2084C
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 03:43:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A1822084C
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 06:30:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="X8vgYYRU"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="O7rGKw0I"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbfDBDnd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Apr 2019 23:43:33 -0400
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:53726 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728682AbfDBDnd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Apr 2019 23:43:33 -0400
-Received: from lelv0266.itg.ti.com ([10.180.67.225])
-        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id x323guHt115077;
-        Mon, 1 Apr 2019 22:42:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1554176576;
-        bh=brPflXTsxZ7T53e99RB9WvZYBr7Vjqny6we2M6GIZUo=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=X8vgYYRU91dMCQEjtOAq0VZVD8IvAnQxgIH/xpm8UdyDDzTMq6M6P4PfUgrlmR2wk
-         mxTKZHQdd9intH+SqwPSM+TQGdA6xBW/LsYKYlvGfyBibT4wHFHav9bieJW+17zJlA
-         nx7fqFRAAKtV8VXpYY9BkwceY8Kg90N5aTz3YkXA=
-Received: from DFLE103.ent.ti.com (dfle103.ent.ti.com [10.64.6.24])
-        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x323guVF082062
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 1 Apr 2019 22:42:56 -0500
-Received: from DFLE108.ent.ti.com (10.64.6.29) by DFLE103.ent.ti.com
- (10.64.6.24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Mon, 1 Apr
- 2019 22:42:56 -0500
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE108.ent.ti.com
- (10.64.6.29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
- Frontend Transport; Mon, 1 Apr 2019 22:42:56 -0500
-Received: from a0393675ula.india.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id x323gb9J070613;
-        Mon, 1 Apr 2019 22:42:53 -0500
-From:   Keerthy <j-keerthy@ti.com>
-To:     <tony@atomide.com>, <alexandre.belloni@bootlin.com>,
-        <a.zummo@towertech.it>, <t-kristo@ti.com>
-CC:     <ssantosh@kernel.org>, <d-gerlach@ti.com>,
-        <linux-omap@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-rtc@vger.kernel.org>, <j-keerthy@ti.com>
-Subject: [PATCH v2 5/5] soc: ti: pm33xx: AM437X: Add rtc_only with ddr in self-refresh support
-Date:   Tue, 2 Apr 2019 09:12:53 +0530
-Message-ID: <20190402034253.4928-6-j-keerthy@ti.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190402034253.4928-1-j-keerthy@ti.com>
-References: <20190402034253.4928-1-j-keerthy@ti.com>
+        id S1728978AbfDBGaW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Apr 2019 02:30:22 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:43749 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726827AbfDBGaW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Apr 2019 02:30:22 -0400
+Received: by mail-pf1-f194.google.com with SMTP id c8so5819558pfd.10
+        for <linux-rtc@vger.kernel.org>; Mon, 01 Apr 2019 23:30:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=SOglYRPih9EpLa0LiX9DsS4FjH8isJrElh588t5zvOU=;
+        b=O7rGKw0IHEywHPtomwd5hzuuR9JV3j07ljakH2zv2vuXkaWSxINio71rUSRm9pYuHE
+         0UJtjcemLcHAclU5k5oeKrN8fkOC7x9aAHpJWiy5WPgr5klz+OfqGV1A7ko9Uqy4VDSm
+         LyVA2p7EKG6Nkqx/HnoxZ2ig/6u1v/Vq434icc7k8o2iPDvO8rG6Hj3eDDzfHzlinnkO
+         0doEjI6zw1Vul6xH0wHqSWjrQJTI8K0ZznYfOjAazFLGSTWnEjXZO0vRvdYKT2pqAv4s
+         bZM1n1JBF+bcO+KujH+P8APuzsch+YMEESmi6AVzSUNkkXl/rofQ1EkE/5wlLfyxP9vc
+         VPOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=SOglYRPih9EpLa0LiX9DsS4FjH8isJrElh588t5zvOU=;
+        b=DdMqSC8Q9v87FSefmMPkNqjLG46jEyUDMlu1XXm86U4nbidgUotxvmDU8qIopoloM2
+         1CQMccgjhzpOr0gQPxLBWhnwMTI08lLueH0Rr7MjTn989mK/ZadOxRMld6y5i+DkDdO6
+         IRBhg7N4x9S5gWrXn6hmoXxgWm9tsuks9ckXOU+ec1+MTF1wGxButE85gjDmsXftQKMs
+         ho8LC2c9JoYfPXP9Usm0ajI8/G//9NzEthZ7wV/QiKAZ4Jis4domHcJ7OPavAWg+PTy0
+         UOiiztd8tLYLxUZZ7WnHW1lnYbsNLHUOmPjGH5rFmXs8mZuEveEvwxsCJKEbj+t50alJ
+         m4cQ==
+X-Gm-Message-State: APjAAAWddrnJCY50jOkt6q/kK8jL2va2XgUNr96zdWDRo81ag9EP3o5/
+        qPFpofXwDmyEMTlvdB5LMKa0SQ==
+X-Google-Smtp-Source: APXvYqxZTEnzj8GMRHL+Muvlbh1nnrK7fezvHY68Hb4Xn6u7t9koLRHh4PxwSMJY9Welya3cF3J7pw==
+X-Received: by 2002:a63:ad4b:: with SMTP id y11mr51716240pgo.405.1554186621868;
+        Mon, 01 Apr 2019 23:30:21 -0700 (PDT)
+Received: from dell ([147.50.13.10])
+        by smtp.gmail.com with ESMTPSA id z6sm20428029pgo.31.2019.04.01.23.30.15
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 01 Apr 2019 23:30:20 -0700 (PDT)
+Date:   Tue, 2 Apr 2019 07:30:11 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Tony Xie <tony.xie@rock-chips.com>
+Cc:     heiko@sntech.de, broonie@kernel.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v7 1/6] mfd: rk808: remove the id_table
+Message-ID: <20190402063011.GY4187@dell>
+References: <20190102102002.29245-1-tony.xie@rock-chips.com>
+ <20190102102002.29245-2-tony.xie@rock-chips.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190102102002.29245-2-tony.xie@rock-chips.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-During RTC-only suspend, power is lost to the wkup domain, so we need to
-save and restore the state of that domain. We also need to store some
-information within the RTC registers so that u-boot can do the right thing
-at powerup.
+On Wed, 02 Jan 2019, Tony Xie wrote:
 
-The state is entered by getting the RTC to bring the pmic_power_en line low
-which will instruct the PMIC to disable the appropriate power rails after
-putting DDR into self-refresh mode. To bring pmic_power_en low, we need to
-get an ALARM2 event. Since we are running from SRAM at that point, it means
-calculating what the next second is (via ASM) and programming that into the
-RTC. This patch also adds support for wake up source detection.
+> Remove the id_table because it's not used.
+> 
+> Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> ---
+>  drivers/mfd/rk808.c | 9 ---------
+>  1 file changed, 9 deletions(-)
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
----
- drivers/soc/ti/Kconfig  |   5 +-
- drivers/soc/ti/pm33xx.c | 190 ++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 184 insertions(+), 11 deletions(-)
+Applied, thanks.
 
-diff --git a/drivers/soc/ti/Kconfig b/drivers/soc/ti/Kconfig
-index be4570baad96..57960e92ebe0 100644
---- a/drivers/soc/ti/Kconfig
-+++ b/drivers/soc/ti/Kconfig
-@@ -45,11 +45,12 @@ config KEYSTONE_NAVIGATOR_DMA
- config AMX3_PM
- 	tristate "AMx3 Power Management"
- 	depends on SOC_AM33XX || SOC_AM43XX
--	depends on WKUP_M3_IPC && TI_EMIF_SRAM && SRAM
-+	depends on WKUP_M3_IPC && TI_EMIF_SRAM && SRAM && RTC_DRV_OMAP
- 	help
- 	  Enable power management on AM335x and AM437x. Required for suspend to mem
- 	  and standby states on both AM335x and AM437x platforms and for deeper cpuidle
--	  c-states on AM335x.
-+	  c-states on AM335x. Also required for rtc and ddr in self-refresh low
-+	  power mode on AM437x platforms.
- 
- config WKUP_M3_IPC
- 	tristate "TI AMx3 Wkup-M3 IPC Driver"
-diff --git a/drivers/soc/ti/pm33xx.c b/drivers/soc/ti/pm33xx.c
-index 69128993776d..52394da9660a 100644
---- a/drivers/soc/ti/pm33xx.c
-+++ b/drivers/soc/ti/pm33xx.c
-@@ -6,6 +6,7 @@
-  *	Vaibhav Bedia, Dave Gerlach
-  */
- 
-+#include <linux/clk.h>
- #include <linux/cpu.h>
- #include <linux/err.h>
- #include <linux/genalloc.h>
-@@ -13,9 +14,11 @@
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/module.h>
-+#include <linux/nvmem-consumer.h>
- #include <linux/of.h>
- #include <linux/platform_data/pm33xx.h>
- #include <linux/platform_device.h>
-+#include <linux/rtc.h>
- #include <linux/sizes.h>
- #include <linux/sram.h>
- #include <linux/suspend.h>
-@@ -29,20 +32,47 @@
- #define AMX3_PM_SRAM_SYMBOL_OFFSET(sym) ((unsigned long)(sym) - \
- 					 (unsigned long)pm_sram->do_wfi)
- 
-+#define RTC_SCRATCH_RESUME_REG	0
-+#define RTC_SCRATCH_MAGIC_REG	1
-+#define RTC_REG_BOOT_MAGIC	0x8cd0 /* RTC */
-+#define GIC_INT_SET_PENDING_BASE 0x200
-+#define AM43XX_GIC_DIST_BASE	0x48241000
-+
-+static u32 rtc_magic_val;
-+
- static int (*am33xx_do_wfi_sram)(unsigned long unused);
- static phys_addr_t am33xx_do_wfi_sram_phys;
- 
- static struct gen_pool *sram_pool, *sram_pool_data;
- static unsigned long ocmcram_location, ocmcram_location_data;
- 
-+static struct rtc_device *omap_rtc;
-+static void __iomem *gic_dist_base;
-+
- static struct am33xx_pm_platform_data *pm_ops;
- static struct am33xx_pm_sram_addr *pm_sram;
- 
- static struct device *pm33xx_dev;
- static struct wkup_m3_ipc *m3_ipc;
- 
-+#ifdef CONFIG_SUSPEND
-+static int rtc_only_idle;
-+static int retrigger_irq;
- static unsigned long suspend_wfi_flags;
- 
-+static struct wkup_m3_wakeup_src wakeup_src = {.irq_nr = 0,
-+	.src = "Unknown",
-+};
-+
-+static struct wkup_m3_wakeup_src rtc_alarm_wakeup = {
-+	.irq_nr = 108, .src = "RTC Alarm",
-+};
-+
-+static struct wkup_m3_wakeup_src rtc_ext_wakeup = {
-+	.irq_nr = 0, .src = "Ext wakeup",
-+};
-+#endif
-+
- static u32 sram_suspend_address(unsigned long addr)
- {
- 	return ((unsigned long)am33xx_do_wfi_sram +
-@@ -99,13 +129,65 @@ static int am33xx_push_sram_idle(void)
- 	return 0;
- }
- 
-+static int __init am43xx_map_gic(void)
-+{
-+	gic_dist_base = ioremap(AM43XX_GIC_DIST_BASE, SZ_4K);
-+
-+	if (!gic_dist_base)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_SUSPEND
-+struct wkup_m3_wakeup_src rtc_wake_src(void)
-+{
-+	u32 i;
-+
-+	i = __raw_readl(pm_ops->get_rtc_base_addr() + 0x44) & 0x40;
-+
-+	if (i) {
-+		retrigger_irq = rtc_alarm_wakeup.irq_nr;
-+		return rtc_alarm_wakeup;
-+	}
-+
-+	retrigger_irq = rtc_ext_wakeup.irq_nr;
-+
-+	return rtc_ext_wakeup;
-+}
-+
-+int am33xx_rtc_only_idle(unsigned long wfi_flags)
-+{
-+	rtc_power_off_program(omap_rtc);
-+	am33xx_do_wfi_sram(wfi_flags);
-+	return 0;
-+}
-+
- static int am33xx_pm_suspend(suspend_state_t suspend_state)
- {
- 	int i, ret = 0;
- 
--	ret = pm_ops->soc_suspend((unsigned long)suspend_state,
--				  am33xx_do_wfi_sram, suspend_wfi_flags);
-+	if (suspend_state == PM_SUSPEND_MEM &&
-+	    pm_ops->check_off_mode_enable()) {
-+		pm_ops->prepare_rtc_suspend();
-+		pm_ops->save_context();
-+		suspend_wfi_flags |= WFI_FLAG_RTC_ONLY;
-+		clk_save_context();
-+		ret = pm_ops->soc_suspend(suspend_state, am33xx_rtc_only_idle,
-+					  suspend_wfi_flags);
-+
-+		suspend_wfi_flags &= ~WFI_FLAG_RTC_ONLY;
-+
-+		if (!ret) {
-+			clk_restore_context();
-+			pm_ops->restore_context();
-+			m3_ipc->ops->set_rtc_only(m3_ipc);
-+			am33xx_push_sram_idle();
-+		}
-+	} else {
-+		ret = pm_ops->soc_suspend(suspend_state, am33xx_do_wfi_sram,
-+					  suspend_wfi_flags);
-+	}
- 
- 	if (ret) {
- 		dev_err(pm33xx_dev, "PM: Kernel suspend failure\n");
-@@ -127,8 +209,20 @@ static int am33xx_pm_suspend(suspend_state_t suspend_state)
- 				"PM: CM3 returned unknown result = %d\n", i);
- 			ret = -1;
- 		}
-+
-+		/* print the wakeup reason */
-+		if (rtc_only_idle) {
-+			wakeup_src = rtc_wake_src();
-+			pr_info("PM: Wakeup source %s\n", wakeup_src.src);
-+		} else {
-+			pr_info("PM: Wakeup source %s\n",
-+				m3_ipc->ops->request_wake_src(m3_ipc));
-+		}
- 	}
- 
-+	if (suspend_state == PM_SUSPEND_MEM && pm_ops->check_off_mode_enable())
-+		pm_ops->prepare_rtc_resume();
-+
- 	return ret;
- }
- 
-@@ -151,6 +245,18 @@ static int am33xx_pm_enter(suspend_state_t suspend_state)
- static int am33xx_pm_begin(suspend_state_t state)
- {
- 	int ret = -EINVAL;
-+	struct nvmem_device *nvmem;
-+
-+	if (state == PM_SUSPEND_MEM && pm_ops->check_off_mode_enable()) {
-+		nvmem = devm_nvmem_device_get(&omap_rtc->dev,
-+					      "omap_rtc_scratch0");
-+		if (nvmem)
-+			nvmem_device_write(nvmem, RTC_SCRATCH_MAGIC_REG * 4, 4,
-+					   (void *)&rtc_magic_val);
-+		rtc_only_idle = 1;
-+	} else {
-+		rtc_only_idle = 0;
-+	}
- 
- 	switch (state) {
- 	case PM_SUSPEND_MEM:
-@@ -166,7 +272,28 @@ static int am33xx_pm_begin(suspend_state_t state)
- 
- static void am33xx_pm_end(void)
- {
-+	u32 val = 0;
-+	struct nvmem_device *nvmem;
-+
-+	nvmem = devm_nvmem_device_get(&omap_rtc->dev, "omap_rtc_scratch0");
- 	m3_ipc->ops->finish_low_power(m3_ipc);
-+	if (rtc_only_idle) {
-+		if (retrigger_irq)
-+			/*
-+			 * 32 bits of Interrupt Set-Pending correspond to 32
-+			 * 32 interrupts. Compute the bit offset of the
-+			 * Interrupt and set that particular bit
-+			 * Compute the register offset by dividing interrupt
-+			 * number by 32 and mutiplying by 4
-+			 */
-+			writel_relaxed(1 << (retrigger_irq & 31),
-+				       gic_dist_base + GIC_INT_SET_PENDING_BASE
-+				       + retrigger_irq / 32 * 4);
-+			nvmem_device_write(nvmem, RTC_SCRATCH_MAGIC_REG * 4, 4,
-+					   (void *)&val);
-+	}
-+
-+	rtc_only_idle = 0;
- }
- 
- static int am33xx_pm_valid(suspend_state_t state)
-@@ -269,6 +396,42 @@ static int am33xx_pm_alloc_sram(void)
- 	return ret;
- }
- 
-+static int am33xx_pm_rtc_setup(void)
-+{
-+	struct device_node *np;
-+	unsigned long val = 0;
-+	struct nvmem_device *nvmem;
-+
-+	np = of_find_node_by_name(NULL, "rtc");
-+
-+	if (of_device_is_available(np)) {
-+		omap_rtc = rtc_class_open("rtc0");
-+		if (!omap_rtc) {
-+			pr_warn("PM: rtc0 not available");
-+			return -EPROBE_DEFER;
-+		}
-+
-+		nvmem = devm_nvmem_device_get(&omap_rtc->dev,
-+					      "omap_rtc_scratch0");
-+		if (nvmem) {
-+			nvmem_device_read(nvmem, RTC_SCRATCH_MAGIC_REG * 4,
-+					  4, (void *)&rtc_magic_val);
-+			if ((rtc_magic_val & 0xffff) != RTC_REG_BOOT_MAGIC)
-+				pr_warn("PM: bootloader does not support rtc-only!\n");
-+
-+			nvmem_device_write(nvmem, RTC_SCRATCH_MAGIC_REG * 4,
-+					   4, (void *)&val);
-+			val = pm_sram->resume_address;
-+			nvmem_device_write(nvmem, RTC_SCRATCH_RESUME_REG * 4,
-+					   4, (void *)&val);
-+		}
-+	} else {
-+		pr_warn("PM: no-rtc available, rtc-only mode disabled.\n");
-+	}
-+
-+	return 0;
-+}
-+
- static int am33xx_pm_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -284,34 +447,42 @@ static int am33xx_pm_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
-+	ret = am43xx_map_gic();
-+	if (ret) {
-+		pr_err("PM: Could not ioremap GIC base\n");
-+		return ret;
-+	}
-+
- 	pm_sram = pm_ops->get_sram_addrs();
- 	if (!pm_sram) {
- 		dev_err(dev, "PM: Cannot get PM asm function addresses!!\n");
- 		return -ENODEV;
- 	}
- 
-+	m3_ipc = wkup_m3_ipc_get();
-+	if (!m3_ipc) {
-+		pr_err("PM: Cannot get wkup_m3_ipc handle\n");
-+		return -EPROBE_DEFER;
-+	}
-+
- 	pm33xx_dev = dev;
- 
- 	ret = am33xx_pm_alloc_sram();
- 	if (ret)
- 		return ret;
- 
--	ret = am33xx_push_sram_idle();
-+	ret = am33xx_pm_rtc_setup();
- 	if (ret)
- 		goto err_free_sram;
- 
--	m3_ipc = wkup_m3_ipc_get();
--	if (!m3_ipc) {
--		dev_dbg(dev, "PM: Cannot get wkup_m3_ipc handle\n");
--		ret = -EPROBE_DEFER;
-+	ret = am33xx_push_sram_idle();
-+	if (ret)
- 		goto err_free_sram;
--	}
- 
- 	am33xx_pm_set_ipc_ops();
- 
- #ifdef CONFIG_SUSPEND
- 	suspend_set_ops(&am33xx_pm_ops);
--#endif /* CONFIG_SUSPEND */
- 
- 	/*
- 	 * For a system suspend we must flush the caches, we want
-@@ -323,6 +494,7 @@ static int am33xx_pm_probe(struct platform_device *pdev)
- 	suspend_wfi_flags |= WFI_FLAG_SELF_REFRESH;
- 	suspend_wfi_flags |= WFI_FLAG_SAVE_EMIF;
- 	suspend_wfi_flags |= WFI_FLAG_WAKE_M3;
-+#endif /* CONFIG_SUSPEND */
- 
- 	ret = pm_ops->init();
- 	if (ret) {
 -- 
-2.17.1
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
