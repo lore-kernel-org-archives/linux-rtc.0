@@ -7,56 +7,56 @@ X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E37A0C43381
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 06:48:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FB06C43381
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 07:00:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AF72220833
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 06:48:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E190206BA
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Apr 2019 07:00:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="C3Mju4yy"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="XqahE8ek"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbfDBGsw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Apr 2019 02:48:52 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:46531 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726805AbfDBGsw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Apr 2019 02:48:52 -0400
-Received: by mail-pf1-f194.google.com with SMTP id 9so5837129pfj.13
-        for <linux-rtc@vger.kernel.org>; Mon, 01 Apr 2019 23:48:51 -0700 (PDT)
+        id S1729306AbfDBHAQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Apr 2019 03:00:16 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:38050 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725812AbfDBHAP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Apr 2019 03:00:15 -0400
+Received: by mail-pg1-f194.google.com with SMTP id j26so6063735pgl.5
+        for <linux-rtc@vger.kernel.org>; Tue, 02 Apr 2019 00:00:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to
          :user-agent;
-        bh=wqqhpOshfOodSZDcIGAPglJ+O3e5ZBYgiqEoT7BdCo4=;
-        b=C3Mju4yyYYV/s231iRmErUBgy7w3R+44E6tTiFacEPZFTA9EupNspRRfnWXsgiReT0
-         K+yhbRT7HaNHI0vrekyPCIqX9oqZENJfFAt1XIVbEouuEb3tF1rTrlSgBkwdk82lhZdM
-         p6GBtGGm62JqMvZvlh/NkADOtm68YVR3S9uBGPIO/z0DxlWP9UeOls6POaR69eCoO3up
-         6WdtnuOnfyjQmil2SYqh6RWUKjfgraB2iySzU13QNR/5OVdttmg4A2t34/L7OXadyDi2
-         KiNoLQQ4vgvmrhgXpaLzodOPF1vdcW8CqPaMu0z5i9Mu4mYKGJd73NWnm2Xblpwy9eRc
-         hCkw==
+        bh=lG7q6x9bOATHtEAjfI+YGWaPNzgsxOn7kFCqmU7RA24=;
+        b=XqahE8ekqUVFS4tzTGLzmL74ptchRVDTW9nkVV58ffVsP9BKCdg2INqdSOiiC9SjQD
+         A1ugBwXu2E6MCucD4mUzKUFkzggMLo/BYZviJ+KD2XdmcDj5nFz933zBh9iicsR6O6rq
+         Hz+9Vs3b/KmqdrWV1KWmYVwkCw9QsK/h/6D5Lv+M7DS0OgHWNupLDH9hNhvZMd1eNkK8
+         xoVPrcceQ25WBMu0My92CJCK3O5h3z9zJhCIfs0CgluUkNlzi6vpYOFNYnNzhxb1ji9c
+         3RvIDBZ3rWmNLAxnYcail7f+tn0CYOhEXpEqp0A52FZ/9z8rPUwf1um9LGF9CYnHyUR0
+         w9QA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to:user-agent;
-        bh=wqqhpOshfOodSZDcIGAPglJ+O3e5ZBYgiqEoT7BdCo4=;
-        b=NRCtN2dbXHY9oNyvse9lJRcShSP+37vuJbqDRIjzHMCT6njDx7fRf/m1FHioWJnhuT
-         wpclJ/hKWIXad/7yrwY9bpAx13GWXf7wN166sNvay8EJ+bRJ3dKqi31HBBOCgLMqKTV0
-         YU6bgq5WjZAMW+hluVG9py48revEpVW0HfVVeabfMlvOSlA493V3uGdc1rn0GPgx4hd2
-         /aXOHdcjJ1TaWIxCg9YIJw7mkhCU506DX7J1l2Yd62vdF+5mi7I+AJhrJ8tqnmik7LiD
-         aWVQNjfe18PWR0DiJPkG3zoqsHLDGU6M5Gli2cSz+IzZjJdyjlzDV8Nd5jVkoI2TWoCx
-         uKrg==
-X-Gm-Message-State: APjAAAWZEz+irGi9REsGq7exUrGzbMG5GumWClg7RBdnA/95ht2hegIM
-        7h2GeiGJgnCcTkFBphXdQG7xEw==
-X-Google-Smtp-Source: APXvYqyddrSgIMwsV1J9ZanAa0NUJW1WXXZ+A651l1mQbU1UKhz2tfmN0n0yyJh/hu/tHG4Qv7GqFA==
-X-Received: by 2002:a63:711d:: with SMTP id m29mr19511042pgc.109.1554187731349;
-        Mon, 01 Apr 2019 23:48:51 -0700 (PDT)
+        bh=lG7q6x9bOATHtEAjfI+YGWaPNzgsxOn7kFCqmU7RA24=;
+        b=ZD4jaGTdO1Ij9HUaYHlceosAZiu4ksSf0J6X2AVT8ByeFvT/bVqz5j8lt2UN+3M8su
+         I9sG1j8TEJxcEzs2W26qx6380VkjoP+lxgZ8v6ZJ0Vi+cWsAV2gLUvyu5MAz9cq3fUxh
+         acblSv/rArLmwi6lYvSF0hkjD++LfQj+Kf96hDUFsZSldFO51p4xVVnYB/ZNCA7mTRFX
+         Qv05JlJi0k7gpZbourIVgv3/WgiP8hIrtSAJree3+2gYrfGPtmzoAEby6ifKW/pP+WWP
+         pOzfW1PhRRIbM/XWBcg0ceOIJPrQynNOAMiEciREVLuk0d5FmkQnc3uz5CcVfFDMh5dF
+         Ax6w==
+X-Gm-Message-State: APjAAAWXGBuMSWr7QW5Nos9e4FbYbrThiW2RCynsUftdkeDWPNqkEs7M
+        fhk8LJboWj9bqL+a/kkxMPF67g==
+X-Google-Smtp-Source: APXvYqzTFEZ6Qlqz/GH8bk2tKD5L8rc0DmuRjI2qt8hubuCpxemLu19AP3S4u4E8ZhDqCUEBxfo5BQ==
+X-Received: by 2002:aa7:8c84:: with SMTP id p4mr28442799pfd.164.1554188415241;
+        Tue, 02 Apr 2019 00:00:15 -0700 (PDT)
 Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id u4sm38874820pgn.12.2019.04.01.23.48.45
+        by smtp.gmail.com with ESMTPSA id v188sm17945692pgb.7.2019.04.02.00.00.09
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 01 Apr 2019 23:48:49 -0700 (PDT)
-Date:   Tue, 2 Apr 2019 07:48:42 +0100
+        Tue, 02 Apr 2019 00:00:14 -0700 (PDT)
+Date:   Tue, 2 Apr 2019 08:00:07 +0100
 From:   Lee Jones <lee.jones@linaro.org>
 To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 Cc:     Rob Herring <robh+dt@kernel.org>,
@@ -72,15 +72,16 @@ Cc:     Rob Herring <robh+dt@kernel.org>,
         Sean Wang <sean.wang@mediatek.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v2 1/9] mfd: mt6397: clean up code
-Message-ID: <20190402064842.GB4187@dell>
+Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: Add compatible for the MediaTek
+ MT6358 PMIC
+Message-ID: <20190402070007.GC4187@dell>
 References: <1552275991-34648-1-git-send-email-hsin-hsiung.wang@mediatek.com>
- <1552275991-34648-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1552275991-34648-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+In-Reply-To: <1552275991-34648-4-git-send-email-hsin-hsiung.wang@mediatek.com>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -89,16 +90,12 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 On Mon, 11 Mar 2019, Hsin-Hsiung Wang wrote:
 
-> clean up code
-
-Please explain what it is that you're cleaning up.
-
+> This adds compatible for the MediaTek MT6358 PMIC.
+> 
 > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 > ---
->  drivers/mfd/mt6397-core.c | 16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
-
-The patch is fine though.  When you resubmit, please add my:
+>  Documentation/devicetree/bindings/mfd/mt6397.txt | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 
 For my own reference:
   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
