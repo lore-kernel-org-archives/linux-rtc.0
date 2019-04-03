@@ -2,229 +2,297 @@ Return-Path: <SRS0=SXQY=SF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48728C4360F
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 07:34:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 236B8C10F06
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0DD252084C
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 07:34:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="yH0eacdy"
+	by mail.kernel.org (Postfix) with ESMTP id E74562147A
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1554281263;
+	bh=+g7Dl65eGfYvXnab+jQYS7WdKj756tHeBsLPzjZB82Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=GUjFNBZ8FjrDKVbYgh+XJ8T00Ne4rdbwqCqXlxRa/4m3lHPBplFWREa2Sqq+YVM+V
+	 6NKHuRBoUX71lAvBZflCgkUl0UHrJniz96Mce2Xbt9V6fkq8oDWoQnjIZpRXwRRp4w
+	 ybF4PSDPHcTLbtNZN/E1B6wZAwFDGv7sQwCALO2A=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728682AbfDCHeh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 3 Apr 2019 03:34:37 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41220 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726084AbfDCHeh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Apr 2019 03:34:37 -0400
-Received: by mail-pg1-f195.google.com with SMTP id f6so7864232pgs.8
-        for <linux-rtc@vger.kernel.org>; Wed, 03 Apr 2019 00:34:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=E5hSr5XPWVDtOTprJ4M+OB6en/qp/jTyjg6TZvE9zg4=;
-        b=yH0eacdy6kCpUX2likU+32mgIFIrhnxidQVxfNF8Rbt4wu6b+PwGEs5fd/sijch1A9
-         TBDLq+O/cNn+j1/g8NsQvriPGyRry9fI+XMsuahVOX7bhUFYOiSJCJb6oRmjxxSLDYYv
-         UTW4MuVaXbdPHQWazHzYch8aCjw2R1n9SSxTQkGvBotJ+EHM3jI40wdTTHTO+j7GLbWL
-         Jfrhp2i0AhD8twIqBwYgeULWS6z2UHGfv4MQGmg949ZDAa2YsoGMEsCpCLIZo9C4GO6x
-         vJGDhuTUHDgv5X5g+z4emvKWIHnv6dNZfwbvxUFdqzEC6pcmp7TAJeOZC9JBn94kDVx0
-         i3QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=E5hSr5XPWVDtOTprJ4M+OB6en/qp/jTyjg6TZvE9zg4=;
-        b=hTaj4nne54Gz/lhC3vkf+K+ftjTrJHXDcFGmGllgGIKBPSs4mf0X7SzIJUQz0mCTQ8
-         bKLnczZa6SsQ2z6afyaClSS5p3JGQRDnnxTjiTKK3y/MZXOFGYidNoaOKJe8Lf8AMk38
-         D9FxA4D6ckBDEOMNbjTxGJxq6frdr9YdqLRo8FBdN3aiu6ga87ETp1r/h1PjZxc2NzgP
-         HNLlMI+ODWpp+KUTkjq/g5W75P+FV/jlpng1Q/KuBf1qJD6QqSHzqA+ihu4f94CLyUg+
-         N4vhSX7elK53Hoh+6C+qips+XX35NKcn6rnlWVx2mU1YYBB55sxMOgP1YlvpkMWSS1HX
-         YiJw==
-X-Gm-Message-State: APjAAAVhcmwJ4wVv8aG49sF054CysWyhxZJUx0XTKnZhrs+Pj1XcP/AX
-        56VCozYLxF7078Y2ElHmVcLZnQ==
-X-Google-Smtp-Source: APXvYqzgZ7k7CHBY8R+R+XUF+ikzugGh7vzulZfRf3CW0lJZHzUDD/csCIb+ev+UHlS92td8fXEs5w==
-X-Received: by 2002:a62:183:: with SMTP id 125mr74801840pfb.146.1554276876149;
-        Wed, 03 Apr 2019 00:34:36 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id a129sm45307462pfa.152.2019.04.03.00.34.28
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 00:34:35 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 08:34:26 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
-Subject: Re: [PATCH v11 4/8] dt-bindings: mfd: Document first ROHM BD70528
- bindings
-Message-ID: <20190403073426.GN4187@dell>
-References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+        id S1726755AbfDCIrm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Apr 2019 04:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49588 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729103AbfDCIrS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 3 Apr 2019 04:47:18 -0400
+Received: from X250 (unknown [147.50.13.10])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0048B20830;
+        Wed,  3 Apr 2019 08:47:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1554281237;
+        bh=+g7Dl65eGfYvXnab+jQYS7WdKj756tHeBsLPzjZB82Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=j36K/q22FjHBjYyVoU4hFhRLswuCSzZ69uboTCzCKlAfaG6qes0SVlFmHUxlr8zZS
+         fMQGqwdvcOlceLi6j4TyuvWZ7sDSDK9DR24J43SGUG4S35ZM08zHr42BibmyEhRMvU
+         JvanSk0jl1jXvl7pVjIzcR8pXfuJaYYJmmwvp3PI=
+Date:   Wed, 3 Apr 2019 15:47:08 +0700
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Anson Huang <anson.huang@nxp.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>
+Cc:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH V5 2/4] firmware: imx: enable imx scu general irq function
+Message-ID: <20190403084706.GB4636@X250>
+References: <1552878291-22866-1-git-send-email-Anson.Huang@nxp.com>
+ <1552878291-22866-2-git-send-email-Anson.Huang@nxp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1552878291-22866-2-git-send-email-Anson.Huang@nxp.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 25 Mar 2019, Matti Vaittinen wrote:
-
-> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> drivers) and 4 GPIO pins which can be configured for I/O or
-> as interrupt sources withe configurable trigger levels.
+On Mon, Mar 18, 2019 at 03:09:55AM +0000, Anson Huang wrote:
+> The System Controller Firmware (SCFW) controls RTC, thermal
+> and WDOG etc., these resources' interrupt function are managed
+> by SCU. When any IRQ pending, SCU will notify Linux via MU general
+> interrupt channel #3, and Linux kernel needs to call SCU APIs
+> to get IRQ status and notify each module to handle the interrupt.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> Since there is no data transmission for SCU IRQ notification, so
+> doorbell mode is used for this MU channel, and SCU driver will
+> use notifier mechanism to broadcast to every module which registers
+> the SCU block notifier.
+> 
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+
+@Aisheng,
+
+Are you fine with this?
+
+Shawn
+
 > ---
->  .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 ++++++++++++++++++
->  1 file changed, 102 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> Changes since V4:
+> 	- move scu irq support to a new file imx-scu-irq.c;
+> 	- improve the function name with "imx_scu_irq_" as prefix for irq related functions;
+> 	- move MU IRQ sources id out of sc ipc struct;
+> 	- add IRQ group info message print when get irq status fail;
+> 	- move MU ID parse into imx_scu_enable_general_irq_channel() function and ONLY do it
+> 	  when irq channel enable successfully.
+> 	- change max IRQ group supported to 4, ONLY support for those kernel features.
+> ---
+>  drivers/firmware/imx/Makefile      |   2 +-
+>  drivers/firmware/imx/imx-scu-irq.c | 133 +++++++++++++++++++++++++++++++++++++
+>  drivers/firmware/imx/imx-scu.c     |   6 ++
+>  include/linux/firmware/imx/sci.h   |   4 ++
+>  4 files changed, 144 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/firmware/imx/imx-scu-irq.c
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> diff --git a/drivers/firmware/imx/Makefile b/drivers/firmware/imx/Makefile
+> index 1b2e15b..802c4ad 100644
+> --- a/drivers/firmware/imx/Makefile
+> +++ b/drivers/firmware/imx/Makefile
+> @@ -1,3 +1,3 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> -obj-$(CONFIG_IMX_SCU)		+= imx-scu.o misc.o
+> +obj-$(CONFIG_IMX_SCU)		+= imx-scu.o misc.o imx-scu-irq.o
+>  obj-$(CONFIG_IMX_SCU_PD)	+= scu-pd.o
+> diff --git a/drivers/firmware/imx/imx-scu-irq.c b/drivers/firmware/imx/imx-scu-irq.c
 > new file mode 100644
-> index 000000000000..120462c17904
+> index 0000000..0e20aa7
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> @@ -0,0 +1,102 @@
-> +* ROHM BD70528 Power Management Integrated Circuit bindings
+> +++ b/drivers/firmware/imx/imx-scu-irq.c
+> @@ -0,0 +1,133 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Copyright 2019 NXP
+> + *
+> + * Implementation of the SCU IRQ functions using MU.
+> + *
+> + */
 > +
-> +BD70528MWV is an ultra-low quiescet current general purpose single-chip
-
-What does 'quiescet' mean?
-
-"general purpose, single-chip,"
-
-> +power management IC for battery-powered portable devices. The IC
-> +integrates 3 ultra-low current consumption buck converters, 3 LDOs and 2
-> +LED Drivers. Also included are 4 GPIOs, a real-time clock (RTC), a 32kHz
-> +clock gate, high-accuracy VREF for use with an external ADC, flexible
-> +dual-input power path, 10 bit SAR ADC for battery temperature monitor and
-> +1S battery charger with scalable charge currents.
+> +#include <dt-bindings/firmware/imx/rsrc.h>
+> +#include <linux/firmware/imx/ipc.h>
+> +#include <linux/mailbox_client.h>
 > +
-> +Required properties:
-> + - compatible		: Should be "rohm,bd70528"
-> + - reg			: I2C slave address.
-> + - interrupts		: The interrupt line the device is connected to.
-> + - interrupt-controller	: To indicate BD70528 acts as an interrupt controller.
-> + - #interrupt-cells	: Should be 2. Usage is compliant to the 2 cells
-> +			  variant of ../interrupt-controller/interrupts.txt
-> + - gpio-controller	: To indicate BD70528 acts as a GPIO controller.
-> + - #gpio-cells		: Should be 2. The first cell is the pin number and
-> +			  the second cell is used to specify flags. See
-> +			  ../gpio/gpio.txt for more information.
-> + - #clock-cells		: Should be 0.
-> + - regulators:		: List of child nodes that specify the regulators.
-> +			  Please see ../regulator/rohm,bd70528-regulator.txt
+> +#define IMX_SC_IRQ_FUNC_STATUS	2
+> +#define IMX_SC_IRQ_NUM_GROUP	4
 > +
-> +Optional properties:
-> + - clock-output-names	: Should contain name for output clock.
+> +static u32 mu_resource_id;
 > +
-> +Example:
-> +/* external oscillator */
-
-"External"
-
-> +osc: oscillator {
-> +	compatible = "fixed-clock";
-> +	#clock-cells = <1>;
-> +	clock-frequency  = <32768>;
-> +	clock-output-names = "osc";
+> +struct imx_sc_msg_irq_get_status {
+> +	struct imx_sc_rpc_msg hdr;
+> +	union {
+> +		struct {
+> +			u16 resource;
+> +			u8 group;
+> +			u8 reserved;
+> +		} __packed req;
+> +		struct {
+> +			u32 status;
+> +		} resp;
+> +	} data;
 > +};
 > +
-> +pmic: pmic@4b {
-> +	compatible = "rohm,bd70528";
-> +	reg = <0x4b>;
-> +	interrupt-parent = <&gpio1>;
-> +	interrupts = <29 GPIO_ACTIVE_LOW>;
-> +	clocks = <&osc 0>;
-> +	#clock-cells = <0>;
-> +	clock-output-names = "bd70528-32k-out";
-> +	#gpio-cells = <2>;
-> +	gpio-controller;
-> +	interrupt-controller;
-> +	#interrupt-cells = <2>;
+> +static struct imx_sc_ipc *imx_sc_irq_ipc_handle;
+> +static struct work_struct imx_sc_irq_work;
+> +static BLOCKING_NOTIFIER_HEAD(imx_scu_irq_notifier_chain);
 > +
-> +	regulators {
-> +		buck1: BUCK1 {
-> +			regulator-name = "buck1";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3400000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck2: BUCK2 {
-> +			regulator-name = "buck2";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck3: BUCK3 {
-> +			regulator-name = "buck3";
-> +			regulator-min-microvolt = <800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <250>;
-> +		};
-> +		ldo1: LDO1 {
-> +			regulator-name = "ldo1";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
-> +		ldo2: LDO2 {
-> +			regulator-name = "ldo2";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
+> +int imx_scu_irq_register_notifier(struct notifier_block *nb)
+> +{
+> +	return blocking_notifier_chain_register(
+> +		&imx_scu_irq_notifier_chain, nb);
+> +}
+> +EXPORT_SYMBOL(imx_scu_irq_register_notifier);
 > +
-> +		ldo3: LDO3 {
-> +			regulator-name = "ldo3";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +		};
-> +		led_ldo1: LED_LDO1 {
-> +			regulator-name = "led_ldo1";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +		led_ldo2: LED_LDO2 {
-> +			regulator-name = "led_ldo2";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +	};
-> +};
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> +int imx_scu_irq_unregister_notifier(struct notifier_block *nb)
+> +{
+> +	return blocking_notifier_chain_unregister(
+> +		&imx_scu_irq_notifier_chain, nb);
+> +}
+> +EXPORT_SYMBOL(imx_scu_irq_unregister_notifier);
+> +
+> +static int imx_scu_irq_notifier_call_chain(unsigned long status, u8 *group)
+> +{
+> +	return blocking_notifier_call_chain(&imx_scu_irq_notifier_chain,
+> +		status, (void *)group);
+> +}
+> +
+> +static void imx_scu_irq_work_handler(struct work_struct *work)
+> +{
+> +	struct imx_sc_msg_irq_get_status msg;
+> +	struct imx_sc_rpc_msg *hdr = &msg.hdr;
+> +	u32 irq_status;
+> +	int ret;
+> +	u8 i;
+> +
+> +	for (i = 0; i < IMX_SC_IRQ_NUM_GROUP; i++) {
+> +		hdr->ver = IMX_SC_RPC_VERSION;
+> +		hdr->svc = IMX_SC_RPC_SVC_IRQ;
+> +		hdr->func = IMX_SC_IRQ_FUNC_STATUS;
+> +		hdr->size = 2;
+> +
+> +		msg.data.req.resource = mu_resource_id;
+> +		msg.data.req.group = i;
+> +
+> +		ret = imx_scu_call_rpc(imx_sc_irq_ipc_handle, &msg, true);
+> +		if (ret) {
+> +			pr_err("get irq group %d status failed, ret %d\n",
+> +			       i, ret);
+> +			return;
+> +		}
+> +
+> +		irq_status = msg.data.resp.status;
+> +		if (!irq_status)
+> +			continue;
+> +
+> +		imx_scu_irq_notifier_call_chain(irq_status, &i);
+> +	}
+> +}
+> +
+> +static void imx_scu_irq_callback(struct mbox_client *c, void *msg)
+> +{
+> +	schedule_work(&imx_sc_irq_work);
+> +}
+> +
+> +int imx_scu_enable_general_irq_channel(struct device *dev)
+> +{
+> +	struct of_phandle_args spec;
+> +	struct mbox_client *cl;
+> +	struct mbox_chan *ch;
+> +	int ret = 0, i = 0;
+> +
+> +	cl = devm_kzalloc(dev, sizeof(*cl), GFP_KERNEL);
+> +	if (!cl)
+> +		return -ENOMEM;
+> +
+> +	cl->dev = dev;
+> +	cl->rx_callback = imx_scu_irq_callback;
+> +
+> +	/* SCU general IRQ uses general interrupt channel 3 */
+> +	ch = mbox_request_channel_byname(cl, "gip3");
+> +	if (IS_ERR(ch)) {
+> +		ret = PTR_ERR(ch);
+> +		dev_err(dev, "failed to request mbox chan gip3, ret %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = imx_scu_get_handle(&imx_sc_irq_ipc_handle);
+> +	if (ret)
+> +		return ret;
+> +
+> +	INIT_WORK(&imx_sc_irq_work, imx_scu_irq_work_handler);
+> +
+> +	if (!of_parse_phandle_with_args(dev->of_node, "mboxes",
+> +				       "#mbox-cells", 0, &spec))
+> +		i = of_alias_get_id(spec.np, "mu");
+> +
+> +	/* use mu1 as general mu irq channel if failed */
+> +	if (i < 0)
+> +		i = 1;
+> +
+> +	mu_resource_id = IMX_SC_R_MU_0A + i;
+> +
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL(imx_scu_enable_general_irq_channel);
+> diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
+> index 2bb1a19..04a24a8 100644
+> --- a/drivers/firmware/imx/imx-scu.c
+> +++ b/drivers/firmware/imx/imx-scu.c
+> @@ -10,6 +10,7 @@
+>  #include <linux/err.h>
+>  #include <linux/firmware/imx/types.h>
+>  #include <linux/firmware/imx/ipc.h>
+> +#include <linux/firmware/imx/sci.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/irq.h>
+>  #include <linux/kernel.h>
+> @@ -246,6 +247,11 @@ static int imx_scu_probe(struct platform_device *pdev)
+>  
+>  	imx_sc_ipc_handle = sc_ipc;
+>  
+> +	ret = imx_scu_enable_general_irq_channel(dev);
+> +	if (ret)
+> +		dev_warn(dev,
+> +			"failed to enable general irq channel: %d\n", ret);
+> +
+>  	dev_info(dev, "NXP i.MX SCU Initialized\n");
+>  
+>  	return devm_of_platform_populate(dev);
+> diff --git a/include/linux/firmware/imx/sci.h b/include/linux/firmware/imx/sci.h
+> index ebc5509..918fa16 100644
+> --- a/include/linux/firmware/imx/sci.h
+> +++ b/include/linux/firmware/imx/sci.h
+> @@ -15,4 +15,8 @@
+>  
+>  #include <linux/firmware/imx/svc/misc.h>
+>  #include <linux/firmware/imx/svc/pm.h>
+> +
+> +int imx_scu_enable_general_irq_channel(struct device *dev);
+> +int imx_scu_irq_register_notifier(struct notifier_block *nb);
+> +int imx_scu_irq_unregister_notifier(struct notifier_block *nb);
+>  #endif /* _SC_SCI_H */
+> -- 
+> 2.7.4
+> 
