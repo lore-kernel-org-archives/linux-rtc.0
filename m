@@ -2,45 +2,45 @@ Return-Path: <SRS0=SXQY=SF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10393C4360F
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D34FFC10F06
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 09:04:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DCAD521473
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 08:47:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADE1420882
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 09:04:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbfDCIrt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 3 Apr 2019 04:47:49 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41491 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbfDCIro (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Apr 2019 04:47:44 -0400
-Received: by mail-lj1-f194.google.com with SMTP id k8so5701662lja.8;
-        Wed, 03 Apr 2019 01:47:42 -0700 (PDT)
+        id S1726477AbfDCJEM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Apr 2019 05:04:12 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:39462 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725857AbfDCJEM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Apr 2019 05:04:12 -0400
+Received: by mail-lf1-f65.google.com with SMTP id m13so11108515lfb.6;
+        Wed, 03 Apr 2019 02:04:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=vV91FJckZyEnX1fNk46Z/ZVvwXEZdniEhNT6utM+pl0=;
-        b=kRMqzFHUUnLQjLoRZRdDZhwky9eZIzgPjEkF8oyxJRmivKz8g0VTI9sQNmGzJdlJqu
-         mclNwAKYO7QwSPI2f7aLn1WlnhsqjXo6BjVe8JyZcJfAIOvJ5UcTYQJfFWeU1TdcQs3w
-         6GhE4K57O/3ic4CCFdFxCYY+a8oSxOnaMhRTrujsDhTgkn9Yc57r+nfl/PhMvasnL5f1
-         YQA39a03iw0x00cJpbQ2Mo7eVjQExM+jhgYMHRUJNnKjKdYYriOv5VT7X4RZjFeF37l9
-         QzRrtkSostK/E2/Y/7/BUFjLqjkf0swVORevPKP8fmYW8IWdfiF3cJFV15iYXNrzXf9w
-         Ig5g==
-X-Gm-Message-State: APjAAAU0rf61GsOBz7OIUc5MFSbq8LyZMcJi0dmX+ZRDb2jT4eP5ADBw
-        CZpJfS89EmYjgwKLTcpCb+0P5Gne
-X-Google-Smtp-Source: APXvYqzNn4N2OOgSmDPgWNdJ7vxsAzE+uFA6SFl4HHatfJnRGC0mozlanur+QnPloC1sFw17e9ioMA==
-X-Received: by 2002:a2e:8347:: with SMTP id l7mr28852729ljh.17.1554281261464;
-        Wed, 03 Apr 2019 01:47:41 -0700 (PDT)
+        bh=yvh8D9pqYZ7qDKwQ/mIum3pVVgIu4bmSWSk7/XWJxNc=;
+        b=WRvcgda/DfhYFi40Sq9q7RiViIapFaYOXp9Wdq3XuZDULD6BdvMeQYXljTKE5/8d9w
+         apHNH0KRmU5ExbTJxnYB7efLph6XOMzJvHAOqnN+w6Ouo+Ayli4hoA7NsQjzDBiqjaRk
+         NP8Zh/VhWs2ldG4WoyHZ2fBe8eyBkT6EP6+1IL0gW5ACvB8hMvKk7onBIjkIIszHqFlH
+         tE2dH+g3Vx3hdPbDCOMGUHp8Hx2Du5GOE08yFtekJ7BAlNvwhGCLlG64+hFWrK4rXOUU
+         sxomtrebidwYDzwaIPPFtNB73hvD7757I2Cj1U+t5P9J+dPvRHOw8jzF6czILNKIJz/d
+         2tyA==
+X-Gm-Message-State: APjAAAULkqybtfROocorWzcDbZSZHEYzFx1+eqEh6dTu72B7AGHTxCOm
+        qlKvKtWb7mxqJgjJQHRG8fQ=
+X-Google-Smtp-Source: APXvYqzU0fUqMBL8w2QcSyeInGNqfOMwSdoWEeL8Jio4DxpxmYEcSrrT/evMdYpEte58h35Awx0RVQ==
+X-Received: by 2002:ac2:5479:: with SMTP id e25mr2584442lfn.121.1554282249501;
+        Wed, 03 Apr 2019 02:04:09 -0700 (PDT)
 Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id f25sm2344070lfk.69.2019.04.03.01.47.39
+        by smtp.gmail.com with ESMTPSA id i24sm2844879lfl.73.2019.04.03.02.04.07
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Apr 2019 01:47:40 -0700 (PDT)
-Date:   Wed, 3 Apr 2019 11:47:32 +0300
+        Wed, 03 Apr 2019 02:04:08 -0700 (PDT)
+Date:   Wed, 3 Apr 2019 12:04:06 +0300
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     Lee Jones <lee.jones@linaro.org>
 Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
@@ -60,89 +60,64 @@ Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
         linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com
-Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190403084732.GA3493@localhost.localdomain>
+Subject: Re: [PATCH v11 4/8] dt-bindings: mfd: Document first ROHM BD70528
+ bindings
+Message-ID: <20190403090406.GB3493@localhost.localdomain>
 References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
- <20190403073152.GM4187@dell>
+ <c674ef76ca0a3298e6b13ade4ab29775edf36a76.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190403073426.GN4187@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190403073152.GM4187@dell>
+In-Reply-To: <20190403073426.GN4187@dell>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello Lee,
+And thanks again for fixing the language. Appreciated!
 
-Thanks for taking a look on this again =) I agree with most of the
-comments and correct them at next version.
-
-On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
+On Wed, Apr 03, 2019 at 08:34:26AM +0100, Lee Jones wrote:
 > On Mon, 25 Mar 2019, Matti Vaittinen wrote:
 > 
-> > ROHM BD70528MWV is an ultra-low quiescent current general
-> > purpose single-chip power management IC for battery-powered
-> > portable devices.
-> > 
-> > Add MFD core which enables chip access for following subdevices:
-> > 	- regulators/LED drivers
-> > 	- battery-charger
-> > 	- gpios
-> > 	- 32.768kHz clk
-> > 	- RTC
-> > 	- watchdog
+> > Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+> > drivers) and 4 GPIO pins which can be configured for I/O or
+> > as interrupt sources withe configurable trigger levels.
 > > 
 > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > + * Mapping of main IRQ register bits to sub irq register offsets so
-> 
-> "sub-IRQ"
-> 
-> > + * that we can access corect sub IRQ registers based on bits that
-> 
-> "sub IRQ" is also fine, but please standardise.
-> 
-> I do prefer "sub-IRQ" though.
-
-I'll go with "sub-IRQ" then
-
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> > Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+> >  .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 ++++++++++++++++++
+> >  1 file changed, 102 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > new file mode 100644
+> > index 000000000000..120462c17904
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+> > @@ -0,0 +1,102 @@
+> > +* ROHM BD70528 Power Management Integrated Circuit bindings
 > > +
-> > +#define WD_CTRL_MAGIC1 0x55
-> > +#define WD_CTRL_MAGIC2 0xAA
-> > +/**
-> > + * bd70528_wdt_set - arm or disarm watchdog timer
-> > + *
-> > + * @data:	device data for the PMIC instance we want to operate on
-> > + * @enable:	new state of WDT. zero to disable, non zero to enable
-> > + * @old_state:	previous state of WDT will be filled here
-> > + *
-> > + * Arm or disarm WDT on BD70528 PMIC. Expected to be called only by
-> > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock must be taken
-> > + * by calling bd70528_wdt_lock before calling bd70528_wdt_set.
-> > + */
-> > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int enable, int *old_state)
+> > +BD70528MWV is an ultra-low quiescet current general purpose single-chip
 > 
-> Why doesn't this reside in the watchdog driver?
+> What does 'quiescet' mean?
 
-If my memory serves me right we shortly discussed this already during v8
-review ;) Cant blame you though as I have seen some of the mail traffic
-going through your inbox :D
+I guess you knew what I meant =) Quiescent - I'll fix the typo.
 
-The motivation to have the functions exported from MFD is to not create
-sirect dependency between RTC and WDT. There may be cases where we want
-to leave either RTC or WDT out of compilation. MFD is always needed so
-the dependency from MFD to RTC/WDT does not harm.
+> "general purpose, single-chip,"
 
-(Here's some discussion necromancy if you are interested in re-reading
-how we did end up with this implementation:
-https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
+Rules for using commas are far beyond my skills. I was bad in it at
+Finnish classes. Not to even mention English. Actually, the teacher
+suggested us to rather leave out the commas than trying to place them
+correctly in English sentences. Guess the rules are not that simple =)
 
-I hope you are still Ok with having the WDT control functions in MFD.
+So I'll just add them as you suggested =)
 
-Best Regards
-    Matti Vaittinen
+Br,
+	Matti Vaittinen
 
 -- 
 Matti Vaittinen, Linux device drivers
