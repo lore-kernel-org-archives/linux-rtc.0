@@ -2,69 +2,27 @@ Return-Path: <SRS0=xpCi=SG=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 403ECC4360F
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 19:59:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EB51C4360F
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 20:06:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 08E0520882
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 19:59:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Fic7WaIS"
+	by mail.kernel.org (Postfix) with ESMTP id 0B9C420855
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 20:06:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729644AbfDDT7t (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Apr 2019 15:59:49 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:46322 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729456AbfDDT7t (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 15:59:49 -0400
-Received: by mail-lj1-f196.google.com with SMTP id h21so3170839ljk.13
-        for <linux-rtc@vger.kernel.org>; Thu, 04 Apr 2019 12:59:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=PwBYbEQ83pwKFnTGwPEN9U9qKAZd9KTnoCzlYwy/ROU=;
-        b=Fic7WaIS2ZoofTqd2rOMhucup0qNDg0FyuFlvzUShaPQvsMR5LVDFoua9yzhyOTQIo
-         +e0z/mrCRV6vunxbEd+NsiOdTLJGrqhjZ4KMTcCfgXWwaHeqHdzN6rfYj6hKiMJFI+7+
-         EfVppOwmXmN/gUpr6RGVVeKGxkfXzfYXrmuQr6ISURtb1tpq9qwrzcsI5vV4o0TDpAFw
-         dMKZK7+SQRE66WQ+ObjK+TN5SvY0IZsJeg/G8+RLjXVaWGjvooK+nDVyePNCLx8niiJ0
-         RgNRYIlFoPW/nWYh9GW2kKM2I1l9JoZyHEGShdqxqZS97FxD++7qXSvS2XHKea0dhZWo
-         1ERA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=PwBYbEQ83pwKFnTGwPEN9U9qKAZd9KTnoCzlYwy/ROU=;
-        b=SopsAmZMs0F2Ee+0+PZtmkvguiWLiY3gvEoGkH3S7qwazAzro1+rlmgpme1C1njuvF
-         1YPo/elAb4P4z9HHRLUyML8rIeiW4QSf7dFyAwd0aEWHeqTB0suqXYyW9c4U2e1sDrBG
-         nm9e8R32fXsdtEDnaSWvGs2DIu2bXXQR5m1yt4tmmYWXy+C6ys4f2Km0YreXnr2tuRSO
-         UeSM5U0bc7FYPxSwtbhPYgEDY7oL73xssjBCXL3/2SFO+OeFULirg4mhrsYXRGuqo7Wn
-         N/GgDq3wUi83TjnFOedksUVqPdW9W7X0i66KdeMZ2AgyR5olCLvblGP1fTSUhSj2InAq
-         E/NQ==
-X-Gm-Message-State: APjAAAWccFvrGS/UUNZ6LvrL3ZCLlDizdmqWryXXEX7n1vMYV4v3+6ks
-        cV4rHk0MfC0j+gqturSXUCgfuPcJYRNeLCziP4G9zg==
-X-Google-Smtp-Source: APXvYqyeASWvznZmcPl7rh31Wz2z0F6yccLVIjMdbMPE7o87l8x2NWK7G2PLbEqCjgooXqKwB3me1RyTEAy0COySU4I=
-X-Received: by 2002:a2e:8888:: with SMTP id k8mr4522908lji.43.1554407985879;
- Thu, 04 Apr 2019 12:59:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-3-ncrews@chromium.org>
- <CABXOdTeFnohENJrZ+=_W-EgsrKWttSFYKoR=LaCwzbhEbaOxzw@mail.gmail.com>
- <CAE_wzQ8xS+zvSKNVs1v4B_y3NDu2qB65p_hD+j=qGHFxQWOmSg@mail.gmail.com>
- <CAHX4x87cQLhZOEDxwBJs=UkDxwGxZOELGjHtp6aFLBWmjyQAFQ@mail.gmail.com>
- <CAE_wzQ8k4vO4yLsr2WNxYQ=-6JDmTsj6OxD0f3P=k8kJYFOD9Q@mail.gmail.com>
- <20190404185919.GB27340@amd> <CAE_wzQ-XuK7WOyPm6yXsmjp7z0=T92mMrfn1TVaavaLejcYVGA@mail.gmail.com>
- <20190404191931.GA29984@amd>
-In-Reply-To: <20190404191931.GA29984@amd>
-From:   Dmitry Torokhov <dtor@google.com>
-Date:   Thu, 4 Apr 2019 12:59:34 -0700
-Message-ID: <CAE_wzQ8y8i7C+_tv0CdnbUw0r21g1ggv2YUuzCog1xABivEvWA@mail.gmail.com>
-Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
- backlight name
-To:     Pavel Machek <pavel@ucw.cz>
+        id S1730467AbfDDUG5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Apr 2019 16:06:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:33542 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727108AbfDDUG5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 16:06:57 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 4A94F802B2; Thu,  4 Apr 2019 22:06:47 +0200 (CEST)
+Date:   Thu, 4 Apr 2019 22:06:58 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Dmitry Torokhov <dtor@google.com>
 Cc:     Nick Crews <ncrews@chromium.org>,
         Guenter Roeck <groeck@google.com>,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
@@ -76,105 +34,78 @@ Cc:     Nick Crews <ncrews@chromium.org>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         Duncan Laurie <dlaurie@chromium.org>,
         Simon Glass <sjg@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
+ backlight name
+Message-ID: <20190404200658.GD29984@amd>
+References: <20190404171007.160878-1-ncrews@chromium.org>
+ <20190404171007.160878-3-ncrews@chromium.org>
+ <CABXOdTeFnohENJrZ+=_W-EgsrKWttSFYKoR=LaCwzbhEbaOxzw@mail.gmail.com>
+ <CAE_wzQ8xS+zvSKNVs1v4B_y3NDu2qB65p_hD+j=qGHFxQWOmSg@mail.gmail.com>
+ <CAHX4x87cQLhZOEDxwBJs=UkDxwGxZOELGjHtp6aFLBWmjyQAFQ@mail.gmail.com>
+ <CAE_wzQ8k4vO4yLsr2WNxYQ=-6JDmTsj6OxD0f3P=k8kJYFOD9Q@mail.gmail.com>
+ <20190404185919.GB27340@amd>
+ <CAE_wzQ-XuK7WOyPm6yXsmjp7z0=T92mMrfn1TVaavaLejcYVGA@mail.gmail.com>
+ <20190404191931.GA29984@amd>
+ <CAE_wzQ8y8i7C+_tv0CdnbUw0r21g1ggv2YUuzCog1xABivEvWA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="fXStkuK2IQBfcDe+"
+Content-Disposition: inline
+In-Reply-To: <CAE_wzQ8y8i7C+_tv0CdnbUw0r21g1ggv2YUuzCog1xABivEvWA@mail.gmail.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Apr 4, 2019 at 12:19 PM Pavel Machek <pavel@ucw.cz> wrote:
->
-> On Thu 2019-04-04 12:05:39, Dmitry Torokhov wrote:
-> > On Thu, Apr 4, 2019 at 11:59 AM Pavel Machek <pavel@ucw.cz> wrote:
-> > >
-> > > On Thu 2019-04-04 11:55:27, Dmitry Torokhov wrote:
-> > > > On Thu, Apr 4, 2019 at 11:41 AM Nick Crews <ncrews@chromium.org> wrote:
-> > > > >
-> > > > > On Thu, Apr 4, 2019 at 11:43 AM Dmitry Torokhov <dtor@google.com> wrote:
-> > > > > >
-> > > > > > On Thu, Apr 4, 2019 at 10:36 AM Guenter Roeck <groeck@google.com> wrote:
-> > > > > > >
-> > > > > > > On Thu, Apr 4, 2019 at 10:11 AM Nick Crews <ncrews@chromium.org> wrote:
-> > > > > > > >
-> > > > > > > > We want all backlights for the system keyboard to
-> > > > > > > > use a common name, so the name "platform::kbd_backlight"
-> > > > > > > > would be better than the current "chromeos::kbd_backlight"
-> > > > > > > > name. Normally this wouldn't be worth changing, but the new
-> > > > > > > > Wilco keyboard backlight driver uses the "platform" name.
-> > > > > > > > We want to make it so all Chrome OS devices are consistent,
-> > > > > > > > so we'll change the name here too.
-> > > > > > > >
-> > > > > > >
-> > > > > > > Wondering - who is the "we" you are talking about ?
-> > > > >
-> > > > > You're right, I should have been more precise.
-> > > > > I was referring to Pavel, Enric, and myself. Pavel had this opinion here:
-> > > > > https://lkml.org/lkml/2019/4/4/1040. I don't know what Pavel meant by "we"
-> > > > > in that comment, but I would guess that could mean the other LED maintainers
-> > > > > as well? I talked with Enric 1:1 and he didn't see the problem with changing it,
-> > > > > though perhaps he was only considering our use of the LED via powerd,
-> > > > > and not users in general. I'm guessing Pavel's and Enric's meanings though,
-> > > > > excuse me if I am misinterpreting.
-> > > > >
-> > > > > >
-> > > > > > This also has a potential of breaking existing setups if somebody did
-> > > > > > happen to match on entire name instead of suffix. Such changes have to
-> > > > > > be considered very carefully; at this point I am against of doing
-> > > > > > this.
-> > > > >
-> > > > > Would it make sense to keep the old name as is, and only make the new
-> > > > > Wilco name begin with "platform:"? What would you think is best?
-> > > >
-> > > > Given that we do not have a single instance of platform::kbd_backlight
-> > > > in kernel at this time I have no idea why Pavel is trying to push this
-> > > > for Wilco driver.
-> > >
-> > > See the documentation in the email I sent few seconds ago. I hope it
-> > > explains my reasoning, if not, I'll explain it.
+
+--fXStkuK2IQBfcDe+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> > > It is *function* and maybe color that userspace is interested in, and
+> > > here we have proper standardization in form of "kbd_backlight". Device
+> > > name is, well, device name. It should uniquely identify the device led
+> > > is attached to, but otherwise is rarely interesting. If userspace is
+> > > really concerned what kind of keyboard backlight it is it should
+> > > investigate parent device(s) and see what they end up with.
 > >
-> > Yes, I see the doc and I do not think I agree with it. If you look at
-> > the LED docs you will see:
->
-> If you take a look at mailing list archive, this is currently being
-> worked on. And you might want to take a look at MAINTAINERS file :-)
+> > That does not work. Userspace wants to know if it is internal keyboard
+> > or USB keyboard, not what kind of i2c controller the LED is connected
+> > to.
+>=20
+> Why does userspace want to know it?
 
-So? Being maintainer does not give you free reign to merge stuff that
-does not quite make sense, you still need to discuss it and convince
-people.
+For example to turn off backlight on internal keyboard when the lid is clos=
+ed.
 
->
-> > LED Device Naming
-> > =================
+> > grep for platform::mic_mute .
 > >
-> > Is currently of the form:
-> >
-> > "devicename:colour:function"
-> >
-> > It is *function* and maybe color that userspace is interested in, and
-> > here we have proper standardization in form of "kbd_backlight". Device
-> > name is, well, device name. It should uniquely identify the device led
-> > is attached to, but otherwise is rarely interesting. If userspace is
-> > really concerned what kind of keyboard backlight it is it should
-> > investigate parent device(s) and see what they end up with.
->
-> That does not work. Userspace wants to know if it is internal keyboard
-> or USB keyboard, not what kind of i2c controller the LED is connected
-> to.
+> > (And platform is even pretty good match for how the LED is connected
+> > in your case).
+>=20
+> Until we get a secondary interface that is also "platform"...
 
-Why does userspace want to know it? What does it do differently with
-backlit external keyboards vs internal ones? And how does it decide if
-USB keyboard is internal or not given that there are devices with
-internal USB keyboards?
+How would that happen?
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
->
-> grep for platform::mic_mute .
->
-> (And platform is even pretty good match for how the LED is connected
-> in your case).
+--fXStkuK2IQBfcDe+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Until we get a secondary interface that is also "platform"...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Thanks.
+iEYEARECAAYFAlymY+IACgkQMOfwapXb+vLAaQCdEN9OwTSjbnjYaUSLCBDvtol3
+tgMAn1h1KMEfrUajLksbICnIxS33cOAJ
+=/3yv
+-----END PGP SIGNATURE-----
 
--- 
-Dmitry
+--fXStkuK2IQBfcDe+--
