@@ -6,24 +6,24 @@ X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55417C4360F
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 18:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0734C4360F
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 18:59:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 337022075E
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 18:56:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE8E02075E
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 18:59:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729789AbfDDS45 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Apr 2019 14:56:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59759 "EHLO
+        id S1729887AbfDDS7U (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Apr 2019 14:59:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59826 "EHLO
         atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727398AbfDDS44 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 14:56:56 -0400
+        with ESMTP id S1729789AbfDDS7U (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 14:59:20 -0400
 Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 5F26B802CB; Thu,  4 Apr 2019 20:56:45 +0200 (CEST)
-Date:   Thu, 4 Apr 2019 20:56:56 +0200
+        id A7DD8802D8; Thu,  4 Apr 2019 20:59:08 +0200 (CEST)
+Date:   Thu, 4 Apr 2019 20:59:19 +0200
 From:   Pavel Machek <pavel@ucw.cz>
-To:     Nick Crews <ncrews@chromium.org>
-Cc:     Dmitry Torokhov <dtor@google.com>,
+To:     Dmitry Torokhov <dtor@google.com>
+Cc:     Nick Crews <ncrews@chromium.org>,
         Guenter Roeck <groeck@google.com>,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
@@ -36,17 +36,18 @@ Cc:     Dmitry Torokhov <dtor@google.com>,
         Simon Glass <sjg@google.com>
 Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
  backlight name
-Message-ID: <20190404185656.GA27340@amd>
+Message-ID: <20190404185919.GB27340@amd>
 References: <20190404171007.160878-1-ncrews@chromium.org>
  <20190404171007.160878-3-ncrews@chromium.org>
  <CABXOdTeFnohENJrZ+=_W-EgsrKWttSFYKoR=LaCwzbhEbaOxzw@mail.gmail.com>
  <CAE_wzQ8xS+zvSKNVs1v4B_y3NDu2qB65p_hD+j=qGHFxQWOmSg@mail.gmail.com>
  <CAHX4x87cQLhZOEDxwBJs=UkDxwGxZOELGjHtp6aFLBWmjyQAFQ@mail.gmail.com>
+ <CAE_wzQ8k4vO4yLsr2WNxYQ=-6JDmTsj6OxD0f3P=k8kJYFOD9Q@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+        protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
 Content-Disposition: inline
-In-Reply-To: <CAHX4x87cQLhZOEDxwBJs=UkDxwGxZOELGjHtp6aFLBWmjyQAFQ@mail.gmail.com>
+In-Reply-To: <CAE_wzQ8k4vO4yLsr2WNxYQ=-6JDmTsj6OxD0f3P=k8kJYFOD9Q@mail.gmail.com>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -54,112 +55,79 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---Nq2Wo0NMKNjxTN9z
+--DKU6Jbt7q3WqK7+M
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> You're right, I should have been more precise.
-> I was referring to Pavel, Enric, and myself. Pavel had this opinion here:
-> https://lkml.org/lkml/2019/4/4/1040. I don't know what Pavel meant by "we"
-> in that comment, but I would guess that could mean the other LED maintain=
-ers
-> as well? I talked with Enric 1:1 and he didn't see the problem with chang=
-ing it,
-> though perhaps he was only considering our use of the LED via powerd,
-> and not users in general. I'm guessing Pavel's and Enric's meanings thoug=
-h,
-> excuse me if I am misinterpreting.
->=20
+On Thu 2019-04-04 11:55:27, Dmitry Torokhov wrote:
+> On Thu, Apr 4, 2019 at 11:41 AM Nick Crews <ncrews@chromium.org> wrote:
 > >
-> > This also has a potential of breaking existing setups if somebody did
-> > happen to match on entire name instead of suffix. Such changes have to
-> > be considered very carefully; at this point I am against of doing
-> > this.
+> > On Thu, Apr 4, 2019 at 11:43 AM Dmitry Torokhov <dtor@google.com> wrote:
+> > >
+> > > On Thu, Apr 4, 2019 at 10:36 AM Guenter Roeck <groeck@google.com> wro=
+te:
+> > > >
+> > > > On Thu, Apr 4, 2019 at 10:11 AM Nick Crews <ncrews@chromium.org> wr=
+ote:
+> > > > >
+> > > > > We want all backlights for the system keyboard to
+> > > > > use a common name, so the name "platform::kbd_backlight"
+> > > > > would be better than the current "chromeos::kbd_backlight"
+> > > > > name. Normally this wouldn't be worth changing, but the new
+> > > > > Wilco keyboard backlight driver uses the "platform" name.
+> > > > > We want to make it so all Chrome OS devices are consistent,
+> > > > > so we'll change the name here too.
+> > > > >
+> > > >
+> > > > Wondering - who is the "we" you are talking about ?
+> >
+> > You're right, I should have been more precise.
+> > I was referring to Pavel, Enric, and myself. Pavel had this opinion her=
+e:
+> > https://lkml.org/lkml/2019/4/4/1040. I don't know what Pavel meant by "=
+we"
+> > in that comment, but I would guess that could mean the other LED mainta=
+iners
+> > as well? I talked with Enric 1:1 and he didn't see the problem with cha=
+nging it,
+> > though perhaps he was only considering our use of the LED via powerd,
+> > and not users in general. I'm guessing Pavel's and Enric's meanings tho=
+ugh,
+> > excuse me if I am misinterpreting.
+> >
+> > >
+> > > This also has a potential of breaking existing setups if somebody did
+> > > happen to match on entire name instead of suffix. Such changes have to
+> > > be considered very carefully; at this point I am against of doing
+> > > this.
+> >
+> > Would it make sense to keep the old name as is, and only make the new
+> > Wilco name begin with "platform:"? What would you think is best?
 >=20
-> Would it make sense to keep the old name as is, and only make the new
-> Wilco name begin with "platform:"? What would you think is best?
+> Given that we do not have a single instance of platform::kbd_backlight
+> in kernel at this time I have no idea why Pavel is trying to push this
+> for Wilco driver.
 
-That works for me.
-
-I think we might be able to get away with changing the name (we have
-some really bad names in the LED subsystem, and it would be nice to
-fix them), but my priority at the moment is not to extend the problem.
+See the documentation in the email I sent few seconds ago. I hope it
+explains my reasoning, if not, I'll explain it.
 
 								Pavel
-
--*- org -*-
-
-It is somehow important to provide consistent interface to the
-userland. LED devices have one problem there, and that is naming of
-directories in /sys/class/leds. It would be nice if userland would
-just know right "name" for given LED function, but situation got more
-complex.
-
-Anyway, if backwards compatibility is not an issue, new code should
-use one of the "good" names from this list, and you should extend the
-list where applicable.
-
-Bad names are listed, too; in case you are writing application that
-wants to use particular feature, you should probe for good name, first,
-but then try the bad ones, too.
-
-* Keyboards
-
-Good: "input*:*:capslock"
-Good: "input*:*:scrolllock"
-Good: "input*:*:numlock"
-Bad: "shift-key-light" (Motorola Droid 4, capslock)
-
-Set of common keyboard LEDs, going back to PC AT or so.
-
-Good: "platform::kbd_backlight"
-Bad: "tpacpi::thinklight" (IBM/Lenovo Thinkpads)
-Bad: "lp5523:kb{1,2,3,4,5,6}" (Nokia N900)
-
-Frontlight/backlight of main keyboard.
-
-Bad: "button-backlight" (Motorola Droid 4)
-
-Some phones have touch buttons below screen; it is different from main
-keyboard. And this is their backlight.
-
-* Sound subsystem
-
-Good: "platform:*:mute"
-Good: "platform:*:micmute"
-
-LEDs on notebook body, indicating that sound input / output is muted.
-
-* System notification
-
-Good: "status-led:{red,green,blue}" (Motorola Droid 4)
-Bad: "lp5523:{r,g,b}" (Nokia N900)
-
-Phones usually have multi-color status LED.
-
-* Power management
-
-Good: "platform:*:charging" (allwinner sun50i)
-
-
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---Nq2Wo0NMKNjxTN9z
+--DKU6Jbt7q3WqK7+M
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAlymU3gACgkQMOfwapXb+vIkLQCgh9qnaGmnwyyWKBT53sDXfYRw
-0acAoKNM9v7PQbJWEeEG37rjAy9mG3Vn
-=lwBd
+iEYEARECAAYFAlymVAcACgkQMOfwapXb+vKuIgCfQ4vAKLf3CJRwuVbZyvRR1gjE
+/FEAoIV1bUD24tCqtjsj6OhV3dG0cvrF
+=SDUB
 -----END PGP SIGNATURE-----
 
---Nq2Wo0NMKNjxTN9z--
+--DKU6Jbt7q3WqK7+M--
