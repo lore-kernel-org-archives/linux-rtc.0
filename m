@@ -2,176 +2,293 @@ Return-Path: <SRS0=xpCi=SG=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62EF9C10F05
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 08:22:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 584B9C4360F
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 10:18:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2906E2075E
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 08:22:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="TzHQPlIT"
+	by mail.kernel.org (Postfix) with ESMTP id 1C7172147C
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 10:18:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727445AbfDDIWF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Apr 2019 04:22:05 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:37382 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727349AbfDDIWF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 04:22:05 -0400
-Received: by mail-pl1-f194.google.com with SMTP id w23so789471ply.4
-        for <linux-rtc@vger.kernel.org>; Thu, 04 Apr 2019 01:22:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=12hS8ZME4eY09I7P2b5Cz7kHzlqMseQJaYDWtbbZJ1M=;
-        b=TzHQPlITAz/+I7HevKBz7wYkeIyyMCWsajTGK1IbPPDylknveFxv6/eW1g9qcaPeB5
-         ruYawHxIrf4oMsJcsrM4cL8U/EGfwAnxDzJyEKd66005H5UANB4JLJPsecVXBaqadKY6
-         VSjdJghh84+w6Wxulj/fnY8LQgvCJ1E0ixcs/uxOBQzl1APk8xuy6N7laPSb1XEIa8YV
-         vm27R7HICPSpso1Kwnl+X97DeTVogyt8sBM93DMILswb88AOfL/0FSpsup4i3rBBLqEp
-         Wri3BWbR0psqKn7l3WRGoD2WryJ7LC1kzcXGbVcLn/TmiaO9i3M9Jpog1j3BRolZpB/0
-         klXA==
+        id S1729352AbfDDKSt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Apr 2019 06:18:49 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:35582 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729132AbfDDKSq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 06:18:46 -0400
+Received: by mail-lj1-f196.google.com with SMTP id t4so1595867ljc.2;
+        Thu, 04 Apr 2019 03:18:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=12hS8ZME4eY09I7P2b5Cz7kHzlqMseQJaYDWtbbZJ1M=;
-        b=tIEfxE2MKvwHfEe+RWCg34cYkkmE2Tprr+Ve8BiPhGUuHttQ5Q4Jx25UkaC6eqpWC6
-         ZXsvhsMnx6an7EgnJqeHqHVtL9XH8UpxE8RBXQ47yk0gdNygvBuaSBcJxEozlwCiuQnF
-         9ZiKT57GTgVy89g6otOU0bz4lK3h6IvPgECeVWWnXFwi9Uzc317uP81FKghGzwVkva7v
-         gkWdfkkPQMEqNQ+BkryyG6sZHcrkGwisEHNPcnhHUgia0zgnX32szoLSZ9tgJj9CPbCu
-         dOoB0F+JMoIwqRN/8khen5/KXNQc6qx/2bIgZkBQx2vQWsM5IH7GJfyKEXen1asCnk5u
-         7ZZg==
-X-Gm-Message-State: APjAAAVuNpWcmJ+FdObgYsH7+Ia1W+6N0YiuPutCaNXOnqSgKgsOHEgq
-        G5NB65whz7Xx/6SHsjyQ0oTDQg==
-X-Google-Smtp-Source: APXvYqxwGVk1RYdrXXKNJVzzm8nPDfdTw2mo2TcvjwoSSciWIrQbWqMIWcTHUDYtBAKQjDhAljKv1Q==
-X-Received: by 2002:a17:902:526:: with SMTP id 35mr4976749plf.276.1554366124328;
-        Thu, 04 Apr 2019 01:22:04 -0700 (PDT)
-Received: from dell ([147.50.13.10])
-        by smtp.gmail.com with ESMTPSA id h65sm48972719pfd.108.2019.04.04.01.21.56
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=eukAPmIp/DTYZKjL3NSWt8arxBeiDuXIgJ87ukC54tk=;
+        b=XyvPFK1bR4bXfudtQOnx5aa8YmjBcasKaoqNsZCHML1OSW2yRt6nO72WK5u0iDZCwU
+         cgFtmFL9z3MWrLezSeJKoDiXQNJfvVeyEEOI/WWo0gFCdmEB/ooCUGxRetZ4GDrL3odl
+         GT6mgA5FHGeDUS8xCehcATKunTcwG+4owrEpv/CXW8C2p8fwT8wm10FqjiN0K8IelD80
+         7Ljfaw0peES9tXqPJJxgr/ywYFHL1sqvxvq+e4w4WQzoy/H0pZgHoXJx9jHwN8dMC1lN
+         OjgmInEhi/wDtObKlIotTZViTM0jNLW8y1sp+d6l9H/QfANsGk23ArAI+8SFxZUFiEmR
+         UYgA==
+X-Gm-Message-State: APjAAAVAianR30tqcjy1DRd3sNgvUacmiDVOIqiVZSWYp2u2bujbntnM
+        DXkbDxJUOT+62P3CYBBNajk=
+X-Google-Smtp-Source: APXvYqxuTWKQm9F/+XJMtd8KQFbvUl2ZKY5t0sz4YVD0sC/hgqWz1KWboszZTDpViFjB3NVfAx+Hqg==
+X-Received: by 2002:a2e:380c:: with SMTP id f12mr3100860lja.116.1554373122854;
+        Thu, 04 Apr 2019 03:18:42 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id i190sm3509725lfi.43.2019.04.04.03.18.41
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 04 Apr 2019 01:22:03 -0700 (PDT)
-Date:   Thu, 4 Apr 2019 09:21:53 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "sre@kernel.org" <sre@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>
-Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190404082153.GP6830@dell>
-References: <20190403093015.GJ11301@dell>
- <20190403101003.GC3493@localhost.localdomain>
- <20190403112559.GP11301@dell>
- <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
- <20190404025234.GB6830@dell>
- <6775a75d1ee3ab96123d84b077881beedc358d12.camel@fi.rohmeurope.com>
- <20190404065452.GD6830@dell>
- <20190404072449.GE3493@localhost.localdomain>
- <20190404075640.GV22216@piout.net>
- <70a8a87a403eb2ab8f0aad2a26456de8a162f363.camel@fi.rohmeurope.com>
+        Thu, 04 Apr 2019 03:18:42 -0700 (PDT)
+Date:   Thu, 4 Apr 2019 13:18:29 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        mazziesaccount@gmail.com
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        bogdan-petru.chircu-mare@nxp.com
+Subject: [PATCH v13 0/8] support ROHM BD70528 PMIC
+Message-ID: <cover.1554371464.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <70a8a87a403eb2ab8f0aad2a26456de8a162f363.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
+Patch series introducing support for ROHM BD70528 PMIC
 
-> Hello Alexandre,
-> 
-> On Thu, 2019-04-04 at 09:56 +0200, Alexandre Belloni wrote:
-> > On 04/04/2019 10:24:49+0300, Matti Vaittinen wrote:
-> > > On Thu, Apr 04, 2019 at 07:54:52AM +0100, Lee Jones wrote:
-> > > > On Thu, 04 Apr 2019, Vaittinen, Matti wrote:
-> > > > 
-> > > > > Actually, now that I thik of it the right way to do this would
-> > > > > have
-> > > > > been the function pointer in parent data as was done in
-> > > > > original patch
-> > > > > set. HW-colleagues tend to re-use HW blocks, and we like to re-
-> > > > > use our
-> > > > > drivers. If the next PMIC from ROHM uses same RTC block but
-> > > > > does not
-> > > > > provide watchdog - then it is cleanest solution to fall back to
-> > > > > function pointer and leave it to NULL when there is no WDT or
-> > > > > when WDT
-> > > > > is unused. Another option is to export dummy function - which
-> > > > > is not so
-> > > > > nice.
-> > > > 
-> > > > I think the converse is true.
-> > > > 
-> > > > Pointers to functions outside of a subsystem API context are
-> > > > generally
-> > > > horrible.  It's much nicer to call a function which can be easily
-> > > > stubbed out in a header file based on a Kconfig option.  It's how
-> > > > most
-> > > > kernel APIs work.
-> > > 
-> > > I hate to admit but I see your point. This nicely solves any issues
-> > > in
-> > > syncronizing the startup for driver providing function pointer and
-> > > for
-> > > driver using it.
-> > > 
-> > 
-> > Wouldn't it be easier to register the watchdog driver as part of the
-> > RTC
-> > driver?
-> > 
-> > As I see it, the wdt is just a glorified RTC alarm.
-> 
-> Do you suggest me to put all the stuff now placed in
-> drivers/watchdog/bd70528_wdt.c into rtc driver? It would be doable -
-> but I'd rather kept the WDT independent module so that it can be left
-> out of config if WDT needs not to be used. And same with RTC. Also, re-
-> use of RTC driver in HW which does not include WDT is easier when WDT
-> is a separate module. To me it looks much cleaner to have the WDT as
-> own module than polluting the RTC driver with config ifdefs.
+ROHM BD70528 is a programmable Power Management IC for battery
+powered 'ultra low power' systems like the pre-announced NXP
+i.MX7 ULP. This patch series introduces support for the PMIC. Please
+note that this driver only supports HW setup where PMIC is connected
+to I2C on A7 core. The other scenario is to use M4 as a power manager
+and connect pmic to M4. On such setups the A7 can only access pmic
+via M4 core using RPMSG virtio. Such setup depends on RPMSG
+implementation on M4 core and is currently not supported by this
+patch series.
 
-I haven't looked at the code, but I agree with this in principle.
+RTC block of the bd70528 can support 'wake' irq which wakes PMIC
+from standby state. Wake irq's can be armed to wake up system up
+to 24 hours from arming. bd70528 can also generate alarm interrupts
+which can be armed to occur years after triggering. The RTC driver
+does always arm both the waker and alarm irqs and does not utilize
+longer period of alarm interrupts. All the RTC timers are limited
+to occur within the next 24 hours. Any suggestions on more elegant
+timer support are welcome =)
 
-I'm a firm believer of having functionality in the most appropriate
-subsystem.  IMHO, if a device can be neatly split 9/10 it should be.
+GPIO portion of bd70528 driver adds I/O support for driving GPIO
+pins or reading the state. The interrupt functionality is provided
+by regmap-irq. Current GPIO driver is not aware of whether the pin(s)
+are used for I/O or interrupts and it is up-to driver user to
+ensure there is no misconfiguration or "double use".
 
-> But from HW perspective you are correct. The WDT in BD70528 seems to be
-> kind of RTC alarm which shuts of the PMIC if triggered.
-> 
-> Br,
-> 	Matti Vaittinen
+The power-supply patch included in series is only poorly tested as I
+lack of hardware with real battery connected. Reset and ADC are not
+supported by this series.
+
+Changelog v13:
+- Moved WDT enable/disable code from MFD to WDT
+- Added WDT enable/disable stubs for cases where WDT is omitted from
+  Kconfig
+
+Changelog v12:
+- No functional changes
+- Fixed styling issues pointed by Lee Jones
+- Fixed styling issues pointed by Alexandre Belloni
+- Fixed various styling issues
+
+Changelog v11:
+- No functional changes
+- Rebased on linux 5.1-rc2
+- Dropped patch 9 which was already applied by Mark
+- renamed dt-bindings patch as suggested by Rob
+  
+Changelog v10:
+- Exported locking functions for RTC lock and as a result dropped hid
+  the struct bd70528 from sub-devices who no longer needed it.
+- removed linux/gpio.h header from GPIO driver.
+
+Changelog v9: Changes suggested by Lee Jones
+- MFD, DT-binding, RTC and WDT changed
+- DT-bindings: Spelling fixes
+- RTC and WDT: Use exported function instead of function pointer for WDT
+  arming/disarming
+- MFD: Export WDT arming/disarming function instead of providing a
+  pointer to it.
+- Various styling fixes.
+
+Changelog v8:
+- regulators(*), wdt, gpio, rtc, mfd(*) and dt-bindings unchanged.
+  (*)Patches 1-3 squashed to not break bisecting.
+
+- removed unnecessary newline from clk
+- fixed possible use of uninitialized 'reg' from power-supply.
+  Found by 0-day tests and reported by Dan Carpenter.
+
+Changelog v7:
+Only patch 2 changed.
+- Avoid out-of-array-bounds access at regulator probe if unsupported
+  chip type is passed to bd718x7 regulator driver.
+
+Changelog v6:
+Only patch 10 changed.
+- styling fixes pointed by Gunter Roeck
+- dropped RFC tag
+
+Changelog v5 (RFC):
+Only patch 7 changed.
+- Explained why lock is not needed at GPIO value getting
+- removed ampersands from function pointer assignments.
+
+Changelog v4 (RFC):
+patches 1,2,3,4,5,10 are unchanged from v3
+DT-binding fixes suggested by Rob Herring:
+- drop interrupt-parent
+- drop clock-frequency
+- change pmic node name to a generic one
+RTC:
+- enable RTC block's irqs before registering rtc
+GPIO fixes after initial testing:
+- fix getting GPIO value when direction is output
+POWER:
+- Add ASCII art intended to clarify the charger HW state machine
+
+Changelog v3 (RFC):
+patches 1,2,3,4,5,6,7,8 and 10 are unchanged from v2
+RTC fixups suggested by Guenter Roeck:
+- create bd70528_set_time_locked function in order to simplify
+  error handling and to make mutex lock/unlock path more obvious
+- don't ignore errors on bd70528_set_time_locked
+- simplify bd70528_read_alarm enabled condition setting
+- add __packed to structs where members are mapped to HW registers
+- remove unnecessary brackets from enable condition in set_wake
+RTC: fixups suggested by Alessandro Belloni
+- don't use deprecated devm_rtc_device_register
+- add alarm_irq_enable callback
+- add range_min and range_max
+WDT:
+- add regmap and mutex pointers to WDT data so that they can be accessed
+  without dereferencing the parent data
+- remove parent data pointer from WDT data
+- embed struct watchdog_device into WDT data in order to avoid double
+  allocation.
+GPIO:
+- remove unused header as pointed by Linus Walleij
+POWER:
+- do not copy the whole MFD data (especially the mutex to avoid
+  all possibilities of accidentally using the copy of a mutex)
+
+Changelog v2 (RFC): Mainly feedback from Guenter Roeck:
+- patches 1, 2, 3, 4, 5, 9 are unchanged.
+- mfd: own mutex for each bd70528 instance - embed in struct bd70528
+- watchdog: do not copy parent device data
+- watchdog: fix deadlock caused by double locked mutex
+- watchdog: set initial timeouts and WDT parent information
+- watchdog: remove unnecessary ping function from ops
+- watchdog: and the comment regarding it
+- watchdog: allocate watchdog struct in order to allow multiple WDG
+  instances
+- rtc: bd70528 fix the order of mutex unlock and re-enabling RTC based
+  timers
+- rtc: fix the irq mask register address
+- power: fix the irq mask register address
+- regulator/regmap-irq: Drop the patches 1, 8 and 9 from original series
+  as those were already applied by Mark 
+
+Patch 1:
+	split the bd718x7.h to generic and chip specific portions.
+	(breaks compilation without patch 2 and 3)
+	- adapt bd718x7.h changes to bd718x7 regulator driver
+	- adapt bd718x7.h changes to bd718x7 clk driver
+Patch 2:
+	add MFD core support for bd70528
+Patch 3:
+	support bd70528 clk using bd718x7 clk driver
+Patch 4:
+	document DT bindings for BD70528
+Patch 5:
+	support BD70528 GPIO block
+Patch 6:
+	support BD70528 RTC
+Patch 7:
+	support BD70528 battery charger
+Patch 8:
+	support BD70528 watchdog
+
+This patch series is based on Linus' v5.1-rc2 tag.
+
+---
+
+Matti Vaittinen (8):
+  mfd: regulator: clk: split rohm-bd718x7.h
+  mfd: bd70528: Support ROHM bd70528 PMIC - core
+  clk: bd718x7: Support ROHM BD70528 clk block
+  dt-bindings: mfd: Document first ROHM BD70528 bindings
+  gpio: Initial support for ROHM bd70528 GPIO block
+  rtc: bd70528: Initial support for ROHM bd70528 RTC
+  power: supply: Initial support for ROHM BD70528 PMIC charger block
+  watchdog: bd70528: Initial support for ROHM BD70528 watchdog block
+
+ .../bindings/mfd/rohm,bd70528-pmic.txt        | 102 +++
+ drivers/clk/Kconfig                           |   6 +-
+ drivers/clk/clk-bd718x7.c                     |  24 +-
+ drivers/gpio/Kconfig                          |  11 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-bd70528.c                   | 232 ++++++
+ drivers/mfd/Kconfig                           |  17 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/rohm-bd70528.c                    | 316 ++++++++
+ drivers/mfd/rohm-bd718x7.c                    |  23 +-
+ drivers/power/supply/Kconfig                  |   9 +
+ drivers/power/supply/Makefile                 |   1 +
+ drivers/power/supply/bd70528-charger.c        | 742 ++++++++++++++++++
+ drivers/regulator/bd718x7-regulator.c         |  25 +-
+ drivers/rtc/Kconfig                           |   8 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-bd70528.c                     | 500 ++++++++++++
+ drivers/watchdog/Kconfig                      |  12 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/bd70528_wdt.c                | 290 +++++++
+ include/linux/mfd/rohm-bd70528.h              | 408 ++++++++++
+ include/linux/mfd/rohm-bd718x7.h              |  22 +-
+ include/linux/mfd/rohm-generic.h              |  20 +
+ 23 files changed, 2726 insertions(+), 46 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+ create mode 100644 drivers/gpio/gpio-bd70528.c
+ create mode 100644 drivers/mfd/rohm-bd70528.c
+ create mode 100644 drivers/power/supply/bd70528-charger.c
+ create mode 100644 drivers/rtc/rtc-bd70528.c
+ create mode 100644 drivers/watchdog/bd70528_wdt.c
+ create mode 100644 include/linux/mfd/rohm-bd70528.h
+ create mode 100644 include/linux/mfd/rohm-generic.h
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.2
+
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
